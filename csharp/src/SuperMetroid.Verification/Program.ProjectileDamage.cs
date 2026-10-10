@@ -31,7 +31,7 @@ internal static partial class Program
 
         var room = CreateRoom(32, 16, new ushort[512], new byte[512]);
         MethodInfo Method(string name) => typeof(SamusProjectileSystem).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!;
-        SamusState Samus() => new() { Pose = 1, XPosition = 128, YPosition = 128, Missiles = 10, SuperMissiles = 10 };
+        SamusState Samus() => new() { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128, Missiles = 10, SuperMissiles = 10 };
         void Check(SamusProjectileSlot slot, int table, int index, int direction)
         {
             int data = 0x930000 | Word(table + index * 2);
@@ -174,7 +174,7 @@ internal static partial class Program
             var shared = new SamusBombProjectileSystem();
             var samus = new SamusState
             {
-                Pose = SamusPoseIds.FacingRightNormalPose,
+                Pose = SamusPoseId.FacingRightNormalPose,
                 XPosition = 128,
                 YPosition = 128,
                 EquippedBeams = beam,

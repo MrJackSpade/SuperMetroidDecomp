@@ -28,7 +28,7 @@ internal static partial class Program
 
         SamusState Falling(ushort y, ushort ySubposition)
         {
-            var samus = new SamusState { Pose = (byte)SamusPoseId.NeutralJumpRightPose, XPosition = 0x69, YPosition = y };
+            var samus = new SamusState { Pose = SamusPoseId.NeutralJumpRightPose, XPosition = 0x69, YPosition = y };
             samus.Kinematics.YSubposition = ySubposition;
             samus.RefreshCollisionRadii(bus);
             return samus;
@@ -37,13 +37,13 @@ internal static partial class Program
         SamusState clipped = Falling(0x16d, 0x2fff);
         AssertTrue(!clipped.TryApplyAerialLanding(bus, level, wasSpinning: false, controllerInput: 0, nmiFrameCounter: 0),
             "a zero-distance changed-pose probe still meets slope $54 and rejects the landing");
-        AssertEqual((byte)SamusPoseId.NeutralJumpRightPose, clipped.Pose, "the falling pose is retained");
+        AssertEqual(SamusPoseId.NeutralJumpRightPose, clipped.Pose, "the falling pose is retained");
         AssertEqual((ushort)0x16d, clipped.YPosition, "the rejected landing leaves Y unchanged");
 
         SamusState deeper = Falling(0x16e, 0xb7ff);
         AssertTrue(deeper.TryApplyAerialLanding(bus, level, wasSpinning: false, controllerInput: 0, nmiFrameCounter: 0),
             "one pixel deeper the landing fits");
-        AssertEqual((byte)SamusPoseId.NormalLandingRightPose, deeper.Pose, "native update 44759 lands");
+        AssertEqual(SamusPoseId.NormalLandingRightPose, deeper.Pose, "native update 44759 lands");
         AssertEqual((ushort)0x16d, deeper.YPosition, "the landing moves Samus up clear of slope $55");
         Console.WriteLine("Slope landing: a zero-distance pose-change probe rejects the landing on the clipped frame; the next frame lands.");
     }

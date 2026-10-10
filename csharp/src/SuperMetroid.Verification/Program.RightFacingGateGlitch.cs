@@ -252,7 +252,7 @@ internal static partial class Program
             samus.XPosition,
             samus.Kinematics.XSubposition,
             samus.YPosition,
-            samus.Pose,
+            (int)samus.Pose,
             shotX,
             shotY);
     }

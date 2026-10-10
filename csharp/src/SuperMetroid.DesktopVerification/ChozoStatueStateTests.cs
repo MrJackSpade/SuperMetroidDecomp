@@ -16,7 +16,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         var hand = level.GetCollisionBlock(0x4a, 0x17);
         Console.WriteLine($"Saved Chozo setup: room={runtime.ActiveRoom!.Pointer:X4} " +
-            $"Samus={samus.XPosition:X4},{samus.YPosition:X4} pose={samus.Pose:X2}; " +
+            $"Samus={samus.XPosition:X4},{samus.YPosition:X4} pose={(int)samus.Pose:X2}; " +
             $"hand={hand.LevelWord:X4}/BTS={hand.Behavior:X2}; " +
             $"pending=[{string.Join(",", runtime.Enemies.ChozoStatuePlmRequests)}]");
         // $AA:E725 spawns $D6EE at this exact room block. Its synchronous $84:D616

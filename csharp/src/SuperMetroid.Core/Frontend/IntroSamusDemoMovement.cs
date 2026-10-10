@@ -30,7 +30,7 @@ internal static class IntroSamusDemoMovement
             newlyPressedInput);
         SamusPoseTransition? prospective = lookup.Transition;
 
-        ushort? fallback = null;
+        SamusPoseId? fallback = null;
         if (lookup.UsesPoseDefinitionFallback)
         {
             if (SamusState.IsLeftFacingRunningPose(samus.Pose))
@@ -43,13 +43,13 @@ internal static class IntroSamusDemoMovement
             }
             else if (SamusState.IsLeftFacingStandingPose(samus.Pose))
             {
-                byte noInputPose = samus.ReadNoInputFallbackPose(bus);
-                if (noInputPose != 0xff && noInputPose != samus.Pose)
+                SamusPoseId noInputPose = samus.ReadNoInputFallbackPose(bus);
+                if (noInputPose != SamusMovementRomData.Poses.RetainCurrentPoseFallback && noInputPose != samus.Pose)
                     fallback = noInputPose;
             }
         }
 
-        byte poseAtFrameStart = samus.Pose;
+        SamusPoseId poseAtFrameStart = samus.Pose;
         GroundedMovementResult movement;
         if (SamusState.IsLeftFacingRunningPose(poseAtFrameStart))
         {
@@ -72,7 +72,7 @@ internal static class IntroSamusDemoMovement
             // This controller is installed only for the SR388 left-facing run/stand list;
             // a different pose means cinematic ownership escaped its declared state machine.
             throw new InvalidOperationException(
-                $"SR388 intro demo reached invalid grounded-left pose ${poseAtFrameStart:X2}.");
+                $"SR388 intro demo reached invalid grounded-left pose ${(int)poseAtFrameStart:X2}.");
         }
 
         samus.AnimateNoFx(bus, heldInput, nmiFrameCounter);
@@ -80,10 +80,10 @@ internal static class IntroSamusDemoMovement
         // Native pose commit probes a proposed run before installing it. The clear
         // probe retains its movement; this is shared gameplay behavior, not cosmetic
         // alignment. No-input running fallbacks use the same prospective slot.
-        byte? candidate = prospective is { } proposed
-            ? checked((byte)proposed.ProspectivePose)
-            : fallback is { } retained ? checked((byte)retained) : null;
-        byte? wallPose = samus.CheckProspectiveRunningPoseForWall(bus, level, candidate,
+        SamusPoseId? candidate = prospective is { } proposed
+            ? proposed.ProspectivePose
+            : fallback;
+        SamusPoseId? wallPose = samus.CheckProspectiveRunningPoseForWall(bus, level, candidate,
             movement.Horizontal.Collided, out _);
         if (wallPose is { } stoppedPose)
         {
@@ -94,7 +94,7 @@ internal static class IntroSamusDemoMovement
 
         if (prospective is { } transition)
         {
-            ApplyPoseTransition(bus, samus, poseAtFrameStart, unchecked((byte)transition.ProspectivePose));
+            ApplyPoseTransition(bus, samus, poseAtFrameStart, transition.ProspectivePose);
             samus.CommitPoseHistory(bus);
             return;
         }
@@ -109,7 +109,7 @@ internal static class IntroSamusDemoMovement
         else if (fallback is { } fallbackPose)
         {
             samus.HorizontalSpeed.AccelerationMode = 0;
-            ApplyPoseTransition(bus, samus, poseAtFrameStart, unchecked((byte)fallbackPose));
+            ApplyPoseTransition(bus, samus, poseAtFrameStart, fallbackPose);
         }
 
         // The native transition epilogue shifts history for an accepted slot even
@@ -122,28 +122,28 @@ internal static class IntroSamusDemoMovement
     private static void ApplyPoseTransition(
         ISnesAddressSpace bus,
         SamusState samus,
-        byte sourcePose,
-        byte targetPose)
+        SamusPoseId sourcePose,
+        SamusPoseId targetPose)
     {
         if (sourcePose == targetPose)
             return;
 
-        if ((SamusState.IsLeftFacingRunningPose(sourcePose) && targetPose == SamusPoseIds.SpinJumpLeftPose) ||
-            (SamusState.IsLeftFacingStandingPose(sourcePose) && targetPose == SamusPoseIds.NeutralJumpTransitionLeftPose))
+        if ((SamusState.IsLeftFacingRunningPose(sourcePose) && targetPose == SamusPoseId.SpinJumpLeftPose) ||
+            (SamusState.IsLeftFacingStandingPose(sourcePose) && targetPose == SamusPoseId.NeutralJumpTransitionLeftPose))
         {
             samus.ApplyOrdinaryJumpTransition(bus, targetPose);
             return;
         }
 
-        if (sourcePose == SamusPoseIds.FacingLeftNormalPose &&
-            targetPose == SamusPoseIds.MovingLeftNormalPose)
+        if (sourcePose == SamusPoseId.FacingLeftNormalPose &&
+            targetPose == SamusPoseId.MovingLeftNormalPose)
         {
             samus.ApplyStandingLeftToRunningLeft(bus);
             return;
         }
 
-        if (sourcePose == SamusPoseIds.MovingLeftNormalPose &&
-            targetPose == SamusPoseIds.FacingLeftNormalPose)
+        if (sourcePose == SamusPoseId.MovingLeftNormalPose &&
+            targetPose == SamusPoseId.FacingLeftNormalPose)
         {
             samus.ApplyRunningLeftToStandingLeft(bus);
             return;
@@ -159,6 +159,6 @@ internal static class IntroSamusDemoMovement
         }
 
         throw new InvalidDataException(
-            $"SR388 intro demo pose transition ${sourcePose:X2} -> ${targetPose:X2} is not present in its retail transition family.");
+            $"SR388 intro demo pose transition ${(int)sourcePose:X2} -> ${(int)targetPose:X2} is not present in its retail transition family.");
     }
 }

@@ -33,7 +33,7 @@ internal static partial class Program
             {
                 Check(automaticRetractionStarted, "Successful attachment omitted the cartridge's automatic eight-pixel retraction.");
                 Console.WriteLine($"Ready at frame {frame}, {frame - connectedFrame} frames after attachment, without Up input.");
-                Check(samus.Pose == SamusPoseIds.GrappleWallContactLeftPose && grapple.RopeLength == 8,
+                Check(samus.Pose == SamusPoseId.GrappleWallContactLeftPose && grapple.RopeLength == 8,
                     "Automatic retraction must produce cartridge pose B8 at minimum length.");
                 Check(samus.TopSpritemapIndex == GrappleWallGrabGraphicsReference.TopSpritemap &&
                     samus.BottomSpritemapIndex == GrappleWallGrabGraphicsReference.BottomSpritemap,

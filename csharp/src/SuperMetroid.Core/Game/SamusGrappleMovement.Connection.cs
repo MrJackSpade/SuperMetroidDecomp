@@ -267,28 +267,28 @@ public static partial class SamusGrappleMovement
         // Each tiny native handler installs one prospective type-$16 pose and then jumps
         // to either BA61 (swinging) or BA9B (stuck). Keep the handler addresses visible:
         // pose alone is insufficient to distinguish malformed fallback data from native data.
-        (byte pose, bool swinging) = handler switch
+        (SamusPoseId pose, bool swinging) = handler switch
         {
             SamusGrappleRomData.Connections.SwingClockwiseHandler =>
-                (SamusPoseIds.GrappleSwingRightPose, true),
+                (SamusPoseId.GrappleSwingRightPose, true),
             SamusGrappleRomData.Connections.SwingAnticlockwiseHandler =>
-                (SamusPoseIds.GrappleSwingLeftPose, true),
+                (SamusPoseId.GrappleSwingLeftPose, true),
             SamusGrappleRomData.Connections.StandingUpRightHandler =>
-                (SamusPoseIds.GrappleStandingRightPose, false),
+                (SamusPoseId.GrappleStandingRightPose, false),
             SamusGrappleRomData.Connections.StandingRightHandler =>
-                (SamusPoseIds.GrappleStandingDownRightPose, false),
+                (SamusPoseId.GrappleStandingDownRightPose, false),
             SamusGrappleRomData.Connections.StandingDownHandler =>
-                (SamusPoseIds.GrappleStandingDownLeftPose, false),
+                (SamusPoseId.GrappleStandingDownLeftPose, false),
             SamusGrappleRomData.Connections.StandingUpLeftHandler =>
-                (SamusPoseIds.GrappleStandingLeftPose, false),
+                (SamusPoseId.GrappleStandingLeftPose, false),
             SamusGrappleRomData.Connections.CrouchingUpRightHandler =>
-                (SamusPoseIds.GrappleCrouchingRightPose, false),
+                (SamusPoseId.GrappleCrouchingRightPose, false),
             SamusGrappleRomData.Connections.CrouchingRightHandler =>
-                (SamusPoseIds.GrappleCrouchingDownRightPose, false),
+                (SamusPoseId.GrappleCrouchingDownRightPose, false),
             SamusGrappleRomData.Connections.CrouchingDownLeftHandler =>
-                (SamusPoseIds.GrappleCrouchingDownLeftPose, false),
+                (SamusPoseId.GrappleCrouchingDownLeftPose, false),
             SamusGrappleRomData.Connections.CrouchingUpLeftHandler =>
-                (SamusPoseIds.GrappleCrouchingLeftPose, false),
+                (SamusPoseId.GrappleCrouchingLeftPose, false),
             _ => throw new InvalidDataException(
                 $"Grapple connection direction {grapple.FireDirection} names unknown handler ${handler:X4}."),
         };

@@ -28,7 +28,7 @@ internal static partial class Program
         {
             runtime.System.SetRandomNumber((ushort)sample.Item1);
             state.Roaring = sample.Item2; state.FacingDirection = (ushort)sample.Item3;
-            state.FunctionTimer = 20; samus.Pose = SamusPoseIds.SpinJumpRightPose;
+            state.FunctionTimer = 20; samus.Pose = SamusPoseId.SpinJumpRightPose;
             body.CurrentInstruction = NativeSnapshotMemory.RidleyRightFlyingSleep;
             body.InstructionTimer = 9; body.Timer = 11;
             tick.Invoke(runtime.Enemies, [body, state, samus, true]);
@@ -56,7 +56,7 @@ internal static partial class Program
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = 10;
         state.HorizontalVelocity = 0xfc00; state.VerticalVelocity = 0x0300;
         state.TailFunctionIndex = 0;
-        samus.XPosition = 110; samus.YPosition = 300; samus.Pose = 0x69;
+        samus.XPosition = 110; samus.YPosition = 300; samus.Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose;
         samus.Health = 399; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
         samus.InvincibilityTimer = 0; samus.RefreshCollisionRadii(bus);
         var enemyPhase = typeof(SuperMetroidRuntime).GetMethod("RunEnemyMainPhase", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -127,7 +127,7 @@ internal static partial class Program
         state.HorizontalVelocity = 0xc0; state.VerticalVelocity = 0x400;
         state.FacingDirection = 2; state.Function = RidleyAiFunction.NorfairFireballAttack;
         state.GrabState = 0; state.FeetDistanceIndex = 0;
-        samus.XPosition = 198; samus.YPosition = 402; samus.Pose = 0x54;
+        samus.XPosition = 198; samus.YPosition = 402; samus.Pose = SamusPoseId.KnockbackLeftPose;
         samus.RefreshCollisionRadii(bus);
         var attack = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttack", BindingFlags.Instance | BindingFlags.NonPublic)!;
         attack.Invoke(runtime.Enemies, [body, state, samus, runtime.LevelData]);
@@ -152,7 +152,7 @@ internal static partial class Program
         state.HorizontalVelocity = 0x2b0; state.VerticalVelocity = 0x3cd;
         state.FacingDirection = 2; state.HealthStage = 3; state.HitRoomBoundary = false;
         state.GrabState = 0; state.FeetDistanceIndex = 0;
-        samus.XPosition = 156; samus.YPosition = 411; samus.Pose = SamusPoseIds.FacingLeftNormalPose;
+        samus.XPosition = 156; samus.YPosition = 411; samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.RefreshCollisionRadii(bus);
         var lunge = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGrabApproach", BindingFlags.Instance | BindingFlags.NonPublic)!;
         lunge.Invoke(runtime.Enemies, [body, state, samus]);
@@ -165,7 +165,7 @@ internal static partial class Program
         body.YPosition = 356; body.YSubposition = 0xec00; body.Health = 0;
         state.HorizontalVelocity = 0x1de; state.VerticalVelocity = 0x419;
         state.FightMode = 1; state.GrabState = 0; state.FunctionTimer = 0x29;
-        samus.XPosition = 134; samus.YPosition = 411; samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.XPosition = 134; samus.YPosition = 411; samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         lunge.Invoke(runtime.Enemies, [body, state, samus]);
         AssertEqual(RidleyAiFunction.NorfairReleaseSamus, state.Function, "zero-health grab enters death movement");
@@ -229,9 +229,9 @@ internal static partial class Program
             {
                 Pose = branch switch
                 {
-                    0 => SamusPoseIds.NormalJumpForwardRightPose,
-                    2 => SamusPoseIds.SpringBallJumpRightPose,
-                    _ => SamusPoseIds.FallingAimDownRightPose,
+                    0 => SamusPoseId.NormalJumpForwardRightPose,
+                    2 => SamusPoseId.SpringBallJumpRightPose,
+                    _ => SamusPoseId.FallingAimDownRightPose,
                 },
                 XPosition = 128, YPosition = 128,
             };
@@ -287,9 +287,9 @@ internal static partial class Program
     private static void VerifySpinFallbackHistory()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        foreach (byte pose in new[] { SamusPoseIds.SpinJumpRightPose, SamusPoseIds.SpinJumpLeftPose,
-            SamusPoseIds.SpaceJumpRightPose, SamusPoseIds.SpaceJumpLeftPose,
-            SamusPoseIds.ScrewAttackRightPose, SamusPoseIds.ScrewAttackLeftPose })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.SpinJumpRightPose, SamusPoseId.SpinJumpLeftPose,
+            SamusPoseId.SpaceJumpRightPose, SamusPoseId.SpaceJumpLeftPose,
+            SamusPoseId.ScrewAttackRightPose, SamusPoseId.ScrewAttackLeftPose })
         {
             var runtime = CreateRetailRuntimeFixture(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -304,11 +304,11 @@ internal static partial class Program
             ushort direction = samus.ReadPoseXDirection(bus);
             ushort spinMovement = (ushort)(((ushort)SamusMovementType.SpinJumping << 8) | direction);
             samus.PoseHistory.PreviousDirectionAndMovement = spinMovement;
-            samus.PoseHistory.LastDifferentPose = SamusPoseIds.RunningAimUpRightPose;
+            samus.PoseHistory.LastDifferentPose = SamusPoseId.RunningAimUpRightPose;
             samus.PoseHistory.LastDifferentDirectionAndMovement = (ushort)(((ushort)SamusMovementType.Running << 8) | direction);
             runtime.StepFrame(0);
-            AssertEqual((ushort)pose, samus.PoseHistory.PreviousPose, "fallback retains spin pose");
-            AssertEqual((ushort)pose, samus.PoseHistory.LastDifferentPose, "fallback commits same-pose history");
+            AssertEqual(pose, samus.PoseHistory.PreviousPose, "fallback retains spin pose");
+            AssertEqual(pose, samus.PoseHistory.LastDifferentPose, "fallback commits same-pose history");
             AssertEqual(spinMovement, samus.PoseHistory.LastDifferentDirectionAndMovement, "fallback publishes older spin movement");
             AssertTrue(samus.PoseHistory.AllowsWallJumpProbe, "next update admits native wall observation");
         }
@@ -323,7 +323,7 @@ internal static partial class Program
         {
             var samus = new SamusState
             {
-                Pose = left ? SamusPoseIds.FallingAimDownLeftPose : SamusPoseIds.FallingAimDownRightPose,
+                Pose = left ? SamusPoseId.FallingAimDownLeftPose : SamusPoseId.FallingAimDownRightPose,
                 XPosition = 128, YPosition = 402,
                 EquippedItems = (ushort)SamusEquipmentFlags.MorphBall,
             };
@@ -331,7 +331,7 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus);
             var previous = new SamusCameraPoint(128, 0, 401, 0xb7ff);
             AssertTrue(samus.TryApplyMorphTransition(bus, level,
-                left ? SamusPoseIds.MorphingTransitionLeftPose : SamusPoseIds.MorphingTransitionRightPose, 0),
+                left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0),
                 "source6289 airborne morph accepted");
             AssertEqual((ushort)411, samus.YPosition, "native morph center alignment");
             AssertEqual((ushort)0x97ff, samus.Kinematics.YSubposition, "morph preserves current fraction");
@@ -339,10 +339,10 @@ internal static partial class Program
                 "command seven replaces previous whole Y and retains previous fraction");
             AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous), "checkpoint consumed once");
 
-            samus.Pose = left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose;
+            samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
             samus.RefreshCollisionRadii(bus);
             AssertTrue(samus.TryApplyMorphTransition(bus, level,
-                left ? SamusPoseIds.UnmorphingTransitionLeftPose : SamusPoseIds.UnmorphingTransitionRightPose, 0),
+                left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0),
                 "unmorph command seven accepted");
             AssertEqual(previous with { YPosition = samus.YPosition }, samus.ApplyPreviousPositionWrites(previous),
                 "zero alignment entry still replaces previous whole Y");
@@ -354,7 +354,7 @@ internal static partial class Program
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(16, 32, new ushort[16 * 32], new byte[16 * 32]);
-        foreach (byte pose in new[] { SamusPoseIds.FallingAimUpRightPose, SamusPoseIds.FallingAimUpLeftPose })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.FallingAimUpRightPose, SamusPoseId.FallingAimUpLeftPose })
         {
             var samus = new SamusState { Pose = pose, XPosition = 128, YPosition = 200 };
             samus.RefreshCollisionRadii(bus);
@@ -365,8 +365,8 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus);
             samus.ApplyAerialLanding(bus, false);
             AssertEqual((ushort)1, samus.AnimationFrame, "roomless landing shares native frame skip");
-            byte standing = pose == SamusPoseIds.FallingAimUpRightPose
-                ? SamusPoseIds.StandingAimUpRightPose : SamusPoseIds.StandingAimUpLeftPose;
+            SamusPoseId standing = pose == SamusPoseId.FallingAimUpRightPose
+                ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.StandingAimUpLeftPose;
             typeof(SamusState).GetProperty("PendingTransitionalPose")!.SetValue(samus, standing);
             AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "landing completes through animation command");
             AssertEqual((ushort)1, samus.AnimationFrame, "native landing completion retains raised-gun frame");
@@ -490,7 +490,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
-        samus.Pose = SamusPoseIds.SpringBallMovingLeftPose;
+        samus.Pose = SamusPoseId.SpringBallMovingLeftPose;
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         samus.SetAnimationFrameFromSpecialHandler(5, 3);
         samus.XPosition = 79; samus.Kinematics.XSubposition = 0x8000;
@@ -501,14 +501,14 @@ internal static partial class Program
         // Original movie source 1616 -> 1617: release Left while rolling.
         runtime.StepFrame(0);
         AssertEqual(0x004c4000u, samus.Kinematics.XFixed, "spring release retains native final displacement");
-        AssertEqual(SamusPoseIds.SpringBallGroundLeftPose, samus.Pose, "spring release selects stationary pose immediately");
+        AssertEqual(SamusPoseId.SpringBallGroundLeftPose, samus.Pose, "spring release selects stationary pose immediately");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "spring release clears base momentum after movement");
         AssertEqual((ushort)0, samus.HorizontalSpeed.AccelerationMode, "spring release clears acceleration mode");
         runtime.StepFrame(0);
         AssertEqual(0x004c4000u, samus.Kinematics.XFixed, "released spring ball stays stopped next update");
         // Original source 1983: stationary Spring Ball keeps command six even
         // while the hurt mover calculates a fresh fractional base speed.
-        samus.Pose = SamusPoseIds.SpringBallGroundRightPose;
+        samus.Pose = SamusPoseId.SpringBallGroundRightPose;
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         samus.XPosition = 202; samus.Kinematics.XSubposition = 0x8000;
         samus.YPosition = 425; samus.Kinematics.YSubposition = ushort.MaxValue;
@@ -519,7 +519,7 @@ internal static partial class Program
         runtime.StepFrame(0);
         AssertEqual(0x00cb4000u, samus.Kinematics.XFixed, "stationary spring hurt frame preserves native displacement");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "stationary spring fallback clears hurt mover base speed");
-        AssertEqual(SamusPoseIds.SpringBallGroundRightPose, samus.Pose, "stationary spring hurt fallback keeps pose");
+        AssertEqual(SamusPoseId.SpringBallGroundRightPose, samus.Pose, "stationary spring hurt fallback keeps pose");
         Console.WriteLine("Spring Ball release: native movie displacement, pose and immediate momentum reset pass.");
     }
 
@@ -655,7 +655,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
         var samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.InitializeAnimation(bus);
         samus.RefreshCollisionRadii(bus);
         samus.XPosition = 512; samus.YPosition = 400;
@@ -714,9 +714,9 @@ internal static partial class Program
         {
             var block = level.GetCollisionBlock(x, y);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(bus, block.Behavior, 1, false);
+            var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
             if (door.Door?.DestinationRoomPointer != NativeSnapshotMemory.RidleyRoom) continue;
-            level.ResolveDoorCollision(bus, block.Behavior, 1, true);
+            level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, true);
             found = true;
         }
         AssertTrue(found, "native Ridley entry door");
@@ -1102,7 +1102,7 @@ internal static partial class Program
             Check("Samus X fraction", samus.Kinematics.XSubposition, NativeSnapshotMemory.XFraction);
             Check("Samus Y", samus.YPosition, NativeSnapshotMemory.Y);
             Check("Samus Y fraction", samus.Kinematics.YSubposition, NativeSnapshotMemory.YFraction);
-            Check("Samus pose", samus.Pose, NativeSnapshotMemory.Pose);
+            Check("Samus pose", (ushort)samus.Pose, NativeSnapshotMemory.Pose);
             Check("PreviousDrawHeldInput", samus.PreviousDrawHeldInput, NativeSnapshotMemory.SamusFilteredHeld);
             Check("PreviousDrawNewInput", samus.PreviousDrawNewInput, NativeSnapshotMemory.SamusFilteredNew);
             Check("AutoJumpTimer", samus.AutoJumpTimer, NativeSnapshotMemory.SamusAutoJumpTimer);
@@ -1113,9 +1113,9 @@ internal static partial class Program
                 ? NativeSnapshotMemory.SamusAutoJumpInputHandler : NativeSnapshotMemory.SamusNormalInputHandler,
                 NativeSnapshotMemory.SamusInputHandler);
 
-            Check("Samus previous pose", samus.PoseHistory.PreviousPose, NativeSnapshotMemory.PreviousPose);
+            Check("Samus previous pose", (ushort)samus.PoseHistory.PreviousPose, NativeSnapshotMemory.PreviousPose);
             Check("Samus previous movement", samus.PoseHistory.PreviousDirectionAndMovement, NativeSnapshotMemory.PreviousDirection);
-            Check("Samus last different pose", samus.PoseHistory.LastDifferentPose, NativeSnapshotMemory.LastDifferentPose);
+            Check("Samus last different pose", (ushort)samus.PoseHistory.LastDifferentPose, NativeSnapshotMemory.LastDifferentPose);
             Check("Samus last different movement", samus.PoseHistory.LastDifferentDirectionAndMovement, NativeSnapshotMemory.LastDifferentDirection);
             Check("Samus animation", samus.AnimationFrame, NativeSnapshotMemory.Animation);
             Check("Samus animation timer", samus.AnimationFrameTimer, NativeSnapshotMemory.AnimationTimer);
@@ -1565,8 +1565,8 @@ internal static partial class Program
             if (mismatches.Count != 0)
             {
                 RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException("Missing active room collision data.");
-                Console.Error.WriteLine($"Pose history: port={samus.PoseHistory.PreviousPose:X4}/{samus.PoseHistory.PreviousDirectionAndMovement:X4}/{samus.PoseHistory.LastDifferentPose:X4}/{samus.PoseHistory.LastDifferentDirectionAndMovement:X4}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
-                Console.Error.WriteLine($"Liquid diagnostic: Y={samus.YPosition:X4}, surface={samus.LiquidPhysics.LavaAcidYPosition:X4}, pose={samus.Pose:X2}, radius={samus.Kinematics.YRadius}");
+                Console.Error.WriteLine($"Pose history: port={(int)samus.PoseHistory.PreviousPose:X4}/{samus.PoseHistory.PreviousDirectionAndMovement:X4}/{(int)samus.PoseHistory.LastDifferentPose:X4}/{samus.PoseHistory.LastDifferentDirectionAndMovement:X4}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
+                Console.Error.WriteLine($"Liquid diagnostic: Y={samus.YPosition:X4}, surface={samus.LiquidPhysics.LavaAcidYPosition:X4}, pose={(int)samus.Pose:X2}, radius={samus.Kinematics.YRadius}");
                 Console.Error.WriteLine($"Shot diagnostic: locked={samus.InputLocked}, HUD={samus.SelectedHudItem}, grappleDebug={runtime.DebugGrappleItemSelected}, charge={runtime.Projectiles.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.Controller1.Current:X4}, new={runtime.Controller1.NewlyPressed:X4}, spawn={runtime.Projectiles.LastFiredProjectileSnapshot}");
                 Console.Error.WriteLine($"Room width={level.WidthInBlocks}, Samus radius={samus.Kinematics.XRadius}/{samus.Kinematics.YRadius}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
                 for (int block = 0; block < level.WidthInBlocks * level.HeightInBlocks; block++)

@@ -15,7 +15,7 @@ internal static partial class Program
 static void VerifySamusPoseTransitionMatching()
 {
     var bus = new TestAddressSpace();
-    byte fixturePose = SamusPoseIds.FacingRightNormalPose;
+    SamusPoseId fixturePose = SamusPoseId.FacingRightNormalPose;
 
     // The authored standing-right table at $91:A0EC demonstrates priority and subset
     // matching: Jump+Up outranks plain Up, which outranks Right because the matcher stops
@@ -26,7 +26,7 @@ static void VerifySamusPoseTransitionMatching()
         currentPose: fixturePose,
         canonicalHeldInput: 0x0980,
         canonicalNewInput: 0x0080)!.Value;
-    AssertEqual(0x55, jumpUp.ProspectivePose, "Samus transition required-new plus held chord");
+    AssertEqual(0x55, (byte)jumpUp.ProspectivePose, "Samus transition required-new plus held chord");
     AssertTrue(SamusPoseInputDefinitions.TryGetPointer(fixturePose, out _),
         "Samus transition fixture pose has an authored table");
 
@@ -35,14 +35,14 @@ static void VerifySamusPoseTransitionMatching()
         currentPose: fixturePose,
         canonicalHeldInput: (ushort)(SnesButton.Up | SnesButton.Y),
         canonicalNewInput: 0)!.Value;
-    AssertEqual(0x03, up.ProspectivePose, "Samus transition permits extra held action");
+    AssertEqual(0x03, (byte)up.ProspectivePose, "Samus transition permits extra held action");
 
     SamusPoseTransition right = SamusPoseTransitionTable.Find(
         bus,
         currentPose: fixturePose,
         canonicalHeldInput: 0x0100,
         canonicalNewInput: 0)!.Value;
-    AssertEqual(0x09, right.ProspectivePose, "Samus standing Right proposes running pose");
+    AssertEqual(0x09, (byte)right.ProspectivePose, "Samus standing Right proposes running pose");
 
     AssertEqual<SamusPoseTransition?>(null,
         SamusPoseTransitionTable.Find(bus, fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0),
@@ -50,7 +50,7 @@ static void VerifySamusPoseTransitionMatching()
     AssertEqual<SamusPoseTransition?>(null,
         SamusPoseTransitionTable.Find(
             bus,
-            (byte)SamusPoseId.MovingRightGunExtendedPose,
+            SamusPoseId.MovingRightGunExtendedPose,
             canonicalHeldInput: (ushort)(SnesButton.Right | SnesButton.X),
             canonicalNewInput: 0),
         "Samus same-pose transition is suppressed");
@@ -62,7 +62,7 @@ static void VerifySamusPoseTransitionMatching()
         bus, fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0);
     SamusPoseTransitionLookup samePose = SamusPoseTransitionTable.Lookup(
         bus,
-        (byte)SamusPoseId.MovingRightGunExtendedPose,
+        SamusPoseId.MovingRightGunExtendedPose,
         canonicalHeldInput: (ushort)(SnesButton.Right | SnesButton.X),
         canonicalNewInput: 0);
     SamusPoseTransitionLookup terminator = SamusPoseTransitionTable.Lookup(
@@ -76,7 +76,7 @@ static void VerifySamusPoseTransitionMatching()
 
     // Pose $2F uses the authored empty list at $91:A0DC. Its immediate terminator is a
     // direct return for held input, unlike exhaustion after at least one unmatched record.
-    const byte emptyListPose = 0x2f;
+    const SamusPoseId emptyListPose = SamusPoseId.TurningRightToLeftJumpPose;
     AssertTrue(!SamusPoseTransitionTable.Lookup(bus, emptyListPose, (ushort)SnesButton.A, 0).UsesPoseDefinitionFallback,
         "empty pose table preserves turn momentum while Jump remains held");
     AssertTrue(SamusPoseTransitionTable.Lookup(bus, emptyListPose, 0, 0).UsesPoseDefinitionFallback,
@@ -164,7 +164,7 @@ static void VerifySamusHorizontalSpeed()
     // Ordinary Dash uses the compiled native ten-frame, two-tick cadence. Do not
     // rewrite the cartridge pointer/delay ROM in the fake bus: gameplay now reads
     // those immutable definitions from SamusRunningCadenceDefinitions.
-    var dashAnimation = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };
+    var dashAnimation = new SamusState { Pose = SamusPoseId.MovingRightNormalPose };
     dashAnimation.InitializeAnimation(bus);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
@@ -507,7 +507,7 @@ static void VerifySamusExtraDisplacement()
     bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
     WritePoseDefinition(
         bus,
-        SamusPoseIds.MorphBallFallingRightPose,
+        (int)SamusPoseId.MorphBallFallingRightPose,
         [0x08, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]); // $31
     bus.WriteBytes(0x91b881, [0x08, 0x02, 0xff, 0x02, 0x03, 0x00, 0x13, 0x00]); // $4B
     bus.WriteBytes(0x91b891, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D
@@ -528,7 +528,7 @@ static void VerifySamusExtraDisplacement()
 
     var standing = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         XPosition = 64,
         YPosition = 64,
     };
@@ -555,7 +555,7 @@ static void VerifySamusExtraDisplacement()
 
     var negative = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         XPosition = 64,
         YPosition = 64,
     };
@@ -574,7 +574,7 @@ static void VerifySamusExtraDisplacement()
 
     var transition = new SamusState
     {
-        Pose = SamusPoseIds.NeutralJumpTransitionRightPose,
+        Pose = SamusPoseId.NeutralJumpTransitionRightPose,
         XPosition = 64,
         YPosition = 64,
     };
@@ -599,7 +599,7 @@ static void VerifySamusExtraDisplacement()
 
     var rising = new SamusState
     {
-        Pose = SamusPoseIds.NeutralJumpRightPose,
+        Pose = SamusPoseId.NeutralJumpRightPose,
         XPosition = 64,
         YPosition = 64,
     };
@@ -624,7 +624,7 @@ static void VerifySamusExtraDisplacement()
 
     var bouncingBall = new SamusState
     {
-        Pose = SamusPoseIds.MorphBallFallingRightPose,
+        Pose = SamusPoseId.MorphBallFallingRightPose,
         XPosition = 64,
         YPosition = 64,
         MorphBallBounceState = 1,

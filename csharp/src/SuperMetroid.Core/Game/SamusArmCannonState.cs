@@ -75,7 +75,7 @@ public sealed class SamusArmCannonState
         if (CloseFlag != 0 || (transitionStarted = TryStartTransition(samus.SelectedHudItem)))
             AdvanceFrame();
 
-        ushort drawingData = PoseDrawingData(samus.Pose);
+        ushort drawingData = PoseDrawingData((int)samus.Pose);
         DrawingMode = ReadDrawingByte(unchecked((ushort)(drawingData + 1)));
         return new SamusArmCannonUpdateResult();
     }
@@ -103,7 +103,7 @@ public sealed class SamusArmCannonState
         if (Frame == 0 || (samus.InvincibilityTimer != 0 && (nmiFrameCounter & 1) != 0))
             return new SamusArmCannonDrawResult();
 
-        ushort drawingData = PoseDrawingData(samus.Pose);
+        ushort drawingData = PoseDrawingData((int)samus.Pose);
         byte firstSelector = ReadDrawingByte(drawingData);
         bool frameDependentSelector = (firstSelector & 0x80) != 0;
         byte selector = frameDependentSelector && samus.AnimationFrame != 0

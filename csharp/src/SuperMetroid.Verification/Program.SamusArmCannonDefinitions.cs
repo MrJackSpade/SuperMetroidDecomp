@@ -25,7 +25,7 @@ internal static partial class Program
 
             var samus = new SamusState
             {
-                Pose = SamusPoseIds.FacingRightNormalPose,
+                Pose = SamusPoseId.FacingRightNormalPose,
                 SelectedHudItem = selectedHudItem,
             };
             PrepareRetailSamusFixture(samus);

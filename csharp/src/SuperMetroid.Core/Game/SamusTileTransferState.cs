@@ -37,7 +37,7 @@ public sealed class SamusTileTransferState
     /// <summary>
     /// Ports <c>Set_SamusTilesDefinitions_ForCurrentAnimation</c> at <c>$92:8000</c>.
     /// </summary>
-    public void SelectForPoseFrame(ISnesAddressSpace bus, byte pose, ushort animationFrame)
+    public void SelectForPoseFrame(ISnesAddressSpace bus, SamusPoseId pose, ushort animationFrame)
     {
         ArgumentNullException.ThrowIfNull(bus);
 

@@ -31,7 +31,7 @@ internal static partial class Program
             samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.SpringBall);
             samus.XPosition = 128;
             samus.YPosition = (ushort)(runtime.RoomLayer3Fx.CurrentYPosition + 96);
-            samus.Pose = left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose;
+            samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
             samus.RefreshCollisionRadii(memory);
             runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
             AssertEqual(SamusLiquidPhysicsState.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
@@ -42,13 +42,13 @@ internal static partial class Program
             for (int jump = 0; jump < 2; jump++)
             {
                 Resume(true);
-                byte springGround = left ? SamusPoseIds.SpringBallGroundLeftPose : SamusPoseIds.SpringBallGroundRightPose;
+                SamusPoseId springGround = left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose;
                 AssertEqual(springGround, samus.Pose, "unpause equips jump-enabled Spring Ball even while rising");
                 AssertEqual((ushort)0, samus.AnimationFrame, "cross-family equipment conversion restarts ball animation");
                 ushort beforeY = samus.YPosition;
                 runtime.Controller1.Latch(0);
                 runtime.StepFrame((ushort)SnesButton.A);
-                AssertEqual(left ? SamusPoseIds.SpringBallJumpLeftPose : SamusPoseIds.SpringBallJumpRightPose,
+                AssertEqual(left ? SamusPoseId.SpringBallJumpLeftPose : SamusPoseId.SpringBallJumpRightPose,
                     samus.Pose, "new jump input enters powered Spring Ball jump");
                 AssertEqual((ushort)2, samus.Kinematics.YSpeed, "native Hi-Jump water launch whole speed");
                 AssertEqual((ushort)0x8000, samus.Kinematics.YSubspeed, "native Hi-Jump water launch fractional speed");
@@ -57,7 +57,7 @@ internal static partial class Program
                 if (jump == 0)
                 {
                     Resume(false);
-                    AssertEqual(left ? SamusPoseIds.MorphBallGroundLeftPose : SamusPoseIds.MorphBallGroundRightPose,
+                    AssertEqual(left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose,
                         samus.Pose, "disabling Spring Ball restores ordinary ball without cancelling ascent");
                 }
             }

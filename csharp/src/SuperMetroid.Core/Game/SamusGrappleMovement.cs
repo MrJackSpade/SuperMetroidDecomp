@@ -58,8 +58,8 @@ public static partial class SamusGrappleMovement
         if (grapple.Phase != GrapplePhase.Inactive)
             throw new InvalidOperationException("A grapple state is already active.");
 
-        bool movingHeld = samus.Pose is SamusPoseIds.DraygonGrabbedMovingLeftPose or
-            SamusPoseIds.DraygonGrabbedMovingRightPose;
+        bool movingHeld = samus.Pose is SamusPoseId.DraygonGrabbedMovingLeftPose or
+            SamusPoseId.DraygonGrabbedMovingRightPose;
         byte direction = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : samus.ReadShotDirection(bus);
         if ((direction & 0xf0) != 0)
         {
@@ -71,7 +71,7 @@ public static partial class SamusGrappleMovement
         if (direction >= 10)
         {
             throw new InvalidOperationException(
-                $"Pose ${samus.Pose:X2} has no fireable grapple direction (${direction:X2}).");
+                $"Pose ${(int)samus.Pose:X2} has no fireable grapple direction (${direction:X2}).");
         }
 
         grapple.Phase = GrapplePhase.Firing;
@@ -442,7 +442,7 @@ public static partial class SamusGrappleMovement
         {
             // $9B:CB8B executes on the frame after $9B:C79D queued it. The launch velocity
             // was already published, so this pass changes art/handlers and clears grapple.
-            byte? pendingReleasePose = CompleteQueuedRelease(bus, level, samus, grapple, deferDropPoseChange);
+            SamusPoseId? pendingReleasePose = CompleteQueuedRelease(bus, level, samus, grapple, deferDropPoseChange);
             return new GrappleMovementResult(GrapplePhase.Inactive, PendingReleasePose: pendingReleasePose);
         }
 
@@ -752,7 +752,7 @@ public static partial class SamusGrappleMovement
         RoomPlmSystem? plms,
         bool deferPoseChange)
     {
-        byte targetPose = SelectDroppedPose(bus, samus);
+        SamusPoseId targetPose = SelectDroppedPose(bus, samus);
         QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
         // C8C5 clears these words now, but publishes its pose to the transitional
@@ -769,14 +769,14 @@ public static partial class SamusGrappleMovement
             PendingDropPose: deferPoseChange ? targetPose : null);
     }
 
-    private static byte SelectDroppedPose(ISnesAddressSpace bus, SamusState samus)
+    private static SamusPoseId SelectDroppedPose(ISnesAddressSpace bus, SamusState samus)
     {
         // Swinging `$B2/$B3` bypass the direction tables and always fall to ordinary
         // standing `$01/$02`, even though their live collision radius is compact.
-        if (samus.Pose == SamusPoseIds.GrappleSwingRightPose)
-            return SamusPoseIds.FacingRightNormalPose;
-        if (samus.Pose == SamusPoseIds.GrappleSwingLeftPose)
-            return SamusPoseIds.FacingLeftNormalPose;
+        if (samus.Pose == SamusPoseId.GrappleSwingRightPose)
+            return SamusPoseId.FacingRightNormalPose;
+        if (samus.Pose == SamusPoseId.GrappleSwingLeftPose)
+            return SamusPoseId.FacingLeftNormalPose;
 
         byte shotDirection = samus.ReadShotDirection(bus);
         bool ordinaryDirection = (shotDirection & 0xf0) == 0 && shotDirection < 10;
@@ -786,8 +786,8 @@ public static partial class SamusGrappleMovement
             // sentinel. Standing selects `$01/$02`; compact bodies select `$27/$28`.
             bool facingLeft = samus.IsFacingLeft(bus);
             return samus.Kinematics.YRadius >= 17
-                ? facingLeft ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose
-                : facingLeft ? SamusPoseIds.CrouchingLeftPose : SamusPoseIds.CrouchingRightPose;
+                ? facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose
+                : facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose;
         }
 
         return GrappleConnectionDefinitions.DroppedPose(shotDirection, compact: samus.Kinematics.YRadius < 17);

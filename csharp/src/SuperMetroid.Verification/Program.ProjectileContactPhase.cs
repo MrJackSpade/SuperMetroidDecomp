@@ -36,11 +36,11 @@ internal static partial class Program
 
         // Original CPU trace: beta first, inert projectile contact afterward, timers last.
         // Include subpositions: a standing floor collision snaps the fraction to FFFF.
-        (uint X, uint Y, byte Pose, ushort Timer, ushort Direction)[] expected =
+        (uint X, uint Y, SamusPoseId Pose, ushort Timer, ushort Direction)[] expected =
         [
-            (0x00800000, 0x00ebffff, SamusPoseIds.FacingRightNormalPose, 4, 0),
-            (0x00800000, 0x00ebffff, SamusPoseIds.KnockbackRightPose, 3, 2),
-            (0x00818000, 0x00e6ffff, SamusPoseIds.KnockbackRightPose, 2, 2),
+            (0x00800000, 0x00ebffff, SamusPoseId.FacingRightNormalPose, 4, 0),
+            (0x00800000, 0x00ebffff, SamusPoseId.KnockbackRightPose, 3, 2),
+            (0x00818000, 0x00e6ffff, SamusPoseId.KnockbackRightPose, 2, 2),
         ];
         var failures = new List<string>();
         for (int frame = 0; frame < expected.Length; frame++)
@@ -48,7 +48,7 @@ internal static partial class Program
             runtime.StepFrame(0);
             var actual = (samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Pose,
                 samus.KnockbackTimer, samus.KnockbackDirection);
-            Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.XFixed:X8} y={samus.Kinematics.YFixed:X8} pose={samus.Pose:X2} health={samus.Health} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection}");
+            Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.XFixed:X8} y={samus.Kinematics.YFixed:X8} pose={(int)samus.Pose:X2} health={samus.Health} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection}");
             if (actual != expected[frame] || samus.Health != 79)
                 failures.Add($"frame {frame}: {actual} != {expected[frame]}");
         }
@@ -66,7 +66,7 @@ internal static partial class Program
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
             var samus = runtime.Samus!;
-            samus.Pose = SamusPoseIds.FacingRightNormalPose;
+            samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.XPosition = samus.YPosition = 120;
             samus.Health = 99;
             samus.EquippedItems = suit;
@@ -81,10 +81,10 @@ internal static partial class Program
             projectile.InvincibilityFrames = 96;
             projectile.CanDamageSamus = true;
             runtime.Enemies.StepEnemyProjectiles(runtime.LevelData!, samus);
-            Console.WriteLine($"PROJECTILE suit={suit:X4} health={samus.Health} pose={samus.Pose:X2} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
+            Console.WriteLine($"PROJECTILE suit={suit:X4} health={samus.Health} pose={(int)samus.Pose:X2} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
             ushort expectedHealth = suit == 0 ? (ushort)79 : suit == (ushort)SamusEquipmentFlags.VariaSuit ? (ushort)89 : (ushort)94;
             if (samus.Health != expectedHealth) failures.Add($"suit {suit:X4}: expected health {expectedHealth}, got {samus.Health}");
-            if (verifyPhase && (samus.Pose != SamusPoseIds.FacingRightNormalPose || samus.KnockbackActive || samus.KnockbackDirection != 0))
+            if (verifyPhase && (samus.Pose != SamusPoseId.FacingRightNormalPose || samus.KnockbackActive || samus.KnockbackDirection != 0))
                 failures.Add($"suit {suit:X4}: projectile contact initialized hurt movement early");
             AssertEqual(5, samus.KnockbackTimer, "projectile publishes five-frame hurt request");
             AssertEqual(96, samus.InvincibilityTimer, "projectile publishes invincibility");

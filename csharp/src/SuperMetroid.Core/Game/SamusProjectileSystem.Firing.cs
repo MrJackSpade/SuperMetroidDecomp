@@ -526,7 +526,7 @@ public sealed partial class SamusProjectileSystem
         // `$90:BA94` uses the running/moonwalk origin table for movement type one and for
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
-            samus.Pose is SamusPoseIds.MoonwalkAimUpLeftPose or SamusPoseIds.MoonwalkAimUpRightPose;
+            samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
         var origin = SamusProjectileOriginDefinitions.Read(runningOrigin, slot.Direction);
         slot.XPosition = unchecked((ushort)(samus.XPosition + origin.X));
         slot.YPosition = unchecked((ushort)(samus.YPosition + origin.Y - poseYOffset));

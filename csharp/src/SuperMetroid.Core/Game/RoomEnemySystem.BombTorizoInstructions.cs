@@ -503,7 +503,10 @@ public sealed partial class RoomEnemySystem
             return unchecked((ushort)(cursor + 4));
         int distance = Math.Abs(unchecked((short)(samus.XPosition - torizo.XPosition)));
         bool isGroundedBall = samus.Pose is
-            0x1d or 0x1e or 0x1f or 0x79 or 0x7a or 0x7b or 0x7c;
+            SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallMovingRightPose or
+            SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.SpringBallGroundRightPose or
+            SamusPoseId.SpringBallGroundLeftPose or SamusPoseId.SpringBallMovingRightPose or
+            SamusPoseId.SpringBallMovingLeftPose;
         if (BombTorizoFunction12IsNonNegative(torizo, samus) ||
             distance < 4 || distance >= 0x28 || !isGroundedBall)
         {

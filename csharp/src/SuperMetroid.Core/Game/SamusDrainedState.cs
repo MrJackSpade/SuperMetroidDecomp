@@ -105,7 +105,7 @@ public sealed class SamusDrainedState
             return false;
 
         if (GetUpHandler == DrainedGetUpHandler.AbleToStand &&
-            samus.Pose == SamusPoseIds.DrainedCrouchingLeftPose &&
+            samus.Pose == SamusPoseId.DrainedCrouchingLeftPose &&
             samus.AnimationFrame >= 8)
         {
             samus.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
@@ -247,8 +247,8 @@ public sealed class SamusDrainedState
         // Read it before replacing the pose, exactly as `$91:E50D` does.
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = facingLeft
-            ? SamusPoseIds.DrainedCrouchingLeftPose
-            : SamusPoseIds.DrainedCrouchingRightPose;
+            ? SamusPoseId.DrainedCrouchingLeftPose
+            : SamusPoseId.DrainedCrouchingRightPose;
         samus.RefreshCollisionRadii(bus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.Special ||
             samus.Kinematics.YRadius != 21)
@@ -274,10 +274,10 @@ public sealed class SamusDrainedState
     {
         ArgumentNullException.ThrowIfNull(samus);
         if (samus.Pose is not (
-            SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose))
+            SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose))
         {
             throw new InvalidOperationException(
-                $"Drained falling command requires pose $E8/$E9, not ${samus.Pose:X2}.");
+                $"Drained falling command requires pose $E8/$E9, not ${(int)samus.Pose:X2}.");
         }
 
         // Command `$F7` writes `$90:94CB` into the single physical movement-handler word.
@@ -343,7 +343,7 @@ public sealed class SamusDrainedState
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.SetPoseAndAnimationFromScriptedController(
             bus,
-            facingLeft ? SamusPoseIds.DrainedStandingLeftPose : SamusPoseIds.DrainedStandingRightPose,
+            facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
             frame: 0,
             timer: 16,
             refreshRadius: false);
@@ -359,7 +359,7 @@ public sealed class SamusDrainedState
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.SetPoseAndAnimationFromScriptedController(
             bus,
-            facingLeft ? SamusPoseIds.DrainedCrouchingLeftPose : SamusPoseIds.DrainedCrouchingRightPose,
+            facingLeft ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose,
             frame: 8,
             timer: 16,
             refreshRadius: false);
@@ -376,9 +376,9 @@ public sealed class SamusDrainedState
         // These are literal byte indices into the asymmetrical delay programs, not visual
         // frame counts. In particular, left `$E9` index 13 names an operand byte; native
         // intentionally draws that index until the next animation decrement advances it.
-        if (samus.Pose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose)
+        if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
             samus.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
-        else if (samus.Pose is SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose)
+        else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
             samus.SetAnimationFrameFromSpecialHandler(frame: 4, timer: 1);
 
         // The merge path executes even for an unexpected pose. Preserve that surprisingly
@@ -412,7 +412,7 @@ public sealed class SamusDrainedState
 
         // Both commands unconditionally choose left-facing knockback pose `$54`, even when
         // Samus had faced right. This is why controller zero later selects drained pose `$E9`.
-        samus.Pose = SamusPoseIds.KnockbackLeftPose;
+        samus.Pose = SamusPoseId.KnockbackLeftPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
         // Shared rainbow setup calls the native previous-pose helper before lock.

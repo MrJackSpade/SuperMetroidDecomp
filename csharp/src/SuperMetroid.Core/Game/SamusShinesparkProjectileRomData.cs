@@ -17,20 +17,20 @@ public static class SamusShinesparkProjectileRomData
     /// movement handler, and those indices read on into the code of $90:D4D2: the bytes at
     /// $90:D504/$D505 and $90:D506/$D507.
     /// </remarks>
-    internal static (SnesAngle First, SnesAngle Second) DepartureAngles(byte pose)
+    internal static (SnesAngle First, SnesAngle Second) DepartureAngles(SamusPoseId pose)
     {
         (byte first, byte second) = pose switch
         {
-            SamusPoseIds.ShinesparkHorizontalRightPose => ((byte)0x00, (byte)0x80),
-            SamusPoseIds.ShinesparkHorizontalLeftPose => ((byte)0x00, (byte)0x80),
-            SamusPoseIds.ShinesparkVerticalRightPose => ((byte)0x40, (byte)0xc0),
-            SamusPoseIds.ShinesparkVerticalLeftPose => ((byte)0x40, (byte)0xc0),
-            SamusPoseIds.ShinesparkDiagonalRightPose => ((byte)0xe0, (byte)0x60),
-            SamusPoseIds.ShinesparkDiagonalLeftPose => ((byte)0x20, (byte)0xa0),
-            SamusPoseIds.DrainedCrouchingRightPose => ((byte)0x16, (byte)0x9d),
-            SamusPoseIds.DrainedCrouchingLeftPose => ((byte)0xb6, (byte)0x0a),
+            SamusPoseId.ShinesparkHorizontalRightPose => ((byte)0x00, (byte)0x80),
+            SamusPoseId.ShinesparkHorizontalLeftPose => ((byte)0x00, (byte)0x80),
+            SamusPoseId.ShinesparkVerticalRightPose => ((byte)0x40, (byte)0xc0),
+            SamusPoseId.ShinesparkVerticalLeftPose => ((byte)0x40, (byte)0xc0),
+            SamusPoseId.ShinesparkDiagonalRightPose => ((byte)0xe0, (byte)0x60),
+            SamusPoseId.ShinesparkDiagonalLeftPose => ((byte)0x20, (byte)0xa0),
+            SamusPoseId.DrainedCrouchingRightPose => ((byte)0x16, (byte)0x9d),
+            SamusPoseId.DrainedCrouchingLeftPose => ((byte)0xb6, (byte)0x0a),
             _ => throw new InvalidOperationException(
-                $"Shinespark crash finish has no modeled echo angles for pose ${pose:X2}."),
+                $"Shinespark crash finish has no modeled echo angles for pose ${(int)pose:X2}."),
         };
         return (SnesAngle.FromTableIndex(first), SnesAngle.FromTableIndex(second));
     }

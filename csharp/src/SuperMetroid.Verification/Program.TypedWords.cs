@@ -43,10 +43,10 @@ static void VerifyTypedNativeWords()
     // Facing is an ordinary discriminator, not a flag set. The typed view must recognize
     // verified values four/eight while retaining an unknown byte for debugger inspection.
     var poseBus = new TestAddressSpace();
-    AssertTrue(SamusState.IsFacingLeft(poseBus, SamusPoseIds.FacingLeftNormalPose), "typed left-facing pose query");
-    AssertEqual(SamusFacingDirection.Right, SamusState.ReadFacingDirection(poseBus, SamusPoseIds.FacingRightNormalPose),
+    AssertTrue(SamusState.IsFacingLeft(poseBus, SamusPoseId.FacingLeftNormalPose), "typed left-facing pose query");
+    AssertEqual(SamusFacingDirection.Right, SamusState.ReadFacingDirection(poseBus, SamusPoseId.FacingRightNormalPose),
         "typed right-facing pose query");
-    AssertEqual(41, (byte)SamusState.ReadFacingDirection(poseBus, 0xfe),
+    AssertEqual(41, (byte)SamusState.ReadFacingDirection(poseBus, (SamusPoseId)0xfe),
         "typed facing query preserves compiled unnamed adjacent-code byte");
 
     // Fixed-bank pointer arithmetic must wrap only the low word. A host addition would
@@ -400,9 +400,9 @@ static void VerifyTypedNativeWords()
 
     var typedPose = new SamusState();
     typedPose.PoseId = SamusPoseId.ScrewAttackLeftPose;
-    AssertEqual(SamusPoseIds.ScrewAttackLeftPose, typedPose.Pose,
+    AssertEqual(SamusPoseId.ScrewAttackLeftPose, typedPose.Pose,
         "typed Samus pose writes the native byte");
-    typedPose.Pose = 0xfe;
+    typedPose.Pose = (SamusPoseId)0xfe;
     AssertEqual((SamusPoseId)0xfe, typedPose.PoseId,
         "undefined Samus pose byte remains observable for diagnostics");
 

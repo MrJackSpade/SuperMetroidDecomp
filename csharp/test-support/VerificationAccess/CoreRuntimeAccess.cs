@@ -112,7 +112,7 @@ internal static class SuperMetroidRuntimeAccess
         {
             PrivateState.SetProperty(self, "Samus", new SamusState
             {
-                Pose = SamusPoseIds.FacingRightNormalPose,
+                Pose = SamusPoseId.FacingRightNormalPose,
                 AnimationFrame = 0,
                 XPosition = xPosition,
                 YPosition = yPosition,

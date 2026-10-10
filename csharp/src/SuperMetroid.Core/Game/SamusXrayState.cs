@@ -63,7 +63,7 @@ public sealed class SamusXrayState
         (SuspendedSubsystems & XraySuspendedSubsystems.PaletteFx) != 0;
 
     /// <summary>Interrupted pose published by alpha, awaiting bank-$91 pose commit in beta.</summary>
-    public byte? PendingActivationPose { get; private set; }
+    public SamusPoseId? PendingActivationPose { get; private set; }
 
     /// <summary>WRAM `$0A78`; X-ray freezes enemy/projectile/PLM/animated-tile time.</summary>
     public bool TimeIsFrozen { get; private set; }
@@ -163,9 +163,9 @@ public sealed class SamusXrayState
 
         // Landing art `$A4-$A7/$E0-$E7` is explicitly excluded even though its movement
         // type is otherwise standing. The range comparisons are unsigned 16-bit compares.
-        if (samus.Pose is >= SamusPoseIds.NormalLandingRightPose and
-            <= SamusPoseIds.SpinLandingLeftPose or
-            >= SamusPoseIds.LandingAimUpRightPose and <= SamusPoseIds.FiringLandingLeftPose)
+        if (samus.Pose is >= SamusPoseId.NormalLandingRightPose and
+            <= SamusPoseId.SpinLandingLeftPose or
+            >= SamusPoseId.LandingAimUpRightPose and <= SamusPoseId.FiringLandingLeftPose)
             return false;
 
         if (gameState != 8 || powerBombExplosionStatus != 0 ||
@@ -183,9 +183,9 @@ public sealed class SamusXrayState
             return false;
 
         bool facingLeft = samus.IsFacingLeft(bus);
-        byte targetPose = posture == XrayPosture.Crouching
-            ? facingLeft ? SamusPoseIds.XrayingCrouchingLeftPose : SamusPoseIds.XrayingCrouchingRightPose
-            : facingLeft ? SamusPoseIds.XrayingStandingLeftPose : SamusPoseIds.XrayingStandingRightPose;
+        SamusPoseId targetPose = posture == XrayPosture.Crouching
+            ? facingLeft ? SamusPoseId.XrayingCrouchingLeftPose : SamusPoseId.XrayingCrouchingRightPose
+            : facingLeft ? SamusPoseId.XrayingStandingLeftPose : SamusPoseId.XrayingStandingRightPose;
 
         // A second X-Ray setup under direct G-Mode makes the stranded phase-five object
         // observe a nonzero freeze word. Its `$88:8A08 -> $91:E2AD` cleanup immediately
@@ -240,7 +240,7 @@ public sealed class SamusXrayState
         DeactivationSoundRequested = false;
     }
 
-    private void InstallSamusControl(ISnesAddressSpace bus, SamusState samus, byte targetPose)
+    private void InstallSamusControl(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose)
     {
         samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);
@@ -359,12 +359,12 @@ public sealed class SamusXrayState
             // left-space counterpart and vice versa. This happens before selecting turn art.
             Angle = SnesAngle.NormalizeRaw(-Angle.RawValue);
             bool crouching = movementType == SamusMovementType.Crouching;
-            byte targetPose = (facingLeft, crouching) switch
+            SamusPoseId targetPose = (facingLeft, crouching) switch
             {
-                (false, false) => SamusPoseIds.TurningRightToLeftPose,
-                (false, true) => SamusPoseIds.TurningRightToLeftCrouchingPose,
-                (true, false) => SamusPoseIds.TurningLeftToRightPose,
-                (true, true) => SamusPoseIds.TurningLeftToRightCrouchingPose,
+                (false, false) => SamusPoseId.TurningRightToLeftPose,
+                (false, true) => SamusPoseId.TurningRightToLeftCrouchingPose,
+                (true, false) => SamusPoseId.TurningLeftToRightPose,
+                (true, true) => SamusPoseId.TurningLeftToRightCrouchingPose,
             };
             ApplyXrayPoseChange(bus, samus, targetPose);
             return new XrayPoseInputResult();
@@ -377,13 +377,13 @@ public sealed class SamusXrayState
             return default;
 
         bool nowFacingLeft = samus.IsFacingLeft(bus);
-        byte completedPose = nowFacingLeft
-            ? samus.Pose == SamusPoseIds.TurningRightToLeftPose
-                ? SamusPoseIds.XrayingStandingLeftPose
-                : SamusPoseIds.XrayingCrouchingLeftPose
-            : samus.Pose == SamusPoseIds.TurningLeftToRightPose
-                ? SamusPoseIds.XrayingStandingRightPose
-                : SamusPoseIds.XrayingCrouchingRightPose;
+        SamusPoseId completedPose = nowFacingLeft
+            ? samus.Pose == SamusPoseId.TurningRightToLeftPose
+                ? SamusPoseId.XrayingStandingLeftPose
+                : SamusPoseId.XrayingCrouchingLeftPose
+            : samus.Pose == SamusPoseId.TurningLeftToRightPose
+                ? SamusPoseId.XrayingStandingRightPose
+                : SamusPoseId.XrayingCrouchingRightPose;
         ApplyXrayPoseChange(bus, samus, completedPose);
         return new XrayPoseInputResult();
     }
@@ -669,9 +669,9 @@ public sealed class SamusXrayState
         bool crouching = movementType == SamusMovementType.Crouching;
         bool facingLeft = samus.IsFacingLeft(bus);
         ushort oldRadius = samus.Kinematics.YRadius;
-        byte targetPose = crouching
-            ? facingLeft ? SamusPoseIds.CrouchingLeftPose : SamusPoseIds.CrouchingRightPose
-            : facingLeft ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
+        SamusPoseId targetPose = crouching
+            ? facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose
+            : facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
 
         samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);
@@ -706,7 +706,7 @@ public sealed class SamusXrayState
     private static void ApplyXrayPoseChange(
         ISnesAddressSpace bus,
         SamusState samus,
-        byte targetPose)
+        SamusPoseId targetPose)
     {
         samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);

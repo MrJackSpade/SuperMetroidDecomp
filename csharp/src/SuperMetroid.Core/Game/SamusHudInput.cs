@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 internal static class SamusHudInput
 {
     /// <summary>DD8C preserves charge in morph/unmorph art unless active Grapple is being cancelled.</summary>
-    public static bool PostureTransitionAdmitsWeapons(byte pose, bool grappleActive)
+    public static bool PostureTransitionAdmitsWeapons(SamusPoseId pose, bool grappleActive)
     {
         if (pose >= SamusHudRomData.StandardTransitionStart)
             return true;

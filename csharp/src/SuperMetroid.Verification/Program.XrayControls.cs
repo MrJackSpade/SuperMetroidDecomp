@@ -21,7 +21,7 @@ internal static partial class Program
                 : ControllerBindings.Default;
             var samus = runtime.Samus!;
             samus.InputLocked = false;
-            samus.Pose = SamusPoseIds.FacingRightNormalPose;
+            samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.XPosition = 128;
             samus.YPosition = 139;
             samus.RefreshCollisionRadii(bus);
@@ -37,7 +37,7 @@ internal static partial class Program
             AssertTrue(runtime.Projectiles.LastFiredProjectileSnapshot is not null,
                 "selected inactive X-ray falls through to ordinary beam producer when Run is released");
             for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
-            ushort poseBeforeActivation = samus.PoseHistory.PreviousPose;
+            SamusPoseId poseBeforeActivation = samus.PoseHistory.PreviousPose;
             ushort metadataBeforeActivation = samus.PoseHistory.PreviousDirectionAndMovement;
             // Construct an already-placed bomb, far from Samus, to isolate the shared
             // ten-slot update gate. Its long instruction delay avoids consuming data.

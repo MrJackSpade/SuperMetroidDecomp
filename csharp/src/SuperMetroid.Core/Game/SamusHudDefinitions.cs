@@ -67,14 +67,14 @@ internal static class SamusHudDefinitions
     }
 
     /// <summary>$90:DDAA-$DDB5 actual transition flags: crouch/stand admit weapons; morph/unmorph preserve charge unless cancelling Grapple. Other admitted indices preserve only their bounded native instruction observations.</summary>
-    internal static byte PostureObservation(byte pose)
+    internal static byte PostureObservation(SamusPoseId pose)
     {
         if (pose >= NonFiringTransitionStart)
             throw new ArgumentOutOfRangeException(nameof(pose));
         if (pose < FirstTransitionPose)
-            return PrecedingInstructionObservations[pose];
-        if (pose > (byte)SamusPoseId.UnusedPose40)
-            return FollowingInstructionObservations[pose - ((byte)SamusPoseId.UnusedPose40 + 1)];
+            return PrecedingInstructionObservations[(int)pose];
+        if (pose > SamusPoseId.UnusedPose40)
+            return FollowingInstructionObservations[(int)pose - ((int)SamusPoseId.UnusedPose40 + 1)];
         return (SamusPoseId)pose switch
         {
             SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
@@ -83,7 +83,7 @@ internal static class SamusHudDefinitions
             SamusPoseId.UnmorphingTransitionRightPose or SamusPoseId.UnmorphingTransitionLeftPose or
             SamusPoseId.UnusedPose39 or SamusPoseId.UnusedPose3A or
             SamusPoseId.UnusedPose3F or SamusPoseId.UnusedPose40 => 1,
-            _ => throw new InvalidOperationException($"Pose ${pose:X2} is outside the $35-$40 transition block."),
+            _ => throw new InvalidOperationException($"Pose ${(int)pose:X2} is outside the $35-$40 transition block."),
         };
     }
 }

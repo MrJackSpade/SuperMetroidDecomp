@@ -13,14 +13,14 @@ internal static partial class Program
         var samus = new SamusState();
         var slot = new SamusProjectileSlot(0);
 
-        void Check(byte pose, ushort direction, ushort x, ushort y)
+        void Check(SamusPoseId pose, ushort direction, ushort x, ushort y)
         {
             samus.Pose = pose; samus.XPosition = x; samus.YPosition = y; slot.Direction = direction;
-            bool running = rom.ReadByte(0x91b629 + pose * 8 + 1) == 1 || pose is 0x75 or 0x76;
+            bool running = rom.ReadByte(0x91b629 + (int)pose * 8 + 1) == 1 || pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
             int offset = (direction & 15) * 2;
             short dx = Word((running ? 0x90c22c : 0x90c204) + offset);
             short dy = Word((running ? 0x90c240 : 0x90c218) + offset);
-            byte correction = rom.ReadByte(0x91b629 + pose * 8 + 4);
+            byte correction = rom.ReadByte(0x91b629 + (int)pose * 8 + 4);
             initialize(bus, samus, slot);
             AssertEqual(unchecked((ushort)(x + dx)), slot.XPosition, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.YPosition, "Physical muzzle Y follows native signed origin and unsigned pose correction");
@@ -31,13 +31,18 @@ internal static partial class Program
 
         // All direction words, including lifecycle high bits and low-nibble overreads,
         // through standing, running, both special Moonwalk poses and ordinary Moonwalk.
-        foreach (byte pose in new byte[] { 1, 9, 0x75, 0x76, 0x49 })
+        foreach (SamusPoseId pose in new[]
+        {
+            SamusPoseId.FacingRightNormalPose, SamusPoseId.MovingRightNormalPose,
+            SamusPoseId.MoonwalkAimUpLeftPose, SamusPoseId.MoonwalkAimUpRightPose,
+            SamusPoseId.MoonwalkFacingLeftPose
+        })
         for (int word = 0; word <= ushort.MaxValue; word++)
             Check(pose, (ushort)word, (ushort)word, unchecked((ushort)~word));
         foreach (ushort boundary in new ushort[] { 0, 127, 0x8000, ushort.MaxValue })
         for (int pose = 0; pose <= 0xfc; pose++)
         for (ushort direction = 0; direction < 16; direction++)
-            Check((byte)pose, direction, boundary, boundary);
+            Check((SamusPoseId)pose, direction, boundary, boundary);
 
         // Ten authored directions cover every word. Extra nibble values intentionally
         // cross table boundaries; running Y reaches adjacent cooldown bytes unchanged.

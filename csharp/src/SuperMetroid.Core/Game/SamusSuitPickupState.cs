@@ -126,8 +126,8 @@ public sealed class SamusSuitPickupState
             ? samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit);
         samus.Pose = otherSuitAlreadyEquipped
-            ? SamusPoseIds.ForwardFacingSuitedPose
-            : SamusPoseIds.ForwardFacingPowerSuitPose;
+            ? SamusPoseId.ForwardFacingSuitedPose
+            : SamusPoseId.ForwardFacingPowerSuitPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         // Entry's Samus command $15 publishes history before locking gameplay.
@@ -295,7 +295,7 @@ public sealed class SamusSuitPickupState
             : (ushort)SamusEquipmentFlags.GravitySuit;
         samus.EquippedItems |= mask;
         samus.CollectedItems |= mask;
-        samus.Pose = SamusPoseIds.ForwardFacingSuitedPose;
+        samus.Pose = SamusPoseId.ForwardFacingSuitedPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         // The reveal phase publishes another transition, even if the other suit

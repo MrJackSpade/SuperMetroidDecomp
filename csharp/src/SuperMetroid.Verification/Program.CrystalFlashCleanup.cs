@@ -37,7 +37,7 @@ internal static partial class Program
         }
         var samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.Health = 49; samus.MaxHealth = 1499;
         samus.Missiles = samus.MaxMissiles = 10;

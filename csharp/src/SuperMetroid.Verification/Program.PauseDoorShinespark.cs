@@ -89,12 +89,12 @@ internal static partial class Program
             var samus = runtime.Samus!;
             samus.InputLocked = false;
             samus.Health = 999;
-            samus.Pose = SamusPoseIds.FacingRightNormalPose;
+            samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
             samus.Shinespark.BeginWindup(samus);
-            samus.Shinespark.BeginDirectionalLaunch(bus, samus, SamusPoseIds.ShinesparkHorizontalRightPose);
+            samus.Shinespark.BeginDirectionalLaunch(bus, samus, SamusPoseId.ShinesparkHorizontalRightPose);
             samus.CommitPoseHistory(bus);
             samus.XPosition = 128;
             samus.YPosition = 128;

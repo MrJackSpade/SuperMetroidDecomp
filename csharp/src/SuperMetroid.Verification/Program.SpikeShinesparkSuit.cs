@@ -14,11 +14,11 @@ internal static partial class Program
         // frame early installs the real Shinespark mover; Jump one frame late misses
         // completely. The middle case keeps C7 art and palette six after command one
         // has restored the ordinary movement handler: that mismatch is the technique.
-        foreach ((int LaunchFrame, ShinesparkPhase Phase, byte Pose, ushort Palette) expected in new[]
+        foreach ((int LaunchFrame, ShinesparkPhase Phase, SamusPoseId Pose, ushort Palette) expected in new[]
         {
-            (8, ShinesparkPhase.Windup, SamusPoseIds.ShinesparkWindupRightPose, (ushort)6),
-            (9, ShinesparkPhase.Inactive, SamusPoseIds.ShinesparkWindupRightPose, (ushort)6),
-            (10, ShinesparkPhase.Stored, SamusPoseIds.FallingRightPose, (ushort)1),
+            (8, ShinesparkPhase.Windup, SamusPoseId.ShinesparkWindupRightPose, (ushort)6),
+            (9, ShinesparkPhase.Inactive, SamusPoseId.ShinesparkWindupRightPose, (ushort)6),
+            (10, ShinesparkPhase.Stored, SamusPoseId.FallingRightPose, (ushort)1),
         })
         {
             SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(bus, underwater: false);
@@ -90,7 +90,7 @@ internal static partial class Program
         })
         {
             SamusState samus = RunReserveSpikeSuitCase(bus, expected.FreezeAfter, expected.LaunchAfter);
-            bool retainedSuit = samus.Pose == SamusPoseIds.ShinesparkWindupRightPose &&
+            bool retainedSuit = samus.Pose == SamusPoseId.ShinesparkWindupRightPose &&
                 samus.Shinespark.Phase == ShinesparkPhase.Inactive &&
                 samus.Shinespark.PaletteType == 6 &&
                 samus.SharedShineTimer != 0;
@@ -160,7 +160,7 @@ internal static partial class Program
 
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = samus.CollectedItems = (ushort)(
             SamusEquipmentFlags.MorphBall |
             SamusEquipmentFlags.SpeedBooster);

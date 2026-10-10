@@ -16,7 +16,7 @@ internal static class SamusBodyFrameDefinitions
     internal static int NormalFrameCount => FrameExtent(SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose);
     /// <summary>$92:DD18/DD20/DD28/DD30/DD48/DD50/DEB0/DEB8: the shared jump/fall sequences contain two records; the count derives from the adjacent named allocation.</summary>
     internal static int JumpFrameCount => FrameExtent(SamusPoseId.NormalJumpAimDownRightPose, SamusPoseId.NormalJumpAimDownLeftPose);
-    private static int FrameExtent(SamusPoseId first, SamusPoseId next) => (SamusBodyPoseDefinitions.DefaultFrameList((byte)next) - SamusBodyPoseDefinitions.DefaultFrameList((byte)first)) / 4;
+    private static int FrameExtent(SamusPoseId first, SamusPoseId next) => (SamusBodyPoseDefinitions.DefaultFrameList(next) - SamusBodyPoseDefinitions.DefaultFrameList(first)) / 4;
 
     /// <summary>
     /// Crouching X-ray upper set/position pairs at $92:DC20/DC34 share standing
@@ -40,7 +40,7 @@ internal static class SamusBodyFrameDefinitions
     internal static bool TryComponent(int index, out byte value)
     {
         int address = SamusBodyArtworkCatalog.FirstFrameOffset + index;
-        bool ClearSlot(SamusPoseId pose, int phase) => (uint)(address - SamusBodyPoseDefinitions.DefaultFrameList((byte)pose) - phase * 4) < 4;
+        bool ClearSlot(SamusPoseId pose, int phase) => (uint)(address - SamusBodyPoseDefinitions.DefaultFrameList(pose) - phase * 4) < 4;
         // Explicit cleared transfer slots belonging to native animation control
         // or omitted-body phases. Do not generalize to every bytecode operand.
         if (ClearSlot(SamusPoseId.FacingRightNormalPose, 4) || ClearSlot(SamusPoseId.FacingLeftNormalPose, 4) ||
@@ -55,7 +55,7 @@ internal static class SamusBodyFrameDefinitions
         { value = 0; return true; }
         foreach (bool left in (ReadOnlySpan<bool>)[ false, true ])
         {
-            int offset = address - SamusBodyPoseDefinitions.DefaultFrameList((byte)(left
+            int offset = address - SamusBodyPoseDefinitions.DefaultFrameList((left
                 ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose));
             if ((uint)offset >= GrappleSwingFrameDefinitions.FrameCount * 4 || offset % 4 >= 2) continue;
             int phase = offset / 4;
@@ -102,20 +102,20 @@ internal static class SamusBodyFrameDefinitions
         int address = SamusBodyArtworkCatalog.FirstFrameOffset + index;
         int Source(SamusPoseId target, SamusPoseId basis, int frameCount, int half)
         {
-            int offset = address - SamusBodyPoseDefinitions.DefaultFrameList((byte)target);
+            int offset = address - SamusBodyPoseDefinitions.DefaultFrameList(target);
             return (uint)offset < frameCount * 4 && (half < 0 || offset % 4 / 2 == half)
-                ? SamusBodyPoseDefinitions.DefaultFrameList((byte)basis) + offset - SamusBodyArtworkCatalog.FirstFrameOffset : index;
+                ? SamusBodyPoseDefinitions.DefaultFrameList(basis) + offset - SamusBodyArtworkCatalog.FirstFrameOffset : index;
         }
         int Range(SamusPoseId target, SamusPoseId basis, int count, int targetPhase = 0, int basisPhase = 0, bool reverse = false, int half = -1)
         {
-            int offset = address - SamusBodyPoseDefinitions.DefaultFrameList((byte)target) - targetPhase * 4;
+            int offset = address - SamusBodyPoseDefinitions.DefaultFrameList(target) - targetPhase * 4;
             return (uint)offset < count * 4 && (half < 0 || offset % 4 / 2 == half)
-                ? SamusBodyPoseDefinitions.DefaultFrameList((byte)basis) - SamusBodyArtworkCatalog.FirstFrameOffset +
+                ? SamusBodyPoseDefinitions.DefaultFrameList(basis) - SamusBodyArtworkCatalog.FirstFrameOffset +
                     (basisPhase + (reverse ? count - 1 - offset / 4 : offset / 4)) * 4 + offset % 4 : index;
         }
         foreach (SamusPoseId grapple in (ReadOnlySpan<SamusPoseId>)[ SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose ])
         {
-            int start = SamusBodyPoseDefinitions.DefaultFrameList((byte)grapple);
+            int start = SamusBodyPoseDefinitions.DefaultFrameList(grapple);
             int offset = address - start, phase = offset / 4;
             if ((uint)offset < 66 * 4 && offset % 4 < 2 && phase >= GrappleSwingFrameDefinitions.FrameCount)
                 return start - SamusBodyArtworkCatalog.FirstFrameOffset +
@@ -125,7 +125,7 @@ internal static class SamusBodyFrameDefinitions
             SamusPoseId.RunningAimDiagonalUpRightPose, SamusPoseId.RunningAimDiagonalUpLeftPose,
             SamusPoseId.RunningAimDiagonalDownRightPose, SamusPoseId.RunningAimDiagonalDownLeftPose ])
         {
-            int start = SamusBodyPoseDefinitions.DefaultFrameList((byte)pose), offset = address - start;
+            int start = SamusBodyPoseDefinitions.DefaultFrameList(pose), offset = address - start;
             if ((uint)offset < 40 && offset % 4 < 2)
             {
                 int phase = offset / 4 % 5, basis = phase is 0 or 1 ? 0 : phase == 4 ? 2 : phase;
@@ -136,17 +136,17 @@ internal static class SamusBodyFrameDefinitions
             SamusPoseId.MoonwalkAimUpLeftPose, SamusPoseId.MoonwalkAimUpRightPose,
             SamusPoseId.MoonwalkAimDownLeftPose, SamusPoseId.MoonwalkAimDownRightPose ])
         {
-            int start = SamusBodyPoseDefinitions.DefaultFrameList((byte)pose), offset = address - start;
+            int start = SamusBodyPoseDefinitions.DefaultFrameList(pose), offset = address - start;
             if ((uint)offset >= 24) continue;
             if (offset % 4 < 2)
                 return start - SamusBodyArtworkCatalog.FirstFrameOffset + (offset / 4 % 3 == 0 ? 0 : 1) * 4 + offset % 4;
             if (pose is not SamusPoseId.MoonwalkFacingLeftPose and not SamusPoseId.MoonwalkFacingRightPose)
-                return SamusBodyPoseDefinitions.DefaultFrameList((byte)SamusPoseId.MoonwalkFacingRightPose) - SamusBodyArtworkCatalog.FirstFrameOffset + offset;
+                return SamusBodyPoseDefinitions.DefaultFrameList(SamusPoseId.MoonwalkFacingRightPose) - SamusBodyArtworkCatalog.FirstFrameOffset + offset;
         }
         foreach (bool left in (ReadOnlySpan<bool>)[ false, true ])
         {
             SamusPoseId crystal = left ? SamusPoseId.CrystalFlashLeftPose : SamusPoseId.CrystalFlashRightPose;
-            int start = SamusBodyPoseDefinitions.DefaultFrameList((byte)crystal), offset = address - start;
+            int start = SamusBodyPoseDefinitions.DefaultFrameList(crystal), offset = address - start;
             if ((uint)offset < 60)
             {
                 int phase = offset / 4, component = offset % 4;
@@ -156,7 +156,7 @@ internal static class SamusBodyFrameDefinitions
                 if (basis != phase) return start - SamusBodyArtworkCatalog.FirstFrameOffset + basis * 4 + component;
             }
             SamusPoseId drained = left ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose;
-            start = SamusBodyPoseDefinitions.DefaultFrameList((byte)drained); offset = address - start;
+            start = SamusBodyPoseDefinitions.DefaultFrameList(drained); offset = address - start;
             if ((uint)offset < (left ? 32 : 15) * 4)
             {
                 int phase = offset / 4, component = offset % 4;
@@ -169,7 +169,7 @@ internal static class SamusBodyFrameDefinitions
                 if (left && component >= 2 && phase is >= 9 and <= 11) basis = 8;
                 if (basis != phase) return start - SamusBodyArtworkCatalog.FirstFrameOffset + basis * 4 + component;
             }
-            start = SamusBodyPoseDefinitions.DefaultFrameList((byte)(left ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose));
+            start = SamusBodyPoseDefinitions.DefaultFrameList((left ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose));
             offset = address - start;
             if ((uint)offset < 16)
             {
@@ -177,8 +177,8 @@ internal static class SamusBodyFrameDefinitions
                 return start - SamusBodyArtworkCatalog.FirstFrameOffset + basis * 4 + offset % 4;
             }
         }
-        int appearance = SamusBodyPoseDefinitions.DefaultFrameList((byte)SamusPoseId.ForwardFacingPowerSuitPose);
-        int suited = SamusBodyPoseDefinitions.DefaultFrameList((byte)SamusPoseId.ForwardFacingSuitedPose);
+        int appearance = SamusBodyPoseDefinitions.DefaultFrameList(SamusPoseId.ForwardFacingPowerSuitPose);
+        int suited = SamusBodyPoseDefinitions.DefaultFrameList(SamusPoseId.ForwardFacingSuitedPose);
         int appearanceCount = (suited - appearance) / 4;
         int appearanceOffset = address - appearance;
         if ((uint)appearanceOffset < appearanceCount * 8)
@@ -204,7 +204,7 @@ internal static class SamusBodyFrameDefinitions
         if (shared != index) return shared;
         shared = Range(SamusPoseId.UnusedPose66, SamusPoseId.UnusedPose65, 8, 1, 1);
         if (shared != index) return shared;
-        int wallOffset = address - SamusBodyPoseDefinitions.DefaultFrameList((byte)SamusPoseId.WallJumpRightPose);
+        int wallOffset = address - SamusBodyPoseDefinitions.DefaultFrameList(SamusPoseId.WallJumpRightPose);
         if ((uint)wallOffset < 47 * 4)
         {
             int phase = wallOffset / 4, component = wallOffset % 4;
@@ -219,7 +219,7 @@ internal static class SamusBodyFrameDefinitions
         }
         foreach (SamusPoseId grapple in (ReadOnlySpan<SamusPoseId>)[ SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose ])
         {
-            int start = SamusBodyPoseDefinitions.DefaultFrameList((byte)grapple), offset = address - start;
+            int start = SamusBodyPoseDefinitions.DefaultFrameList(grapple), offset = address - start;
             if ((uint)offset < 64 * 4 && offset % 4 >= 2)
             {
                 int phase = offset / 4, withinQuarter = phase % 16;
@@ -304,7 +304,7 @@ internal static class SamusBodyFrameDefinitions
         // its first raised-leg composition while the upper keeps a distinct one.
         foreach (bool left in (ReadOnlySpan<bool>)[ false, true ])
         {
-            int start = SamusBodyPoseDefinitions.DefaultFrameList((byte)(left
+            int start = SamusBodyPoseDefinitions.DefaultFrameList((left
                 ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose));
             int offset = address - start;
             if ((uint)offset < NormalFrameCount * 4)
@@ -313,9 +313,9 @@ internal static class SamusBodyFrameDefinitions
                 int basis = phase switch { 3 or 6 or 8 => 1, 5 => 0, 7 when offset % 4 >= 2 => 2, _ => phase };
                 return start - SamusBodyArtworkCatalog.FirstFrameOffset + basis * 4 + offset % 4;
             }
-            int normal = SamusBodyPoseDefinitions.DefaultFrameList((byte)(left
+            int normal = SamusBodyPoseDefinitions.DefaultFrameList((left
                 ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose));
-            start = SamusBodyPoseDefinitions.DefaultFrameList((byte)(left
+            start = SamusBodyPoseDefinitions.DefaultFrameList((left
                 ? SamusPoseId.SpinLandingLeftPose : SamusPoseId.SpinLandingRightPose));
             offset = address - start;
             if ((uint)offset < 3 * 4 && offset % 4 < 2)
@@ -324,7 +324,7 @@ internal static class SamusBodyFrameDefinitions
                 ? new[] { SamusPoseId.LandingAimUpLeftPose, SamusPoseId.LandingAimDiagonalUpLeftPose, SamusPoseId.LandingAimDiagonalDownLeftPose, SamusPoseId.FiringLandingLeftPose }
                 : new[] { SamusPoseId.LandingAimUpRightPose, SamusPoseId.LandingAimDiagonalUpRightPose, SamusPoseId.LandingAimDiagonalDownRightPose, SamusPoseId.FiringLandingRightPose })
             {
-                start = SamusBodyPoseDefinitions.DefaultFrameList((byte)pose);
+                start = SamusBodyPoseDefinitions.DefaultFrameList(pose);
                 offset = address - start;
                 if ((uint)offset < 2 * 4 && offset % 4 >= 2)
                     return normal - SamusBodyArtworkCatalog.FirstFrameOffset + offset;
@@ -333,7 +333,7 @@ internal static class SamusBodyFrameDefinitions
                 ? new[] { SamusPoseId.XrayingStandingLeftPose, SamusPoseId.XrayingCrouchingLeftPose }
                 : new[] { SamusPoseId.XrayingStandingRightPose, SamusPoseId.XrayingCrouchingRightPose })
             {
-                start = SamusBodyPoseDefinitions.DefaultFrameList((byte)pose);
+                start = SamusBodyPoseDefinitions.DefaultFrameList(pose);
                 offset = address - start;
                 if ((uint)offset < XrayFrameCount * 4 && offset % 4 >= 2)
                     return start - SamusBodyArtworkCatalog.FirstFrameOffset + offset % 4;

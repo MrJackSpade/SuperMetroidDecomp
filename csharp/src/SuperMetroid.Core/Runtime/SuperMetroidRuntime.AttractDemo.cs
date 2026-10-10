@@ -92,25 +92,25 @@ public sealed partial class SuperMetroidRuntime
                 samus.ApplyForwardFacingPoseSetup(_addressSpace);
                 break;
             case AttractDemoRomData.SamusSetup.StandingRight:
-                samus.Pose = SamusPoseIds.FacingRightNormalPose;
+                samus.Pose = SamusPoseId.FacingRightNormalPose;
                 break;
             case AttractDemoRomData.SamusSetup.LowHealthLeft:
                 samus.Health = AttractDemoRomData.SetupValues.LowHealth;
                 goto case AttractDemoRomData.SamusSetup.StandingLeft;
             case AttractDemoRomData.SamusSetup.StandingLeft:
-                samus.Pose = SamusPoseIds.FacingLeftNormalPose;
+                samus.Pose = SamusPoseId.FacingLeftNormalPose;
                 break;
             case AttractDemoRomData.SamusSetup.MorphLeft:
-                samus.Pose = SamusPoseIds.MorphBallGroundLeftPose;
+                samus.Pose = SamusPoseId.MorphBallGroundLeftPose;
                 break;
             case AttractDemoRomData.SamusSetup.FallingLeft:
-                samus.Pose = SamusPoseIds.FallingLeftPose;
+                samus.Pose = SamusPoseId.FallingLeftPose;
                 break;
             case AttractDemoRomData.SamusSetup.DiagonalShinespark:
-                samus.Shinespark.BeginDemoLaunch(_addressSpace, samus, SamusPoseIds.ShinesparkDiagonalRightPose);
+                samus.Shinespark.BeginDemoLaunch(_addressSpace, samus, SamusPoseId.ShinesparkDiagonalRightPose);
                 break;
             case AttractDemoRomData.SamusSetup.HorizontalShinespark:
-                samus.Shinespark.BeginDemoLaunch(_addressSpace, samus, SamusPoseIds.ShinesparkHorizontalLeftPose);
+                samus.Shinespark.BeginDemoLaunch(_addressSpace, samus, SamusPoseId.ShinesparkHorizontalLeftPose);
                 break;
             default:
                 throw new InvalidDataException($"Unknown demo Samus setup $91:{pointer:X4}.");

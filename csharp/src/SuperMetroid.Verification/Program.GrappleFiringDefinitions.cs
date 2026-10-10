@@ -16,7 +16,7 @@ internal static partial class Program
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var bus = new GrappleFiringReadGuard(rom);
-        var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseIds.FacingRightNormalPose });
+        var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
         var grapple = samus.Grapple;
         var stockFlare = grapple.FlarePlacement;
         var editedFlare = ChargeFlarePlacementCatalog.Load(new MemoryStream(
@@ -30,18 +30,18 @@ internal static partial class Program
             })));
         // Exercise each compiled movement family with a real pose instead of rewriting
         // the immutable movement byte of standing pose $01.
-        byte[] movementPoses = Enumerable.Range(0, 253).GroupBy(pose =>
+        SamusPoseId[] movementPoses = Enumerable.Range(0, 253).GroupBy(pose =>
             rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1))
-            .OrderBy(group => group.Key).Select(group => (byte)group.First()).ToArray();
+            .OrderBy(group => group.Key).Select(group => (SamusPoseId)group.First()).ToArray();
         // The graphics-Y byte only enters the flare as a signed offset, so the signed byte
         // classes cover it; each needs one full artwork fixture.
         ushort[] positions = [0x0000, 0x0001, 0x7fff, 0x8000, 0xfffe, 0xffff];
         for (byte direction = 0; direction < 10; direction++)
         {
-            byte[] aimingPoses = Enumerable.Range(0, 253).Where(pose =>
+            SamusPoseId[] aimingPoses = Enumerable.Range(0, 253).Where(pose =>
                 rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
-                pose is not (SamusPoseIds.DraygonGrabbedMovingLeftPose or SamusPoseIds.DraygonGrabbedMovingRightPose))
-                .Select(pose => (byte)pose).ToArray();
+                pose is not ((int)SamusPoseId.DraygonGrabbedMovingLeftPose or (int)SamusPoseId.DraygonGrabbedMovingRightPose))
+                .Select(pose => (SamusPoseId)pose).ToArray();
             int offset = direction * 2;
             short vx = Word(0x9bc0db + offset), vy = Word(0x9bc0ef + offset);
             ushort angle = unchecked((ushort)Word(0x9bc104 + offset));
@@ -49,18 +49,18 @@ internal static partial class Program
             {
             bus.GraphicsY = graphicsY;
             samus.TileTransfers.BindArtwork(SamusGraphicsOffsetFixture(unchecked((sbyte)graphicsY)));
-            foreach (byte pose in aimingPoses)
+            foreach (SamusPoseId pose in aimingPoses)
             foreach (ushort raw in positions)
             {
                 // Every authored aim/movement pose for the direction, each signed graphics-Y
                 // class and the X/Y position wrap boundaries.
                 samus.Pose = bus.SourcePose = pose;
-                byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + samus.Pose * 8 + 1);
+                byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + (int)samus.Pose * 8 + 1);
                 bus.Direction = direction;
                 bool running = movement == 1;
                 short x = Word((running ? 0x9bc172 : 0x9bc122) + offset);
                 short y = Word((running ? 0x9bc186 : 0x9bc136) + offset);
-                int correctedY = y - rom.ReadByte(0x91b629 + samus.Pose * 8 + 4);
+                int correctedY = y - rom.ReadByte(0x91b629 + (int)samus.Pose * 8 + 4);
                 samus.XPosition = (ushort)raw;
                 samus.YPosition = unchecked((ushort)~raw);
                 grapple.Phase = GrapplePhase.Inactive;
@@ -99,7 +99,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             grapple.FlarePlacement = replaceFlare ? editedFlare : stockFlare;
-            samus.Pose = bus.SourcePose = (byte)Enumerable.Range(0, 253).First(pose =>
+            samus.Pose = bus.SourcePose = (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
                 rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
                 rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) != 1);
             bus.GraphicsY = 0; bus.Direction = direction;
@@ -118,7 +118,7 @@ internal static partial class Program
                 AssertEqual(dx, grapple.EndpointXOffsetFixed, "Native extension X trajectory");
                 AssertEqual(dy, grapple.EndpointYOffsetFixed, "Native extension Y trajectory");
                 AssertEqual(unchecked((ushort)(512 + Word(0x9bc122 + direction * 2) + (dx >> 16))), grapple.AnchorX, "Native endpoint X");
-                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - rom.ReadByte(SamusMovementRomData.Poses.Definitions + samus.Pose * 8 + 4) + (dy >> 16))), grapple.AnchorY, "Native endpoint Y with authored physical correction");
+                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - rom.ReadByte(SamusMovementRomData.Poses.Definitions + (int)samus.Pose * 8 + 4) + (dy >> 16))), grapple.AnchorY, "Native endpoint Y with authored physical correction");
             }
         }
         grapple.FlarePlacement = stockFlare;
@@ -140,7 +140,7 @@ internal static partial class Program
         foreach (bool left in new[] { false, true })
         foreach (int input in heldInputs)
         {
-            samus.Pose = left ? SamusPoseIds.DraygonGrabbedMovingLeftPose : SamusPoseIds.DraygonGrabbedMovingRightPose;
+            samus.Pose = left ? SamusPoseId.DraygonGrabbedMovingLeftPose : SamusPoseId.DraygonGrabbedMovingRightPose;
             samus.XPosition = samus.YPosition = 512;
             bool outward = (input & (int)(left ? SnesButton.Left : SnesButton.Right)) != 0;
             int direction = outward && (input & (int)SnesButton.Down) != 0 ? (left ? 6 : 3) :
@@ -251,10 +251,10 @@ internal static partial class Program
             ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
         public byte GraphicsY, Direction;
-        public byte SourcePose = SamusPoseIds.FacingRightNormalPose;
+        public SamusPoseId SourcePose = SamusPoseId.FacingRightNormalPose;
         public byte ReadByte(int address)
         {
-            int pose = SamusMovementRomData.Poses.Definitions + SourcePose * 8;
+            int pose = SamusMovementRomData.Poses.Definitions + (int)SourcePose * 8;
             if (address == pose + 1) throw new InvalidOperationException("Compiled pose movement read ROM.");
             if (address == pose + 3) return Direction;
             if (address == pose + 4) throw new InvalidOperationException("Installed graphics offset read ROM.");

@@ -45,7 +45,7 @@ internal static partial class Program
         var guarded = new ChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState
         {
-            Pose = SamusPoseIds.FacingRightNormalPose,
+            Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = (ushort)SamusBeamFlags.Charge,
             ChargeColors = edited.SamusChargeColors,
         };
@@ -555,7 +555,7 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
         var guarded = new ChargeColorReadGuard(rom, forbidden);
-        var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose,
+        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = (ushort)SamusBeamFlags.Charge, ChargeColors = catalog };
         var projectiles = new SamusProjectileSystem();
         typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.FlareCounter))!.SetValue(projectiles, (ushort)60);

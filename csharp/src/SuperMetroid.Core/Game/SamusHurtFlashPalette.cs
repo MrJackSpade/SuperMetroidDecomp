@@ -52,7 +52,7 @@ public static class SamusHurtFlashPalette
         if (counterBefore == 2 &&
             !samus.LiquidPhysics.CinematicFunctionActive &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
-              samus.Pose == SamusPoseIds.KnockbackLeftPose))
+              samus.Pose == SamusPoseId.KnockbackLeftPose))
         {
             samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x35), maximumQueued: 6);
         }

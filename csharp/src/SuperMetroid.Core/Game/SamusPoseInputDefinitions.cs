@@ -23,7 +23,7 @@ internal enum CanonicalPoseButtons : ushort
 }
 
 /// <summary>The selected native condition, retained for transition diagnostics.</summary>
-internal readonly record struct SamusPoseInputRule(ushort TargetPose);
+internal readonly record struct SamusPoseInputRule(SamusPoseId TargetPose);
 
 /// <summary>A decision result, including the distinction between an empty list and exhausted conditions.</summary>
 internal readonly record struct SamusPoseInputMatch(SamusPoseInputRule? Rule, bool HasConditions);
@@ -271,10 +271,10 @@ internal static class SamusPoseInputDefinitions
     /// <summary>Pose $64, TransitionTable pointer at $91:9FAA: preserved native input-dispatch identity.</summary>
     private const SamusPoseId NativePose64 = (SamusPoseId)0x64;
 
-    internal static bool TryGetPointer(byte pose, out ushort pointer)
+    internal static bool TryGetPointer(SamusPoseId pose, out ushort pointer)
     {
         // Indexes past the 253 native poses read adjacent bank-$91 code, not a graph.
-        if (pose >= Assets.SamusBodyArtworkCatalog.PoseCount)
+        if ((int)pose >= Assets.SamusBodyArtworkCatalog.PoseCount)
         {
             pointer = 0;
             return false;
@@ -367,7 +367,7 @@ internal static class SamusPoseInputDefinitions
             SamusPoseId.MoonwalkTurnJumpAimUpRightPose => MoonwalkTurnJumpAimUpRightPoseList,
             SamusPoseId.MoonwalkTurnJumpAimDownLeftPose => MoonwalkTurnJumpAimDownLeftPoseList,
             SamusPoseId.MoonwalkTurnJumpAimDownRightPose => MoonwalkTurnJumpAimDownRightPoseList,
-            _ => throw new InvalidOperationException($"Pose ${pose:X2} has no compiled input graph."),
+            _ => throw new InvalidOperationException($"Pose ${(int)pose:X2} has no compiled input graph."),
         };
         return true;
     }
@@ -381,5 +381,5 @@ internal static class SamusPoseInputDefinitions
         (input & (ushort)required) == (ushort)required;
 
     internal static SamusPoseInputMatch Accept(SamusPoseId target) =>
-        new(new((ushort)target), HasConditions: true);
+        new(new(target), HasConditions: true);
 }

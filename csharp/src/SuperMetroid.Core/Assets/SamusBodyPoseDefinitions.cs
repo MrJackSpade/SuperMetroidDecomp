@@ -474,7 +474,7 @@ internal static class SamusBodyPoseDefinitions
     private const ushort DraygonGrabbedMovingRightFrames = 0xe848;
 
     /// <summary>$92:D94E..DB47: exactly253 real-pose selectors; FD..FF are outside the installed body domain.</summary>
-    internal static ushort DefaultFrameList(byte pose) => (SamusPoseId)pose switch
+    internal static ushort DefaultFrameList(SamusPoseId pose) => (SamusPoseId)pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose => ForwardFacingPowerSuitFrames,
         SamusPoseId.FacingRightNormalPose or

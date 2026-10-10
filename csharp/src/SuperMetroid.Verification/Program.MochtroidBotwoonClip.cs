@@ -19,14 +19,14 @@ internal static partial class Program
         int FinalJumpFrame,
         int LandingFrame,
         ushort LandingY,
-        byte Frame30Pose,
+        SamusPoseId Frame30Pose,
         ushort Frame30Radius,
         ushort Frame30Y,
         ushort Frame31Radius,
-        byte Frame40Pose,
+        SamusPoseId Frame40Pose,
         ushort MinimumY,
         ushort FinalY,
-        byte FinalPose);
+        SamusPoseId FinalPose);
 
     /// <summary>
     /// Replays the smallest retail-room sequence for the frozen-Mochtroid Botwoon pipe
@@ -82,7 +82,7 @@ internal static partial class Program
         samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         samus.HorizontalSpeed.HasRunningMomentum = false;
         samus.HorizontalSpeed.AccelerationMode = 0;
-        samus.Pose = SamusPoseIds.CrouchingAimUpRightPose;
+        samus.Pose = SamusPoseId.CrouchingAimUpRightPose;
         samus.EquippedItems = samus.CollectedItems = (ushort)(
             SamusEquipmentFlags.MorphBall |
             SamusEquipmentFlags.HiJumpBoots);
@@ -174,9 +174,9 @@ internal static partial class Program
             ParseU16(fields[1]), ParseU16(fields[2]), ParseU16(fields[3]),
             ParseU16(fields[4]), ParseU16(fields[5]),
             ParseInt(fields[6]), ParseInt(fields[7]), ParseInt(fields[8]), ParseInt(fields[9]),
-            ParseU16(fields[10]), ParseByte(fields[11]), ParseU16(fields[12]), ParseU16(fields[13]),
-            ParseU16(fields[14]), ParseByte(fields[15]), ParseU16(fields[16]), ParseU16(fields[17]),
-            ParseByte(fields[18]));
+            ParseU16(fields[10]), (SamusPoseId)ParseByte(fields[11]), ParseU16(fields[12]), ParseU16(fields[13]),
+            ParseU16(fields[14]), (SamusPoseId)ParseByte(fields[15]), ParseU16(fields[16]), ParseU16(fields[17]),
+            (SamusPoseId)ParseByte(fields[18]));
 
         static ushort ParseU16(string value) =>
             ushort.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture);

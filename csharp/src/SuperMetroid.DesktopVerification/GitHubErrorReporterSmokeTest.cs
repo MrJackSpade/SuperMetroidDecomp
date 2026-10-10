@@ -96,7 +96,7 @@ public static class GitHubErrorReporterSmokeTest
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
         var runtime = new SuperMetroidRuntime(bus, initialPaletteArt: colors);
-        var samus = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose, XPosition = 100, YPosition = 200 };
+        var samus = new SamusState { Pose = SamusPoseId.MovingRightNormalPose, XPosition = 100, YPosition = 200 };
         typeof(SuperMetroidRuntime).GetProperty(nameof(runtime.Samus))!.SetValue(runtime, samus);
         typeof(SamusDrainedState).GetProperty(nameof(samus.Drained.GetUpHandler))!
             .SetValue(samus.Drained, DrainedGetUpHandler.UnableToStand);

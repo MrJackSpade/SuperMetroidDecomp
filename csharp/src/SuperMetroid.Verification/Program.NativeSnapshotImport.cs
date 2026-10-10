@@ -167,7 +167,7 @@ internal static partial class Program
         samus.ReserveTankMode = W(NativeSnapshotMemory.ReserveMode);
         samus.MaxReserveEnergy = W(NativeSnapshotMemory.MaxReserve);
         samus.ReserveEnergy = W(NativeSnapshotMemory.Reserve);
-        samus.Pose = (byte)W(NativeSnapshotMemory.Pose);
+        samus.Pose = (SamusPoseId)W(NativeSnapshotMemory.Pose);
         samus.XPosition = W(NativeSnapshotMemory.X);
         samus.YPosition = W(NativeSnapshotMemory.Y);
         samus.Kinematics.XSubposition = W(NativeSnapshotMemory.XFraction);
@@ -175,9 +175,9 @@ internal static partial class Program
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.SetAnimationFrameFromSpecialHandler(W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
-        samus.PoseHistory.PreviousPose = W(NativeSnapshotMemory.PreviousPose);
+        samus.PoseHistory.PreviousPose = (SamusPoseId)W(NativeSnapshotMemory.PreviousPose);
         samus.PoseHistory.PreviousDirectionAndMovement = W(NativeSnapshotMemory.PreviousDirection);
-        samus.PoseHistory.LastDifferentPose = W(NativeSnapshotMemory.LastDifferentPose);
+        samus.PoseHistory.LastDifferentPose = (SamusPoseId)W(NativeSnapshotMemory.LastDifferentPose);
         samus.PoseHistory.LastDifferentDirectionAndMovement = W(NativeSnapshotMemory.LastDifferentDirection);
         samus.HorizontalSpeed.BaseSpeed = W(NativeSnapshotMemory.BaseSpeed);
         samus.HorizontalSpeed.BaseSubspeed = W(NativeSnapshotMemory.BaseFraction);

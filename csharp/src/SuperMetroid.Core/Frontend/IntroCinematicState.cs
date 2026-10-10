@@ -649,7 +649,7 @@ public sealed partial class IntroCinematicState
         // collision data and must never be expanded as a visual block map.
         flashbackSamus = new SamusState
         {
-            Pose = SamusPoseIds.FacingLeftNormalPose,
+            Pose = SamusPoseId.FacingLeftNormalPose,
             XPosition = 155,
             YPosition = 115,
             SelectedHudItem = 1,
@@ -1021,7 +1021,7 @@ public sealed partial class IntroCinematicState
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
             SamusKnockbackMovement.Step(bus, level, samus, nmiFrameCounter);
         }
-        else if (samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose)
+        else if (samus.Pose is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose)
         {
             hurtEndingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
                 bus, level, samus, nmiFrameCounter);
@@ -1035,7 +1035,7 @@ public sealed partial class IntroCinematicState
                 flashbackDemoInput.NewlyPressed, nmiFrameCounter);
             groundedDemoStepped = true;
         }
-        else if (samus.Pose == SamusPoseIds.SpinJumpLeftPose)
+        else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
             fallingMovement = SamusAerialMovement.StepSpinJump(bus, level, samus,
                 demoInput, nmiFrameCounter, flashbackDemoInput?.NewlyPressed ?? 0);
@@ -1045,7 +1045,7 @@ public sealed partial class IntroCinematicState
             fallingMovement = SamusAerialMovement.StepNormalJump(bus, level, samus,
                 demoInput, nmiFrameCounter);
         }
-        else if (samus.Pose is SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose)
+        else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
         {
             // When `$90:DDE9` ends humanoid knockback it selects pose $29/$2A and restores
             // normal movement. The following frames therefore execute the ordinary type-6
@@ -1082,7 +1082,7 @@ public sealed partial class IntroCinematicState
         // next animation list all come from the same bank-$91 implementation as gameplay.
         if (!animationTransitionApplied && fallingMovement is { Landed: true })
         {
-            samus.ApplyAerialLanding(bus, wasSpinning: samus.Pose == SamusPoseIds.SpinJumpLeftPose, demoInput);
+            samus.ApplyAerialLanding(bus, wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
             transitionAccepted = true;
         }
 
@@ -1132,7 +1132,7 @@ public sealed partial class IntroCinematicState
         // handler call. State-handler function pointers are not independently dispatched by
         // this scoped frontend yet; freezing input after the exact pose change has the same
         // observable contract for the remaining Mother Brain explosion frames.
-        flashbackSamus!.Pose = SamusPoseIds.FacingLeftNormalPose;
+        flashbackSamus!.Pose = SamusPoseId.FacingLeftNormalPose;
         flashbackSamus.RefreshCollisionRadii(bus);
         // $91:874B: a Samus already in pose two keeps her running animation.
         flashbackSamus.SetAnimationFrameIfPoseChanged(bus);

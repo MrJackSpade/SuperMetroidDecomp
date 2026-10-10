@@ -90,7 +90,7 @@ public sealed partial class SamusState
         if ((initialDelay & 0x80) != 0)
         {
             throw new InvalidOperationException(
-                $"Samus pose ${Pose:X2} cannot initialize directly on delay command ${initialDelay:X2}.");
+                $"Samus pose ${(int)Pose:X2} cannot initialize directly on delay command ${initialDelay:X2}.");
         }
 
         AnimationFrameTimer = unchecked((ushort)(AnimationFrameBuffer + initialDelay));
@@ -128,7 +128,7 @@ public sealed partial class SamusState
     /// </remarks>
     internal void SetPoseAndAnimationFromScriptedController(
         ISnesAddressSpace bus,
-        byte pose,
+        SamusPoseId pose,
         ushort frame,
         ushort timer,
         bool refreshRadius)
@@ -153,8 +153,8 @@ public sealed partial class SamusState
     /// </summary>
     public void SetGrappleSwingAnimationFrame(ushort frame)
     {
-        if (Pose is not (SamusPoseIds.GrappleSwingRightPose or SamusPoseIds.GrappleSwingLeftPose))
-            throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose ${Pose:X2}.");
+        if (Pose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose))
+            throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose ${(int)Pose:X2}.");
         AnimationFrame = frame;
         AnimationFrameTimer = 15;
     }
@@ -173,7 +173,7 @@ public sealed partial class SamusState
         ushort nmiFrameCounter = 0,
         Bank80SystemState? system = null,
         bool beginLiquidSoundRequestFrame = true,
-        ushort? prospectiveInputPose = null,
+        SamusPoseId? prospectiveInputPose = null,
         bool demoPoseInput = false,
         Func<ushort>? queueEchoSound = null)
     {
@@ -193,7 +193,7 @@ public sealed partial class SamusState
         // $90:8032 keeps neutral-jump frame one alive in four-tick chunks while Samus is
         // still rising. This is intentionally tested before DEC and applies only when the
         // timer is exactly one; release/apex changes YDirection to two and lets it expire.
-        if (Pose is SamusPoseIds.NeutralJumpRightPose or SamusPoseIds.NeutralJumpLeftPose &&
+        if (Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
             Kinematics.YDirection != 2 &&
             AnimationFrame == 1 &&
             AnimationFrameTimer == 1)
@@ -243,7 +243,7 @@ public sealed partial class SamusState
     }
 
     private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput,
-        ushort? prospectiveInputPose = null, bool demoPoseInput = false,
+        SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<ushort>? queueEchoSound = null)
     {
         byte delayOrCommand = ReadAnimationByte(bus, AnimationFrame);
@@ -347,9 +347,9 @@ public sealed partial class SamusState
                 // must survive this final turn frame; checking held Jump instead
                 // would incorrectly accept inputs that never matched the ROM table.
                 if (!InputLocked && !demoPoseInput && prospectiveInputPose is
-                    SamusPoseIds.NeutralJumpTransitionRightPose or
-                    SamusPoseIds.NeutralJumpTransitionLeftPose or
-                    SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose)
+                    SamusPoseId.NeutralJumpTransitionRightPose or
+                    SamusPoseId.NeutralJumpTransitionLeftPose or
+                    SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
                     return;
                 if (!InputLocked && !demoPoseInput) AutoJumpInputPending = true;
                 // $90:8370 falls through to command $FD's one-byte pose operand. For the
@@ -358,7 +358,7 @@ public sealed partial class SamusState
                 // The runtime consumes this after AnimateNoFx, where Samus_HandleTransitions
                 // runs in the native frame. `$BF-$C4` use the same command to start their
                 // literal `$19/$1A` spin-jump operand after the grounded turn art finishes.
-                PendingTransitionalPose = ReadAnimationByte(
+                PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
                     bus,
                     unchecked((ushort)(AnimationFrame + 1)));
                 return;
@@ -377,7 +377,7 @@ public sealed partial class SamusState
                 ushort targetOffset = itemEquipped
                     ? movingVertically ? (ushort)6 : (ushort)5
                     : movingVertically ? (ushort)4 : (ushort)3;
-                PendingTransitionalPose = ReadAnimationByte(
+                PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
                     bus,
                     unchecked((ushort)(AnimationFrame + targetOffset)));
                 return;
@@ -389,7 +389,7 @@ public sealed partial class SamusState
                 // preserving it completes the actual sixteen-entry interpreter instead of
                 // treating valid cartridge bytecode as corrupt data.
                 bool faMovingVertically = Kinematics.YSpeed != 0 || Kinematics.YSubspeed != 0;
-                PendingTransitionalPose = ReadAnimationByte(
+                PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
                     bus,
                     unchecked((ushort)(AnimationFrame + (faMovingVertically ? 2 : 1))));
                 return;
@@ -415,7 +415,7 @@ public sealed partial class SamusState
                     ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 1))) |
                     (ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 2))) << 8)));
                 bool fcItemEquipped = (EquippedItems & fcItemMask) != 0;
-                PendingTransitionalPose = ReadAnimationByte(
+                PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
                     bus,
                     unchecked((ushort)(AnimationFrame + (fcItemEquipped ? 4 : 3))));
                 return;
@@ -424,7 +424,7 @@ public sealed partial class SamusState
                 // $90:83A0, command $FD pp: publish pose pp through the same command-three
                 // seam as $F8. Unlike F8, FD has no auto-jump special case before it falls
                 // through here. The one-frame $4B/$4C neutral-jump transitions use it.
-                PendingTransitionalPose = ReadAnimationByte(
+                PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
                     bus,
                     unchecked((ushort)(AnimationFrame + 1)));
                 return;
@@ -541,7 +541,7 @@ public sealed partial class SamusState
         sbyte graphicsYOffset = ReadGraphicsYOffset(bus);
         SpritemapXPosition = unchecked((ushort)(renderX - layer1X));
         if (movementType == SamusMovementType.Standing &&
-            Pose is SamusPoseIds.ForwardFacingPowerSuitPose or SamusPoseIds.ForwardFacingSuitedPose &&
+            Pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose &&
             AnimationFrame >= 2)
         {
             // `$90:8D07-$90:8D27` uses the ordinary pose graphics offset for front-facing
@@ -549,14 +549,14 @@ public sealed partial class SamusState
             // center. This is independent of `$00`'s extra power-suit chest-cover OBJ.
             SpritemapYPosition = unchecked((ushort)(renderY - 1 - layer1Y));
         }
-        else if (movementType == SamusMovementType.Standing && Pose >= SamusPoseIds.NormalLandingRightPose &&
-            Pose <= SamusPoseIds.SpinLandingLeftPose)
+        else if (movementType == SamusMovementType.Standing && Pose >= SamusPoseId.NormalLandingRightPose &&
+            Pose <= SamusPoseId.SpinLandingLeftPose)
         {
             // `$90:8CDC-$90:8CF6` indexes sixteen packed bytes, but performs a 16-bit
             // unaligned LDA. The following landing frame's byte therefore becomes the high
             // byte of the subtraction. OAM ultimately displays only low Y, yet the complete
             // wrapped `$0AFA` spritemap-position word is observable and is preserved here.
-            int landingOffsetIndex = (Pose - SamusPoseIds.NormalLandingRightPose) * 4 +
+            int landingOffsetIndex = (Pose - SamusPoseId.NormalLandingRightPose) * 4 +
                 AnimationFrame;
             if (TileTransfers.Artwork is not { } landingArt ||
                 !landingArt.TryLandingYOffset(landingOffsetIndex, out ushort landingOffset))
@@ -565,21 +565,21 @@ public sealed partial class SamusState
                 renderY - landingOffset - layer1Y));
         }
         else if (movementType == SamusMovementType.PostureTransition &&
-            Pose >= SamusPoseIds.CrouchingTransitionRightPose &&
-            Pose < SamusPoseIds.MorphBallGroundLeftPose)
+            Pose >= SamusPoseId.CrouchingTransitionRightPose &&
+            Pose < SamusPoseId.MorphBallGroundLeftPose)
         {
             // `$90:8D3C` indexes a signed byte by `2*(pose-$35)+animation frame` instead
             // of using the pose-definition graphics offset. Installed visual bytes
             // retain ordinary crouch/morph/stand/unmorph values and the four
             // valid-but-unused zero records `$39/$3A/$3F/$40`. An out-of-range
             // selection rejects; neighboring cartridge bytes are not a runtime fallback.
-            int postureIndex = (Pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + AnimationFrame;
+            int postureIndex = (Pose - SamusPoseId.CrouchingTransitionRightPose) * 2 + AnimationFrame;
             if (TileTransfers.Artwork is not { } postureArt ||
                 !postureArt.TryPostureYOffset(postureIndex, out sbyte transitionOffset))
                 throw new InvalidDataException($"Samus posture offset {postureIndex} lacks installed art.");
             SpritemapYPosition = unchecked((ushort)(renderY + transitionOffset - layer1Y));
         }
-        else if (Pose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose)
+        else if (Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
             // `$90:8DC1` indexes the shared 32-byte table at `$90:8DEF` directly with the
             // animation byte index. Several indices intentionally name command operands,
@@ -590,7 +590,7 @@ public sealed partial class SamusState
                 throw new InvalidDataException($"Samus drained offset {AnimationFrame} lacks installed art.");
             SpritemapYPosition = unchecked((ushort)(renderY + drainedOffset - layer1Y));
         }
-        else if ((Pose is SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose) &&
+        else if ((Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose) &&
                  AnimationFrame >= 5)
         {
             // `$90:8DB1-$8DBC` replaces the usual pose graphics offset with -3 after
@@ -616,7 +616,7 @@ public sealed partial class SamusState
         // suit chest. The suited `$9B` body has that shape in its ordinary spritemap and
         // deliberately skips this write. Coordinates use Samus's world center directly,
         // not SpritemapYPosition (which has already applied pose graphics offset `$08`).
-        if (Pose == SamusPoseIds.ForwardFacingPowerSuitPose)
+        if (Pose == SamusPoseId.ForwardFacingPowerSuitPose)
         {
             ushort chestX = unchecked((ushort)(XPosition - 7 - layer1X));
             ushort chestY = unchecked((ushort)(YPosition - 0x11 - layer1Y));
@@ -628,15 +628,15 @@ public sealed partial class SamusState
         // frames B+ draw the split bottom. The admitted Screw/Space Jump records use their
         // separate native rule and always draw the bottom half at every animation frame.
         bool ordinarySpinBottom = movementType != SamusMovementType.SpinJumping ||
-            Pose is SamusPoseIds.SpaceJumpRightPose or SamusPoseIds.SpaceJumpLeftPose or
-                SamusPoseIds.ScrewAttackRightPose or SamusPoseIds.ScrewAttackLeftPose ||
+            Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose or
+                SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose ||
             AnimationFrame == 0 || AnimationFrame >= 0x0b;
 
         // `$90:86EE` is movement type `$0A`'s only exception. The first three frames of
         // the `$D7/$D8` Crystal-Flash-end/fatal-damage body are complete top spritemaps;
         // all other knockback-family poses and later frames retain an ordinary lower half.
         bool knockbackBottom = movementType != SamusMovementType.Knockback ||
-            Pose is not (SamusPoseIds.DeathSequenceRightPose or SamusPoseIds.DeathSequenceLeftPose) ||
+            Pose is not (SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose) ||
             AnimationFrame >= 3;
 
         // `$90:870C-$90:874B` is a pose-and-frame dispatcher, not a blanket type-$0F
@@ -644,19 +644,19 @@ public sealed partial class SamusState
         // bodies below `$DB` never do. `$DB/$DC` draw it only on frame zero, `$DD-$F0`
         // only on frame two, and the aimed transition family `$F1+` always draws it.
         bool transitionBottom = movementType != SamusMovementType.PostureTransition ||
-            Pose >= SamusPoseIds.CrouchingTransitionAimUpRightPose ||
-            Pose is SamusPoseIds.CrouchingTransitionRightPose or SamusPoseIds.CrouchingTransitionLeftPose or
-                SamusPoseIds.StandingTransitionRightPose or SamusPoseIds.StandingTransitionLeftPose ||
-            (Pose is SamusPoseIds.UnusedPoseDb or SamusPoseIds.UnusedPoseDc &&
+            Pose >= SamusPoseId.CrouchingTransitionAimUpRightPose ||
+            Pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
+                SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ||
+            (Pose is SamusPoseId.UnusedPoseDb or SamusPoseId.UnusedPoseDc &&
                 AnimationFrame == 0) ||
-            (Pose >= SamusPoseIds.UnusedPoseDd &&
-                Pose < SamusPoseIds.CrouchingTransitionAimUpRightPose && AnimationFrame == 2);
+            (Pose >= SamusPoseId.UnusedPoseDd &&
+                Pose < SamusPoseId.CrouchingTransitionAimUpRightPose && AnimationFrame == 2);
 
         // The otherwise-unused movement type `$0D` still has executable cartridge logic
         // at `$90:874C`: poses `$65/$66` draw a lower half only on frame zero, while every
         // other type-`$0D` pose follows the ordinary always-split return.
         bool unusedTypeDBottom = movementType != SamusMovementType.Unused0D ||
-            Pose is not (SamusPoseIds.UnusedPose65 or SamusPoseIds.UnusedPose66) ||
+            Pose is not (SamusPoseId.UnusedPose65 or SamusPoseId.UnusedPose66) ||
             AnimationFrame < 1;
 
         bool wallJumpBottom = movementType != SamusMovementType.WallJumping ||
@@ -666,8 +666,8 @@ public sealed partial class SamusState
         // `$90:8790` suppresses the lower half for vertical shinesparks and for drained
         // crouch/fall byte indices zero and one. Every other type-$1B record draws it.
         bool specialType1BBottom = movementType != SamusMovementType.Special ||
-            (Pose is not (SamusPoseIds.ShinesparkVerticalRightPose or SamusPoseIds.ShinesparkVerticalLeftPose) &&
-             (Pose is not (SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose) ||
+            (Pose is not (SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose) &&
+             (Pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose) ||
               AnimationFrame >= 2));
         bool drawBottom = movementType is not (
             SamusMovementType.MorphBallGround or

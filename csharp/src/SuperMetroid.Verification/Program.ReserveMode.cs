@@ -79,7 +79,7 @@ internal static partial class Program
         secondRecovery.Begin(knockbackVariant);
         while (secondRecovery.IsActive)
             secondRecovery.StepAfterNmi(knockbackVariant, 0);
-        knockbackVariant.Pose = SamusPoseIds.FacingRightNormalPose;
+        knockbackVariant.Pose = SamusPoseId.FacingRightNormalPose;
         knockbackVariant.RefreshCollisionRadii(bus);
         knockbackVariant.InitializeAnimation(bus);
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter =
@@ -89,7 +89,7 @@ internal static partial class Program
         AssertTrue(knockbackVariant.TryApplyPostureTransition(
                 bus,
                 level,
-                SamusPoseIds.CrouchingTransitionRightPose,
+                SamusPoseId.CrouchingTransitionRightPose,
                 nmiFrameCounter: 0),
             "Reserve Mode non-CF route admits cartridge crouch storage");
         AssertEqual(ShinesparkPhase.Stored, knockbackVariant.Shinespark.Phase,
@@ -111,7 +111,7 @@ internal static partial class Program
     {
         var samus = new SamusState
         {
-            Pose = SamusPoseIds.FacingRightNormalPose,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = 128,
             YPosition = 128,
             Health = reserveEnergy == 0 ? (ushort)99 : (ushort)0,

@@ -35,7 +35,7 @@ internal static partial class Program
             RoomCollisionBlock block = level.GetCollisionBlock(x, y);
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
-            CartridgeDoorHeader? candidate = level.ResolveDoorCollision(bus, block.Behavior, 1, false).Door;
+            CartridgeDoorHeader? candidate = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false).Door;
             if (candidate?.DestinationRoomPointer != destinationRoom)
                 continue;
             doorX = x;

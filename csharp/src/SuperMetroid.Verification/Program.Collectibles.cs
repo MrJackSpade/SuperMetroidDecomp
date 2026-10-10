@@ -692,7 +692,7 @@ internal static partial class Program
         var cgram = new SnesCgram();
         var samus = new SamusState
         {
-            Pose = SamusPoseIds.FacingRightNormalPose,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = 500,
             YPosition = 600,
             ProjectileFlareCounter = 60,
@@ -708,7 +708,7 @@ internal static partial class Program
             SamusSuitPickupKind.Varia);
         AssertTrue(pickup.IsActive, "Varia transformation starts after message return");
         AssertTrue(samus.InputLocked, "suit transformation locks Samus input");
-        AssertEqual(SamusPoseIds.ForwardFacingPowerSuitPose, samus.Pose,
+        AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, samus.Pose,
             "first suit begins in front-facing power-suit pose");
         AssertEqual((ushort)(0x0100 + 120), samus.XPosition,
             "suit transformation centers Samus horizontally");
@@ -755,7 +755,7 @@ internal static partial class Program
             if (!observedReveal && pickup.Substate == 4)
             {
                 observedReveal = true;
-                AssertEqual(SamusPoseIds.ForwardFacingSuitedPose, samus.Pose,
+                AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose,
                     "stage three installs suited front-facing pose");
                 AssertEqual((ushort)0x03e0, cgram.Colors[192],
                     "stage three loads Varia palette from ROM");
@@ -786,15 +786,15 @@ internal static partial class Program
                 : (ushort)0 };
             samus.SuitColors = suitColors;
             var history = samus.PoseHistory;
-            history.PreviousPose = SamusPoseIds.SpinJumpRightPose;
+            history.PreviousPose = SamusPoseId.SpinJumpRightPose;
             history.PreviousDirectionAndMovement = 0x0308;
-            history.LastDifferentPose = SamusPoseIds.WallJumpLeftPose;
+            history.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
             history.LastDifferentDirectionAndMovement = 0x1404;
             var pickup = new SamusSuitPickupState();
             pickup.Begin(bus, samus, 0, 0, kind);
-            byte initialPose = samus.Pose;
+            SamusPoseId initialPose = samus.Pose;
             ushort initialMetadata = (ushort)(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8));
-            AssertEqual(SamusPoseIds.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
+            AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
             AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "suit entry shifts prior metadata");
             AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");
             AssertEqual(initialMetadata, history.PreviousDirectionAndMovement, "suit entry commits front metadata");
@@ -804,7 +804,7 @@ internal static partial class Program
             AssertEqual(4, pickup.Substate, "suit history fixture reaches reveal");
             AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
             AssertEqual(initialMetadata, history.LastDifferentDirectionAndMovement, "suit reveal shifts initial metadata");
-            AssertEqual(SamusPoseIds.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");
+            AssertEqual(SamusPoseId.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");
             AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
                 history.PreviousDirectionAndMovement, "suit reveal commits suited metadata");
             AssertTrue(!history.AllowsWallJumpProbe, "suit reveal clears pre-acquisition spin eligibility");

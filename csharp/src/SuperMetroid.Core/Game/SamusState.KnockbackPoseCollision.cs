@@ -10,10 +10,10 @@ public sealed partial class SamusState
     /// pose is installed. Crouch-to-hurt must keep the larger body above its floor.
     /// </summary>
     internal bool TryResolveKnockbackPoseCollision(
-        ISnesAddressSpace bus, RoomLevelData level, byte targetPose,
+        ISnesAddressSpace bus, RoomLevelData level, SamusPoseId targetPose,
         ushort nmiFrameCounter, RoomPlmSystem? plms)
     {
-        byte sourcePose = Pose;
+        SamusPoseId sourcePose = Pose;
         LargerPoseCollisionOutcome outcome = ResolveLargerPoseCollision(
             bus, level, targetPose, nmiFrameCounter, plms, out int adjustment);
         if (outcome != LargerPoseCollisionOutcome.Allowed)

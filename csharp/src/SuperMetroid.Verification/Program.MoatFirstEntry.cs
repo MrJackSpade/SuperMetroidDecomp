@@ -35,7 +35,7 @@ internal static partial class Program
             {
                 var block = level.GetCollisionBlock(x, y);
                 if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-                var door = level.ResolveDoorCollision(bus, block.Behavior, 1, false);
+                var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
                 if (door.Door?.DestinationRoomPointer != 0x95ff) continue;
                 doorX = x; doorY = y; behavior = block.Behavior;
                 break;

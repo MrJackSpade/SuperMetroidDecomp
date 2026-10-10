@@ -46,7 +46,7 @@ internal static partial class AssetTools
         {
             scenario.Runtime.StepFrame(scenario.Input(frame));
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
-                Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={scenario.Samus.Pose:X2} " +
+                Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)scenario.Samus.Pose:X2} " +
                     $"shutter={(ushort)shutter.Function:X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
                     $"rev={shutter.ReactionDirection:X4} act={(shutter.ShotActivated ? 1 : 0):X4}");
         }
@@ -78,7 +78,7 @@ internal static partial class AssetTools
                     samus.YPosition < platform.YPosition && gap < worstGap)
                 {
                     worstGap = gap;
-                    Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{samus.Pose:X2} platformY={platform.YPosition}");
+                    Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{(int)samus.Pose:X2} platformY={platform.YPosition}");
                 }
                 if (samus.Kinematics.YRadius != 7)
                     throw new InvalidOperationException(
@@ -109,9 +109,9 @@ internal static partial class AssetTools
         Word(0xAF6, k.XPosition); Word(0xAF8, k.XSubposition);
         Word(0xAFA, k.YPosition); Word(0xAFC, k.YSubposition);
         Word(0xAFE, k.XRadius); Word(0xB00, k.YRadius);
-        Word(0xA1C, samus.Pose);
+        Word(0xA1C, (int)samus.Pose);
         // Native pose record carries direction/movement type in its first two bytes.
-        int pose = 0x91B629 + samus.Pose * 8;
+        int pose = 0x91B629 + (int)samus.Pose * 8;
         ram[0xA1E] = runtime.AddressSpace.ReadByte(pose);
         ram[0xA1F] = runtime.AddressSpace.ReadByte(pose + 1);
         Word(0xA56, samus.BombJumpDirection); Word(0xA58, 0xE032); Word(0xA60, 0xE90E);

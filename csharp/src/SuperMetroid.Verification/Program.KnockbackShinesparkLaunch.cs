@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyKnockbackShinesparkLaunch()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Pose = SamusPoseIds.ShinesparkWindupLeftPose, XPosition = 0x6c, YPosition = 0x98 };
+        var samus = new SamusState { Pose = SamusPoseId.ShinesparkWindupLeftPose, XPosition = 0x6c, YPosition = 0x98 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(0x0400), "a shine is stored");
@@ -19,10 +19,10 @@ internal static partial class Program
         samus.Shinespark.RelinquishMovementHandler();
         AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "normal movement replaced the windup handler");
 
-        samus.ApplyShinesparkDirectionTransition(bus, SamusPoseIds.ShinesparkHorizontalLeftPose);
+        samus.ApplyShinesparkDirectionTransition(bus, SamusPoseId.ShinesparkHorizontalLeftPose);
 
         AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "the left launch installs the horizontal handler");
-        AssertEqual(SamusPoseIds.ShinesparkHorizontalLeftPose, samus.Pose, "Samus takes the left launch pose");
+        AssertEqual(SamusPoseId.ShinesparkHorizontalLeftPose, samus.Pose, "Samus takes the left launch pose");
         Console.WriteLine("  Knockback shinespark launch: a direction launches from a windup pose without its handler.");
     }
 }

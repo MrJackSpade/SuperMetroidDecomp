@@ -14,7 +14,7 @@ internal static partial class Program
             new byte[32 * 32], new ushort[32 * 32], new byte[0x400 * 8]);
         var samus = new SamusState
         {
-            Pose = SamusPoseIds.SpinJumpLeftPose,
+            Pose = SamusPoseId.SpinJumpLeftPose,
             XPosition = 128,
             YPosition = 128,
         };

@@ -13,7 +13,7 @@ internal static partial class Program
         foreach (int hold in new[] { 0, 1, 63, 64, 127, 128, 191, 192 })
         foreach (bool keepDown in hold == 192 ? new[] { false, true } : new[] { false })
         {
-            var samus = new SamusState { Pose = SamusPoseIds.MorphBallGroundRightPose,
+            var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
                 XPosition = 512, YPosition = 512, ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames };
             samus.RefreshCollisionRadii(bus);

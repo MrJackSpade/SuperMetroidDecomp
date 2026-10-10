@@ -19,7 +19,7 @@ internal static class SamusPoseAimDefinitions
     /// <summary>$91:B62C shot-direction column: $FF disallows shooting and cancels Grapple.</summary>
     private const byte ShootingDisabled = 0xff;
     /// <summary>Native PoseDefinitions column at $91:B62C with eight-byte stride; FD..FF preserve bounded adjacent instruction bytes.</summary>
-    internal static byte Read(byte pose) => (SamusPoseId)pose switch
+    internal static byte Read(SamusPoseId pose) => (SamusPoseId)pose switch
     {
         SamusPoseId.StandingAimUpRightPose or
         SamusPoseId.RunningAimUpRightPose or

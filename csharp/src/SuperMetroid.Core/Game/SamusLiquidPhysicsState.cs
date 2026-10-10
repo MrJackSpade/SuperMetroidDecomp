@@ -299,8 +299,8 @@ public sealed partial class SamusLiquidPhysicsState
 
             // Standing forward `$00`, backward `$9B`, and every Gravity-Suit pose clear the
             // buffer in Spawn_AirBubbles after all particle/audio side effects have run.
-            if (samus.Pose is SamusPoseIds.ForwardFacingPowerSuitPose or
-                SamusPoseIds.ForwardFacingSuitedPose || gravitySuit)
+            if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
+                SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
                 samus.AnimationFrameBuffer = 0;
             return;
         }
@@ -340,8 +340,8 @@ public sealed partial class SamusLiquidPhysicsState
             LiquidPhysicsType = LavaAcid;
             samus.AnimationFrameBuffer = 2;
             TrySpawnLavaSurfaceSpray(samus, top, nmiFrameCounter);
-            if (samus.Pose is SamusPoseIds.ForwardFacingPowerSuitPose or
-                SamusPoseIds.ForwardFacingSuitedPose || gravitySuit)
+            if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
+                SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
                 samus.AnimationFrameBuffer = 0;
             return;
         }
@@ -375,7 +375,7 @@ public sealed partial class SamusLiquidPhysicsState
         ISnesAddressSpace bus,
         SamusState samus,
         SamusMovementType previousMovementType,
-        byte previousPose,
+        SamusPoseId previousPose,
         ushort impactYSpeed,
         ushort impactYSubspeed)
     {
@@ -388,8 +388,8 @@ public sealed partial class SamusLiquidPhysicsState
         if (!CinematicFunctionActive && previousMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
-            QueueSound(previousPose is SamusPoseIds.ScrewAttackRightPose or
-                    SamusPoseIds.ScrewAttackLeftPose
+            QueueSound(previousPose is SamusPoseId.ScrewAttackRightPose or
+                    SamusPoseId.ScrewAttackLeftPose
                         ? SoundEffectLibrary1Sounds.StopScrewAttack
                         : SoundEffectLibrary1Sounds.StopSpinJump,
                 maximumQueued: 6);

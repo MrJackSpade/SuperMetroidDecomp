@@ -67,8 +67,8 @@ public sealed class SamusDraygonGrabbedState
         ArgumentNullException.ThrowIfNull(samus);
 
         samus.Pose = draygonFacingRight
-            ? SamusPoseIds.DraygonGrabbedNeutralRightPose
-            : SamusPoseIds.DraygonGrabbedNeutralLeftPose;
+            ? SamusPoseId.DraygonGrabbedNeutralRightPose
+            : SamusPoseId.DraygonGrabbedNeutralLeftPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
 
@@ -163,7 +163,7 @@ public sealed class SamusDraygonGrabbedState
 
         // Native tests the signed difference only on a newly counted D-pad edge.
         bool released = counted && unchecked((short)(EscapeButtonCounter - EscapeButtonCounterTarget)) >= 0;
-        byte poseBeforeRelease = samus.Pose;
+        SamusPoseId poseBeforeRelease = samus.Pose;
         if (released)
             Release(bus, samus);
 
@@ -183,8 +183,8 @@ public sealed class SamusDraygonGrabbedState
 
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = facingLeft
-            ? SamusPoseIds.FacingLeftNormalPose
-            : SamusPoseIds.FacingRightNormalPose;
+            ? SamusPoseId.FacingLeftNormalPose
+            : SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         if (samus.Pose != samus.PoseHistory.PreviousPose)
             samus.InitializeAnimation(bus, initialFrame: 0);
@@ -234,7 +234,7 @@ public sealed class SamusDraygonGrabbedState
         if (!SamusState.IsDraygonGrabbedPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Draygon movement requires pose $BA-$BE/$EC-$F0, not ${samus.Pose:X2}.");
+                $"Draygon movement requires pose $BA-$BE/$EC-$F0, not ${(int)samus.Pose:X2}.");
         }
     }
 }

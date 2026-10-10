@@ -44,16 +44,16 @@ static void VerifyBabyMetroidCutsceneEntrance()
     // Controller one reads the current `$E9` direction byte, then rebinds the new `$EB`
     // animation pointer without refreshing radii. These are the only Samus ROM fields the
     // entrance consumes; the dedicated drained-controller suite proves their animation.
-    WritePoseDefinition(bus, SamusPoseIds.DrainedCrouchingLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.DrainedCrouchingLeftPose,
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.DrainedStandingLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.DrainedStandingLeftPose,
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.DrainedStandingLeftPose * 2, 0xc100);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DrainedStandingLeftPose * 2, 0xc100);
     bus.WriteByte(0x91c100, 0x10);
 
     var samus = new SamusState
     {
-        Pose = SamusPoseIds.DrainedCrouchingLeftPose,
+        Pose = SamusPoseId.DrainedCrouchingLeftPose,
         XPosition = 0x00ca,
         YPosition = 0x00c0,
         // These are the private-ROM runner's post-rainbow values. The Baby must add one
@@ -123,7 +123,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     while (baby.Phase != BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse &&
            calls < 700)
     {
-        byte samusPoseBeforeStep = samus.Pose;
+        SamusPoseId samusPoseBeforeStep = samus.Pose;
         latch = baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
         calls++;
         sawBodyStumbleRequest |= latch.BodyStumbleRequested;
@@ -145,7 +145,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
                 "Baby face timer expires on call 269");
             AssertTrue(samusPoseBeforeStep != samus.Pose,
                 "Baby face completion calls drained controller one");
-            AssertEqual(SamusPoseIds.DrainedStandingLeftPose, samus.Pose,
+            AssertEqual(SamusPoseId.DrainedStandingLeftPose, samus.Pose,
                 "Baby face completion installs left drained standing pose");
             AssertEqual(ExpectedBabyPoint(0x008c, 0xc400, 0x004b, 0x6300),
                 BabyPoint(),

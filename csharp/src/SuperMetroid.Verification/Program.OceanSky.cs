@@ -72,7 +72,7 @@ internal static partial class Program
         PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/after.png", 256, 224, SoftwareLayeredSnapshotRenderer.Render(scene));
         var samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.XPosition = (ushort)(runtime.Camera!.XPosition + 128);
         samus.YPosition = (ushort)(runtime.Camera.YPosition + 128);
         samus.RefreshCollisionRadii(bus);

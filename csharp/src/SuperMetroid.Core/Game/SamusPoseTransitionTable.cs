@@ -31,7 +31,7 @@ public static class SamusPoseTransitionTable
     /// </remarks>
     public static SamusPoseTransitionLookup Lookup(
         ISnesAddressSpace bus,
-        byte currentPose,
+        SamusPoseId currentPose,
         ushort canonicalHeldInput,
         ushort canonicalNewInput)
     {
@@ -50,7 +50,7 @@ public static class SamusPoseTransitionTable
         if (!SamusPoseInputDefinitions.TryGetPointer(currentPose, out ushort tablePointer))
         {
             throw new InvalidDataException(
-                $"Pose ${currentPose:X2} has no authored input-transition graph; " +
+                $"Pose ${(int)currentPose:X2} has no authored input-transition graph; " +
                 "adjacent bank-$91 code is not mechanics metadata.");
         }
         SamusPoseInputMatch match = SamusPoseInputDefinitions.Match(tablePointer, held, newlyPressed);
@@ -71,7 +71,7 @@ public static class SamusPoseTransitionTable
 
 /// <summary>Debugger-readable winning six-byte transition-table record.</summary>
 public readonly record struct SamusPoseTransition(
-    ushort ProspectivePose);
+    SamusPoseId ProspectivePose);
 
 /// <summary>
 /// Full control-flow result from <c>$91:81A9</c>, including its otherwise invisible

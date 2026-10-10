@@ -150,9 +150,9 @@ public static class SamusKnockbackMovement
         bool facingLeft = SamusState.IsFacingLeft(bus, samus.Pose);
         if (humanoid)
         {
-            byte targetPose = facingLeft
-                ? SamusPoseIds.KnockbackLeftPose
-                : SamusPoseIds.KnockbackRightPose;
+            SamusPoseId targetPose = facingLeft
+                ? SamusPoseId.KnockbackLeftPose
+                : SamusPoseId.KnockbackRightPose;
             // Native interrupted poses pass through the same expansion check as ordinary
             // input poses before command one initializes knockback. Scripted cinematic
             // callers without room terrain retain their explicitly positioned behavior.
@@ -170,8 +170,8 @@ public static class SamusKnockbackMovement
             // initializer. This preserves the actual table instead of turning an unused
             // native arm into an exception.
             samus.Pose = facingLeft
-                ? SamusPoseIds.UnusedKnockbackLeftPose
-                : SamusPoseIds.UnusedKnockbackRightPose;
+                ? SamusPoseId.UnusedKnockbackLeftPose
+                : SamusPoseId.UnusedKnockbackRightPose;
             samus.RefreshCollisionRadii(bus);
             humanoid = true;
         }
@@ -302,20 +302,20 @@ public static class SamusKnockbackMovement
     public static void ApplyDamageBoostTransition(
         ISnesAddressSpace bus,
         SamusState samus,
-        byte sourcePose,
-        byte targetPose)
+        SamusPoseId sourcePose,
+        SamusPoseId targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
         // Alpha selects a prospective pose; it does not mutate the live movement type.
         // The owning transition dispatcher must resolve higher-priority expiry first.
         bool valid = (sourcePose, targetPose) is
-            (SamusPoseIds.KnockbackRightPose, SamusPoseIds.DamageBoostRightPose) or
-            (SamusPoseIds.KnockbackLeftPose, SamusPoseIds.DamageBoostLeftPose);
+            (SamusPoseId.KnockbackRightPose, SamusPoseId.DamageBoostRightPose) or
+            (SamusPoseId.KnockbackLeftPose, SamusPoseId.DamageBoostLeftPose);
         if (!valid)
         {
             throw new InvalidOperationException(
-                $"Damage boost ${sourcePose:X2} -> ${targetPose:X2} is not a retail transition.");
+                $"Damage boost ${(int)sourcePose:X2} -> ${(int)targetPose:X2} is not a retail transition.");
         }
 
         // `$91:F8CB` restores only the normal movement handler. The conditional jump
@@ -335,20 +335,20 @@ public static class SamusKnockbackMovement
     public static void ApplyDamageBoostPoseTransition(
         ISnesAddressSpace bus,
         SamusState samus,
-        byte targetPose,
+        SamusPoseId targetPose,
         ushort controllerNewInput)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
         bool valid = (samus.Pose, targetPose) is
-            (SamusPoseIds.DamageBoostLeftPose,
-                SamusPoseIds.NeutralJumpLeftPose or SamusPoseIds.NormalJumpForwardLeftPose) or
-            (SamusPoseIds.DamageBoostRightPose,
-                SamusPoseIds.NeutralJumpRightPose or SamusPoseIds.NormalJumpForwardRightPose);
+            (SamusPoseId.DamageBoostLeftPose,
+                SamusPoseId.NeutralJumpLeftPose or SamusPoseId.NormalJumpForwardLeftPose) or
+            (SamusPoseId.DamageBoostRightPose,
+                SamusPoseId.NeutralJumpRightPose or SamusPoseId.NormalJumpForwardRightPose);
         if (!valid)
         {
             throw new InvalidOperationException(
-                $"Damage-boost exit ${samus.Pose:X2} -> ${targetPose:X2} is not in the ROM table.");
+                $"Damage-boost exit ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not in the ROM table.");
         }
 
         // Both target families have the same radius. HandlePoseChange nevertheless runs
@@ -404,7 +404,7 @@ public static class SamusKnockbackMovement
         // history record instead of assuming a hurt pose also covers the no-animation
         // path, where both radii ordinarily match and the alignment is a no-op.
         ushort previousRadius = SamusState.ReadPoseYRadius(
-            unchecked((byte)samus.PoseHistory.PreviousPose));
+            unchecked(samus.PoseHistory.PreviousPose));
         ushort targetRadius = SamusState.ReadPoseYRadius(samus.Pose);
         samus.AlignBottomAfterPoseChange(previousRadius, targetRadius);
 

@@ -137,8 +137,8 @@ public sealed class SamusCrystalFlashState
         // Read that byte from the source pose before replacing it with Crystal Flash art.
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = facingLeft
-            ? SamusPoseIds.CrystalFlashLeftPose
-            : SamusPoseIds.CrystalFlashRightPose;
+            ? SamusPoseId.CrystalFlashLeftPose
+            : SamusPoseId.CrystalFlashRightPose;
         samus.RefreshCollisionRadii(bus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.Special)
             throw new InvalidDataException("ROM pose $D3/$D4 no longer has movement type $1B.");

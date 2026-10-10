@@ -60,7 +60,7 @@ internal static partial class Program
     /// <summary>Seeds an endpoint collision probe without an impossible forward-facing firing pose.</summary>
     private static void SeedStationaryGrappleCollisionProbe(ISnesAddressSpace bus, SamusState samus)
     {
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Grapple.Phase = GrapplePhase.Firing;
         samus.Grapple.FireDirection = samus.ReadShotDirection(bus);
     }

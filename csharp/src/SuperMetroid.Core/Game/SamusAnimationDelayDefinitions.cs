@@ -402,11 +402,11 @@ internal static class SamusAnimationDelayDefinitions
     private const ushort StandingTransitionAimDiagonalDownLeftAnimation = 0xB539;
 
     /// <summary>Resolve the native bank-$91 list pointer for any pose byte.</summary>
-    internal static ushort PointerForPose(byte pose)
+    internal static ushort PointerForPose(SamusPoseId pose)
     {
-        if (pose >= RealPoseCount)
+        if ((int)pose >= RealPoseCount)
         {
-            int offset = DelayStreamsAddress + (pose - RealPoseCount) * sizeof(ushort);
+            int offset = DelayStreamsAddress + ((int)pose - RealPoseCount) * sizeof(ushort);
             return (ushort)(ReadCompiledByte(offset) | ReadCompiledByte(offset + 1) << 8);
         }
         return (SamusPoseId)pose switch
@@ -691,7 +691,7 @@ internal static class SamusAnimationDelayDefinitions
         if (address is >= PointerTableAddress and < DelayStreamsAddress)
         {
             int byteIndex = address - PointerTableAddress;
-            ushort pointer = PointerForPose((byte)(byteIndex / 2));
+            ushort pointer = PointerForPose((SamusPoseId)(byteIndex / 2));
             return unchecked((byte)(pointer >> ((byteIndex & 1) * 8)));
         }
         if (address is >= DelayStreamsAddress and < DelayStreamsEndExclusive)

@@ -11,15 +11,15 @@ internal sealed partial class InstalledSamusIsolationTests
     {
         foreach (bool left in new[] { false, true }) CheckCrystalFlash(left);
         CheckStoredShine();
-        foreach (byte pose in new[] { SamusPoseIds.ShinesparkHorizontalRightPose,
-            SamusPoseIds.ShinesparkHorizontalLeftPose, SamusPoseIds.ShinesparkVerticalRightPose,
-            SamusPoseIds.ShinesparkVerticalLeftPose, SamusPoseIds.ShinesparkDiagonalRightPose,
-            SamusPoseIds.ShinesparkDiagonalLeftPose }) CheckShinespark(pose);
+        foreach (SamusPoseId pose in new[] { SamusPoseId.ShinesparkHorizontalRightPose,
+            SamusPoseId.ShinesparkHorizontalLeftPose, SamusPoseId.ShinesparkVerticalRightPose,
+            SamusPoseId.ShinesparkVerticalLeftPose, SamusPoseId.ShinesparkDiagonalRightPose,
+            SamusPoseId.ShinesparkDiagonalLeftPose }) CheckShinespark(pose);
         foreach (SamusSuitPickupKind kind in Enum.GetValues<SamusSuitPickupKind>()) CheckSuitPickup(kind);
         foreach (ushort suit in new[] { (ushort)0, (ushort)SamusEquipmentFlags.VariaSuit,
             (ushort)SamusEquipmentFlags.GravitySuit })
-        foreach (byte source in new[] { SamusPoseIds.FacingRightNormalPose, SamusPoseIds.MorphBallGroundLeftPose,
-            SamusPoseIds.SpinJumpRightPose }) CheckDeath(source, suit);
+        foreach (SamusPoseId source in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.MorphBallGroundLeftPose,
+            SamusPoseId.SpinJumpRightPose }) CheckDeath(source, suit);
         CheckReserve();
         foreach (bool left in new[] { false, true }) CheckDrained(left);
     }
@@ -33,7 +33,7 @@ internal sealed partial class InstalledSamusIsolationTests
 
     private void CheckCrystalFlash(bool left)
     {
-        Pair pair = Create(left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose);
+        Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
         string context = $"Crystal Flash left={left}";
         pair.Apply(context + " setup", actor => { PrepareFlash(actor.Samus); });
         Require(!pair.Apply(context + " rejected chord", actor => actor.Samus.CrystalFlash.TryBegin(
@@ -87,11 +87,11 @@ internal sealed partial class InstalledSamusIsolationTests
             "Edited stored-shine colors must retain the 180-call expiration");
     }
 
-    private void CheckShinespark(byte target)
+    private void CheckShinespark(SamusPoseId target)
     {
-        bool left = (target & 1) == 0;
-        Pair pair = Create(left ? SamusPoseIds.ShinesparkWindupLeftPose : SamusPoseIds.ShinesparkWindupRightPose);
-        string context = $"shinespark pose {target:X2}";
+        bool left = ((int)target & 1) == 0;
+        Pair pair = Create(left ? SamusPoseId.ShinesparkWindupLeftPose : SamusPoseId.ShinesparkWindupRightPose);
+        string context = $"shinespark pose {(int)target:X2}";
         pair.Apply(context + " admission", actor =>
         {
             Require(actor.Samus.Shinespark.TryStoreFromSpeedBooster(
@@ -149,10 +149,10 @@ internal sealed partial class InstalledSamusIsolationTests
         Console.WriteLine($"  {kind} suit: {frames} identical stage/window/pose/control calls; edited suit colors applied.");
     }
 
-    private void CheckDeath(byte source, ushort suit)
+    private void CheckDeath(SamusPoseId source, ushort suit)
     {
         Pair pair = Create(source, suit);
-        string context = $"death source {source:X2}, suit {suit:X4}";
+        string context = $"death source {(int)source:X2}, suit {suit:X4}";
         pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Memory, actor.Samus, 0, 240), draw: false);
         var stockQueue = new VramWriteQueue(); var editedQueue = new VramWriteQueue();
         int frames = 0;

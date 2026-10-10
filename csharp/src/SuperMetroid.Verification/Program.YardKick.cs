@@ -9,7 +9,7 @@ internal static partial class Program
     {
         var assets = LoadFixtureRoomAssets(bus, room);
         int cases = 0;
-        foreach (byte pose in new[] { SamusPoseIds.FacingRightNormalPose, SamusPoseIds.FacingLeftNormalPose })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose })
         foreach (ushort whole in new ushort[] { 0, 1, 2, 15, 16, 32 })
         foreach (ushort fraction in new ushort[] { 0, 0x8000, 0xFFFF })
         {
@@ -33,7 +33,7 @@ internal static partial class Program
             samus.AbsoluteMovedLastFrameXFixed = ((uint)whole << 16) | fraction;
             AssertTrue(enemies.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor.NativeIndex),
                 "Yard kick enters through native contact dispatcher");
-            bool left = pose == SamusPoseIds.FacingLeftNormalPose;
+            bool left = pose == SamusPoseId.FacingLeftNormalPose;
             AssertEqual(left ? unchecked((ushort)-whole) : whole, state.AirborneXVelocity, "kick whole word");
             AssertEqual(left ? unchecked((ushort)-fraction) : fraction, state.AirborneXSubvelocity, "kick fraction negates independently");
             int index = Math.Min((int)whole, 15);

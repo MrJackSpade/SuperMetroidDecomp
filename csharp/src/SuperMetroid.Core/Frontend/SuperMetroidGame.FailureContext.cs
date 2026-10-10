@@ -12,7 +12,7 @@ public sealed partial class SuperMetroidGame
             $"room=$8F:{GameplayActiveRoomPointer:X4}; roomState=$8F:{GameplayActiveRoomStatePointer:X4}; door=$83:{GameplayActiveDoorPointer:X4}";
         if (runtime?.Samus is not { } samus)
             return location + "; Samus=not initialized";
-        return location + $"; pose=${samus.Pose:X2}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer}; " +
+        return location + $"; pose=${(int)samus.Pose:X2}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer}; " +
             $"animationList=${samus.AnimationDelayListAddress:X6}; position={samus.XPosition},{samus.YPosition}; " +
             $"input=${runtime.Controller1.Current:X4}; newlyPressed=${runtime.Controller1.NewlyPressed:X4}; inputLocked={samus.InputLocked}; " +
             $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +

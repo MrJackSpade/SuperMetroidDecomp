@@ -113,14 +113,14 @@ public static class SamusAerialMovement
         // Poses `$4B/$4C/$55-$5A` are genuine movement-type-2 poses, but native treats them as
         // a transition: base X speed is forced to zero, only external X/Y displacement is
         // applied, and normal vertical speed does not move Samus on this frame.
-        if (samus.Pose is SamusPoseIds.NeutralJumpTransitionRightPose or
-            SamusPoseIds.NeutralJumpTransitionLeftPose or
-            SamusPoseIds.NormalJumpTransitionAimUpRightPose or
-            SamusPoseIds.NormalJumpTransitionAimUpLeftPose or
-            SamusPoseIds.NormalJumpTransitionAimDiagonalUpRightPose or
-            SamusPoseIds.NormalJumpTransitionAimDiagonalUpLeftPose or
-            SamusPoseIds.NormalJumpTransitionAimDiagonalDownRightPose or
-            SamusPoseIds.NormalJumpTransitionAimDiagonalDownLeftPose)
+        if (samus.Pose is SamusPoseId.NeutralJumpTransitionRightPose or
+            SamusPoseId.NeutralJumpTransitionLeftPose or
+            SamusPoseId.NormalJumpTransitionAimUpRightPose or
+            SamusPoseId.NormalJumpTransitionAimUpLeftPose or
+            SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
+            SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
+            SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
+            SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose)
         {
             samus.HorizontalSpeed.AccelerationMode = 0;
             var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
@@ -308,7 +308,7 @@ public static class SamusAerialMovement
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.WallJumping ||
             !SamusState.IsWallJumpPose(samus.Pose))
-            throw new InvalidOperationException($"Wall-jump movement requires type $14 pose, not ${samus.Pose:X2}.");
+            throw new InvalidOperationException($"Wall-jump movement requires type $14 pose, not ${(int)samus.Pose:X2}.");
 
         // Frames 23+ are the somersault portion and always use Screw-style index three.
         // Frames 3..22 use charge-beam index four only after the projectile flare counter
@@ -350,10 +350,10 @@ public static class SamusAerialMovement
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.DamageBoost ||
-            samus.Pose is not (SamusPoseIds.DamageBoostLeftPose or SamusPoseIds.DamageBoostRightPose))
+            samus.Pose is not (SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose))
         {
             throw new InvalidOperationException(
-                $"Damage-boost movement requires type $19 pose, not ${samus.Pose:X2}.");
+                $"Damage-boost movement requires type $19 pose, not ${(int)samus.Pose:X2}.");
         }
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
@@ -396,7 +396,7 @@ public static class SamusAerialMovement
              SamusState.IsAimedCrouchingTurnPose(samus.Pose));
         if (movementType is not (SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling) ||
             !isTranslatedTurnPose)
-            throw new InvalidOperationException($"Aerial-turn movement requires type $17/$18 pose, not ${samus.Pose:X2}.");
+            throw new InvalidOperationException($"Aerial-turn movement requires type $17/$18 pose, not ${(int)samus.Pose:X2}.");
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         // The native turning wrapper enters the shared X mover, including its
@@ -496,8 +496,8 @@ public static class SamusAerialMovement
         AerialMovementResult result = FinishVerticalMovement(bus, level, samus, nmiFrameCounter, plms: plms);
         // The movement wrapper selects fast-fall art after physics, before AnimateSamus.
         // Aimed falling poses have their own lists and do not enter this branch.
-        if (samus.Pose is SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose or
-            SamusPoseIds.FallingGunExtendedRightPose or SamusPoseIds.FallingGunExtendedLeftPose &&
+        if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
+            SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
             unchecked((short)(samus.Kinematics.YSpeed - SamusMovementRomData.FastFallAnimationSpeed)) >= 0 &&
             unchecked((short)(samus.AnimationFrame - SamusMovementRomData.FastFallAnimationFrame)) < 0)
             samus.SetAnimationFrameFromSpecialHandler(SamusMovementRomData.FastFallAnimationFrame,

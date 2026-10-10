@@ -523,10 +523,10 @@ internal static partial class Program
                     $"({first % FrontendFrame.Width},{first / FrontendFrame.Width}): " +
                     $"native={expected.Pixels[first]}, installed={actual.Pixels[first]}; " +
                     $"Samus native=({native.GameplaySamusX},{native.GameplaySamusY}) " +
-                    $"pose ${native.GameplaySamusPose:X2}/frame {nativeSamus.AnimationFrame}/" +
+                    $"pose ${(int)native.GameplaySamusPose:X2}/frame {nativeSamus.AnimationFrame}/" +
                     $"top {nativeSamus.TopSpritemapIndex}/bottom {nativeSamus.BottomSpritemapIndex}, installed=" +
                     $"({installed.GameplaySamusX},{installed.GameplaySamusY}) " +
-                    $"pose ${installed.GameplaySamusPose:X2}/frame {installedSamus.AnimationFrame}/" +
+                    $"pose ${(int)installed.GameplaySamusPose:X2}/frame {installedSamus.AnimationFrame}/" +
                     $"top {installedSamus.TopSpritemapIndex}/bottom {installedSamus.BottomSpritemapIndex}; " +
                     $"first VRAM diff={firstVram}, first OAM diff={firstOam}.");
             }

@@ -152,7 +152,7 @@ internal static partial class Program
                 {
                     var block = level.GetCollisionBlock(x, y);
                     if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-                    var door = level.ResolveDoorCollision(bus, block.Behavior, 1, false);
+                    var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
                     if (door.Door?.DestinationRoomPointer != destination) continue;
                     runtime.LoadCartridgeRoomForDebug(source, cameraX: (ushort)(x / 16 * 256), cameraY: (ushort)(y / 16 * 256));
                     var samus = runtime.Samus!;

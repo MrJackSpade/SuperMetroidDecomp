@@ -27,7 +27,7 @@ internal sealed class ShallowWaterJumpScenario
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShallowWaterRoom, cameraY: 256);
         var samus = Samus;
         samus.InputLocked = false;
-        samus.Pose = (byte)SamusPoseId.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.XPosition = 104; samus.YPosition = 427;
         samus.Kinematics.YSubposition = 0xffff;
         samus.EquippedItems = 0;
@@ -39,7 +39,7 @@ internal sealed class ShallowWaterJumpScenario
 
     /// <summary>Native WRAM seed words for the takeoff state, in the capture tool's order.</summary>
     internal string TakeoffSeed() =>
-        $"{Samus.XPosition:X4} {Samus.Kinematics.XSubposition:X4} {Samus.YPosition:X4} {Samus.Kinematics.YSubposition:X4} {Samus.Pose:X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.FxYPosition:X4} {Samus.LiquidPhysics.LiquidOptions:X4} {Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
+        $"{Samus.XPosition:X4} {Samus.Kinematics.XSubposition:X4} {Samus.YPosition:X4} {Samus.Kinematics.YSubposition:X4} {(int)Samus.Pose:X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.FxYPosition:X4} {Samus.LiquidPhysics.LiquidOptions:X4} {Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
 
     /// <summary>Holds jump for <see cref="JumpFrameCount"/> frames; returns the header and one row per frame, and the apex.</summary>
     internal (List<string> Rows, uint Apex) Jump()
@@ -50,7 +50,7 @@ internal sealed class ShallowWaterJumpScenario
         {
             Runtime.StepFrame((ushort)SnesButton.A);
             apex = Math.Min(apex, Samus.Kinematics.YFixed);
-            rows.Add($"{frame},{Samus.Pose:X2},{Samus.Kinematics.YFixed:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{Samus.Kinematics.YDirection},{Samus.Kinematics.YRadius},{Samus.LiquidPhysics.LiquidPhysicsType}");
+            rows.Add($"{frame},{(int)Samus.Pose:X2},{Samus.Kinematics.YFixed:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{Samus.Kinematics.YDirection},{Samus.Kinematics.YRadius},{Samus.LiquidPhysics.LiquidPhysicsType}");
         }
         return (rows, apex);
     }

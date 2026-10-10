@@ -12,14 +12,14 @@ internal static partial class Program
         foreach (ushort extraFraction in new ushort[] { 0, 1 })
         foreach (ushort previousMode in new ushort[] { 0, 1, 2 })
         {
-            var samus = new SamusState { Pose = SamusPoseIds.FacingLeftNormalPose };
+            var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose };
             samus.ApplyStandingLeftToRunningLeft(bus);
             samus.HorizontalSpeed.BaseSpeed = 2;
             samus.HorizontalSpeed.BaseSubspeed = 0xc000;
             samus.HorizontalSpeed.AccelerationMode = previousMode;
             samus.HorizontalSpeed.ExtraRunSpeed = extraWhole;
             samus.HorizontalSpeed.ExtraRunSubspeed = extraFraction;
-            samus.ApplyWalkedOffFloorTransition(bus, level, SamusPoseIds.FallingLeftPose);
+            samus.ApplyWalkedOffFloorTransition(bus, level, SamusPoseId.FallingLeftPose);
             // $91:F60D replaces the prior grounded mode on falling-pose entry.
             // Fractional extra speed matters even when its whole word is zero.
             AssertEqual(extraWhole != 0 || extraFraction != 0 ? 2 : 0,

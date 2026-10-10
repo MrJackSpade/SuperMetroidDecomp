@@ -79,7 +79,7 @@ internal static partial class Program
         var boss = runtime.Enemies.Crocomire!;
         var death = runtime.Enemies.CrocomireDeath!;
         var samus = runtime.Samus!;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Health = samus.MaxHealth = 999;
         samus.XPosition = 600;
         samus.YPosition = 120;

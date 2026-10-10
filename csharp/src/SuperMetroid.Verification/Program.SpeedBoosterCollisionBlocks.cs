@@ -203,7 +203,7 @@ internal static partial class Program
     {
         var samus = new SamusState
         {
-            Pose = SamusPoseIds.FacingRightNormalPose,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = 40,
             YPosition = 54,
         };

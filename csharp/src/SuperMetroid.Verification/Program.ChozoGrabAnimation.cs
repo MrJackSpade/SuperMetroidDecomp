@@ -75,7 +75,7 @@ internal static partial class Program
         runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(0xc98e);
         var samus = runtime.Samus!;
-        samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.CollectedItems = samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

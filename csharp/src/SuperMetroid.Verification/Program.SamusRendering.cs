@@ -19,7 +19,7 @@ static void VerifySamusRenderingSlice()
 
     var samus = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         AnimationFrame = 0,
         XPosition = 0x0480,
         YPosition = 0x0086,
@@ -83,7 +83,7 @@ static void VerifySamusRenderingSlice()
     // mechanics: editing the bank-$91 pointer table no longer changes its definition.
     // Advance through the production death-animation entry point, which shares the
     // delay interpreter but does not require valid gameplay movement metadata for $FD.
-    const byte unusedInstructionPose = 0xfd;
+    const SamusPoseId unusedInstructionPose = (SamusPoseId)0xfd;
     var unusedInstructionSamus = new SamusState { Pose = unusedInstructionPose };
 
     // `$FA gg aa` selects `gg` only when both vertical speed halves are zero.
@@ -92,12 +92,12 @@ static void VerifySamusRenderingSlice()
     unusedInstructionSamus.AnimateDeathFrame(bus);
     AssertEqual(0xfa, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
         "unused vertical-speed instruction reaches `$FA`");
-    AssertEqual((byte?)0x31, unusedInstructionSamus.PendingTransitionalPose,
+    AssertEqual(SamusPoseId.MorphBallFallingRightPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FA` zero Y speed selects first pose byte");
     unusedInstructionSamus.Kinematics.YSubspeed = 1;
     unusedInstructionSamus.InitializeAnimation(bus);
     unusedInstructionSamus.AnimateDeathFrame(bus);
-    AssertEqual((byte?)0x32, unusedInstructionSamus.PendingTransitionalPose,
+    AssertEqual(SamusPoseId.MorphBallFallingLeftPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FA` nonzero Y subspeed selects second pose byte");
 
     // `$FC eeee gg aa` uses a little-endian equipment word and distinct pose bytes.
@@ -108,12 +108,12 @@ static void VerifySamusRenderingSlice()
     unusedInstructionSamus.AnimateDeathFrame(bus);
     AssertEqual(0xfc, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
         "unused equipment instruction reaches `$FC`");
-    AssertEqual((byte?)0x41, unusedInstructionSamus.PendingTransitionalPose,
+    AssertEqual(SamusPoseId.MorphBallGroundLeftPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` unequipped branch selects first pose byte");
     unusedInstructionSamus.EquippedItems = 0x0002;
     unusedInstructionSamus.InitializeAnimation(bus);
     unusedInstructionSamus.AnimateDeathFrame(bus);
-    AssertEqual((byte?)0x42, unusedInstructionSamus.PendingTransitionalPose,
+    AssertEqual(SamusPoseId.UnusedPose42, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` equipped branch selects second pose byte");
 
     // Restore the ordinary debugger scenario before verifying frame-zero drawing below.
@@ -149,7 +149,7 @@ static void VerifySamusRenderingSlice()
     // drawing. Its movement type one uses default position math and always draws both halves.
     SeedPoseNineSamusData(bus);
     samus.ApplyStandingRightToRunningRight(bus);
-    AssertEqual(0x09, samus.Pose, "standing-right transition applies running-right pose");
+    AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "standing-right transition applies running-right pose");
     AssertEqual(0, samus.AnimationFrame, "running transition resets animation frame");
     AssertEqual(2, samus.AnimationFrameTimer, "running pose first delay byte");
     AssertEqual(21, samus.Kinematics.YRadius, "running pose refreshes collision radius");
@@ -163,7 +163,7 @@ static void VerifySamusRenderingSlice()
     AssertEqual(2, oam.LastFinalizedSpriteCount, "synthetic running pose draws top and bottom pieces");
 
     samus.ApplyRunningRightToStandingRight(bus);
-    AssertEqual(0x01, samus.Pose, "running no-button fallback applies standing-right pose");
+    AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "running no-button fallback applies standing-right pose");
     AssertEqual(0, samus.AnimationFrame, "standing fallback resets animation frame");
     AssertEqual(10, samus.AnimationFrameTimer, "standing fallback reloads frame-zero delay");
 
@@ -174,16 +174,16 @@ static void VerifySamusRenderingSlice()
     samus.EquippedItems = 0;
     samus.HorizontalSpeed.BaseSpeed = 3;
     samus.Kinematics.YSpeed = 2;
-    samus.PoseHistory.PreviousPose = SamusPoseIds.SpinJumpRightPose;
+    samus.PoseHistory.PreviousPose = SamusPoseId.SpinJumpRightPose;
     samus.PoseHistory.PreviousDirectionAndMovement = 0x0308;
-    samus.PoseHistory.LastDifferentPose = SamusPoseIds.WallJumpLeftPose;
+    samus.PoseHistory.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x1404;
     // A $18 live radius takes MakeSamusFaceForward's no-lift branch, so the drawing
     // checks below keep Samus at the seeded Y.
     samus.Kinematics.YRadius = 0x18;
     ushort radiusBeforeForwardSetup = samus.Kinematics.YRadius;
     samus.ApplyForwardFacingPoseSetup(bus);
-    AssertEqual(SamusPoseIds.SpinJumpRightPose, samus.PoseHistory.LastDifferentPose,
+    AssertEqual(SamusPoseId.SpinJumpRightPose, samus.PoseHistory.LastDifferentPose,
         "forward setup shifts previous pose, not stale older walljump history");
     AssertEqual(0x0308, samus.PoseHistory.LastDifferentDirectionAndMovement,
         "forward setup shifts packed direction/movement metadata");
@@ -195,7 +195,7 @@ static void VerifySamusRenderingSlice()
         "same-pose forward setup still shifts native history");
     AssertTrue(!samus.PoseHistory.AllowsWallJumpProbe,
         "repeated forward setup cannot retain an obsolete spin walljump gate");
-    AssertEqual(SamusPoseIds.ForwardFacingPowerSuitPose, samus.Pose, "no suit selects power forward pose");
+    AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, samus.Pose, "no suit selects power forward pose");
     // MakeSamusFaceForward ($91:E3F6) only compares the live radius with $18; the next
     // frame's SetSamusRadius installs the pose's own radius.
     AssertEqual(radiusBeforeForwardSetup, samus.Kinematics.YRadius, "forward setup leaves the live radius");
@@ -220,7 +220,7 @@ static void VerifySamusRenderingSlice()
     // `$9B` uses dedicated suited art and therefore must not inherit `$00`'s chest patch.
     samus.EquippedItems = 0x0001;
     samus.ApplyForwardFacingPoseSetup(bus);
-    AssertEqual(SamusPoseIds.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
+    AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
@@ -298,35 +298,35 @@ static void VerifySamusRenderingSlice()
     // Keep tile selection constant so this matrix tests body-half routing only.
     for (int frame = 0; frame < 4; frame++)
         bus.WriteBytes(0x92e100 + frame * 4, [7, 12, 0xff, 0]);
-    foreach ((byte pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
+    foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
     {
-        ((byte)0xd7, (byte)0x0a, (ushort)0, 1, "$D7 frame zero top-only"),
-        ((byte)0xd8, (byte)0x0a, (ushort)2, 1, "$D8 frame two top-only"),
-        ((byte)0xd7, (byte)0x0a, (ushort)3, 2, "$D7 frame three split"),
-        ((byte)0x35, (byte)0x0f, (ushort)0, 2, "$35 basic crouch transition split"),
-        ((byte)0x37, (byte)0x0f, (ushort)0, 1, "$37 morph transition top-only"),
-        ((byte)0x3d, (byte)0x0f, (ushort)1, 1, "$3D unmorph transition top-only"),
-        ((byte)0xdb, (byte)0x0f, (ushort)0, 2, "$DB frame-zero split"),
-        ((byte)0xdc, (byte)0x0f, (ushort)1, 1, "$DC nonzero frame top-only"),
-        ((byte)0xdd, (byte)0x0f, (ushort)1, 1, "$DD pre-frame-two top-only"),
-        ((byte)0xdd, (byte)0x0f, (ushort)2, 2, "$DD frame-two transition split"),
-        ((byte)0xf0, (byte)0x1a, (ushort)2, 2, "$F0 held body split"),
-        ((byte)0xf1, (byte)0x0f, (ushort)0, 2, "$F1 aimed transition always split"),
-        ((byte)0x20, (byte)0x07, (ushort)0, 1, "unused type-seven top-only"),
-        ((byte)0x33, (byte)0x09, (ushort)0, 1, "unused type-nine top-only"),
-        ((byte)0x5d, (byte)0x0b, (ushort)0, 2, "unused type-B split"),
-        ((byte)0x65, (byte)0x0d, (ushort)0, 2, "unused type-D pose $65 frame-zero split"),
-        ((byte)0x66, (byte)0x0d, (ushort)1, 1, "unused type-D pose $66 later top-only"),
-        ((byte)0x63, (byte)0x0d, (ushort)1, 2, "other unused type-D pose remains split"),
+        (SamusPoseId.DeathSequenceRightPose, (byte)0x0a, (ushort)0, 1, "$D7 frame zero top-only"),
+        (SamusPoseId.DeathSequenceLeftPose, (byte)0x0a, (ushort)2, 1, "$D8 frame two top-only"),
+        (SamusPoseId.DeathSequenceRightPose, (byte)0x0a, (ushort)3, 2, "$D7 frame three split"),
+        (SamusPoseId.CrouchingTransitionRightPose, (byte)0x0f, (ushort)0, 2, "$35 basic crouch transition split"),
+        (SamusPoseId.MorphingTransitionRightPose, (byte)0x0f, (ushort)0, 1, "$37 morph transition top-only"),
+        (SamusPoseId.UnmorphingTransitionRightPose, (byte)0x0f, (ushort)1, 1, "$3D unmorph transition top-only"),
+        (SamusPoseId.UnusedPoseDb, (byte)0x0f, (ushort)0, 2, "$DB frame-zero split"),
+        (SamusPoseId.UnusedPoseDc, (byte)0x0f, (ushort)1, 1, "$DC nonzero frame top-only"),
+        (SamusPoseId.UnusedPoseDd, (byte)0x0f, (ushort)1, 1, "$DD pre-frame-two top-only"),
+        (SamusPoseId.UnusedPoseDd, (byte)0x0f, (ushort)2, 2, "$DD frame-two transition split"),
+        (SamusPoseId.DraygonGrabbedMovingRightPose, (byte)0x1a, (ushort)2, 2, "$F0 held body split"),
+        (SamusPoseId.CrouchingTransitionAimUpRightPose, (byte)0x0f, (ushort)0, 2, "$F1 aimed transition always split"),
+        (SamusPoseId.UnusedPose20, (byte)0x07, (ushort)0, 1, "unused type-seven top-only"),
+        (SamusPoseId.UnusedKnockbackRightPose, (byte)0x09, (ushort)0, 1, "unused type-nine top-only"),
+        (SamusPoseId.UnusedPose5D, (byte)0x0b, (ushort)0, 2, "unused type-B split"),
+        (SamusPoseId.UnusedPose65, (byte)0x0d, (ushort)0, 2, "unused type-D pose $65 frame-zero split"),
+        (SamusPoseId.UnusedPose66, (byte)0x0d, (ushort)1, 1, "unused type-D pose $66 later top-only"),
+        (SamusPoseId.UnusedPose63, (byte)0x0d, (ushort)1, 2, "other unused type-D pose remains split"),
     })
     {
-        WritePoseDefinition(bus, pose, [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
+        WritePoseDefinition(bus, (int)pose, [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
         WriteTestWord(bus,
-            SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + pose * 2,
+            SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + (int)pose * 2,
             0xe100);
         AssertEqual(movementType, (byte)SamusState.ReadMovementType(bus, pose), "Rendering fixture uses native movement identity");
-        WriteTestWord(bus, 0x929263 + pose * 2, 0);
-        WriteTestWord(bus, 0x92945d + pose * 2, 0);
+        WriteTestWord(bus, 0x929263 + (int)pose * 2, 0);
+        WriteTestWord(bus, 0x92945d + (int)pose * 2, 0);
         samus.Pose = pose;
         samus.AnimationFrame = frame;
         oam.BeginFrame();
@@ -340,7 +340,7 @@ static void VerifySamusRenderingSlice()
     // `$91:B629-$BD0F` pose table never stores a movement byte above `$1B`. Pose `$FD`'s
     // exact adjacent-code observation is `$8B`, so it is malformed metadata rather than
     // an untranslated draw selector.
-    samus.Pose = 0xfd;
+    samus.Pose = (SamusPoseId)0xfd;
     samus.AnimationFrame = 0;
     AssertThrows<InvalidDataException>(
         () => samus.ReadMovementType(bus),
@@ -353,7 +353,7 @@ static void VerifySamusRenderingSlice()
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
     // host switch. `$37` proves signed -4/-2 values; unused `$39` proves that the native
     // zero record remains admitted and does not fall through to its nonzero pose offset.
-    samus.Pose = 0x37;
+    samus.Pose = SamusPoseId.MorphingTransitionRightPose;
     samus.YPosition = 0x0086;
     samus.AnimationFrame = 0;
     oam.BeginFrame();
@@ -376,7 +376,7 @@ static void VerifySamusRenderingSlice()
         0xe100);
     WriteTestWord(bus, 0x929263 + 0x39 * 2, 0);
     WriteTestWord(bus, 0x92945d + 0x39 * 2, 0);
-    samus.Pose = 0x39;
+    samus.Pose = SamusPoseId.UnusedPose39;
     samus.AnimationFrame = 0;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -388,9 +388,9 @@ static void VerifySamusRenderingSlice()
     // Standing's position selector has two special families. Front-view frames zero/one
     // remain generic, but frame two and later use Y-1. Keep frame two here because pose `$00`
     // already carries a deliberately different graphics offset in the fixture above.
-    samus.Pose = SamusPoseIds.ForwardFacingPowerSuitPose;
+    samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
     WriteTestWord(bus,
-        SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + samus.Pose * 2,
+        SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + (int)samus.Pose * 2,
         0xe100);
     samus.AnimationFrame = 2;
     samus.YPosition = 0x0086;
@@ -418,7 +418,7 @@ static void VerifySamusRenderingSlice()
         0xe100);
     WriteTestWord(bus, 0x929263 + 0xa4 * 2, 0);
     WriteTestWord(bus, 0x92945d + 0xa4 * 2, 0);
-    samus.Pose = 0xa4;
+    samus.Pose = SamusPoseId.NormalLandingRightPose;
     samus.AnimationFrame = 0;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -441,7 +441,7 @@ static void VerifySamusRenderingSlice()
     // transform before applying the ordinary pose offset. A 90-degree matrix around
     // ($0480,$0080) maps (+8,+6) to (-6,+8). The body must use that temporary point while
     // collision-visible Samus coordinates remain byte-for-byte unchanged afterward.
-    samus.Pose = SamusPoseIds.FacingRightNormalPose;
+    samus.Pose = SamusPoseId.FacingRightNormalPose;
     samus.AnimationFrame = 0;
     samus.XPosition = 0x0488;
     samus.YPosition = 0x0086;
@@ -513,7 +513,7 @@ static void VerifySamusArmCannon()
     var artwork = SamusArmCannonArtworkCatalogTooling.Load(placement, tiles);
     var samus = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         AnimationFrame = 0,
         XPosition = 0x0480,
         YPosition = 0x0086,
@@ -746,7 +746,7 @@ static void VerifySamusHurtFlashPalette()
     var hurtColors = SamusHurtColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusHurtColorExtractor.Extract(bus)));
     var samus = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         EquippedItems = 0x0021, // Both suit bits prove Gravity's native precedence.
         HurtFlashCounter = 1,
         SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus))),
@@ -833,11 +833,11 @@ static void VerifySamusHurtFlashPalette()
 
     // Counter forty calls command `$1C` for spin/wall-jump movement. A Screw Attack pose
     // must select `$33`; using the ROM movement-type byte keeps this a real dispatcher test.
-    WritePoseDefinition(bus, SamusPoseIds.ScrewAttackRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.ScrewAttackRightPose,
         [0x08, 0x03, 0, 0, 0, 0, 0x15, 0]);
     var spinning = new SamusState
     {
-        Pose = SamusPoseIds.ScrewAttackRightPose,
+        Pose = SamusPoseId.ScrewAttackRightPose,
         HurtFlashCounter = 39,
     };
     SamusHurtFlashPalette.Update(
@@ -850,11 +850,11 @@ static void VerifySamusHurtFlashPalette()
 
     // A non-spinning charged shot arms the native one-word latch. The post-draw consumer
     // queues `$41` only while Shoot is still held, then clears the latch in either case.
-    WritePoseDefinition(bus, SamusPoseIds.FacingRightNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
         [0x08, 0x00, 0, 0, 0, 0, 0x15, 0]);
     var charging = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         HurtFlashCounter = 39,
         ProjectileFlareCounter = 0x10,
     };

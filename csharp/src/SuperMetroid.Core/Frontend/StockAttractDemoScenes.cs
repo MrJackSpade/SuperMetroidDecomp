@@ -527,11 +527,11 @@ public static class StockAttractDemoScenes
     /// <summary>$82:8774-8918: seventeen staged actors stand on identified flat native floor cells. Their selected room-screen floor rows convert to pixels, then subtract the actual immutable pose radius. This does not use editable room artwork or infer the six other placements.</summary>
     private static ushort GroundedY(int floorRow, Demonstration demonstration)
     {
-        byte pose = SamusSetupFor(demonstration) switch
+        SamusPoseId pose = SamusSetupFor(demonstration) switch
         {
-            AttractDemoRomData.SamusSetup.StandingRight => SamusPoseIds.FacingRightNormalPose,
-            AttractDemoRomData.SamusSetup.StandingLeft or AttractDemoRomData.SamusSetup.LowHealthLeft => SamusPoseIds.FacingLeftNormalPose,
-            AttractDemoRomData.SamusSetup.MorphLeft => SamusPoseIds.MorphBallMovingLeftPose,
+            AttractDemoRomData.SamusSetup.StandingRight => SamusPoseId.FacingRightNormalPose,
+            AttractDemoRomData.SamusSetup.StandingLeft or AttractDemoRomData.SamusSetup.LowHealthLeft => SamusPoseId.FacingLeftNormalPose,
+            AttractDemoRomData.SamusSetup.MorphLeft => SamusPoseId.MorphBallMovingLeftPose,
             _ => throw new InvalidOperationException("This demonstration does not use a grounded staging pose."),
         };
         return (ushort)(floorRow * 16 - SamusPoseCollisionDefinitions.ReadVerticalRadius(pose));

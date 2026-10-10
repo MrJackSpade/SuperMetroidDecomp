@@ -711,23 +711,44 @@ internal static partial class Program
             AssertTrue(edited.Frames.SequenceEqual(Decode(supplied)), "Independent source/derived/lower component edits preserved");
             for (int index = 0; index < count; index++)
                 AssertEqual(Source(index) != index ? supplied[index] != supplied[Source(index)] : !Direct(index) || supplied[index] != native[index], Stored(edited).ContainsKey(index), "Exact required basis and independent exception membership");
-            foreach (byte pose in new byte[] { 0xd5, 0xd6, 0xd9, 0xda })
+            foreach (SamusPoseId pose in new[]
+            {
+                SamusPoseId.XrayingStandingRightPose, SamusPoseId.XrayingStandingLeftPose,
+                SamusPoseId.XrayingCrouchingRightPose, SamusPoseId.XrayingCrouchingLeftPose
+            })
             for (ushort frame = 0; frame < 5; frame++)
-                AssertEqual(Decode(supplied)[(poses[pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual four X-ray pose selections resolve independent supplied components");
-            foreach (byte pose in new byte[] { 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12 })
+                AssertEqual(Decode(supplied)[(poses[(int)pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual four X-ray pose selections resolve independent supplied components");
+            foreach (SamusPoseId pose in new[]
+            {
+                SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose,
+                SamusPoseId.MovingRightGunExtendedPose, SamusPoseId.MovingLeftGunExtendedPose,
+                SamusPoseId.RunningAimUpRightPose, SamusPoseId.RunningAimUpLeftPose,
+                SamusPoseId.RunningAimDiagonalUpRightPose, SamusPoseId.RunningAimDiagonalUpLeftPose,
+                SamusPoseId.RunningAimDiagonalDownRightPose, SamusPoseId.RunningAimDiagonalDownLeftPose
+            })
             for (ushort frame = 0; frame < 10; frame++)
-                AssertEqual(Decode(supplied)[(poses[pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual ten moving poses resolve independent supplied lower gait and upper components");
-            foreach (byte pose in new byte[] { 0x01, 0x02, 0x27, 0x28 })
+                AssertEqual(Decode(supplied)[(poses[(int)pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual ten moving poses resolve independent supplied lower gait and upper components");
+            foreach (SamusPoseId pose in new[]
+            {
+                SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
+                SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose
+            })
             for (ushort frame = 0; frame < 9; frame++)
-                AssertEqual(Decode(supplied)[(poses[pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual standing/crouching normal upper selection");
-            foreach (byte pose in new byte[] { 0x13, 0x14, 0x51, 0x52, 0x17, 0x18, 0x2d, 0x2e })
+                AssertEqual(Decode(supplied)[(poses[(int)pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual standing/crouching normal upper selection");
+            foreach (SamusPoseId pose in new[]
+            {
+                SamusPoseId.NormalJumpGunExtendedRightPose, SamusPoseId.NormalJumpGunExtendedLeftPose,
+                SamusPoseId.NormalJumpForwardRightPose, SamusPoseId.NormalJumpForwardLeftPose,
+                SamusPoseId.NormalJumpAimDownRightPose, SamusPoseId.NormalJumpAimDownLeftPose,
+                SamusPoseId.FallingAimDownRightPose, SamusPoseId.FallingAimDownLeftPose
+            })
             for (ushort frame = 0; frame < 2; frame++)
-                AssertEqual(Decode(supplied)[(poses[pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual stationary/forward jump and downward-aim jump/fall selection");
+                AssertEqual(Decode(supplied)[(poses[(int)pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual stationary/forward jump and downward-aim jump/fall selection");
             AssertEqual(CanonicalBodyHash(template, top, bottom, poses, Decode(supplied), upper, lower), edited.ContentIdentity, "Original canonical edited frame hash");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyFrameDefinitions.SourceComponent(-1), "Negative component rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyFrameDefinitions.SourceComponent(count), "Component end rejected");
-        AssertThrows<InvalidDataException>(() => stock.Frame(0xfd, 0), "Original pose bound preserved");
+        AssertThrows<InvalidDataException>(() => stock.Frame((SamusPoseId)0xfd, 0), "Original pose bound preserved");
         Console.WriteLine($"Body frames:{count - Stored(stock).Count} calculated/aliased components, exact remaining basis,{edits} independent component edits, actual pose selection and original canonical hashes pass.");
     }
     private static void VerifyLookupStream1BodyPosePointers(ISnesAddressSpace rom)
@@ -751,20 +772,20 @@ internal static partial class Program
         AssertTrue(stock.Frames.SequenceEqual(frames), "Independent frame payload remains intact");
         for (int pose = 0; pose < 253; pose++)
         {
-            AssertEqual(native[pose], SamusBodyPoseDefinitions.DefaultFrameList((byte)pose), "Named semantic pose dispatch matches native list identity");
+            AssertEqual(native[pose], SamusBodyPoseDefinitions.DefaultFrameList((SamusPoseId)pose), "Named semantic pose dispatch matches native list identity");
             int index = (native[pose] - 0xdb48) / 4;
-            AssertEqual(frames[index], stock.Frame((byte)pose, 0), "Runtime selects supplied frame payload through native default");
+            AssertEqual(frames[index], stock.Frame((SamusPoseId)pose, 0), "Runtime selects supplied frame payload through native default");
             ushort[] selected = (ushort[])native.Clone();
             selected[pose] = native[pose] + 4 < 0xed24 ? (ushort)(native[pose] + 4) : (ushort)0xdb48;
             SamusBodyArtworkCatalog changed = Create(selected);
             AssertEqual(1, Count(changed), "Exactly one independent valid pose-pointer edit");
             AssertTrue(changed.PosePointers.SequenceEqual(selected), "All supplied pose-pointer identities preserved");
             AssertTrue(changed.Frames.SequenceEqual(frames), "Pointer edit never changes independent frame records");
-            AssertEqual(frames[(selected[pose] - 0xdb48) / 4], changed.Frame((byte)pose, 0), "Runtime honors edited frame-list identity");
+            AssertEqual(frames[(selected[pose] - 0xdb48) / 4], changed.Frame((SamusPoseId)pose, 0), "Runtime honors edited frame-list identity");
             AssertEqual(CanonicalBodyHash(template, top, bottom, selected, frames, topGroups, bottomGroups), changed.ContentIdentity, "Exact old canonical edited pose hash");
             AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Independent pose edit changes hash");
         }
-        foreach (byte pose in new byte[] { 0xfd, 0xfe, 0xff })
+        foreach (SamusPoseId pose in new[] { (SamusPoseId)0xfd, (SamusPoseId)0xfe, (SamusPoseId)0xff })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyPoseDefinitions.DefaultFrameList(pose), "Default pose dispatch excludes adjacent data");
             AssertThrows<InvalidDataException>(() => stock.Frame(pose, 0), "Installed pose domain stays bounded");
@@ -879,8 +900,8 @@ internal static partial class Program
         AssertEqual(0, Count(stock), "No stock graphics-origin override survives");
         for (int pose = 0; pose < 253; pose++)
         {
-            AssertEqual(native[pose], SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((byte)pose), "Direct calculated visual origin matches native real-pose byte");
-            AssertEqual(native[pose], stock.GraphicsYOffset((byte)pose), "Installed default origin");
+            AssertEqual(native[pose], SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((SamusPoseId)pose), "Direct calculated visual origin matches native real-pose byte");
+            AssertEqual(native[pose], stock.GraphicsYOffset((SamusPoseId)pose), "Installed default origin");
         }
         AssertTrue(stock.GraphicsYOffsets.SequenceEqual(native), "Visual origin snapshot ordering");
         string identity = stock.ContentIdentity;
@@ -893,12 +914,12 @@ internal static partial class Program
             AssertTrue(changed.ContentIdentity != identity, "Every visual-origin edit changes content identity");
             for (int pose = 0; pose < 253; pose++)
             {
-                AssertEqual(selected[pose], changed.GraphicsYOffset((byte)pose), "Edited runtime origin");
-                AssertEqual(unchecked((byte)native[pose]), SamusPoseProjectileOriginDefinitions.ReadYOffset((byte)pose), "Visual edits never change physical projectile origins");
+                AssertEqual(selected[pose], changed.GraphicsYOffset((SamusPoseId)pose), "Edited runtime origin");
+                AssertEqual(unchecked((byte)native[pose]), SamusPoseProjectileOriginDefinitions.ReadYOffset((SamusPoseId)pose), "Visual edits never change physical projectile origins");
             }
         }
         AssertEqual(identity, stock.ContentIdentity, "Stock visual origin hash immutable");
-        foreach (byte pose in new byte[] { 0xfd, 0xfe, 0xff })
+        foreach (SamusPoseId pose in new[] { (SamusPoseId)0xfd, (SamusPoseId)0xfe, (SamusPoseId)0xff })
         {
             AssertThrows<InvalidDataException>(() => stock.GraphicsYOffset(pose), "Installed graphics excludes adjacent instruction poses");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose), "Default graphics excludes adjacent instruction poses");
@@ -939,7 +960,7 @@ internal static partial class Program
             AssertTrue(stock.TryDrainedYOffset(frame, out sbyte offset), "Entire native drained byte window admitted");
             AssertEqual(native[frame], offset, "Installed native byte including command slots");
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
-            var samus = new SamusState { Pose = 0xe9, AnimationFrame = frame, XPosition = 128, YPosition = 128 };
+            var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, XPosition = 128, YPosition = 128 };
             samus.TileTransfers.BindArtwork(stock);
             samus.Draw(rom, new OamBuffer(), 0, 0);
             AssertEqual(unchecked((ushort)(128 + native[frame])), samus.SpritemapYPosition,
@@ -961,7 +982,7 @@ internal static partial class Program
                 new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
         AssertTrue(blankPixels.DrainedYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
-        ushort changedPointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(0xe9)];
+        ushort changedPointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(SamusPoseId.DrainedCrouchingLeftPose)];
         var shiftedMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
             stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
                 map.Pointer == changedPointer ? map.Parts.Select(part => part with { Y = unchecked((byte)(part.Y + 1)) }).ToArray() : map.Parts)).ToArray());
@@ -1002,15 +1023,21 @@ internal static partial class Program
             AssertTrue(edited.PostureYOffsets.SequenceEqual(changed), "Every independent posture edit remains exact");
             AssertTrue(edited.ContentIdentity != stock.ContentIdentity, "Posture edit changes selected identity");
         }
-        foreach (byte pose in new byte[] { 0x35, 0x36, 0x37, 0x38, 0x3b, 0x3c, 0x3d, 0x3e })
+        foreach (SamusPoseId pose in new[]
         {
-            int count = pose is 0x35 or 0x36 or 0x3b or 0x3c ? 1 : 2;
+            SamusPoseId.CrouchingTransitionRightPose, SamusPoseId.CrouchingTransitionLeftPose,
+            SamusPoseId.MorphingTransitionRightPose, SamusPoseId.MorphingTransitionLeftPose,
+            SamusPoseId.StandingTransitionRightPose, SamusPoseId.StandingTransitionLeftPose,
+            SamusPoseId.UnmorphingTransitionRightPose, SamusPoseId.UnmorphingTransitionLeftPose
+        })
+        {
+            int count = pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ? 1 : 2;
             for (ushort frame = 0; frame < count; frame++)
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, XPosition = 128, YPosition = 128 };
                 samus.TileTransfers.BindArtwork(stock);
                 samus.Draw(rom, new OamBuffer(), 0, 0);
-                AssertEqual(unchecked((ushort)(128 + native[(pose - 0x35) * 2 + frame])), samus.SpritemapYPosition,
+                AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.SpritemapYPosition,
                     "Actual transition rendering preserves native support correction");
                 AssertEqual((ushort)128, samus.YPosition, "Posture art never mutates physical center");
             }
@@ -1027,7 +1054,7 @@ internal static partial class Program
                 new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
         AssertTrue(blankPixels.PostureYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
-        ushort changedPointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(0x37)];
+        ushort changedPointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(SamusPoseId.MorphingTransitionRightPose)];
         var shiftedMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
             stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
                 map.Pointer == changedPointer ? map.Parts.Select(part => part with { Y = unchecked((byte)(part.Y + 1)) }).ToArray() : map.Parts)).ToArray());
@@ -1088,7 +1115,7 @@ internal static partial class Program
         {
             var samus = new SamusState
             {
-                Pose = (byte)(0xa4 + index / 4), AnimationFrame = (ushort)(index % 4),
+                Pose = (SamusPoseId)(0xa4 + index / 4), AnimationFrame = (ushort)(index % 4),
                 XPosition = 128, YPosition = 128,
             };
             samus.TileTransfers.BindArtwork(stock);
@@ -1164,9 +1191,9 @@ internal static partial class Program
         for (int pose = 0; pose < 253; pose++)
         {
             ushort expected = half == 0 ? top[pose] : bottom[pose];
-            AssertEqual(expected, half == 0 ? SamusSpritemapPoseDefinitions.TopBase((byte)pose) : SamusSpritemapPoseDefinitions.BottomBase((byte)pose),
+            AssertEqual(expected, half == 0 ? SamusSpritemapPoseDefinitions.TopBase((SamusPoseId)pose) : SamusSpritemapPoseDefinitions.BottomBase((SamusPoseId)pose),
                 "Direct named OAM-base case matches native ROM");
-            AssertEqual(expected, half == 0 ? stock.TopBase((byte)pose) : stock.BottomBase((byte)pose), "Runtime native base selection");
+            AssertEqual(expected, half == 0 ? stock.TopBase((SamusPoseId)pose) : stock.BottomBase((SamusPoseId)pose), "Runtime native base selection");
             CheckSelection(stock, expected);
             ushort[] upper = (ushort[])top.Clone(), lower = (ushort[])bottom.Clone();
             ushort edited = (ushort)((expected + 1) % 2096);
@@ -1175,13 +1202,13 @@ internal static partial class Program
             AssertEqual(1, Count(changed, "topBases") + Count(changed, "bottomBases"), "Exactly one independent OAM-base override");
             AssertTrue(changed.TopBases.SequenceEqual(upper) && changed.BottomBases.SequenceEqual(lower), "All supplied independent bases preserved");
             AssertTrue(changed.Pointers.SequenceEqual(pointers), "OAM pointer payload unchanged");
-            ushort selected = half == 0 ? changed.TopBase((byte)pose) : changed.BottomBase((byte)pose);
+            ushort selected = half == 0 ? changed.TopBase((SamusPoseId)pose) : changed.BottomBase((SamusPoseId)pose);
             AssertEqual(edited, selected, "Runtime honors independently edited base");
             CheckSelection(changed, selected);
             AssertEqual(Canonical(upper, lower), changed.ContentIdentity, "Exact original canonical edited OAM hash");
             AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Every independent base edit changes identity");
         }
-        foreach (byte pose in new byte[] { 0xfd, 0xfe, 0xff })
+        foreach (SamusPoseId pose in new[] { (SamusPoseId)0xfd, (SamusPoseId)0xfe, (SamusPoseId)0xff })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SamusSpritemapPoseDefinitions.TopBase(pose), "Top default excludes adjacent data");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusSpritemapPoseDefinitions.BottomBase(pose), "Bottom default excludes adjacent data");
@@ -1540,7 +1567,7 @@ internal static partial class Program
         {
             int source = SamusAnimationDelayDefinitions.DelayStreamsAddress + (pose - 0xFD) * 2;
             ushort expectedPointer = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
-            ushort pointer = SamusAnimationDelayDefinitions.PointerForPose((byte)pose);
+            ushort pointer = SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose);
             AssertEqual(expectedPointer, pointer, $"animation alias ${pose:X2} reads its running-delay source");
             for (int change = 0; change < 2; change++)
             {
@@ -1558,15 +1585,15 @@ internal static partial class Program
         for (int pose = 0; pose < 256; pose++)
         {
             if (pose < 0xDB)
-                AssertEqual(rom.ReadByte(0x90DDAA + pose - 0x35), SamusHudDefinitions.PostureObservation((byte)pose),
+                AssertEqual(rom.ReadByte(0x90DDAA + pose - 0x35), SamusHudDefinitions.PostureObservation((SamusPoseId)pose),
                     $"HUD exact bounded posture observation {pose:X2}");
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudDefinitions.PostureObservation((byte)pose),
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudDefinitions.PostureObservation((SamusPoseId)pose),
                     "HUD rejects prefiltered posture observation");
             foreach (bool grapple in new[] { false, true })
             {
                 bool expected = pose >= 0xF1 || (pose < 0xDB && (rom.ReadByte(0x90DDAA + pose - 0x35) == 0 || grapple));
-                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons((byte)pose, grapple),
+                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, grapple),
                     $"HUD actual admission {pose:X2}, Grapple={grapple}");
             }
         }
@@ -1826,12 +1853,16 @@ internal static partial class Program
         foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
             shiftedDocument.Offsets[key] = shiftedDocument.Offsets[key] with { X = (short)(shiftedDocument.Offsets[key].X + 7) };
         var shifted = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementCatalog.Write(shiftedDocument)));
-        foreach (byte pose in new byte[] { 1, 2, 9, 10 })
+        foreach (SamusPoseId pose in new[]
+        {
+            SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
+            SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
+        })
         {
             var samus = new SamusState { Pose = pose, XPosition = 100, YPosition = 100 };
             samus.TileTransfers.BindArtwork(body);
-            int direction = rom.ReadByte(0x91b629 + pose * 8 + 3);
-            bool running = pose is 9 or 10;
+            int direction = rom.ReadByte(0x91b629 + (int)pose * 8 + 3);
+            bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
             short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
             short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
             var expected = new OamBuffer(); var actual = new OamBuffer(); var edited = new OamBuffer();
@@ -1858,9 +1889,9 @@ internal static partial class Program
     {
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
-            AssertEqual(rom.ReadByte(0x91b629 + pose * 8), SamusPoseDispatchDefinitions.ReadFacing((byte)pose), "Native named-pose facing case");
-            AssertEqual(rom.ReadByte(0x91b62a + pose * 8), SamusPoseDispatchDefinitions.ReadMovement((byte)pose), "Native named-pose raw movement case");
-            AssertEqual(rom.ReadByte(0x91b62b + pose * 8), SamusPoseDispatchDefinitions.ReadNoInputPose((byte)pose), "Native named-pose no-input case");
+            AssertEqual(rom.ReadByte(0x91b629 + pose * 8), SamusPoseDispatchDefinitions.ReadFacing((SamusPoseId)pose), "Native named-pose facing case");
+            AssertEqual(rom.ReadByte(0x91b62a + pose * 8), SamusPoseDispatchDefinitions.ReadMovement((SamusPoseId)pose), "Native named-pose raw movement case");
+            AssertEqual(rom.ReadByte(0x91b62b + pose * 8), (byte)SamusPoseDispatchDefinitions.ReadNoInputPose((SamusPoseId)pose), "Native named-pose no-input case");
         }
         Suite(nameof(VerifyLookupStream1SamusPolicyDomains), () => VerifyLookupStream1SamusPolicyDomains(rom));
         Suite(nameof(VerifyLookupStream1MetroidLayout), () => VerifyLookupStream1MetroidLayout(rom));
@@ -2516,11 +2547,11 @@ internal static partial class Program
         {
             if (pose is >= 0xc9 and <= 0xce)
             {
-                var angles = SamusShinesparkProjectileRomData.DepartureAngles((byte)pose);
+                var angles = SamusShinesparkProjectileRomData.DepartureAngles((SamusPoseId)pose);
                 AssertEqual(rom.ReadByte(0x90d4c6 + (pose - 0xc9) * 2), angles.First.TableIndex, "native crash first departure angle");
                 AssertEqual(rom.ReadByte(0x90d4c7 + (pose - 0xc9) * 2), angles.Second.TableIndex, "native crash opposite departure angle");
             }
-            else AssertThrows<InvalidOperationException>(() => SamusShinesparkProjectileRomData.DepartureAngles((byte)pose), "crash departure exact pose domain");
+            else AssertThrows<InvalidOperationException>(() => SamusShinesparkProjectileRomData.DepartureAngles((SamusPoseId)pose), "crash departure exact pose domain");
         }
         foreach (byte invalid in new byte[] { 28, byte.MaxValue })
         {
@@ -3340,20 +3371,36 @@ internal static partial class Program
             AssertTrue(Stored(editedBody.ArmCannon).Count > 0, "Different source art retains explicit independent cover offsets");
         }
         int draws = 0;
-        foreach (byte pose in new byte[] { 1, 3, 5, 7, 11, 12, 15, 16, 17, 18, 0x15, 0x16, 0x17, 0x18, 0x2b, 0x2c, 0x2d, 0x2e, 0x49, 0x4a, 0x4b, 0x71, 0x72, 0x75, 0x76, 0xa4, 0xa6 })
+        foreach (SamusPoseId pose in new[]
         {
-            int count = pose == 0xa4 ? 2 : pose == 0xa6 ? 3 : pose is 3 or 0x15 or 0x16 or 0x17 or 0x18 or 0x2b or 0x2c or 0x2d or 0x2e ? 2 : 1;
+            SamusPoseId.FacingRightNormalPose, SamusPoseId.StandingAimUpRightPose,
+            SamusPoseId.StandingAimDiagonalUpRightPose, SamusPoseId.StandingAimDiagonalDownRightPose,
+            SamusPoseId.MovingRightGunExtendedPose, SamusPoseId.MovingLeftGunExtendedPose,
+            SamusPoseId.RunningAimDiagonalUpRightPose, SamusPoseId.RunningAimDiagonalUpLeftPose,
+            SamusPoseId.RunningAimDiagonalDownRightPose, SamusPoseId.RunningAimDiagonalDownLeftPose,
+            SamusPoseId.NormalJumpAimUpRightPose, SamusPoseId.NormalJumpAimUpLeftPose,
+            SamusPoseId.NormalJumpAimDownRightPose, SamusPoseId.NormalJumpAimDownLeftPose,
+            SamusPoseId.FallingAimUpRightPose, SamusPoseId.FallingAimUpLeftPose,
+            SamusPoseId.FallingAimDownRightPose, SamusPoseId.FallingAimDownLeftPose,
+            SamusPoseId.MoonwalkFacingLeftPose, SamusPoseId.MoonwalkFacingRightPose,
+            SamusPoseId.NeutralJumpTransitionRightPose, SamusPoseId.CrouchingAimDiagonalUpRightPose,
+            SamusPoseId.CrouchingAimDiagonalUpLeftPose, SamusPoseId.MoonwalkAimUpLeftPose,
+            SamusPoseId.MoonwalkAimUpRightPose, SamusPoseId.NormalLandingRightPose,
+            SamusPoseId.SpinLandingRightPose
+        })
+        {
+            int count = pose == SamusPoseId.NormalLandingRightPose ? 2 : pose == SamusPoseId.SpinLandingRightPose ? 3 : pose is SamusPoseId.StandingAimUpRightPose or SamusPoseId.NormalJumpAimUpRightPose or SamusPoseId.NormalJumpAimUpLeftPose or SamusPoseId.NormalJumpAimDownRightPose or SamusPoseId.NormalJumpAimDownLeftPose or SamusPoseId.FallingAimUpRightPose or SamusPoseId.FallingAimUpLeftPose or SamusPoseId.FallingAimDownRightPose or SamusPoseId.FallingAimDownLeftPose ? 2 : 1;
             for (ushort frame = 0; frame < count; frame++)
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, XPosition = 128, YPosition = 128, SelectedHudItem = 1 };
                 samus.TileTransfers.BindArtwork(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
                 cannon.Update(rom, samus); cannon.Update(rom, samus);
-                int pointer = rom.ReadByte(0x90c7df + pose * 2) | rom.ReadByte(0x90c7e0 + pose * 2) << 8;
+                int pointer = rom.ReadByte(0x90c7df + (int)pose * 2) | rom.ReadByte(0x90c7e0 + (int)pose * 2) << 8;
                 int offset = (rom.ReadByte(0x900000 | pointer) & 128) != 0 ? 4 : 2;
                 int x = unchecked((sbyte)rom.ReadByte(0x900000 | (pointer + offset + frame * 2)));
                 int y = unchecked((sbyte)rom.ReadByte(0x900000 | (pointer + offset + frame * 2 + 1)));
-                int graphics = unchecked((sbyte)rom.ReadByte(0x91b629 + pose * 8 + 4));
+                int graphics = unchecked((sbyte)rom.ReadByte(0x91b629 + (int)pose * 8 + 4));
                 var cannonOam = new OamBuffer();
                 var cannonWrites = new VramWriteQueue();
                 cannon.Draw(rom, cannonOam, cannonWrites, samus, 0, 0, 0);
@@ -3607,11 +3654,11 @@ internal static partial class Program
         // These exact native selectors include the known physical cross-group windows.
         var guard = new FrontendCartridgeReadGuard(rom);
         int transfers = 0;
-        foreach (var selected in new (byte Pose, ushort Phase)[] { (1, 0), (0x65, 6), (0x65, 7), (0x66, 8), (0xd8, 0) })
+        foreach (var selected in new (SamusPoseId Pose, ushort Phase)[] { (SamusPoseId.FacingRightNormalPose, 0), (SamusPoseId.UnusedPose65, 6), (SamusPoseId.UnusedPose65, 7), (SamusPoseId.UnusedPose66, 8), (SamusPoseId.DeathSequenceLeftPose, 0) })
         {
             var state = new SamusTileTransferState(); state.BindArtwork(body);
             state.SelectForPoseFrame(guard, selected.Pose, selected.Phase);
-            int frameAddress = 0x920000 | (Word(0x92d94e + selected.Pose * 2) + selected.Phase * 4);
+            int frameAddress = 0x920000 | (Word(0x92d94e + (int)selected.Pose * 2) + selected.Phase * 4);
             int topAddress = 0x920000 | (Word(0x92d91e + rom.ReadByte(frameAddress) * 2) + rom.ReadByte(frameAddress + 1) * 7);
             AssertEqual(topAddress, state.TopDefinitionAddress, "Native physical upper selection including cross-group position");
             if (rom.ReadByte(frameAddress + 2) != 255)

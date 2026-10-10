@@ -15,11 +15,11 @@ internal static partial class Program
         loaded.Game.Step(0);
         loaded.Game.Step((ushort)SnesButton.X);
         if (samus.Grapple.Phase != GrapplePhase.Firing)
-            throw new InvalidOperationException($"Held Samus cannot fire: pose {samus.Pose:X2}, grapple {samus.Grapple.Phase}.");
+            throw new InvalidOperationException($"Held Samus cannot fire: pose {(int)samus.Pose:X2}, grapple {samus.Grapple.Phase}.");
         loaded.Game.Step((ushort)SnesButton.X);
         if (samus.Grapple.RopeLength == 0)
             throw new InvalidOperationException("Held grapple did not extend on the next frame.");
-        byte heldPose = samus.Pose;
+        SamusPoseId heldPose = samus.Pose;
         ushort heldX = samus.XPosition, heldY = samus.YPosition;
         // Exercise the real connection consumer with a controlled attachable endpoint.
         // Acquisition semantics are shared with the room-block path; no pose is fabricated.
@@ -34,7 +34,7 @@ internal static partial class Program
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
             throw new InvalidOperationException("Held grapple did not cancel on release.");
         CheckHeldBody();
-        foreach (byte pose in new[] { SamusPoseIds.DraygonGrabbedMovingLeftPose, SamusPoseIds.DraygonGrabbedMovingRightPose })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.DraygonGrabbedMovingLeftPose, SamusPoseId.DraygonGrabbedMovingRightPose })
         {
             for (int dpad = 0; dpad < 16; dpad++)
             {
@@ -42,8 +42,8 @@ internal static partial class Program
                 ushort input = (ushort)(dpad << 8);
                 SamusGrappleMovement.BeginFiring(loaded.AddressSpace, samus, input);
                 if (samus.Grapple.Phase != GrapplePhase.Firing)
-                    throw new InvalidOperationException($"Moving held pose {pose:X2} rejects grapple instead of using $9B:C6B2.");
-                bool left = pose == SamusPoseIds.DraygonGrabbedMovingLeftPose;
+                    throw new InvalidOperationException($"Moving held pose {(int)pose:X2} rejects grapple instead of using $9B:C6B2.");
+                bool left = pose == SamusPoseId.DraygonGrabbedMovingLeftPose;
                 int expected = left ? 7 : 2;
                 if ((input & (left ? 0x200 : 0x100)) != 0)
                     expected += (input & 0x400) != 0 ? (left ? -1 : 1) : (input & 0x800) != 0 ? (left ? 1 : -1) : 0;

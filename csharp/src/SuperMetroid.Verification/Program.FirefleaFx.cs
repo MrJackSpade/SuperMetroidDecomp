@@ -124,7 +124,7 @@ internal static partial class Program
         AssertEqual(RoomFxType.Fireflea, runtime.RoomLayer3Fx.Type, "retail fixture selects Fireflea FX");
         var samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         // Seed a late darkness shade through the production FX owner. X-ray freezes

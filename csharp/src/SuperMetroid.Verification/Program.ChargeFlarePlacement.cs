@@ -25,7 +25,11 @@ internal static partial class Program
         var draw = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponent", BindingFlags.Instance | BindingFlags.NonPublic)!
             .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, ushort, ushort, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
         int cases = 0;
-        foreach (byte pose in new byte[] { 1, 2, 9, 10 })
+        foreach (SamusPoseId pose in new[]
+        {
+            SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
+            SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
+        })
         for (byte direction = 0; direction < 16; direction++)
         foreach (ushort coordinate in new ushort[] { 0, 100, 255, ushort.MaxValue })
         foreach (SamusMode7Transform? transform in new SamusMode7Transform?[] { null, new(240, 16, 65520, 128, 112) })
@@ -34,7 +38,7 @@ internal static partial class Program
             // Exercise all original low-nibble operands at the renderer's metadata
             // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
             var samus = new SamusState { Pose = pose, XPosition = coordinate, YPosition = coordinate };
-            int record = SamusMovementRomData.Poses.Definitions + pose * 8;
+            int record = SamusMovementRomData.Poses.Definitions + (int)pose * 8;
             bool running = bus.ReadByte(record + 1) == (byte)SamusMovementType.Running;
             bool facingLeft = bus.ReadByte(record) == 4;
             byte yOffset = bus.ReadByte(record + 4);
@@ -52,7 +56,7 @@ internal static partial class Program
             AssertEqual(native.NextByteOffset, actual.NextByteOffset, "Flare placement preserves OAM admission");
             cases++;
         }
-        var subject = new SamusState { Pose = 1, XPosition = 100, YPosition = 100 };
+        var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 100, YPosition = 100 };
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
         var original = new OamBuffer(); var changed = new OamBuffer();
@@ -102,7 +106,7 @@ internal static partial class Program
         ChargeFlarePlacementCatalog? placement, ChargeFlareSpriteCatalog? sprites,
         byte direction, bool running, byte poseYOffset, bool facingLeft);
 
-    private sealed class FlarePlacementGuard(ISnesAddressSpace source, byte pose, byte direction, bool forbid) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class FlarePlacementGuard(ISnesAddressSpace source, SamusPoseId pose, byte direction, bool forbid) : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
@@ -110,8 +114,8 @@ internal static partial class Program
         {
             int syntheticOffset = address - (SamusMovementRomData.Poses.Definitions + 0xfd * 8);
             if ((uint)syntheticOffset < 8)
-                return syntheticOffset == 3 ? direction : source.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + syntheticOffset);
-            if (address == SamusMovementRomData.Poses.Definitions + pose * 8 + 3) return direction;
+                return syntheticOffset == 3 ? direction : source.ReadByte(SamusMovementRomData.Poses.Definitions + (int)pose * 8 + syntheticOffset);
+            if (address == SamusMovementRomData.Poses.Definitions + (int)pose * 8 + 3) return direction;
             if (forbid && address is >= 0x90c1a8 and < 0x90c210)
                 throw new InvalidDataException("Flare placement still reads origin ROM.");
             return source.ReadByte(address);
@@ -124,7 +128,7 @@ internal static partial class Program
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.Samus!.Pose = 1;
+        runtime.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
         runtime.Samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
         runtime.Samus.InitializeAnimation(bus); runtime.Samus.PrimeGraphics(bus);

@@ -60,7 +60,7 @@ internal static partial class Program
 
         Suite(nameof(VerifySpacetimeBeamGraphics), () => VerifySpacetimeBeamGraphics());
 
-        samus.Pose = 1;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.XPosition = 128;
         samus.YPosition = 128;
         samus.SelectedHudItem = 0;

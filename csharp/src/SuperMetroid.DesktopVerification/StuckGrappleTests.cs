@@ -52,7 +52,7 @@ internal static partial class Program
         loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
         Check(grapple.Phase == GrapplePhase.WallJumping, "Fresh Jump must accept wall contact.");
         loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
-        Check(samus.Pose == SamusPoseIds.WallJumpLeftPose && grapple.Phase == GrapplePhase.Inactive,
+        Check(samus.Pose == SamusPoseId.WallJumpLeftPose && grapple.Phase == GrapplePhase.Inactive,
             "Wall jump must detach and select the opposite-facing jump pose.");
         for (int f = 0; f < 13; f++) loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
         Check(samus.XPosition < 175 && samus.YPosition < 454,

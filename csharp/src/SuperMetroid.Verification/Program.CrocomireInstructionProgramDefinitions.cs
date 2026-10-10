@@ -44,7 +44,7 @@ internal static partial class Program
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusPoseIds.FacingRightNormalPose,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = 0x0440,
             YPosition = 0x0078,
         };

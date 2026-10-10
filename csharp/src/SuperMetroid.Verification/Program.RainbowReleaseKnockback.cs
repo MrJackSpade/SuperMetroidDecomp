@@ -26,7 +26,7 @@ internal static partial class Program
         var rainbow = new MotherBrainRainbowBeamAttackSequence();
         rainbow.StartActiveBeam(runtime.AddressSpace, samus);
         AssertEqual(DrainedSamusPhase.RainbowBeamLocked, samus.Drained.Phase, "the rainbow beam locks Samus");
-        AssertEqual(SamusPoseIds.KnockbackLeftPose, samus.Pose, "the lock installs knockback pose $54");
+        AssertEqual(SamusPoseId.KnockbackLeftPose, samus.Pose, "the lock installs knockback pose $54");
 
         runtime.StepFrame(0);
         AssertEqual((ushort)0x007d, samus.YPosition, "the locked beta moves nothing");

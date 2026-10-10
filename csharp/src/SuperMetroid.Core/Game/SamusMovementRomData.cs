@@ -45,7 +45,13 @@ public static class SamusMovementRomData
         /// $FF in pose-definition byte two: $91:82F9 retains the current pose after
         /// input lookup failure. This is metadata, not an installed Samus pose ID.
         /// </summary>
-        public const byte RetainCurrentPoseFallback = 0xff;
+        public const SamusPoseId RetainCurrentPoseFallback = (SamusPoseId)0xff;
+
+        /// <summary>
+        /// $FF in pose-definition byte three: the pose has no shot direction. Hurt and
+        /// damage-boost art store it, and $91:E95D lands them through the facing pair.
+        /// </summary>
+        public const byte NoShotDirection = 0xff;
     }
 
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>

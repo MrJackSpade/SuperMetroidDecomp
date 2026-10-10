@@ -11,7 +11,11 @@ internal static partial class Program
         // rope origin off-screen so its first visited slot is culled and only
         // the endpoint can emit OAM. Probe both sides of the camera subtraction
         // as well as the pre-centering vertical visibility boundary.
-        foreach (byte pose in new byte[] { 1, 2, 0xb2, 0xb3 })
+        foreach (SamusPoseId pose in new[]
+        {
+            SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
+            SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose
+        })
         foreach (ushort camera in new ushort[] { 0, 128, 65535 })
         foreach (int offsetX in new[] { -1, 0, 4, 255, 256 })
         foreach (int offsetY in new[] { -1, 0, 3, 4, 255, 256 })
@@ -27,10 +31,10 @@ internal static partial class Program
             grapple.SegmentAnimationTimers[15] = 1;
             var oam = new OamBuffer();
             SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oam, new VramWriteQueue(), camera, camera, samusPose: pose);
-            bool swinging = pose is 0xb2 or 0xb3;
+            bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
             ushort relativeY = unchecked((ushort)(endpointY - camera));
             bool visible = swinging || (relativeY & 0xff00) == 0;
-            string context = $"pose {pose:X2}, camera {camera}, offsets {offsetX}/{offsetY}";
+            string context = $"pose {(int)pose:X2}, camera {camera}, offsets {offsetX}/{offsetY}";
             AssertEqual(visible ? 4 : 0, oam.NextByteOffset, "Native endpoint vertical gate: " + context);
             if (!visible) continue;
             // Connected code omits the second SEC. Preserve the borrow from the
@@ -54,7 +58,7 @@ internal static partial class Program
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.RunNmi(0, true);
         var samus = runtime.Samus!;
-        foreach (byte pose in new byte[] { 1, 0xb2, 0xb3 })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose })
         {
             samus.Pose = pose;
             samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
@@ -74,7 +78,7 @@ internal static partial class Program
             for (int offset = 0; offset < runtime.Oam.NextByteOffset; offset += 4)
                 if (runtime.Oam.LowTable[offset + 2] == 0x20 && runtime.Oam.LowTable[offset + 3] == 0x3a)
                     endpoints++;
-            AssertEqual(pose == 1 ? 0 : 1, endpoints, $"Actual gameplay actor passes endpoint pose {pose:X2}");
+            AssertEqual((int)pose == 1 ? 0 : 1, endpoints, $"Actual gameplay actor passes endpoint pose {(int)pose:X2}");
         }
     }
 }

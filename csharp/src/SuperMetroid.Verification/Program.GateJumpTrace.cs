@@ -43,7 +43,7 @@ internal static partial class Program
                 runtime.StepFrame(input);
                 var gate = runtime.Plms.PopulationSlots.Single(s => s.HeaderPointer == PlmHeaderId.DownwardGate);
                 activated |= gate.LoopTimer != 0;
-                string actual = $"{frame},{input:X4},{samus.XPosition},{samus.Kinematics.XSubposition},{samus.YPosition},{samus.Pose:X2},{gate.LoopTimer},{gate.InstructionPointer:X4}";
+                string actual = $"{frame},{input:X4},{samus.XPosition},{samus.Kinematics.XSubposition},{samus.YPosition},{(int)samus.Pose:X2},{gate.LoopTimer},{gate.InstructionPointer:X4}";
                 AssertEqual(expected[frame + 60], actual, $"Native gate jump shot={shootFrame}, frame={frame}");
             }
             AssertEqual(shootFrame == 8 && aimFrame == 0, samus.XPosition < 112, "Only native successful timing crosses opened gate");

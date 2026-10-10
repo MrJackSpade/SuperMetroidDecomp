@@ -40,7 +40,7 @@ internal static partial class Program
             var bus = new BeamSpeedRowAddressSpace(retail);
             var samus = new SamusState
             {
-                Pose = 1,
+                Pose = SamusPoseId.FacingRightNormalPose,
                 XPosition = 128,
                 YPosition = 128,
                 EquippedBeams = unchecked((ushort)(beamType | (charged ? 0x1000 : 0))),

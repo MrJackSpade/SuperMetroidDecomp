@@ -14,7 +14,7 @@ internal static partial class Program
         {
             var samus = new SamusState
             {
-                Pose = left ? SamusPoseIds.NeutralJumpTransitionLeftPose : SamusPoseIds.NeutralJumpTransitionRightPose,
+                Pose = left ? SamusPoseId.NeutralJumpTransitionLeftPose : SamusPoseId.NeutralJumpTransitionRightPose,
                 XPosition = 100, YPosition = 100,
             };
             samus.RefreshCollisionRadii(bus);
@@ -37,10 +37,10 @@ internal static partial class Program
                 "zero-distance jump reports actual touching enemy, not fabricated movement");
         }
 
-        var crouched = new SamusState { Pose = SamusPoseIds.CrouchingLeftPose, XPosition = 100, YPosition = 100 };
+        var crouched = new SamusState { Pose = SamusPoseId.CrouchingLeftPose, XPosition = 100, YPosition = 100 };
         crouched.RefreshCollisionRadii(bus);
         SamusKnockbackMovement.Start(bus, crouched, 0, 1, 5, level: level);
-        AssertEqual(SamusPoseIds.KnockbackLeftPose, crouched.Pose, "crouch contact installs hurt pose");
+        AssertEqual(SamusPoseId.KnockbackLeftPose, crouched.Pose, "crouch contact installs hurt pose");
         AssertEqual(16, crouched.Kinematics.YRadius, "hurt commit retains live crouch radius");
         crouched.RefreshCollisionRadii(bus);
         AssertEqual(21, crouched.Kinematics.YRadius, "next alpha publishes hurt radius");

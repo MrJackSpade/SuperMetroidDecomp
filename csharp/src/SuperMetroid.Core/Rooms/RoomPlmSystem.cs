@@ -731,8 +731,8 @@ public sealed partial class RoomPlmSystem
             return true;
 
         bool activeSpeedBooster = samus.HorizontalSpeed.IsActivelySpeedBoosting;
-        bool activeShinespark = samus.Pose is >= SamusPoseIds.ShinesparkHorizontalRightPose
-            and <= SamusPoseIds.ShinesparkDiagonalLeftPose;
+        bool activeShinespark = samus.Pose is >= SamusPoseId.ShinesparkHorizontalRightPose
+            and <= SamusPoseId.ShinesparkDiagonalLeftPose;
         if (!activeSpeedBooster && !activeShinespark)
             return false;
 

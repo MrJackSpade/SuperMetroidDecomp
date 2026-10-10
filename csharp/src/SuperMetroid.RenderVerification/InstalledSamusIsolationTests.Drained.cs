@@ -8,7 +8,7 @@ internal sealed partial class InstalledSamusIsolationTests
     /// </summary>
     private void CheckDrained(bool left)
     {
-        Pair pair = Create(left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose);
+        Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
         string context = $"drained left={left}";
         pair.Apply(context + " airborne setup", actor =>
         {
@@ -39,7 +39,7 @@ internal sealed partial class InstalledSamusIsolationTests
         for (ushort frame = 0; frame < 24; frame++)
             pair.Apply(context + $" crouching {frame}", actor => Animate(actor, frame));
         pair.Apply(context + " release", actor => actor.Samus.Drained.Release(actor.Memory, actor.Samus));
-        CompleteAnimation(pair, left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose,
+        CompleteAnimation(pair, left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
             context + " released");
         Require(pair.Stock.Samus.Drained.Phase == DrainedSamusPhase.Inactive,
             context + ": compiled terminal animation must release the drained owner");

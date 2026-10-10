@@ -29,7 +29,7 @@ internal static partial class Program
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState { Pose = 1, XPosition = 128, YPosition = 128, EquippedBeams = beam };
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128, EquippedBeams = beam };
             var result = ((int? Slot, ushort Sound))fire.Invoke(projectiles,
                 new object?[] { bus, room, samus, edge, shared, null, charged })!;
             AssertEqual((int?)0, result.Slot, "Cooldown check exercises the actual successful producer");
@@ -43,7 +43,7 @@ internal static partial class Program
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState { Pose = SamusPoseIds.NormalJumpGunExtendedLeftPose,
+            var samus = new SamusState { Pose = SamusPoseId.NormalJumpGunExtendedLeftPose,
                 XPosition = 211, YPosition = 288, EquippedBeams = (ushort)(chargeEquipped ? 0x1009 : 9) };
             typeof(SamusState).GetProperty(nameof(SamusState.PoseTransitionShotDirection))!
                 .SetValue(samus, (ushort)0x8007);
@@ -58,7 +58,7 @@ internal static partial class Program
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState { Pose = 1, XPosition = 128, YPosition = 128, EquippedBeams = beam };
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128, EquippedBeams = beam };
             var frames = new List<int>();
             for (int frame = 0; frame < 70; frame++)
             {
@@ -77,7 +77,7 @@ internal static partial class Program
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState { Pose = 1, XPosition = 128, YPosition = 128,
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128,
                 EquippedBeams = beam, SelectedHudItem = 3, PowerBombs = 10 };
             AssertTrue(projectiles.TryActivateCombo(bus, samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");

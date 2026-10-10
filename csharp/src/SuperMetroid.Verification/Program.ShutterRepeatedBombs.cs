@@ -23,7 +23,7 @@ internal static partial class Program
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slotIndex];
             samus.InputLocked = false;
-            samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+            samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
@@ -40,7 +40,7 @@ internal static partial class Program
                     samus.YPosition < platform.YPosition && gap < worstGap)
                 {
                     worstGap = gap;
-                    Console.WriteLine($"Repeated bomb overlap: slot={slotIndex} offset={offset} interval={interval} unmorph={unmorphAt} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{samus.Pose:X2} platformY={platform.YPosition} carry={samus.Kinematics.ExtraYFixed}");
+                    Console.WriteLine($"Repeated bomb overlap: slot={slotIndex} offset={offset} interval={interval} unmorph={unmorphAt} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{(int)samus.Pose:X2} platformY={platform.YPosition} carry={samus.Kinematics.ExtraYFixed}");
                 }
             }
             cases++;

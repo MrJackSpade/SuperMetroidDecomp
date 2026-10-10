@@ -25,7 +25,7 @@ internal static partial class Program
             int accessX = right ? 9 : 7;
             var behavior = new RoomBlockBehavior(level.GetCollisionBlock(accessX, 8).Behavior);
             bool Touch() => plms.TryNotifyStationCollision(level.GetBlockIndex(accessX, 8), behavior,
-                right ? SamusPoseIds.RanIntoWallLeftPose : SamusPoseIds.RanIntoWallRightPose,
+                right ? SamusPoseId.RanIntoWallLeftPose : SamusPoseId.RanIntoWallRightPose,
                 horizontal: true, movingPositive: !right, roomWidthInBlocks: 32);
             AssertTrue(Touch(), "full recharge station remains solid");
             AssertTrue(!samus.InputLocked, "full resource must be rejected before station input lock");

@@ -284,18 +284,27 @@ static void VerifySamusPowerBeamProjectiles()
     // `$90:BA56` accepts exactly ten low-nibble direction values. Exercise every pointer,
     // horizontal/vertical/diagonal base-speed choice, acceleration sign, immediate movement,
     // animation selection, cooldown, sound, and live-slot counter in isolation.
-    ReadOnlySpan<byte> nativePosesByShotDirection =
+    ReadOnlySpan<SamusPoseId> nativePosesByShotDirection =
     [
-        3, 5, 1, 7, 23, 24, 8, 2, 6, 4,
+        SamusPoseId.StandingAimUpRightPose,
+        SamusPoseId.StandingAimDiagonalUpRightPose,
+        SamusPoseId.FacingRightNormalPose,
+        SamusPoseId.StandingAimDiagonalDownRightPose,
+        SamusPoseId.NormalJumpAimDownRightPose,
+        SamusPoseId.NormalJumpAimDownLeftPose,
+        SamusPoseId.StandingAimDiagonalDownLeftPose,
+        SamusPoseId.FacingLeftNormalPose,
+        SamusPoseId.StandingAimDiagonalUpLeftPose,
+        SamusPoseId.StandingAimUpLeftPose,
     ];
     for (byte direction = 0; direction < nativePosesByShotDirection.Length; direction++)
     {
         // Use one real pose for each of the ten native aim values. Pose dispatcher and
         // aim metadata are compiled definition data, so a synthetic bank-$91 record can
         // no longer override gameplay direction merely to simplify a fixture.
-        byte pose = nativePosesByShotDirection[direction];
+        SamusPoseId pose = nativePosesByShotDirection[direction];
         AssertEqual(direction, SamusState.ReadShotDirection(bus, pose),
-            $"native projectile fixture pose ${pose:X2} aim");
+            $"native projectile fixture pose ${(int)pose:X2} aim");
         var samus = new SamusState
         {
             Pose = pose,
@@ -342,10 +351,10 @@ static void VerifySamusPowerBeamProjectiles()
     // Charge Beam fires an ordinary shot on the initial held frame, counts to sixty while
     // the muzzle flare becomes visible at fifteen, and emits the charged data family only
     // when Shoot is released. This sequence mirrors `$90:B80D` frame by frame.
-    const byte rightPose = 1;
+    const SamusPoseId rightPose = SamusPoseId.FacingRightNormalPose;
     WritePoseDefinition(
         bus,
-        rightPose,
+        (int)rightPose,
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
 
     // Every valid low-nibble combination must index its own projectile data, cooldown, and
@@ -757,7 +766,7 @@ static void VerifySamusPowerBeamProjectiles()
     // still held, supplies the stored direction to the new projectile, and is then cleared.
     WritePoseDefinition(
         bus,
-        SamusPoseIds.NeutralJumpTransitionRightPose,
+        (int)SamusPoseId.NeutralJumpTransitionRightPose,
         [0x08, 0x02, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
     var bridgeSamus = new SamusState
     {
@@ -783,7 +792,7 @@ static void VerifySamusPowerBeamProjectiles()
     }
     bridgeSamus.ApplyOrdinaryJumpTransition(
         bus,
-        SamusPoseIds.NeutralJumpTransitionRightPose,
+        SamusPoseId.NeutralJumpTransitionRightPose,
         controllerNewInput: (ushort)SnesButton.X);
     AssertEqual(0x8002, bridgeSamus.PoseTransitionShotDirection,
         "normal-jump initializer publishes tagged shot direction");
@@ -1123,7 +1132,7 @@ static void VerifySamusPowerBeamProjectiles()
 
     WritePoseDefinition(
         bus,
-        rightPose,
+        (int)rightPose,
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
     var wallSamus = new SamusState
     {

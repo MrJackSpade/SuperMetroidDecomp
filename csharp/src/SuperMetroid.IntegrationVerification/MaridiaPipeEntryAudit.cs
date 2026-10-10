@@ -45,7 +45,7 @@ internal static class MaridiaPipeEntryAudit
                 !runtime.Samus!.StationaryScriptControlLocked)
                 throw new InvalidDataException("#391: incoming door fade discarded elevatube command-zero movement ownership.");
             if (frame % 30 == 0)
-                Console.WriteLine($"frame={frame} state={game.GameState} room={runtime.ActiveRoom?.Identity} header={runtime.ActiveRoom?.Pointer:X4} main={runtime.ActiveRoom?.State.MainCodePointer:X4} Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition} camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition} pose={runtime.Samus.Pose:X2}");
+                Console.WriteLine($"frame={frame} state={game.GameState} room={runtime.ActiveRoom?.Identity} header={runtime.ActiveRoom?.Pointer:X4} main={runtime.ActiveRoom?.State.MainCodePointer:X4} Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition} camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition} pose={(int)runtime.Samus.Pose:X2}");
             if (fromNorth && !incomingDoor && frame == 120 && runtime.Camera!.YPosition < 800)
                 throw new InvalidDataException("#391: elevatube carried Samus past Y=1000 while camera failed to follow the post-scroll room-main displacement.");
             game.SetAudioAcknowledgements(audio.ReadAcknowledgements());

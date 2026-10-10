@@ -54,7 +54,7 @@ internal static partial class Program
             state.AirborneYVelocity = (ushort)(initialY >> 16);
             state.AirborneYSubvelocity = (ushort)initialY;
             var samus = new SamusState { XPosition = 32, YPosition = 32,
-                Pose = SamusPoseIds.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
+                Pose = SamusPoseId.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
             samus.RefreshCollisionRadii(bus);
             uint x = 0x0200F000, y = 0x0200F000, vx = initialX, vy = initialY;
             for (int frame = 0; frame < 24; frame++)

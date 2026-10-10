@@ -7,13 +7,18 @@ internal static partial class Program
     private static void VerifyTourianElevatorDoors()
     {
         // Reports #1181-1184: real Tourian list/BTS values at the production collision seam.
-        foreach (byte pose in new byte[] { 1, 2, 9, 10, 0x25, 0x26 })
+        foreach (SamusPoseId pose in new[]
+        {
+            SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
+            SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose,
+            SamusPoseId.TurningRightToLeftPose, SamusPoseId.TurningLeftToRightPose
+        })
         {
             CheckCollision(0xdad5, 2, pose, horizontal: false, elevator: true);
             CheckCollision(0xdad5, 3, pose, horizontal: true, elevator: false);
         }
         // The same omitted native sentinel also terminates the Maridia elevator list.
-        CheckCollision(0xd332, 3, 1, horizontal: false, elevator: true);
+        CheckCollision(0xd332, 3, SamusPoseId.FacingRightNormalPose, horizontal: false, elevator: true);
 
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ushort listPointer in new ushort[] { 0xdad5, 0xd332 })
@@ -38,7 +43,7 @@ internal static partial class Program
         }
         Console.WriteLine("Tourian/Maridia elevator doors: native four-entry lists and headers match; elevator clipping/pose gating and save-door transition pass without cartridge reads.");
 
-        static void CheckCollision(ushort list, byte bts, byte pose, bool horizontal, bool elevator)
+        static void CheckCollision(ushort list, byte bts, SamusPoseId pose, bool horizontal, bool elevator)
         {
             ushort[] blocks = new ushort[16];
             byte[] behaviors = new byte[16];
@@ -55,7 +60,7 @@ internal static partial class Program
                 ? SamusBlockCollision.MoveHorizontal(bus, level, state, 4 << 16)
                 : SamusBlockCollision.MoveVertical(bus, level, state, 4 << 16, scanLeftToRight: true);
             AssertEqual(elevator, result.Collided, "native solid elevator / passable physical door");
-            AssertEqual(elevator && pose < 9, level.ConsumeElevatorDoorContact(), "native elevator pose gating");
+            AssertEqual(elevator && (int)pose < 9, level.ConsumeElevatorDoorContact(), "native elevator pose gating");
             if (elevator)
                 AssertTrue(level.PendingDoorTransition is null, "sentinel must not start a room transition");
             else

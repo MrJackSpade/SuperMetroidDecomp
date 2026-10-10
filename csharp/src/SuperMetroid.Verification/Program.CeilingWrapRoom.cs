@@ -29,7 +29,7 @@ internal static partial class Program
         for (int frame = 0; frame < native.Length; frame++)
         {
             runtime.StepFrame((ushort)(SnesButton.X | SnesButton.Left | SnesButton.R | (dash ? SnesButton.B : 0)));
-            string actual = $"{frame},{samus.XPosition},{samus.Kinematics.XSubposition},{samus.YPosition},{samus.Pose:X2},{runtime.Plms.ActiveCount},{runtime.Camera.XPosition}";
+            string actual = $"{frame},{samus.XPosition},{samus.Kinematics.XSubposition},{samus.YPosition},{(int)samus.Pose:X2},{runtime.Plms.ActiveCount},{runtime.Camera.XPosition}";
             if (actual != native[frame] && mismatches++ < 8)
                 Console.WriteLine($"Speedway mismatch:\n{actual}\n{native[frame]}");
         }

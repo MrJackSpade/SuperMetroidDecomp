@@ -13,7 +13,7 @@ internal static partial class Program
             var samus = new SamusState { XPosition = 100, YPosition = 100, Health = 399 };
             samus.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
             samus.Shinespark.BeginWindup(samus);
-            samus.Shinespark.BeginDirectionalLaunch(bus, samus, SamusPoseIds.ShinesparkVerticalLeftPose);
+            samus.Shinespark.BeginDirectionalLaunch(bus, samus, SamusPoseId.ShinesparkVerticalLeftPose);
             samus.Kinematics.YSubposition = ushort.MaxValue;
             samus.Kinematics.InteractiveEnemies =
             [new SolidEnemyCollisionBody(Index: 0, XPosition: 100, YPosition: (ushort)(100 - 19 - 8 - gap),

@@ -13,7 +13,7 @@ internal static partial class Program
         var anchors = new RoomLevelData(16, 16,
             Enumerable.Repeat((ushort)((int)RoomCollisionType.GrappleBlock << 12), 256).ToArray(),
             new byte[256], new ushort[256], new byte[8]);
-        var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 128, YPosition = 128 };
+        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128 };
         samus.RefreshCollisionRadii(bus);
         PrepareRetailSamusFixture(samus);
         SamusGrappleMovement.BeginFiring(bus, samus);
@@ -28,7 +28,7 @@ internal static partial class Program
         foreach (GrapplePhase phase in new[] { GrapplePhase.CancelPending, GrapplePhase.ReleaseFromSwing, GrapplePhase.Dropped })
         {
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            samus.Pose = SamusPoseIds.GrappleSwingRightPose;
+            samus.Pose = SamusPoseId.GrappleSwingRightPose;
             samus.RefreshCollisionRadii(bus);
             samus.Grapple.Phase = phase;
             if (phase == GrapplePhase.CancelPending)

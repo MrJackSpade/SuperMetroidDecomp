@@ -14,12 +14,12 @@ internal static partial class Program
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         // $91:E571 writes only $0A1C: the spin jump's $0A1E/$0A1F stay in force.
-        var spinning = new SamusState { Pose = SamusPoseIds.SpinJumpRightPose, XPosition = 0x80, YPosition = 0x80 };
+        var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, XPosition = 0x80, YPosition = 0x80 };
         spinning.RefreshCollisionRadii(bus);
         spinning.InitializeAnimation(bus);
         spinning.Drained.PutStanding(bus, spinning);
-        AssertEqual(SamusPoseIds.DrainedStandingRightPose, spinning.Pose, "drained controller installs the standing drained pose");
-        AssertEqual(SamusPoseIds.SpinJumpRightPose, spinning.InitializedPose, "drained controller skips InitializeSamusPose_1");
+        AssertEqual(SamusPoseId.DrainedStandingRightPose, spinning.Pose, "drained controller installs the standing drained pose");
+        AssertEqual(SamusPoseId.SpinJumpRightPose, spinning.InitializedPose, "drained controller skips InitializeSamusPose_1");
         AssertEqual(SamusMovementType.SpinJumping, spinning.ReadMovementType(bus), "cached $0A1F keeps the spin-jump movement type");
 
         // $90:9DB2 tests only the Screw Attack poses; any other pose rewinds to frame $0A.
@@ -27,11 +27,11 @@ internal static partial class Program
         AssertEqual((ushort)0x0a, spinning.AnimationFrame, "wall-contact rewind runs for the drained pose");
         // $91:EABE is gated by the spin mover, i.e. the cached type, not the live pose.
         spinning.ApplyWallJumpTrigger(bus);
-        AssertEqual(SamusPoseIds.WallJumpRightPose, spinning.Pose, "a drained spinning Samus wall-jumps out");
-        AssertEqual(SamusPoseIds.WallJumpRightPose, spinning.InitializedPose, "the wall jump initializes its pose");
+        AssertEqual(SamusPoseId.WallJumpRightPose, spinning.Pose, "a drained spinning Samus wall-jumps out");
+        AssertEqual(SamusPoseId.WallJumpRightPose, spinning.InitializedPose, "the wall jump initializes its pose");
 
         // $90:F3FB returns carry set; Run_Samus_Command then cancels the pending transition.
-        var frozen = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose };
+        var frozen = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
         SamusDrainedState.FreezeForHyperBeamAcquisition(frozen);
         AssertTrue(frozen.PendingPoseTransitionCancelled, "Samus command $19 cancels the pending pose transition");
 

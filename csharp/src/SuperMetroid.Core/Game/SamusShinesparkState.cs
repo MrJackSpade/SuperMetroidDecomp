@@ -255,7 +255,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>DemoSetFunc_5/6 call the native windup initializer without a stored shine.</summary>
-    internal void BeginDemoLaunch(ISnesAddressSpace bus, SamusState samus, byte targetPose)
+    internal void BeginDemoLaunch(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose)
     {
         InitializeWindup(samus);
         BeginDirectionalLaunch(bus, samus, targetPose);
@@ -319,7 +319,7 @@ public sealed class SamusShinesparkState
     /// Installs the handler selected by <c>SamusFunc_F468_Shinespark</c> at
     /// <c>$91:F80F</c> for poses `$C9-$CE`.
     /// </summary>
-    public void BeginDirectionalLaunch(ISnesAddressSpace bus, SamusState samus, byte targetPose,
+    public void BeginDirectionalLaunch(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose,
         bool deferPoseChange = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -329,17 +329,17 @@ public sealed class SamusShinesparkState
         // pose and the windup's speeds, and a direction still launches from it.
         Phase = targetPose switch
         {
-            SamusPoseIds.ShinesparkHorizontalRightPose or
-            SamusPoseIds.ShinesparkHorizontalLeftPose => ShinesparkPhase.Horizontal,
-            SamusPoseIds.ShinesparkVerticalRightPose or
-            SamusPoseIds.ShinesparkVerticalLeftPose => ShinesparkPhase.Vertical,
-            SamusPoseIds.ShinesparkDiagonalRightPose or
-            SamusPoseIds.ShinesparkDiagonalLeftPose => ShinesparkPhase.Diagonal,
+            SamusPoseId.ShinesparkHorizontalRightPose or
+            SamusPoseId.ShinesparkHorizontalLeftPose => ShinesparkPhase.Horizontal,
+            SamusPoseId.ShinesparkVerticalRightPose or
+            SamusPoseId.ShinesparkVerticalLeftPose => ShinesparkPhase.Vertical,
+            SamusPoseId.ShinesparkDiagonalRightPose or
+            SamusPoseId.ShinesparkDiagonalLeftPose => ShinesparkPhase.Diagonal,
             // `$91:F80F` is reached only from the six table-selected `$C9-$CE` records.
             // Any other byte is a caller contract violation, not another untranslated arm.
             _ => throw new ArgumentOutOfRangeException(
                 nameof(targetPose),
-                $"Pose ${targetPose:X2} is not one of the six directional shinespark poses."),
+                $"Pose ${(int)targetPose:X2} is not one of the six directional shinespark poses."),
         };
 
         samus.ShinesparkPoseInputLocked = true;
@@ -352,7 +352,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>Commits the interrupted launch pose after the current frame's animation.</summary>
-    internal static void ApplyDirectionalLaunchPose(ISnesAddressSpace bus, SamusState samus, byte pose)
+    internal static void ApplyDirectionalLaunchPose(ISnesAddressSpace bus, SamusState samus, SamusPoseId pose)
     {
         samus.Pose = pose;
         samus.RefreshCollisionRadii(bus);
@@ -395,12 +395,12 @@ public sealed class SamusShinesparkState
             NativeWordCounterStep timer = NativeWordCounter.Decrement(StartStopTimer);
             StartStopTimer = timer.Value;
             bool timedOut = timer.IsZeroOrNegative;
-            byte? pendingLaunchPose = null;
+            SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
-                byte verticalPose = samus.IsFacingLeft(bus)
-                    ? SamusPoseIds.ShinesparkVerticalLeftPose
-                    : SamusPoseIds.ShinesparkVerticalRightPose;
+                SamusPoseId verticalPose = samus.IsFacingLeft(bus)
+                    ? SamusPoseId.ShinesparkVerticalLeftPose
+                    : SamusPoseId.ShinesparkVerticalRightPose;
                 BeginDirectionalLaunch(bus, samus, verticalPose, deferTimeoutPoseChange);
                 if (deferTimeoutPoseChange)
                     pendingLaunchPose = verticalPose;
@@ -698,9 +698,9 @@ false,             CrashSequenceFinished: true);
         // replaces a drained pose's movement word too: a Samus drained mid-crash is free.
         samus.ShinesparkPoseInputLocked = false;
         samus.Drained.RelinquishMovementHandler();
-        byte standingPose = samus.IsFacingLeft(bus)
-            ? SamusPoseIds.FacingLeftNormalPose
-            : SamusPoseIds.FacingRightNormalPose;
+        SamusPoseId standingPose = samus.IsFacingLeft(bus)
+            ? SamusPoseId.FacingLeftNormalPose
+            : SamusPoseId.FacingRightNormalPose;
         ushort previousRadius = samus.Kinematics.YRadius;
         samus.Pose = standingPose;
         // The native transitional-pose handler restores normal movement and
@@ -993,7 +993,7 @@ public enum ShinesparkPhase
 public readonly record struct ShinesparkMovementResult(
     bool WindupTimedOut,
     bool CrashSequenceFinished = false,
-    byte? PendingLaunchPose = null);
+    SamusPoseId? PendingLaunchPose = null);
 
 /// <summary>Immutable debugger view of one departing crash-echo projectile.</summary>
 /// <param name="Active">Speed-echo drawing enable, independent of current projectile-slot ownership; replacing the projectile need not clear these drawing words.</param>

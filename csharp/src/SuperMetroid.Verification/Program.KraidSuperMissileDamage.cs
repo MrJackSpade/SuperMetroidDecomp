@@ -81,7 +81,7 @@ internal static partial class Program
         var words=new ushort[32*64];for(int i=32*32;i<33*32;i++)words[i]=0x8000;
         var level=new RoomLevelData(32,64,words,new byte[2048],new ushort[2048],new byte[8]);
         typeof(SuperMetroidRuntime).GetProperty("LevelData")!.SetValue(runtime,level);
-        var samus=runtime.Samus!;samus.Pose=SamusPoseIds.FacingRightNormalPose;
+        var samus=runtime.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=2;
         samus.RefreshCollisionRadii(bus);samus.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
         samus.XPosition=120;samus.YPosition=(ushort)(512-samus.Kinematics.YRadius);samus.InputLocked=false;

@@ -32,7 +32,7 @@ internal static partial class Program
 
         var samus = new SamusState
         {
-            Pose = SamusPoseIds.FacingRightNormalPose,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = 128,
             YPosition = 128,
             Health = 1,

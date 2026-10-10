@@ -24,7 +24,7 @@ internal static partial class Program
             var actor = enemies.Slots[focus];
             var state = enemies.YardStates[focus]!;
             var samus = new SamusState { Health = 999, MaxHealth = 999,
-                Pose = SamusPoseIds.FacingLeftNormalPose, XPosition = unchecked((ushort)(actor.XPosition - 64)), YPosition = actor.YPosition };
+                Pose = SamusPoseId.FacingLeftNormalPose, XPosition = unchecked((ushort)(actor.XPosition - 64)), YPosition = actor.YPosition };
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             int largest = 0;
@@ -67,7 +67,7 @@ internal static partial class Program
             state.Behavior = 3;
             state.AirborneYVelocity = 1;
             var samus = new SamusState { Health = 999, MaxHealth = 999,
-                Pose = SamusPoseIds.FacingLeftNormalPose, XPosition = 32, YPosition = 32 };
+                Pose = SamusPoseId.FacingLeftNormalPose, XPosition = 32, YPosition = 32 };
             samus.RefreshCollisionRadii(bus);
             enemies.StepFrame(128, 128, false, samus, level: floor);
             AssertEqual((ushort)0, state.Behavior, "dropped Yard lands without becoming aggressive");

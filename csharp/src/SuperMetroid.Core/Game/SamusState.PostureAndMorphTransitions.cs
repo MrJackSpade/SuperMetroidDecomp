@@ -22,7 +22,7 @@ public sealed partial class SamusState
     public bool TryApplyDirectCrouchToStandingTransition(
         ISnesAddressSpace bus,
         RoomLevelData level,
-        byte targetPose,
+        SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -30,18 +30,18 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(level);
 
         bool rightRoute = IsRightFacingCrouchingPose(Pose) &&
-            targetPose == SamusPoseIds.FacingRightNormalPose;
+            targetPose == SamusPoseId.FacingRightNormalPose;
         bool leftRoute = IsLeftFacingCrouchingPose(Pose) &&
-            targetPose == SamusPoseIds.FacingLeftNormalPose;
+            targetPose == SamusPoseId.FacingLeftNormalPose;
         if (!rightRoute && !leftRoute)
         {
             // This entry point is the exact `$27/$28 -> $01/$02` direct-exit route.
             // Animated stand-ups and cross-facing changes have separate initializers.
             throw new InvalidOperationException(
-                $"Direct crouch exit ${Pose:X2} -> ${targetPose:X2} is not a ROM-table route.");
+                $"Direct crouch exit ${(int)Pose:X2} -> ${(int)targetPose:X2} is not a ROM-table route.");
         }
 
-        byte sourcePose = Pose;
+        SamusPoseId sourcePose = Pose;
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
                 bus,
                 level,
@@ -84,7 +84,7 @@ public sealed partial class SamusState
     public bool TryApplyCrouchJumpTransition(
         ISnesAddressSpace bus,
         RoomLevelData level,
-        byte targetPose,
+        SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -92,18 +92,18 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(level);
 
         bool rightRoute = IsRightFacingCrouchingPose(Pose) &&
-            targetPose == SamusPoseIds.NeutralJumpTransitionRightPose;
+            targetPose == SamusPoseId.NeutralJumpTransitionRightPose;
         bool leftRoute = IsLeftFacingCrouchingPose(Pose) &&
-            targetPose == SamusPoseIds.NeutralJumpTransitionLeftPose;
+            targetPose == SamusPoseId.NeutralJumpTransitionLeftPose;
         if (!rightRoute && !leftRoute)
         {
             // Only the two neutral `$4B/$4C` transition records enter this routine; aimed
             // crouches deliberately reuse the same facing-selected target.
             throw new InvalidOperationException(
-                $"Crouch jump ${Pose:X2} -> ${targetPose:X2} is not a ROM-table route.");
+                $"Crouch jump ${(int)Pose:X2} -> ${(int)targetPose:X2} is not a ROM-table route.");
         }
 
-        byte sourcePose = Pose;
+        SamusPoseId sourcePose = Pose;
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
                 bus,
                 level,
@@ -126,7 +126,7 @@ public sealed partial class SamusState
         // HandleJumpTransition_NormalJumping at $91:FC7D performs this after pose
         // initialization/collision but before Make_Samus_Jump. It writes only current Y;
         // the desktop state has no separately exposed PreviousYPosition word to mirror.
-        if (sourcePose is SamusPoseIds.CrouchingRightPose or SamusPoseIds.CrouchingLeftPose)
+        if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 10));
 
         InitializeAnimation(bus, initialFrame: 0);
@@ -147,7 +147,7 @@ public sealed partial class SamusState
     public bool TryApplyPostureTransition(
         ISnesAddressSpace bus,
         RoomLevelData level,
-        byte targetPose,
+        SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -160,35 +160,35 @@ public sealed partial class SamusState
              IsRightFacingRanIntoWallPose(Pose) ||
              IsRightFacingLandingPose(Pose)) &&
             targetPose is
-                SamusPoseIds.CrouchingTransitionRightPose or SamusPoseIds.CrouchingTransitionAimUpRightPose or
-                SamusPoseIds.CrouchingTransitionAimDiagonalUpRightPose or
-                SamusPoseIds.CrouchingTransitionAimDiagonalDownRightPose;
+                SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionAimUpRightPose or
+                SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or
+                SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose;
         bool startsCrouchingLeft =
             (IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
              IsMoonwalkingFacingLeftPose(Pose) ||
              IsLeftFacingRanIntoWallPose(Pose) ||
              IsLeftFacingLandingPose(Pose)) &&
             targetPose is
-                SamusPoseIds.CrouchingTransitionLeftPose or SamusPoseIds.CrouchingTransitionAimUpLeftPose or
-                SamusPoseIds.CrouchingTransitionAimDiagonalUpLeftPose or
-                SamusPoseIds.CrouchingTransitionAimDiagonalDownLeftPose;
+                SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.CrouchingTransitionAimUpLeftPose or
+                SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or
+                SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose;
         bool startsCrouching = startsCrouchingRight || startsCrouchingLeft;
         bool startsStandingRight = IsRightFacingCrouchingPose(Pose) &&
             targetPose is
-                SamusPoseIds.StandingTransitionRightPose or SamusPoseIds.StandingTransitionAimUpRightPose or
-                SamusPoseIds.StandingTransitionAimDiagonalUpRightPose or
-                SamusPoseIds.StandingTransitionAimDiagonalDownRightPose;
+                SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionAimUpRightPose or
+                SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
+                SamusPoseId.StandingTransitionAimDiagonalDownRightPose;
         bool startsStandingLeft = IsLeftFacingCrouchingPose(Pose) &&
             targetPose is
-                SamusPoseIds.StandingTransitionLeftPose or SamusPoseIds.StandingTransitionAimUpLeftPose or
-                SamusPoseIds.StandingTransitionAimDiagonalUpLeftPose or
-                SamusPoseIds.StandingTransitionAimDiagonalDownLeftPose;
+                SamusPoseId.StandingTransitionLeftPose or SamusPoseId.StandingTransitionAimUpLeftPose or
+                SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
+                SamusPoseId.StandingTransitionAimDiagonalDownLeftPose;
         bool startsStanding = startsStandingRight || startsStandingLeft;
         if (!startsCrouching && !startsStanding)
         {
             // `$91:F7B0/$F7D3` admit exactly the crouch/stand records enumerated above.
             throw new InvalidOperationException(
-                $"Posture transition ${Pose:X2} -> ${targetPose:X2} is outside the crouch/stand ROM-table family.");
+                $"Posture transition ${(int)Pose:X2} -> ${(int)targetPose:X2} is outside the crouch/stand ROM-table family.");
         }
 
         if (startsCrouching)
@@ -229,7 +229,7 @@ public sealed partial class SamusState
         // Expanding from crouch radius 16 to standing-transition radius 21 invokes the
         // common pose-change collision routine before initialization. The shared helper
         // reads the target radius from this ROM rather than assuming the ordinary value 21.
-        byte sourcePose = Pose;
+        SamusPoseId sourcePose = Pose;
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
                 bus,
                 level,
@@ -270,7 +270,7 @@ public sealed partial class SamusState
     public bool TryApplyMorphTransition(
         ISnesAddressSpace bus,
         RoomLevelData level,
-        byte targetPose,
+        SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -283,29 +283,29 @@ public sealed partial class SamusState
         // Validate only the facing-preserving relationship guaranteed by the ROM table.
         byte sourceDirection = ReadPoseXDirection(bus);
         bool startsMorphingRight = sourceDirection == 8 &&
-            targetPose == SamusPoseIds.MorphingTransitionRightPose;
+            targetPose == SamusPoseId.MorphingTransitionRightPose;
         bool startsMorphingLeft = sourceDirection == 4 &&
-            targetPose == SamusPoseIds.MorphingTransitionLeftPose;
+            targetPose == SamusPoseId.MorphingTransitionLeftPose;
         bool startsMorphing = startsMorphingRight || startsMorphingLeft;
         bool startsUnmorphingRight =
-            Pose is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallMovingRightPose or
-                SamusPoseIds.MorphBallFallingRightPose or SamusPoseIds.SpringBallGroundRightPose or
-                SamusPoseIds.SpringBallMovingRightPose or SamusPoseIds.SpringBallFallingRightPose or
-                SamusPoseIds.SpringBallJumpRightPose &&
-            targetPose == SamusPoseIds.UnmorphingTransitionRightPose;
+            Pose is SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallMovingRightPose or
+                SamusPoseId.MorphBallFallingRightPose or SamusPoseId.SpringBallGroundRightPose or
+                SamusPoseId.SpringBallMovingRightPose or SamusPoseId.SpringBallFallingRightPose or
+                SamusPoseId.SpringBallJumpRightPose &&
+            targetPose == SamusPoseId.UnmorphingTransitionRightPose;
         bool startsUnmorphingLeft =
-            Pose is SamusPoseIds.MorphBallGroundLeftPose or SamusPoseIds.MorphBallMovingLeftPose or
-                SamusPoseIds.MorphBallFallingLeftPose or SamusPoseIds.SpringBallGroundLeftPose or
-                SamusPoseIds.SpringBallMovingLeftPose or SamusPoseIds.SpringBallFallingLeftPose or
-                SamusPoseIds.SpringBallJumpLeftPose &&
-            targetPose == SamusPoseIds.UnmorphingTransitionLeftPose;
+            Pose is SamusPoseId.MorphBallGroundLeftPose or SamusPoseId.MorphBallMovingLeftPose or
+                SamusPoseId.MorphBallFallingLeftPose or SamusPoseId.SpringBallGroundLeftPose or
+                SamusPoseId.SpringBallMovingLeftPose or SamusPoseId.SpringBallFallingLeftPose or
+                SamusPoseId.SpringBallJumpLeftPose &&
+            targetPose == SamusPoseId.UnmorphingTransitionLeftPose;
         bool startsUnmorphing = startsUnmorphingRight || startsUnmorphingLeft;
         if (!startsMorphing && !startsUnmorphing)
         {
             // Morph and unmorph use a closed, facing-preserving table. Other ball pose
             // changes are handled by ApplyMorphBallPoseChange and must not enter here.
             throw new InvalidOperationException(
-                $"Morph transition ${Pose:X2} -> ${targetPose:X2} is not a ROM-table route.");
+                $"Morph transition ${(int)Pose:X2} -> ${(int)targetPose:X2} is not a ROM-table route.");
         }
 
         if (startsMorphing)
@@ -323,7 +323,7 @@ public sealed partial class SamusState
             if (Kinematics.YRadius > previousRadius)
             {
                 throw new InvalidDataException(
-                    $"Morph entry ${targetPose:X2} expanded radius {previousRadius} -> {Kinematics.YRadius}.");
+                    $"Morph entry ${(int)targetPose:X2} expanded radius {previousRadius} -> {Kinematics.YRadius}.");
             }
             BlockMoveResult alignment = ProbeChangedPoseVertical(
                 bus, level, SamusPostureDefinitions.MorphEntryDownwardPixels << 16,
@@ -351,7 +351,7 @@ public sealed partial class SamusState
             return true;
         }
 
-        byte sourcePose = Pose;
+        SamusPoseId sourcePose = Pose;
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
             bus,
             level,
@@ -407,17 +407,17 @@ public sealed partial class SamusState
     public bool TryApplyUnmorphToFallingTransition(
         ISnesAddressSpace bus,
         RoomLevelData level,
-        byte targetPose,
+        SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
 
-        byte sourcePose = Pose;
-        bool rightFacingRoute = sourcePose == SamusPoseIds.UnmorphingTransitionRightPose &&
+        SamusPoseId sourcePose = Pose;
+        bool rightFacingRoute = sourcePose == SamusPoseId.UnmorphingTransitionRightPose &&
             IsRightFacingFallingPose(targetPose);
-        bool leftFacingRoute = sourcePose == SamusPoseIds.UnmorphingTransitionLeftPose &&
+        bool leftFacingRoute = sourcePose == SamusPoseId.UnmorphingTransitionLeftPose &&
             IsLeftFacingFallingPose(targetPose);
         if (!rightFacingRoute && !leftFacingRoute)
         {
@@ -425,7 +425,7 @@ public sealed partial class SamusState
             // unmorph body's direction. Rejecting every other pairing keeps this helper
             // from silently becoming a catch-all for unrelated movement initializers.
             throw new InvalidOperationException(
-                $"Unmorph-to-falling transition ${sourcePose:X2} -> ${targetPose:X2} is not a same-facing retail route.");
+                $"Unmorph-to-falling transition ${(int)sourcePose:X2} -> ${(int)targetPose:X2} is not a same-facing retail route.");
         }
 
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
@@ -461,7 +461,7 @@ public sealed partial class SamusState
     /// Installs a stable ordinary Morph-Ball pose while preserving the shared eight-frame
     /// rolling animation exactly as <c>InitializeSamusPose_MorphBall</c> requests.
     /// </summary>
-    public void ApplyMorphBallPoseChange(ISnesAddressSpace bus, byte targetPose)
+    public void ApplyMorphBallPoseChange(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
         bool sourceSupported = IsStableBallPose(Pose);
@@ -469,7 +469,7 @@ public sealed partial class SamusState
         if (!sourceSupported || !targetSupported)
         {
             throw new InvalidOperationException(
-                $"Stable Morph-Ball transition ${Pose:X2} -> ${targetPose:X2} requires stable ball endpoints.");
+                $"Stable Morph-Ball transition ${(int)Pose:X2} -> ${(int)targetPose:X2} requires stable ball endpoints.");
         }
 
         byte previousDirection = ReadPoseXDirection(bus);
@@ -529,7 +529,7 @@ public sealed partial class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (!IsAirborneMorphBallPose(Pose) && !IsGroundedMorphBallPose(Pose))
-            throw new InvalidOperationException($"Morph-Ball landing requires airborne pose $31/$32, not ${Pose:X2}.");
+            throw new InvalidOperationException($"Morph-Ball landing requires airborne pose $31/$32, not ${(int)Pose:X2}.");
 
         // The cartridge tests the sign of a word subtraction, not an unsigned
         // magnitude. Moonfall's negative velocity therefore lands without a rebound.
@@ -556,9 +556,9 @@ public sealed partial class SamusState
         Kinematics.YDirection = 0;
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
-        byte groundedPose = IsFacingLeft(bus)
-            ? SamusPoseIds.MorphBallGroundLeftPose
-            : SamusPoseIds.MorphBallGroundRightPose;
+        SamusPoseId groundedPose = IsFacingLeft(bus)
+            ? SamusPoseId.MorphBallGroundLeftPose
+            : SamusPoseId.MorphBallGroundRightPose;
         ApplyMorphBallPoseChange(bus, groundedPose);
         // $91:F02D-$F033 clears base momentum only when the bounce handler returns
         // carry clear. Both airborne rebounds above retain their horizontal speed.
@@ -578,7 +578,7 @@ public sealed partial class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (!IsAirborneSpringBallPose(Pose) && !IsGroundedSpringBallPose(Pose))
-            throw new InvalidOperationException($"Spring-Ball landing requires pose $7D-$80, not ${Pose:X2}.");
+            throw new InvalidOperationException($"Spring-Ball landing requires pose $7D-$80, not ${(int)Pose:X2}.");
 
         if ((controllerInput & (ushort)SnesButton.A) != 0)
         {
@@ -614,9 +614,9 @@ public sealed partial class SamusState
         Kinematics.YDirection = 0;
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
-        byte groundPose = IsFacingLeft(bus)
-            ? SamusPoseIds.SpringBallGroundLeftPose
-            : SamusPoseIds.SpringBallGroundRightPose;
+        SamusPoseId groundPose = IsFacingLeft(bus)
+            ? SamusPoseId.SpringBallGroundLeftPose
+            : SamusPoseId.SpringBallGroundRightPose;
         ApplyMorphBallPoseChange(bus, groundPose);
         // The common landing caller clears base speed when the bounce routine
         // returns carry clear. Spring Ball shares this with ordinary ball landing.
@@ -631,13 +631,13 @@ public sealed partial class SamusState
     /// Moving-ground poses first pass through the same table-selected target, but the
     /// initializer only launches when the previous movement type was exactly `$11`.
     /// </summary>
-    public void ApplySpringBallJump(ISnesAddressSpace bus, byte targetPose)
+    public void ApplySpringBallJump(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        bool validTarget = targetPose is SamusPoseIds.SpringBallJumpRightPose or SamusPoseIds.SpringBallJumpLeftPose;
+        bool validTarget = targetPose is SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose;
         if (!IsGroundedSpringBallPose(Pose) || !validTarget)
             throw new InvalidOperationException(
-                $"Spring-Ball jump ${Pose:X2} -> ${targetPose:X2} is outside the grounded-to-airborne Spring-Ball route.");
+                $"Spring-Ball jump ${(int)Pose:X2} -> ${(int)targetPose:X2} is outside the grounded-to-airborne Spring-Ball route.");
 
         ApplyMorphBallPoseChange(bus, targetPose);
         MorphBallBounceState = 0;
@@ -655,13 +655,13 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         bool left = IsFacingLeft(bus);
         if (IsGroundedSpringBallPose(Pose))
-            ApplyMorphBallPoseChange(bus, left ? SamusPoseIds.SpringBallFallingLeftPose : SamusPoseIds.SpringBallFallingRightPose);
+            ApplyMorphBallPoseChange(bus, left ? SamusPoseId.SpringBallFallingLeftPose : SamusPoseId.SpringBallFallingRightPose);
         else if (IsGroundedMorphBallPose(Pose))
-            ApplyMorphBallPoseChange(bus, left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose);
+            ApplyMorphBallPoseChange(bus, left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose);
         else if (ReadMovementType(bus) is SamusMovementType.Standing or SamusMovementType.Running or
                  SamusMovementType.Crouching or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall)
             throw new InvalidOperationException(
-                $"Bomb-jump falling result for humanoid pose ${Pose:X2} ($91:E8F2 airborne) is not translated.");
+                $"Bomb-jump falling result for humanoid pose ${(int)Pose:X2} ($91:E8F2 airborne) is not translated.");
     }
 
     /// <summary>
@@ -673,11 +673,11 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         bool springBall = IsGroundedSpringBallPose(Pose);
         if (!IsGroundedMorphBallPose(Pose) && !springBall)
-            throw new InvalidOperationException($"Morph-Ball walk-off requires grounded pose, not ${Pose:X2}.");
+            throw new InvalidOperationException($"Morph-Ball walk-off requires grounded pose, not ${(int)Pose:X2}.");
 
-        byte fallingPose = IsFacingLeft(bus)
-            ? springBall ? SamusPoseIds.SpringBallFallingLeftPose : SamusPoseIds.MorphBallFallingLeftPose
-            : springBall ? SamusPoseIds.SpringBallFallingRightPose : SamusPoseIds.MorphBallFallingRightPose;
+        SamusPoseId fallingPose = IsFacingLeft(bus)
+            ? springBall ? SamusPoseId.SpringBallFallingLeftPose : SamusPoseId.MorphBallFallingLeftPose
+            : springBall ? SamusPoseId.SpringBallFallingRightPose : SamusPoseId.MorphBallFallingRightPose;
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
         Kinematics.YDirection = 2;
@@ -691,7 +691,7 @@ public sealed partial class SamusState
     /// speed and starts downward gravity before the pose is drawn.
     /// </summary>
     public void ApplyWalkedOffFloorTransition(
-        ISnesAddressSpace bus, RoomLevelData level, byte targetPose,
+        ISnesAddressSpace bus, RoomLevelData level, SamusPoseId targetPose,
         ushort nmiFrameCounter = 0, RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -702,23 +702,23 @@ public sealed partial class SamusState
             IsRightFacingRunningPose(Pose) || IsLeftFacingRunningPose(Pose) ||
             IsMoonwalkingPose(Pose) ||
             IsMoonwalkTurnJumpPose(Pose) ||
-            Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose ||
+            Pose is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose ||
             IsRanIntoWallPose(Pose) ||
             IsRightFacingCrouchingPose(Pose) || IsLeftFacingCrouchingPose(Pose);
-        byte expectedTarget = SelectFallingPoseForCurrentAim(bus);
+        SamusPoseId expectedTarget = SelectFallingPoseForCurrentAim(bus);
         if (!supportedSource || targetPose != expectedTarget)
         {
             // The caller computes the target from this pose's ROM metadata immediately
             // before invoking us. A mismatch is an inconsistent request, not missing logic.
             throw new InvalidOperationException(
-                $"Walk-off transition ${Pose:X2} -> ${targetPose:X2} does not match the pose's ROM-selected falling target ${expectedTarget:X2}.");
+                $"Walk-off transition ${(int)Pose:X2} -> ${(int)targetPose:X2} does not match the pose's ROM-selected falling target ${(int)expectedTarget:X2}.");
         }
 
         // A crouched or compact source can grow when falling is selected. Native
         // F404 runs the same pose-expansion collision as an input-driven transition,
         // including its fractional clamp. Skipping it embeds the new body in the
         // floor after a near-ground unmorph. Rejection also skips command five.
-        byte sourcePose = Pose;
+        SamusPoseId sourcePose = Pose;
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
             bus, level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
@@ -753,13 +753,13 @@ public sealed partial class SamusState
     /// <summary>
     /// Ports the facing lookup used by `$91:E8F2` for a grounded walk-off.
     /// </summary>
-    public byte SelectFallingPoseForCurrentAim(ISnesAddressSpace bus)
+    public SamusPoseId SelectFallingPoseForCurrentAim(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
         // PSP_Falling indexes its pair with PoseXDirection, not the muzzle direction.
         // Moonwalk's visual facing opposes this physics byte; aim input is reconsidered
         // by the next frame's input handler after this ordinary falling pose is installed.
-        return IsFacingLeft(bus) ? SamusPoseIds.FallingLeftPose : SamusPoseIds.FallingRightPose;
+        return IsFacingLeft(bus) ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
     }
 
     /// <summary>
@@ -779,9 +779,9 @@ public sealed partial class SamusState
         ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        byte sourcePose = Pose;
+        SamusPoseId sourcePose = Pose;
         bool leavingScrewAttack = IsScrewAttackPose(sourcePose);
-        byte targetPose = SelectAerialLandingPose(bus, wasSpinning, controllerInput);
+        SamusPoseId targetPose = SelectAerialLandingPose(bus, wasSpinning, controllerInput);
 
         ushort oldRadius = Kinematics.YRadius;
         Pose = targetPose;
@@ -815,9 +815,9 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
 
-        byte sourcePose = Pose;
+        SamusPoseId sourcePose = Pose;
         bool leavingScrewAttack = IsScrewAttackPose(sourcePose);
-        byte targetPose = SelectAerialLandingPose(bus, wasSpinning, controllerInput);
+        SamusPoseId targetPose = SelectAerialLandingPose(bus, wasSpinning, controllerInput);
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
             bus,
             level,
@@ -852,7 +852,7 @@ public sealed partial class SamusState
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
-    private static ushort StandingPoseInitialFrame(ISnesAddressSpace bus, byte sourcePose, byte targetPose)
+    private static ushort StandingPoseInitialFrame(ISnesAddressSpace bus, SamusPoseId sourcePose, SamusPoseId targetPose)
     {
         // $91:F4DC keeps the gun raised when both the old and new standing
         // initializer's poses aim straight up, including landing and its completion.
@@ -862,7 +862,7 @@ public sealed partial class SamusState
     }
 
     /// <summary>Chooses <c>$91:E95D</c>'s prospective landing pose.</summary>
-    private byte SelectAerialLandingPose(
+    private SamusPoseId SelectAerialLandingPose(
         ISnesAddressSpace bus,
         bool wasSpinning,
         ushort controllerInput)
@@ -872,8 +872,8 @@ public sealed partial class SamusState
         if (wasSpinning)
         {
             return facingLeft
-                ? SamusPoseIds.SpinLandingLeftPose
-                : SamusPoseIds.SpinLandingRightPose;
+                ? SamusPoseId.SpinLandingLeftPose
+                : SamusPoseId.SpinLandingRightPose;
         }
 
         // `$91:E95D` checks `$FF` before indexing `$91:E9F3`; hurt/damage-boost art
@@ -884,15 +884,15 @@ public sealed partial class SamusState
         bool shotHeld = (controllerInput & (ushort)SnesButton.X) != 0;
         return ReadShotDirection(bus) switch
         {
-            0 => SamusPoseIds.LandingAimUpRightPose,
-            1 => SamusPoseIds.LandingAimDiagonalUpRightPose,
-            2 => shotHeld ? SamusPoseIds.FiringLandingRightPose : SamusPoseIds.NormalLandingRightPose,
-            3 => SamusPoseIds.LandingAimDiagonalDownRightPose,
-            6 => SamusPoseIds.LandingAimDiagonalDownLeftPose,
-            7 => shotHeld ? SamusPoseIds.FiringLandingLeftPose : SamusPoseIds.NormalLandingLeftPose,
-            8 => SamusPoseIds.LandingAimDiagonalUpLeftPose,
-            9 => SamusPoseIds.LandingAimUpLeftPose,
-            0xff => facingLeft ? SamusPoseIds.NormalLandingLeftPose : SamusPoseIds.NormalLandingRightPose,
+            0 => SamusPoseId.LandingAimUpRightPose,
+            1 => SamusPoseId.LandingAimDiagonalUpRightPose,
+            2 => shotHeld ? SamusPoseId.FiringLandingRightPose : SamusPoseId.NormalLandingRightPose,
+            3 => SamusPoseId.LandingAimDiagonalDownRightPose,
+            6 => SamusPoseId.LandingAimDiagonalDownLeftPose,
+            7 => shotHeld ? SamusPoseId.FiringLandingLeftPose : SamusPoseId.NormalLandingLeftPose,
+            8 => SamusPoseId.LandingAimDiagonalUpLeftPose,
+            9 => SamusPoseId.LandingAimUpLeftPose,
+            SamusMovementRomData.Poses.NoShotDirection => facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose,
             // Directions four/five are consumed by TryApplyCompactAerialLanding,
             // because the 10 -> 21 expansion needs room collision data.
             byte shotDirection => throw new InvalidOperationException(
@@ -934,15 +934,15 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         if (!IsCompactAerialPose(Pose))
-            throw new InvalidOperationException($"Compact landing requires pose $17/$18/$2D/$2E, not ${Pose:X2}.");
+            throw new InvalidOperationException($"Compact landing requires pose $17/$18/$2D/$2E, not ${(int)Pose:X2}.");
 
-        byte sourcePose = Pose;
-        byte targetPose = ReadShotDirection(bus) switch
+        SamusPoseId sourcePose = Pose;
+        SamusPoseId targetPose = ReadShotDirection(bus) switch
         {
-            4 => SamusPoseIds.NormalLandingRightPose,
-            5 => SamusPoseIds.NormalLandingLeftPose,
+            4 => SamusPoseId.NormalLandingRightPose,
+            5 => SamusPoseId.NormalLandingLeftPose,
             byte shotDirection => throw new InvalidOperationException(
-                $"Compact pose ${Pose:X2} has unexpected shot direction ${shotDirection:X2}."),
+                $"Compact pose ${(int)Pose:X2} has unexpected shot direction ${shotDirection:X2}."),
         };
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
             bus,
@@ -979,7 +979,7 @@ public sealed partial class SamusState
     public bool ApplyPendingVerifiedAnimationTransition(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (PendingTransitionalPose is not byte targetPose)
+        if (PendingTransitionalPose is not SamusPoseId targetPose)
             return false;
 
         // Native pose initialization computes its own local delay without replacing
@@ -988,115 +988,115 @@ public sealed partial class SamusState
         ushort commandAnimationBuffer = AnimationFrameBuffer;
 
         bool verified = (Pose, targetPose) is
-            (SamusPoseIds.TurningRightToLeftPose, SamusPoseIds.FacingLeftNormalPose) or
-            (SamusPoseIds.TurningLeftToRightPose, SamusPoseIds.FacingRightNormalPose) or
-            (SamusPoseIds.TurningRightToLeftAimUpPose, SamusPoseIds.StandingAimUpLeftPose) or
-            (SamusPoseIds.TurningLeftToRightAimUpPose, SamusPoseIds.StandingAimUpRightPose) or
-            (SamusPoseIds.TurningRightToLeftAimDiagonalDownPose, SamusPoseIds.StandingAimDiagonalDownLeftPose) or
-            (SamusPoseIds.TurningLeftToRightAimDiagonalDownPose, SamusPoseIds.StandingAimDiagonalDownRightPose) or
-            (SamusPoseIds.TurningRightToLeftAimDiagonalUpPose, SamusPoseIds.StandingAimDiagonalUpLeftPose) or
-            (SamusPoseIds.TurningLeftToRightAimDiagonalUpPose, SamusPoseIds.StandingAimDiagonalUpRightPose) or
-            (SamusPoseIds.TurningRightToLeftCrouchingPose, SamusPoseIds.CrouchingLeftPose) or
-            (SamusPoseIds.TurningLeftToRightCrouchingPose, SamusPoseIds.CrouchingRightPose) or
-            (SamusPoseIds.TurningRightToLeftCrouchingAimUpPose, SamusPoseIds.CrouchingAimUpLeftPose) or
-            (SamusPoseIds.TurningLeftToRightCrouchingAimUpPose, SamusPoseIds.CrouchingAimUpRightPose) or
-            (SamusPoseIds.TurningRightToLeftCrouchingAimDiagonalDownPose, SamusPoseIds.CrouchingAimDiagonalDownLeftPose) or
-            (SamusPoseIds.TurningLeftToRightCrouchingAimDiagonalDownPose, SamusPoseIds.CrouchingAimDiagonalDownRightPose) or
-            (SamusPoseIds.TurningRightToLeftCrouchingAimDiagonalUpPose, SamusPoseIds.CrouchingAimDiagonalUpLeftPose) or
-            (SamusPoseIds.TurningLeftToRightCrouchingAimDiagonalUpPose, SamusPoseIds.CrouchingAimDiagonalUpRightPose) or
-            (SamusPoseIds.NeutralJumpTransitionRightPose, SamusPoseIds.NeutralJumpRightPose) or
-            (SamusPoseIds.NeutralJumpTransitionLeftPose, SamusPoseIds.NeutralJumpLeftPose) or
-            (SamusPoseIds.NormalJumpTransitionAimUpRightPose, SamusPoseIds.NormalJumpAimUpRightPose) or
-            (SamusPoseIds.NormalJumpTransitionAimUpLeftPose, SamusPoseIds.NormalJumpAimUpLeftPose) or
-            (SamusPoseIds.NormalJumpTransitionAimDiagonalUpRightPose, SamusPoseIds.NormalJumpAimDiagonalUpRightPose) or
-            (SamusPoseIds.NormalJumpTransitionAimDiagonalUpLeftPose, SamusPoseIds.NormalJumpAimDiagonalUpLeftPose) or
-            (SamusPoseIds.NormalJumpTransitionAimDiagonalDownRightPose, SamusPoseIds.NormalJumpAimDiagonalDownRightPose) or
-            (SamusPoseIds.NormalJumpTransitionAimDiagonalDownLeftPose, SamusPoseIds.NormalJumpAimDiagonalDownLeftPose) or
-            (SamusPoseIds.CrouchingTransitionRightPose, SamusPoseIds.CrouchingRightPose) or
-            (SamusPoseIds.CrouchingTransitionLeftPose, SamusPoseIds.CrouchingLeftPose) or
-            (SamusPoseIds.StandingTransitionRightPose, SamusPoseIds.FacingRightNormalPose) or
-            (SamusPoseIds.StandingTransitionLeftPose, SamusPoseIds.FacingLeftNormalPose) or
-            (SamusPoseIds.CrouchingTransitionAimUpRightPose, SamusPoseIds.CrouchingAimUpRightPose) or
-            (SamusPoseIds.CrouchingTransitionAimUpLeftPose, SamusPoseIds.CrouchingAimUpLeftPose) or
-            (SamusPoseIds.CrouchingTransitionAimDiagonalUpRightPose, SamusPoseIds.CrouchingAimDiagonalUpRightPose) or
-            (SamusPoseIds.CrouchingTransitionAimDiagonalUpLeftPose, SamusPoseIds.CrouchingAimDiagonalUpLeftPose) or
-            (SamusPoseIds.CrouchingTransitionAimDiagonalDownRightPose, SamusPoseIds.CrouchingAimDiagonalDownRightPose) or
-            (SamusPoseIds.CrouchingTransitionAimDiagonalDownLeftPose, SamusPoseIds.CrouchingAimDiagonalDownLeftPose) or
-            (SamusPoseIds.StandingTransitionAimUpRightPose, SamusPoseIds.StandingAimUpRightPose) or
-            (SamusPoseIds.StandingTransitionAimUpLeftPose, SamusPoseIds.StandingAimUpLeftPose) or
-            (SamusPoseIds.StandingTransitionAimDiagonalUpRightPose, SamusPoseIds.StandingAimDiagonalUpRightPose) or
-            (SamusPoseIds.StandingTransitionAimDiagonalUpLeftPose, SamusPoseIds.StandingAimDiagonalUpLeftPose) or
-            (SamusPoseIds.StandingTransitionAimDiagonalDownRightPose, SamusPoseIds.StandingAimDiagonalDownRightPose) or
-            (SamusPoseIds.StandingTransitionAimDiagonalDownLeftPose, SamusPoseIds.StandingAimDiagonalDownLeftPose) or
-            (SamusPoseIds.MorphingTransitionRightPose, SamusPoseIds.MorphBallGroundRightPose) or
-            (SamusPoseIds.MorphingTransitionRightPose, SamusPoseIds.MorphBallFallingRightPose) or
-            (SamusPoseIds.MorphingTransitionRightPose, SamusPoseIds.SpringBallGroundRightPose) or
-            (SamusPoseIds.MorphingTransitionRightPose, SamusPoseIds.SpringBallFallingRightPose) or
-            (SamusPoseIds.MorphingTransitionLeftPose, SamusPoseIds.MorphBallGroundLeftPose) or
-            (SamusPoseIds.MorphingTransitionLeftPose, SamusPoseIds.MorphBallFallingLeftPose) or
-            (SamusPoseIds.MorphingTransitionLeftPose, SamusPoseIds.SpringBallGroundLeftPose) or
-            (SamusPoseIds.MorphingTransitionLeftPose, SamusPoseIds.SpringBallFallingLeftPose) or
-            (SamusPoseIds.UnmorphingTransitionRightPose, SamusPoseIds.CrouchingRightPose) or
-            (SamusPoseIds.UnmorphingTransitionLeftPose, SamusPoseIds.CrouchingLeftPose) or
-            (SamusPoseIds.NormalLandingRightPose, SamusPoseIds.FacingRightNormalPose) or
-            (SamusPoseIds.NormalLandingLeftPose, SamusPoseIds.FacingLeftNormalPose) or
-            (SamusPoseIds.SpinLandingRightPose, SamusPoseIds.FacingRightNormalPose) or
-            (SamusPoseIds.SpinLandingLeftPose, SamusPoseIds.FacingLeftNormalPose) or
-            (SamusPoseIds.LandingAimUpRightPose, SamusPoseIds.StandingAimUpRightPose) or
-            (SamusPoseIds.LandingAimUpLeftPose, SamusPoseIds.StandingAimUpLeftPose) or
-            (SamusPoseIds.LandingAimDiagonalUpRightPose, SamusPoseIds.StandingAimDiagonalUpRightPose) or
-            (SamusPoseIds.LandingAimDiagonalUpLeftPose, SamusPoseIds.StandingAimDiagonalUpLeftPose) or
-            (SamusPoseIds.LandingAimDiagonalDownRightPose, SamusPoseIds.StandingAimDiagonalDownRightPose) or
-            (SamusPoseIds.LandingAimDiagonalDownLeftPose, SamusPoseIds.StandingAimDiagonalDownLeftPose) or
+            (SamusPoseId.TurningRightToLeftPose, SamusPoseId.FacingLeftNormalPose) or
+            (SamusPoseId.TurningLeftToRightPose, SamusPoseId.FacingRightNormalPose) or
+            (SamusPoseId.TurningRightToLeftAimUpPose, SamusPoseId.StandingAimUpLeftPose) or
+            (SamusPoseId.TurningLeftToRightAimUpPose, SamusPoseId.StandingAimUpRightPose) or
+            (SamusPoseId.TurningRightToLeftAimDiagonalDownPose, SamusPoseId.StandingAimDiagonalDownLeftPose) or
+            (SamusPoseId.TurningLeftToRightAimDiagonalDownPose, SamusPoseId.StandingAimDiagonalDownRightPose) or
+            (SamusPoseId.TurningRightToLeftAimDiagonalUpPose, SamusPoseId.StandingAimDiagonalUpLeftPose) or
+            (SamusPoseId.TurningLeftToRightAimDiagonalUpPose, SamusPoseId.StandingAimDiagonalUpRightPose) or
+            (SamusPoseId.TurningRightToLeftCrouchingPose, SamusPoseId.CrouchingLeftPose) or
+            (SamusPoseId.TurningLeftToRightCrouchingPose, SamusPoseId.CrouchingRightPose) or
+            (SamusPoseId.TurningRightToLeftCrouchingAimUpPose, SamusPoseId.CrouchingAimUpLeftPose) or
+            (SamusPoseId.TurningLeftToRightCrouchingAimUpPose, SamusPoseId.CrouchingAimUpRightPose) or
+            (SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose, SamusPoseId.CrouchingAimDiagonalDownLeftPose) or
+            (SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose, SamusPoseId.CrouchingAimDiagonalDownRightPose) or
+            (SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose, SamusPoseId.CrouchingAimDiagonalUpLeftPose) or
+            (SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose, SamusPoseId.CrouchingAimDiagonalUpRightPose) or
+            (SamusPoseId.NeutralJumpTransitionRightPose, SamusPoseId.NeutralJumpRightPose) or
+            (SamusPoseId.NeutralJumpTransitionLeftPose, SamusPoseId.NeutralJumpLeftPose) or
+            (SamusPoseId.NormalJumpTransitionAimUpRightPose, SamusPoseId.NormalJumpAimUpRightPose) or
+            (SamusPoseId.NormalJumpTransitionAimUpLeftPose, SamusPoseId.NormalJumpAimUpLeftPose) or
+            (SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose, SamusPoseId.NormalJumpAimDiagonalUpRightPose) or
+            (SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose, SamusPoseId.NormalJumpAimDiagonalUpLeftPose) or
+            (SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose, SamusPoseId.NormalJumpAimDiagonalDownRightPose) or
+            (SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose, SamusPoseId.NormalJumpAimDiagonalDownLeftPose) or
+            (SamusPoseId.CrouchingTransitionRightPose, SamusPoseId.CrouchingRightPose) or
+            (SamusPoseId.CrouchingTransitionLeftPose, SamusPoseId.CrouchingLeftPose) or
+            (SamusPoseId.StandingTransitionRightPose, SamusPoseId.FacingRightNormalPose) or
+            (SamusPoseId.StandingTransitionLeftPose, SamusPoseId.FacingLeftNormalPose) or
+            (SamusPoseId.CrouchingTransitionAimUpRightPose, SamusPoseId.CrouchingAimUpRightPose) or
+            (SamusPoseId.CrouchingTransitionAimUpLeftPose, SamusPoseId.CrouchingAimUpLeftPose) or
+            (SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose, SamusPoseId.CrouchingAimDiagonalUpRightPose) or
+            (SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose, SamusPoseId.CrouchingAimDiagonalUpLeftPose) or
+            (SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose, SamusPoseId.CrouchingAimDiagonalDownRightPose) or
+            (SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose, SamusPoseId.CrouchingAimDiagonalDownLeftPose) or
+            (SamusPoseId.StandingTransitionAimUpRightPose, SamusPoseId.StandingAimUpRightPose) or
+            (SamusPoseId.StandingTransitionAimUpLeftPose, SamusPoseId.StandingAimUpLeftPose) or
+            (SamusPoseId.StandingTransitionAimDiagonalUpRightPose, SamusPoseId.StandingAimDiagonalUpRightPose) or
+            (SamusPoseId.StandingTransitionAimDiagonalUpLeftPose, SamusPoseId.StandingAimDiagonalUpLeftPose) or
+            (SamusPoseId.StandingTransitionAimDiagonalDownRightPose, SamusPoseId.StandingAimDiagonalDownRightPose) or
+            (SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusPoseId.StandingAimDiagonalDownLeftPose) or
+            (SamusPoseId.MorphingTransitionRightPose, SamusPoseId.MorphBallGroundRightPose) or
+            (SamusPoseId.MorphingTransitionRightPose, SamusPoseId.MorphBallFallingRightPose) or
+            (SamusPoseId.MorphingTransitionRightPose, SamusPoseId.SpringBallGroundRightPose) or
+            (SamusPoseId.MorphingTransitionRightPose, SamusPoseId.SpringBallFallingRightPose) or
+            (SamusPoseId.MorphingTransitionLeftPose, SamusPoseId.MorphBallGroundLeftPose) or
+            (SamusPoseId.MorphingTransitionLeftPose, SamusPoseId.MorphBallFallingLeftPose) or
+            (SamusPoseId.MorphingTransitionLeftPose, SamusPoseId.SpringBallGroundLeftPose) or
+            (SamusPoseId.MorphingTransitionLeftPose, SamusPoseId.SpringBallFallingLeftPose) or
+            (SamusPoseId.UnmorphingTransitionRightPose, SamusPoseId.CrouchingRightPose) or
+            (SamusPoseId.UnmorphingTransitionLeftPose, SamusPoseId.CrouchingLeftPose) or
+            (SamusPoseId.NormalLandingRightPose, SamusPoseId.FacingRightNormalPose) or
+            (SamusPoseId.NormalLandingLeftPose, SamusPoseId.FacingLeftNormalPose) or
+            (SamusPoseId.SpinLandingRightPose, SamusPoseId.FacingRightNormalPose) or
+            (SamusPoseId.SpinLandingLeftPose, SamusPoseId.FacingLeftNormalPose) or
+            (SamusPoseId.LandingAimUpRightPose, SamusPoseId.StandingAimUpRightPose) or
+            (SamusPoseId.LandingAimUpLeftPose, SamusPoseId.StandingAimUpLeftPose) or
+            (SamusPoseId.LandingAimDiagonalUpRightPose, SamusPoseId.StandingAimDiagonalUpRightPose) or
+            (SamusPoseId.LandingAimDiagonalUpLeftPose, SamusPoseId.StandingAimDiagonalUpLeftPose) or
+            (SamusPoseId.LandingAimDiagonalDownRightPose, SamusPoseId.StandingAimDiagonalDownRightPose) or
+            (SamusPoseId.LandingAimDiagonalDownLeftPose, SamusPoseId.StandingAimDiagonalDownLeftPose) or
             // `$91:B22D/$B231` is shared by ordinary and firing landings. `$E6/$E7`
             // therefore executes the literal same `$F8,$01/$02` terminal operands.
-            (SamusPoseIds.FiringLandingRightPose, SamusPoseIds.FacingRightNormalPose) or
-            (SamusPoseIds.FiringLandingLeftPose, SamusPoseIds.FacingLeftNormalPose) or
+            (SamusPoseId.FiringLandingRightPose, SamusPoseId.FacingRightNormalPose) or
+            (SamusPoseId.FiringLandingLeftPose, SamusPoseId.FacingLeftNormalPose) or
             // Every aerial-turn delay list ends in command `$F8 pp`. These pairs are the
             // literal operands from `$91:B3ED-$91:B490`, not inferred mirror poses.
-            (SamusPoseIds.TurningRightToLeftJumpPose, SamusPoseIds.NormalJumpForwardLeftPose) or
-            (SamusPoseIds.TurningLeftToRightJumpPose, SamusPoseIds.NormalJumpForwardRightPose) or
-            (SamusPoseIds.TurningRightToLeftFallingPose, SamusPoseIds.FallingLeftPose) or
-            (SamusPoseIds.TurningLeftToRightFallingPose, SamusPoseIds.FallingRightPose) or
-            (SamusPoseIds.TurningRightToLeftJumpAimUpPose, SamusPoseIds.NormalJumpAimUpLeftPose) or
-            (SamusPoseIds.TurningLeftToRightJumpAimUpPose, SamusPoseIds.NormalJumpAimUpRightPose) or
-            (SamusPoseIds.TurningRightToLeftJumpAimDownPose, SamusPoseIds.NormalJumpAimDownLeftPose) or
-            (SamusPoseIds.TurningLeftToRightJumpAimDownPose, SamusPoseIds.NormalJumpAimDownRightPose) or
-            (SamusPoseIds.TurningRightToLeftFallingAimUpPose, SamusPoseIds.FallingAimUpLeftPose) or
-            (SamusPoseIds.TurningLeftToRightFallingAimUpPose, SamusPoseIds.FallingAimUpRightPose) or
-            (SamusPoseIds.TurningRightToLeftFallingAimDownPose, SamusPoseIds.FallingAimDownLeftPose) or
-            (SamusPoseIds.TurningLeftToRightFallingAimDownPose, SamusPoseIds.FallingAimDownRightPose) or
-            (SamusPoseIds.TurningRightToLeftJumpAimDiagonalUpPose, SamusPoseIds.NormalJumpAimDiagonalUpLeftPose) or
-            (SamusPoseIds.TurningLeftToRightJumpAimDiagonalUpPose, SamusPoseIds.NormalJumpAimDiagonalUpRightPose) or
-            (SamusPoseIds.TurningRightToLeftFallingAimDiagonalUpPose, SamusPoseIds.FallingAimDiagonalUpLeftPose) or
-            (SamusPoseIds.TurningLeftToRightFallingAimDiagonalUpPose, SamusPoseIds.FallingAimDiagonalUpRightPose) or
+            (SamusPoseId.TurningRightToLeftJumpPose, SamusPoseId.NormalJumpForwardLeftPose) or
+            (SamusPoseId.TurningLeftToRightJumpPose, SamusPoseId.NormalJumpForwardRightPose) or
+            (SamusPoseId.TurningRightToLeftFallingPose, SamusPoseId.FallingLeftPose) or
+            (SamusPoseId.TurningLeftToRightFallingPose, SamusPoseId.FallingRightPose) or
+            (SamusPoseId.TurningRightToLeftJumpAimUpPose, SamusPoseId.NormalJumpAimUpLeftPose) or
+            (SamusPoseId.TurningLeftToRightJumpAimUpPose, SamusPoseId.NormalJumpAimUpRightPose) or
+            (SamusPoseId.TurningRightToLeftJumpAimDownPose, SamusPoseId.NormalJumpAimDownLeftPose) or
+            (SamusPoseId.TurningLeftToRightJumpAimDownPose, SamusPoseId.NormalJumpAimDownRightPose) or
+            (SamusPoseId.TurningRightToLeftFallingAimUpPose, SamusPoseId.FallingAimUpLeftPose) or
+            (SamusPoseId.TurningLeftToRightFallingAimUpPose, SamusPoseId.FallingAimUpRightPose) or
+            (SamusPoseId.TurningRightToLeftFallingAimDownPose, SamusPoseId.FallingAimDownLeftPose) or
+            (SamusPoseId.TurningLeftToRightFallingAimDownPose, SamusPoseId.FallingAimDownRightPose) or
+            (SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose, SamusPoseId.NormalJumpAimDiagonalUpLeftPose) or
+            (SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose, SamusPoseId.NormalJumpAimDiagonalUpRightPose) or
+            (SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpLeftPose) or
+            (SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpRightPose) or
             // `$91:B45B-$B478` ends every moonwalk turn/jump delay list with command
             // `$F8,$1A/$19`. Super-special selection runs F433, but skips F404's
             // later jump initialization. Its unchanged vertical direction permits Moonfall.
-            (SamusPoseIds.MoonwalkTurnJumpLeftPose or SamusPoseIds.MoonwalkTurnJumpAimUpLeftPose or
-                SamusPoseIds.MoonwalkTurnJumpAimDownLeftPose, SamusPoseIds.SpinJumpLeftPose) or
-            (SamusPoseIds.MoonwalkTurnJumpRightPose or SamusPoseIds.MoonwalkTurnJumpAimUpRightPose or
-                SamusPoseIds.MoonwalkTurnJumpAimDownRightPose, SamusPoseIds.SpinJumpRightPose) or
+            (SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
+                SamusPoseId.MoonwalkTurnJumpAimDownLeftPose, SamusPoseId.SpinJumpLeftPose) or
+            (SamusPoseId.MoonwalkTurnJumpRightPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
+                SamusPoseId.MoonwalkTurnJumpAimDownRightPose, SamusPoseId.SpinJumpRightPose) or
             // `$91:B545/$B556` terminate Crystal Flash finish art in `$FD,$01/$02`.
             // Its installed movement handler observes type zero on the following frame.
-            (SamusPoseIds.CrystalFlashRightPose, SamusPoseIds.FacingRightNormalPose) or
-            (SamusPoseIds.CrystalFlashLeftPose, SamusPoseIds.FacingLeftNormalPose) or
+            (SamusPoseId.CrystalFlashRightPose, SamusPoseId.FacingRightNormalPose) or
+            (SamusPoseId.CrystalFlashLeftPose, SamusPoseId.FacingLeftNormalPose) or
             // All four drained release streams eventually publish ordinary standing art.
             // These are literal `$FD` operands from `$91:B257-$B298`.
-            (SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedStandingRightPose, SamusPoseIds.FacingRightNormalPose) or
-            (SamusPoseIds.DrainedCrouchingLeftPose or SamusPoseIds.DrainedStandingLeftPose, SamusPoseIds.FacingLeftNormalPose);
+            (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedStandingRightPose, SamusPoseId.FacingRightNormalPose) or
+            (SamusPoseId.DrainedCrouchingLeftPose or SamusPoseId.DrainedStandingLeftPose, SamusPoseId.FacingLeftNormalPose);
         if (!verified)
         {
             // The allowlist above is the exhaustive set of `$F8/$FD` operands referenced
             // by active retail animation streams. Anything else means the caller supplied
             // a target that was not read from the current pose's animation bytecode.
             throw new InvalidOperationException(
-                $"Animation transition ${Pose:X2} -> ${targetPose:X2} is not an active retail animation-command route.");
+                $"Animation transition ${(int)Pose:X2} -> ${(int)targetPose:X2} is not an active retail animation-command route.");
         }
 
         bool startsMoonwalkJump = IsMoonwalkTurnJumpPose(Pose) &&
-            targetPose is SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose;
-        byte sourcePose = Pose;
+            targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
+        SamusPoseId sourcePose = Pose;
         SamusMovementType previousMovementType = ReadMovementType(bus, sourcePose);
 
         // `$91:F404` runs movement-type initialization after the animation command has
@@ -1112,7 +1112,7 @@ public sealed partial class SamusState
             // Moonwalk turn lists end in literal `$F8,$19/$1A`. That operand is still fed
             // through movement-type initialization, so equipment substitution occurs here
             // just as it does for an input-table jump from ordinary running.
-            byte installedPose = startsMoonwalkJump
+            SamusPoseId installedPose = startsMoonwalkJump
                 ? SelectEquippedSpinPose(targetPose)
                 : targetPose;
             // Animation-owned pose changes still run the target movement initializer.
@@ -1124,8 +1124,8 @@ public sealed partial class SamusState
             ApplySimpleGroundedPoseChange(bus, sourcePose, installedPose, "Animation command",
                 refreshRadius: !IsAerialTurnPose(sourcePose));
         }
-        if (sourcePose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose or
-            SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose)
+        if (sourcePose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or
+            SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
         {
             // The actor-owned release command has now reached its ROM-authored normal pose.
             // Clear only the host handler marker; pose initialization above already owns the
@@ -1146,8 +1146,8 @@ public sealed partial class SamusState
     /// </summary>
     private void ApplySimpleGroundedPoseChange(
         ISnesAddressSpace bus,
-        byte expectedPose,
-        byte targetPose,
+        SamusPoseId expectedPose,
+        SamusPoseId targetPose,
         string transitionName,
         bool refreshRadius = true)
     {
@@ -1155,7 +1155,7 @@ public sealed partial class SamusState
         if (Pose != expectedPose)
         {
             throw new InvalidOperationException(
-                $"{transitionName} requires pose ${expectedPose:X2}, not ${Pose:X2}.");
+                $"{transitionName} requires pose ${(int)expectedPose:X2}, not ${(int)Pose:X2}.");
         }
 
         Pose = targetPose;

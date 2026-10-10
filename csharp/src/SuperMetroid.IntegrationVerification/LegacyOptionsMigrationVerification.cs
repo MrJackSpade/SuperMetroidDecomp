@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
 internal static class LegacyOptionsMigrationVerification
@@ -135,9 +136,9 @@ internal static class LegacyOptionsMigrationVerification
         var legacy = (SuperMetroid.Core.Game.SamusState)RuntimeHelpers.GetUninitializedObject(type);
         if (legacy.PoseHistory.PreviousPose != 0 || legacy.PoseHistory.LastDifferentDirectionAndMovement != 0)
             throw new InvalidDataException("Legacy history invented unavailable pose words.");
-        samus.PoseHistory.PreviousPose = 0x0019;
+        samus.PoseHistory.PreviousPose = SamusPoseId.SpinJumpRightPose;
         samus.PoseHistory.PreviousDirectionAndMovement = 0x0308;
-        samus.PoseHistory.LastDifferentPose = 0x0084;
+        samus.PoseHistory.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0x1404;
         fields.Single(f => f.Name == added[0]).SetValue(samus, (ushort)8);
         fields.Single(f => f.Name == added[1]).SetValue(samus, (ushort)0x180);
@@ -148,9 +149,9 @@ internal static class LegacyOptionsMigrationVerification
         var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Game.SamusState>(bytes);
         if (restored.AutoJumpTimer != 8 || restored.PreviousDrawHeldInput != 0x180 || !restored.AutoJumpInputPending)
             throw new InvalidDataException("Saved state lost the pending auto-jump boundary.");
-        if (restored.PoseHistory.PreviousPose != 0x0019 ||
+        if (restored.PoseHistory.PreviousPose != SamusPoseId.SpinJumpRightPose ||
             restored.PoseHistory.PreviousDirectionAndMovement != 0x0308 ||
-            restored.PoseHistory.LastDifferentPose != 0x0084 ||
+            restored.PoseHistory.LastDifferentPose != SamusPoseId.WallJumpLeftPose ||
             restored.PoseHistory.LastDifferentDirectionAndMovement != 0x1404)
             throw new InvalidDataException("Saved state lost the four transition-history words.");
         Console.WriteLine("Samus auto-jump: both legacy field lists and live pending-handler graph round trip pass.");

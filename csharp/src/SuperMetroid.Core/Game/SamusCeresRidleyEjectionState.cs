@@ -76,8 +76,8 @@ public sealed class SamusCeresRidleyEjectionState
             // ordinary pose epilogue publishes radius 21 on the following frame.
             bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
             samus.Pose = facingLeft
-                ? SamusPoseIds.KnockbackLeftPose
-                : SamusPoseIds.KnockbackRightPose;
+                ? SamusPoseId.KnockbackLeftPose
+                : SamusPoseId.KnockbackRightPose;
             samus.InitializeAnimation(bus);
             // The gamma initialization owns this shift. Request/BeginFrame must
             // not publish it early, and subsequent shove frames must not repeat it.
@@ -132,7 +132,7 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YDirection = 0;
             samus.AlignBottomAfterPoseChange(
-                SamusState.ReadPoseYRadius((byte)samus.PoseHistory.PreviousPose),
+                SamusState.ReadPoseYRadius(samus.PoseHistory.PreviousPose),
                 SamusState.ReadPoseYRadius(samus.Pose));
             return new CeresRidleyEjectionResult();
         }

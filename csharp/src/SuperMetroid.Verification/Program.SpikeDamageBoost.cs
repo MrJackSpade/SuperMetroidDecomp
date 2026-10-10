@@ -26,7 +26,7 @@ internal static partial class Program
         samus.InputLocked = false;
         samus.Health = 99;
         samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
-        samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.SetAnimationFrameFromSpecialHandler(0, 1);
@@ -37,15 +37,15 @@ internal static partial class Program
         // Original CPU contact=2, right-facing ball, lower inside point, delay zero.
         // Frame three releases direction with subpixel base speed still present. Type
         // four's command six selects the stationary pose and clears momentum that frame.
-        (uint X, uint Y, byte Pose, uint Base)[] expected =
+        (uint X, uint Y, SamusPoseId Pose, uint Base)[] expected =
         [
-            (0x00800000, 0x00a10000, SamusPoseIds.MorphBallGroundRightPose, 0),
-            (0x007f4000, 0x009c0000, SamusPoseIds.MorphBallMovingLeftPose, 0xc000),
-            (0x007f0000, 0x00971c00, SamusPoseIds.MorphBallMovingLeftPose, 0x4000),
-            (0x007f0000, 0x00925400, SamusPoseIds.MorphBallGroundLeftPose, 0),
-            (0x007e4000, 0x008da800, SamusPoseIds.MorphBallGroundLeftPose, 0),
-            (0x007d8000, 0x00891800, SamusPoseIds.MorphBallGroundLeftPose, 0),
-            (0x007cc000, 0x0084a400, SamusPoseIds.MorphBallGroundLeftPose, 0),
+            (0x00800000, 0x00a10000, SamusPoseId.MorphBallGroundRightPose, 0),
+            (0x007f4000, 0x009c0000, SamusPoseId.MorphBallMovingLeftPose, 0xc000),
+            (0x007f0000, 0x00971c00, SamusPoseId.MorphBallMovingLeftPose, 0x4000),
+            (0x007f0000, 0x00925400, SamusPoseId.MorphBallGroundLeftPose, 0),
+            (0x007e4000, 0x008da800, SamusPoseId.MorphBallGroundLeftPose, 0),
+            (0x007d8000, 0x00891800, SamusPoseId.MorphBallGroundLeftPose, 0),
+            (0x007cc000, 0x0084a400, SamusPoseId.MorphBallGroundLeftPose, 0),
         ];
         for (int frame = 0; frame < expected.Length; frame++)
         {
@@ -61,7 +61,7 @@ internal static partial class Program
         runtime.InitializeDebugGroundedSamus(83, 232, 16);
         samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.KnockbackRightPose;
+        samus.Pose = SamusPoseId.KnockbackRightPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.XPosition = 83;
@@ -77,7 +77,7 @@ internal static partial class Program
         samus.KnockbackTimer = samus.KnockbackDirection = 0;
         runtime.Controller1.Latch(0x0180);
         runtime.StepFrame(0x0180);
-        AssertEqual(SamusPoseIds.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
+        AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
         AssertEqual(0x00534000u, samus.Kinematics.XFixed, "expired hurt floor probe keeps X");
         AssertEqual(0x00ebffffu, samus.Kinematics.YFixed, "expired hurt floor alignment");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "landing clears residual hurt momentum");
@@ -90,7 +90,7 @@ internal static partial class Program
         // One neutral hurt frame must cancel momentum without clearing its numeric
         // extra speed; the next normal movement frame consumes that cancellation.
         level.SetForegroundEntry(hazardBlock, 0);
-        samus.Pose = SamusPoseIds.SpinJumpRightPose;
+        samus.Pose = SamusPoseId.SpinJumpRightPose;
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
         SamusKnockbackMovement.Start(bus, samus, 0, 0, 4);
@@ -124,12 +124,12 @@ internal static partial class Program
         samus.KnockbackActive = false;
         samus.KnockbackDirection = samus.KnockbackTimer = 0;
         samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
-        foreach (byte retainedPose in new byte[]
+        foreach (SamusPoseId retainedPose in new SamusPoseId[]
         {
-            SamusPoseIds.FacingRightNormalPose, SamusPoseIds.FacingLeftNormalPose,
-            SamusPoseIds.SpinJumpRightPose, SamusPoseIds.SpinJumpLeftPose,
-            SamusPoseIds.NeutralJumpTransitionRightPose, SamusPoseIds.NeutralJumpTransitionLeftPose,
-            SamusPoseIds.TurningRightToLeftPose, SamusPoseIds.TurningLeftToRightPose,
+            SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
+            SamusPoseId.SpinJumpRightPose, SamusPoseId.SpinJumpLeftPose,
+            SamusPoseId.NeutralJumpTransitionRightPose, SamusPoseId.NeutralJumpTransitionLeftPose,
+            SamusPoseId.TurningRightToLeftPose, SamusPoseId.TurningLeftToRightPose,
         })
         {
             samus.Pose = retainedPose;
@@ -142,11 +142,11 @@ internal static partial class Program
             samus.PoseHistory.PreviousPose = retainedPose;
             samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(
                 ((byte)samus.ReadMovementType(bus) << 8) | (samus.IsFacingLeft(bus) ? 4 : 8));
-            samus.PoseHistory.LastDifferentPose = SamusPoseIds.NormalLandingRightPose;
+            samus.PoseHistory.LastDifferentPose = SamusPoseId.NormalLandingRightPose;
             // Standing must have floor support; spin stays above that floor. Held Jump
             // without a new edge selects definition fallback rather than a fresh jump.
-            if (retainedPose is SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose or
-                SamusPoseIds.TurningRightToLeftPose or SamusPoseIds.TurningLeftToRightPose)
+            if (retainedPose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose or
+                SamusPoseId.TurningRightToLeftPose or SamusPoseId.TurningLeftToRightPose)
                 samus.YPosition = 235;
             runtime.Controller1.Latch(0x0080);
             runtime.StepFrame(0x0080);
@@ -156,7 +156,7 @@ internal static partial class Program
 
         // Native carry mode 6 / water / forward / delay 11, end of frame 25.
         // Contact with the floor and the final F8 turn command coincide next frame.
-        samus.Pose = SamusPoseIds.TurningRightToLeftFallingPose;
+        samus.Pose = SamusPoseId.TurningRightToLeftFallingPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.SetAnimationFrameFromSpecialHandler(2, 1);
@@ -176,13 +176,13 @@ internal static partial class Program
         AssertEqual((0x0063c000u, 0x00edffffu, 0x0000a000u),
             (samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Kinematics.VerticalSpeedFixed),
             "underwater turn floor contact preserves native accumulated speed");
-        AssertEqual(SamusPoseIds.FallingLeftPose, samus.Pose, "turn animation completes at floor");
+        AssertEqual(SamusPoseId.FallingLeftPose, samus.Pose, "turn animation completes at floor");
         AssertEqual(false, runtime.LastAerialSamusMovement!.Value.Landed,
             "turn suppresses collision-owned landing presentation");
         runtime.StepFrame(0x0280);
         AssertEqual((0x0062c000u, 0x00ebffffu, 0u),
             (samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Kinematics.VerticalSpeedFixed),
             "following normal fall performs actual landing");
-        AssertEqual(SamusPoseIds.NormalLandingLeftPose, samus.Pose, "next frame selects normal landing");
+        AssertEqual(SamusPoseId.NormalLandingLeftPose, samus.Pose, "next frame selects normal landing");
     }
 }

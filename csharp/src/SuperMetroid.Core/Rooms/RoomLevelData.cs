@@ -371,7 +371,7 @@ public sealed class RoomLevelData
     public DoorListEntry ResolveDoorCollision(
         ISnesAddressSpace bus,
         byte behavior,
-        byte samusPose,
+        SamusPoseId samusPose,
         bool publishDoorSideEffects = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -400,7 +400,7 @@ public sealed class RoomLevelData
         // publish elevator_flags only while samus_pose is below $09. This prevents running,
         // aerial, morph, and damage poses that merely brush the block from arming the actor.
         else if (publishDoorSideEffects && entry.IsElevatorPseudoDoor &&
-                 samusPose < SamusPoseIds.MovingRightNormalPose)
+                 samusPose < SamusPoseId.MovingRightNormalPose)
             ElevatorDoorContactPending = true;
         return entry;
     }

@@ -4,22 +4,22 @@ internal static partial class Program
 {
     static void VerifySamusPoseHistory()
     {
-        // Literal word-level fixture for $91:E719. Preserve direction bytes and
-        // full pose words rather than silently narrowing the native history data.
+        // Literal fixture for $91:E719. Preserve the packed direction/movement words
+        // and distinct pose identities so every shifted field is observable.
         var history = new SamusPoseHistoryState
         {
-            PreviousPose = 0x1234, PreviousDirectionAndMovement = 0x0308,
-            LastDifferentPose = 0xabcd, LastDifferentDirectionAndMovement = 0x0204,
+            PreviousPose = SamusPoseId.UnusedKnockbackLeftPose, PreviousDirectionAndMovement = 0x0308,
+            LastDifferentPose = SamusPoseId.ShinesparkDiagonalRightPose, LastDifferentDirectionAndMovement = 0x0204,
         };
         AssertTrue(!history.AllowsWallJumpProbe, "wall probe rejects normal-jump history");
-        history.CommitTransition(0x001a, 0x0304);
-        AssertEqual(0x1234, history.LastDifferentPose, "transition shifts previous pose word");
+        history.CommitTransition(SamusPoseId.SpinJumpLeftPose, 0x0304);
+        AssertEqual(SamusPoseId.UnusedKnockbackLeftPose, history.LastDifferentPose, "transition shifts previous pose");
         AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "transition shifts packed direction/movement");
-        AssertEqual(0x001a, history.PreviousPose, "transition records current pose");
+        AssertEqual(SamusPoseId.SpinJumpLeftPose, history.PreviousPose, "transition records current pose");
         AssertEqual(0x0304, history.PreviousDirectionAndMovement, "transition records current packed metadata");
         AssertTrue(history.AllowsWallJumpProbe, "wall probe admits spin history");
-        history.CommitTransition(0x001a, 0x0304);
-        AssertEqual(0x001a, history.LastDifferentPose, "same-pose transition still shifts history");
+        history.CommitTransition(SamusPoseId.SpinJumpLeftPose, 0x0304);
+        AssertEqual(SamusPoseId.SpinJumpLeftPose, history.LastDifferentPose, "same-pose transition still shifts history");
         AssertEqual(0x0304, history.LastDifferentDirectionAndMovement, "same-pose transition retains current direction");
 
         for (int movement = 0; movement <= byte.MaxValue; movement++)

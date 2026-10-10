@@ -20,7 +20,7 @@ internal static class RetailElevatorDepartureTests
         runtime.InitializePostCeresZebesRoom();
         var samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.InitializeAnimation(bus);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BlueBrinstarElevatorRoom);
         var actor = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);

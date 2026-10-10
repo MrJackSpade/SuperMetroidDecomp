@@ -36,7 +36,7 @@ internal static partial class CoreAccess
                     $"A door music-wait controller read arrived in game state {game.GameState}.");
             runtime.Controller1.Latch(runtime.ControllerBindings.Normalize(controllerInput));
         }
-        internal byte GameplaySamusPose => game.RuntimeForVerification?.Samus?.Pose ?? 0;
+        internal SamusPoseId GameplaySamusPose => game.RuntimeForVerification?.Samus?.Pose ?? 0;
         internal ushort GameplaySamusX => game.RuntimeForVerification?.Samus?.XPosition ?? 0;
         internal ushort GameplaySamusY => game.RuntimeForVerification?.Samus?.YPosition ?? 0;
     }

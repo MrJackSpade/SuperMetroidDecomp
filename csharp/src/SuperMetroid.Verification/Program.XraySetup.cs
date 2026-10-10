@@ -31,7 +31,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         var support = runtime.Enemies.Slots[1];
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.XPosition = support.XPosition;

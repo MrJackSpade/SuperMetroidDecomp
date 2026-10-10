@@ -31,7 +31,7 @@ internal static partial class Program
         }
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.XPosition = 512;
         samus.YPosition = 490;
         samus.RefreshCollisionRadii(bus);

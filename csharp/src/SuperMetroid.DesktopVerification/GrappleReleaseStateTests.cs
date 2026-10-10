@@ -56,7 +56,7 @@ internal static partial class Program
             var feet = runtime.LevelData!.GetCollisionBlockAtPixel(samus.XPosition,
                 (ushort)(samus.YPosition + samus.Kinematics.YRadius - 1));
             Console.WriteLine($"f{frame}: ({samus.XPosition:X4},{samus.YPosition:X4}) radius={samus.Kinematics.YRadius} " +
-                $"pose={samus.Pose:X2} grapple={samus.Grapple.Phase} feet={feet.LevelWord:X4} " +
+                $"pose={(int)samus.Pose:X2} grapple={samus.Grapple.Phase} feet={feet.LevelWord:X4} " +
                 $"Yspeed={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4}");
             if (frame is 0 or 3 or 12)
                 PngWriterTooling.WriteRgba($"csharp/test-temp/issue-350-release/frame-{frame}.png", 256, 224,

@@ -21,7 +21,7 @@ internal static partial class Program
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ChargeFlareSpriteDefinitions.MainFlareSelectorOffset, "Both native Grapple-facing rows select the same main flare");
         int cases = 0;
         foreach (GrapplePhase phase in Enum.GetValues<GrapplePhase>())
-        foreach (byte pose in new byte[] { 1, 2, 9, 10 })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose, SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         foreach (ushort counter in new ushort[] { 0, 1, 2 })
         foreach (ushort coordinate in new ushort[] { 0, 1, 100, 255, 256, 511, 32768, 65535 })
         {
@@ -31,7 +31,7 @@ internal static partial class Program
             {
                 var samus = new SamusState { Pose = pose, XPosition = coordinate, YPosition = coordinate };
                 samus.Grapple.Phase = phase;
-                samus.Grapple.FireDirection = (byte)(pose is 2 or 10 ? 7 : 2);
+                samus.Grapple.FireDirection = (byte)(pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose ? 7 : 2);
                 samus.Grapple.FlareCounter = counter;
                 samus.Grapple.FlareAnimationFrame = 29;
                 samus.Grapple.FlareAnimationTimer = 0;
@@ -42,11 +42,11 @@ internal static partial class Program
                 return samus;
             }
         }
-        foreach (byte pose in new byte[] { 9, 10 })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
             var native = new SamusState { Pose = pose, YPosition = 100 };
             native.Grapple.Phase = GrapplePhase.Firing;
-            native.Grapple.FireDirection = (byte)(pose == 10 ? 7 : 2);
+            native.Grapple.FireDirection = (byte)(pose == SamusPoseId.MovingLeftNormalPose ? 7 : 2);
             native.Grapple.FlareCounter = 1;
             var actual = Clone(native); var changed = Clone(native);
             for (int tick = 0; tick < 512; tick++)
@@ -62,7 +62,7 @@ internal static partial class Program
         foreach (ushort timer in new ushort[] { 0, 1, 2, 32768, 65535 })
         foreach (ushort frame in new ushort[] { 0, 15, 16, 29 })
         {
-            var samus = new SamusState { Pose = 1 };
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.FlareCounter = 2;
             samus.Grapple.FlareAnimationFrame = frame;
@@ -134,7 +134,7 @@ internal static partial class Program
         runtime.ChargeFlareCompositions = stock;
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         var samus = runtime.Samus!;
-        samus.Pose = 1; samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100); samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100); samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
         samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.BeamStartX = samus.XPosition; samus.Grapple.BeamStartY = samus.YPosition;

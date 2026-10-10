@@ -26,7 +26,7 @@ internal static partial class Program
             var g = samus.Grapple;
             g.SwingFrames = replaceArt ? edited : installed ? RepositoryInstallation.Projectiles.GrappleTiles.SwingFrames : stock;
             bus.ForbidArt = true;
-            samus.Pose = left ? SamusPoseIds.GrappleSwingLeftPose : SamusPoseIds.GrappleSwingRightPose;
+            samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
             g.AnchorX = (ushort)raw; g.AnchorY = unchecked((ushort)~raw);
             g.RopeLength = (ushort)(raw & 127);
             g.ValidateAnchorBlock = (raw & 1) != 0;

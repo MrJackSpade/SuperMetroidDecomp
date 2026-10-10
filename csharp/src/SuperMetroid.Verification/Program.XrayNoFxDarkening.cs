@@ -76,7 +76,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.ParlorAndAlcatraz);
         AssertTrue(runtime.RoomLayer3Fx.CaptureForDisplay() is null, "fixture has no visible room FX");
         var samus = runtime.Samus!;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

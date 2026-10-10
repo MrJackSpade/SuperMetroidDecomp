@@ -45,7 +45,7 @@ public static class SamusGroundedMovement
         if (!SamusState.IsForwardFacingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Forward-facing movement requires pose $00/$9B, not ${samus.Pose:X2}.");
+                $"Forward-facing movement requires pose $00/$9B, not ${(int)samus.Pose:X2}.");
         }
 
         BlockMoveResult? vertical = null;
@@ -91,7 +91,7 @@ public static class SamusGroundedMovement
         if (!SamusState.IsRightFacingStandingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Standing-right movement requires pose $01/$03/$05/$07, not ${samus.Pose:X2}.");
+                $"Standing-right movement requires pose $01/$03/$05/$07, not ${(int)samus.Pose:X2}.");
         }
 
         ResetStandingShotAnimation(samus, controllerInput);
@@ -144,7 +144,7 @@ public static class SamusGroundedMovement
         if (!SamusState.IsLeftFacingStandingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Standing-left movement requires pose $02/$04/$06/$08, not ${samus.Pose:X2}.");
+                $"Standing-left movement requires pose $02/$04/$06/$08, not ${(int)samus.Pose:X2}.");
         }
 
         ResetStandingShotAnimation(samus, controllerInput);
@@ -181,7 +181,7 @@ public static class SamusGroundedMovement
     // Angled standing poses deliberately retain their own animation timelines.
     private static void ResetStandingShotAnimation(SamusState samus, ushort controllerInput)
     {
-        if (samus.Pose is SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose &&
+        if (samus.Pose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose &&
             (controllerInput & (ushort)SnesButton.X) != 0)
             samus.SetAnimationFrameFromSpecialHandler(0, SamusMovementRomData.StandingShotAnimationTimer);
     }
@@ -204,7 +204,7 @@ public static class SamusGroundedMovement
         if (!SamusState.IsRightFacingRunningPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Running-right movement requires pose $09/$0D/$0F/$11, not ${samus.Pose:X2}.");
+                $"Running-right movement requires pose $09/$0D/$0F/$11, not ${(int)samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -271,7 +271,7 @@ public static class SamusGroundedMovement
         if (!SamusState.IsLeftFacingRunningPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Running-left movement requires pose $0A/$0E/$10/$12, not ${samus.Pose:X2}.");
+                $"Running-left movement requires pose $0A/$0E/$10/$12, not ${(int)samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -332,19 +332,19 @@ public static class SamusGroundedMovement
         if (!turnsLeft && !turnsRight)
         {
             throw new InvalidOperationException(
-                $"Grounded-turn movement requires a verified standing, crouched, or moonwalk turn pose, not ${samus.Pose:X2}.");
+                $"Grounded-turn movement requires a verified standing, crouched, or moonwalk turn pose, not ${(int)samus.Pose:X2}.");
         }
 
         SamusMovementType movementType = samus.ReadMovementType(bus);
         if (movementType is not (SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping))
             throw new InvalidOperationException(
-                $"Grounded turn pose ${samus.Pose:X2} has movement type ${(byte)movementType:X2}.");
+                $"Grounded turn pose ${(int)samus.Pose:X2} has movement type ${(byte)movementType:X2}.");
         if (movementType == SamusMovementType.TurningWhileJumping && !SamusState.IsAimedCrouchingTurnPose(samus.Pose))
-            throw new InvalidOperationException($"Grounded type-$17 admission requires an aimed crouched turn, not ${samus.Pose:X2}.");
+            throw new InvalidOperationException($"Grounded type-$17 admission requires an aimed crouched turn, not ${(int)samus.Pose:X2}.");
         if (movementType == SamusMovementType.TurningWhileJumping && samus.Kinematics.YDirection != 0)
         {
             throw new InvalidOperationException(
-                $"Airborne type-$17 turn pose ${samus.Pose:X2} must execute through SamusAerialMovement.StepTurningInAir.");
+                $"Airborne type-$17 turn pose ${(int)samus.Pose:X2} must execute through SamusAerialMovement.StepTurningInAir.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -416,7 +416,7 @@ public static class SamusGroundedMovement
             samus.ReadMovementType(bus) != SamusMovementType.Moonwalking)
         {
             throw new InvalidOperationException(
-                $"Moonwalking movement requires pose $49/$4A/$75-$78, not ${samus.Pose:X2}.");
+                $"Moonwalking movement requires pose $49/$4A/$75-$78, not ${(int)samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -477,7 +477,7 @@ public static class SamusGroundedMovement
             samus.ReadMovementType(bus) != SamusMovementType.RanIntoWall)
         {
             throw new InvalidOperationException(
-                $"Ran-into-wall movement requires pose $89/$8A/$CF-$D2, not ${samus.Pose:X2}.");
+                $"Ran-into-wall movement requires pose $89/$8A/$CF-$D2, not ${(int)samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -539,7 +539,7 @@ public static class SamusGroundedMovement
             !SamusState.IsLeftFacingLandingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Landing movement requires pose $A4-$A7/$E0-$E7, not ${samus.Pose:X2}.");
+                $"Landing movement requires pose $A4-$A7/$E0-$E7, not ${(int)samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -588,7 +588,7 @@ public static class SamusGroundedMovement
         if (samus.ReadMovementType(bus) != SamusMovementType.Knockback)
         {
             throw new InvalidOperationException(
-                $"Knockback-ending movement requires type $0A, not pose ${samus.Pose:X2}.");
+                $"Knockback-ending movement requires type $0A, not pose ${(int)samus.Pose:X2}.");
         }
 
         return RunNoSpeedCalculationGroundingProbe(

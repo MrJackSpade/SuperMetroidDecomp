@@ -19,20 +19,20 @@ internal static partial class Program
         // make their cartridge layout explicit and keep RefreshCollisionRadii on its real path.
         WritePoseDefinition(
             bus,
-            SamusPoseIds.SpinJumpRightPose,
+            (int)SamusPoseId.SpinJumpRightPose,
             [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
         WritePoseDefinition(
             bus,
-            SamusPoseIds.SpinLandingRightPose,
+            (int)SamusPoseId.SpinLandingRightPose,
             [0x08, 0x00, 0xff, 0x02, 0x00, 0x00, 0x15, 0x00]);
         WritePoseDefinition(
             bus,
-            SamusPoseIds.CrouchingRightPose,
+            (int)SamusPoseId.CrouchingRightPose,
             [0x08, 0x05, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]);
         WriteTestWord(
             bus,
             SamusMovementRomData.Poses.AnimationDelayListPointers +
-                SamusPoseIds.CrouchingRightPose * sizeof(ushort),
+                (int)SamusPoseId.CrouchingRightPose * sizeof(ushort),
             0xc100);
         bus.WriteBytes(0x91c100, [0x01]);
 
@@ -52,7 +52,7 @@ internal static partial class Program
             new byte[foreground.Length]);
         var samus = new SamusState
         {
-            Pose = SamusPoseIds.SpinJumpRightPose,
+            Pose = SamusPoseId.SpinJumpRightPose,
             XPosition = 0x0094,
             YPosition = 0x0034,
         };
@@ -71,7 +71,7 @@ internal static partial class Program
 
         AssertTrue(!installedLanding,
             "cramped spin landing rejects the 42-pixel landing body");
-        AssertEqual(SamusPoseIds.CrouchingRightPose, samus.Pose,
+        AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose,
             "two-sided non-Morph landing collision selects native crouch fallback");
         AssertEqual(0x0030, samus.YPosition,
             "crouch fallback preserves the captured floor boundary");
@@ -95,9 +95,9 @@ internal static partial class Program
         AssertEqual(2, samus.Kinematics.YDirection,
             "cramped landing does not publish grounded direction");
 
-        WritePoseDefinition(bus, SamusPoseIds.ScrewAttackRightPose,
+        WritePoseDefinition(bus, (int)SamusPoseId.ScrewAttackRightPose,
             [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
-        samus.Pose = SamusPoseIds.ScrewAttackRightPose;
+        samus.Pose = SamusPoseId.ScrewAttackRightPose;
         samus.YPosition = 0x0034;
         samus.RefreshCollisionRadii(bus);
         samus.TryApplyAerialLanding(bus, level, true, 0, 39440);

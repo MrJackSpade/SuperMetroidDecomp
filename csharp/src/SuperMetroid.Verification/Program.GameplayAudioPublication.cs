@@ -23,11 +23,11 @@ internal static partial class Program
 
         // Use real native landing publishers, not direct injection into private lists.
         samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(bus, samus,
-            SamusMovementType.Standing, SamusPoseIds.FacingRightNormalPose, 5, 0);
+            SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, 5, 0);
         AssertEqual(0x0103, publication.QueueEcho(runtime),
             "echo sees earlier landing sound in the same queue");
         samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(bus, samus,
-            SamusMovementType.Standing, SamusPoseIds.FacingRightNormalPose, 1, 1);
+            SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, 1, 1);
         publication.PublishPrefix(runtime);
         publication.PublishPrefix(runtime);
 

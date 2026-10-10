@@ -25,7 +25,7 @@ internal static partial class Program
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, 0, 0);
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slot];
-            samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+            samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.InputLocked = false;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
             samus.RefreshCollisionRadii(bus);
@@ -47,7 +47,7 @@ internal static partial class Program
                     samus.YPosition < platform.YPosition && gap < minimumGap)
                 {
                     minimumGap = gap;
-                    Console.WriteLine($"Overlap candidate: slot={slot} offset={offset} bomb={bombAt} stop={stopAt}/{direction} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{samus.Pose:X2} platformY={platform.YPosition}");
+                    Console.WriteLine($"Overlap candidate: slot={slot} offset={offset} bomb={bombAt} stop={stopAt}/{direction} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{(int)samus.Pose:X2} platformY={platform.YPosition}");
                 }
             }
             if (activated) activatedCases++;

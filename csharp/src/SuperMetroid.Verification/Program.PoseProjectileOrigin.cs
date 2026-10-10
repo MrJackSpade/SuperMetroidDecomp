@@ -31,14 +31,14 @@ internal static partial class Program
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             byte expected = rom.ReadByte(0x91b629 + pose * 8 + 4);
-            AssertEqual(expected, SamusPoseProjectileOriginDefinitions.ReadYOffset((byte)pose),
+            AssertEqual(expected, SamusPoseProjectileOriginDefinitions.ReadYOffset((SamusPoseId)pose),
                 "Every byte-valued correction is compiled, including three adjacent-code indexes");
         }
         for (int pose = 0; pose <= 0xfc; pose++)
         for (byte direction = 0; direction < 10; direction++)
         for (int artIndex = 0; artIndex < artwork.Length; artIndex++)
         {
-            bus.Pose = samus.Pose = (byte)pose;
+            bus.Pose = samus.Pose = (SamusPoseId)pose;
             int art = SignedByteClasses[artIndex];
             samus.TileTransfers.BindArtwork(artwork[artIndex]);
             samus.XPosition = unchecked((ushort)(pose * 251 + art));
@@ -56,8 +56,8 @@ internal static partial class Program
             g.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             SamusGrappleMovement.BeginFiring(bus, samus);
-            bool held = pose is SamusPoseIds.DraygonGrabbedMovingLeftPose or SamusPoseIds.DraygonGrabbedMovingRightPose;
-            int firingDirection = held ? (pose == SamusPoseIds.DraygonGrabbedMovingLeftPose ? 7 : 2) : rom.ReadByte(0x91b629 + pose * 8 + 3);
+            bool held = pose is (int)SamusPoseId.DraygonGrabbedMovingLeftPose or (int)SamusPoseId.DraygonGrabbedMovingRightPose;
+            int firingDirection = held ? (pose == (int)SamusPoseId.DraygonGrabbedMovingLeftPose ? 7 : 2) : rom.ReadByte(0x91b629 + pose * 8 + 3);
             if ((firingDirection & 0xf0) != 0)
             {
                 AssertEqual(GrapplePhase.CancelPending, g.Phase, "Artwork cannot enable Grapple in a restricted authored pose");
@@ -81,13 +81,13 @@ internal static partial class Program
 
     private sealed class PoseOriginPresentationBus(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
-        public byte Pose;
+        public SamusPoseId Pose;
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {
-            if (address == 0x91b629 + Pose * 8 + 3) throw new InvalidOperationException("Compiled pose aim read artwork metadata.");
-            if (address == 0x91b629 + Pose * 8 + 4) throw new InvalidOperationException("Installed graphics offset read ROM.");
+            if (address == 0x91b629 + (int)Pose * 8 + 3) throw new InvalidOperationException("Compiled pose aim read artwork metadata.");
+            if (address == 0x91b629 + (int)Pose * 8 + 4) throw new InvalidOperationException("Installed graphics offset read ROM.");
             return source.ReadByte(address);
         }
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

@@ -1962,8 +1962,8 @@ internal static class SamusGrappleMovementAccess
             PrivateState.InvokeStatic(typeof(SamusGrappleMovement), "InitializeBeamAnimation", (SamusGrappleState)(grapple));
 
             samus.Pose = faceRight
-                ? SamusPoseIds.GrappleSwingRightPose
-                : SamusPoseIds.GrappleSwingLeftPose;
+                ? SamusPoseId.GrappleSwingRightPose
+                : SamusPoseId.GrappleSwingLeftPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus, initialFrame: 0);
 
@@ -2034,7 +2034,7 @@ internal static class SamusPoseTransitionTableAccess
         /// <param name="canonicalNewInput">Rising-edge form of the same canonical input.</param>
         internal static SamusPoseTransition? Find(
             ISnesAddressSpace bus,
-            byte currentPose,
+            SamusPoseId currentPose,
             ushort canonicalHeldInput,
             ushort canonicalNewInput) =>
             SamusPoseTransitionTable.Lookup(bus, currentPose, canonicalHeldInput, canonicalNewInput).Transition;
@@ -2148,7 +2148,7 @@ internal static class SamusStateAccess
         internal SamusPoseId PoseId
         {
             get => (SamusPoseId)self.Pose;
-            set => self.Pose = (byte)value;
+            set => self.Pose = value;
         }
 
         /// <summary>
@@ -2158,15 +2158,15 @@ internal static class SamusStateAccess
         internal bool TryApplySpinToNormalJumpFireTransition(
             ISnesAddressSpace bus,
             RoomLevelData level,
-            byte targetPose,
+            SamusPoseId targetPose,
             ushort nmiFrameCounter,
             ushort controllerNewInput,
             RoomPlmSystem? plms = null)
         {
-            if (targetPose is not (SamusPoseIds.NormalJumpGunExtendedRightPose or SamusPoseIds.NormalJumpGunExtendedLeftPose))
+            if (targetPose is not (SamusPoseId.NormalJumpGunExtendedRightPose or SamusPoseId.NormalJumpGunExtendedLeftPose))
             {
                 throw new InvalidOperationException(
-                    $"Spin-fire compatibility route requires pose $13/$14, not ${targetPose:X2}.");
+                    $"Spin-fire compatibility route requires pose $13/$14, not ${(int)targetPose:X2}.");
             }
             return self.TryApplySpinOrWallJumpToNormalJumpTransition(
                 bus,
@@ -2189,7 +2189,7 @@ internal static class SamusStateAccess
             if (!SamusState.IsStableBallPose(self.Pose))
             {
                 throw new InvalidOperationException(
-                    $"The morphed bomb-jump fixture requires a stable ball pose, not ${self.Pose:X2}.");
+                    $"The morphed bomb-jump fixture requires a stable ball pose, not ${(int)self.Pose:X2}.");
             }
 
             self.PublishBombJumpDirection(direction);

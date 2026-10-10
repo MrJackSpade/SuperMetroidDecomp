@@ -14,14 +14,14 @@ internal static partial class Program
         foreach (int changeFrame in Enumerable.Range(1, 10))
         {
             var samus = new SamusState {
-                Pose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose,
+                Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
                 XPosition = 512, YPosition = 512,
             };
             PrepareRetailSamusFixture(samus);
             SamusGrappleMovement.BeginFiring(bus, samus);
             for (int frame = 1; frame < changeFrame; frame++)
                 SamusGrappleMovement.StepFiring(bus, level, samus, (ushort)SnesButton.X);
-            samus.Pose = left ? SamusPoseIds.StandingAimDiagonalUpLeftPose : SamusPoseIds.StandingAimDiagonalUpRightPose;
+            samus.Pose = left ? SamusPoseId.StandingAimDiagonalUpLeftPose : SamusPoseId.StandingAimDiagonalUpRightPose;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             SamusGrappleMovement.StepFiring(bus, level, samus, (ushort)SnesButton.X);
             if (changeFrame == 10)

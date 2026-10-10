@@ -34,7 +34,7 @@ internal static partial class Program
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.ScrewAttack;
-        samus.Pose = SamusPoseIds.ScrewAttackRightPose;
+        samus.Pose = SamusPoseId.ScrewAttackRightPose;
         // EnemyMain reads the contact-damage index the previous frame's spin movement set.
         samus.HorizontalSpeed.ContactDamageIndex = 3;
         // Inside the upper body's touch boxes, in thin water with no floor below.
@@ -47,7 +47,7 @@ internal static partial class Program
         runtime.StepFrame(0);
 
         AssertEqual(DraygonAiFunction.Dying, draygon.Function, "touching the dead Draygon runs its death reaction");
-        AssertEqual(SamusPoseIds.FallingRightPose, samus.Pose,
+        AssertEqual(SamusPoseId.FallingRightPose, samus.Pose,
             "the released Samus walks off thin water and falls in the same frame");
         Console.WriteLine("  Released Samus falls: a mid-frame Draygon release still detects the missing floor.");
     }

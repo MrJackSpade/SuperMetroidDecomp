@@ -253,7 +253,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, cameraX: 0, cameraY: 0);
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.XPosition = 128;
         samus.YPosition = 128;
         samus.Health = 49;

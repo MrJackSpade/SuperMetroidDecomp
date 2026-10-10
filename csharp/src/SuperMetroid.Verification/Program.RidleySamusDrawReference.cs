@@ -71,27 +71,28 @@ internal static partial class Program
         if ((W(NativeSnapshotMemory.CeresStatus) & 0x8000) != 0)
             throw new InvalidDataException("Movie body oracle requires a native Mode 7 transform mapping.");
         ushort pose = W(NativeSnapshotMemory.Pose), frame = W(NativeSnapshotMemory.Animation);
+        SamusPoseId poseId = (SamusPoseId)pose;
         var movement = (SamusMovementType)checkpoint[NativeSnapshotMemory.SamusMovementType];
         int yOffset = -unchecked((sbyte)rom.ReadByte(NativeSnapshotMemory.PoseDefinitions + pose * 8 + 4));
         if (movement == SamusMovementType.Standing)
         {
-            if (pose is SamusPoseIds.ForwardFacingPowerSuitPose or SamusPoseIds.ForwardFacingSuitedPose)
+            if (poseId is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose)
             {
                 if (frame >= 2) yOffset = -1;
             }
-            else if (pose is >= SamusPoseIds.NormalLandingRightPose and <= SamusPoseIds.SpinLandingLeftPose)
+            else if (poseId is >= SamusPoseId.NormalLandingRightPose and <= SamusPoseId.SpinLandingLeftPose)
                 yOffset = -R(NativeSnapshotMemory.LandingDrawOffsets +
-                    (pose - SamusPoseIds.NormalLandingRightPose) * 4 + frame);
+                    (poseId - SamusPoseId.NormalLandingRightPose) * 4 + frame);
         }
         else if (movement == SamusMovementType.PostureTransition &&
-            pose >= SamusPoseIds.CrouchingTransitionRightPose && pose < SamusPoseIds.MorphBallGroundLeftPose)
+            poseId >= SamusPoseId.CrouchingTransitionRightPose && poseId < SamusPoseId.MorphBallGroundLeftPose)
             yOffset = unchecked((sbyte)rom.ReadByte(NativeSnapshotMemory.PostureDrawOffsets +
-                (pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + frame));
+                (poseId - SamusPoseId.CrouchingTransitionRightPose) * 2 + frame));
         else if (movement == SamusMovementType.Special)
         {
-            if (pose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose)
+            if (poseId is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
                 yOffset = unchecked((sbyte)rom.ReadByte(NativeSnapshotMemory.DrainedDrawOffsets + frame));
-            else if (pose is SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose && frame >= 5)
+            else if (poseId is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose && frame >= 5)
                 yOffset = -3;
         }
 
@@ -102,21 +103,21 @@ internal static partial class Program
                 SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or
                 SamusMovementType.SpringBallFalling => false,
             SamusMovementType.SpinJumping => frame == 0 || frame >= 11 ||
-                pose is SamusPoseIds.SpaceJumpRightPose or SamusPoseIds.SpaceJumpLeftPose or
-                    SamusPoseIds.ScrewAttackRightPose or SamusPoseIds.ScrewAttackLeftPose,
+                poseId is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose or
+                    SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose,
             SamusMovementType.Knockback => frame >= 3 ||
-                pose is not (SamusPoseIds.DeathSequenceRightPose or SamusPoseIds.DeathSequenceLeftPose),
-            SamusMovementType.PostureTransition => pose >= SamusPoseIds.CrouchingTransitionAimUpRightPose ||
-                (pose >= SamusPoseIds.UnusedPoseDd ? frame == 2 :
-                 pose >= SamusPoseIds.UnusedPoseDb ? frame == 0 :
-                 pose is SamusPoseIds.CrouchingTransitionRightPose or SamusPoseIds.CrouchingTransitionLeftPose or
-                    SamusPoseIds.StandingTransitionRightPose or SamusPoseIds.StandingTransitionLeftPose),
-            SamusMovementType.Unused0D => frame == 0 || pose is not (SamusPoseIds.UnusedPose65 or SamusPoseIds.UnusedPose66),
+                poseId is not (SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose),
+            SamusMovementType.PostureTransition => poseId >= SamusPoseId.CrouchingTransitionAimUpRightPose ||
+                (poseId >= SamusPoseId.UnusedPoseDd ? frame == 2 :
+                 poseId >= SamusPoseId.UnusedPoseDb ? frame == 0 :
+                 poseId is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
+                    SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose),
+            SamusMovementType.Unused0D => frame == 0 || poseId is not (SamusPoseId.UnusedPose65 or SamusPoseId.UnusedPose66),
             SamusMovementType.WallJumping => frame is < 3 or >= 13,
             SamusMovementType.DamageBoost => frame is < 2 or >= 9,
             SamusMovementType.Special =>
-                pose is not (SamusPoseIds.ShinesparkVerticalRightPose or SamusPoseIds.ShinesparkVerticalLeftPose) &&
-                (frame >= 2 || pose is not (SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose)),
+                poseId is not (SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose) &&
+                (frame >= 2 || poseId is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)),
             _ when (ushort)movement < 28 => true,
             _ => throw new InvalidDataException($"Unknown native body movement type {movement}"),
         };

@@ -21,7 +21,7 @@ public static partial class SamusGrappleMovement
         ushort layer1X,
         ushort layer1Y,
         Assets.GrappleTileAtlas? artwork = null,
-        byte samusPose = 0)
+        SamusPoseId samusPose = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(grapple);
@@ -134,7 +134,7 @@ public static partial class SamusGrappleMovement
 
     /// <summary>Preserves the pose-selected endpoint routines at $94:B0F9/B14B.</summary>
     private static void DrawBeamEndpoint(SamusGrappleState grapple, OamBuffer oam,
-        ushort layer1X, ushort layer1Y, byte samusPose, ushort attributes)
+        ushort layer1X, ushort layer1Y, SamusPoseId samusPose, ushort attributes)
     {
         bool swinging = (SamusPoseId)samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
         ushort relativeY = unchecked((ushort)(grapple.AnchorY - layer1Y));
@@ -181,11 +181,11 @@ public static partial class SamusGrappleMovement
             // `$9B:C856` calls `$91:82D9` while the current movement type is `$16`.
             // Its command-six table entry kills all X/run momentum and the pose-definition
             // byte selects the exact standing/crouching body that existed before locking.
-            byte fallback = samus.ReadNoInputFallbackPose(bus);
-            if (fallback == 0xff)
+            SamusPoseId fallback = samus.ReadNoInputFallbackPose(bus);
+            if (fallback == SamusMovementRomData.Poses.RetainCurrentPoseFallback)
             {
                 throw new InvalidDataException(
-                    $"Connected grapple pose ${samus.Pose:X2} has no cancellation fallback.");
+                    $"Connected grapple pose ${(int)samus.Pose:X2} has no cancellation fallback.");
             }
 
             samus.Pose = fallback;

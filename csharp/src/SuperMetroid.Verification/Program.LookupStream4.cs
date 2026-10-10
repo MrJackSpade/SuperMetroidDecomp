@@ -1707,7 +1707,7 @@ internal static partial class Program
             .CreateDelegate<Action<RidleyEnemyState, SamusState?>>(enemies);
         for (int pose = 0; pose <= 0xfc; pose++)
         {
-            var samus = new SamusState { Pose = (byte)pose };
+            var samus = new SamusState { Pose = (SamusPoseId)pose };
             byte flags = rom.ReadByte(0xa6bd04 + rom.ReadByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
             var state = new RidleyEnemyState { GrabState = 1, TailWhipRequest = 0, TailFunctionIndex = 4, IntangibilityTimer = 99 };

@@ -36,7 +36,7 @@ internal static partial class Program
         var authoredPoses = Enumerable.Range(0, 253)
             .Select(pose => new
             {
-                Pose = (byte)pose,
+                Pose = (SamusPoseId)pose,
                 Movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1),
                 Direction = rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3),
             })
@@ -48,7 +48,7 @@ internal static partial class Program
             .ToArray();
         foreach (var authored in authoredPoses)
         {
-            byte pose = authored.Pose;
+            SamusPoseId pose = authored.Pose;
             byte direction = authored.Direction;
             var nativeBus = new GrappleFiringReadGuard(rom) { SourcePose = pose, Direction = direction };
             var guarded = new GrappleFlareReadGuard(nativeBus);

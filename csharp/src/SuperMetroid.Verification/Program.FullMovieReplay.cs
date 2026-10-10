@@ -225,7 +225,7 @@ internal static partial class Program
         if (PrivateState.Field<IntroCinematicState?>(game, "intro") is { } intro)
             Console.WriteLine($"  intro port={intro.Phase} native cinematic={Native(0x1f51)}");
         if (samus is null) return;
-        Console.WriteLine($"  port   pose={samus.Pose:X2} X={samus.XPosition:X4}.{samus.Kinematics.XSubposition:X4} Y={samus.YPosition:X4}.{samus.Kinematics.YSubposition:X4} " +
+        Console.WriteLine($"  port   pose={(int)samus.Pose:X2} X={samus.XPosition:X4}.{samus.Kinematics.XSubposition:X4} Y={samus.YPosition:X4}.{samus.Kinematics.YSubposition:X4} " +
             $"vs={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4} total={samus.HorizontalSpeed.TotalSpeed:X4}.{samus.HorizontalSpeed.TotalSubspeed:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} accel={samus.HorizontalSpeed.AccelerationMode:X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer:X4}");
         Console.WriteLine($"  native pose={Native(MovieDesyncMemory.SamusPose)} X={Native(MovieDesyncMemory.SamusX)}.{Native(MovieDesyncMemory.SamusXFraction)} Y={Native(MovieDesyncMemory.SamusY)}.{Native(MovieDesyncMemory.SamusYFraction)} " +
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)} anim={Native(0x0a96)}/{Native(0x0a94)}");
@@ -344,7 +344,7 @@ internal static partial class Program
         Check("Reserve energy", samus.ReserveEnergy, MovieDesyncMemory.Reserve);
         if (game.GameState != SuperMetroidGameState.MainGameplay) return mismatches;
 
-        Check("Samus pose", samus.Pose, MovieDesyncMemory.SamusPose);
+        Check("Samus pose", (ushort)samus.Pose, MovieDesyncMemory.SamusPose);
         Check("Room", runtime.ActiveRoom!.Pointer, MovieDesyncMemory.Room);
         Check("Camera X", runtime.Camera!.XPosition, MovieDesyncMemory.CameraX);
         Check("Camera Y", runtime.Camera.YPosition, MovieDesyncMemory.CameraY);

@@ -200,7 +200,7 @@ internal static partial class Program
     /// and whole-pixel position are assigned; all other fields retain production defaults
     /// unless the test changes them explicitly afterward.
     /// </summary>
-    static SamusState CreateSamus(byte pose, ushort xPosition, ushort yPosition) => new()
+    static SamusState CreateSamus(SamusPoseId pose, ushort xPosition, ushort yPosition) => new()
     {
         Pose = pose,
         XPosition = xPosition,

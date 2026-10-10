@@ -11,9 +11,9 @@ internal static partial class Program
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool able in new[] { false, true })
-        foreach (byte pose in new[] { SamusPoseIds.MovingRightNormalPose, SamusPoseIds.MovingLeftNormalPose })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
-            var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 100, YPosition = 100 };
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 100, YPosition = 100 };
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             if (able) samus.Drained.SetupForRainbowBeamAbleToStand(bus, samus);

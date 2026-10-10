@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Game;
 internal static class SamusPoseDispatchDefinitions
 {
     /// <summary>Native PoseDefinitions Facing selection, $91:B629 record stride eight; FD..FF are bounded adjacent code observations.</summary>
-    internal static byte ReadFacing(byte pose) => (SamusPoseId)pose switch
+    internal static byte ReadFacing(SamusPoseId pose) => (SamusPoseId)pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose or
         SamusPoseId.ForwardFacingSuitedPose => (byte)SamusFacingDirection.ForwardOrSpecial,
@@ -274,7 +274,7 @@ internal static class SamusPoseDispatchDefinitions
     };
 
     /// <summary>Native PoseDefinitions Movement selection, $91:B62A record stride eight; FD..FF are bounded adjacent code observations.</summary>
-    internal static byte ReadMovement(byte pose) => (SamusPoseId)pose switch
+    internal static byte ReadMovement(SamusPoseId pose) => (SamusPoseId)pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose or
         SamusPoseId.FacingRightNormalPose or
@@ -536,7 +536,7 @@ internal static class SamusPoseDispatchDefinitions
     };
 
     /// <summary>Native PoseDefinitions NoInputPose selection, $91:B62B record stride eight; FD..FF are bounded adjacent code observations.</summary>
-    internal static byte ReadNoInputPose(byte pose) => (SamusPoseId)pose switch
+    internal static SamusPoseId ReadNoInputPose(SamusPoseId pose) => (SamusPoseId)pose switch
     {
         SamusPoseId.StandingAimUpRightPose or
         SamusPoseId.StandingAimDiagonalUpRightPose or
@@ -548,7 +548,7 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.RunningAimDiagonalDownRightPose or
         SamusPoseId.UnusedPose45 or
         SamusPoseId.MoonwalkFacingRightPose or
-        SamusPoseId.GrappleStandingRightPose => (byte)SamusPoseId.FacingRightNormalPose,
+        SamusPoseId.GrappleStandingRightPose => SamusPoseId.FacingRightNormalPose,
         SamusPoseId.StandingAimUpLeftPose or
         SamusPoseId.StandingAimDiagonalUpLeftPose or
         SamusPoseId.StandingAimDiagonalDownLeftPose or
@@ -559,25 +559,25 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.RunningAimDiagonalDownLeftPose or
         SamusPoseId.UnusedPose46 or
         SamusPoseId.MoonwalkFacingLeftPose or
-        SamusPoseId.GrappleStandingLeftPose => (byte)SamusPoseId.FacingLeftNormalPose,
-        SamusPoseId.MoonwalkAimUpRightPose => (byte)SamusPoseId.StandingAimDiagonalUpRightPose,
-        SamusPoseId.MoonwalkAimUpLeftPose => (byte)SamusPoseId.StandingAimDiagonalUpLeftPose,
+        SamusPoseId.GrappleStandingLeftPose => SamusPoseId.FacingLeftNormalPose,
+        SamusPoseId.MoonwalkAimUpRightPose => SamusPoseId.StandingAimDiagonalUpRightPose,
+        SamusPoseId.MoonwalkAimUpLeftPose => SamusPoseId.StandingAimDiagonalUpLeftPose,
         SamusPoseId.MoonwalkAimDownRightPose or
-        SamusPoseId.GrappleStandingDownRightPose => (byte)SamusPoseId.StandingAimDiagonalDownRightPose,
+        SamusPoseId.GrappleStandingDownRightPose => SamusPoseId.StandingAimDiagonalDownRightPose,
         SamusPoseId.MoonwalkAimDownLeftPose or
-        SamusPoseId.GrappleStandingDownLeftPose => (byte)SamusPoseId.StandingAimDiagonalDownLeftPose,
-        SamusPoseId.WallJumpRightPose => (byte)SamusPoseId.SpinJumpRightPose,
-        SamusPoseId.WallJumpLeftPose => (byte)SamusPoseId.SpinJumpLeftPose,
-        SamusPoseId.MorphBallMovingRightPose => (byte)SamusPoseId.MorphBallGroundRightPose,
+        SamusPoseId.GrappleStandingDownLeftPose => SamusPoseId.StandingAimDiagonalDownLeftPose,
+        SamusPoseId.WallJumpRightPose => SamusPoseId.SpinJumpRightPose,
+        SamusPoseId.WallJumpLeftPose => SamusPoseId.SpinJumpLeftPose,
+        SamusPoseId.MorphBallMovingRightPose => SamusPoseId.MorphBallGroundRightPose,
         SamusPoseId.UnusedPose21 or
         SamusPoseId.UnusedPose22 or
-        SamusPoseId.UnusedPose24 => (byte)SamusPoseId.UnusedPose20,
+        SamusPoseId.UnusedPose24 => SamusPoseId.UnusedPose20,
         SamusPoseId.CrouchingRightPose or
         SamusPoseId.CrouchingAimDiagonalUpRightPose or
         SamusPoseId.CrouchingAimDiagonalDownRightPose or
         SamusPoseId.CrouchingAimUpRightPose or
         SamusPoseId.GrappleCrouchingRightPose or
-        SamusPoseId.GrappleCrouchingDownRightPose => (byte)SamusPoseId.CrouchingRightPose,
+        SamusPoseId.GrappleCrouchingDownRightPose => SamusPoseId.CrouchingRightPose,
         SamusPoseId.CrouchingLeftPose or
         SamusPoseId.CrouchingAimDiagonalUpLeftPose or
         SamusPoseId.CrouchingAimDiagonalDownLeftPose or
@@ -589,53 +589,53 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or
         SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose or
         SamusPoseId.GrappleCrouchingLeftPose or
-        SamusPoseId.GrappleCrouchingDownLeftPose => (byte)SamusPoseId.CrouchingLeftPose,
+        SamusPoseId.GrappleCrouchingDownLeftPose => SamusPoseId.CrouchingLeftPose,
         SamusPoseId.FallingAimUpRightPose or
         SamusPoseId.UnusedPose65 or
         SamusPoseId.FallingAimDiagonalUpRightPose or
-        SamusPoseId.FallingAimDiagonalDownRightPose => (byte)SamusPoseId.FallingRightPose,
+        SamusPoseId.FallingAimDiagonalDownRightPose => SamusPoseId.FallingRightPose,
         SamusPoseId.FallingAimUpLeftPose or
         SamusPoseId.UnusedPose66 or
         SamusPoseId.FallingAimDiagonalUpLeftPose or
-        SamusPoseId.FallingAimDiagonalDownLeftPose => (byte)SamusPoseId.FallingLeftPose,
-        SamusPoseId.UnusedPoseAE => (byte)SamusPoseId.FallingAimDownRightPose,
-        SamusPoseId.UnusedPoseAF => (byte)SamusPoseId.FallingAimDownLeftPose,
-        SamusPoseId.MorphBallMovingLeftPose => (byte)SamusPoseId.MorphBallGroundLeftPose,
-        SamusPoseId.UnusedPose23 => (byte)SamusPoseId.UnusedPose42,
-        SamusPoseId.DamageBoostRightPose => (byte)SamusPoseId.NeutralJumpRightPose,
-        SamusPoseId.DamageBoostLeftPose => (byte)SamusPoseId.NeutralJumpLeftPose,
+        SamusPoseId.FallingAimDiagonalDownLeftPose => SamusPoseId.FallingLeftPose,
+        SamusPoseId.UnusedPoseAE => SamusPoseId.FallingAimDownRightPose,
+        SamusPoseId.UnusedPoseAF => SamusPoseId.FallingAimDownLeftPose,
+        SamusPoseId.MorphBallMovingLeftPose => SamusPoseId.MorphBallGroundLeftPose,
+        SamusPoseId.UnusedPose23 => SamusPoseId.UnusedPose42,
+        SamusPoseId.DamageBoostRightPose => SamusPoseId.NeutralJumpRightPose,
+        SamusPoseId.DamageBoostLeftPose => SamusPoseId.NeutralJumpLeftPose,
         SamusPoseId.NormalJumpAimUpRightPose or
         SamusPoseId.NormalJumpAimDiagonalUpRightPose or
-        SamusPoseId.NormalJumpAimDiagonalDownRightPose => (byte)SamusPoseId.NormalJumpForwardRightPose,
+        SamusPoseId.NormalJumpAimDiagonalDownRightPose => SamusPoseId.NormalJumpForwardRightPose,
         SamusPoseId.NormalJumpAimUpLeftPose or
         SamusPoseId.NormalJumpAimDiagonalUpLeftPose or
-        SamusPoseId.NormalJumpAimDiagonalDownLeftPose => (byte)SamusPoseId.NormalJumpForwardLeftPose,
-        SamusPoseId.UnusedPose5D => (byte)SamusPoseId.UnusedPose5D,
-        SamusPoseId.UnusedPose5E => (byte)SamusPoseId.UnusedPose5E,
-        SamusPoseId.UnusedPose5F => (byte)SamusPoseId.UnusedPose5F,
-        SamusPoseId.UnusedPose60 => (byte)SamusPoseId.UnusedPose60,
-        SamusPoseId.UnusedPoseAC => (byte)SamusPoseId.FallingGunExtendedRightPose,
-        SamusPoseId.UnusedPoseAD => (byte)SamusPoseId.FallingGunExtendedLeftPose,
-        SamusPoseId.UnusedPoseB0 => (byte)SamusPoseId.FallingAimDiagonalDownRightPose,
-        SamusPoseId.UnusedPoseB1 => (byte)SamusPoseId.FallingAimDiagonalDownLeftPose,
-        SamusPoseId.SpringBallMovingRightPose => (byte)SamusPoseId.SpringBallGroundRightPose,
-        SamusPoseId.SpringBallMovingLeftPose => (byte)SamusPoseId.SpringBallGroundLeftPose,
+        SamusPoseId.NormalJumpAimDiagonalDownLeftPose => SamusPoseId.NormalJumpForwardLeftPose,
+        SamusPoseId.UnusedPose5D => SamusPoseId.UnusedPose5D,
+        SamusPoseId.UnusedPose5E => SamusPoseId.UnusedPose5E,
+        SamusPoseId.UnusedPose5F => SamusPoseId.UnusedPose5F,
+        SamusPoseId.UnusedPose60 => SamusPoseId.UnusedPose60,
+        SamusPoseId.UnusedPoseAC => SamusPoseId.FallingGunExtendedRightPose,
+        SamusPoseId.UnusedPoseAD => SamusPoseId.FallingGunExtendedLeftPose,
+        SamusPoseId.UnusedPoseB0 => SamusPoseId.FallingAimDiagonalDownRightPose,
+        SamusPoseId.UnusedPoseB1 => SamusPoseId.FallingAimDiagonalDownLeftPose,
+        SamusPoseId.SpringBallMovingRightPose => SamusPoseId.SpringBallGroundRightPose,
+        SamusPoseId.SpringBallMovingLeftPose => SamusPoseId.SpringBallGroundLeftPose,
         SamusPoseId.RanIntoWallAimUpRightPose or
-        SamusPoseId.RanIntoWallAimDownRightPose => (byte)SamusPoseId.RanIntoWallRightPose,
+        SamusPoseId.RanIntoWallAimDownRightPose => SamusPoseId.RanIntoWallRightPose,
         SamusPoseId.RanIntoWallAimUpLeftPose or
-        SamusPoseId.RanIntoWallAimDownLeftPose => (byte)SamusPoseId.RanIntoWallLeftPose,
+        SamusPoseId.RanIntoWallAimDownLeftPose => SamusPoseId.RanIntoWallLeftPose,
         SamusPoseId.UnusedPose61 or
-        SamusPoseId.GrappleSwingRightPose => (byte)SamusPoseId.GrappleSwingRightPose,
+        SamusPoseId.GrappleSwingRightPose => SamusPoseId.GrappleSwingRightPose,
         SamusPoseId.UnusedPose62 or
-        SamusPoseId.GrappleSwingLeftPose => (byte)SamusPoseId.GrappleSwingLeftPose,
+        SamusPoseId.GrappleSwingLeftPose => SamusPoseId.GrappleSwingLeftPose,
         SamusPoseId.DraygonGrabbedAimUpLeftPose or
         SamusPoseId.DraygonGrabbedFiringLeftPose or
         SamusPoseId.DraygonGrabbedAimDownLeftPose or
-        SamusPoseId.DraygonGrabbedMovingLeftPose => (byte)SamusPoseId.DraygonGrabbedNeutralLeftPose,
+        SamusPoseId.DraygonGrabbedMovingLeftPose => SamusPoseId.DraygonGrabbedNeutralLeftPose,
         SamusPoseId.DraygonGrabbedAimUpRightPose or
         SamusPoseId.DraygonGrabbedFiringRightPose or
         SamusPoseId.DraygonGrabbedAimDownRightPose or
-        SamusPoseId.DraygonGrabbedMovingRightPose => (byte)SamusPoseId.DraygonGrabbedNeutralRightPose,
+        SamusPoseId.DraygonGrabbedMovingRightPose => SamusPoseId.DraygonGrabbedNeutralRightPose,
         SamusPoseId.ForwardFacingPowerSuitPose or
         SamusPoseId.FacingRightNormalPose or
         SamusPoseId.FacingLeftNormalPose or
@@ -790,11 +790,11 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => 255,
+        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementRomData.Poses.RetainCurrentPoseFallback,
         // Bounded indices beyond FC observe Calc_Xray_HDMADataTable_OffScreen opcodes.
-        (SamusPoseId)0xfd => 75,
-        (SamusPoseId)0xfe => 255,
-        (SamusPoseId)0xff => 229,
+        (SamusPoseId)0xfd => (SamusPoseId)75,
+        (SamusPoseId)0xfe => (SamusPoseId)255,
+        (SamusPoseId)0xff => (SamusPoseId)229,
     };
 
 }

@@ -15,7 +15,7 @@ internal static class SpinJumpMissingAudioAudit
         var libraries = (Array)typeof(ManagedSpcPlayer).GetField("soundLibraries", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(loaded.AudioPlayer)!;
         var firstLibrary = libraries.GetValue(0)!;
         var currentSoundField = firstLibrary.GetType().GetField("CurrentSound", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        Console.WriteLine($"Preserved spin audio room={runtime.ActiveRoom?.Identity}, Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition}, pose={runtime.Samus.Pose:X2}");
+        Console.WriteLine($"Preserved spin audio room={runtime.ActiveRoom?.Identity}, Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition}, pose={(int)runtime.Samus.Pose:X2}");
         bool heardScrewAttackStart = false;
         int startCommands = 0;
         for (int frame = 0; frame < 360; frame++)
@@ -35,7 +35,7 @@ internal static class SpinJumpMissingAudioAudit
             if (frame == 120 && (byte)currentSoundField.GetValue(firstLibrary)! != 0)
                 throw new InvalidDataException("Spin sound is still playing sixty frames after the Up-input cancellation.");
             if (frame % 15 == 0 || next.Frame.AudioCommands.Count != 0)
-                Console.WriteLine($"frame={frame} room={runtime.ActiveRoom?.Identity} pose={runtime.Samus.Pose:X2} position={runtime.Samus.XPosition}/{runtime.Samus.YPosition} playing={currentSoundField.GetValue(firstLibrary)} audio={string.Join(',', next.Frame.AudioCommands)}");
+                Console.WriteLine($"frame={frame} room={runtime.ActiveRoom?.Identity} pose={(int)runtime.Samus.Pose:X2} position={runtime.Samus.XPosition}/{runtime.Samus.YPosition} playing={currentSoundField.GetValue(firstLibrary)} audio={string.Join(',', next.Frame.AudioCommands)}");
             if (frame == 0 && next.Snapshot is { } snapshot)
             {
                 var pixels = new Rgba32[snapshot.Width * snapshot.Height];

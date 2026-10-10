@@ -23,7 +23,7 @@ public sealed partial class SamusState
     /// pose's direction and movement type to <see cref="InitializedPose"/>. Only native
     /// writers that skip that initializer use <see cref="WritePoseWithoutInitialization"/>.
     /// </remarks>
-    public byte Pose
+    public SamusPoseId Pose
     {
         get;
         set
@@ -35,23 +35,23 @@ public sealed partial class SamusState
             // low-level dispatcher can reproduce that test without owning Samus state.
             Kinematics.CollisionPose = value;
         }
-    } = SamusPoseIds.FacingRightNormalPose;
+    } = SamusPoseId.FacingRightNormalPose;
 
     /// <summary>
     /// The pose whose definition bytes zero and one <c>InitializeSamusPose_1</c> last copied to
     /// <c>$0A1E</c>/<c>$0A1F</c> (X direction and movement type). Movement dispatch and camera
     /// tracking read those cached bytes, not the live pose.
     /// </summary>
-    public byte InitializedPose { get; private set; } = SamusPoseIds.FacingRightNormalPose;
+    public SamusPoseId InitializedPose { get; private set; } = SamusPoseId.FacingRightNormalPose;
 
     /// <summary>
     /// Writes <c>$0A1C</c> as native code does when it skips <c>InitializeSamusPose_1</c>
     /// (the drained-Samus controllers at $91:E571 and $91:E60C): the previous pose's
     /// direction and movement type stay in force.
     /// </summary>
-    internal void WritePoseWithoutInitialization(byte pose)
+    internal void WritePoseWithoutInitialization(SamusPoseId pose)
     {
-        byte initialized = InitializedPose;
+        SamusPoseId initialized = InitializedPose;
         Pose = pose;
         InitializedPose = initialized;
     }
@@ -441,7 +441,7 @@ public sealed partial class SamusState
     /// consumes it after animation, at the same pose-transition point used by the cartridge.
     /// Keeping it explicit makes the turn's final facing change visible to a debugger.
     /// </remarks>
-    public byte? PendingTransitionalPose { get; private set; }
+    public SamusPoseId? PendingTransitionalPose { get; private set; }
 
     /// <summary>Exact fixed-point position/radius words consumed by bank-$94 collision.</summary>
     public SamusKinematicsState Kinematics { get; }
@@ -512,7 +512,7 @@ public sealed partial class SamusState
     private LargerPoseCollisionOutcome ResolveLargerPoseCollision(
         ISnesAddressSpace bus,
         RoomLevelData level,
-        byte targetPose,
+        SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms,
         out int centerAdjustment)
@@ -663,7 +663,7 @@ public sealed partial class SamusState
         RoomLevelData level,
         int displacement,
         bool scanLeftToRight,
-        byte targetPose,
+        SamusPoseId targetPose,
         RoomPlmSystem? plms)
     {
         short wholePixels = unchecked((short)(displacement >> 16));
@@ -705,12 +705,12 @@ public sealed partial class SamusState
     /// Applies `$91:FFA7`'s non-morph fallback after simultaneous above/below collision.
     /// Direction metadata selects `$27/$28`; an aimed crouch consequently loses its aim.
     /// </summary>
-    private void ApplyPoseChangeCollisionCrouchFallback(ISnesAddressSpace bus, byte sourcePose)
+    private void ApplyPoseChangeCollisionCrouchFallback(ISnesAddressSpace bus, SamusPoseId sourcePose)
     {
         ushort oldRadius = Kinematics.YRadius;
-        byte fallbackPose = IsFacingLeft(bus)
-            ? SamusPoseIds.CrouchingLeftPose
-            : SamusPoseIds.CrouchingRightPose;
+        SamusPoseId fallbackPose = IsFacingLeft(bus)
+            ? SamusPoseId.CrouchingLeftPose
+            : SamusPoseId.CrouchingRightPose;
         if (sourcePose == fallbackPose)
             return;
 

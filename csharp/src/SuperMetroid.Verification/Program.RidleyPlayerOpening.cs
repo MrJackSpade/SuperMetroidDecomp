@@ -53,7 +53,7 @@ internal static partial class Program
         {
             var expected = Read(frame);
             samus.XPosition = W(expected, 0xaf6); samus.YPosition = W(expected, 0xafa);
-            samus.Pose = (byte)W(expected, 0xa1c); samus.RefreshCollisionRadii(bus);
+            samus.Pose = (SamusPoseId)W(expected, 0xa1c); samus.RefreshCollisionRadii(bus);
             random = W(expected, 0x5e5);
             enemies.StepFrame(W(expected, 0x911), W(expected, 0x915), false, samus,
                 level: runtime.LevelData, controllerInput: W(expected, 0x8b));

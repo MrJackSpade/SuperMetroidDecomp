@@ -39,9 +39,9 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_nextRandom", instance)!.SetValue(actual, (Func<ushort>)(() => { advances++; return random; }));
         typeof(RoomEnemySystem).GetField("_readRandomNumber", instance)!.SetValue(actual, (Func<ushort>)(() => { actualReads++; return random; }));
         typeof(RoomEnemySystem).GetField("_readRandomNumber", instance)!.SetValue(reference, (Func<ushort>)(() => { referenceReads++; return random; }));
-        var standing = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 1000, YPosition = 256 };
-        var low = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 1000, YPosition = 352 };
-        var spinning = new SamusState { Pose = SamusPoseIds.SpinJumpRightPose, XPosition = 1000, YPosition = 256 };
+        var standing = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 1000, YPosition = 256 };
+        var low = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 1000, YPosition = 352 };
+        var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, XPosition = 1000, YPosition = 256 };
         // Explicit native branch cases, including spin priority over zero health,
         // health thresholds, absent Samus, and Y immediately before the pogo zone.
         (ushort Health, SamusState? Samus, int Row)[] cases =

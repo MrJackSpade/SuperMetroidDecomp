@@ -18,7 +18,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
         var samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         // The platform's lowest position is a Morph-only tunnel. Standing there
@@ -126,7 +126,7 @@ internal static partial class Program
         {
             runtime.LoadCartridgeRoomForDebug(roomPointer);
             samus.InputLocked = false;
-            samus.Pose = SamusPoseIds.FacingRightNormalPose;
+            samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;

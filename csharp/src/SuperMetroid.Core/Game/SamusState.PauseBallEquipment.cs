@@ -24,8 +24,8 @@ public sealed partial class SamusState
         // ascent intact here permits the equipment-toggle mid-air Spring Ball jump.
         bool left = IsFacingLeft(bus);
         Pose = enable
-            ? left ? SamusPoseIds.SpringBallGroundLeftPose : SamusPoseIds.SpringBallGroundRightPose
-            : left ? SamusPoseIds.MorphBallGroundLeftPose : SamusPoseIds.MorphBallGroundRightPose;
+            ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
+            : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
         RefreshCollisionRadii(bus);
         // $91:F9F4/FA56 preserve animation only within the same ball family. Crossing
         // families through the equipment menu therefore runs the normal frame-zero setup.

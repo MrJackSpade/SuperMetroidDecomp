@@ -15,7 +15,7 @@ internal static partial class Program
         var interactive = (List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!;
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBeetom", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState, ushort>>(enemies);
-        var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 64, YPosition = 128 };
+        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 64, YPosition = 128 };
         for (int index = 0; index < 3; index++)
         {
             var enemy = enemies.Slots[index];

@@ -28,7 +28,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
-        samus.Pose = SamusPoseIds.SpringBallFallingRightPose;
+        samus.Pose = SamusPoseId.SpringBallFallingRightPose;
         samus.XPosition = 512;
         samus.YPosition = 400;
         samus.RefreshCollisionRadii(bus);
@@ -43,7 +43,7 @@ internal static partial class Program
         ushort x0 = samus.XPosition;
 
         runtime.StepFrame((ushort)SnesButton.A);
-        AssertEqual(SamusPoseIds.SpringBallFallingRightPose, samus.Pose, "Jump alone keeps the falling Spring Ball pose");
+        AssertEqual(SamusPoseId.SpringBallFallingRightPose, samus.Pose, "Jump alone keeps the falling Spring Ball pose");
         AssertEqual((ushort)(x0 + 2), samus.XPosition, "the frame's movement still uses the carried speed");
         AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, "command six clears base speed");
         AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSubspeed, "command six clears base subspeed");

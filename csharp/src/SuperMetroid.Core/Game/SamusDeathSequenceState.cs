@@ -91,9 +91,9 @@ public sealed class SamusDeathSequenceState
         }
 
         FacingLeft = samus.IsFacingLeft(bus);
-        byte deathPose = FacingLeft
-            ? SamusPoseIds.DeathSequenceLeftPose
-            : SamusPoseIds.DeathSequenceRightPose;
+        SamusPoseId deathPose = FacingLeft
+            ? SamusPoseId.DeathSequenceLeftPose
+            : SamusPoseId.DeathSequenceRightPose;
         ushort initialFrame = initialFrames[(byte)sourceMovementType];
 
         // Native initializes pose `$D7/$D8` normally, then overwrites only the visible frame

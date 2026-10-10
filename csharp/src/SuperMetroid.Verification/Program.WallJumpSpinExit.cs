@@ -34,7 +34,7 @@ internal static partial class Program
             var samus = runtime.Samus!;
             samus.InputLocked = false;
             samus.EquippedItems = (ushort)items;
-            samus.Pose = SamusPoseIds.WallJumpRightPose;
+            samus.Pose = SamusPoseId.WallJumpRightPose;
             samus.XPosition = 512;
             samus.YPosition = 400;
             samus.RefreshCollisionRadii(bus);
@@ -48,8 +48,8 @@ internal static partial class Program
             runtime.StepFrame(0);
             string label = speedKept ? "Space Jump promotion" : "plain spin jump";
             AssertTrue(speedKept
-                    ? samus.Pose is SamusPoseIds.SpaceJumpRightPose or SamusPoseIds.SpaceJumpLeftPose
-                    : samus.Pose is SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose,
+                    ? samus.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose
+                    : samus.Pose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose,
                 $"{label}: input-free wall jump falls back to the expected spin art");
             AssertEqual(speedKept ? (ushort)1 : (ushort)0, samus.HorizontalSpeed.BaseSpeed, $"{label}: base speed");
             AssertEqual(speedKept ? (ushort)0x6000 : (ushort)0, samus.HorizontalSpeed.BaseSubspeed, $"{label}: base subspeed");

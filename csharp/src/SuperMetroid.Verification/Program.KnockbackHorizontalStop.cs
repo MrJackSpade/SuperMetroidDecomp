@@ -9,7 +9,7 @@ internal static partial class Program
         var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
         foreach (bool right in new[] { false, true })
         {
-            var samus = new SamusState { Pose = SamusPoseIds.FacingLeftNormalPose, XPosition = 100, YPosition = 100 };
+            var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose, XPosition = 100, YPosition = 100 };
             samus.RefreshCollisionRadii(bus);
             SamusKnockbackMovement.Start(bus, samus, 0, (ushort)(right ? 1 : 0), level: level);
             samus.RefreshCollisionRadii(bus);

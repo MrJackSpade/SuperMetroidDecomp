@@ -35,7 +35,7 @@ internal static partial class Program
         // A dash like the movie's: the wall's left edge is three pixels ahead and she moves 2.F000.
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.MovingRightNormalPose;
+        samus.Pose = SamusPoseId.MovingRightNormalPose;
         samus.XPosition = 0x02f9;
         samus.YPosition = 0x00bb;
         samus.RefreshCollisionRadii(bus);
@@ -49,7 +49,7 @@ internal static partial class Program
         AssertEqual(ShitroidAiFunction.HoverNearSamus, shitroid.Function, "Baby Metroid finished rising this frame");
         AssertEqual(RoomCollisionType.Air, level.GetCollisionBlock(WallColumn, WallRow).CollisionType,
             "the wall is cleared");
-        AssertEqual(SamusPoseIds.MovingRightNormalPose, samus.Pose, "Samus keeps running");
+        AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "Samus keeps running");
         AssertTrue(samus.XPosition > 0x02fb, "Samus moves into the cleared column in the same frame");
         Console.WriteLine("  Baby Metroid wall clear: the wall is gone before Samus moves that frame.");
     }

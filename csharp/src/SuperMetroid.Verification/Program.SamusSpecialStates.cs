@@ -19,19 +19,19 @@ static void VerifySamusCrystalFlash()
     // Only bytes zero, one, and six matter to this fixture: facing, movement type, and Y
     // radius. The production implementation still reads them through the actual ROM table
     // addresses instead of receiving test-only pose metadata.
-    WritePoseDefinition(bus, SamusPoseIds.FacingRightNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
         [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.FacingLeftNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.FacingLeftNormalPose,
         [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.CrystalFlashRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.CrystalFlashRightPose,
         [0x08, 0x1b, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.CrystalFlashLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.CrystalFlashLeftPose,
         [0x04, 0x1b, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
 
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingRightNormalPose * 2, 0xb600);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingLeftNormalPose * 2, 0xb601);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.CrystalFlashRightPose * 2, 0xb545);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.CrystalFlashLeftPose * 2, 0xb556);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingRightNormalPose * 2, 0xb600);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingLeftNormalPose * 2, 0xb601);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.CrystalFlashRightPose * 2, 0xb545);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.CrystalFlashLeftPose * 2, 0xb556);
     bus.WriteBytes(0x91b600, [0x05, 0x05]);
     bus.WriteBytes(0x91b545, [
         0x03, 0x03, 0x01, 0x01, 0xfe, 0x02,
@@ -78,7 +78,7 @@ static void VerifySamusCrystalFlash()
     const ushort chord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
     var samus = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         XPosition = 0x0120,
         YPosition = 0x0080,
         Health = 1,
@@ -90,9 +90,9 @@ static void VerifySamusCrystalFlash()
     };
     samus.RefreshCollisionRadii(bus);
 
-    samus.PoseHistory.PreviousPose = SamusPoseIds.FacingRightNormalPose;
+    samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
     samus.PoseHistory.PreviousDirectionAndMovement = 8;
-    samus.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpLeftPose;
+    samus.PoseHistory.LastDifferentPose = SamusPoseId.SpinJumpLeftPose;
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
     AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord | (ushort)SnesButton.A),
         "Crystal Flash rejects extra held input");
@@ -101,16 +101,16 @@ static void VerifySamusCrystalFlash()
     AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord),
         "Crystal Flash rejects fractional vertical movement");
     samus.Kinematics.YSubspeed = 0;
-    AssertEqual(SamusPoseIds.SpinJumpLeftPose, samus.PoseHistory.LastDifferentPose,
+    AssertEqual(SamusPoseId.SpinJumpLeftPose, samus.PoseHistory.LastDifferentPose,
         "rejected Crystal Flash must not shift history");
     AssertTrue(samus.CrystalFlash.TryBegin(bus, samus, chord),
         "Crystal Flash accepts exact chord and resources");
     AssertEqual(0, samus.InvincibilityTimer, "Crystal Flash activation clears native hit immunity");
-    AssertEqual(SamusPoseIds.CrystalFlashRightPose, samus.Pose,
+    AssertEqual(SamusPoseId.CrystalFlashRightPose, samus.Pose,
         "source direction selects right Crystal Flash pose");
-    AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "Crystal Flash shifts previous pose");
+    AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "Crystal Flash shifts previous pose");
     AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "Crystal Flash shifts previous metadata");
-    AssertEqual(SamusPoseIds.CrystalFlashRightPose, samus.PoseHistory.PreviousPose, "Crystal Flash commits right pose");
+    AssertEqual(SamusPoseId.CrystalFlashRightPose, samus.PoseHistory.PreviousPose, "Crystal Flash commits right pose");
     AssertEqual(0x1b08, samus.PoseHistory.PreviousDirectionAndMovement, "Crystal Flash commits right metadata");
     AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
         "Crystal Flash installs raise handler");
@@ -269,7 +269,7 @@ static void VerifySamusCrystalFlash()
         samus.CrystalFlash.Step(bus, samus, (ushort)(0x0100 + finishFrames));
         samus.AnimateNoFx(bus, chord);
     }
-    AssertEqual<byte?>(SamusPoseIds.FacingRightNormalPose, samus.PendingTransitionalPose,
+    AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.PendingTransitionalPose,
         "Crystal Flash ROM finish command publishes standing right");
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus),
         "Crystal Flash standing transition is applied");
@@ -293,7 +293,7 @@ static void VerifySamusCrystalFlash()
 
     var left = new SamusState
     {
-        Pose = SamusPoseIds.FacingLeftNormalPose,
+        Pose = SamusPoseId.FacingLeftNormalPose,
         Health = 50,
         Missiles = 10,
         SuperMissiles = 10,
@@ -304,11 +304,11 @@ static void VerifySamusCrystalFlash()
     left.PoseHistory.PreviousDirectionAndMovement = 4;
     AssertTrue(left.CrystalFlash.TryBegin(bus, left, chord),
         "left-facing Crystal Flash begins");
-    AssertEqual(SamusPoseIds.CrystalFlashLeftPose, left.Pose,
+    AssertEqual(SamusPoseId.CrystalFlashLeftPose, left.Pose,
         "source direction selects left Crystal Flash pose");
-    AssertEqual(SamusPoseIds.FacingLeftNormalPose, left.PoseHistory.LastDifferentPose, "left Crystal Flash shifts previous pose");
+    AssertEqual(SamusPoseId.FacingLeftNormalPose, left.PoseHistory.LastDifferentPose, "left Crystal Flash shifts previous pose");
     AssertEqual(4, left.PoseHistory.LastDifferentDirectionAndMovement, "left Crystal Flash shifts previous metadata");
-    AssertEqual(SamusPoseIds.CrystalFlashLeftPose, left.PoseHistory.PreviousPose, "Crystal Flash commits left pose");
+    AssertEqual(SamusPoseId.CrystalFlashLeftPose, left.PoseHistory.PreviousPose, "Crystal Flash commits left pose");
     AssertEqual(0x1b04, left.PoseHistory.PreviousDirectionAndMovement, "Crystal Flash commits left metadata");
 
     Console.WriteLine("  Crystal Flash: prerequisites, handlers, resources, HDMA bubble, palette, and ROM animation agree.");
@@ -326,22 +326,22 @@ static void VerifySamusXray()
     // Complete literal pose records from `$91:B631/B751/B851/BCD1-BCF9`. X-ray does not
     // invent a new movement type: standing bodies are zero, crouched bodies five, and its
     // intermediate turn bodies use `$0E`, which makes the installed movement handler RTS.
-    (byte Pose, byte[] Definition)[] poses = [
-        (SamusPoseIds.FacingRightNormalPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseIds.FacingLeftNormalPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseIds.TurningRightToLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseIds.TurningLeftToRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseIds.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]),
-        (SamusPoseIds.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]),
-        (SamusPoseIds.TurningRightToLeftCrouchingPose, [0x04, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
-        (SamusPoseIds.TurningLeftToRightCrouchingPose, [0x08, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
-        (SamusPoseIds.XrayingStandingRightPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseIds.XrayingStandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
-        (SamusPoseIds.XrayingCrouchingRightPose, [0x08, 0x05, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]),
-        (SamusPoseIds.XrayingCrouchingLeftPose, [0x04, 0x05, 0xff, 0x07, 0x00, 0x00, 0x10, 0x00]),
+    (SamusPoseId Pose, byte[] Definition)[] poses = [
+        (SamusPoseId.FacingRightNormalPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseId.FacingLeftNormalPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseId.TurningRightToLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseId.TurningLeftToRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseId.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseId.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseId.TurningRightToLeftCrouchingPose, [0x04, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseId.TurningLeftToRightCrouchingPose, [0x08, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseId.XrayingStandingRightPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseId.XrayingStandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseId.XrayingCrouchingRightPose, [0x08, 0x05, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseId.XrayingCrouchingLeftPose, [0x04, 0x05, 0xff, 0x07, 0x00, 0x00, 0x10, 0x00]),
     ];
-    foreach ((byte pose, byte[] definition) in poses)
-        WritePoseDefinition(bus, pose, definition);
+    foreach ((SamusPoseId pose, byte[] definition) in poses)
+        WritePoseDefinition(bus, (int)pose, definition);
 
     // Animation pointers and delays are compiled cartridge mechanics. In particular,
     // pose $25 uses three two-tick frames; fake-bus writes to $91:B010 no longer
@@ -375,7 +375,7 @@ static void VerifySamusXray()
         SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
     var standing = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         XPosition = 100,
         YPosition = 200,
     };
@@ -386,7 +386,7 @@ static void VerifySamusXray()
     AssertTrue(
         standing.Xray.TryBegin(bus, standing, previousMovementType: SamusMovementType.Standing),
         "standing X-ray setup accepted");
-    AssertEqual(0xd5, standing.Pose, "right standing X-ray pose");
+    AssertEqual(SamusPoseId.XrayingStandingRightPose, standing.Pose, "right standing X-ray pose");
     AssertEqual(21, standing.Kinematics.YRadius, "standing X-ray radius");
     AssertEqual(2, standing.AnimationFrame, "command five starts X-ray frame two");
     AssertEqual(0x3f, standing.AnimationFrameTimer, "command five X-ray timer");
@@ -489,9 +489,9 @@ static void VerifySamusXray()
     // exact frame-two/timer-one completion gate before `$D6` is installed.
     standing.PoseHistory.PreviousPose = standing.Pose;
     standing.PoseHistory.PreviousDirectionAndMovement = 0x0008;
-    standing.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpRightPose;
+    standing.PoseHistory.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
     standing.PoseHistory.LastDifferentDirectionAndMovement = 0x0308;
-    byte xrayPoseBeforeTurn = standing.Pose;
+    SamusPoseId xrayPoseBeforeTurn = standing.Pose;
     standing.Xray.HandlePoseInput(
         bus,
         standing,
@@ -501,7 +501,7 @@ static void VerifySamusXray()
     AssertEqual(8, standing.PoseHistory.LastDifferentDirectionAndMovement, "X-ray turn shifts previous metadata");
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray turn publishes turning pose");
     AssertEqual(0x0e04, standing.PoseHistory.PreviousDirectionAndMovement, "X-ray turn publishes turning metadata");
-    AssertEqual(0x25, standing.Pose, "X-ray right-to-left standing turn pose");
+    AssertEqual(SamusPoseId.TurningRightToLeftPose, standing.Pose, "X-ray right-to-left standing turn pose");
     AssertEqual(0xf6, standing.Xray.Angle.TableIndex, "X-ray turn mirrors angle");
     AssertTrue(standing.Xray.StepMovement(bus, standing) is null,
         "X-ray movement is RTS during type-E turn");
@@ -510,12 +510,12 @@ static void VerifySamusXray()
     AssertEqual(2, standing.AnimationFrame, "X-ray turn reaches frame two");
     AssertEqual(1, standing.AnimationFrameTimer, "X-ray turn reaches timer one");
     standing.Xray.HandlePoseInput(bus, standing, 0);
-    AssertTrue(standing.Pose != 0x25, "X-ray completes standing turn");
-    AssertEqual(0x25, standing.PoseHistory.LastDifferentPose, "X-ray completion shifts turning pose");
+    AssertTrue((int)standing.Pose != 0x25, "X-ray completes standing turn");
+    AssertEqual(SamusPoseId.TurningRightToLeftPose, standing.PoseHistory.LastDifferentPose, "X-ray completion shifts turning pose");
     AssertEqual(0x0e04, standing.PoseHistory.LastDifferentDirectionAndMovement, "X-ray completion shifts turning metadata");
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray completion publishes stable pose");
     AssertEqual(4, standing.PoseHistory.PreviousDirectionAndMovement, "X-ray completion publishes stable metadata");
-    AssertEqual(0xd6, standing.Pose, "X-ray turn installs left standing body");
+    AssertEqual(SamusPoseId.XrayingStandingLeftPose, standing.Pose, "X-ray turn installs left standing body");
     AssertEqual(0, standing.Xray.StepMovement(bus, standing)!.Value,
         "left near-up angle selects looking-up art");
 
@@ -530,7 +530,7 @@ static void VerifySamusXray()
     AssertTrue(finished.Completed, "X-ray state five completes");
     AssertTrue(!standing.Xray.IsActive && !standing.Xray.TimeIsFrozen,
         "X-ray teardown restores time and handlers");
-    AssertEqual(0x02, standing.Pose, "left X-ray exits to ordinary standing");
+    AssertEqual(SamusPoseId.FacingLeftNormalPose, standing.Pose, "left X-ray exits to ordinary standing");
     AssertEqual(0xffff, standing.Xray.BeamSizeFlag,
         "X-ray teardown requests palette restoration");
     AssertTrue(standing.Xray.DeactivationSoundRequested, "X-ray deactivation sound requested");
@@ -548,7 +548,7 @@ static void VerifySamusXray()
     // 16 -> 21, and move the center five pixels upward: the retail X-ray stand-up glitch.
     var crouched = new SamusState
     {
-        Pose = SamusPoseIds.CrouchingRightPose,
+        Pose = SamusPoseId.CrouchingRightPose,
         XPosition = 100,
         YPosition = 200,
     };
@@ -559,10 +559,10 @@ static void VerifySamusXray()
         crouched,
         previousMovementType: SamusMovementType.Crouching),
         "crouched X-ray setup accepted");
-    AssertEqual(0xd9, crouched.Pose, "right crouched X-ray pose");
+    AssertEqual(SamusPoseId.XrayingCrouchingRightPose, crouched.Pose, "right crouched X-ray pose");
     AssertEqual(16, crouched.Kinematics.YRadius, "crouched X-ray radius");
     crouched.Xray.HandlePoseInput(bus, crouched, (ushort)SnesButton.Left);
-    AssertEqual(0x43, crouched.Pose, "crouched X-ray turn pose");
+    AssertEqual(SamusPoseId.TurningRightToLeftCrouchingPose, crouched.Pose, "crouched X-ray turn pose");
     AssertEqual(16, crouched.Kinematics.YRadius, "crouched turn retains radius");
     for (int stage = 1; stage <= 8; stage++)
         crouched.Xray.StepBeam(bus, crouched, 0);
@@ -570,12 +570,12 @@ static void VerifySamusXray()
     crouched.Xray.StepBeam(bus, crouched, 0); // State 3 -> state 4.
     crouched.Xray.StepBeam(bus, crouched, 0); // State 4 -> state 5.
     crouched.Xray.StepBeam(bus, crouched, 0); // State 5 -> teardown.
-    AssertEqual(0x02, crouched.Pose, "crouched-turn release triggers standing-left glitch");
+    AssertEqual(SamusPoseId.FacingLeftNormalPose, crouched.Pose, "crouched-turn release triggers standing-left glitch");
     AssertEqual(21, crouched.Kinematics.YRadius, "stand-up glitch expands radius");
     AssertEqual(195, crouched.YPosition, "stand-up glitch moves center up five pixels");
-    AssertEqual(0x43, crouched.PoseHistory.LastDifferentPose, "X-ray release shifts crouched turn pose");
+    AssertEqual(SamusPoseId.TurningRightToLeftCrouchingPose, crouched.PoseHistory.LastDifferentPose, "X-ray release shifts crouched turn pose");
     AssertEqual(0x0e04, crouched.PoseHistory.LastDifferentDirectionAndMovement, "X-ray release shifts turn metadata");
-    AssertEqual(2, crouched.PoseHistory.PreviousPose, "X-ray release publishes standing pose");
+    AssertEqual(SamusPoseId.FacingLeftNormalPose, crouched.PoseHistory.PreviousPose, "X-ray release publishes standing pose");
     AssertEqual(4, crouched.PoseHistory.PreviousDirectionAndMovement, "X-ray release publishes standing metadata");
 
     // Native movie `x-mode max upward jump speed store.smv`, frame 522, executes
@@ -585,7 +585,7 @@ static void VerifySamusXray()
     // that ownership split rather than cancelling the complete X-Ray setup with its pose.
     var interrupted = new SamusState
     {
-        Pose = SamusPoseIds.FacingLeftNormalPose,
+        Pose = SamusPoseId.FacingLeftNormalPose,
         XPosition = 0x0174,
         YPosition = 0x028b,
     };
@@ -608,10 +608,10 @@ static void VerifySamusXray()
     AssertTrue(!interrupted.Xray.ActivationSoundRequested,
         "deferred setup does not queue command-five activation sound early");
 
-    interrupted.Pose = SamusPoseIds.MovingLeftNormalPose;
+    interrupted.Pose = SamusPoseId.MovingLeftNormalPose;
     AssertTrue(!interrupted.Xray.CommitPendingActivation(bus, interrupted, superseded: true),
         "higher-priority hit expiry suppresses only X-Ray's Samus command");
-    AssertEqual(SamusPoseIds.MovingLeftNormalPose, interrupted.Pose,
+    AssertEqual(SamusPoseId.MovingLeftNormalPose, interrupted.Pose,
         "interrupted X-Mode retains native winning ordinary pose");
     AssertTrue(interrupted.Xray.IsActive && interrupted.Xray.TimeIsFrozen,
         "interrupted X-Mode retains beam lifecycle and frozen time");
@@ -626,7 +626,7 @@ static void VerifySamusXray()
     // Admission failures are kept independent so no broad host-side `grounded` boolean can
     // accidentally replace the native previous/current type, landing, velocity, and rare
     // five-bomb conjunction checks.
-    SamusState Rejected(byte pose, ushort ySpeed = 0, ushort ySubspeed = 0)
+    SamusState Rejected(SamusPoseId pose, ushort ySpeed = 0, ushort ySubspeed = 0)
     {
         var sample = new SamusState { Pose = pose };
         sample.RefreshCollisionRadii(bus);
@@ -637,27 +637,27 @@ static void VerifySamusXray()
     }
 
     // Seed excluded landing `$A4` and falling `$29` definitions/animations only for gates.
-    WritePoseDefinition(bus, SamusPoseIds.NormalLandingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.NormalLandingRightPose,
         [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.FallingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.FallingRightPose,
         [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.NormalLandingRightPose * 2, 0xc700);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FallingRightPose * 2, 0xc710);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.NormalLandingRightPose * 2, 0xc700);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FallingRightPose * 2, 0xc710);
     bus.WriteBytes(0x91c700, [0x01, 0xff]);
     bus.WriteBytes(0x91c710, [0x01, 0xff]);
-    var landing = Rejected(SamusPoseIds.NormalLandingRightPose);
+    var landing = Rejected(SamusPoseId.NormalLandingRightPose);
     AssertTrue(!landing.Xray.TryBegin(bus, landing, previousMovementType: SamusMovementType.Standing),
         "X-ray rejects landing pose");
-    var movingVertically = Rejected(SamusPoseIds.FacingRightNormalPose, ySubspeed: 1);
+    var movingVertically = Rejected(SamusPoseId.FacingRightNormalPose, ySubspeed: 1);
     AssertTrue(!movingVertically.Xray.TryBegin(
         bus,
         movingVertically,
         previousMovementType: SamusMovementType.Standing),
         "X-ray rejects fractional Y velocity");
-    var badPrevious = Rejected(SamusPoseIds.FacingRightNormalPose);
+    var badPrevious = Rejected(SamusPoseId.FacingRightNormalPose);
     AssertTrue(!badPrevious.Xray.TryBegin(bus, badPrevious, previousMovementType: SamusMovementType.Falling),
         "X-ray rejects unsupported previous movement type");
-    var fiveBombQuirk = Rejected(SamusPoseIds.FacingRightNormalPose);
+    var fiveBombQuirk = Rejected(SamusPoseId.FacingRightNormalPose);
     fiveBombQuirk.XSpeedDivisor = 2;
     AssertTrue(!fiveBombQuirk.Xray.TryBegin(
         bus,
@@ -684,21 +684,21 @@ static void VerifySamusDeathSequence()
     // Source standing/morph/spin records prove three distinct `$9B:B420` decisions. The
     // death records are literal `$91:BCE1/BCE9`: type `$0A`, ordinary humanoid radii, and
     // right/left direction bytes. Their delay stream is exactly 2,2,2,2,2,2,FE,01.
-    WritePoseDefinition(bus, SamusPoseIds.FacingRightNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
         [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.MorphBallGroundLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.MorphBallGroundLeftPose,
         [0x04, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.SpinJumpRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.SpinJumpRightPose,
         [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0b, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.DeathSequenceRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.DeathSequenceRightPose,
         [0x08, 0x0a, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.DeathSequenceLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.DeathSequenceLeftPose,
         [0x04, 0x0a, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingRightNormalPose * 2, 0xc000);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.MorphBallGroundLeftPose * 2, 0xc010);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.SpinJumpRightPose * 2, 0xc020);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.DeathSequenceRightPose * 2, 0xb567);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.DeathSequenceLeftPose * 2, 0xb567);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingRightNormalPose * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.MorphBallGroundLeftPose * 2, 0xc010);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.SpinJumpRightPose * 2, 0xc020);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DeathSequenceRightPose * 2, 0xb567);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DeathSequenceLeftPose * 2, 0xb567);
     bus.WriteBytes(0x91c000, [0x01, 0xff]);
     bus.WriteBytes(0x91c010, [0x01, 0xff]);
     bus.WriteBytes(0x91c020, [0x01, 0xff]);
@@ -760,7 +760,7 @@ static void VerifySamusDeathSequence()
     var guardedBus = new SamusDeathExplosionTimingReadGuard(bus);
     var samus = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         XPosition = 0x0480,
         YPosition = 0x04c0,
     };
@@ -768,7 +768,7 @@ static void VerifySamusDeathSequence()
     samus.InitializeAnimation(guardedBus);
     samus.PoseHistory.PreviousPose = samus.Pose;
     samus.PoseHistory.PreviousDirectionAndMovement = 8;
-    samus.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpLeftPose;
+    samus.PoseHistory.LastDifferentPose = SamusPoseId.SpinJumpLeftPose;
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
     SamusMovementType deathSourceMovementType = samus.ReadMovementType(guardedBus);
     samus.DeathSequence.Begin(
@@ -777,10 +777,10 @@ static void VerifySamusDeathSequence()
         layer1X: 0x03e0,
         layer1Y: 0x0400);
     AssertEqual(SamusMovementType.Standing, deathSourceMovementType, "death source standing type");
-    AssertEqual(0xd7, samus.Pose, "death selects right pose");
-    AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "death shifts prior pose");
+    AssertEqual(SamusPoseId.DeathSequenceRightPose, samus.Pose, "death selects right pose");
+    AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "death shifts prior pose");
     AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "death shifts prior metadata");
-    AssertEqual(0xd7, samus.PoseHistory.PreviousPose, "death commits right pose");
+    AssertEqual(SamusPoseId.DeathSequenceRightPose, samus.PoseHistory.PreviousPose, "death commits right pose");
     AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
         samus.PoseHistory.PreviousDirectionAndMovement, "death commits right metadata");
     AssertEqual(5, samus.AnimationFrame, "ordinary death starts unmorphed frame five");
@@ -863,7 +863,7 @@ static void VerifySamusDeathSequence()
     // five but uniquely requests library-one sound `$32` before pose replacement.
     var morphedLeft = new SamusState
     {
-        Pose = SamusPoseIds.MorphBallGroundLeftPose,
+        Pose = SamusPoseId.MorphBallGroundLeftPose,
         XPosition = 64,
         YPosition = 80,
     };
@@ -873,15 +873,15 @@ static void VerifySamusDeathSequence()
     morphedLeft.PoseHistory.PreviousDirectionAndMovement = 0x0404;
     morphedLeft.DeathSequence.Begin(
         guardedBus, morphedLeft, layer1X: 0, layer1Y: 0);
-    AssertEqual(0xd8, morphedLeft.Pose, "left Morph death selects D8");
-    AssertEqual(SamusPoseIds.MorphBallGroundLeftPose, morphedLeft.PoseHistory.LastDifferentPose, "left death shifts prior pose");
+    AssertEqual(SamusPoseId.DeathSequenceLeftPose, morphedLeft.Pose, "left Morph death selects D8");
+    AssertEqual(SamusPoseId.MorphBallGroundLeftPose, morphedLeft.PoseHistory.LastDifferentPose, "left death shifts prior pose");
     AssertEqual(0x0404, morphedLeft.PoseHistory.LastDifferentDirectionAndMovement, "left death shifts prior metadata");
-    AssertEqual(0xd8, morphedLeft.PoseHistory.PreviousPose, "death commits left pose");
+    AssertEqual(SamusPoseId.DeathSequenceLeftPose, morphedLeft.PoseHistory.PreviousPose, "death commits left pose");
     AssertEqual(morphedLeft.ReadPoseXDirection(bus) | ((byte)morphedLeft.ReadMovementType(bus) << 8),
         morphedLeft.PoseHistory.PreviousDirectionAndMovement, "death commits left metadata");
     AssertEqual(1, morphedLeft.AnimationFrame, "Morph death begins unmorph frame one");
 
-    var spinning = new SamusState { Pose = SamusPoseIds.SpinJumpRightPose };
+    var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose };
     spinning.RefreshCollisionRadii(guardedBus);
     spinning.InitializeAnimation(guardedBus);
     spinning.DeathSequence.Begin(

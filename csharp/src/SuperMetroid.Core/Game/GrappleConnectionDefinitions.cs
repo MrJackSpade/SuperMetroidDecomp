@@ -1,5 +1,5 @@
 using static SuperMetroid.Core.Game.SamusGrappleRomData.Connections;
-using static SuperMetroid.Core.Game.SamusPoseIds;
+using static SuperMetroid.Core.Game.SamusPoseId;
 
 namespace SuperMetroid.Core.Game;
 
@@ -19,7 +19,7 @@ internal static class GrappleConnectionDefinitions
         new(0x7380, GrappleWallContactLeftPose, -8, 16, WallGrabHandler),
     ];
 
-    internal readonly record struct SpecialConnection(ushort Angle, byte Pose, short X, short Y, ushort Function);
+    internal readonly record struct SpecialConnection(ushort Angle, SamusPoseId Pose, short X, short Y, ushort Function);
 
     /// <summary>Number of native special-angle records, in their native order.</summary>
     internal static int SpecialAngleCount => AuthoredStops.Length * 2;
@@ -33,7 +33,7 @@ internal static class GrappleConnectionDefinitions
             (short)-stop.X, stop.Y, stop.Function);
     }
 
-    private static byte MirrorPose(byte pose) => pose switch
+    private static SamusPoseId MirrorPose(SamusPoseId pose) => pose switch
     {
         GrappleCrouchingDownRightPose => GrappleCrouchingDownLeftPose,
         GrappleCrouchingDownLeftPose => GrappleCrouchingDownRightPose,
@@ -53,7 +53,7 @@ internal static class GrappleConnectionDefinitions
     };
 
     /// <summary>$9B:C9BA/$C9C4 directional standing/crouching poses after the rope drops.</summary>
-    internal static byte DroppedPose(byte direction, bool compact) => direction switch
+    internal static SamusPoseId DroppedPose(byte direction, bool compact) => direction switch
     {
         0 => compact ? CrouchingAimUpRightPose : StandingAimUpRightPose,
         1 => compact ? CrouchingAimDiagonalUpRightPose : StandingAimDiagonalUpRightPose,

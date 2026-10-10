@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Native body-art allocations and transfer-row geometry, independent of chosen pixel content.</summary>
@@ -95,7 +96,7 @@ internal static class SamusBodyTransferDefinitions
         {
             int start = pointers[pose], end = SamusBodyArtworkCatalog.FrameEndOffset;
             foreach (ushort next in pointers) if (next > start && next < end) end = next;
-            int baseIndex = upper ? body.Spritemaps.TopBase((byte)pose) : body.Spritemaps.BottomBase((byte)pose);
+            int baseIndex = upper ? body.Spritemaps.TopBase((SamusPoseId)pose) : body.Spritemaps.BottomBase((SamusPoseId)pose);
             for (int phase = 0; phase < (end - start) / 4; phase++)
             {
                 int frameIndex = (start - SamusBodyArtworkCatalog.FirstFrameOffset) / 4 + phase;

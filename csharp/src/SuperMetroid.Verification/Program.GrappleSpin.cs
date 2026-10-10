@@ -20,15 +20,15 @@ internal static partial class Program
             samus.InputLocked = false;
             samus.XPosition = 512;
             samus.YPosition = 256;
-            samus.Pose = left ? SamusPoseIds.SpinJumpLeftPose : SamusPoseIds.SpinJumpRightPose;
+            samus.Pose = left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.SelectedHudItem = 4;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.GrappleBeam;
             samus.Kinematics.YDirection = 2;
             runtime.StepFrame((ushort)SnesButton.X);
-            Console.WriteLine($"Spin fire first frame: pose={samus.Pose:X2}, grapple={samus.Grapple.Phase}");
-            AssertEqual(left ? SamusPoseIds.NormalJumpGunExtendedLeftPose : SamusPoseIds.NormalJumpGunExtendedRightPose,
+            Console.WriteLine($"Spin fire first frame: pose={(int)samus.Pose:X2}, grapple={samus.Grapple.Phase}");
+            AssertEqual(left ? SamusPoseId.NormalJumpGunExtendedLeftPose : SamusPoseId.NormalJumpGunExtendedRightPose,
                 samus.Pose, "Fire exits the spin through the ROM pose table");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "spin HUD handler does not fire before pose transition");
             runtime.StepFrame(held ? (ushort)SnesButton.X : (ushort)0);

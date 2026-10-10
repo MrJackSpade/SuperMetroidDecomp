@@ -84,7 +84,7 @@ internal static partial class Program
         palettes.LoadTo(expected, SamusBeamCombination.Ice);
         foreach (ushort beam in new ushort[] { 0, 4 })
         {
-            samus.Pose = SamusPoseIds.FacingRightNormalPose;
+            samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.InputLocked = false;
             samus.EquippedItems = samus.CollectedItems = (ushort)SamusEquipmentFlags.GrappleBeam;
             samus.EquippedBeams = beam;
@@ -101,7 +101,7 @@ internal static partial class Program
             runtime.StepFrame((ushort)SnesButton.X);
             AssertTrue(runtime.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
-            samus.Pose = SamusPoseIds.StandingAimDiagonalUpRightPose;
+            samus.Pose = SamusPoseId.StandingAimDiagonalUpRightPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.CommitPoseHistory(bus);

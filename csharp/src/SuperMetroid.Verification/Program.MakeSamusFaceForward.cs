@@ -11,14 +11,14 @@ internal static partial class Program
     private static void VerifyMakeSamusFaceForward()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Pose = SamusPoseIds.StandingAimUpRightPose, XPosition = 0x7b, YPosition = 0x8b };
+        var samus = new SamusState { Pose = SamusPoseId.StandingAimUpRightPose, XPosition = 0x7b, YPosition = 0x8b };
         samus.Kinematics.YSubposition = 0xffff;
         samus.RefreshCollisionRadii(bus);
         ushort boardingRadius = samus.Kinematics.YRadius;
         AssertTrue(boardingRadius != 0x18, "aim-up boarding pose has a non-front radius");
 
         samus.ApplyForwardFacingPoseSetup(bus);
-        AssertEqual(SamusPoseIds.ForwardFacingPowerSuitPose, samus.Pose, "power suit faces forward");
+        AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, samus.Pose, "power suit faces forward");
         AssertEqual(boardingRadius, samus.Kinematics.YRadius, "face-forward does not write SamusYRadius");
         AssertEqual((ushort)0x88, samus.YPosition, "non-front radius lifts Samus three pixels");
         var previous = new SamusCameraPoint(0x7b, 0, 0x8b, 0xffff);

@@ -24,16 +24,16 @@ internal static partial class Program
         var level = new RoomLevelData(Width, Height, blocks, behaviors, new ushort[Width * Height], [],
             doorListPointer: 0xdad5);
 
-        var samus = new SamusState { Pose = (byte)SamusPoseId.CrouchingLeftPose, XPosition = 24 };
+        var samus = new SamusState { Pose = SamusPoseId.CrouchingLeftPose, XPosition = 24 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         // Feet on the elevator's top surface; the standing body grows five pixels upward.
         samus.YPosition = (ushort)(DoorRow * 16 - samus.Kinematics.YRadius);
         AssertTrue(level.ConsumeElevatorDoorContact() is false, "no contact before the stand-up");
 
-        AssertTrue(samus.TryApplyDirectCrouchToStandingTransition(bus, level, SamusPoseIds.FacingLeftNormalPose, 0),
+        AssertTrue(samus.TryApplyDirectCrouchToStandingTransition(bus, level, SamusPoseId.FacingLeftNormalPose, 0),
             "the standing body fits above the elevator");
-        AssertEqual(SamusPoseIds.FacingLeftNormalPose, samus.Pose, "Samus stands");
+        AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose, "Samus stands");
         AssertTrue(level.ConsumeElevatorDoorContact(),
             "the probe for the new standing pose ($02 < $09) arms the elevator");
         Console.WriteLine("  Elevator stand-up contact: standing up on the elevator arms it in the same frame.");

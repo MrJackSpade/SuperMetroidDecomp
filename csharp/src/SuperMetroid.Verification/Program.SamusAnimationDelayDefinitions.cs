@@ -13,7 +13,7 @@ internal static partial class Program
             ushort nativePointer = (ushort)(bus.ReadByte(source) |
                 bus.ReadByte(source + 1) << 8);
             AssertEqual(nativePointer,
-                SamusAnimationDelayDefinitions.PointerForPose((byte)pose),
+                SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose),
                 $"compiled Samus animation pointer for pose ${pose:X2}");
         }
         for (int source = SamusAnimationDelayDefinitions.PointerTableAddress;
@@ -37,7 +37,7 @@ internal static partial class Program
         AssertEqual(SamusAnimationDelayDefinitions.DelayStreamsEndExclusive & ushort.MaxValue, expectedAddress,
             "Samus animation segments end at the running-cadence pointer");
         for (int pose = 0; pose < 0xFD; pose++)
-            AssertTrue(segmentStarts.Contains(SamusAnimationDelayDefinitions.PointerForPose((byte)pose)),
+            AssertTrue(segmentStarts.Contains(SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose)),
                 $"pose ${pose:X2} animation pointer starts a segment");
 
         // Poses $FD-$FF intentionally overread the first delay bytes as $0302.
@@ -46,15 +46,15 @@ internal static partial class Program
         mutableBus.WriteByte(0x7E0302, 0x5A);
         AssertEqual((byte)0x5A,
             SamusAnimationDelayDefinitions.ReadAnimationByte(mutableBus,
-                SamusAnimationDelayDefinitions.PointerForPose(0xFD), 0),
+                SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)0xFD), 0),
             "invalid-pose animation overread keeps its mutable WRAM alias");
         var flashbackSamus = new SamusState
         {
-            Pose = SamusPoseIds.FacingLeftNormalPose,
+            Pose = SamusPoseId.FacingLeftNormalPose,
         };
         flashbackSamus.InitializeAnimation(new FrontendCartridgeReadGuard(mutableBus));
         AssertEqual((int)(0x910000 |
-            SamusAnimationDelayDefinitions.PointerForPose(SamusPoseIds.FacingLeftNormalPose)),
+            SamusAnimationDelayDefinitions.PointerForPose(SamusPoseId.FacingLeftNormalPose)),
             flashbackSamus.AnimationDelayListAddress,
             "Mother Brain flashback pose initializes through compiled animation timing");
         AssertThrows<InvalidDataException>(

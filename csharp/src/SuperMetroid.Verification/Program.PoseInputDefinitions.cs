@@ -13,8 +13,8 @@ internal static partial class Program
         int conditionCount = 0, newMask = 0, heldMask = 0;
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         {
-            byte pose = (byte)poseIndex;
-            ushort pointer = Word(SamusMovementRomData.Poses.TransitionListPointers + pose * 2);
+            SamusPoseId pose = (SamusPoseId)poseIndex;
+            ushort pointer = Word(SamusMovementRomData.Poses.TransitionListPointers + (int)pose * 2);
             var native = new List<(ushort New, ushort Held, ushort Target)>();
             for (int address = 0x910000 | pointer; Word(address) != ushort.MaxValue; address += 6)
             {
@@ -49,8 +49,8 @@ internal static partial class Program
                         if ((input & native[i].Held) == native[i].Held && (edges & native[i].New) == native[i].New)
                         { match = i; break; }
                     expected = match < 0 ? new(null, native.Count != 0)
-                        : native[match].Target == pose ? new(null, false)
-                        : new(new SamusPoseTransition(native[match].Target), false);
+                        : native[match].Target == (ushort)pose ? new(null, false)
+                        : new(new SamusPoseTransition((SamusPoseId)native[match].Target), false);
                 }
                 AssertEqual(expected, SamusPoseTransitionTable.Lookup(forbidden, pose, input, edges),
                     "Compiled input graph preserves native first-match, self-match and fallback result");
@@ -63,7 +63,7 @@ internal static partial class Program
         AssertEqual(598, conditionCount, "All distinct-list conditions");
         for (int pose = 253; pose <= byte.MaxValue; pose++)
         {
-            byte invalidPose = (byte)pose;
+            SamusPoseId invalidPose = (SamusPoseId)pose;
             AssertTrue(!SamusPoseInputDefinitions.TryGetPointer(invalidPose, out _), "Trailing pose indexes have no authored graph");
             AssertThrows<InvalidDataException>(
                 () => SamusPoseTransitionTable.Lookup(forbidden, invalidPose, 1, 1),
@@ -79,18 +79,18 @@ internal static partial class Program
         // facing appears first in each standing table, so the chord begins a turn.
         const ushort leftRight = (ushort)(SnesButton.Left | SnesButton.Right);
         AssertEqual(
-            (ushort)SamusPoseIds.TurningRightToLeftPose,
+            SamusPoseId.TurningRightToLeftPose,
             SamusPoseTransitionTable.Lookup(
                 forbidden,
-                SamusPoseIds.FacingRightNormalPose,
+                SamusPoseId.FacingRightNormalPose,
                 leftRight,
                 leftRight).Transition!.Value.ProspectivePose,
             "right-facing Left+Right uses the first native Left condition");
         AssertEqual(
-            (ushort)SamusPoseIds.TurningLeftToRightPose,
+            SamusPoseId.TurningLeftToRightPose,
             SamusPoseTransitionTable.Lookup(
                 forbidden,
-                SamusPoseIds.FacingLeftNormalPose,
+                SamusPoseId.FacingLeftNormalPose,
                 leftRight,
                 leftRight).Transition!.Value.ProspectivePose,
             "left-facing Left+Right uses the first native Right condition");
@@ -98,7 +98,7 @@ internal static partial class Program
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
         int accepted = 0;
         for (int i = 0; i < 65536; i++)
-            if (SamusPoseTransitionTable.Lookup(forbidden, (byte)(i % 253), (ushort)i, (ushort)~i).Transition.HasValue) accepted++;
+            if (SamusPoseTransitionTable.Lookup(forbidden, (SamusPoseId)(i % 253), (ushort)i, (ushort)~i).Transition.HasValue) accepted++;
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");
         AssertEqual(0L, allocated, "Warmed production lookup allocates no per-frame graph or records");

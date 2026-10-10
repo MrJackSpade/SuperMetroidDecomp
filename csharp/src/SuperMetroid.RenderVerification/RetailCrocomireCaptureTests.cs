@@ -15,7 +15,7 @@ internal static class RetailCrocomireCaptureTests
         runtime.LoadCartridgeRoomForDebug(CrocomireCaptureFixture.Room, CrocomireCaptureFixture.CameraX, 0);
         var samus = runtime.Samus!;
         samus.XPosition = CrocomireCaptureFixture.InitialSamusX; samus.YPosition = 120;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         var boss = runtime.Enemies.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
         var death = runtime.Enemies.CrocomireDeath!;

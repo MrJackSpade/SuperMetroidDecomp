@@ -175,7 +175,7 @@ public sealed partial class SuperMetroidRuntime
         ArgumentNullException.ThrowIfNull(slot);
         Samus = new SamusState
         {
-            Pose = SamusPoseIds.FacingRightNormalPose,
+            Pose = SamusPoseId.FacingRightNormalPose,
             AnimationFrame = 0,
         };
         BindSamusPalettePresentation();
@@ -1490,7 +1490,7 @@ public sealed partial class SuperMetroidRuntime
 
         Samus = new SamusState
         {
-            Pose = SamusPoseIds.ForwardFacingPowerSuitPose,
+            Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,
             XPosition = ActiveLoadStation.SamusX,
             YPosition = 0,

@@ -14,7 +14,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState
         {
-            Pose = SamusPoseIds.FacingLeftNormalPose, XPosition = 0x00eb, YPosition = 0x007d,
+            Pose = SamusPoseId.FacingLeftNormalPose, XPosition = 0x00eb, YPosition = 0x007d,
             Health = 0, MaxHealth = 99, ReserveEnergy = 3, MaxReserveEnergy = 100, ReserveTankMode = 1,
         };
         samus.RefreshCollisionRadii(bus);

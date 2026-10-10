@@ -15,12 +15,12 @@ internal static partial class Program
         foreach (bool spring in new[] { false, true })
         foreach (bool left in new[] { false, true })
         {
-            byte pose = spring
-                ? left ? SamusPoseIds.SpringBallFallingLeftPose : SamusPoseIds.SpringBallFallingRightPose
-                : left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose;
-            byte groundedPose = spring
-                ? left ? SamusPoseIds.SpringBallGroundLeftPose : SamusPoseIds.SpringBallGroundRightPose
-                : left ? SamusPoseIds.MorphBallGroundLeftPose : SamusPoseIds.MorphBallGroundRightPose;
+            SamusPoseId pose = spring
+                ? left ? SamusPoseId.SpringBallFallingLeftPose : SamusPoseId.SpringBallFallingRightPose
+                : left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
+            SamusPoseId groundedPose = spring
+                ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
+                : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
             var samus = new SamusState { Pose = pose, XPosition = 128, YPosition = 128 };
             samus.RefreshCollisionRadii(guard);
             samus.InitializeAnimation(guard);

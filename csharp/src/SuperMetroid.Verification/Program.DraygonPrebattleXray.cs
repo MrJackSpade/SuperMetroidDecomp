@@ -21,7 +21,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(0xda60, cameraX: 256, cameraY: 288);
         var samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingLeftNormalPose;
+        samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.XPosition = 456; samus.YPosition = 459;
         samus.EquippedItems = (ushort)SamusEquipmentFlags.XrayScope;
         samus.SelectedHudItem = SamusXrayRomData.SelectedHudItem;

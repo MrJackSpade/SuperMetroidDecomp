@@ -16,7 +16,7 @@ internal static partial class Program
         var vram = new SnesVram(); var cgram = new SnesCgram(); assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState(0x1234);
         var samus = new SamusState { Health = 999, MaxHealth = 999, XPosition = 256, YPosition = 64,
-            Pose = SamusPoseIds.FacingRightNormalPose };
+            Pose = SamusPoseId.FacingRightNormalPose };
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram,

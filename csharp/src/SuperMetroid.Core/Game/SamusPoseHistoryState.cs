@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Game;
 public sealed class SamusPoseHistoryState
 {
     /// <summary>WRAM $0A20: pose sampled at the preceding committed transition.</summary>
-    public ushort PreviousPose { get; set; }
+    public SamusPoseId PreviousPose { get; set; }
 
     /// <summary>WRAM $0A22: previous direction byte followed by movement-type byte.</summary>
     public ushort PreviousDirectionAndMovement { get; set; }
 
     /// <summary>WRAM $0A24: previous pose before the latest transition-history shift.</summary>
-    public ushort LastDifferentPose { get; set; }
+    public SamusPoseId LastDifferentPose { get; set; }
 
     /// <summary>WRAM $0A26: older direction byte followed by movement-type byte.</summary>
     public ushort LastDifferentDirectionAndMovement { get; set; }
@@ -31,7 +31,7 @@ public sealed class SamusPoseHistoryState
     /// transition, including one that selects the previous pose again; do not call
     /// merely because a frame elapsed or an intermediate pose assignment occurred.
     /// </summary>
-    public void CommitTransition(ushort pose, ushort directionAndMovement)
+    public void CommitTransition(SamusPoseId pose, ushort directionAndMovement)
     {
         LastDifferentPose = PreviousPose;
         LastDifferentDirectionAndMovement = PreviousDirectionAndMovement;

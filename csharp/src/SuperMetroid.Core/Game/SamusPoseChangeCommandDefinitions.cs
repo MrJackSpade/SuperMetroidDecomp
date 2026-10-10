@@ -63,7 +63,7 @@ public static class SamusPoseChangeCommandDefinitions
 }
 
 /// <summary>The prospective pose and command chosen by <c>HandleTransitionTableLookupFailure</c>.</summary>
-public readonly record struct SamusLookupFailurePose(byte ProspectivePose)
+public readonly record struct SamusLookupFailurePose(SamusPoseId ProspectivePose)
 {
     /// <summary>
     /// Ports <c>$91:82D9</c> with <c>Set_ProspectivePoseChangeCommand</c> ($91:8304).
@@ -73,8 +73,8 @@ public readonly record struct SamusLookupFailurePose(byte ProspectivePose)
     /// </summary>
     public static SamusLookupFailurePose Resolve(
         SamusMovementType movementType,
-        byte currentPose,
-        byte definitionFallbackPose,
+        SamusPoseId currentPose,
+        SamusPoseId definitionFallbackPose,
         bool hasBaseXSpeed)
     {
         SamusProspectivePoseChangeCommand command = SamusPoseChangeCommandDefinitions.ForLookupFailure(movementType);
@@ -84,7 +84,7 @@ public readonly record struct SamusLookupFailurePose(byte ProspectivePose)
                 return new SamusLookupFailurePose(currentPose);
             command = SamusProspectivePoseChangeCommand.Stop;
         }
-        byte pose = definitionFallbackPose == SamusMovementRomData.Poses.RetainCurrentPoseFallback
+        SamusPoseId pose = definitionFallbackPose == SamusMovementRomData.Poses.RetainCurrentPoseFallback
             ? currentPose
             : definitionFallbackPose;
         return new SamusLookupFailurePose(pose);

@@ -25,7 +25,7 @@ static void VerifySamusGrappleSwingAndRelease()
         state.Grapple.SwingFrames = GrappleSwingFrameCatalog.Load(
             new MemoryStream(GrappleSwingFrameExtractor.Extract(bus)));
     }
-    SamusState CreateSamus(byte pose, ushort xPosition, ushort yPosition)
+    SamusState CreateSamus(SamusPoseId pose, ushort xPosition, ushort yPosition)
     {
         SamusState state = Program.CreateSamus(pose, xPosition, yPosition);
         BindGrapplePresentation(state);
@@ -38,13 +38,13 @@ static void VerifySamusGrappleSwingAndRelease()
     // Pose definitions are literal eight-byte records. Only X direction, movement type,
     // graphics offset, and radii matter to this isolated route. $B2 is right-facing/type
     // $16; $B3 is its left-facing mirror. Release poses $51/$52 return to type two.
-    WritePoseDefinition(bus, SamusPoseIds.GrappleSwingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.GrappleSwingRightPose,
         [0x08, 0x16, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
-    WritePoseDefinition(bus, SamusPoseIds.GrappleSwingLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.GrappleSwingLeftPose,
         [0x04, 0x16, 0xff, 0x07, 0x00, 0x00, 0x05, 0x15]);
-    WritePoseDefinition(bus, SamusPoseIds.NormalJumpForwardRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.NormalJumpForwardRightPose,
         [0x08, 0x02, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
-    WritePoseDefinition(bus, SamusPoseIds.NormalJumpForwardLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.NormalJumpForwardLeftPose,
         [0x04, 0x02, 0xff, 0x07, 0x00, 0x00, 0x05, 0x15]);
 
     // The close-collision routes use a second family of type-$16 records. These bytes are
@@ -52,21 +52,21 @@ static void VerifySamusGrappleSwingAndRelease()
     // crouching-down poses, `$B8/$B9` are the two wall contacts, and `$83/$84` are the
     // ordinary wall-jump launch poses selected one function call later. The dropped route
     // below uses compact diagonal-down `$74`; locked cancellation uses stable crouch `$27`.
-    WritePoseDefinition(bus, SamusPoseIds.GrappleCrouchingDownRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.GrappleCrouchingDownRightPose,
         [0x08, 0x16, 0x27, 0x03, 0x00, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.GrappleCrouchingDownLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.GrappleCrouchingDownLeftPose,
         [0x04, 0x16, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.GrappleWallContactLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.GrappleWallContactLeftPose,
         [0x08, 0x16, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.GrappleWallContactRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.GrappleWallContactRightPose,
         [0x04, 0x16, 0xff, 0x06, 0x00, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.WallJumpRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.WallJumpRightPose,
         [0x08, 0x14, 0x19, 0xff, 0x08, 0x00, 0x13, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.WallJumpLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.WallJumpLeftPose,
         [0x04, 0x14, 0x1a, 0xff, 0x08, 0x00, 0x13, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.CrouchingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.CrouchingRightPose,
         [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusPoseIds.CrouchingAimDiagonalDownLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.CrouchingAimDiagonalDownLeftPose,
         [0x04, 0x05, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]);
 
     // `$9B:B9D9-$BA29` can install every one of these six additional type-$16 poses when
@@ -88,29 +88,29 @@ static void VerifySamusGrappleSwingAndRelease()
 
     // All four poses point at a harmless ordinary delay list so the public connection and
     // release initializers can execute their real animation initialization seam.
-    foreach (byte pose in new byte[]
+    foreach (SamusPoseId pose in new SamusPoseId[]
     {
-        SamusPoseIds.GrappleSwingRightPose,
-        SamusPoseIds.GrappleSwingLeftPose,
-        SamusPoseIds.NormalJumpForwardRightPose,
-        SamusPoseIds.NormalJumpForwardLeftPose,
-        SamusPoseIds.GrappleCrouchingDownRightPose,
-        SamusPoseIds.GrappleCrouchingDownLeftPose,
-        SamusPoseIds.GrappleWallContactLeftPose,
-        SamusPoseIds.GrappleWallContactRightPose,
-        SamusPoseIds.WallJumpRightPose,
-        SamusPoseIds.WallJumpLeftPose,
-        SamusPoseIds.CrouchingRightPose,
-        SamusPoseIds.CrouchingAimDiagonalDownLeftPose,
-        0xa8,
-        0xa9,
-        0xaa,
-        0xab,
-        0xb4,
-        0xb5,
+        SamusPoseId.GrappleSwingRightPose,
+        SamusPoseId.GrappleSwingLeftPose,
+        SamusPoseId.NormalJumpForwardRightPose,
+        SamusPoseId.NormalJumpForwardLeftPose,
+        SamusPoseId.GrappleCrouchingDownRightPose,
+        SamusPoseId.GrappleCrouchingDownLeftPose,
+        SamusPoseId.GrappleWallContactLeftPose,
+        SamusPoseId.GrappleWallContactRightPose,
+        SamusPoseId.WallJumpRightPose,
+        SamusPoseId.WallJumpLeftPose,
+        SamusPoseId.CrouchingRightPose,
+        SamusPoseId.CrouchingAimDiagonalDownLeftPose,
+        SamusPoseId.GrappleStandingRightPose,
+        SamusPoseId.GrappleStandingLeftPose,
+        SamusPoseId.GrappleStandingDownRightPose,
+        SamusPoseId.GrappleStandingDownLeftPose,
+        SamusPoseId.GrappleCrouchingRightPose,
+        SamusPoseId.GrappleCrouchingLeftPose,
     })
     {
-        WriteTestWord(bus, 0x91b010 + pose * 2, 0xbf00);
+        WriteTestWord(bus, 0x91b010 + (int)pose * 2, 0xbf00);
     }
     bus.WriteBytes(0x91bf00, [0x05, 0xff]);
 
@@ -123,7 +123,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // compiled mechanics supply +11.F4 X velocity, zero Y velocity, angle $C000,
     // and (+2,+2) hand origin minus the native eight-pixel pose correction.
     // Flare presentation is deliberately synthetic.
-    WritePoseDefinition(bus, SamusPoseIds.FallingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.FallingRightPose,
         [0x08, 0x06, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
     WriteTestWord(bus, 0x9bc14a + 2 * 2, 0x0002);
     WriteTestWord(bus, 0x9bc15e + 2 * 2, 0x0002);
@@ -143,7 +143,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // Samus minus its centered anchor is (-24,0), exactly angle $C0.
     bus.WriteByte(0x9bc1c2 + 0xc0, 5);
 
-    SamusState firingSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
+    SamusState firingSamus = CreateSamus(SamusPoseId.FallingRightPose, 32, 56);
     firingSamus.Kinematics.YSpeed = 1; // selects moving-vertically connection table $C3EE
     SamusGrappleMovement.BeginFiring(bus, firingSamus);
     AssertEqual(GrapplePhase.Firing, firingSamus.Grapple.Phase, "grapple firing phase");
@@ -171,7 +171,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(56, firingSamus.Grapple.AnchorY, "accepted grapple block applies nonnegative Y side bias");
     AssertEqual(0xc000, firingSamus.Grapple.Angle.RawValue,
         "connection angle uses bank-$A0 integer octant calculation");
-    AssertEqual(SamusPoseIds.GrappleSwingRightPose, firingSamus.Pose,
+    AssertEqual(SamusPoseId.GrappleSwingRightPose, firingSamus.Pose,
         "right-half airborne shot selects clockwise grapple pose $B2");
     AssertEqual(31, firingSamus.Grapple.RopeStartX,
         "accepted connection publishes native rope Start X");
@@ -196,7 +196,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // ordinary `$52` body and its 1.4000 + 0.B000 running momentum must survive until
     // the following connected-function call.
     SamusState deferredConnectionSamus = CreateSamus(
-        SamusPoseIds.FallingRightPose,
+        SamusPoseId.FallingRightPose,
         32,
         56);
     deferredConnectionSamus.Kinematics.YSpeed = 1;
@@ -206,7 +206,7 @@ static void VerifySamusGrappleSwingAndRelease()
         firingLevel,
         deferredConnectionSamus,
         (ushort)SnesButton.X);
-    deferredConnectionSamus.Pose = SamusPoseIds.NormalJumpForwardLeftPose;
+    deferredConnectionSamus.Pose = SamusPoseId.NormalJumpForwardLeftPose;
     // Native frame 411 is already aimed left while the previously launched endpoint
     // reaches its block. Keep that accepted direction in sync so the firing-pose-change
     // pre-handler does not legitimately restart the beam before collision dispatch.
@@ -228,7 +228,7 @@ static void VerifySamusGrappleSwingAndRelease()
         "connection publishes its pose without prematurely taking beta movement");
     AssertEqual(GrapplePhase.ConnectedSwinging, deferredConnectionSamus.Grapple.Phase,
         "deferred connection still installs the native Grapple function");
-    AssertEqual(SamusPoseIds.NormalJumpForwardLeftPose, deferredConnectionSamus.Pose,
+    AssertEqual(SamusPoseId.NormalJumpForwardLeftPose, deferredConnectionSamus.Pose,
         "higher-priority pose owner can retain the ordinary body");
     AssertEqual(1, deferredConnectionSamus.HorizontalSpeed.BaseSpeed,
         "suppressed Grapple pose retains base whole speed");
@@ -241,7 +241,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(0x6070, deferredConnectionSamus.Kinematics.YSubspeed,
         "suppressed Grapple pose retains vertical fractional speed");
     AssertTrue(deferredConnection.PendingConnection is
-        { Pose: SamusPoseIds.GrappleSwingLeftPose, Swinging: true },
+        { Pose: SamusPoseId.GrappleSwingLeftPose, Swinging: true },
         "connection exposes the lower-priority command-nine pose for late dispatch");
     AssertTrue(!deferredConnection.CameraPreviousX.HasValue &&
         !deferredConnection.CameraPreviousY.HasValue,
@@ -257,7 +257,7 @@ static void VerifySamusGrappleSwingAndRelease()
     breakableFiringBts[3 * 8 + 3] = 1;
     RoomLevelData breakableFiringLevel = CreateRoom(
         8, 8, breakableFiringBlocks, breakableFiringBts);
-    SamusState breakableFiringSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
+    SamusState breakableFiringSamus = CreateSamus(SamusPoseId.FallingRightPose, 32, 56);
     breakableFiringSamus.Kinematics.YSpeed = 1;
     var breakableFiringPlms = new RoomPlmSystem();
     SamusGrappleMovement.BeginFiring(bus, breakableFiringSamus);
@@ -293,7 +293,7 @@ static void VerifySamusGrappleSwingAndRelease()
     horizontalExtensionBlocks[3 * 8 + 4] = 0xe000;
     RoomLevelData horizontalExtensionLevel = CreateRoom(
         8, 8, horizontalExtensionBlocks, horizontalExtensionBts);
-    SamusState horizontalExtensionSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
+    SamusState horizontalExtensionSamus = CreateSamus(SamusPoseId.FallingRightPose, 32, 56);
     horizontalExtensionSamus.Kinematics.YSpeed = 1;
     SamusGrappleMovement.BeginFiring(bus, horizontalExtensionSamus);
     SamusGrappleMovement.StepFiring(
@@ -316,7 +316,7 @@ static void VerifySamusGrappleSwingAndRelease()
     verticalExtensionBlocks[4 * 8 + 3] = 0xe000;
     RoomLevelData verticalExtensionLevel = CreateRoom(
         8, 8, verticalExtensionBlocks, verticalExtensionBts);
-    SamusState verticalExtensionSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
+    SamusState verticalExtensionSamus = CreateSamus(SamusPoseId.FallingRightPose, 32, 56);
     verticalExtensionSamus.Kinematics.YSpeed = 1;
     SamusGrappleMovement.BeginFiring(bus, verticalExtensionSamus);
     SamusGrappleMovement.StepFiring(
@@ -334,7 +334,7 @@ static void VerifySamusGrappleSwingAndRelease()
     solidBlocks[3 * 8 + 3] = 0x8000;
     RoomLevelData solidLevel = CreateRoom(
         8, 8, solidBlocks, new byte[solidBlocks.Length]);
-    SamusState solidCollisionSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
+    SamusState solidCollisionSamus = CreateSamus(SamusPoseId.FallingRightPose, 32, 56);
     SamusGrappleMovement.BeginFiring(bus, solidCollisionSamus);
     SamusGrappleMovement.StepFiring(
         bus, solidLevel, solidCollisionSamus, (ushort)SnesButton.X);
@@ -359,7 +359,7 @@ static void VerifySamusGrappleSwingAndRelease()
         spikeBlocks[3 * 8 + 3] = 0xa000;
         spikeBts[3 * 8 + 3] = behavior;
         RoomLevelData spikeLevel = CreateRoom(8, 8, spikeBlocks, spikeBts);
-        SamusState spikeSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
+        SamusState spikeSamus = CreateSamus(SamusPoseId.FallingRightPose, 32, 56);
         spikeSamus.Kinematics.YSpeed = 1;
         SamusGrappleMovement.BeginFiring(bus, spikeSamus);
         SamusGrappleMovement.StepFiring(
@@ -397,7 +397,7 @@ static void VerifySamusGrappleSwingAndRelease()
         endpointBts[3 * 8 + 3] = 0x0c;
         RoomLevelData endpointLevel = CreateRoom(8, 8, endpointBlocks, endpointBts);
         var endpointPlms = new RoomPlmSystem();
-        SamusState endpointSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
+        SamusState endpointSamus = CreateSamus(SamusPoseId.FallingRightPose, 32, 56);
         SamusGrappleMovement.BeginFiring(bus, endpointSamus);
         SamusGrappleMovement.StepFiring(
             bus, endpointLevel, endpointSamus, (ushort)SnesButton.X, endpointPlms);
@@ -417,7 +417,7 @@ static void VerifySamusGrappleSwingAndRelease()
     var emptyWideBlocks = new ushort[16 * 8];
     RoomLevelData emptyWideLevel = CreateRoom(
         16, 8, emptyWideBlocks, new byte[emptyWideBlocks.Length]);
-    SamusState rangeLimitedSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
+    SamusState rangeLimitedSamus = CreateSamus(SamusPoseId.FallingRightPose, 32, 56);
     SamusGrappleMovement.BeginFiring(bus, rangeLimitedSamus);
     for (int firingFrame = 0; firingFrame < 10; firingFrame++)
     {
@@ -439,7 +439,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // function call, mirroring the bank-$9B pointer change rather than disappearing early.
     var cancelledSamus = new SamusState
     {
-        Pose = SamusPoseIds.FallingRightPose,
+        Pose = SamusPoseId.FallingRightPose,
         XPosition = 32,
         YPosition = 48,
     };
@@ -492,12 +492,12 @@ static void VerifySamusGrappleSwingAndRelease()
             // Exercise the whole connection-table cross-product through real authored
             // aim/movement combinations. Immutable mechanics metadata is not test input.
             int sourcePoseIndex = Enumerable.Range(0, 253).FirstOrDefault(pose =>
-                SamusPoseDispatchDefinitions.ReadMovement((byte)pose) == (byte)sourceMovementType &&
-                SamusPoseAimDefinitions.Read((byte)pose) == direction,
+                SamusPoseDispatchDefinitions.ReadMovement((SamusPoseId)pose) == (byte)sourceMovementType &&
+                SamusPoseAimDefinitions.Read((SamusPoseId)pose) == direction,
                 -1);
             if (sourcePoseIndex < 0)
                 continue;
-            byte sourcePose = (byte)sourcePoseIndex;
+            SamusPoseId sourcePose = (SamusPoseId)sourcePoseIndex;
 
             var connectionSamus = new SamusState
             {
@@ -526,8 +526,8 @@ static void VerifySamusGrappleSwingAndRelease()
                 connectionSamus,
                 (ushort)SnesButton.X);
 
-            byte expectedPose = expectedConnectionPoses[family][direction];
-            bool expectedLocked = expectedPose is not (0xb2 or 0xb3);
+            SamusPoseId expectedPose = (SamusPoseId)expectedConnectionPoses[family][direction];
+            bool expectedLocked = expectedPose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose);
             AssertTrue(tableConnection.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked,
                 $"connection family {family} direction {direction} connects through runtime path");
             AssertEqual(expectedPose, connectionSamus.Pose,
@@ -590,7 +590,7 @@ static void VerifySamusGrappleSwingAndRelease()
     }
 
     // Preserve the original fixture record for the remaining grapple tests in this method.
-    WritePoseDefinition(bus, SamusPoseIds.FallingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseId.FallingRightPose,
         [0x08, 0x06, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
 
     // Native $80 points straight down (X=0,Y=256); $81 is (-6,+255).
@@ -622,7 +622,7 @@ static void VerifySamusGrappleSwingAndRelease()
         angularVelocity: 0,
         faceRight: true);
 
-    AssertEqual(SamusPoseIds.GrappleSwingRightPose, samus.Pose, "grapple connection pose");
+    AssertEqual(SamusPoseId.GrappleSwingRightPose, samus.Pose, "grapple connection pose");
     AssertEqual(
         SamusMovementType.Grappling,
         samus.ReadMovementType(bus),
@@ -792,7 +792,7 @@ static void VerifySamusGrappleSwingAndRelease()
     GrappleMovementResult released = SamusGrappleMovement.Step(bus, swingLevel, samus, 0, 0);
     AssertTrue(released.Phase == GrapplePhase.Inactive, "queued grapple release completes");
     AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "completed release clears grapple phase");
-    AssertEqual(SamusPoseIds.NormalJumpForwardLeftPose, samus.Pose,
+    AssertEqual(SamusPoseId.NormalJumpForwardLeftPose, samus.Pose,
         "nonnegative angular velocity selects left-facing release pose $52");
     AssertEqual(0, samus.Kinematics.YSpeed, "release pose preserves whole Y velocity");
     AssertEqual(0x0c90, samus.Kinematics.YSubspeed, "release pose preserves fractional Y velocity");
@@ -1062,7 +1062,7 @@ static void VerifySamusGrappleSwingAndRelease()
         "wall-grab special route requires nearest radial probe");
     AssertEqual(GrapplePhase.WallGrab, wallGrabSamus.Grapple.Phase,
         "special record installs `$C814` wall-grab phase");
-    AssertEqual(SamusPoseIds.GrappleWallContactRightPose, wallGrabSamus.Pose,
+    AssertEqual(SamusPoseId.GrappleWallContactRightPose, wallGrabSamus.Pose,
         "special record installs literal wall-contact pose `$B9`");
     AssertEqual(160, wallGrabSamus.XPosition,
         "wall-grab snap applies anchor-relative +24 X");
@@ -1112,7 +1112,7 @@ static void VerifySamusGrappleSwingAndRelease()
         "queued grapple wall jump starts on following function call");
     AssertEqual(GrapplePhase.Inactive, wallGrabSamus.Grapple.Phase,
         "grapple wall jump clears connected function");
-    AssertEqual(SamusPoseIds.WallJumpRightPose, wallGrabSamus.Pose,
+    AssertEqual(SamusPoseId.WallJumpRightPose, wallGrabSamus.Pose,
         "left-facing `$B9` contact reverses to wall-jump pose `$83`");
     AssertEqual(4, wallGrabSamus.Kinematics.YSpeed,
         "grapple wall jump reads dry whole speed from ROM");
@@ -1167,7 +1167,7 @@ static void VerifySamusGrappleSwingAndRelease()
         bus, specialLevel, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(dropped.Phase == GrapplePhase.Inactive && expiredWallGrabSamus.Grapple.Phase == GrapplePhase.Inactive,
         "queued dropped handler clears grapple on following call");
-    AssertEqual(SamusPoseIds.CrouchingAimDiagonalDownLeftPose, expiredWallGrabSamus.Pose,
+    AssertEqual(SamusPoseId.CrouchingAimDiagonalDownLeftPose, expiredWallGrabSamus.Pose,
         "compact dropped table preserves `$B9` diagonal-down aim");
     AssertEqual(0, expiredWallGrabSamus.Kinematics.YSpeed,
         "dropped handler clears whole vertical speed");
@@ -1199,7 +1199,7 @@ static void VerifySamusGrappleSwingAndRelease()
         "close collision enters ROM-selected locked function");
     AssertEqual(GrapplePhase.ConnectedLocked, lockedSamus.Grapple.Phase,
         "special record installs `$C77E` locked phase");
-    AssertEqual(SamusPoseIds.GrappleCrouchingDownRightPose, lockedSamus.Pose,
+    AssertEqual(SamusPoseId.GrappleCrouchingDownRightPose, lockedSamus.Pose,
         "locked special record installs pose `$B6`");
     AssertEqual(105, lockedSamus.XPosition,
         "locked snap applies signed -30 X offset");
@@ -1218,7 +1218,7 @@ static void VerifySamusGrappleSwingAndRelease()
         SamusGrappleMovement.CompleteFiringCancellation(bus, lockedLevel, lockedSamus);
     AssertTrue(lockedCancelled.Phase == GrapplePhase.Inactive && lockedCancelled.OwnsMovement,
         "connected cancellation owns pose-fallback frame");
-    AssertEqual(SamusPoseIds.CrouchingRightPose, lockedSamus.Pose,
+    AssertEqual(SamusPoseId.CrouchingRightPose, lockedSamus.Pose,
         "locked `$B6` cancellation follows definition fallback `$27`");
     AssertEqual(0, lockedSamus.Grapple.RopeLength,
         "locked cancellation clears rope state");

@@ -264,9 +264,9 @@ public readonly record struct GrappleMovementResult(
     bool WallJumpStarted = false,
     ushort? CameraPreviousX = null,
     ushort? CameraPreviousY = null,
-    byte? PendingDropPose = null,
+    SamusPoseId? PendingDropPose = null,
     GrapplePendingConnection? PendingConnection = null,
-    byte? PendingReleasePose = null);
+    SamusPoseId? PendingReleasePose = null);
 
 /// <summary>
 /// The prospective pose published by <c>HandleConnectingGrapple</c>. Bank $9B installs
@@ -278,7 +278,7 @@ public readonly record struct GrappleMovementResult(
 /// <param name="PreviousX">The previous horizontal position retained for movement resolution.</param>
 /// <param name="PreviousY">The previous vertical position retained for movement resolution.</param>
 public readonly record struct GrapplePendingConnection(
-    byte Pose,
+    SamusPoseId Pose,
     bool Swinging,
     ushort PreviousX,
     ushort PreviousY);

@@ -34,7 +34,7 @@ internal sealed class IntroBabyDiscoveryState
         // Native scene setup reuses Samus WRAM, including transition history. Standalone
         // diagnostics may start with a fresh owner, but the full intro carries it forward.
         Samus = existingSamus ?? new SamusState();
-        Samus.Pose = SamusPoseIds.FacingLeftNormalPose;
+        Samus.Pose = SamusPoseId.FacingLeftNormalPose;
         Samus.XPosition = 0x0178;
         Samus.YPosition = 0x0093;
         Samus.SelectedHudItem = 0;

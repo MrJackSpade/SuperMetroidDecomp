@@ -274,7 +274,7 @@ public sealed partial class RoomPlmSystem
     public bool TryNotifyStationCollision(
         int accessBlockIndex,
         RoomBlockBehavior behavior,
-        byte collisionPose,
+        SamusPoseId collisionPose,
         bool horizontal,
         bool movingPositive,
         int roomWidthInBlocks)
@@ -290,7 +290,7 @@ public sealed partial class RoomPlmSystem
     private bool TryNotifyStationCollision(
         int accessBlockIndex,
         RoomBlockBehavior behavior,
-        byte collisionPose,
+        SamusPoseId collisionPose,
         bool horizontal,
         bool movingPositive,
         int roomWidthInBlocks,
@@ -325,17 +325,17 @@ public sealed partial class RoomPlmSystem
                     StationAccessBehavior.EnergyRight or
                     StationAccessBehavior.MissileRight =>
                     horizontal && !movingPositive &&
-                    collisionPose == SamusPoseIds.RanIntoWallLeftPose,
+                    collisionPose == SamusPoseId.RanIntoWallLeftPose,
                 StationAccessBehavior.MapLeft or
                     StationAccessBehavior.EnergyLeft or
                     StationAccessBehavior.MissileLeft =>
                     horizontal && movingPositive &&
-                    collisionPose == SamusPoseIds.RanIntoWallRightPose,
+                    collisionPose == SamusPoseId.RanIntoWallRightPose,
                 // A foot can touch the floor trigger before the body's biased center
                 // reaches its column. Native accepts only the latter, narrower range.
                 StationAccessBehavior.SaveFloor => !horizontal && movingPositive &&
-                    (collisionPose is SamusPoseIds.FacingRightNormalPose or
-                        SamusPoseIds.FacingLeftNormalPose) &&
+                    (collisionPose is SamusPoseId.FacingRightNormalPose or
+                        SamusPoseId.FacingLeftNormalPose) &&
                     IsSaveStationTriggerCentered(slot.BlockIndex, roomWidthInBlocks),
                 _ => throw new InvalidOperationException($"Undefined station access {access}."),
             };

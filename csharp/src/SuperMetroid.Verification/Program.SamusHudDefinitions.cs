@@ -7,22 +7,22 @@ internal static partial class Program
     private static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        bool Transition(byte pose, bool active) => pose >= SamusHudRomData.StandardTransitionStart ||
+        bool Transition(SamusPoseId pose, bool active) => pose >= SamusHudRomData.StandardTransitionStart ||
             (pose < SamusHudRomData.NonFiringTransitionStart &&
-                (rom.ReadByte(SamusHudRomData.TransitionFlags + pose -
-                    SamusHudRomData.FirstTransitionPose) == 0 || active));
+                (rom.ReadByte(SamusHudRomData.TransitionFlags + (int)pose -
+                    (int)SamusHudRomData.FirstTransitionPose) == 0 || active));
         var metadata = new GrappleFiringReadGuard(rom);
         var bus = new HudPolicyReadGuard(metadata);
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         foreach (bool active in new[] { false, true })
         {
-            if (pose < SamusHudRomData.NonFiringTransitionStart)
+            if (pose < (int)SamusHudRomData.NonFiringTransitionStart)
                 AssertEqual(rom.ReadByte(SamusHudRomData.TransitionFlags + pose -
-                        SamusHudRomData.FirstTransitionPose),
-                    SamusHudDefinitions.PostureObservation((byte)pose),
+                        (int)SamusHudRomData.FirstTransitionPose),
+                    SamusHudDefinitions.PostureObservation((SamusPoseId)pose),
                     "Complete bounded posture-index observation");
-            AssertEqual(Transition((byte)pose, active),
-                SamusHudInput.PostureTransitionAdmitsWeapons((byte)pose, active),
+            AssertEqual(Transition((SamusPoseId)pose, active),
+                SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, active),
                 "Every posture pose and active-Grapple branch");
         }
         var samus = new SamusState();
@@ -38,11 +38,11 @@ internal static partial class Program
             foreach (ushort turn in new ushort[] { 0, 1, ushort.MaxValue })
             {
                 if (rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) != movement) continue;
-                metadata.SourcePose = samus.Pose = (byte)pose;
+                metadata.SourcePose = samus.Pose = (SamusPoseId)pose;
                 samus.InputLocked = locked; samus.SelectedHudItem = selected; setTurn(samus, turn);
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
                     (handler is 0xdd3d or 0xdd6f or 0xddd8 || handler == 0xdd74 && turn != 0 ||
-                        handler == 0xdd8c && Transition((byte)pose, false));
+                        handler == 0xdd8c && Transition((SamusPoseId)pose, false));
                 AssertEqual(expected, SamusGrappleHudInput.IsSelectedAndAdmitted(bus, samus), "Actual Grapple HUD admission");
             }
         }
@@ -52,10 +52,10 @@ internal static partial class Program
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         foreach (ushort turn in new ushort[] { 0, 1 })
         {
-            byte pose = (byte)poseIndex;
-            byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1);
-            metadata.SourcePose = 1; metadata.Direction = 2;
-            samus = new SamusState { Pose = 1, XPosition = 512, YPosition = 512, EquippedBeams = (ushort)SamusBeamFlags.Charge };
+            SamusPoseId pose = (SamusPoseId)poseIndex;
+            byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + (int)pose * 8 + 1);
+            metadata.SourcePose = SamusPoseId.FacingRightNormalPose; metadata.Direction = 2;
+            samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 512, YPosition = 512, EquippedBeams = (ushort)SamusBeamFlags.Charge };
             var shots = new SamusProjectileSystem();
             var bombs = new SamusBombProjectileSystem();
             for (int frame = 0; frame < 10; frame++)
@@ -64,13 +64,13 @@ internal static partial class Program
             metadata.SourcePose = samus.Pose = pose;
             setTurn(samus, turn);
             ushort handler = Word(0x90dd05 + movement * 2);
-            bool ball = pose is >= 0x1d and <= 0x1f or 0x31 or 0x32 or 0x41 or >= 0x79 and <= 0x80;
-            bool preserves = ball || pose is 0 or 0x9b || handler == 0xddb6 || handler == 0xdd74 && turn == 0 ||
+            bool ball = pose is >= SamusPoseId.MorphBallGroundRightPose and <= SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.MorphBallFallingRightPose or SamusPoseId.MorphBallFallingLeftPose or SamusPoseId.MorphBallGroundLeftPose or >= SamusPoseId.SpringBallGroundRightPose and <= SamusPoseId.SpringBallJumpLeftPose;
+            bool preserves = ball || pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose || handler == 0xddb6 || handler == 0xdd74 && turn == 0 ||
                 handler == 0xdd8c && !Transition(pose, false);
             shots.StepFrame(bus, level, samus, (ushort)SnesButton.X, 0, 0, 0, bombs);
             // An admitted nonzero turn handoff forces release before held-input charge
             // processing; with no new Shoot edge this partial charge emits no projectile.
-            AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={pose:X2} turn={turn}");
+            AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)pose:X2} turn={turn}");
             AssertTrue(shots.Slots.All(slot => !slot.IsActive), "Held partial charge does not emit shot");
         }
         AssertThrows<ArgumentOutOfRangeException>(
@@ -94,10 +94,10 @@ internal static partial class Program
         public byte ReadByte(int address)
         {
             int postureStart = SamusHudRomData.TransitionFlags -
-                SamusHudRomData.FirstTransitionPose;
+                (int)SamusHudRomData.FirstTransitionPose;
             int postureEnd = SamusHudRomData.TransitionFlags +
-                SamusHudRomData.NonFiringTransitionStart -
-                SamusHudRomData.FirstTransitionPose;
+                (int)SamusHudRomData.NonFiringTransitionStart -
+                (int)SamusHudRomData.FirstTransitionPose;
             if (address >= SamusHudRomData.MovementHandlers && address < 0x90dd3d ||
                 address >= postureStart && address < postureEnd)
                 throw new InvalidOperationException($"Compiled HUD policy read ROM ${address:X6}.");

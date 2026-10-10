@@ -12,7 +12,7 @@ internal static partial class Program
         var game = loaded.Game;
         var runtime = game.RuntimeForVerification!;
         var samus = runtime.Samus!;
-        Console.WriteLine($"room={game.GameplayActiveRoomPointer:X4} pos={samus.XPosition},{samus.YPosition} pose={samus.Pose:X2} grapple={samus.Grapple.Phase}");
+        Console.WriteLine($"room={game.GameplayActiveRoomPointer:X4} pos={samus.XPosition},{samus.YPosition} pose={(int)samus.Pose:X2} grapple={samus.Grapple.Phase}");
         Directory.CreateDirectory("csharp/test-temp/issue-376-anchored-grapple");
         PngWriterTooling.WriteRgba("csharp/test-temp/issue-376-anchored-grapple/start.png", 256, 224,
             SuperMetroidRuntimeFrameRenderer.Render(runtime));
@@ -39,7 +39,7 @@ internal static partial class Program
             game.Step((ushort)input);
             if (frame is 43 or 50 || grabbedFrames == 1)
             {
-                Console.WriteLine($"GRAPHICS frame={frame} phase={samus.Grapple.Phase} pose={samus.Pose:X2} anim={samus.AnimationFrame} top={samus.TopSpritemapIndex:X4} bottom={samus.BottomSpritemapIndex:X4} topDMA={samus.TileTransfers.TopDefinitionAddress:X6} bottomDMA={samus.TileTransfers.BottomDefinitionAddress:X6}");
+                Console.WriteLine($"GRAPHICS frame={frame} phase={samus.Grapple.Phase} pose={(int)samus.Pose:X2} anim={samus.AnimationFrame} top={samus.TopSpritemapIndex:X4} bottom={samus.BottomSpritemapIndex:X4} topDMA={samus.TileTransfers.TopDefinitionAddress:X6} bottomDMA={samus.TileTransfers.BottomDefinitionAddress:X6}");
                 PngWriterTooling.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/graphics-{frame}.png", 256, 224,
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             }
@@ -71,7 +71,7 @@ internal static partial class Program
                     "Fresh Jump must accept the real wall contact in the player's room.");
             if (grabbedFrames == 8)
                 Check(runtime.LastGrappleMovement is { WallJumpStarted: true } &&
-                    samus.Pose == SamusPoseIds.WallJumpLeftPose && samus.Grapple.Phase == GrapplePhase.Inactive,
+                    samus.Pose == SamusPoseId.WallJumpLeftPose && samus.Grapple.Phase == GrapplePhase.Inactive,
                     "Accepted grapple wall jump must detach and select the leftward wall-jump pose.");
             if (grabbedFrames is 1 or 8 or 21)
                 PngWriterTooling.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/grab-step-{grabbedFrames}.png", 256, 224,

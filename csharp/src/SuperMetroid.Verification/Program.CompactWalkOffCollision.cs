@@ -17,7 +17,7 @@ internal static partial class Program
             // that body, so F404 must shift its center and clamp its fractional word.
             var samus = new SamusState
             {
-                Pose = left ? SamusPoseIds.CrouchingLeftPose : SamusPoseIds.CrouchingRightPose,
+                Pose = left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose,
                 XPosition = 80, YPosition = 240,
             };
             samus.RefreshCollisionRadii(bus);
@@ -25,7 +25,7 @@ internal static partial class Program
             samus.Kinematics.YSubposition = 0x6400;
             samus.Kinematics.YSpeed = 2;
             samus.Kinematics.YSubspeed = 0xf400;
-            byte target = left ? SamusPoseIds.FallingLeftPose : SamusPoseIds.FallingRightPose;
+            SamusPoseId target = left ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
             samus.ApplyWalkedOffFloorTransition(bus, level, target);
             AssertEqual(0x00edffffu, samus.Kinematics.YFixed, "compact walk-off uses native floor center/subpixel correction");
             AssertEqual(target, samus.Pose, "compact walk-off selects ordinary falling art");

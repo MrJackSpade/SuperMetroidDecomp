@@ -40,7 +40,7 @@ internal static partial class Program
         }
 
         var source = new TestAddressSpace();
-        const byte testPose = SamusPoseIds.MovingRightNormalPose;
+        const SamusPoseId testPose = SamusPoseId.MovingRightNormalPose;
         var guarded = new SamusAtmosphericPolicyReadGuard(source);
 
         Suite(nameof(VerifyProductionWaterSplashSelection), () => VerifyProductionWaterSplashSelection());
@@ -89,7 +89,7 @@ internal static partial class Program
 
     private static void VerifyProductionRunningContacts(
         ISnesAddressSpace guarded,
-        byte pose)
+        SamusPoseId pose)
     {
         for (ushort frame = 0; frame < 10; frame++)
         {
@@ -116,7 +116,7 @@ internal static partial class Program
 
     private static void VerifyProductionCrateriaPolicies(
         ISnesAddressSpace guarded,
-        byte pose)
+        SamusPoseId pose)
     {
         for (byte room = 0; room < 16; room++)
         {

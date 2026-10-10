@@ -419,7 +419,7 @@ public sealed partial class RoomEnemySystem
     {
         // GoldTorizo_Main counts consecutive space-jump poses for its anti-stall leap
         // decision, then calls the same toriz_var_E dispatcher as Bomb Torizo.
-        if (samus?.Pose is SamusPoseIds.SpaceJumpRightPose or SamusPoseIds.SpaceJumpLeftPose)
+        if (samus?.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose)
             state.SamusSpaceJumpFrames = unchecked((ushort)(state.SamusSpaceJumpFrames + 1));
         else
             state.SamusSpaceJumpFrames = 0;

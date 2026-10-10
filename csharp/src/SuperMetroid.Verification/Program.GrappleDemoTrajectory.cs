@@ -33,7 +33,7 @@ internal static partial class Program
             if ((input.Script.NewlyPressed & (ushort)SnesButton.X) != 0) scriptedShots++;
             runtime.StepFrame(0, advanceGameTime: false);
             if (frame == 164)
-                AssertEqual(SamusPoseIds.NormalJumpAimDiagonalUpRightPose, samus.Pose,
+                AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpRightPose, samus.Pose,
                     "held shoulder aim survives independent grapple-release movement ownership");
             if (frame == 168)
             {

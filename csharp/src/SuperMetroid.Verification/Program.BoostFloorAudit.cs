@@ -17,7 +17,7 @@ internal static partial class Program
         var level = runtime.LevelData!;
         var samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.VariaSuit);
         samus.XPosition = 80;
         samus.YPosition = 420;

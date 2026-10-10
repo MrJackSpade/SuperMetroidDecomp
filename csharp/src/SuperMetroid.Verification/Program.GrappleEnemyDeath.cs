@@ -74,8 +74,8 @@ internal static partial class Program
     private static void VerifyGrappleDeathCleanupOrdinaryPoses()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        foreach (byte pose in new[] { SamusPoseIds.StandingAimDiagonalDownRightPose,
-            SamusPoseIds.NormalJumpForwardRightPose, SamusPoseIds.FacingRightNormalPose })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.StandingAimDiagonalDownRightPose,
+            SamusPoseId.NormalJumpForwardRightPose, SamusPoseId.FacingRightNormalPose })
         {
             var samus = CreateDropTestSamus();
             samus.Pose = pose;
@@ -103,9 +103,9 @@ internal static partial class Program
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
             var movementRoom = CreateRoom(32, 32, new ushort[32 * 32], new byte[32 * 32]);
             var result = SamusGrappleMovement.Step(retail, movementRoom, samus, 0, 0);
-            AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {pose:X2} completes grapple cleanup");
+            AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {(int)pose:X2} completes grapple cleanup");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");
-            AssertEqual(pose == SamusPoseIds.StandingAimDiagonalDownRightPose ? pose : SamusPoseIds.FacingRightNormalPose,
+            AssertEqual(pose == SamusPoseId.StandingAimDiagonalDownRightPose ? pose : SamusPoseId.FacingRightNormalPose,
                 samus.Pose, "native dropped table selects aim or standing body");
             AssertEqual(0, samus.Kinematics.YSpeed, "drop clears vertical speed");
             AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "drop clears base horizontal speed");

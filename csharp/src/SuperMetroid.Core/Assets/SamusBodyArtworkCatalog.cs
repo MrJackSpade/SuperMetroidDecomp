@@ -117,10 +117,10 @@ public sealed partial class SamusBodyArtworkCatalog
             .Where(index => bottomPointers[index] != SamusBodyDefinitionLayout.DefaultBottomPointer(index))
             .ToDictionary(index => index, index => bottomPointers[index]);
         this.posePointers = Enumerable.Range(0, posePointers.Length)
-            .Where(pose => posePointers[pose] != SamusBodyPoseDefinitions.DefaultFrameList((byte)pose))
+            .Where(pose => posePointers[pose] != SamusBodyPoseDefinitions.DefaultFrameList((SamusPoseId)pose))
             .ToDictionary(pose => pose, pose => posePointers[pose]);
         this.graphicsYOffsets = Enumerable.Range(0, graphicsYOffsets.Length)
-            .Where(index => graphicsYOffsets[index] != SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((byte)index))
+            .Where(index => graphicsYOffsets[index] != SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((SamusPoseId)index))
             .ToDictionary(index => index, index => graphicsYOffsets[index]);
         if (landingYOffsets.Any(value => value > byte.MaxValue))
             throw new InvalidDataException("Samus landing visual bytes must fit in one byte.");
@@ -186,9 +186,9 @@ public sealed partial class SamusBodyArtworkCatalog
     /// <summary>Gets the resolved lower-body definition-group pointers.</summary>
     public ReadOnlySpan<ushort> BottomSetPointers => Enumerable.Range(0, BottomSetCount).Select(index => SetPointer(false, index)).ToArray();
     /// <summary>Gets the resolved per-pose frame-list pointers.</summary>
-    public ReadOnlySpan<ushort> PosePointers => Enumerable.Range(0, PoseCount).Select(pose => PosePointer((byte)pose)).ToArray();
+    public ReadOnlySpan<ushort> PosePointers => Enumerable.Range(0, PoseCount).Select(pose => PosePointer((SamusPoseId)pose)).ToArray();
     /// <summary>Gets the resolved signed art-origin offset for every pose.</summary>
-    public ReadOnlySpan<sbyte> GraphicsYOffsets => Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset((byte)index)).ToArray();
+    public ReadOnlySpan<sbyte> GraphicsYOffsets => Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset((SamusPoseId)index)).ToArray();
     /// <summary>Native landing table, including the one adjacent byte read by an unaligned word.</summary>
     public ReadOnlySpan<ushort> LandingYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
     /// <summary>Gets the resolved posture-transition vertical-offset table.</summary>
@@ -242,9 +242,9 @@ public sealed partial class SamusBodyArtworkCatalog
         return true;
     }
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
-    public sbyte GraphicsYOffset(byte pose) =>
-        pose < PoseCount ? graphicsYOffsets.TryGetValue(pose, out sbyte value) ? value : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose) :
-            throw new InvalidDataException($"Pose ${pose:X2} has no authored graphics Y offset.");
+    public sbyte GraphicsYOffset(SamusPoseId pose) =>
+        (int)pose < PoseCount ? graphicsYOffsets.TryGetValue((int)pose, out sbyte value) ? value : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((SamusPoseId)pose) :
+            throw new InvalidDataException($"Pose ${(int)pose:X2} has no authored graphics Y offset.");
     /// <summary>Gets the resolved contiguous bank-$92 frame-selector interval.</summary>
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();
     private byte FrameComponent(int index) => frames.TryGetValue(index, out byte value)
@@ -259,14 +259,14 @@ public sealed partial class SamusBodyArtworkCatalog
     /// <summary>Gets a lower-body definition group by pointer-table index.</summary>
     public IReadOnlyList<SamusBodyTileDefinition> BottomSet(int set) => bottom[set];
 
-    private ushort PosePointer(byte pose) => posePointers.TryGetValue(pose, out ushort value)
+    private ushort PosePointer(SamusPoseId pose) => posePointers.TryGetValue((int)pose, out ushort value)
         ? value : SamusBodyPoseDefinitions.DefaultFrameList(pose);
 
     /// <summary>Resolve the cartridge's pose pointer plus four bytes per animation frame.</summary>
-    public SamusBodyFrameSelection Frame(byte pose, ushort animationFrame)
+    public SamusBodyFrameSelection Frame(SamusPoseId pose, ushort animationFrame)
     {
-        if (pose >= PoseCount)
-            throw new InvalidDataException($"Pose ${pose:X2} has no authored Samus body frame list.");
+        if ((int)pose >= PoseCount)
+            throw new InvalidDataException($"Pose ${(int)pose:X2} has no authored Samus body frame list.");
         ushort address = unchecked((ushort)(PosePointer(pose) + animationFrame * 4));
         if (address < FirstFrameOffset || address >= FrameEndOffset ||
             (address - FirstFrameOffset) % 4 != 0)

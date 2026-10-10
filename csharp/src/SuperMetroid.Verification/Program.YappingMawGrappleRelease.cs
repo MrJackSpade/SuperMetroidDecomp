@@ -40,18 +40,18 @@ internal static partial class Program
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "command three queues the C8C5 drop while held");
         AssertTrue(samus.InputLocked && maw.HasGrabbedSamus, "Maw retains input until native delay underflows");
         runtime.StepFrame(0x8210);
-        byte heldPose = samus.Pose;
+        SamusPoseId heldPose = samus.Pose;
         var heldMovement = runtime.LastGrappleMovement;
-        Console.WriteLine($"Maw drop frame: pose=${heldPose:X2}, grapple={samus.Grapple.Phase}, locked={samus.InputLocked}.");
+        Console.WriteLine($"Maw drop frame: pose=${(int)heldPose:X2}, grapple={samus.Grapple.Phase}, locked={samus.InputLocked}.");
         AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "the next grapple handler completes the queued drop");
-        AssertEqual(SamusPoseIds.FacingLeftNormalPose, heldPose, "command three drops swing to native standing pose while held");
+        AssertEqual(SamusPoseId.FacingLeftNormalPose, heldPose, "command three drops swing to native standing pose while held");
         // Only the `$9B:C8C5` drop completion publishes a deferred drop pose.
-        AssertTrue(heldMovement is { Phase: GrapplePhase.Inactive, PendingDropPose: SamusPoseIds.FacingLeftNormalPose }, "Maw uses C8C5 deferred drop, not C856 cancellation");
+        AssertTrue(heldMovement is { Phase: GrapplePhase.Inactive, PendingDropPose: SamusPoseId.FacingLeftNormalPose }, "Maw uses C8C5 deferred drop, not C856 cancellation");
         AssertTrue(!samus.InputLocked && !maw.HasGrabbedSamus, "native timer expiry releases player control");
         AssertTrue(samus.ReadMovementType(bus) != SamusMovementType.Grappling, "released Samus has an ordinary movement body");
         runtime.StepFrame(0x0250);
         AssertTrue(runtime.LastGrappleMovement is { Fired: true }, "released control accepts a new shoot edge as a new grapple");
         AssertEqual((ushort)936, samus.XPosition, "Maw release retains native held X");
-        Console.WriteLine($"  Yapping Maw grapple release: pose=${samus.Pose:X2}, position={samus.XPosition}/{samus.YPosition}, input unlocked.");
+        Console.WriteLine($"  Yapping Maw grapple release: pose=${(int)samus.Pose:X2}, position={samus.XPosition}/{samus.YPosition}, input unlocked.");
     }
 }

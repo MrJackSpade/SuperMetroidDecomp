@@ -18,7 +18,7 @@ internal static partial class Program
         var floor = new RoomLevelData(width, height, floorBlocks, new byte[floorBlocks.Length],
             new ushort[floorBlocks.Length], new byte[8]);
 
-        var samus = new SamusState { Pose = SamusPoseIds.MovingLeftNormalPose, XPosition = 48, YPosition = 43 };
+        var samus = new SamusState { Pose = SamusPoseId.MovingLeftNormalPose, XPosition = 48, YPosition = 43 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.HorizontalSpeed.ExtraRunSpeed = 2;
@@ -26,7 +26,7 @@ internal static partial class Program
         samus.PublishBombJumpDirection(1);
         AssertTrue(samus.TrySetupPublishedBombJump(bus, floor, timeIsFrozen: false, nmiFrameCounter: 0, controllerNewInput: 0),
             "a running Samus accepts the bomb jump");
-        AssertEqual(SamusPoseIds.NormalJumpForwardLeftPose, samus.Pose, "the bomb jump installs pose $52");
+        AssertEqual(SamusPoseId.NormalJumpForwardLeftPose, samus.Pose, "the bomb jump installs pose $52");
         AssertEqual(SamusHorizontalAccelerationModes.Decelerating, samus.HorizontalSpeed.AccelerationMode,
             "retained extra run speed selects deceleration");
         Console.WriteLine("  Bomb-jump run momentum: the forward-jump pose decelerates retained dash speed.");

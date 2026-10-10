@@ -34,7 +34,7 @@ internal static partial class Program
         pause.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
         AssertEqual((ushort)0x000d, samus.EquippedBeams,
             "same-frame Boots Left+A equips Wave, Spazer, and Plasma without Ice");
-        samus.Pose = 1;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.XPosition = 128;
         samus.YPosition = 128;
         samus.SelectedHudItem = 0;
@@ -64,7 +64,7 @@ internal static partial class Program
             new ushort[256], new byte[8]);
         var reactiveSamus = new SamusState
         {
-            Pose = 1,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = 128,
             YPosition = 128,
             EquippedBeams = 0x000d,
@@ -98,7 +98,7 @@ internal static partial class Program
             new ushort[256], new byte[8]);
         var doorSamus = new SamusState
         {
-            Pose = 1,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = 128,
             YPosition = 128,
             EquippedBeams = 0x000d,
@@ -347,7 +347,7 @@ internal static partial class Program
         // destination and fail loudly rather than silently choosing ordinary Wave motion.
         var chargedSamus = new SamusState
         {
-            Pose = 1,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = 128,
             YPosition = 128,
             EquippedBeams = 0x100d,

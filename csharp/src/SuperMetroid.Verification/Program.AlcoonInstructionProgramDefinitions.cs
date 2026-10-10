@@ -151,7 +151,7 @@ internal static partial class Program
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusPoseIds.FacingRightNormalPose,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = unchecked((ushort)(actor.XPosition + 1)),
             YPosition = state.LandingYPosition,
         };

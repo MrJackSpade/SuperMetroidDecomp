@@ -122,7 +122,7 @@ internal static partial class Program
                 break;
             case 1884:
                 // $8B:B90B: Rinka zero, stepped in its spawn pass, strikes Samus on native's update.
-                AssertEqual((byte)0x54, flashback!.Pose, "update 1884 Rinka knockback pose");
+                AssertEqual((byte)0x54, (byte)flashback!.Pose, "update 1884 Rinka knockback pose");
                 break;
             case 2050:
                 // $90:EB02 cleared the run's movement records, so the missile inherits nothing.

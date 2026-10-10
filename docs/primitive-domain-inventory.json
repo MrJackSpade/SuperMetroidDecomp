@@ -351,7 +351,7 @@
    {
     "file": "csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.Connection.cs",
     "line": 270,
-    "column": 38,
+    "column": 45,
     "rule": "SME6270",
     "message": "'handler' is a ushort switched over named constants of Connections; model the domain as a type",
     "status": "open"
@@ -1903,64 +1903,6 @@
     "status": "open"
    }
   ],
-  "SamusPoseIds": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs",
-    "line": 36,
-    "column": 50,
-    "rule": "SME6270",
-    "message": "'pose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusShinesparkProjectileRomData.cs",
-    "line": 22,
-    "column": 37,
-    "rule": "SME6270",
-    "message": "'pose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusShinesparkState.cs",
-    "line": 330,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'targetPose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusState.AerialTransitions.cs",
-    "line": 520,
-    "column": 27,
-    "rule": "SME6270",
-    "message": "'genericPose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs",
-    "line": 1909,
-    "column": 22,
-    "rule": "SME6270",
-    "message": "'Pose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Verification/Program.SamusTerrainMovement.cs",
-    "line": 1267,
-    "column": 29,
-    "rule": "SME6270",
-    "message": "'landingPose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Verification/Program.SamusTerrainMovement.cs",
-    "line": 1296,
-    "column": 29,
-    "rule": "SME6270",
-    "message": "'landingPose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "SamusPoseInputDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
@@ -2011,7 +1953,7 @@
    {
     "file": "csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs",
     "line": 530,
-    "column": 21,
+    "column": 28,
     "rule": "SME6270",
     "message": "'SamusSetupFor(demonstration)' is a ushort switched over named constants of SamusSetup; model the domain as a type",
     "status": "open"
@@ -2559,13 +2501,24 @@
    "consumers": "RoomPlmSystem and its families, RoomEnemySystem boss PLM requests, quicksand, Chozo statues, Kraid/Crocomire/Mother Brain/Spore Spawn/Shitroid/Botwoon PLM requests, ResourceAudit, verification",
    "tests": "VerifyRoomPlmHeaderCatalog, VerifyCompiledRoomPlmPopulationDefinitions, retail PLM header lookups, full movie replays",
    "status": "resolved"
+  },
+  "SamusPoseId": {
+   "previous": "byte SamusState.Pose and pose parameters/returns throughout Samus movement, rendering and projectiles; 219 byte aliases in SamusPoseIds; ushort pose-history words, transition-table targets and prospective/fallback poses",
+   "type": "enum SamusPoseId : byte (existing exclusive pose enum; undefined bytes remain representable by explicit cast for native out-of-range table reads)",
+   "closedProof": "Pose IDs index the bank-$91 pose definition tables; the enum names all 253 native poses plus the unused records",
+   "transitions": "pose assignment goes through SamusState.Pose (InitializeSamusPose_1 semantics unchanged)",
+   "boundary": "animation byte streams decode transitional poses at read; WRAM pose words (history, prospective) are typed as poses; $FF sentinels are SamusMovementRomData.Poses.RetainCurrentPoseFallback and NoShotDirection; pose-indexed asset tables index by the numeric value",
+   "invalidValues": "exhaustive pose switches throw on unnamed members; bounded FD..FF table reads keep their documented native observations",
+   "consumers": "SamusState and all Samus movement/rendering/projectile/grapple/x-ray/shinespark subsystems, intro demo, runtime pose commit, Bomb Torizo, HUD, Samus artwork catalogs, verification",
+   "tests": "Samus movement, aim, rendering, pose-history and pose-definition suites; full movie replays",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 258,
-  "openDomains": 172,
+  "openFindings": 251,
+  "openDomains": 171,
   "byRule": {
-   "SME6270": 258
+   "SME6270": 251
   }
  }
 }

@@ -39,7 +39,7 @@ internal static partial class Program
 
         // Production stepping walks the same order.
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 100, YPosition = 200 };
+        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 100, YPosition = 200 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         AssertTrue(samus.Xray.TryBegin(bus, samus, previousMovementType: SamusMovementType.Standing),

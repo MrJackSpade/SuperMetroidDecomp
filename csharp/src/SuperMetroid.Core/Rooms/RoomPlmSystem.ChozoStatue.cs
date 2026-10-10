@@ -20,7 +20,7 @@ public sealed partial class RoomPlmSystem
 
     /// <summary>Runs the native one-shot special-block setup; the caller still clips to solid.</summary>
     public void NotifyChozoStatueHandCollision(RoomLevelData level,
-        RoomCollisionBlock block, SamusState samus, byte collisionPose, bool movingDown)
+        RoomCollisionBlock block, SamusState samus, SamusPoseId collisionPose, bool movingDown)
     {
         bool wreckedShip = _activeAreaIndex == AreaId.WreckedShip &&
             block.Bts == ChozoStatuePlmRomData.WreckedShipHandBts;
@@ -30,8 +30,8 @@ public sealed partial class RoomPlmSystem
         // Both native setups return SEC regardless of admission. The morph-left pose
         // is deliberately absent: the cartridge explicitly lists these three poses.
         bool eligible = movingDown && collisionPose is
-            (SamusPoseIds.MorphBallGroundRightPose or
-             SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose);
+            (SamusPoseId.MorphBallGroundRightPose or
+             SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
         eligible &= wreckedShip
             ? (_coloredDoorSystem ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
                 .HasAnyBossBits(_activeAreaIndex, BossBits.AreaBoss)

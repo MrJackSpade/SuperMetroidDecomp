@@ -15,7 +15,7 @@ internal static partial class Program
         var room = CreateRoom(64, 16, new ushort[64 * 16], new byte[64 * 16]);
         var samus = new SamusState
         {
-            Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 64, YPosition = 96,
+            Pose = SamusPoseId.FacingRightNormalPose, XPosition = 64, YPosition = 96,
             SelectedHudItem = 2, SuperMissiles = 3,
         };
         SamusProjectileSystem projectiles = CreateProjectileFixture();

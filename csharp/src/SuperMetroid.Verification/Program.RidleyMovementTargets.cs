@@ -105,7 +105,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, new RidleyGrabDivisorReadGuard(rom));
         var approach = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGrabApproach", instance)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
-        var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 256, YPosition = 256 };
+        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 256, YPosition = 256 };
         for (int health = 0; health <= ushort.MaxValue; health++)
         {
             state.HealthStage = (ushort)health;

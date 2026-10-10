@@ -14,8 +14,8 @@ internal static partial class Program
         const ushort fraction = 0x2fff;
         var bus = new TestAddressSpace();
 
-        foreach (var (pose, breaks) in new (byte, bool)[]
-            { (SamusPoseIds.ScrewAttackRightPose, true), (SamusPoseIds.FacingRightNormalPose, false) })
+        foreach (var (pose, breaks) in new (SamusPoseId, bool)[]
+            { (SamusPoseId.ScrewAttackRightPose, true), (SamusPoseId.FacingRightNormalPose, false) })
         {
             var foreground = new ushort[width * height];
             for (int y = 1; y < 6; y++)
@@ -30,7 +30,7 @@ internal static partial class Program
             state.YRadius = 5;
 
             BlockMoveResult result = SamusBlockCollision.ProbeWallHorizontal(bus, level, state, 8 << 16);
-            string context = $"wall probe in pose ${pose:X2}";
+            string context = $"wall probe in pose ${(int)pose:X2}";
             AssertEqual(!breaks, result.Collided, $"{context} collision");
             AssertEqual(breaks ? fraction : (ushort)0xffff, state.XSubposition, $"{context} X fraction");
             AssertEqual((ushort)58, state.XPosition, $"{context} keeps whole-pixel X");

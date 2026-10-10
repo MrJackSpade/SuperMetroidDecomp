@@ -76,11 +76,11 @@ internal static partial class Program
         // definition and first delay byte are consumed by this focused handler fixture.
         WritePoseDefinition(
             bus,
-            SamusPoseIds.KnockbackRightPose,
+            (int)SamusPoseId.KnockbackRightPose,
             [0x08, 0x0a, 0xff, 0xff, 0x00, 0x00, 0x15, 0x00]);
         WriteTestWord(
             bus,
-            0x91b010 + SamusPoseIds.KnockbackRightPose * sizeof(ushort),
+            0x91b010 + (int)SamusPoseId.KnockbackRightPose * sizeof(ushort),
             0xc000);
         bus.WriteByte(0x91c000, 4);
 
@@ -89,30 +89,30 @@ internal static partial class Program
         // observable part of the shared knockback-finish path rather than just a pose ID.
         WritePoseDefinition(
             bus,
-            SamusPoseIds.FallingRightPose,
+            (int)SamusPoseId.FallingRightPose,
             [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
         WriteTestWord(
             bus,
-            0x91b010 + SamusPoseIds.FallingRightPose * sizeof(ushort),
+            0x91b010 + (int)SamusPoseId.FallingRightPose * sizeof(ushort),
             0xc010);
         bus.WriteBytes(0x91c010, [0x01, 0xff]);
 
         SamusState samus = CreateSamus(
-            SamusPoseIds.FacingRightNormalPose,
+            SamusPoseId.FacingRightNormalPose,
             xPosition: 100,
             yPosition: 100);
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         RoomLevelData emptyRoom = CreateEmptyRoom(32, 32);
 
-        samus.PoseHistory.PreviousPose = SamusPoseIds.FacingRightNormalPose;
+        samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
         samus.PoseHistory.PreviousDirectionAndMovement = 8;
-        samus.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpLeftPose;
+        samus.PoseHistory.LastDifferentPose = SamusPoseId.SpinJumpLeftPose;
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
         samus.CeresRidleyEjection.Request(samus);
-        AssertEqual(SamusPoseIds.SpinJumpLeftPose, samus.PoseHistory.LastDifferentPose,
+        AssertEqual(SamusPoseId.SpinJumpLeftPose, samus.PoseHistory.LastDifferentPose,
             "installing the ejection handler does not publish pose history early");
-        AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.Pose, "request does not execute gamma early");
+        AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "request does not execute gamma early");
         AssertTrue(samus.CeresRidleyEjection.IsActive, "room-main request installs Ridley ejection");
         AssertTrue(!samus.InputLocked, "installed ejection replaces movement but not pose input");
 
@@ -127,13 +127,13 @@ internal static partial class Program
             nmiFrameCounter: 0);
         AssertTrue(initializationWasPending && !samus.CeresRidleyEjection.InitializationPending,
             "first ejection gamma initializes state");
-        AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "ejection initialization shifts prior pose");
+        AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "ejection initialization shifts prior pose");
         AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "ejection initialization shifts prior metadata");
-        AssertEqual(SamusPoseIds.KnockbackRightPose, samus.PoseHistory.PreviousPose, "ejection initialization publishes hurt pose");
+        AssertEqual(SamusPoseId.KnockbackRightPose, samus.PoseHistory.PreviousPose, "ejection initialization publishes hurt pose");
         AssertEqual(0x0a08, samus.PoseHistory.PreviousDirectionAndMovement, "ejection initialization publishes hurt metadata");
         AssertEqual(xBeforeInitialization, samus.Kinematics.XFixed, "first gamma performs no horizontal movement");
         AssertEqual(yBeforeInitialization, samus.Kinematics.YFixed, "first gamma performs no vertical movement");
-        AssertEqual(SamusPoseIds.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
+        AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
         AssertEqual(1, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
         AssertEqual(5, samus.Kinematics.YSpeed, "ejection installs terminal downward speed");
         AssertSamusPosition(100, 100, samus, "first ejection gamma leaves world position unchanged");
@@ -162,7 +162,7 @@ internal static partial class Program
         // The push never sets knockback direction `$0A52`, so `$90:DDE9` has no knockback
         // to finish: the hurt pose remains for the ordinary movement handler (retail 100%
         // movie: `$53` on the wall frame, then landing `$A4`).
-        AssertEqual(SamusPoseIds.KnockbackRightPose, samus.Pose,
+        AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose,
             "wall handoff keeps the hurt pose for ordinary movement");
         AssertEqual(0, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
         AssertEqual(0, samus.Kinematics.YSpeed, "$90:DF85 clears Y speed");
@@ -175,10 +175,10 @@ internal static partial class Program
         // #1275: InitializeSamusPose_1 does not publish the hurt pose's radius, so a shove
         // that interrupts a radius-$13 airborne body raises it by 21-19 = 2 pixels and keeps
         // the live radius until the following frame's pose epilogue.
-        SamusState airborne = CreateSamus(SamusPoseIds.FallingRightPose, xPosition: 100, yPosition: 100);
+        SamusState airborne = CreateSamus(SamusPoseId.FallingRightPose, xPosition: 100, yPosition: 100);
         airborne.RefreshCollisionRadii(bus);
         airborne.InitializeAnimation(bus);
-        airborne.PoseHistory.PreviousPose = SamusPoseIds.FallingRightPose;
+        airborne.PoseHistory.PreviousPose = SamusPoseId.FallingRightPose;
         airborne.CeresRidleyEjection.Request(airborne);
         airborne.CeresRidleyEjection.Step(bus, emptyRoom, airborne, layer1X: 0, nmiFrameCounter: 0);
         AssertEqual(98, airborne.Kinematics.YPosition, "ejection alignment uses the interrupted pose's live radius");
@@ -197,7 +197,7 @@ internal static partial class Program
         var scratch = new RoomMainScratchState();
         state.Reset(active: true, scratch);
         SamusState outsideTrigger = CreateSamus(
-            SamusPoseIds.FacingRightNormalPose,
+            SamusPoseId.FacingRightNormalPose,
             xPosition: 32,
             yPosition: 100);
 
@@ -235,7 +235,7 @@ internal static partial class Program
         var triggerScratch = new RoomMainScratchState();
         trigger.Reset(active: true, triggerScratch);
         SamusState samus = CreateSamus(
-            SamusPoseIds.FacingRightNormalPose,
+            SamusPoseId.FacingRightNormalPose,
             xPosition: 113,
             yPosition: 75);
         trigger.Step(bus, samus, 0x8000, allowDeparture: false, triggerScratch);
@@ -245,7 +245,7 @@ internal static partial class Program
             trigger.Step(bus, samus, 0x8000, allowDeparture: true, triggerScratch);
         AssertTrue(requested.DepartureRequestedThisFrame, "inclusive lower Y/exclusive lower X trigger admits Samus");
         AssertTrue(samus.InputLocked, "departure trigger installs SamusCode_00 lock");
-        AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
+        AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
 
         CeresElevatorShaftRoomMainResult repeated =
             trigger.Step(bus, samus, 0x8000, allowDeparture: true, triggerScratch);

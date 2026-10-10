@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Calculated pose-origin and selected-glyph support relationships for Samus landing, posture and drained transitions.</summary>
@@ -8,9 +9,9 @@ internal static class SamusBodyPlacementDefinitions
     /// with the already calculated physical projectile correction. Installed visual
     /// overrides remain independent. FD..FF adjacent instruction observations are excluded.
     /// </summary>
-    internal static sbyte DefaultGraphicsYOffset(byte pose)
+    internal static sbyte DefaultGraphicsYOffset(SamusPoseId pose)
     {
-        if (pose >= SamusBodyArtworkCatalog.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
+        if ((int)pose >= SamusBodyArtworkCatalog.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
         return unchecked((sbyte)Game.SamusPoseProjectileOriginDefinitions.ReadYOffset(pose));
     }
     /// <summary>$90:8D28..8D37: normal/spin landing, each with right/left four-byte rows.</summary>
@@ -44,7 +45,7 @@ internal static class SamusBodyPlacementDefinitions
         if (frame > recoveryFrame) return 0;
         Game.SamusPoseId pose = frame == recoveryFrame ? Game.SamusPoseId.FacingRightNormalPose
             : spin ? Game.SamusPoseId.SpinLandingRightPose : Game.SamusPoseId.NormalLandingRightPose;
-        return unchecked((byte)DefaultGraphicsYOffset((byte)pose));
+        return unchecked((byte)DefaultGraphicsYOffset(pose));
     }
     /// <summary>$90:8D8C: selected standing-transition join one pixel above its destination support; narrowly retained visual composition.</summary>
     private const int StandingSupportJoin = -1;
@@ -97,8 +98,8 @@ internal static class SamusBodyPlacementDefinitions
         try
         {
             bool targetBottom = target != Game.SamusPoseId.MorphBallGroundRightPose;
-            if (!TryOpaqueBottom(art, (byte)pose, (ushort)frame, sourceBottom, out int sourceY) ||
-                !TryOpaqueBottom(art, (byte)target, 0, targetBottom, out int targetY)) return false;
+            if (!TryOpaqueBottom(art, pose, (ushort)frame, sourceBottom, out int sourceY) ||
+                !TryOpaqueBottom(art, target, 0, targetBottom, out int targetY)) return false;
             if (!targetBottom)
             {
                 // Rolling frames bob by one pixel in either direction. Align the
@@ -106,11 +107,11 @@ internal static class SamusBodyPlacementDefinitions
                 // initial rolling phase, rather than selecting a sampled target Y.
                 for (ushort phase = 1; phase < RollingSupportFrames; phase++)
                 {
-                    if (!TryOpaqueBottom(art, (byte)target, phase, false, out int phaseBottom)) return false;
+                    if (!TryOpaqueBottom(art, target, phase, false, out int phaseBottom)) return false;
                     targetY = Math.Max(targetY, phaseBottom);
                 }
             }
-            int offset = targetY - art.GraphicsYOffset((byte)target) - sourceY + join;
+            int offset = targetY - art.GraphicsYOffset(target) - sourceY + join;
             if (offset is < sbyte.MinValue or > sbyte.MaxValue) return false;
             value = (sbyte)offset;
             return true;
@@ -134,7 +135,7 @@ internal static class SamusBodyPlacementDefinitions
         if ((uint)index >= Game.SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         value = 0;
-        const byte pose = (byte)Game.SamusPoseId.DrainedCrouchingLeftPose;
+        const SamusPoseId pose = Game.SamusPoseId.DrainedCrouchingLeftPose;
         ushort frame;
         switch (index)
         {
@@ -164,7 +165,7 @@ internal static class SamusBodyPlacementDefinitions
                 targetY = Game.SamusPoseCollisionDefinitions.ReadVerticalRadius(pose);
             else
             {
-                const byte standing = (byte)Game.SamusPoseId.FacingLeftNormalPose;
+                const SamusPoseId standing = Game.SamusPoseId.FacingLeftNormalPose;
                 if (!TryOpaqueBottom(art, standing, 0, true, out targetY)) return false;
                 targetY -= art.GraphicsYOffset(standing);
             }
@@ -176,7 +177,7 @@ internal static class SamusBodyPlacementDefinitions
         catch (InvalidDataException) { return false; }
     }
 
-    private static bool TryOpaqueBottom(SamusBodyArtworkCatalog art, byte pose, ushort frame,
+    private static bool TryOpaqueBottom(SamusBodyArtworkCatalog art, SamusPoseId pose, ushort frame,
         bool drawBottom, out int bottom)
     {
         int windowBytes = 2 * (Game.SamusRenderingRomData.TileTransfers.BottomDestinations.Second -

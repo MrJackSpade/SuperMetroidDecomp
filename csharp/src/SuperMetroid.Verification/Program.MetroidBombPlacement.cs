@@ -18,7 +18,7 @@ internal static partial class Program
         enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
             new SnesVram(), new SnesCgram(), random.NextRandom, random.SetRandomNumber);
         var samus = new SamusState { Health = 999, MaxHealth = 999, XPosition = 128, YPosition = 128,
-            Pose = (byte)SamusPoseId.MorphBallGroundRightPose,
+            Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
@@ -96,7 +96,8 @@ internal static partial class Program
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
             (ushort)(((byte)SamusMovementType.MorphBallGround << 8) | (byte)SamusFacingDirection.Right);
-        samus.PoseHistory.LastDifferentPose = samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
+        samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
+        samus.PoseHistory.LastDifferentPose = 0;
         var target = runtime.Enemies.Slots[0];
         foreach (var other in runtime.Enemies.Slots.Skip(1)) other.Clear();
         target.XPosition = 128; target.YPosition = 145;

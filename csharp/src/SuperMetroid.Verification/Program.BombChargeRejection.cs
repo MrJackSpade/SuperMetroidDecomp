@@ -18,7 +18,7 @@ internal static partial class Program
         {
             var samus = new SamusState
             {
-                Pose = SamusPoseIds.MorphBallGroundRightPose,
+                Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall |
                     (bombsEquipped ? SamusEquipmentFlags.Bombs : 0)),
                 SelectedHudItem = powerBombSelected ? (ushort)3 : (ushort)0,
@@ -52,7 +52,7 @@ internal static partial class Program
         foreach (ushort charge in new ushort[] { 0, 1, 59, 60 })
         foreach (ushort selection in new ushort[] { 0, 3 })
         {
-            var samus = new SamusState { Pose = SamusPoseIds.MorphBallGroundRightPose,
+            var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
                 SelectedHudItem = selection, PowerBombs = 2, ProjectileFlareCounter = charge,
                 XPosition = 80, YPosition = 80 };

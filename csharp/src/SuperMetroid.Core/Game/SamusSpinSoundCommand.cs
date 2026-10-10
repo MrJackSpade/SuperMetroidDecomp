@@ -16,7 +16,7 @@ internal static class SamusSpinSoundCommand
                     ? SoundEffectLibrary1Sounds.SpaceJump : SoundEffectLibrary1Sounds.SpinJump;
         if (movement != SamusMovementType.SpinJumping)
             return null;
-        return samus.Pose is SamusPoseIds.ScrewAttackRightPose or SamusPoseIds.ScrewAttackLeftPose
+        return samus.Pose is SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose
             ? SoundEffectLibrary1Sounds.ScrewAttack
             : SamusState.IsSpaceJumpPose(samus.Pose)
                 ? SoundEffectLibrary1Sounds.SpaceJump : SoundEffectLibrary1Sounds.SpinJump;

@@ -121,7 +121,7 @@ internal static partial class Program
         samus.SelectedHudItem = weapon;
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.XPosition = 512;
         samus.YPosition = 490;
         runtime.Camera!.SetPosition(400, 350);

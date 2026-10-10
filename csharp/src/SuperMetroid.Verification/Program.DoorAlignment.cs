@@ -118,7 +118,7 @@ internal static partial class Program
             CartridgeDoorHeader? candidate = level.ResolveDoorCollision(
                 bus,
                 block.Behavior,
-                SamusPoseIds.MovingRightNormalPose,
+                SamusPoseId.MovingRightNormalPose,
                 publishDoorSideEffects: false).Door;
             if (candidate?.DestinationRoomPointer != destinationRoom)
                 continue;

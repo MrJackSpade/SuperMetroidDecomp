@@ -19,7 +19,7 @@ internal static partial class Program
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slot];
             var state = runtime.Enemies.VerticalShutterStates[slot]!;
-            samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+            samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.InputLocked = false;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
             samus.RefreshCollisionRadii(bus);

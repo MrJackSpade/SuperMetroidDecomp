@@ -12,8 +12,8 @@ internal static partial class Program
     private static void VerifyXrayWindowGeometry()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        foreach (byte pose in new[] { SamusPoseIds.FacingRightNormalPose, SamusPoseIds.FacingLeftNormalPose,
-            SamusPoseIds.CrouchingRightPose, SamusPoseIds.CrouchingLeftPose })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
+            SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })
         {
             var samus = new SamusState { Pose = pose, XPosition = 184, YPosition = 171 };
             AssertTrue(samus.Xray.TryBegin(bus, samus, samus.ReadMovementType(bus)), "geometry fixture enters native X-ray posture");

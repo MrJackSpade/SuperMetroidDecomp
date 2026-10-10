@@ -134,8 +134,8 @@ internal static partial class Program
             var samus = new SamusState
             {
                 Pose = facing == 0
-                    ? SamusPoseIds.FacingLeftNormalPose
-                    : SamusPoseIds.FacingRightNormalPose,
+                    ? SamusPoseId.FacingLeftNormalPose
+                    : SamusPoseId.FacingRightNormalPose,
                 AbsoluteMovedLastFrameXFixed = 0x00018000,
             };
             kick.Invoke(enemies, [slot, state, samus]);

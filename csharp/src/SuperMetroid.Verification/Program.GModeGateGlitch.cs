@@ -72,7 +72,7 @@ internal static partial class Program
         EnterDirectGMode(bus, samus);
         samus.XPosition = 140;
         samus.YPosition = 360;
-        samus.Pose = SamusPoseIds.FacingLeftNormalPose;
+        samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.EquippedBeams = (ushort)SamusBeamFlags.Wave;
         samus.SelectedHudItem = 0;
         samus.RefreshCollisionRadii(bus);
@@ -163,7 +163,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState
         {
-            Pose = SamusPoseIds.FacingRightNormalPose,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = 24,
             YPosition = 24,
         };
@@ -316,7 +316,7 @@ internal static partial class Program
             {
                 var result = new SamusState
                 {
-                    Pose = SamusPoseIds.FacingRightNormalPose,
+                    Pose = SamusPoseId.FacingRightNormalPose,
                     XPosition = 40,
                     YPosition = 54,
                 };
@@ -520,7 +520,7 @@ internal static partial class Program
 
     private static void EnterDirectGMode(ISnesAddressSpace bus, SamusState samus)
     {
-        samus.Pose = SamusPoseIds.FacingLeftNormalPose;
+        samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.EquippedItems = samus.EquippedItems.With(SamusEquipmentFlags.XrayScope);
         samus.Health = 0;
         samus.MaxHealth = 99;

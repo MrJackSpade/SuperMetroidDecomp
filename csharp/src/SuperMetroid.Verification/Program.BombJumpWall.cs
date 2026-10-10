@@ -10,7 +10,7 @@ internal static partial class Program
         var words = new ushort[16 * 16];
         for (int row = 0; row < 10; row++) words[row * 16 + 4] = 0x8000;
         var level = new RoomLevelData(16, 16, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
-        var samus = new SamusState { Pose = SamusPoseIds.MorphBallGroundRightPose, XPosition = 59, YPosition = 80 };
+        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, XPosition = 59, YPosition = 80 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.Kinematics.XSubposition = 0xF000;
@@ -40,7 +40,7 @@ internal static partial class Program
         var words = new ushort[32 * 16];
         words[3 * 32 + 23] = 0x8000;
         var level = new RoomLevelData(32, 16, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
-        var samus = new SamusState { Pose = SamusPoseIds.MorphBallGroundLeftPose, XPosition = 371, YPosition = 71 };
+        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundLeftPose, XPosition = 371, YPosition = 71 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.Kinematics.ExtraYDisplacement = 0xFFFF;
@@ -58,7 +58,7 @@ internal static partial class Program
 
         // The native rising helper restores pose input below one whole pixel/frame,
         // using the speed BEFORE this frame's gravity subtraction, not at the apex.
-        var hurt = new SamusState { Pose = SamusPoseIds.KnockbackRightPose, XPosition = 32, YPosition = 120 };
+        var hurt = new SamusState { Pose = SamusPoseId.KnockbackRightPose, XPosition = 32, YPosition = 120 };
         hurt.RefreshCollisionRadii(bus);
         hurt.InitializeAnimation(bus);
         hurt.PublishBombJumpDirection(2);
@@ -72,7 +72,7 @@ internal static partial class Program
         SamusBombJumpMovement.Step(bus, level, hurt, 1, new RoomPlmSystem());
         AssertTrue(!hurt.BombJumpPoseInputLocked, "fractional upward speed restores next frame's input");
         AssertTrue(hurt.BombJumpActive, "restoring input does not prematurely end upward movement");
-        AssertEqual(SamusPoseIds.KnockbackRightPose, hurt.Pose, "restoring input retains damaged pose until an actual transition");
+        AssertEqual(SamusPoseId.KnockbackRightPose, hurt.Pose, "restoring input retains damaged pose until an actual transition");
         hurt.PublishBombJumpDirection(2);
         AssertTrue(hurt.TrySetupPublishedBombJump(bus, level, false, 0, controllerNewInput: 0), "fresh bomb command rearms retained hurt pose");
         AssertTrue(hurt.BombJumpPoseInputLocked, "fresh bomb command locks input again");
@@ -80,7 +80,7 @@ internal static partial class Program
         // Damage may interrupt a humanoid bomb start before its first moving frame.
         // Native owns independent movement/input pointers: replace only the former
         // until the common hurt-expiry command restores both.
-        hurt.Pose = SamusPoseIds.NormalJumpForwardRightPose;
+        hurt.Pose = SamusPoseId.NormalJumpForwardRightPose;
         hurt.RefreshCollisionRadii(bus);
         AssertTrue(SamusKnockbackMovement.Start(bus, hurt, 0, 0), "normal hurt interrupts humanoid bomb start");
         AssertTrue(!hurt.BombJumpStarting && !hurt.BombJumpActive, "hurt replaces the bomb movement owner immediately");

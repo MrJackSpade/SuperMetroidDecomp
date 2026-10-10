@@ -47,7 +47,7 @@ internal sealed partial class InstalledSamusIsolationTests
             $"{tests.changedColors} changed CGRAM observations. No ROM, import or player data is used.");
     }
 
-    private Pair Create(byte pose = SamusPoseIds.FacingRightNormalPose,
+    private Pair Create(SamusPoseId pose = SamusPoseId.FacingRightNormalPose,
         ushort equipment = 0, ushort medium = SamusLiquidPhysicsState.Air, bool lowCeiling = false)
     {
         scenarios++;
@@ -66,7 +66,7 @@ internal sealed partial class InstalledSamusIsolationTests
         internal readonly SamusFullBodyCycleColorCatalog Cycles;
         internal readonly CrystalFlashColorCatalog Crystal;
 
-        internal Actor(InstalledSamusIsolationTests tests, bool edited, byte pose,
+        internal Actor(InstalledSamusIsolationTests tests, bool edited, SamusPoseId pose,
             ushort equipment, ushort medium, bool lowCeiling)
         {
             Body = edited ? tests.artwork.Edited : tests.artwork.Stock;
@@ -101,7 +101,7 @@ internal sealed partial class InstalledSamusIsolationTests
         private readonly InstalledSamusIsolationTests tests;
         internal Actor Stock { get; }
         internal Actor Edited { get; }
-        internal Pair(InstalledSamusIsolationTests tests, byte pose,
+        internal Pair(InstalledSamusIsolationTests tests, SamusPoseId pose,
             ushort equipment, ushort medium, bool lowCeiling)
         {
             this.tests = tests;

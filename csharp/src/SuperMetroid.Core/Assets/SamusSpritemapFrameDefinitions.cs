@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 internal static class SamusSpritemapFrameDefinitions
 {
     /// <summary>$92:8091/8151/81D1/8291: appearance lists contain96 indexed phases, including the initial body and mutable-memory slot.</summary>
-    private static int AppearancePhases => (SamusAnimationDelayDefinitions.DelayStreamsEndExclusive & ushort.MaxValue) - SamusAnimationDelayDefinitions.PointerForPose((byte)SamusPoseId.ForwardFacingPowerSuitPose) - 2;
+    private static int AppearancePhases => (SamusAnimationDelayDefinitions.DelayStreamsEndExclusive & ushort.MaxValue) - SamusAnimationDelayDefinitions.PointerForPose(SamusPoseId.ForwardFacingPowerSuitPose) - 2;
     /// <summary>$92:8095..812F: the initial electricity sequence alternates three distinct discharges with its shared empty composition.</summary>
     private const int AppearanceDischargeEnd = 80;
     /// <summary>$92:86F3/8777: upper grapple composition repeats after one32-position turn; the two final entries select its center orientation.</summary>
@@ -37,12 +37,12 @@ internal static class SamusSpritemapFrameDefinitions
         if ((uint)phase < DeathLeft - DeathRight) return Advance(DeathRightAllocation, phase, definitions, out pointer);
         phase = index - DeathLeft;
         if ((uint)phase < SamusDeathExplosionTimingDefinitions.RecordCount) return Advance(DeathLeftAllocation, phase, definitions, out pointer);
-        phase = index - SamusSpritemapPoseDefinitions.TopBase((byte)SamusPoseId.GrappleSwingRightPose);
+        phase = index - SamusSpritemapPoseDefinitions.TopBase(SamusPoseId.GrappleSwingRightPose);
         if ((uint)phase < GrappleTurnPhases)
             return phase <= 8 ? Advance(GrappleRightFirstQuadrant, 8 - phase, definitions, out pointer)
                 : phase <= 24 ? Advance(GrappleRightHalfTurn, 24 - phase, definitions, out pointer)
                 : Advance(GrappleRightLastQuadrant, 31 - phase, definitions, out pointer);
-        phase = index - SamusSpritemapPoseDefinitions.TopBase((byte)SamusPoseId.GrappleSwingLeftPose);
+        phase = index - SamusSpritemapPoseDefinitions.TopBase(SamusPoseId.GrappleSwingLeftPose);
         if ((uint)phase < GrappleTurnPhases)
             return phase < 8 ? Advance(GrappleLeftFirstQuadrant, phase, definitions, out pointer)
                 : phase < 24 ? Advance(GrappleLeftHalfTurn, phase - 8, definitions, out pointer)
@@ -60,12 +60,12 @@ internal static class SamusSpritemapFrameDefinitions
     private static bool IsControlOrOmittedHalf(int index)
     {
         int Phase(bool upper, SamusPoseId pose) => index - (upper
-            ? SamusSpritemapPoseDefinitions.TopBase((byte)pose) : SamusSpritemapPoseDefinitions.BottomBase((byte)pose));
+            ? SamusSpritemapPoseDefinitions.TopBase(pose) : SamusSpritemapPoseDefinitions.BottomBase(pose));
         bool Command(bool upper, SamusPoseId pose, int extent, int firstPhase = 0)
         {
             int phase = Phase(upper, pose);
             if ((uint)phase >= extent || phase < firstPhase) return false;
-            int pointer = SamusAnimationDelayDefinitions.PointerForPose((byte)pose);
+            int pointer = SamusAnimationDelayDefinitions.PointerForPose(pose);
             for (int cursor = 0; cursor <= phase;)
             {
                 int address = SamusMovementRomData.Banks.Pose | (pointer + cursor);
@@ -133,8 +133,8 @@ internal static class SamusSpritemapFrameDefinitions
     internal static int SourceIndex(int index)
     {
         if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount) throw new ArgumentOutOfRangeException(nameof(index));
-        int Top(SamusPoseId pose) => SamusSpritemapPoseDefinitions.TopBase((byte)pose);
-        int Bottom(SamusPoseId pose) => SamusSpritemapPoseDefinitions.BottomBase((byte)pose);
+        int Top(SamusPoseId pose) => SamusSpritemapPoseDefinitions.TopBase(pose);
+        int Bottom(SamusPoseId pose) => SamusSpritemapPoseDefinitions.BottomBase(pose);
         int Alias(bool upper, SamusPoseId target, SamusPoseId source, int count)
         {
             int targetBase = upper ? Top(target) : Bottom(target);

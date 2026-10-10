@@ -38,7 +38,7 @@ internal static partial class Program
             }
             var samus = runtime.Samus!;
             samus.InputLocked = false;
-            samus.Pose = SamusPoseIds.FacingRightNormalPose;
+            samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.XPosition = 512;
             samus.YPosition = 490;
             samus.RefreshCollisionRadii(bus);
@@ -57,7 +57,7 @@ internal static partial class Program
                 if (native is not null)
                 {
                     ushort[] actual = [samus.XPosition, samus.Kinematics.XSubposition,
-                        samus.YPosition, samus.Kinematics.YSubposition, samus.Pose,
+                        samus.YPosition, samus.Kinematics.YSubposition, (ushort)samus.Pose,
                         runtime.Camera.XPosition, runtime.Camera.YPosition,
                         shot.XPosition, shot.XSubposition, shot.YPosition, shot.YSubposition,
                         unchecked((ushort)shot.XVelocity), unchecked((ushort)shot.YVelocity), shot.Type, shot.InstructionPointer];
@@ -125,7 +125,7 @@ internal static partial class Program
         var blocks = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) blocks[31 * 16 + x] = 0x8000;
         var level = CreateRoom(16, 32, blocks, new byte[blocks.Length]);
-        var samus = new SamusState { Pose = 0x29, XPosition = 128, YPosition = 477 };
+        var samus = new SamusState { Pose = SamusPoseId.FallingRightPose, XPosition = 128, YPosition = 477 };
         samus.RefreshCollisionRadii(bus);
         AssertTrue(samus.TryApplyAerialLanding(bus, level, false, 0, 0),
             "Constructed landing reaches actual larger-pose collision correction");
@@ -139,7 +139,7 @@ internal static partial class Program
             "Native pose correction changes only previous Y, preserving both X words and previous Y fraction");
         AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous),
             "Checkpoint event is consumed once before normal scrolling replaces it");
-        var unobstructed = new SamusState { Pose = 0x29, XPosition = 128, YPosition = 400 };
+        var unobstructed = new SamusState { Pose = SamusPoseId.FallingRightPose, XPosition = 128, YPosition = 400 };
         unobstructed.RefreshCollisionRadii(bus);
         AssertTrue(unobstructed.TryApplyAerialLanding(bus, level, false, 0, 0),
             "Unobstructed pose expansion takes the no-correction branch");

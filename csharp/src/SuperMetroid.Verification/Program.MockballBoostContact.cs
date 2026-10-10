@@ -9,7 +9,7 @@ internal static partial class Program
         // The report concerns the retained boost after a mockball has landed. Exercise
         // the real moving-ball handler, then the enemy contact pass that consumes its
         // publication on the following frame, as the native alpha/beta ordering does.
-        foreach (byte pose in new[] { SamusPoseIds.MorphBallMovingRightPose, SamusPoseIds.SpringBallMovingRightPose })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.MorphBallMovingRightPose, SamusPoseId.SpringBallMovingRightPose })
         {
             var samus = new SamusState
             {
@@ -46,7 +46,7 @@ internal static partial class Program
                     System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                     .Invoke(fixture.System, new object[] { (ushort)0, (ushort)0 });
                 fixture.System.ResolveOrdinarySamusContact(samus, 0, floor);
-                AssertEqual(500, enemy.Health, $"pose {pose:X2} mockball frame {frame} inflicts native 500 boost damage");
+                AssertEqual(500, enemy.Health, $"pose {(int)pose:X2} mockball frame {frame} inflicts native 500 boost damage");
                 AssertEqual(1, speed.ContactDamageIndex, "moving ball republishes Speed Booster contact attack");
                 AssertEqual(7, speed.ExtraRunSpeed, "moving ball retains boost momentum");
             }
@@ -56,8 +56,8 @@ internal static partial class Program
             AssertEqual(0, speed.ContactDamageIndex, "sub-threshold boost does not grant a ball contact attack");
             speed.SpeedBoostCounter = 0x0401;
             speed.ContactDamageIndex = 0;
-            samus.Pose = pose == SamusPoseIds.MorphBallMovingRightPose
-                ? SamusPoseIds.MorphBallGroundRightPose : SamusPoseIds.SpringBallGroundRightPose;
+            samus.Pose = pose == SamusPoseId.MorphBallMovingRightPose
+                ? SamusPoseId.MorphBallGroundRightPose : SamusPoseId.SpringBallGroundRightPose;
             speed.AccelerationMode = 0;
             SamusMorphBallMovement.StepGrounded(fixture.Bus, floor, samus, 5);
             AssertEqual(0, speed.ContactDamageIndex, "stationary ball does not run the moving-ball boost publication");

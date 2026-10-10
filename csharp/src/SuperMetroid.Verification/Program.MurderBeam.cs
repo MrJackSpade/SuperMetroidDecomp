@@ -24,7 +24,7 @@ internal static partial class Program
             new byte[8]);
         var samus = new SamusState
         {
-            Pose = 2,
+            Pose = SamusPoseId.FacingLeftNormalPose,
             XPosition = 128,
             YPosition = 128,
             CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
@@ -205,7 +205,7 @@ internal static partial class Program
     {
         var samus = new SamusState
         {
-            Pose = 1,
+            Pose = SamusPoseId.FacingRightNormalPose,
             XPosition = 128,
             YPosition = 128,
             EquippedBeams = 0x1007,
@@ -228,7 +228,7 @@ internal static partial class Program
     {
         var samus = new SamusState
         {
-            Pose = 2,
+            Pose = SamusPoseId.FacingLeftNormalPose,
             XPosition = 128,
             YPosition = 128,
             EquippedBeams = 0x100f,
@@ -280,7 +280,7 @@ internal static partial class Program
     {
         var samus = new SamusState
         {
-            Pose = 2,
+            Pose = SamusPoseId.FacingLeftNormalPose,
             XPosition = 128,
             YPosition = 128,
             EquippedBeams = 0x100f,

@@ -19,7 +19,7 @@ internal static class RetailSaveCaptureTests
         var station = runtime.Plms.Stations.Single(s => s.Kind == StationKind.Save);
         var level = runtime.LevelData!;
         var samus = runtime.Samus!;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.AnimationFrame = 0;
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         samus.XPosition = (ushort)(station.BlockIndex % level.WidthInBlocks * 16 + 13);

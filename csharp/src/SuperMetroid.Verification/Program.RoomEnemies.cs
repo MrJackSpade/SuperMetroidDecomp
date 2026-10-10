@@ -537,7 +537,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         ripper.FlashTimer = ripper.FrozenTimer = 0;
         var touchingSamus = new SamusState
         {
-            Pose = SamusPoseIds.FacingRightNormalPose,
+            Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,
             XPosition = ripper.XPosition,
             YPosition = ripper.YPosition,
@@ -602,7 +602,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
 
     var samus = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
         XPosition = ripper.XPosition,
         YPosition = ripper.YPosition,
@@ -614,8 +614,8 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     AssertEqual(5, samus.KnockbackTimer, "Ripper contact knockback clock");
 
     if (verifyDeferredContact)
-        Console.WriteLine($"CONTACT health={samus.Health} pose={samus.Pose:X2} timer={samus.KnockbackTimer} invincibility={samus.InvincibilityTimer} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
-    AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.Pose,
+        Console.WriteLine($"CONTACT health={samus.Health} pose={(int)samus.Pose:X2} timer={samus.KnockbackTimer} invincibility={samus.InvincibilityTimer} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
+    AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose,
             "touch callback publishes request without changing the pre-movement pose");
     AssertTrue(!samus.KnockbackActive && samus.KnockbackDirection == 0,
             "touch callback does not install the later hurt movement handler");
@@ -1093,7 +1093,7 @@ static void VerifyCeresRidleyRoomEntry()
     // through the public producer and explosion owner, rather than mutating HitCounter.
     WritePoseDefinition(
         bus,
-        SamusPoseIds.FacingRightNormalPose,
+        (int)SamusPoseId.FacingRightNormalPose,
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
     WriteWord(bus, 0x9383c1, 0x8431);
     WriteWord(bus, 0x938431, 20);
@@ -1287,7 +1287,7 @@ static void VerifyCeresRidleyRoomEntry()
     // A6C8 crosses Y=$50 and publishes fight mode one.
     var samus = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
     };
     int battleEntryFrames = 0;

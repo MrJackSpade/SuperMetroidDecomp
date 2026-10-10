@@ -16,7 +16,7 @@ internal static partial class Program
             var blocks = new ushort[64 * 16];
             for (int row = 0; row < 16; row++) blocks[row * 64 + 32] = 0x8000;
             var room = CreateRoom(64, 16, blocks, new byte[blocks.Length]);
-            var samus = new SamusState { Pose = 1, XPosition = 497, YPosition = 128,
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 497, YPosition = 128,
                 SelectedHudItem = 1, Missiles = 5, MaxMissiles = 5 };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();

@@ -11,13 +11,13 @@ internal static partial class Program
     private static void VerifyMoonwalkRanIntoWall()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Pose = SamusPoseIds.MoonwalkAimUpLeftPose, XPosition = 0x00eb, YPosition = 0x00c3 };
+        var samus = new SamusState { Pose = SamusPoseId.MoonwalkAimUpLeftPose, XPosition = 0x00eb, YPosition = 0x00c3 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         AssertTrue(!samus.IsFacingLeft(bus), "moonwalk pose $75 faces right");
 
-        samus.ApplyRanIntoWallPoseChange(bus, SamusPoseIds.RanIntoWallLeftPose);
-        AssertEqual(SamusPoseIds.RanIntoWallLeftPose, samus.Pose, "the proposed left run stops in wall pose $8A");
+        samus.ApplyRanIntoWallPoseChange(bus, SamusPoseId.RanIntoWallLeftPose);
+        AssertEqual(SamusPoseId.RanIntoWallLeftPose, samus.Pose, "the proposed left run stops in wall pose $8A");
         Console.WriteLine("  Moonwalk ran into wall: a right-facing moonwalk can stop in the left-facing wall pose.");
     }
 }

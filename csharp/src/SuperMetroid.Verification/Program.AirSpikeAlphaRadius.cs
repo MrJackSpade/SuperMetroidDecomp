@@ -33,7 +33,7 @@ internal static partial class Program
 
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.XPosition = SpikeColumn * 16 + 8;
         // Radius 21 puts the top at Y 474, inside the spike row (464-479). The live radius
         // still holds the previous pose's 12, whose top (483) is in the air row below.

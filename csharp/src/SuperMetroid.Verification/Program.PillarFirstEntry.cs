@@ -31,7 +31,7 @@ internal static partial class Program
         {
             var block = level.GetCollisionBlock(x, y);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(bus, block.Behavior, 1, false);
+            var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
             if (door.Door?.DestinationRoomPointer != destination) continue;
             doorX = x; doorY = y; behavior = block.Behavior;
             break;
@@ -72,7 +72,7 @@ internal static partial class Program
             runtime.StepFrame(input);
             var heads = runtime.Enemies.Slots.Take(2).ToArray();
             var states = runtime.Enemies.NuclearWaffleStates.Where(state => state is not null).ToArray();
-            trace.WriteLine($"{frame},{samus.XPosition},{samus.YPosition},{runtime.Camera!.XPosition},{runtime.Camera.YPosition},{heads[0].XPosition},{heads[0].YPosition},{states[0]!.CurrentAngle},{heads[1].XPosition},{heads[1].YPosition},{states[1]!.CurrentAngle},{samus.Pose:X2}");
+            trace.WriteLine($"{frame},{samus.XPosition},{samus.YPosition},{runtime.Camera!.XPosition},{runtime.Camera.YPosition},{heads[0].XPosition},{heads[0].YPosition},{states[0]!.CurrentAngle},{heads[1].XPosition},{heads[1].YPosition},{states[1]!.CurrentAngle},{(int)samus.Pose:X2}");
             if (frame % 8 != 0) continue;
             var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
             var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);

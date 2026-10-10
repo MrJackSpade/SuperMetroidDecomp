@@ -83,7 +83,7 @@ public static partial class SamusGrappleMovement
     /// The release pose when <paramref name="deferPoseChange"/> leaves it for the frame's
     /// pose commit; otherwise null, the pose having been applied here.
     /// </returns>
-    private static byte? CompleteQueuedRelease(
+    private static SamusPoseId? CompleteQueuedRelease(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
@@ -96,9 +96,9 @@ public static partial class SamusGrappleMovement
         // nonnegative value selects left-facing $52; a negative value selects right $51.
         // It publishes the pose as a super-special prospective pose (command 7), which
         // bank $91 commits after this frame's hit interruption and movement.
-        byte releasePose = grapple.AngularVelocity >= 0
-            ? SamusPoseIds.NormalJumpForwardLeftPose
-            : SamusPoseIds.NormalJumpForwardRightPose;
+        SamusPoseId releasePose = grapple.AngularVelocity >= 0
+            ? SamusPoseId.NormalJumpForwardLeftPose
+            : SamusPoseId.NormalJumpForwardRightPose;
         if (!deferPoseChange)
             ApplyReleasePose(bus, samus, releasePose);
         grapple.Phase = GrapplePhase.Inactive;
@@ -116,7 +116,7 @@ public static partial class SamusGrappleMovement
     }
 
     /// <summary>Commits the <c>$9B:CB8B</c> release pose and its radius and animation.</summary>
-    internal static void ApplyReleasePose(ISnesAddressSpace bus, SamusState samus, byte releasePose)
+    internal static void ApplyReleasePose(ISnesAddressSpace bus, SamusState samus, SamusPoseId releasePose)
     {
         samus.Pose = releasePose;
         samus.RefreshCollisionRadii(bus);

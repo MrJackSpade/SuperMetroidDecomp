@@ -29,7 +29,7 @@ internal static partial class InstalledSamusArtworkTests
     {
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
-            var stock = new SamusState { Pose = (byte)pose, XPosition = 128, YPosition = 128, Health = 99 };
+            var stock = new SamusState { Pose = (SamusPoseId)pose, XPosition = 128, YPosition = 128, Health = 99 };
             var edited = new SamusState { Pose = stock.Pose, XPosition = stock.XPosition,
                 YPosition = stock.YPosition, Health = stock.Health };
             stock.RefreshCollisionRadii(memory); edited.RefreshCollisionRadii(memory);

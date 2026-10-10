@@ -14,8 +14,8 @@ internal static partial class Program
             var samus = new SamusState { XPosition = 128, YPosition = 96 };
             // Grapple contact faces the wall; its accepted wall jump reverses that pose.
             samus.Pose = grapple
-                ? facingRight ? SamusPoseIds.GrappleWallContactRightPose : SamusPoseIds.GrappleWallContactLeftPose
-                : facingRight ? (byte)0x19 : (byte)0x1a;
+                ? facingRight ? SamusPoseId.GrappleWallContactRightPose : SamusPoseId.GrappleWallContactLeftPose
+                : facingRight ? SamusPoseId.SpinJumpRightPose : SamusPoseId.SpinJumpLeftPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             var liquid = samus.LiquidPhysics;

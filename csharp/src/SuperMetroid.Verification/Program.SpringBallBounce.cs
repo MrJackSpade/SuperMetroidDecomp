@@ -15,7 +15,7 @@ internal static partial class Program
         {
             var samus = new SamusState
             {
-                Pose = SamusPoseIds.SpringBallJumpRightPose,
+                Pose = SamusPoseId.SpringBallJumpRightPose,
                 XPosition = 0x80,
                 YPosition = 0x169,
                 MorphBallBounceState = bounceState,

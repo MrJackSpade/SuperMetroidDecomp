@@ -18,7 +18,7 @@ internal static partial class Program
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
         var libraries = (ManagedSpcSoundLibrary[])typeof(ManagedSpcPlayer)
             .GetField("soundLibraries", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(renderer.Player)!;
-        var samus = new SamusState { Pose = SamusPoseIds.RanIntoWallRightPose, XPosition = 128, YPosition = 128 };
+        var samus = new SamusState { Pose = SamusPoseId.RanIntoWallRightPose, XPosition = 128, YPosition = 128 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var speed = samus.HorizontalSpeed;
@@ -70,7 +70,7 @@ internal static partial class Program
 
     private static void VerifyEchoFlagOwnership(ISnesAddressSpace bus)
     {
-        var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose };
+        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = 0x0301;

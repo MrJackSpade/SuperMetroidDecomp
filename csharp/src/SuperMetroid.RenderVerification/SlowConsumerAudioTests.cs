@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -96,7 +97,7 @@ internal static partial class SwapchainTests
                 if (tick % 40 == 39) CompareRuntimeGraphs($"room slice tick {tick}");
             }
             var positions = new HashSet<(ushort?, ushort?)>();
-            var poses = new HashSet<byte?>();
+            var poses = new HashSet<SamusPoseId?>();
             var roomBeforeMovement = legacy.GameplayActiveRoomIdentity;
             // Bounded room-local inputs: held movement, single-tick direction taps,
             // jump/shoot edges and explicit releases. No room traversal is intended.

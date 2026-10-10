@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Game;
 internal static class SamusPoseCollisionDefinitions
 {
     /// <summary>Native PoseDefinitions column at $91:B62F with eight-byte stride; FD..FF preserve bounded adjacent instruction bytes.</summary>
-    internal static byte ReadVerticalRadius(byte pose) => (SamusPoseId)pose switch
+    internal static byte ReadVerticalRadius(SamusPoseId pose) => (SamusPoseId)pose switch
     {
         SamusPoseId.MorphBallGroundRightPose or
         SamusPoseId.MorphBallMovingRightPose or

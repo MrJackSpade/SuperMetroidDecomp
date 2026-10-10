@@ -11,14 +11,14 @@ internal static partial class Program
     private static void VerifyDamageBoostJumpInitializer()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Pose = SamusPoseIds.DamageBoostLeftPose, XPosition = 0x00b6, YPosition = 0x0082 };
+        var samus = new SamusState { Pose = SamusPoseId.DamageBoostLeftPose, XPosition = 0x00b6, YPosition = 0x0082 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.HorizontalSpeed.BaseSpeed = 5;
         samus.HorizontalSpeed.AccelerationMode = SamusHorizontalAccelerationModes.Decelerating;
 
-        SamusKnockbackMovement.ApplyDamageBoostPoseTransition(bus, samus, SamusPoseIds.NeutralJumpLeftPose, 0);
-        AssertEqual(SamusPoseIds.NeutralJumpLeftPose, samus.Pose, "the boost exits to neutral jump $4E");
+        SamusKnockbackMovement.ApplyDamageBoostPoseTransition(bus, samus, SamusPoseId.NeutralJumpLeftPose, 0);
+        AssertEqual(SamusPoseId.NeutralJumpLeftPose, samus.Pose, "the boost exits to neutral jump $4E");
         AssertEqual(SamusHorizontalAccelerationModes.Accelerating, samus.HorizontalSpeed.AccelerationMode,
             "with no extra run speed the initializer selects ordinary acceleration");
         Console.WriteLine("  Damage-boost jump initializer: the exit reselects the acceleration mode.");

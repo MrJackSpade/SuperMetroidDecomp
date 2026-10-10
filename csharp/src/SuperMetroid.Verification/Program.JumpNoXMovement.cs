@@ -19,7 +19,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RedFish);
         var samus = runtime.Samus!;
         // Native state after update 366219's ceiling hit.
-        samus.Pose = SamusPoseIds.NormalJumpAimDownLeftPose;
+        samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
         samus.XPosition = 0x0225;
         samus.YPosition = 0x004a;
         samus.RefreshCollisionRadii(bus);

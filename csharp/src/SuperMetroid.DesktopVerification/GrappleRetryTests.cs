@@ -40,7 +40,7 @@ internal static partial class Program
         Check(g.Phase == GrapplePhase.WallGrabRelease && g.WallJumpTimer == 30,
             "Same-frame release/Jump must open the grace window rather than dispatch its following-frame check.");
         for (int f = 0; f < 33; f++) loaded.Game.Step((ushort)SnesButton.A);
-        Check(g.Phase == GrapplePhase.Inactive && samus.Pose != SamusPoseIds.WallJumpLeftPose,
+        Check(g.Phase == GrapplePhase.Inactive && samus.Pose != SamusPoseId.WallJumpLeftPose,
             "Holding the already-consumed Jump edge should reproduce the missed jump and expired window.");
         for (int frame = 0; frame < 180; frame++)
         {

@@ -10,7 +10,7 @@ internal static partial class Program
         var noReads = new SlopeHeightNoReadBus();
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
         // native collision radius, so the liquid threshold is that pose's bottom edge.
-        var bomb = new SamusState { Pose = SamusPoseIds.MorphBallGroundRightPose, XPosition = 128, YPosition = 128 };
+        var bomb = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, XPosition = 128, YPosition = 128 };
         int bombBottom = 128 + SamusPoseCollisionDefinitions.ReadVerticalRadius(bomb.Pose) - 1;
         int bombCases = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -42,10 +42,10 @@ internal static partial class Program
         }
 
         var poseOnly = new ImpulsePoseReadGuard(rom);
-        byte[] poses = [SamusPoseIds.FacingRightNormalPose, SamusPoseIds.FacingLeftNormalPose,
-            SamusPoseIds.MorphBallGroundRightPose, SamusPoseIds.MorphBallGroundLeftPose];
+        SamusPoseId[] poses = [SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
+            SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallGroundLeftPose];
         int hurtCases = 0;
-        foreach (byte pose in poses)
+        foreach (SamusPoseId pose in poses)
         for (int environment = 0; environment < 4; environment++)
         for (int equipment = 0; equipment < 8; equipment++)
         for (ushort side = 0; side <= 1; side++)

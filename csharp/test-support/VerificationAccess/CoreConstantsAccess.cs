@@ -3877,21 +3877,6 @@ internal static class SamusPaletteRomDataHyperBeamFxConstants
     }
 }
 
-/// <summary>Cartridge values of <see cref="SamusPoseIds"/> that only verification reads.</summary>
-internal static class SamusPoseIdsConstants
-{
-    public const byte UnusedPoseDe = (byte)SamusPoseId.UnusedPoseDe;
-    public const byte UnusedPoseDf = (byte)SamusPoseId.UnusedPoseDf;
-
-    extension(SamusPoseIds)
-    {
-        /// <inheritdoc cref="SamusPoseIdsConstants.UnusedPoseDe"/>
-        internal static byte UnusedPoseDe => SamusPoseIdsConstants.UnusedPoseDe;
-        /// <inheritdoc cref="SamusPoseIdsConstants.UnusedPoseDf"/>
-        internal static byte UnusedPoseDf => SamusPoseIdsConstants.UnusedPoseDf;
-    }
-}
-
 /// <summary>Cartridge values of <see cref="SamusProjectileRomData.Beams"/> that only verification reads.</summary>
 internal static class SamusProjectileRomDataBeamsConstants
 {

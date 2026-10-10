@@ -53,7 +53,7 @@ internal static partial class Program
     {
         var samus = runtime.Samus!;
         if (frame == 89)
-            AssertEqual(left ? SamusPoseIds.WallJumpRightPose : SamusPoseIds.WallJumpLeftPose,
+            AssertEqual(left ? SamusPoseId.WallJumpRightPose : SamusPoseId.WallJumpLeftPose,
                 samus.Pose, "real input must earn a walljump, including negative controls");
         if (timingCase < 12)
         {
@@ -62,7 +62,7 @@ internal static partial class Program
             if (frame >= 87 && frame < releaseFrame)
                 AssertEqual((ushort)71, samus.ProjectileFlareCounter, "walljump retains charge through released Shoot and morph");
             if (frame >= morphFrame && frame < morphFrame + 6)
-                AssertEqual(left ? SamusPoseIds.MorphingTransitionRightPose : SamusPoseIds.MorphingTransitionLeftPose,
+                AssertEqual(left ? SamusPoseId.MorphingTransitionRightPose : SamusPoseId.MorphingTransitionLeftPose,
                     samus.Pose, "six-frame airborne morph follows charged walljump");
             if (frame >= morphFrame + 7 && frame < releaseFrame)
                 AssertEqual((ushort)(frame - morphFrame - 6), samus.BombSpreadChargeTimeoutCounter, "walljump spread hold cadence");
@@ -80,7 +80,7 @@ internal static partial class Program
         {
             AssertEqual((ushort)0, runtime.BombProjectiles.BombCounter, "held Shoot or intervening turn prevents walljump spread");
             if (timingCase == 12 && frame == 90)
-                AssertEqual(left ? SamusPoseIds.NormalJumpGunExtendedRightPose : SamusPoseIds.NormalJumpGunExtendedLeftPose, samus.Pose,
+                AssertEqual(left ? SamusPoseId.NormalJumpGunExtendedRightPose : SamusPoseId.NormalJumpGunExtendedLeftPose, samus.Pose,
                     "held Shoot interrupts the newly earned walljump into normal jump");
             if (timingCase == 13 && frame == 95)
                 AssertEqual((ushort)0, samus.ProjectileFlareCounter, "intervening turn fires the retained charge instead of morphing");

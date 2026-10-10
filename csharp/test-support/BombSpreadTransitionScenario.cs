@@ -46,7 +46,7 @@ internal sealed class BombSpreadTransitionScenario
         }
         var samus = Samus;
         samus.InputLocked = false;
-        samus.Pose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
         samus.XPosition = 512;
@@ -84,7 +84,7 @@ internal sealed class BombSpreadTransitionScenario
 
     /// <summary>Samus row after <paramref name="frame"/> ran with <paramref name="input"/>.</summary>
     internal string Row(int frame, ushort input) =>
-        $"{(Left ? 1 : 0)},{Delay},{frame},{input:X4},{Samus.Pose:X4},{Samus.XPosition:X4},{Samus.Kinematics.XSubposition:X4},{Samus.YPosition:X4},{Samus.Kinematics.YSubposition:X4},{Samus.ProjectileFlareCounter:X4},{Samus.BombSpreadChargeTimeoutCounter:X4},{Runtime.BombProjectiles.BombCounter:X4}";
+        $"{(Left ? 1 : 0)},{Delay},{frame},{input:X4},{(int)Samus.Pose:X4},{Samus.XPosition:X4},{Samus.Kinematics.XSubposition:X4},{Samus.YPosition:X4},{Samus.Kinematics.YSubposition:X4},{Samus.ProjectileFlareCounter:X4},{Samus.BombSpreadChargeTimeoutCounter:X4},{Runtime.BombProjectiles.BombCounter:X4}";
 
     /// <summary>Whether <paramref name="frame"/> also records every bomb slot: the release window onward.</summary>
     internal bool RecordsBombs(int frame) => WallRoute ? frame >= 115 : Delay == 6 && frame >= 105;

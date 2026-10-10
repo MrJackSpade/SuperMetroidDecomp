@@ -20,9 +20,9 @@ internal static class SamusHudRomData
     /// <summary>$90:DD8C posture-transition HUD handler.</summary>
     public const ushort TransitionHandler = 0xdd8c;
     /// <summary>$90:DD9A subtracts pose $35 to index transition flags.</summary>
-    public const byte FirstTransitionPose = SamusPoseIds.CrouchingTransitionRightPose;
+    public const SamusPoseId FirstTransitionPose = SamusPoseId.CrouchingTransitionRightPose;
     /// <summary>$90:DD94 suppresses poses $DB-$F0.</summary>
-    public const byte NonFiringTransitionStart = SamusPoseIds.UnusedPoseDb;
+    public const SamusPoseId NonFiringTransitionStart = SamusPoseId.UnusedPoseDb;
     /// <summary>$90:DD8F admits poses at or above $F1 to the standard handler.</summary>
-    public const byte StandardTransitionStart = SamusPoseIds.CrouchingTransitionAimUpRightPose;
+    public const SamusPoseId StandardTransitionStart = SamusPoseId.CrouchingTransitionAimUpRightPose;
 }

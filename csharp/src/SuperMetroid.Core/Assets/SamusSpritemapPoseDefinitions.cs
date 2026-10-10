@@ -291,7 +291,7 @@ internal static class SamusSpritemapPoseDefinitions
     private const ushort TopDraygonGrabbedMovingRightBase = 0x0433;
 
     /// <summary>$92:9263 pose table: exactly253 named real-pose top-half identities.</summary>
-    internal static ushort TopBase(byte pose) => (SamusPoseId)pose switch
+    internal static ushort TopBase(SamusPoseId pose) => (SamusPoseId)pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose => TopForwardFacingPowerSuitBase,
         SamusPoseId.FacingRightNormalPose or
@@ -775,7 +775,7 @@ internal static class SamusSpritemapPoseDefinitions
     private const ushort BottomDraygonGrabbedMovingRightBase = 0x069b;
 
     /// <summary>$92:945D pose table: exactly253 named real-pose bottom-half identities.</summary>
-    internal static ushort BottomBase(byte pose) => (SamusPoseId)pose switch
+    internal static ushort BottomBase(SamusPoseId pose) => (SamusPoseId)pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose => BottomForwardFacingPowerSuitBase,
         SamusPoseId.FacingRightNormalPose or

@@ -21,20 +21,20 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Pose = SamusPoseIds.FacingLeftNormalPose;
+        samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         // Two calls left in the echo hold after the echoes finish circling Samus.
         PrivateState.SetProperty(samus.Shinespark, nameof(SamusShinesparkState.Phase), ShinesparkPhase.CrashEchoCircle);
         PrivateState.SetProperty(samus.Shinespark, nameof(SamusShinesparkState.StartStopTimer), (ushort)2);
         samus.Drained.LetFall(bus, samus);
-        AssertEqual(SamusPoseIds.DrainedCrouchingLeftPose, samus.Pose, "controller zero installs the drained pose");
+        AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, samus.Pose, "controller zero installs the drained pose");
 
         for (int frame = 0; frame < 3; frame++)
             runtime.StepFrame(0);
 
         AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "the crash runs out and finishes");
-        AssertEqual(SamusPoseIds.FacingLeftNormalPose, samus.Pose, "the finished crash stands Samus up");
+        AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose, "the finished crash stands Samus up");
         AssertEqual(DrainedSamusPhase.Inactive, samus.Drained.Phase, "normal movement replaces the drained pose's handler");
         // $90:D482 indexes its angle table with the drained pose, reading $90:D506/$D507.
         AssertEqual((ushort)0xb6, runtime.Projectiles!.Slots[3].Variable, "the first echo takes the overread angle $B6");

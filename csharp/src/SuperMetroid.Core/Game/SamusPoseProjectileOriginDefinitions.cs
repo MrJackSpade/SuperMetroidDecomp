@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Game;
 internal static class SamusPoseProjectileOriginDefinitions
 {
     /// <summary>$91:B62D PoseDefinitions Y offset, record stride eight. Beam/Grapple calculations zero-extend this byte, including the drained-pose $FC correction.</summary>
-    internal static byte ReadYOffset(byte pose) => (SamusPoseId)pose switch
+    internal static byte ReadYOffset(SamusPoseId pose) => (SamusPoseId)pose switch
     {
         SamusPoseId.SpinJumpRightPose or
         SamusPoseId.SpinJumpLeftPose or

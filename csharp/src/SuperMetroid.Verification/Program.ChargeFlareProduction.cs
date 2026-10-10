@@ -18,7 +18,11 @@ internal static partial class Program
         var placement = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
         var guarded = new ChargeFlareCompositionGuard(bus);
         int ticks = 0;
-        foreach (byte pose in new byte[] { 1, 2, 9, 10 })
+        foreach (SamusPoseId pose in new[]
+        {
+            SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
+            SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
+        })
         foreach (ushort hyper in new ushort[] { 0, 1 })
         {
             var samus = new SamusState { Pose = pose, XPosition = 100, YPosition = 100, HyperBeam = hyper };
@@ -51,7 +55,7 @@ internal static partial class Program
             var invalidSelector = Create();
             Array.Fill((ushort[])typeof(SamusProjectileSystem).GetField("_flareFrames", flags)!
                 .GetValue(invalidSelector)!, outOfTableFrame);
-            var subject = new SamusState { Pose = 1, XPosition = 100, YPosition = 100 };
+            var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 100, YPosition = 100 };
             subject.TileTransfers.BindArtwork(body);
             var outOfTableOam = new OamBuffer();
             invalidSelector.HandleChargeFlareAndDraw(
@@ -67,7 +71,7 @@ internal static partial class Program
         runtime.ChargeFlareCompositions = stock;
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.Samus!.Pose = 1;
+        runtime.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
         runtime.Samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
         runtime.Samus.InitializeAnimation(bus); runtime.Samus.PrimeGraphics(bus);

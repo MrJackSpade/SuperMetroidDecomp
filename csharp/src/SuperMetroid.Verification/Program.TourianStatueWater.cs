@@ -80,7 +80,7 @@ internal static partial class Program
         AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.BaseYPosition, "Retail statues water begins at Y=B0");
         AssertEqual(true, runtime.RoomLayer3Fx.IsRenderable, "Statue special FX must supply its water plane");
         var samus = runtime.Samus!;
-        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.XPosition = 64;
         samus.YPosition = 120;
         samus.RefreshCollisionRadii(bus);

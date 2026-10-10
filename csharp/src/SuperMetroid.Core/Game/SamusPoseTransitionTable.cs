@@ -47,7 +47,7 @@ public static class SamusPoseTransitionTable
         ushort held = (ushort)(canonicalHeldInput & ~StartAndSelectMask);
         ushort newlyPressed = (ushort)(canonicalNewInput & ~StartAndSelectMask);
 
-        if (!SamusPoseInputDefinitions.TryGetPointer(currentPose, out ushort tablePointer))
+        if (!SamusPoseInputDefinitions.TryGetPointer(currentPose, out SamusPoseInputList tablePointer))
         {
             throw new InvalidDataException(
                 $"Pose ${(int)currentPose:X2} has no authored input-transition graph; " +

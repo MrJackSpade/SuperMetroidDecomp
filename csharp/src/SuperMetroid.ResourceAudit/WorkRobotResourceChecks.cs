@@ -30,7 +30,7 @@ internal static class WorkRobotResourceChecks
         }
         var document = new EnemyProjectileSpritemapDocument
         {
-            Version = EnemyProjectileSpritemapDefinitions.Version,
+            Version = (int)EnemyProjectileSpritemapVersion.Current,
             Frames = frames, ProgramFrames = programs,
         };
         EnemyProjectileSpritemapCatalog stock = Load(document);
@@ -53,7 +53,7 @@ internal static class WorkRobotResourceChecks
         }];
         var legacy = document with
         {
-            Version = EnemyProjectileSpritemapDefinitions.PreWorkRobotVersion,
+            Version = (int)EnemyProjectileSpritemapVersion.PreWorkRobot,
             ProgramFrames = legacyPrograms,
         };
         EnemyProjectileSpritemapCatalog merged = Load(legacy, stock);

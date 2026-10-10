@@ -667,28 +667,41 @@ public sealed partial class RoomEnemySystem
         if (!IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer))
             return false;
 
+        // The shared interpreter hands every remaining negative word here; only
+        // these ninja opcodes belong to this handler.
+        if ((SpacePirateInstruction)opcode is not (
+            SpacePirateInstruction.PirateWall_FunctionInY or
+            SpacePirateInstruction.PirateNinja_PaletteIndexInY or
+            SpacePirateInstruction.PirateNinja_QueueSoundInY_Lib2_Max6 or
+            SpacePirateInstruction.PirateNinja_SpawnClawProjWithThrowDirSpawnOffset or
+            SpacePirateInstruction.PirateNinja_SetFunction0FAC_Active or
+            SpacePirateInstruction.PirateNinja_ResetSpeed or
+            SpacePirateInstruction.PirateNinja_SetLeftDivekickJumpInitialYSpeed or
+            SpacePirateInstruction.PirateNinja_SetRightDivekickJumpInitialYSpeed))
+            return false;
+
         NinjaSpacePirateEnemyState state = RequireNinjaSpacePirateState(slot);
-        switch (opcode)
+        switch ((SpacePirateInstruction)opcode)
         {
-            case SpacePirateInstructionCodes.Instruction_PirateWall_FunctionInY:
+            case SpacePirateInstruction.PirateWall_FunctionInY:
                 state.Function = (NinjaSpacePirateFunction)ReadEnemyInstructionMechanicsWord(
                     slot,
                     unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
-            case SpacePirateInstructionCodes.Instruction_PirateNinja_PaletteIndexInY:
+            case SpacePirateInstruction.PirateNinja_PaletteIndexInY:
                 slot.PaletteIndex = ReadEnemyInstructionMechanicsWord(
                     slot,
                     unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
-            case SpacePirateInstructionCodes.Instruction_PirateNinja_QueueSoundInY_Lib2_Max6:
+            case SpacePirateInstruction.PirateNinja_QueueSoundInY_Lib2_Max6:
                 LastSpacePirateSoundEffect = ReadEnemyInstructionMechanicsWord(
                     slot,
                     unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
-            case SpacePirateInstructionCodes.Instruction_PirateNinja_SpawnClawProjWithThrowDirSpawnOffset:
+            case SpacePirateInstruction.PirateNinja_SpawnClawProjWithThrowDirSpawnOffset:
                 SpawnNinjaPirateClaw(
                     slot,
                     state,
@@ -697,7 +710,7 @@ public sealed partial class RoomEnemySystem
                     ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 6))));
                 cursor = unchecked((ushort)(cursor + 8));
                 return true;
-            case SpacePirateInstructionCodes.Instruction_PirateNinja_SetFunction0FAC_Active:
+            case SpacePirateInstruction.PirateNinja_SetFunction0FAC_Active:
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
@@ -712,20 +725,20 @@ public sealed partial class RoomEnemySystem
                 // after the idle animation explicitly installed the no-op function.
                 cursor = state.ActiveInstruction;
                 return true;
-            case SpacePirateInstructionCodes.Instruction_PirateNinja_ResetSpeed:
+            case SpacePirateInstruction.PirateNinja_ResetSpeed:
                 state.Speed = 0;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case SpacePirateInstructionCodes.Instruction_PirateNinja_SetLeftDivekickJumpInitialYSpeed:
+            case SpacePirateInstruction.PirateNinja_SetLeftDivekickJumpInitialYSpeed:
                 InitializeNinjaPirateDive(state, movingRight: false);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case SpacePirateInstructionCodes.Instruction_PirateNinja_SetRightDivekickJumpInitialYSpeed:
+            case SpacePirateInstruction.PirateNinja_SetRightDivekickJumpInitialYSpeed:
                 InitializeNinjaPirateDive(state, movingRight: true);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             default:
-                return false;
+                throw new InvalidOperationException($"Ninja Space Pirate does not own instruction ${opcode:X4}.");
         }
     }
 

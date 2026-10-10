@@ -46,30 +46,32 @@ public sealed partial class RoomPlmSystem
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM has no live Samus owner.");
 
-        switch (slot.PreInstruction)
+        SpeedBoosterEscapePreInstruction preInstruction =
+            ClosedNativeWords.Decode<SpeedBoosterEscapePreInstruction>(
+                slot.PreInstruction, "Speed Booster escape pre-instruction");
+        switch (preInstruction)
         {
-            case 0:
+            case SpeedBoosterEscapePreInstruction.None:
                 return;
 
-            case SpeedBoosterEscapePlmRomData.WaitForSpeedBoosterPreInstruction:
+            case SpeedBoosterEscapePreInstruction.WaitForSpeedBooster:
                 RunWaitForSpeedBooster(slot, samus, fx);
                 return;
 
-            case SpeedBoosterEscapePlmRomData.WaitForSamusLeftPreInstruction:
+            case SpeedBoosterEscapePreInstruction.WaitForSamusLeft:
                 if (samus.XPosition > SpeedBoosterEscapePlmRomData.StartFxMotionSamusX)
                     return;
                 fx.ApplyCartridgeMotionWrites(timer: 1);
                 WakeAtNextInstruction(slot);
                 return;
 
-            case SpeedBoosterEscapePlmRomData.AdvanceLavaPreInstruction:
+            case SpeedBoosterEscapePreInstruction.AdvanceLava:
                 RunAdvanceLava(slot, samus, fx);
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Speed Booster escape PLM installed unknown pre-instruction " +
-                    $"$84:{slot.PreInstruction:X4}.");
+                throw new InvalidOperationException(
+                    $"Undefined Speed Booster escape pre-instruction {preInstruction}.");
         }
     }
 

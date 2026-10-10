@@ -147,12 +147,12 @@ internal static partial class Program
             RoomEnemyProjectileKind kind,
             ushort parameter)
         {
-            ushort definition = kind switch
+            NoobTubeProjectileDefinition definition = kind switch
             {
-                RoomEnemyProjectileKind.NoobTubeCrack => NoobTubePlmRomData.CrackProjectile,
-                RoomEnemyProjectileKind.NoobTubeShard => NoobTubePlmRomData.ShardProjectile,
+                RoomEnemyProjectileKind.NoobTubeCrack => NoobTubeProjectileDefinition.Crack,
+                RoomEnemyProjectileKind.NoobTubeShard => NoobTubeProjectileDefinition.Shard,
                 RoomEnemyProjectileKind.NoobTubeReleasedAirBubble =>
-                    NoobTubePlmRomData.ReleasedAirBubbleProjectile,
+                    NoobTubeProjectileDefinition.ReleasedAirBubble,
                 _ => throw new ArgumentOutOfRangeException(nameof(kind)),
             };
             system.SpawnNoobTubeProjectile(

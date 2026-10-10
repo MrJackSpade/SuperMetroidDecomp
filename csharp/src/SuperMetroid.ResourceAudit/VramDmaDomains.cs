@@ -99,9 +99,9 @@ internal static class VramDmaDomains
         foreach (var state in RoomStateSelectionDefinitions.GetStatePointers(room.Pointer).Select(RoomStateDefinitions.Get)
                      .Where(state => ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback)))
         {
-            int table = state.MainCallback == RoomMainCallback.ScrollingSkyOcean
-                ? RoomFxRomData.ScrollingSky.OceanChunkPointerTableAddress
-                : RoomFxRomData.ScrollingSky.LandChunkPointerTableAddress;
+            ScrollingSkyChunkTable table = state.MainCallback == RoomMainCallback.ScrollingSkyOcean
+                ? ScrollingSkyChunkTable.Ocean
+                : ScrollingSkyChunkTable.Land;
             int logicalCount = room.WidthInScreens * room.HeightInScreens;
             bool blueBottom = unchecked((short)state.ScrollPointer) >= 0
                 ? (byte)(state.ScrollPointer + 1) == (byte)RoomScrollState.Blue

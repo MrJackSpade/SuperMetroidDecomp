@@ -25,7 +25,7 @@ public static class PaletteFxDeleteProgramMechanicsDefinitions
     {
         if (pointer is CinematicDelete or EmptyRoomEffect)
         {
-            value = PaletteFxInstructionCodes.Delete;
+            value = (ushort)PaletteFxInstruction.Delete;
             return true;
         }
 

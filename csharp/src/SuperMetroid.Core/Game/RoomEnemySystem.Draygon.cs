@@ -69,7 +69,7 @@ public sealed partial class RoomEnemySystem
                 if (part.SlotIndex != 1)
                     throw new InvalidDataException("Draygon's eye must own native slot $0040.");
                 part.CurrentInstruction = DraygonInstructionProgramDefinitions.EyeFacingLeftIdle;
-                part.VariableA = 0x804b; // Literal RTS until the body publishes facing AI.
+                part.VariableA = (ushort)DraygonEyeFunction.Inert; // Inert until the body publishes facing AI.
                 state.Eye = part;
                 return;
 
@@ -214,19 +214,20 @@ public sealed partial class RoomEnemySystem
         if (part.EnemyDefinitionPointer != EnemyDefinitionId.DraygonEye)
             throw new InvalidDataException("Draygon part dispatcher received another family.");
 
-        switch (part.VariableA)
+        DraygonEyeFunction function = ClosedNativeWords.Decode<DraygonEyeFunction>(
+            part.VariableA, "Draygon eye function");
+        switch (function)
         {
-            case DraygonCodePointers.RTS_A5804B:
+            case DraygonEyeFunction.Inert:
                 return;
-            case DraygonCodePointers.Function_DraygonEye_FacingLeft:
+            case DraygonEyeFunction.FacingLeft:
                 TrackSamusWithDraygonEye(part, samus, facingRight: false);
                 return;
-            case DraygonCodePointers.Function_DraygonEye_FacingRight:
+            case DraygonEyeFunction.FacingRight:
                 TrackSamusWithDraygonEye(part, samus, facingRight: true);
                 return;
             default:
-                throw new InvalidDataException(
-                    $"Draygon eye function $A5:{part.VariableA:X4} is not translated.");
+                throw new InvalidOperationException($"Undefined Draygon eye function {function}.");
         }
     }
 
@@ -838,14 +839,17 @@ public sealed partial class RoomEnemySystem
         ushort instruction,
         ref ushort cursor)
     {
-        if (!IsDraygonDefinition(slot.EnemyDefinitionPointer))
+        // The shared interpreter hands every remaining negative word here; only
+        // Draygon's private opcodes belong to this handler.
+        if (!IsDraygonDefinition(slot.EnemyDefinitionPointer) ||
+            !Enum.IsDefined((DraygonInstruction)instruction))
             return false;
 
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon instruction ran without encounter state.");
-        switch (instruction)
+        switch ((DraygonInstruction)instruction)
         {
-            case DraygonCodePointers.Instruction_Draygon_SetInstList_Body_Eye_Tail_Arms:
+            case DraygonInstruction.Draygon_SetInstList_Body_Eye_Tail_Arms:
                 state.Body.CurrentInstruction =
                     ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
                 state.Eye!.CurrentInstruction =
@@ -859,13 +863,13 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 10));
                 return true;
 
-            case DraygonCodePointers.Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDraw:
-            case DraygonCodePointers.Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDrawDuplicate:
+            case DraygonInstruction.Draygon_RoomLoadingInterruptCmd_BeginHUDDraw:
+            case DraygonInstruction.Draygon_RoomLoadingInterruptCmd_BeginHUDDrawDuplicate:
                 state.RoomLoadingIrqCommand = 0x000c;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case DraygonCodePointers.Instruction_Draygon_EyeFunctionInY:
+            case DraygonInstruction.Draygon_EyeFunctionInY:
                 if (state.Eye is null)
                     throw new InvalidDataException("Draygon eye-function opcode ran before eye load.");
                 state.Eye.VariableA = ReadEnemyInstructionMechanicsWord(
@@ -873,13 +877,13 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case DraygonCodePointers.Instruction_Draygon_FunctionInY:
+            case DraygonInstruction.Draygon_FunctionInY:
                 slot.VariableA = ReadEnemyInstructionMechanicsWord(
                     slot, unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case DraygonCodePointers.Instruction_DraygonBody_DisplaceGraphics:
+            case DraygonInstruction.DraygonBody_DisplaceGraphics:
                 state.BodyGraphicsXDisplacement =
                     ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
                 state.BodyGraphicsYDisplacement =
@@ -887,74 +891,74 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 6));
                 return true;
 
-            case DraygonCodePointers.Instruction_Draygon_QueueSFXInY_Lib2_Max6:
+            case DraygonInstruction.Draygon_QueueSFXInY_Lib2_Max6:
                 state.LastSoundLibrary2 =
                     ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case DraygonCodePointers.Instruction_Draygon_QueueSFXInY_Lib3_Max6:
+            case DraygonInstruction.Draygon_QueueSFXInY_Lib3_Max6:
                 state.LastSoundLibrary3 =
                     ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case DraygonCodePointers.Inst_Draygon_SpawnDyingDraygonSpriteObject_BigDustCloud:
+            case DraygonInstruction.Draygon_SpawnDyingDraygonSpriteObject_BigDustCloud:
                 SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.DustCloud);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case DraygonCodePointers.Inst_Draygon_SpawnDyingDraygonSpriteObject_SmallExplosion:
+            case DraygonInstruction.Draygon_SpawnDyingDraygonSpriteObject_SmallExplosion:
                 SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.SporeSpawnDyingExplosion);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case DraygonCodePointers.Inst_Draygon_SpawnDyingDraygonSpriteObject_BigExplosion:
+            case DraygonInstruction.Draygon_SpawnDyingDraygonSpriteObject_BigExplosion:
                 SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.BotwoonLargeExplosion);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case DraygonCodePointers.Inst_Draygon_SpawnDyingDraygonSpriteObject_BreathBubbles:
+            case DraygonInstruction.Draygon_SpawnDyingDraygonSpriteObject_BreathBubbles:
                 SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.DraygonBreathBubble);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case DraygonCodePointers.Instruction_Draygon_ParalyseDraygonTailAndArms:
+            case DraygonInstruction.Draygon_ParalyseDraygonTailAndArms:
                 InstallDraygonInstruction(state.Tail!, DraygonInstructionProgramDefinitions.Sleep);
                 InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.Sleep);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case DraygonCodePointers.Instruction_DraygonBody_SetAsIntangible:
+            case DraygonInstruction.DraygonBody_SetAsIntangible:
                 state.Body.Properties =
                     state.Body.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case DraygonCodePointers.Instruction_Draygon_BodyFunctionInY:
+            case DraygonInstruction.Draygon_BodyFunctionInY:
                 state.Function = (DraygonAiFunction)ReadEnemyInstructionMechanicsWord(
                     slot,
                     unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case DraygonCodePointers.Instruction_DraygonTail_TailWhipHit:
+            case DraygonInstruction.DraygonTail_TailWhipHit:
                 ApplyDraygonTailWhipHit(state, samus);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case DraygonCodePointers.Instruction_Draygon_SpawnGoop_Leftwards:
+            case DraygonInstruction.Draygon_SpawnGoop_Leftwards:
                 SpawnDraygonGoop(state, movingRight: false);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case DraygonCodePointers.Instruction_Draygon_SpawnGoop_Rightwards:
+            case DraygonInstruction.Draygon_SpawnGoop_Rightwards:
                 SpawnDraygonGoop(state, movingRight: true);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined Draygon instruction ${instruction:X4}.");
         }
     }
 }

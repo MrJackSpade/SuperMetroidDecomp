@@ -149,21 +149,23 @@ public sealed partial class RoomPlmSystem
         if (slot.Gate is null)
             return;
 
-        bool wake = slot.PreInstruction switch
+        DownwardGatePreInstruction preInstruction = ClosedNativeWords.Decode<DownwardGatePreInstruction>(
+            slot.PreInstruction, "downward gate pre-instruction");
+        bool wake = preInstruction switch
         {
-            0 or DownwardGatePreInstructionCodes.Inert => false,
-            DownwardGatePreInstructionCodes.WakeIfTriggered => slot.LoopTimer != 0,
-            DownwardGatePreInstructionCodes.WakeIfTriggeredOrSamusBelow =>
+            DownwardGatePreInstruction.None or DownwardGatePreInstruction.Inert => false,
+            DownwardGatePreInstruction.WakeIfTriggered => slot.LoopTimer != 0,
+            DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow =>
                 slot.LoopTimer != 0 || IsSamusInsideDownwardGateColumn(slot),
-            _ => throw new InvalidDataException(
-                $"Downward gate reached untranslated pre-instruction $84:{slot.PreInstruction:X4}."),
+            _ => throw new InvalidOperationException(
+                $"Undefined downward gate pre-instruction {preInstruction}."),
         };
         if (!wake)
             return;
 
         slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
         slot.InstructionTimer = 1;
-        slot.PreInstruction = DownwardGatePreInstructionCodes.Inert;
+        slot.PreInstruction = (ushort)DownwardGatePreInstruction.Inert;
     }
 
     private bool IsSamusInsideDownwardGateColumn(PlmSlot slot)

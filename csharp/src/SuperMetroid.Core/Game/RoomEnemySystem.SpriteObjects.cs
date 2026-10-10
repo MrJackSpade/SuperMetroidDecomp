@@ -183,20 +183,22 @@ public sealed partial class RoomEnemySystem
 
     private static void ProcessRoomSpriteObjectOpcode(RoomSpriteObjectSlot slot)
     {
-        switch (slot.InstructionTimer)
+        RoomSpriteObjectInstruction instruction = ClosedNativeWords.Decode<RoomSpriteObjectInstruction>(
+            slot.InstructionTimer, "room sprite-object instruction");
+        switch (instruction)
         {
-            case RoomSpriteObjectInstructionProgramDefinitions.RepeatLast:
+            case RoomSpriteObjectInstruction.RepeatLast:
                 // Repeat-last backs up to the timed record that preceded the opcode and
                 // pins its timer at $7FFF. Its already selected spritemap remains visible.
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer - 4));
                 slot.InstructionTimer = 0x7fff;
                 return;
 
-            case RoomSpriteObjectInstructionProgramDefinitions.Terminate:
+            case RoomSpriteObjectInstruction.Terminate:
                 slot.Clear();
                 return;
 
-            case RoomSpriteObjectInstructionProgramDefinitions.Goto:
+            case RoomSpriteObjectInstruction.Goto:
                 slot.InstructionPointer =
                     RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(
                         unchecked((ushort)(slot.InstructionPointer + 2)));
@@ -212,9 +214,8 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Sprite-object instruction $B4:{slot.InstructionTimer:X4} at " +
-                    $"$B4:{slot.InstructionPointer:X4} is not translated.");
+                throw new InvalidOperationException(
+                    $"Undefined sprite-object instruction {instruction} at $B4:{slot.InstructionPointer:X4}.");
         }
     }
 

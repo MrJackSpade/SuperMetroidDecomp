@@ -70,15 +70,16 @@ public static class NintendoLogoFadePaletteFxProgramMechanicsDefinitions
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        value = pointer switch
+        // Word positions are byte offsets from BootLogoEntry.
+        value = (pointer - BootLogoEntry) switch
         {
-            BootLogoEntry => PaletteFxInstructionCodes.SetColorIndex,
-            BootLogoEntry + 2 => BootLogoColorByteIndex,
-            DeleteInstructionPointer => PaletteFxInstructionCodes.Delete,
-            CopyrightEntry => PaletteFxInstructionCodes.SetColorIndex,
-            CopyrightEntry + 2 => CopyrightColorByteIndex,
-            CopyrightGotoInstructionPointer => PaletteFxInstructionCodes.Goto,
-            CopyrightGotoInstructionPointer + 2 => FirstFramePointer,
+            0 => (ushort)PaletteFxInstruction.SetColorIndex,
+            2 => BootLogoColorByteIndex,
+            DeleteInstructionPointer - BootLogoEntry => (ushort)PaletteFxInstruction.Delete,
+            CopyrightEntry - BootLogoEntry => (ushort)PaletteFxInstruction.SetColorIndex,
+            CopyrightEntry + 2 - BootLogoEntry => CopyrightColorByteIndex,
+            CopyrightGotoInstructionPointer - BootLogoEntry => (ushort)PaletteFxInstruction.Goto,
+            CopyrightGotoInstructionPointer + 2 - BootLogoEntry => FirstFramePointer,
             _ => 0,
         };
         if (value != 0)
@@ -90,7 +91,7 @@ public static class NintendoLogoFadePaletteFxProgramMechanicsDefinitions
             value = offset switch
             {
                 0 => FrameDuration,
-                FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+                FrameByteCount - sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

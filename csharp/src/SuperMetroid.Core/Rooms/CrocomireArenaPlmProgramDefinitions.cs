@@ -34,13 +34,14 @@ internal static class CrocomireArenaPlmProgramDefinitions
         {
             0 => 1,
             4 => (ushort)RoomPlmInstruction.Delete,
-            _ => (address - 2) switch
+            // The five six-byte lists draw, in order, the five arena layouts.
+            _ => (relative / 6) switch
             {
-                ClearBridge => CrocomireArenaPlmDrawDefinitions.ClearBridge,
-                CrumbleBridgeBlock => CrocomireArenaPlmDrawDefinitions.CrumbleBridgeBlock,
-                ClearBridgeBlock => CrocomireArenaPlmDrawDefinitions.ClearBridgeBlock,
-                ClearInvisibleWall => CrocomireArenaPlmDrawDefinitions.ClearInvisibleWall,
-                CreateInvisibleWall => CrocomireArenaPlmDrawDefinitions.CreateInvisibleWall,
+                0 => (ushort)CrocomireArenaDraw.ClearBridge,
+                1 => (ushort)CrocomireArenaDraw.CrumbleBridgeBlock,
+                2 => (ushort)CrocomireArenaDraw.ClearBridgeBlock,
+                3 => (ushort)CrocomireArenaDraw.ClearInvisibleWall,
+                4 => (ushort)CrocomireArenaDraw.CreateInvisibleWall,
                 _ => throw new InvalidOperationException("Invalid bounded Crocomire program."),
             },
         };

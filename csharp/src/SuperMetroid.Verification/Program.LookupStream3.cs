@@ -398,7 +398,7 @@ internal static partial class Program
             {
                 ushort position = Read(cursor + 2);
                 ushort glyph = Read(0x8c0000 | (Read(cursor + 4) + 4));
-                expected.Add(new(position & 255, position >> 8, glyph, glyph == IntroNarrationDefinitions.BlankCharacterWord));
+                expected.Add(new(position & 255, position >> 8, glyph, glyph == (ushort)IntroNarrationSymbolWord.Blank));
                 cursor += 6;
             }
             AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
@@ -3630,13 +3630,13 @@ internal static partial class Program
         {
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | (entry.DefinitionPointer + 2)), entry.ProgramStart,
                 "native definition selects exact semantic program entry");
-            AssertEqual(PaletteFxInstructionCodes.SetColorIndex, ReadVerificationWord(rom, 0x8d0000 | entry.ProgramStart),
+            AssertEqual((ushort)PaletteFxInstruction.SetColorIndex, ReadVerificationWord(rom, 0x8d0000 | entry.ProgramStart),
                 "each entry sets its own CGRAM slot");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 2)), entry.ColorByteIndex,
                 "each entry preserves the native CGRAM byte index");
             if (entry.BranchesToSharedBody)
             {
-                AssertEqual(PaletteFxInstructionCodes.Goto, ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 4)),
+                AssertEqual((ushort)PaletteFxInstruction.Goto, ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 4)),
                     "copyright actually branches");
                 AssertEqual(NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FirstFramePointer,
                     ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 6)), "copyright branch target");

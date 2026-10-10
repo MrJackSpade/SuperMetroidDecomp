@@ -135,8 +135,8 @@ internal static class PlmProgramContractChecks
         Word(RoomPlmInstructionLists.PermanentPowerBombBlock + 7, 2);
         Word(RoomPlmInstructionLists.PermanentPowerBombBlock + 11, 1);
         Word(EnemyBreakableTerrainDefinitions.InstructionList, (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum3);
-        Word(RoomPlmInstructionLists.CrumbleReveal1x1 + 2, RoomPlmBombedRevealDrawDefinitions.CrumbleSingle);
-        Word(RoomPlmInstructionLists.BombedPowerBombBlockUnused + 2, RoomPlmBombedRevealDrawDefinitions.PowerBomb);
+        Word(RoomPlmInstructionLists.CrumbleReveal1x1 + 2, (ushort)RoomPlmBombedRevealDraw.CrumbleSingle);
+        Word(RoomPlmInstructionLists.BombedPowerBombBlockUnused + 2, (ushort)RoomPlmBombedRevealDraw.PowerBomb);
         Word(EscapeAnimalPlmRomData.ReactionList + 17, EscapeAnimalPlmDrawDefinitions.Blank);
         Word(EscapeAnimalPlmRomData.ReactionList + 19, (ushort)RoomPlmInstruction.SetAnimalsEscapedEvent);
         Require(EscapeAnimalPlmDrawDefinitions.TryGet(EscapeAnimalPlmDrawDefinitions.Blank, out var wall) &&

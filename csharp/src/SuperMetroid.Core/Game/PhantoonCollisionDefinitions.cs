@@ -9,6 +9,32 @@ internal readonly record struct PhantoonCollisionComponent(short X, short Y, ush
 internal readonly record struct PhantoonCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
+/// <summary>The Phantoon BG2 frames whose collision differs from the single inert point.</summary>
+internal enum PhantoonCollisionFrame : ushort
+{
+    /// <summary>Body with its complete five-rectangle hitbox, $A7:DEE7.</summary>
+    BodyFullHitbox = 0xdee7,
+    /// <summary>Body with only the vulnerable eye hitbox, $A7:DEF1.</summary>
+    BodyEyeHitboxOnly = 0xdef1,
+    /// <summary>First two-component tentacle frame, $A7:DFB3.</summary>
+    Tentacles0 = 0xdfb3,
+    /// <summary>Second two-component tentacle frame, $A7:DFC5.</summary>
+    Tentacles1 = 0xdfc5,
+    /// <summary>Third two-component tentacle frame, $A7:DFD7.</summary>
+    Tentacles2 = 0xdfd7,
+}
+
+/// <summary>Phantoon's three bank-$A7 hitbox lists.</summary>
+internal enum PhantoonHitboxList : ushort
+{
+    /// <summary>$A7:E020, the one-point no-op hitbox used by hidden parts.</summary>
+    Point = 0xe020,
+    /// <summary>$A7:E02E, Phantoon's five-rectangle full body.</summary>
+    FullBody = 0xe02e,
+    /// <summary>$A7:E06C, the single vulnerable eye rectangle.</summary>
+    EyeOnly = 0xe06c,
+}
+
 /// <summary>
 /// Phantoon's three hitbox lists at $A7:E020, $E02E, and $E06C, separate from
 /// its editable BG2 frames. The 22 frame roots at $A7:DEDD-$DFFD have zero
@@ -16,12 +42,6 @@ internal readonly record struct PhantoonCollisionHitbox(
 /// </summary>
 internal static class PhantoonCollisionDefinitions
 {
-    /// <summary>$A7:E020, the one-point no-op hitbox used by hidden parts.</summary>
-    internal const ushort PointList = 0xe020;
-    /// <summary>$A7:E02E, Phantoon's five-rectangle full body.</summary>
-    internal const ushort FullBodyList = 0xe02e;
-    /// <summary>$A7:E06C, the single vulnerable eye rectangle.</summary>
-    internal const ushort EyeOnlyList = 0xe06c;
     /// <summary>$A7:DD95, Phantoon's active touch callback.</summary>
     internal const ushort TouchAi = 0xdd95;
     /// <summary>$A7:DD9B, Phantoon's active shot callback.</summary>
@@ -63,29 +83,29 @@ internal static class PhantoonCollisionDefinitions
     {
         if (!PhantoonBg2FrameDefinitions.IsFrame(pointer))
             throw new InvalidDataException($"Phantoon frame $A7:{pointer:X4} has no compiled hitbox identity.");
-        return pointer switch
+        // Every other frame carries one inert point component.
+        if (!Enum.IsDefined((PhantoonCollisionFrame)pointer))
+            return new(PhantoonHitboxList.Point, 1);
+        return (PhantoonCollisionFrame)pointer switch
         {
-            PhantoonBg2FrameDefinitions.BodyFullHitbox => new(FullBodyList, 1),
-            PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly => new(EyeOnlyList, 1),
-            PhantoonBg2FrameDefinitions.Tentacles0 or
-                PhantoonBg2FrameDefinitions.Tentacles1 or
-                PhantoonBg2FrameDefinitions.Tentacles2 => new(PointList, 2),
-            _ => new(PointList, 1),
+            PhantoonCollisionFrame.BodyFullHitbox => new(PhantoonHitboxList.FullBody, 1),
+            PhantoonCollisionFrame.BodyEyeHitboxOnly => new(PhantoonHitboxList.EyeOnly, 1),
+            PhantoonCollisionFrame.Tentacles0 or
+                PhantoonCollisionFrame.Tentacles1 or
+                PhantoonCollisionFrame.Tentacles2 => new(PhantoonHitboxList.Point, 2),
+            _ => throw new InvalidOperationException($"Undefined Phantoon collision frame $A7:{pointer:X4}."),
         };
     }
 
-    internal static HitboxSequence HitboxesAt(ushort pointer) => pointer switch
-    {
-        PointList or FullBodyList or EyeOnlyList => new(pointer),
-        _ => throw new InvalidDataException($"Phantoon hitbox list $A7:{pointer:X4} is not compiled."),
-    };
+    internal static HitboxSequence HitboxesAt(ushort pointer) =>
+        new(ClosedNativeWords.Decode<PhantoonHitboxList>(pointer, "Phantoon hitbox list"));
 
     /// <summary>Native frame components use their actor origin; tentacle frames have two inert components.</summary>
-    internal readonly struct ComponentSequence(ushort list, int count) : IReadOnlyList<PhantoonCollisionComponent>
+    internal readonly struct ComponentSequence(PhantoonHitboxList list, int count) : IReadOnlyList<PhantoonCollisionComponent>
     {
         public int Count => count;
         public PhantoonCollisionComponent this[int index] => (uint)index < Count
-            ? new(0, 0, list) : throw new IndexOutOfRangeException();
+            ? new(0, 0, (ushort)list) : throw new IndexOutOfRangeException();
         public IEnumerator<PhantoonCollisionComponent> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -94,16 +114,16 @@ internal static class PhantoonCollisionDefinitions
     }
 
     /// <summary>$A7:E06C repeats the full body's eye rectangle at $A7:E03C; hidden lists use a no-op point.</summary>
-    internal readonly struct HitboxSequence(ushort list) : IReadOnlyList<PhantoonCollisionHitbox>
+    internal readonly struct HitboxSequence(PhantoonHitboxList list) : IReadOnlyList<PhantoonCollisionHitbox>
     {
-        public int Count => list == FullBodyList ? RequiredVerticalBounds.Length : 1;
+        public int Count => list == PhantoonHitboxList.FullBody ? RequiredVerticalBounds.Length : 1;
         public PhantoonCollisionHitbox this[int index]
         {
             get
             {
                 if ((uint)index >= Count) throw new IndexOutOfRangeException();
-                if (list == PointList) return new(0, 0, 0, 0, EnemyAiCodePointers.BankA0.NoOp, EnemyAiCodePointers.BankA0.NoOp);
-                return BodyHitbox(list == EyeOnlyList ? 1 : index);
+                if (list == PhantoonHitboxList.Point) return new(0, 0, 0, 0, EnemyAiCodePointers.BankA0.NoOp, EnemyAiCodePointers.BankA0.NoOp);
+                return BodyHitbox(list == PhantoonHitboxList.EyeOnly ? 1 : index);
             }
         }
         public IEnumerator<PhantoonCollisionHitbox> GetEnumerator()

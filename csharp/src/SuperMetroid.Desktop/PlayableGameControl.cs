@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
@@ -885,28 +886,31 @@ public sealed partial class PlayableGameControl : UserControl
     }
 
     /// <summary>
-    /// Names the practical Ceres-to-Bombs playthrough slice. Unknown rooms remain fully
-    /// reportable by address in the caption, so extending this table never gates gameplay.
+    /// Caption names for the practical Ceres-to-Bombs playthrough slice. This is a partial
+    /// label table over all 262 room headers: unnamed rooms remain fully reportable by
+    /// address in the caption, so extending the table never gates gameplay.
     /// </summary>
-    private static string GetKnownRoomName(ushort roomPointer) => roomPointer switch
+    private static readonly FrozenDictionary<ushort, string> KnownRoomNames = new Dictionary<ushort, string>
     {
-        RoomHeaderPointers.LandingSite => "Landing Site",
-        RoomHeaderPointers.ParlorAndAlcatraz => "Parlor and Alcatraz",
-        RoomHeaderPointers.Climb => "Climb",
-        RoomHeaderPointers.PitRoom => "Pit Room",
-        RoomHeaderPointers.BombTorizoRoom => "Bomb Torizo Room",
-        RoomHeaderPointers.Flyway => "Flyway",
-        RoomHeaderPointers.MorphBallRoom => "Morph Ball Room",
-        RoomHeaderPointers.ConstructionZone => "Construction Zone",
-        RoomHeaderPointers.BlueBrinstarEnergyTankRoom => "Blue Brinstar Energy Tank Room",
-        RoomHeaderPointers.CeresElevatorShaft => "Ceres Elevator Shaft",
-        RoomHeaderPointers.CeresFallingTileRoom => "Ceres Falling Tile Room",
-        RoomHeaderPointers.CeresMagnetStairs => "Ceres Magnet Stairs",
-        RoomHeaderPointers.CeresDeadScientistRoom => "Ceres Dead Scientist Room",
-        RoomHeaderPointers.CeresFinalHallway => "Ceres Final Hallway",
-        RoomHeaderPointers.CeresRidleyRoom => "Ceres Ridley Room",
-        _ => "Room",
-    };
+        [RoomHeaderPointers.LandingSite] = "Landing Site",
+        [RoomHeaderPointers.ParlorAndAlcatraz] = "Parlor and Alcatraz",
+        [RoomHeaderPointers.Climb] = "Climb",
+        [RoomHeaderPointers.PitRoom] = "Pit Room",
+        [RoomHeaderPointers.BombTorizoRoom] = "Bomb Torizo Room",
+        [RoomHeaderPointers.Flyway] = "Flyway",
+        [RoomHeaderPointers.MorphBallRoom] = "Morph Ball Room",
+        [RoomHeaderPointers.ConstructionZone] = "Construction Zone",
+        [RoomHeaderPointers.BlueBrinstarEnergyTankRoom] = "Blue Brinstar Energy Tank Room",
+        [RoomHeaderPointers.CeresElevatorShaft] = "Ceres Elevator Shaft",
+        [RoomHeaderPointers.CeresFallingTileRoom] = "Ceres Falling Tile Room",
+        [RoomHeaderPointers.CeresMagnetStairs] = "Ceres Magnet Stairs",
+        [RoomHeaderPointers.CeresDeadScientistRoom] = "Ceres Dead Scientist Room",
+        [RoomHeaderPointers.CeresFinalHallway] = "Ceres Final Hallway",
+        [RoomHeaderPointers.CeresRidleyRoom] = "Ceres Ridley Room",
+    }.ToFrozenDictionary();
+
+    private static string GetKnownRoomName(ushort roomPointer) =>
+        KnownRoomNames.TryGetValue(roomPointer, out string? name) ? name : "Room";
 
     private ushort BuildControllerWord()
     {

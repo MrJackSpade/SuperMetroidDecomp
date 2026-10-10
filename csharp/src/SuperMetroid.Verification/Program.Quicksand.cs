@@ -159,7 +159,7 @@ internal static partial class Program
             }
             AssertEqual(actual, QuicksandDefinitions.ResolveReaction((PlmHeaderId)header), "quicksand allocator resolution");
             ushort native = ReadBotwoonInstructionWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
-            AssertEqual(native, instruction ? actual.InstructionListPointer : actual.SetupPointer,
+            AssertEqual(native, instruction ? actual.InstructionListPointer : (ushort)actual.SetupPointer,
                 $"quicksand header {(int)header:X4} instruction {instruction}");
         }
     }
@@ -224,7 +224,7 @@ internal static partial class Program
             AssertEqual(true, bts.UsesAreaReactionTable, "special-air BTS sign selects area dispatch");
             AssertEqual((byte)index, bts.AreaReactionIndex, "special-air BTS clears its sign bit");
             SpecialAirReactionDefinition actual = resolve(area, bts.AreaReactionIndex);
-            AssertEqual(expected, setup ? actual.SetupPointer : (ushort)actual.HeaderPointer,
+            AssertEqual(expected, setup ? (ushort)actual.SetupPointer : (ushort)actual.HeaderPointer,
                 $"special-air {nativePointers:X6} area {rawArea} index {index} setup {setup}");
         }
     }

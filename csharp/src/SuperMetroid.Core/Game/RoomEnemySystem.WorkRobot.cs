@@ -270,37 +270,37 @@ public sealed partial class RoomEnemySystem
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpRight:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserDefinitions.UpRight,
+                    slot, state, next, WorkRobotLaser.UpRight,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserUpRight,
                     cameraX, cameraY);
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpLeft:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserDefinitions.UpLeft,
+                    slot, state, next, WorkRobotLaser.UpLeft,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserUpLeft,
                     cameraX, cameraY);
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserRight:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserDefinitions.Horizontal,
+                    slot, state, next, WorkRobotLaser.Horizontal,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserRight,
                     cameraX, cameraY);
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserLeft:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserDefinitions.Horizontal,
+                    slot, state, next, WorkRobotLaser.Horizontal,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserLeft,
                     cameraX, cameraY);
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownRight:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserDefinitions.DownRight,
+                    slot, state, next, WorkRobotLaser.DownRight,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserDownRight,
                     cameraX, cameraY);
                 return true;
             case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownLeft:
                 cursor = TryFireWorkRobotLaser(
-                    slot, state, next, WorkRobotLaserDefinitions.DownLeft,
+                    slot, state, next, WorkRobotLaser.DownLeft,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserDownLeft,
                     cameraX, cameraY);
                 return true;
@@ -380,7 +380,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot robot,
         WorkRobotEnemyState state,
         ushort nextCursor,
-        ushort projectileDefinition,
+        WorkRobotLaser projectileDefinition,
         ushort firingInstruction,
         ushort cameraX,
         ushort cameraY)

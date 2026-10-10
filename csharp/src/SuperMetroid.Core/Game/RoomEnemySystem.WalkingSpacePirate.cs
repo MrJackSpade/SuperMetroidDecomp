@@ -426,6 +426,15 @@ public sealed partial class RoomEnemySystem
         return projectile;
     }
 
+    /// <summary>The two bank-$86 Space Pirate/Mother Brain laser movement callbacks.</summary>
+    private enum PirateLaserPreInstruction : ushort
+    {
+        /// <summary>$86:A05C: move left, then camera cull.</summary>
+        Left = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left,
+        /// <summary>$86:A07A: move right, then camera cull.</summary>
+        Right = EnemyProjectileCodePointers.PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right,
+    }
+
     /// <summary>Runs pre-instructions $86:A05C/$A07A and exact 256x256 camera deletion.</summary>
     private static void RunPirateMotherBrainLaserPreInstruction(
         RoomEnemyProjectileSlot projectile,
@@ -436,15 +445,13 @@ public sealed partial class RoomEnemySystem
                 WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) == 0)
             ? WalkingPirateFastLaserPixelsPerFrame
             : WalkingPirateSlowLaserPixelsPerFrame;
-        projectile.XPosition = projectile.PreInstruction switch
+        PirateLaserPreInstruction direction = ClosedNativeWords.Decode<PirateLaserPreInstruction>(
+            projectile.PreInstruction, $"{projectile.Kind} laser pre-instruction");
+        projectile.XPosition = direction switch
         {
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left =>
-                unchecked((ushort)(projectile.XPosition - pixels)),
-            EnemyProjectileCodePointers.PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right =>
-                unchecked((ushort)(projectile.XPosition + pixels)),
-            _ => throw new InvalidOperationException(
-                $"Projectile {projectile.Kind} entered laser movement with " +
-                $"pre-instruction $86:{projectile.PreInstruction:X4}."),
+            PirateLaserPreInstruction.Left => unchecked((ushort)(projectile.XPosition - pixels)),
+            PirateLaserPreInstruction.Right => unchecked((ushort)(projectile.XPosition + pixels)),
+            _ => throw new InvalidOperationException($"Undefined laser pre-instruction {direction}."),
         };
 
         ushort right = unchecked((ushort)(cameraX + 256));

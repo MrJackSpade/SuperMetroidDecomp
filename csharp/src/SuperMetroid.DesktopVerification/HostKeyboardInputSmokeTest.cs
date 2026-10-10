@@ -20,16 +20,16 @@ public static class HostKeyboardInputSmokeTest
         // shoulder bindings used for diagonal Shinespark admission.
         if (HostControlHelp.KeyboardShoulders != "Q: aim down (L)  |  W: aim up (R)")
             throw new InvalidDataException("Shoulder help reversed the native default aim bindings.");
-        keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyDownMessage, Keys.Space);
-        keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyDownMessage, Keys.W);
+        keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.Space);
+        keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.W);
         if (keyboard.BuildControllerWord(SnesButton.None) != (ushort)(SnesButton.A | SnesButton.R))
             throw new InvalidDataException("Space+W must reach gameplay as Jump+AimUp under native defaults.");
-        keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyUpMessage, Keys.W);
-        keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyDownMessage, Keys.Q);
+        keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyUp, Keys.W);
+        keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.Q);
         if (keyboard.BuildControllerWord(SnesButton.None) != (ushort)(SnesButton.A | SnesButton.L))
             throw new InvalidDataException("Space+Q must reach gameplay as Jump+AimDown under native defaults.");
         keyboard.Clear();
-        if (!keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyDownMessage, Keys.Enter))
+        if (!keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.Enter))
             throw new InvalidDataException("Enter keydown escaped the gameplay key preview.");
 
         ushort pressed = keyboard.BuildControllerWord(SnesButton.None);
@@ -39,7 +39,7 @@ public static class HostKeyboardInputSmokeTest
                 $"Enter produced controller ${pressed:X4}; expected Start-only $1000.");
         }
 
-        if (!keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyUpMessage, Keys.Enter))
+        if (!keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyUp, Keys.Enter))
             throw new InvalidDataException("Enter keyup escaped the gameplay key preview.");
         ushort released = keyboard.BuildControllerWord(SnesButton.None);
         if (released != 0)
@@ -50,7 +50,7 @@ public static class HostKeyboardInputSmokeTest
         // form. Model both stale producers: Right remains in the event-owned keyboard set,
         // while A remains in the polled gamepad word.
         var activation = new HostInputActivationGate();
-        keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyDownMessage, Keys.Right);
+        keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.Right);
         ushort jumpAndRight = (ushort)(SnesButton.A | SnesButton.Right);
         if (activation.Filter(keyboard.BuildControllerWord(SnesButton.A)) != jumpAndRight)
             throw new InvalidDataException("Active host input was unexpectedly suppressed.");

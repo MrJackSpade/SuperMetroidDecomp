@@ -10,7 +10,7 @@ internal static class TextAndMapClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterDefinitions.cs", "E81816E00AB6B6844553D5797955DBD1156A8E0E7D744BEE6EDC646B8B06813A")]),
         new("SuperMetroid.Core.Assets.IntroNarrationPresentation", "narration-complete-compiled-pages", ["GetLines", "Compile"],
             [new("csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs", "A449A81F05E2FD96D57A25F8C025B967F96ADE1549B75B91A2B1CD17B85EB62B"),
-             new("csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs", "879C461D18B2E677ABE61C1EC82295DD469A409F4FB7F03774CA4ECCE45AB2F1")]),
+             new("csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs", "B834E985A30B202CBDB52E33423DE4186727DA9B381BF7A0465DCB6DA3F42E2D")]),
         new("SuperMetroid.Core.Assets.EndingTextPresentation", "ending-text-complete-panels-and-sequences", ["Compile", "BuildResultPanel", "BuildCopyrightPanel"],
             [new("csharp/src/SuperMetroid.Core/Assets/EndingTextLayoutDefinitions.cs", "074F2620779C3BBC8BFD6E8FE4F6E6139BFC1CE133B63F1029173D5B3544FC38"),
              new("csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs", "25CDF798FAF98261DBE7D50D707B75FC466F30F595D15CAF8C4EC938D5F75E91"),

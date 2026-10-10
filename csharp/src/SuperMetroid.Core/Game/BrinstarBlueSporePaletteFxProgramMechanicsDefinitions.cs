@@ -134,13 +134,13 @@ public sealed class BrinstarBlueSporePaletteFxProgramDefinition
         int setupOffset = pointer - ProgramStart;
         ushort? setupWord = setupOffset switch
         {
-            0 when DeletesWithAreaMiniBoss => PaletteFxInstructionCodes.SetPreInstruction,
+            0 when DeletesWithAreaMiniBoss => (ushort)PaletteFxInstruction.SetPreInstruction,
             2 when DeletesWithAreaMiniBoss =>
-                PaletteFxPreInstructionCodes.DeleteWhenAreaMiniBossDies,
-            4 when DeletesWithAreaMiniBoss => PaletteFxInstructionCodes.SetColorIndex,
+                (ushort)PaletteFxPreInstruction.DeleteWhenAreaMiniBossDies,
+            4 when DeletesWithAreaMiniBoss => (ushort)PaletteFxInstruction.SetColorIndex,
             6 when DeletesWithAreaMiniBoss =>
                 BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
-            0 => PaletteFxInstructionCodes.SetColorIndex,
+            0 => (ushort)PaletteFxInstruction.SetColorIndex,
             2 => BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorByteIndex,
             _ => null,
         };
@@ -152,7 +152,7 @@ public sealed class BrinstarBlueSporePaletteFxProgramDefinition
 
         if (pointer == LoopInstructionPointer)
         {
-            value = PaletteFxInstructionCodes.Goto;
+            value = (ushort)PaletteFxInstruction.Goto;
             return true;
         }
         if (pointer == unchecked((ushort)(LoopInstructionPointer + sizeof(ushort))))
@@ -175,7 +175,7 @@ public sealed class BrinstarBlueSporePaletteFxProgramDefinition
                 BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameByteCount -
                 sizeof(ushort))))
             {
-                value = PaletteFxInstructionCodes.Wait;
+                value = (ushort)PaletteFxInstruction.Wait;
                 return true;
             }
         }

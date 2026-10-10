@@ -1,12 +1,13 @@
 using static SuperMetroid.Core.Game.CanonicalPoseButtons;
 using static SuperMetroid.Core.Game.SamusPoseInputDefinitions;
+using static SuperMetroid.Core.Game.SamusPoseInputList;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Ordered native pose-input decisions; the first satisfied chord wins.</summary>
 internal static class SamusPoseInputRulesEarly
 {
-    internal static SamusPoseInputMatch Match(ushort pointer, ushort held, ushort newlyPressed) => pointer switch
+    internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, ushort held, ushort newlyPressed) => pointer switch
     {
         EmptyTransitionList => MatchEmptyTransitionList(),
         ForwardFacingPowerSuitPoseList => MatchForwardFacingPowerSuitPoseList(held),
@@ -51,7 +52,7 @@ internal static class SamusPoseInputRulesEarly
         KnockbackLeftPoseList => MatchKnockbackLeftPoseList(held),
         UnusedPose5BList => MatchUnusedPose5BList(held),
         UnusedPose5CList => MatchUnusedPose5CList(held),
-        _ => throw new InvalidOperationException($"Unknown compiled pose-input list ${pointer:X4}."),
+        _ => throw new InvalidOperationException($"Pose-input list {pointer} belongs to the other rule section."),
     };
 
     /// <summary>$91:A0DC TransitionTable list for pose $2F: native priority order.</summary>

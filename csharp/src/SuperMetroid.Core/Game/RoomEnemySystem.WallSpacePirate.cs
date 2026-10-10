@@ -384,10 +384,25 @@ public sealed partial class RoomEnemySystem
         if (!IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer))
             return false;
 
+        // The shared interpreter hands every remaining negative word here; only
+        // these wall-Pirate opcodes belong to this handler.
+        if ((SpacePirateInstruction)opcode is not (
+            SpacePirateInstruction.PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Left or
+            SpacePirateInstruction.PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Right or
+            SpacePirateInstruction.PirateWall_RandomlyChooseADirection_LeftWall or
+            SpacePirateInstruction.PirateWall_RandomlyChooseADirection_RightWall or
+            SpacePirateInstruction.PirateWall_PrepareWallJumpToRight or
+            SpacePirateInstruction.PirateWall_PrepareWallJumpToLeft or
+            SpacePirateInstruction.PirateWall_FireLaserLeft or
+            SpacePirateInstruction.PirateWall_FireLaserRight or
+            SpacePirateInstruction.PirateWall_FunctionInY or
+            SpacePirateInstruction.PirateWall_QueueSpacePirateAttackSFX))
+            return false;
+
         WallSpacePirateEnemyState state = RequireWallSpacePirateState(slot);
-        switch (opcode)
+        switch ((SpacePirateInstruction)opcode)
         {
-            case SpacePirateInstructionCodes.Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Left:
+            case SpacePirateInstruction.PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Left:
                 MoveWallSpacePirateAndReverseOnCollision(
                     slot,
                     state,
@@ -399,7 +414,7 @@ public sealed partial class RoomEnemySystem
                     ref cursor);
                 return true;
 
-            case SpacePirateInstructionCodes.Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Right:
+            case SpacePirateInstruction.PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Right:
                 MoveWallSpacePirateAndReverseOnCollision(
                     slot,
                     state,
@@ -411,48 +426,48 @@ public sealed partial class RoomEnemySystem
                     ref cursor);
                 return true;
 
-            case SpacePirateInstructionCodes.Instruction_PirateWall_RandomlyChooseADirection_LeftWall:
+            case SpacePirateInstruction.PirateWall_RandomlyChooseADirection_LeftWall:
                 RandomizeWallSpacePirateClimbDirection(state, onRightWall: false, ref cursor);
                 return true;
 
-            case SpacePirateInstructionCodes.Instruction_PirateWall_RandomlyChooseADirection_RightWall:
+            case SpacePirateInstruction.PirateWall_RandomlyChooseADirection_RightWall:
                 RandomizeWallSpacePirateClimbDirection(state, onRightWall: true, ref cursor);
                 return true;
 
-            case SpacePirateInstructionCodes.Instruction_PirateWall_PrepareWallJumpToRight:
+            case SpacePirateInstruction.PirateWall_PrepareWallJumpToRight:
                 PrepareWallSpacePirateJump(slot, state, jumpingRight: true);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case SpacePirateInstructionCodes.Instruction_PirateWall_PrepareWallJumpToLeft:
+            case SpacePirateInstruction.PirateWall_PrepareWallJumpToLeft:
                 PrepareWallSpacePirateJump(slot, state, jumpingRight: false);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case SpacePirateInstructionCodes.Instruction_PirateWall_FireLaserLeft:
+            case SpacePirateInstruction.PirateWall_FireLaserLeft:
                 FireWallSpacePirateLaser(slot, state, movingRight: false);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case SpacePirateInstructionCodes.Instruction_PirateWall_FireLaserRight:
+            case SpacePirateInstruction.PirateWall_FireLaserRight:
                 FireWallSpacePirateLaser(slot, state, movingRight: true);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case SpacePirateInstructionCodes.Instruction_PirateWall_FunctionInY:
+            case SpacePirateInstruction.PirateWall_FunctionInY:
                 state.Function = (WallSpacePirateFunction)ReadEnemyInstructionMechanicsWord(
                     slot,
                     unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case SpacePirateInstructionCodes.Instruction_PirateWall_QueueSpacePirateAttackSFX:
+            case SpacePirateInstruction.PirateWall_QueueSpacePirateAttackSFX:
                 LastSpacePirateSoundEffect = WallPirateJumpSound;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Wall Space Pirate does not own instruction ${opcode:X4}.");
         }
     }
 

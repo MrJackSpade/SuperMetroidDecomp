@@ -193,17 +193,17 @@ internal static partial class Program
             "Phantoon uses the three compiled retail hitbox lists");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi,
             FindPhantoonHitboxCallback(stock, guardedBus,
-                PhantoonBg2FrameDefinitions.BodyFullHitbox,
+                (ushort)PhantoonCollisionFrame.BodyFullHitbox,
                 0x0080, 0x0080, selectShot: true),
             "Phantoon full-body frame selects native shot callback");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi,
             FindPhantoonHitboxCallback(edited, guardedBus,
-                PhantoonBg2FrameDefinitions.BodyFullHitbox,
+                (ushort)PhantoonCollisionFrame.BodyFullHitbox,
                 0x0080, 0x0080, selectShot: true),
             "Phantoon BG2 artwork edit does not move or replace hitbox callbacks");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi,
             FindPhantoonHitboxCallback(edited, guardedBus,
-                PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly,
+                (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
                 0x0080, 0x0099, selectShot: true),
             "Phantoon eye-only frame selects native vulnerable eye callback");
     }

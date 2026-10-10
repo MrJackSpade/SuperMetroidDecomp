@@ -44,7 +44,7 @@ public static class SamusInsideBlockReactions
             bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
                 header,
                 out QuicksandReactionDefinition reaction);
-            ushort setup = hasCompiledReaction
+            SpecialAirReactionSetup setup = hasCompiledReaction
                 ? reaction.SetupPointer
                 : areaReaction.SetupPointer;
             if (hasCompiledReaction && plms is not null &&
@@ -54,12 +54,16 @@ public static class SamusInsideBlockReactions
             }
             switch (setup)
             {
-                case SamusEaterPlmRomData.FloorSetup:
-                case SamusEaterPlmRomData.CeilingSetup:
+                case SpecialAirReactionSetup.Nothing:
+                case SpecialAirReactionSetup.IcePhysics:
+                    // Neither inside reaction changes Samus's motion here.
+                    break;
+                case SpecialAirReactionSetup.BrinstarFloorPlant:
+                case SpecialAirReactionSetup.BrinstarCeilingPlant:
                     (plms ?? throw new InvalidOperationException("Samus Eater reaction requires the room PLM owner."))
                         .TrySpawnSamusEater(level, block, header, samus);
                     break;
-                case QuicksandRomData.SurfaceSetup:
+                case SpecialAirReactionSetup.QuicksandSurface:
                     // Native setup cancels running momentum even for center/top samples,
                     // but preserves the lower fractional bits rather than zeroing base X.
                     var speed = samus.HorizontalSpeed;
@@ -95,15 +99,26 @@ public static class SamusInsideBlockReactions
                             break;
                     }
                     break;
-                case QuicksandRomData.SubmergingSetup:
+                case SpecialAirReactionSetup.SubmergingQuicksand:
                     SetExtra(QuicksandRomData.SubmergingDisplacement);
                     break;
-                case QuicksandRomData.SlowFallsSetup:
+                case SpecialAirReactionSetup.SandFallsSlow:
                     SetExtra(QuicksandRomData.SlowFallsDisplacement);
                     break;
-                case QuicksandRomData.FastFallsSetup:
+                case SpecialAirReactionSetup.SandFallsFast:
                     SetExtra(QuicksandRomData.FastFallsDisplacement);
                     break;
+                case SpecialAirReactionSetup.ClearCarry:
+                case SpecialAirReactionSetup.QuicksandSurfaceCollision:
+                case SpecialAirReactionSetup.SubmergingQuicksandCollision:
+                case SpecialAirReactionSetup.SandFallsCollision:
+                case SpecialAirReactionSetup.SpeedBlock:
+                case SpecialAirReactionSetup.LowerNorfairChozoHand:
+                case SpecialAirReactionSetup.WreckedShipChozoHand:
+                    throw new InvalidOperationException(
+                        $"Collision-only setup {setup} reached the inside-block reaction.");
+                default:
+                    throw new InvalidOperationException($"Undefined special-air setup {setup}.");
             }
         }
         void ApplyConveyor(byte bts)
@@ -148,7 +163,7 @@ public static class SamusInsideBlockReactions
         bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
             header,
             out QuicksandReactionDefinition reaction);
-        ushort setup = hasCompiledReaction
+        SpecialAirReactionSetup setup = hasCompiledReaction
             ? reaction.SetupPointer
             : areaReaction.SetupPointer;
         if (hasCompiledReaction && plms is not null &&
@@ -156,12 +171,12 @@ public static class SamusInsideBlockReactions
         {
             return false;
         }
-        if (setup == QuicksandRomData.SubmergingCollision)
+        if (setup == SpecialAirReactionSetup.SubmergingQuicksandCollision)
         {
             body.YSpeed = body.YSubspeed = body.YAcceleration = body.YSubacceleration = 0;
             return false;
         }
-        if (setup != QuicksandRomData.SurfaceCollision) return false;
+        if (setup != SpecialAirReactionSetup.QuicksandSurfaceCollision) return false;
         int direction = body.YDirection & 3;
         SamusCollisionDirection reactionDirection = blockReactionDirection ??
             (vertical

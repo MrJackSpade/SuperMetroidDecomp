@@ -499,7 +499,7 @@ internal static partial class Program
             "suspended glass tube leaves its water-physics disable bit intact");
 
         StepNoobTube(plms, bus, level, streamer);
-        AssertEqual(NoobTubePlmRomData.WakeOnAcceptedInputPreInstruction,
+        AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput,
             plms.PopulationSlots.Single().PreInstruction,
             "first post-G-Mode PLM pass consumes the Power Bomb and arms the input callback");
     }

@@ -84,9 +84,9 @@ public static class ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
     {
         value = pointer switch
         {
-            ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            ProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             ProgramStart + 2 => ColorByteIndex,
-            DeleteInstructionPointer => PaletteFxInstructionCodes.Delete,
+            DeleteInstructionPointer => (ushort)PaletteFxInstruction.Delete,
             _ => 0,
         };
         if (value != 0)
@@ -98,7 +98,7 @@ public static class ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
             value = offset switch
             {
                 0 => FrameDuration(frame),
-                FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+                FrameByteCount - sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

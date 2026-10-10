@@ -112,14 +112,14 @@ public sealed class PaletteFxHeatProgramDefinition
         int setupOffset = pointer - ProgramStart;
         ushort? setupWord = setupOffset switch
         {
-            0 => PaletteFxInstructionCodes.SetPreInstruction,
-            2 => PaletteFxPreInstructionCodes.Heat,
-            4 => PaletteFxInstructionCodes.SetColorIndex,
+            0 => (ushort)PaletteFxInstruction.SetPreInstruction,
+            2 => (ushort)PaletteFxPreInstruction.Heat,
+            4 => (ushort)PaletteFxInstruction.SetColorIndex,
             6 => 0x0182,
             _ => null,
         };
         if (setupWord.HasValue) { value = setupWord.Value; return true; }
-        if (pointer == LoopInstructionPointer) { value = PaletteFxInstructionCodes.Goto; return true; }
+        if (pointer == LoopInstructionPointer) { value = (ushort)PaletteFxInstruction.Goto; return true; }
         if (pointer == LoopInstructionPointer + 2)
         {
             value = PaletteFxHeatInstructionListDefinitions.Resolve(Suit, 0);
@@ -129,7 +129,7 @@ public sealed class PaletteFxHeatProgramDefinition
         if ((uint)offset < 16 * 34)
         {
             if (offset % 34 == 0) { value = Duration(Suit, offset / 34); return true; }
-            if (offset % 34 == 32) { value = PaletteFxInstructionCodes.Wait; return true; }
+            if (offset % 34 == 32) { value = (ushort)PaletteFxInstruction.Wait; return true; }
         }
         value = 0;
         return false;

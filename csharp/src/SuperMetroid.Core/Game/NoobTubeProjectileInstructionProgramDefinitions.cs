@@ -1,5 +1,22 @@
 namespace SuperMetroid.Core.Game;
 
+/// <summary>The six bank-$86 movement callbacks the n00b-tube projectile lists install.</summary>
+internal enum NoobTubeProjectilePreInstruction : ushort
+{
+    /// <summary>$86:D7BF: flicker the n00b-tube crack actor.</summary>
+    CrackFlickering = EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFlickering,
+    /// <summary>$86:D7DE: move the detached n00b-tube crack downward.</summary>
+    CrackFalling = EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFalling,
+    /// <summary>$86:D7FD: move a newly emitted n00b-tube shard.</summary>
+    ShardFlying = EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFlying,
+    /// <summary>$86:D83D: rotate and fall after a shard's initial flight.</summary>
+    ShardFalling = EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFalling,
+    /// <summary>$86:D89F: rotate and fall a released-air bubble.</summary>
+    BubbleFalling = EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFalling,
+    /// <summary>$86:D8DF: move a released-air bubble vertically.</summary>
+    BubbleFlying = EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFlying,
+}
+
 /// <summary>
 /// Compiled control for the tube crack, its ten glass shards, and six released-air bubbles.
 /// Their interleaved spritemap operands select separately installed presentation data.

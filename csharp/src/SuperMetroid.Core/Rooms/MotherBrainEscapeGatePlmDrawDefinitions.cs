@@ -1,4 +1,17 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
+
+/// <summary>The three bank-$84 Mother Brain escape-gate draw lists.</summary>
+internal enum MotherBrainEscapeGateDraw : ushort
+{
+    /// <summary>Fully open vertical gate draw at $84:9473.</summary>
+    Open = 0x9473,
+    /// <summary>Half-closed vertical gate draw at $84:947F.</summary>
+    HalfClosed = 0x947f,
+    /// <summary>Fully closed vertical gate draw at $84:948B.</summary>
+    Closed = 0x948b,
+}
 
 /// <summary>
 /// The three physical four-block gate images chosen by the Mother Brain
@@ -7,15 +20,8 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class MotherBrainEscapeGatePlmDrawDefinitions
 {
-    /// <summary>Fully open vertical gate draw at $84:9473.</summary>
-    internal const ushort Open = 0x9473;
-    /// <summary>Half-closed vertical gate draw at $84:947F.</summary>
-    internal const ushort HalfClosed = 0x947f;
-    /// <summary>Fully closed vertical gate draw at $84:948B.</summary>
-    internal const ushort Closed = 0x948b;
-
     /// <summary>Four vertical cells, always solid, selected by open/half/closed state.</summary>
-    internal readonly record struct Draw(ushort Pointer)
+    internal readonly record struct Draw(MotherBrainEscapeGateDraw Pointer)
     {
         /// <summary>
         /// $84:9473..9496: open uses blank FF; half adds end caps 30F; closed
@@ -25,16 +31,17 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         internal ushort WordAt(int row)
         {
             if ((uint)row >= 4) throw new IndexOutOfRangeException();
-            int tile = Pointer == Open ? 0xff : row is 0 or 3 ? 0x30f :
-                Pointer == HalfClosed ? 0xff : 0x2e8 | (row == 1 ? 0x800 : 0);
+            int tile = Pointer == MotherBrainEscapeGateDraw.Open ? 0xff : row is 0 or 3 ? 0x30f :
+                Pointer == MotherBrainEscapeGateDraw.HalfClosed ? 0xff : 0x2e8 | (row == 1 ? 0x800 : 0);
             return (ushort)(0x8000 | tile);
         }
     }
 
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
-        bool owned = pointer is Open or HalfClosed or Closed;
-        draw = owned ? new(pointer) : default;
+        // Pointers outside the three gate images belong to other draw families.
+        bool owned = Enum.IsDefined((MotherBrainEscapeGateDraw)pointer);
+        draw = owned ? new((MotherBrainEscapeGateDraw)pointer) : default;
         return owned;
     }
 
@@ -42,7 +49,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
     {
         get
         {
-            for (int pointer = Open; pointer <= Closed; pointer += 12)
+            foreach (MotherBrainEscapeGateDraw pointer in Enum.GetValues<MotherBrainEscapeGateDraw>())
             {
                 TryGet((ushort)pointer, out var draw);
                 yield return draw;
@@ -61,14 +68,15 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         return true;
     }
 
-    internal static string VisualId(ushort pointer) => pointer switch
-    {
-        Open => "open",
-        HalfClosed => "half-closed",
-        Closed => "closed",
-        _ => throw new InvalidDataException(
-            $"Mother Brain escape-gate draw ${pointer:X4} has no visual ID."),
-    };
+    internal static string VisualId(ushort pointer) =>
+        ClosedNativeWords.Decode<MotherBrainEscapeGateDraw>(pointer, "Mother Brain escape-gate draw") switch
+        {
+            MotherBrainEscapeGateDraw.Open => "open",
+            MotherBrainEscapeGateDraw.HalfClosed => "half-closed",
+            MotherBrainEscapeGateDraw.Closed => "closed",
+            _ => throw new InvalidOperationException(
+                $"Undefined Mother Brain escape-gate draw ${pointer:X4}."),
+        };
 
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)

@@ -62,11 +62,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        if ((fragment.Parameter1 & 1) != 0 || fragment.Parameter1 > 0x0016)
-        {
-            throw new InvalidDataException(
-                $"Ridley explosion parameter ${fragment.Parameter1:X4} is outside $00..$16/even.");
-        }
+        RidleyExplosionPart part = ClosedNativeWords.Decode<RidleyExplosionPart>(
+            fragment.Parameter1, "Ridley explosion part");
 
         fragment.InstructionTimer = 1;
         fragment.Timer = 0;
@@ -81,10 +78,9 @@ public sealed partial class RoomEnemySystem
             : horizontalMagnitude;
         fragment.VariableC = 0;
 
-        ushort parameter = fragment.Parameter1;
-        if (parameter <= 0x000c)
+        if (part <= RidleyExplosionPart.TailTip)
         {
-            int tailIndex = parameter >> 1;
+            int tailIndex = (int)part >> 1;
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.XPosition = tail.XPosition;
             fragment.YPosition = tail.YPosition;
@@ -92,14 +88,14 @@ public sealed partial class RoomEnemySystem
                 (((tail.Angle & 0x00ff) +
                     (state.TailSegments[5].Angle & 0x00ff) + 8) & 0x00f0) >> 4;
             fragment.CurrentInstruction = RidleyExplosionDefinitions.SelectTailInstructionList(
-                parameter,
+                part,
                 tailTipOrientation);
             return;
         }
 
         RidleyExplosionBodyPartDefinition bodyPart =
             RidleyExplosionDefinitions.SelectBodyPart(
-                parameter,
+                part,
                 facingRight: state.FacingDirection != 0);
         fragment.XPosition = unchecked((ushort)(body.XPosition + bodyPart.XOffset));
         fragment.YPosition = unchecked((ushort)(body.YPosition + bodyPart.YOffset));

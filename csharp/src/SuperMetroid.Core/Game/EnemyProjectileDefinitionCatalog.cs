@@ -355,10 +355,10 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.BotwoonBody => new(0xEA80, 0xE8F3, 0x0202, 0xE080, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.BotwoonSpit => new(0xEC05, 0xEBAE, 0x0202, 0x1060, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.BombTorizoLowHealthDrool => new(
-0x84FB, BombTorizoDroolInstructionProgramDefinitions.NoDelay,
+0x84FB, (ushort)BombTorizoDroolProgram.NoDelay,
             0x0201, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoInitialDrool => new(
-0x84FB, BombTorizoDroolInstructionProgramDefinitions.NoDelay,
+0x84FB, (ushort)BombTorizoDroolProgram.NoDelay,
             0x0201, 0x2000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoExplosiveSwipe => new(
 0xA919, TorizoExplosiveSwipeInstructionProgramDefinitions.Initial,

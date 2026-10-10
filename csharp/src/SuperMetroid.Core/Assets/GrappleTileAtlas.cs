@@ -29,13 +29,13 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
         byte[]? coverage = GrappleBeamTilePatterns.InkCoverage(tiles.AsSpan(128, 256));
         singleInk = coverage is not null;
         independentTiles = coverage ?? tiles.AsSpan(128, 256).ToArray();
-        if (!tiles.AsSpan(0, 32).SequenceEqual(GrappleBeamTilePatterns.Point(0)))
+        if (!tiles.AsSpan(0, 32).SequenceEqual(GrappleBeamTilePatterns.Point(GrapplePointFrame.FilledDiamond)))
             firstPoint = tiles.AsSpan(0, 32).ToArray();
-        if (!tiles.AsSpan(32, 32).SequenceEqual(GrappleBeamTilePatterns.Point(1)))
+        if (!tiles.AsSpan(32, 32).SequenceEqual(GrappleBeamTilePatterns.Point(GrapplePointFrame.HollowDiamond)))
             secondPoint = tiles.AsSpan(32, 32).ToArray();
-        if (!tiles.AsSpan(64, 32).SequenceEqual(GrappleBeamTilePatterns.Point(2)))
+        if (!tiles.AsSpan(64, 32).SequenceEqual(GrappleBeamTilePatterns.Point(GrapplePointFrame.TippedSquare)))
             thirdPoint = tiles.AsSpan(64, 32).ToArray();
-        if (!tiles.AsSpan(96, 32).SequenceEqual(GrappleBeamTilePatterns.Point(3)))
+        if (!tiles.AsSpan(96, 32).SequenceEqual(GrappleBeamTilePatterns.Point(GrapplePointFrame.ClippedDiamond)))
             fourthPoint = tiles.AsSpan(96, 32).ToArray();
         if (!tiles.AsSpan(384, 128).SequenceEqual(GrappleBeamTilePatterns.VerticalSegments(tiles.AsSpan(128, 128))))
             verticalSegments = tiles.AsSpan(384, 128).ToArray();
@@ -59,10 +59,10 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
         var transfer = GrappleTileDefinitions.TransferFor(asset);
         return asset switch
         {
-            VramAssetId.GrapplePointFirstTiles => firstPoint ?? GrappleBeamTilePatterns.Point(0),
-            VramAssetId.GrapplePointSecondTiles => secondPoint ?? GrappleBeamTilePatterns.Point(1),
-            VramAssetId.GrapplePointThirdTiles => thirdPoint ?? GrappleBeamTilePatterns.Point(2),
-            VramAssetId.GrapplePointFourthTiles => fourthPoint ?? GrappleBeamTilePatterns.Point(3),
+            VramAssetId.GrapplePointFirstTiles => firstPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.FilledDiamond),
+            VramAssetId.GrapplePointSecondTiles => secondPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.HollowDiamond),
+            VramAssetId.GrapplePointThirdTiles => thirdPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.TippedSquare),
+            VramAssetId.GrapplePointFourthTiles => fourthPoint ?? GrappleBeamTilePatterns.Point(GrapplePointFrame.ClippedDiamond),
             VramAssetId.GrappleVerticalSegmentTiles => verticalSegments ??
                 GrappleBeamTilePatterns.VerticalSegments(SegmentBytes(0).Span),
             VramAssetId.GrappleHorizontalSegmentTiles or VramAssetId.GrappleDiagonalSegmentTiles =>

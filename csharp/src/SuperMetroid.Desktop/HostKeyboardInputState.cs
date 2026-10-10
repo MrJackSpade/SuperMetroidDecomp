@@ -13,10 +13,18 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed class HostKeyboardInputState
 {
-    internal const int KeyDownMessage = 0x0100;
-    internal const int KeyUpMessage = 0x0101;
-    internal const int SystemKeyDownMessage = 0x0104;
-    internal const int SystemKeyUpMessage = 0x0105;
+    /// <summary>The Win32 keyboard window messages that carry gameplay key transitions.</summary>
+    internal enum KeyboardWindowMessage
+    {
+        /// <summary><c>WM_KEYDOWN</c>.</summary>
+        KeyDown = 0x0100,
+        /// <summary><c>WM_KEYUP</c>.</summary>
+        KeyUp = 0x0101,
+        /// <summary><c>WM_SYSKEYDOWN</c>.</summary>
+        SystemKeyDown = 0x0104,
+        /// <summary><c>WM_SYSKEYUP</c>.</summary>
+        SystemKeyUp = 0x0105,
+    }
 
     private readonly HashSet<Keys> heldKeys = [];
 
@@ -27,23 +35,24 @@ internal sealed class HostKeyboardInputState
     public bool ApplyWindowMessage(int message, Keys key)
     {
         Keys keyCode = key & Keys.KeyCode;
-        if (!IsGameplayKey(keyCode))
+        // Every other window message continues through normal WinForms processing.
+        if (!IsGameplayKey(keyCode) || !Enum.IsDefined((KeyboardWindowMessage)message))
             return false;
 
-        switch (message)
+        switch ((KeyboardWindowMessage)message)
         {
-            case KeyDownMessage:
-            case SystemKeyDownMessage:
+            case KeyboardWindowMessage.KeyDown:
+            case KeyboardWindowMessage.SystemKeyDown:
                 heldKeys.Add(keyCode);
                 return true;
 
-            case KeyUpMessage:
-            case SystemKeyUpMessage:
+            case KeyboardWindowMessage.KeyUp:
+            case KeyboardWindowMessage.SystemKeyUp:
                 heldKeys.Remove(keyCode);
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined keyboard window message {message}.");
         }
     }
 

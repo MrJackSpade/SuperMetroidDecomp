@@ -327,8 +327,9 @@ internal static partial class Program
 
     private static ushort[] VerifyInstalledCrocomireMeltingTilemap(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog artwork,
-        int sourceAddress, ushort bodyInstructionList, bool compareRom = true)
+        CrocomireMeltingTilemapAddress source, ushort bodyInstructionList, bool compareRom = true)
     {
+        int sourceAddress = (int)source;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var state = new CrocomireEnemyState(enemies.Slots[0]);
@@ -339,11 +340,12 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
-        string loader = sourceAddress == CrocomireMeltingArtworkAddresses.FirstTilemap
-            ? "LoadFirstCrocomireMeltingTilemap"
-            : sourceAddress == CrocomireMeltingArtworkAddresses.SecondTilemap
-                ? "LoadSecondCrocomireMeltingTilemap"
-                : throw new ArgumentOutOfRangeException(nameof(sourceAddress));
+        string loader = source switch
+        {
+            CrocomireMeltingTilemapAddress.FirstTilemap => "LoadFirstCrocomireMeltingTilemap",
+            CrocomireMeltingTilemapAddress.SecondTilemap => "LoadSecondCrocomireMeltingTilemap",
+            _ => throw new ArgumentOutOfRangeException(nameof(source)),
+        };
         var initialize = typeof(RoomEnemySystem).GetMethod(loader, flags)!
             .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
 
@@ -393,8 +395,8 @@ internal static partial class Program
                     $"Crocomire melting attempted migrated definition read ${address:X6}.");
             if (blockGraphics)
             {
-                if (address is >= CrocomireMeltingArtworkAddresses.FirstTilemap and
-                    < (CrocomireMeltingArtworkAddresses.SecondTilemap +
+                if (address is >= (int)CrocomireMeltingTilemapAddress.FirstTilemap and
+                    < ((int)CrocomireMeltingTilemapAddress.SecondTilemap +
                         (CrocomireMeltingArtworkFormat.TilemapCellCount + 1) * 2))
                     throw new InvalidOperationException(
                         $"Crocomire melting attempted installed tilemap read ${address:X6}.");

@@ -36,33 +36,37 @@ internal static class BotwoonWallPlmProgramDefinitions
             }
         }
 
-        value = address switch
+        // Word positions are byte offsets within each program.
+        ushort? word = (address - Crumble) switch
         {
-            Crumble => (ushort)RoomPlmInstruction.SetEightBitTimer,
-            Crumble + 3 => (ushort)RoomPlmInstruction.SetBotwoonScrollsBlue,
-            Crumble + 5 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
-            Crumble + 24 => (ushort)RoomPlmInstruction.MoveBotwoonPlmDownOneBlock,
-            Crumble + 26 => (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
-            Crumble + 28 => Crumble + 5,
-            Crumble + 30 => (ushort)RoomPlmInstruction.Delete,
-            Clear => 1,
-            Clear + 2 => BotwoonWallPlmDrawDefinitions.ClearPointer,
-            Clear + 4 => (ushort)RoomPlmInstruction.Delete,
-            _ => 0,
+            0 => (ushort)RoomPlmInstruction.SetEightBitTimer,
+            3 => (ushort)RoomPlmInstruction.SetBotwoonScrollsBlue,
+            5 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
+            24 => (ushort)RoomPlmInstruction.MoveBotwoonPlmDownOneBlock,
+            26 => (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
+            28 => Crumble + 5,
+            30 => (ushort)RoomPlmInstruction.Delete,
+            _ => (address - Clear) switch
+            {
+                0 => 1,
+                2 => BotwoonWallPlmDrawDefinitions.ClearPointer,
+                4 => (ushort)RoomPlmInstruction.Delete,
+                _ => null,
+            },
         };
-        return address is Crumble or Crumble + 3 or Crumble + 5 or
-            Crumble + 24 or Crumble + 26 or Crumble + 28 or
-            Crumble + 30 or Clear or Clear + 2 or Clear + 4;
+        value = word ?? 0;
+        return word.HasValue;
     }
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        value = address switch
+        byte? operand = (address - Crumble) switch
         {
-            Crumble + 2 => CrumbleRows,
-            Crumble + 7 => CrumbleSoundId,
-            _ => 0,
+            2 => CrumbleRows,
+            7 => CrumbleSoundId,
+            _ => null,
         };
-        return address is Crumble + 2 or Crumble + 7;
+        value = operand ?? 0;
+        return operand.HasValue;
     }
 }

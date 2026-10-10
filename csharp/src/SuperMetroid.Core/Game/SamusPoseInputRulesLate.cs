@@ -1,12 +1,13 @@
 using static SuperMetroid.Core.Game.CanonicalPoseButtons;
 using static SuperMetroid.Core.Game.SamusPoseInputDefinitions;
+using static SuperMetroid.Core.Game.SamusPoseInputList;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Ordered native pose-input decisions; the first satisfied chord wins.</summary>
 internal static class SamusPoseInputRulesLate
 {
-    internal static SamusPoseInputMatch Match(ushort pointer, ushort held, ushort newlyPressed) => pointer switch
+    internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, ushort held, ushort newlyPressed) => pointer switch
     {
         SpringBallGroundRightPoseList => MatchSpringBallGroundRightPoseList(held, newlyPressed),
         SpringBallGroundLeftPoseList => MatchSpringBallGroundLeftPoseList(held, newlyPressed),
@@ -51,7 +52,7 @@ internal static class SamusPoseInputRulesLate
         MoonwalkTurnJumpAimUpRightPoseList => MatchMoonwalkTurnJumpAimUpRightPoseList(held, newlyPressed),
         MoonwalkTurnJumpAimDownLeftPoseList => MatchMoonwalkTurnJumpAimDownLeftPoseList(held, newlyPressed),
         MoonwalkTurnJumpAimDownRightPoseList => MatchMoonwalkTurnJumpAimDownRightPoseList(held, newlyPressed),
-        _ => throw new InvalidOperationException($"Unknown compiled pose-input list ${pointer:X4}."),
+        _ => throw new InvalidOperationException($"Pose-input list {pointer} belongs to the other rule section."),
     };
 
     /// <summary>$91:A90C TransitionTable_79_7B_FacingRight_MorphBall_Spring_OnGround: native priority order.</summary>

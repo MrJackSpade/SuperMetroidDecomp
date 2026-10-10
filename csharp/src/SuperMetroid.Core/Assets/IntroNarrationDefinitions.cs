@@ -1,4 +1,21 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Assets;
+
+/// <summary>The opening-narration BG words for space and the four punctuation glyphs.</summary>
+public enum IntroNarrationSymbolWord : ushort
+{
+    /// <summary>Blank-space BG word $002F from <c>IndirectInstructions_IntroText_Space</c> at <c>$8C:D67D</c>, without the nonblank glyphs' priority bit.</summary>
+    Blank = 0x002f,
+    /// <summary>High-priority period BG word $2024 from <c>IndirectInstructions_IntroText_Period</c> at <c>$8C:D75D</c>, distinct from the unused decimal-point glyph.</summary>
+    Period = 0x2024,
+    /// <summary>High-priority comma BG word $2025 from <c>IndirectInstructions_IntroText_Comma</c> at <c>$8C:D763</c>.</summary>
+    Comma = 0x2025,
+    /// <summary>High-priority apostrophe BG word $2027 from <c>IndirectInstructions_IntroText_Apostrophe</c> at <c>$8C:D76F</c>.</summary>
+    Apostrophe = 0x2027,
+    /// <summary>High-priority exclamation BG word $202A from <c>IndirectInstructions_IntroText_ExclamationPoint</c> at <c>$8C:D77B</c>.</summary>
+    Exclamation = 0x202a,
+}
 
 /// <summary>Schema, native source identities, and fixed layout limits for opening narration.</summary>
 public static class IntroNarrationDefinitions
@@ -21,20 +38,10 @@ public static class IntroNarrationDefinitions
     public const ushort InitialMarkerDelayFrames = 1;
     /// <summary>128 cinematic background-object updates held after the final page starts caret blinking and before its finish callback.</summary>
     public const ushort FinalPageHoldFrames = 128;
-    /// <summary>Blank-space BG word $002F from <c>IndirectInstructions_IntroText_Space</c> at <c>$8C:D67D</c>, without the nonblank glyphs' priority bit.</summary>
-    public const ushort BlankCharacterWord = 0x002f;
     /// <summary>BG word $2000 for uppercase A, from <c>IndirectInstructions_IntroText_A</c> at <c>$8C:D685</c>; A-Z use consecutive tile indices with high BG priority.</summary>
     public const ushort UppercaseAWord = 0x2000;
     /// <summary>BG word $201A for digit zero, from the glyph record at <c>$8C:D721</c>; zero through nine use consecutive high-priority tile indices.</summary>
     public const ushort DigitZeroWord = 0x201a;
-    /// <summary>High-priority period BG word $2024 from <c>IndirectInstructions_IntroText_Period</c> at <c>$8C:D75D</c>, distinct from the unused decimal-point glyph.</summary>
-    public const ushort PeriodWord = 0x2024;
-    /// <summary>High-priority comma BG word $2025 from <c>IndirectInstructions_IntroText_Comma</c> at <c>$8C:D763</c>.</summary>
-    public const ushort CommaWord = 0x2025;
-    /// <summary>High-priority apostrophe BG word $2027 from <c>IndirectInstructions_IntroText_Apostrophe</c> at <c>$8C:D76F</c>.</summary>
-    public const ushort ApostropheWord = 0x2027;
-    /// <summary>High-priority exclamation BG word $202A from <c>IndirectInstructions_IntroText_ExclamationPoint</c> at <c>$8C:D77B</c>.</summary>
-    public const ushort ExclamationWord = 0x202a;
 
     /// <summary>Native bank-$8C script identities consumed only while extracting stock content.</summary>
     public static class Native
@@ -112,13 +119,13 @@ public static class IntroNarrationDefinitions
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="character"/> is outside the supported narration alphabet.</exception>
     public static ushort CompileGlyph(char character) => character switch
     {
-        ' ' => BlankCharacterWord,
+        ' ' => (ushort)IntroNarrationSymbolWord.Blank,
         >= 'A' and <= 'Z' => unchecked((ushort)(UppercaseAWord + character - 'A')),
         >= '0' and <= '9' => unchecked((ushort)(DigitZeroWord + character - '0')),
-        '.' => PeriodWord,
-        ',' => CommaWord,
-        '\'' => ApostropheWord,
-        '!' => ExclamationWord,
+        '.' => (ushort)IntroNarrationSymbolWord.Period,
+        ',' => (ushort)IntroNarrationSymbolWord.Comma,
+        '\'' => (ushort)IntroNarrationSymbolWord.Apostrophe,
+        '!' => (ushort)IntroNarrationSymbolWord.Exclamation,
         _ => throw new ArgumentOutOfRangeException(nameof(character), character,
             "Opening narration supports space, A-Z, 0-9, period, comma, apostrophe and exclamation mark."),
     };
@@ -129,17 +136,19 @@ public static class IntroNarrationDefinitions
     /// <exception cref="InvalidDataException"><paramref name="word"/> has no supported, exact narration glyph mapping.</exception>
     public static char DecodeGlyph(ushort word) => word switch
     {
-        BlankCharacterWord => ' ',
         >= UppercaseAWord and <= UppercaseAWord + 25 =>
             (char)('A' + word - UppercaseAWord),
         >= DigitZeroWord and <= DigitZeroWord + 9 =>
             (char)('0' + word - DigitZeroWord),
-        PeriodWord => '.',
-        CommaWord => ',',
-        ApostropheWord => '\'',
-        ExclamationWord => '!',
-        _ => throw new InvalidDataException(
-            $"Opening-narration tile word ${word:X4} has no safe UTF-8 glyph mapping."),
+        _ => ClosedNativeWords.Decode<IntroNarrationSymbolWord>(word, "opening-narration glyph word") switch
+        {
+            IntroNarrationSymbolWord.Blank => ' ',
+            IntroNarrationSymbolWord.Period => '.',
+            IntroNarrationSymbolWord.Comma => ',',
+            IntroNarrationSymbolWord.Apostrophe => '\'',
+            IntroNarrationSymbolWord.Exclamation => '!',
+            _ => throw new InvalidOperationException($"Undefined narration symbol ${word:X4}."),
+        },
     };
 
     /// <summary>Checks whether a character can be compiled without changing case or substituting punctuation.</summary>

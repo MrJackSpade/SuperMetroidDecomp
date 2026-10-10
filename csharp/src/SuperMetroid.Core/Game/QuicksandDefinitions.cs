@@ -10,7 +10,7 @@ public readonly record struct QuicksandSurfacePhysics(
 
 /// <summary>One quicksand PLM header paired with its setup routine and initial list.</summary>
 public readonly record struct QuicksandReactionDefinition(
-    ushort SetupPointer,
+    SpecialAirReactionSetup SetupPointer,
     ushort InstructionListPointer);
 
 /// <summary>Compiled Maridia quicksand dispatch and physical definition data.</summary>
@@ -45,16 +45,16 @@ public static class QuicksandDefinitions
             definition = default;
             return false;
         }
-        ushort setup = header switch
+        SpecialAirReactionSetup setup = header switch
         {
-            PlmHeaderId.InsideReactionQuicksandSurface => QuicksandRomData.SurfaceSetup,
-            PlmHeaderId.InsideReactionSubmergingQuicksand => QuicksandRomData.SubmergingSetup,
-            PlmHeaderId.InsideReactionSandFallsSlow => QuicksandRomData.SlowFallsSetup,
-            PlmHeaderId.InsideReactionSandFallsFast => QuicksandRomData.FastFallsSetup,
-            PlmHeaderId.CollisionReactionQuicksandSurface => QuicksandRomData.SurfaceCollision,
-            PlmHeaderId.CollisionReactionSubmergingQuicksand => QuicksandRomData.SubmergingCollision,
+            PlmHeaderId.InsideReactionQuicksandSurface => SpecialAirReactionSetup.QuicksandSurface,
+            PlmHeaderId.InsideReactionSubmergingQuicksand => SpecialAirReactionSetup.SubmergingQuicksand,
+            PlmHeaderId.InsideReactionSandFallsSlow => SpecialAirReactionSetup.SandFallsSlow,
+            PlmHeaderId.InsideReactionSandFallsFast => SpecialAirReactionSetup.SandFallsFast,
+            PlmHeaderId.CollisionReactionQuicksandSurface => SpecialAirReactionSetup.QuicksandSurfaceCollision,
+            PlmHeaderId.CollisionReactionSubmergingQuicksand => SpecialAirReactionSetup.SubmergingQuicksandCollision,
             PlmHeaderId.CollisionReactionSandFallsSlow or PlmHeaderId.CollisionReactionSandFallsFast =>
-                QuicksandRomData.SandFallsCollision,
+                SpecialAirReactionSetup.SandFallsCollision,
             _ => throw new InvalidOperationException($"Undefined quicksand header {header}."),
         };
         definition = new(setup, RoomPlmInstructionLists.Delete);

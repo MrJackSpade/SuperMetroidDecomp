@@ -68,9 +68,9 @@ public static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
     {
         value = pointer switch
         {
-            ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            ProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             ProgramStart + 2 => ColorByteIndex,
-            DeleteInstructionPointer => PaletteFxInstructionCodes.Delete,
+            DeleteInstructionPointer => (ushort)PaletteFxInstruction.Delete,
             _ => 0,
         };
         if (value != 0)
@@ -81,7 +81,7 @@ public static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
         value = (offset % FrameByteCount) switch
         {
             0 => FrameDuration,
-            FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+            FrameByteCount - sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
             _ => 0,
         };
         return value != 0;

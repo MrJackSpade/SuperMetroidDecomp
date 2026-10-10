@@ -83,7 +83,7 @@ public sealed partial class RoomEnemySystem
             state.FacingRight
                 ? DraygonInstructionProgramDefinitions.EyeFacingRightDying
                 : DraygonInstructionProgramDefinitions.EyeFacingLeftDying);
-        state.Eye!.VariableA = 0x804b;
+        state.Eye!.VariableA = (ushort)DraygonEyeFunction.Inert;
         state.Function = DraygonAiFunction.Dying;
 
         // The native death callback releases Samus unconditionally, even during an

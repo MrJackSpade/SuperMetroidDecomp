@@ -22,8 +22,8 @@ internal static partial class Program
             var native = new ushort[2][];
             for (int phase = 0; phase < 2; phase++)
             {
-                int source = phase == 0 ? CrocomireMeltingArtworkAddresses.FirstTilemap : CrocomireMeltingArtworkAddresses.SecondTilemap;
-                native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, source + i * 2)).ToArray();
+                CrocomireMeltingTilemapAddress source = phase == 0 ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap;
+                native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, (int)source + i * 2)).ToArray();
                 var calculated = new CrocomireMeltingTilemap(phase != 0, native[phase]);
                 AssertEqual(0, ((Dictionary<int, ushort>)typeof(CrocomireMeltingTilemap).GetField("edits", flags)!.GetValue(calculated)!).Count,
                     "Every native melt tilemap word calculates without fallback");
@@ -50,7 +50,7 @@ internal static partial class Program
                 content.AppendWords("first-map", native[0]); content.AppendWords("second-map", native[1]);
             });
             AssertEqual(expectedIdentity, art.ContentIdentity, "Original canonical melt identity");
-            AssertThrows<InvalidDataException>(() => { _ = art.Tilemap(0); }, "Unknown map identity rejects");
+            AssertThrows<InvalidDataException>(() => { _ = art.Tilemap((CrocomireMeltingTilemapAddress)0); }, "Unknown map identity rejects");
             Console.WriteLine("Crocomire melt layouts: 512 native words, 512 isolated full-word edits, input ownership, both actual guarded BG2 uploads and canonical identity pass.");
         }
         finally { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); }
@@ -690,13 +690,13 @@ internal static partial class Program
         AssertEqual(25, componentCount, "All native components");
         AssertEqual(3, lists.Count, "All native hitbox lists");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null!, rom,
-            PhantoonBg2FrameDefinitions.BodyFullHitbox, 128, 128, true), "Actual full-body shot callback");
+            (ushort)PhantoonCollisionFrame.BodyFullHitbox, 128, 128, true), "Actual full-body shot callback");
         AssertEqual(PhantoonCollisionDefinitions.TouchAi, FindPhantoonHitboxCallback(null!, rom,
-            PhantoonBg2FrameDefinitions.BodyFullHitbox, 128, 128, false), "Actual full-body touch callback");
+            (ushort)PhantoonCollisionFrame.BodyFullHitbox, 128, 128, false), "Actual full-body touch callback");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null!, rom,
-            PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly, 128, 153, true), "Actual vulnerable eye callback");
+            (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, 128, 153, true), "Actual vulnerable eye callback");
         AssertEqual((ushort)0, FindPhantoonHitboxCallback(null!, rom,
-            PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly, 128, 128, true), "Eye-only frame excludes body collision");
+            (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, 128, 128, true), "Eye-only frame excludes body collision");
         AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.ComponentsAt(0), "Frame domain");
         AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.HitboxesAt(0), "Hitbox domain");
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");

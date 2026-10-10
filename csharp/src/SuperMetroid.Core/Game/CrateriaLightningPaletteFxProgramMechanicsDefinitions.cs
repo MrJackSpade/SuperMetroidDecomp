@@ -140,21 +140,21 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         {
             var frame = Frame((index - 12) / 2);
             return (index & 1) == 0 ? new(frame.Pointer, frame.Duration)
-                : new(frame.WaitInstructionPointer, PaletteFxInstructionCodes.Wait);
+                : new(frame.WaitInstructionPointer, (ushort)PaletteFxInstruction.Wait);
         }
         return index switch
         {
-            0 => new(ProgramStart, PaletteFxInstructionCodes.SetPreInstruction),
-            1 => new((ushort)(ProgramStart + 2), IsSurface ? PaletteFxPreInstructionCodes.SwitchAboveY380 : PaletteFxPreInstructionCodes.SwitchAboveY380Second),
-            2 => new((ushort)(ProgramStart + 4), PaletteFxInstructionCodes.SetColorIndex),
+            0 => new(ProgramStart, (ushort)PaletteFxInstruction.SetPreInstruction),
+            1 => new((ushort)(ProgramStart + 2), IsSurface ? (ushort)PaletteFxPreInstruction.SwitchAboveY380 : (ushort)PaletteFxPreInstruction.SwitchAboveY380Second),
+            2 => new((ushort)(ProgramStart + 4), (ushort)PaletteFxInstruction.SetColorIndex),
             3 => new((ushort)(ProgramStart + 6), ColorByteIndex),
-            4 => new(TimerTwoPointer, PaletteFxInstructionCodes.SetTimer),
-            5 => new(DecrementTwoPointer, PaletteFxInstructionCodes.DecrementTimerAndGoto),
+            4 => new(TimerTwoPointer, (ushort)PaletteFxInstruction.SetTimer),
+            5 => new(DecrementTwoPointer, (ushort)PaletteFxInstruction.DecrementTimerAndGoto),
             6 => new((ushort)(DecrementTwoPointer + 2), RepeatedFramesPointer),
-            7 => new(TimerOnePointer, PaletteFxInstructionCodes.SetTimer),
-            8 => new(DecrementOnePointer, PaletteFxInstructionCodes.DecrementTimerAndGoto),
+            7 => new(TimerOnePointer, (ushort)PaletteFxInstruction.SetTimer),
+            8 => new(DecrementOnePointer, (ushort)PaletteFxInstruction.DecrementTimerAndGoto),
             9 => new((ushort)(DecrementOnePointer + 2), FinalFramesPointer),
-            10 => new(GotoPointer, PaletteFxInstructionCodes.Goto),
+            10 => new(GotoPointer, (ushort)PaletteFxInstruction.Goto),
             _ => new((ushort)(GotoPointer + 2), FirstFramePointer),
         };
     }

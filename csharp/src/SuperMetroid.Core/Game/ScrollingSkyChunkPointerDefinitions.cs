@@ -1,5 +1,14 @@
 namespace SuperMetroid.Core.Game;
 
+/// <summary>The two bank-$88 scrolling-sky chunk pointer tables.</summary>
+public enum ScrollingSkyChunkTable
+{
+    /// <summary>$88:AD9C, land sky chunk pointers used by the scrolling-sky room main.</summary>
+    Land = 0x88ad9c,
+    /// <summary>$88:ADA6, ocean sky chunk pointers passed by RoomMainAsm_ScrollingSkyOcean ($88:AF99).</summary>
+    Ocean = 0x88ada6,
+}
+
 /// <summary>Computes bank-$88 sky chunk identities, including bounded adjacent-code reads.</summary>
 /// <remarks>Native camera arithmetic admits only indices0..8 and255. Five land
 /// pages advance by800 bytes fromB180. Land indices5..8 alias the first four ocean
@@ -28,12 +37,12 @@ public static class ScrollingSkyChunkPointerDefinitions
     public const ushort OceanWrappedTop = 0x0a78;
 
     /// <summary>Selects a page or native compatibility word for the exact supported domain.</summary>
-    public static ushort Get(int pointerTable, int index)
+    public static ushort Get(ScrollingSkyChunkTable pointerTable, int index)
     {
         bool ocean = pointerTable switch
         {
-            RoomFxRomData.ScrollingSky.LandChunkPointerTableAddress => false,
-            RoomFxRomData.ScrollingSky.OceanChunkPointerTableAddress => true,
+            ScrollingSkyChunkTable.Land => false,
+            ScrollingSkyChunkTable.Ocean => true,
             _ => throw new ArgumentOutOfRangeException(nameof(pointerTable), pointerTable,
                 "Unknown scrolling-sky chunk pointer table."),
         };

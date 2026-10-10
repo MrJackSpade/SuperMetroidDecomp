@@ -82,7 +82,7 @@ internal static partial class Program
             // Native LSR, AND #000E produces the byte offset, independently of the modulo conversion.
             int address = 0x86a64d + ((random >> 1) & 0x000e);
             ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-            AssertEqual(native, BombTorizoDroolInstructionProgramDefinitions.SelectLowHealthInitialProgram((ushort)random),
+            AssertEqual(native, (ushort)BombTorizoDroolInstructionProgramDefinitions.SelectLowHealthInitialProgram((ushort)random),
                 "Bomb Torizo drool native delay selection for all RNG words");
         }
     }
@@ -115,16 +115,16 @@ internal static partial class Program
         var guard = new BombTorizoDroolInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
-        ushort[] expectedPrograms =
+        BombTorizoDroolProgram[] expectedPrograms =
         [
-            BombTorizoDroolInstructionProgramDefinitions.NoDelay,
-            BombTorizoDroolInstructionProgramDefinitions.TwoFrameDelay,
-            BombTorizoDroolInstructionProgramDefinitions.FourFrameDelay,
-            BombTorizoDroolInstructionProgramDefinitions.NoDelay,
-            BombTorizoDroolInstructionProgramDefinitions.TwoFrameDelay,
-            BombTorizoDroolInstructionProgramDefinitions.FourFrameDelay,
-            BombTorizoDroolInstructionProgramDefinitions.NoDelay,
-            BombTorizoDroolInstructionProgramDefinitions.TwoFrameDelay,
+            BombTorizoDroolProgram.NoDelay,
+            BombTorizoDroolProgram.TwoFrameDelay,
+            BombTorizoDroolProgram.FourFrameDelay,
+            BombTorizoDroolProgram.NoDelay,
+            BombTorizoDroolProgram.TwoFrameDelay,
+            BombTorizoDroolProgram.FourFrameDelay,
+            BombTorizoDroolProgram.NoDelay,
+            BombTorizoDroolProgram.TwoFrameDelay,
         ];
 
         for (int selection = 0; selection < expectedPrograms.Length; selection++)
@@ -140,7 +140,7 @@ internal static partial class Program
                 "SpawnBombTorizoLowHealthDrool", flags)!.Invoke(enemies, [torizo]);
 
             RoomEnemyProjectileSlot drool = enemies.EnemyProjectiles[^1];
-            AssertEqual(expectedPrograms[selection], drool.InstructionPointer,
+            AssertEqual((ushort)expectedPrograms[selection], drool.InstructionPointer,
                 $"drool selector {selection} initial program");
             AssertEqual(0, random.Count,
                 $"drool selector {selection} consumes selection and trajectory RNG");
@@ -151,9 +151,10 @@ internal static partial class Program
 
             int delay = expectedPrograms[selection] switch
             {
-                BombTorizoDroolInstructionProgramDefinitions.FourFrameDelay => 4,
-                BombTorizoDroolInstructionProgramDefinitions.TwoFrameDelay => 2,
-                _ => 0,
+                BombTorizoDroolProgram.FourFrameDelay => 4,
+                BombTorizoDroolProgram.TwoFrameDelay => 2,
+                BombTorizoDroolProgram.NoDelay => 0,
+                _ => throw new InvalidOperationException($"Undefined drool program {expectedPrograms[selection]}."),
             };
             for (int frame = 0; frame < delay; frame++)
             {
@@ -192,7 +193,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetMethod(
             "SpawnBombTorizoInitialDrool", flags)!.Invoke(initialEnemies, [initialTorizo]);
         RoomEnemyProjectileSlot initial = initialEnemies.EnemyProjectiles[^1];
-        AssertEqual(BombTorizoDroolInstructionProgramDefinitions.NoDelay,
+        AssertEqual((ushort)BombTorizoDroolProgram.NoDelay,
             initial.InstructionPointer, "initial gut-break drool bypasses delay selector");
         AssertEqual((ushort)0x02fe, initial.YPosition, "initial drool random Y origin");
         // $86:A674 ADC #$FFFB carries out for any Y >= 5, and $86:A680 ADC #$0030 adds it.
@@ -201,7 +202,7 @@ internal static partial class Program
         AssertEqual((ushort)0, initial.XVelocity, "initial drool stores a zero X velocity");
         AssertEqual(0, initialRandom.Count, "initial drool consumes exactly two RNG words");
 
-        initial.InstructionPointer = BombTorizoDroolInstructionProgramDefinitions.WallImpact;
+        initial.InstructionPointer = (ushort)BombTorizoDroolProgram.WallImpact;
         initial.InstructionTimer = 1;
         process.Invoke(initialEnemies, [initial, null, (ushort)0, (ushort)0]);
         AssertTrue(!initial.IsActive, "drool wall impact clears callback and deletes immediately");
@@ -215,7 +216,7 @@ internal static partial class Program
             "SpawnBombTorizoInitialDrool", flags)!.Invoke(floorEnemies, [floorTorizo]);
         RoomEnemyProjectileSlot floor = floorEnemies.EnemyProjectiles[^1];
         floor.PreInstruction = BombTorizoDroolInstructionProgramDefinitions.FallingPreInstruction;
-        floor.InstructionPointer = BombTorizoDroolInstructionProgramDefinitions.FloorImpact;
+        floor.InstructionPointer = (ushort)BombTorizoDroolProgram.FloorImpact;
         floor.InstructionTimer = 1;
         for (int frame = 0; frame < 24; frame++)
         {
@@ -274,8 +275,8 @@ internal static partial class Program
         {
             checksum += BombTorizoDroolInstructionProgramDefinitions.ReadMechanicsWord(
                 (index & 1) == 0
-                    ? BombTorizoDroolInstructionProgramDefinitions.NoDelay
-                    : BombTorizoDroolInstructionProgramDefinitions.FloorImpact);
+                    ? (ushort)BombTorizoDroolProgram.NoDelay
+                    : (ushort)BombTorizoDroolProgram.FloorImpact);
         }
         return checksum;
     }

@@ -24,7 +24,8 @@ internal static class VramDmaProducerContracts
             ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "2EA2B64CC751F333B40AED2D5CD4E4FB7B6261003A1882E42E0CF34234C2EB4D") => "death",
             ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "08658BA90E0B432295CA0E4C8F2F72C0BF5F3E4C6F2FC78D0931AEBBB999CE51") => "grapple-native",
             ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "9400C1F1F3EB941C04621BC070CE56B89828DFFFD4A90A89DD48495304C9700B") => "beam",
-            ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "B26BA7F6ACF3E0A9E88D49A30A4EC87A879555D305F29051C4CE093CDDD857CF") => "sky",
+            // #627 re-pin: the chunk table parameter became ScrollingSkyChunkTable with the same two tables; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "A2AD8385A17B2882557B10624010100C822C3E1F6065403D06698A5C6B73C32B") => "sky",
             ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "91776F442E0E3B352859873875ED9CC1EEF2DE5B7AE0404EF11E0B7B3FA74322") => "statues",
             ("SuperMetroid.Core.Game.WreckedShipTreadmillAnimatedTilesState.Step", "3326DF0E41031BBC1A775D7CB9AE16CD0E0DEACDBFF496AD2482229F046152CE") => "treadmill",
             ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "440774579B4AA06B249473C51A59FECC7580D0C35E5316933E1E361582FC27ED") => "plm",

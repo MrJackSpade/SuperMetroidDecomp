@@ -13,7 +13,7 @@ internal static partial class Program
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {
             bool first = pass.HeaderOffset == CrocomireMeltingTransferDefinitions.FirstHeaderOffset;
-            int source = first ? CrocomireMeltingArtworkAddresses.FirstTilemap : CrocomireMeltingArtworkAddresses.SecondTilemap;
+            int source = (int)(first ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap);
             baseline.InitializeMap(source); edited.InitializeMap(source);
             AssertCrocomireEffectMechanics(baseline, edited, "melt map replacement");
             AssertTrue(!baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "authored melt map reaches scratch");

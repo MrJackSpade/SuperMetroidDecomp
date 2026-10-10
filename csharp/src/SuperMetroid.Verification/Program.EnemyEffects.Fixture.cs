@@ -43,7 +43,7 @@ internal static partial class Program
         internal void InitializeMap(int source) => typeof(RoomEnemySystem)
             .GetMethod("InitializeCrocomireMeltingTilemap", PrivateInstance)!
             .CreateDelegate<Action<CrocomireEnemyState, int, ushort>>(Enemies)(
-                Actor, source, source == CrocomireMeltingArtworkAddresses.SecondTilemap
+                Actor, source, source == (int)CrocomireMeltingTilemapAddress.SecondTilemap
                     ? CrocomireInstructionProgramDefinitions.MeltingTwoTopRow
                     : CrocomireInstructionProgramDefinitions.MeltingOneTopRow);
 

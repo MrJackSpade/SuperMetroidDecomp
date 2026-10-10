@@ -40,9 +40,9 @@ internal static partial class Program
 
         foreach ((ushort operand, ushort pointer) in new[]
                  {
-                     (SkreeMetareeParticleVisualDefinitions.SkreeOperand,
+                     ((ushort)SkreeMetareeParticleOperand.Skree,
                          SkreeMetareeParticleVisualDefinitions.SkreeComposition),
-                     (SkreeMetareeParticleVisualDefinitions.MetareeOperand,
+                     ((ushort)SkreeMetareeParticleOperand.Metaree,
                          SkreeMetareeParticleVisualDefinitions.MetareeComposition),
                  })
         {
@@ -531,7 +531,7 @@ internal static partial class Program
         byte[] invalidCurrentJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.Version,
+                Version = (int)EnemyProjectileSpritemapVersion.Current,
                 Frames = incompleteCurrent,
                 ProgramFrames = document.ProgramFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -545,7 +545,7 @@ internal static partial class Program
         byte[] invalidProgramJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.Version,
+                Version = (int)EnemyProjectileSpritemapVersion.Current,
                 Frames = document.Frames,
                 ProgramFrames = incompleteProgramFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -632,7 +632,7 @@ internal static partial class Program
         byte[] versionFourJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.PreAlcoonVersion,
+                Version = (int)EnemyProjectileSpritemapVersion.PreAlcoon,
                 Frames = document.Frames,
                 ProgramFrames = versionFourFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -659,7 +659,7 @@ internal static partial class Program
         byte[] versionFiveJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.PreGoldenTorizoVersion,
+                Version = (int)EnemyProjectileSpritemapVersion.PreGoldenTorizo,
                 Frames = document.Frames,
                 ProgramFrames = versionFiveFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -693,7 +693,7 @@ internal static partial class Program
         byte[] versionSixJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.PreGoldenTorizoEggVersion,
+                Version = (int)EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg,
                 Frames = document.Frames,
                 ProgramFrames = versionSixFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -720,7 +720,7 @@ internal static partial class Program
         byte[] versionSevenJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.PreTorizoEffectsVersion,
+                Version = (int)EnemyProjectileSpritemapVersion.PreTorizoEffects,
                 Frames = document.Frames,
                 ProgramFrames = versionSevenFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -750,7 +750,7 @@ internal static partial class Program
         byte[] versionEightJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.PreGenericEnemyDeathVersion,
+                Version = (int)EnemyProjectileSpritemapVersion.PreGenericEnemyDeath,
                 Frames = document.Frames,
                 ProgramFrames = versionEightFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -781,7 +781,7 @@ internal static partial class Program
         byte[] versionNineJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.PreEnvironmentAndAttackVersion,
+                Version = (int)EnemyProjectileSpritemapVersion.PreEnvironmentAndAttack,
                 Frames = document.Frames,
                 ProgramFrames = versionNineFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -812,7 +812,7 @@ internal static partial class Program
         byte[] versionTenJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.PreMotherBrainAndStatueVersion,
+                Version = (int)EnemyProjectileSpritemapVersion.PreMotherBrainAndStatue,
                 Frames = document.Frames,
                 ProgramFrames = versionTenFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -1026,10 +1026,10 @@ internal static partial class Program
                 (EnemyProjectilePresentationFrameDefinitions.Contains(low) ||
                  EnemyProjectilePresentationFrameDefinitions.Contains(
                      unchecked((ushort)(low - 1))) ||
-                 low is SkreeMetareeParticleVisualDefinitions.SkreeOperand or
-                    SkreeMetareeParticleVisualDefinitions.MetareeOperand ||
-                 low == SkreeMetareeParticleVisualDefinitions.SkreeOperand + 1 ||
-                 low == SkreeMetareeParticleVisualDefinitions.MetareeOperand + 1))
+                 low is (ushort)SkreeMetareeParticleOperand.Skree or
+                    (ushort)SkreeMetareeParticleOperand.Metaree ||
+                 low == (ushort)SkreeMetareeParticleOperand.Skree + 1 ||
+                 low == (ushort)SkreeMetareeParticleOperand.Metaree + 1))
                 throw new InvalidOperationException(
                     $"Installed enemy projectile reread visual byte ${address:X6}.");
             return source.ReadByte(address);

@@ -331,10 +331,6 @@ public static class RoomFxRomData
         }
         /// <summary>VRAM word base of the scrolling-sky BG2 tilemap.</summary>
         public const ushort Bg2TilemapBaseWord = 0x4800;
-        /// <summary>$88:AD9C, land sky chunk pointers used by the scrolling-sky room main.</summary>
-        public const int LandChunkPointerTableAddress = 0x88ad9c;
-        /// <summary>$88:ADA6, ocean sky chunk pointers passed by RoomMainAsm_ScrollingSkyOcean ($88:AF99).</summary>
-        public const int OceanChunkPointerTableAddress = 0x88ada6;
         /// <summary>Number of horizontal-scroll accumulator and HDMA data slots.</summary>
         public const int DataSlotCount = 23;
         /// <summary>Exclusive vertical world position of the authored sky-band table.</summary>

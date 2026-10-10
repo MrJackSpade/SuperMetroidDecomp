@@ -5,15 +5,6 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge constants used exclusively by Maridia's n00b-tube PLM program.</summary>
 public static class NoobTubePlmRomData
 {
-    /// <summary><c>$84:D4BF</c>: wake the linked list on a newly pressed face button or horizontal direction.</summary>
-    public const ushort WakeOnAcceptedInputPreInstruction = 0xd4bf;
-
-    /// <summary><c>$84:BD26</c>: select the linked list only after a power-bomb hit.</summary>
-    public const ushort WakeOnPowerBombPreInstruction = 0xbd26;
-
-    /// <summary><c>$84:86D0</c>: inert return installed by ClearPreInstruction.</summary>
-    public const ushort InactivePreInstruction = 0x86d0;
-
     /// <summary>Native controller-new-input mask used by <c>$84:D4BF</c>.</summary>
     public const ushort AcceptedWakeInputMask = 0xc3c0;
 
@@ -34,19 +25,36 @@ public static class NoobTubePlmRomData
 
     /// <summary>Native earthquake duration written by instruction $D536.</summary>
     public const ushort EarthquakeTimer = 0x0040;
+}
 
+/// <summary>Bank-$84 pre-instructions the n00b-tube PLM installs.</summary>
+public enum NoobTubePlmPreInstruction : ushort
+{
+    /// <summary><c>$84:D4BF</c>: wake the linked list on a newly pressed face button or horizontal direction.</summary>
+    WakeOnAcceptedInput = 0xd4bf,
+
+    /// <summary><c>$84:BD26</c>: select the linked list only after a power-bomb hit.</summary>
+    WakeOnPowerBomb = 0xbd26,
+
+    /// <summary><c>$84:86D0</c>: inert return installed by ClearPreInstruction.</summary>
+    Inactive = 0x86d0,
+}
+
+/// <summary>Bank-$86 enemy-projectile definitions the n00b-tube PLM spawns.</summary>
+public enum NoobTubeProjectileDefinition : ushort
+{
     /// <summary>Bank-$86 n00b-tube crack projectile definition.</summary>
-    public const ushort CrackProjectile = 0xd904;
+    Crack = 0xd904,
 
     /// <summary>Bank-$86 n00b-tube shard projectile definition.</summary>
-    public const ushort ShardProjectile = 0xd912;
+    Shard = 0xd912,
 
     /// <summary>Bank-$86 released-air-bubble projectile definition.</summary>
-    public const ushort ReleasedAirBubbleProjectile = 0xd920;
+    ReleasedAirBubble = 0xd920,
 }
 
 /// <summary>One native room-graphics enemy-projectile spawn emitted by PLM $D70C.</summary>
 public readonly record struct NoobTubeProjectileRequest(
-    ushort DefinitionPointer,
+    NoobTubeProjectileDefinition DefinitionPointer,
     ushort Parameter,
     int PlmBlockIndex);

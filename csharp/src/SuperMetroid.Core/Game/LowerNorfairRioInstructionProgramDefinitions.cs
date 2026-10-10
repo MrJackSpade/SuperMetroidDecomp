@@ -70,8 +70,8 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions
             {
                 if (offset == 0)
                     return program is AscendingPart2 or Cooldown
-                        ? LowerNorfairRioInstructionCodes.ShowFlames
-                        : LowerNorfairRioInstructionCodes.HideFlames;
+                        ? (ushort)LowerNorfairRioInstruction.ShowFlames
+                        : (ushort)LowerNorfairRioInstruction.HideFlames;
                 offset -= 2;
             }
             int frames = FrameCount(program);
@@ -81,7 +81,7 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions
             if (offset == frames * 4)
                 return loops ? CommonEnemyInstructionCodes.Goto
                     : program == Descending ? CommonEnemyInstructionCodes.Sleep
-                    : LowerNorfairRioInstructionCodes.SetAnimationFinishedFlag;
+                    : (ushort)LowerNorfairRioInstruction.SetAnimationFinishedFlag;
             return loops ? (ushort)(program + (program == Flames ? 0 : 2))
                 : CommonEnemyInstructionCodes.Sleep;
         }

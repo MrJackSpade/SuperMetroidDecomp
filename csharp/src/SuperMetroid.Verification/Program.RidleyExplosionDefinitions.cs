@@ -26,7 +26,7 @@ internal static partial class Program
                 $"Ridley breakup native spawn order {index}");
         }
 
-        for (ushort parameter = 0; parameter <= RidleyExplosionParts.Claw; parameter += 2)
+        for (ushort parameter = 0; parameter <= (ushort)RidleyExplosionPart.Claw; parameter += 2)
         {
             RidleyExplosionPartDefinition definition =
                 RidleyExplosionDefinitions.GetPart(parameter);
@@ -40,7 +40,7 @@ internal static partial class Program
             ushort parameter = unchecked((ushort)(tailIndex * 2));
             AssertEqual(
                 Word(rom, fixedTailOperands[tailIndex]),
-                RidleyExplosionDefinitions.SelectTailInstructionList(parameter, 0),
+                RidleyExplosionDefinitions.SelectTailInstructionList((RidleyExplosionPart)parameter, 0),
                 $"Ridley tail fragment instruction ${parameter:X2}");
         }
         for (int orientation = 0; orientation < 16; orientation++)
@@ -48,18 +48,18 @@ internal static partial class Program
             AssertEqual(
                 Word(rom, 0xa6c7ba + orientation * 2),
                 RidleyExplosionDefinitions.SelectTailInstructionList(
-                    RidleyExplosionParts.TailTip,
+                    RidleyExplosionPart.TailTip,
                     orientation),
                 $"Ridley tail-tip orientation {orientation}");
         }
 
-        ushort[] bodyParameters =
+        RidleyExplosionPart[] bodyParameters =
         [
-            RidleyExplosionParts.Wings,
-            RidleyExplosionParts.Legs,
-            RidleyExplosionParts.OpenHeadAndNeck,
-            RidleyExplosionParts.Torso,
-            RidleyExplosionParts.Claw,
+            RidleyExplosionPart.Wings,
+            RidleyExplosionPart.Legs,
+            RidleyExplosionPart.OpenHeadAndNeck,
+            RidleyExplosionPart.Torso,
+            RidleyExplosionPart.Claw,
         ];
         int[] xTables = [0xa6c804, 0xa6c836, 0xa6c868, 0xa6c89a, 0xa6c8cc];
         int[] yOperands = [0xa6c7f4, 0xa6c826, 0xa6c858, 0xa6c88a, 0xa6c8bc];
@@ -197,10 +197,10 @@ internal static partial class Program
         };
 
         int cases = 0;
-        for (ushort parameter = 0; parameter <= RidleyExplosionParts.Claw; parameter += 2)
+        for (ushort parameter = 0; parameter <= (ushort)RidleyExplosionPart.Claw; parameter += 2)
         {
-            int orientationCount = parameter == RidleyExplosionParts.TailTip ? 16 : 1;
-            int facingCount = parameter > RidleyExplosionParts.TailTip ? 2 : 1;
+            int orientationCount = parameter == (ushort)RidleyExplosionPart.TailTip ? 16 : 1;
+            int facingCount = parameter > (ushort)RidleyExplosionPart.TailTip ? 2 : 1;
             for (int facingIndex = 0; facingIndex < facingCount; facingIndex++)
             for (int orientation = 0; orientation < orientationCount; orientation++)
             {
@@ -223,14 +223,14 @@ internal static partial class Program
                 AssertEqual(unchecked((ushort)-0x0130), fragment.VariableB,
                     "Ridley breakup production signed random velocity");
 
-                if (parameter <= RidleyExplosionParts.TailTip)
+                if (parameter <= (ushort)RidleyExplosionPart.TailTip)
                 {
                     int tailIndex = parameter >> 1;
                     AssertEqual(state.TailSegments[tailIndex].XPosition, fragment.XPosition,
                         $"Ridley breakup production tail X ${parameter:X2}");
                     AssertEqual(state.TailSegments[tailIndex].YPosition, fragment.YPosition,
                         $"Ridley breakup production tail Y ${parameter:X2}");
-                    ushort expectedInstruction = parameter == RidleyExplosionParts.TailTip
+                    ushort expectedInstruction = parameter == (ushort)RidleyExplosionPart.TailTip
                         ? ReadRidleyExplosionWord(rom, 0xa6c7ba + orientation * 2)
                         : ReadRidleyExplosionWord(
                             rom,
@@ -241,7 +241,7 @@ internal static partial class Program
                 }
                 else
                 {
-                    int bodyIndex = (parameter - RidleyExplosionParts.Wings) >> 1;
+                    int bodyIndex = (parameter - (ushort)RidleyExplosionPart.Wings) >> 1;
                     int[] xTables = [0xa6c804, 0xa6c836, 0xa6c868, 0xa6c89a, 0xa6c8cc];
                     int[] yOperands = [0xa6c7f4, 0xa6c826, 0xa6c858, 0xa6c88a, 0xa6c8bc];
                     int[] instructionTables = [0xa6c808, 0xa6c83a, 0xa6c86c, 0xa6c89e, 0xa6c8d0];

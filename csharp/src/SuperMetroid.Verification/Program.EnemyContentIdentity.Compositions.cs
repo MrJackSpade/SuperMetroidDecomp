@@ -78,7 +78,7 @@ internal static partial class Program
             var programs = EnemyProjectilePresentationFrameDefinitions.All.ToArray();
             return new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.Version,
+                Version = (int)EnemyProjectileSpritemapVersion.Current,
                 Frames = Ordered(frames.Select((frame, index) =>
                     KeyValuePair.Create(frame.Name, Parts("projectile", index == frames.Length - 1)))),
                 ProgramFrames = Ordered(programs.Select((frame, index) =>

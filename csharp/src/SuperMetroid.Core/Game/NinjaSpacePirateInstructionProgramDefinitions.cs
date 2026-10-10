@@ -101,7 +101,7 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
             layout.Begin(right ? SpinJumpRight : SpinJumpLeft);
             layout.Function(NinjaSpacePirateFunction.NoOperation);
             layout.Claw(right, second: false);
-            layout.Word(SpacePirateInstructionCodes.Instruction_PirateNinja_ResetSpeed);
+            layout.Word((ushort)SpacePirateInstruction.PirateNinja_ResetSpeed);
             layout.Function(NinjaSpacePirateFunction.NoOperation);
             layout.Pose(SpinPreparationHold);
             layout.Function(right ? NinjaSpacePirateFunction.SpinJumpRightRising : NinjaSpacePirateFunction.SpinJumpLeftRising);
@@ -115,7 +115,7 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
             ushort activeLoop = layout.Cursor;
             layout.Poses(4, ActiveHold);
             layout.Function(NinjaSpacePirateFunction.NoOperation);
-            layout.Word(SpacePirateInstructionCodes.Instruction_PirateNinja_SetFunction0FAC_Active);
+            layout.Word((ushort)SpacePirateInstruction.PirateNinja_SetFunction0FAC_Active);
             layout.Goto(activeLoop);
 
             layout.Begin(right ? FlinchFacingRight : FlinchFacingLeft);
@@ -126,8 +126,8 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
             layout.Begin(right ? DivekickRightJump : DivekickLeftJump);
             layout.Function(NinjaSpacePirateFunction.NoOperation);
             layout.Pose(JumpPreparationHold);
-            layout.Word(right ? SpacePirateInstructionCodes.Instruction_PirateNinja_SetRightDivekickJumpInitialYSpeed
-                : SpacePirateInstructionCodes.Instruction_PirateNinja_SetLeftDivekickJumpInitialYSpeed);
+            layout.Word(right ? (ushort)SpacePirateInstruction.PirateNinja_SetRightDivekickJumpInitialYSpeed
+                : (ushort)SpacePirateInstruction.PirateNinja_SetLeftDivekickJumpInitialYSpeed);
             layout.Function(right ? NinjaSpacePirateFunction.DivekickRightJump : NinjaSpacePirateFunction.DivekickLeftJump);
             ushort flashLoop = layout.Cursor;
             layout.Palette(NormalPalette); layout.Pose(JumpFlashHold);
@@ -198,21 +198,21 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
         }
         internal void Function(NinjaSpacePirateFunction function)
         {
-            Word(SpacePirateInstructionCodes.Instruction_PirateWall_FunctionInY); Word((ushort)function);
+            Word((ushort)SpacePirateInstruction.PirateWall_FunctionInY); Word((ushort)function);
         }
         internal void Palette(ushort palette)
         {
-            Word(SpacePirateInstructionCodes.Instruction_PirateNinja_PaletteIndexInY); Word(palette);
+            Word((ushort)SpacePirateInstruction.PirateNinja_PaletteIndexInY); Word(palette);
         }
         internal void Sound(ushort sound)
         {
-            Word(SpacePirateInstructionCodes.Instruction_PirateNinja_QueueSoundInY_Lib2_Max6); Word(sound);
+            Word((ushort)SpacePirateInstruction.PirateNinja_QueueSoundInY_Lib2_Max6); Word(sound);
         }
         internal void Goto(ushort address) { Word(CommonEnemyInstructionCodes.Goto); Word(address); }
         internal void Claw(bool right, bool second)
         {
             Poses(5, AttackWindupHold); Pose(ClawReleaseHold);
-            Word(SpacePirateInstructionCodes.Instruction_PirateNinja_SpawnClawProjWithThrowDirSpawnOffset);
+            Word((ushort)SpacePirateInstruction.PirateNinja_SpawnClawProjWithThrowDirSpawnOffset);
             Word((ushort)(right ? 1 : 0));
             Word(unchecked((ushort)((right ? 1 : -1) * (second ? SecondClawX : FirstClawX))));
             Word(unchecked((ushort)(second ? ClawY : -ClawY)));

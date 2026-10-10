@@ -44,16 +44,16 @@ internal static partial class Program
             PaletteIndex = 0x0c00,
         };
         var state = new WorkRobotEnemyState(robot);
-        var definitions = new (ushort Definition, ushort XVelocity)[]
+        var definitions = new (WorkRobotLaser Definition, ushort XVelocity)[]
         {
-            (WorkRobotLaserDefinitions.UpLeft, unchecked((ushort)-0x0200)),
-            (WorkRobotLaserDefinitions.Horizontal, unchecked((ushort)-0x0200)),
-            (WorkRobotLaserDefinitions.DownLeft, unchecked((ushort)-0x0200)),
-            (WorkRobotLaserDefinitions.UpRight, 0x0200),
-            (WorkRobotLaserDefinitions.DownRight, 0x0200),
+            (WorkRobotLaser.UpLeft, unchecked((ushort)-0x0200)),
+            (WorkRobotLaser.Horizontal, unchecked((ushort)-0x0200)),
+            (WorkRobotLaser.DownLeft, unchecked((ushort)-0x0200)),
+            (WorkRobotLaser.UpRight, 0x0200),
+            (WorkRobotLaser.DownRight, 0x0200),
         };
 
-        foreach ((ushort definition, ushort xVelocity) in definitions)
+        foreach ((WorkRobotLaser definition, ushort xVelocity) in definitions)
         {
             state.LaserXVelocity = xVelocity;
             spawn.Invoke(enemies, [robot, state, definition, (ushort)0, (ushort)0]);

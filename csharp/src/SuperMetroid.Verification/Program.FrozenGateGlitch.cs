@@ -83,7 +83,7 @@ internal static partial class Program
         }
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
-        AssertEqual(DownwardGatePreInstructionCodes.WakeIfTriggeredOrSamusBelow,
+        AssertEqual((ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow,
             gate.PreInstruction, "Caterpillar gate enters proximity-aware sleep");
         ushort sleepingInstruction = gate.InstructionPointer;
 
@@ -141,7 +141,7 @@ internal static partial class Program
         // callback plus the same advancing instruction list. Compare the observable wake
         // result above; retain the raw CPU words in the fixture for disassembly auditing.
         AssertEqual(expected.GateWoke,
-            gate.PreInstruction == DownwardGatePreInstructionCodes.Inert,
+            gate.PreInstruction == (ushort)DownwardGatePreInstruction.Inert,
             $"{expected.Distance}-pixel case selects the translated moving-gate phase");
     }
 

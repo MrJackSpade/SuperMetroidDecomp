@@ -13,7 +13,7 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitionsTooling : II
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         // Every two-byte word in the bounded program is control except the seven visuals.
-        for (ushort address = BombTorizoDroolInstructionProgramDefinitions.FourFrameDelay; address <= BombTorizoDroolInstructionProgramDefinitions.FloorImpact + 14; address += 2)
+        for (ushort address = BombTorizoDroolInstructionProgramDefinitions.StreamStart; address <= (ushort)BombTorizoDroolProgram.FloorImpact + 14; address += 2)
         {
             if (BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord(address)) continue;
             if (index-- == 0) return new(address, BombTorizoDroolInstructionProgramDefinitions.ReadMechanicsWord(address));
@@ -23,8 +23,8 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitionsTooling : II
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        int offset = unchecked((ushort)address) - BombTorizoDroolInstructionProgramDefinitions.FourFrameDelay;
-        return (uint)offset < BombTorizoDroolInstructionProgramDefinitions.FloorImpact + 16 - BombTorizoDroolInstructionProgramDefinitions.FourFrameDelay &&
-            !BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)(BombTorizoDroolInstructionProgramDefinitions.FourFrameDelay + (offset & ~1)));
+        int offset = unchecked((ushort)address) - BombTorizoDroolInstructionProgramDefinitions.StreamStart;
+        return (uint)offset < (ushort)BombTorizoDroolProgram.FloorImpact + 16 - BombTorizoDroolInstructionProgramDefinitions.StreamStart &&
+            !BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)(BombTorizoDroolInstructionProgramDefinitions.StreamStart + (offset & ~1)));
     }
 }

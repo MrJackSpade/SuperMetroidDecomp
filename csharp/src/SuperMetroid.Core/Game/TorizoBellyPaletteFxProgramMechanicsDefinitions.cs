@@ -152,10 +152,10 @@ public sealed class TorizoBellyPaletteFxProgramDefinition
         int setupOffset = pointer - ProgramStart;
         ushort? setupWord = setupOffset switch
         {
-            0 => PaletteFxInstructionCodes.SetColorIndex,
+            0 => (ushort)PaletteFxInstruction.SetColorIndex,
             2 => TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
-            4 => PaletteFxInstructionCodes.SetPreInstruction,
-            6 => PaletteFxPreInstructionCodes.DeleteWhenEnemyZeroDies,
+            4 => (ushort)PaletteFxInstruction.SetPreInstruction,
+            6 => (ushort)PaletteFxPreInstruction.DeleteWhenEnemyZeroDies,
             _ => null,
         };
         if (setupWord.HasValue)
@@ -166,7 +166,7 @@ public sealed class TorizoBellyPaletteFxProgramDefinition
 
         if (pointer == LoopInstructionPointer)
         {
-            value = PaletteFxInstructionCodes.Goto;
+            value = (ushort)PaletteFxInstruction.Goto;
             return true;
         }
         if (pointer == unchecked((ushort)(LoopInstructionPointer + sizeof(ushort))))
@@ -189,7 +189,7 @@ public sealed class TorizoBellyPaletteFxProgramDefinition
                 TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameByteCount -
                 sizeof(ushort))))
             {
-                value = PaletteFxInstructionCodes.Wait;
+                value = (ushort)PaletteFxInstruction.Wait;
                 return true;
             }
         }

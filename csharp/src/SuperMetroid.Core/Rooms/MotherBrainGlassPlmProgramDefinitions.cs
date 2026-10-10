@@ -70,7 +70,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
             return ((address - BossDead) % 6) switch
             {
                 0 => 1,
-                2 => address < NoGlass ? MotherBrainGlassPlmDrawDefinitions.Cleared : MotherBrainGlassPlmDrawDefinitions.Shatter3,
+                2 => address < NoGlass ? (ushort)MotherBrainGlassDraw.Cleared : (ushort)MotherBrainGlassDraw.Shatter3,
                 _ => (ushort)RoomPlmInstruction.Delete,
             };
         int start = Stages;
@@ -113,15 +113,15 @@ internal static class MotherBrainGlassPlmProgramDefinitions
 
     private static ushort DrawAt(int stage) => stage switch
     {
-        0 => MotherBrainGlassPlmDrawDefinitions.Initial,
-        1 => MotherBrainGlassPlmDrawDefinitions.PaneDamage1,
-        2 => MotherBrainGlassPlmDrawDefinitions.PaneDamage2,
-        3 => MotherBrainGlassPlmDrawDefinitions.PaneTransition,
-        4 => MotherBrainGlassPlmDrawDefinitions.ShiftedPane1,
-        5 => MotherBrainGlassPlmDrawDefinitions.ShiftedPane2,
-        6 => MotherBrainGlassPlmDrawDefinitions.ShiftedPane3,
-        7 => MotherBrainGlassPlmDrawDefinitions.Shatter1,
-        8 => MotherBrainGlassPlmDrawDefinitions.Shatter2,
-        _ => MotherBrainGlassPlmDrawDefinitions.Shatter3,
+        0 => (ushort)MotherBrainGlassDraw.Initial,
+        1 => (ushort)MotherBrainGlassDraw.PaneDamage1,
+        2 => (ushort)MotherBrainGlassDraw.PaneDamage2,
+        3 => (ushort)MotherBrainGlassDraw.PaneTransition,
+        4 => (ushort)MotherBrainGlassDraw.ShiftedPane1,
+        5 => (ushort)MotherBrainGlassDraw.ShiftedPane2,
+        6 => (ushort)MotherBrainGlassDraw.ShiftedPane3,
+        7 => (ushort)MotherBrainGlassDraw.Shatter1,
+        8 => (ushort)MotherBrainGlassDraw.Shatter2,
+        _ => (ushort)MotherBrainGlassDraw.Shatter3,
     };
 }

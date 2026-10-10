@@ -7,8 +7,18 @@ internal readonly record struct BabyMetroidRouteRecord(
     ushort TargetX,
     ushort TargetY,
     ushort AccelerationDivisorIndex,
-    ushort MovementFunction,
+    BabyMetroidRouteMovementFunction MovementFunction,
     ushort FollowingWord);
+
+/// <summary>Bank-<c>$A9</c> movement callbacks named by the Baby Metroid route records.</summary>
+internal enum BabyMetroidRouteMovementFunction : ushort
+{
+    /// <summary><c>$A9:F45F</c>, gradual acceleration with wrong-way extra <c>$0008</c>.</summary>
+    GradualAccelerationExtraEight = 0xf45f,
+
+    /// <summary><c>$A9:F466</c>, gradual acceleration with wrong-way extra <c>$0010</c>.</summary>
+    GradualAccelerationExtraSixteen = 0xf466,
+}
 
 /// <summary>
 /// Compiled gameplay route and callback identities used by the Baby Metroid after it
@@ -25,12 +35,6 @@ internal static class BabyMetroidRouteDefinitions
 
     /// <summary>Number of authored route records from <c>$A9:CA24</c> through <c>$A9:CA63</c>.</summary>
     internal const int RecordCount = 8;
-
-    /// <summary><c>$A9:F45F</c>, gradual acceleration with wrong-way extra <c>$0008</c>.</summary>
-    internal const ushort GradualAccelerationExtraEightFunction = 0xf45f;
-
-    /// <summary><c>$A9:F466</c>, gradual acceleration with wrong-way extra <c>$0010</c>.</summary>
-    internal const ushort GradualAccelerationExtraSixteenFunction = 0xf466;
 
     /// <summary><c>$A9:CA66</c>, the route's terminal latch-onto-Samus AI function.</summary>
     internal const ushort LatchOntoSamusFunction = 0xca66;
@@ -50,7 +54,9 @@ internal static class BabyMetroidRouteDefinitions
         WaypointX[index],
         WaypointY[index],
         0x0000,
-        index < FirstExtraEightLeg ? GradualAccelerationExtraSixteenFunction : GradualAccelerationExtraEightFunction,
+        index < FirstExtraEightLeg
+            ? BabyMetroidRouteMovementFunction.GradualAccelerationExtraSixteen
+            : BabyMetroidRouteMovementFunction.GradualAccelerationExtraEight,
         index + 1 < RecordCount ? WaypointX[index + 1] : LatchOntoSamusFunction);
 
     /// <summary>Returns the exact authored record identified by its native bank-$A9 pointer.</summary>
@@ -67,13 +73,13 @@ internal static class BabyMetroidRouteDefinitions
     }
 
     /// <summary>Resolves a native movement callback to its wrong-way horizontal speed addition.</summary>
-    internal static ushort GetWrongWayOffScreenXSpeed(ushort movementFunction) =>
+    internal static ushort GetWrongWayOffScreenXSpeed(BabyMetroidRouteMovementFunction movementFunction) =>
         movementFunction switch
         {
-            GradualAccelerationExtraEightFunction => 0x0008,
-            GradualAccelerationExtraSixteenFunction => 0x0010,
+            BabyMetroidRouteMovementFunction.GradualAccelerationExtraEight => 0x0008,
+            BabyMetroidRouteMovementFunction.GradualAccelerationExtraSixteen => 0x0010,
             _ => throw new InvalidDataException(
-                $"Baby route names unknown movement function ${movementFunction:X4}."),
+                $"Baby route names unknown movement function ${(int)movementFunction:X4}."),
         };
 
     private static InvalidDataException InvalidPointer(ushort pointer) => new(

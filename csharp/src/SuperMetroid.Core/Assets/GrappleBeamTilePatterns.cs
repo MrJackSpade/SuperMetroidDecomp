@@ -1,5 +1,18 @@
 namespace SuperMetroid.Core.Assets;
 
+/// <summary>The four Grapple endpoint animation frames, in reviewed visual order.</summary>
+internal enum GrapplePointFrame
+{
+    /// <summary>$9A:8200/$9B:BFBD first endpoint frame selects the filled diamond.</summary>
+    FilledDiamond,
+    /// <summary>$9A:8400 second endpoint frame selects the hollow-center diamond.</summary>
+    HollowDiamond,
+    /// <summary>$9A:8600 third endpoint frame selects the tipped square outline.</summary>
+    TippedSquare,
+    /// <summary>$9A:8800 fourth endpoint frame selects the clipped diamond/inner spark.</summary>
+    ClippedDiamond,
+}
+
 /// <summary>Reviewed Grapple stroke artwork and calculated spark/transpose rules; independent supplied pixels are preserved. Collision, timing and angle-sector policies are excluded.</summary>
 internal static class GrappleBeamTilePatterns
 {
@@ -20,18 +33,10 @@ internal static class GrappleBeamTilePatterns
     private const int InnerRadius = 1;
     /// <summary>$9A:8200-929F: reviewed electric-stroke coverage uses palette ink15; its color changes remain palette-owned.</summary>
     private const byte Pen = 15;
-    /// <summary>$9A:8200/$9B:BFBD first endpoint frame selects the filled diamond; reviewed visual ordering.</summary>
-    private const int FilledDiamondFrame = 0;
-    /// <summary>$9A:8400 second endpoint frame selects the hollow-center diamond; reviewed visual ordering.</summary>
-    private const int HollowDiamondFrame = 1;
-    /// <summary>$9A:8600 third endpoint frame selects the tipped square outline; reviewed visual ordering.</summary>
-    private const int TippedSquareFrame = 2;
-    /// <summary>$9A:8800 fourth endpoint frame selects the clipped diamond/inner spark; reviewed visual ordering.</summary>
-    private const int ClippedDiamondFrame = 3;
     /// <summary>$9A:8200/8400/8600/8800 endpoint frames centered at pixel(4,3): filled diamond, hollow-center diamond, tipped square outline, clipped diamond outline with inner spark.</summary>
-    internal static byte[] Point(int frame)
+    internal static byte[] Point(GrapplePointFrame frame)
     {
-        if ((uint)frame > ClippedDiamondFrame) throw new ArgumentOutOfRangeException(nameof(frame));
+        if (!Enum.IsDefined(frame)) throw new ArgumentOutOfRangeException(nameof(frame));
         var pixels = new byte[64];
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
@@ -40,10 +45,11 @@ internal static class GrappleBeamTilePatterns
             int diamondDistance = dx + dy, squareDistance = Math.Max(dx, dy);
             bool filled = frame switch
             {
-                FilledDiamondFrame => diamondDistance <= SmallRadius,
-                HollowDiamondFrame => diamondDistance is <= MiddleRadius and not 0,
-                TippedSquareFrame => squareDistance == SmallRadius || (diamondDistance == MiddleRadius && (dx == 0 || dy == 0)),
-                _ => diamondDistance <= InnerRadius || (diamondDistance == OuterRadius && squareDistance <= ClipRadius),
+                GrapplePointFrame.FilledDiamond => diamondDistance <= SmallRadius,
+                GrapplePointFrame.HollowDiamond => diamondDistance is <= MiddleRadius and not 0,
+                GrapplePointFrame.TippedSquare => squareDistance == SmallRadius || (diamondDistance == MiddleRadius && (dx == 0 || dy == 0)),
+                GrapplePointFrame.ClippedDiamond => diamondDistance <= InnerRadius || (diamondDistance == OuterRadius && squareDistance <= ClipRadius),
+                _ => throw new InvalidOperationException($"Undefined Grapple point frame {frame}."),
             };
             if (filled) pixels[y * 8 + x] = Pen;
         }

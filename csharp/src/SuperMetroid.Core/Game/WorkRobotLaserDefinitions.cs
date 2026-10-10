@@ -4,22 +4,22 @@ namespace SuperMetroid.Core.Game;
 /// Bank-$86 projectile-definition identities used by Work Robot fire commands.
 /// The horizontal definition uses the owner's signed X velocity for both directions.
 /// </summary>
-internal static class WorkRobotLaserDefinitions
+internal enum WorkRobotLaser : ushort
 {
     /// <summary><c>EnemyProjectile_RobotLaser_UpLeft</c> at $86:D2A6.</summary>
-    internal const ushort UpLeft = 0xd2a6;
+    UpLeft = 0xd2a6,
 
     /// <summary><c>EnemyProjectile_RobotLaser_Horizontal</c> at $86:D2B4.</summary>
-    internal const ushort Horizontal = 0xd2b4;
+    Horizontal = 0xd2b4,
 
     /// <summary><c>EnemyProjectile_RobotLaser_DownLeft</c> at $86:D2C2.</summary>
-    internal const ushort DownLeft = 0xd2c2;
+    DownLeft = 0xd2c2,
 
     /// <summary><c>EnemyProjectile_RobotLaser_UpRight</c> at $86:D2D0.</summary>
-    internal const ushort UpRight = 0xd2d0;
+    UpRight = 0xd2d0,
 
     /// <summary><c>EnemyProjectile_RobotLaser_DownRight</c> at $86:D2DE.</summary>
-    internal const ushort DownRight = 0xd2de;
+    DownRight = 0xd2de,
 }
 
 /// <summary>

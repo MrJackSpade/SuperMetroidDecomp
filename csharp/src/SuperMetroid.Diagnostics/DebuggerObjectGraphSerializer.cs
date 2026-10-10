@@ -433,7 +433,12 @@ internal static class DebuggerObjectGraphSerializer
                 object? restoredValue;
                 try
                 {
-                    restoredValue = DebuggerEnumValues.AdaptToField(field, Read(), structElementDepth > 0);
+                    restoredValue = Read();
+                    // A field retyped from a primitive decodes its older payload explicitly.
+                    if (restoredValue is not null && restoredValue.GetType() != field.FieldType &&
+                        DebuggerRetypedFieldDefinitions.TryConvert(field, restoredValue, out object converted))
+                        restoredValue = converted;
+                    restoredValue = DebuggerEnumValues.AdaptToField(field, restoredValue, structElementDepth > 0);
                 }
                 catch (InvalidDataException exception)
                 {

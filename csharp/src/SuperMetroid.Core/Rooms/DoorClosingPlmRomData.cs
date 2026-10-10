@@ -9,16 +9,12 @@ internal readonly record struct DoorClosingPlmDefinition(
 /// Cartridge table semantics for <c>$8F:E68A Door_Closing_PLMs</c>.
 /// </summary>
 /// <remarks>
-/// The low two bits retain physical travel direction. Values zero through three are
-/// non-closing doors, four through seven request a blue cap, and eight through eleven
-/// request the Mother Brain escape gate. Named direction cases replace stored records;
-/// the exact byte domain remains 0..11, with no masked or extrapolated inputs.
+/// The table is indexed by the whole orientation byte: <see cref="CartridgeDoorOrientation"/>
+/// decodes it into its closing behavior (bits 2-3) and travel direction (bits 0-1), and
+/// rejects bytes beyond the twelve entries when the header is loaded.
 /// </remarks>
 public static class DoorClosingPlmRomData
 {
-
-    /// <summary>Number of entries in the retail door-closing header table.</summary>
-    public const int DirectionCount = 12;
 
     /// <summary>$84:C4CF, closing program selected by header $84:C8BE.</summary>
     internal const ushort BlueFacingRightInstructionList = 0xc4cf;
@@ -33,21 +29,23 @@ public static class DoorClosingPlmRomData
     internal const ushort BlueFacingUpInstructionList = 0xc500;
 
     /// <summary>
-    /// Decode the twelve native direction cases at $8F:E68A. Zero through three
-    /// select no actor, four through seven select oriented blue closers, and eight
-    /// through eleven all select the escape gate. No persistent table/cache remains.
+    /// The <c>$8F:E68A</c> entry for <paramref name="orientation"/>: none for the four
+    /// non-closing entries, the blue closer facing the travel direction, or the escape gate
+    /// (all four escape entries name the same PLM). No persistent table/cache remains.
     /// </summary>
-    internal static DoorClosingPlmDefinition GetDefinition(byte direction) => direction switch
+    internal static DoorClosingPlmDefinition? GetDefinition(CartridgeDoorOrientation orientation) => orientation.Closing switch
     {
-        < 4 => default,
-        4 => new(RoomPlmHeaders.BlueDoorClosingFacingRight, BlueFacingRightInstructionList),
-        5 => new(RoomPlmHeaders.BlueDoorClosingFacingLeft, BlueFacingLeftInstructionList),
-        6 => new(RoomPlmHeaders.BlueDoorClosingFacingDown, BlueFacingDownInstructionList),
-        7 => new(RoomPlmHeaders.BlueDoorClosingFacingUp, BlueFacingUpInstructionList),
-        < DirectionCount => new(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
+        DoorClosingBehavior.None => null,
+        DoorClosingBehavior.BlueDoorCloses => orientation.Direction switch
+        {
+            DoorDirection.Right => new(RoomPlmHeaders.BlueDoorClosingFacingRight, BlueFacingRightInstructionList),
+            DoorDirection.Left => new(RoomPlmHeaders.BlueDoorClosingFacingLeft, BlueFacingLeftInstructionList),
+            DoorDirection.Down => new(RoomPlmHeaders.BlueDoorClosingFacingDown, BlueFacingDownInstructionList),
+            DoorDirection.Up => new(RoomPlmHeaders.BlueDoorClosingFacingUp, BlueFacingUpInstructionList),
+            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door direction."),
+        },
+        DoorClosingBehavior.EscapeGateCloses => new(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
             RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
-        _ => throw new InvalidDataException(
-            $"Door direction ${direction:X2} indexes beyond the " +
-            $"{DirectionCount}-entry retail closing-PLM table."),
+        _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door closing behavior."),
     };
 }

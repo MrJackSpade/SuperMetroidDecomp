@@ -23,7 +23,7 @@ internal static partial class Program
         var level = new RoomLevelData(
             1, 1, [0], [0], [0], [], doorListPointer: landingDoors.Pointer);
         CartridgeDoorHeader resolved = level.ResolveDoorCollision(
-            new DoorNoReadAddressSpace(), behavior: 0, samusPose: 0);
+            new DoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door!;
         AssertEqual(DoorDefinitions.Get(landingDoors.DoorPointers.Span[0]), resolved,
             "production collision resolves compiled BTS index without a bus read");
         AssertEqual(resolved, level.PendingDoorTransition!,

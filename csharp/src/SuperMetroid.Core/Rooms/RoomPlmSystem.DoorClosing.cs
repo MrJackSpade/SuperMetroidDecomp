@@ -72,9 +72,7 @@ public sealed partial class RoomPlmSystem
             return true;
         }
 
-        DoorClosingPlmDefinition fallback =
-            DoorClosingPlmRomData.GetDefinition(door.Orientation);
-        if (fallback.Header == 0)
+        if (DoorClosingPlmRomData.GetDefinition(door.Orientation) is not { } fallback)
             return false;
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)

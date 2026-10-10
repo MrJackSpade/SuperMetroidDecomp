@@ -31,7 +31,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             var door = new CartridgeDoorHeader(
                 Pointer: 0,
                 DestinationRoomPointer: roomPointer,
-                Orientation: 0,
+                Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
                 PlmX: 0,
                 PlmY: 0,
                 DestinationScreenX: unchecked((byte)(cameraX >> 8)),

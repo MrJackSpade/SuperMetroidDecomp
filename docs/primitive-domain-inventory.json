@@ -698,16 +698,6 @@
     "status": "open"
    }
   ],
-  "DoorHeaderRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/DoorDefinitions.cs",
-    "line": 15,
-    "column": 66,
-    "rule": "SME6270",
-    "message": "'doorPointer' is a ushort switched over named constants of DoorHeaderRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "DownwardGatePreInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Gates.cs",
@@ -3690,30 +3680,6 @@
     "rule": "SME6272",
     "message": "Local 'direction' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
     "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Runtime/DoorOpeningScrollState.cs",
-    "line": 77,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'direction' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.RoomLoading.cs",
-    "line": 461,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'direction' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.RoomLoading.cs",
-    "line": 1376,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'direction' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
    }
   ],
   "masked selector filter": [
@@ -3776,15 +3742,26 @@
    "boundary": "debugger state: DebuggerEnumValues decodes older byte payloads and rejects undefined values",
    "invalidValues": "throw at the boundary and in every exhaustive switch",
    "consumers": "SamusXrayState, SuperMetroidRuntime.BuildXrayRevealTilemap/TransferXrayBg1Read, GameplayDisplayCapture.CaptureXray, verification"
+  },
+  "DoorOrientation": {
+   "previous": "CartridgeDoorHeader.Orientation (byte); DoorOpeningScrollState.Direction (int); 'int direction = door.Orientation & 3' locals; byte orientation parameters of DoorCameraAlignmentState.Step, DoorTransitionAlignsX, Prime*DoorOpeningBlocks and DoorClosingPlmRomData.GetDefinition",
+   "type": "DoorDirection : byte, DoorClosingBehavior : byte, validated CartridgeDoorOrientation value; DoorListEntry separates the elevator pseudo-doors ($88FC, $A18A), whose overlapped $91/$93 bytes are not orientations",
+   "closedProof": "Door_Closing_PLMs has exactly twelve entries ($00-$0B): rows 0-3 $0000, 4-7 blue closers facing each direction, 8-B the escape gate. Every retail header uses $00-$09. $80:AD3E/$82:E358 mask bits 0-1 as four directions; $82:DE55 tests bit 1 as the vertical axis.",
+   "transitions": "none (immutable header field); DoorDirections.IsVertical replaces bit-1 tests",
+   "boundary": "CartridgeDoorOrientation.Decode at CartridgeDoorHeaderImporter and the compiled DoorDefinitions catalog; Encode for ROM round trips; DebuggerRetypedFieldDefinitions converts legacy byte/int payloads",
+   "invalidValues": "Bytes above $0B throw InvalidDataException at decode; undefined members throw in the constructor and in every exhaustive switch",
+   "consumers": "DoorOpeningScrollState, SuperMetroidRuntime room loading/placement, DoorCameraAlignmentState, BackgroundScrollState door primers, RoomPlmSystem door closing, RoomLevelData/SamusBlockCollision via DoorListEntry",
+   "tests": "VerifyDoorOrientationDomain, VerifyRetailDoorHeaders, VerifyTourianElevatorDoors, door-closing fallback suites",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 409,
-  "openDomains": 244,
+  "openFindings": 405,
+  "openDomains": 243,
   "byRule": {
    "SME6271": 95,
-   "SME6270": 301,
-   "SME6272": 13
+   "SME6270": 300,
+   "SME6272": 10
   }
  }
 }

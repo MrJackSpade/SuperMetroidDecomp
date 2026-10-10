@@ -32,9 +32,9 @@ internal static partial class Program
         {
             var block = level.GetCollisionBlock(x, y);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            CartridgeDoorHeader door = level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, false);
-            if (door.DestinationRoomPointer == 0xa66a)
-                entry = level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
+            CartridgeDoorHeader? door = level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, false).Door;
+            if (door?.DestinationRoomPointer == 0xa66a)
+                entry = level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true).Door;
         }
         AssertTrue(entry is not null, "the Tourian entrance has a door into the statue room");
 

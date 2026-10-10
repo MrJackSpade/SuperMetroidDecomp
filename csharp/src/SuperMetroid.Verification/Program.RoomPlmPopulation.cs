@@ -21,25 +21,31 @@ internal static partial class Program
     private static void VerifyFallbackDoorHeaders(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, false);
     private static void VerifyFallbackDoorLists(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, true);
 
+    /// <summary>Entries in <c>Door_Closing_PLMs</c> ($8F:E68A), the orientation byte's domain.</summary>
+    private const byte DoorClosingTableEntries = 12;
+
     private static void VerifyFallbackDoorField(SuperMetroidAddressSpace rom, bool list)
     {
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             byte direction = (byte)raw;
-            if (raw >= 12)
+            if (raw >= DoorClosingTableEntries)
             {
-                AssertThrows<InvalidDataException>(() => DoorClosingPlmRomData.GetDefinition(direction), "Fallback door rejected direction");
+                AssertThrows<InvalidDataException>(() => CartridgeDoorOrientation.Decode(direction), "Orientation beyond Door_Closing_PLMs rejected");
                 if (!list) AssertThrows<InvalidDataException>(() => DoorClosingPlmRomData.GetHeader(direction), "Fallback door public rejected direction");
                 continue;
             }
             ushort header = ReadSamusEaterPlmWord(rom, 0x8fe68a + raw * 2);
-            var actual = DoorClosingPlmRomData.GetDefinition(direction);
+            CartridgeDoorOrientation orientation = CartridgeDoorOrientation.Decode(direction);
+            AssertEqual(direction, orientation.Encode(), "Orientation byte round-trips");
+            var actual = DoorClosingPlmRomData.GetDefinition(orientation);
+            AssertEqual(header == 0, actual is null, "Non-closing table entries select no actor");
             if (list)
                 AssertEqual(header == 0 ? (ushort)0 : ReadSamusEaterPlmWord(rom, 0x840000 | (header + 2)),
-                    actual.InitialInstructionList, "Fallback original initial list or no-actor zero");
+                    actual?.InitialInstructionList ?? 0, "Fallback original initial list or no-actor zero");
             else
             {
-                AssertEqual(header, actual.Header, "Fallback original direction header");
+                AssertEqual(header, actual?.Header ?? 0, "Fallback original direction header");
                 AssertEqual(header, DoorClosingPlmRomData.GetHeader(direction), "Fallback public original header");
             }
         }
@@ -52,7 +58,7 @@ internal static partial class Program
 
         Suite(nameof(VerifyFallbackDoorHeaders), () => VerifyFallbackDoorHeaders(rom));
         Suite(nameof(VerifyFallbackDoorLists), () => VerifyFallbackDoorLists(rom));
-        for (byte direction = 0; direction < DoorClosingPlmRomData.DirectionCount; direction++)
+        for (byte direction = 0; direction < DoorClosingTableEntries; direction++)
         {
             ushort expectedHeader = ReadWord(
                 rom,
@@ -70,7 +76,7 @@ internal static partial class Program
             var door = new CartridgeDoorHeader(
                 Pointer: 0,
                 DestinationRoomPointer: 0,
-                Orientation: direction,
+                Orientation: CartridgeDoorOrientation.Decode(direction),
                 PlmX: 1,
                 PlmY: 1,
                 DestinationScreenX: 0,
@@ -91,8 +97,8 @@ internal static partial class Program
         }
 
         AssertThrows<InvalidDataException>(
-            () => DoorClosingPlmRomData.GetDefinition(DoorClosingPlmRomData.DirectionCount),
-            "out-of-range door-closing direction fails loudly");
+            () => CartridgeDoorOrientation.Decode(DoorClosingTableEntries),
+            "out-of-range door orientation fails loudly");
         if (fallbackOnly) return;
         Suite(nameof(VerifyResidentDoorClosingDefinitions), () => VerifyResidentDoorClosingDefinitions(rom));
         Suite(nameof(VerifyMotherBrainEscapeGateCompiledDefinitions), () => VerifyMotherBrainEscapeGateCompiledDefinitions(rom));
@@ -179,7 +185,7 @@ internal static partial class Program
             var enteringDoor = new CartridgeDoorHeader(
                 Pointer: 0,
                 DestinationRoomPointer: 0,
-                Orientation: 5,
+                Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                 PlmX: blockX,
                 PlmY: blockY,
                 DestinationScreenX: 0,
@@ -385,7 +391,7 @@ internal static partial class Program
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0x8bc2,
             DestinationRoomPointer: RoomHeaderPointers.BombTorizoRoom,
-            Orientation: 5,
+            Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmX: doorX,
             PlmY: doorY,
             DestinationScreenX: 0,
@@ -519,7 +525,7 @@ internal static partial class Program
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0x8cb2,
             DestinationRoomPointer: 0x9b9d,
-            Orientation: 5,
+            Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmX: doorX,
             PlmY: doorY,
             DestinationScreenX: 0,
@@ -1004,7 +1010,7 @@ internal static partial class Program
         var motherBrainExit = new CartridgeDoorHeader(
             Pointer: 0xaa8c,
             DestinationRoomPointer: 0xde4d,
-            Orientation: 9,
+            Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             PlmX: gateX,
             PlmY: gateY,
             DestinationScreenX: 0,
@@ -1055,7 +1061,7 @@ internal static partial class Program
         AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).LevelWord,
             "fallback C8D0 executes the shared deactivate setup");
 
-        var nonClosingDoor = motherBrainExit with { Orientation = 0 };
+        var nonClosingDoor = motherBrainExit with { Orientation = new(DoorDirection.Right, DoorClosingBehavior.None) };
         var nonClosing = new RoomPlmSystem();
         AssertTrue(!nonClosing.TrySpawnDoorClosingPlm(guarded, fallbackLevel, nonClosingDoor, system),
             "directions zero through three retain the native no-closing-PLM branch");

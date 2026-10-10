@@ -715,7 +715,7 @@ internal static partial class Program
             var block = level.GetCollisionBlock(x, y);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             var door = level.ResolveDoorCollision(bus, block.Behavior, 1, false);
-            if (door.DestinationRoomPointer != NativeSnapshotMemory.RidleyRoom) continue;
+            if (door.Door?.DestinationRoomPointer != NativeSnapshotMemory.RidleyRoom) continue;
             level.ResolveDoorCollision(bus, block.Behavior, 1, true);
             found = true;
         }

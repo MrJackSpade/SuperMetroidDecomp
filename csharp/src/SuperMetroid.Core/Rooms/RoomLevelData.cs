@@ -368,7 +368,7 @@ public sealed class RoomLevelData
     /// Resolves a type-$9 BTS byte through the active room's door list exactly as bank $94
     /// does, then publishes the normal-door transition request for the top-level dispatcher.
     /// </summary>
-    public CartridgeDoorHeader ResolveDoorCollision(
+    public DoorListEntry ResolveDoorCollision(
         ISnesAddressSpace bus,
         byte behavior,
         byte samusPose,
@@ -388,22 +388,21 @@ public sealed class RoomLevelData
         // Bit seven is not part of the list index. Native elevator/special-door BTS values
         // share the same seven-bit table lookup before the destination-room high bit decides
         // whether collision is solid or starts game state $09.
-        CartridgeDoorHeader door = DoorDefinitions.Resolve(doorListPointer, behavior);
+        DoorListEntry entry = DoorDefinitions.Resolve(doorListPointer, behavior);
         // The native door handler normally publishes either a real transition or the
         // elevator-contact flag. The desktop runtime collapses the outer transition states
         // into one room-load call, however, so destination-side elevator return scans must
         // inspect the same type-$9 block without republishing either side effect. Keep the
         // door lookup and solid/passable classification intact while gating only the writes.
-        if (publishDoorSideEffects &&
-            (door.DestinationRoomPointer & 0x8000) != 0)
+        if (publishDoorSideEffects && entry.Door is { } door)
             PendingDoorTransition ??= door;
         // `$94:938B/$94:93CE` treat the pseudo destination as solid for every pose, but
         // publish elevator_flags only while samus_pose is below $09. This prevents running,
         // aerial, morph, and damage poses that merely brush the block from arming the actor.
-        else if (publishDoorSideEffects &&
+        else if (publishDoorSideEffects && entry.IsElevatorPseudoDoor &&
                  samusPose < SamusPoseIds.MovingRightNormalPose)
             ElevatorDoorContactPending = true;
-        return door;
+        return entry;
     }
 
     /// <summary>Consumes the native-equivalent <c>door_def_ptr</c> publication once.</summary>

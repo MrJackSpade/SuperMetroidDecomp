@@ -289,7 +289,7 @@ public sealed partial class SuperMetroidRuntime
             throw new InvalidOperationException("Door alignment requires an active camera.");
 
         DoorCameraAlignmentState alignment = DoorCameraAlignmentState.Step(
-            door.Orientation,
+            door.Orientation.Direction,
             Camera.XPosition,
             Camera.YPosition);
         if (alignment.Completed)
@@ -310,14 +310,12 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Decodes bank-$83's two-bit door direction into the axis aligned by $82:E310.
-    /// The alignment is perpendicular to travel: right/left (zero/one) converge camera Y,
-    /// while down/up (two/three) converge camera X. This literal branch matters because
-    /// aligning the travel axis instead moves a horizontal door frame by a tile row while
-    /// its room scroll is being staged.
+    /// The axis aligned by $82:E310, perpendicular to travel: right/left converge camera Y,
+    /// while down/up converge camera X. This literal branch matters because aligning the
+    /// travel axis instead moves a horizontal door frame by a tile row while its room
+    /// scroll is being staged.
     /// </summary>
-    internal static bool DoorTransitionAlignsX(byte orientation) =>
-        (orientation & 2) != 0;
+    internal static bool DoorTransitionAlignsX(DoorDirection direction) => direction.IsVertical();
 
     /// <summary>
     /// Runs the upward-only source-room tilemap correction at <c>$80:AD1D</c> before the
@@ -327,7 +325,7 @@ public sealed partial class SuperMetroidRuntime
     {
         CartridgeDoorHeader door = PendingDoorTransition
             ?? throw new InvalidOperationException("No pending door destination exists.");
-        if ((door.Orientation & 3) != 3)
+        if (door.Orientation.Direction != DoorDirection.Up)
             return;
         IReadOnlyList<BackgroundUpdateRequest> requests = BackgroundScroll.FixDoorsMovingUp();
         ExecuteBackgroundStreamRequests(requests, "upward source-door repair");
@@ -410,13 +408,14 @@ public sealed partial class SuperMetroidRuntime
         Samus.Kinematics.SetXFixed(position.X);
         Samus.Kinematics.SetYFixed(position.Y);
         var camera = DoorOpeningScrollState.GetSetupCamera(door);
-        int direction = door.Orientation & 3;
-        short delta = direction is 0 or 2 ? (short)4 : (short)-4;
-        if ((direction & 2) == 0) camera.X = unchecked((ushort)(camera.X + delta));
+        DoorDirection direction = door.Orientation.Direction;
+        short delta = direction is DoorDirection.Right or DoorDirection.Down ? (short)4 : (short)-4;
+        bool vertical = direction.IsVertical();
+        if (!vertical) camera.X = unchecked((ushort)(camera.X + delta));
         else camera.Y = unchecked((ushort)(camera.Y + delta));
         Camera.SetDoorTransitionPosition(camera.X, camera.Y);
-        Camera.PublishDoorSamusPosition((direction & 2) == 0 ? Samus.XPosition : null,
-            (direction & 2) != 0 ? Samus.YPosition : null);
+        Camera.PublishDoorSamusPosition(!vertical ? Samus.XPosition : null,
+            vertical ? Samus.YPosition : null);
         BackgroundScroll.Layer1XPosition = camera.X;
         BackgroundScroll.Layer1YPosition = camera.Y;
         _doorScrollingIrqRequestsNmi = true;
@@ -458,31 +457,32 @@ public sealed partial class SuperMetroidRuntime
             BackgroundScroll.Layer2YPosition,
             Samus.Kinematics.XFixed,
             Samus.Kinematics.YFixed);
-        int direction = door.Orientation & 3;
+        DoorDirection direction = door.Orientation.Direction;
         DoorOpeningPpuScroll sourceScroll = _pendingDoorOpeningPpuScroll
             ?? throw new InvalidOperationException(
                 "Door-opening scroll lost the source-room PPU scroll snapshot.");
         ushort stagedLayer1X = direction switch
         {
-            0 => unchecked((ushort)(_doorOpeningScroll.CameraX - 4)),
-            1 => unchecked((ushort)(_doorOpeningScroll.CameraX + 4)),
-            _ => _doorOpeningScroll.CameraX,
+            DoorDirection.Right => unchecked((ushort)(_doorOpeningScroll.CameraX - 4)),
+            DoorDirection.Left => unchecked((ushort)(_doorOpeningScroll.CameraX + 4)),
+            DoorDirection.Down or DoorDirection.Up => _doorOpeningScroll.CameraX,
+            _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
         };
         ushort stagedLayer1Y = direction switch
         {
-            2 => _doorOpeningScroll.CameraY,
-            3 => unchecked((ushort)(_doorOpeningScroll.CameraY + 5)),
-            _ => _doorOpeningScroll.CameraY,
+            DoorDirection.Up => unchecked((ushort)(_doorOpeningScroll.CameraY + 5)),
+            DoorDirection.Right or DoorDirection.Left or DoorDirection.Down => _doorOpeningScroll.CameraY,
+            _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
         };
         ushort stagedLayer2Y = direction switch
         {
-            2 => _doorOpeningScroll.Layer2Y,
-            3 => unchecked((ushort)(_doorOpeningScroll.Layer2Y + 4)),
-            _ => _doorOpeningScroll.Layer2Y,
+            DoorDirection.Up => unchecked((ushort)(_doorOpeningScroll.Layer2Y + 4)),
+            DoorDirection.Right or DoorDirection.Left or DoorDirection.Down => _doorOpeningScroll.Layer2Y,
+            _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
         };
         BackgroundScroll.ConfigureDoorOpeningOffsets(
             sourceScroll.Bg1Horizontal,
-            direction == 2
+            direction == DoorDirection.Down
                 ? unchecked((ushort)(sourceScroll.Bg1Vertical + 1))
                 : sourceScroll.Bg1Vertical,
             stagedLayer1X,
@@ -503,9 +503,9 @@ public sealed partial class SuperMetroidRuntime
         // updated the previous-block words but left the corresponding VRAM ring-buffer
         // column stale—the source-side column visible on a left transition then appeared
         // one block too high when interpreted using the destination room's row origin.
-        if ((door.Orientation & 2) == 0)
+        if (!door.Orientation.IsVertical)
         {
-            BackgroundScroll.PrimeHorizontalDoorOpeningBlocks(door.Orientation);
+            BackgroundScroll.PrimeHorizontalDoorOpeningBlocks(door.Orientation.Direction);
             IReadOnlyList<BackgroundUpdateRequest> initialRequests =
                 BackgroundScroll.CalculateScrollsAndUpdates();
             ExecuteBackgroundStreamRequests(initialRequests, "horizontal door-opening setup");
@@ -514,7 +514,7 @@ public sealed partial class SuperMetroidRuntime
         {
             IReadOnlyList<BackgroundUpdateRequest> initialRequests =
                 BackgroundScroll.PrimeVerticalDoorOpeningBlocks(
-                    door.Orientation,
+                    door.Orientation.Direction,
                     stagedLayer1Y,
                     stagedLayer2Y);
             ExecuteBackgroundStreamRequests(initialRequests, "vertical door-opening setup");
@@ -586,8 +586,9 @@ public sealed partial class SuperMetroidRuntime
             throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
         Samus.Kinematics.SetXFixed(state.SamusXFixed);
         Samus.Kinematics.SetYFixed(state.SamusYFixed);
-        Camera.PublishDoorSamusPosition((state.Direction & 2) == 0 ? Samus.XPosition : null,
-            (state.Direction & 2) != 0 ? Samus.YPosition : null);
+        bool vertical = state.Direction.IsVertical();
+        Camera.PublishDoorSamusPosition(!vertical ? Samus.XPosition : null,
+            vertical ? Samus.YPosition : null);
         return completed;
     }
 
@@ -601,10 +602,20 @@ public sealed partial class SuperMetroidRuntime
             ?? throw new InvalidOperationException("No door-opening scroll is active.");
         if (state.RemainingFrames != 0 || Samus is null)
             throw new InvalidOperationException("Door loading has not finished scrolling.");
-        if (state.Direction == 0)
-            Samus.XPosition |= 7;
-        else if (state.Direction == 1)
-            Samus.XPosition &= 0xfff8;
+        switch (state.Direction)
+        {
+            case DoorDirection.Right:
+                Samus.XPosition |= 7;
+                break;
+            case DoorDirection.Left:
+                Samus.XPosition &= 0xfff8;
+                break;
+            case DoorDirection.Down:
+            case DoorDirection.Up:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined door direction {state.Direction}.");
+        }
     }
 
     /// <summary>
@@ -826,7 +837,7 @@ public sealed partial class SuperMetroidRuntime
             // Up calculates BG2 from destination+$1F before changing the IRQ's layer-one
             // endpoint to destination+$20. Keeping those adjacent words distinct prevents
             // a parallax room from accumulating a one-pixel layer mismatch at the snap.
-            ushort layer2CalculationY = (door.Orientation & 3) == 3
+            ushort layer2CalculationY = door.Orientation.Direction == DoorDirection.Up
                 ? unchecked((ushort)(cameraY - 1))
                 : cameraY;
             BackgroundScroll.PrepareDoorOpeningDestination(cameraX, layer2CalculationY);
@@ -1373,7 +1384,7 @@ public sealed partial class SuperMetroidRuntime
         uint sourceXFixed,
         uint sourceYFixed)
     {
-        int direction = door.Orientation & 3;
+        DoorDirection direction = door.Orientation.Direction;
         uint step = DoorOpeningScrollState.GetSamusStep(door);
 
         ushort destinationX = unchecked((ushort)(door.DestinationScreenX << 8));
@@ -1383,7 +1394,7 @@ public sealed partial class SuperMetroidRuntime
 
         switch (direction)
         {
-            case 0: // Right: setup executes frame zero before PlaceSamusLoadTiles.
+            case DoorDirection.Right: // Right: setup executes frame zero before PlaceSamusLoadTiles.
                 xFixed = unchecked(xFixed + step);
                 xFixed = ReplaceWholePosition(
                     unchecked((ushort)(destinationX - 252 + (byte)(xFixed >> 16))),
@@ -1392,7 +1403,7 @@ public sealed partial class SuperMetroidRuntime
                     xFixed = unchecked(xFixed + step);
                 break;
 
-            case 1: // Left is the exact subtracting mirror of the right-door path.
+            case DoorDirection.Left: // Left is the exact subtracting mirror of the right-door path.
                 xFixed = unchecked(xFixed - step);
                 xFixed = ReplaceWholePosition(
                     unchecked((ushort)(destinationX + 252 + (byte)(xFixed >> 16))),
@@ -1401,7 +1412,7 @@ public sealed partial class SuperMetroidRuntime
                     xFixed = unchecked(xFixed - step);
                 break;
 
-            case 2: // Down waits on setup frame zero, then advances on frames 1..56.
+            case DoorDirection.Down: // Down waits on setup frame zero, then advances on frames 1..56.
                 yFixed = ReplaceWholePosition(
                     unchecked((ushort)(destinationY - 224 + (byte)(yFixed >> 16))),
                     yFixed);
@@ -1409,7 +1420,7 @@ public sealed partial class SuperMetroidRuntime
                     yFixed = unchecked(yFixed + step);
                 break;
 
-            case 3: // FixDoorsMovingUp carries counter one into setup's first moving call.
+            case DoorDirection.Up: // FixDoorsMovingUp carries counter one into setup's first moving call.
                 yFixed = unchecked(yFixed - step);
                 yFixed = ReplaceWholePosition(
                     unchecked((ushort)(destinationY + 251 + (byte)(yFixed >> 16))),
@@ -1417,10 +1428,13 @@ public sealed partial class SuperMetroidRuntime
                 for (int frame = 2; frame <= 56; frame++)
                     yFixed = unchecked(yFixed - step);
                 break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(door), direction, "Undefined door direction.");
         }
 
         // PlaceSamusLoadTiles replaces both whole positions, not only the transition axis.
-        if ((direction & 2) == 0)
+        if (!direction.IsVertical())
         {
             yFixed = ReplaceWholePosition(
                 unchecked((ushort)(destinationY + (byte)(sourceYFixed >> 16))),
@@ -1443,14 +1457,14 @@ public sealed partial class SuperMetroidRuntime
             finalY = unchecked((ushort)((finalY | 0x000f) + 8));
 
         // LoadMoreThings applies this eight-pixel doorway alignment only horizontally.
-        if ((direction & 2) == 0)
-            finalX = direction == 0 ? (ushort)(finalX | 7) : (ushort)(finalX & 0xfff8);
+        if (!direction.IsVertical())
+            finalX = direction == DoorDirection.Right ? (ushort)(finalX | 7) : (ushort)(finalX & 0xfff8);
         xFixed = ReplaceWholePosition(finalX, xFixed);
         yFixed = ReplaceWholePosition(finalY, yFixed);
         // `$80:ADC8` adds $20 to door_destination_y_pos after using the unmodified value
         // for Samus's setup origin. The IRQ completion later snaps an upward transition's
         // camera to that adjusted destination; the other three directions retain theirs.
-        ushort finalCameraY = direction == 3
+        ushort finalCameraY = direction == DoorDirection.Up
             ? unchecked((ushort)(destinationY + 32))
             : destinationY;
         return new DoorTransitionPlacement(destinationX, finalCameraY, xFixed, yFixed);

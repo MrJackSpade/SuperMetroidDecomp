@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -209,12 +211,11 @@ public sealed class BackgroundScrollState
     /// Reconstructing those previous words is what makes the first streaming request select
     /// room column zero/last instead of wrapping to an unrelated word before level data.
     /// </remarks>
-    public void PrimeHorizontalDoorOpeningBlocks(byte orientation)
+    public void PrimeHorizontalDoorOpeningBlocks(DoorDirection direction)
     {
-        int direction = orientation & 3;
-        if (direction is not 0 and not 1)
+        if (direction is not (DoorDirection.Right or DoorDirection.Left))
             throw new ArgumentOutOfRangeException(
-                nameof(orientation), orientation, "Horizontal door orientation must be 0 or 1.");
+                nameof(direction), direction, "Horizontal door direction must be right or left.");
 
         Bg1HorizontalScroll = unchecked((ushort)(Layer1XPosition + Bg1XOffset));
         Bg1VerticalScroll = unchecked((ushort)(Layer1YPosition + Bg1YOffset));
@@ -222,10 +223,10 @@ public sealed class BackgroundScrollState
         Bg2VerticalScroll = unchecked((ushort)(Layer2YPosition + Bg2YOffset));
         CalculateBlockCoordinates();
 
-        PreviousLayer1XBlock = direction == 0
+        PreviousLayer1XBlock = direction == DoorDirection.Right
             ? unchecked((ushort)(Layer1XBlock - 1))
             : unchecked((ushort)(Layer1XBlock + 2));
-        PreviousLayer2XBlock = direction == 0
+        PreviousLayer2XBlock = direction == DoorDirection.Right
             ? unchecked((ushort)(Layer2XBlock - 1))
             : unchecked((ushort)(Layer2XBlock + 2));
         PreviousLayer1YBlock = Layer1YBlock;
@@ -274,14 +275,13 @@ public sealed class BackgroundScrollState
     /// from <c>FixDoorsMovingUp</c> and therefore performs no destination transfer yet.
     /// </summary>
     public IReadOnlyList<BackgroundUpdateRequest> PrimeVerticalDoorOpeningBlocks(
-        byte orientation,
+        DoorDirection direction,
         ushort stagedLayer1Y,
         ushort stagedLayer2Y)
     {
-        int direction = orientation & 3;
-        if (direction is not 2 and not 3)
+        if (direction is not (DoorDirection.Down or DoorDirection.Up))
             throw new ArgumentOutOfRangeException(
-                nameof(orientation), orientation, "Vertical door orientation must be 2 or 3.");
+                nameof(direction), direction, "Vertical door direction must be down or up.");
 
         ushort actualLayer1Y = Layer1YPosition;
         ushort actualLayer2Y = Layer2YPosition;
@@ -293,7 +293,7 @@ public sealed class BackgroundScrollState
         CalculateBlockCoordinates();
         CopyCurrentBlocksToPrevious();
 
-        if (direction == 3)
+        if (direction == DoorDirection.Up)
         {
             PreviousLayer1YBlock = unchecked((ushort)(PreviousLayer1YBlock + 1));
             PreviousLayer2YBlock = unchecked((ushort)(PreviousLayer2YBlock + 1));

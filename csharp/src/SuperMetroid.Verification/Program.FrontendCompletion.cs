@@ -186,12 +186,12 @@ static void VerifyDoorOpeningTrajectories()
     {
         AssertEqual(
             direction >= 2,
-            SuperMetroidRuntime.DoorTransitionAlignsX((byte)direction),
+            SuperMetroidRuntime.DoorTransitionAlignsX((DoorDirection)direction),
             $"door direction {direction} alignment axis");
         var door = new CartridgeDoorHeader(
             Pointer: 0x8000,
             DestinationRoomPointer: 0x9000,
-            Orientation: (byte)direction,
+            Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
             PlmX: 0,
             PlmY: 0,
             DestinationScreenX: 3,

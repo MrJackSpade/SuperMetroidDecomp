@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Runtime;
 internal sealed class DoorOpeningScrollState
 {
     private DoorOpeningScrollState(
-        int direction,
+        DoorDirection direction,
         uint samusStep,
         int remainingFrames,
         ushort cameraX,
@@ -46,7 +46,7 @@ internal sealed class DoorOpeningScrollState
         FinalSamusYFixed = finalSamusYFixed;
     }
 
-    public int Direction { get; }
+    public DoorDirection Direction { get; }
     public uint SamusStep { get; }
     public int RemainingFrames { get; private set; }
     public ushort CameraX { get; private set; }
@@ -74,7 +74,7 @@ internal sealed class DoorOpeningScrollState
         uint finalSamusXFixed,
         uint finalSamusYFixed)
     {
-        int direction = door.Orientation & 3;
+        DoorDirection direction = door.Orientation.Direction;
         uint samusStep = GetSamusStep(door);
         (sourceSamusXFixed, sourceSamusYFixed) = ApplySetupMovement(
             door, sourceSamusXFixed, sourceSamusYFixed);
@@ -91,32 +91,32 @@ internal sealed class DoorOpeningScrollState
 
         switch (direction)
         {
-            case 0: // Right setup calls DoorTransition_Right once before placement.
+            case DoorDirection.Right: // Right setup calls DoorTransition_Right once before placement.
                 cameraX = unchecked((ushort)(destinationX - 252));
                 layer2X = unchecked((ushort)(finalLayer2X - 252));
                 remainingFrames = 63;
                 break;
 
-            case 1: // Left setup is the exact subtracting mirror.
+            case DoorDirection.Left: // Left setup is the exact subtracting mirror.
                 cameraX = unchecked((ushort)(destinationX + 252));
                 layer2X = unchecked((ushort)(finalLayer2X + 252));
                 remainingFrames = 63;
                 break;
 
-            case 2: // Down frame zero only stages the off-screen row.
+            case DoorDirection.Down: // Down frame zero only stages the off-screen row.
                 cameraY = unchecked((ushort)(destinationY - 224));
                 layer2Y = unchecked((ushort)(finalLayer2Y - 224));
                 remainingFrames = 56;
                 break;
 
-            case 3: // FixDoorsMovingUp leaves counter one for setup's first moving call.
+            case DoorDirection.Up: // FixDoorsMovingUp leaves counter one for setup's first moving call.
                 cameraY = unchecked((ushort)(destinationY + 251));
                 layer2Y = unchecked((ushort)(finalLayer2Y + 220));
                 remainingFrames = 55;
                 break;
 
             default:
-                throw new InvalidOperationException($"Invalid door direction {direction}.");
+                throw new ArgumentOutOfRangeException(nameof(door), direction, "Undefined door direction.");
         }
 
         return new DoorOpeningScrollState(
@@ -142,13 +142,13 @@ internal sealed class DoorOpeningScrollState
     {
         ushort x = unchecked((ushort)(door.DestinationScreenX << 8));
         ushort y = unchecked((ushort)(door.DestinationScreenY << 8));
-        return (door.Orientation & 3) switch
+        return door.Orientation.Direction switch
         {
-            0 => (unchecked((ushort)(x - 252)), y),
-            1 => (unchecked((ushort)(x + 252)), y),
-            2 => (x, unchecked((ushort)(y - 224))),
-            3 => (x, unchecked((ushort)(y + 251))),
-            _ => throw new InvalidOperationException("Invalid door orientation."),
+            DoorDirection.Right => (unchecked((ushort)(x - 252)), y),
+            DoorDirection.Left => (unchecked((ushort)(x + 252)), y),
+            DoorDirection.Down => (x, unchecked((ushort)(y - 224))),
+            DoorDirection.Up => (x, unchecked((ushort)(y + 251))),
+            _ => throw new ArgumentOutOfRangeException(nameof(door), door.Orientation.Direction, "Undefined door direction."),
         };
     }
 
@@ -168,13 +168,13 @@ internal sealed class DoorOpeningScrollState
     internal static (uint X, uint Y) AdvanceSamus(CartridgeDoorHeader door, uint x, uint y)
     {
         uint step = GetSamusStep(door);
-        return (door.Orientation & 3) switch
+        return door.Orientation.Direction switch
         {
-            0 => (unchecked(x + step), y),
-            1 => (unchecked(x - step), y),
-            2 => (x, unchecked(y + step)),
-            3 => (x, unchecked(y - step)),
-            _ => throw new InvalidOperationException("Invalid door orientation."),
+            DoorDirection.Right => (unchecked(x + step), y),
+            DoorDirection.Left => (unchecked(x - step), y),
+            DoorDirection.Down => (x, unchecked(y + step)),
+            DoorDirection.Up => (x, unchecked(y - step)),
+            _ => throw new ArgumentOutOfRangeException(nameof(door), door.Orientation.Direction, "Undefined door direction."),
         };
     }
 
@@ -183,7 +183,7 @@ internal sealed class DoorOpeningScrollState
     {
         int distance = unchecked((short)door.SamusDistance);
         if (distance < 0)
-            distance = (door.Orientation & 2) != 0 ? 384 : 200;
+            distance = door.Orientation.IsVertical ? 384 : 200;
         return unchecked((uint)(distance << 8));
     }
 
@@ -194,7 +194,7 @@ internal sealed class DoorOpeningScrollState
     internal static (uint X, uint Y) ApplySetupMovement(
         CartridgeDoorHeader door, uint sourceX, uint sourceY)
     {
-        return (door.Orientation & 3) == 2 ? (sourceX, sourceY) : AdvanceSamus(door, sourceX, sourceY);
+        return door.Orientation.Direction == DoorDirection.Down ? (sourceX, sourceY) : AdvanceSamus(door, sourceX, sourceY);
     }
 
     /// <summary>Runs one IRQ call and reports the frame that sets completion bit $8000.</summary>
@@ -203,18 +203,18 @@ internal sealed class DoorOpeningScrollState
         if (RemainingFrames <= 0)
             return true;
 
-        int frameCounter = Direction == 3 ? 57 - RemainingFrames : 0;
+        int frameCounter = Direction == DoorDirection.Up ? 57 - RemainingFrames : 0;
         int cameraDelta = Direction switch
         {
-            0 or 2 => 4,
-            1 or 3 => -4,
-            _ => throw new InvalidOperationException($"Invalid door direction {Direction}."),
+            DoorDirection.Right or DoorDirection.Down => 4,
+            DoorDirection.Left or DoorDirection.Up => -4,
+            _ => throw new InvalidOperationException($"Undefined door direction {Direction}."),
         };
-        if ((Direction & 2) == 0)
+        if (!Direction.IsVertical())
         {
             CameraX = unchecked((ushort)(CameraX + cameraDelta));
             Layer2X = unchecked((ushort)(Layer2X + cameraDelta));
-            SamusXFixed = Direction == 0
+            SamusXFixed = Direction == DoorDirection.Right
                 ? unchecked(SamusXFixed + SamusStep)
                 : unchecked(SamusXFixed - SamusStep);
         }
@@ -222,13 +222,13 @@ internal sealed class DoorOpeningScrollState
         {
             CameraY = unchecked((ushort)(CameraY + cameraDelta));
             Layer2Y = unchecked((ushort)(Layer2Y + cameraDelta));
-            SamusYFixed = Direction == 2
+            SamusYFixed = Direction == DoorDirection.Down
                 ? unchecked(SamusYFixed + SamusStep)
                 : unchecked(SamusYFixed - SamusStep);
         }
 
         RemainingFrames--;
-        ShouldStreamAfterAdvance = Direction != 3 || frameCounter >= 5;
+        ShouldStreamAfterAdvance = Direction != DoorDirection.Up || frameCounter >= 5;
         return RemainingFrames == 0;
     }
 

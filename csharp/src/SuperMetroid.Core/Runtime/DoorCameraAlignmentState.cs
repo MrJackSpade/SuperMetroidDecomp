@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
@@ -15,13 +17,13 @@ internal readonly record struct DoorCameraAlignmentState(
     ushort CameraY,
     bool Completed)
 {
-    /// <summary>Executes one exact coordinate step for the supplied bank-$83 orientation.</summary>
+    /// <summary>Executes one exact coordinate step for the supplied bank-$83 door direction.</summary>
     public static DoorCameraAlignmentState Step(
-        byte orientation,
+        DoorDirection direction,
         ushort cameraX,
         ushort cameraY)
     {
-        bool alignsX = SuperMetroidRuntime.DoorTransitionAlignsX(orientation);
+        bool alignsX = SuperMetroidRuntime.DoorTransitionAlignsX(direction);
         ushort coordinate = alignsX ? cameraX : cameraY;
         byte lowByte = unchecked((byte)coordinate);
         if (lowByte == 0)

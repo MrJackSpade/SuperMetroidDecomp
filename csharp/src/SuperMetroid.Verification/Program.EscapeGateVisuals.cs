@@ -113,7 +113,7 @@ internal static partial class Program
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0xaa8c,
             DestinationRoomPointer: 0xde4d,
-            Orientation: 9,
+            Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             PlmX: gateX,
             PlmY: gateY,
             DestinationScreenX: 0,

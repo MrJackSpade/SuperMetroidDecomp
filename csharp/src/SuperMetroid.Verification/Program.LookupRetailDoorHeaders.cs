@@ -18,12 +18,10 @@ internal static partial class Program
 
     private static void VerifyDoorHeaderIdentities()
     {
-        // Original physical record regions are independently documented in bank83;
-        // the separate88FC and A18A overlaps are also supported door identities.
+        // Original physical record regions are independently documented in bank83. The
+        // 88FC and A18A elevator pseudo-doors are door-list entries, not headers.
         var original = EnumerateRetailDoorPointers().ToHashSet();
         AssertEqual(597, original.Count, "Original physical header domain");
-        original.Add(0x88fc);
-        original.Add(0xa18a);
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
@@ -36,7 +34,7 @@ internal static partial class Program
     }
 
     private static void VerifyDoorHeaderDestinationRoomPointer(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 0, 2, header => header.DestinationRoomPointer);
-    private static void VerifyDoorHeaderOrientation(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 3, 1, header => header.Orientation);
+    private static void VerifyDoorHeaderOrientation(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 3, 1, header => header.Orientation.Encode());
     private static void VerifyDoorHeaderPlmX(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 4, 1, header => header.PlmX);
     private static void VerifyDoorHeaderPlmY(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 5, 1, header => header.PlmY);
     private static void VerifyDoorHeaderDestinationScreenX(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 6, 1, header => header.DestinationScreenX);
@@ -47,7 +45,7 @@ internal static partial class Program
     private static void VerifyDoorHeaderField(SuperMetroidAddressSpace rom, int offset, int width,
         Func<CartridgeDoorHeader, int> field)
     {
-        foreach (ushort pointer in EnumerateRetailDoorPointers().Prepend((ushort)0x88fc).Prepend((ushort)0xa18a))
+        foreach (ushort pointer in EnumerateRetailDoorPointers())
         {
             int address = (0x830000 | pointer) + offset;
             int expected = rom.ReadByte(address);

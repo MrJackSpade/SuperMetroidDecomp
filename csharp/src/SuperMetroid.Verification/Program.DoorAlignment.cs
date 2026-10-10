@@ -31,7 +31,7 @@ internal static partial class Program
             ushort nextFunction = ParseHex(fields[8]);
 
             DoorCameraAlignmentState actual = DoorCameraAlignmentState.Step(
-                (byte)direction,
+                (DoorDirection)direction,
                 beforeX,
                 beforeY);
             string context =
@@ -59,7 +59,7 @@ internal static partial class Program
             var door = new CartridgeDoorHeader(
                 Pointer: 0x8000,
                 DestinationRoomPointer: 0x9000,
-                Orientation: (byte)direction,
+                Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
                 PlmX: 0,
                 PlmY: 0,
                 DestinationScreenX: 3,
@@ -115,12 +115,12 @@ internal static partial class Program
             RoomCollisionBlock block = level.GetCollisionBlock(x, y);
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
-            CartridgeDoorHeader candidate = level.ResolveDoorCollision(
+            CartridgeDoorHeader? candidate = level.ResolveDoorCollision(
                 bus,
                 block.Behavior,
                 SamusPoseIds.MovingRightNormalPose,
-                publishDoorSideEffects: false);
-            if (candidate.DestinationRoomPointer != destinationRoom)
+                publishDoorSideEffects: false).Door;
+            if (candidate?.DestinationRoomPointer != destinationRoom)
                 continue;
             doorX = x;
             doorY = y;

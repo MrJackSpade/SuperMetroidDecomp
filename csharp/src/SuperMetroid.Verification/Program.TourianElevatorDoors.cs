@@ -23,9 +23,14 @@ internal static partial class Program
             for (byte index = 0; index < 4; index++)
             {
                 ushort pointer = ReadVerificationWord(bus, 0x8f0000 | (listPointer + index * 2));
-                var native = CartridgeDoorHeaderImporter.Load(bus, pointer);
-                AssertEqual(native, DoorDefinitions.Resolve(listPointer, index), "native door record");
-                AssertEqual(native, DoorDefinitions.Resolve(listPointer, (byte)(index | 0x80)),
+                DoorListEntry resolved = DoorDefinitions.Resolve(listPointer, index);
+                AssertEqual(pointer, resolved.Pointer, "native door-list pointer");
+                // $94:938B: a zero destination word is the elevator pseudo-door.
+                if (ReadVerificationWord(bus, 0x830000 | pointer) == 0)
+                    AssertTrue(resolved.IsElevatorPseudoDoor, "zero destination resolves as the elevator pseudo-door");
+                else
+                    AssertEqual(CartridgeDoorHeaderImporter.Load(bus, pointer), resolved.Door, "native door record");
+                AssertEqual(resolved, DoorDefinitions.Resolve(listPointer, (byte)(index | 0x80)),
                     "native high-bit BTS mask");
             }
             AssertThrows<InvalidDataException>(() => DoorDefinitions.Resolve(listPointer, 4),

@@ -8007,6 +8007,7 @@ Suite(nameof(VerifyMotherBrainRingBabyHealth), () => VerifyMotherBrainRingBabyHe
 Suite(nameof(VerifyBabyMetroidWrongWaySpeed), () => VerifyBabyMetroidWrongWaySpeed());
 Suite(nameof(VerifyMotherBrainGlitchMechanics), () => VerifyMotherBrainGlitchMechanics());
 Suite(nameof(VerifyXraySetupStageDomain), () => VerifyXraySetupStageDomain());
+Suite(nameof(VerifyDoorOrientationDomain), () => VerifyDoorOrientationDomain());
 Suite(nameof(VerifyBabyMetroidFatalBlowShake), () => VerifyBabyMetroidFatalBlowShake());
 Suite(nameof(VerifyMotherBrainMissileWalkReset), () => VerifyMotherBrainMissileWalkReset());
 Suite(nameof(VerifyMotherBrainBodyHitboxes), () => VerifyMotherBrainBodyHitboxes());

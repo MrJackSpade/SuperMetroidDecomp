@@ -40,7 +40,7 @@ internal static partial class Program
             var block = level.GetCollisionBlock(x, y);
             if (block.CollisionType != RoomCollisionType.DoorBlock ||
                 level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, publishDoorSideEffects: false)
-                    .DestinationRoomPointer != FixtureRoomHeaders.MotherBrain)
+                    .Door?.DestinationRoomPointer != FixtureRoomHeaders.MotherBrain)
                 continue;
             level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, publishDoorSideEffects: true);
             selected = true;

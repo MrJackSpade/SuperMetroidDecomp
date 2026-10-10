@@ -105,6 +105,9 @@ internal static partial class Program
             AddAddressRange(forbidden,
                 DoorHeaderRomDataTooling.BankAddress | doorPointer,
                 DoorHeaderRomData.RecordByteCount);
+            // The pseudo-door's remaining bytes overlap $88FE; it has no setup code of its own.
+            if (doorPointer == DoorHeaderRomData.ElevatorPseudoDoorPointer)
+                continue;
             CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
             if (door.SetupCodePointer != 0)
             {

@@ -68,8 +68,9 @@ internal static class DoorClosingPlmRomDataAccess
 {
     extension(DoorClosingPlmRomData)
     {
-        /// <summary>Returns the exact bank-$84 header selected by a retail door direction.</summary>
-        internal static ushort GetHeader(byte direction) => DoorClosingPlmRomData.GetDefinition(direction).Header;
+        /// <summary>Returns the bank-$84 header selected by a raw orientation byte, or the table's zero word.</summary>
+        internal static ushort GetHeader(byte orientation) =>
+            DoorClosingPlmRomData.GetDefinition(CartridgeDoorOrientation.Decode(orientation))?.Header ?? 0;
     }
 }
 

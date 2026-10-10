@@ -741,7 +741,7 @@ static void VerifyBackgroundScrollState()
         retainedBg1Vertical: 0x0340,
         stagedLayer1X: 0xff00,
         stagedLayer1Y: 0x0000);
-    rightDoor.PrimeHorizontalDoorOpeningBlocks(orientation: 0);
+    rightDoor.PrimeHorizontalDoorOpeningBlocks(DoorDirection.Right);
     requests = rightDoor.CalculateScrollsAndUpdates();
     AssertEqual((ushort)0x0124, rightDoor.Bg1HorizontalScroll,
         "$80:AE29 right-door BG1 retains source plus first step");
@@ -761,7 +761,7 @@ static void VerifyBackgroundScrollState()
         retainedBg1Vertical: 0x0340,
         stagedLayer1X: 0x0100,
         stagedLayer1Y: 0x0000);
-    leftDoor.PrimeHorizontalDoorOpeningBlocks(orientation: 1);
+    leftDoor.PrimeHorizontalDoorOpeningBlocks(DoorDirection.Left);
     requests = leftDoor.CalculateScrollsAndUpdates();
     AssertEqual((ushort)0x011c, leftDoor.Bg1HorizontalScroll,
         "$80:AE29 left-door BG1 retains source minus first step");
@@ -806,7 +806,7 @@ static void VerifyBackgroundScrollState()
         stagedLayer1X: 0,
         stagedLayer1Y: 0x0300);
     requests = upwardDestination.PrimeVerticalDoorOpeningBlocks(
-        orientation: 3,
+        DoorDirection.Up,
         stagedLayer1Y: 0x0300,
         stagedLayer2Y: 0x01e0);
     AssertEqual(0, requests.Count, "$80:ADC8 upward setup defers destination rows");

@@ -63,10 +63,10 @@ public sealed class TorizoEnemyState
     public ushort VerticalAcceleration { get; internal set; }
 
     /// <summary>Native <c>toriz_var_E</c> main-function dispatcher pointer.</summary>
-    public ushort Function { get; internal set; }
+    public TorizoFunction Function { get; internal set; }
 
     /// <summary>Native <c>toriz_var_F</c> active-state pre-instruction pointer.</summary>
-    public ushort PreInstruction { get; internal set; }
+    public TorizoPreInstruction PreInstruction { get; internal set; }
 
     /// <summary>Host lifecycle latch set when $AA:C6C6 observes the $D6EA hand-trigger PLM gone and resumes Bomb Torizo's awakening instruction list.</summary>
     public bool AwakeningReleased { get; internal set; }
@@ -172,20 +172,7 @@ public sealed partial class RoomEnemySystem
     }
     private const ushort BombTorizoHeadExplosionHealth = 350;
     private const ushort BombTorizoCoreExplosionHealth = 100;
-    private const ushort TorizoFunctionIdle = 0xc6ab;
-    private const ushort TorizoFunctionFalling = 0xc6bf;
-    private const ushort TorizoFunctionWaitForHandTrigger = 0xc6c6;
-    private const ushort TorizoFunctionActive = 0xc6ff;
-    private const ushort GoldenTorizoFunctionWaitForSamus = 0xd5c2;
-    private const ushort GoldenTorizoFunctionGravity = 0xd5df;
-    private const ushort GoldenTorizoFunctionPreInstruction = 0xd5e6;
 
-    private const ushort TorizoPreInstructionIdle = 0xc95e;
-    private const ushort TorizoPreInstructionAirTransition = 0xc752;
-    private const ushort TorizoPreInstructionGravity = 0xc828;
-    private const ushort TorizoPreInstructionJump = 0xc82c;
-    private const ushort GoldenTorizoPreInstructionAirTransition = 0xd5f1;
-    private const ushort GoldenTorizoPreInstructionGravity = 0xd5ed;
 
     private TorizoEnemyState? _torizoState;
     private readonly List<TorizoOrbDropRequest> _torizoOrbDropRequests = new();
@@ -248,8 +235,8 @@ public sealed partial class RoomEnemySystem
         torizo.PaletteIndex = 0;
         torizo.SpritemapPointer = BombTorizoInitialExtendedSpritemap;
 
-        state.Function = TorizoFunctionFalling;
-        state.PreInstruction = TorizoPreInstructionIdle;
+        state.Function = TorizoFunction.Falling;
+        state.PreInstruction = TorizoPreInstruction.Idle;
         state.HorizontalVelocity = 0;
         state.VerticalVelocity = 0x0100;
 
@@ -356,15 +343,15 @@ public sealed partial class RoomEnemySystem
         LastBombTorizoSoundEffect = null;
         switch (state.Function)
         {
-            case TorizoFunctionIdle:
+            case TorizoFunction.Idle:
                 return;
 
-            case TorizoFunctionFalling:
+            case TorizoFunction.Falling:
                 MaybeSpawnBombTorizoLowHealthDrool(torizo);
                 ApplyBombTorizoGravity(torizo, state, RequireBombTorizoLevel(level));
                 return;
 
-            case TorizoFunctionWaitForHandTrigger:
+            case TorizoFunction.WaitForHandTrigger:
                 // $AA:C6C6 scans all forty PLM headers for $D6EA. A supplied PLM owner is
                 // authoritative; standalone enemy audits omit it and therefore model the
                 // already-collected item/removed hand trigger.
@@ -381,11 +368,11 @@ public sealed partial class RoomEnemySystem
                 state.AwakeningReleased = true;
                 return;
 
-            case TorizoFunctionActive:
+            case TorizoFunction.Active:
                 RunBombTorizoActiveState(torizo, state, level);
                 return;
 
-            case GoldenTorizoFunctionWaitForSamus:
+            case TorizoFunction.GoldenWaitForSamus:
                 // $AA:D5C2 advances the list operand only after Samus has entered the
                 // lower-right trigger rectangle. This is the authored statue wake-up gate.
                 if (samus is not null && samus.YPosition > 0x0140 && samus.XPosition > 0x0170)
@@ -395,19 +382,19 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
 
-            case GoldenTorizoFunctionGravity:
+            case TorizoFunction.GoldenGravity:
                 MaybeSpawnBombTorizoLowHealthDrool(torizo);
                 ApplyBombTorizoGravity(torizo, state, RequireBombTorizoLevel(level));
                 return;
 
-            case GoldenTorizoFunctionPreInstruction:
+            case TorizoFunction.GoldenPreInstruction:
                 MaybeSpawnBombTorizoLowHealthDrool(torizo);
                 RunBombTorizoPreInstruction(torizo, state, level);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Torizo main function $AA:{state.Function:X4} is not translated.");
+                    $"Torizo main function $AA:{(int)state.Function:X4} is not translated.");
         }
     }
 
@@ -465,30 +452,30 @@ public sealed partial class RoomEnemySystem
     {
         switch (state.PreInstruction)
         {
-            case TorizoPreInstructionIdle:
+            case TorizoPreInstruction.Idle:
                 return;
-            case TorizoPreInstructionAirTransition:
+            case TorizoPreInstruction.AirTransition:
                 RunBombTorizoAirTransition(
                     torizo,
                     state,
                     RequireBombTorizoLevel(level));
                 return;
-            case TorizoPreInstructionGravity:
+            case TorizoPreInstruction.Gravity:
                 ApplyBombTorizoGravity(
                     torizo,
                     state,
                     RequireBombTorizoLevel(level));
                 return;
-            case TorizoPreInstructionJump:
+            case TorizoPreInstruction.Jump:
                 RunBombTorizoJump(torizo, state, RequireBombTorizoLevel(level));
                 return;
-            case GoldenTorizoPreInstructionAirTransition:
+            case TorizoPreInstruction.GoldenAirTransition:
                 RunGoldenTorizoAirTransition(
                     torizo,
                     state,
                     RequireBombTorizoLevel(level));
                 return;
-            case GoldenTorizoPreInstructionGravity:
+            case TorizoPreInstruction.GoldenGravity:
                 ApplyBombTorizoGravity(
                     torizo,
                     state,
@@ -496,7 +483,7 @@ public sealed partial class RoomEnemySystem
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Bomb Torizo pre-instruction $AA:{state.PreInstruction:X4} is not translated.");
+                    $"Bomb Torizo pre-instruction $AA:{(int)state.PreInstruction:X4} is not translated.");
         }
     }
 
@@ -657,7 +644,7 @@ public sealed partial class RoomEnemySystem
         if (state.DeathStarted)
             return;
         state.DeathStarted = true;
-        state.Function = TorizoFunctionIdle;
+        state.Function = TorizoFunction.Idle;
         torizo.CurrentInstruction = BombTorizoDeathInstruction;
         torizo.InstructionTimer = 1;
         torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 | 0xc000));

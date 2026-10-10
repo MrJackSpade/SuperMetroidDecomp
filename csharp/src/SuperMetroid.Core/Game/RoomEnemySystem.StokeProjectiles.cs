@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 projectile support coupled to Stoke's attack animation.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort StokeProjectileMoveLeftFunction = 0xdb62;
-    private const ushort StokeProjectileMoveRightFunction = 0xdb8c;
-
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> followed by Stoke projectile
     /// initializer <c>$86:DB18</c>. Direction zero selects the intentionally odd left branch,
@@ -23,8 +20,8 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(stoke.PaletteIndex | stoke.VramTilesIndex)));
         projectile.DirectionParameter = direction;
         projectile.Variable0 = direction == 0
-            ? StokeProjectileMoveLeftFunction
-            : StokeProjectileMoveRightFunction;
+            ? (ushort)StokeProjectileFunction.MoveLeft
+            : (ushort)StokeProjectileFunction.MoveRight;
         projectile.XPosition = stoke.XPosition;
         projectile.XSubposition = stoke.XSubposition;
         projectile.YPosition = unchecked((ushort)(stoke.YPosition + 2));
@@ -39,11 +36,11 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        ushort horizontalVelocity = projectile.Variable0 switch
+        ushort horizontalVelocity = ClosedNativeWords.Decode<StokeProjectileFunction>(projectile.Variable0, "Stoke projectile movement function") switch
         {
             // This is not a typo: $DB62 reads EnemyProjectile_YVelocity, producing -1 px.
-            StokeProjectileMoveLeftFunction => projectile.YVelocity,
-            StokeProjectileMoveRightFunction => projectile.XVelocity,
+            StokeProjectileFunction.MoveLeft => projectile.YVelocity,
+            StokeProjectileFunction.MoveRight => projectile.XVelocity,
             _ => throw new InvalidDataException(
                 $"Stoke projectile movement pointer $86:{projectile.Variable0:X4} is not translated."),
         };
@@ -56,4 +53,14 @@ public sealed partial class RoomEnemySystem
         // Stoke's $DBB6 helper is another byte-for-byte clone of Cacatac's $DAC2 cull.
         DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, cameraX, cameraY);
     }
+}
+
+/// <summary>Stoke projectile movement functions stored in the native Variable0 slot.</summary>
+internal enum StokeProjectileFunction : ushort
+{
+    /// <summary>$86:DB62.</summary>
+    MoveLeft = 0xdb62,
+
+    /// <summary>$86:DB8C.</summary>
+    MoveRight = 0xdb8c,
 }

@@ -25,7 +25,7 @@ internal static partial class Program
         enemy.EnemyDefinitionPointer = (EnemyDefinitionId)header;
         enemy.Definition = default(RoomEnemyDefinition) with
         {
-            GrappleAiPointer = EnemyAiCodePointers.BankA0.GrappleKill,
+            GrappleAiPointer = GrappleAiRoutine.Kill,
             DeathAnimation = 4,
         };
         enemy.XPosition = 100;
@@ -91,7 +91,7 @@ internal static partial class Program
             enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
             enemy.Definition = default(RoomEnemyDefinition) with
             {
-                GrappleAiPointer = EnemyAiCodePointers.BankA0.GrappleKill,
+                GrappleAiPointer = GrappleAiRoutine.Kill,
             };
             enemy.XPosition = 100; enemy.YPosition = 100;
             enemy.XRadius = enemy.YRadius = 8;

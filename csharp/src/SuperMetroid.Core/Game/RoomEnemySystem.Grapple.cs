@@ -9,13 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort GrappleNoInteraction = EnemyAiCodePointers.BankA0.GrappleNoInteraction;
-    private const ushort GrappleAttach = EnemyAiCodePointers.BankA0.GrappleAttach;
-    private const ushort GrappleKill = EnemyAiCodePointers.BankA0.GrappleKill;
-    private const ushort GrappleCancel = EnemyAiCodePointers.BankA0.GrappleCancel;
-    private const ushort GrappleAttachWithoutInvincibility = EnemyAiCodePointers.BankA0.GrappleAttachWithoutInvincibility;
-    private const ushort GrappleAttachAndParalyze = EnemyAiCodePointers.BankA0.GrappleAttachAndParalyze;
-    private const ushort GrappleHurtSamus = EnemyAiCodePointers.BankA0.GrappleHurtSamus;
 
     /// <summary>
     /// Ports <c>EnemyGrappleBeamCollisionDetection</c> at $A0:9E9A. Extended hitboxes are
@@ -41,17 +34,17 @@ public sealed partial class RoomEnemySystem
             enemy.AiHandlerBits = 1;
             GrappleEnemyReaction reaction = enemy.Definition.GrappleAiPointer switch
             {
-                GrappleNoInteraction => GrappleEnemyReaction.None,
-                GrappleAttach => GrappleEnemyReaction.Attach,
-                GrappleKill => GrappleEnemyReaction.Kill,
-                GrappleCancel => GrappleEnemyReaction.Cancel,
-                GrappleAttachWithoutInvincibility =>
+                GrappleAiRoutine.NoInteraction => GrappleEnemyReaction.None,
+                GrappleAiRoutine.Attach => GrappleEnemyReaction.Attach,
+                GrappleAiRoutine.Kill => GrappleEnemyReaction.Kill,
+                GrappleAiRoutine.Cancel => GrappleEnemyReaction.Cancel,
+                GrappleAiRoutine.AttachWithoutInvincibility =>
                     GrappleEnemyReaction.AttachWithoutInvincibility,
-                GrappleAttachAndParalyze => GrappleEnemyReaction.AttachAndParalyze,
-                GrappleHurtSamus => GrappleEnemyReaction.HurtSamus,
-                _ => throw new InvalidDataException(
+                GrappleAiRoutine.AttachAndParalyze => GrappleEnemyReaction.AttachAndParalyze,
+                GrappleAiRoutine.HurtSamus => GrappleEnemyReaction.HurtSamus,
+                GrappleAiRoutine.None or GrappleAiRoutine.ElevatorMainAi or _ => throw new InvalidDataException(
                     $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} grapple AI " +
-                    $"${enemy.Definition.Bank:X2}:{enemy.Definition.GrappleAiPointer:X4} " +
+                    $"${enemy.Definition.Bank:X2}:{(int)enemy.Definition.GrappleAiPointer:X4} " +
                     "is not one of the translated common reactions."),
             };
             return new GrappleEnemyCollision(
@@ -83,14 +76,14 @@ public sealed partial class RoomEnemySystem
 
         switch (enemy.Definition.GrappleAiPointer)
         {
-            case GrappleNoInteraction:
+            case GrappleAiRoutine.NoInteraction:
                 enemy.AiHandlerBits = 0;
                 enemy.InvincibilityTimer = 0;
                 enemy.FrozenTimer = 0;
                 enemy.ShakeTimer = 0;
                 return true;
 
-            case GrappleAttach:
+            case GrappleAiRoutine.Attach:
                 if (enemy.FrozenTimer != 0)
                 {
                     enemy.AiHandlerBits = 4;
@@ -102,7 +95,7 @@ public sealed partial class RoomEnemySystem
                 }
                 return true;
 
-            case GrappleKill:
+            case GrappleAiRoutine.Kill:
                 // $A0:9FC4 always selects explosion variant zero. The shared death
                 // routine preserves the actor's position/drop identity and any respawn
                 // marker; directly deleting the enemy loses the complete visual tail.
@@ -110,12 +103,12 @@ public sealed partial class RoomEnemySystem
                 enemy.AiHandlerBits = 0;
                 return true;
 
-            case GrappleCancel:
-            case GrappleHurtSamus:
+            case GrappleAiRoutine.Cancel:
+            case GrappleAiRoutine.HurtSamus:
                 enemy.AiHandlerBits = 4;
                 return true;
 
-            case GrappleAttachWithoutInvincibility:
+            case GrappleAiRoutine.AttachWithoutInvincibility:
                 if (enemy.FrozenTimer != 0)
                 {
                     enemy.AiHandlerBits = 4;
@@ -138,16 +131,18 @@ public sealed partial class RoomEnemySystem
                 enemy.AiHandlerBits = 0;
                 return true;
 
-            case GrappleAttachAndParalyze:
+            case GrappleAiRoutine.AttachAndParalyze:
                 enemy.FlashTimer = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
                 enemy.AiHandlerBits = 0;
                 enemy.ExtraProperties = unchecked((ushort)(enemy.ExtraProperties | 1));
                 return true;
 
+            case GrappleAiRoutine.None:
+            case GrappleAiRoutine.ElevatorMainAi:
             default:
                 throw new InvalidDataException(
                     $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} grapple AI " +
-                    $"${enemy.Definition.Bank:X2}:{enemy.Definition.GrappleAiPointer:X4} is not translated.");
+                    $"${enemy.Definition.Bank:X2}:{(int)enemy.Definition.GrappleAiPointer:X4} is not translated.");
         }
     }
 }

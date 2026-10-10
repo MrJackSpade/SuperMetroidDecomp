@@ -63,8 +63,8 @@ internal static partial class Program
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
                 Bind("_torizoState", new TorizoEnemyState(Actor, isGolden: true)
                 {
-                    Function = Code("GoldenTorizoFunctionPreInstruction"),
-                    PreInstruction = Code("TorizoPreInstructionIdle"),
+                    Function = TorizoFunction.GoldenPreInstruction,
+                    PreInstruction = TorizoPreInstruction.Idle,
                     ReturnInstruction = GoldenTorizoRightOrbInstructionProgramDefinitions.Start,
                     VerticalVelocity = 256,
                 });

@@ -5,8 +5,6 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort PolypRockPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PolypRock;
-    private const ushort PolypRockRisingFunction = 0xbc16;
-    private const ushort PolypRockFallingFunction = 0xbc8f;
     private const ushort PolypRockGravityStep = 2;
     private const ushort PolypRockTerminalSpeedIndex = 0x0040;
 
@@ -29,7 +27,7 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(source.PaletteIndex | source.VramTilesIndex)));
         projectile.InstructionPointer = PolypRockInstructionProgramDefinitions.Initial;
         projectile.PreInstruction = PolypRockPreInstruction;
-        projectile.Variable0 = PolypRockRisingFunction;
+        projectile.Variable0 = (ushort)PolypRockFunction.Rising;
         projectile.YVelocity = initialYSpeed;
         projectile.XVelocity = xVelocity;
         projectile.XPosition = source.XPosition;
@@ -44,12 +42,12 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        switch (projectile.Variable0)
+        switch (ClosedNativeWords.Decode<PolypRockFunction>(projectile.Variable0, "Polyp rock function"))
         {
-            case PolypRockRisingFunction:
+            case PolypRockFunction.Rising:
                 StepRisingPolypRock(projectile);
                 break;
-            case PolypRockFallingFunction:
+            case PolypRockFunction.Falling:
                 StepFallingPolypRock(projectile);
                 break;
             default:
@@ -69,7 +67,7 @@ public sealed partial class RoomEnemySystem
             // Crossing below zero consumes an entire apex frame: retail installs falling
             // state and returns before either vertical or horizontal movement.
             projectile.YVelocity = 0;
-            projectile.Variable0 = PolypRockFallingFunction;
+            projectile.Variable0 = (ushort)PolypRockFunction.Falling;
             return;
         }
 
@@ -137,4 +135,14 @@ public sealed partial class RoomEnemySystem
             projectile.XSubposition,
             projectile.XVelocity);
     }
+}
+
+/// <summary>Polyp rock functions stored in the native Variable0 slot.</summary>
+internal enum PolypRockFunction : ushort
+{
+    /// <summary>$86:BC16.</summary>
+    Rising = 0xbc16,
+
+    /// <summary>$86:BC8F.</summary>
+    Falling = 0xbc8f,
 }

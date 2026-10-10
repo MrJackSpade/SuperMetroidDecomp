@@ -1453,75 +1453,11 @@
   ],
   "RoomEnemySystem": [
    {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
-    "line": 357,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'Function' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
-    "line": 466,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'PreInstruction' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireCombat.cs",
     "line": 17,
     "column": 9,
     "rule": "SME6270",
     "message": "'callback' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs",
-    "line": 94,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'VariableA' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.FuneNamiheFireballs.cs",
-    "line": 60,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'Variable0' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Grapple.cs",
-    "line": 42,
-    "column": 45,
-    "rule": "SME6270",
-    "message": "'GrappleAiPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Grapple.cs",
-    "line": 84,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'GrappleAiPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PolypRocks.cs",
-    "line": 47,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'Variable0' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.StokeProjectiles.cs",
-    "line": 42,
-    "column": 37,
-    "rule": "SME6270",
-    "message": "'Variable0' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
     "status": "open"
    }
   ],
@@ -2512,13 +2448,24 @@
    "consumers": "SamusState and all Samus movement/rendering/projectile/grapple/x-ray/shinespark subsystems, intro demo, runtime pose commit, Bomb Torizo, HUD, Samus artwork catalogs, verification",
    "tests": "Samus movement, aim, rendering, pose-history and pose-definition suites; full movie replays",
    "status": "resolved"
+  },
+  "EnemyStatePointers": {
+   "previous": "ushort Torizo function/pre-instruction state, RoomEnemyDefinition.GrappleAiPointer, and function pointers in the Dead Torizo VariableA and Fune/Namihe, Polyp and Stoke projectile Variable0 slots, named by private constants and EnemyAiCodePointers.BankA0 grapple constants",
+   "type": "enums TorizoFunction, TorizoPreInstruction, GrappleAiRoutine (None + seven bank-$A0 reactions + the elevator's main AI), DeadTorizoFunction, NamiFuneFireballFunction, PolypRockFunction, StokeProjectileFunction",
+   "closedProof": "each dispatcher already threw on any other value; GrappleAiRoutine covers every retail and auxiliary enemy header",
+   "transitions": "owner code stores members; Torizo instruction operands decode through ClosedNativeWords",
+   "boundary": "ClosedNativeWords.Decode at Torizo instruction operands, the enemy-header importer and generic slot dispatch; the compiled definition catalogs name the grapple routine",
+   "invalidValues": "decoding throws InvalidDataException; switches name every member and throw on untranslated ones",
+   "consumers": "Bomb/Golden Torizo, grapple collision and reactions, Dead Torizo corpse, Fune/Namihe fireballs, Polyp rocks, Stoke projectiles, enemy definition catalogs and importer",
+   "tests": "grapple enemy death and reactions, compiled enemy definitions, Torizo landing lifetime, full movie replays",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 251,
+  "openFindings": 243,
   "openDomains": 171,
   "byRule": {
-   "SME6270": 251
+   "SME6270": 243
   }
  }
 }

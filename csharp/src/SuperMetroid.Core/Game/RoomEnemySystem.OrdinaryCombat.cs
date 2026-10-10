@@ -1434,7 +1434,7 @@ public sealed partial class RoomEnemySystem
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                     (projectile.Type & 0x0008) == 0);
                             projectile.Direction &= 0xffef;
-                            torizoState.Function = TorizoFunctionIdle;
+                            torizoState.Function = TorizoFunction.Idle;
                             enemy.InstructionTimer = 1;
                             enemy.CurrentInstruction = (enemy.Parameter1 & 0x8000) != 0
                                 ? TorizoInstructionLists.CaughtMissileFacingRight
@@ -1453,7 +1453,7 @@ public sealed partial class RoomEnemySystem
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                         (projectile.Type & 0x0008) == 0);
                                 enemy.Parameter2 |= 0x1000;
-                                torizoState.Function = TorizoFunctionIdle;
+                                torizoState.Function = TorizoFunction.Idle;
                                 projectile.Direction |= 0x0010;
                                 enemy.InstructionTimer = 1;
                                 enemy.CurrentInstruction = (enemy.Parameter1 & 0x2000) != 0

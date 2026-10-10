@@ -36,7 +36,7 @@ public static class RoomEnemyDefinitionImporter
             PartCount: Word(20),
             Unused16: Word(22),
             MainAiPointer: Word(24),
-            GrappleAiPointer: Word(26),
+            GrappleAiPointer: ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"),
             HurtAiPointer: Word(28),
             FrozenAiPointer: Word(30),
             TimeFrozenAiPointer: Word(32),

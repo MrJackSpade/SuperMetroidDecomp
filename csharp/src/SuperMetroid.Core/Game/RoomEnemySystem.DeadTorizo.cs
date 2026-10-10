@@ -7,11 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Retail Dead Torizo actor and its bank-$A9 corpse-rotting graphics path.</summary>
 public sealed partial class RoomEnemySystem
 {
-
-    private const ushort DeadTorizoWaitFunction = 0xd3ad;
-    private const ushort DeadTorizoPreRotFunction = 0xd3c8;
-    private const ushort DeadTorizoRottingFunction = 0xd3e6;
-    private const ushort DeadTorizoNoOperationFunction = 0xd3c7;
     private const int DeadTorizoWorkBufferAddress = 0x7e2000;
     private const int DeadTorizoWorkBufferSize = 0x1000;
     private const int DeadTorizoSandBufferAddress = 0x7e9500;
@@ -41,7 +36,7 @@ public sealed partial class RoomEnemySystem
         for (int offset = 0; offset < DeadTorizoWorkBufferSize; offset++)
             _bus!.WriteByte(DeadTorizoWorkBufferAddress + offset, 0);
 
-        slot.VariableA = DeadTorizoWaitFunction;
+        slot.VariableA = (ushort)DeadTorizoFunction.Wait;
         slot.Properties = slot.Properties.With(
             EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
         slot.CurrentInstruction = DeadTorizoInstructionProgramDefinitions.Stationary;
@@ -91,28 +86,28 @@ public sealed partial class RoomEnemySystem
             TriggerDeadTorizoRotting(slot);
         }
 
-        switch (slot.VariableA)
+        switch (ClosedNativeWords.Decode<DeadTorizoFunction>(slot.VariableA, "Dead Torizo corpse function"))
         {
-            case DeadTorizoWaitFunction:
+            case DeadTorizoFunction.Wait:
                 if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.NativeIndex) == true)
-                    slot.VariableA = DeadTorizoPreRotFunction;
+                    slot.VariableA = (ushort)DeadTorizoFunction.PreRot;
                 break;
 
-            case DeadTorizoPreRotFunction:
+            case DeadTorizoFunction.PreRot:
                 state.PreRotDelayCounter = unchecked((ushort)(state.PreRotDelayCounter + 1));
                 if (state.PreRotDelayCounter >= 0x10)
                 {
                     slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-                    slot.VariableA = DeadTorizoRottingFunction;
+                    slot.VariableA = (ushort)DeadTorizoFunction.Rotting;
                     RunDeadTorizoRotting(slot, state);
                 }
                 break;
 
-            case DeadTorizoRottingFunction:
+            case DeadTorizoFunction.Rotting:
                 RunDeadTorizoRotting(slot, state);
                 break;
 
-            case DeadTorizoNoOperationFunction:
+            case DeadTorizoFunction.NoOperation:
                 break;
 
             default:
@@ -150,7 +145,7 @@ public sealed partial class RoomEnemySystem
             (yOffset, move) => CopyOrMoveDeadTorizoPixelRow(state, yOffset, move),
             entryIndex => FinishDeadTorizoCorpseRow(state, entryIndex));
         if (!stillRotting)
-            slot.VariableA = DeadTorizoNoOperationFunction;
+            slot.VariableA = (ushort)DeadTorizoFunction.NoOperation;
     }
 
     /// <summary>Shot/touch tail at <c>$A9:D433</c>.</summary>
@@ -158,7 +153,7 @@ public sealed partial class RoomEnemySystem
     {
         RequireDeadTorizoState(slot);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        slot.VariableA = DeadTorizoRottingFunction;
+        slot.VariableA = (ushort)DeadTorizoFunction.Rotting;
     }
 
     /// <summary>Power-bomb entry at <c>$A9:D42A</c>.</summary>
@@ -479,4 +474,20 @@ public sealed class DeadTorizoEnemyState
     public uint SandLineCopyCount { get; internal set; }
     /// <summary>Most recently completed zero-based row-entry index, or $FFFF before any completion; retained as host diagnostic state.</summary>
     public ushort LastFinishedEntryIndex { get; internal set; } = ushort.MaxValue;
+}
+
+/// <summary>Dead Torizo corpse functions stored in the native VariableA slot.</summary>
+internal enum DeadTorizoFunction : ushort
+{
+    /// <summary>$A9:D3AD.</summary>
+    Wait = 0xd3ad,
+
+    /// <summary>$A9:D3C8.</summary>
+    PreRot = 0xd3c8,
+
+    /// <summary>$A9:D3E6.</summary>
+    Rotting = 0xd3e6,
+
+    /// <summary>$A9:D3C7.</summary>
+    NoOperation = 0xd3c7,
 }

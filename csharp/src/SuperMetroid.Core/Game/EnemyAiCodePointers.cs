@@ -711,20 +711,6 @@ internal static class EnemyAiCodePointers
     /// <summary>Shared bank-$A0 enemy interaction callbacks.</summary>
     public static class BankA0
     {
-        /// <summary><c>Enemy_GrappleAI_NoInteraction</c> at $A0:8000.</summary>
-        public const ushort GrappleNoInteraction = 0x8000;
-        /// <summary><c>Enemy_GrappleAI_SamusLatchesOn</c> at $A0:8005.</summary>
-        public const ushort GrappleAttach = 0x8005;
-        /// <summary><c>Enemy_GrappleAI_KillEnemy</c> at $A0:800A.</summary>
-        public const ushort GrappleKill = 0x800a;
-        /// <summary><c>Enemy_GrappleAI_CancelBeam</c> at $A0:800F.</summary>
-        public const ushort GrappleCancel = 0x800f;
-        /// <summary><c>Enemy_GrappleAI_LatchWithoutInvincibility</c> at $A0:8014.</summary>
-        public const ushort GrappleAttachWithoutInvincibility = 0x8014;
-        /// <summary><c>Enemy_GrappleAI_LatchAndParalyse</c> at $A0:8019.</summary>
-        public const ushort GrappleAttachAndParalyze = 0x8019;
-        /// <summary><c>Enemy_GrappleAI_HurtSamus</c> at $A0:801E.</summary>
-        public const ushort GrappleHurtSamus = 0x801e;
         /// <summary><c>NormalEnemyTouchAI</c> at $A0:8023.</summary>
         public const ushort NormalEnemyTouch = 0x8023;
         /// <summary><c>NormalEnemyShotAI</c> at $A0:802D.</summary>

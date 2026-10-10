@@ -77,7 +77,7 @@ internal static partial class Program
             Word(0), Word(2), Word(4), Word(6), Word(8), Word(10),
             bus.ReadByte(address + 12), bus.ReadByte(address + 13),
             Word(14), Word(16), Word(18), Word(20), Word(22), Word(24),
-            Word(26), Word(28), Word(30), Word(32), Word(34), Word(36),
+            ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36),
             Word(38), Word(40), Word(42), Word(44), Word(46), Word(48),
             Word(50), Word(52), Long(54), bus.ReadByte(address + 57),
             Word(58), Word(60), Word(62));

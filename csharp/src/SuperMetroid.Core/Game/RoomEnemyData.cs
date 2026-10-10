@@ -49,7 +49,7 @@ public readonly record struct RoomEnemyDefinition(
     ushort PartCount,
     ushort Unused16,
     ushort MainAiPointer,
-    ushort GrappleAiPointer,
+    GrappleAiRoutine GrappleAiPointer,
     ushort HurtAiPointer,
     ushort FrozenAiPointer,
     ushort TimeFrozenAiPointer,

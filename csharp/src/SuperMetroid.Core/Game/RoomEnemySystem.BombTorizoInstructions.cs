@@ -50,17 +50,17 @@ public sealed partial class RoomEnemySystem
         switch (opcode)
         {
             case TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY:
-                state.PreInstruction = ReadOperand0();
+                state.PreInstruction = ClosedNativeWords.Decode<TorizoPreInstruction>(ReadOperand0(), "Torizo pre-instruction");
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
             case TorizoInstructionCodes.Instruction_CommonAA3_SetEnemy0FB2ToRTS:
-                state.PreInstruction = TorizoPreInstructionIdle;
+                state.PreInstruction = TorizoPreInstruction.Idle;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_FunctionInY:
-                state.Function = ReadOperand0();
+                state.Function = ClosedNativeWords.Decode<TorizoFunction>(ReadOperand0(), "Torizo function");
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 

@@ -161,7 +161,7 @@ static void VerifyRoomEnemyLoading()
     RoomEnemyDefinition definition = slot.Definition;
     AssertEqual(0x110e, definition.HurtSoundEffect, "definition hurt SFX offset $0E");
     AssertEqual(0x1114, definition.PartCount, "definition part count offset $14");
-    AssertEqual(0x111a, definition.GrappleAiPointer, "definition grapple AI offset $1A");
+    AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAiPointer, "definition grapple AI offset $1A");
     AssertEqual(0x1128, definition.PowerBombReactionPointer,
         "definition power-bomb reaction offset $28");
     AssertEqual(0x1134, definition.InitialSpritemapPointer,
@@ -1726,6 +1726,7 @@ static void WriteEnemyDefinition(
     WriteWord(bus, address + 16, bossId);
     WriteWord(bus, address + 18, 0x804c); // Bank-local no-op initialization AI.
     WriteWord(bus, address + 24, 0x804c); // Bank-local no-op main AI.
+    WriteWord(bus, address + 26, (ushort)GrappleAiRoutine.Cancel); // Grapple AI must be a real routine.
     WriteLong(bus, address + 54, tileDataAddress);
     bus.WriteByte(address + 57, 5);
     WriteWord(bus, address + 62, namePointer);

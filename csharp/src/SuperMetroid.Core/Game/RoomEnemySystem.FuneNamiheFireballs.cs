@@ -5,8 +5,6 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort NamiFuneFireballPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_NamiFuneFireball;
-    private const ushort NamiFuneFireballMovingLeft = 0xdf40;
-    private const ushort NamiFuneFireballMovingRight = 0xdf6a;
 
     /// <summary>
     /// Ports the shared projectile initializer at $86:DED6. The source population's low
@@ -32,8 +30,8 @@ public sealed partial class RoomEnemySystem
             : FuneNamiheFireballInstructionProgramDefinitions.Left;
         projectile.PreInstruction = NamiFuneFireballPreInstruction;
         projectile.Variable0 = movingRight
-            ? NamiFuneFireballMovingRight
-            : NamiFuneFireballMovingLeft;
+            ? (ushort)NamiFuneFireballFunction.MovingRight
+            : (ushort)NamiFuneFireballFunction.MovingLeft;
         projectile.DirectionParameter = movingRight ? (ushort)1 : (ushort)0;
 
         projectile.XPosition = source.XPosition;
@@ -57,9 +55,9 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        switch (projectile.Variable0)
+        switch (ClosedNativeWords.Decode<NamiFuneFireballFunction>(projectile.Variable0, "Fune/Namihe fireball function"))
         {
-            case NamiFuneFireballMovingLeft:
+            case NamiFuneFireballFunction.MovingLeft:
                 // Yes, this is YVelocity. The retail initializer and mover agree on this
                 // unconventional storage, so normalizing it would make debugger state lie.
                 (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
@@ -68,7 +66,7 @@ public sealed partial class RoomEnemySystem
                     projectile.YVelocity);
                 break;
 
-            case NamiFuneFireballMovingRight:
+            case NamiFuneFireballFunction.MovingRight:
                 (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
                     projectile.XPosition,
                     projectile.XSubposition,
@@ -84,4 +82,14 @@ public sealed partial class RoomEnemySystem
         // at camera+256 survives this frame and is deleted only after crossing beyond it.
         DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, cameraX, cameraY);
     }
+}
+
+/// <summary>Fune/Namihe fireball functions stored in the native Variable0 slot.</summary>
+internal enum NamiFuneFireballFunction : ushort
+{
+    /// <summary>$86:DF40.</summary>
+    MovingLeft = 0xdf40,
+
+    /// <summary>$86:DF6A.</summary>
+    MovingRight = 0xdf6a,
 }

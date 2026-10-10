@@ -126,6 +126,39 @@ internal static partial class Program
         // A statement switch that dispatches on a masked selector is still reported, even with a throwing default.
         Expect("class C { void M(byte header) { int direction = header & 3; switch (direction) { case 0: break; default: throw new System.Exception(); } } }",
             PrimitiveDomainAnalyzer.MaskedSelectorId, "by mask");
+
+        // SME6274: a primitive compared against several named constants of one catalog.
+        Expect(catalog + " class C { bool M(byte stage) => stage == Stage.Read || stage == Stage.Build; }",
+            PrimitiveDomainAnalyzer.CatalogComparisonId, "2 named constants of Stage");
+        Expect(catalog + " class C { byte s; bool A() => s == Stage.Read; bool B() => s is Stage.Build; }",
+            PrimitiveDomainAnalyzer.CatalogComparisonId, "named constants of Stage");
+        // One named bound, or an open quantity compared with literals, is not a domain.
+        Expect(catalog + " class C { bool M(byte stage) => stage == Stage.Read; }");
+        Expect("class C { bool M(int count) => count == 0 || count == 1; }");
+
+        // SME6275: a primitive parameter whose every use is an unchecked enum cast.
+        Expect(domain + " class C { int M(byte raw) => (Mode)raw switch { Mode.A => 1, Mode.B => 2, Mode.C => 3, _ => throw new System.Exception() }; }",
+            PrimitiveDomainAnalyzer.CastOnlyParameterId, "accept Mode");
+        // A parameter that is also used numerically, or decoded through a validating helper, is a boundary.
+        Expect(domain + " class C { int M(byte raw) => raw > 2 ? 0 : (int)(Mode)raw; }");
+        Expect(domain + " static class D { public static Mode Decode(byte raw) => System.Enum.IsDefined((Mode)raw) ? (Mode)raw : throw new System.Exception(); }");
+
+        // SME6276: arithmetic or stepping manufactures a closed-enum value.
+        Expect(domain + " class C { Mode M(Mode m) => (Mode)((byte)m + 1); }",
+            PrimitiveDomainAnalyzer.EnumArithmeticId, "undefined Mode");
+        Expect(domain + " class C { void M(Mode m) { m++; } }",
+            PrimitiveDomainAnalyzer.EnumArithmeticId, "Stepping an enum");
+        // A [Flags] combination and a plain enum-to-number conversion are accepted.
+        Expect(flags + " class C { Bits M(Bits b) => (Bits)((byte)b + 1); }");
+        Expect(domain + " class C { int M(Mode m) => (int)m * 4; }");
+
+        // SME6277: a domain value narrowed into a primitive and then used as the identity.
+        Expect(domain + " class C { bool M(Mode m) { int code = (int)m; return code == 1; } }",
+            PrimitiveDomainAnalyzer.PrimitiveInterludeId, "narrowed to int and is then compared");
+        Expect(domain + " class C { int field; void Set(Mode m) => field = (int)m; int Get() => field switch { 0 => 1, _ => 2 }; }",
+            PrimitiveDomainAnalyzer.PrimitiveInterludeId, "is then switched");
+        // A conversion consumed immediately as an index or arithmetic is a boundary expression.
+        Expect(domain + " class C { int[] table = new int[3]; int M(Mode m) { int index = (int)m; return table[index] + index; } }");
     }
 
     private static MetadataReference[] BuildReferences()

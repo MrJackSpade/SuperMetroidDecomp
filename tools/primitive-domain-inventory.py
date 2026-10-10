@@ -4,7 +4,7 @@ Usage:
     dotnet build csharp/SuperMetroid.Full.slnx -c Release --no-incremental > build.log
     python tools/primitive-domain-inventory.py build.log
 
-Every SME6270-SME6272 diagnostic in the log becomes one open finding in
+Every SME6270-SME6277 diagnostic in the log becomes one open finding in
 docs/primitive-domain-inventory.json, grouped by the domain the analyzer inferred.
 Resolved domains are kept from the existing inventory: each records the type that now
 owns the domain, the boundary that decodes it, and how invalid values are handled.
@@ -25,11 +25,23 @@ RULES = {
     "SME6271": "closed-domain switch ignores unexpected values",
     "SME6272": "masked primitive used as a selector",
     "SME6273": "enum interpolated with a numeric format specifier",
+    "SME6274": "closed domain compared as a primitive",
+    "SME6275": "primitive parameter only cast to a domain enum",
+    "SME6276": "arithmetic produces a closed-domain value",
+    "SME6277": "closed-domain value carried as a primitive",
 }
 
 
 def domain_of(rule, message):
-    if rule == "SME6270":
+    patterns = {
+        "SME6275": r"unchecked cast to (\w+);",
+        "SME6276": r"undefined (\w+);",
+        "SME6277": r"holds a (\w+) narrowed",
+    }
+    if rule in patterns:
+        match = re.search(patterns[rule], message)
+        return match.group(1) if match else "unknown"
+    if rule in ("SME6270", "SME6274"):
         match = re.search(r"named constants of (.*?); model", message)
         return match.group(1) if match else "unknown"
     if rule == "SME6271":

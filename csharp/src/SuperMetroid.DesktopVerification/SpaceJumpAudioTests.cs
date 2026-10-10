@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Checks the space-jump audio fixture and verifies that cancelling a spin jump emits its sound-stop command.</summary>
     private static void VerifySpaceJumpAudio()
     {
         var loaded = DebuggerFixtureLoader.Load("space-jump-audio-loop", 0);

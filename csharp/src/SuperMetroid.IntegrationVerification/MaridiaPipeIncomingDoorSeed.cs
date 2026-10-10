@@ -5,6 +5,14 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Constructs a bounded source-room boundary; subsequent frames use the frontend door owner.</summary>
 internal static class MaridiaPipeIncomingDoorSeed
 {
+    /// <summary>
+    /// Loads the Plasma Spark source room and places Samus at the tube center, above the
+    /// matching door block, so gravity reaches the incoming elevatube boundary naturally.
+    /// </summary>
+    /// <param name="runtime">Runtime whose room and Samus position are prepared for the incoming-door replay.</param>
+    /// <param name="bus">Cartridge address space used to resolve foreground door collisions.</param>
+    /// <param name="door">Compiled door header whose pointer identifies the source-room boundary to approach.</param>
+    /// <exception cref="InvalidDataException">The source room contains no foreground door collision resolving to <paramref name="door"/>.</exception>
     public static void Apply(SuperMetroidRuntime runtime, ISnesAddressSpace bus, CartridgeDoorHeader door)
     {
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom);

@@ -19,6 +19,8 @@ internal static class ToolingTypes
     internal static Type? Adapter(Type owner) =>
         typeof(ToolingTypes).Assembly.GetType($"{owner.Namespace}.{FlatName(owner)}Tooling");
 
+    /// <summary>Builds the adapter lookup name by concatenating enclosing type names from outermost to innermost.</summary>
+    /// <param name="type">Shipped type whose adapter-name stem is required.</param>
     private static string FlatName(Type type) =>
         type.DeclaringType is { } outer ? FlatName(outer) + type.Name : type.Name;
 }

@@ -3,6 +3,7 @@
 /// <summary>Development-tool members of <see cref="BlueDoorPlmDrawDefinitions"/>; never linked by player hosts.</summary>
 internal static class BlueDoorPlmDrawDefinitionsTooling
 {
+    /// <summary>Enumerates all twenty native blue-cap draw lists: sixteen opening frames and four pre-opening aliases.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get

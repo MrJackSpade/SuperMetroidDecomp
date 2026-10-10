@@ -5,6 +5,8 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
+    /// <summary>Uploads a message layer's tilemap, centered reveal bounds, and temporary palette before dispatching its shader.</summary>
+    /// <param name="layer">Captured message-box tile words and current reveal radius to render.</param>
     private unsafe void DispatchMessage(MessageBoxRenderLayer layer)
     {
         var data = ClearUploadConstants();

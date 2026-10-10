@@ -6,6 +6,9 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class Program
 {
+    /// <summary>Checks that form shutdown joins renderer work before destroying its canvas, including a close during startup.</summary>
+    /// <param name="renderer">Renderer backend to exercise with the form.</param>
+    /// <param name="duringStartup">Whether to close while renderer initialization is still in progress.</param>
     private static async Task VerifyFormClose(RendererSelection renderer, bool duringStartup)
     {
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "desktop-renderer", Guid.NewGuid().ToString("N")));

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies captured gameplay rendering against legacy output across Mode 7, ordered overlays, NMI-published registers, and Ceres startup and pause/unpause frames.</summary>
     private static void VerifyGameplayCaptureIntegration()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

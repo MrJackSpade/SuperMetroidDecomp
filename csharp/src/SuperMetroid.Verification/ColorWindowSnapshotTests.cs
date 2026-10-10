@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Verifies snapshot rendering for haze, suit-pickup, and Power Bomb color windows, including composition and codec checks.</summary>
     private static void VerifyColorWindowSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

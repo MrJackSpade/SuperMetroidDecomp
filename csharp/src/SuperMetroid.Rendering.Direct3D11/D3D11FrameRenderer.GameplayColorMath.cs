@@ -5,6 +5,10 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
+    /// <summary>Uploads gameplay color-math registers and scanline state, then dispatches the GPU pass for an X-ray layer.</summary>
+    /// <param name="scene">The layered frame supplying modeled sprite count and object selection.</param>
+    /// <param name="layer">The X-ray gameplay registers, color-math inputs, and optional subscreen data.</param>
+    /// <exception cref="NotSupportedException">The layer combines captured main-screen hardware windows with GPU color math.</exception>
     private unsafe void DispatchGameplayColorMath(LayeredRenderSnapshot scene, GameplayColorMathRenderLayer layer)
     {
         if (layer.Gameplay.Registers.MainScreenWindowMask != SuperMetroid.Core.Hardware.SnesMainScreenLayers.None)

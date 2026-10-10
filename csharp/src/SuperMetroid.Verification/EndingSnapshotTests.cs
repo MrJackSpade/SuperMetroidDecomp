@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks retail ending render parity across reward branches, phase-specific palette behavior, and snapshot stability after simulation advances.</summary>
     private static void VerifyEndingRenderSnapshots()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

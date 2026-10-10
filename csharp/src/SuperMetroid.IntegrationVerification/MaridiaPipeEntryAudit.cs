@@ -7,6 +7,10 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Read-only replay of the preserved #391 state; never touches player slots.</summary>
 internal static class MaridiaPipeEntryAudit
 {
+    /// <summary>Replays the preserved Maridia pipe-entry fixture and captures frames while checking its room transitions.</summary>
+    /// <param name="fromNorth">Starts from the northern elevatube approach instead of the saved fixture position.</param>
+    /// <param name="freshOrigin">Clears prior scroll offsets for the northern diagnostic control.</param>
+    /// <param name="incomingDoor">Stages the actual incoming door callback and verifies the longer tube-to-Oasis transition.</param>
     public static int Run(bool fromNorth = false, bool freshOrigin = false, bool incomingDoor = false)
     {
         var loaded = DebuggerFixtureLoader.Load("maridia-041b-pipe-entry", 0);

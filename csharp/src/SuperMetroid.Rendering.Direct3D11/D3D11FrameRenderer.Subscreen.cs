@@ -4,6 +4,10 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
+    /// <summary>Uploads one subscreen-add layer and its scanline scroll data, then dispatches the corresponding compute work.</summary>
+    /// <param name="layer">Tilemap, character, coverage, object-selection, and per-scanline scroll inputs for the layer.</param>
+    /// <param name="objectCount">Number of modeled objects available to this composition pass.</param>
+    /// <param name="objectSelection">Object-selection mode consumed by the subscreen shader.</param>
     private unsafe void DispatchSubscreen(BgSubscreenAddRenderLayer layer, uint objectCount, byte objectSelection)
     {
         var data = ClearUploadConstants();

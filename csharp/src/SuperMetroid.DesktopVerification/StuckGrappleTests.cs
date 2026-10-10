@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Replays the captured wedged-grapple state with Run and Jump to verify that the former stays stuck while the latter frees the rope.</summary>
     private static void VerifyStuckGrapple()
     {
         ReplayStuckGrapple(SnesButton.B);

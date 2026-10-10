@@ -5,6 +5,9 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class SwapchainTests
 {
+    /// <summary>Verifies recovery limits and preserves the original fault when renderer initialization fails.</summary>
+    /// <param name="kind">D3D11 device kind used for the recovery scenario.</param>
+    /// <param name="repeatDeviceLoss">Injects device-removed failures repeatedly instead of a non-retryable coverage failure.</param>
     private static void VerifyRecoveryFailure(D3D11DeviceKind kind, bool repeatDeviceLoss)
     {
         nint window = CreateWindowExW(0, "STATIC", "Hidden recovery failure verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);

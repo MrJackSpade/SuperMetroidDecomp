@@ -42,6 +42,9 @@ public static class AudioAssetOverrideInstaller
         }
     }
 
+    /// <summary>Copies a directory tree to a new location while preserving its relative directory and file paths.</summary>
+    /// <param name="source">Root directory whose contents are copied.</param>
+    /// <param name="destination">Root directory to create and populate with the copied contents.</param>
     private static void CopyDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);

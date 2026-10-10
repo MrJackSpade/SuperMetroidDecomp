@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies gameplay snapshot rendering across layer geometry, masks, and HDMA while keeping captured retail images independent of live PPU memory.</summary>
     private static void VerifyGameplaySnapshots()
     {
         var random = new Random(32105);

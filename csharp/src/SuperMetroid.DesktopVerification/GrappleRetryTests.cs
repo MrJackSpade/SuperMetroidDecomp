@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Checks that holding Up preserves the stopped-retraction stall and that a fresh Up edge permits a later wall-jump retry.</summary>
     private static void VerifyGrappleRetry()
     {
         ReplayGrappleRetry(repressUp: false);

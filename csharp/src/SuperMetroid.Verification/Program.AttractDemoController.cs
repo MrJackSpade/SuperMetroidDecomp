@@ -2,6 +2,7 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Verifies scripted attract-demo button edges do not alter hardware latch history and restore player cancellation input.</summary>
     private static void VerifyAttractDemoControllerOverride()
     {
         var controller = new ControllerInputState(4, 2);

@@ -24,6 +24,15 @@ internal static partial class Program
             ReplayShinesparkShaft(false, downInput);
     }
 
+    /// <summary>
+    /// Replays the preserved shaft fixture through real game steps and checks either the
+    /// expected full-height spark or the saved-energy stop. Optional controls isolate charge
+    /// storage, invincibility, and launch-health cases without changing the saved fixture.
+    /// </summary>
+    /// <param name="replenishHealth">Restores Samus to maximum health before the replay and expects the spark to clear the shaft.</param>
+    /// <param name="storageOnlyInput">If supplied, uses this Down-containing chord for the one-frame charge-storage check and returns before launch.</param>
+    /// <param name="invincibility">Whether to retain the fixture's invincibility option; disabling it exercises saved-energy behavior.</param>
+    /// <param name="launchHealth">Optional health value assigned while the spark is in windup, for checking launch-energy behavior.</param>
     private static void ReplayShinesparkShaft(bool replenishHealth, SnesButton? storageOnlyInput = null,
         bool invincibility = true, ushort? launchHealth = null)
     {

@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks captured-frame state, audio, and pixel parity with legacy rendering through the title-to-intro handoff.</summary>
+    /// <remarks>Also verifies retained snapshots can be republished without advancing simulation or changing their rendered output.</remarks>
     private static void VerifyFrontendRenderCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

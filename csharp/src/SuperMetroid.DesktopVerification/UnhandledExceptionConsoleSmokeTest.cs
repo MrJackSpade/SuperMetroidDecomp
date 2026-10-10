@@ -43,4 +43,5 @@ public static class UnhandledExceptionConsoleSmokeTest
 }
 
 /// <summary>Observable result returned by the fatal console reporting smoke test.</summary>
+/// <param name="ReportLength">Number of characters in the complete exception diagnostic and acknowledgment prompt.</param>
 public readonly record struct UnhandledExceptionConsoleSmokeTestResult(int ReportLength);

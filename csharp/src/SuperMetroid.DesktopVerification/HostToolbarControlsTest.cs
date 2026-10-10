@@ -6,6 +6,8 @@ using SuperMetroid.Desktop;
 /// <summary>Inspect the production host control tree without showing a window or touching player saves.</summary>
 internal static class HostToolbarControlsTest
 {
+    /// <summary>Audits the production toolbar controls, keyboard input, and viewport layout using a desktop host created from the supplied ROM.</summary>
+    /// <param name="rom">Path to the ROM loaded by the temporary desktop host.</param>
     public static void Run(string rom)
     {
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "toolbar-559", Guid.NewGuid().ToString("N")));

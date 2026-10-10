@@ -6,6 +6,9 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Deliberate mismatch verifies the diagnostic artifact pipeline, not just its success path.</summary>
 internal static class ComparisonArtifactTests
 {
+    /// <summary>Forces a pixel mismatch and verifies that its metadata, expected/actual/difference images, and serialized frame replay match the captured comparison.</summary>
+    /// <param name="device">Active Direct3D device whose kind is included in the verification report.</param>
+    /// <param name="renderer">Renderer used to reproduce the serialized frame for the successful replay comparison.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new Rgba32(31, 73, 127));

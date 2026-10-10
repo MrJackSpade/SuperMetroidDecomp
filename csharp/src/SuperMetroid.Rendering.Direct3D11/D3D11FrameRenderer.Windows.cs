@@ -4,6 +4,12 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
+    /// <summary>Packs one enabled SNES BG1–BG4 or OBJ window target's selection, logic, and edge registers into shader constants.</summary>
+    /// <param name="data">Destination shader-constant words updated for an enabled target.</param>
+    /// <param name="windows">Literal PPU window selections, logic operations, and horizontal edges.</param>
+    /// <param name="enabled">Main-screen layer mask that determines whether this target is admitted.</param>
+    /// <param name="target">Background or OBJ target whose register fields are packed.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The target is outside BG1 through OBJ.</exception>
     private static void SetWindowConstants(Span<uint> data, SnesWindowRegisters windows,
         SnesMainScreenLayers enabled, SnesWindowTarget target)
     {

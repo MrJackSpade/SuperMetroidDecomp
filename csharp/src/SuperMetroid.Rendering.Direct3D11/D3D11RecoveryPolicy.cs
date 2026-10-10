@@ -9,5 +9,8 @@ internal static class D3D11RecoveryPolicy
     internal const int DeviceReset = unchecked((int)0x887A0007);
     /// <summary>Fail loudly after repeated recreation without any successful submission.</summary>
     internal const int MaximumConsecutiveRecreations = 3;
+    /// <summary>Identifies the DXGI HRESULTs that require recreating the D3D device and its resources.</summary>
+    /// <param name="result">HRESULT returned by a graphics operation.</param>
+    /// <returns><see langword="true"/> only for device-removed or device-reset failures.</returns>
     internal static bool IsDeviceLoss(int result) => result is DeviceRemoved or DeviceReset;
 }

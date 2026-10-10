@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Compares retail file-select and options-menu frames across copy/clear flows, scrolling, special settings, and fades against layered and packet-round-tripped snapshots.</summary>
     private static void VerifyFileMenuRenderSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

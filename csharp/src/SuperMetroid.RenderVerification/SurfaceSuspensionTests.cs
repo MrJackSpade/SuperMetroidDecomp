@@ -6,6 +6,8 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class SwapchainTests
 {
+    /// <summary>Verifies zero-sized surface suspension, queued-frame accounting, generation invalidation, restoration, and shutdown.</summary>
+    /// <param name="kind">The Direct3D 11 device backend used for the swapchain worker.</param>
     private static void VerifySurfaceSuspension(D3D11DeviceKind kind)
     {
         // Exercise the real worker and swapchain without showing or minimizing the

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Mode-7 snapshot round-trips preserve rendered pixels across register, scroll, and floor-band cases and retain a Ceres getaway capture after live state changes.</summary>
     private static void VerifyMode7GameplaySnapshots()
     {
         var random = new Random(32109);

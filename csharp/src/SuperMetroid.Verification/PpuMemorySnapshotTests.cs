@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Verifies PPU snapshot layout, independent ownership of captured and supplied arrays, stability after later writes, and rejection of undersized memory regions.</summary>
     private static void VerifyPpuMemorySnapshotOwnership()
     {
         var vram = new SnesVram();

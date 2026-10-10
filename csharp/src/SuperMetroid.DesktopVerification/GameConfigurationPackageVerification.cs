@@ -4,6 +4,9 @@ using SuperMetroid.Core.Frontend;
 /// <summary>Exercises the published host's real INI loader without opening a window or touching player data.</summary>
 internal static class GameConfigurationPackageVerification
 {
+    /// <summary>Verifies installed and first-use game-configuration loading against the published host package.</summary>
+    /// <param name="gameAssemblyPath">Path to the published game assembly whose directory contains release defaults.</param>
+    /// <exception cref="InvalidDataException">Published defaults, player-setting precedence, or invalid-file handling differs from the expected contract.</exception>
     public static void Run(string gameAssemblyPath)
     {
         string publish = Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath))!;

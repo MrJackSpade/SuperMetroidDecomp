@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rendering;
 /// <summary>Diagnostic translation of upstream-sm/src/snes/ppu.c's reference Mode-7 sampling.</summary>
 internal static class NativeMode7Probe
 {
+    /// <summary>Renders a diagnostic frame from captured Mode-7 state, then composites objects and applies presentation filters.</summary>
+    /// <param name="snapshot">Captured matrices, VRAM, CGRAM, object data, and presentation settings for the reference frame.</param>
+    /// <param name="scanlineBias">Vertical sampling offset added to each output scanline before Mode-7 transformation.</param>
+    /// <returns>The composed 256-by-224 RGBA frame.</returns>
     internal static Rgba32[] Render(Mode7ObjRenderSnapshot snapshot, int scanlineBias)
     {
         var bg = snapshot.Background!.Value;

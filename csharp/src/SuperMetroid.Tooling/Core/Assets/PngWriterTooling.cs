@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Development-tool members of <see cref="PngWriter"/>; never linked by player hosts.</summary>
 internal static class PngWriterTooling
 {
+    /// <summary>Standard eight-byte PNG file signature written before the first chunk.</summary>
     internal static readonly byte[] Signature = [137, 80, 78, 71, 13, 10, 26, 10];
     /// <summary>Expands palette indexes to RGBA and writes them as a PNG.</summary>
     public static void WriteIndexedAsRgba(

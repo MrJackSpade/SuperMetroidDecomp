@@ -4,6 +4,8 @@ using System.Reflection.PortableExecutable;
 /// <summary>Checks the actual published binaries without loading a second copy of their dependencies.</summary>
 internal static class ProductionAssemblyVerification
 {
+    /// <summary>Rejects production binaries that contain smoke-test types or reference the verification assembly.</summary>
+    /// <param name="paths">File paths to the production assemblies whose metadata should be inspected.</param>
     public static void Run(IEnumerable<string> paths)
     {
         foreach (string path in paths)

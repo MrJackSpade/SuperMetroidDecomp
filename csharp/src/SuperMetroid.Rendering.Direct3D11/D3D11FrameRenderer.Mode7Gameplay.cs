@@ -4,6 +4,7 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
+    /// <summary>Dispatches the HUD, Mode 7 viewport, and optional lower Mode 1 BG2/OBJ band while keeping sampling coordinates in physical screen space.</summary>
     private void DispatchMode7Gameplay(Mode7GameplayRenderLayer layer)
     {
         // Clipping is in physical scanlines. Never translate the projection origin

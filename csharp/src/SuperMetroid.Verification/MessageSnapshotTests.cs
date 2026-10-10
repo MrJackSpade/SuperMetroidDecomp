@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks every gameplay-message snapshot against rendering, reveal geometry, codec, and state-reuse expectations.</summary>
     private static void VerifyMessageSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

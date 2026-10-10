@@ -7,6 +7,9 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>New-game Ceres arrival through the real frontend: fade, moving pad, landing and release.</summary>
 internal static class RetailElevatorCaptureTests
 {
+    /// <summary>Compares legacy and captured new-game runs through Ceres elevator arrival, including published motion state, rendered pixels, and sustained control release after landing.</summary>
+    /// <param name="device">Render device whose kind is included in comparison diagnostics.</param>
+    /// <param name="renderer">Renderer used to read back each captured frame for pixel comparison.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");

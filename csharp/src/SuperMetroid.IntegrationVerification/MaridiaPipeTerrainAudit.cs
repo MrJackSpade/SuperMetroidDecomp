@@ -7,6 +7,12 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Compares the displayed tube tilemap words with the authored room allocation.</summary>
 internal static class MaridiaPipeTerrainAudit
 {
+    /// <summary>Compares visible tube-room BG1/BG2 tilemap words with the room's authored level data.</summary>
+    /// <param name="runtime">Gameplay runtime providing the active room, scroll offsets, and level allocation.</param>
+    /// <param name="snapshot">Captured frame whose VRAM tilemap words are checked.</param>
+    /// <param name="frame">Sequence frame number used in diagnostics and periodic reporting.</param>
+    /// <param name="requireAuthoredTerrain">Whether any displayed-versus-authored mismatch should fail the audit.</param>
+    /// <exception cref="InvalidDataException">Strict checking is enabled and a visible terrain word differs from authored data.</exception>
     public static void Observe(SuperMetroidRuntime runtime, RenderFrameSnapshot snapshot, int frame, bool requireAuthoredTerrain = false)
     {
         if (runtime.ActiveRoom?.Pointer != MaridiaPipeFixtureDefinitions.TubeRoom || snapshot.Layers is not { } layers) return;

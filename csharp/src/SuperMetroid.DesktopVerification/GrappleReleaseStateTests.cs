@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Checks cartridge-derived grapple ejection vectors and ledge-release playback positions and solid-block overlap.</summary>
     private static void VerifyGrappleReleaseState()
     {
         var loaded = DebuggerFixtureLoader.Load("issue-350-grounded-grapple-floor-clip", 0);

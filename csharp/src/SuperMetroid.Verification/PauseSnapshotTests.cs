@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks pause-menu snapshot rendering across map/equipment pages and all fade levels, including retained HUD data and snapshot stability after stepping.</summary>
     private static void VerifyPauseRenderSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

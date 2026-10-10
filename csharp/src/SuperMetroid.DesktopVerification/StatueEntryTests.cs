@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Checks the saved statue-room entry artwork, native BG2 layout, Tourian unlock, and shaft traversal.</summary>
     private static void VerifyStatueEntry()
     {
         var loaded = DebuggerFixtureLoader.Load("issue-481-statue-room-entry", 0);

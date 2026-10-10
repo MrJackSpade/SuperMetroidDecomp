@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks Android host run gating, controller preferences, frame cadence, viewport scaling, and input latching.</summary>
     private static void VerifyAndroidHostPolicies()
     {
         Suite(nameof(VerifyQueuedPcmSink), () => VerifyQueuedPcmSink());

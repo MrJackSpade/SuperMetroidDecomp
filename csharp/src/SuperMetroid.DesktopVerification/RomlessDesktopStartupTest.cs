@@ -11,6 +11,8 @@ using SuperMetroid.Desktop;
 /// </summary>
 internal static class RomlessDesktopStartupTest
 {
+    /// <summary>Verifies desktop startup, state restoration, and input replay after the installed ROM copy is withheld.</summary>
+    /// <param name="sourceRom">ROM used to create the temporary extracted installation.</param>
     public static void Run(string sourceRom)
     {
         string tempRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp"));

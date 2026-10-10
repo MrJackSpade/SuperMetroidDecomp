@@ -5,6 +5,8 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class Program
 {
+    /// <summary>Checks that failed hardware-renderer startup leaves the game unadvanced, applies the selected fallback policy, and prevents restarting after shutdown.</summary>
+    /// <param name="selection">Renderer policy whose handling of the startup failure is under verification.</param>
     private static async Task VerifyRendererStartupFailure(RendererSelection selection)
     {
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "desktop-renderer", Guid.NewGuid().ToString("N")));

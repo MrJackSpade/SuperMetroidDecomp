@@ -89,6 +89,48 @@ public sealed class FuneNamiheEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the Fune/Namihe family's private animation instructions.</summary>
+    private bool TryProcessFuneNamiheInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (!IsFuneNamiheDefinition(slot.EnemyDefinitionPointer) ||
+            !Enum.IsDefined((FuneNamiheInstruction)word))
+            return false;
+
+        switch ((FuneNamiheInstruction)word)
+        {
+            case FuneNamiheInstruction.QueueSpitSFX:
+                // Shared mouth animation queues library-two sound $1F.
+                QueueFuneNamiheSpitSound();
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case FuneNamiheInstruction.NamiheSpawnFireballFacingLeft:
+                SpawnFuneNamiheFireball(slot, movingRight: false, RoomEnemyProjectileKind.NamiheFireball);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case FuneNamiheInstruction.NamiheSpawnFireballFacingRight:
+                SpawnFuneNamiheFireball(slot, movingRight: true, RoomEnemyProjectileKind.NamiheFireball);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case FuneNamiheInstruction.FuneSpawnFireballFacingLeft:
+                SpawnFuneNamiheFireball(slot, movingRight: false, RoomEnemyProjectileKind.FuneFireball);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case FuneNamiheInstruction.FuneSpawnFireballFacingRight:
+                SpawnFuneNamiheFireball(slot, movingRight: true, RoomEnemyProjectileKind.FuneFireball);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case FuneNamiheInstruction.FinishActivity:
+            case FuneNamiheInstruction.FinishActivityDuplicate:
+                // Left/right lists use duplicate opcodes with byte-for-byte state effects.
+                FinishFuneNamiheActivity(RequireFuneNamiheState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Fune/Namihe does not own instruction ${word:X4}.");
+        }
+    }
+
     private readonly FuneNamiheEnemyState?[] _funeNamiheStates =
         new FuneNamiheEnemyState?[MaximumEnemyCount];
 

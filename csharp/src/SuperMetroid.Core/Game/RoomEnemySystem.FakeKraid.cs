@@ -75,6 +75,47 @@ public readonly record struct FakeKraidDropRequest();
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Mini-Kraid's private animation instructions.</summary>
+    private bool TryProcessFakeKraidInstruction(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level, ushort word, ref ushort cursor, ushort cameraX, ushort cameraY)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.MiniKraid ||
+            !Enum.IsDefined((FakeKraidInstruction)word))
+            return false;
+
+        switch ((FakeKraidInstruction)word)
+        {
+            case FakeKraidInstruction.Move:
+                // Walk opcode: advance one four-pixel step unless its random reversal
+                // clock expires, then refresh the live facing marker from Samus.
+                ProcessFakeKraidWalkInstruction(slot, RequireFakeKraidState(slot), samus, level);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case FakeKraidInstruction.ChooseAction:
+                // Decision opcode returns a direct same-bank address. Several targets
+                // deliberately begin two bytes inside a named list to skip this opcode.
+                cursor = SelectFakeKraidInstruction(RequireFakeKraidState(slot));
+                return true;
+            case FakeKraidInstruction.PlayCrySFX:
+                // `$A6:9BB2` queues sound $16 only while the actor origin is inside the
+                // inclusive 256x256 native screen rectangle.
+                if (FakeKraidOriginIsOnScreen(slot, cameraX, cameraY))
+                    LastFakeKraidSoundEffect = FakeKraidSpitSound;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case FakeKraidInstruction.FireSpitLeft:
+                SpawnFakeKraidSpitPair(slot, RequireFakeKraidState(slot), movingRight: false);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case FakeKraidInstruction.FireSpitRight:
+                SpawnFakeKraidSpitPair(slot, RequireFakeKraidState(slot), movingRight: true);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Mini-Kraid does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort FakeKraidSpitSound = 0x0016;
     private const ushort FakeKraidSpikeSound = 0x003f;

@@ -19,10 +19,6 @@ internal abstract class SparkInstructionProgramDefinitions
     /// <summary><c>$A8:E609</c>, stationary falling-spark emitter loop.</summary>
     internal const ushort Emitter = 0xe609;
 
-    /// <summary>$A8:E62A, Instruction_Spark_SetAsTangible clears IgnoreSamusCollision before activation.</summary>
-    private const ushort SetTangible = 0xe62a;
-    /// <summary>$A8:E61D, Instruction_Spark_SetAsIntangible sets IgnoreSamusCollision after deactivation.</summary>
-    private const ushort SetIntangible = 0xe61d;
     /// <summary>$A8:E5A9/B1/B9/C1: four visible flashes, two each of flickering poses zero and one. Independently reviewed visual choreography: tangible before the sequence; lifetime uses a separate timer.</summary>
     private const ushort ActivationFlashOnTicks = 1;
     /// <summary>$A8:E5AD/B5/BD: empty spritemap between the first three flashes. Independently reviewed visual blank cadence; the nonzero empty-map pointer preserves the fixed collision box.</summary>
@@ -43,12 +39,12 @@ internal abstract class SparkInstructionProgramDefinitions
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        if (index == 0) return new(FlickerOn, SetTangible);
+        if (index == 0) return new(FlickerOn, (ushort)SparkInstruction.SetAsTangible);
         if (index <= 10) return new((ushort)(FlickerOn + 2 + (index - 1) * 4), ActivationDuration(index - 1));
         if (index < 17) return LoopWord(Active, index - 11);
         if (index < 25) return new((ushort)(FlickerOut + (index - 17) * 4), FlickerOutCadence);
         if (index < 27) return new((ushort)(FlickerOut + 32 + (index - 25) * 2),
-            index == 25 ? SetIntangible : CommonEnemyInstructionCodes.Sleep);
+            index == 25 ? (ushort)SparkInstruction.SetAsIntangible : (ushort)CommonEnemyInstruction.Sleep);
         return LoopWord(Emitter, index - 27);
     }
     private static ushort ActivationDuration(int frame)
@@ -59,7 +55,7 @@ internal abstract class SparkInstructionProgramDefinitions
     }
     private static InstructionMechanicsWord LoopWord(ushort start, int index) => index < 4
         ? new((ushort)(start + index * 4), ContinuousVisualCadence)
-        : new((ushort)(start + 16 + (index - 4) * 2), index == 4 ? CommonEnemyInstructionCodes.Goto : start);
+        : new((ushort)(start + 16 + (index - 4) * 2), index == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
 
     public static ushort PresentationWordAddress(int index)
     {

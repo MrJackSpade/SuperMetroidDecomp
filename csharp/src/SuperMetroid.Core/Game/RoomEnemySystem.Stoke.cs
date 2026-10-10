@@ -92,6 +92,33 @@ public sealed class StokeEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Stoke's private animation instructions.</summary>
+    private bool TryProcessStokeInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Stoke ||
+            !Enum.IsDefined((StokeInstruction)word))
+            return false;
+
+        switch ((StokeInstruction)word)
+        {
+            case StokeInstruction.SpawnFireball:
+                SpawnStokeProjectile(slot, ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            case StokeInstruction.SetMovingLeft:
+                SetStokeMovingLeft(RequireStokeState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case StokeInstruction.SetMovingRight:
+                SetStokeMovingRight(RequireStokeState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Stoke does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const int StokeFloorProbeDisplacement = 2 << 16;
 

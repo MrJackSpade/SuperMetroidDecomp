@@ -129,6 +129,33 @@ public sealed class CacatacEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Cacatac's private animation instructions.</summary>
+    private bool TryProcessCacatacInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Cacatac ||
+            !Enum.IsDefined((CacatacInstruction)word))
+            return false;
+
+        switch ((CacatacInstruction)word)
+        {
+            case CacatacInstruction.SetFunctionMovingLeftRight:
+                RestoreCacatacPatrol(RequireCacatacState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case CacatacInstruction.PlaySpikesSFX:
+                PlayCacatacSpikeSound();
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case CacatacInstruction.SpawnSpikeProjectileWithParameterInY:
+                SpawnCacatacSpike(slot, ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Cacatac does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort CacatacSpikeSound = 0x0034;
 

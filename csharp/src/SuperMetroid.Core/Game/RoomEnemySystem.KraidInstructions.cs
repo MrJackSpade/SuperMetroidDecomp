@@ -9,6 +9,36 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Kraid's arm's private animation instruction.</summary>
+    private bool TryProcessKraidArmInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.KraidArm ||
+            !Enum.IsDefined((KraidArmInstruction)word))
+            return false;
+
+        switch ((KraidArmInstruction)word)
+        {
+            case KraidArmInstruction.SlowArmIfLessThanHalfHealth:
+                cursor = SelectKraidArmSpeedInstruction(cursor);
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Kraid arm does not own instruction ${word:X4}.");
+        }
+    }
+
+    /// <summary>Executes Kraid's foot's private animation instructions.</summary>
+    private bool TryProcessKraidFootInstruction(RoomEnemySlot slot, RoomLevelData? level, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.KraidFoot ||
+            !Enum.IsDefined((KraidFootInstruction)word))
+            return false;
+
+        ProcessKraidFootInstruction((KraidFootInstruction)word, level);
+        cursor = unchecked((ushort)(cursor + 2));
+        return true;
+    }
+
     private ushort SelectKraidArmSpeedInstruction(ushort cursor)
     {
         RoomEnemySlot body = _slots[0];
@@ -23,10 +53,10 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)(cursor + 2));
     }
 
-    private void ProcessKraidFootInstruction(ushort instruction, RoomLevelData? level)
+    private void ProcessKraidFootInstruction(KraidFootInstruction instruction, RoomLevelData? level)
     {
         RoomEnemySlot body = _slots[0];
-        switch (ClosedNativeWords.Decode<KraidFootInstruction>(instruction, "Kraid foot instruction"))
+        switch (instruction)
         {
             case KraidFootInstruction.Instruction_Kraid_NOP_A7B633:
                 return;
@@ -68,7 +98,7 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(KraidFootInstruction)} {instruction:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(KraidFootInstruction)} {(int)instruction:X4}.");
         }
     }
 }

@@ -25,9 +25,6 @@ internal abstract class DragonInstructionProgramDefinitions
     /// <summary><c>$A2:E5D7</c>, five-frame attack body sequence facing right.</summary>
     internal const ushort AttackingFacingRight = 0xe5d7;
 
-    /// <summary><c>$A2:E5FB</c>, marks the current body attack animation complete.</summary>
-    internal const ushort AttackFinishedCallback = 0xe5fb;
-
     public static int MechanicsWordCount => 26;
     public static int PresentationWordCount => 16;
 
@@ -42,10 +39,10 @@ internal abstract class DragonInstructionProgramDefinitions
             ushort idle = side == 0 ? IdleFacingLeft : IdleFacingRight;
             ushort wings = side == 0 ? WingsFacingLeft : WingsFacingRight;
             if (local < 2)
-                return new((ushort)(idle + 4 * local), local == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+                return new((ushort)(idle + 4 * local), local == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
             int wingWord = local - 2;
             return new((ushort)(wings + (wingWord < 3 ? 4 * wingWord : 10)),
-                wingWord < 2 ? (ushort)5 : wingWord == 2 ? CommonEnemyInstructionCodes.Goto : wings);
+                wingWord < 2 ? (ushort)5 : wingWord == 2 ? (ushort)CommonEnemyInstruction.Goto : wings);
         }
         int attackWord = (index - 12) % 7;
         ushort attack = index < 19 ? AttackingFacingLeft : AttackingFacingRight;
@@ -55,8 +52,8 @@ internal abstract class DragonInstructionProgramDefinitions
             1 or 3 => 3, // Symmetric extension/retraction poses.
             2 => 7, // Fully extended attack.
             4 => 1, // Return to the initial pose before completion.
-            5 => AttackFinishedCallback,
-            _ => CommonEnemyInstructionCodes.Sleep,
+            5 => (ushort)DragonInstruction.AttackFinishedCallback,
+            _ => (ushort)CommonEnemyInstruction.Sleep,
         };
         return new((ushort)(attack + (attackWord < 6 ? 4 * attackWord : 22)), value);
     }

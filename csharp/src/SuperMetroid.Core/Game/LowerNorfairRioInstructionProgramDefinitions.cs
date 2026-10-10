@@ -84,11 +84,11 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions
                 return Duration(program, offset / 4);
             bool loops = program is LowerNorfairRioProgram.Idle or LowerNorfairRioProgram.AscendingPart2 or LowerNorfairRioProgram.Flames;
             if (offset == frames * 4)
-                return loops ? CommonEnemyInstructionCodes.Goto
-                    : program == LowerNorfairRioProgram.Descending ? CommonEnemyInstructionCodes.Sleep
+                return loops ? (ushort)CommonEnemyInstruction.Goto
+                    : program == LowerNorfairRioProgram.Descending ? (ushort)CommonEnemyInstruction.Sleep
                     : (ushort)LowerNorfairRioInstruction.SetAnimationFinishedFlag;
             return loops ? (ushort)((ushort)program + (program == LowerNorfairRioProgram.Flames ? 0 : 2))
-                : CommonEnemyInstructionCodes.Sleep;
+                : (ushort)CommonEnemyInstruction.Sleep;
         }
         throw new InvalidDataException(
             $"Lower Norfair Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");

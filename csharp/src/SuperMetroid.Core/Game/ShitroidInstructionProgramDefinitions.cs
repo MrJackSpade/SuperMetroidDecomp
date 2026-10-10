@@ -46,17 +46,17 @@ internal abstract class ShitroidInstructionProgramDefinitions
         if (index < 2) return new((ushort)(FinishDraining + index * 4), index == 0 ? FinishDrainHold : NormalFrameDuration);
         index -= 2;
         if (index < 5) return index < 4 ? new((ushort)(Normal + index * 4), NormalFrameDuration)
-            : new((ushort)(Normal + 16), EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoNormal);
+            : new((ushort)(Normal + 16), (ushort)ShitroidInstruction.GotoNormal);
         index -= 5;
         if (index < 5) return index < 4 ? new((ushort)(LatchedOn + index * 4), LatchedDurations[index])
-            : new((ushort)(LatchedOn + 16), EnemyInstructionCodePointers.Instruction_GotoLatchedOn);
+            : new((ushort)(LatchedOn + 16), (ushort)ShitroidInstruction.GotoLatchedOn);
         index -= 5;
         if (index < 8) return new((ushort)(Remorse + index * 4), RemorseFrameDuration);
-        if (index == 8) return new(RemorseRandomBranchOpcode, EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoY_OrPlayRemorseSFX);
+        if (index == 8) return new(RemorseRandomBranchOpcode, (ushort)ShitroidInstruction.GotoYOrPlayRemorseSFX);
         if (index == 9) return new((ushort)(RemorseRandomBranchOpcode + 2), Remorse);
         index -= 10;
         return index < 12 ? new((ushort)(RemorseSoundPulse + index * 4), RemorsePulseDuration(index))
-            : new(RemorseLoopOpcode, EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoRemorse);
+            : new(RemorseLoopOpcode, (ushort)ShitroidInstruction.GotoRemorse);
     }
 
     /// <summary>$A9:F95E-F98A remorse sound pulse shortens6..2 then lengthens3..9 ticks,

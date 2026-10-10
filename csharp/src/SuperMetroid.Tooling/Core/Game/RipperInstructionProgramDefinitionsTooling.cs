@@ -16,7 +16,7 @@ internal abstract class RipperInstructionProgramDefinitionsTooling : IInstructio
         int record = index % 6;
         int offset = record < 4 ? record * 4 : 16 + 2 * (record - 4);
         ushort value = record < 4 ? RipperInstructionProgramDefinitions.VisualHold(record) :
-            record == 4 ? CommonEnemyInstructionCodes.Goto : start;
+            record == 4 ? (ushort)CommonEnemyInstruction.Goto : start;
         return new((ushort)(start + offset), value);
     }
     public static ushort PresentationWordAddress(int index)

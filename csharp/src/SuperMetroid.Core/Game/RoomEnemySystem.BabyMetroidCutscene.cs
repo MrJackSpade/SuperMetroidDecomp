@@ -11,6 +11,17 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the cutscene Baby Metroid's private animation instructions.</summary>
+    private static bool TryProcessBabyMetroidCutsceneInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.BabyMetroidCutscene ||
+            !Enum.IsDefined((BabyMetroidInstruction)word))
+            return false;
+
+        RunMotherBrainBabyInstruction((BabyMetroidInstruction)word, ref cursor);
+        return true;
+    }
+
     /// <summary>Ports <c>$A9:BE1B-$BE27</c> through the generic one-part allocator.</summary>
     private void SpawnMotherBrainBabyMetroid(MotherBrainEnemyState state)
     {

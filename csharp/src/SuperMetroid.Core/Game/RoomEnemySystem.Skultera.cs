@@ -135,6 +135,38 @@ public sealed class SkulteraEnemyState
 /// <summary>Literal translation of Skultera enemy <c>$D6FF</c> at <c>$A3:902A-$9287</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Skultera's private animation instructions.</summary>
+    private bool TryProcessSkulteraInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Skultera ||
+            !Enum.IsDefined((SkulteraInstruction)word))
+            return false;
+
+        switch ((SkulteraInstruction)word)
+        {
+            case SkulteraInstruction.SetLayerTo6:
+                // The right-facing steady list promotes the fish above foreground
+                // scenery only after its first instruction tick, exactly like the ROM.
+                slot.Layer = 6;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case SkulteraInstruction.SetLayerTo2:
+                // The left-facing steady list draws below the matching scenery layer.
+                slot.Layer = 2;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case SkulteraInstruction.SetTurnFinishedFlag:
+                // Turning lists sleep immediately after publishing this flag. Main AI
+                // consumes it on the following frame and installs steady facing art.
+                RequireSkulteraState(slot).TurnFinished = true;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Skultera does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private readonly ushort[] _skulteraRadii = new ushort[MaximumEnemyCount];
     private readonly ushort[] _skulteraTurnFinishedFlags = new ushort[MaximumEnemyCount];

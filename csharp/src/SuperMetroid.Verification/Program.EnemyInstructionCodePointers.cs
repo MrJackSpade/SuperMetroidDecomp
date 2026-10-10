@@ -10,28 +10,127 @@ internal static partial class Program
     /// </summary>
     static void VerifyEnemyInstructionCodePointerCatalogs()
     {
-        Type[] codeCatalogs =
+        // Private opcode sets the generic enemy interpreter hands to owner handlers after
+        // the common commands. Routing decodes common commands first, so no owner set may
+        // reuse a common offset.
+        Type[] ownerInstructionSets =
         [
-            typeof(EnemyInstructionCodePointers),
+            typeof(AlcoonInstruction),
+            typeof(BabyMetroidInstruction),
+            typeof(BeetomInstruction),
+            typeof(BotwoonInstruction),
+            typeof(BoyonInstruction),
+            typeof(CacatacInstruction),
+            typeof(CeresDoorInstruction),
+            typeof(CeresSteamInstruction),
             typeof(ChozoStatueInstruction),
-            typeof(CommonEnemyInstructionCodes),
+            typeof(CrawlerInstruction),
+            typeof(CrocomireInstruction),
+            typeof(DeadSidehopperInstruction),
+            typeof(DragonInstruction),
+            typeof(DraygonInstruction),
             typeof(EscapeEtecoonInstruction),
             typeof(EscapeDachoraInstruction),
+            typeof(EvirInstruction),
+            typeof(FakeKraidInstruction),
+            typeof(FuneNamiheInstruction),
+            typeof(HibashiInstruction),
+            typeof(HopperInstruction),
+            typeof(HZoomerInstruction),
+            typeof(KiHunterInstruction),
+            typeof(KraidArmInstruction),
+            typeof(KraidFootInstruction),
+            typeof(LowerNorfairRioInstruction),
+            typeof(MagdolliteInstruction),
+            typeof(MamaTurtleInstruction),
+            typeof(MaridiaLargeSnailInstruction),
+            typeof(MetareeInstruction),
+            typeof(MetroidInstruction),
+            typeof(MotherBrainInstruction),
+            typeof(NorfairRioInstruction),
+            typeof(OwtchInstruction),
+            typeof(PhantoonPartInstruction),
+            typeof(PlatformInstruction),
+            typeof(RidleyInstruction),
+            typeof(RinkaInstruction),
+            typeof(ShaktoolInstruction),
+            typeof(ShitroidInstruction),
+            typeof(SkreeInstruction),
+            typeof(SkulteraInstruction),
+            typeof(SpacePirateInstruction),
+            typeof(SparkInstruction),
+            typeof(SporeSpawnInstruction),
+            typeof(StokeInstruction),
+            typeof(TorizoInstruction),
+            typeof(WaverInstruction),
+            typeof(WorkRobotInstruction),
+            typeof(YappingMawInstruction),
+            typeof(YardInstruction),
+            typeof(ZoaInstruction),
+        ];
+        Type[] codeCatalogs =
+        [
+            typeof(AlcoonInstruction),
+            typeof(BeetomInstruction),
+            typeof(BoyonInstruction),
+            typeof(CacatacInstruction),
+            typeof(CeresDoorInstruction),
+            typeof(CeresSteamInstruction),
+            typeof(ChozoStatueInstruction),
+            typeof(CommonEnemyInstruction),
+            typeof(CrawlerInstruction),
+            typeof(DeadSidehopperInstruction),
+            typeof(DragonInstruction),
+            typeof(EscapeDachoraInstruction),
+            typeof(EscapeEtecoonInstruction),
+            typeof(EvirInstruction),
+            typeof(FakeKraidInstruction),
+            typeof(FuneNamiheInstruction),
+            typeof(HibashiInstruction),
+            typeof(HopperInstruction),
+            typeof(HZoomerInstruction),
+            typeof(KiHunterInstruction),
+            typeof(KraidArmInstruction),
             typeof(KraidFootInstruction),
             typeof(MagdolliteInstruction),
+            typeof(MamaTurtleInstruction),
+            typeof(MetareeInstruction),
+            typeof(MetroidInstruction),
             typeof(MotherBrainInstructionCodes),
             typeof(NorfairRioInstruction),
+            typeof(OwtchInstruction),
             typeof(PhantoonInstruction),
+            typeof(PhantoonPartInstruction),
+            typeof(PlatformInstruction),
+            typeof(RidleyInstruction),
             typeof(RinkaInstruction),
             typeof(RioInstructionCodes),
             typeof(ShaktoolInstruction),
+            typeof(ShitroidInstruction),
+            typeof(SkreeInstruction),
+            typeof(SkulteraInstruction),
             typeof(SpacePirateInstruction),
+            typeof(SparkInstruction),
             typeof(SporeSpawnInstruction),
+            typeof(StokeInstruction),
             typeof(TorizoInstruction),
+            typeof(WaverInstruction),
             typeof(WorkRobotInstruction),
+            typeof(YappingMawInstruction),
+            typeof(YardInstruction),
+            typeof(ZoaInstruction),
         ];
         foreach (Type catalog in codeCatalogs)
             AssertUniqueMappedInstructionPointers(catalog);
+        foreach (Type ownerSet in ownerInstructionSets)
+        {
+            foreach (FieldInfo field in GetUshortConstants(ownerSet))
+            {
+                ushort word = (ushort)field.GetRawConstantValue()!;
+                AssertTrue(!Enum.IsDefined((CommonEnemyInstruction)word),
+                    $"{ownerSet.Name}.{field.Name} does not reuse common enemy instruction ${word:X4}");
+            }
+        }
 
         (Type Catalog, byte Bank)[] bankLocalCatalogs =
         [

@@ -21,7 +21,7 @@ internal abstract class NuclearWaffleInstructionProgramDefinitions
     {
         int offset = address - BodyLoop;
         if ((uint)offset < FrameCount * 4 && offset % 4 == 0) return 3;
-        if (offset == FrameCount * 4) return CommonEnemyInstructionCodes.Goto;
+        if (offset == FrameCount * 4) return (ushort)CommonEnemyInstruction.Goto;
         if (offset == FrameCount * 4 + 2) return BodyLoop;
         throw new InvalidDataException($"Nuclear Waffle instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }

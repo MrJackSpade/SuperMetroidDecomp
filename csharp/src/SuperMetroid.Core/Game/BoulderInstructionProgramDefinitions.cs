@@ -29,7 +29,7 @@ internal abstract class BoulderInstructionProgramDefinitions
         {
             int stage = offset % 36;
             if (stage < 32 && stage % 4 == 0) return 8;
-            if (stage == 32) return CommonEnemyInstructionCodes.Goto;
+            if (stage == 32) return (ushort)CommonEnemyInstruction.Goto;
             if (stage == 34) return (ushort)(address - 34);
         }
         throw new InvalidDataException(

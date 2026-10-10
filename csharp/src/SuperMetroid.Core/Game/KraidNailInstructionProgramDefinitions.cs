@@ -20,7 +20,7 @@ internal abstract class KraidNailInstructionProgramDefinitions
         return index < PresentationWordCount
             ? new((ushort)(Loop + 4 * index), 3)
             : new((ushort)(Loop + 4 * PresentationWordCount + 2 * (index - PresentationWordCount)),
-                index == PresentationWordCount ? CommonEnemyInstructionCodes.Goto : Loop);
+                index == PresentationWordCount ? (ushort)CommonEnemyInstruction.Goto : Loop);
     }
     internal static bool IsPresentationWord(ushort address)
     {

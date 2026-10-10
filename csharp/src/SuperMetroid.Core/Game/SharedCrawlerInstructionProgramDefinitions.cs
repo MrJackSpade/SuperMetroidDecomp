@@ -41,11 +41,11 @@ internal abstract class SharedCrawlerInstructionProgramDefinitions
         {
             int surface = relative / ListBytes;
             int offset = relative % ListBytes;
-            if (offset == 0) return EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY;
+            if (offset == 0) return (ushort)CrawlerInstruction.FunctionInY;
             if (offset == 2) return (ushort)(surface < 2
                 ? CrawlerEnemyFunction.CrawlingVertically : CrawlerEnemyFunction.CrawlingHorizontally);
             if (offset < SetupBytes + PoseCount * PoseBytes) return PoseHold;
-            if (offset == ListBytes - LoopBytes) return CommonEnemyInstructionCodes.Goto;
+            if (offset == ListBytes - LoopBytes) return (ushort)CommonEnemyInstruction.Goto;
             return (ushort)(UpsideRight + surface * ListBytes + SetupBytes);
         }
         throw new InvalidDataException(

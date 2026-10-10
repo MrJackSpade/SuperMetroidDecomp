@@ -49,7 +49,7 @@ internal abstract class MotherBrainBabyInstructionProgramDefinitions
                 _ => (ushort)BabyMetroidInstruction.GotoDrainingMotherBrain,
             };
         if (address == TakingFatalBlow) return FatalBlowHold;
-        if (address == TakingFatalBlow + FrameBytes) return CommonEnemyInstructionCodes.Sleep;
+        if (address == TakingFatalBlow + FrameBytes) return (ushort)CommonEnemyInstruction.Sleep;
         throw new InvalidDataException(
             $"Mother Brain Baby instruction mechanics pointer $A9:{address:X4} is not compiled.");
     }

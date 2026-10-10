@@ -36,15 +36,15 @@ internal abstract class GunshipInstructionProgramDefinitions
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 11) return new((ushort)(EntrancePadOpening + 4 * index), OpeningDuration(index));
         if (index < 13) return index == 11
-            ? new(EntrancePadOpen + 4, CommonEnemyInstructionCodes.Goto)
+            ? new(EntrancePadOpen + 4, (ushort)CommonEnemyInstruction.Goto)
             : new(EntrancePadOpen + 6, EntrancePadOpen);
         if (index < 22) return new((ushort)(EntrancePadClosing + 4 * (index - 13)), OpeningDuration(9 - (index - 13)));
         if (index < 24) return index == 22
-            ? new(BottomEntrancePad + 4, CommonEnemyInstructionCodes.Goto)
+            ? new(BottomEntrancePad + 4, (ushort)CommonEnemyInstruction.Goto)
             : new(BottomEntrancePad + 6, BottomEntrancePad);
         int local = index - 24;
         return new((ushort)(TopHull + 6 * (local / 2) + 4 * (local % 2)),
-            local % 2 == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+            local % 2 == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
     }
 
     public static ushort PresentationWordAddress(int index)

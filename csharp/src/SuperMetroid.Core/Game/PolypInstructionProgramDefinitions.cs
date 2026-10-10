@@ -23,7 +23,7 @@ internal abstract class PolypInstructionProgramDefinitions
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return new((ushort)(Stationary + index * 4),
-            index == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+            index == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
     }
 
     internal static ushort ReadMechanicsWord(ushort address)

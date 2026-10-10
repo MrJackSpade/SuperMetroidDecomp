@@ -141,6 +141,27 @@ public sealed class BeetomEnemyState
 /// <summary>Literal translation of Beetom enemy <c>$E87F</c> at <c>$A8:B696-$BED2</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Beetom's private animation instruction.</summary>
+    private static bool TryProcessBeetomInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Beetom ||
+            !Enum.IsDefined((BeetomInstruction)word))
+            return false;
+
+        switch ((BeetomInstruction)word)
+        {
+            case BeetomInstruction.Nothing:
+                // Beetom's initial drain animation calls a literal RTS stub before it
+                // falls through into the looping blood-spray frames. It consumes no
+                // operand and changes no state beyond advancing the instruction cursor.
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Beetom does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort BeetomProximityDistance = 0x0060;
     private const ushort BeetomMashCount = 0x0040;

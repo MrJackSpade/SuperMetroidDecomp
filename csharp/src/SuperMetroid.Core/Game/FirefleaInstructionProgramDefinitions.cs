@@ -22,7 +22,7 @@ internal abstract class FirefleaInstructionProgramDefinitions
         if (offset >= 0 && offset < FrameCount * 4 && (offset & 3) == 0)
             return (ushort)(2 - ((offset / 4) & 1));
         if (offset == FrameCount * 4)
-            return CommonEnemyInstructionCodes.Goto;
+            return (ushort)CommonEnemyInstruction.Goto;
         if (offset == FrameCount * 4 + 2)
             return Loop;
         throw new InvalidDataException(

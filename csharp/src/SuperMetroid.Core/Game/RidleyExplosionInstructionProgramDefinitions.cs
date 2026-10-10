@@ -14,7 +14,7 @@ internal abstract class RidleyExplosionInstructionProgramDefinitions
         if (offset is >= 0 and < (ProgramCount * 6))
         {
             if (offset % 6 == 0) return 1;
-            if (offset % 6 == 4) return CommonEnemyInstructionCodes.Sleep;
+            if (offset % 6 == 4) return (ushort)CommonEnemyInstruction.Sleep;
         }
         throw new InvalidDataException($"Ridley breakup mechanics pointer $A6:{address:X4} is not compiled.");
     }

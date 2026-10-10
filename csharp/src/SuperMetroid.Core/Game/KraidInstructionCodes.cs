@@ -27,3 +27,10 @@ internal enum KraidFootInstruction : ushort
     /// <summary><c>UNUSED_Instruction_Kraid_MoveRight_A7B683</c> at $A7:B683.</summary>
     UNUSED_Instruction_Kraid_MoveRight_A7B683 = 0xb683,
 }
+
+/// <summary>Kraid's arm's private bank-$A7 animation instruction.</summary>
+internal enum KraidArmInstruction : ushort
+{
+    /// <summary><c>Instruction_KraidArm_SlowArmIfLessThanHalfHealth</c> at $A7:8A8F.</summary>
+    SlowArmIfLessThanHalfHealth = 0x8a8f,
+}

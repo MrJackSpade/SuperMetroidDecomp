@@ -171,6 +171,42 @@ public sealed class KiHunterEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the Ki-Hunter body's private animation instructions.</summary>
+    private bool TryProcessKiHunterInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (!IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer) ||
+            !Enum.IsDefined((KiHunterInstruction)word))
+            return false;
+
+        switch ((KiHunterInstruction)word)
+        {
+            case KiHunterInstruction.SetIdlingInstListsFacingForwards:
+                // The callback returns a direct body-list pointer while separately
+                // restarting the following attached wing list.
+                cursor = ReturnKiHunterToSteadyInstruction(slot);
+                return true;
+            case KiHunterInstruction.SetFunctionToHop:
+                StartKiHunterGroundJumpFromInstruction(RequireKiHunterState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case KiHunterInstruction.SetFunctionToWinglessThinking:
+                StartKiHunterGroundWaitFromInstruction(RequireKiHunterState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case KiHunterInstruction.FireAcidSpitLeft:
+                SpawnKiHunterAcidFromInstruction(slot, movingRight: false);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case KiHunterInstruction.FireAcidSpitRight:
+                SpawnKiHunterAcidFromInstruction(slot, movingRight: true);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Ki-Hunter does not own instruction ${word:X4}.");
+        }
+    }
+
     internal const ushort KiHunterShotAi = EnemyAiCodePointers.BankA8.KiHunterShot;
 
     private const ushort EmptyA8Spritemap = 0x804d;

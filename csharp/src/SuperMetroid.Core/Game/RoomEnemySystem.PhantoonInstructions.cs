@@ -7,6 +7,40 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>
+    /// Executes the instructions Phantoon's parts own beyond the common set. A callback that
+    /// installs another list stops the interpreter for this frame without advancing the cursor.
+    /// </summary>
+    private bool TryProcessPhantoonPartInstruction(
+        RoomEnemySlot slot,
+        ushort word,
+        ref ushort cursor,
+        out bool yieldInterpreter)
+    {
+        yieldInterpreter = false;
+        if (!IsPhantoonPartDefinition(slot.EnemyDefinitionPointer) ||
+            !Enum.IsDefined((PhantoonPartInstruction)word))
+            return false;
+
+        switch ((PhantoonPartInstruction)word)
+        {
+            case PhantoonPartInstruction.CallFunctionInY:
+                ushort function = ReadEnemyInstructionMechanicsWord(
+                    slot,
+                    unchecked((ushort)(cursor + 2)));
+                if (ProcessPhantoonInstructionFunction(slot, function))
+                {
+                    yieldInterpreter = true;
+                    return true;
+                }
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Phantoon does not own instruction ${word:X4}.");
+        }
+    }
+
     /// <returns>True when the callback installed another instruction list and interpretation must stop.</returns>
     private bool ProcessPhantoonInstructionFunction(
         RoomEnemySlot part,

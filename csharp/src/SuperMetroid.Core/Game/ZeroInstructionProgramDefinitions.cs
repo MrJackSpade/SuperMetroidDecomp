@@ -37,11 +37,11 @@ internal abstract class ZeroInstructionProgramDefinitions
         ushort start = Entry((CrawlerSurfaceOrientation)surface);
         return word switch
         {
-            0 => new(start, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
+            0 => new(start, (ushort)CrawlerInstruction.FunctionInY),
             1 => new((ushort)(start + 2), (ushort)(surface < 2
                 ? CrawlerEnemyFunction.CrawlingVertically : CrawlerEnemyFunction.CrawlingHorizontally)),
             < 8 => new((ushort)(start + 4 + 4 * (word - 2)), 4),
-            8 => new((ushort)(start + 28), CommonEnemyInstructionCodes.Goto),
+            8 => new((ushort)(start + 28), (ushort)CommonEnemyInstruction.Goto),
             _ => new((ushort)(start + 30), (ushort)(start + 4)),
         };
     }

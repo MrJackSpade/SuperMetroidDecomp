@@ -139,7 +139,7 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
             layout.Function(right ? NinjaSpacePirateFunction.DivekickRightDive : NinjaSpacePirateFunction.DivekickLeftDive);
             layout.Sound(AttackSound);
             layout.Pose(DiveHold);
-            layout.Word(CommonEnemyInstructionCodes.Sleep);
+            layout.Word((ushort)CommonEnemyInstruction.Sleep);
 
             layout.Begin(right ? WalkToRightPost : WalkToLeftPost);
             layout.Function(right ? NinjaSpacePirateFunction.DivekickRightWalkToPost : NinjaSpacePirateFunction.DivekickLeftWalkToPost);
@@ -208,7 +208,7 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
         {
             Word((ushort)SpacePirateInstruction.PirateNinja_QueueSoundInY_Lib2_Max6); Word(sound);
         }
-        internal void Goto(ushort address) { Word(CommonEnemyInstructionCodes.Goto); Word(address); }
+        internal void Goto(ushort address) { Word((ushort)CommonEnemyInstruction.Goto); Word(address); }
         internal void Claw(bool right, bool second)
         {
             Poses(5, AttackWindupHold); Pose(ClawReleaseHold);

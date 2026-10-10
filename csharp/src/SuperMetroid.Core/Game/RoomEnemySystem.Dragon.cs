@@ -110,6 +110,25 @@ public sealed class DragonEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Dragon's private animation instruction.</summary>
+    private bool TryProcessDragonInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Dragon ||
+            !Enum.IsDefined((DragonInstruction)word))
+            return false;
+
+        switch ((DragonInstruction)word)
+        {
+            case DragonInstruction.AttackFinishedCallback:
+                FinishDragonAttackAnimation(slot);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Dragon does not own instruction ${word:X4}.");
+        }
+    }
+
     internal const ushort DragonTouchAi = EnemyAiCodePointers.BankA2.DragonTouch;
     internal const ushort DragonShotAi = EnemyAiCodePointers.BankA2.DragonShot;
     internal const ushort DragonPowerBombAi = EnemyAiCodePointers.BankA2.DragonPowerBomb;

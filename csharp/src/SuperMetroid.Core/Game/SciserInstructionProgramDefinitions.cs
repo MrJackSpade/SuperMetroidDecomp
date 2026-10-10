@@ -32,10 +32,10 @@ internal abstract class SciserInstructionProgramDefinitions
             int surface = offset / ProgramBytes;
             switch (offset % ProgramBytes)
             {
-                case 0: return EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY;
+                case 0: return (ushort)CrawlerInstruction.FunctionInY;
                 case 2: return (ushort)(surface < 2 ? CrawlerEnemyFunction.CrawlingVertically : CrawlerEnemyFunction.CrawlingHorizontally);
                 case 4: case 8: case 12: case 16: return 8;
-                case 20: return CommonEnemyInstructionCodes.Goto;
+                case 20: return (ushort)CommonEnemyInstruction.Goto;
                 case 22: return (ushort)(UpsideRight + surface * ProgramBytes + 4);
             }
         }

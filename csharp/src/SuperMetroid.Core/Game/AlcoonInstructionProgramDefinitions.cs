@@ -48,15 +48,15 @@ internal abstract class AlcoonInstructionProgramDefinitions
         {
             if (local % 6 == 0)
                 value = local == 18
-                    ? EnemyInstructionCodePointers.Instruction_Alcoon_DecrementStepCounter_MoveHorizontally
-                    : EnemyInstructionCodePointers.Instruction_Alcoon_MoveHorizontally_TurnIfWallCollision;
+                    ? (ushort)AlcoonInstruction.DecrementStepCounterMoveHorizontally
+                    : (ushort)AlcoonInstruction.MoveHorizontallyTurnIfWallCollision;
             else if (local % 6 == 2) value = 10;
             else return false;
             return true;
         }
         if (local < 28)
         {
-            value = local == 24 ? CommonEnemyInstructionCodes.Goto
+            value = local == 24 ? (ushort)CommonEnemyInstruction.Goto
                 : offset < 112 ? WalkingLeft : WalkingRight;
             return true;
         }
@@ -73,9 +73,9 @@ internal abstract class AlcoonInstructionProgramDefinitions
                 12 => 3,
                 16 => volley switch
                 {
-                    0 => EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballHorizontally,
-                    1 => EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballUpward,
-                    _ => EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballDownward,
+                    0 => (ushort)AlcoonInstruction.SpawnFireballHorizontally,
+                    1 => (ushort)AlcoonInstruction.SpawnFireballUpward,
+                    _ => (ushort)AlcoonInstruction.SpawnFireballDownward,
                 },
                 18 => (ushort)(volley == 2 ? 40 : 10),
                 _ => 0,
@@ -84,10 +84,10 @@ internal abstract class AlcoonInstructionProgramDefinitions
         }
         value = local switch
         {
-            94 => EnemyInstructionCodePointers.Instruction_Alcoon_StartWalking,
+            94 => (ushort)AlcoonInstruction.StartWalking,
             96 => 1, // Native trailing frame is skipped by StartWalking, but remains readable.
             100 or 106 => 0x7fff,
-            104 or 110 => CommonEnemyInstructionCodes.Sleep,
+            104 or 110 => (ushort)CommonEnemyInstruction.Sleep,
             _ => 0,
         };
         return value != 0;

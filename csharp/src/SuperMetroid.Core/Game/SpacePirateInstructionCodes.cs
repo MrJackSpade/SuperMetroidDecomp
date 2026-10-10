@@ -54,4 +54,16 @@ internal enum SpacePirateInstruction : ushort
     /// <summary><c>Instruction_PirateWall_QueueSpacePirateAttackSFX</c> at $B2:EF93.</summary>
     PirateWall_QueueSpacePirateAttackSFX = 0xef93,
 
+    /// <summary><c>Instruction_PirateWalking_FireLaserLeftWithYOffsetInY</c> at $B2:FC68.</summary>
+    PirateWalking_FireLaserLeftWithYOffsetInY = 0xfc68,
+
+    /// <summary><c>Instruction_PirateWalking_FireLaserRightWithYOffsetInY</c> at $B2:FC90.</summary>
+    PirateWalking_FireLaserRightWithYOffsetInY = 0xfc90,
+
+    /// <summary><c>Instruction_PirateWalking_FunctionInY</c> at $B2:FCB8.</summary>
+    PirateWalking_FunctionInY = 0xfcb8,
+
+    /// <summary><c>Instruction_PirateWalking_ChooseAMovement</c> at $B2:FCC8.</summary>
+    PirateWalking_ChooseAMovement = 0xfcc8,
+
 }

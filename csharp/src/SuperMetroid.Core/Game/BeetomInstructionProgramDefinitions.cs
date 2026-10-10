@@ -54,24 +54,24 @@ internal abstract class BeetomInstructionProgramDefinitions
             int facingOffset = offset / FacingStride * FacingStride;
             if (local < HopLeft - CrawlingLeft)
             {
-                if (local == 0) return CommonEnemyInstructionCodes.DisableOffScreenProcessing;
-                if (local == 18) return CommonEnemyInstructionCodes.Goto;
+                if (local == 0) return (ushort)CommonEnemyInstruction.DisableOffScreenProcessing;
+                if (local == 18) return (ushort)CommonEnemyInstruction.Goto;
                 if (local == 20) return (ushort)(CrawlingLeftLoop + facingOffset);
                 return 10;
             }
             if (local < DrainingLeft - CrawlingLeft)
             {
                 int hop = local - (HopLeft - CrawlingLeft);
-                if (hop == 0) return CommonEnemyInstructionCodes.EnableOffScreenProcessing;
-                if (hop == 18) return CommonEnemyInstructionCodes.Sleep;
+                if (hop == 0) return (ushort)CommonEnemyInstruction.EnableOffScreenProcessing;
+                if (hop == 18) return (ushort)CommonEnemyInstruction.Sleep;
                 // Four ticks in the repeated hop pose around the eight-tick middle pose;
                 // restore the crawl pose for one tick before sleeping.
                 return (ushort)(hop == 14 ? 1 : hop == 6 ? 8 : 4);
             }
             int drain = local - (DrainingLeft - CrawlingLeft);
             if (drain == 12) return 0x30; // Hold the final approach pose before the drain loop.
-            if (drain == 16) return EnemyInstructionCodePointers.Instruction_Beetom_Nothing;
-            if (drain == 34) return CommonEnemyInstructionCodes.Goto;
+            if (drain == 16) return (ushort)BeetomInstruction.Nothing;
+            if (drain == 34) return (ushort)CommonEnemyInstruction.Goto;
             if (drain == 36) return (ushort)(DrainingLeftLoop + facingOffset);
             return 5;
         }

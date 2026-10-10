@@ -16,7 +16,7 @@ internal abstract class FirefleaInstructionProgramDefinitionsTooling : IInstruct
         if (index < FirefleaInstructionProgramDefinitions.FrameCount)
             return new((ushort)(FirefleaInstructionProgramDefinitions.Loop + index * 4), (ushort)(2 - (index & 1)));
         return new((ushort)(FirefleaInstructionProgramDefinitions.Loop + FirefleaInstructionProgramDefinitions.FrameCount * 4 + (index - FirefleaInstructionProgramDefinitions.FrameCount) * 2),
-            index == FirefleaInstructionProgramDefinitions.FrameCount ? CommonEnemyInstructionCodes.Goto : FirefleaInstructionProgramDefinitions.Loop);
+            index == FirefleaInstructionProgramDefinitions.FrameCount ? (ushort)CommonEnemyInstruction.Goto : FirefleaInstructionProgramDefinitions.Loop);
     }
     public static ushort PresentationWordAddress(int index)
     {

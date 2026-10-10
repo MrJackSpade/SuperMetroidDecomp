@@ -115,6 +115,34 @@ public sealed class MetroidEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Metroid's private animation instructions.</summary>
+    private bool TryProcessMetroidInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Metroid ||
+            !Enum.IsDefined((MetroidInstruction)word))
+            return false;
+
+        switch ((MetroidInstruction)word)
+        {
+            case MetroidInstruction.PlayDrainingSamusSFX:
+                // The attached loop emits library-two sound $50 without consuming
+                // an operand; animation parsing resumes at the following word.
+                LastMetroidSoundEffectLibrary2 = MetroidAnimationSoundEffect;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case MetroidInstruction.PlayRandomMetroidSFX:
+                // GenerateRandomNumber advances exactly once and the low three result
+                // bits choose one of the eight cartridge-defined idle cries.
+                LastMetroidSoundEffectLibrary2 =
+                    MetroidBehaviorDefinitions.RandomCrySoundEffect(_nextRandom!());
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Metroid does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort MetroidOuterBodyAFrozenInstructionList = 0xc3ba;
     private const ushort MetroidOuterBodyBFrozenInstructionList = 0xc4b6;

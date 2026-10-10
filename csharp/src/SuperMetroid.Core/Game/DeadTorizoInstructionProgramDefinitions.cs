@@ -23,7 +23,7 @@ internal abstract class DeadTorizoInstructionProgramDefinitions
         Op(0x0001),
         Origin(0xd6e0),
         Entry(SleepOpcode),
-        Op(CommonEnemyInstructionCodes.Sleep));
+        Op((ushort)CommonEnemyInstruction.Sleep));
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :

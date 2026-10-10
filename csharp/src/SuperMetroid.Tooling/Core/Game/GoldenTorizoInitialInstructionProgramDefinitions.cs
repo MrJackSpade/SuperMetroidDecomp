@@ -30,13 +30,13 @@ internal abstract class GoldenTorizoInitialInstructionProgramDefinitions : IInst
             (ushort)(Initial + 9 + (index - 1) * 2 + (index == 6 ? 2 : 0));
         ushort value = index switch
         {
-            0 => CommonEnemyInstructionCodes.CopyToVram,
+            0 => (ushort)CommonEnemyInstruction.CopyToVram,
             1 => (ushort)TorizoInstruction.Instruction_Torizo_SetSteppedLeftWithRightFootState,
             2 => (ushort)TorizoInstruction.Instruction_Torizo_SetAnimationLock,
             3 => (ushort)TorizoInstruction.Instruction_Torizo_FunctionInY,
             4 => WakeWhenSamusApproaches,
             5 => 1,
-            _ => CommonEnemyInstructionCodes.Sleep,
+            _ => (ushort)CommonEnemyInstruction.Sleep,
         };
         return new(address, value);
     }

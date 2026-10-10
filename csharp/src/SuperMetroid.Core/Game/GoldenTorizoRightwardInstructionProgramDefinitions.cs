@@ -45,7 +45,7 @@ internal abstract class GoldenTorizoRightwardInstructionProgramDefinitions
         Op((ushort)TorizoInstruction.Instruction_Torizo_SetTorizoTurningAroundFlag),
         Frame(24),
         Op((ushort)TorizoInstruction.Instruction_Torizo_ClearAnimationLock),
-        Op(CommonEnemyInstructionCodes.Goto, TorizoWalkingRightLeftLegMoving),
+        Op((ushort)CommonEnemyInstruction.Goto, TorizoWalkingRightLeftLegMoving),
         Entry(GoldenTorizoCombatInstructionPointers.TurningRight),
         Op((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY, TorizoSimpleMovementFunction),
         Op((ushort)TorizoInstruction.Instruction_Torizo_SetTorizoTurningAroundFlag),
@@ -93,7 +93,7 @@ internal abstract class GoldenTorizoRightwardInstructionProgramDefinitions
         Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0026),
         Frame(4),
         Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0014),
-        Op(CommonEnemyInstructionCodes.Goto, TorizoWalkingRightLeftLegMoving));
+        Op((ushort)CommonEnemyInstruction.Goto, TorizoWalkingRightLeftLegMoving));
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

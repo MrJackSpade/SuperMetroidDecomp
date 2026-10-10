@@ -138,10 +138,10 @@ internal abstract class CeresDoorInstructionProgramDefinitions
             int local = index - 4;
             return local switch
             {
-                0 => new(RotatingElevatorInvisibleWall, EnemyInstructionCodePointers.Instruction_CeresDoor_GotoYIfCeresRidleyHasNotEscaped),
+                0 => new(RotatingElevatorInvisibleWall, (ushort)CeresDoorInstruction.GotoYIfCeresRidleyHasNotEscaped),
                 1 => new(RotatingElevatorInvisibleWall + 2, NormalFacingLeft),
-                2 => new(RotatingElevatorInvisibleWall + 4, CeresEnemyCodePointers.MakeCeresDoorTangible),
-                3 => new(RotatingElevatorInvisibleWall + 6, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
+                2 => new(RotatingElevatorInvisibleWall + 4, (ushort)CeresDoorInstruction.SetAsTangible),
+                3 => new(RotatingElevatorInvisibleWall + 6, (ushort)CeresDoorInstruction.SetAsInvisible),
                 _ => WallLoopWord(RotatingElevatorInvisibleWallLoop - 2, local - 3),
             };
         }
@@ -151,9 +151,9 @@ internal abstract class CeresDoorInstructionProgramDefinitions
 
     private static InstructionMechanicsWord WallLoopWord(ushort start, int index) => index switch
     {
-        0 => new(start, CeresEnemyCodePointers.MakeCeresDoorIntangible),
+        0 => new(start, (ushort)CeresDoorInstruction.SetAsIntangible),
         1 => new((ushort)(start + 2), 1),
-        2 => new((ushort)(start + 6), CommonEnemyInstructionCodes.Goto),
+        2 => new((ushort)(start + 6), (ushort)CommonEnemyInstruction.Goto),
         _ => new((ushort)(start + 8), (ushort)(start + 2)),
     };
 
@@ -166,27 +166,27 @@ internal abstract class CeresDoorInstructionProgramDefinitions
             return new((ushort)(start + 58 + 4 * (index - 22)), 5);
         (int offset, ushort value) = index switch
         {
-            0 => (0, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-            1 => (2, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
+            0 => (0, (ushort)CeresDoorInstruction.SetAsIntangible),
+            1 => (2, (ushort)CeresDoorInstruction.SetAsInvisible),
             2 => (4, (ushort)2),
-            3 => (8, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
+            3 => (8, (ushort)CeresDoorInstruction.GotoYIfSamusIsDistant),
             4 => (10, (ushort)(start + ClosedFacingRight - NormalFacingRight)),
             5 => (12, (ushort)2),
-            6 => (16, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
+            6 => (16, (ushort)CeresDoorInstruction.GotoYIfSamusIsDistant),
             7 => (18, (ushort)(start + CloseFacingRight - NormalFacingRight)),
-            8 => (20, CommonEnemyInstructionCodes.Goto),
+            8 => (20, (ushort)CommonEnemyInstruction.Goto),
             9 => (22, (ushort)(start + OpenFacingRight - NormalFacingRight)),
-            10 => (24, CeresEnemyCodePointers.MakeCeresDoorTangible),
-            11 => (26, CeresEnemyCodePointers.ShowCeresDoor),
-            16 => (44, CeresEnemyCodePointers.MakeCeresDoorTangible),
-            17 => (46, CeresEnemyCodePointers.ShowCeresDoor),
+            10 => (24, (ushort)CeresDoorInstruction.SetAsTangible),
+            11 => (26, (ushort)CeresDoorInstruction.SetAsVisible),
+            16 => (44, (ushort)CeresDoorInstruction.SetAsTangible),
+            17 => (46, (ushort)CeresDoorInstruction.SetAsVisible),
             18 => (48, (ushort)2),
-            19 => (52, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
+            19 => (52, (ushort)CeresDoorInstruction.GotoYIfSamusIsDistant),
             20 => (54, (ushort)(start + ClosedFacingRightWait - NormalFacingRight)),
-            21 => (56, EnemyInstructionCodePointers.Instruction_CeresDoor_QueueOpeningSFX),
-            26 => (74, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-            27 => (76, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
-            28 => (78, CommonEnemyInstructionCodes.Goto),
+            21 => (56, (ushort)CeresDoorInstruction.QueueOpeningSFX),
+            26 => (74, (ushort)CeresDoorInstruction.SetAsIntangible),
+            27 => (76, (ushort)CeresDoorInstruction.SetAsInvisible),
+            28 => (78, (ushort)CommonEnemyInstruction.Goto),
             _ => (80, (ushort)(start + OpenFacingRight - NormalFacingRight)),
         };
         return new((ushort)(start + offset), value);
@@ -198,19 +198,19 @@ internal abstract class CeresDoorInstructionProgramDefinitions
             return new((ushort)(RidleyRoomFacingRight + 12 + 4 * (index - 5)), 2);
         (int offset, ushort value) = index switch
         {
-            0 => (0, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-            1 => (2, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
+            0 => (0, (ushort)CeresDoorInstruction.SetAsIntangible),
+            1 => (2, (ushort)CeresDoorInstruction.SetAsInvisible),
             2 => (4, (ushort)2),
-            3 => (8, CeresEnemyCodePointers.MakeCeresDoorTangible),
-            4 => (10, CeresEnemyCodePointers.ShowCeresDoor),
-            9 => (28, EnemyInstructionCodePointers.Instruction_CeresDoor_SetDrawnByRidleyFlag),
+            3 => (8, (ushort)CeresDoorInstruction.SetAsTangible),
+            4 => (10, (ushort)CeresDoorInstruction.SetAsVisible),
+            9 => (28, (ushort)CeresDoorInstruction.SetDrawnByRidleyFlag),
             10 => (30, (ushort)1),
-            11 => (34, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
+            11 => (34, (ushort)CeresDoorInstruction.SetAsInvisible),
             12 => (36, (ushort)2),
-            13 => (40, EnemyInstructionCodePointers.Instruction_CeresDoor_GotoYIfAreaBossIsAlive),
+            13 => (40, (ushort)CeresDoorInstruction.GotoYIfAreaBossIsAlive),
             14 => (42, RidleyRoomFacingRightWait),
-            15 => (44, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsVisible_ClearDrawnByRidleyFlag),
-            16 => (46, CommonEnemyInstructionCodes.Goto),
+            15 => (44, (ushort)CeresDoorInstruction.SetAsVisibleClearDrawnByRidleyFlag),
+            16 => (46, (ushort)CommonEnemyInstruction.Goto),
             _ => (48, ClosedFacingRight),
         };
         return new((ushort)(RidleyRoomFacingRight + offset), value);

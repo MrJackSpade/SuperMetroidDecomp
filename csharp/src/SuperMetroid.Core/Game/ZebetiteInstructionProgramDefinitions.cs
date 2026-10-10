@@ -65,5 +65,5 @@ internal abstract class ZebetiteInstructionProgramDefinitions
     private static InstructionMechanicsWord Word(ushort entry, ushort offset) =>
         new(
             unchecked((ushort)(entry + offset)),
-            offset == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+            offset == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
 }

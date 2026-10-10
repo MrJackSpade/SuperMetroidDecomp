@@ -61,6 +61,27 @@ public sealed class WaverEnemyState
 /// <summary>Literal translation of Waver enemy AI <c>$A3:8687-$881D</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Waver's private animation instruction.</summary>
+    private bool TryProcessWaverInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Waver ||
+            !Enum.IsDefined((WaverInstruction)word))
+            return false;
+
+        switch ((WaverInstruction)word)
+        {
+            case WaverInstruction.SetSpinFinishedFlag:
+                // The four-frame spin list hands its completion back to main AI rather
+                // than branching directly to steady art.
+                RequireWaverState(slot).SpinFinished = true;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Waver does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const int WaverHorizontalSpeedFixed = 0x00018000;
     private const int WaverVerticalRadius = 4;

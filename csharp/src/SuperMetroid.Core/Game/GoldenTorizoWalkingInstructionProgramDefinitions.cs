@@ -80,7 +80,7 @@ internal abstract class GoldenTorizoWalkingInstructionProgramDefinitions
         Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0012),
         Frame(4),
         Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0000),
-        Op(CommonEnemyInstructionCodes.Goto, TorizoWalkingLeftRightLegMoving));
+        Op((ushort)CommonEnemyInstruction.Goto, TorizoWalkingLeftRightLegMoving));
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

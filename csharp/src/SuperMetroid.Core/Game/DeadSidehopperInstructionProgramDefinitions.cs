@@ -26,9 +26,6 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions
     /// <summary>The terminal common sleep word of the hopping program at $A9:ECCE.</summary>
     internal const ushort HoppingSleepOpcode = 0xecce;
 
-    /// <summary><c>Instruction_SidehopperCorpse_EndHop</c> at $A9:ECD0.</summary>
-    private const ushort SidehopperCorpseEndHop = 0xecd0;
-
     /// <summary>Native program bank $A9.</summary>
     internal const byte Bank = 0xa9;
 
@@ -44,19 +41,19 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions
         Frame(5),
         Frame(4),
         Entry(EndHopOpcode),
-        Op(SidehopperCorpseEndHop),
+        Op((ushort)DeadSidehopperInstruction.EndHop),
         Entry(HoppingSleepOpcode),
-        Op(CommonEnemyInstructionCodes.Sleep),
+        Op((ushort)CommonEnemyInstruction.Sleep),
         Origin(0xece3),
         Entry(AliveIdle),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Sleep),
+        Op((ushort)CommonEnemyInstruction.Sleep),
         Entry(AliveCorpse),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Sleep),
+        Op((ushort)CommonEnemyInstruction.Sleep),
         Entry(InitiallyDead),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Sleep));
+        Op((ushort)CommonEnemyInstruction.Sleep));
 
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :

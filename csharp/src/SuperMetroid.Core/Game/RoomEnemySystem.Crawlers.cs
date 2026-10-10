@@ -70,6 +70,44 @@ public sealed class CrawlerEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the shared crawler family's private animation instruction.</summary>
+    private bool TryProcessSharedCrawlerInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (!IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer) ||
+            !Enum.IsDefined((CrawlerInstruction)word))
+            return false;
+
+        switch ((CrawlerInstruction)word)
+        {
+            case CrawlerInstruction.FunctionInY:
+                RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Shared crawler does not own instruction ${word:X4}.");
+        }
+    }
+
+    /// <summary>Executes the orange Zoomer's private animation instruction.</summary>
+    private bool TryProcessHZoomerInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.HZoomer ||
+            !Enum.IsDefined((HZoomerInstruction)word))
+            return false;
+
+        switch ((HZoomerInstruction)word)
+        {
+            case HZoomerInstruction.FunctionInY:
+                RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"HZoomer does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private readonly CrawlerEnemyState?[] _crawlerStates =
         new CrawlerEnemyState?[MaximumEnemyCount];

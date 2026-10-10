@@ -140,6 +140,50 @@ public sealed class ShitroidEnemyState
 /// <summary>Retail Shitroid actor at $A9:EED1-$F99A.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the Tourian Baby Metroid's private animation instructions.</summary>
+    private bool TryProcessShitroidInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.BabyMetroid ||
+            !Enum.IsDefined((ShitroidInstruction)word))
+            return false;
+
+        switch ((ShitroidInstruction)word)
+        {
+            case ShitroidInstruction.GotoNormal:
+                // Instruction 3 returns the calm animation list directly; it does not
+                // consume an operand from the calling list.
+                cursor = ShitroidInstructionProgramDefinitions.Normal;
+                return true;
+            case ShitroidInstruction.GotoLatchedOn:
+                // Instruction 4 restarts the aggressive/draining loop.
+                cursor = ShitroidInstructionProgramDefinitions.LatchedOn;
+                return true;
+            case ShitroidInstruction.GotoRemorse:
+                // Instruction 6 restarts the departure loop.
+                cursor = ShitroidInstructionProgramDefinitions.Remorse;
+                return true;
+            case ShitroidInstruction.GotoYOrPlayRemorseSFX:
+                // Instruction 5 samples the existing RNG word; it does not generate a
+                // new value. Clear high bit takes the same-bank operand branch. Set high
+                // bit plays cry $52 and falls through beyond that operand.
+                if ((RequireRandomNumber() & 0x8000) == 0)
+                {
+                    cursor = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
+                }
+                else
+                {
+                    LastShitroidSoundEffectLibrary2 = ShitroidInstructionSounds.RemorseCry;
+                    cursor = unchecked((ushort)(cursor + 4));
+                }
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Baby Metroid does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const int ShitroidWorkBufferAddress = 0x7e2000;
     private const int ShitroidWorkBufferSize = 0x1000;

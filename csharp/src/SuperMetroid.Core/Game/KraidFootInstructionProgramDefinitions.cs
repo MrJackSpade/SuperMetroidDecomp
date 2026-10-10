@@ -30,11 +30,11 @@ internal abstract class KraidFootInstructionProgramDefinitions
     {
         ushort cursor = Initial;
         AddFrame(ref words, ref presentation, ref cursor, 0x7fff);
-        AddInstruction(ref words, ref cursor, CommonEnemyInstructionCodes.Sleep);
+        AddInstruction(ref words, ref cursor, (ushort)CommonEnemyInstruction.Sleep);
         RequireCursor(cursor, Neutral);
 
         AddFrame(ref words, ref presentation, ref cursor, 0x7fff);
-        AddInstruction(ref words, ref cursor, CommonEnemyInstructionCodes.Sleep);
+        AddInstruction(ref words, ref cursor, (ushort)CommonEnemyInstruction.Sleep);
         RequireCursor(cursor, WalkingForward);
 
         AddForwardProgram(
@@ -174,7 +174,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
             AddInstruction(ref words, ref cursor, moveLeftInstruction);
             AddFrame(ref words, ref presentation, ref cursor, 1);
         }
-        AddInstruction(ref words, ref cursor, CommonEnemyInstructionCodes.Sleep);
+        AddInstruction(ref words, ref cursor, (ushort)CommonEnemyInstruction.Sleep);
     }
 
     private static void AddBackwardProgram(
@@ -219,7 +219,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
             AddFrame(ref words, ref presentation, ref cursor, 4);
         for (int frame = 0; frame < 8; frame++)
             AddFrame(ref words, ref presentation, ref cursor, 1);
-        AddInstruction(ref words, ref cursor, CommonEnemyInstructionCodes.Goto);
+        AddInstruction(ref words, ref cursor, (ushort)CommonEnemyInstruction.Goto);
         AddInstruction(ref words, ref cursor, WalkingBackward);
     }
 

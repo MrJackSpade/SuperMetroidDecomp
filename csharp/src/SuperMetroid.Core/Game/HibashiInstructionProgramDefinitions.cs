@@ -13,12 +13,6 @@ internal abstract class HibashiInstructionProgramDefinitions
     /// <summary><c>$A6:8DA9</c>, the invisible collision-part program.</summary>
     internal const ushort HitboxProgram = 0x8da9;
 
-    /// <summary><c>Instruction_Hibashi_PlaySFX</c> at $A6:8DAF queues the pillar sound before animation.</summary>
-    private const ushort PlaySound = 0x8daf;
-    /// <summary><c>Instruction_Hibashi_ActivityFrame0</c> at $A6:8E13 also sets the initial X radius.</summary>
-    private const ushort FirstActivityFrame = 0x8e13;
-    /// <summary><c>Instruction_Hibashi_ActivityFrame1</c> at $A6:8E2D starts the twenty-byte activity callback stride.</summary>
-    private const ushort FollowingActivityFrames = 0x8e2d;
     /// <summary>The fixed control-word addresses of the two programs.</summary>
     private enum ControlWord : ushort
     {
@@ -54,9 +48,9 @@ internal abstract class HibashiInstructionProgramDefinitions
         {
             value = (ControlWord)address switch
             {
-                ControlWord.PlaySound => PlaySound,
+                ControlWord.PlaySound => (ushort)HibashiInstruction.PlaySFX,
                 ControlWord.HitboxDuration => 2,
-                ControlWord.GraphicsSleep or ControlWord.HitboxSleep => CommonEnemyInstructionCodes.Sleep,
+                ControlWord.GraphicsSleep or ControlWord.HitboxSleep => (ushort)CommonEnemyInstruction.Sleep,
                 _ => throw new InvalidOperationException($"Undefined ControlWord {(ControlWord)address}."),
             };
             return true;
@@ -71,7 +65,9 @@ internal abstract class HibashiInstructionProgramDefinitions
         }
         if (offset % 6 == 4)
         {
-            value = frame == 0 ? FirstActivityFrame : (ushort)(FollowingActivityFrames + (frame - 1) * 20);
+            value = frame == 0
+                ? (ushort)HibashiInstruction.ActivityFrame0
+                : (ushort)((ushort)HibashiInstruction.ActivityFrame1 + (frame - 1) * 20);
             return true;
         }
         return false;

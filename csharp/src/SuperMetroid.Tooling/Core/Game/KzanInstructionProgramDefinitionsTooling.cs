@@ -13,7 +13,7 @@ internal abstract class KzanInstructionProgramDefinitionsTooling : IInstructionP
     public static InstructionMechanicsWord MechanicsWord(int index) => index switch
     {
         0 => new(KzanInstructionProgramDefinitions.Idle, 1),
-        1 => new(KzanInstructionProgramDefinitions.Idle + 4, CommonEnemyInstructionCodes.Sleep),
+        1 => new(KzanInstructionProgramDefinitions.Idle + 4, (ushort)CommonEnemyInstruction.Sleep),
         _ => throw new IndexOutOfRangeException(),
     };
     public static bool IsCompiledMechanicsByte(int address) =>

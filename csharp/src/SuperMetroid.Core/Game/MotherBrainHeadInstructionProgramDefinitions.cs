@@ -166,7 +166,7 @@ public static class MotherBrainHeadInstructionProgramDefinitions
         Op((ushort)MotherBrainInstruction.MotherBrain_GotoX, InstList_MotherBrainHead_HyperBeamRecoil_1),
         Entry(InstList_MotherBrainHead_InitialDummy),
         Frame(0, UNUSED_ExtendedSpritemap_MotherBrainBrain_A9A320),
-        Op(CommonEnemyInstructionCodes.Sleep),
+        Op((ushort)CommonEnemyInstruction.Sleep),
         Frame(8, Spritemaps_MotherBrain_2),
         Frame(4, Spritemaps_MotherBrain_1),
         Entry(InstList_MotherBrainHead_Initial),

@@ -157,6 +157,87 @@ public sealed class BabyTurtleEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the mama turtle's share of the tatori family's private animation instructions.</summary>
+    private bool TryProcessMamaTurtleInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.MamaTurtle ||
+            (MamaTurtleInstruction)word is not (
+                MamaTurtleInstruction.EnterShell or
+                MamaTurtleInstruction.RiseToHoverRightwards or
+                MamaTurtleInstruction.RiseToHoverLeftwards or
+                MamaTurtleInstruction.PlaySpinningSound))
+            return false;
+
+        switch ((MamaTurtleInstruction)word)
+        {
+            case MamaTurtleInstruction.EnterShell:
+                StartMamaTurtleEnteringShell(RequireMamaTurtleState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case MamaTurtleInstruction.RiseToHoverRightwards:
+                StartMamaTurtleRisingToHover(RequireMamaTurtleState(slot), rightward: true);
+                cursor = MamaTurtleInstructionProgramDefinitions.MamaSpinning;
+                return true;
+            case MamaTurtleInstruction.RiseToHoverLeftwards:
+                StartMamaTurtleRisingToHover(RequireMamaTurtleState(slot), rightward: false);
+                cursor = MamaTurtleInstructionProgramDefinitions.MamaSpinning;
+                return true;
+            case MamaTurtleInstruction.PlaySpinningSound:
+                LastMamaTurtleSoundEffect = MamaTurtleSpinSound;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Mama turtle does not own instruction ${word:X4}.");
+        }
+    }
+
+    /// <summary>Executes the baby turtle's share of the tatori family's private animation instructions.</summary>
+    private bool TryProcessBabyTurtleInstruction(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.BabyTurtle ||
+            (MamaTurtleInstruction)word is not (
+                MamaTurtleInstruction.Crawl or
+                MamaTurtleInstruction.LoopOrTurnAroundIfMovedTooFar or
+                MamaTurtleInstruction.LeaveShell or
+                MamaTurtleInstruction.LeftShell or
+                MamaTurtleInstruction.SetSpinningStoppable or
+                MamaTurtleInstruction.PlaySpinningSound))
+            return false;
+
+        switch ((MamaTurtleInstruction)word)
+        {
+            case MamaTurtleInstruction.Crawl:
+                ProcessBabyTurtleCrawlInstruction(slot, RequireBabyTurtleState(slot), samus, level);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case MamaTurtleInstruction.LoopOrTurnAroundIfMovedTooFar:
+                cursor = SelectBabyTurtleCrawlLoop(slot, RequireBabyTurtleState(slot));
+                return true;
+            case MamaTurtleInstruction.LeaveShell:
+                cursor = SelectBabyTurtleLeaveShell(
+                    slot,
+                    RequireBabyTurtleState(slot),
+                    samus,
+                    unchecked((ushort)(cursor + 2)));
+                return true;
+            case MamaTurtleInstruction.LeftShell:
+                cursor = FinishBabyTurtleLeavingShell(slot, RequireBabyTurtleState(slot), samus);
+                return true;
+            case MamaTurtleInstruction.SetSpinningStoppable:
+                RequireBabyTurtleState(slot).Function = BabyTurtleAiFunction.SpinningStoppable;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case MamaTurtleInstruction.PlaySpinningSound:
+                LastMamaTurtleSoundEffect = MamaTurtleSpinSound;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Baby turtle does not own instruction ${word:X4}.");
+        }
+    }
+
     private const ushort MamaTurtleSolidProperty = 0x8000;
     private const ushort BabyTurtleTravelDistance = 0x0030;
     private const ushort MamaTurtlePeakYPosition = 0x01e8;

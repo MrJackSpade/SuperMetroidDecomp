@@ -24,10 +24,10 @@ internal abstract class VerticalShutterInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == Plain) return 1;
-        if (address == Plain + 4) return CommonEnemyInstructionCodes.Sleep;
+        if (address == Plain + 4) return (ushort)CommonEnemyInstruction.Sleep;
         int offset = address - KamerPlatform;
         if ((uint)offset < 16 && offset % 4 == 0) return 10;
-        if (offset == 16) return CommonEnemyInstructionCodes.Goto;
+        if (offset == 16) return (ushort)CommonEnemyInstruction.Goto;
         if (offset == 18) return KamerPlatform;
         throw new InvalidDataException(
             $"Vertical-shutter instruction mechanics pointer $A2:{address:X4} is not compiled.");

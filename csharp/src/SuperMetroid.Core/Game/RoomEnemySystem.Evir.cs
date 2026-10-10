@@ -91,6 +91,37 @@ public sealed class EvirEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the Evir projectile's private animation instructions.</summary>
+    private bool TryProcessEvirProjectileInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.EvirProjectile ||
+            !Enum.IsDefined((EvirInstruction)word))
+            return false;
+
+        switch ((EvirInstruction)word)
+        {
+            case EvirInstruction.PlaySpitSFX:
+                QueueEvirSpitSound();
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case EvirInstruction.SetInitialRegenerationXOffset:
+                SetInitialEvirRegenerationOffset(slot, RequireEvirState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case EvirInstruction.AdvanceRegenerationXOffset:
+                AdvanceEvirRegenerationOffset(slot, RequireEvirState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case EvirInstruction.FinishRegeneration:
+                FinishEvirRegeneration(RequireEvirState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Evir projectile does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort EvirTouchAi = EnemyAiCodePointers.BankA8.EvirTouch;
     private const ushort EvirPowerBombAi = EnemyAiCodePointers.BankA8.EvirPowerBomb;

@@ -39,7 +39,7 @@ internal static partial class Program
             AssertTrue(TorizoInstructionVramTransferDefinitions.TryGet(
                     transfer, out TorizoInstructionVramTransferDefinition descriptor),
                 $"Golden Torizo stunned transfer $AA:{transfer:X4} is compiled");
-            AssertEqual(CommonEnemyInstructionCodes.CopyToVram, ReadWord(transfer),
+            AssertEqual((ushort)CommonEnemyInstruction.CopyToVram, ReadWord(transfer),
                 $"Golden Torizo stunned transfer $AA:{transfer:X4} opcode");
             AssertEqual(descriptor.ByteCount,
                 ReadWord(unchecked((ushort)(transfer + 2))),

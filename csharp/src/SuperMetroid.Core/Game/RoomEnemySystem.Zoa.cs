@@ -64,6 +64,33 @@ public sealed class ZoaEnemyState
 /// <summary>Literal translation of Zoa enemy AI $A3:B3C1-$B556.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Zoa's private animation instructions.</summary>
+    private bool TryProcessZoaInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Zoa ||
+            !Enum.IsDefined((ZoaInstruction)word))
+            return false;
+
+        switch ((ZoaInstruction)word)
+        {
+            case ZoaInstruction.SetXSpeedTableIndexTo4:
+                RequireZoaState(slot).XSpeedTableIndex = 4;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case ZoaInstruction.SetXSpeedTableIndexTo8:
+                RequireZoaState(slot).XSpeedTableIndex = 8;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case ZoaInstruction.SetXSpeedTableIndexToC:
+                RequireZoaState(slot).XSpeedTableIndex = 12;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Zoa does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const int ZoaActivationColumnDistance = 0x0080;
     private const int ZoaRisingSubpixelSpeed = 0x00008000;

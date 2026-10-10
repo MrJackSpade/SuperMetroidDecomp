@@ -38,18 +38,18 @@ internal abstract class NorfairLavaJumperInstructionProgramDefinitions
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index < 2) return index == 0 ? new(Hidden, 1) : new(HiddenSleep, CommonEnemyInstructionCodes.Sleep);
+        if (index < 2) return index == 0 ? new(Hidden, 1) : new(HiddenSleep, (ushort)CommonEnemyInstruction.Sleep);
         if (index < 9) return new((ushort)(Jump + (index - 2) * 4), JumpHolds[index - 2]);
         if (index == 9) return new((ushort)(JumpSleep - 2), AnimationFinishedCallback);
-        if (index == 10) return new(JumpSleep, CommonEnemyInstructionCodes.Sleep);
+        if (index == 10) return new(JumpSleep, (ushort)CommonEnemyInstruction.Sleep);
         if (index < 13) return new((ushort)(Follower + (index - 11) * 4), 1);
-        if (index < 15) return new((ushort)(Follower + 8 + (index - 13) * 2), index == 13 ? CommonEnemyInstructionCodes.SetTimer : (ushort)1);
+        if (index < 15) return new((ushort)(Follower + 8 + (index - 13) * 2), index == 13 ? (ushort)CommonEnemyInstruction.SetTimer : (ushort)1);
         if (index < 19) return new((ushort)(Follower + 12 + (index - 15) * 4), 1);
         return new((ushort)(Follower + 28 + (index - 19) * 2), (index - 19) switch
         {
-            0 => CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate,
+            0 => (ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate,
             1 => (ushort)(Follower + 12),
-            2 => CommonEnemyInstructionCodes.Goto,
+            2 => (ushort)CommonEnemyInstruction.Goto,
             _ => Follower,
         });
     }

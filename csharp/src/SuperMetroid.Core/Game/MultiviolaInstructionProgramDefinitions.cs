@@ -23,7 +23,7 @@ internal abstract class MultiviolaInstructionProgramDefinitions
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return index < TimedFrameCount ? new((ushort)(Flying + index * 4), FrameDuration)
             : new((ushort)(LoopOpcode + (index - TimedFrameCount) * 2),
-                index == TimedFrameCount ? CommonEnemyInstructionCodes.Goto : Flying);
+                index == TimedFrameCount ? (ushort)CommonEnemyInstruction.Goto : Flying);
     }
     public static ushort PresentationWordAddress(int index)
     {

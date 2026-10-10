@@ -77,6 +77,54 @@ public sealed class WalkingSpacePirateEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the walking Space Pirates' private animation instructions.</summary>
+    private bool TryProcessWalkingSpacePirateInstruction(RoomEnemySlot slot, SamusState? samus, ushort word, ref ushort cursor)
+    {
+        if (!IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer) ||
+            (SpacePirateInstruction)word is not (
+                SpacePirateInstruction.PirateWalking_FunctionInY or
+                SpacePirateInstruction.PirateWalking_FireLaserLeftWithYOffsetInY or
+                SpacePirateInstruction.PirateWalking_FireLaserRightWithYOffsetInY or
+                SpacePirateInstruction.PirateWalking_ChooseAMovement))
+            return false;
+
+        switch ((SpacePirateInstruction)word)
+        {
+            case SpacePirateInstruction.PirateWalking_FunctionInY:
+                // Pirate bytecode does not jump to the operand. It stores that bank-$B2
+                // function address in native variable A for main AI to dispatch next
+                // frame, then resumes immediately after the two-byte operand.
+                RequireWalkingSpacePirateState(slot).Function =
+                    (WalkingSpacePirateFunction)ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            case SpacePirateInstruction.PirateWalking_FireLaserLeftWithYOffsetInY:
+                SpawnWalkingSpacePirateLaser(
+                    slot,
+                    RequireWalkingSpacePirateState(slot),
+                    movingRight: false,
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            case SpacePirateInstruction.PirateWalking_FireLaserRightWithYOffsetInY:
+                SpawnWalkingSpacePirateLaser(
+                    slot,
+                    RequireWalkingSpacePirateState(slot),
+                    movingRight: true,
+                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            case SpacePirateInstruction.PirateWalking_ChooseAMovement:
+                // Unlike common goto, this opcode returns a direct instruction-list
+                // pointer chosen from Samus's current side and vertical proximity.
+                cursor = SelectWalkingSpacePirateMovement(slot, samus);
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Walking Space Pirate does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort PirateMotherBrainLaserSound = 0x0067;
     private const int WalkingPirateOnePixelDown = 1 << 16;

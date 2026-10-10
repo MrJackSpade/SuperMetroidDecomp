@@ -38,7 +38,7 @@ internal static partial class Program
                 "Torizo transfer opcodes are distinct and sorted");
             previousInstruction = transfer.Instruction;
             authoredOpcodes.Add(transfer.Instruction);
-            AssertEqual(CommonEnemyInstructionCodes.CopyToVram,
+            AssertEqual((ushort)CommonEnemyInstruction.CopyToVram,
                 ReadWord(0xaa0000 | transfer.Instruction),
                 $"Torizo transfer $AA:{transfer.Instruction:X4} opcode");
             int descriptor = 0xaa0000 | unchecked((ushort)(transfer.Instruction + 2));
@@ -76,7 +76,7 @@ internal static partial class Program
         for (int address = 0xb000; address < 0xd369; address++)
         {
             int opcode = 0xaa0000 | address;
-            if (ReadWord(opcode) != CommonEnemyInstructionCodes.CopyToVram)
+            if (ReadWord(opcode) != (ushort)CommonEnemyInstruction.CopyToVram)
                 continue;
             int descriptor = opcode + 2;
             ushort byteCount = ReadWord(descriptor);

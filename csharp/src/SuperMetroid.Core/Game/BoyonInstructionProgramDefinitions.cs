@@ -29,13 +29,13 @@ internal abstract class BoyonInstructionProgramDefinitions
         ushort start = bouncing ? Bouncing : Idle;
         int offset = address - start;
         int frames = bouncing ? 6 : 4;
-        if (offset == 0) return bouncing ? CommonEnemyInstructionCodes.EnableOffScreenProcessing
-            : CommonEnemyInstructionCodes.DisableOffScreenProcessing;
-        if (offset == 2) return bouncing ? EnemyInstructionCodePointers.Instruction_Boyon_88C6
-            : EnemyInstructionCodePointers.RTL_A288C5;
+        if (offset == 0) return bouncing ? (ushort)CommonEnemyInstruction.EnableOffScreenProcessing
+            : (ushort)CommonEnemyInstruction.DisableOffScreenProcessing;
+        if (offset == 2) return bouncing ? (ushort)BoyonInstruction.StartBounce
+            : (ushort)BoyonInstruction.Return;
         if (offset >= 4 && offset < 4 + 4 * frames && offset % 4 == 0)
             return (ushort)(bouncing ? 5 : 10);
-        if (offset == 4 + 4 * frames) return CommonEnemyInstructionCodes.Goto;
+        if (offset == 4 + 4 * frames) return (ushort)CommonEnemyInstruction.Goto;
         if (offset == 6 + 4 * frames) return (ushort)(start + 4);
         throw new InvalidDataException(
             $"Boyon instruction mechanics pointer $A2:{address:X4} is not compiled.");

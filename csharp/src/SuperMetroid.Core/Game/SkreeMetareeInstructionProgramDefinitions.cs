@@ -31,7 +31,7 @@ internal abstract class SkreeMetareeInstructionProgramDefinitions
         ushort stop = metaree ? MetareeStopAnimating : SkreeStopAnimating;
         if (index < 6)
             return new((ushort)(idle + (index < 5 ? 4 * index : 18)),
-                index < 4 ? (ushort)10 : index == 4 ? CommonEnemyInstructionCodes.Goto : idle);
+                index < 4 ? (ushort)10 : index == 4 ? (ushort)CommonEnemyInstruction.Goto : idle);
         if (index < 10)
         {
             int local = index - 6;
@@ -39,25 +39,25 @@ internal abstract class SkreeMetareeInstructionProgramDefinitions
             {
                 0 => 16,
                 1 => 8,
-                2 => metaree ? EnemyInstructionCodePointers.Instruction_Metaree_SetAttackReadyFlag
-                    : EnemyInstructionCodePointers.Instruction_Skree_SetAttackReadyFlag,
-                _ => CommonEnemyInstructionCodes.Sleep,
+                2 => metaree ? (ushort)MetareeInstruction.SetAttackReadyFlag
+                    : (ushort)SkreeInstruction.SetAttackReadyFlag,
+                _ => (ushort)CommonEnemyInstruction.Sleep,
             };
             return new((ushort)(preparation + (local < 3 ? 4 * local : 10)), value);
         }
-        if (index == 10) return new(dive, CommonEnemyInstructionCodes.EnableOffScreenProcessing);
+        if (index == 10) return new(dive, (ushort)CommonEnemyInstruction.EnableOffScreenProcessing);
         if (index < 17)
         {
             int local = index - 11;
             return new((ushort)(dive + 2 + (local < 5 ? 4 * local : 18)),
-                local < 4 ? (ushort)2 : local == 4 ? CommonEnemyInstructionCodes.Goto : (ushort)(dive + 2));
+                local < 4 ? (ushort)2 : local == 4 ? (ushort)CommonEnemyInstruction.Goto : (ushort)(dive + 2));
         }
         int terminal = index - 17;
         return new((ushort)(stop + (terminal < 2 ? 2 * terminal : 6)), terminal switch
         {
-            0 => CommonEnemyInstructionCodes.DisableOffScreenProcessing,
+            0 => (ushort)CommonEnemyInstruction.DisableOffScreenProcessing,
             1 => 1,
-            _ => CommonEnemyInstructionCodes.Sleep,
+            _ => (ushort)CommonEnemyInstruction.Sleep,
         });
     }
 

@@ -62,6 +62,33 @@ public sealed class SparkEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Spark's private animation instructions.</summary>
+    private static bool TryProcessSparkInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Spark ||
+            !Enum.IsDefined((SparkInstruction)word))
+            return false;
+
+        switch ((SparkInstruction)word)
+        {
+            case SparkInstruction.SetAsIntangible:
+                // Spark flicker-out command: property bit $0400 removes the actor from
+                // every ordinary Samus, beam, and grapple collision pass.
+                slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case SparkInstruction.SetAsTangible:
+                // Spark flicker-on command executes before the first visible activation
+                // frame, so collision and art become live together.
+                slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Spark does not own instruction ${word:X4}.");
+        }
+    }
+
     internal const ushort SparkShotAi = EnemyAiCodePointers.BankA8.SparkShot;
 
     private readonly SparkEnemyState?[] _sparkStates =

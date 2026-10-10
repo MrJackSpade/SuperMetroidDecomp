@@ -90,7 +90,7 @@ internal static partial class Program
                     .IsCompiledMechanicsByte((bank << 16) |
                         unchecked((ushort)(word.Address + 1))),
                 $"Golden Torizo awakening word $AA:{word.Address:X4} owns both bytes");
-            if (word.Value == CommonEnemyInstructionCodes.CopyToVram)
+            if (word.Value == (ushort)CommonEnemyInstruction.CopyToVram)
                 transfers++;
         }
         AssertEqual(8, transfers, "Golden Torizo awakening transfer opcodes");

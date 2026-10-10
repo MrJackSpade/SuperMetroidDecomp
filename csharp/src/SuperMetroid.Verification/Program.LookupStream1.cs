@@ -1608,7 +1608,7 @@ internal static partial class Program
         {
             ushort value = Word(cursor); controls.Add((ushort)cursor); cursor += 2;
             if ((value & 0x8000) == 0) { visuals.Add((ushort)cursor); cursor += 2; }
-            else if (value is CommonEnemyInstructionCodes.Goto or CommonEnemyInstructionCodes.SetTimer or CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate
+            else if (value is (ushort)CommonEnemyInstruction.Goto or (ushort)CommonEnemyInstruction.SetTimer or (ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate
                 or (ushort)EscapeDachoraInstruction.GotoIfAcidYLessThanCE or (ushort)EscapeDachoraInstruction.GotoIfCrittersEscaped)
             { controls.Add((ushort)cursor); cursor += 2; }
             else AssertTrue(value is (ushort)EscapeDachoraInstruction.MoveLeft
@@ -1653,8 +1653,8 @@ internal static partial class Program
             expectedMechanics.Add((ushort)cursor);
             cursor += 2;
             if ((value & 0x8000) == 0) { expectedVisual.Add((ushort)cursor); cursor += 2; }
-            else if (value == CommonEnemyInstructionCodes.Goto) { expectedMechanics.Add((ushort)cursor); cursor += 2; }
-            else AssertEqual(CommonEnemyInstructionCodes.Sleep, value, "Powamp native terminal opcode");
+            else if (value == (ushort)CommonEnemyInstruction.Goto) { expectedMechanics.Add((ushort)cursor); cursor += 2; }
+            else AssertEqual((ushort)CommonEnemyInstruction.Sleep, value, "Powamp native terminal opcode");
         }
         AssertEqual(expectedMechanics.Count, PowampInstructionProgramDefinitions.MechanicsWordCount, "Powamp calculated control count");
         AssertEqual(expectedVisual.Count, PowampInstructionProgramDefinitions.PresentationWordCount, "Powamp calculated visual operand count");

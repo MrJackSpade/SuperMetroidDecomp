@@ -8,6 +8,48 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the Ceres steam's private animation instructions.</summary>
+    private static bool TryProcessCeresSteamInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Steam ||
+            !Enum.IsDefined((CeresSteamInstruction)word))
+            return false;
+
+        switch ((CeresSteamInstruction)word)
+        {
+            case CeresSteamInstruction.SetToIntangibleAndInvisible:
+                slot.Properties = slot.Properties.With(
+                    EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case CeresSteamInstruction.DecrementActivationTimerGotoYOrY2:
+                slot.VariableD = unchecked((ushort)(slot.VariableD - 1));
+                if (slot.VariableD != 0)
+                {
+                    cursor = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
+                }
+                else
+                {
+                    cursor = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 4)));
+                    slot.Properties = slot.Properties.Without(
+                        EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                }
+                return true;
+            case CeresSteamInstruction.SetToTangibleAndVisible:
+                slot.Properties = slot.Properties.Without(
+                    EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Ceres steam does not own instruction ${word:X4}.");
+        }
+    }
+
     private static readonly ushort CeresSteamPaletteIndex = EnemyPaletteBits.Palette5;
     private const ushort CeresSteamIndestructibleHealth = 0x7fff;
 

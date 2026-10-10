@@ -95,6 +95,30 @@ public sealed class BoyonEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Boyon's private animation instructions.</summary>
+    private bool TryProcessBoyonInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Boyon ||
+            !Enum.IsDefined((BoyonInstruction)word))
+            return false;
+
+        switch ((BoyonInstruction)word)
+        {
+            case BoyonInstruction.Return:
+                // `$A2:88C5` is an explicit RTL instruction. It consumes only itself;
+                // keeping it distinct documents the idle-list seam in the ROM.
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case BoyonInstruction.StartBounce:
+                StartBoyonBounce(RequireBoyonState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Boyon does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort BoyonBounceSound = 0x000e;
 

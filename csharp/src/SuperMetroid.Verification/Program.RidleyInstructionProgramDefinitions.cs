@@ -143,7 +143,7 @@ internal static partial class Program
             }
             if (slot.InstructionTimer == 0 &&
                 RidleyInstructionProgramDefinitions.ReadMechanicsWord(
-                    slot.CurrentInstruction) == CommonEnemyInstructionCodes.Sleep)
+                    slot.CurrentInstruction) == (ushort)CommonEnemyInstruction.Sleep)
             {
                 return;
             }

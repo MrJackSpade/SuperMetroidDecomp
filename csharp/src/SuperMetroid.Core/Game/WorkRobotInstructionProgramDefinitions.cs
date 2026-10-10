@@ -97,7 +97,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
             start = (ushort)(NoPowerNeutral + (address - NoPowerNeutral) / 6 * 6);
             var idle = new WordSelector(address, start);
             idle.Timed(UnpoweredTicks);
-            idle.Command(CommonEnemyInstructionCodes.Sleep);
+            idle.Command((ushort)CommonEnemyInstruction.Sleep);
             return idle.Value;
         }
         if (address < FacingLeftWalkingForwards)
@@ -282,7 +282,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         {
             for (int pose = 0; pose < poses; pose++) { Emit(duration); Emit(PresentationOperand); }
         }
-        public void Goto(ushort target) { Emit(CommonEnemyInstructionCodes.Goto); Emit(target); }
+        public void Goto(ushort target) { Emit((ushort)CommonEnemyInstruction.Goto); Emit(target); }
         private void Emit(int value) { if (remaining-- == 0) Value = value; }
     }
     private static InvalidDataException NotCompiled(ushort address) =>

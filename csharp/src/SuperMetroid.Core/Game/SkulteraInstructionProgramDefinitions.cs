@@ -39,11 +39,11 @@ internal abstract class SkulteraInstructionProgramDefinitions
         ushort swim = startsLeft ? SwimmingLeft : SwimmingRight;
         ushort turn = startsLeft ? TurningRight : TurningLeft;
         if (local == 0)
-            return new(swim, startsLeft ? EnemyInstructionCodePointers.Instruction_Skultera_SetLayerTo2
-                : EnemyInstructionCodePointers.Instruction_Skultera_SetLayerTo6);
+            return new(swim, startsLeft ? (ushort)SkulteraInstruction.SetLayerTo2
+                : (ushort)SkulteraInstruction.SetLayerTo6);
         if (local < 4) return new((ushort)(swim + 2 + 4 * (local - 1)), SwimmingDuration);
         if (local < 6)
-            return new((ushort)(swim + 14 + 2 * (local - 4)), local == 4 ? CommonEnemyInstructionCodes.Goto : (ushort)(swim + 2));
+            return new((ushort)(swim + 14 + 2 * (local - 4)), local == 4 ? (ushort)CommonEnemyInstruction.Goto : (ushort)(swim + 2));
         int frame = local - 6;
         if (frame < 8)
         {
@@ -52,7 +52,7 @@ internal abstract class SkulteraInstructionProgramDefinitions
             return new((ushort)(turn + 4 * frame), duration);
         }
         return new((ushort)(turn + 32 + 2 * (frame - 8)), frame == 8
-            ? EnemyInstructionCodePointers.Instruction_Skultera_SetTurnFinishedFlag : CommonEnemyInstructionCodes.Sleep);
+            ? (ushort)SkulteraInstruction.SetTurnFinishedFlag : (ushort)CommonEnemyInstruction.Sleep);
     }
 
     public static ushort PresentationWordAddress(int index)

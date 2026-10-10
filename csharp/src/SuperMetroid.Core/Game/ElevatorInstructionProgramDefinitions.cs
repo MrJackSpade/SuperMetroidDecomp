@@ -17,7 +17,7 @@ internal abstract class ElevatorInstructionProgramDefinitions
     {
         int offset = address - Loop;
         if (offset is 0 or 4) return 2;
-        if (offset == 8) return CommonEnemyInstructionCodes.Goto;
+        if (offset == 8) return (ushort)CommonEnemyInstruction.Goto;
         if (offset == 10) return Loop;
         throw new InvalidDataException(
             $"Elevator instruction mechanics pointer $A3:{address:X4} is not compiled.");

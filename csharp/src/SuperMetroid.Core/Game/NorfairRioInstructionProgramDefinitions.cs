@@ -56,7 +56,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
             frameStart += 2;
         }
         if (index < 4) return new((ushort)(frameStart + index * 4), idle ? IdleHolds[index % 2] : FlightHolds[index]);
-        return new((ushort)(frameStart + 16 + (index - 4) * 2), index == 4 ? CommonEnemyInstructionCodes.Goto : start);
+        return new((ushort)(frameStart + 16 + (index - 4) * 2), index == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
     }
 
     private static InstructionMechanicsWord TransitionWord(int index, ushort start, bool ascending)
@@ -66,7 +66,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
             return new((ushort)(start + index / 2 * 6 + index % 2 * 2),
                 index % 2 == 0 ? TransitionCallback(index / 2, ascending) : (ushort)1);
         return new((ushort)(start + poses * 6 + (index - poses * 2) * 2),
-            index == poses * 2 ? (ushort)NorfairRioInstruction.Instruction_Geruta_SetFinishedSwoopStartAnimationFlag : CommonEnemyInstructionCodes.Sleep);
+            index == poses * 2 ? (ushort)NorfairRioInstruction.Instruction_Geruta_SetFinishedSwoopStartAnimationFlag : (ushort)CommonEnemyInstruction.Sleep);
     }
 
     /// <summary>Named per-pose dispatch: each pose selects the handler that sets the flame Y offset

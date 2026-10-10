@@ -19,15 +19,6 @@ internal abstract class ZoaInstructionProgramDefinitions
     /// <summary><c>$A3:B3FD</c>, right-facing vertical rise.</summary>
     internal const ushort FacingRightRising = 0xb3fd;
 
-    /// <summary>$A3:B429 Instruction_Zoa_SetXSpeedTableIndexTo4, first shooting-stage callback.</summary>
-    private const ushort FirstShot = 0xb429;
-    /// <summary>$A3:B434 Instruction_Zoa_SetXSpeedTableIndexTo8, second shooting-stage callback.</summary>
-    private const ushort SecondShot = 0xb434;
-    /// <summary>$A3:B43F Instruction_Zoa_SetXSpeedTableIndexToC, final shooting-stage callback.</summary>
-    private const ushort ThirdShot = 0xb43f;
-    /// <summary>$A3:80ED Instruction_Common_GotoY, loops each program to its start.</summary>
-    private const ushort Loop = 0x80ed;
-
     /// <summary>Reads the native shooting/rising instruction fields for either facing.
     /// Named speed callbacks, frame durations and loop targets replace the stored
     /// address/value records. All 26 words match the supported NTSC programs.</summary>
@@ -36,13 +27,13 @@ internal abstract class ZoaInstructionProgramDefinitions
         int start = address < FacingRightShooting ? FacingLeftShooting : FacingRightShooting;
         return (address - start) switch
         {
-            0 => FirstShot,
+            0 => (ushort)ZoaInstruction.SetXSpeedTableIndexTo4,
             2 => 64,
-            6 => SecondShot,
+            6 => (ushort)ZoaInstruction.SetXSpeedTableIndexTo8,
             8 => 8,
-            12 => ThirdShot,
+            12 => (ushort)ZoaInstruction.SetXSpeedTableIndexToC,
             14 => 48,
-            18 or 34 => Loop,
+            18 or 34 => (ushort)CommonEnemyInstruction.Goto,
             20 => (ushort)start,
             22 or 26 or 30 => 4,
             36 => (ushort)(start + 22),

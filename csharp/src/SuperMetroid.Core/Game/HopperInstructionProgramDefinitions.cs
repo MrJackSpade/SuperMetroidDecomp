@@ -91,11 +91,11 @@ internal abstract class HopperInstructionProgramDefinitions
     private static InstructionMechanicsWord Word(ProgramDefinition program, int index)
     {
         if (index == 0)
-            return new(program.Start, program.Jumping ? CommonEnemyInstructionCodes.EnableOffScreenProcessing
-                : CommonEnemyInstructionCodes.DisableOffScreenProcessing);
+            return new(program.Start, program.Jumping ? (ushort)CommonEnemyInstruction.EnableOffScreenProcessing
+                : (ushort)CommonEnemyInstruction.DisableOffScreenProcessing);
         if (program.Sound && index < program.PrefixWords)
             return new((ushort)(program.Start + index * 2), index == 1
-                ? EnemyInstructionCodePointers.Instruction_Sidehopper_QueueSoundInY_Lib2_Max3
+                ? (ushort)HopperInstruction.SidehopperQueueSoundInY
                 : program.Jumping ? JumpSound : LandSound);
         int pose = index - program.PrefixWords;
         int poseStart = program.Start + program.PrefixWords * 2;
@@ -111,8 +111,8 @@ internal abstract class HopperInstructionProgramDefinitions
         }
         int tail = pose - program.PoseCount;
         return new((ushort)(poseStart + program.PoseCount * 4 + tail * 2),
-            !program.Jumping && tail == 0 ? EnemyInstructionCodePointers.Instruction_Hopper_ReadyToHop
-                : CommonEnemyInstructionCodes.Sleep);
+            !program.Jumping && tail == 0 ? (ushort)HopperInstruction.ReadyToHop
+                : (ushort)CommonEnemyInstruction.Sleep);
     }
 
     public static ushort PresentationWordAddress(int index)

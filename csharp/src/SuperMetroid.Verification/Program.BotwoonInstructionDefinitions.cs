@@ -167,7 +167,7 @@ internal static partial class Program
             RunBotwoonProgram(enemies, head, frames: 3);
             AssertTrue(head.XRadius != 0 && head.YRadius != 0,
                 $"Botwoon movement program ${program:X4} installs a physical radius");
-            AssertEqual(CommonEnemyInstructionCodes.Sleep,
+            AssertEqual((ushort)CommonEnemyInstruction.Sleep,
                 BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
                     head.CurrentInstruction),
                 $"Botwoon movement program ${program:X4} reaches sleep");
@@ -179,7 +179,7 @@ internal static partial class Program
                     guard,
                     BotwoonInstructionProgramDefinitions.Hidden);
             RunBotwoonProgram(enemies, head, frames: 3);
-            AssertEqual(CommonEnemyInstructionCodes.Sleep,
+            AssertEqual((ushort)CommonEnemyInstruction.Sleep,
                 BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
                     head.CurrentInstruction),
                 "Botwoon hidden program reaches sleep");
@@ -196,7 +196,7 @@ internal static partial class Program
                 $"Botwoon spit program ${program:X4} publishes its sound");
             AssertTrue(head.XRadius != 0 && head.YRadius != 0,
                 $"Botwoon spit program ${program:X4} installs a physical radius");
-            AssertEqual(CommonEnemyInstructionCodes.Sleep,
+            AssertEqual((ushort)CommonEnemyInstruction.Sleep,
                 BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
                     head.CurrentInstruction),
                 $"Botwoon spit program ${program:X4} reaches sleep");

@@ -136,6 +136,55 @@ public sealed class AlcoonEnemyState
 /// <summary>Literal translation of Alcoon enemy <c>$E9BF</c> at <c>$A8:DBE7-$DF9C</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Alcoon's private animation instructions.</summary>
+    private bool TryProcessAlcoonInstruction(RoomEnemySlot slot, RoomLevelData? level, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Alcoon ||
+            !Enum.IsDefined((AlcoonInstruction)word))
+            return false;
+
+        switch ((AlcoonInstruction)word)
+        {
+            case AlcoonInstruction.SpawnFireballUpward:
+                SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 0);
+                LastAlcoonSoundEffect = AlcoonFireSound;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case AlcoonInstruction.SpawnFireballHorizontally:
+                SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 2);
+                LastAlcoonSoundEffect = AlcoonFireSound;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case AlcoonInstruction.SpawnFireballDownward:
+                SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 4);
+                LastAlcoonSoundEffect = AlcoonFireSound;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case AlcoonInstruction.StartWalking:
+                cursor = StartAlcoonWalking(RequireAlcoonState(slot));
+                return true;
+            case AlcoonInstruction.DecrementStepCounterMoveHorizontally:
+                cursor = MoveAlcoonHorizontally(
+                    slot,
+                    RequireAlcoonState(slot),
+                    level,
+                    unchecked((ushort)(cursor + 2)),
+                    decrementStepCounter: true);
+                return true;
+            case AlcoonInstruction.MoveHorizontallyTurnIfWallCollision:
+                cursor = MoveAlcoonHorizontally(
+                    slot,
+                    RequireAlcoonState(slot),
+                    level,
+                    unchecked((ushort)(cursor + 2)),
+                    decrementStepCounter: false);
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Alcoon does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort AlcoonEmergeXDistance = 0x0050;
     private const ushort AlcoonHideXDistance = 0x0070;

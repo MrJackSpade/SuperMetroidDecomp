@@ -32,7 +32,7 @@ internal abstract class GoldenTorizoLeftTurnInstructionProgramDefinitions : IIns
         Op((ushort)TorizoInstruction.Instruction_Torizo_SetTorizoTurningAroundFlag),
         Frame(24),
         Op((ushort)TorizoInstruction.Instruction_Torizo_ClearAnimationLock),
-        Op(CommonEnemyInstructionCodes.Goto, TorizoWalkingLeftRightLegMoving),
+        Op((ushort)CommonEnemyInstruction.Goto, TorizoWalkingLeftRightLegMoving),
         Entry(Turn),
         Op((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY, SimpleMovement),
         Op((ushort)TorizoInstruction.Instruction_Torizo_SetTorizoTurningAroundFlag),

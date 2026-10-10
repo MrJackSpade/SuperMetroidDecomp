@@ -186,6 +186,33 @@ public sealed class PlatformEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the Tripper/Kamer platform family's private animation instructions.</summary>
+    private bool TryProcessPlatformInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (!IsPlatformDefinition(slot.EnemyDefinitionPointer) ||
+            !Enum.IsDefined((PlatformInstruction)word))
+            return false;
+
+        switch ((PlatformInstruction)word)
+        {
+            case PlatformInstruction.SetMovingLeftXMovement:
+            case PlatformInstruction.SetMovingLeftXMovementDuplicate:
+                // The "ordinary" and duplicate commands are byte-for-byte equivalent:
+                // both publish horizontal dispatcher index zero before the next frame.
+                SetPlatformHorizontalMovementFromInstruction(slot, PlatformHorizontalMovement.Left);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case PlatformInstruction.SetMovingRightXMovement:
+            case PlatformInstruction.SetMovingRightXMovementDuplicate:
+                SetPlatformHorizontalMovementFromInstruction(slot, PlatformHorizontalMovement.Right);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Tripper/Kamer platform does not own instruction ${word:X4}.");
+        }
+    }
+
 
     internal const ushort PlatformNoOpTouchAi = EnemyAiCodePointers.BankA3.PlatformNoOpTouch;
     internal const ushort TripperShotAi = EnemyAiCodePointers.BankA3.TripperShot;

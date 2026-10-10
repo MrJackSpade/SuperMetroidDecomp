@@ -70,13 +70,13 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
             for (int pose = 0; pose < 3; pose++) layout.Pose(FireHold);
             for (int shot = 0; shot < 3; shot++)
             {
-                layout.Word(right ? EnemyInstructionCodePointers.Instruction_PirateWalking_FireLaserRightWithYOffsetInY
-                    : EnemyInstructionCodePointers.Instruction_PirateWalking_FireLaserLeftWithYOffsetInY);
+                layout.Word(right ? (ushort)SpacePirateInstruction.PirateWalking_FireLaserRightWithYOffsetInY
+                    : (ushort)SpacePirateInstruction.PirateWalking_FireLaserLeftWithYOffsetInY);
                 layout.Word(unchecked((ushort)(shot == 0 ? OuterShotOffset : shot == 1 ? MiddleShotOffset : -OuterShotOffset)));
                 layout.Pose(shot == 1 ? AimHold : FireHold);
             }
             for (int pose = 0; pose < 3; pose++) layout.Pose(FireHold);
-            layout.Word(EnemyInstructionCodePointers.Instruction_PirateWalking_ChooseAMovement);
+            layout.Word((ushort)SpacePirateInstruction.PirateWalking_ChooseAMovement);
 
             layout.InstallFunction(WalkingSpacePirateFunction.AnimationOwnedNoOperation);
             for (int pose = 0; pose < 5; pose++) layout.Pose((pose & 1) == 0 ? LookHold : WalkHold);
@@ -107,12 +107,12 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
         }
         internal void InstallFunction(WalkingSpacePirateFunction function)
         {
-            Word(EnemyInstructionCodePointers.Instruction_PirateWalking_FunctionInY);
+            Word((ushort)SpacePirateInstruction.PirateWalking_FunctionInY);
             Word((ushort)function);
         }
         internal void Goto(ushort target)
         {
-            Word(CommonEnemyInstructionCodes.Goto);
+            Word((ushort)CommonEnemyInstruction.Goto);
             Word(target);
         }
     }

@@ -27,11 +27,11 @@ internal abstract class HZoomerInstructionProgramDefinitions
         ushort start = (ushort)(UpsideRight + 28 * surface);
         return word switch
         {
-            0 => new(start, EnemyInstructionCodePointers.Instruction_HZoomer_FunctionInY),
+            0 => new(start, (ushort)HZoomerInstruction.FunctionInY),
             1 => new((ushort)(start + 2), (ushort)(surface < 2
                 ? CrawlerEnemyFunction.HZoomerCrawlingVertically : CrawlerEnemyFunction.HZoomerCrawlingHorizontally)),
             < 7 => new((ushort)(start + 4 + 4 * (word - 2)), 3),
-            7 => new((ushort)(start + 24), CommonEnemyInstructionCodes.Goto),
+            7 => new((ushort)(start + 24), (ushort)CommonEnemyInstruction.Goto),
             _ => new((ushort)(start + 26), (ushort)(start + 4)),
         };
     }

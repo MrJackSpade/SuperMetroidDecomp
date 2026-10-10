@@ -7,6 +7,9 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Compares imported and installed ending-logo OAM for every compiled frame at visible and high-byte-offscreen origins.</summary>
+    /// <param name="bus">Address space used to read the native ending-logo spritemaps.</param>
+    /// <param name="stock">Installed artwork catalog whose logo sprites are compared with the native OAM output.</param>
     private static void VerifyEndingLogoSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
@@ -38,6 +41,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Writes and loads an X-offset ending-logo override, verifies missing named art is rejected, and removes the temporary override file.</summary>
+    /// <param name="installation">Game installation containing stock ending-object artwork and its override directory.</param>
+    /// <returns>The loaded catalog with the edited logo frame applied.</returns>
     private static EndingObjectArtworkCatalog LoadEditedEndingLogoArtwork(
         GameInstallation installation)
     {

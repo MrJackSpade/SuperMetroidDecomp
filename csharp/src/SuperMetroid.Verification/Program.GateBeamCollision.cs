@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the native Kronic Boost gate impact coordinates, instruction advance, and absence of a wrong-side switch trigger.</summary>
     private static void VerifyKronicGateBeamCollision()
     {
         Suite(nameof(VerifyGateScanTermination), () => VerifyGateScanTermination());
@@ -36,6 +37,7 @@ internal static partial class Program
         Console.WriteLine("PASS Kronic Boost native initial gate-beam impact and no switch activation.");
     }
 
+    /// <summary>Verifies that horizontal and vertical beam scans stop at the first gate setup, including when the PLM pool is full.</summary>
     private static void VerifyGateScanTermination()
     {
         // Two adjacent gate probes make an unwanted second scan observable as a

@@ -6,6 +6,7 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>Checks grounded intro movement shifts pose history only on the native run transition and same-pose fallback.</summary>
     private static void VerifyIntroPoseHistory()
     {
         Suite(nameof(VerifyIntroScenePoseHistory), () => VerifyIntroScenePoseHistory());
@@ -43,6 +44,7 @@ internal static partial class Program
         AssertEqual(0x0104, history.PreviousDirectionAndMovement, "intro same-pose fallback commits current metadata");
     }
 
+    /// <summary>Checks pose-history commits and collision-radius timing across flashback transitions through baby-discovery handoff.</summary>
     private static void VerifyIntroScenePoseHistory()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

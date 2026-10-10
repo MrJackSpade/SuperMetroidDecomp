@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies the initial Golden Torizo program's seven mechanics words and separate visual
+    /// selector against bank $AA, while ensuring later program data is not attributed to entry.
+    /// </summary>
+    /// <param name="rom">Address space for the pinned retail cartridge.</param>
     private static void VerifyGoldenTorizoInitialDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
@@ -62,6 +67,11 @@ internal static partial class Program
                     unchecked((ushort)(address + 1))) << 8);
     }
 
+    /// <summary>
+    /// Checks that awakening mechanics and presentation operands occupy their compiled ranges,
+    /// select the expected physical frames, and reproduce the cartridge's collision geometry.
+    /// </summary>
+    /// <param name="rom">Address space used to compare compiled definitions with retail words.</param>
     private static void VerifyGoldenTorizoAwakeningDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;

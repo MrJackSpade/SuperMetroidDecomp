@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled ending-text commands and artwork catalogs against cartridge data and actor playback.</summary>
+    /// <param name="bus">Cartridge address space used to compare native commands, spritemaps, and drawing output.</param>
     private static void VerifyEndingCompletionTextInstructions(ISnesAddressSpace bus)
     {
         for (int pointer = EndingCompletionTextInstructionDefinitions.Start;
@@ -105,6 +107,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks one completion-text frame's calculated sprite layout, clipping, editable parts, and bounds.</summary>
+    /// <param name="bus">Cartridge address space used to extract the stock sprite composition.</param>
+    /// <param name="frame">Index of the completion-text frame being checked.</param>
+    /// <param name="definition">Published pointer, name, and stock part count for the frame.</param>
     private static void VerifyEndingCompletionTextParts(ISnesAddressSpace bus, int frame, EndingCompletionTextSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, definition.Pointer, definition.StockPartCount, definition.Name);

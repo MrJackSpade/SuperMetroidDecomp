@@ -5,6 +5,8 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>Checks native grapple-endpoint clipping, camera-relative OAM coordinates, wrapped subtraction, and pose selection.</summary>
+    /// <param name="bus">Address space used to draw grapple segment and endpoint graphics.</param>
     private static void VerifyGrappleEndpointGeometry(ISnesAddressSpace bus)
     {
         // $94:B093 chooses by pose, not grapple connection phase. Keep the
@@ -47,6 +49,8 @@ internal static partial class Program
         Console.WriteLine("Grapple endpoint geometry: 360 pose/camera/wrapped-coordinate cases and actual actor pose handoff match native clipping, borrow and OAM attributes.");
     }
 
+    /// <summary>Verifies the gameplay actor emits the grapple endpoint only for swinging poses at the vertical visibility boundary.</summary>
+    /// <param name="bus">Address space used to initialize the runtime fixture and Samus graphics.</param>
     private static void VerifyGrappleEndpointActor(SuperMetroidAddressSpace bus)
     {
         var runtime = CreateRetailRuntimeFixture(bus);

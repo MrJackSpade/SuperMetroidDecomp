@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies compiled Mother Brain explosion compositions, field-edit isolation, Ceres aliases, and native OAM output.</summary>
+    /// <param name="rom">Cartridge address space supplying the original bank-$8C explosion sprite maps.</param>
     private static void VerifyIntroMotherBrainExplosionParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrainExplosion", value.AppendIdentity);
@@ -55,6 +57,9 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks that a Ceres destruction presentation entry renders the supplied composition at visible and wrapped origins.</summary>
+    /// <param name="pointer">Sprite-map pointer whose Ceres destruction alias is being checked.</param>
+    /// <param name="visual">Sprite parts compiled as the reference composition and written to the temporary presentation.</param>
     private static void CheckCeresBlastLoader(ushort pointer, SpriteVisualPart[] visual)
     {
         var definition = CeresDestructionSpriteDefinitions.Frames.FirstOrDefault(frame => frame.Pointer == pointer);

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all 128 byte-scaled half-wave values against bank-$A0 data and verifies their endpoint and range behavior.</summary>
+    /// <param name="rom">Retail address space containing the original byte sine table.</param>
     private static void VerifyEightBitHalfWaveAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 128; index++)
@@ -20,6 +22,8 @@ internal static partial class Program
                 $"Byte sine invalid index {invalid}");
     }
 
+    /// <summary>Checks all 128 unsigned half-wave words against bank-$A0 data and verifies their endpoint and range behavior.</summary>
+    /// <param name="rom">Retail address space containing the original unsigned sine table.</param>
     private static void VerifyUnsignedHalfWaveAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 128; index++)

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Coordinates the Kraid arm collision checks for component hitboxes, callbacks, frame pointers, and selected layouts.</summary>
+    /// <param name="rom">Retail address space used as the independent source for native collision data.</param>
     private static void VerifyKraidArmCollisionDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -20,6 +22,8 @@ internal static partial class Program
             "and 24 rectangles/callback pairs match the retail ROM.");
     }
 
+    /// <summary>Validates the known arm hitbox-list pointers, their ordered rectangles, and rejection of unrelated addresses.</summary>
+    /// <param name="rom">Retail address space containing the bank-$A7 hitbox records.</param>
     private static void VerifyKraidArmHitboxListSelection(SuperMetroidAddressSpace rom)
     {
         // Native arm-list identities, independently transcribed from bank_A7.asm.

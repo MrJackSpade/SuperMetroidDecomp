@@ -11,6 +11,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
 internal static partial class Program
 {
+    /// <summary>Verifies that enemy damage starts Samus's hurt flash and gasp while an attached grapple suppresses knockback.</summary>
     private static void VerifyGrappleHurtFeedback()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -123,6 +124,7 @@ internal static partial class Program
         Console.WriteLine("Grapple hurt feedback: real enemy contact retains hanging/no knockback and starts one native counter-two gasp.");
     }
 
+    /// <summary>Checks that serialized health-loss history restores pending hurt feedback and migrates older graphs without inventing damage.</summary>
     private static void VerifyHurtHealthHistoryRestoration()
     {
         var state = new SamusState { Health = 77, PreviousHealthForHurtCheck = 99 };

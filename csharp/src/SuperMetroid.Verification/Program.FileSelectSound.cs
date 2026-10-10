@@ -6,6 +6,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that isolated and full-frontend file selection publishes and renders the native swoosh sound.</summary>
     private static void VerifyFileSelectSound()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -38,6 +39,9 @@ internal static partial class Program
             VerifyFullFrontendFileSelectSound(existingSave, accept);
     }
 
+    /// <summary>Checks swoosh command timing and PCM contribution for one save-file route and acceptance button.</summary>
+    /// <param name="existingSave">Whether the fixture contains a saved file and should enter its map after acceptance.</param>
+    /// <param name="accept">Button used to select the file or start a new game.</param>
     private static void VerifyFullFrontendFileSelectSound(bool existingSave, SnesButton accept)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Fake Kraid mechanics-word values, complete bank-byte ownership, rejected gaps, and enumeration bounds against native ROM data.</summary>
+    /// <param name="rom">Address space used to read the independent bank-$A6 mechanics-word oracle.</param>
     private static void VerifyFakeKraidMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         // Independent native control-word addresses, including jump operands.
@@ -57,6 +59,7 @@ internal static partial class Program
                 "Fake Kraid mechanics enumeration preserves bounds");
     }
 
+    /// <summary>Checks the ordered native presentation-operand addresses and bounds of the compiled selector enumeration.</summary>
     private static void VerifyFakeKraidPresentationAddresses()
     {
         ushort[] addresses =

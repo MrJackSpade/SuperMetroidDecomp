@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted options-toggle layout offsets and palette widths against both native highlight states.</summary>
     private static void VerifyGameOptionsToggleGeometry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -54,6 +55,7 @@ internal static partial class Program
         Console.WriteLine("Options toggle geometry: all eight native boxes, widths and both highlight states pass through extraction and presentation.");
     }
 
+    /// <summary>Verifies both language selections apply the four cartridge-defined highlight regions in runtime and editable pages.</summary>
     private static void VerifyGameOptionsLanguagePalettes()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

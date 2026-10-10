@@ -81,6 +81,10 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], supplied[1], supplied[2], null!), "Mode7 null reward");
     }
 
+    /// <summary>
+    /// Verifies that ending-content hashes are canonical across input ordering, change with their own component,
+    /// and ignore encoding-only differences.
+    /// </summary>
     private static void VerifyEndingContentIdentity()
     {
         IReadOnlyDictionary<string, string> baseline = CreateEndingIdentityFixture();
@@ -143,6 +147,12 @@ internal static partial class Program
             "ordered transfers and parts, canonical frames, encoding invariance and host warnings pass without a ROM.");
     }
 
+    /// <summary>
+    /// Builds synthetic ending assets and returns their per-domain content identities for mutation checks.
+    /// </summary>
+    /// <param name="edit">An optional asset field or ordering to alter; encoding-only options exercise normalization.</param>
+    /// <param name="reverse">Whether to reverse frame-key insertion order to test canonical hashing.</param>
+    /// <returns>Identity digests keyed by the ending-content domain they represent.</returns>
     private static IReadOnlyDictionary<string, string> CreateEndingIdentityFixture(
         string? edit = null, bool reverse = false)
     {

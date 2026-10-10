@@ -71,6 +71,8 @@ internal static partial class Program
             $"unique catalogs and {readableEntries} bank-local ROM entries verified.");
     }
 
+    /// <summary>Checks that a catalog exposes at least one unique ushort instruction pointer, each mapped at or above $8000.</summary>
+    /// <param name="catalog">Instruction-code or bank-local instruction-list catalog to inspect.</param>
     private static void AssertUniqueMappedInstructionPointers(Type catalog)
     {
         FieldInfo[] fields = GetUshortConstants(catalog);
@@ -84,6 +86,9 @@ internal static partial class Program
             AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
     }
 
+    /// <summary>Returns a catalog's public static literal ushort fields, which encode its instruction addresses.</summary>
+    /// <param name="catalog">Catalog type whose public static fields are inspected.</param>
+    /// <returns>Fields that are compile-time ushort constants.</returns>
     private static FieldInfo[] GetUshortConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
         .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
         .ToArray();

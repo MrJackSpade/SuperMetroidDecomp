@@ -9,6 +9,9 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Compares installed completion-text sprite maps with native OAM output at visible and off-screen vertical positions.</summary>
+    /// <param name="bus">Cartridge address space used to draw the original banked sprite maps.</param>
+    /// <param name="stock">Installed ending-art catalog whose completion-text renderer is checked against native output.</param>
     private static void VerifyEndingCompletionTextSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
@@ -41,6 +44,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies a completion-text art override changes live ending OAM and pixels without rereading installed sprite maps.</summary>
+    /// <param name="installation">Installation that supplies stock and override ending-art paths and reloads the edited catalog.</param>
+    /// <param name="stock">Unmodified artwork rebound while the completion-text animation advances.</param>
+    /// <param name="guard">Read guard that counts forbidden reads from previously imported bank-$8C sprite maps.</param>
     private static void VerifyEndingCompletionTextVisualOverride(GameInstallation installation,
         EndingObjectArtworkCatalog stock, EndingObjectSourceReadGuard guard)
     {

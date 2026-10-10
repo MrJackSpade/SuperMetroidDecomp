@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies a grapple-killed enemy spawns the retail death actor, drops grapple ownership, emits its sound, animates visibly, and becomes its configured pickup.</summary>
     private static void VerifyGrappleEnemyDeath()
     {
         Suite(nameof(VerifyGrappleDeathCleanupOrdinaryPoses), () => VerifyGrappleDeathCleanupOrdinaryPoses());
@@ -71,6 +72,7 @@ internal static partial class Program
         Console.WriteLine("  Grapple enemy death: visible animated explosion, drop conversion, position and kill counter agree.");
     }
 
+    /// <summary>Checks that the dropped-grapple cleanup path releases ownership and resets movement state for three ordinary Samus pose handoffs.</summary>
     private static void VerifyGrappleDeathCleanupOrdinaryPoses()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

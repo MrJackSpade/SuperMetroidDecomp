@@ -4,6 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares every signed 16-bit sine-table sample and the production Bull lookup with cartridge bytes.
+    /// </summary>
+    /// <param name="rom">The address space containing the pinned cartridge's reference table.</param>
     private static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
     {
         var bullSample = typeof(RoomEnemySystem)
@@ -18,6 +22,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Checks compiled enemy-family trigonometry against cartridge tables across angles, speed boundaries, and linked-segment placement.
+    /// </summary>
+    /// <param name="rom">The address space used to read the sine and Shaktool orbit reference tables.</param>
     private static void VerifyCompiledFamilyTrigonometry(SuperMetroidAddressSpace rom)
     {
         short Read(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));

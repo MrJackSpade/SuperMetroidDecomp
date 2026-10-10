@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies independently stepped native cloud placement and motion throughout ending scene B and its fade-out.</summary>
     private static void VerifyEndingCloudPlacement()
     {
         Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: true));
@@ -73,6 +74,8 @@ internal static partial class Program
         Console.WriteLine($"Ending scene B: {checkedFrames} full frames match independently stepped native cloud origins/motion; graphics source is shared, not a full cartridge pixel oracle.");
     }
 
+    /// <summary>Checks takeoff rendering against native Mode 7 coordinate wrapping or BG1 subscreen color addition.</summary>
+    /// <param name="checkWrapping">When true, compares the native ten-bit wrapped background; otherwise checks eligible main pixels with BG1 subscreen addition.</param>
     private static void VerifyEndingTakeoffColorMath(bool checkWrapping)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

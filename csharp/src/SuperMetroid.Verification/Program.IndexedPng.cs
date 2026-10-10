@@ -5,6 +5,10 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies indexed PNG round-tripping, packed pixel depths, independent scanline filters,
+    /// and rejection of malformed or unsupported image resources.
+    /// </summary>
     private static void VerifyIndexedPng()
     {
         var palette = Enumerable.Range(0, 16).Select(i => new Rgba32((byte)(i * 17), 31, 71, (byte)(i == 0 ? 0 : 255))).ToArray();
@@ -60,6 +64,17 @@ internal static partial class Program
             () => IndexedPng.Read(new MemoryStream(bytes), 1, 1), context);
     }
 
+    /// <summary>
+    /// Builds a minimal indexed PNG around caller-supplied filtered scanlines for decoder tests.
+    /// The image can include selected invalid format features or an extra chunk.
+    /// </summary>
+    /// <param name="width">Pixel width written to the image header.</param>
+    /// <param name="height">Pixel height written to the image header.</param>
+    /// <param name="depth">Indexed sample depth in bits per pixel.</param>
+    /// <param name="filteredRows">Zlib input containing each row's filter byte and packed samples.</param>
+    /// <param name="colorType">PNG color type to encode in the header.</param>
+    /// <param name="interlace">Interlace method encoded in the header.</param>
+    /// <param name="extraChunk">Optional chunk inserted before image data to exercise chunk handling.</param>
     private static byte[] PngFixture(int width, int height, int depth, byte[] filteredRows,
         byte colorType = 3, byte interlace = 0, string? extraChunk = null)
     {

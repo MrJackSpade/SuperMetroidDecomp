@@ -6,6 +6,8 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks runtime Hero-shot survival and impact with ordinary movement and camera tracking, plus parity against an optional native frame trace.</summary>
+    /// <param name="nativeTrace">Optional CSV trace containing pre-shot and fired-shot state rows for both stationary and walking input branches.</param>
     private static void VerifyHeroShotRuntimeCamera(string? nativeTrace = null)
     {
         Suite(nameof(VerifyPoseCollisionCameraCheckpoint), () => VerifyPoseCollisionCameraCheckpoint());
@@ -119,6 +121,7 @@ internal static partial class Program
         AssertEqual(0, mismatches, "Runtime Hero states match native movement/camera/projectile frames exactly");
     }
 
+    /// <summary>Verifies aerial-landing pose expansion corrects the previous-position camera checkpoint only when collision requires it, and consumes that correction once.</summary>
     private static void VerifyPoseCollisionCameraCheckpoint()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

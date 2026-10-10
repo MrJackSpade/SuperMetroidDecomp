@@ -29,6 +29,7 @@ internal static partial class Program
             "vulnerability selection, linked population initialization and editable-art isolation pass.");
     }
 
+    /// <summary>Checks that every compiled enemy header's vulnerability and non-null drop-table references resolve to readable records.</summary>
     private static void VerifyEnemyDefinitionReferenceClosure()
     {
         Span<byte> drop = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
@@ -46,6 +47,8 @@ internal static partial class Program
         Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities and drops.");
     }
 
+    /// <summary>Verifies an enemy-art override changes staged VRAM while preserving linked Ki Hunter population and gameplay state.</summary>
+    /// <param name="source">Read-only cartridge import address space used to extract stock enemy artwork for the comparison.</param>
     private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)
     {
         using var temporary = new TestTempDirectory("map-catalog");

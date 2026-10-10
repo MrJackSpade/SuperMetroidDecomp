@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks pickup selectors against the retail table and verifies each active kind's projectile initialization.</summary>
+    /// <param name="rom">Retail address space containing the bank-$86 pickup selector table.</param>
     private static void VerifyEnemyPickupDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)
@@ -55,6 +57,10 @@ internal static partial class Program
             "Enemy pickup definitions: six native selectors and all five live pickup initialization paths pass without the pointer table.");
     }
 
+    /// <summary>Reads one little-endian selector word from the supplied cartridge address space.</summary>
+    /// <param name="bus">Address space providing the selector bytes.</param>
+    /// <param name="address">24-bit cartridge address of the word's low byte.</param>
+    /// <returns>The two consecutive bytes combined as a 16-bit word.</returns>
     private static ushort ReadEnemyPickupDefinitionWord(
         SuperMetroidAddressSpace bus,
         int address) =>

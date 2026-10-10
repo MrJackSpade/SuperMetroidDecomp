@@ -6,6 +6,10 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies installed message-panel text, glyph validation, and live content rebinding against deterministic cartridge extraction.
+    /// </summary>
+    /// <param name="romPath">The retail ROM path used to extract the reference panel document.</param>
     private static void VerifyGameplayMessagePanels(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -64,6 +68,13 @@ internal static partial class Program
             $"Gameplay-message panels: {GameplayMessagePanelDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; diagrams, remapped controls, live edit/rebind and invalid glyph rejection pass.");
     }
 
+    /// <summary>
+    /// Verifies stock extraction and installed panel overrides, including their catalog identity and malformed-file handling.
+    /// </summary>
+    /// <param name="bus">The cartridge address space used to extract the expected stock panels.</param>
+    /// <param name="stockDirectory">The installed stock-asset directory used for catalog loading.</param>
+    /// <param name="overrideDirectory">The user override directory populated with valid and malformed panel documents.</param>
+    /// <param name="stockCatalog">The unmodified catalog used as the comparison for override selection and identity.</param>
     private static void VerifyGameplayMessagePanelAssets(
         ISnesAddressSpace bus,
         string stockDirectory,

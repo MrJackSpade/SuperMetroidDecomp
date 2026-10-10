@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the compiled Mother Brain explosion instruction bytes and words with the retail program and checks pointer boundaries.</summary>
+    /// <param name="rom">Address space containing the native bank-$8B instruction and shared-delete data.</param>
     private static void VerifyIntroMotherBrainExplosionPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -25,6 +27,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => IntroMotherBrainExplosionInstructionDefinitions.ReadWord(pointer), "explosion word crosses boundary");
     }
 
+    /// <summary>Checks each compiled explosion frame's native pointer, part count, stable name, and indexed catalog behavior.</summary>
+    /// <param name="rom">Address space containing the native frame pointer operands and spritemap headers.</param>
     private static void VerifyIntroMotherBrainExplosionFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["small-explosion-0", "small-explosion-1", "small-explosion-2", "small-explosion-3", "small-explosion-4", "small-explosion-5",

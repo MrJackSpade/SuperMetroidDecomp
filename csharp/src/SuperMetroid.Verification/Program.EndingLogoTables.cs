@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares each ending-logo palette pointer selector with its retail table entry and checks selector bounds.</summary>
+    /// <param name="rom">Address space containing the native ending palette pointer table.</param>
     private static void VerifyEndingLogoPaletteSources(ISnesAddressSpace rom)
     {
         for (int palette = 0; palette < 2; palette++)
@@ -18,6 +20,8 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoPalettePointerDefinitions.Source(0, invalid), "palette selector bounds");
     }
 
+    /// <summary>Checks the six post-shot DMA descriptors against their retail lengths, source addresses, and destination words.</summary>
+    /// <param name="rom">Address space containing the native post-shot transfer table.</param>
     private static void VerifyEndingPostShotTransferFields(ISnesAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)

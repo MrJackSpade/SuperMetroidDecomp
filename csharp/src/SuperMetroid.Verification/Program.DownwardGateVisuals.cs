@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks that editable downward-gate tile art survives streaming without changing collision, and that invalid visual catalogs are rejected.</summary>
     private static void VerifyDownwardGateVisuals()
     {
         RoomPlmDownwardGateVisualCatalog stock = RoomPlmDownwardGateVisualCatalog.Stock();
@@ -88,6 +89,7 @@ internal static partial class Program
         Suite(nameof(VerifyDownwardGateVisualInstallation), () => VerifyDownwardGateVisualInstallation());
     }
 
+    /// <summary>Checks retail gate-art extraction, stock validation, override persistence across stock refresh, and rejection of corrupt assets.</summary>
     private static void VerifyDownwardGateVisualInstallation()
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",

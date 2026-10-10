@@ -13,6 +13,9 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+/// <summary>Configures the Windows no-dialog error policy, dispatches the requested verification run, and reports failures through the console and process exit code.</summary>
+/// <param name="args">Command-line selector for a named suite, the portable render contract, or the default full verification run.</param>
+/// <returns>Zero when the selected run succeeds; otherwise a nonzero process exit code.</returns>
 private static int Main(string[] args)
 {
 // This is deliberately a plain console executable rather than an xUnit/MSTest project.
@@ -40,6 +43,9 @@ catch (Exception exception)
 }
 }
 
+/// <summary>Runs the selected command-line verification path or the default suite set, recording failures and elapsed-time output.</summary>
+/// <param name="args">Arguments selecting a named suite or render contract; an empty array runs the default verification set.</param>
+/// <returns>Zero when dispatch completes without an outer-boundary exception; otherwise one.</returns>
 private static int RunFlags(string[] args)
 {
 var flagWatch = System.Diagnostics.Stopwatch.StartNew();

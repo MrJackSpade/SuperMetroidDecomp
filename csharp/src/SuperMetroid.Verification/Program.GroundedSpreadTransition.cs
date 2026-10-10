@@ -6,6 +6,8 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks charge preservation, morph hold, unmorph, and spread-release boundaries in both facing directions.</summary>
+    /// <param name="tracePath">Optional native per-frame trace to compare with the runtime; when omitted, runtime assertions still run.</param>
     private static void VerifyGroundedSpreadTransition(string? tracePath = null)
     {
         using var trace = tracePath is null ? null : File.OpenText(tracePath);
@@ -17,6 +19,10 @@ internal static partial class Program
         Console.WriteLine("Grounded spread runtime: earned charge, hold, unmorph and release boundaries pass in both directions (960 frames).");
     }
 
+    /// <summary>Runs one facing/scenario combination for 120 frames and checks charge, pose, spread, and optional trace parity.</summary>
+    /// <param name="left"><see langword="true"/> to start facing left; otherwise the fixture starts facing right.</param>
+    /// <param name="scenario">Transition variant selecting the input release conditions exercised at the unmorph boundary.</param>
+    /// <param name="trace">Optional native frame trace consumed in lockstep with the simulation.</param>
     private static void VerifyGroundedSpreadTransitionCase(bool left, int scenario, StreamReader? trace)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

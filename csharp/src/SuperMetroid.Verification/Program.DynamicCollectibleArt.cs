@@ -9,6 +9,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies extracted stock collectible artwork, file overrides, validation failures, and propagation into populated PLM state.</summary>
+    /// <param name="rom">Retail address space used to extract and compare the cartridge's collectible graphics.</param>
     private static void VerifyInstalledDynamicCollectibleArt(
         SuperMetroidAddressSpace rom)
     {
@@ -114,6 +116,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Populates a retail Bomb collectible PLM using the supplied artwork catalog and captures its resulting tile data.</summary>
+    /// <param name="bus">Address space providing the retail room and PLM data.</param>
+    /// <param name="art">Dynamic artwork catalog installed on the PLM system during room population.</param>
+    /// <returns>The populated VRAM tile bytes, first block-definition tile word, and collectible pickup snapshot.</returns>
     private static (byte[] Vram, ushort TileWord, CollectiblePlmSnapshot Item)
         LoadRetailBombsWithArt(ISnesAddressSpace bus,
             RoomPlmDynamicCollectibleArtCatalog art)

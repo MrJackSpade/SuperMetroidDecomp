@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the egg-effect instruction byte and overlapping-word catalog with bank $8B and checks invalid and boundary addresses.</summary>
     private static void VerifyIntroEggEffectPrograms(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0xcd39, 0xcd83), (0xce53, 0xce55) })
@@ -23,6 +24,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => IntroEggEffectInstructionDefinitions.ReadWord(pointer), "egg-effect word boundary");
         }
     }
+    /// <summary>Checks the ordered egg-effect frame pointers, names, one-part record sizes, and invalid catalog indices against the ROM.</summary>
     private static void VerifyIntroEggEffectFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["fragment-0", "fragment-1", "fragment-2", "fragment-3", "fragment-4", "fragment-5",

@@ -71,6 +71,10 @@ internal static partial class Program
         Console.WriteLine("  Crocomire replacement: both maps/images, exact uploads, 54 calls per dissolve, erase/HDMA/smoke/phase timing unchanged.");
     }
 
+    /// <summary>
+    /// Verifies that replacing Mother Brain's corpse artwork changes its graphics buffer without changing
+    /// the rot timeline, row completions, DMA schedule, or completion effects.
+    /// </summary>
     private static void VerifyMotherBrainRotIsolation()
     {
         var baseline = SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -137,6 +141,12 @@ internal static partial class Program
         Console.WriteLine("  Mother Brain replacement: 118 exact calls, 48 row completions, 702 RAM DMA uploads, dust/audio timing unchanged.");
     }
 
+    /// <summary>
+    /// Creates the production corpse-tile transfer callback against the supplied memory and VRAM instances.
+    /// </summary>
+    /// <param name="memory">The address space containing the mutable corpse graphics buffer.</param>
+    /// <param name="vram">The VRAM receiving tile data requested by Mother Brain's corpse effect.</param>
+    /// <returns>A callback that applies each corpse sprite-tile transfer request.</returns>
     private static Action<MotherBrainSpriteTileTransferRequest> CorpseRamTransfer(SuperMetroidAddressSpace memory, SnesVram vram)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

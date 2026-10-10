@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Checks native cursor-page selection for each managed options phase and cursor visibility during page transitions.</summary>
     private static void VerifyGameOptionsCursorPhases()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -81,6 +82,9 @@ internal static partial class Program
 
     // The cursor spritemap is appended after the heading; its final OAM entry
     // suffices to check that the native X=$0180 anchor is outside the viewport.
+    /// <summary>Reads the nine-bit horizontal coordinate of the final sprite entry in a captured OAM table.</summary>
+    /// <param name="frame">Captured menu frame whose modeled sprite count identifies the final OAM entry.</param>
+    /// <returns>The final sprite's horizontal position, including its OAM high-table bit.</returns>
     private static int LastSpriteX(LayeredRenderSnapshot frame)
     {
         int sprite = frame.Memory.ModeledSpriteCount - 1;

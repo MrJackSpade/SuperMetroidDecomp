@@ -9,6 +9,10 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Appends an active cinematic actor's imported spritemap when its biased vertical origin is drawable.</summary>
+    /// <param name="bus">Cartridge address space supplying the actor's native spritemap bytes.</param>
+    /// <param name="oam">Frame buffer that receives the actor's native OAM entries.</param>
+    /// <param name="actor">Cinematic actor whose activity, frame, position, and palette select the draw operation.</param>
     private static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
     {
         if (!actor.IsActive || actor.SpriteMapPointer == 0) return;
@@ -19,6 +23,10 @@ internal static partial class Program
             actor.XPosition, y, actor.PaletteBits,
             originIsOnScreen: (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0);
     }
+    /// <summary>Checks stock and overridden Rinka artwork against native OAM, live actors, and production flashback pixels.</summary>
+    /// <param name="bus">Cartridge address space used to read native Rinka spritemaps and initialize the scene.</param>
+    /// <param name="stock">Installed stock artwork catalog compared with cartridge drawing output.</param>
+    /// <param name="installation">Installation whose intro-art files are loaded and overridden for the verification.</param>
     private static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {

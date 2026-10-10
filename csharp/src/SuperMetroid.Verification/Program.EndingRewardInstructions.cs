@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled ending-reward commands, frame catalog order, and actor playback against cartridge data.</summary>
+    /// <param name="bus">Cartridge address space used to read native command operands, sprite maps, and callbacks.</param>
     private static void VerifyEndingRewardInstructions(ISnesAddressSpace bus)
     {
         for (int pointer = EndingRewardInstructionDefinitions.Start;
@@ -99,6 +101,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies calculated reward-frame composition preserves editable artwork and produces matching native OAM.</summary>
+    /// <param name="bus">Cartridge address space used to extract the frame's stock sprite parts.</param>
+    /// <param name="definition">Catalog entry identifying the frame's pointer, artwork key, and stock part count.</param>
     private static void VerifyEndingRewardCalculatedParts(ISnesAddressSpace bus, EndingRewardSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,

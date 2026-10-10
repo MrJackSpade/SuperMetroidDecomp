@@ -354,6 +354,10 @@ static void VerifyEscapeTimerStateMachine()
     Console.WriteLine("  Timer: initialization, animation, BCD borrow, and expiration agree.");
 }
 
+/// <summary>Creates a gameplay-started timer in its stationary running state, then assigns the requested packed-BCD time.</summary>
+/// <param name="minutes">Packed-BCD minute value to assign after the timer reaches its running state.</param>
+/// <param name="seconds">Packed-BCD second value to assign after the timer reaches its running state.</param>
+/// <param name="centiseconds">Packed-BCD centisecond value to assign after the timer reaches its running state.</param>
 static EscapeTimer CreateRunningTimer(byte minutes, byte seconds, byte centiseconds)
 {
     // Advancing the startup path is preferable to adding a production-only raw status
@@ -367,6 +371,7 @@ static EscapeTimer CreateRunningTimer(byte minutes, byte seconds, byte centiseco
     return timer;
 }
 
+/// <summary>Encodes a two-digit decimal value with its tens and units in the high and low nibbles.</summary>
 static byte PackBcd(int decimalValue) => (byte)(((decimalValue / 10) << 4) | (decimalValue % 10));
 
 /// <summary>

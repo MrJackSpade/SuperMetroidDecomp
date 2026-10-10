@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks ending text-region coordinates and decoded labels against the retail tilemaps and typewriter data.</summary>
+    /// <param name="bus">Address space for the pinned cartridge's text and glyph records.</param>
     private static void VerifyEndingTextRegions(ISnesAddressSpace bus)
     {
         ushort Read(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
@@ -54,6 +56,11 @@ internal static partial class Program
         Line(0x8ce0b5, EndingTextDefinitions.FinalMessage, "SEE YOU NEXT MISSION", EndingTextStyle.FinalLarge);
     }
 
+    /// <summary>
+    /// Checks compiled glyph words against the independently transcribed Font 3 atlas and
+    /// verifies that decoding accepts only mapped glyphs while compilation rejects invalid inputs.
+    /// </summary>
+    /// <param name="bus">Address space containing the pinned cartridge's named ending glyph records.</param>
     private static void VerifyEndingGlyphMapping(ISnesAddressSpace bus)
     {
         // Transcribed from the SHA-pinned Font3 atlas, viewed with --lookup-ending-font-layout.

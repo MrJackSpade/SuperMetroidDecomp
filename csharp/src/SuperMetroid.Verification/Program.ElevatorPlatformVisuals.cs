@@ -7,6 +7,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies elevator platform visual data is copied into its catalog and can change streamed
+    /// tile art without changing the platform's physical collision block.
+    /// </summary>
     private static void VerifyElevatorPlatformVisuals()
     {
         RoomPlmElevatorPlatformVisualCatalog stock =
@@ -70,6 +74,10 @@ internal static partial class Program
         Suite(nameof(VerifyElevatorPlatformVisualInstallation), () => VerifyElevatorPlatformVisualInstallation());
     }
 
+    /// <summary>
+    /// Exercises extraction, stock validation, installation overrides, and reload behavior for
+    /// elevator platform visuals, including rejection of collision bits and corrupt stock data.
+    /// </summary>
     private static void VerifyElevatorPlatformVisualInstallation()
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",

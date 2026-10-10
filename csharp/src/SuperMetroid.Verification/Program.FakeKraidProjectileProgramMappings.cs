@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Fake Kraid projectile control words and their bank ownership against the cartridge.</summary>
+    /// <param name="rom">Address space used to read the native instruction words for comparison.</param>
     private static void VerifyFakeKraidProjectileMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x9dda, 0x9dde, 0x9de0, 0x9de4, 0x9de6, 0x9dea];
@@ -46,6 +48,7 @@ internal static partial class Program
                 "Fake Kraid projectile control enumeration bounds");
     }
 
+    /// <summary>Verifies the ordered native addresses and bounds of the projectile's visual operands.</summary>
     private static void VerifyFakeKraidProjectilePresentationAddresses()
     {
         ushort[] addresses = [0x9ddc, 0x9de2, 0x9de8];

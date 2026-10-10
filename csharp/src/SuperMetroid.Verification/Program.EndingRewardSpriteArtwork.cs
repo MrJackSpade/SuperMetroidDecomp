@@ -9,6 +9,12 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares imported and installed ending-reward OAM for every reward frame at both an
+    /// on-screen and off-screen vertical origin.
+    /// </summary>
+    /// <param name="bus">Address space containing the retail spritemap data.</param>
+    /// <param name="stock">Installed stock artwork used to draw reward sprites.</param>
     private static void VerifyEndingRewardSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
@@ -40,6 +46,13 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Verifies edited reward sprites appear during the live credits scenes without rereading
+    /// installed spritemaps, and that an override missing required frames is rejected.
+    /// </summary>
+    /// <param name="installation">Installation containing the stock data and temporary override location.</param>
+    /// <param name="stock">Stock artwork rebound while comparing live scene snapshots.</param>
+    /// <param name="guard">Read guard used to detect forbidden reads of installed sprite maps.</param>
     private static void VerifyEndingRewardVisualOverride(GameInstallation installation,
         EndingObjectArtworkCatalog stock, EndingObjectSourceReadGuard guard)
     {

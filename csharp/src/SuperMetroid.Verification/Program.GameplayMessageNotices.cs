@@ -6,6 +6,8 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Checks installed message layouts, selection redraws, live content rebinding, and rejection of invalid notice text.</summary>
+    /// <param name="romPath">Retail ROM path used to extract the stock gameplay-message notice document.</param>
     private static void VerifyGameplayMessageNotices(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -70,6 +72,11 @@ internal static partial class Program
             $"Gameplay-message notices: {GameplayMessageNoticeDefinitions.MessageIds.Length} UTF-8 layouts and {comparedWords} installed words match the cartridge with message ROM reads forbidden; YES/NO selection, live edit/rebind and invalid glyph rejection pass.");
     }
 
+    /// <summary>Verifies deterministic stock extraction, override selection and identity, and loud failure for corrupt overrides.</summary>
+    /// <param name="bus">Cartridge address space used to extract the stock notice data.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock presentation files.</param>
+    /// <param name="overrideDirectory">Directory in which the test creates a user notice override.</param>
+    /// <param name="stockCatalog">Loaded catalog used to compare stock and overridden message content.</param>
     private static void VerifyGameplayMessageNoticeAssets(
         ISnesAddressSpace bus,
         string stockDirectory,

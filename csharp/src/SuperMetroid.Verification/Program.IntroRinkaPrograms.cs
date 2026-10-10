@@ -4,6 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks that compiled Rinka instruction bytes match the cartridge, including terminal and out-of-range reads.
+    /// </summary>
+    /// <param name="rom">The address space containing the original Rinka instruction stream.</param>
     private static void VerifyIntroRinkaPrograms(ISnesAddressSpace rom)
     {
         for (int pointer = 0xcdeb; pointer < 0xce1b; pointer++)
@@ -21,6 +25,10 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => IntroRinkaInstructionDefinitions.ReadWord(0xce1a), "Rinka terminal word crossing");
     }
 
+    /// <summary>
+    /// Checks that published Rinka frame keys and pointers preserve the cartridge's three native records and their order.
+    /// </summary>
+    /// <param name="rom">The address space used to resolve native frame-table operands and record sizes.</param>
     private static void VerifyIntroRinkaFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["rinka-0", "rinka-1", "rinka-2"];

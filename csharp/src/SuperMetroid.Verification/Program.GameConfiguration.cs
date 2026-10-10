@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+/// <summary>Checks shipped and missing-key defaults, case-insensitive option parsing, audio and diagnostics settings, and rejection of malformed or duplicate game INI entries.</summary>
 static void VerifyGameConfigurationIni()
 {
     AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Auto,
@@ -136,6 +137,9 @@ static void VerifyGameConfigurationIni()
         "  Game INI: startup/map/audio/diagnostic defaults, strict values, and typo rejection agree.");
 }
 
+/// <summary>Requires an invalid game-configuration document to fail parsing with a diagnostic that identifies the expected problem.</summary>
+/// <param name="contents">In-memory INI text that should be rejected by the game-configuration parser.</param>
+/// <param name="expectedMessagePart">Case-insensitive message fragment explaining why the document is invalid.</param>
 private static void AssertInvalidGameConfiguration(string contents, string expectedMessagePart)
 {
     try

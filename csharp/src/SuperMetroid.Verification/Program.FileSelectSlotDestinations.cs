@@ -5,6 +5,10 @@ using SuperMetroid.Core.Frontend;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks the retail revision's slot-field destination tables against their native LDX
+    /// operands and confirms extracted label and numeric anchors land at those destinations.
+    /// </summary>
     private static void VerifyFileSelectSlotDestinations()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -63,6 +67,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Verifies each slot label's ROM source and terminator against the native LDY operands,
+    /// including rejection of slot indices outside the three file slots.
+    /// </summary>
+    /// <param name="rom">Address space for the retail instructions and label records.</param>
     private static void VerifyFileSelectSlotLabelSources(SuperMetroid.Core.Hardware.ISnesAddressSpace rom)
     {
         int[][] loadInstructions = [[0x819f13, 0x819f46, 0x819f7c], [0x819636, 0x819666, 0x819696]];

@@ -5,6 +5,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies shared empty ordinary and extended enemy frames across supported banks, including installed-artwork ROM isolation and point-hitbox callback selection.</summary>
+    /// <param name="rom">Retail address space used as the byte-level reference for each bank-local shared definition.</param>
+    /// <param name="stock">Installed enemy artwork catalog used to confirm the extended empty frame can draw without reading its art from the cartridge.</param>
     private static void VerifySharedEmptyExtendedFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -87,6 +90,11 @@ internal static partial class Program
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
+    /// <summary>Finds the callback selected by the shared point hitbox when an enemy query overlaps its origin.</summary>
+    /// <param name="bus">Address space supplying the compiled enemy frame and hitbox definitions.</param>
+    /// <param name="bank">Enemy bank whose shared empty frame is installed on the query fixture.</param>
+    /// <param name="selectShot"><see langword="true"/> selects the hitbox's shot callback; <see langword="false"/> selects its touch callback.</param>
+    /// <returns>The callback address selected by the enemy hitbox query.</returns>
     private static ushort FindSharedEmptyCallback(
         ISnesAddressSpace bus, byte bank, bool selectShot)
     {

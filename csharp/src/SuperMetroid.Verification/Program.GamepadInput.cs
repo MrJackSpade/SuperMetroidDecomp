@@ -2,6 +2,7 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+/// <summary>Verifies generic gamepad axis, POV, face-button layout, shoulder, and menu-button mappings.</summary>
 static void VerifyGenericGamepadInput()
 {
     UsbGamepadIdentifier snesAdapter =
@@ -94,6 +95,11 @@ static void VerifyGenericGamepadInput()
         "  Gamepad: axes, POV, positional/0079:0011 face layouts, shoulders, and menus agree.");
 }
 
+/// <summary>Asserts the SNES mapping produced by one isolated raw gamepad button bit.</summary>
+/// <param name="zeroBasedButtonIndex">Zero-based raw button index; only its corresponding bit is set.</param>
+/// <param name="expected">SNES button expected from the isolated input.</param>
+/// <param name="message">Context included if the mapping assertion fails.</param>
+/// <param name="layout">Face-button labeling convention used for the mapping.</param>
 static void VerifyGamepadButton(
     int zeroBasedButtonIndex,
     SnesButton expected,

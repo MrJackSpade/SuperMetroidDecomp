@@ -2,6 +2,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares window membership against an independent truth table across interval, inversion, enable, and logic cases.
+    /// </summary>
     private static void VerifyHardwareWindows()
     {
         Suite(nameof(VerifyWindowRegisterCache), () => VerifyWindowRegisterCache());
@@ -40,6 +43,9 @@ internal static partial class Program
         Console.WriteLine($"Hardware windows: {cases} membership comparisons cover enable/invert, logic, inclusive edges and empty intervals.");
     }
 
+    /// <summary>
+    /// Verifies packed window-register fields select only their intended targets and main-screen layers.
+    /// </summary>
     private static void VerifyPackedWindowRegisters()
     {
         for (int selected = 0; selected < 6; selected++)

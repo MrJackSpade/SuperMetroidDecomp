@@ -3,7 +3,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 projectile support coupled to Stoke's attack animation.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>$86:DB62 mover selected by direction zero; it reads Y velocity for horizontal movement.</summary>
     private const ushort StokeProjectileMoveLeftFunction = 0xdb62;
+    /// <summary>$86:DB8C mover for the opposite direction; it reads X velocity for horizontal movement.</summary>
     private const ushort StokeProjectileMoveRightFunction = 0xdb8c;
 
     /// <summary>

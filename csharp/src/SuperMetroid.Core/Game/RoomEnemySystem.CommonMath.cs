@@ -163,6 +163,10 @@ public sealed partial class RoomEnemySystem
         return (unchecked((short)whole), fraction);
     }
 
+    /// <summary>Computes the native eight-bit cosine product by shifting the angle by one quarter turn.</summary>
+    /// <param name="angle">Eight-bit SNES angle before the cosine phase offset.</param>
+    /// <param name="radius">Unsigned magnitude multiplied by the table sample.</param>
+    /// <returns>The signed whole word and unsigned fractional word of the native fixed-point product.</returns>
     private static (short Whole, ushort Fraction) ReadEightBitCosineFixedProduct(
         ushort angle,
         ushort radius) =>
@@ -170,6 +174,10 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(angle + SnesAngle.QuarterTurn.TableIndex)),
             radius);
 
+    /// <summary>Computes the native negative-sine product by shifting the angle by one half turn.</summary>
+    /// <param name="angle">Eight-bit SNES angle before the negative-sine phase offset.</param>
+    /// <param name="radius">Unsigned magnitude multiplied by the table sample.</param>
+    /// <returns>The signed whole word and unsigned fractional word, including the native independent-word negation behavior.</returns>
     private static (short Whole, ushort Fraction) ReadEightBitNegativeSineFixedProduct(
         ushort angle,
         ushort radius) =>

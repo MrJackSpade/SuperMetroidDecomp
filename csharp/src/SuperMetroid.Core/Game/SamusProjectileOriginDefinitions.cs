@@ -30,6 +30,10 @@ internal static class SamusProjectileOriginDefinitions
     };
 
 
+    /// <summary>Reads the physical muzzle offset for a firing direction in stationary or running/Moonwalk mode.</summary>
+    /// <param name="running"><see langword="true"/> selects the running/Moonwalk origin table; otherwise the default table is used.</param>
+    /// <param name="direction">Native direction selector; its low four bits choose the adjacent X and Y words.</param>
+    /// <returns>The signed pixel offsets of the projectile muzzle from Samus's body origin.</returns>
     internal static (short X, short Y) Read(bool running, ushort direction)
     {
         int offset = (direction & 0x0f) * sizeof(ushort);
@@ -38,6 +42,9 @@ internal static class SamusProjectileOriginDefinitions
         return (ReadWord(x + offset), ReadWord(y + offset));
     }
 
+    /// <summary>Resolves an origin-table word to its named muzzle coordinate, preserving adjacent compiled data reads outside that table.</summary>
+    /// <param name="address">Address of the word selected by a muzzle-origin lookup.</param>
+    /// <returns>The signed muzzle coordinate for an owned origin word, or the little-endian value supplied by the adjacent-data catalog.</returns>
     private static short ReadWord(int address)
     {
         int offset = address - SamusProjectileRomData.Origins.DefaultX;

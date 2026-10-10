@@ -5,6 +5,10 @@ public sealed partial class RoomEnemySystem
     // These collision checks belong to actor AI rather than generic interactive hitboxes.
     // The body's permanent intangible flag and lint's no-op touch callback do not
     // suppress these private native paths.
+    /// <summary>Applies Kraid's actor-specific body contour ejection and normal touch damage while the body is alive.</summary>
+    /// <param name="body">The Kraid body slot supplying the current position and function.</param>
+    /// <param name="state">The Kraid state supplying the minimum Samus ejection height.</param>
+    /// <param name="samus">The player state repositioned and contacted by the body collision.</param>
     private void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
         if (unchecked((short)(body.VariableA - (ushort)KraidAiFunction.DeathInitialize)) >= 0)
@@ -24,6 +28,9 @@ public sealed partial class RoomEnemySystem
             ResolveNormalEnemyTouch(body, samus, 0);
     }
 
+    /// <summary>Checks Samus against Kraid's lint leading edge, pushes her away on overlap, and disables repeat contact.</summary>
+    /// <param name="lint">The lint actor slot supplying its edge position and collision flags.</param>
+    /// <param name="samus">The player state tested for overlap and pushed on contact.</param>
     private void ResolveKraidLintContact(RoomEnemySlot lint, SamusState samus)
     {
         if (lint.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) || samus.InvincibilityTimer != 0)

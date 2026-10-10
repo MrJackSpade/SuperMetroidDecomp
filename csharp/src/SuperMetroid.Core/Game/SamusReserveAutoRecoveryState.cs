@@ -96,6 +96,8 @@ public sealed class SamusReserveAutoRecoveryState
 }
 
 /// <summary>Inspectable publication from one native reserve-refill call.</summary>
+/// <param name="RefillSoundRequested">True when this call reached an eighth-NMI sound cadence while reserve energy remained, requesting the refill sound.</param>
+/// <param name="Completed">True when reserve energy is exhausted or health is full, so automatic recovery has ended and control can return.</param>
 public readonly record struct SamusReserveAutoRecoveryStep(
     bool RefillSoundRequested,
     bool Completed);

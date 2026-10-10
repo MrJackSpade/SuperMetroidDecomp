@@ -5,7 +5,9 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A6 source address of the Japanese Ceres escape warning text.</summary>
     private const ushort CeresJapaneseText = 0xc450;
+    /// <summary>Complete tilemap word for the Ceres typewriter's A glyph, including its tile index and attributes.</summary>
     private const ushort CeresTypewriterTileBase = 0x3582;
 
     /// <summary>

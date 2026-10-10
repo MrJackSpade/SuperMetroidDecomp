@@ -29,6 +29,7 @@ internal abstract class TorizoFallingLeftInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Compiled bank-$AA words and presentation-slot metadata for the shared falling-left instruction list.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbc78),
         Entry(Start),
@@ -42,5 +43,9 @@ internal abstract class TorizoFallingLeftInstructionProgramDefinitions
         Op(TorizoInstructionCodes.Instruction_Torizo_SpawnTorizoLandingDustClouds),
         Op(TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacelessWalkingLeftLeg, GoldenTorizoWalkingLeftLeftLegMoving),
         Op(CommonEnemyInstructionCodes.Goto, BombTorizoWalkingLeftLeg));
+    /// <summary>Gets the bank-local address of a live presentation operand in the falling-left list.</summary>
+    /// <param name="index">Zero-based index in the layout's presentation-slot sequence.</param>
+    /// <returns>The operand's word address in bank $AA.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the presentation-slot sequence.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

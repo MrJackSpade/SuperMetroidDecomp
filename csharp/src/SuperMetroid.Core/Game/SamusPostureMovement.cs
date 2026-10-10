@@ -72,6 +72,11 @@ public static class SamusPostureMovement
         return MoveWithZeroBaseSpeed(bus, level, samus, nmiFrameCounter, plms);
     }
 
+    /// <summary>
+    /// Runs the grounded horizontal and vertical collision passes with zero base horizontal
+    /// displacement, while retaining extra run-speed momentum for total-speed calculation.
+    /// Horizontal collision may clear that momentum before the floor probe.
+    /// </summary>
     private static GroundedMovementResult MoveWithZeroBaseSpeed(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -115,6 +120,7 @@ public static class SamusPostureMovement
         return new GroundedMovementResult(horizontal, vertical);
     }
 
+    /// <summary>Rejects missing movement dependencies before pose checks or collision work begins.</summary>
     private static void Validate(
         ISnesAddressSpace bus,
         RoomLevelData level,

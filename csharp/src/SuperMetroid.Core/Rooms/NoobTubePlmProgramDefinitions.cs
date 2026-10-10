@@ -67,6 +67,10 @@ internal static class NoobTubePlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Reads the instruction list's packed break-sound operand without exposing it as a word.</summary>
+    /// <param name="address">Instruction-list address to check; only the sound byte at <c>$84:D506</c> is accepted.</param>
+    /// <param name="value">The authored sound byte on success, or zero when the address is not that operand.</param>
+    /// <returns><see langword="true"/> only when <paramref name="address"/> names the packed sound operand.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == BreakSoundAddress)
@@ -78,6 +82,11 @@ internal static class NoobTubePlmProgramDefinitions
         return false;
     }
 
+    /// <summary>Checks whether an address is a word-aligned step inside an inclusive instruction range.</summary>
+    /// <param name="address">Address being tested.</param>
+    /// <param name="first">First accepted instruction address and alignment origin.</param>
+    /// <param name="last">Last accepted address, inclusive.</param>
+    /// <returns><see langword="true"/> when the address is within the range and differs from <paramref name="first"/> by an even number of bytes.</returns>
     private static bool IsEvenStep(ushort address, ushort first, ushort last) =>
         address >= first && address <= last && ((address - first) & 1) == 0;
 }

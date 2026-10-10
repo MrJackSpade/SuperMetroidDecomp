@@ -15,12 +15,19 @@ internal abstract class VerticalShutterInstructionProgramDefinitions
     /// <summary>True only for the plain vertical shutter, not the Kamer platform loop.</summary>
     internal static bool IsPlainShutterPresentationWord(ushort address) => address == Plain + 2;
 
+    /// <summary>Tests whether a bank-local address is one of the four spritemap operands in the Kamer platform loop.</summary>
+    /// <param name="address">Candidate presentation-word address in the compiled bank-$A2 program layout.</param>
+    /// <returns><see langword="true"/> for a Kamer frame selector, excluding its mechanics words.</returns>
     internal static bool IsKamerPresentationWord(ushort address)
     {
         int offset = address - (KamerPlatform + 2);
         return (uint)offset < 16 && offset % 4 == 0;
     }
 
+    /// <summary>Reads a shutter or Kamer loop mechanics word while rejecting presentation slots and uncompiled addresses.</summary>
+    /// <param name="address">Bank-local address of the candidate instruction word.</param>
+    /// <returns>The native frame duration, sleep opcode, loop opcode, or loop target compiled at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is outside the compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == Plain) return 1;

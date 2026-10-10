@@ -132,12 +132,16 @@ public sealed partial class RoomEnemySystem
             (unchecked((byte)rotationDelta) << 8) | reversedDirection));
     }
 
+    /// <summary>Sets the turret's next rotation delay from the random byte, enforcing the native minimum delay.</summary>
+    /// <param name="turret">Turret projectile slot whose rotation timer is stored in <see cref="RoomEnemyProjectileSlot.XVelocity"/>.</param>
     private void ResetMotherBrainTurretRotationTimer(RoomEnemyProjectileSlot turret)
     {
         ushort sample = unchecked((byte)_nextRandom!());
         turret.XVelocity = Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay);
     }
 
+    /// <summary>Sets the turret's next firing cooldown from the random byte, enforcing the native minimum cooldown.</summary>
+    /// <param name="turret">Turret projectile slot whose firing cooldown is stored in <see cref="RoomEnemyProjectileSlot.YVelocity"/>.</param>
     private void ResetMotherBrainTurretCooldown(RoomEnemyProjectileSlot turret)
     {
         ushort sample = unchecked((byte)_nextRandom!());

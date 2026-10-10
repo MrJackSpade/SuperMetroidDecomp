@@ -59,11 +59,17 @@ public static class RidleyMovementTargets
         return (ushort)Math.Min(10, (1 << (stage + 1)) - 1);
     }
 
+    /// <summary>Ensures a movement-target lookup uses one of the native left, turning, or right facing indexes.</summary>
+    /// <param name="facing">Facing index, which must be between zero and two inclusive.</param>
+    /// <exception cref="IndexOutOfRangeException">The facing index is outside the three supported orientations.</exception>
     private static void ValidateFacing(int facing)
     {
         if ((uint)facing > Right) throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Ensures a health-dependent divisor lookup uses one of Ridley's four stages.</summary>
+    /// <param name="stage">Zero-based health stage, from zero through three.</param>
+    /// <exception cref="IndexOutOfRangeException">The stage is outside the four supported values.</exception>
     private static void ValidateStage(int stage)
     {
         if ((uint)stage >= 4) throw new IndexOutOfRangeException();

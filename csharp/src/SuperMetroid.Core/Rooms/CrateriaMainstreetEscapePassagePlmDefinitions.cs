@@ -23,6 +23,10 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
     /// </summary>
     internal const ushort MoveRightFourBlocks = 0xbb25;
 
+    /// <summary>Looks up one compiled word in the escape-passage PLM instruction list.</summary>
+    /// <param name="address">Bank-$84 instruction-list address to resolve.</param>
+    /// <param name="value">Receives the instruction operand or next instruction pointer for a recognized address.</param>
+    /// <returns><see langword="true"/> for a word owned by this list; otherwise <see langword="false"/>.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = address switch
@@ -38,6 +42,10 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
         return value != 0;
     }
 
+    /// <summary>Resolves the draw program that clears the two adjacent passage blocks to air.</summary>
+    /// <param name="pointer">Draw-list pointer supplied by the PLM instruction stream.</param>
+    /// <param name="draw">Receives the two-block air draw list when the pointer belongs to this PLM.</param>
+    /// <returns><see langword="true"/> only for <see cref="ClearPairDraw"/>.</returns>
     internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         if (pointer != ClearPairDraw)

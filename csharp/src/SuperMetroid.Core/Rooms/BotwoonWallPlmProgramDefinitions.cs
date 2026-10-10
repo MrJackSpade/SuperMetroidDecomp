@@ -17,6 +17,10 @@ internal static class BotwoonWallPlmProgramDefinitions
     /// <summary>Native duration of one appearance in the crumble sequence.</summary>
     internal const ushort CrumbleFrameDuration = 4;
 
+    /// <summary>Looks up a compiled word operand or command in Botwoon's crumble and wall-clear PLM programs.</summary>
+    /// <param name="address">The bank-local address of the candidate mechanics word.</param>
+    /// <param name="value">Receives the compiled word, or zero when the address is not part of either program.</param>
+    /// <returns><see langword="true"/> when the address identifies a mechanics word.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address >= Crumble + 8 && address < Crumble + 24)
@@ -55,6 +59,10 @@ internal static class BotwoonWallPlmProgramDefinitions
             Crumble + 30 or Clear or Clear + 2 or Clear + 4;
     }
 
+    /// <summary>Looks up the byte-sized row-count and sound operands in Botwoon's crumble program.</summary>
+    /// <param name="address">The bank-local address of the candidate byte operand.</param>
+    /// <param name="value">Receives the compiled operand, or zero when the address is not one of the recognized bytes.</param>
+    /// <returns><see langword="true"/> when the address identifies a compiled byte operand.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = address switch

@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class RoomEnemyDefinitionCatalog
 {
+    /// <summary>Sorted bank-$A0 pointer/definition pairs searched by <see cref="Get"/>.</summary>
     private static readonly (ushort Pointer, RoomEnemyDefinition Definition)[] Definitions =
     [
         (0xcebf, new(0x0400, 0x8687, 0x03e8, 0x000a, 0x0008, 0x0008, 0xa2, 0x00, 0x0000, 0x0000, 0x871c, 0x0001, 0x0000, 0x879c, 0x800f, 0x804c, 0x8041, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x8023, 0x802d, 0x0000, 0xacb600, 0x05, 0xf320, 0xeda8, 0xddeb)),
@@ -166,6 +167,8 @@ public static class RoomEnemyDefinitionCatalog
     /// <summary>Number of distinct retail enemy headers reachable from room states.</summary>
     public const int Count = 148;
 
+    /// <summary>Checks the catalog's expected size and strict pointer ordering before binary-search lookups are used.</summary>
+    /// <exception cref="InvalidDataException">The compiled entries do not match the expected count or are not strictly ordered.</exception>
     static RoomEnemyDefinitionCatalog()
     {
         if (Definitions.Length != Count)

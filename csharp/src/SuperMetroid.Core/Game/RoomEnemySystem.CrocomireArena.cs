@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rooms;
 /// <summary>Crocomire's bridge threshold latches and cross-bank arena publications.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Queues a Crocomire arena PLM request at the supplied room-block coordinates.</summary>
+    /// <param name="blockX">Horizontal block coordinate for the PLM placement.</param>
+    /// <param name="blockY">Vertical block coordinate for the PLM placement.</param>
+    /// <param name="header">PLM header selecting the bridge or invisible-wall behavior.</param>
     private void PublishCrocomirePlm(byte blockX, byte blockY, ushort header) =>
         _crocomirePlmRequests.Add(new CrocomirePlmRequest(blockX, blockY, header));
 
@@ -88,6 +92,7 @@ public sealed partial class RoomEnemySystem
         PublishCrocomirePlm(0x4e, 0x03, RoomPlmHeaders.CreateCrocomireInvisibleWall);
     }
 
+    /// <summary>Seven ordered dust bursts are authored after the ten bridge-clear PLM records.</summary>
     private const int CrocomireBridgeDustCount = 7;
 
     /// <summary>

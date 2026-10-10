@@ -9,7 +9,9 @@ public readonly record struct MagdolliteLavaDropRequest();
 
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Positive 8.8 velocity word used by the right-facing routine for a three-pixel horizontal step.</summary>
     private const ushort MagdolliteLavaHorizontalSpeed = 0x0300;
+    /// <summary>Negative 8.8 velocity word used by the left-facing routine for a three-pixel horizontal step via its Y-velocity field.</summary>
     private const ushort MagdolliteLavaUpwardSpeed = 0xfd00;
 
     /// <summary>Last drop request produced by a destroyed lava projectile this frame.</summary>

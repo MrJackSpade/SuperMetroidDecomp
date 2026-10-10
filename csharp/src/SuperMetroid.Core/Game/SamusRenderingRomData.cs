@@ -98,6 +98,8 @@ public static class SamusRenderingRomData
         public const byte NoBottomTransferSet = 0xff;
 
         /// <summary>VRAM word destinations for the two pieces of one body-half upload.</summary>
+        /// <param name="First">VRAM word address receiving the first piece of the split upload.</param>
+        /// <param name="Second">VRAM word address receiving the second piece of the split upload.</param>
         public readonly record struct SplitVramDestinations(ushort First, ushort Second);
 
         /// <summary>Fixed destinations used by the top-half definition.</summary>

@@ -3,8 +3,18 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
+/// <summary>Installs Samus's Speed Booster palette, including the cartridge's two pointer-overrun cases.</summary>
 internal static class SamusSpeedBoosterPalette
 {
+    /// <summary>
+    /// Copies the selected colors into CGRAM. Ordinary pointers use the installed full-body
+    /// cycle catalog; the expansion and Grapple pointer overruns reproduce the native
+    /// operand-driven reads or instruction-word values instead.
+    /// </summary>
+    /// <param name="bus">Address space used for the native expansion-overrun reads.</param>
+    /// <param name="cgram">CGRAM destination for the Samus object palette.</param>
+    /// <param name="pointer">Resolved bank-$9B palette pointer, including either recognized overrun sentinel.</param>
+    /// <param name="colors">Installed full-body cycle colors used for ordinary palette pointers.</param>
     internal static void Apply(ISnesAddressSpace bus, SnesCgram cgram, ushort pointer,
         SamusFullBodyCycleColorCatalog? colors)
     {

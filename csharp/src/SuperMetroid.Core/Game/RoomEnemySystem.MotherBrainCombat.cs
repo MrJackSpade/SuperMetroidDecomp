@@ -59,6 +59,17 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>
+    /// Tests Samus against the selected asymmetric Mother Brain hitboxes and applies the
+    /// native contact displacement and timers when any rectangle overlaps. Contact causes
+    /// damage only to the right of the cartridge-defined body X+24 threshold.
+    /// </summary>
+    /// <param name="state">Encounter state supplying the body position for the damage-side check.</param>
+    /// <param name="samus">Samus whose position and collision radii are tested and updated on contact.</param>
+    /// <param name="contactPart">Hitbox set to test: body, brain, or neck.</param>
+    /// <param name="originX">World X coordinate from which the selected hitbox extents are measured.</param>
+    /// <param name="originY">World Y coordinate from which the selected hitbox extents are measured.</param>
+    /// <returns><see langword="true"/> when a hitbox overlaps Samus and contact response is applied.</returns>
     private static bool ResolveMotherBrainSamusCollisionPart(
         MotherBrainEnemyState state,
         SamusState samus,
@@ -104,6 +115,9 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Applies the body's suit-adjusted contact damage and horizontal knockback to Samus.</summary>
+    /// <param name="body">Mother Brain body slot whose configured damage and position govern the response.</param>
+    /// <param name="samus">Samus state whose health, invincibility, and knockback fields are updated.</param>
     private static void DamageSamusFromMotherBrainBody(RoomEnemySlot body, SamusState samus)
     {
         ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)

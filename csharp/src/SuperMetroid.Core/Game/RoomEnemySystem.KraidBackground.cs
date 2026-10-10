@@ -151,9 +151,16 @@ public sealed partial class RoomEnemySystem
         state.BottomTilemapUploadCount++;
     }
 
+    /// <summary>Removes the BG2 priority attribute from one tilemap word while preserving its other bits.</summary>
+    /// <param name="word">Tilemap entry that may contain the $2000 priority bit.</param>
+    /// <returns>The same entry with only the Kraid BG2 priority bit cleared.</returns>
     private static ushort WithoutKraidBg2Priority(ushort word) =>
         unchecked((ushort)(word & ~KraidBackgroundRomData.PriorityBit));
 
+    /// <summary>Decodes one little-endian tilemap word from a decompressed byte stream.</summary>
+    /// <param name="source">Decompressed tilemap bytes in cartridge order.</param>
+    /// <param name="word">Zero-based word index, converted to a byte offset by multiplying by two.</param>
+    /// <returns>The indexed bytes combined with the lower byte first.</returns>
     private static ushort ReadLittleEndianWord(ReadOnlySpan<byte> source, int word)
     {
         int offset = checked(word * 2);

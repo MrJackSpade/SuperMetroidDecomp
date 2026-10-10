@@ -9,6 +9,12 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>
+    /// Selects Kraid's slow arm program when the body is below half health and the arm has
+    /// not yet entered it; otherwise advances past the native callback instruction.
+    /// </summary>
+    /// <param name="cursor">Instruction cursor immediately after the arm's speed-selection callback.</param>
+    /// <returns>The slow program entry when selected, or the next instruction address.</returns>
     private ushort SelectKraidArmSpeedInstruction(ushort cursor)
     {
         RoomEnemySlot body = _slots[0];
@@ -23,6 +29,14 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)(cursor + 2));
     }
 
+    /// <summary>
+    /// Applies a native foot-program command to Kraid's shared body, including position changes,
+    /// earthquake and sound requests, and the collision-aware horizontal move callback.
+    /// </summary>
+    /// <param name="instruction">Kraid foot callback opcode being executed.</param>
+    /// <param name="level">Room collision data required by the move-right callback; other commands do not use it.</param>
+    /// <exception cref="InvalidOperationException">The move-right callback runs without room collision data.</exception>
+    /// <exception cref="InvalidDataException">The opcode is not a translated Kraid foot instruction.</exception>
     private void ProcessKraidFootInstruction(ushort instruction, RoomLevelData? level)
     {
         RoomEnemySlot body = _slots[0];

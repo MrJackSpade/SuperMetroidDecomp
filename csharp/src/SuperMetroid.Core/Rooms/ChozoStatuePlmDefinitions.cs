@@ -35,6 +35,8 @@ internal static class ChozoStatuePlmDefinitions
 }
 
 /// <summary>One Chozo terrain PLM header paired with its native initial list.</summary>
+/// <param name="HeaderPointer">Bank-$84 header identity used to select this PLM definition.</param>
+/// <param name="InstructionListPointer">Bank-$84 instruction-list entry installed when the actor is created.</param>
 internal readonly record struct ChozoStatuePlmDefinition(
     ushort HeaderPointer,
     ushort InstructionListPointer);

@@ -81,7 +81,14 @@ public static class SamusChargePalettePointerDefinitions
         return true;
     }
 
+    /// <summary>Checks whether a native suit-table byte offset selects Power, Varia, or Gravity.</summary>
+    /// <param name="offset">Byte offset to validate; valid values are the even offsets 0, 2, and 4.</param>
+    /// <returns><see langword="true"/> when the offset identifies one of the three suit entries.</returns>
     private static bool ValidSuit(ushort offset) => offset <= 4 && (offset & 1) == 0;
+
+    /// <summary>Checks whether a native charge-list byte offset selects one of its six phase words.</summary>
+    /// <param name="offset">Byte offset to validate; valid values are the even offsets from 0 through 10.</param>
+    /// <returns><see langword="true"/> when the offset is within the six-word list and word-aligned.</returns>
     private static bool ValidChargePhase(ushort offset) =>
         offset <= LastChargePhaseByteOffset && (offset & 1) == 0;
 }

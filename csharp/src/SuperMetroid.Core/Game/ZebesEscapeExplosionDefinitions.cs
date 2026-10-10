@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One random Zebes-escape explosion sprite and its optional sound.</summary>
+/// <param name="SpriteKind">Sprite object selected for this explosion effect.</param>
+/// <param name="SoundEffect">Sound-effect byte to queue, or zero when this choice is silent.</param>
 internal readonly record struct ZebesEscapeExplosionDefinition(
     RoomSpriteObjectKind SpriteKind,
     byte SoundEffect);

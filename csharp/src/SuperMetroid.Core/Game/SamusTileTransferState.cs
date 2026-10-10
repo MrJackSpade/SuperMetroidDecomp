@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusTileTransferState
 {
+    /// <summary>Installed visual catalog supplying pose-frame selections and immutable transfer definitions.</summary>
     [NonSerialized] private SamusBodyArtworkCatalog? artwork;
     /// <summary>Currently bound external visual presentation; never part of save state.</summary>
     public SamusBodyArtworkCatalog? Artwork => artwork;
@@ -78,6 +79,10 @@ public sealed class SamusTileTransferState
         // set, and Samus_Draw refreshes the selected definitions during each main-loop pass.
     }
 
+    /// <summary>Copies one installed planar tile definition to the two VRAM regions assigned to its body half.</summary>
+    /// <param name="vram">VRAM receiving the definition's first and optional second byte ranges.</param>
+    /// <param name="definition">Planar tile bytes and split sizes selected from the installed artwork catalog.</param>
+    /// <param name="destinations">Character destinations for each split range, in VRAM word addresses.</param>
     private static void ExecuteInstalledDefinition(SnesVram vram,
         SamusBodyTileDefinition definition,
         SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)

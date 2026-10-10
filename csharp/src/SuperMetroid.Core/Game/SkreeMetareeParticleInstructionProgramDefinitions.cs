@@ -13,6 +13,9 @@ internal abstract class SkreeMetareeParticleInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_MetareeParticle</c> at $86:8AC5.</summary>
     internal const ushort Metaree = 0x8ac5;
+    /// <summary>Checks whether a projectile kind uses one of the compiled Skree or Metaree death-particle programs.</summary>
+    /// <param name="kind">Enemy-projectile identity to classify.</param>
+    /// <returns><see langword="true"/> for a directional Skree or Metaree particle; otherwise <see langword="false"/>.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.SkreeParticleDownRight or
         RoomEnemyProjectileKind.SkreeParticleUpRight or
@@ -23,6 +26,10 @@ internal abstract class SkreeMetareeParticleInstructionProgramDefinitions
         RoomEnemyProjectileKind.MetareeParticleDownLeft or
         RoomEnemyProjectileKind.MetareeParticleUpLeft;
 
+    /// <summary>Resolves a particle program's duration, vertical-loop opcode, or loop target.</summary>
+    /// <param name="address">Bank-relative address of a candidate mechanics word in either particle list.</param>
+    /// <returns>The compiled mechanics value at that address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a mechanics word in either list.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - Skree;

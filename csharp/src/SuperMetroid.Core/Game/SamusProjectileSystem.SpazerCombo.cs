@@ -88,9 +88,14 @@ public sealed partial class SamusProjectileSystem
         return 0;
     }
 
+    /// <summary>Advances the combo particle's byte-sized sine-table angle by its signed vertical-velocity step.</summary>
+    /// <param name="slot">Projectile whose angle is stored in <see cref="SamusProjectileSlot.Variable"/> and whose delta is in <see cref="SamusProjectileSlot.YVelocity"/>.</param>
     private static void AdvanceSpazerAngle(SamusProjectileSlot slot) =>
         slot.Variable = unchecked((byte)(slot.Variable + slot.YVelocity));
 
+    /// <summary>Switches a combo particle to downward travel and initializes the paired primary trail sprites.</summary>
+    /// <param name="bus">Address space used to initialize trail presentation data for the primary projectile pair.</param>
+    /// <param name="slot">Particle entering the falling pre-instruction and receiving its side-specific horizontal offset.</param>
     private static void BeginSpazerFall(ISnesAddressSpace bus, SamusProjectileSlot slot)
     {
         slot.XPosition = unchecked((ushort)(slot.XPosition + (slot.SlotIndex < 2 ? 16 : -16)));

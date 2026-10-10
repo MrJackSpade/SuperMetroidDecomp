@@ -4,9 +4,13 @@ public sealed partial class SamusProjectileSystem
 {
     // This is a routing reference, not additional emulated state. The runtime restores
     // it before executing a frame; the actual shared quake words remain in the room owner.
+    /// <summary>Runtime link that routes projectile earthquake requests to the shared room-owned quake state.</summary>
     [NonSerialized]
     private RoomEnemySystem? _roomEarthquakeOwner;
 
+    /// <summary>Binds the room state that receives earthquake requests produced by projectile collisions.</summary>
+    /// <param name="owner">Room enemy system holding the shared earthquake type and timer.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="owner"/> is <see langword="null"/>.</exception>
     internal void BindRoomEarthquakeOwner(RoomEnemySystem owner)
         => _roomEarthquakeOwner = owner ?? throw new ArgumentNullException(nameof(owner));
 

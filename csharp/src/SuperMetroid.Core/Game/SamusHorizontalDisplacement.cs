@@ -12,6 +12,8 @@ namespace SuperMetroid.Core.Game;
 /// <c>MoveSamus_Left</c> from the displacement's sign (zero is not negative, so it moves
 /// right), while their unconditional solid-enemy probe reads the stored direction.
 /// </remarks>
+/// <param name="Displacement">Signed 16.16 X displacement whose sign selects the native left or right movement routine.</param>
+/// <param name="CollisionDirection">Direction stored for the independent solid-enemy collision probe; it is not derived from the displacement sign.</param>
 public readonly record struct SamusHorizontalDisplacement(int Displacement, SamusCollisionDirection CollisionDirection)
 {
     /// <summary><c>$90:E464</c>: leftward displacement from a base speed plus extra X displacement.</summary>

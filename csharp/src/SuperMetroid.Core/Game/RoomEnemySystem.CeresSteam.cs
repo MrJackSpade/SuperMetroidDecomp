@@ -8,7 +8,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Palette slot used by Ceres steam, corresponding to the cartridge's palette-5 setting.</summary>
     private static readonly ushort CeresSteamPaletteIndex = EnemyPaletteBits.Palette5;
+    /// <summary>Health restored by steam main and touch processing so the hazard remains indestructible.</summary>
     private const ushort CeresSteamIndestructibleHealth = 0x7fff;
 
     /// <summary>Ports <c>CeresSteam_Init</c> at <c>$A6:EFB1</c>.</summary>

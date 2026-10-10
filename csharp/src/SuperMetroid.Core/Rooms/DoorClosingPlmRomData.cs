@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One direction-selected fallback door-closing PLM definition.</summary>
+/// <param name="Header">Native PLM header identifying the closer actor to spawn for this direction case.</param>
+/// <param name="InitialInstructionList">Bank-relative address of the actor's initial door-closing instruction program.</param>
 internal readonly record struct DoorClosingPlmDefinition(
     ushort Header,
     ushort InitialInstructionList);

@@ -35,6 +35,10 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
     /// <summary>$84:A9EF: closed right-facing blue cap used during flashing.</summary>
     private const ushort BlueDraw = 0xa9ef;
 
+    /// <summary>Reads a little-endian two-byte mechanics view beginning at an address within either compiled PLM list.</summary>
+    /// <param name="address">Start byte of the word view; the final byte of either list cannot start a complete word.</param>
+    /// <param name="value">Receives the word when available, or zero when the address is not a readable word start.</param>
+    /// <returns><see langword="true"/> when both bytes belong to a compiled list word; otherwise, <see langword="false"/>.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -122,6 +126,9 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Checks whether a byte address belongs to the closing list or resident list, excluding the callback gap between them.</summary>
+    /// <param name="address">Bank-$84 byte address to classify.</param>
+    /// <returns><see langword="true"/> for bytes within either inclusive list range.</returns>
     private static bool Owns(ushort address) =>
         address is >= ClosingStart and <= ClosingEnd or >= ResidentStart and <= ResidentEnd;
 }

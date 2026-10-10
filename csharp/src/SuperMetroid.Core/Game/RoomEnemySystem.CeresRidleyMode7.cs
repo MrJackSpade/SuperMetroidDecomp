@@ -125,6 +125,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Recomputes the Mode 7 rotation and scale matrix from Ridley's current angle and zoom values.</summary>
+    /// <param name="state">The getaway actor state containing the angle and zoom and receiving the matrix entries.</param>
     private static void UpdateCeresRidleyMode7Matrix(RidleyEnemyState state)
     {
         byte angle = state.Mode7Angle.TableIndex;
@@ -136,6 +138,9 @@ public sealed partial class RoomEnemySystem
         state.Mode7MatrixD = diagonal;
     }
 
+    /// <summary>Applies the installed fifteen-color Mode 7 palette row selected by the zoom's high byte.</summary>
+    /// <param name="zoom">The current Mode 7 zoom value whose high byte selects the palette row.</param>
+    /// <exception cref="InvalidOperationException">No installed palette row exists for the selected zoom value.</exception>
     private void UpdateCeresRidleyMode7Palette(ushort zoom)
     {
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped bank-$A6 expression.

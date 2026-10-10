@@ -93,6 +93,9 @@ public sealed partial class RoomEnemySystem
         DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, cameraX, cameraY);
     }
 
+    /// <summary>Adds the selected signed 8.8 velocity to the projectile's wrapped 16.16 X position.</summary>
+    /// <param name="projectile">Cacatac spike whose horizontal whole and fractional coordinates are updated.</param>
+    /// <param name="velocity">Signed 8.8 horizontal displacement for this pre-instruction step.</param>
     private static void MoveCacatacSpikeX(
         RoomEnemyProjectileSlot projectile,
         ushort velocity)
@@ -103,6 +106,9 @@ public sealed partial class RoomEnemySystem
             velocity);
     }
 
+    /// <summary>Adds the selected signed 8.8 velocity to the projectile's wrapped 16.16 Y position.</summary>
+    /// <param name="projectile">Cacatac spike whose vertical whole and fractional coordinates are updated.</param>
+    /// <param name="velocity">Signed 8.8 vertical displacement for this pre-instruction step.</param>
     private static void MoveCacatacSpikeY(
         RoomEnemyProjectileSlot projectile,
         ushort velocity)

@@ -27,6 +27,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Allocates the requested moving or closed gate actor and associates it with its PLM's room-block index.</summary>
+    /// <param name="request">Spawn operation carrying a supported bank-$86 gate definition and the PLM's row-major block index.</param>
+    /// <param name="roomWidthInBlocks">Room width used to convert the block index into the actor's pixel coordinates.</param>
+    /// <remarks>If the shared projectile pool is full, the spawn is dropped as in the native finite-pool path.</remarks>
     private void SpawnDownwardGateProjectile(
         DownwardGateProjectileRequest request,
         int roomWidthInBlocks)
@@ -60,6 +64,9 @@ public sealed partial class RoomEnemySystem
             request.PlmBlockIndex * DownwardGateEnemyProjectileRomData.NativeBytesPerRoomBlock));
     }
 
+    /// <summary>Wakes the active gate actor associated with a PLM block by advancing past its sleep instruction.</summary>
+    /// <param name="plmBlockIndex">Nonnegative row-major room-block index used when the gate actor was spawned.</param>
+    /// <exception cref="InvalidDataException">No active moving or closed gate actor is associated with the supplied block.</exception>
     private void WakeDownwardGateProjectile(int plmBlockIndex)
     {
         ushort nativeBlockIndex = checked((ushort)(

@@ -14,6 +14,10 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
     /// <summary>Last closing-gate instruction byte at $84:BB51.</summary>
     internal const ushort LastAddress = 0xbb51;
 
+    /// <summary>Reads the overlapping little-endian word view beginning at an address inside a compiled escape-gate list.</summary>
+    /// <param name="address">The bank-local starting byte of the candidate word.</param>
+    /// <param name="value">Receives the assembled word, or zero when the start address is outside the lists.</param>
+    /// <returns><see langword="true"/> when the address begins within the compiled instruction byte range.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -24,6 +28,10 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Reads one compiled instruction byte, preserving the native byte selection within overlapping words.</summary>
+    /// <param name="address">The bank-local byte address in the closed, open, or closing escape-gate program.</param>
+    /// <param name="value">Receives the selected byte, or zero when the address is outside the compiled range.</param>
+    /// <returns><see langword="true"/> when the address lies within the inclusive instruction byte range.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;

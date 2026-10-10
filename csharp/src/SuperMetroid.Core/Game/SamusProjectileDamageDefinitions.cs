@@ -41,6 +41,10 @@ internal static class SamusProjectileDamageDefinitions
     /// <summary>$93:86D7 ProjectileDataTable_NonBeam_Projectile27: damage header identity.</summary>
     internal const int Projectile27 = 0x9386d7;
 
+    /// <summary>Returns the compiled projectile damage for an exact native header address.</summary>
+    /// <param name="address">The SNES address of a beam or explicitly defined non-beam damage header.</param>
+    /// <returns>The damage word stored by the corresponding cartridge projectile header.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled damage header.</exception>
     internal static ushort Read(int address)
     {
         int offset = address - BeamHeaderStart;
@@ -91,6 +95,9 @@ internal static class SamusProjectileDamageDefinitions
         return (charged, beam);
     }
 
+    /// <summary>Computes beam damage from its uncharged or charged header index and resolved weapon flags.</summary>
+    /// <param name="header">The index of one of the 24 beam headers, with indices 12 through 23 representing charged beams.</param>
+    /// <returns>The damage word for the selected beam configuration.</returns>
     private static ushort BeamDamage(int header)
     {
         var (charged, beam) = BeamIdentity(header);

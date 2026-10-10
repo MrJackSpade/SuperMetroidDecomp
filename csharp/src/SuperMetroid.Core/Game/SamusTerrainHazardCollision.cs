@@ -63,6 +63,15 @@ public static class SamusTerrainHazardCollision
         PublishDamage(bus, samus, damage);
     }
 
+    /// <summary>
+    /// Resolves one sampled point against spike-air collision data, restores normal air speed for a damaging tile,
+    /// and applies its damage only when contact-damage and invincibility states permit it.
+    /// </summary>
+    /// <param name="bus">The address space used to resolve Samus's facing for damage side effects.</param>
+    /// <param name="level">The room collision data sampled at the point.</param>
+    /// <param name="samus">The Samus state tested and updated by the hazard.</param>
+    /// <param name="x">The horizontal coordinate of this inside-block sample.</param>
+    /// <param name="y">The vertical coordinate of this inside-block sample.</param>
     private static void VisitInsidePoint(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -89,6 +98,10 @@ public static class SamusTerrainHazardCollision
         PublishDamage(bus, samus, SamusTerrainHazardRomData.LightSpikeDamage);
     }
 
+    /// <summary>Accumulates hazard damage and installs the cartridge invincibility, knockback, and facing-based direction state.</summary>
+    /// <param name="bus">The address space used to read Samus's facing direction.</param>
+    /// <param name="samus">The player state receiving the damage side effects.</param>
+    /// <param name="wholeDamage">The whole-point damage amount to accumulate.</param>
     private static void PublishDamage(
         ISnesAddressSpace bus,
         SamusState samus,

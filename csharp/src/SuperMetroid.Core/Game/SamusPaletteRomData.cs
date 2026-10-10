@@ -187,6 +187,15 @@ public static class SamusPaletteRomData
             TryPalettePointer(suitByteOffset, phaseByteOffset, 6, 0x9c20,
                 pingPong: false, out pointer);
 
+        /// <summary>Resolves a bounded suit and phase selector to its bank-$9B palette address.</summary>
+        /// <param name="suitByteOffset">Even selector offset 0, 2, or 4 for the Power, Varia, or Gravity suit list.</param>
+        /// <param name="phaseByteOffset">Even byte offset within the caller's bounded phase table.</param>
+        /// <param name="lastPhaseByteOffset">Largest accepted phase byte offset, inclusive.</param>
+        /// <param name="firstPalette">Bank-$9B address of the first suit's first palette.</param>
+        /// <param name="pingPong">Whether phases after index six mirror earlier palette shades.</param>
+        /// <param name="pointer">Receives the resolved bank-$9B address, or zero when the selector is out of range.</param>
+        /// <returns><see langword="true"/> when both selectors are valid; otherwise <see langword="false"/>.</returns>
+        /// <remarks>The suit offset advances by <c>$100</c> per suit and each shade by <c>$20</c> bytes.</remarks>
         private static bool TryPalettePointer(
             ushort suitByteOffset,
             ushort phaseByteOffset,
@@ -208,6 +217,16 @@ public static class SamusPaletteRomData
             return true;
         }
 
+        /// <summary>Reads one little-endian pointer word from the compiled contiguous lists using the native wrapped phase offset.</summary>
+        /// <param name="suitByteOffset">Even selector offset 0, 2, or 4 identifying one of the three suit lists.</param>
+        /// <param name="phaseByteOffset">Full 16-bit byte offset added to the selected list, including odd offsets that read across word boundaries.</param>
+        /// <param name="firstListAddress">Address of the first word in the contiguous allocation of suit lists.</param>
+        /// <param name="phaseCount">Number of pointer words in each suit list.</param>
+        /// <param name="firstPalette">Bank-$9B address used for phase zero of the first suit.</param>
+        /// <param name="pingPong">Whether each suit's phase sequence mirrors palette shades after index six.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="suitByteOffset"/> is not 0, 2, or 4.</exception>
+        /// <exception cref="InvalidDataException">The wrapped read does not have both bytes inside the compiled allocation.</exception>
+        /// <remarks>Odd offsets are read bytewise, matching the native pointer-word access rather than rounding to an aligned entry.</remarks>
         private static ushort ReadCompiledListWord(
             ushort suitByteOffset,
             ushort phaseByteOffset,

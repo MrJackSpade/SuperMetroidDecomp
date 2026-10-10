@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>World position shared by one Tourian statue eye glow and released soul.</summary>
+/// <param name="X">Horizontal world coordinate assigned to the eye-glow or soul projectile.</param>
+/// <param name="Y">Vertical world coordinate assigned to the eye-glow or soul projectile.</param>
 internal readonly record struct TourianStatueEyePosition(ushort X, ushort Y);
 
 /// <summary>Compiled fixed physical definitions for Tourian statue unlock effects.</summary>

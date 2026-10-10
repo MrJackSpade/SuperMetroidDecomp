@@ -116,6 +116,8 @@ public readonly record struct RoomEnemySpawnSnapshot(
 /// </summary>
 public sealed class RoomEnemySlot
 {
+    /// <summary>Creates a stable slot identity and computes its byte offset within the native EnemyData array.</summary>
+    /// <param name="slotIndex">Zero-based enemy slot number used to derive the native $40-byte record offset.</param>
     internal RoomEnemySlot(int slotIndex)
     {
         SlotIndex = slotIndex;
@@ -201,6 +203,7 @@ public sealed class RoomEnemySlot
     /// <summary>Native spawn-data graphical Y offset, added to live YPosition before camera subtraction; wrapped words may represent negative pixel offsets.</summary>
     public ushort SpawnYOffset { get; internal set; }
 
+    /// <summary>Resets all mutable enemy-record values while retaining this slot object's fixed index and native offset.</summary>
     internal void Clear()
     {
         EnemyDefinitionPointer = 0;

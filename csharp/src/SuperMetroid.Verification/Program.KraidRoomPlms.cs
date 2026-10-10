@@ -104,7 +104,7 @@ internal static partial class Program
                   pointer < KraidRoomPlmProgramDefinitions.MoveRightCallback) ||
                  (pointer >= KraidRoomPlmProgramDefinitions.ClearSpikes &&
                   pointer < KraidRoomPlmProgramDefinitions.EndExclusive) ||
-                 (pointer >= KraidRoomPlmDrawDefinitions.CrumbleFirst &&
+                 (pointer >= (ushort)KraidRoomDraw.CrumbleFirst &&
                   pointer < KraidRoomPlmDrawDefinitions.EndExclusive)))
             {
                 ForbiddenReadAttempts++;

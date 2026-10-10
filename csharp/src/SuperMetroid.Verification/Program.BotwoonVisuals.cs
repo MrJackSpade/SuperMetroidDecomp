@@ -46,7 +46,7 @@ internal static partial class Program
             "Botwoon head selects sixteen distinct visible OAM frames");
         AssertThrows<InvalidDataException>(
             () => BotwoonVisualDefinitions.FrameAt(
-                BotwoonInstructionProgramDefinitions.MovingUpLeft),
+                (ushort)BotwoonMovementProgram.UpLeft),
             "Botwoon visual catalog rejects its neighboring instruction control word");
 
         // Existing version-59 edits must survive the newly extracted head frames.

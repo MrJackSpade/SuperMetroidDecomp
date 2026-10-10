@@ -92,20 +92,37 @@ public static class BeaconPaletteFxProgramMechanicsDefinitions
         return unchecked((ushort)(FramePointer(frame) + offset));
     }
 
+    /// <summary>Fixed control words outside the timed records, by bank-<c>$8D</c> address.</summary>
+    private enum MechanicsWord : ushort
+    {
+        /// <summary><c>SetColorIndex</c> opcode at <c>$8D:EFF7</c>.</summary>
+        SetColorIndex = ProgramStart,
+        /// <summary>CGRAM byte-index operand at <c>$8D:EFF9</c>.</summary>
+        ColorIndexOperand = ProgramStart + 2,
+        /// <summary>Library-two sound opcode at <c>$8D:F04F</c>.</summary>
+        QueueSound = SoundInstructionPointer,
+        /// <summary>Terminal <c>goto</c> opcode at <c>$8D:F08A</c>.</summary>
+        Goto = LoopInstructionPointer,
+        /// <summary>Goto target operand at <c>$8D:F08C</c>.</summary>
+        GotoTarget = LoopInstructionPointer + 2,
+    }
+
     /// <summary>Resolves one compiled mechanics word while retaining color/audio data.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        value = pointer switch
+        if (Enum.IsDefined((MechanicsWord)pointer))
         {
-            ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            ProgramStart + 2 => ColorByteIndex,
-            SoundInstructionPointer => PaletteFxInstructionCodes.QueueSfx2,
-            LoopInstructionPointer => PaletteFxInstructionCodes.Goto,
-            LoopInstructionPointer + 2 => FirstFramePointer,
-            _ => 0,
-        };
-        if (value != 0)
+            value = (MechanicsWord)pointer switch
+            {
+                MechanicsWord.SetColorIndex => PaletteFxInstructionCodes.SetColorIndex,
+                MechanicsWord.ColorIndexOperand => ColorByteIndex,
+                MechanicsWord.QueueSound => PaletteFxInstructionCodes.QueueSfx2,
+                MechanicsWord.Goto => PaletteFxInstructionCodes.Goto,
+                MechanicsWord.GotoTarget => FirstFramePointer,
+                _ => throw new InvalidOperationException($"Undefined beacon mechanics word ${pointer:X4}."),
+            };
             return true;
+        }
 
         for (int frame = 0; frame < FrameCount; frame++)
         {
@@ -121,6 +138,7 @@ public static class BeaconPaletteFxProgramMechanicsDefinitions
                 return true;
         }
 
+        value = 0;
         return false;
     }
 

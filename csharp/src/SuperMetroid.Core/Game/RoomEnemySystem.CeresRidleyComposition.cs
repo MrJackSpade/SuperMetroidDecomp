@@ -540,9 +540,9 @@ public sealed partial class RoomEnemySystem
             }
 
             ushort argument = unchecked((ushort)(cursor + 2));
-            switch (word)
+            switch (ClosedNativeWords.Decode<CeresBabyInstruction>(word, "Ceres Baby draw instruction"))
             {
-                case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_PlayCrySFXOrGotoX:
+                case CeresBabyInstruction.PlayCrySfxOrGoto:
                     // $A6:BFC9: while the baby is falling ($880C nonzero) it always cries and
                     // continues. Otherwise it samples the live RNG word's low bit without
                     // calling GenerateRandomNumber; a set bit jumps silently ($A6:BFD5).
@@ -555,7 +555,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(argument + 2));
                     break;
 
-                case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors:
+                case CeresBabyInstruction.UpdateColors:
                     int babyPaletteRow = CeresBabyInstructionProgramDefinitions.ReadPaletteRow(argument);
                     if (CeresRidleyColors is { } babyColors)
                         babyColors.ApplyBaby(_cgram!, babyPaletteRow);
@@ -564,19 +564,19 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(argument + 2));
                     break;
 
-                case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoXIfNotFalling:
+                case CeresBabyInstruction.GotoIfNotFalling:
                     cursor = state.BabyVerticalVelocity != 0
                         ? CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument)
                         : unchecked((ushort)(argument + 2));
                     break;
 
-                case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoX:
+                case CeresBabyInstruction.Goto:
                     cursor = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument);
                     break;
 
                 default:
-                    throw new InvalidDataException(
-                        $"Ceres Baby draw instruction $A6:{cursor:X4} opcode ${word:X4} is not translated.");
+                    throw new InvalidOperationException(
+                        $"Undefined {nameof(CeresBabyInstruction)} {word:X4} at $A6:{cursor:X4}.");
             }
 
             state.BabyInstruction = cursor;

@@ -43,7 +43,7 @@ internal static partial class Program
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
                 installation.LoadRoomPlmDraygonCannonVisuals().GetWord(
-                    DraygonCannonPlmDrawDefinitions.RightShieldA, 0, 0),
+                    (ushort)DraygonCannonDraw.RightShieldA, 0, 0),
                 "installed cannon override selects its edited block");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -52,7 +52,7 @@ internal static partial class Program
             AssertEqual((ushort)0x0053,
                 RoomPlmDraygonCannonVisualFiles.Load(refreshed,
                     installation.RoomPlmDraygonCannonVisualOverrideDirectory)
-                    .GetWord(DraygonCannonPlmDrawDefinitions.RightShieldA, 0, 0),
+                    .GetWord((ushort)DraygonCannonDraw.RightShieldA, 0, 0),
                 "cannon override survives stock replacement");
 
             rightShield["blocks"]![0] = 0xf053;

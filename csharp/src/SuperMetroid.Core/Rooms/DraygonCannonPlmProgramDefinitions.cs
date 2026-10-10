@@ -56,18 +56,18 @@ internal static class DraygonCannonPlmProgramDefinitions
     private static ushort WordAt(int start, int offset)
     {
         bool right = start == RightStart;
-        ushort shield = right ? DraygonCannonPlmDrawDefinitions.RightShieldA : DraygonCannonPlmDrawDefinitions.LeftShieldA;
+        ushort shield = right ? (ushort)DraygonCannonDraw.RightShieldA : (ushort)DraygonCannonDraw.LeftShieldA;
         if (offset is >= 23 and < 47)
         {
             int frame = (offset - 23) / 4;
             if ((offset - 23) % 4 == 0) return (ushort)(3 + (frame & 1));
-            return (frame & 1) == 0 ? shield : right ? DraygonCannonPlmDrawDefinitions.RightShieldB : DraygonCannonPlmDrawDefinitions.LeftShieldB;
+            return (frame & 1) == 0 ? shield : right ? (ushort)DraygonCannonDraw.RightShieldB : (ushort)DraygonCannonDraw.LeftShieldB;
         }
         if (offset is >= 53 and < 69)
         {
             if ((offset - 53) % 4 == 0) return 6;
             int frame = (offset - 53) / 4;
-            return (ushort)((right ? DraygonCannonPlmDrawDefinitions.RightDamagedA : DraygonCannonPlmDrawDefinitions.LeftDamagedA) + frame * (right ? 16 : 20));
+            return (ushort)((right ? (ushort)DraygonCannonDraw.RightDamagedA : (ushort)DraygonCannonDraw.LeftDamagedA) + frame * (right ? 16 : 20));
         }
         return offset switch
         {

@@ -139,7 +139,7 @@ public sealed partial class RoomEnemySystem
             MaximumX = 0x00e0,
             BabyInstruction = CeresBabyInstructionProgramDefinitions.Initial,
             BabyInstructionTimer = 1,
-            BabyFunction = 0xbe9c,
+            BabyFunction = CeresBabyFunction.CarriedInArms,
             BabyCurrentSpritemap = 0,
             BabyXPosition = unchecked((ushort)(slot.XPosition - 16)),
             BabyYPosition = unchecked((ushort)(slot.YPosition + 22)),
@@ -691,7 +691,7 @@ public sealed partial class RoomEnemySystem
         AccelerateRidleyToward(slot, state, 192, unchecked((ushort)-128), 1);
         if (unchecked((short)(slot.YPosition - 32)) < 0)
         {
-            state.BabyFunction = 0xbeca;
+            state.BabyFunction = CeresBabyFunction.Drop;
             state.Function = RidleyAiFunction.CeresWaitBeforeRetrievingBaby;
             state.FunctionTimer = 21;
         }
@@ -713,7 +713,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        state.BabyFunction = 0xbeb3;
+        state.BabyFunction = CeresBabyFunction.CarriedInFeet;
         state.VerticalVelocity = unchecked((ushort)-512);
         BeginCeresRidleyRetreat(state);
     }
@@ -722,7 +722,7 @@ public sealed partial class RoomEnemySystem
     {
         switch (state.BabyFunction)
         {
-            case CeresEnemyCodePointers.UpdateBabyMetroidPosition_CarriedInArms:
+            case CeresBabyFunction.CarriedInArms:
                 // Before the fake retreat, the Baby remains at Ridley's original left-hand
                 // anchor. This function is also why the retrieval target begins coherent
                 // even though the Baby is not a separate RoomEnemySlot.
@@ -730,13 +730,13 @@ public sealed partial class RoomEnemySystem
                 state.BabyYPosition = unchecked((ushort)(slot.YPosition + 22));
                 return;
 
-            case CeresEnemyCodePointers.DropBabyMetroid:
+            case CeresBabyFunction.Drop:
                 state.BabyYSubposition = 0;
                 state.BabyVerticalVelocity = 0;
-                state.BabyFunction = 0xbedc;
-                goto case CeresEnemyCodePointers.BabyMetroidDropped;
+                state.BabyFunction = CeresBabyFunction.Dropped;
+                goto case CeresBabyFunction.Dropped;
 
-            case CeresEnemyCodePointers.BabyMetroidDropped:
+            case CeresBabyFunction.Dropped:
                 state.BabyVerticalVelocity = unchecked((ushort)(state.BabyVerticalVelocity + 8));
                 (state.BabyYPosition, state.BabyYSubposition) = IntegrateUnclampedAxis(
                     state.BabyYPosition,
@@ -745,23 +745,25 @@ public sealed partial class RoomEnemySystem
                 if (unchecked((short)(state.BabyYPosition - 192)) >= 0)
                 {
                     state.BabyYPosition = 192;
-                    state.BabyFunction = CeresEnemyCodePointers.RTS_A6BF19;
+                    state.BabyFunction = CeresBabyFunction.Idle;
                 }
                 return;
 
-            case CeresEnemyCodePointers.UpdateBabyMetroidPosition_CarriedInFeet:
+            case CeresBabyFunction.CarriedInFeet:
                 // Once the hand rectangles overlap, the Baby follows the grasp point for
                 // the real retreat and disappears with Ridley at the status-one handoff.
                 state.BabyXPosition = unchecked((ushort)(slot.XPosition + 14));
                 state.BabyYPosition = unchecked((ushort)(slot.YPosition + 66));
                 return;
 
-            case CeresEnemyCodePointers.RTS_A6BF19:
+            case CeresBabyFunction.Idle:
                 return;
 
+            case CeresBabyFunction.None:
+                throw new InvalidOperationException("The Ceres Baby Metroid has no behavior function.");
+
             default:
-                throw new InvalidDataException(
-                    $"Ceres Baby Metroid function $A6:{state.BabyFunction:X4} is not translated.");
+                throw new InvalidOperationException($"Undefined {nameof(CeresBabyFunction)} {(int)state.BabyFunction:X4}.");
         }
     }
 

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -11,17 +13,26 @@ internal static class RoomPlmLinkedRestoreDrawDefinitions
         RoomPlmBombBlockRestoreDrawDefinitions.All.Concat(
             RoomPlmContactCrumbleRestoreDrawDefinitions.All);
 
-    internal static string VisualId(ushort pointer) => pointer switch
+    internal static string VisualId(ushort pointer)
     {
-        RoomPlmBombBlockRestoreDrawDefinitions.Horizontal => "bomb-horizontal",
-        RoomPlmBombBlockRestoreDrawDefinitions.Vertical => "bomb-vertical",
-        RoomPlmBombBlockRestoreDrawDefinitions.Square => "bomb-square",
-        RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal => "crumble-horizontal",
-        RoomPlmContactCrumbleRestoreDrawDefinitions.Vertical => "crumble-vertical",
-        RoomPlmContactCrumbleRestoreDrawDefinitions.Square => "crumble-square",
-        _ => throw new InvalidDataException(
-            $"Linked restore draw ${pointer:X4} has no visual ID."),
-    };
+        if (Enum.IsDefined((BombBlockRestoreDraw)pointer))
+        {
+            return (BombBlockRestoreDraw)pointer switch
+            {
+                BombBlockRestoreDraw.Horizontal => "bomb-horizontal",
+                BombBlockRestoreDraw.Vertical => "bomb-vertical",
+                BombBlockRestoreDraw.Square => "bomb-square",
+                _ => throw new InvalidOperationException($"Undefined {nameof(BombBlockRestoreDraw)} {pointer:X4}."),
+            };
+        }
+        return ClosedNativeWords.Decode<ContactCrumbleRestoreDraw>(pointer, "linked restore draw with a visual ID") switch
+        {
+            ContactCrumbleRestoreDraw.Horizontal => "crumble-horizontal",
+            ContactCrumbleRestoreDraw.Vertical => "crumble-vertical",
+            ContactCrumbleRestoreDraw.Square => "crumble-square",
+            _ => throw new InvalidOperationException($"Undefined {nameof(ContactCrumbleRestoreDraw)} {pointer:X4}."),
+        };
+    }
 
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)

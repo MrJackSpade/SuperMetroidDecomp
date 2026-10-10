@@ -35,9 +35,9 @@ internal static class RoomPlmBombedRevealProgramDefinitions
     private static ushort DrawOf(Reveal reveal) => reveal switch
     {
         Reveal.Crumble1x1 => RoomPlmBombedRevealDrawDefinitions.CrumbleSingle,
-        Reveal.Crumble2x1 => RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal,
-        Reveal.Crumble1x2 => RoomPlmContactCrumbleRestoreDrawDefinitions.Vertical,
-        Reveal.Crumble2x2 => RoomPlmContactCrumbleRestoreDrawDefinitions.Square,
+        Reveal.Crumble2x1 => (ushort)ContactCrumbleRestoreDraw.Horizontal,
+        Reveal.Crumble1x2 => (ushort)ContactCrumbleRestoreDraw.Vertical,
+        Reveal.Crumble2x2 => (ushort)ContactCrumbleRestoreDraw.Square,
         Reveal.PowerBomb => RoomPlmBombedRevealDrawDefinitions.PowerBomb,
         Reveal.SuperMissile => RoomPlmBombedRevealDrawDefinitions.SuperMissile,
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),

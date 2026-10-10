@@ -10,12 +10,12 @@ public sealed partial class RoomEnemySystem
 {
     /// <summary>
     /// Dispatches the 27 named $A4 Crocomire callback identities in
-    /// <see cref="CrocomireCodePointers"/>. The pinned NTSC J/U v1.0
+    /// <see cref="CrocomireInstruction"/>. The pinned NTSC J/U v1.0
     /// body programs produce every key. Distinct movement, wall,
     /// sound, shake, fight, and dust effects retain their authored
     /// control order; the bounded dust-offset subrule is documented
-    /// in the opcode catalog. Non-Crocomire slots and unrecognized
-    /// keys return false so the general interpreter can report an
+    /// in the opcode catalog. Non-Crocomire slots and words outside the
+    /// closed set return false so the general interpreter can report an
     /// untranslated Crocomire opcode after its other dispatchers.
     /// </summary>
     private bool TryProcessCrocomireInstruction(
@@ -29,15 +29,19 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Crocomire)
             return false;
 
+        if (!Enum.IsDefined((CrocomireInstruction)opcode))
+            return false;
+
         CrocomireEnemyState state = RequireCrocomire(slot);
         ushort next = unchecked((ushort)(cursor + 2));
-        switch (opcode)
+        CrocomireInstruction instruction = (CrocomireInstruction)opcode;
+        switch (instruction)
         {
-            case CrocomireCodePointers.Instruction_Crocomire_FightAI:
+            case CrocomireInstruction.FightAI:
                 cursor = RunCrocomireFightInstruction(state, samus, next);
                 return true;
 
-            case CrocomireCodePointers.Instruction_Crocomire_MaybeStartProjectileAttack:
+            case CrocomireInstruction.MaybeStartProjectileAttack:
                 if (ReadCrocomireRandom() is ushort attackRandom &&
                     unchecked((short)((attackRandom & 0x0fff) - 0x0400)) < 0)
                 {
@@ -48,40 +52,40 @@ public sealed partial class RoomEnemySystem
                 cursor = next;
                 return true;
 
-            case CrocomireCodePointers.Instruction_Crocomire_QueueCrySFX:
+            case CrocomireInstruction.QueueCrySFX:
                 LastCrocomireSoundEffect = 0x0074;
                 cursor = next;
                 return true;
-            case CrocomireCodePointers.Instruction_Crocomire_QueueBigExplosionSFX:
+            case CrocomireInstruction.QueueBigExplosionSFX:
                 LastCrocomireSoundEffect = 0x0025;
                 cursor = next;
                 return true;
-            case CrocomireCodePointers.Instruction_Crocomire_QueueSkeletonCollapseSFX:
+            case CrocomireInstruction.QueueSkeletonCollapseSFX:
                 LastCrocomireSoundEffect = 0x0075;
                 cursor = next;
                 return true;
-            case CrocomireCodePointers.Instruction_Crocomire_ShakeScreen:
+            case CrocomireInstruction.ShakeScreen:
                 EarthquakeType = 4;
                 EarthquakeTimer = 5;
                 LastCrocomireSoundEffect = 0x0076;
                 cursor = next;
                 return true;
 
-            case CrocomireCodePointers.Instruction_Crocomire_MoveLeft4Pixels:
+            case CrocomireInstruction.MoveLeft4Pixels:
                 RequireCrocomireLevel(level);
                 if ((state.FightFlags & 0x0800) == 0)
                     MoveCrocomire(slot, level!, -4);
                 cursor = next;
                 return true;
-            case CrocomireCodePointers.Instruction_Crocomire_MoveLeft4Pixels_SpawnBigDustCloud:
-            case CrocomireCodePointers.Instruction_Crocomire_MoveLeft4Pixels_SpawnBigDustCloud_dup:
+            case CrocomireInstruction.MoveLeft4Pixels_SpawnBigDustCloud:
+            case CrocomireInstruction.MoveLeft4Pixels_SpawnBigDustCloud_dup:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
                 if ((state.FightFlags & 0x0800) == 0)
                     MoveCrocomire(slot, level!, -4);
                 cursor = next;
                 return true;
-            case CrocomireCodePointers.Instruction_Crocomire_MoveLeft_SpawnCloud_HandleSpikeWall:
+            case CrocomireInstruction.MoveLeft_SpawnCloud_HandleSpikeWall:
                 RequireCrocomireLevel(level);
                 if (MoveCrocomire(slot, level!, -4))
                 {
@@ -96,7 +100,7 @@ public sealed partial class RoomEnemySystem
                 }
                 cursor = next;
                 return true;
-            case CrocomireCodePointers.Instruction_Crocomire_MoveRight4PixelsIfOnScreen:
+            case CrocomireInstruction.MoveRight4PixelsIfOnScreen:
                 RequireCrocomireLevel(level);
                 if (unchecked((short)(
                         slot.XPosition - slot.XRadius - 260 - cameraX)) < 0)
@@ -105,12 +109,12 @@ public sealed partial class RoomEnemySystem
                 }
                 cursor = next;
                 return true;
-            case CrocomireCodePointers.Instruction_Crocomire_MoveRight4Pixels:
+            case CrocomireInstruction.MoveRight4Pixels:
                 RequireCrocomireLevel(level);
                 MoveCrocomire(slot, level!, 4);
                 cursor = next;
                 return true;
-            case CrocomireCodePointers.Instruction_Crocomire_MoveRight4PixelsIfOnScreen_SpawnCloud:
+            case CrocomireInstruction.MoveRight4PixelsIfOnScreen_SpawnCloud:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
                 if (unchecked((short)(
@@ -120,38 +124,52 @@ public sealed partial class RoomEnemySystem
                 }
                 cursor = next;
                 return true;
-            case CrocomireCodePointers.Instruction_Crocomire_MoveRight4Pixels_SpawnBigDustCloud:
+            case CrocomireInstruction.MoveRight4Pixels_SpawnBigDustCloud:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
                 MoveCrocomire(slot, level!, 4);
                 cursor = next;
                 return true;
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_Negative20:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_0:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_Negative10:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_10:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_0_dup:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_8:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_10_dup:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_18:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_20:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_28:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_30:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_38:
+            case CrocomireInstruction.SpawnBigDustCloudProjectile_40:
+                SpawnCrocomireDust(state, CrocomireDustOffset(instruction));
+                cursor = next;
+                return true;
+
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CrocomireInstruction)} {opcode:X4}.");
         }
-
-        int? dustOffset = opcode switch
-        {
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative20 => -32,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_0 => 0,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_Negative10 => -16,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_10 => 16,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_0_dup => 0,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_8 => 8,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_10_dup => 16,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_18 => 24,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_20 => 32,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_28 => 40,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_30 => 48,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_38 => 56,
-            CrocomireCodePointers.Instruction_Crocomire_SpawnBigDustCloudProjectile_40 => 64,
-            _ => null,
-        };
-        if (dustOffset is not int offset)
-            return false;
-
-        SpawnCrocomireDust(state, offset);
-        cursor = next;
-        return true;
     }
+
+    /// <summary>Signed X offsets loaded by the thirteen $A4:9A9B+5*i dust-projectile stubs.</summary>
+    private static int CrocomireDustOffset(CrocomireInstruction instruction) => instruction switch
+    {
+        CrocomireInstruction.SpawnBigDustCloudProjectile_Negative20 => -32,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_0 => 0,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_Negative10 => -16,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_10 => 16,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_0_dup => 0,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_8 => 8,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_10_dup => 16,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_18 => 24,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_20 => 32,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_28 => 40,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_30 => 48,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_38 => 56,
+        CrocomireInstruction.SpawnBigDustCloudProjectile_40 => 64,
+        _ => throw new InvalidOperationException($"{instruction} is not a Crocomire dust-projectile instruction."),
+    };
 
     /// <summary>Ports $A4:86B3-$8A39, including the shipped but normally unused states.</summary>
     private ushort RunCrocomireFightInstruction(

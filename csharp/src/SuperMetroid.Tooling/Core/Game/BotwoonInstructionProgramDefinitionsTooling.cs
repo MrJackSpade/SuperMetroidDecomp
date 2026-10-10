@@ -16,7 +16,7 @@ internal abstract class BotwoonInstructionProgramDefinitionsTooling : IInstructi
         if (index < 24)
         {
             int word = index % 3;
-            address = (ushort)(BotwoonInstructionProgramDefinitions.MovingUpLeft + 8 * BotwoonInstructionProgramDefinitions.PhysicalDirection(index / 3) + (word == 0 ? 0 : word == 1 ? 2 : 6));
+            address = (ushort)((ushort)BotwoonMovementProgram.UpLeft + 8 * BotwoonInstructionProgramDefinitions.PhysicalDirection(index / 3) + (word == 0 ? 0 : word == 1 ? 2 : 6));
         }
         else if (index < 26) address = (ushort)(BotwoonInstructionProgramDefinitions.Hidden + 4 * (index - 24));
         else

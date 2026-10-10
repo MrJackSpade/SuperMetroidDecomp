@@ -1,31 +1,35 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
+/// Botwoon's eight mouth-closed head movement instruction lists in bank <c>$B3</c>,
+/// in native direction order. The unused horizontal list at <c>$B3:9359</c> is not a member.
+/// </summary>
+internal enum BotwoonMovementProgram : ushort
+{
+    /// <summary><c>InstList_Botwoon_MouthClosed_AimingUpLeft</c> at $B3:9341.</summary>
+    UpLeft = 0x9341,
+    /// <summary><c>InstList_Botwoon_MouthClosed_AimingLeft</c> at $B3:9349.</summary>
+    Left = 0x9349,
+    /// <summary><c>InstList_Botwoon_MouthClosed_AimingDownLeft</c> at $B3:9351.</summary>
+    DownLeft = 0x9351,
+    /// <summary><c>InstList_Botwoon_MouthClosed_AimingDown_FacingRight</c> at $B3:9361.</summary>
+    Down = 0x9361,
+    /// <summary><c>InstList_Botwoon_MouthClosed_AimingDownRight</c> at $B3:9369.</summary>
+    DownRight = 0x9369,
+    /// <summary><c>InstList_Botwoon_MouthClosed_AimingRight</c> at $B3:9371.</summary>
+    Right = 0x9371,
+    /// <summary><c>InstList_Botwoon_MouthClosed_AimingUpRight</c> at $B3:9379.</summary>
+    UpRight = 0x9379,
+    /// <summary><c>InstList_Botwoon_MouthClosed_AimingUp_FacingRight</c> at $B3:9381.</summary>
+    Up = 0x9381,
+}
+
+/// <summary>
 /// Compiled engine-control words for Botwoon's selector-reachable head movement,
 /// hiding, and spit programs. Interleaved spritemap operands select installed presentation art.
 /// </summary>
 internal abstract class BotwoonInstructionProgramDefinitions
 {
-    /// <summary><c>InstList_Botwoon_MouthClosed_AimingUpLeft</c> at $B3:9341.</summary>
-    internal const ushort MovingUpLeft = 0x9341;
-    /// <summary><c>InstList_Botwoon_MouthClosed_AimingLeft</c> at $B3:9349.</summary>
-    internal const ushort MovingLeft = 0x9349;
-    /// <summary><c>InstList_Botwoon_MouthClosed_AimingDownLeft</c> at $B3:9351.</summary>
-    internal const ushort MovingDownLeft = 0x9351;
-    /// <summary>
-    /// <c>InstList_Botwoon_MouthClosed_AimingDown_FacingRight</c> at $B3:9361.
-    /// </summary>
-    internal const ushort MovingDown = 0x9361;
-    /// <summary><c>InstList_Botwoon_MouthClosed_AimingDownRight</c> at $B3:9369.</summary>
-    internal const ushort MovingDownRight = 0x9369;
-    /// <summary><c>InstList_Botwoon_MouthClosed_AimingRight</c> at $B3:9371.</summary>
-    internal const ushort MovingRight = 0x9371;
-    /// <summary><c>InstList_Botwoon_MouthClosed_AimingUpRight</c> at $B3:9379.</summary>
-    internal const ushort MovingUpRight = 0x9379;
-    /// <summary>
-    /// <c>InstList_Botwoon_MouthClosed_AimingUp_FacingRight</c> at $B3:9381.
-    /// </summary>
-    internal const ushort MovingUp = 0x9381;
     /// <summary><c>InstList_Botwoon_Hide</c> at $B3:9389.</summary>
     internal const ushort Hidden = 0x9389;
 
@@ -36,7 +40,7 @@ internal abstract class BotwoonInstructionProgramDefinitions
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        if (index < 8) return (ushort)(MovingUpLeft + 8 * PhysicalDirection(index) + 4);
+        if (index < 8) return (ushort)((ushort)BotwoonMovementProgram.UpLeft + 8 * PhysicalDirection(index) + 4);
         if (index == 8) return Hidden + 2;
         int frame = index - 9;
         return (ushort)(SpittingUpLeft + 16 * PhysicalDirection(frame / 2) + (frame % 2 == 0 ? 2 : 12));
@@ -49,7 +53,7 @@ internal abstract class BotwoonInstructionProgramDefinitions
     {
         if (address == Hidden) return 1;
         if (address == Hidden + 4) return CommonEnemyInstructionCodes.Sleep;
-        if (TryDecodeDirectional(address, out bool spitting, out ushort movement, out int offset))
+        if (TryDecodeDirectional(address, out bool spitting, out BotwoonMovementProgram movement, out int offset))
         {
             if (!spitting)
             {
@@ -65,36 +69,37 @@ internal abstract class BotwoonInstructionProgramDefinitions
                     case 4: return RadiusInstruction(movement);
                     case 6: return BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX;
                     case 8: return BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag;
-                    case 10: return (ushort)(movement == MovingLeft ? 25 : 16);
+                    case 10: return (ushort)(movement == BotwoonMovementProgram.Left ? 25 : 16);
                     case 14: return CommonEnemyInstructionCodes.Sleep;
                 }
             }
         }
         throw new InvalidDataException($"Botwoon instruction mechanics pointer $B3:{address:X4} is not compiled.");
     }
-    private static ushort RadiusInstruction(ushort movement) => movement switch
+    private static ushort RadiusInstruction(BotwoonMovementProgram movement) => movement switch
     {
-        MovingUpLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC,
-        MovingLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8,
-        MovingDownLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate,
-        MovingDown => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again,
-        MovingDownRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again,
-        MovingRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8_duplicate,
-        MovingUpRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again2,
-        MovingUp => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again2,
-        _ => throw new InvalidDataException("Unknown Botwoon movement program."),
+        BotwoonMovementProgram.UpLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC,
+        BotwoonMovementProgram.Left => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8,
+        BotwoonMovementProgram.DownLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate,
+        BotwoonMovementProgram.Down => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again,
+        BotwoonMovementProgram.DownRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again,
+        BotwoonMovementProgram.Right => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8_duplicate,
+        BotwoonMovementProgram.UpRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again2,
+        BotwoonMovementProgram.Up => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again2,
+        _ => throw new InvalidOperationException($"Undefined {nameof(BotwoonMovementProgram)} {movement}."),
     };
-    internal static bool TryDecodeDirectional(ushort address, out bool spitting, out ushort movement, out int offset)
+    internal static bool TryDecodeDirectional(ushort address, out bool spitting, out BotwoonMovementProgram movement, out int offset)
     {
         spitting = address >= SpittingUpLeft;
-        int relative = address - (spitting ? SpittingUpLeft : MovingUpLeft);
+        int relative = address - (spitting ? SpittingUpLeft : (ushort)BotwoonMovementProgram.UpLeft);
         int stride = spitting ? 16 : 8;
         int direction = relative / stride;
         if ((uint)relative >= 9 * stride || direction == 3)
         {
-            movement = 0; offset = 0; return false;
+            movement = default; offset = 0; return false;
         }
-        movement = (ushort)(MovingUpLeft + 8 * direction);
+        movement = ClosedNativeWords.Decode<BotwoonMovementProgram>(
+            (ushort)((ushort)BotwoonMovementProgram.UpLeft + 8 * direction), "Botwoon movement program");
         offset = relative % stride;
         return true;
     }

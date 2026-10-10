@@ -38,9 +38,9 @@ internal static class KraidRoomPlmProgramDefinitions
         {
             ushort finalDraw = (ceilingOffset / 18) switch
             {
-                0 => KraidRoomPlmDrawDefinitions.CeilingBackground1,
-                1 => KraidRoomPlmDrawDefinitions.CeilingBackground2,
-                _ => KraidRoomPlmDrawDefinitions.CeilingBackground3,
+                0 => (ushort)KraidRoomDraw.CeilingBackground1,
+                1 => (ushort)KraidRoomDraw.CeilingBackground2,
+                _ => (ushort)KraidRoomDraw.CeilingBackground3,
             };
             value = CrumbleWord((ceilingOffset % 18) / 2, finalDraw, (ushort)RoomPlmInstruction.Delete);
             return true;
@@ -51,7 +51,7 @@ internal static class KraidRoomPlmProgramDefinitions
             int word = spikeOffset / 2;
             value = word < 18
                 ? CrumbleWord(word % 9, word < 9
-                    ? KraidRoomPlmDrawDefinitions.SpikeFirst : KraidRoomPlmDrawDefinitions.SpikeSecond,
+                    ? (ushort)KraidRoomDraw.SpikeFirst : (ushort)KraidRoomDraw.SpikeSecond,
                     MoveRightCallback)
                 : word switch
                 {
@@ -61,25 +61,48 @@ internal static class KraidRoomPlmProgramDefinitions
                 };
             return true;
         }
-        int selected = address switch
+        if (!Enum.IsDefined((ProgramWord)address))
         {
-            ClearCeiling or ClearSpikes => 1,
-            ClearCeiling + 2 => KraidRoomPlmDrawDefinitions.ClearCeiling,
-            ClearSpikes + 2 => KraidRoomPlmDrawDefinitions.ClearSpikes,
-            ClearCeiling + 4 or ClearSpikes + 4 => (ushort)RoomPlmInstruction.Delete,
-            CrumbleSpikes => (ushort)RoomPlmInstruction.SetEightBitTimer,
-            _ => -1,
+            value = 0;
+            return false;
+        }
+        value = (ProgramWord)address switch
+        {
+            ProgramWord.ClearCeilingDuration or ProgramWord.ClearSpikesDuration => 1,
+            ProgramWord.ClearCeilingDraw => (ushort)KraidRoomDraw.ClearCeiling,
+            ProgramWord.ClearSpikesDraw => (ushort)KraidRoomDraw.ClearSpikes,
+            ProgramWord.ClearCeilingDelete or ProgramWord.ClearSpikesDelete => (ushort)RoomPlmInstruction.Delete,
+            ProgramWord.CrumbleSpikesSetTimer => (ushort)RoomPlmInstruction.SetEightBitTimer,
+            _ => throw new InvalidOperationException($"Undefined {nameof(ProgramWord)} {address:X4}."),
         };
-        value = selected < 0 ? (ushort)0 : (ushort)selected;
-        return selected >= 0;
+        return true;
+    }
+
+    /// <summary>Instruction words outside the regular crumble groups and spike loop, by bank-<c>$84</c> address.</summary>
+    private enum ProgramWord : ushort
+    {
+        /// <summary>$84:ABA3: ceiling-clear duration.</summary>
+        ClearCeilingDuration = ClearCeiling,
+        /// <summary>$84:ABA5: ceiling-clear draw.</summary>
+        ClearCeilingDraw = ClearCeiling + 2,
+        /// <summary>$84:ABA7: ceiling-clear delete opcode.</summary>
+        ClearCeilingDelete = ClearCeiling + 4,
+        /// <summary>$84:ABA9: spike set-eight-bit-timer opcode; its byte operand follows.</summary>
+        CrumbleSpikesSetTimer = CrumbleSpikes,
+        /// <summary>$84:ABDD: spike-clear duration.</summary>
+        ClearSpikesDuration = ClearSpikes,
+        /// <summary>$84:ABDF: spike-clear draw.</summary>
+        ClearSpikesDraw = ClearSpikes + 2,
+        /// <summary>$84:ABE1: spike-clear delete opcode.</summary>
+        ClearSpikesDelete = ClearSpikes + 4,
     }
 
     private static ushort CrumbleWord(int word, ushort finalDraw, ushort afterDraw) => word switch
     {
         0 or 2 or 4 or 6 => CrumbleFrameDuration,
-        1 => KraidRoomPlmDrawDefinitions.CrumbleFirst,
-        3 => KraidRoomPlmDrawDefinitions.CrumbleSecond,
-        5 => KraidRoomPlmDrawDefinitions.CrumbleThird,
+        1 => (ushort)KraidRoomDraw.CrumbleFirst,
+        3 => (ushort)KraidRoomDraw.CrumbleSecond,
+        5 => (ushort)KraidRoomDraw.CrumbleThird,
         7 => finalDraw,
         8 => afterDraw,
         _ => throw new ArgumentOutOfRangeException(nameof(word)),

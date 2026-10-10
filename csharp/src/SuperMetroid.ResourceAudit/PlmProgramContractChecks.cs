@@ -119,9 +119,9 @@ internal static class PlmProgramContractChecks
         Word(RoomPlmInstructionLists.ReactionBombBlock2x2Respawning + 29,
             RoomPlmShotBlockDrawDefinitions.SquareFrame0);
         Word(RoomPlmInstructionLists.ReactionBombBlock2x2Respawning + 33,
-            RoomPlmBombBlockRestoreDrawDefinitions.Square);
+            (ushort)BombBlockRestoreDraw.Square);
         Word(RoomPlmInstructionLists.ContactCrumble2x1Respawning + 33,
-            RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal);
+            (ushort)ContactCrumbleRestoreDraw.Horizontal);
         Word(RoomPlmInstructionLists.ContactCrumble1x2Permanent + 17,
             RoomPlmShotBlockDrawDefinitions.VerticalFrame0 + 24);
         Word(RoomPlmInstructionLists.RespawningBreakableGrappleBlock + 2,

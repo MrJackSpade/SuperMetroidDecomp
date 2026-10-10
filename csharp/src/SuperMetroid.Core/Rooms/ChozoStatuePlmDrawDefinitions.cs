@@ -1,4 +1,17 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
+
+/// <summary>The bank-$84 draw lists owned by the translated Chozo statue PLMs.</summary>
+internal enum ChozoStatueDraw : ushort
+{
+    /// <summary>Wrecked Ship statue's clear-slope-access draw, $84:9CC5.</summary>
+    ClearSlopeAccess = 0x9cc5,
+    /// <summary>Wrecked Ship statue's block-slope-access draw, $84:9D0F.</summary>
+    BlockSlopeAccess = 0x9d0f,
+    /// <summary>Blank Lower Norfair hand after the acid-lowered event, $84:A2B5.</summary>
+    LowerNorfairClearedHand = 0xa2b5,
+}
 
 /// <summary>
 /// Physical bank-$84 draw layouts used by the translated Chozo statue PLMs.
@@ -8,13 +21,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class ChozoStatuePlmDrawDefinitions
 {
-    /// <summary>Blank Lower Norfair hand after the acid-lowered event, $84:A2B5.</summary>
-    internal const ushort LowerNorfairClearedHand = 0xa2b5;
-    /// <summary>Wrecked Ship statue's clear-slope-access draw, $84:9CC5.</summary>
-    internal const ushort ClearSlopeAccess = 0x9cc5;
-    /// <summary>Wrecked Ship statue's block-slope-access draw, $84:9D0F.</summary>
-    internal const ushort BlockSlopeAccess = 0x9d0f;
-
     /// <summary>
     /// The two slope-access states share five horizontal runs and identical art.
     /// Clearing leaves slope endpoints; blocking makes the access solid, with
@@ -22,7 +28,7 @@ internal static class ChozoStatuePlmDrawDefinitions
     /// </summary>
     internal readonly record struct Draw(ushort Pointer)
     {
-        private bool Hand => Pointer == LowerNorfairClearedHand;
+        private bool Hand => Pointer == (ushort)ChozoStatueDraw.LowerNorfairClearedHand;
         internal int RunCount => Hand ? 1 : 5;
         private void CheckRun(int run)
         {
@@ -57,7 +63,7 @@ internal static class ChozoStatuePlmDrawDefinitions
                 _ => 0x1bb,
             };
             bool endpoint = cell == count - 1;
-            int collision = Pointer == BlockSlopeAccess
+            int collision = Pointer == (ushort)ChozoStatueDraw.BlockSlopeAccess
                 ? run == 0 && !endpoint ? 10 : 8
                 : (run is 0 or 1 or 4) && endpoint ? 1 : 0;
             return (ushort)(collision << 12 | tile);
@@ -66,15 +72,15 @@ internal static class ChozoStatuePlmDrawDefinitions
 
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
-        bool owned = pointer is LowerNorfairClearedHand or ClearSlopeAccess or BlockSlopeAccess;
+        bool owned = Enum.IsDefined((ChozoStatueDraw)pointer);
         draw = owned ? new(pointer) : default;
         return owned;
     }
     private static IEnumerable<ushort> Pointers()
     {
-        yield return LowerNorfairClearedHand;
-        yield return ClearSlopeAccess;
-        yield return BlockSlopeAccess;
+        yield return (ushort)ChozoStatueDraw.LowerNorfairClearedHand;
+        yield return (ushort)ChozoStatueDraw.ClearSlopeAccess;
+        yield return (ushort)ChozoStatueDraw.BlockSlopeAccess;
     }
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
@@ -110,12 +116,13 @@ internal static class ChozoStatuePlmDrawDefinitions
         return false;
     }
 
-    internal static string VisualId(ushort pointer) => pointer switch
-    {
-        LowerNorfairClearedHand => "lower-norfair-cleared-hand",
-        ClearSlopeAccess => "wrecked-ship-clear-slope-access",
-        BlockSlopeAccess => "wrecked-ship-block-slope-access",
-        _ => throw new InvalidDataException($"Chozo statue draw ${pointer:X4} has no visual ID."),
-    };
+    internal static string VisualId(ushort pointer) =>
+        ClosedNativeWords.Decode<ChozoStatueDraw>(pointer, "Chozo statue draw with a visual ID") switch
+        {
+            ChozoStatueDraw.LowerNorfairClearedHand => "lower-norfair-cleared-hand",
+            ChozoStatueDraw.ClearSlopeAccess => "wrecked-ship-clear-slope-access",
+            ChozoStatueDraw.BlockSlopeAccess => "wrecked-ship-block-slope-access",
+            _ => throw new InvalidOperationException($"Undefined {nameof(ChozoStatueDraw)} {pointer:X4}."),
+        };
 
 }

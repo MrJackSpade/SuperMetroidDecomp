@@ -40,7 +40,7 @@ internal static class BotwoonInstructionDefinitions
 
         int direction = PhysicalDirection(octant);
         return new(
-            (ushort)(BotwoonInstructionProgramDefinitions.MovingUpLeft + 8 * direction),
+            (ushort)((ushort)BotwoonMovementProgram.UpLeft + 8 * direction),
             (ushort)(BotwoonInstructionProgramDefinitions.SpittingUpLeft + 16 * direction));
     }
 

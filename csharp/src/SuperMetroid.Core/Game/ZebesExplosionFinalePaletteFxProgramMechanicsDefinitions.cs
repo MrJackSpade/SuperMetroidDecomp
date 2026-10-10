@@ -79,18 +79,31 @@ public static class ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
             : SlowPhaseFrameDuration;
     }
 
+    /// <summary>Fixed control words outside the timed records, by bank-<c>$8D</c> address.</summary>
+    private enum MechanicsWord : ushort
+    {
+        /// <summary><c>SetColorIndex</c> opcode at <c>$8D:CD62</c>.</summary>
+        SetColorIndex = ProgramStart,
+        /// <summary>CGRAM byte-index operand at <c>$8D:CD64</c>.</summary>
+        ColorIndexOperand = ProgramStart + 2,
+        /// <summary>Terminal <c>delete</c> opcode at <c>$8D:D360</c>.</summary>
+        Delete = DeleteInstructionPointer,
+    }
+
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        value = pointer switch
+        if (Enum.IsDefined((MechanicsWord)pointer))
         {
-            ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            ProgramStart + 2 => ColorByteIndex,
-            DeleteInstructionPointer => PaletteFxInstructionCodes.Delete,
-            _ => 0,
-        };
-        if (value != 0)
+            value = (MechanicsWord)pointer switch
+            {
+                MechanicsWord.SetColorIndex => PaletteFxInstructionCodes.SetColorIndex,
+                MechanicsWord.ColorIndexOperand => ColorByteIndex,
+                MechanicsWord.Delete => PaletteFxInstructionCodes.Delete,
+                _ => throw new InvalidOperationException($"Undefined Zebes finale mechanics word ${pointer:X4}."),
+            };
             return true;
+        }
 
         for (int frame = 0; frame < FrameCount; frame++)
         {
@@ -105,6 +118,7 @@ public static class ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
                 return true;
         }
 
+        value = 0;
         return false;
     }
 }

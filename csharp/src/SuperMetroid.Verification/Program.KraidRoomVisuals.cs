@@ -62,13 +62,13 @@ internal static partial class Program
             RoomPlmKraidVisualCatalog edited =
                 installation.LoadRoomPlmKraidVisuals();
             AssertEqual((ushort)0x0058,
-                edited.GetWord(KraidRoomPlmDrawDefinitions.CrumbleFirst, 0, 0),
+                edited.GetWord((ushort)KraidRoomDraw.CrumbleFirst, 0, 0),
                 "Kraid override edits first crumble frame");
             AssertEqual((ushort)0x0059,
-                edited.GetWord(KraidRoomPlmDrawDefinitions.ClearCeiling, 0, 14),
+                edited.GetWord((ushort)KraidRoomDraw.ClearCeiling, 0, 14),
                 "Kraid override edits far-right ceiling clear block");
             AssertEqual((ushort)0x005a,
-                edited.GetWord(KraidRoomPlmDrawDefinitions.ClearSpikes, 0, 21),
+                edited.GetWord((ushort)KraidRoomDraw.ClearSpikes, 0, 21),
                 "Kraid override edits far-right spike clear block");
             VerifyKraidVisualOwnerIsolation(edited);
 
@@ -78,7 +78,7 @@ internal static partial class Program
             AssertEqual((ushort)0x005a,
                 RoomPlmKraidVisualFiles.Load(refreshed,
                     installation.RoomPlmKraidVisualOverrideDirectory)
-                    .GetWord(KraidRoomPlmDrawDefinitions.ClearSpikes, 0, 21),
+                    .GetWord((ushort)KraidRoomDraw.ClearSpikes, 0, 21),
                 "Kraid override survives stock replacement");
 
             first["blocks"]![0] = 0xf058;
@@ -111,16 +111,16 @@ internal static partial class Program
             [new RoomPlmMaridiaElevatubeVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId, [0x005b])]);
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1,
-            KraidRoomPlmDrawDefinitions.CrumbleFirst, 0,
+            (ushort)KraidRoomDraw.CrumbleFirst, 0,
             0x8180, 0x0058, edited, tube, layer1X: 0));
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidCeiling,
-            KraidRoomPlmDrawDefinitions.ClearCeiling, 14,
+            (ushort)KraidRoomDraw.ClearCeiling, 14,
             0x0130, 0x0059, edited, tube, layer1X: 64));
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidSpikes,
-            KraidRoomPlmDrawDefinitions.ClearSpikes, 21,
+            (ushort)KraidRoomDraw.ClearSpikes, 21,
             0x0110, 0x005a, edited, tube, layer1X: 192));
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1,
-            KraidRoomPlmDrawDefinitions.CrumbleFirst, 0,
+            (ushort)KraidRoomDraw.CrumbleFirst, 0,
             0x8180, 0x0180, null, tube, layer1X: 0));
 
         RoomLevelData tubeLevel = CreateRoom(4, 4, new ushort[16], new byte[16],

@@ -38,9 +38,9 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
             {
                 value = program.Dimension switch
                 {
-                    1 => RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal,
-                    2 => RoomPlmContactCrumbleRestoreDrawDefinitions.Vertical,
-                    3 => RoomPlmContactCrumbleRestoreDrawDefinitions.Square,
+                    1 => (ushort)ContactCrumbleRestoreDraw.Horizontal,
+                    2 => (ushort)ContactCrumbleRestoreDraw.Vertical,
+                    3 => (ushort)ContactCrumbleRestoreDraw.Square,
                     _ => throw new InvalidDataException("Linked crumble program has no restore shape."),
                 };
                 return true;

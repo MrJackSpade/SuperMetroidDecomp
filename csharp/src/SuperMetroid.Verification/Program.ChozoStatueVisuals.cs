@@ -49,7 +49,7 @@ internal static partial class Program
             File.WriteAllText(overridePath, document.ToJsonString());
             var selected = installation.LoadRoomPlmChozoStatueVisuals();
             AssertEqual((ushort)0x0053, selected.GetWord(
-                ChozoStatuePlmDrawDefinitions.ClearSlopeAccess, 0, 0),
+                (ushort)ChozoStatueDraw.ClearSlopeAccess, 0, 0),
                 "Chozo art override selects its edited first block");
 
             // Run both real Chozo PLM instruction lists. The bus refuses reads
@@ -129,7 +129,7 @@ internal static partial class Program
             AssertEqual((ushort)0x0053,
                 RoomPlmChozoStatueVisualFiles.Load(refreshed,
                     installation.RoomPlmChozoStatueVisualOverrideDirectory)
-                    .GetWord(ChozoStatuePlmDrawDefinitions.ClearSlopeAccess, 0, 0),
+                    .GetWord((ushort)ChozoStatueDraw.ClearSlopeAccess, 0, 0),
                 "Chozo override survives stock replacement");
 
             clearSlope["blocks"]![0] = 0xf053;

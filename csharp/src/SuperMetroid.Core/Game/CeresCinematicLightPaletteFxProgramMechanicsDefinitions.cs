@@ -121,29 +121,60 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
             color * sizeof(ushort)));
     }
 
+    /// <summary>Fixed control words outside the timed records, by bank-<c>$8D</c> address.</summary>
+    private enum MechanicsWord : ushort
+    {
+        /// <summary>Gunship-engine <c>SetColorIndex</c> opcode at <c>$8D:C87A</c>.</summary>
+        GunshipEngineSetColorIndex = GunshipEngineProgramStart,
+        /// <summary>Gunship-engine color-index operand at <c>$8D:C87C</c>.</summary>
+        GunshipEngineColorIndexOperand = GunshipEngineProgramStart + 2,
+        /// <summary>Gunship-engine terminal <c>goto</c> opcode at <c>$8D:C88A</c>.</summary>
+        GunshipEngineGoto = GunshipEngineLoopInstructionPointer,
+        /// <summary>Gunship-engine goto target operand at <c>$8D:C88C</c>.</summary>
+        GunshipEngineGotoTarget = GunshipEngineLoopInstructionPointer + 2,
+        /// <summary>Sprite navigation-light <c>SetColorIndex</c> opcode at <c>$8D:C88E</c>.</summary>
+        SpriteNavigationLightsSetColorIndex = SpriteNavigationLightsProgramStart,
+        /// <summary>Sprite navigation-light color-index operand at <c>$8D:C890</c>.</summary>
+        SpriteNavigationLightsColorIndexOperand = SpriteNavigationLightsProgramStart + 2,
+        /// <summary>Shared navigation-light terminal <c>goto</c> opcode at <c>$8D:C902</c>.</summary>
+        NavigationLightsGoto = NavigationLightsLoopInstructionPointer,
+        /// <summary>Shared navigation-light goto target operand at <c>$8D:C904</c>.</summary>
+        NavigationLightsGotoTarget = NavigationLightsLoopInstructionPointer + 2,
+        /// <summary>Background navigation-light <c>SetColorIndex</c> opcode at <c>$8D:C906</c>.</summary>
+        BackgroundNavigationLightsSetColorIndex = BackgroundNavigationLightsProgramStart,
+        /// <summary>Background navigation-light color-index operand at <c>$8D:C908</c>.</summary>
+        BackgroundNavigationLightsColorIndexOperand = BackgroundNavigationLightsProgramStart + 2,
+        /// <summary>Background navigation-light <c>goto</c> opcode at <c>$8D:C90A</c>.</summary>
+        BackgroundNavigationLightsGoto = BackgroundNavigationLightsProgramStart + 4,
+        /// <summary>Background navigation-light goto target operand at <c>$8D:C90C</c>.</summary>
+        BackgroundNavigationLightsGotoTarget = BackgroundNavigationLightsProgramStart + 6,
+    }
+
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        value = pointer switch
+        if (Enum.IsDefined((MechanicsWord)pointer))
         {
-            GunshipEngineProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            GunshipEngineProgramStart + 2 => GunshipEngineColorIndex,
-            GunshipEngineLoopInstructionPointer => PaletteFxInstructionCodes.Goto,
-            GunshipEngineLoopInstructionPointer + 2 => GunshipEngineFirstFramePointer,
+            value = (MechanicsWord)pointer switch
+            {
+                MechanicsWord.GunshipEngineSetColorIndex => PaletteFxInstructionCodes.SetColorIndex,
+                MechanicsWord.GunshipEngineColorIndexOperand => GunshipEngineColorIndex,
+                MechanicsWord.GunshipEngineGoto => PaletteFxInstructionCodes.Goto,
+                MechanicsWord.GunshipEngineGotoTarget => GunshipEngineFirstFramePointer,
 
-            SpriteNavigationLightsProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            SpriteNavigationLightsProgramStart + 2 => SpriteNavigationLightsColorIndex,
-            NavigationLightsLoopInstructionPointer => PaletteFxInstructionCodes.Goto,
-            NavigationLightsLoopInstructionPointer + 2 => NavigationLightsFirstFramePointer,
+                MechanicsWord.SpriteNavigationLightsSetColorIndex => PaletteFxInstructionCodes.SetColorIndex,
+                MechanicsWord.SpriteNavigationLightsColorIndexOperand => SpriteNavigationLightsColorIndex,
+                MechanicsWord.NavigationLightsGoto => PaletteFxInstructionCodes.Goto,
+                MechanicsWord.NavigationLightsGotoTarget => NavigationLightsFirstFramePointer,
 
-            BackgroundNavigationLightsProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            BackgroundNavigationLightsProgramStart + 2 => BackgroundNavigationLightsColorIndex,
-            BackgroundNavigationLightsProgramStart + 4 => PaletteFxInstructionCodes.Goto,
-            BackgroundNavigationLightsProgramStart + 6 => NavigationLightsFirstFramePointer,
-            _ => 0,
-        };
-        if (value != 0)
+                MechanicsWord.BackgroundNavigationLightsSetColorIndex => PaletteFxInstructionCodes.SetColorIndex,
+                MechanicsWord.BackgroundNavigationLightsColorIndexOperand => BackgroundNavigationLightsColorIndex,
+                MechanicsWord.BackgroundNavigationLightsGoto => PaletteFxInstructionCodes.Goto,
+                MechanicsWord.BackgroundNavigationLightsGotoTarget => NavigationLightsFirstFramePointer,
+                _ => throw new InvalidOperationException($"Undefined Ceres light mechanics word ${pointer:X4}."),
+            };
             return true;
+        }
 
         for (int frame = 0; frame < GunshipEngineFrameCount; frame++)
         {
@@ -171,6 +202,7 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
                 return true;
         }
 
+        value = 0;
         return false;
     }
 }

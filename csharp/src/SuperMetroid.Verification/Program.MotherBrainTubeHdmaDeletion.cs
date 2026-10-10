@@ -31,7 +31,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetMethod("SpawnMotherBrainFallingTube", flags)!
             .Invoke(runtime.Enemies, [MotherBrainFallingTubePopulationDefinitions.Main]);
         RoomEnemySlot tube = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes);
-        tube.VariableA = MotherBrainInstructionCodes.Function_MotherBrainTubes_MainTube_Falling;
+        tube.VariableA = (ushort)MotherBrainTubeFunction.MainTube_Falling;
         tube.VariableC = 0;
         tube.YPosition = 0x00fc; // the head follows at Y-$38 = $C4, the landing height
         typeof(RoomEnemySystem).GetMethod("RunMotherBrainFallingTubeMain", flags)!.Invoke(runtime.Enemies, [tube]);

@@ -39,11 +39,11 @@ internal static partial class Program
 
         AssertThrows<InvalidDataException>(
             () => MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord(
-                MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoInitial),
+                (ushort)BabyMetroidInstruction.GotoInitial),
             "Mother Brain Baby initial-goto callback code is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord(
-                MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoDrainingMotherBrain),
+                (ushort)BabyMetroidInstruction.GotoDrainingMotherBrain),
             "Mother Brain Baby draining-goto callback code is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord(

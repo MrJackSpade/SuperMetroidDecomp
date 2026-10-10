@@ -29,7 +29,7 @@ internal static class BackgroundTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/RoomFxSporeTilemap.cs", "0A69032E758230200FF87F52A4AE4100A7FD1415AD7EF85D51DED733EC918596"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomFxLiquidTilemapDefinitions.cs", "62DCB4A775A22BBA161A7069BD9976F1B360C84EB3038B192C7EC616B3833022")]),
         new("SuperMetroid.Core.Assets.RoomFxPaletteBlendCatalog", "room-fx-complete-eight-blends-and-zero-clear", ["Apply", "Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs", "C009A78F6BF1B31986339062E9DFEC3D9530C508C241A5FE4C1E00799C9D6469"),
+            [new("csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs", "994F714B18CF9B80D73E6BA396823C0108D743E7B0584919A3DF18DF7A3493B2"),
              new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "AA01AC4CED546BD6E38C37778DBC9EDF179B42843D3B26C4651FD835B51E822D")]),
         new("SuperMetroid.Core.Assets.EndingObjectArtworkCatalog", "ending-complete-four-fragments", ["Fragment"],
             [new("csharp/src/SuperMetroid.Core/Assets/EndingObjectArtworkCatalog.cs", "12FE7DF6EA6CACB907254429A93FB7442C5A4144B28FB6B8E47E502B124F685F")]),

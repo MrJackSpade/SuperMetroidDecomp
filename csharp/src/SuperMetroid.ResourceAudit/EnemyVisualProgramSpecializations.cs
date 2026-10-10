@@ -23,9 +23,9 @@ internal static class EnemyVisualProgramSpecializations
 
     private static readonly Dictionary<string, string> CustomLayouts = new()
     {
-        [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "3DE6D14720ED5D9F3F581ED71952CCF8192F1B893DF922196100FD3D13314E3E",
-        [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "0C329E356A619E554E43622051779A9962B0EFB115B3C51748930960D3810196",
-        [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "EFF8284E8A50876F9711AD2BBC574BEEF32F083EDB492559C2ACECADAD552FE2",
+        [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "D6E201819A9FDB2ABB84878356DCC7020E5FA4290E5679069077BDE476DE9078",
+        [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "1CFDB6A7788FB00091F20352EBC63796BC48FF14C18F1F582C2CE5FA1983D66F",
+        [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "74CAB20C6A34312FFA3EF285E79625B93F93474D7C523F11A239CBC825D4C565",
         [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "83D279758A5E1FEAF7FC600BCF7749A4E81AB60BAF5F71CA0EAEBF4D28296EA7",
     };
 
@@ -132,21 +132,25 @@ internal static class EnemyVisualProgramSpecializations
         (MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeStart, MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeEnd),
     ];
 
-    private static int HeadCommandBytes(ushort opcode) => opcode switch
+    private static int HeadCommandBytes(ushort opcode) =>
+        opcode is Instruction_CommonA9_Sleep or MotherBrainGotoNeutralPhaseThree ? 2
+        : Enum.IsDefined((MotherBrainInstruction)opcode) ? HeadCommandBytes((MotherBrainInstruction)opcode)
+        : throw new InvalidDataException($"Unknown Mother Brain head command ${opcode:X4}; static layout needs review.");
+
+    private static int HeadCommandBytes(MotherBrainInstruction opcode) => opcode switch
     {
-        Instruction_MotherBrain_GotoX or Instruction_MotherBrainHead_EnableNeckMovement_GotoX or
-        Instruction_MotherBrainHead_QueueSoundX_Lib2_Max6 or Instruction_MotherBrainHead_QueueSoundX_Lib3_Max6 or
-        Instruction_MotherBrainHead_SpawnBombProjectileWithParamX => 4,
-        Instruction_CommonA9_Sleep or MotherBrainGotoNeutralPhaseThree or
-        Instruction_MotherBrainHead_IncBabyMetroidAttackCounter or Instruction_MotherBrainHead_ResetBabyMetroidAttackCounter or
-        Instruction_MotherBrainHead_DisableNeckMovement or Instruction_MotherBrainHead_AimOnionRingsAtBabyMetroid or
-        Instruction_MotherBrainHead_AimOnionRingsAtSamus or Instruction_MotherBrainHead_QueueBabyMetroidAttackSFX or
-        Instruction_MotherBrainHead_SpawnOnionRingsProjectile or Instruction_MotherBrainHead_SpawnPurpleBreathBigProjectile or
-        Instruction_MotherBrainHead_MaybeGotoNeutralPhase3 or Instruction_MotherBrainHead_SpawnDroolProjectile or
-        Instruction_MotherBrainHead_SetMainShakeTimerTo50 or Instruction_MotherBrainHead_MaybeGotoNeutralPhase2 or
-        Instruction_MotherBrainHead_GotoDyingDroolInstList or InstList_MotherBrainHead_SpawnLaserProjectile or
-        Instruction_MotherBrainHead_SpawnRainbowBeamChargingProj or Instruction_MotherBrainHead_SetupEffectsForRainbowBeamCharge => 2,
-        _ => throw new InvalidDataException($"Unknown Mother Brain head command ${opcode:X4}; static layout needs review."),
+        MotherBrainInstruction.MotherBrain_GotoX or MotherBrainInstruction.MotherBrainHead_EnableNeckMovement_GotoX or
+        MotherBrainInstruction.MotherBrainHead_QueueSoundX_Lib2_Max6 or MotherBrainInstruction.MotherBrainHead_QueueSoundX_Lib3_Max6 or
+        MotherBrainInstruction.MotherBrainHead_SpawnBombProjectileWithParamX => 4,
+        MotherBrainInstruction.MotherBrainHead_IncBabyMetroidAttackCounter or MotherBrainInstruction.MotherBrainHead_ResetBabyMetroidAttackCounter or
+        MotherBrainInstruction.MotherBrainHead_DisableNeckMovement or MotherBrainInstruction.MotherBrainHead_AimOnionRingsAtBabyMetroid or
+        MotherBrainInstruction.MotherBrainHead_AimOnionRingsAtSamus or MotherBrainInstruction.MotherBrainHead_QueueBabyMetroidAttackSFX or
+        MotherBrainInstruction.MotherBrainHead_SpawnOnionRingsProjectile or MotherBrainInstruction.MotherBrainHead_SpawnPurpleBreathBigProjectile or
+        MotherBrainInstruction.MotherBrainHead_MaybeGotoNeutralPhase3 or MotherBrainInstruction.MotherBrainHead_SpawnDroolProjectile or
+        MotherBrainInstruction.MotherBrainHead_SetMainShakeTimerTo50 or MotherBrainInstruction.MotherBrainHead_MaybeGotoNeutralPhase2 or
+        MotherBrainInstruction.MotherBrainHead_GotoDyingDroolInstList or MotherBrainInstruction.InstList_MotherBrainHead_SpawnLaserProjectile or
+        MotherBrainInstruction.MotherBrainHead_SpawnRainbowBeamChargingProj or MotherBrainInstruction.MotherBrainHead_SetupEffectsForRainbowBeamCharge => 2,
+        _ => throw new InvalidDataException($"{opcode} is not a Mother Brain head command; static layout needs review."),
     };
 
     internal static bool TryResolve(Type type, ushort operand, out ushort pointer)

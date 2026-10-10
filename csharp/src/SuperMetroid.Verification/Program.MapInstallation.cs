@@ -113,7 +113,7 @@ internal static partial class Program
             RoomFxPaletteBlendDefinitions.FileName);
         var roomFxBlends = JsonNode.Parse(File.ReadAllText(Path.Combine(
             installation.MapDirectory, RoomFxPaletteBlendDefinitions.FileName)))!;
-        string lavaBlendKey = RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlendDefinitions.Lava);
+        string lavaBlendKey = RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlend.Lava);
         int lavaBlendRed = roomFxBlends["blends"]![lavaBlendKey]![0]!["red"]!.GetValue<int>();
         roomFxBlends["blends"]![lavaBlendKey]![0]!["red"] = (lavaBlendRed + 1) % 32;
         File.WriteAllText(roomFxBlendOverride, roomFxBlends.ToJsonString());
@@ -267,8 +267,8 @@ internal static partial class Program
         AssertTrue(!stock.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Game.RoomFxType.Lava).Span.SequenceEqual(
             edited.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Game.RoomFxType.Lava).Span),
             "full installation consumes room-FX BG3 tilemap override");
-        AssertTrue(!stock.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava).SequenceEqual(
-            edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava)),
+        AssertTrue(!stock.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava).SequenceEqual(
+            edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)),
             "full installation consumes room-FX palette-blend override");
         AssertTrue(stock.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0) !=
             edited.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0),

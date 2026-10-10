@@ -18,7 +18,7 @@ public static class RoomFxPaletteBlendExtractor
     {
         ArgumentNullException.ThrowIfNull(bus);
         var blends = new Dictionary<string, PaletteRgb5[]>();
-        foreach (byte id in RoomFxPaletteBlendDefinitions.Ids)
+        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDefinitions.Ids)
         {
             Bgr555? calculatedThird = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id);
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

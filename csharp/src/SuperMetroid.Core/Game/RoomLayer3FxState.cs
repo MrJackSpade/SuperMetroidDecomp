@@ -472,7 +472,8 @@ public sealed class RoomLayer3FxState
     private void ApplyPaletteBlend(SnesCgram cgram, byte selection)
     {
         (PaletteBlendColors ?? throw new InvalidOperationException(
-            "Room FX requires installed palette-blend colors.")).Apply(cgram, selection);
+            "Room FX requires installed palette-blend colors.")).Apply(cgram,
+            ClosedNativeWords.Decode<RoomFxPaletteBlend>(selection, "room-FX palette blend"));
     }
 
     /// <summary>

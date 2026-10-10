@@ -546,19 +546,19 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the $A9:8B85 function-pointer dispatcher for physical tube enemies.</summary>
     private void RunMotherBrainFallingTubeMain(RoomEnemySlot tube)
     {
-        switch (tube.VariableA)
+        switch (ClosedNativeWords.Decode<MotherBrainTubeFunction>(tube.VariableA, "Mother Brain tube function"))
         {
-            case MotherBrainInstructionCodes.Function_MotherBrainTubes_NonMainTube:
+            case MotherBrainTubeFunction.NonMainTube:
                 FallMotherBrainTube(tube, mainTube: false);
                 return;
-            case MotherBrainInstructionCodes.Function_MotherBrainTubes_MainTube_WaitingToFall:
+            case MotherBrainTubeFunction.MainTube_WaitingToFall:
                 tube.Parameter2 = unchecked((ushort)(tube.Parameter2 - 1));
                 if (unchecked((short)tube.Parameter2) >= 0)
                     return;
                 tube.VariableA = 0x8bd6;
                 FallMotherBrainTube(tube, mainTube: true);
                 return;
-            case MotherBrainInstructionCodes.Function_MotherBrainTubes_MainTube_Falling:
+            case MotherBrainTubeFunction.MainTube_Falling:
                 FallMotherBrainTube(tube, mainTube: true);
                 return;
             default:

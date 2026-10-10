@@ -70,31 +70,31 @@ public sealed class RoomFxPaletteBlendCatalog
             document.Blends is null || document.Blends.Count != RoomFxPaletteBlendDefinitions.Ids.Count())
             throw new InvalidDataException("Room-FX blend palettes require the supported version and all eight selections.");
 
-        return new(Compile(RoomFxPaletteBlendDefinitions.Lava),
-            Compile(RoomFxPaletteBlendDefinitions.LandingSiteRain),
-            Compile(RoomFxPaletteBlendDefinitions.MaridiaWaterA),
-            Compile(RoomFxPaletteBlendDefinitions.WaterAndAcid),
-            Compile(RoomFxPaletteBlendDefinitions.Fog),
-            Compile(RoomFxPaletteBlendDefinitions.MaridiaWaterB),
-            Compile(RoomFxPaletteBlendDefinitions.MaridiaWaterC),
-            Compile(RoomFxPaletteBlendDefinitions.MaridiaWaterD),
+        return new(Compile(RoomFxPaletteBlend.Lava),
+            Compile(RoomFxPaletteBlend.LandingSiteRain),
+            Compile(RoomFxPaletteBlend.MaridiaWaterA),
+            Compile(RoomFxPaletteBlend.WaterAndAcid),
+            Compile(RoomFxPaletteBlend.Fog),
+            Compile(RoomFxPaletteBlend.MaridiaWaterB),
+            Compile(RoomFxPaletteBlend.MaridiaWaterC),
+            Compile(RoomFxPaletteBlend.MaridiaWaterD),
             ValidateHazeTint(document.CeresHazeBlue ?? RoomFxPaletteBlendDefinitions.StockCeresHazeBlue,
                 nameof(document.CeresHazeBlue)),
             ValidateHazeTint(document.CeresHazeRed ?? RoomFxPaletteBlendDefinitions.StockCeresHazeRed,
                 nameof(document.CeresHazeRed)));
 
-        RoomFxBlendColors Compile(byte id)
+        RoomFxBlendColors Compile(RoomFxPaletteBlend id)
         {
             if (!document.Blends.TryGetValue(RoomFxPaletteBlendDefinitions.Key(id), out PaletteRgb5[]? colors) ||
                 colors is null || colors.Length != RoomFxRomData.Layer3.PaletteBlendColorCount)
-                throw new InvalidDataException($"Room-FX blend {id:X2} requires three colors.");
+                throw new InvalidDataException($"Room-FX blend {(int)id:X2} requires three colors.");
             var words = new Bgr555[colors.Length];
             for (int index = 0; index < colors.Length; index++)
             {
                 PaletteRgb5? color = colors[index];
                 if (color is null || (uint)color.Red > 31 ||
                     (uint)color.Green > 31 || (uint)color.Blue > 31)
-                    throw new InvalidDataException($"Room-FX blend {id:X2} color {index} requires RGB components from zero through 31.");
+                    throw new InvalidDataException($"Room-FX blend {(int)id:X2} color {index} requires RGB components from zero through 31.");
                 words[index] = color.ToBgr555();
             }
             return new(id, words[0], words[1], words[2]);
@@ -112,10 +112,10 @@ public sealed class RoomFxPaletteBlendCatalog
     }
 
     /// <summary>Applies the native three-color write, or clears only color 27 for selection zero.</summary>
-    public void Apply(SnesCgram cgram, byte selection)
+    public void Apply(SnesCgram cgram, RoomFxPaletteBlend selection)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        if (selection == 0)
+        if (selection == RoomFxPaletteBlend.None)
         {
             cgram.SetColor(RoomFxRomData.Layer3.EmptyPaletteColorIndex, Bgr555.Black);
             return;
@@ -123,17 +123,17 @@ public sealed class RoomFxPaletteBlendCatalog
         SelectColors(selection).Apply(cgram);
     }
 
-    private RoomFxBlendColors SelectColors(byte selection) => selection switch
+    private RoomFxBlendColors SelectColors(RoomFxPaletteBlend selection) => selection switch
     {
-        RoomFxPaletteBlendDefinitions.Lava => lava,
-        RoomFxPaletteBlendDefinitions.LandingSiteRain => landingSiteRain,
-        RoomFxPaletteBlendDefinitions.MaridiaWaterA => maridiaWaterA,
-        RoomFxPaletteBlendDefinitions.WaterAndAcid => waterAndAcid,
-        RoomFxPaletteBlendDefinitions.Fog => fog,
-        RoomFxPaletteBlendDefinitions.MaridiaWaterB => maridiaWaterB,
-        RoomFxPaletteBlendDefinitions.MaridiaWaterC => maridiaWaterC,
-        RoomFxPaletteBlendDefinitions.MaridiaWaterD => maridiaWaterD,
-        _ => throw new InvalidDataException($"Room-FX palette blend ${selection:X2} is not an authored retail selection."),
+        RoomFxPaletteBlend.Lava => lava,
+        RoomFxPaletteBlend.LandingSiteRain => landingSiteRain,
+        RoomFxPaletteBlend.MaridiaWaterA => maridiaWaterA,
+        RoomFxPaletteBlend.WaterAndAcid => waterAndAcid,
+        RoomFxPaletteBlend.Fog => fog,
+        RoomFxPaletteBlend.MaridiaWaterB => maridiaWaterB,
+        RoomFxPaletteBlend.MaridiaWaterC => maridiaWaterC,
+        RoomFxPaletteBlend.MaridiaWaterD => maridiaWaterD,
+        _ => throw new InvalidDataException($"Room-FX palette blend ${(int)selection:X2} is not an authored retail selection."),
     };
     private static PaletteRgb5 ValidateHazeTint(PaletteRgb5 color, string name)
     {
@@ -162,7 +162,7 @@ internal sealed class RoomFxBlendColors
     private readonly RoomFxPairColor secondary;
     private readonly RoomFxThirdColor? thirdOverride;
 
-    public RoomFxBlendColors(byte selection, Bgr555 primary, Bgr555 secondary, Bgr555 third)
+    public RoomFxBlendColors(RoomFxPaletteBlend selection, Bgr555 primary, Bgr555 secondary, Bgr555 third)
     {
         this.primary = new(selection, primary, true);
         this.secondary = new(selection, secondary, false);
@@ -179,13 +179,13 @@ internal sealed class RoomFxBlendColors
 /// <summary>One of the first two blend colors, separating shared tint rules from edits.</summary>
 internal sealed class RoomFxPairColor
 {
-    private readonly byte selection;
+    private readonly RoomFxPaletteBlend selection;
     private readonly bool isPrimary;
     private readonly int? redOverride;
     private readonly int? greenOverride;
     private readonly int? blueOverride;
 
-    public RoomFxPairColor(byte selection, Bgr555 color, bool isPrimary)
+    public RoomFxPairColor(RoomFxPaletteBlend selection, Bgr555 color, bool isPrimary)
     {
         this.selection = selection;
         this.isPrimary = isPrimary;
@@ -206,12 +206,12 @@ internal sealed class RoomFxPairColor
 /// <summary>Independent third-color red and calculated weather green/blue, preserving edits.</summary>
 internal sealed class RoomFxThirdColor
 {
-    private readonly byte selection;
+    private readonly RoomFxPaletteBlend selection;
     private readonly int red;
     private readonly int? greenOverride;
     private readonly int? blueOverride;
 
-    public RoomFxThirdColor(byte selection, Bgr555 color)
+    public RoomFxThirdColor(RoomFxPaletteBlend selection, Bgr555 color)
     {
         this.selection = selection;
         red = color.Red;
@@ -266,36 +266,20 @@ public static class RoomFxPaletteBlendDefinitions
     internal static (int Red, int Green, int Blue) StockCeresHazeComponents(bool ridleyIsDead) =>
         (ridleyIsDead ? CeresHazeDefinitions.FadeSteps - 1 : 0, 0,
             ridleyIsDead ? 0 : CeresHazeDefinitions.FadeSteps - 1);
-    /// <summary>FX-record selector $02, used primarily for lava/acid.</summary>
-    public const byte Lava = 0x02;
-    /// <summary>FX-record selector $22, used by Landing Site rain.</summary>
-    public const byte LandingSiteRain = 0x22;
-    /// <summary>FX-record selector $42, used by several Maridia water rooms.</summary>
-    public const byte MaridiaWaterA = 0x42;
-    /// <summary>FX-record selector $48, used by Ceres and other water/acid rooms.</summary>
-    public const byte WaterAndAcid = 0x48;
-    /// <summary>FX-record selector $62, used by fog and nonliquid room states.</summary>
-    public const byte Fog = 0x62;
-    /// <summary>FX-record selector $E2, used by western Maridia water rooms.</summary>
-    public const byte MaridiaWaterB = 0xe2;
-    /// <summary>FX-record selector $E8, used by central Maridia water rooms.</summary>
-    public const byte MaridiaWaterC = 0xe8;
-    /// <summary>FX-record selector $EE, used by eastern Maridia water rooms.</summary>
-    public const byte MaridiaWaterD = 0xee;
 
     /// <summary>The eight named retail blend resources in document order, without stored identities.</summary>
-    public static IEnumerable<byte> Ids
+    public static IEnumerable<RoomFxPaletteBlend> Ids
     {
         get
         {
-            yield return Lava;
-            yield return LandingSiteRain;
-            yield return MaridiaWaterA;
-            yield return WaterAndAcid;
-            yield return Fog;
-            yield return MaridiaWaterB;
-            yield return MaridiaWaterC;
-            yield return MaridiaWaterD;
+            yield return RoomFxPaletteBlend.Lava;
+            yield return RoomFxPaletteBlend.LandingSiteRain;
+            yield return RoomFxPaletteBlend.MaridiaWaterA;
+            yield return RoomFxPaletteBlend.WaterAndAcid;
+            yield return RoomFxPaletteBlend.Fog;
+            yield return RoomFxPaletteBlend.MaridiaWaterB;
+            yield return RoomFxPaletteBlend.MaridiaWaterC;
+            yield return RoomFxPaletteBlend.MaridiaWaterD;
         }
     }
 
@@ -303,43 +287,43 @@ public static class RoomFxPaletteBlendDefinitions
     /// <param name="id">One of the eight selectors exposed by <see cref="Ids"/>; selection zero is the runtime clear operation and has no resource key.</param>
     /// <returns><c>blend-</c> followed by the selector's two uppercase hexadecimal digits.</returns>
     /// <exception cref="InvalidDataException">The selector is not one of the eight catalogued blends.</exception>
-    public static string Key(byte id)
+    public static string Key(RoomFxPaletteBlend id)
     {
         ValidateSelector(id);
-        return $"blend-{id:X2}";
+        return $"blend-{(byte)id:X2}";
     }
 
-    private static void ValidateSelector(byte id)
+    private static void ValidateSelector(RoomFxPaletteBlend id)
     {
-        if (id is not (Lava or LandingSiteRain or MaridiaWaterA or WaterAndAcid or Fog or MaridiaWaterB or MaridiaWaterC or MaridiaWaterD))
-            throw new InvalidDataException($"Room-FX palette blend ${id:X2} is not catalogued.");
+        if (id is not (RoomFxPaletteBlend.Lava or RoomFxPaletteBlend.LandingSiteRain or RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.Fog or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterC or RoomFxPaletteBlend.MaridiaWaterD))
+            throw new InvalidDataException($"Room-FX palette blend ${(byte)id:X2} is not catalogued.");
     }
     /// <summary>
     /// The six liquid blends use black as their third color. Weather's independent
     /// third colors have no calculated value here. Unknown selectors still reject.
     /// </summary>
-    public static Bgr555? CalculatedThirdColor(byte id) => id switch
+    public static Bgr555? CalculatedThirdColor(RoomFxPaletteBlend id) => id switch
     {
-        Lava or MaridiaWaterA or WaterAndAcid or MaridiaWaterB or MaridiaWaterC or MaridiaWaterD => Bgr555.Black,
-        LandingSiteRain or Fog => null,
-        _ => throw new InvalidDataException($"Room-FX palette blend ${id:X2} is not catalogued."),
+        RoomFxPaletteBlend.Lava or RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterC or RoomFxPaletteBlend.MaridiaWaterD => Bgr555.Black,
+        RoomFxPaletteBlend.LandingSiteRain or RoomFxPaletteBlend.Fog => null,
+        _ => throw new InvalidDataException($"Room-FX palette blend ${(byte)id:X2} is not catalogued."),
     };
-    /// <summary>Lava shares full red; Maridia A/B/D share a zero-red dark-blue primary.</summary>
-    public static int? CalculatedPairRed(byte id, bool isPrimary)
+    /// <summary>RoomFxPaletteBlend.Lava shares full red; Maridia A/B/D share a zero-red dark-blue primary.</summary>
+    public static int? CalculatedPairRed(RoomFxPaletteBlend id, bool isPrimary)
     {
         ValidateSelector(id);
-        if (isPrimary && id is (MaridiaWaterA or MaridiaWaterB or MaridiaWaterD)) return 0;
-        return id == Lava ? 31 : null;
+        if (isPrimary && id is (RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterD)) return 0;
+        return id == RoomFxPaletteBlend.Lava ? 31 : null;
     }
 
     /// <summary>Rain, fog and Maridia A share red/green intensity; Maridia C adds green1; A/B/D primary green is zero.</summary>
-    public static int? CalculatedPairGreen(byte id, int red, bool isPrimary)
+    public static int? CalculatedPairGreen(RoomFxPaletteBlend id, int red, bool isPrimary)
     {
         ValidateSelector(id);
         if ((uint)red > 31) throw new ArgumentOutOfRangeException(nameof(red));
-        if (isPrimary && id is (MaridiaWaterA or MaridiaWaterB or MaridiaWaterD)) return 0;
-        if (id == MaridiaWaterC) return Math.Min(31, red + 1);
-        return id is LandingSiteRain or Fog or MaridiaWaterA ? red : null;
+        if (isPrimary && id is (RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterD)) return 0;
+        if (id == RoomFxPaletteBlend.MaridiaWaterC) return Math.Min(31, red + 1);
+        return id is RoomFxPaletteBlend.LandingSiteRain or RoomFxPaletteBlend.Fog or RoomFxPaletteBlend.MaridiaWaterA ? red : null;
     }
 
     /// <summary>
@@ -349,43 +333,68 @@ public static class RoomFxPaletteBlendDefinitions
     /// with blue+2/+3. Saturation defines the RGB5 extension for custom intensities;
     /// stock intensities do not saturate, and differing user components remain overrides.
     /// </summary>
-    public static int? CalculatedPairBlue(byte id, int red, int green, bool isPrimary)
+    public static int? CalculatedPairBlue(RoomFxPaletteBlend id, int red, int green, bool isPrimary)
     {
         ValidateSelector(id);
         if ((uint)red > 31) throw new ArgumentOutOfRangeException(nameof(red));
         if ((uint)green > 31) throw new ArgumentOutOfRangeException(nameof(green));
-        if (isPrimary && id is (MaridiaWaterA or MaridiaWaterB or MaridiaWaterD)) return 1;
+        if (isPrimary && id is (RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterD)) return 1;
         return id switch
         {
-            MaridiaWaterC => isPrimary ? red : green,
-            Lava => 3,
-            LandingSiteRain => Math.Min(31, red + 2),
-            Fog => Math.Min(31, red + 3),
-            _ => null,
+            RoomFxPaletteBlend.MaridiaWaterC => isPrimary ? red : green,
+            RoomFxPaletteBlend.Lava => 3,
+            RoomFxPaletteBlend.LandingSiteRain => Math.Min(31, red + 2),
+            RoomFxPaletteBlend.Fog => Math.Min(31, red + 3),
+            RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterD => null,
+            _ => throw new InvalidOperationException($"Undefined RoomFxPaletteBlend {id}."),
         };
     }
     /// <summary>Both weather third colors share green1; liquid third-color overrides remain independent.</summary>
-    public static int? CalculatedThirdGreen(byte id)
+    public static int? CalculatedThirdGreen(RoomFxPaletteBlend id)
     {
         ValidateSelector(id);
-        return id is LandingSiteRain or Fog ? 1 : null;
+        return id is RoomFxPaletteBlend.LandingSiteRain or RoomFxPaletteBlend.Fog ? 1 : null;
     }
     /// <summary>Rain keeps the same blue tint in its third color; fog's third color shares red/blue.</summary>
-    public static int? CalculatedThirdBlue(byte id, int red)
+    public static int? CalculatedThirdBlue(RoomFxPaletteBlend id, int red)
     {
         ValidateSelector(id);
         if ((uint)red > 31) throw new ArgumentOutOfRangeException(nameof(red));
         return id switch
         {
-            LandingSiteRain => Math.Min(31, red + 2),
-            Fog => red,
-            _ => null,
+            RoomFxPaletteBlend.LandingSiteRain => Math.Min(31, red + 2),
+            RoomFxPaletteBlend.Fog => red,
+            RoomFxPaletteBlend.Lava or RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterC or RoomFxPaletteBlend.MaridiaWaterD => null,
+            _ => throw new InvalidOperationException($"Undefined RoomFxPaletteBlend {id}."),
         };
     }
     /// <summary>Native byte address for the first of three adjacent BGR555 colors.</summary>
-    public static int SourceAddress(byte id)
+    public static int SourceAddress(RoomFxPaletteBlend id)
     {
         ValidateSelector(id);
-        return RoomFxRomData.Tables.PaletteBlendColors + id;
+        return RoomFxRomData.Tables.PaletteBlendColors + (int)id;
     }
+}
+
+/// <summary>Native bank-$89 room-FX blend selectors: byte offsets into $89:AA02, zero clearing the blend.</summary>
+public enum RoomFxPaletteBlend : byte
+{
+    /// <summary>Selection zero clears the layer-3 blend color instead of loading a resource.</summary>
+    None = 0,
+    /// <summary>FX-record selector $02, used primarily for lava/acid.</summary>
+    Lava = 0x02,
+    /// <summary>FX-record selector $22, used by Landing Site rain.</summary>
+    LandingSiteRain = 0x22,
+    /// <summary>FX-record selector $42, used by several Maridia water rooms.</summary>
+    MaridiaWaterA = 0x42,
+    /// <summary>FX-record selector $48, used by Ceres and other water/acid rooms.</summary>
+    WaterAndAcid = 0x48,
+    /// <summary>FX-record selector $62, used by fog and nonliquid room states.</summary>
+    Fog = 0x62,
+    /// <summary>FX-record selector $E2, used by western Maridia water rooms.</summary>
+    MaridiaWaterB = 0xe2,
+    /// <summary>FX-record selector $E8, used by central Maridia water rooms.</summary>
+    MaridiaWaterC = 0xe8,
+    /// <summary>FX-record selector $EE, used by eastern Maridia water rooms.</summary>
+    MaridiaWaterD = 0xee,
 }

@@ -35,23 +35,23 @@ internal static partial class Program
         Suite(nameof(VerifyFxBlendPageDispatch), () => VerifyFxBlendPageDispatch(rom, catalog));
         RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(rom)));
-        foreach (byte id in RoomFxPaletteBlendDefinitions.Ids)
+        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDefinitions.Ids)
         {
             ReadOnlySpan<Bgr555> compiled = catalog.Resolve(id);
 
             (RoomLayer3FxState state, ForbiddenRoomFxPaletteBus bus, SnesCgram cgram) =
-                ConstructBlendLoad(catalog, tilemaps, id);
+                ConstructBlendLoad(catalog, tilemaps, (byte)id);
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
-                    $"room-FX blend {id:X2} installed load color {index}");
-            AssertEqual(0, bus.ForbiddenReads, $"room-FX blend {id:X2} load does not read bank-$89");
+                    $"room-FX blend {(int)id:X2} installed load color {index}");
+            AssertEqual(0, bus.ForbiddenReads, $"room-FX blend {(int)id:X2} load does not read bank-$89");
 
-            ushort reloadRecord = SelectCompiledBlendRecord(id).Pointer;
+            ushort reloadRecord = SelectCompiledBlendRecord((byte)id).Pointer;
             _ = state.ApplyEntry(cgram, reloadRecord);
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
-                    $"room-FX blend {id:X2} installed FX-entry color {index}");
-            AssertEqual(0, bus.ForbiddenReads, $"room-FX blend {id:X2} FX entry does not read bank-$89");
+                    $"room-FX blend {(int)id:X2} installed FX-entry color {index}");
+            AssertEqual(0, bus.ForbiddenReads, $"room-FX blend {(int)id:X2} FX entry does not read bank-$89");
         }
         (RoomLayer3FxState emptyState, ForbiddenRoomFxPaletteBus emptyBus, SnesCgram emptyCgram) =
             ConstructBlendLoad(catalog, tilemaps, 0);
@@ -140,7 +140,7 @@ internal static partial class Program
             File.ReadAllBytes(Path.Combine(stock, RoomFxPaletteBlendDefinitions.FileName)),
             MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Stock room-FX blend document is null.");
-        string key = RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlendDefinitions.Lava);
+        string key = RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlend.Lava);
         PaletteRgb5 original = document.Blends[key][0];
         document.Blends[key][0] = original with { Red = (original.Red + 1) % 32 };
         document = document with
@@ -151,12 +151,12 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "room-FX blend edit changes installed content identity");
-        Bgr555 expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava)[0];
-        AssertTrue(expected != baseline.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava)[0],
+        Bgr555 expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
+        AssertTrue(expected != baseline.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0],
             "room-FX blend edit changes the authored color");
         (_, ForbiddenRoomFxPaletteBus bus, SnesCgram cgram) = ConstructBlendLoad(
             edited.RoomFxPaletteBlends, edited.RoomFxLayer3Tilemaps,
-            RoomFxPaletteBlendDefinitions.Lava);
+            (byte)RoomFxPaletteBlend.Lava);
         AssertEqual(expected, cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex],
             "edited room-FX blend color reaches production CGRAM");
         AssertEqual(0, bus.ForbiddenReads, "edited room-FX blend does not read native palette table");

@@ -9,13 +9,13 @@ internal static partial class Program
     private static void VerifyFxBlendSelectorIdentities()
     {
         byte[] original = OriginalFxBlendIds();
-        AssertTrue(original.SequenceEqual(RoomFxPaletteBlendDefinitions.Ids), "Original blend selector order/domain");
+        AssertTrue(original.SequenceEqual(RoomFxPaletteBlendDefinitions.Ids.Select(id => (byte)id)), "Original blend selector order/domain");
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             byte id = (byte)value;
             if (original.Contains(id))
-                AssertEqual($"blend-{id:X2}", RoomFxPaletteBlendDefinitions.Key(id), "Original document key");
-            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.Key(id), "Unknown selector key rejects");
+                AssertEqual($"blend-{id:X2}", RoomFxPaletteBlendDefinitions.Key((RoomFxPaletteBlend)id), "Original document key");
+            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.Key((RoomFxPaletteBlend)id), "Unknown selector key rejects");
         }
     }
 
@@ -28,8 +28,8 @@ internal static partial class Program
         {
             byte id = (byte)value;
             if (OriginalFxBlendIds().Contains(id))
-                AssertEqual(nativeBase + id, RoomFxPaletteBlendDefinitions.SourceAddress(id), "Original indexed color address");
-            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.SourceAddress(id), "Noncatalogued source rejects");
+                AssertEqual(nativeBase + id, RoomFxPaletteBlendDefinitions.SourceAddress((RoomFxPaletteBlend)id), "Original indexed color address");
+            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.SourceAddress((RoomFxPaletteBlend)id), "Noncatalogued source rejects");
         }
     }
 
@@ -52,9 +52,9 @@ internal static partial class Program
                 cgram.SetColor(25, Bgr555.FromWord(0x1234)); cgram.SetColor(26, Bgr555.FromWord(0x2345)); cgram.SetColor(27, Bgr555.FromWord(0x3456));
                 if (selectionIndex >= 0)
                 {
-                    var colors = catalog.Resolve(id);
+                    var colors = catalog.Resolve((RoomFxPaletteBlend)id);
                     AssertEqual(3, colors.Length, "Exactly three loaded colors");
-                    catalog.Apply(cgram, id);
+                    catalog.Apply(cgram, (RoomFxPaletteBlend)id);
                     for (int color = 0; color < 3; color++)
                     {
                         // Calculated stock black components have their own native proofs.
@@ -68,15 +68,15 @@ internal static partial class Program
                 }
                 else
                 {
-                    AssertThrows<InvalidDataException>(() => { _ = catalog.Resolve(id); }, "Unknown resolve selector rejects including zero");
+                    AssertThrows<InvalidDataException>(() => { _ = catalog.Resolve((RoomFxPaletteBlend)id); }, "Unknown resolve selector rejects including zero");
                     if (id == 0)
                     {
-                        catalog.Apply(cgram, id);
+                        catalog.Apply(cgram, (RoomFxPaletteBlend)id);
                         AssertEqual((ushort)0x1234, cgram.Colors[25], "Zero preserves color25");
                         AssertEqual((ushort)0x2345, cgram.Colors[26], "Zero preserves color26");
                         AssertEqual((ushort)0, cgram.Colors[27], "Zero clears color27 only");
                     }
-                    else AssertThrows<InvalidDataException>(() => catalog.Apply(cgram, id), "Unknown apply selector rejects");
+                    else AssertThrows<InvalidDataException>(() => catalog.Apply(cgram, (RoomFxPaletteBlend)id), "Unknown apply selector rejects");
                 }
             }
         }

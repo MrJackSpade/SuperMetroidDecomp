@@ -16,7 +16,8 @@ internal static class EnemyVisualProgramRoutingContracts
         ["DrawEnemySpritemap"] = "48A6E01227A86D44E60F98951E91F536A27E8C76ECCCAE5832CDC2D0073FBB75",
         // #1275 re-pin: $A6:E4D2's low-energy branch also stores the Ridley timer; routing unchanged.
         // #627 re-pin: enemy identity aliases became EnemyDefinitionId members of equal value; routing unchanged.
-        ["ProcessInstructions"] = "5EB405825FB0FB72EF93CA30EB59D171FF18A07491C658C81DA0FF265E30703E",
+        // #627 types the Baby Metroid goto opcodes; same cases and guards, typed call replaces the discarded bool.
+        ["ProcessInstructions"] = "B083A4CB336D37A17403340EAC76B3DA6B7FBDBD06C298F7A3E57DC7113BCAA9",
         ["ProcessEnemyProjectileInstructions"] = "EA2AAC7D3F5C12022D214A1468AD77C4BF53AC49EBA228AE80B1F34D047463B6",
     };
 

@@ -539,7 +539,7 @@ internal static class RoomFxPaletteBlendCatalogAccess
 {
     extension(RoomFxPaletteBlendCatalog self)
     {
-        internal ReadOnlySpan<Bgr555> Resolve(byte selection) => ((RoomFxBlendColors)(PrivateState.Invoke(self, "SelectColors", (byte)(selection)))!).CreateColors();
+        internal ReadOnlySpan<Bgr555> Resolve(RoomFxPaletteBlend selection) => ((RoomFxBlendColors)(PrivateState.Invoke(self, "SelectColors", selection))!).CreateColors();
     }
 }
 

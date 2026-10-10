@@ -251,13 +251,13 @@
     "status": "open"
    }
   ],
-  "CommonEnemyInstructionCodes, MotherBrainInstructionCodes, EnemyInstructionCodePointers, MamaTurtleInstructionCodes, CeresEnemyCodePointers": [
+  "CommonEnemyInstructionCodes, EnemyInstructionCodePointers, MamaTurtleInstructionCodes, CeresEnemyCodePointers": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
     "line": 2722,
     "column": 13,
     "rule": "SME6270",
-    "message": "'word' is a ushort switched over named constants of CommonEnemyInstructionCodes, MotherBrainInstructionCodes, EnemyInstructionCodePointers, MamaTurtleInstructionCodes, CeresEnemyCodePointers; model the domain as a type",
+    "message": "'word' is a ushort switched over named constants of CommonEnemyInstructionCodes, EnemyInstructionCodePointers, MamaTurtleInstructionCodes, CeresEnemyCodePointers; model the domain as a type",
     "status": "open"
    }
   ],
@@ -1003,40 +1003,6 @@
     "status": "open"
    }
   ],
-  "MotherBrainInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BabyMetroidCutscene.cs",
-    "line": 271,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of MotherBrainInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrain.cs",
-    "line": 565,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of MotherBrainInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs",
-    "line": 549,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'VariableA' is a ushort switched over named constants of MotherBrainInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.ResourceAudit/EnemyVisualProgramSpecializations.cs",
-    "line": 135,
-    "column": 59,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of MotherBrainInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "MotherBrainRoomColorRomData": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
@@ -1338,40 +1304,6 @@
     "column": 9,
     "rule": "SME6270",
     "message": "'callback' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomFxPaletteBlendDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs",
-    "line": 126,
-    "column": 63,
-    "rule": "SME6270",
-    "message": "'selection' is a byte switched over named constants of RoomFxPaletteBlendDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs",
-    "line": 321,
-    "column": 60,
-    "rule": "SME6270",
-    "message": "'id' is a byte switched over named constants of RoomFxPaletteBlendDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs",
-    "line": 358,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'id' is a byte switched over named constants of RoomFxPaletteBlendDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs",
-    "line": 378,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'id' is a byte switched over named constants of RoomFxPaletteBlendDefinitions; model the domain as a type",
     "status": "open"
    }
   ],
@@ -2242,13 +2174,35 @@
    "consumers": "PauseMenuState and equipment input, selector/label definitions and presentations, pause extractors, resource domain audit",
    "tests": "category, mask, label and selector suites iterate members and probe undefined byte values instead of wrapping ints",
    "status": "resolved"
+  },
+  "RoomFxPaletteBlendDefinitions": {
+   "previous": "byte room-FX blend selectors (byte offsets into $89:AA02) as constants, switched by the blend catalog and its calculated-color rules",
+   "type": "enum RoomFxPaletteBlend : byte (None plus eight retail selectors)",
+   "closedProof": "the retail FX records use exactly these eight selectors or zero",
+   "transitions": "none; selectors are immutable record data",
+   "boundary": "RoomLayer3FxState decodes the record byte with ClosedNativeWords.Decode<RoomFxPaletteBlend>(byte); generated FX records keep their raw byte views",
+   "invalidValues": "membership validation throws InvalidDataException; rule switches name every member and throw InvalidOperationException on undefined values",
+   "consumers": "RoomFxPaletteBlendCatalog and its color records, RoomLayer3FxState, RoomFxPaletteBlendExtractor",
+   "tests": "blend selector, pair-color, black-color and weather suites sweep all 256 byte values through the typed APIs",
+   "status": "resolved"
+  },
+  "MotherBrainInstructionCodes": {
+   "previous": "one ushort catalog mixing Mother Brain head/body opcodes, Baby Metroid gotos, falling-tube functions and a shared sleep word",
+   "type": "enums MotherBrainInstruction (52 head/body opcodes), BabyMetroidInstruction (2), MotherBrainTubeFunction (3); the shared CommonA9 sleep word stays a constant",
+   "closedProof": "the head/body handler handles all 52 members; baby and tube dispatchers own exactly their members",
+   "transitions": "tube VariableA holds a member written as (ushort)",
+   "boundary": "the head/body handler tests membership of words handed over by the shared interpreter; the baby case decodes after its guard; the tube dispatcher decodes VariableA; the enemy visual audit decodes stream words",
+   "invalidValues": "typed switches throw InvalidOperationException; decodes throw InvalidDataException",
+   "consumers": "RoomEnemySystem Mother Brain, Baby Metroid cutscene and fake-death tubes; head/body/baby/hand-beam program definitions; EnemyVisualProgramSpecializations",
+   "tests": "Mother Brain replay and the enemy visual static audit exercise every head/body opcode",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 209,
-  "openDomains": 160,
+  "openFindings": 201,
+  "openDomains": 158,
   "byRule": {
-   "SME6270": 209
+   "SME6270": 201
   }
  }
 }

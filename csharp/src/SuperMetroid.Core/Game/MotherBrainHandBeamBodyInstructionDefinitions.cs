@@ -32,7 +32,7 @@ public static class MotherBrainHandBeamBodyInstructionDefinitions
             bool evenRecord = (offset / DustRecordStride & 1) == 0;
             return (ushort)((offset % DustRecordStride) switch
             {
-                0 => MotherBrainInstructionCodes.Instruction_MotherBrainBody_SpawnDustCloudExplosionProj,
+                0 => (ushort)MotherBrainInstruction.MotherBrainBody_SpawnDustCloudExplosionProj,
                 2 => evenRecord ? (ushort)0x0024 : (ushort)0x0022,
                 4 => evenRecord ? (ushort)0xffd8 : (ushort)0xffd6,
                 6 => evenRecord ? (ushort)1 : (ushort)2,
@@ -43,12 +43,12 @@ public static class MotherBrainHandBeamBodyInstructionDefinitions
 
         return address switch
         {
-            0x9a42 => MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToDeathBeamMode,
+            0x9a42 => (ushort)MotherBrainInstruction.MotherBrainBody_SetPoseToDeathBeamMode,
             0x9a44 or 0x9a48 or 0x9a4c or 0x9ab0 or 0x9ab6 or 0x9aba => (ushort)1,
-            0x9ab4 => MotherBrainInstructionCodes.Instruction_MotherBrainBody_SpawnDeathBeamProjectile,
+            0x9ab4 => (ushort)MotherBrainInstruction.MotherBrainBody_SpawnDeathBeamProjectile,
             0x9abe => (ushort)0x00f0,
-            0x9ac2 => MotherBrainInstructionCodes.Instruction_MotherBrainBody_IncrementDeathBeamAttackPhase,
-            0x9ac4 => MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding,
+            0x9ac2 => (ushort)MotherBrainInstruction.MotherBrainBody_IncrementDeathBeamAttackPhase,
+            0x9ac4 => (ushort)MotherBrainInstruction.MotherBrainBody_SetPoseToStanding,
             0x9ac6 => MotherBrainInstructionCodes.Instruction_CommonA9_Sleep,
             _ => throw NotMechanics(address),
         };

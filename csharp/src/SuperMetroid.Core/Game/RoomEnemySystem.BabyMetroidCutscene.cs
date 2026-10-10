@@ -264,20 +264,15 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Baby private opcodes `$CFB4/$CFCA` are same-bank direct gotos.</summary>
-    private static bool TryRunMotherBrainBabyInstruction(
-        ushort opcode,
+    private static void RunMotherBrainBabyInstruction(
+        BabyMetroidInstruction opcode,
         ref ushort cursor)
     {
-        switch (opcode)
+        cursor = opcode switch
         {
-            case MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoInitial:
-                cursor = BabyMetroidCutsceneState.InitialInstructionList;
-                return true;
-            case MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoDrainingMotherBrain:
-                cursor = BabyMetroidCutsceneState.DrainingMotherBrainInstructionList;
-                return true;
-            default:
-                return false;
-        }
+            BabyMetroidInstruction.GotoInitial => BabyMetroidCutsceneState.InitialInstructionList,
+            BabyMetroidInstruction.GotoDrainingMotherBrain => BabyMetroidCutsceneState.DrainingMotherBrainInstructionList,
+            _ => throw new InvalidOperationException($"Undefined BabyMetroidInstruction {opcode}."),
+        };
     }
 }

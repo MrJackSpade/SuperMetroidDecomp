@@ -2740,11 +2740,12 @@ public sealed partial class RoomEnemySystem
                     slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoInitial
+                case (ushort)BabyMetroidInstruction.GotoInitial
                     when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene:
-                case MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoDrainingMotherBrain
+                case (ushort)BabyMetroidInstruction.GotoDrainingMotherBrain
                     when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene:
-                    _ = TryRunMotherBrainBabyInstruction(word, ref cursor);
+                    RunMotherBrainBabyInstruction(
+                        ClosedNativeWords.Decode<BabyMetroidInstruction>(word, "Baby Metroid instruction"), ref cursor);
                     break;
                 case EnemyInstructionCodePointers.RTL_A288C5 when slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon:
                     // `$A2:88C5` is an explicit RTL instruction. It consumes only itself;

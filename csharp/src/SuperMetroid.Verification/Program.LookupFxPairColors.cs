@@ -29,14 +29,14 @@ internal static partial class Program
             int expected = (native >> shift) & 31;
             int? calculated = shift switch
             {
-                0 => RoomFxPaletteBlendDefinitions.CalculatedPairRed(id, color == 0),
-                5 => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, native & 31, color == 0),
-                _ => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, native & 31, (native >> 5) & 31, color == 0),
+                0 => RoomFxPaletteBlendDefinitions.CalculatedPairRed((RoomFxPaletteBlend)id, color == 0),
+                5 => RoomFxPaletteBlendDefinitions.CalculatedPairGreen((RoomFxPaletteBlend)id, native & 31, color == 0),
+                _ => RoomFxPaletteBlendDefinitions.CalculatedPairBlue((RoomFxPaletteBlend)id, native & 31, (native >> 5) & 31, color == 0),
             };
             AssertEqual(expected, calculated!.Value, "Native paired-color component rule");
-            AssertEqual(expected, (stock.Resolve(id)[color].ToWord() >> shift) & 31, "Installed paired-color component");
+            AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[color].ToWord() >> shift) & 31, "Installed paired-color component");
             var cgram = new SnesCgram();
-            stock.Apply(cgram, id);
+            stock.Apply(cgram, (RoomFxPaletteBlend)id);
             AssertEqual(expected, (cgram.Colors[25 + color].ToWord() >> shift) & 31, "Applied paired-color component");
         }
     }
@@ -47,7 +47,7 @@ internal static partial class Program
         {
             for (int color = 0; color < 2; color++)
             {
-                var owner = new RoomFxPairColor(id, Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x89aa02 + id + color * 2)))), color == 0);
+                var owner = new RoomFxPairColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x89aa02 + id + color * 2)))), color == 0);
                 foreach (var field in new[] { (Name: "redOverride", Shift: 0), (Name: "greenOverride", Shift: 5), (Name: "blueOverride", Shift: 10) })
                 {
                     var info = typeof(RoomFxPairColor).GetField(field.Name, BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -61,13 +61,13 @@ internal static partial class Program
             // including intensities above the stock tint's range and saturated values.
             foreach (bool isPrimary in new[] { false, true })
             for (int word = 0; word < 0x8000; word++)
-                AssertEqual((ushort)word, new RoomFxPairColor(id, Bgr555.FromWord(checked((ushort)((ushort)word))), isPrimary).CreateColor(), "All RGB5 edits round-trip");
+                AssertEqual((ushort)word, new RoomFxPairColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked((ushort)((ushort)word))), isPrimary).CreateColor(), "All RGB5 edits round-trip");
             foreach (bool isPrimary in new[] { false, true })
             foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, invalid, isPrimary), "Green rule RGB5 bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, invalid, 0, isPrimary), "Blue rule RGB5 bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, 0, invalid, isPrimary), "Blue rule green-input bounds" );
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen((RoomFxPaletteBlend)id, invalid, isPrimary), "Green rule RGB5 bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue((RoomFxPaletteBlend)id, invalid, 0, isPrimary), "Blue rule RGB5 bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue((RoomFxPaletteBlend)id, 0, invalid, isPrimary), "Blue rule green-input bounds" );
             }
         }
         for (int value = 0; value <= byte.MaxValue; value++)
@@ -76,9 +76,9 @@ internal static partial class Program
             if (OriginalFxBlendIds().Contains(id)) continue;
             foreach (bool isPrimary in new[] { false, true })
             {
-                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairRed(id, isPrimary), "Unknown red rule selector rejects");
-                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, 0, isPrimary), "Unknown green rule selector rejects");
-                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, 0, 0, isPrimary), "Unknown blue rule selector rejects");
+                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairRed((RoomFxPaletteBlend)id, isPrimary), "Unknown red rule selector rejects");
+                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairGreen((RoomFxPaletteBlend)id, 0, isPrimary), "Unknown green rule selector rejects");
+                AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedPairBlue((RoomFxPaletteBlend)id, 0, 0, isPrimary), "Unknown blue rule selector rejects");
             }
         }
     }

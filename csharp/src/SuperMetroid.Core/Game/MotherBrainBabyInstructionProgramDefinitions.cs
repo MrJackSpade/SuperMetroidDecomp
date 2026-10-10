@@ -37,7 +37,7 @@ internal abstract class MotherBrainBabyInstructionProgramDefinitions
         int initialOffset = address - Initial;
         if (initialOffset >= 0 && initialOffset <= LoopFrames * FrameBytes && initialOffset % FrameBytes == 0)
             return initialOffset == LoopFrames * FrameBytes
-                ? MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoInitial : InitialPoseHold;
+                ? (ushort)BabyMetroidInstruction.GotoInitial : InitialPoseHold;
         int drainOffset = address - DrainingMotherBrain;
         if (drainOffset >= 0 && drainOffset <= LoopFrames * FrameBytes && drainOffset % FrameBytes == 0)
             return (drainOffset / FrameBytes) switch
@@ -46,7 +46,7 @@ internal abstract class MotherBrainBabyInstructionProgramDefinitions
                 1 => DrainSecondPoseHold,
                 2 => DrainThirdPoseHold,
                 3 => DrainReturnPoseHold,
-                _ => MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoDrainingMotherBrain,
+                _ => (ushort)BabyMetroidInstruction.GotoDrainingMotherBrain,
             };
         if (address == TakingFatalBlow) return FatalBlowHold;
         if (address == TakingFatalBlow + FrameBytes) return CommonEnemyInstructionCodes.Sleep;

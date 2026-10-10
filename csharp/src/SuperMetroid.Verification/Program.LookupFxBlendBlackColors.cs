@@ -16,10 +16,10 @@ internal static partial class Program
         foreach (byte id in OriginalBlackBlendIds())
         {
             int expected = (ReadVerificationWord(rom, 0x89aa06 + id) >> shift) & 31;
-            AssertEqual(expected, (RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id)!.Value.ToWord() >> shift) & 31, "Original third-color component");
-            AssertEqual(expected, (stock.Resolve(id)[2].ToWord() >> shift) & 31, "Resolved third-color component");
+            AssertEqual(expected, (RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id)!.Value.ToWord() >> shift) & 31, "Original third-color component");
+            AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[2].ToWord() >> shift) & 31, "Resolved third-color component");
             var cgram = new SnesCgram();
-            stock.Apply(cgram, id);
+            stock.Apply(cgram, (RoomFxPaletteBlend)id);
             AssertEqual(expected, (cgram.Colors[27].ToWord() >> shift) & 31, "Applied third-color component");
         }
     }
@@ -30,9 +30,9 @@ internal static partial class Program
         {
             byte id = (byte)value;
             if (OriginalBlackBlendIds().Contains(id)) AssertEqual((ushort)0,
-                RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id)!.Value, "Six liquid selections calculate black");
-            else if (id is 0x22 or 0x62) AssertTrue(RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id) is null, "Weather third color stays independent");
-            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id), "Unknown calculated-color selector rejects");
+                RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id)!.Value, "Six liquid selections calculate black");
+            else if (id is 0x22 or 0x62) AssertTrue(RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) is null, "Weather third color stays independent");
+            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id), "Unknown calculated-color selector rejects");
         }
         var overrideField = typeof(RoomFxBlendColors).GetField("thirdOverride", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (var field in typeof(RoomFxPaletteBlendCatalog).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
@@ -47,7 +47,7 @@ internal static partial class Program
         foreach (byte id in OriginalBlackBlendIds())
         foreach (ushort third in new ushort[] { 0, 1, 31, 32, 1023, 1024, 32767 })
         {
-            var owner = new RoomFxBlendColors(id, Bgr555.FromWord(0x1234), Bgr555.FromWord(0x2345), Bgr555.FromWord(checked((ushort)(third))));
+            var owner = new RoomFxBlendColors((RoomFxPaletteBlend)id, Bgr555.FromWord(0x1234), Bgr555.FromWord(0x2345), Bgr555.FromWord(checked((ushort)(third))));
             var colors = owner.CreateColors();
             AssertEqual(third, colors[2], "Custom third-color components survive");
             colors[2] = Bgr555.FromWord((ushort)(colors[2].ToWord() ^ (1)));

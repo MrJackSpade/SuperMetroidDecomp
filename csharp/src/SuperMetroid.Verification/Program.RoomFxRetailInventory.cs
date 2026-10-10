@@ -214,7 +214,7 @@ internal static partial class Program
         {
             byte blend = ReadRetailFxRecordByte(bus, expectedRecord,
                 RoomFxRomDataRecordTooling.PaletteBlendOffset);
-            AssertTrue(blend == 0 || RoomFxPaletteBlendDefinitions.Ids.Contains(blend),
+            AssertTrue(blend == 0 || RoomFxPaletteBlendDefinitions.Ids.Contains((RoomFxPaletteBlend)blend),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} uses an extracted FX palette blend (${blend:X2})");
         }

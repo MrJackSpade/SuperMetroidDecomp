@@ -559,17 +559,20 @@ public sealed partial class RoomEnemySystem
         ushort instruction,
         ref ushort cursor)
     {
-        if (!IsMotherBrainDefinition(slot.EnemyDefinitionPointer))
+        // The shared interpreter hands every remaining negative word here; only
+        // Mother Brain's private opcodes belong to this handler.
+        if (!IsMotherBrainDefinition(slot.EnemyDefinitionPointer) ||
+            !Enum.IsDefined((MotherBrainInstruction)instruction))
             return false;
 
-        switch (instruction)
+        switch ((MotherBrainInstruction)instruction)
         {
-            case MotherBrainInstructionCodes.Instruction_MotherBrain_GotoX:
+            case MotherBrainInstruction.MotherBrain_GotoX:
                 cursor = ReadEnemyInstructionMechanicsWord(
                     slot, unchecked((ushort)(cursor + 2)));
                 return true;
 
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_EnableNeckMovement_GotoX:
+            case MotherBrainInstruction.MotherBrainHead_EnableNeckMovement_GotoX:
                 RequireCompleteMotherBrainState(slot).NeckMovementEnabled = true;
                 cursor = ReadEnemyInstructionMechanicsWord(
                     slot, unchecked((ushort)(cursor + 2)));
@@ -578,27 +581,27 @@ public sealed partial class RoomEnemySystem
             // `$95B6-$95F2` are the six posture-transition displacements. Each command
             // moves the body vertically, counter-scrolls BG2 by the opposite amount, and
             // derives BG2 X from the body's new origin plus its authored horizontal bias.
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy10_ScrollLeftBy4:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy10_ScrollLeftBy4:
                 MoveMotherBrainBodyWithScrollBias(-10, 4);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy16_ScrollLeftBy4:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy16_ScrollLeftBy4:
                 MoveMotherBrainBodyWithScrollBias(-16, 4);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy12_ScrollRightBy2:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy12_ScrollRightBy2:
                 MoveMotherBrainBodyWithScrollBias(-12, -2);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy12_ScrollLeftBy4:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy12_ScrollLeftBy4:
                 MoveMotherBrainBodyWithScrollBias(12, 4);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy16_ScrollRightBy2:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy16_ScrollRightBy2:
                 MoveMotherBrainBodyWithScrollBias(16, -2);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy10_ScrollRightBy2:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy10_ScrollRightBy2:
                 MoveMotherBrainBodyWithScrollBias(10, -2);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
@@ -606,107 +609,107 @@ public sealed partial class RoomEnemySystem
             // The walk-cycle comments in the historical disassembly describe visual
             // motion and are occasionally opposite the literal signed Y operand. These
             // cases preserve the actual additions performed by `$9579`, not the labels.
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1:
                 MoveMotherBrainBody(1, -2);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyRightBy2:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyRightBy2:
                 MoveMotherBrainBody(2, 0);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy1:
                 MoveMotherBrainBody(0, 1);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep:
                 RunMotherBrainFootstep();
                 MoveMotherBrainBody(3, 1);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy15:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy2_RightBy15:
                 MoveMotherBrainBody(15, -2);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy6:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy4_RightBy6:
                 MoveMotherBrainBody(6, -4);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy2:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy4_LeftBy2:
                 MoveMotherBrainBody(-2, 4);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep:
                 RunMotherBrainFootstep();
                 MoveMotherBrainBody(-1, 2);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d:
                 RunMotherBrainFootstep();
                 MoveMotherBrainBody(-1, 2);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyLeftBy2:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyLeftBy2:
                 MoveMotherBrainBody(-2, 0);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy1:
                 MoveMotherBrainBody(0, -1);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1_LeftBy3:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy1_LeftBy3:
                 MoveMotherBrainBody(-3, -1);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep:
                 RunMotherBrainFootstep();
                 MoveMotherBrainBody(-15, 2);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy6:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy4_LeftBy6:
                 MoveMotherBrainBody(-6, 4);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy2:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy4_RightBy2:
                 MoveMotherBrainBody(2, -4);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy1:
+            case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy2_RightBy1:
                 MoveMotherBrainBody(1, -2);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             // Pose is shared encounter state, not a property of the displayed map. Body AI
             // waits on these exact values while the instruction list continues independently.
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding:
+            case MotherBrainInstruction.MotherBrainBody_SetPoseToStanding:
                 RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.Standing;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking:
+            case MotherBrainInstruction.MotherBrainBody_SetPoseToWalking:
                 RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.Walking;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouching:
+            case MotherBrainInstruction.MotherBrainBody_SetPoseToCrouching:
                 RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.Crouched;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition:
+            case MotherBrainInstruction.MotherBrainBody_SetPoseToCrouchingTransition:
                 RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.CrouchingTransition;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToDeathBeamMode:
+            case MotherBrainInstruction.MotherBrainBody_SetPoseToDeathBeamMode:
                 RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.DeathBeam;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToLeaningDown:
+            case MotherBrainInstruction.MotherBrainBody_SetPoseToLeaningDown:
                 RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.LeaningDown;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_DisableNeckMovement:
+            case MotherBrainInstruction.MotherBrainHead_DisableNeckMovement:
                 RequireCompleteMotherBrainState(slot).NeckMovementEnabled = false;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueSoundX_Lib2_Max6:
+            case MotherBrainInstruction.MotherBrainHead_QueueSoundX_Lib2_Max6:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 state.LastSoundEffect = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
@@ -714,7 +717,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueSoundX_Lib3_Max6:
+            case MotherBrainInstruction.MotherBrainHead_QueueSoundX_Lib3_Max6:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 state.LastSoundEffectLibrary3 = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
@@ -722,19 +725,19 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnDroolProjectile:
+            case MotherBrainInstruction.MotherBrainHead_SpawnDroolProjectile:
                 SpawnMotherBrainDrool(RequireCompleteMotherBrainState(slot));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnPurpleBreathBigProjectile:
+            case MotherBrainInstruction.MotherBrainHead_SpawnPurpleBreathBigProjectile:
                 SpawnMotherBrainPurpleBreathBig(RequireCompleteMotherBrainState(slot));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SetMainShakeTimerTo50:
+            case MotherBrainInstruction.MotherBrainHead_SetMainShakeTimerTo50:
                 RequireCompleteMotherBrainState(slot).BrainMainShakeTimer = 50;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SpawnDustCloudExplosionProj:
+            case MotherBrainInstruction.MotherBrainBody_SpawnDustCloudExplosionProj:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 short xOffset = unchecked((short)
@@ -753,7 +756,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 8));
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SpawnDeathBeamProjectile:
+            case MotherBrainInstruction.MotherBrainBody_SpawnDeathBeamProjectile:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 if (samus is null)
@@ -766,7 +769,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainBody_IncrementDeathBeamAttackPhase:
+            case MotherBrainInstruction.MotherBrainBody_IncrementDeathBeamAttackPhase:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 state.HandBeamPhase = unchecked((MotherBrainHandBeamPhase)(
@@ -774,12 +777,12 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_MaybeGotoNeutralPhase2:
+            case MotherBrainInstruction.MotherBrainHead_MaybeGotoNeutralPhase2:
                 cursor = RequireRandomNumber() < 0xf000
                     ? (ushort)0x9c9f
                     : unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_GotoDyingDroolInstList:
+            case MotherBrainInstruction.MotherBrainHead_GotoDyingDroolInstList:
             {
                 // `$A9:9C65-$9C76` returns its destination in X rather than storing an
                 // operand beside the opcode. The low twelve random bits select `$9C47`
@@ -791,17 +794,17 @@ public sealed partial class RoomEnemySystem
                     : (ushort)0x9c5f;
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_IncBabyMetroidAttackCounter:
+            case MotherBrainInstruction.MotherBrainHead_IncBabyMetroidAttackCounter:
                 RequireLiveMotherBrainRainbowSequence(slot).
                     IncrementLiveBabyMetroidAttackCounter();
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_ResetBabyMetroidAttackCounter:
+            case MotherBrainInstruction.MotherBrainHead_ResetBabyMetroidAttackCounter:
                 RequireLiveMotherBrainRainbowSequence(slot).
                     ResetLiveBabyMetroidAttackCounter();
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_AimOnionRingsAtBabyMetroid:
+            case MotherBrainInstruction.MotherBrainHead_AimOnionRingsAtBabyMetroid:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 BabyMetroidCutsceneState baby = state.BabyMetroid ??
@@ -811,7 +814,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_AimOnionRingsAtSamus:
+            case MotherBrainInstruction.MotherBrainHead_AimOnionRingsAtSamus:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 SamusState target = samus ?? throw new InvalidOperationException(
@@ -820,7 +823,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueBabyMetroidAttackSFX:
+            case MotherBrainInstruction.MotherBrainHead_QueueBabyMetroidAttackSFX:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 MotherBrainRainbowBeamAttackSequence sequence =
@@ -830,7 +833,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_MaybeGotoNeutralPhase3:
+            case MotherBrainInstruction.MotherBrainHead_MaybeGotoNeutralPhase3:
                 // Retail contains an unconditional BRA where the adjacent commentary might
                 // suggest a carry branch. Low-twelve values below `$EC0` replace X with the
                 // hold origin; the remaining values simply continue after this opcode.
@@ -838,14 +841,14 @@ public sealed partial class RoomEnemySystem
                     ? (ushort)0x9cd1
                     : unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnOnionRingsProjectile:
+            case MotherBrainInstruction.MotherBrainHead_SpawnOnionRingsProjectile:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 SpawnMotherBrainOnionRing(state, unchecked((byte)state.OnionRingsTargetAngle));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnBombProjectileWithParamX:
+            case MotherBrainInstruction.MotherBrainHead_SpawnBombProjectileWithParamX:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 ushort afterburnCount = MotherBrainHeadInstructionProgramDefinitions.ReadWord(
@@ -854,7 +857,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
             }
-            case MotherBrainInstructionCodes.InstList_MotherBrainHead_SpawnLaserProjectile:
+            case MotherBrainInstruction.InstList_MotherBrainHead_SpawnLaserProjectile:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 RoomEnemySlot head = state.Head!;
@@ -876,13 +879,13 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnRainbowBeamChargingProj:
+            case MotherBrainInstruction.MotherBrainHead_SpawnRainbowBeamChargingProj:
                 // The spawn reads no encounter state, but the instruction still requires one.
                 _ = RequireCompleteMotherBrainState(slot);
                 SpawnMotherBrainRainbowChargingProjectile();
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SetupEffectsForRainbowBeamCharge:
+            case MotherBrainInstruction.MotherBrainHead_SetupEffectsForRainbowBeamCharge:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 state.SmallPurpleBreathGenerationEnabled = false;
@@ -892,7 +895,7 @@ public sealed partial class RoomEnemySystem
                 return true;
             }
             default:
-                return false;
+                throw new InvalidOperationException($"Unhandled MotherBrainInstruction {(MotherBrainInstruction)instruction}.");
         }
     }
 

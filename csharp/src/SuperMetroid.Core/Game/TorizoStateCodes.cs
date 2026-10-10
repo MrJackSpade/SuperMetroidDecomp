@@ -14,6 +14,16 @@ public static class ClosedNativeWords
             ? value
             : throw new InvalidDataException($"${word:X4} is not a {meaning} ({typeof(TEnum).Name}).");
     }
+
+    /// <summary>Decodes a native byte selector or throws, naming <paramref name="meaning"/>.</summary>
+    public static TEnum Decode<TEnum>(byte value, string meaning)
+        where TEnum : struct, Enum
+    {
+        TEnum decoded = Unsafe.BitCast<byte, TEnum>(value);
+        return Enum.IsDefined(decoded)
+            ? decoded
+            : throw new InvalidDataException($"${value:X2} is not a {meaning} ({typeof(TEnum).Name}).");
+    }
 }
 
 /// <summary>Bank-$AA main functions a Bomb or Golden Torizo installs in <c>toriz_var_E</c>.</summary>

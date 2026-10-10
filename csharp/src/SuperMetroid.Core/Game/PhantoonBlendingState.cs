@@ -7,9 +7,9 @@ public sealed class PhantoonBlendingState
     private int _setupCalls;
     private bool _deleted;
     /// <summary>Current HDMA-pass result: room default, $04 with BG2 hidden, or $1A with BG2 added on the subscreen; not necessarily the displayed result.</summary>
-    public LayerBlendingConfiguration Configuration { get; private set; }
+    public LayerBlendingConfiguration Configuration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
     /// <summary>Configuration copied at the last display latch and consumed by rendering, unaffected by subsequent <see cref="Step"/> calls until latched again.</summary>
-    public LayerBlendingConfiguration DisplayedConfiguration { get; private set; }
+    public LayerBlendingConfiguration DisplayedConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
     /// <summary>The MOSAIC shadow value accepted by NMI, before this frame's enemy AI changes it.</summary>
     public byte DisplayedMosaic { get; private set; }
 

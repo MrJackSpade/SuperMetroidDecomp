@@ -1764,3 +1764,13 @@ internal static class XrayOverlayVisualCatalogAccess
             ((XrayOverlayVisualCatalog)PrivateState.Construct(typeof(XrayOverlayVisualCatalog), (IEnumerable<ushort>)(itemMetatiles), (IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)>)(rooms), (bool)(false)));
     }
 }
+
+/// <summary>Verification access to the cartridge encoding of <see cref="CartridgeDoorOrientation"/>.</summary>
+internal static class CartridgeDoorOrientationAccess
+{
+    extension(CartridgeDoorOrientation orientation)
+    {
+        /// <summary>The cartridge byte, as <c>$82:DE2C</c> stores it in <c>DoorDirection</c>.</summary>
+        internal byte Encode() => unchecked((byte)((byte)orientation.Closing << 2 | (byte)orientation.Direction));
+    }
+}

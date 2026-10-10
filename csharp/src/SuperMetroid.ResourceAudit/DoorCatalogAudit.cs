@@ -16,18 +16,9 @@ internal static class DoorCatalogAudit
         Dictionary<ushort, ushort[]> lists = CompiledLists();
         var findings = CompareLists(native, lists);
         var nativeExceptions = new List<Finding>();
-        foreach (CartridgeDoorHeader header in native.Headers)
-        {
-            try
-            {
-                if (DoorDefinitions.Get(header.Pointer) != header)
-                    findings.Add(new("DOOR003", $"$83:{header.Pointer:X4}", "Compiled header differs from the pinned cartridge."));
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                findings.Add(new("DOOR003", $"$83:{header.Pointer:X4}", "Missing native physical header or elevator sentinel."));
-            }
-        }
+        foreach (NativeDoorHeader header in native.Headers)
+            if (CompareHeader(header) is string difference)
+                findings.Add(new("DOOR003", $"$83:{header.Pointer:X4}", difference));
         foreach (NativeDoorRoom room in native.Rooms)
         {
             if (!RoomHeaderDefinitionsTooling.Contains(room.Room) || RoomHeaderDefinitions.Get(room.Room).DoorListPointer != room.List)
@@ -132,6 +123,33 @@ internal static class DoorCatalogAudit
         return native;
     }
 
+    /// <summary>
+    /// A physical record must equal its compiled header after decoding at the production
+    /// boundary. A pseudo-door must be accepted only as a door-list entry, never as a header.
+    /// </summary>
+    private static string? CompareHeader(NativeDoorHeader header)
+    {
+        if (header.IsElevatorPseudoDoor)
+        {
+            try { DoorListEntry.ElevatorPseudoDoor(header.Pointer); }
+            catch (ArgumentOutOfRangeException) { return "Native elevator pseudo-door is not a compiled pseudo-door entry."; }
+            try
+            {
+                DoorDefinitions.Get(header.Pointer);
+                return "Native elevator pseudo-door is compiled as a physical header.";
+            }
+            catch (ArgumentOutOfRangeException) { return null; }
+        }
+        CartridgeDoorHeader expected;
+        try { expected = header.Decode(); }
+        catch (InvalidDataException) { return $"Native physical header has undecodable orientation ${header.Orientation:X2}."; }
+        try
+        {
+            return DoorDefinitions.Get(header.Pointer) == expected ? null : "Compiled header differs from the pinned cartridge.";
+        }
+        catch (ArgumentOutOfRangeException) { return "Missing native physical header."; }
+    }
+
     internal static void SelfCheck(string root)
     {
         NativeDoorManifest native = Load(root);
@@ -153,6 +171,13 @@ internal static class DoorCatalogAudit
         Require(IsUnusedNativeDoorIndex(unused, unused.States.Single(), 1), "exact native unused-room exception");
         Require(!IsUnusedNativeDoorIndex(unused, unused.States.Single(), 2), "other invalid indexes are not exempt");
         Require(!IsUnusedNativeDoorIndex(unused with { Room = 0xdaae }, unused.States.Single(), 1), "other rooms are not exempt");
+        NativeDoorHeader physical = native.Headers.First(h => !h.IsElevatorPseudoDoor);
+        NativeDoorHeader pseudo = native.Headers.First(h => h.IsElevatorPseudoDoor);
+        Require(CompareHeader(physical) is null && CompareHeader(pseudo) is null, "native headers accepted");
+        Require(CompareHeader(physical with { PlmX = (byte)(physical.PlmX ^ 1) }) is not null, "changed physical field");
+        Require(CompareHeader(physical with { Orientation = 0x0c }) is not null, "undecodable physical orientation");
+        Require(CompareHeader(pseudo with { DestinationRoomPointer = 0x91f8 }) is not null, "pseudo-door identity cannot be a physical header");
+        Require(CompareHeader(physical with { DestinationRoomPointer = 0 }) is not null, "physical record cannot pass as a pseudo-door");
         Console.WriteLine("Door audit omission contracts passed: Tourian/Maridia truncation, extra/missing entries, ordering, unresolved sentinel.");
 
         void Check(ushort pointer, ushort[] replacement, string code, string description)

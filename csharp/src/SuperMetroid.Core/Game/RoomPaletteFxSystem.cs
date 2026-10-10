@@ -33,9 +33,6 @@ public sealed class RoomPaletteFxSystem
     /// </summary>
     public bool HandlerEnabled { get; private set; } = true;
 
-    /// <summary><c>Enable_PaletteFXObjects</c> ($8D:C4C2).</summary>
-    public void EnableHandler() => HandlerEnabled = true;
-
     /// <summary><c>Disable_PaletteFXObjects</c> ($8D:C4CD).</summary>
     public void DisableHandler() => HandlerEnabled = false;
 

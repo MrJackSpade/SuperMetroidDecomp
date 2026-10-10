@@ -11,6 +11,8 @@ internal static class DebuggerRetiredFieldTests
     internal static void Run()
     {
         var state = (RidleyEnemyState)RuntimeHelpers.GetUninitializedObject(typeof(RidleyEnemyState));
+        // Restoration validates closed domains (#627); the AI function must be a native routine.
+        state.Function = RidleyAiFunction.WaitForDoorTransition;
         byte[] current = Serialize(state);
 
         byte[] legacy = WithAppendedField(current, typeof(RidleyEnemyState), "<FireballCooldown>k__BackingField", (ushort)7);

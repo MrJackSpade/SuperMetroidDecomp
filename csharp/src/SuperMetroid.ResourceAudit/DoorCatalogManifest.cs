@@ -12,7 +12,35 @@ internal sealed record NativeDoorRoom(string Name, ushort Room, ushort List, ush
     NativeDoorState[] States);
 internal sealed record NativeDoorState(ushort State, int Level, int[] DoorBts);
 internal sealed record NativeDoorManifest(string Revision, string RomSha256,
-    NativeDoorRoom[] Rooms, CartridgeDoorHeader[] Headers);
+    NativeDoorRoom[] Rooms, NativeDoorHeader[] Headers);
+
+/// <summary>
+/// One labeled bank-$83 record's compared fields as their bytes appear in the cartridge. The
+/// oracle keeps raw bytes rather than the compiled <see cref="CartridgeDoorHeader"/> because
+/// two labels are elevator pseudo-doors whose orientation byte ($91, $93) is not a door
+/// orientation; decoding happens only when the audit compares against compiled data.
+/// Byte 2 is not recorded: no gameplay reads it (#1273).
+/// </summary>
+internal sealed record NativeDoorHeader(ushort Pointer, ushort DestinationRoomPointer,
+    byte Orientation, byte PlmX, byte PlmY, byte DestinationScreenX, byte DestinationScreenY,
+    ushort SamusDistance, ushort SetupCodePointer)
+{
+    /// <summary>Bit 15 clear in the destination word marks an elevator pseudo-door ($94:938B).</summary>
+    internal bool IsElevatorPseudoDoor => (DestinationRoomPointer & 0x8000) == 0;
+
+    internal static NativeDoorHeader Read(Func<int, byte> cartridgeByte, ushort pointer)
+    {
+        int address = 0x830000 | pointer;
+        byte Byte(int offset) => cartridgeByte(address + offset);
+        ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
+        return new(pointer, Word(0), Byte(3), Byte(4), Byte(5), Byte(6), Byte(7), Word(8), Word(10));
+    }
+
+    /// <summary>The compiled header these bytes decode to; pseudo-doors have none.</summary>
+    internal CartridgeDoorHeader Decode() =>
+        new(Pointer, DestinationRoomPointer, CartridgeDoorOrientation.Decode(Orientation), PlmX, PlmY,
+            DestinationScreenX, DestinationScreenY, SamusDistance, SetupCodePointer);
+}
 
 /// <summary>Import-only native oracle: label boundaries, never compiled catalog membership.</summary>
 internal static class DoorCatalogManifest
@@ -22,7 +50,7 @@ internal static class DoorCatalogManifest
     internal const string RelativePath = "csharp/src/SuperMetroid.ResourceAudit/Data/native-door-catalog.json";
     // LF-normalized digest of the independently imported oracle. Catalog edits cannot
     // silently weaken its boundary/operand inventory; regenerations require review.
-    internal const string ManifestHash = "DD25D46C08A04D7354F76AB4E2BDFEF62A6C67976DEF37743C84406640C9ED8A";
+    internal const string ManifestHash = "0D5DCF635B31031115C6D75BFB24DF9E8EB911C09B0D6F0E8F75D8843A6D4CE9";
     internal static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
 
     internal static int Generate(string disassembly, string rom, string output)
@@ -100,7 +128,7 @@ internal static class DoorCatalogManifest
         if (rooms.Count != 262 || nativeLists.Count != 262 || symbols.Count != 599)
             throw new InvalidDataException($"Native inventory changed: {rooms.Count} rooms, {nativeLists.Count} lists, {symbols.Count} headers.");
         var manifest = new NativeDoorManifest(Revision, RomHash, rooms.OrderBy(item => item.Room).ToArray(),
-            symbols.Values.Order().Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer)).ToArray());
+            symbols.Values.Order().Select(pointer => NativeDoorHeader.Read(bus.ReadCartridgeByte, pointer)).ToArray());
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
         File.WriteAllText(output, JsonSerializer.Serialize(manifest, Json) + "\n");
         Console.WriteLine($"Imported {rooms.Count} independently bounded door lists, {manifest.Headers.Length} headers and {rooms.Sum(r => r.States.Length)} state data summaries. No gameplay executed.");

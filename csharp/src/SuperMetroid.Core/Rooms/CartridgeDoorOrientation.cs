@@ -80,7 +80,4 @@ public readonly record struct CartridgeDoorOrientation
             throw new InvalidDataException($"Door orientation byte ${raw:X2} is outside Door_Closing_PLMs ($00-$0B).");
         return new CartridgeDoorOrientation((DoorDirection)(raw & 3), (DoorClosingBehavior)(raw >> 2));
     }
-
-    /// <summary>The cartridge byte, as <c>$82:DE2C</c> stores it in <c>DoorDirection</c>.</summary>
-    public byte Encode() => unchecked((byte)((byte)Closing << 2 | (byte)Direction));
 }

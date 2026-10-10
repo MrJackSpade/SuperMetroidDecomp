@@ -81,7 +81,7 @@ public sealed class RoomLayer3FxState
     public ushort Timer { get; private set; }
 
     /// <summary>FX B layer-blending selector installed by the effect pre-instruction.</summary>
-    public LayerBlendingConfiguration LayerBlendConfiguration { get; private set; }
+    public LayerBlendingConfiguration LayerBlendConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
 
     /// <summary>Live BG3 horizontal-scroll register shadow.</summary>
     public ushort HorizontalScroll { get; private set; }

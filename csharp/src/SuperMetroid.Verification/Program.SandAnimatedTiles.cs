@@ -15,11 +15,11 @@ internal static partial class Program
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual((byte)0x0c, rom.ReadByte(0x830000 | (sandFxRecord + 14)),
             "selected retail FX record enables ceiling and falling sand");
-        ushort[] definitions = [AnimatedTileObjectPointers.MaridiaSandCeiling, AnimatedTileObjectPointers.MaridiaSandFalling];
+        ushort[] definitions = [(ushort)AnimatedTileObject.MaridiaSandCeiling, (ushort)AnimatedTileObject.MaridiaSandFalling];
         for (int slot = 0; slot < 2; slot++)
         {
             AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
-                    definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
+                    (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
                 $"sand object {slot} resolves compiled mechanics");
             for (int frame = 0; frame < definition.Frames.Count; frame++)
             {
@@ -47,7 +47,7 @@ internal static partial class Program
                 for (int slot = 0; slot < 2; slot++)
                 {
                     AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
-                            definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
+                            (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
                         $"sand object {slot} remains catalogued at transfer");
                     int expectedSource = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
                         definition, definition.Frames[tick / 10 % 4].InstructionPointer);
@@ -58,7 +58,7 @@ internal static partial class Program
             for (int slot = 0; slot < 2; slot++)
             {
                 AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
-                        definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
+                        (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
                     $"sand object {slot} remains catalogued");
                 int destination = definition.EncodedVramDestination * 2;
                 for (int i = 0; i < definition.TransferByteCount; i++)

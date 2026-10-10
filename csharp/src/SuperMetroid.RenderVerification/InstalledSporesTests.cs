@@ -56,7 +56,7 @@ internal static partial class InstalledSporesTests
         List<RenderFrameSnapshot> packets)
     {
         var mechanics = RoomFxAnimatedTileMechanicsDefinitions.All.Single(
-            value => value.ObjectPointer == AnimatedTileObjectPointers.Spores);
+            value => value.ObjectPointer == AnimatedTileObject.Spores);
         Require(mechanics.InstructionPointer == 0x82ed && mechanics.TransferByteCount == 48 &&
             mechanics.EncodedVramDestination == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
             mechanics.Frames.Count == 3 && mechanics.Frames.All(frame => frame.Duration == 10),

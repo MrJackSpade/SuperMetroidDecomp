@@ -25,7 +25,7 @@ internal static partial class InstalledSporesTests
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
         int sporesOffset = RoomFxAnimatedTileAtlasFormat.PreSporesWidth * 2;
         var controls = RoomFxAnimatedTileMechanicsDefinitions.All.Single(
-            value => value.ObjectPointer == AnimatedTileObjectPointers.Spores);
+            value => value.ObjectPointer == AnimatedTileObject.Spores);
         for (int frame = 0; frame < 3; frame++)
         {
             int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(controls, controls.Frames[frame].InstructionPointer);

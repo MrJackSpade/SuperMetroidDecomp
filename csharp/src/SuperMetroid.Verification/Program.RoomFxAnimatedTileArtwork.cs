@@ -142,7 +142,7 @@ internal static partial class Program
         var state = new RoomFxAnimatedTilesState();
         var vram = new SnesVram();
         var guarded = new RoomFxArtworkForbiddenBus(rom);
-        state.LoadDefinition(guarded, AnimatedTileObjectPointers.MaridiaSandCeiling);
+        state.LoadDefinition(guarded, AnimatedTileObject.MaridiaSandCeiling);
         state.Step(guarded, vram, artwork: changed.RoomFxAnimatedTiles);
         AssertEqual(edited.Span[0], vram.ReadByte(0x1000 * 2),
             "edited room-FX pixel reaches the active animation transfer");

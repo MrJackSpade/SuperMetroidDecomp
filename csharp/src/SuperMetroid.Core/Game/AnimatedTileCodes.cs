@@ -1,95 +1,97 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Proven retail commands in bank-$87 animated-tile instruction streams.</summary>
-public static class AnimatedTileInstructionCodes
+public enum AnimatedTileInstruction : ushort
 {
     /// <summary><c>Instruction_AnimatedTilesObject_Delete</c> at $87:80B2.</summary>
-    public const ushort Delete = 0x80b2;
+    Delete = 0x80b2,
     /// <summary><c>Instruction_AnimatedTilesObject_GotoY</c> at $87:80B7.</summary>
-    public const ushort Goto = 0x80b7;
+    Goto = 0x80b7,
     /// <summary><c>Instruction_AnimatedTilesObject_GotoYIfEventYSet</c> at $87:813F.</summary>
-    public const ushort GotoIfEventSet = 0x813f;
+    GotoIfEventSet = 0x813f,
     /// <summary><c>Instruction_AnimatedTilesObject_SetEventY</c> at $87:8150.</summary>
-    public const ushort SetEvent = 0x8150;
+    SetEvent = 0x8150,
     /// <summary><c>Instruction_AnimatedTilesObject_WaitUntilAreaBossIsDead</c> at $87:81BA.</summary>
-    public const ushort WaitUntilAreaBossIsDead = 0x81ba;
+    WaitUntilAreaBossIsDead = 0x81ba,
     /// <summary><c>Instruction_AnimTilesObject_GotoYIfAnyBossBitsYSetForAreaY</c> at $87:8303.</summary>
-    public const ushort GotoIfAnyBossBitsSetForArea = 0x8303;
+    GotoIfAnyBossBitsSetForArea = 0x8303,
     /// <summary><c>Instruction_AnimTilesObject_SpawnTourianStatueEyeGlowParamY</c> at $87:8320.</summary>
-    public const ushort SpawnTourianStatueEyeGlow = 0x8320;
+    SpawnTourianStatueEyeGlow = 0x8320,
     /// <summary><c>Instruction_AnimTilesObject_SpawnTourianStatuesSoulParamY</c> at $87:832F.</summary>
-    public const ushort SpawnTourianStatueSoul = 0x832f;
+    SpawnTourianStatueSoul = 0x832f,
     /// <summary><c>Instruction_AnimatedTilesObject_GotoYIfTourianStatueBusy</c> at $87:833E.</summary>
-    public const ushort GotoIfTourianStatueBusy = 0x833e;
+    GotoIfTourianStatueBusy = 0x833e,
     /// <summary><c>Instruction_AnimatedTilesObject_TourianStatueSetAnimStateY</c> at $87:8349.</summary>
-    public const ushort SetTourianStatueAnimationState = 0x8349;
+    SetTourianStatueAnimationState = 0x8349,
     /// <summary><c>Instruction_AnimatedTilesObject_TourianStatueResetAnimStateY</c> at $87:8352.</summary>
-    public const ushort ResetTourianStatueAnimationState = 0x8352;
+    ResetTourianStatueAnimationState = 0x8352,
     /// <summary><c>Instruction_AnimatedTilesObject_Clear3ColorsOfPaletteData</c> at $87:835B.</summary>
-    public const ushort ClearThreePaletteColors = 0x835b;
+    ClearThreePaletteColors = 0x835b,
     /// <summary><c>Instruction_AnimatedTilesObject_SpawnPaletteFXObjectInY</c> at $87:8372.</summary>
-    public const ushort SpawnPaletteFxObject = 0x8372;
+    SpawnPaletteFxObject = 0x8372,
     /// <summary><c>Instruction_AnimatedTilesObject_Write8ColorsOfTargetPaletteD</c> at $87:837F.</summary>
-    public const ushort WriteEightTargetPaletteColors = 0x837f;
+    WriteEightTargetPaletteColors = 0x837f,
 }
 
 /// <summary>Bank-$87 object headers selected directly by translated room setup code.</summary>
-public static class AnimatedTileObjectPointers
+public enum AnimatedTileObject : ushort
 {
+    /// <summary>No animated-tile object is loaded.</summary>
+    None = 0,
     /// <summary>$87:854C AnimatedTilesObject_TourianStatuePhantoon.</summary>
-    public const ushort TourianStatuePhantoon = 0x854c;
+    TourianStatuePhantoon = 0x854c,
     /// <summary>$87:8552 AnimatedTilesObject_TourianStatueRidley.</summary>
-    public const ushort TourianStatueRidley = 0x8552;
+    TourianStatueRidley = 0x8552,
     /// <summary>$87:8558 AnimatedTilesObject_TourianStatueKraid.</summary>
-    public const ushort TourianStatueKraid = 0x8558;
+    TourianStatueKraid = 0x8558,
     /// <summary>$87:855E AnimatedTilesObject_TourianStatueDraygon.</summary>
-    public const ushort TourianStatueDraygon = 0x855e;
+    TourianStatueDraygon = 0x855e,
     /// <summary>$87:824B AnimatedTilesObjects_FX_nothing, the unused area-bit object.</summary>
-    public const ushort Empty = 0x824b;
+    Empty = 0x824b,
     /// <summary>$87:8257 AnimatedTilesObjects_FX_horizontalSpikes, common area bit0.</summary>
-    public const ushort HorizontalSpikes = 0x8257;
+    HorizontalSpikes = 0x8257,
     /// <summary>$87:8251 AnimatedTilesObjects_FX_verticalSpikes, common area bit1.</summary>
-    public const ushort VerticalSpikes = 0x8251;
+    VerticalSpikes = 0x8251,
     /// <summary>$87:825D AnimatedTilesObjects_FX_crateriaLake, Crateria bit2.</summary>
-    public const ushort CrateriaLake = 0x825d;
+    CrateriaLake = 0x825d,
     /// <summary>$87:8263 unused Crateria lava object, preserved for area bit3.</summary>
-    public const ushort UnusedCrateriaLava = 0x8263;
+    UnusedCrateriaLava = 0x8263,
     /// <summary>$87:8281 AnimatedTilesObjects_FX_brinstarPlant, Brinstar bit2.</summary>
-    public const ushort BrinstarPlant = 0x8281;
+    BrinstarPlant = 0x8281,
     /// <summary>$87:826F AnimatedTilesObjects_FX_wreckedShipScreen, Wrecked Ship bit4.</summary>
-    public const ushort WreckedShipScreen = 0x826f;
+    WreckedShipScreen = 0x826f,
     /// <summary>kAnimtiles_MaridiaSandCeiling, $87:8287, selected by room FX animation bits.</summary>
-    public const ushort MaridiaSandCeiling = 0x8287;
+    MaridiaSandCeiling = 0x8287,
     /// <summary>kAnimtiles_MaridiaSandFalling, $87:828D, selected by room FX animation bits.</summary>
-    public const ushort MaridiaSandFalling = 0x828d;
+    MaridiaSandFalling = 0x828d,
     /// <summary>Wrecked Ship rightward treadmill object at $87:8275.</summary>
-    public const ushort WreckedShipTreadmillRightwards = 0x8275;
+    WreckedShipTreadmillRightwards = 0x8275,
     /// <summary>Wrecked Ship leftward treadmill object at $87:827B.</summary>
-    public const ushort WreckedShipTreadmillLeftwards = 0x827b;
+    WreckedShipTreadmillLeftwards = 0x827b,
 
     /// <summary>
     /// <c>kAnimtiles_Lava</c> at $87:82AB, spawned by the lava FX dispatcher at
     /// $88:B279. Its five-frame loop uploads $40 bytes to VRAM word $4280.
     /// </summary>
-    public const ushort Lava = 0x82ab;
+    Lava = 0x82ab,
 
     /// <summary>
     /// <c>kAnimtiles_Acid</c> at $87:82C9, spawned by the acid FX dispatcher at
     /// $88:B2A1. Its five-frame loop uploads $40 bytes to VRAM word $4280.
     /// </summary>
-    public const ushort Acid = 0x82c9;
+    Acid = 0x82c9,
 
     /// <summary>
     /// <c>kAnimtiles_Rain</c> at $87:82E7, spawned by the rain FX dispatcher at
     /// $88:C4B9. Its five-frame loop uploads $50 bytes to VRAM word $4280.
     /// </summary>
-    public const ushort Rain = 0x82e7;
+    Rain = 0x82e7,
 
     /// <summary>
     /// <c>AnimatedTilesObject_Spores</c> at $87:82FD, spawned by FX type $08 at
     /// $88:DA25. Three ten-tick frames upload $30 bytes to VRAM word $4280.
     /// </summary>
-    public const ushort Spores = 0x82fd;
+    Spores = 0x82fd,
 }
 
 /// <summary>Named entry points within the translated Wrecked Ship instruction streams.</summary>

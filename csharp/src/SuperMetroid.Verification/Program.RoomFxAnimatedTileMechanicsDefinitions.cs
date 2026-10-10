@@ -39,7 +39,7 @@ internal static partial class Program
             {
                 AssertTrue(!definition.TryReadMechanicsWord(
                         frame.SourceOperandPointer, out _),
-                    $"object $87:{definition.ObjectPointer:X4} leaves source operand " +
+                    $"object $87:{(int)definition.ObjectPointer:X4} leaves source operand " +
                     $"$87:{frame.SourceOperandPointer:X4} presentation-owned");
                 mechanicsWordCount++;
                 frameCount++;
@@ -63,11 +63,11 @@ internal static partial class Program
             }
 
             AssertEqual(definition.Frames.Count + 1, observedFrames,
-                $"object $87:{definition.ObjectPointer:X4} executes one complete loop");
+                $"object $87:{(int)definition.ObjectPointer:X4} executes one complete loop");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"object $87:{definition.ObjectPointer:X4} performs no mechanics ROM reads");
+                $"object $87:{(int)definition.ObjectPointer:X4} performs no mechanics ROM reads");
             AssertEqual(0, guarded.PresentationReadCount,
-                $"object $87:{definition.ObjectPointer:X4} reads no compiled artwork-source operands");
+                $"object $87:{(int)definition.ObjectPointer:X4} reads no compiled artwork-source operands");
         }
 
         AssertEqual(7, RoomFxAnimatedTileMechanicsDefinitions.All.Count(),

@@ -17,9 +17,9 @@ public sealed class RoomSpikeAnimatedTilesState
         byte bits = RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
         for (int bit = 0; bit < 8; bit++)
             if ((bits & (1 << bit)) != 0 &&
-                AreaAnimatedTileObjectDefinitions.Read(area, bit) == AnimatedTileObjectPointers.HorizontalSpikes)
+                AreaAnimatedTileObjectDefinitions.Read(area, bit) == AnimatedTileObject.HorizontalSpikes)
             {
-                animation.LoadDefinition(bus, AnimatedTileObjectPointers.HorizontalSpikes);
+                animation.LoadDefinition(bus, AnimatedTileObject.HorizontalSpikes);
                 return;
             }
     }

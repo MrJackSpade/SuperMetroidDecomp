@@ -40,21 +40,21 @@ public static class RoomFxAnimatedTileArtworkDefinitions
         ArgumentNullException.ThrowIfNull(definition);
         int first = definition.ObjectPointer switch
         {
-            AnimatedTileObjectPointers.HorizontalSpikes => HorizontalSpikesFirstSource,
-            AnimatedTileObjectPointers.MaridiaSandCeiling => MaridiaSandCeilingFirstSource,
-            AnimatedTileObjectPointers.MaridiaSandFalling => MaridiaSandFallingFirstSource,
-            AnimatedTileObjectPointers.Lava => LavaFirstSource,
-            AnimatedTileObjectPointers.Acid => AcidFirstSource,
-            AnimatedTileObjectPointers.Rain => RainFirstSource,
-            AnimatedTileObjectPointers.Spores => SporesFirstSource,
+            AnimatedTileObject.HorizontalSpikes => HorizontalSpikesFirstSource,
+            AnimatedTileObject.MaridiaSandCeiling => MaridiaSandCeilingFirstSource,
+            AnimatedTileObject.MaridiaSandFalling => MaridiaSandFallingFirstSource,
+            AnimatedTileObject.Lava => LavaFirstSource,
+            AnimatedTileObject.Acid => AcidFirstSource,
+            AnimatedTileObject.Rain => RainFirstSource,
+            AnimatedTileObject.Spores => SporesFirstSource,
             _ => throw new InvalidDataException(
-                $"No compiled artwork source for room-FX object $87:{definition.ObjectPointer:X4}."),
+                $"No compiled artwork source for room-FX object $87:{(int)definition.ObjectPointer:X4}."),
         };
         for (int index = 0; index < definition.Frames.Count; index++)
             if (definition.Frames[index].InstructionPointer == instructionPointer)
-                return first + (definition.ObjectPointer == AnimatedTileObjectPointers.HorizontalSpikes && index == 3
+                return first + (definition.ObjectPointer == AnimatedTileObject.HorizontalSpikes && index == 3
                     ? 1 : index) * definition.TransferByteCount;
         throw new InvalidDataException(
-            $"Room-FX object $87:{definition.ObjectPointer:X4} has no artwork frame at $87:{instructionPointer:X4}.");
+            $"Room-FX object $87:{(int)definition.ObjectPointer:X4} has no artwork frame at $87:{instructionPointer:X4}.");
     }
 }

@@ -355,7 +355,7 @@ internal static partial class Program
     {
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
-            AnimatedTileObjectPointers.Lava,
+            (ushort)AnimatedTileObject.Lava,
             RoomFxRomData.Layer3AnimatedTiles.LavaFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
             RoomFxRomData.Layer3AnimatedTiles.LiquidDestinationWord,
@@ -363,7 +363,7 @@ internal static partial class Program
             "lava"));
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
-            AnimatedTileObjectPointers.Acid,
+            (ushort)AnimatedTileObject.Acid,
             RoomFxRomData.Layer3AnimatedTiles.AcidFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
             RoomFxRomData.Layer3AnimatedTiles.LiquidDestinationWord,
@@ -371,7 +371,7 @@ internal static partial class Program
             "acid"));
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
-            AnimatedTileObjectPointers.Rain,
+            (ushort)AnimatedTileObject.Rain,
             RoomFxRomData.Layer3AnimatedTiles.RainFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.RainFrameByteCount,
             RoomFxRomData.Layer3AnimatedTiles.RainDestinationWord,

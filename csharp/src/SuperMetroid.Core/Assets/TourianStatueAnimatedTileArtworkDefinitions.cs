@@ -29,11 +29,11 @@ public static class TourianStatueAnimatedTileArtworkDefinitions
         ArgumentNullException.ThrowIfNull(definition);
         (int first, int width, int released) = definition.ObjectPointer switch
         {
-            AnimatedTileObjectPointers.TourianStatuePhantoon => (0x9364, 0x80, 0x97e4),
-            AnimatedTileObjectPointers.TourianStatueRidley => (0x94e4, 0x40, 0x9864),
-            AnimatedTileObjectPointers.TourianStatueKraid => (0x9724, 0x40, 0x98a4),
-            AnimatedTileObjectPointers.TourianStatueDraygon => (0x95a4, 0x80, 0x98e4),
-            _ => throw new InvalidDataException($"Unknown Tourian statue $87:{definition.ObjectPointer:X4}."),
+            AnimatedTileObject.TourianStatuePhantoon => (0x9364, 0x80, 0x97e4),
+            AnimatedTileObject.TourianStatueRidley => (0x94e4, 0x40, 0x9864),
+            AnimatedTileObject.TourianStatueKraid => (0x9724, 0x40, 0x98a4),
+            AnimatedTileObject.TourianStatueDraygon => (0x95a4, 0x80, 0x98e4),
+            _ => throw new InvalidDataException($"Unknown Tourian statue $87:{(int)definition.ObjectPointer:X4}."),
         };
         for (int index = 0; index < definition.SourceOperandPointers.Count; index++)
             if (definition.SourceOperandPointers[index] == operandPointer)
@@ -43,6 +43,6 @@ public static class TourianStatueAnimatedTileArtworkDefinitions
                 return RoomFxRomData.Banks.AnimatedTiles | source;
             }
         throw new InvalidDataException(
-            $"Tourian statue $87:{definition.ObjectPointer:X4} has no frame operand $87:{operandPointer:X4}.");
+            $"Tourian statue $87:{(int)definition.ObjectPointer:X4} has no frame operand $87:{operandPointer:X4}.");
     }
 }

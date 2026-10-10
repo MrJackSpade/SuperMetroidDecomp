@@ -7,82 +7,6 @@
   "SME6273": "enum interpolated with a numeric format specifier"
  },
  "open": {
-  "AnimatedTileInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTilesState.cs",
-    "line": 123,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'instructionOrDuration' is a ushort switched over named constants of AnimatedTileInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/TourianStatueSequence.cs",
-    "line": 114,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'code' is a ushort switched over named constants of AnimatedTileInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/WreckedShipTreadmillAnimatedTilesState.cs",
-    "line": 150,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'word' is a ushort switched over named constants of AnimatedTileInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "AnimatedTileObjectPointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileArtworkDefinitions.cs",
-    "line": 41,
-    "column": 21,
-    "rule": "SME6270",
-    "message": "'ObjectPointer' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/TourianStatueAnimatedTileArtworkDefinitions.cs",
-    "line": 30,
-    "column": 48,
-    "rule": "SME6270",
-    "message": "'ObjectPointer' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTileMechanicsDefinitions.cs",
-    "line": 22,
-    "column": 94,
-    "rule": "SME6270",
-    "message": "'objectPointer' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomTreadmillAnimatedTilesState.cs",
-    "line": 25,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'definition' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/TourianStatueAnimatedTileMechanicsDefinitions.cs",
-    "line": 30,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'objectPointer' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/WreckedShipTreadmillMechanicsDefinitions.cs",
-    "line": 28,
-    "column": 22,
-    "rule": "SME6270",
-    "message": "'objectPointer' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "Apu": [
    {
     "file": "csharp/src/SuperMetroid.Core/Audio/CartridgeAudioCommand.cs",
@@ -2459,13 +2383,35 @@
    "consumers": "Bomb/Golden Torizo, grapple collision and reactions, Dead Torizo corpse, Fune/Namihe fireballs, Polyp rocks, Stoke projectiles, enemy definition catalogs and importer",
    "tests": "grapple enemy death and reactions, compiled enemy definitions, Torizo landing lifetime, full movie replays",
    "status": "resolved"
+  },
+  "AnimatedTileObjectPointers": {
+   "previous": "ushort bank-$87 animated-tile object headers named by AnimatedTileObjectPointers constants, stored in RoomFxAnimatedTilesState.objectPointer, WreckedShipTreadmillAnimatedTilesState._objectPointer and the compiled definitions' ObjectPointer",
+   "type": "enum AnimatedTileObject : ushort (None plus 19 retail headers)",
+   "closedProof": "every producer selects a named header (area-bit table, FX type, statue spawn order, treadmill direction); no header is read from cartridge data at runtime",
+   "transitions": "LoadDefinition/StartDefinition assign a member; Reset assigns None",
+   "boundary": "the type is the boundary: producers are enum members, and the legacy debugger-state migration unboxes the typed field",
+   "invalidValues": "resolver switches name every member and throw InvalidOperationException for an undefined value",
+   "consumers": "RoomFx/TourianStatue/WreckedShipTreadmill mechanics and artwork definitions, room spike/sand/treadmill selection, RoomFxAnimatedTileAtlas",
+   "tests": "VerifySimpleAnimationObjectDomain, VerifyTourianStatueObjectDomain and the treadmill header domain sweep every member and assert undefined words throw; VerifyConstructedAnimatedTileStreams rejects a non-treadmill header before interpreting its program",
+   "status": "resolved"
+  },
+  "AnimatedTileInstructionCodes": {
+   "previous": "ushort bank-$87 instruction words compared against AnimatedTileInstructionCodes constants in three stream dispatchers",
+   "type": "enum AnimatedTileInstruction : ushort (14 commands)",
+   "closedProof": "positive words are frame durations consumed before dispatch; every negative word reaching dispatch must be one of the 14 catalogued commands",
+   "transitions": "none; instruction words are immutable stream data",
+   "boundary": "ClosedNativeWords.Decode<AnimatedTileInstruction> at each dispatcher",
+   "invalidValues": "Decode throws InvalidDataException naming the word; defined but untranslated commands still reach the throwing default arm",
+   "consumers": "RoomFxAnimatedTilesState.Step, TourianStatueSequence.StepTiles, WreckedShipTreadmillAnimatedTilesState.Step; compiled mechanics emit (ushort) members as stream words",
+   "tests": "VerifyAnimatedTileInstructionCodeCatalog checks the member count, uniqueness and mapping; retail treadmill and statue streams execute through the decoded dispatchers",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 243,
-  "openDomains": 171,
+  "openFindings": 234,
+  "openDomains": 169,
   "byRule": {
-   "SME6270": 243
+   "SME6270": 234
   }
  }
 }

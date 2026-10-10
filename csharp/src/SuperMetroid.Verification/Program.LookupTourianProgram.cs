@@ -7,7 +7,7 @@ internal static partial class Program
     {
         foreach (ushort header in OriginalTourianObjects)
         {
-            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(header,
+            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header,
                 out var definition), "Original statue resolves");
             ushort[] expected = OriginalTourianFrames(rom, header).Select(x => x.Operand).ToArray();
             AssertEqual(9, expected.Length, "Native timed-frame count");
@@ -66,7 +66,7 @@ internal static partial class Program
         int total = 0;
         foreach (ushort header in OriginalTourianObjects)
         {
-            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(header,
+            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header,
                 out var definition), "Native statue resolves");
             var expected = new HashSet<ushort> { header, (ushort)(header + 2), (ushort)(header + 4) };
             foreach (var instruction in OriginalTourianInstructions(rom, header))
@@ -85,7 +85,7 @@ internal static partial class Program
 
     private static void VerifyTourianStatueOriginalWord(ISnesAddressSpace rom, ushort header, ushort pointer)
     {
-        AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(header, out var definition),
+        AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header, out var definition),
             "Original statue resolves for control word");
         AssertTrue(definition.TryReadMechanicsWord(pointer, out ushort actual), "Original control word is compiled");
         AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), actual, "Original statue control word");

@@ -224,7 +224,7 @@ internal static class DebuggerStateFieldMigrations
             "Legacy room-FX animated tiles lack their compiled mechanics binding; reconstructing it from the captured native object pointer.",
             tiles =>
             {
-                RoomFxAnimatedTileMechanicsDefinitions.TryResolve((ushort)(Get(tiles, "objectPointer") ?? (ushort)0),
+                RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)(Get(tiles, "objectPointer") ?? AnimatedTileObject.None),
                     out RoomFxAnimatedTileObjectDefinition? compiled);
                 Set(tiles, "compiledMechanics", compiled);
             }),
@@ -234,7 +234,7 @@ internal static class DebuggerStateFieldMigrations
             "Legacy Wrecked Ship treadmill lacks its compiled mechanics binding; reconstructing it from the captured native object pointer.",
             treadmill =>
             {
-                WreckedShipTreadmillMechanicsDefinitions.TryResolve((ushort)(Get(treadmill, "_objectPointer") ?? (ushort)0),
+                WreckedShipTreadmillMechanicsDefinitions.TryResolve((AnimatedTileObject)(Get(treadmill, "_objectPointer") ?? AnimatedTileObject.None),
                     out WreckedShipTreadmillObjectDefinition? compiled);
                 Set(treadmill, "_compiledMechanics", compiled);
             }),

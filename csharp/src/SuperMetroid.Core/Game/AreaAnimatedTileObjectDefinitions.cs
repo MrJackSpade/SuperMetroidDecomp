@@ -21,22 +21,22 @@ internal static class AreaAnimatedTileObjectDefinitions
     /// is independently verified against NTSC J/U v1.0 and pinned bank_83.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d); no selection matrix remains.
     /// Callers retain their distinct area bounds and validation order.</remarks>
-    private static ushort SelectObject(int area, int bit) => ((AreaId)area, bit) switch
+    private static AnimatedTileObject SelectObject(int area, int bit) => ((AreaId)area, bit) switch
     {
-        (_, 0) => AnimatedTileObjectPointers.HorizontalSpikes,
-        (_, 1) => AnimatedTileObjectPointers.VerticalSpikes,
-        (AreaId.Crateria, 2) => AnimatedTileObjectPointers.CrateriaLake,
-        (AreaId.Crateria, 3) => AnimatedTileObjectPointers.UnusedCrateriaLava,
-        (AreaId.Brinstar, 2) => AnimatedTileObjectPointers.BrinstarPlant,
-        (AreaId.WreckedShip, 2) => AnimatedTileObjectPointers.WreckedShipTreadmillRightwards,
-        (AreaId.WreckedShip, 3) => AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards,
-        (AreaId.WreckedShip, 4) => AnimatedTileObjectPointers.WreckedShipScreen,
-        (AreaId.Maridia, 2) => AnimatedTileObjectPointers.MaridiaSandCeiling,
-        (AreaId.Maridia, 3) => AnimatedTileObjectPointers.MaridiaSandFalling,
-        _ => AnimatedTileObjectPointers.Empty,
+        (_, 0) => AnimatedTileObject.HorizontalSpikes,
+        (_, 1) => AnimatedTileObject.VerticalSpikes,
+        (AreaId.Crateria, 2) => AnimatedTileObject.CrateriaLake,
+        (AreaId.Crateria, 3) => AnimatedTileObject.UnusedCrateriaLava,
+        (AreaId.Brinstar, 2) => AnimatedTileObject.BrinstarPlant,
+        (AreaId.WreckedShip, 2) => AnimatedTileObject.WreckedShipTreadmillRightwards,
+        (AreaId.WreckedShip, 3) => AnimatedTileObject.WreckedShipTreadmillLeftwards,
+        (AreaId.WreckedShip, 4) => AnimatedTileObject.WreckedShipScreen,
+        (AreaId.Maridia, 2) => AnimatedTileObject.MaridiaSandCeiling,
+        (AreaId.Maridia, 3) => AnimatedTileObject.MaridiaSandFalling,
+        _ => AnimatedTileObject.Empty,
     };
     /// <summary>Returns the bank-$87 object header selected by one retail area/bit pair.</summary>
-    public static ushort Read(AreaId area, int bit)
+    public static AnimatedTileObject Read(AreaId area, int bit)
     {
         if ((uint)bit >= ObjectsPerArea)
         {

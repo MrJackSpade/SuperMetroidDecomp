@@ -23,7 +23,7 @@ internal static partial class Program
 
     private static WreckedShipTreadmillObjectDefinition TreadmillDefinition(ushort header)
     {
-        AssertTrue(WreckedShipTreadmillMechanicsDefinitions.TryResolve(header, out var definition), "Native treadmill resolves");
+        AssertTrue(WreckedShipTreadmillMechanicsDefinitions.TryResolve((AnimatedTileObject)header, out var definition), "Native treadmill resolves");
         return definition;
     }
 
@@ -41,18 +41,23 @@ internal static partial class Program
         {
             ushort header = index == 0 ? (ushort)0x8275 : (ushort)0x827b;
             var direction = index == 0 ? WreckedShipTreadmillDirection.Rightwards : WreckedShipTreadmillDirection.Leftwards;
-            AssertEqual(header, all[index].ObjectPointer, "Original enumeration identity/order");
+            AssertEqual(header, (ushort)all[index].ObjectPointer, "Original enumeration identity/order");
             AssertEqual(direction, all[index].Direction, "Original direction association");
-            AssertEqual(header, WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction).ObjectPointer, "Named direction selects header");
+            AssertEqual(header, (ushort)WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction).ObjectPointer, "Named direction selects header");
             AssertEqual(direction, TreadmillDefinition(header).Direction, "Header selects named direction");
         }
-        for (int value = 0; value <= ushort.MaxValue; value++)
+        foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
         {
-            bool found = WreckedShipTreadmillMechanicsDefinitions.TryResolve((ushort)value, out var definition);
+            ushort value = (ushort)header;
+            bool found = WreckedShipTreadmillMechanicsDefinitions.TryResolve(header, out var definition);
             AssertEqual(value is 0x8275 or 0x827b, found, "Complete header domain");
-            if (found) AssertEqual((ushort)value, definition.ObjectPointer, "Resolved identity");
+            if (found) AssertEqual(value, (ushort)definition.ObjectPointer, "Resolved identity");
             else AssertTrue(definition is null, "Unknown header returns null");
         }
+        foreach (ushort undefined in UndefinedAnimatedTileObjects)
+            AssertThrows<InvalidOperationException>(
+                () => WreckedShipTreadmillMechanicsDefinitions.TryResolve((AnimatedTileObject)undefined, out _),
+                "Undefined treadmill header is rejected at the typed boundary");
         foreach (int value in new[] { int.MinValue, -1, 2, 3, 255, 65535, int.MaxValue })
             AssertThrows<InvalidDataException>(() => WreckedShipTreadmillMechanicsDefinitions.ForDirection(
                 (WreckedShipTreadmillDirection)value), "Unknown direction rejects");

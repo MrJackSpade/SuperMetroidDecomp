@@ -31,7 +31,7 @@ internal static partial class Program
         {
             object tile = objects[index];
             var definition = (TourianStatueAnimatedTileProgramDefinition)tile.GetType().GetField("Definition")!.GetValue(tile)!;
-            AssertEqual(expected[index], definition.ObjectPointer, "Native spawn/handler order");
+            AssertEqual(expected[index], (ushort)definition.ObjectPointer, "Native spawn/handler order");
             AssertEqual(ReadVerificationWord(rom, 0x870000 | expected[index]),
                 (ushort)tile.GetType().GetField("Pointer")!.GetValue(tile)!, "Original initial program");
             AssertEqual((ushort)1, (ushort)tile.GetType().GetField("Timer")!.GetValue(tile)!, "Spawned instruction timer");

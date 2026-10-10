@@ -49,7 +49,7 @@ internal static partial class Program
         int total = 0;
         foreach (ushort header in new ushort[] { 0x854c, 0x8552, 0x8558, 0x855e })
         {
-            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(header,
+            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header,
                 out var definition), "Original statue object resolves");
             var expected = OriginalTourianFrames(rom, header).ToDictionary(x => x.Operand, x => x.Source);
             AssertEqual(9, expected.Count, "Nine original timed statue frames");

@@ -9,7 +9,7 @@ internal static partial class Program
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
-            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(original.Object, out var definition),
+            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)original.Object, out var definition),
                 "Original animation resolves for artwork");
             var expected = new Dictionary<ushort, int>();
             for (int cursor = original.First; cursor < original.End; cursor += 4)

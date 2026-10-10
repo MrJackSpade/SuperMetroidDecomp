@@ -24,7 +24,7 @@ internal static partial class Program
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
-            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(original.Object, out var definition),
+            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)original.Object, out var definition),
                 "Original animation object resolves");
             int count = (original.End - original.First) / 4;
             AssertEqual(count, definition.Frames.Count, "Native frame count");
@@ -54,7 +54,7 @@ internal static partial class Program
     {
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
-            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(original.Object, out var definition), "Animation resolves");
+            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)original.Object, out var definition), "Animation resolves");
             int index = 0;
             foreach (var frame in definition.Frames)
             {

@@ -12,8 +12,11 @@ internal static partial class Program
     /// </summary>
     static void VerifyAnimatedTileInstructionCodeCatalog()
     {
-        AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionCodes), 14);
-        AssertAnimatedTileCatalog(typeof(AnimatedTileObjectPointers), 19);
+        AssertAnimatedTileCatalog(nameof(AnimatedTileInstruction),
+            Enum.GetValues<AnimatedTileInstruction>().Select(code => (ushort)code).ToArray(), 14);
+        AssertAnimatedTileCatalog(nameof(AnimatedTileObject),
+            Enum.GetValues<AnimatedTileObject>().Where(header => header != AnimatedTileObject.None)
+                .Select(header => (ushort)header).ToArray(), 19);
         AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionListPointers), 4);
         Suite(nameof(VerifyConstructedAnimatedTileStreams), () => VerifyConstructedAnimatedTileStreams());
 
@@ -52,6 +55,9 @@ internal static partial class Program
             "dispatch, and both retail treadmill streams agree.");
     }
 
+    /// <summary>Words outside <see cref="AnimatedTileObject"/>, including a constructed bank-$87 header.</summary>
+    private static readonly ushort[] UndefinedAnimatedTileObjects = [0x0001, 0x8f00, 0xffff];
+
     private static void VerifyConstructedAnimatedTileStreams()
     {
         // Generic ROM dispatch was removed when treadmill mechanics became compiled.
@@ -59,29 +65,29 @@ internal static partial class Program
         // an unknown opcode or zero duration could be interpreted as a valid frame.
         ushort[][] programs =
         [
-            [AnimatedTileInstructionCodes.WaitUntilAreaBossIsDead, 1, 0x9100,
-                AnimatedTileInstructionCodes.Goto, 0x9002],
+            [(ushort)AnimatedTileInstruction.WaitUntilAreaBossIsDead, 1, 0x9100,
+                (ushort)AnimatedTileInstruction.Goto, 0x9002],
             [0xdead],
             [0],
         ];
         foreach (ushort[] program in programs)
         {
             var bus = new TestAddressSpace();
-            WriteTestWords(bus, 0x878f00, 0x9000,
+            WriteTestWords(bus, 0x870000 | (ushort)AnimatedTileObject.Lava, 0x9000,
                 WreckedShipTreadmillRomData.TransferByteCount,
                 WreckedShipTreadmillRomData.EncodedVramDestination);
             WriteTestWords(bus, 0x879000, program);
             var state = new WreckedShipTreadmillAnimatedTilesState();
             var error = AssertThrows<InvalidDataException>(() => state.StartDefinition(
-                bus, WreckedShipTreadmillDirection.Rightwards, 0x8f00),
-                "non-retail animated-tile object rejects before interpreting its program");
-            AssertTrue(error.Message.Contains("$87:8F00", StringComparison.Ordinal),
+                bus, WreckedShipTreadmillDirection.Rightwards, AnimatedTileObject.Lava),
+                "non-treadmill animated-tile object rejects before interpreting its program");
+            AssertTrue(error.Message.Contains("$87:82AB", StringComparison.Ordinal),
                 "unsupported animated-tile error identifies the rejected object");
         }
         var mismatched = new WreckedShipTreadmillAnimatedTilesState();
         AssertThrows<InvalidDataException>(() => mismatched.StartDefinition(
             new TestAddressSpace(), WreckedShipTreadmillDirection.Leftwards,
-            AnimatedTileObjectPointers.WreckedShipTreadmillRightwards),
+            AnimatedTileObject.WreckedShipTreadmillRightwards),
             "compiled treadmill definition rejects the opposite direction");
     }
     private static void VerifyRetailTreadmillStream(
@@ -133,15 +139,17 @@ internal static partial class Program
         Suite(nameof(VerifyTreadmillMechanicsDomain), () => VerifyTreadmillMechanicsDomain(bus));
         Suite(nameof(VerifyTreadmillArtworkSources), () => VerifyTreadmillArtworkSources(bus));
     }
-    private static void AssertAnimatedTileCatalog(Type catalog, int expectedCount)
+    private static void AssertAnimatedTileCatalog(Type catalog, int expectedCount) =>
+        AssertAnimatedTileCatalog(catalog.Name, GetUshortConstants(catalog)
+            .Select(field => (ushort)field.GetRawConstantValue()!).ToArray(), expectedCount);
+
+    private static void AssertAnimatedTileCatalog(string name, ushort[] pointers, int expectedCount)
     {
-        FieldInfo[] fields = GetUshortConstants(catalog);
-        AssertEqual(expectedCount, fields.Length, $"{catalog.Name} exhaustive entry count");
-        ushort[] pointers = fields.Select(field => (ushort)field.GetRawConstantValue()!).ToArray();
+        AssertEqual(expectedCount, pointers.Length, $"{name} exhaustive entry count");
         AssertEqual(pointers.Length, pointers.Distinct().Count(),
-            $"{catalog.Name} contains no duplicate pointers");
+            $"{name} contains no duplicate pointers");
         foreach (ushort pointer in pointers)
-            AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
+            AssertTrue(pointer >= 0x8000, $"{name} pointer ${pointer:X4} is mapped");
     }
 
     private sealed class WreckedShipTreadmillMechanicsForbiddenBus(

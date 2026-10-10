@@ -163,7 +163,7 @@ public static class RoomFxAnimatedTileAtlasFormat
     {
         int total = 0;
         foreach (RoomFxAnimatedTileObjectDefinition definition in RoomFxAnimatedTileMechanicsDefinitions.All)
-            if (definition.ObjectPointer is not (AnimatedTileObjectPointers.Spores or AnimatedTileObjectPointers.HorizontalSpikes))
+            if (definition.ObjectPointer is not (AnimatedTileObject.Spores or AnimatedTileObject.HorizontalSpikes))
                 foreach (var segment in Frames(definition))
                 {
                     total += segment.ByteCount;
@@ -178,13 +178,13 @@ public static class RoomFxAnimatedTileAtlasFormat
         total += TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount;
         yield return new(TourianStatueAnimatedTileArtworkDefinitions.FirstSource,
             TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount, false);
-        RoomFxAnimatedTileMechanicsDefinitions.TryResolve(AnimatedTileObjectPointers.Spores, out var spores);
+        RoomFxAnimatedTileMechanicsDefinitions.TryResolve(AnimatedTileObject.Spores, out var spores);
         foreach (var segment in Frames(spores))
         {
             total += segment.ByteCount;
             yield return segment;
         }
-        RoomFxAnimatedTileMechanicsDefinitions.TryResolve(AnimatedTileObjectPointers.HorizontalSpikes, out var spikes);
+        RoomFxAnimatedTileMechanicsDefinitions.TryResolve(AnimatedTileObject.HorizontalSpikes, out var spikes);
         foreach (var segment in Frames(spikes))
         {
             total += segment.ByteCount;
@@ -198,7 +198,7 @@ public static class RoomFxAnimatedTileAtlasFormat
             foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
             {
                 // The last spike step reuses image 1, already present in the strip.
-                if (definition.ObjectPointer == AnimatedTileObjectPointers.HorizontalSpikes &&
+                if (definition.ObjectPointer == AnimatedTileObject.HorizontalSpikes &&
                     frame.InstructionPointer == definition.Frames[3].InstructionPointer) continue;
                 yield return new(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer),
                     definition.TransferByteCount, true);

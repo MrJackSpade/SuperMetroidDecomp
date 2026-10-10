@@ -23,7 +23,7 @@ public enum WreckedShipTreadmillDirection
 public sealed class WreckedShipTreadmillAnimatedTilesState
 {
 
-    private ushort _objectPointer;
+    private AnimatedTileObject _objectPointer;
     private ushort _instructionPointer;
     private ushort _instructionTimer;
     private ushort _transferByteCount;
@@ -49,7 +49,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         Direction = default;
         NextFrameIndex = 0;
         LastSourceAddress = null;
-        _objectPointer = 0;
+        _objectPointer = AnimatedTileObject.None;
         _instructionPointer = 0;
         _instructionTimer = 0;
         _transferByteCount = 0;
@@ -76,7 +76,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     internal void StartDefinition(
         ISnesAddressSpace bus,
         WreckedShipTreadmillDirection direction,
-        ushort objectPointer)
+        AnimatedTileObject objectPointer)
     {
         ArgumentNullException.ThrowIfNull(bus);
 
@@ -86,10 +86,10 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         LastSourceAddress = null;
         _objectPointer = objectPointer;
         if (!WreckedShipTreadmillMechanicsDefinitions.TryResolve(objectPointer, out _compiledMechanics))
-            throw new InvalidDataException($"Wrecked Ship treadmill $87:{objectPointer:X4} is not compiled.");
+            throw new InvalidDataException($"Wrecked Ship treadmill $87:{(int)objectPointer:X4} is not compiled.");
         if (_compiledMechanics.Direction != direction)
             throw new InvalidDataException(
-                $"Wrecked Ship treadmill $87:{objectPointer:X4} belongs to {_compiledMechanics.Direction}, not {direction}.");
+                $"Wrecked Ship treadmill $87:{(int)objectPointer:X4} belongs to {_compiledMechanics.Direction}, not {direction}.");
         _instructionPointer = _compiledMechanics.WaitInstructionPointer;
         _transferByteCount = WreckedShipTreadmillRomData.TransferByteCount;
         _encodedVramDestination = WreckedShipTreadmillRomData.EncodedVramDestination;
@@ -98,7 +98,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         if (_transferByteCount == 0)
         {
             throw new InvalidDataException(
-                $"Animated-tile object $87:{objectPointer:X4} has a zero transfer size.");
+                $"Animated-tile object $87:{(int)objectPointer:X4} has a zero transfer size.");
         }
     }
 
@@ -131,7 +131,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
                 if (word == 0)
                 {
                     throw new InvalidDataException(
-                        $"Animated-tile object $87:{_objectPointer:X4} has a zero-duration " +
+                        $"Animated-tile object $87:{(int)_objectPointer:X4} has a zero-duration " +
                         $"frame at $87:{cursor:X4}.");
                 }
                 _instructionTimer = word;
@@ -147,17 +147,17 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
                 return;
             }
 
-            switch (word)
+            switch (ClosedNativeWords.Decode<AnimatedTileInstruction>(word, "animated-tile instruction"))
             {
-                case AnimatedTileInstructionCodes.Delete:
+                case AnimatedTileInstruction.Delete:
                     Reset();
                     return;
 
-                case AnimatedTileInstructionCodes.Goto:
+                case AnimatedTileInstruction.Goto:
                     cursor = ReadMechanicsWord(unchecked((ushort)(cursor + 2)));
                     break;
 
-                case AnimatedTileInstructionCodes.WaitUntilAreaBossIsDead:
+                case AnimatedTileInstruction.WaitUntilAreaBossIsDead:
                     if (!areaBossDefeated)
                     {
                         _instructionTimer = 1;
@@ -168,13 +168,13 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
 
                 default:
                     throw new NotSupportedException(
-                        $"Animated-tile object $87:{_objectPointer:X4} instruction " +
+                        $"Animated-tile object $87:{(int)_objectPointer:X4} instruction " +
                         $"$87:{word:X4} at $87:{cursor:X4} is not translated.");
             }
         }
 
         throw new InvalidDataException(
-            $"Animated-tile object $87:{_objectPointer:X4} exceeded 64 leading " +
+            $"Animated-tile object $87:{(int)_objectPointer:X4} exceeded 64 leading " +
             $"instructions at $87:{cursor:X4}.");
     }
 
@@ -186,7 +186,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
             return value;
 
         throw new InvalidDataException(
-            $"Wrecked Ship treadmill object $87:{_objectPointer:X4} reached non-catalog " +
+            $"Wrecked Ship treadmill object $87:{(int)_objectPointer:X4} reached non-catalog " +
             $"mechanics word $87:{pointer:X4}.");
     }
 

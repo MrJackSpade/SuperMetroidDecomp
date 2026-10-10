@@ -24,17 +24,21 @@ internal static partial class Program
     private static void VerifyTourianStatueObjectDomain()
     {
         AssertTrue(OriginalTourianObjects.SequenceEqual(
-            TourianStatueAnimatedTileMechanicsDefinitions.All.Select(x => x.ObjectPointer)),
+            TourianStatueAnimatedTileMechanicsDefinitions.All.Select(x => (ushort)x.ObjectPointer)),
             "Original statue descriptor enumeration order");
         var original = OriginalTourianObjects.ToHashSet();
-        for (int value = 0; value <= ushort.MaxValue; value++)
+        foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
         {
-            ushort pointer = (ushort)value;
-            bool found = TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(pointer, out var definition);
+            ushort pointer = (ushort)header;
+            bool found = TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(header, out var definition);
             AssertEqual(original.Contains(pointer), found, "Complete statue object identity domain");
-            if (found) AssertEqual(pointer, definition.ObjectPointer, "Selected statue identity");
+            if (found) AssertEqual(pointer, (ushort)definition.ObjectPointer, "Selected statue identity");
             else AssertTrue(definition is null, "Unknown statue preserves false/null contract");
         }
+        foreach (ushort undefined in UndefinedAnimatedTileObjects)
+            AssertThrows<InvalidOperationException>(
+                () => TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)undefined, out _),
+                "Undefined statue object is rejected at the typed boundary");
     }
 
     private static void VerifyTourianStatueProgramStarts(ISnesAddressSpace rom) =>
@@ -66,12 +70,12 @@ internal static partial class Program
         var enumerated = TourianStatueAnimatedTileMechanicsDefinitions.All.ToDictionary(x => x.ObjectPointer);
         foreach (ushort pointer in OriginalTourianObjects)
         {
-            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(pointer, out var definition),
+            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)pointer, out var definition),
                 "Native descriptor resolves");
             int origin = header ? pointer : ReadVerificationWord(rom, 0x870000 | pointer);
             ushort expected = ReadVerificationWord(rom, 0x870000 | (origin + offsets[0]));
             AssertEqual(expected, field(definition), "Original descriptor field");
-            AssertEqual(expected, field(enumerated[pointer]), "Original enumerated descriptor field");
+            AssertEqual(expected, field(enumerated[(AnimatedTileObject)pointer]), "Original enumerated descriptor field");
             foreach (int offset in offsets)
             {
                 ushort address = (ushort)(origin + offset);

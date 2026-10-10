@@ -9,19 +9,23 @@ internal static partial class Program
     private static void VerifySimpleAnimationObjectDomain()
     {
         AssertTrue(OriginalSimpleAnimationObjects.SequenceEqual(
-            RoomFxAnimatedTileMechanicsDefinitions.All.Select(x => x.ObjectPointer)),
+            RoomFxAnimatedTileMechanicsDefinitions.All.Select(x => (ushort)x.ObjectPointer)),
             "Original seven-object enumeration order");
         var original = OriginalSimpleAnimationObjects.ToHashSet();
-        for (int value = 0; value <= ushort.MaxValue; value++)
+        foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
         {
-            ushort pointer = (ushort)value;
-            bool resolved = RoomFxAnimatedTileMechanicsDefinitions.TryResolve(pointer, out var definition);
+            ushort pointer = (ushort)header;
+            bool resolved = RoomFxAnimatedTileMechanicsDefinitions.TryResolve(header, out var definition);
             AssertEqual(original.Contains(pointer), resolved, "Simple animation full identity domain");
             if (resolved)
-                AssertEqual(pointer, definition.ObjectPointer, "Selected native object identity");
+                AssertEqual(pointer, (ushort)definition.ObjectPointer, "Selected native object identity");
             else
                 AssertTrue(definition is null, "Unknown simple animation preserves null output");
         }
+        foreach (ushort undefined in UndefinedAnimatedTileObjects)
+            AssertThrows<InvalidOperationException>(
+                () => RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)undefined, out _),
+                "Undefined animated-tile object is rejected at the typed boundary");
     }
 
     private static void VerifySimpleAnimationInstructionStarts(SuperMetroidAddressSpace rom) =>
@@ -38,10 +42,10 @@ internal static partial class Program
         foreach (ushort pointer in OriginalSimpleAnimationObjects)
         {
             ushort expected = ReadVerificationWord(rom, (0x870000 | pointer) + offset);
-            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(pointer, out var definition),
+            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)pointer, out var definition),
                 "Original object resolves");
             AssertEqual(expected, field(definition), "Native selected header field");
-            AssertEqual(expected, field(enumerated[pointer]), "Native enumeration header view");
+            AssertEqual(expected, field(enumerated[(AnimatedTileObject)pointer]), "Native enumeration header view");
             AssertTrue(definition.TryReadMechanicsWord((ushort)(pointer + offset), out ushort word),
                 "Header mechanics word is available");
             AssertEqual(expected, word, "Native mechanics-word header view");

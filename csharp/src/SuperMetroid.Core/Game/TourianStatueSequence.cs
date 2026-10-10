@@ -68,17 +68,17 @@ public sealed class TourianStatueSequence
     /// </summary>
     private void SpawnAnimatedObjects()
     {
-        Spawn(AnimatedTileObjectPointers.TourianStatueKraid);
-        Spawn(AnimatedTileObjectPointers.TourianStatuePhantoon);
-        Spawn(AnimatedTileObjectPointers.TourianStatueDraygon);
-        Spawn(AnimatedTileObjectPointers.TourianStatueRidley);
+        Spawn(AnimatedTileObject.TourianStatueKraid);
+        Spawn(AnimatedTileObject.TourianStatuePhantoon);
+        Spawn(AnimatedTileObject.TourianStatueDraygon);
+        Spawn(AnimatedTileObject.TourianStatueRidley);
 
-        void Spawn(ushort objectPointer)
+        void Spawn(AnimatedTileObject objectPointer)
         {
             if (!TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(
                     objectPointer, out TourianStatueAnimatedTileProgramDefinition definition))
                 throw new InvalidDataException(
-                    $"Tourian statue animated-tile object $87:{objectPointer:X4} is not cataloged.");
+                    $"Tourian statue animated-tile object $87:{(int)objectPointer:X4} is not cataloged.");
 
             objects.Add(new() { Definition = definition, Pointer = definition.ProgramStart });
         }
@@ -111,61 +111,61 @@ public sealed class TourianStatueSequence
                     tile.Pointer += 4;
                     break;
                 }
-                switch (code)
+                switch (ClosedNativeWords.Decode<AnimatedTileInstruction>(code, "animated-tile instruction"))
                 {
-                    case AnimatedTileInstructionCodes.Delete:
+                    case AnimatedTileInstruction.Delete:
                         tile.Pointer = 0;
                         break;
-                    case AnimatedTileInstructionCodes.Goto:
+                    case AnimatedTileInstruction.Goto:
                         tile.Pointer = MechanicsWord(tile, operand);
                         continue;
-                    case AnimatedTileInstructionCodes.GotoIfEventSet:
+                    case AnimatedTileInstruction.GotoIfEventSet:
                         tile.Pointer = runtime.System.HasEventRaw(MechanicsWord(tile, operand))
                             ? MechanicsWord(tile, operand + 2)
                             : (ushort)(operand + 4);
                         continue;
-                    case AnimatedTileInstructionCodes.GotoIfAnyBossBitsSetForArea:
+                    case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
                         ushort bossTest = MechanicsWord(tile, operand);
                         tile.Pointer = runtime.System.HasAnyBossBits(
                                 bossTest >> 8, (BossBits)(bossTest & 255))
                             ? MechanicsWord(tile, operand + 2)
                             : (ushort)(operand + 4);
                         continue;
-                    case AnimatedTileInstructionCodes.SetEvent:
+                    case AnimatedTileInstruction.SetEvent:
                         runtime.System.SetEventRaw(MechanicsWord(tile, operand));
                         break;
-                    case AnimatedTileInstructionCodes.GotoIfTourianStatueBusy:
+                    case AnimatedTileInstruction.GotoIfTourianStatueBusy:
                         tile.Pointer = (runtime.Enemies.TourianEntranceStatueAnimationState & TourianStatueRomData.Busy) != 0
                             ? MechanicsWord(tile, operand)
                             : (ushort)(operand + 2);
                         continue;
-                    case AnimatedTileInstructionCodes.SetTourianStatueAnimationState:
+                    case AnimatedTileInstruction.SetTourianStatueAnimationState:
                         runtime.Enemies.TourianEntranceStatueAnimationState |= MechanicsWord(tile, operand);
                         break;
-                    case AnimatedTileInstructionCodes.ResetTourianStatueAnimationState:
+                    case AnimatedTileInstruction.ResetTourianStatueAnimationState:
                         runtime.Enemies.TourianEntranceStatueAnimationState &=
                             (ushort)~MechanicsWord(tile, operand);
                         break;
-                    case AnimatedTileInstructionCodes.ClearThreePaletteColors:
+                    case AnimatedTileInstruction.ClearThreePaletteColors:
                         ushort clearPaletteByteIndex = MechanicsWord(tile, operand);
                         for (int color = 0; color < 3; color++)
                             runtime.Cgram.SetColor(clearPaletteByteIndex / 2 + color, Bgr555.Black);
                         break;
-                    case AnimatedTileInstructionCodes.WriteEightTargetPaletteColors:
+                    case AnimatedTileInstruction.WriteEightTargetPaletteColors:
                         int greyDestination = MechanicsWord(tile, operand) / 2;
                         (runtime.Enemies.TileArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
                             "Tourian statue animation requires installed grey colors."))
                             .ApplyGrey(runtime.Cgram, greyDestination);
                         break;
-                    case AnimatedTileInstructionCodes.SpawnPaletteFxObject:
+                    case AnimatedTileInstruction.SpawnPaletteFxObject:
                         runtime.RoomPaletteFx.SpawnDefinition(
                             bus, MechanicsWord(tile, operand), runtime.Samus!.EquippedItems);
                         break;
-                    case AnimatedTileInstructionCodes.SpawnTourianStatueEyeGlow:
-                    case AnimatedTileInstructionCodes.SpawnTourianStatueSoul:
+                    case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
+                    case AnimatedTileInstruction.SpawnTourianStatueSoul:
                         runtime.Enemies.SpawnTourianUnlockEffect(
                             MechanicsWord(tile, operand),
-                            code == AnimatedTileInstructionCodes.SpawnTourianStatueSoul);
+                            code == (ushort)AnimatedTileInstruction.SpawnTourianStatueSoul);
                         break;
                     default:
                         throw new NotSupportedException($"Statue animated tiles instruction $87:{code:X4} is not translated.");
@@ -225,7 +225,7 @@ public sealed class TourianStatueSequence
             return value;
 
         throw new InvalidDataException(
-            $"Tourian statue object $87:{tile.Definition.ObjectPointer:X4} reached " +
+            $"Tourian statue object $87:{(int)tile.Definition.ObjectPointer:X4} reached " +
             $"uncataloged mechanics word $87:{bankPointer:X4}.");
     }
 }

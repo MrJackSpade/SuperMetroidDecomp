@@ -85,7 +85,7 @@ internal static partial class Program
                 if (definition.SourceOperandPointers.Contains(pointer))
                 {
                     AssertTrue(!definition.TryReadMechanicsWord(pointer, out _),
-                        $"statue $87:{definition.ObjectPointer:X4} leaves source " +
+                        $"statue $87:{(int)definition.ObjectPointer:X4} leaves source " +
                         $"$87:{pointer:X4} presentation-owned");
                     int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(
                         definition, pointer);

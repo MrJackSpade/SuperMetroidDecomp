@@ -14,22 +14,31 @@ public static class WreckedShipTreadmillMechanicsDefinitions
         WreckedShipTreadmillDirection direction) => direction switch
     {
         WreckedShipTreadmillDirection.Rightwards => new(direction,
-            AnimatedTileObjectPointers.WreckedShipTreadmillRightwards,
+            AnimatedTileObject.WreckedShipTreadmillRightwards,
             AnimatedTileInstructionListPointers.WreckedShipTreadmillRightwardsWait),
         WreckedShipTreadmillDirection.Leftwards => new(direction,
-            AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards,
+            AnimatedTileObject.WreckedShipTreadmillLeftwards,
             AnimatedTileInstructionListPointers.WreckedShipTreadmillLeftwardsWait),
         _ => throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}."),
     };
 
     /// <summary>Resolves either named header; all other bank87 identities return false/null.</summary>
-    public static bool TryResolve(ushort objectPointer, out WreckedShipTreadmillObjectDefinition definition)
+    public static bool TryResolve(AnimatedTileObject objectPointer, out WreckedShipTreadmillObjectDefinition definition)
     {
         definition = objectPointer switch
         {
-            AnimatedTileObjectPointers.WreckedShipTreadmillRightwards => ForDirection(WreckedShipTreadmillDirection.Rightwards),
-            AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards => ForDirection(WreckedShipTreadmillDirection.Leftwards),
-            _ => null!,
+            AnimatedTileObject.WreckedShipTreadmillRightwards => ForDirection(WreckedShipTreadmillDirection.Rightwards),
+            AnimatedTileObject.WreckedShipTreadmillLeftwards => ForDirection(WreckedShipTreadmillDirection.Leftwards),
+            AnimatedTileObject.None or AnimatedTileObject.TourianStatuePhantoon or
+                AnimatedTileObject.TourianStatueRidley or AnimatedTileObject.TourianStatueKraid or
+                AnimatedTileObject.TourianStatueDraygon or AnimatedTileObject.Empty or
+                AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.VerticalSpikes or
+                AnimatedTileObject.CrateriaLake or AnimatedTileObject.UnusedCrateriaLava or
+                AnimatedTileObject.BrinstarPlant or AnimatedTileObject.WreckedShipScreen or
+                AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling or
+                AnimatedTileObject.Lava or AnimatedTileObject.Acid or AnimatedTileObject.Rain or
+                AnimatedTileObject.Spores => null!,
+            _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {objectPointer}."),
         };
         return definition is not null;
     }
@@ -42,7 +51,7 @@ public sealed class WreckedShipTreadmillObjectDefinition
 
     internal WreckedShipTreadmillObjectDefinition(
         WreckedShipTreadmillDirection direction,
-        ushort objectPointer,
+        AnimatedTileObject objectPointer,
         ushort waitInstructionPointer)
     {
         Direction = direction;
@@ -75,7 +84,7 @@ public sealed class WreckedShipTreadmillObjectDefinition
     public WreckedShipTreadmillDirection Direction { get; }
 
     /// <summary>The object-header address within bank $87.</summary>
-    public ushort ObjectPointer { get; }
+    public AnimatedTileObject ObjectPointer { get; }
 
     /// <summary>The boss-wait command installed by the object header.</summary>
     public ushort WaitInstructionPointer { get; }
@@ -92,7 +101,7 @@ public sealed class WreckedShipTreadmillObjectDefinition
         int listIndex = FrameIndex(instructionPointer);
         if (listIndex < 0)
             throw new InvalidDataException(
-                $"Treadmill $87:{ObjectPointer:X4} has no frame at $87:{instructionPointer:X4}.");
+                $"Treadmill $87:{(int)ObjectPointer:X4} has no frame at $87:{instructionPointer:X4}.");
         return WreckedShipTreadmillRomData.FrameSource(
             Direction == WreckedShipTreadmillDirection.Rightwards
                 ? listIndex : 3 - listIndex);
@@ -105,18 +114,18 @@ public sealed class WreckedShipTreadmillObjectDefinition
     /// <summary>Reads one immutable mechanics word, excluding presentation source operands.</summary>
     public bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        if (pointer == ObjectPointer)
+        if (pointer == (ushort)ObjectPointer)
             value = WaitInstructionPointer;
         else if (pointer == unchecked((ushort)(ObjectPointer + 2)))
             value = WreckedShipTreadmillRomData.TransferByteCount;
         else if (pointer == unchecked((ushort)(ObjectPointer + 4)))
             value = WreckedShipTreadmillRomData.EncodedVramDestination;
         else if (pointer == WaitInstructionPointer)
-            value = AnimatedTileInstructionCodes.WaitUntilAreaBossIsDead;
+            value = (ushort)AnimatedTileInstruction.WaitUntilAreaBossIsDead;
         else if (FrameIndex(pointer) >= 0)
             value = 1;
         else if (pointer == GotoInstructionPointer)
-            value = AnimatedTileInstructionCodes.Goto;
+            value = (ushort)AnimatedTileInstruction.Goto;
         else if (pointer == unchecked((ushort)(GotoInstructionPointer + 2)))
             value = LoopInstructionPointer;
         else

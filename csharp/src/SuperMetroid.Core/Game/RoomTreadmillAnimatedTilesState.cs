@@ -21,12 +21,21 @@ public sealed class RoomTreadmillAnimatedTilesState
         for (int bit = 0; bit < 8; bit++)
         {
             if ((bits & (1 << bit)) == 0) continue;
-            ushort definition = AreaAnimatedTileObjectDefinitions.Read(area, bit);
+            AnimatedTileObject definition = AreaAnimatedTileObjectDefinitions.Read(area, bit);
             WreckedShipTreadmillDirection? direction = definition switch
             {
-                AnimatedTileObjectPointers.WreckedShipTreadmillRightwards => WreckedShipTreadmillDirection.Rightwards,
-                AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards => WreckedShipTreadmillDirection.Leftwards,
-                _ => null,
+                AnimatedTileObject.WreckedShipTreadmillRightwards => WreckedShipTreadmillDirection.Rightwards,
+                AnimatedTileObject.WreckedShipTreadmillLeftwards => WreckedShipTreadmillDirection.Leftwards,
+                AnimatedTileObject.None or AnimatedTileObject.TourianStatuePhantoon or
+                    AnimatedTileObject.TourianStatueRidley or AnimatedTileObject.TourianStatueKraid or
+                    AnimatedTileObject.TourianStatueDraygon or AnimatedTileObject.Empty or
+                    AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.VerticalSpikes or
+                    AnimatedTileObject.CrateriaLake or AnimatedTileObject.UnusedCrateriaLava or
+                    AnimatedTileObject.BrinstarPlant or AnimatedTileObject.WreckedShipScreen or
+                    AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling or
+                    AnimatedTileObject.Lava or AnimatedTileObject.Acid or AnimatedTileObject.Rain or
+                    AnimatedTileObject.Spores => null,
+                _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {definition}."),
             };
             // Other animation families retain their own owners. Selection here is by
             // native object identity, not room number or an assumed area-specific bit.

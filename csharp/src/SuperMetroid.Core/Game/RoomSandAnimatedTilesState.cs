@@ -22,8 +22,8 @@ public sealed class RoomSandAnimatedTilesState
         for (int bit = 0; bit < 8; bit++)
         {
             if ((bits & (1 << bit)) == 0) continue;
-            ushort definition = AreaAnimatedTileObjectDefinitions.Read(area, bit);
-            if (definition is not (AnimatedTileObjectPointers.MaridiaSandCeiling or AnimatedTileObjectPointers.MaridiaSandFalling))
+            AnimatedTileObject definition = AreaAnimatedTileObjectDefinitions.Read(area, bit);
+            if (definition is not (AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
                 continue;
             var animation = new RoomFxAnimatedTilesState();
             animation.LoadDefinition(bus, definition);

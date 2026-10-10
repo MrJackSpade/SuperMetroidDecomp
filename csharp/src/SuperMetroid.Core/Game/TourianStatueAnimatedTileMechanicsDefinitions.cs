@@ -26,11 +26,11 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
     /// not sampled numeric curves. The six-byte headers are $87:854C..8563 and their
     /// 104-byte programs are $87:83AC..854B; unsupported ushort identities return null.
     /// </summary>
-    private static TourianStatueAnimatedTileProgramDefinition? SelectObject(ushort objectPointer) =>
+    private static TourianStatueAnimatedTileProgramDefinition? SelectObject(AnimatedTileObject objectPointer) =>
         objectPointer switch
     {
-        AnimatedTileObjectPointers.TourianStatuePhantoon => new(
-            objectPointer: AnimatedTileObjectPointers.TourianStatuePhantoon,
+        AnimatedTileObject.TourianStatuePhantoon => new(
+            objectPointer: AnimatedTileObject.TourianStatuePhantoon,
             programStart: 0x83ac,
             transferByteCount: 0x0080,
             encodedVramDestination: 0x7800,
@@ -42,8 +42,8 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             unlockEffectParameter: 0x0000,
             paletteFxDefinition: 0xf755,
             targetPaletteByteIndex: 0x0140),
-        AnimatedTileObjectPointers.TourianStatueRidley => new(
-            objectPointer: AnimatedTileObjectPointers.TourianStatueRidley,
+        AnimatedTileObject.TourianStatueRidley => new(
+            objectPointer: AnimatedTileObject.TourianStatueRidley,
             programStart: 0x8414,
             transferByteCount: 0x0040,
             encodedVramDestination: 0x7220,
@@ -55,8 +55,8 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             unlockEffectParameter: 0x0002,
             paletteFxDefinition: 0xf751,
             targetPaletteByteIndex: 0x0120),
-        AnimatedTileObjectPointers.TourianStatueKraid => new(
-            objectPointer: AnimatedTileObjectPointers.TourianStatueKraid,
+        AnimatedTileObject.TourianStatueKraid => new(
+            objectPointer: AnimatedTileObject.TourianStatueKraid,
             programStart: 0x847c,
             transferByteCount: 0x0040,
             encodedVramDestination: 0x0b40,
@@ -68,8 +68,8 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             unlockEffectParameter: 0x0006,
             paletteFxDefinition: 0xf74d,
             targetPaletteByteIndex: 0x00e0),
-        AnimatedTileObjectPointers.TourianStatueDraygon => new(
-            objectPointer: AnimatedTileObjectPointers.TourianStatueDraygon,
+        AnimatedTileObject.TourianStatueDraygon => new(
+            objectPointer: AnimatedTileObject.TourianStatueDraygon,
             programStart: 0x84e4,
             transferByteCount: 0x0080,
             encodedVramDestination: 0x0ca0,
@@ -81,7 +81,14 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             unlockEffectParameter: 0x0004,
             paletteFxDefinition: 0xf749,
             targetPaletteByteIndex: 0x00c0),
-        _ => null,
+        AnimatedTileObject.None or AnimatedTileObject.Empty or AnimatedTileObject.HorizontalSpikes or
+            AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake or
+            AnimatedTileObject.UnusedCrateriaLava or AnimatedTileObject.BrinstarPlant or
+            AnimatedTileObject.WreckedShipScreen or AnimatedTileObject.MaridiaSandCeiling or
+            AnimatedTileObject.MaridiaSandFalling or AnimatedTileObject.WreckedShipTreadmillRightwards or
+            AnimatedTileObject.WreckedShipTreadmillLeftwards or AnimatedTileObject.Lava or
+            AnimatedTileObject.Acid or AnimatedTileObject.Rain or AnimatedTileObject.Spores => null,
+        _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {objectPointer}."),
     };
 
     /// <summary>The four boss-statue programs in cartridge header order, without a stored roster.</summary>
@@ -89,16 +96,16 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
     {
         get
         {
-            yield return SelectObject(AnimatedTileObjectPointers.TourianStatuePhantoon)!;
-            yield return SelectObject(AnimatedTileObjectPointers.TourianStatueRidley)!;
-            yield return SelectObject(AnimatedTileObjectPointers.TourianStatueKraid)!;
-            yield return SelectObject(AnimatedTileObjectPointers.TourianStatueDraygon)!;
+            yield return SelectObject(AnimatedTileObject.TourianStatuePhantoon)!;
+            yield return SelectObject(AnimatedTileObject.TourianStatueRidley)!;
+            yield return SelectObject(AnimatedTileObject.TourianStatueKraid)!;
+            yield return SelectObject(AnimatedTileObject.TourianStatueDraygon)!;
         }
     }
 
     /// <summary>Resolves one stock bank-$87 statue animated-tile object header.</summary>
     public static bool TryResolveObjectHeader(
-        ushort objectPointer,
+        AnimatedTileObject objectPointer,
         out TourianStatueAnimatedTileProgramDefinition definition)
     {
         definition = SelectObject(objectPointer)!;
@@ -110,7 +117,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
 public sealed class TourianStatueAnimatedTileProgramDefinition
 {
     internal TourianStatueAnimatedTileProgramDefinition(
-        ushort objectPointer,
+        AnimatedTileObject objectPointer,
         ushort programStart,
         ushort transferByteCount,
         ushort encodedVramDestination,
@@ -139,7 +146,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     }
 
     /// <summary>The animated-tile object header address in bank $87.</summary>
-    public ushort ObjectPointer { get; }
+    public AnimatedTileObject ObjectPointer { get; }
     /// <summary>The first instruction of the object's fixed 104-byte program.</summary>
     public ushort ProgramStart { get; }
     /// <summary>The byte count uploaded by each timed frame.</summary>
@@ -206,7 +213,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// </summary>
     public bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        if (pointer == ObjectPointer)
+        if (pointer == (ushort)ObjectPointer)
             value = ProgramStart;
         else if (pointer == unchecked((ushort)(ObjectPointer + 2)))
             value = TransferByteCount;
@@ -217,47 +224,47 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
             int offset = pointer - ProgramStart;
             ushort? compiled = offset switch
             {
-                0x00 => AnimatedTileInstructionCodes.SetTourianStatueAnimationState,
+                0x00 => (ushort)AnimatedTileInstruction.SetTourianStatueAnimationState,
                 0x02 => StatueStateBit,
-                0x04 => AnimatedTileInstructionCodes.GotoIfEventSet,
+                0x04 => (ushort)AnimatedTileInstruction.GotoIfEventSet,
                 0x06 => GreyEventNumber,
                 0x08 => At(0x5e),
                 0x0a => FirstFrameDuration,
                 0x0e or 0x12 or 0x16 => 0x000c,
                 0x1a => 0x0010,
-                0x1e => AnimatedTileInstructionCodes.GotoIfAnyBossBitsSetForArea,
+                0x1e => (ushort)AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea,
                 0x20 => PackedBossTest,
                 0x22 => At(0x2c),
-                0x24 => AnimatedTileInstructionCodes.ResetTourianStatueAnimationState,
+                0x24 => (ushort)AnimatedTileInstruction.ResetTourianStatueAnimationState,
                 0x26 => StatueStateBit,
-                0x28 => AnimatedTileInstructionCodes.Goto,
+                0x28 => (ushort)AnimatedTileInstruction.Goto,
                 0x2a => At(0x0e),
-                0x2c => AnimatedTileInstructionCodes.GotoIfTourianStatueBusy,
+                0x2c => (ushort)AnimatedTileInstruction.GotoIfTourianStatueBusy,
                 0x2e => At(0x0e),
-                0x30 => AnimatedTileInstructionCodes.SetTourianStatueAnimationState,
+                0x30 => (ushort)AnimatedTileInstruction.SetTourianStatueAnimationState,
                 0x32 => TourianStatueRomData.Busy,
-                0x34 => AnimatedTileInstructionCodes.ClearThreePaletteColors,
+                0x34 => (ushort)AnimatedTileInstruction.ClearThreePaletteColors,
                 0x36 => ClearPaletteByteIndex,
                 0x38 => 0x0010,
                 0x3c => 0x0010,
-                0x40 => AnimatedTileInstructionCodes.SpawnTourianStatueEyeGlow,
+                0x40 => (ushort)AnimatedTileInstruction.SpawnTourianStatueEyeGlow,
                 0x42 => UnlockEffectParameter,
                 0x44 => 0x00c0,
-                0x48 => AnimatedTileInstructionCodes.SpawnTourianStatueSoul,
+                0x48 => (ushort)AnimatedTileInstruction.SpawnTourianStatueSoul,
                 0x4a => UnlockEffectParameter,
-                0x4c => AnimatedTileInstructionCodes.SpawnPaletteFxObject,
+                0x4c => (ushort)AnimatedTileInstruction.SpawnPaletteFxObject,
                 0x4e => PaletteFxDefinition,
                 0x50 => 0x0080,
-                0x54 => AnimatedTileInstructionCodes.SetEvent,
+                0x54 => (ushort)AnimatedTileInstruction.SetEvent,
                 0x56 => GreyEventNumber,
-                0x58 => AnimatedTileInstructionCodes.ResetTourianStatueAnimationState,
+                0x58 => (ushort)AnimatedTileInstruction.ResetTourianStatueAnimationState,
                 0x5a => unchecked((ushort)(TourianStatueRomData.Busy | StatueStateBit)),
-                0x5c => AnimatedTileInstructionCodes.Delete,
-                0x5e => AnimatedTileInstructionCodes.ResetTourianStatueAnimationState,
+                0x5c => (ushort)AnimatedTileInstruction.Delete,
+                0x5e => (ushort)AnimatedTileInstruction.ResetTourianStatueAnimationState,
                 0x60 => unchecked((ushort)(TourianStatueRomData.Busy | StatueStateBit)),
-                0x62 => AnimatedTileInstructionCodes.WriteEightTargetPaletteColors,
+                0x62 => (ushort)AnimatedTileInstruction.WriteEightTargetPaletteColors,
                 0x64 => TargetPaletteByteIndex,
-                0x66 => AnimatedTileInstructionCodes.Delete,
+                0x66 => (ushort)AnimatedTileInstruction.Delete,
                 _ => null,
             };
             if (offset is < 0 or > 0x66)

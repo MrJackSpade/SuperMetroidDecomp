@@ -947,9 +947,8 @@ internal static class RoomPlmShotBlockProgramDefinitionsAccess
         /// <summary>All authored control-word addresses, excluding draw-list operands.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmShotBlockProgramDefinitions), "ProgramCount"); index++)
+            foreach (object program in PrivateState.StaticField<Array>(typeof(RoomPlmShotBlockProgramDefinitions), "Programs"))
             {
-                object program = ((object)(PrivateState.InvokeStatic(typeof(RoomPlmShotBlockProgramDefinitions), "ProgramAt", (int)(index)))!);
                 yield return PrivateState.Property<ushort>(program, "Start");
                 for (int frame = 0; frame < PrivateState.Property<int>(program, "FrameCount"); frame++)
                     yield return checked((ushort)(PrivateState.Property<ushort>(program, "Start") + 3 + 4 * frame));
@@ -961,8 +960,8 @@ internal static class RoomPlmShotBlockProgramDefinitionsAccess
 
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmShotBlockProgramDefinitions), "ProgramCount"); index++)
-                yield return checked((ushort)(PrivateState.Property<ushort>(((object)(PrivateState.InvokeStatic(typeof(RoomPlmShotBlockProgramDefinitions), "ProgramAt", (int)(index)))!), "Start") + 2));
+            foreach (object program in PrivateState.StaticField<Array>(typeof(RoomPlmShotBlockProgramDefinitions), "Programs"))
+                yield return checked((ushort)(PrivateState.Property<ushort>(program, "Start") + 2));
         }
     }
 }
@@ -1705,25 +1704,16 @@ internal static class StationAnimationProgramDefinitionsAccess
 {
     extension(StationAnimationProgramDefinitions)
     {
-        internal static IEnumerable<ushort> Lists()
-        {
-            yield return StationAnimationProgramDefinitions.MapIdle;
-            yield return StationAnimationProgramDefinitions.MapAcquired;
-            yield return StationAnimationProgramDefinitions.Energy;
-            yield return StationAnimationProgramDefinitions.Missile;
-            yield return RoomPlmInstructionLists.SaveStationIdleDraw;
-            yield return RoomPlmInstructionLists.SaveStationAnimationFirstFrame;
-            yield return RoomPlmInstructionLists.SaveStationAnimationSecondFrame;
-        }
+        internal static IEnumerable<StationAnimationList> Lists() => Enum.GetValues<StationAnimationList>();
 
         internal static IEnumerable<(ushort Address, ushort Value)> NativeWords()
         {
-            foreach (ushort list in StationAnimationProgramDefinitions.Lists())
-            for (int index = 0; index < (list is StationAnimationProgramDefinitions.MapIdle or StationAnimationProgramDefinitions.MapAcquired or StationAnimationProgramDefinitions.Energy or StationAnimationProgramDefinitions.Missile ? 3 : 1); index++)
+            foreach (StationAnimationList list in StationAnimationProgramDefinitions.Lists())
+            for (int index = 0; index < StationAnimationProgramDefinitions.FrameCount(list); index++)
             {
                 StationAnimationProgramDefinitions.Frame frame = StationAnimationProgramDefinitions.Resolve(list, index);
-                yield return (checked((ushort)(list + 4 * index)), frame.Duration);
-                yield return (checked((ushort)(list + 4 * index + 2)), frame.DrawPointer);
+                yield return (checked((ushort)((ushort)list + 4 * index)), frame.Duration);
+                yield return (checked((ushort)((ushort)list + 4 * index + 2)), frame.DrawPointer);
             }
         }
     }

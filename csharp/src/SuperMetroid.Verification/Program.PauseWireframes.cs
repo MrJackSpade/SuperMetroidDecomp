@@ -95,10 +95,10 @@ internal static partial class Program
         EnterEquipment(toggles); AssertPage(toggles, original, PauseWireframeKind.VariaSuitHiJump);
         toggles.Step(0, (ushort)SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuitHiJump);
         toggles.Step(0, (ushort)SnesButton.Down);
-        AssertEqual((3, 0), (toggles.SelectedCategory, toggles.SelectedItem), "actual navigation reaches Hi-Jump");
+        AssertEqual((PauseEquipmentCategory.Boots, 0), (toggles.SelectedCategory, toggles.SelectedItem), "actual navigation reaches Hi-Jump");
         toggles.Step(0, (ushort)SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuit);
         toggles.Step(0, (ushort)SnesButton.Up);
-        AssertEqual((2, 0), (toggles.SelectedCategory, toggles.SelectedItem), "actual navigation returns to Varia");
+        AssertEqual((PauseEquipmentCategory.Suits, 0), (toggles.SelectedCategory, toggles.SelectedItem), "actual navigation returns to Varia");
         toggles.Step(0, (ushort)SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.VariaSuit);
 
         void Reject(PauseWireframeDocument invalid) => AssertThrows<InvalidDataException>(() =>

@@ -1907,32 +1907,32 @@ internal static partial class Program
         Suite(nameof(VerifyLookupStream1EnemyMovement), () => VerifyLookupStream1EnemyMovement(rom));
         Suite(nameof(VerifyLookupStream1CadencePrograms), () => VerifyLookupStream1CadencePrograms(rom));
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        for (ushort medium = 0; medium < 3; medium++)
+        foreach (SamusLiquidMedium medium in Enum.GetValues<SamusLiquidMedium>())
         {
             for (int variant = 0; variant < 4; variant++)
             {
                 var actual = SamusVerticalMotionDefinitions.Launch(medium, (variant & 1) != 0, (variant & 2) != 0);
-                int address = 0x909eb9 + 12 * variant + 2 * medium;
+                int address = 0x909eb9 + 12 * variant + 2 * (int)medium;
                 AssertEqual(Word(address), actual.Whole, "stream1 native jump whole speed");
                 AssertEqual(Word(address + 6), actual.Fraction, "stream1 native jump fractional speed");
             }
             var hurt = SamusVerticalMotionDefinitions.Knockback(medium);
-            AssertEqual(Word(0x909ee9 + 2 * medium), hurt.Whole, "stream1 native knockback whole speed");
-            AssertEqual(Word(0x909eef + 2 * medium), hurt.Fraction, "stream1 native knockback fractional speed");
+            AssertEqual(Word(0x909ee9 + 2 * (int)medium), hurt.Whole, "stream1 native knockback whole speed");
+            AssertEqual(Word(0x909eef + 2 * (int)medium), hurt.Fraction, "stream1 native knockback fractional speed");
             var bomb = SamusVerticalMotionDefinitions.BombJump(medium);
-            AssertEqual(Word(0x909ef5 + 2 * medium), bomb.Whole, "stream1 native bomb whole speed");
-            AssertEqual(Word(0x909efb + 2 * medium), bomb.Fraction, "stream1 native bomb fractional speed");
+            AssertEqual(Word(0x909ef5 + 2 * (int)medium), bomb.Whole, "stream1 native bomb whole speed");
+            AssertEqual(Word(0x909efb + 2 * (int)medium), bomb.Fraction, "stream1 native bomb fractional speed");
             var gravity = SamusVerticalMotionDefinitions.Gravity(medium);
-            AssertEqual(Word(0x909ea7 + 2 * medium), gravity.Whole, "stream1 native whole gravity");
-            AssertEqual(Word(0x909ea1 + 2 * medium), gravity.Fraction, "stream1 native fractional gravity");
+            AssertEqual(Word(0x909ea7 + 2 * (int)medium), gravity.Whole, "stream1 native whole gravity");
+            AssertEqual(Word(0x909ea1 + 2 * (int)medium), gravity.Fraction, "stream1 native fractional gravity");
         }
-        foreach (ushort invalid in new ushort[] { 3, ushort.MaxValue })
+        foreach (SamusLiquidMedium invalid in new[] { (SamusLiquidMedium)3, (SamusLiquidMedium)ushort.MaxValue })
         {
             for (int variant = 0; variant < 4; variant++)
-                AssertThrows<IndexOutOfRangeException>(() => SamusVerticalMotionDefinitions.Launch(invalid, (variant & 1) != 0, (variant & 2) != 0), "stream1 invalid launch medium");
-            AssertThrows<IndexOutOfRangeException>(() => SamusVerticalMotionDefinitions.Knockback(invalid), "stream1 invalid hurt medium");
-            AssertThrows<IndexOutOfRangeException>(() => SamusVerticalMotionDefinitions.BombJump(invalid), "stream1 invalid bomb medium");
-            AssertThrows<IndexOutOfRangeException>(() => SamusVerticalMotionDefinitions.Gravity(invalid), "stream1 invalid gravity medium");
+                AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Launch(invalid, (variant & 1) != 0, (variant & 2) != 0), "stream1 invalid launch medium");
+            AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Knockback(invalid), "stream1 invalid hurt medium");
+            AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.BombJump(invalid), "stream1 invalid bomb medium");
+            AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Gravity(invalid), "stream1 invalid gravity medium");
         }
         for (int address = 0x90c254; address <= 0x90c28e; address++)
             AssertEqual(rom.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(address), "stream1 all native cooldown bytes including padding");

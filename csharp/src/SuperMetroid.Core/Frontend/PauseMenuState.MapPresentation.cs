@@ -39,8 +39,8 @@ internal sealed partial class PauseMenuState
                 samus.EquippedItems, samus.HyperBeam != 0);
             if (plasmaLabelOverrunActive)
                 catalog.PauseEquipmentLabels.ApplyLabel(equipmentTilemap,
-                    PauseEquipmentCategories.Beams, PauseEquipmentCategories.PlasmaItem,
-                    PauseEquipmentCategories.Get(PauseEquipmentCategories.Boots).LabelWordCount,
+                    PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
+                    PauseEquipmentCategories.Get(PauseEquipmentCategory.Boots).LabelWordCount,
                     disabled: false);
         }
         else catalog.PauseEquipmentBase.RebindBaseInto(
@@ -58,7 +58,7 @@ internal sealed partial class PauseMenuState
             // new palettes. Only a bind before anything has latched asks the owner.
             if (reserveArrowLatched)
                 ReapplyLatchedReserveArrow();
-            else if (selectedCategory == PauseEquipmentCategories.Reserves)
+            else if (selectedCategory == PauseEquipmentCategory.Reserves)
                 UpdateReserveArrow(pauseNmiFrameCounter8);
         }
         if (ScreenMode != 0) UploadEquipmentTilemap();

@@ -226,7 +226,8 @@ internal static partial class Program
                 W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2));
         }
         typeof(SamusState).GetProperty(nameof(samus.AnimationFrameBuffer))!.SetValue(samus, W(NativeSnapshotMemory.AnimationFrameBuffer));
-        typeof(SamusLiquidPhysicsState).GetProperty("LiquidPhysicsType")!.SetValue(samus.LiquidPhysics, W(NativeSnapshotMemory.LiquidPhysicsType));
+        typeof(SamusLiquidPhysicsState).GetProperty("LiquidPhysicsType")!.SetValue(samus.LiquidPhysics,
+            ClosedNativeWords.Decode<SamusLiquidMedium>(W(NativeSnapshotMemory.LiquidPhysicsType), "liquid physics type"));
         typeof(SamusLiquidPhysicsState).GetProperty("PeriodicSubDamage")!.SetValue(samus.LiquidPhysics, W(NativeSnapshotMemory.PeriodicSubDamage));
         typeof(SamusLiquidPhysicsState).GetProperty("PeriodicDamage")!.SetValue(samus.LiquidPhysics, W(NativeSnapshotMemory.PeriodicDamage));
 

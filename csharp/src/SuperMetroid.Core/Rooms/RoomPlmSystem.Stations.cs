@@ -190,11 +190,13 @@ public sealed partial class RoomPlmSystem
                 original,
                 11,
                 new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
+            StationAnimationList saveList = ClosedNativeWords.Decode<StationAnimationList>(
+                slot.InstructionPointer, "save-station animation list");
             slot.Station = new StationPlmState(
                 kind,
                 area,
-                slot.InstructionPointer,
-                completedAnimationList: slot.InstructionPointer,
+                saveList,
+                completedAnimationList: saveList,
                 animationFrameCount: 1);
             return;
         }
@@ -214,16 +216,18 @@ public sealed partial class RoomPlmSystem
         WriteAccessBlock(level, streamer, slot.BlockIndex + rightOffset, rightBts);
         WriteAccessBlock(level, streamer, slot.BlockIndex + leftOffset, leftBts);
 
-        ushort normalAnimationList = unchecked((ushort)(
-            slot.InstructionPointer + StationNormalAnimationOffset));
-        ushort completedAnimationList = kind switch
+        StationAnimationList normalAnimationList = ClosedNativeWords.Decode<StationAnimationList>(
+            unchecked((ushort)(slot.InstructionPointer + StationNormalAnimationOffset)),
+            "station animation list");
+        StationAnimationList completedAnimationList = kind switch
         {
-            StationKind.Map => unchecked((ushort)(
-                slot.InstructionPointer + MapStationAcquiredAnimationOffset)),
+            StationKind.Map => ClosedNativeWords.Decode<StationAnimationList>(
+                unchecked((ushort)(slot.InstructionPointer + MapStationAcquiredAnimationOffset)),
+                "map-station acquired animation list"),
             StationKind.Energy or StationKind.Missile => normalAnimationList,
             _ => throw new InvalidOperationException(),
         };
-        ushort initialAnimationList = kind == StationKind.Map && system.HasAreaMap(area)
+        StationAnimationList initialAnimationList = kind == StationKind.Map && system.HasAreaMap(area)
             ? completedAnimationList
             : normalAnimationList;
         slot.Station = new StationPlmState(
@@ -552,7 +556,7 @@ public sealed partial class RoomPlmSystem
         if ((timer & 0x8000) != 0 || timer == 0)
         {
             throw new InvalidDataException(
-                $"{station.Kind} station animation $84:{station.AnimationList:X4} " +
+                $"{station.Kind} station animation $84:{(int)station.AnimationList:X4} " +
                 $"frame {station.AnimationFrame} does not begin with a timed draw.");
         }
         DrawPlmInstruction(
@@ -627,15 +631,15 @@ public sealed partial class RoomPlmSystem
         ushort layer1YPosition,
         ushort bg1XOffset)
     {
-        ushort list = station.AnimationFrame == 0
-            ? RoomPlmInstructionLists.SaveStationAnimationFirstFrame
-            : RoomPlmInstructionLists.SaveStationAnimationSecondFrame;
+        StationAnimationList list = station.AnimationFrame == 0
+            ? StationAnimationList.SaveFirstFrame
+            : StationAnimationList.SaveSecondFrame;
         StationAnimationProgramDefinitions.Frame frame =
             StationAnimationProgramDefinitions.Resolve(list, 0);
         if (frame.Duration != 4)
         {
             throw new InvalidDataException(
-                $"Save-station animation list $84:{list:X4} has timer {frame.Duration}, expected 4.");
+                $"Save-station animation list $84:{(int)list:X4} has timer {frame.Duration}, expected 4.");
         }
         DrawPlmInstruction(
             bus,
@@ -725,14 +729,14 @@ public sealed partial class RoomPlmSystem
     private sealed class StationPlmState(
         StationKind kind,
         AreaId area,
-        ushort animationList,
-        ushort completedAnimationList,
+        StationAnimationList animationList,
+        StationAnimationList completedAnimationList,
         int animationFrameCount)
     {
         public StationKind Kind { get; } = kind;
         public AreaId AreaIndex { get; } = area;
-        public ushort AnimationList { get; set; } = animationList;
-        public ushort CompletedAnimationList { get; } = completedAnimationList;
+        public StationAnimationList AnimationList { get; set; } = animationList;
+        public StationAnimationList CompletedAnimationList { get; } = completedAnimationList;
         public int AnimationFrameCount { get; } = animationFrameCount;
         public int AnimationFrame { get; set; }
         public ushort AnimationTimer { get; set; } = 1;

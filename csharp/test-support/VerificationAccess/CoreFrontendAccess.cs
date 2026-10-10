@@ -276,7 +276,7 @@ internal static class PauseMenuStateAccess
         internal bool IsPageTransitionActive => PrivateState.Field<PauseMenuTransition>(self, "transition") != default;
 
         /// <summary>Low byte of the native category/item selector word.</summary>
-        internal int SelectedCategory => PrivateState.Field<int>(self, "selectedCategory");
+        internal PauseEquipmentCategory SelectedCategory => PrivateState.Field<PauseEquipmentCategory>(self, "selectedCategory");
 
         /// <summary>High byte of the native category/item selector word.</summary>
         internal int SelectedItem => PrivateState.Field<int>(self, "selectedItem");

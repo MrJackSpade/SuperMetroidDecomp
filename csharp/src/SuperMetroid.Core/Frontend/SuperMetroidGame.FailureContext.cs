@@ -16,7 +16,7 @@ public sealed partial class SuperMetroidGame
             $"animationList=${samus.AnimationDelayListAddress:X6}; position={samus.XPosition},{samus.YPosition}; " +
             $"input=${runtime.Controller1.Current:X4}; newlyPressed=${runtime.Controller1.NewlyPressed:X4}; inputLocked={samus.InputLocked}; " +
             $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +
-            $"escapeTimer={runtime.EscapeTimer.State}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidMedium}; " +
+            $"escapeTimer={runtime.EscapeTimer.State}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidPhysicsType}; " +
             $"waterY=${samus.LiquidPhysics.FxYPosition:X4}; acidY=${samus.LiquidPhysics.LavaAcidYPosition:X4}";
     }
 }

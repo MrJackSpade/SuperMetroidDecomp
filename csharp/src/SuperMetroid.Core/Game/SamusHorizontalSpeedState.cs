@@ -156,13 +156,14 @@ public sealed class SamusHorizontalSpeedState
     /// at <c>$90:9BD1</c>. The returned table still contains 12-byte records indexed later
     /// by movement type; compiled definitions preserve that native address selection.
     /// </summary>
-    public void SelectEnvironmentSpeedTable(ushort liquidMedium)
+    public void SelectEnvironmentSpeedTable(SamusLiquidMedium liquidMedium)
     {
         ActiveSpeedTableBaseAddress = liquidMedium switch
         {
-            SamusLiquidPhysicsState.Water => SamusMovementRomData.HorizontalMotion.WaterSpeedTable,
-            SamusLiquidPhysicsState.LavaAcid => SamusMovementRomData.HorizontalMotion.LavaAcidSpeedTable,
-            _ => SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
+            SamusLiquidMedium.Water => SamusMovementRomData.HorizontalMotion.WaterSpeedTable,
+            SamusLiquidMedium.LavaOrAcid => SamusMovementRomData.HorizontalMotion.LavaAcidSpeedTable,
+            SamusLiquidMedium.Air => SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
+            _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {liquidMedium}."),
         };
     }
 

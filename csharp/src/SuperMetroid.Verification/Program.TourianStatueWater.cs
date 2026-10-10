@@ -94,7 +94,7 @@ internal static partial class Program
         AssertEqual((ushort)0xb0, samus.LiquidPhysics.FxYPosition, "Water physics receives the visible surface");
         samus.YPosition = 190;
         samus.LiquidPhysics.InitializeRememberedMedium(samus);
-        AssertEqual(SamusLiquidPhysicsState.Water, samus.LiquidPhysics.LiquidPhysicsType,
+        AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.LiquidPhysicsType,
             "Native low-nibble FX dispatch selects water below the statue surface");
         var displayed = runtime.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("No displayed water snapshot");
         AssertEqual((short)0xb0, displayed.WaterSurfaceScreenY, "Displayed water surface stays at native room height");

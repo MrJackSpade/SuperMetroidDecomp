@@ -31,7 +31,7 @@ internal static partial class Program
             body.YSubspeed = 0xffff; // Native admission does not inspect the fractional word.
             body.ExtraXDisplacement = 7;
             body.ExtraXSubdisplacement = 0x1234;
-            samus.HorizontalSpeed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.Water);
+            samus.HorizontalSpeed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Water);
             bool admitted = behavior >= 10 || (verticalSpeed == 0 && (area != AreaId.WreckedShip || powered));
             int expected = admitted ? ((behavior & 1) == 0 ? 2 : -2) << 16 : 0x71234;
             SamusInsideBlockReactions.PrepareFrame(level, samus, area, powered);

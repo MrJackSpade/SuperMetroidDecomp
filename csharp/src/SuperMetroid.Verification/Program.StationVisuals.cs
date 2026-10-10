@@ -23,7 +23,7 @@ internal static partial class Program
         var edited = new RoomPlmStationVisualCatalog(entries);
         first.Runs[0][0] = 0x0054;
         ushort pointer = StationAnimationProgramDefinitions.Resolve(
-            StationAnimationProgramDefinitions.MapIdle, 0).DrawPointer;
+            StationAnimationList.MapIdle, 0).DrawPointer;
         AssertEqual((ushort)0x0053, edited.GetWord(pointer, 0, 0),
             "station visual catalog copies author data");
         (ushort physical, ushort immediate, ushort streamed) Render(
@@ -94,7 +94,7 @@ internal static partial class Program
             RoomPlmStationVisualFiles.ValidateStock(
                 installation.RoomPlmStationVisualDirectory);
             ushort pointer = StationAnimationProgramDefinitions.Resolve(
-                StationAnimationProgramDefinitions.MapIdle, 0).DrawPointer;
+                StationAnimationList.MapIdle, 0).DrawPointer;
             VerifyStationStockMapping(rom, installation.LoadRoomPlmStationVisuals());
 
             string stockPath = Path.Combine(installation.RoomPlmStationVisualDirectory,

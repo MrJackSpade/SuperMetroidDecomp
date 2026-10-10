@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -15,18 +16,19 @@ public static class PauseSelectorExtractor
         if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.VariantPointer) != PauseSelectorDefinitions.CategoryVariable)
             throw new InvalidDataException("Unexpected native selector category binding.");
         int bases = PauseSelectorDefinitions.Bank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.BasePointer);
-        for (int category = 0; category < 4; category++)
-            if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), bases + category * 2) != PauseSelectorDefinitions.NativeSpriteId(category))
+        foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
+            if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), bases + (int)category * 2) != PauseSelectorDefinitions.NativeSpriteId(category))
                 throw new InvalidDataException("Unexpected native selector sprite binding.");
         var anchors = new Dictionary<string, MapLabelPoint>();
         foreach (var anchor in PauseSelectorDefinitions.Anchors())
         {
-            int position = PauseSelectorDefinitions.Bank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.PositionPointers + anchor.Category * 2);
+            int position = PauseSelectorDefinitions.Bank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.PositionPointers + (int)anchor.Category * 2);
             anchors.Add(anchor.Name, new(unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position + anchor.Item * 4) - 1)),
                 unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position + anchor.Item * 4 + 2) - 1))));
         }
         var frames = new Dictionary<string, SpriteVisualPart[]>();
-        for (int category = 0; category < 3; category++)
+        // Suits and boots share the Equipment frames, so only the first three categories own a group.
+        foreach (PauseEquipmentCategory category in new[] { PauseEquipmentCategory.Reserves, PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits })
             frames.Add(PauseSelectorDefinitions.Group(category), MenuSpriteExtractor.Read(bus, PauseSelectorDefinitions.NativeSpriteId(category)));
         int animation = PauseSelectorDefinitions.Bank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.AnimationPointer);
         var phases = new List<PauseSelectorPhase>();

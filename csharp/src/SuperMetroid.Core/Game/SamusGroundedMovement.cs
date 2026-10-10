@@ -211,7 +211,7 @@ public static class SamusGroundedMovement
 
         // `$90:9BD1` can replace the block reaction's ordinary `$9F55` pointer with the
         // complete water/lava table after comparing Samus's bottom boundary.
-        ushort liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
         // `$90:8E64` handles Dash before calculating base speed. With no equipped Speed
@@ -221,7 +221,7 @@ public static class SamusGroundedMovement
             movementType: SamusMovementType.Running,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
+            liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
         // `$90:8E64 -> $90:9A7E` advances the split 16.16 base speed. The following
         // `$90:8EA9` direction selector is shared by every horizontal movement family:
@@ -275,14 +275,14 @@ public static class SamusGroundedMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        ushort liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
         speed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Running,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
+            liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
         // Do not special-case mode one here. `$90:8EA9` reverses the literal pose direction
         // for every nonzero mode except two, even if another input-side transition has
@@ -348,7 +348,7 @@ public static class SamusGroundedMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        ushort liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
         // The native type-$0E/$17 handler calls the complete `$90:8E64` X routine before
@@ -360,7 +360,7 @@ public static class SamusGroundedMovement
             movementType,
             controllerInput: 0,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
+            liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
         // The pose's literal `$0E` or `$17` twelve-byte speed-table record supplies the
         // deceleration. If subtraction crosses below zero,
@@ -420,7 +420,7 @@ public static class SamusGroundedMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        ushort liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
         // `$90:A697` calls `Samus_X_Movement`, whose first operation is `$90:973E`.
@@ -431,7 +431,7 @@ public static class SamusGroundedMovement
             movementType: SamusMovementType.Moonwalking,
             controllerInput: 0,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
+            liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
         // Type `$10` has its own twelve-byte speed record. Its pose-X bytes intentionally
         // produce travel opposite the visible facing; mode one reverses that byte just as it

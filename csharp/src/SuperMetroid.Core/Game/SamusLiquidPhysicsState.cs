@@ -18,15 +18,6 @@ public sealed partial class SamusLiquidPhysicsState
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
     private readonly Bank80SystemState _standaloneRandom = new();
 
-    /// <summary>No liquid physics are active at the sampled Samus boundary.</summary>
-    public const ushort Air = 0;
-
-    /// <summary>Water physics, the native value stored at WRAM <c>$0AD2</c>.</summary>
-    public const ushort Water = 1;
-
-    /// <summary>Lava/acid physics, the native value stored at WRAM <c>$0AD2</c>.</summary>
-    public const ushort LavaAcid = 2;
-
     /// <summary>
     /// Exclusive FX dispatcher identity stored at WRAM <c>$196E</c>. Values two and four
     /// are lava/acid, six is water, and zero is the no-FX handler.
@@ -52,10 +43,8 @@ public sealed partial class SamusLiquidPhysicsState
     /// Remembered native medium at WRAM <c>$0AD2</c>. This is intentionally stateful:
     /// Space Jump reads it, and the animation handlers use changes to detect entry/exit.
     /// </summary>
-    public ushort LiquidPhysicsType { get; private set; }
+    public SamusLiquidMedium LiquidPhysicsType { get; private set; }
 
-    /// <summary>Typed view of the remembered native medium.</summary>
-    public SamusLiquidMedium LiquidMedium => (SamusLiquidMedium)LiquidPhysicsType;
 
     /// <summary>The four native water/lava/footstep particle slots and their OAM renderer.</summary>
     public SamusAtmosphericEffectsState AtmosphericEffects { get; } = new();
@@ -153,7 +142,7 @@ public sealed partial class SamusLiquidPhysicsState
         FxYPosition = ushort.MaxValue;
         LavaAcidYPosition = ushort.MaxValue;
         LiquidOptions = 0;
-        LiquidPhysicsType = Air;
+        LiquidPhysicsType = SamusLiquidMedium.Air;
         PeriodicSubDamage = 0;
         PeriodicDamage = 0;
         _soundRequests.Clear();
@@ -164,11 +153,11 @@ public sealed partial class SamusLiquidPhysicsState
     /// Selects air/water/lava physics for routines that test Samus's bottom boundary and
     /// bypass all liquid behavior when Gravity Suit bit <c>$0020</c> is equipped.
     /// </summary>
-    public ushort DetermineMovementMedium(SamusState samus)
+    public SamusLiquidMedium DetermineMovementMedium(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
-            return Air;
+            return SamusLiquidMedium.Air;
         // Samus_GetBottom_R18 samples the current pose definition, even before the next
         // movement pass publishes its radius to the live collision state.
         ushort bottom = unchecked((ushort)(samus.YPosition + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
@@ -182,7 +171,7 @@ public sealed partial class SamusLiquidPhysicsState
     public bool IsTopBoundarySubmerged(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        return DetermineRawMediumAtBoundary(samus.Kinematics.TopBoundary) != Air;
+        return DetermineRawMediumAtBoundary(samus.Kinematics.TopBoundary) != SamusLiquidMedium.Air;
     }
 
     /// <summary>
@@ -202,7 +191,7 @@ public sealed partial class SamusLiquidPhysicsState
     public bool IsBottomBoundarySubmerged(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        return DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) != Air;
+        return DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) != SamusLiquidMedium.Air;
     }
 
     /// <summary>
@@ -236,11 +225,13 @@ public sealed partial class SamusLiquidPhysicsState
 
         ushort bottomMinusOne = unchecked((ushort)(
             samus.YPosition + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
-        return DetermineRawMediumAtBoundary(bottomMinusOne) switch
+        SamusLiquidMedium medium = DetermineRawMediumAtBoundary(bottomMinusOne);
+        return medium switch
         {
-            Water => 3,
-            LavaAcid => 2,
-            _ => samus.XSpeedDivisor,
+            SamusLiquidMedium.Water => 3,
+            SamusLiquidMedium.LavaOrAcid => 2,
+            SamusLiquidMedium.Air => samus.XSpeedDivisor,
+            _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
     }
 
@@ -282,8 +273,8 @@ public sealed partial class SamusLiquidPhysicsState
             // `$90:80B8` publishes delay three before testing the remembered medium. A
             // transition into water queues sound $0D and creates either a diving splash or
             // two grounded splashes; every submerged call then gets the bubble opportunity.
-            bool enteredWater = LiquidMedium != SamusLiquidMedium.Water;
-            LiquidPhysicsType = Water;
+            bool enteredWater = LiquidPhysicsType != SamusLiquidMedium.Water;
+            LiquidPhysicsType = SamusLiquidMedium.Water;
             samus.AnimationFrameBuffer = 3;
             if (enteredWater)
             {
@@ -324,7 +315,7 @@ public sealed partial class SamusLiquidPhysicsState
                 // Lava's Gravity-Suit branch returns before damage and before surface spray.
                 // Acid intentionally has no equivalent early exit and still hurts at quarter
                 // strength when HandlePeriodicDamage runs later in the same Samus handler.
-                LiquidPhysicsType = LavaAcid;
+                LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
                 samus.AnimationFrameBuffer = 0;
                 return;
             }
@@ -337,7 +328,7 @@ public sealed partial class SamusLiquidPhysicsState
                 QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x2d), maximumQueued: 3);
 
             // Both lava and acid now share `$90:824C`'s delay-two submerged path.
-            LiquidPhysicsType = LavaAcid;
+            LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
             samus.AnimationFrameBuffer = 2;
             TrySpawnLavaSurfaceSpray(samus, top, nmiFrameCounter);
             if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
@@ -349,8 +340,8 @@ public sealed partial class SamusLiquidPhysicsState
         // `$90:8078` publishes the X-speed divisor and clears the remembered medium. Only
         // water (bit zero set) owns an exit splash; lava/acid simply clears `$0AD2`.
         samus.AnimationFrameBuffer = samus.XSpeedDivisor;
-        bool exitedWater = (LiquidPhysicsType & 1) != 0;
-        LiquidPhysicsType = Air;
+        bool exitedWater = LiquidPhysicsType == SamusLiquidMedium.Water;
+        LiquidPhysicsType = SamusLiquidMedium.Air;
         if (exitedWater)
         {
             QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0e), maximumQueued: 6);
@@ -526,7 +517,7 @@ public sealed partial class SamusLiquidPhysicsState
         // bottom is genuinely below active water or lava/acid. `DetermineRawMedium...`
         // preserves the signed surface sentinels and water option-bit-two exemption used by
         // those routines. Importantly, suppression RETURNS and leaves old slot data intact.
-        if (DetermineRawMediumAtBoundary(bottom) != Air)
+        if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
 
         ushort rightOffset = type == 1 ? (ushort)4 : (ushort)8;
@@ -736,7 +727,7 @@ public sealed partial class SamusLiquidPhysicsState
         if (useWetFootsteps)
             SpawnFootstepPair(bus, samus, type: 1);
         else if ((samus.HorizontalSpeed.SpeedBoostCounter & 0xff00) == 0x0400 &&
-                 DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == Air)
+                 DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)
             SpawnFootstepPair(bus, samus, type: 7);
 
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
@@ -774,11 +765,11 @@ public sealed partial class SamusLiquidPhysicsState
     /// perform signed 16-bit subtraction against the selected surface. Retain that exact
     /// ordering so sentinel and wraparound behavior stay debugger-visible.
     /// </summary>
-    private ushort DetermineRawMediumAtBoundary(ushort boundary)
+    private SamusLiquidMedium DetermineRawMediumAtBoundary(ushort boundary)
     {
         if (unchecked((short)FxYPosition) >= 0)
-            return WaterAffectsBoundary(boundary) ? Water : Air;
-        return IsBelowSurface(LavaAcidYPosition, boundary) ? LavaAcid : Air;
+            return WaterAffectsBoundary(boundary) ? SamusLiquidMedium.Water : SamusLiquidMedium.Air;
+        return IsBelowSurface(LavaAcidYPosition, boundary) ? SamusLiquidMedium.LavaOrAcid : SamusLiquidMedium.Air;
     }
 
     private bool WaterAffectsBoundary(ushort boundary) =>

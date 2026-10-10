@@ -13,7 +13,7 @@ public sealed partial class SamusLiquidPhysicsState
         // intact, even when Gravity Suit makes movement itself behave as though the room
         // were dry.
         ushort bottom = unchecked((ushort)(samus.YPosition + SamusState.ReadPoseYRadius(samus.Pose) - 1));
-        if (DetermineRawMediumAtBoundary(bottom) != Air)
+        if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
         int offset = samus.IsFacingRight(bus)
             ? -SamusWallJumpDustDefinitions.HorizontalOffset

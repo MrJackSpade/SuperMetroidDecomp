@@ -35,7 +35,7 @@ internal static partial class Program
         var before = pause.CaptureRenderSnapshot();
         pause.Step(0, (ushort)(scenario == 0 ? SnesButton.Left | SnesButton.A : SnesButton.Left));
         if (scenario == 1) pause.Step(0, (ushort)SnesButton.A);
-        AssertEqual(1, pause.SelectedCategory, "same-frame Left+A moves Boots to Beams");
+        AssertEqual(PauseEquipmentCategory.Beams, pause.SelectedCategory, "same-frame Left+A moves Boots to Beams");
         AssertEqual(4, pause.SelectedItem, "same-frame Left+A selects Plasma");
         AssertEqual(scenario == 0 ? 0x000c : scenario == 1 ? 0x0008 : 0x0004, samus.EquippedBeams,
             "native beam bits distinguish simultaneous, adjacent and direction-only input");

@@ -37,19 +37,22 @@ internal static partial class Program
         ushort[] lists = [0xad66,0xad76,0xadc6,0xae50,0xafe8,0xaffa,0xaffe];
         var words = StationAnimationProgramDefinitions.NativeWords().ToArray();
         AssertEqual(30, words.Length, "Station original enumeration word count");
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-            if (!lists.Contains((ushort)raw))
-                AssertThrows<InvalidDataException>(() => StationAnimationProgramDefinitions.Resolve((ushort)raw, 0), "Station rejected list domain");
+        AssertTrue(lists.SequenceEqual(Enum.GetValues<StationAnimationList>().Select(list => (ushort)list)),
+            "Station list domain is exactly the seven native entries");
+        foreach (ushort raw in new ushort[] { 0, 0xad62, 0xafe9, 0xffff })
+            AssertThrows<InvalidOperationException>(
+                () => StationAnimationProgramDefinitions.Resolve((StationAnimationList)raw, 0),
+                "Undefined station list is rejected at the typed boundary");
         int ordinal = 0;
         for (int listIndex = 0; listIndex < lists.Length; listIndex++)
         {
-            ushort list = lists[listIndex];
+            var list = (StationAnimationList)lists[listIndex];
             int count = listIndex < 4 ? 3 : 1;
             foreach (int bad in new[] { int.MinValue,-1,count,int.MaxValue })
                 AssertThrows<InvalidDataException>(() => StationAnimationProgramDefinitions.Resolve(list, bad), "Station exact frame bounds");
             for (int frame = 0; frame < count; frame++, ordinal += 2)
             {
-                ushort address = (ushort)(list + frame * 4 + (draw ? 2 : 0));
+                ushort address = (ushort)(lists[listIndex] + frame * 4 + (draw ? 2 : 0));
                 ushort expected = ReadStationRomWord(rom, address);
                 var actual = StationAnimationProgramDefinitions.Resolve(list, frame);
                 AssertEqual(expected, draw ? actual.DrawPointer : actual.Duration, "Station original animation field");

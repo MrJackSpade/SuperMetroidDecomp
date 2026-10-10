@@ -93,10 +93,10 @@ public static class PauseEquipmentBaseDefinitions
     private static PanelShape Panel(PanelKind kind) => kind switch
     {
         PanelKind.Supply => SupplyPanel(),
-        PanelKind.Beam => InventoryPanel(PauseEquipmentCategories.Beams, 0, 4, 3, BeamTitle, 6),
-        PanelKind.Suit => InventoryPanel(PauseEquipmentCategories.Suits, 0, 1, 3, SuitTitle, 2),
-        PanelKind.Misc => InventoryPanel(PauseEquipmentCategories.Suits, 2, 5, 3, MiscTitle, 2),
-        PanelKind.Boots => InventoryPanel(PauseEquipmentCategories.Boots, 0, 2, 3, BootsTitle, 3),
+        PanelKind.Beam => InventoryPanel(PauseEquipmentCategory.Beams, 0, 4, 3, BeamTitle, 6),
+        PanelKind.Suit => InventoryPanel(PauseEquipmentCategory.Suits, 0, 1, 3, SuitTitle, 2),
+        PanelKind.Misc => InventoryPanel(PauseEquipmentCategory.Suits, 2, 5, 3, MiscTitle, 2),
+        PanelKind.Boots => InventoryPanel(PauseEquipmentCategory.Boots, 0, 2, 3, BootsTitle, 3),
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
@@ -109,7 +109,7 @@ public static class PauseEquipmentBaseDefinitions
         return new(left, label / Columns - 1, right, last / Columns + 2,
             (left + right - titleWidth + 1) / 2, titleWidth, SupplyTitle, 3, false);
     }
-    private static PanelShape InventoryPanel(int category, int firstItem, int lastItem,
+    private static PanelShape InventoryPanel(PauseEquipmentCategory category, int firstItem, int lastItem,
         int titleWidth, int titleGlyph, int titlePalette)
     {
         int first = PauseEquipmentLabelDefinitions.StockDestinationByte(PauseEquipmentLabelDefinitions.Key(category, firstItem)) / sizeof(ushort);
@@ -131,8 +131,8 @@ public static class PauseEquipmentBaseDefinitions
             int index = cell - first;
             if ((uint)index >= PauseEquipmentLabelDefinitions.StockWordCount(label.Key)) continue;
             ushort word = PauseEquipmentLabelDefinitions.StockWord(label.Key, index);
-            bool grayTemplate = label.Category == PauseEquipmentCategories.Boots ||
-                (label.Category == PauseEquipmentCategories.Suits && label.Item < 2);
+            bool grayTemplate = label.Category == PauseEquipmentCategory.Boots ||
+                (label.Category == PauseEquipmentCategory.Suits && label.Item < 2);
             return grayTemplate ? (ushort)((word & ~0x1c00) | PauseEquipmentLabelDefinitions.DisabledPalette << 10) : word;
         }
         // Copied transparent edge metadata and guide-layer policy are separately accounted

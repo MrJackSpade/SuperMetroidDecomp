@@ -1205,40 +1205,6 @@
     "status": "open"
    }
   ],
-  "PauseEquipmentCategories": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelDefinitions.cs",
-    "line": 126,
-    "column": 42,
-    "rule": "SME6270",
-    "message": "'Category' is a int switched over named constants of PauseEquipmentCategories; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/PauseSelectorDefinitions.cs",
-    "line": 68,
-    "column": 26,
-    "rule": "SME6270",
-    "message": "'category' is a int switched over named constants of PauseEquipmentCategories; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs",
-    "line": 120,
-    "column": 73,
-    "rule": "SME6270",
-    "message": "'category' is a int switched over named constants of PauseEquipmentCategories; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/PauseMenuState.EquipmentInput.cs",
-    "line": 117,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'selectedCategory' is a int switched over named constants of PauseEquipmentCategories; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "PauseReserveTankRomData": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/PauseReserveTankDefinitions.cs",
@@ -1469,48 +1435,6 @@
     "status": "open"
    }
   ],
-  "RoomPlmInstructionLists": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmProgramDefinitions.cs",
-    "line": 48,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'start' is a int switched over named constants of RoomPlmInstructionLists; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombedRevealProgramDefinitions.cs",
-    "line": 35,
-    "column": 18,
-    "rule": "SME6270",
-    "message": "'start' is a ushort switched over named constants of RoomPlmInstructionLists; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockProgramDefinitions.cs",
-    "line": 52,
-    "column": 54,
-    "rule": "SME6270",
-    "message": "'start' is a ushort switched over named constants of RoomPlmInstructionLists; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockProgramDefinitions.cs",
-    "line": 62,
-    "column": 36,
-    "rule": "SME6270",
-    "message": "'start' is a ushort switched over named constants of RoomPlmInstructionLists; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/StationAnimationProgramDefinitions.cs",
-    "line": 32,
-    "column": 27,
-    "rule": "SME6270",
-    "message": "'list' is a ushort switched over named constants of RoomPlmInstructionLists; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "RoomPlmShotBlockDrawDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
@@ -1665,32 +1589,6 @@
     "status": "open"
    }
   ],
-  "SamusLiquidPhysicsState": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusAerialMovement.cs",
-    "line": 552,
-    "column": 34,
-    "rule": "SME6270",
-    "message": "'medium' is a ushort switched over named constants of SamusLiquidPhysicsState; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalSpeedState.cs",
-    "line": 161,
-    "column": 39,
-    "rule": "SME6270",
-    "message": "'liquidMedium' is a ushort switched over named constants of SamusLiquidPhysicsState; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusLiquidPhysicsState.cs",
-    "line": 239,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'DetermineRawMediumAtBoundary(bottomMinusOne)' is a ushort switched over named constants of SamusLiquidPhysicsState; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "SamusPoseInputDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
@@ -1762,40 +1660,6 @@
     "column": 25,
     "rule": "SME6270",
     "message": "'Behavior' is a byte switched over named constants of SamusTerrainHazardRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusVerticalMotionDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusVerticalMotionDefinitions.cs",
-    "line": 20,
-    "column": 91,
-    "rule": "SME6270",
-    "message": "'medium' is a ushort switched over named constants of SamusVerticalMotionDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusVerticalMotionDefinitions.cs",
-    "line": 28,
-    "column": 92,
-    "rule": "SME6270",
-    "message": "'medium' is a ushort switched over named constants of SamusVerticalMotionDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusVerticalMotionDefinitions.cs",
-    "line": 41,
-    "column": 20,
-    "rule": "SME6270",
-    "message": "'medium' is a ushort switched over named constants of SamusVerticalMotionDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusVerticalMotionDefinitions.cs",
-    "line": 50,
-    "column": 83,
-    "rule": "SME6270",
-    "message": "'medium' is a ushort switched over named constants of SamusVerticalMotionDefinitions; model the domain as a type",
     "status": "open"
    }
   ],
@@ -1930,16 +1794,6 @@
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of SporeSpawnInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "StationAnimationProgramDefinitions, RoomPlmInstructionLists": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/StationAnimationProgramDefinitions.cs",
-    "line": 40,
-    "column": 28,
-    "rule": "SME6270",
-    "message": "'list' is a ushort switched over named constants of StationAnimationProgramDefinitions, RoomPlmInstructionLists; model the domain as a type",
     "status": "open"
    }
   ],
@@ -2344,13 +2198,57 @@
    "consumers": "RoomPlmSystem.ExecuteInstructionStream and the BombTorizoHand, ChozoStatue, DraygonCannon, EyeDoor, MotherBrainGlass and NoobTube handlers; compiled program definitions emit (ushort) members as stream words; ResourceAudit PlmInstructionFormats",
    "tests": "the uncatalogued-opcode PLM fixture still fails loudly; the movement-PLM, eye-door, Draygon cannon, noob tube and population suites execute the typed dispatch; the static PLM audit reports 0 findings",
    "status": "resolved"
+  },
+  "RoomPlmInstructionLists": {
+   "previous": "ushort bank-$84 list addresses switched by shot-block, bombed-reveal, station and Mother Brain fake-death program definitions",
+   "type": "per-family enums: private shot-block Role (13) and bombed Reveal (6); StationAnimationList (7 native entries); MotherBrainFakeDeathProgram (22 contiguous lists, including unused rows E/F)",
+   "closedProof": "each family owns a fixed, contiguous set of authored lists; addresses stay in RoomPlmInstructionLists for arithmetic and audit naming",
+   "transitions": "station AnimationList switches only between its setup-decoded normal and completed lists",
+   "boundary": "station setup decodes the list words; Mother Brain draw operands decode their program; shot-block and reveal roles map to addresses",
+   "invalidValues": "exhaustive switches throw InvalidOperationException; decodes throw InvalidDataException",
+   "consumers": "RoomPlmShotBlockProgramDefinitions, RoomPlmBombedRevealProgramDefinitions, StationAnimationProgramDefinitions and RoomPlmSystem.Stations, MotherBrainFakeDeathPlmProgramDefinitions",
+   "tests": "station domain test checks the seven members and rejects undefined lists; shot-block, reveal and fake-death word suites read through the typed roles",
+   "status": "resolved"
+  },
+  "SamusVerticalMotionDefinitions": {
+   "previous": "ushort medium selectors 0/1/2 as private constants, duplicated as SamusLiquidPhysicsState.Air/Water/LavaAcid",
+   "type": "existing enum SamusLiquidMedium (Air, Water, LavaOrAcid); SamusLiquidPhysicsState.LiquidPhysicsType ($0AD2) is typed and its casting alias removed",
+   "closedProof": "the native routine only ever stores 0, 1 or 2",
+   "transitions": "Air/Water/LavaOrAcid assignments in the liquid update; exit-water test is == Water (was bit 0)",
+   "boundary": "native snapshot import decodes $0AD2",
+   "invalidValues": "medium switches name all three members and throw InvalidOperationException",
+   "consumers": "vertical launch/gravity/knockback/bomb tables, horizontal speed-table selection, grapple release, pose-change buffer, grounded/aerial/morph movement",
+   "tests": "stream1 vertical tables iterate the members and reject undefined media; indexed-speed and falling recurrences iterate members; shallow-water trace prints the native number",
+   "status": "resolved"
+  },
+  "SamusLiquidPhysicsState": {
+   "previous": "duplicate public ushort Air/Water/LavaAcid constants and an untyped $0AD2 word switched in movement code",
+   "type": "existing enum SamusLiquidMedium (Air, Water, LavaOrAcid); SamusLiquidPhysicsState.LiquidPhysicsType ($0AD2) is typed and its casting alias removed",
+   "closedProof": "the native routine only ever stores 0, 1 or 2",
+   "transitions": "Air/Water/LavaOrAcid assignments in the liquid update; exit-water test is == Water (was bit 0)",
+   "boundary": "native snapshot import decodes $0AD2",
+   "invalidValues": "medium switches name all three members and throw InvalidOperationException",
+   "consumers": "vertical launch/gravity/knockback/bomb tables, horizontal speed-table selection, grapple release, pose-change buffer, grounded/aerial/morph movement",
+   "tests": "stream1 vertical tables iterate the members and reject undefined media; indexed-speed and falling recurrences iterate members; shallow-water trace prints the native number",
+   "status": "resolved"
+  },
+  "PauseEquipmentCategories": {
+   "previous": "int category selector with constants 0-3 plus literal comparisons (category == 1, loops 1..3) across pause menu state, selectors, labels and extractors",
+   "type": "enum PauseEquipmentCategory : byte (Reserves, Beams, Suits, Boots); PauseEquipmentCategories.InventoryCategories names the three inventory columns",
+   "closedProof": "the $82:AC58 dispatcher has exactly four categories",
+   "transitions": "menu navigation assigns members only",
+   "boundary": "none needed; categories are never read from cartridge data at runtime",
+   "invalidValues": "Get and selector switches throw InvalidOperationException; Mask/Key/Anchor keep ArgumentOutOfRangeException for reserves or bad items",
+   "consumers": "PauseMenuState and equipment input, selector/label definitions and presentations, pause extractors, resource domain audit",
+   "tests": "category, mask, label and selector suites iterate members and probe undefined byte values instead of wrapping ints",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 226,
-  "openDomains": 165,
+  "openFindings": 209,
+  "openDomains": 160,
   "byRule": {
-   "SME6270": 226
+   "SME6270": 209
   }
  }
 }

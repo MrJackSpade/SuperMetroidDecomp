@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using System.Reflection;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
@@ -793,7 +794,7 @@ internal static partial class Program
             }
         }
         byte[] overrun = new byte[32 * 32 * 2];
-        stock.ApplyLabel(overrun, 1, 4, 9, false);
+        stock.ApplyLabel(overrun, PauseEquipmentCategory.Beams, 4, 9, false);
         PauseEquipmentLabel plasma = document.Labels[PauseEquipmentLabelDefinitions.PlasmaKey];
         PauseEquipmentLabel varia = document.Labels[PauseEquipmentLabelDefinitions.VariaKey];
         byte[] tail = PauseTileGrid.Compile(varia.Cells, "Native contiguous Varia tail");
@@ -827,7 +828,7 @@ internal static partial class Program
         byte[] movedExpected = movedActual.ToArray();
         PauseTileGrid.Compile(charge.Cells, "Native Charge text").CopyTo(movedExpected,
             (charge.Row * 32 + charge.Column + 1) * 2);
-        moved.ApplyLabel(movedActual, 1, 0, 5, false);
+        moved.ApplyLabel(movedActual, PauseEquipmentCategory.Beams, 0, 5, false);
         AssertTrue(movedExpected.AsSpan().SequenceEqual(movedActual),
             "Independent moved label retains its edited destination and untouched original cell");
         AssertEqual(115, words, "All native equipment glyph words");

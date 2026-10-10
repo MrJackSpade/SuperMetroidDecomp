@@ -28,7 +28,7 @@ internal static partial class Program
             AssertEqual(extraWhole, samus.HorizontalSpeed.ExtraRunSpeed, "fall entry preserves whole dash component");
             AssertEqual(extraFraction, samus.HorizontalSpeed.ExtraRunSubspeed, "fall entry preserves fractional dash component");
         }
-        foreach (ushort medium in new[] { SamusLiquidPhysicsState.Air, SamusLiquidPhysicsState.Water })
+        foreach (SamusLiquidMedium medium in new[] { SamusLiquidMedium.Air, SamusLiquidMedium.Water })
         {
             var speed = new SamusHorizontalSpeedState
             {

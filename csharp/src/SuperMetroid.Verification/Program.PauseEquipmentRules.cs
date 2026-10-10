@@ -9,19 +9,19 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     /// <summary>Native $82:C04C/$C056/$C062 beam, suit/misc and boot upgrade-mask tables.</summary>
-    private static int PauseMaskTableAddress(int category) => category switch
+    private static int PauseMaskTableAddress(PauseEquipmentCategory category) => category switch
     {
-        1 => 0x82c04c,
-        2 => 0x82c056,
-        3 => 0x82c062,
+        PauseEquipmentCategory.Beams => 0x82c04c,
+        PauseEquipmentCategory.Suits => 0x82c056,
+        PauseEquipmentCategory.Boots => 0x82c062,
         _ => throw new ArgumentOutOfRangeException(nameof(category)),
     };
 
-    private static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 1, PauseMaskTableAddress(1), 5);
-    private static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 2, PauseMaskTableAddress(2), 6);
-    private static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, 3, PauseMaskTableAddress(3), 3);
+    private static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Beams, PauseMaskTableAddress(PauseEquipmentCategory.Beams), 5);
+    private static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Suits, PauseMaskTableAddress(PauseEquipmentCategory.Suits), 6);
+    private static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Boots, PauseMaskTableAddress(PauseEquipmentCategory.Boots), 3);
 
-    private static void VerifyPauseMaskCases(ISnesAddressSpace rom, int category, int address, int count)
+    private static void VerifyPauseMaskCases(ISnesAddressSpace rom, PauseEquipmentCategory category, int address, int count)
     {
         for (int item = 0; item < count; item++)
         {
@@ -29,12 +29,12 @@ internal static partial class Program
             AssertEqual(expected, PauseEquipmentRules.Mask(category, item), "original native upgrade flag case");
         }
         foreach (int item in new[] { int.MinValue, -1, count, 256, int.MaxValue }) CheckRejected(category, item, "item");
-        foreach (int invalid in new[] { int.MinValue, -1, 0, 4, 256, int.MaxValue })
+        foreach (PauseEquipmentCategory invalid in new[] { PauseEquipmentCategory.Reserves, (PauseEquipmentCategory)4, (PauseEquipmentCategory)byte.MaxValue })
         {
             CheckRejected(invalid, 0, "category");
             CheckRejected(invalid, -1, "category");
         }
-        static void CheckRejected(int category, int item, string parameter)
+        static void CheckRejected(PauseEquipmentCategory category, int item, string parameter)
         {
             try { _ = PauseEquipmentRules.Mask(category, item); }
             catch (ArgumentOutOfRangeException error)
@@ -70,7 +70,7 @@ internal static partial class Program
         Suite(nameof(VerifyPauseSuitMasks), () => VerifyPauseSuitMasks(bus));
         Suite(nameof(VerifyPauseBootMasks), () => VerifyPauseBootMasks(bus));
         var guard = new PauseRulesReadGuard(bus);
-        for (int category = 1; category <= 3; category++)
+        foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         {
             var definition = PauseEquipmentCategories.Get(category);
             ushort[] masks = Enumerable.Range(0, definition.ItemCount)
@@ -82,10 +82,10 @@ internal static partial class Program
                 EnterPauseEquipment(pause);
                 AssertEqual((category, item), (pause.SelectedCategory, pause.SelectedItem), "single owned upgrade selects its actual native menu entry");
                 pause.Step(0, (ushort)SnesButton.A);
-                AssertEqual((ushort)0, category == 1 ? samus.EquippedBeams : samus.EquippedItems, "A toggles exactly the compiled upgrade bit off");
+                AssertEqual((ushort)0, category == PauseEquipmentCategory.Beams ? samus.EquippedBeams : samus.EquippedItems, "A toggles exactly the compiled upgrade bit off");
                 pause.Step(0, 0); pause.Step(0, (ushort)SnesButton.A);
-                AssertEqual(masks[item], category == 1 ? samus.EquippedBeams : samus.EquippedItems, "A toggles exactly the compiled upgrade bit on");
-                AssertEqual(masks[item], category == 1 ? samus.CollectedBeams : samus.CollectedItems, "menu toggle cannot change collection");
+                AssertEqual(masks[item], category == PauseEquipmentCategory.Beams ? samus.EquippedBeams : samus.EquippedItems, "A toggles exactly the compiled upgrade bit on");
+                AssertEqual(masks[item], category == PauseEquipmentCategory.Beams ? samus.CollectedBeams : samus.CollectedItems, "menu toggle cannot change collection");
             }
             for (int subset = 0; subset < 1 << masks.Length; subset++)
             {
@@ -93,17 +93,17 @@ internal static partial class Program
                 for (int item = 0; item < masks.Length; item++) if ((subset & (1 << item)) != 0) owned |= masks[item];
                 var pause = Create(Inventory(category, owned));
                 int expected = Array.FindIndex(masks, mask => (mask & owned) != 0);
-                AssertEqual(expected < 0 ? (0, 0) : (category, expected), (pause.SelectedCategory, pause.SelectedItem), "all category subsets retain first-owned selection");
+                AssertEqual(expected < 0 ? (PauseEquipmentCategory.Reserves, 0) : (category, expected), (pause.SelectedCategory, pause.SelectedItem), "all category subsets retain first-owned selection");
             }
         }
         // `$82:9142` runs EquipmentScreenMain before the Start handler, so an A press in the
         // frame that unpauses still toggles the item. The 13% movie unequips the Speed Booster
         // with Start+A this way.
-        ushort speedBooster = PauseEquipmentRules.Mask(3, 2);
-        var unpausing = Inventory(3, speedBooster);
+        ushort speedBooster = PauseEquipmentRules.Mask(PauseEquipmentCategory.Boots, 2);
+        var unpausing = Inventory(PauseEquipmentCategory.Boots, speedBooster);
         var startAndA = Create(unpausing);
         EnterPauseEquipment(startAndA);
-        AssertEqual((3, 2), (startAndA.SelectedCategory, startAndA.SelectedItem), "the Speed Booster is selected");
+        AssertEqual((PauseEquipmentCategory.Boots, 2), (startAndA.SelectedCategory, startAndA.SelectedItem), "the Speed Booster is selected");
         AssertTrue(startAndA.Step((ushort)SnesButton.Start, (ushort)SnesButton.A), "Start unpauses");
         AssertEqual((ushort)0, unpausing.EquippedItems, "the same frame's A still unequips the Speed Booster");
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -129,7 +129,7 @@ internal static partial class Program
                 MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = (ushort)SamusBeamFlags.Charge };
             var pause = Create(samus); EnterPauseEquipment(pause);
             pause.Step(0, (ushort)SnesButton.Up); pause.Step(0, (ushort)SnesButton.Down);
-            AssertEqual((0, 1), (pause.SelectedCategory, pause.SelectedItem), "manual transfer fixture reaches reserve dispatcher");
+            AssertEqual((PauseEquipmentCategory.Reserves, 1), (pause.SelectedCategory, pause.SelectedItem), "manual transfer fixture reaches reserve dispatcher");
             int health = scenario.Health, reserve = scenario.Reserve;
             for (int tick = 0; tick < scenario.Reserve && reserve != 0; tick++)
             {
@@ -142,7 +142,7 @@ internal static partial class Program
         }
         Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");
         PauseMenuState Create(SamusState samus) => new(guard, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: catalog);
-        static SamusState Inventory(int category, ushort owned) => category == 1
+        static SamusState Inventory(PauseEquipmentCategory category, ushort owned) => category == PauseEquipmentCategory.Beams
             ? new SamusState { CollectedBeams = owned, EquippedBeams = owned }
             : new SamusState { CollectedItems = owned, EquippedItems = owned };
     }
@@ -155,7 +155,7 @@ internal static partial class Program
         {
             if ((uint)(address - PauseMenuRomData.EquipmentSetTable) < 8 ||
                 (uint)(address - PauseReserveTransferRomData.TransferAmount) < 2 ||
-                Enumerable.Range(0, 4).Select(PauseEquipmentCategories.Get).Any(category => category.ItemCount != 0 &&
+                Enum.GetValues<PauseEquipmentCategory>().Select(PauseEquipmentCategories.Get).Any(category => category.ItemCount != 0 &&
                     (uint)(address - PauseMaskTableAddress(category.Category)) < category.ItemCount * 2))
                 throw new InvalidOperationException($"Pause read compiled inventory/transfer rule at {address:X6}.");
             return source.ReadByte(address);
@@ -195,9 +195,9 @@ internal static partial class Program
     private static void SelectPauseBoots(PauseMenuState pause)
     {
         pause.Step(0, (ushort)SnesButton.Right);
-        for (int step = 0; pause.SelectedCategory != 3 && step < 6; step++)
+        for (int step = 0; pause.SelectedCategory != PauseEquipmentCategory.Boots && step < 6; step++)
             pause.Step(0, (ushort)SnesButton.Down);
-        AssertEqual(3, pause.SelectedCategory, "fixture moves the equipment selector to Boots");
+        AssertEqual(PauseEquipmentCategory.Boots, pause.SelectedCategory, "fixture moves the equipment selector to Boots");
     }
 
     /// <summary>
@@ -206,9 +206,9 @@ internal static partial class Program
     /// </summary>
     private static void SelectPauseBeams(PauseMenuState pause)
     {
-        for (int step = 0; pause.SelectedCategory != 1 && step < 6; step++)
+        for (int step = 0; pause.SelectedCategory != PauseEquipmentCategory.Beams && step < 6; step++)
             pause.Step(0, (ushort)SnesButton.Down);
-        AssertEqual(1, pause.SelectedCategory, "fixture moves the equipment selector to the beams");
+        AssertEqual(PauseEquipmentCategory.Beams, pause.SelectedCategory, "fixture moves the equipment selector to the beams");
     }
 
     /// <summary>Presses R and steps until the equipment page is ready for input (#1266 cadence).</summary>

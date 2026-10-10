@@ -28,7 +28,7 @@ public static class SamusAerialMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
-        ushort medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
         // The two words remain independent. Speed Booster's fractional
         // bonus likewise uses an independent 16-bit ADC and intentionally drops its carry.
@@ -48,7 +48,7 @@ public static class SamusAerialMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
-        ushort medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
         (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
             SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: true);
@@ -108,7 +108,7 @@ public static class SamusAerialMovement
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
-                SamusLiquidPhysicsState.Air);
+                SamusLiquidMedium.Air);
 
         // Poses `$4B/$4C/$55-$5A` are genuine movement-type-2 poses, but native treats them as
         // a transition: base X speed is forced to zero, only external X/Y displacement is
@@ -220,7 +220,7 @@ public static class SamusAerialMovement
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
-                SamusLiquidPhysicsState.Air);
+                SamusLiquidMedium.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -323,7 +323,7 @@ public static class SamusAerialMovement
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
-                SamusLiquidPhysicsState.Air);
+                SamusLiquidMedium.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -361,7 +361,7 @@ public static class SamusAerialMovement
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
-                SamusLiquidPhysicsState.Air);
+                SamusLiquidMedium.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -405,7 +405,7 @@ public static class SamusAerialMovement
         // damage for this final frame. Clearing the counter is not retroactive.
         speed.HandleExtraRunSpeed(movementType, controllerInput: 0,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-            liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidPhysicsState.Air);
+            liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidMedium.Air);
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
         var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
@@ -472,7 +472,7 @@ public static class SamusAerialMovement
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
-                SamusLiquidPhysicsState.Air);
+                SamusLiquidMedium.Air);
 
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -548,14 +548,15 @@ public static class SamusAerialMovement
         // branch until it underflows and resets mode zero. Only then can an input-free frame
         // clear base speed instead of calling the horizontal mover.
         speed.AccelerationMode = 2;
-        ushort medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         int speedRecordAddress = medium switch
         {
-            SamusLiquidPhysicsState.Water =>
+            SamusLiquidMedium.Water =>
                 SamusMovementRomData.VerticalMotion.GrappleReleaseWaterSpeed,
-            SamusLiquidPhysicsState.LavaAcid =>
+            SamusLiquidMedium.LavaOrAcid =>
                 SamusMovementRomData.VerticalMotion.GrappleReleaseLavaAcidSpeed,
-            _ => SamusMovementRomData.VerticalMotion.GrappleReleaseAirSpeed,
+            SamusLiquidMedium.Air => SamusMovementRomData.VerticalMotion.GrappleReleaseAirSpeed,
+            _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
         uint baseSpeed = speed.CalculateBaseSpeedAtAddress(bus, speedRecordAddress);
 
@@ -868,7 +869,7 @@ public static class SamusAerialMovement
         // `$0AD2` is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
         // velocity window can intentionally describe different samples for one frame.
-        ushort minimumVelocity = samus.LiquidPhysics.LiquidMedium !=
+        ushort minimumVelocity = samus.LiquidPhysics.LiquidPhysicsType !=
             SamusLiquidMedium.Air
                 ? (ushort)0x0080
                 : (ushort)0x0280;

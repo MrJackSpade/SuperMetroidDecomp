@@ -20,7 +20,7 @@ internal static class PausePresentationDomainAudit
             {
                 int? category = Constant("category"), item = Constant("item");
                 if (!PauseSelectorDefinitions.Anchors().Any(anchor =>
-                    (!category.HasValue || category == anchor.Category) && (!item.HasValue || item == anchor.Item)))
+                    (!category.HasValue || category == (int)anchor.Category) && (!item.HasValue || item == anchor.Item)))
                     return "Constant category/item does not select any reviewed pause selector anchor.";
             }
         }
@@ -28,7 +28,7 @@ internal static class PausePresentationDomainAudit
         {
             int? category = Constant("category"), item = Constant("item"), words = Constant("wordCount");
             var candidates = PauseEquipmentLabelDefinitions.Labels();
-            if (!candidates.Any(label => (!category.HasValue || category == label.Category) &&
+            if (!candidates.Any(label => (!category.HasValue || category == (int)label.Category) &&
                 (!item.HasValue || item == label.Item) && (!words.HasValue ||
                     words >= 0 && words <= PauseEquipmentLabelDefinitions.EquipmentWords &&
                     (words <= PauseEquipmentLabelDefinitions.WordCount(label.Category) ||

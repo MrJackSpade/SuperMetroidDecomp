@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -50,8 +51,8 @@ internal static partial class Program
         using var spriteJson = Json(sprites);
         using var spritePng = File.OpenRead(Path.Combine(installation.MapDirectory, MapSpriteFormat.PngFile));
         var selectors = Document<PauseSelectorDocument>(PauseSelectorDefinitions.FileName);
-        selectors.Anchors[PauseSelectorDefinitions.Anchor(2, 2)] = new(0x90, 0x70);
-        selectors.Anchors[PauseSelectorDefinitions.Anchor(2, 3)] = new(0xa0, 0x80);
+        selectors.Anchors[PauseSelectorDefinitions.Anchor(PauseEquipmentCategory.Suits, 2)] = new(0x90, 0x70);
+        selectors.Anchors[PauseSelectorDefinitions.Anchor(PauseEquipmentCategory.Suits, 3)] = new(0xa0, 0x80);
         foreach (string name in selectors.Frames.Keys.ToArray()) selectors.Frames[name] = [singlePart];
         using var selectorJson = Json(selectors);
         // The original synthetic ROM supplied zero-part reserve-strip maps. Keep

@@ -34,7 +34,7 @@ internal static partial class Program
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
             samus.RefreshCollisionRadii(memory);
             runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
-            AssertEqual(SamusLiquidPhysicsState.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
+            AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
             samus.InitializeAnimation(memory, 3);
             samus.Kinematics.YDirection = 1;
             samus.Kinematics.YSpeed = 1;

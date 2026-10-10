@@ -1793,7 +1793,7 @@ internal static class SamusAerialMovementAccess
             ArgumentNullException.ThrowIfNull(samus);
 
             (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
-                SamusVerticalMotionDefinitions.Launch(SamusLiquidPhysicsState.Air, highJump: false, wallJump: false);
+                SamusVerticalMotionDefinitions.Launch(SamusLiquidMedium.Air, highJump: false, wallJump: false);
             SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(samus);
             SamusAerialMovement.ConfigureDryAirGravity(bus, samus);
             samus.Kinematics.YDirection = 1;
@@ -1809,7 +1809,7 @@ internal static class SamusAerialMovementAccess
             ArgumentNullException.ThrowIfNull(bus);
             ArgumentNullException.ThrowIfNull(samus);
             (samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration) =
-                SamusVerticalMotionDefinitions.Gravity(SamusLiquidPhysicsState.Air);
+                SamusVerticalMotionDefinitions.Gravity(SamusLiquidMedium.Air);
         }
     }
 }
@@ -2008,9 +2008,9 @@ internal static class SamusLiquidPhysicsStateAccess
             PrivateState.SetProperty(self, "LiquidPhysicsType", self.FxType switch
             {
                 RoomFxType.Lava or RoomFxType.Acid
-                    when ((bool)(PrivateState.InvokeStatic(typeof(SamusLiquidPhysicsState), "IsBelowSurface", (ushort)(self.LavaAcidYPosition), (ushort)(bottom)))!) => SamusLiquidPhysicsState.LavaAcid,
-                RoomFxType.Water or RoomFxType.TourianEntranceStatue when ((bool)(PrivateState.Invoke(self, "WaterAffectsBoundary", (ushort)(bottom)))!) => SamusLiquidPhysicsState.Water,
-                _ => SamusLiquidPhysicsState.Air,
+                    when ((bool)(PrivateState.InvokeStatic(typeof(SamusLiquidPhysicsState), "IsBelowSurface", (ushort)(self.LavaAcidYPosition), (ushort)(bottom)))!) => SamusLiquidMedium.LavaOrAcid,
+                RoomFxType.Water or RoomFxType.TourianEntranceStatue when ((bool)(PrivateState.Invoke(self, "WaterAffectsBoundary", (ushort)(bottom)))!) => SamusLiquidMedium.Water,
+                _ => SamusLiquidMedium.Air,
             });
         }
     }

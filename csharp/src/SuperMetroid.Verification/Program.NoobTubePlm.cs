@@ -214,7 +214,7 @@ internal static partial class Program
         AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
             samus.LiquidPhysics.LiquidOptions,
             "next room-FX publication preserves enabled water physics");
-        AssertEqual(SamusLiquidPhysicsState.Water,
+        AssertEqual(SamusLiquidMedium.Water,
             samus.LiquidPhysics.DetermineMovementMedium(samus),
             "fully submerged Samus uses underwater movement after tube break");
         AssertEqual(0, plms.ActiveCount, "completed n00b-tube PLM deletes itself");
@@ -359,7 +359,7 @@ internal static partial class Program
             roomFx.LiquidOptions,
             "event-$0B room load clears the shared water-disable bit");
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
-        AssertEqual(SamusLiquidPhysicsState.Water,
+        AssertEqual(SamusLiquidMedium.Water,
             samus.LiquidPhysics.DetermineMovementMedium(samus),
             "event-$0B reload keeps fully submerged movement underwater");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

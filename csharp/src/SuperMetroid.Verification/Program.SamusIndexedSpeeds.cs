@@ -13,7 +13,7 @@ internal static partial class Program
         var speed = new SamusHorizontalSpeedState();
         var guard = new IndexedSpeedReadGuard(rom);
         int compiledCount = 0;
-        for (ushort medium = 0; medium < 3; medium++)
+        foreach (SamusLiquidMedium medium in Enum.GetValues<SamusLiquidMedium>())
         {
             speed.SelectEnvironmentSpeedTable(medium);
             for (int movement = 0; movement <= byte.MaxValue; movement++)

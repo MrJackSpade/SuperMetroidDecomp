@@ -17,7 +17,7 @@ internal sealed partial class PauseMenuState
     /// <summary>Runs $82:AD0A after the tank input handler and D-pad response.</summary>
     private void UpdateReserveArrow(byte nmiFrameCounter8)
     {
-        bool inTanks = selectedCategory == PauseEquipmentCategories.Reserves;
+        bool inTanks = selectedCategory == PauseEquipmentCategory.Reserves;
         bool animated = inTanks && selectedItem == PauseReserveTransferRomData.ModeItem &&
             samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode;
         bool enabled = animated || inTanks && selectedItem == PauseReserveTransferRomData.TransferItem;

@@ -1092,7 +1092,7 @@ internal static partial class Program
                     Check($"Atmosphere {index} Y", effect.YPosition, NativeSnapshotMemory.AtmosphericY + index * 2);
                 }
                 Check("Liquid animation buffer", samus.AnimationFrameBuffer, NativeSnapshotMemory.AnimationFrameBuffer);
-                Check("LiquidPhysicsType", samus.LiquidPhysics.LiquidPhysicsType, NativeSnapshotMemory.LiquidPhysicsType);
+                Check("LiquidPhysicsType", (ushort)samus.LiquidPhysics.LiquidPhysicsType, NativeSnapshotMemory.LiquidPhysicsType);
                 Check("PeriodicSubDamage", samus.LiquidPhysics.PeriodicSubDamage, NativeSnapshotMemory.PeriodicSubDamage);
                 Check("PeriodicDamage", samus.LiquidPhysics.PeriodicDamage, NativeSnapshotMemory.PeriodicDamage);
                 Check("Acid damage surface", samus.LiquidPhysics.LavaAcidYPosition, NativeSnapshotMemory.AcidSurface);

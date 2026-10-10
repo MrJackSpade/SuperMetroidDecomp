@@ -42,28 +42,28 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>Equipment label identities alias the corresponding selector controls. Native
     /// 82:C08C..C0A6 selects Charge/Ice/Wave/Spazer/Plasma, suit/misc and boot labels in
     /// the same category/item order. Reserve controls have no ordinary inventory label.</summary>
-    public static string Key(int category, int item)
+    public static string Key(PauseEquipmentCategory category, int item)
     {
-        if ((uint)category >= 4 || (uint)item >= ItemCount(category))
+        if (!Enum.IsDefined(category) || (uint)item >= ItemCount(category))
             throw new ArgumentOutOfRangeException(nameof(item), $"No pause equipment label exists for category {category}, item {item}.");
         return PauseSelectorDefinitions.Anchor(category, item);
     }
 
     /// <summary>Uses the reviewed category contract, including zero labels for reserves.</summary>
-    public static int ItemCount(int category) => PauseEquipmentCategories.Get(category).ItemCount;
+    public static int ItemCount(PauseEquipmentCategory category) => PauseEquipmentCategories.Get(category).ItemCount;
 
     /// <summary>The ordinary label view of the selector anchors, derived once rather than per lookup.</summary>
-    public static IReadOnlyList<(int Category, int Item, string Key)> Labels() => labels.Value;
+    public static IReadOnlyList<(PauseEquipmentCategory Category, int Item, string Key)> Labels() => labels.Value;
 
-    private static readonly Lazy<(int Category, int Item, string Key)[]> labels = new(() =>
+    private static readonly Lazy<(PauseEquipmentCategory Category, int Item, string Key)[]> labels = new(() =>
         PauseSelectorDefinitions.Anchors()
-            .Where(anchor => anchor.Category != PauseEquipmentCategories.Reserves)
+            .Where(anchor => anchor.Category != PauseEquipmentCategory.Reserves)
             .Select(anchor => (anchor.Category, anchor.Item, anchor.Name)).ToArray());
 
     /// <summary>Returns the ordinary category strip width in sixteen-bit tile words, not bytes; Hyper's stored width and Plasma's button-patch overrun are separate contracts.</summary>
     /// <param name="category">Native equipment category: one denotes beams; every other integer returns the equipment width without category validation.</param>
     /// <returns>Five for the beam category, otherwise nine.</returns>
-    public static int WordCount(int category) => category == 1 ? BeamWords : EquipmentWords;
+    public static int WordCount(PauseEquipmentCategory category) => category == PauseEquipmentCategory.Beams ? BeamWords : EquipmentWords;
     /// <summary>$82:BF32-C018: all collected labels use BG palette two and the marker character $FF.</summary>
     private const int LabelPalette = 2, Marker = 0xff;
     /// <summary>$82:BF42 and other label tails use character $D4 as the padded text background.</summary>
@@ -114,7 +114,7 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>$82:C06C-C086: label columns4/21 and category rows16/9/19, with the suit-to-misc gap.</summary>
     internal static int StockDestinationByte(string key)
     {
-        if (key == HyperKey) key = Key(PauseEquipmentCategories.Beams, HyperBeamItem);
+        if (key == HyperKey) key = Key(PauseEquipmentCategory.Beams, HyperBeamItem);
         return destinations.Value.TryGetValue(key, out int destination) ? destination
             : throw new ArgumentOutOfRangeException(nameof(key));
     }
@@ -125,9 +125,9 @@ public static class PauseEquipmentLabelDefinitions
         {
             (int column, int firstRow) = label.Category switch
             {
-                PauseEquipmentCategories.Beams => (4, 16),
-                PauseEquipmentCategories.Suits => (21, 9 + (label.Item >= 2 ? 2 : 0)),
-                PauseEquipmentCategories.Boots => (21, 19),
+                PauseEquipmentCategory.Beams => (4, 16),
+                PauseEquipmentCategory.Suits => (21, 9 + (label.Item >= 2 ? 2 : 0)),
+                PauseEquipmentCategory.Boots => (21, 19),
                 _ => throw new InvalidDataException("Unknown equipment label category."),
             };
             return ((firstRow + label.Item) * TilemapColumns + column) * sizeof(ushort);

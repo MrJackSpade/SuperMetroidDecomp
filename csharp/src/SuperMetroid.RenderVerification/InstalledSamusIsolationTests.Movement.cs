@@ -5,8 +5,8 @@ internal sealed partial class InstalledSamusIsolationTests
 {
     private void CheckMovement()
     {
-        foreach (ushort medium in new[] { SamusLiquidPhysicsState.Air,
-            SamusLiquidPhysicsState.Water, SamusLiquidPhysicsState.LavaAcid })
+        foreach (SamusLiquidMedium medium in new[] { SamusLiquidMedium.Air,
+            SamusLiquidMedium.Water, SamusLiquidMedium.LavaOrAcid })
         foreach (bool left in new[] { false, true })
         {
             Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
@@ -63,7 +63,7 @@ internal sealed partial class InstalledSamusIsolationTests
         }
     }
 
-    private void CheckJump(ushort medium, bool left, bool highJump)
+    private void CheckJump(SamusLiquidMedium medium, bool left, bool highJump)
     {
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
             equipment: highJump ? (ushort)SamusEquipmentFlags.HiJumpBoots : (ushort)0, medium: medium);
@@ -91,7 +91,7 @@ internal sealed partial class InstalledSamusIsolationTests
         Require(landed && minimumY < startY, label + ": must rise and collide with the floor, not merely stay equal");
     }
 
-    private void CheckPosture(ushort medium, bool left)
+    private void CheckPosture(SamusLiquidMedium medium, bool left)
     {
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
             (ushort)SamusEquipmentFlags.MorphBall, medium);

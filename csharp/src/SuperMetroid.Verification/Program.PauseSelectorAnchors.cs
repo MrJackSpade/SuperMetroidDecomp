@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -12,25 +13,25 @@ internal static partial class Program
             ["Beam.Charge", "Beam.Ice", "Beam.Wave", "Beam.Spazer", "Beam.Plasma"],
             ["Equipment.Varia", "Equipment.Gravity", "Equipment.MorphBall", "Equipment.Bombs", "Equipment.SpringBall", "Equipment.ScrewAttack"],
             ["Boots.HiJump", "Boots.SpaceJump", "Boots.SpeedBooster"] ];
-        var expectedNames = names.SelectMany((group, category) => group.Select((name, item) => (category, item, name))).ToArray();
+        var expectedNames = names.SelectMany((group, category) => group.Select((name, item) => (category: (PauseEquipmentCategory)category, item, name))).ToArray();
         AssertTrue(expectedNames.SequenceEqual(PauseSelectorDefinitions.Anchors()), "original named identity order");
         foreach (var (category, item, name) in expectedNames)
             AssertEqual(name, PauseSelectorDefinitions.Anchor(category, item), "original named identity case");
-        AssertTrue(expectedNames.Where(entry => entry.category != 0).SequenceEqual(PauseEquipmentLabelDefinitions.Labels()),
+        AssertTrue(expectedNames.Where(entry => entry.category != PauseEquipmentCategory.Reserves).SequenceEqual(PauseEquipmentLabelDefinitions.Labels()),
             "label identity view contains exactly the fourteen ordinary controls in order");
-        AssertEqual(0, PauseEquipmentLabelDefinitions.ItemCount(0), "reserve controls have no inventory labels");
-        for (int category = 1; category < names.Length; category++)
+        AssertEqual(0, PauseEquipmentLabelDefinitions.ItemCount(PauseEquipmentCategory.Reserves), "reserve controls have no inventory labels");
+        foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         {
-            AssertEqual(names[category].Length, PauseEquipmentLabelDefinitions.ItemCount(category), "label category capacity");
-            for (int item = 0; item < names[category].Length; item++)
-                AssertEqual(names[category][item], PauseEquipmentLabelDefinitions.Key(category, item), "label alias identity");
+            AssertEqual(names[(int)category].Length, PauseEquipmentLabelDefinitions.ItemCount(category), "label category capacity");
+            for (int item = 0; item < names[(int)category].Length; item++)
+                AssertEqual(names[(int)category][item], PauseEquipmentLabelDefinitions.Key(category, item), "label alias identity");
         }
-        foreach (int category in new[] { int.MinValue, -1, 0, 4, 256, int.MaxValue })
+        foreach (PauseEquipmentCategory category in new[] { PauseEquipmentCategory.Reserves, (PauseEquipmentCategory)4, (PauseEquipmentCategory)byte.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.Key(category, 0), "no label for invalid or reserve category");
-        for (int category = 1; category < names.Length; category++)
-        foreach (int item in new[] { int.MinValue, -1, names[category].Length, 256, int.MaxValue })
+        foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
+        foreach (int item in new[] { int.MinValue, -1, names[(int)category].Length, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.Key(category, item), "label category bounds");
-        Suite(nameof(VerifyPauseLabelIdentityAdmission), () => VerifyPauseLabelIdentityAdmission(rom, expectedNames.Where(entry => entry.category != 0).Select(entry => entry.name)
+        Suite(nameof(VerifyPauseLabelIdentityAdmission), () => VerifyPauseLabelIdentityAdmission(rom, expectedNames.Where(entry => entry.category != PauseEquipmentCategory.Reserves).Select(entry => entry.name)
             .Append("Beam.Hyper").ToArray()));
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
@@ -38,10 +39,10 @@ internal static partial class Program
         AssertEqual(0, stock.StoredAnchorComponentCount, "stock selector stores no coordinate table");
         Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: true));
         Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: false));
-        foreach (int category in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
+        foreach (PauseEquipmentCategory category in new[] { (PauseEquipmentCategory)4, (PauseEquipmentCategory)byte.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Anchor(category, 0), "unsupported selector category");
-        for (int category = 0; category < names.Length; category++)
-        foreach (int item in new[] { int.MinValue, -1, names[category].Length, 256, int.MaxValue })
+        foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
+        foreach (int item in new[] { int.MinValue, -1, names[(int)category].Length, 256, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Anchor(category, item), "unsupported selector item");
             AssertThrows<ArgumentOutOfRangeException>(() => PauseSelectorDefinitions.StockAnchor(category, item), "geometry guards item before arithmetic");
@@ -78,7 +79,7 @@ internal static partial class Program
     {
         foreach (var anchor in PauseSelectorDefinitions.Anchors())
         {
-            int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c18e + anchor.Category * 2);
+            int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c18e + (int)anchor.Category * 2);
             int original = ReadVerificationWord(rom, pointer + anchor.Item * 4 + (horizontal ? 0 : 2)) - 1;
             var basis = PauseSelectorDefinitions.StockAnchor(anchor.Category, anchor.Item);
             var point = stock.Anchor(anchor.Category, anchor.Item);

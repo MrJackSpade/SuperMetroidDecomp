@@ -14,7 +14,7 @@ public static class PauseEquipmentLabelExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var labels = new Dictionary<string, PauseEquipmentLabel>(StringComparer.Ordinal);
-        for (int category = 1; category <= 3; category++)
+        foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         {
             PauseEquipmentCategoryDefinition definition = PauseEquipmentCategories.Get(category);
             for (int item = 0; item < definition.ItemCount; item++)
@@ -33,7 +33,7 @@ public static class PauseEquipmentLabelExtractor
 
         ushort hyper = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseEquipmentLabelDefinitions.HyperPointerTable +
             PauseEquipmentLabelDefinitions.HyperBeamItem * sizeof(ushort));
-        for (int index = 0; index < PauseEquipmentLabelDefinitions.ItemCount(1); index++)
+        for (int index = 0; index < PauseEquipmentLabelDefinitions.ItemCount(PauseEquipmentCategory.Beams); index++)
         {
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 PauseEquipmentLabelDefinitions.HyperPointerTable + index * sizeof(ushort));
@@ -44,8 +44,8 @@ public static class PauseEquipmentLabelExtractor
         }
         labels.Add(PauseEquipmentLabelDefinitions.HyperKey, new()
         {
-            Column = labels[PauseEquipmentLabelDefinitions.Key(1, PauseEquipmentLabelDefinitions.HyperBeamItem)].Column,
-            Row = labels[PauseEquipmentLabelDefinitions.Key(1, PauseEquipmentLabelDefinitions.HyperBeamItem)].Row,
+            Column = labels[PauseEquipmentLabelDefinitions.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Column,
+            Row = labels[PauseEquipmentLabelDefinitions.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelDefinitions.HyperBeamItem)].Row,
             Cells = ReadCells(bus, hyper, PauseEquipmentLabelDefinitions.EquipmentWords,
                 PauseEquipmentLabelDefinitions.HyperKey),
         });

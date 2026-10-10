@@ -8,8 +8,8 @@ internal sealed partial class PauseMenuState
 {
     private void HandleEquipmentInput(SnesButton pressed, byte nmiFrameCounter8)
     {
-        int dispatchedCategory = selectedCategory;
-        if (dispatchedCategory == PauseEquipmentCategories.Reserves)
+        PauseEquipmentCategory dispatchedCategory = selectedCategory;
+        if (dispatchedCategory == PauseEquipmentCategory.Reserves)
         {
             HandleReserveInput(pressed);
             MoveEquipmentSelector(pressed);
@@ -19,9 +19,9 @@ internal sealed partial class PauseMenuState
         MoveEquipmentSelector(pressed);
         if ((pressed & SnesButton.A) == 0)
             return;
-        if (dispatchedCategory == PauseEquipmentCategories.Beams && samus.CollectedBeams == 0)
+        if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == 0)
             return;
-        if (selectedCategory == PauseEquipmentCategories.Reserves)
+        if (selectedCategory == PauseEquipmentCategory.Reserves)
             throw new NotSupportedException("Same-frame equipment toggle into reserve tables requires native out-of-table WRAM behavior.");
 
         // Dispatch precedes movement. Boots->Plasma therefore retains the Boots copy
@@ -31,7 +31,7 @@ internal sealed partial class PauseMenuState
         var target = PauseEquipmentCategories.Get(selectedCategory);
         ushort mask = ReadCategoryMask(target, selectedItem);
         bool wasEquipped = (GetEquippedBits(selectedCategory) & mask) != 0;
-        if (selectedCategory == PauseEquipmentCategories.Beams)
+        if (selectedCategory == PauseEquipmentCategory.Beams)
             samus.EquippedBeams ^= mask;
         else
             samus.EquippedItems ^= mask;
@@ -39,22 +39,22 @@ internal sealed partial class PauseMenuState
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
         UpdateEquipmentLabel(selectedCategory, selectedItem,
             PauseEquipmentCategories.Get(dispatchedCategory).LabelWordCount, wasEquipped);
-        if (dispatchedCategory == PauseEquipmentCategories.Beams)
+        if (dispatchedCategory == PauseEquipmentCategory.Beams)
         {
             ushort added = (ushort)(samus.EquippedBeams & ~previousBeams);
             if ((added & (ushort)SamusBeamFlags.Spazer) != 0 &&
                 (samus.EquippedBeams & (ushort)SamusBeamFlags.Plasma) != 0)
             {
                 samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Plasma);
-                UpdateEquipmentLabel(PauseEquipmentCategories.Beams, PauseEquipmentCategories.PlasmaItem,
-                    PauseEquipmentCategories.Get(PauseEquipmentCategories.Beams).LabelWordCount, true);
+                UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
+                    PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
             }
             else if ((added & (ushort)SamusBeamFlags.Plasma) != 0 &&
                 (samus.EquippedBeams & (ushort)SamusBeamFlags.Spazer) != 0)
             {
                 samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Spazer);
-                UpdateEquipmentLabel(PauseEquipmentCategories.Beams, PauseEquipmentCategories.SpazerItem,
-                    PauseEquipmentCategories.Get(PauseEquipmentCategories.Beams).LabelWordCount, true);
+                UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.SpazerItem,
+                    PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
             }
         }
         // Native patches only the chosen label, then refreshes the wireframe. Rebuilding
@@ -63,10 +63,10 @@ internal sealed partial class PauseMenuState
         UploadEquipmentTilemap();
     }
 
-    private void UpdateEquipmentLabel(int categoryIndex, int item, int wordCount, bool disabled)
+    private void UpdateEquipmentLabel(PauseEquipmentCategory categoryIndex, int item, int wordCount, bool disabled)
     {
         var category = PauseEquipmentCategories.Get(categoryIndex);
-        if (categoryIndex == PauseEquipmentCategories.Beams &&
+        if (categoryIndex == PauseEquipmentCategory.Beams &&
             item == PauseEquipmentCategories.PlasmaItem && wordCount > category.LabelWordCount)
             plasmaLabelOverrunActive = true;
         (mapPresentation ?? throw new InvalidOperationException(
@@ -75,9 +75,9 @@ internal sealed partial class PauseMenuState
                 equipmentTilemap, categoryIndex, item, wordCount, disabled);
     }
 
-    private bool TrySelectEquipment(int categoryIndex, int start, int step)
+    private bool TrySelectEquipment(PauseEquipmentCategory categoryIndex, int start, int step)
     {
-        if (categoryIndex == PauseEquipmentCategories.Beams && samus.HyperBeam != 0)
+        if (categoryIndex == PauseEquipmentCategory.Beams && samus.HyperBeam != 0)
             return false;
         var category = PauseEquipmentCategories.Get(categoryIndex);
         for (int item = start; item >= 0 && item < category.ItemCount; item += step)
@@ -87,7 +87,7 @@ internal sealed partial class PauseMenuState
                 // $82:B4B7 checks byte offset ten only AFTER an unsuccessful probe.
                 // Thus directly entering the final suit item can succeed, but scanning
                 // forward from an earlier missing item must not discover it.
-                if (categoryIndex == PauseEquipmentCategories.Suits && step > 0 &&
+                if (categoryIndex == PauseEquipmentCategory.Suits && step > 0 &&
                     item + step >= category.ItemCount - 1)
                     return false;
                 continue;
@@ -103,7 +103,7 @@ internal sealed partial class PauseMenuState
     private bool TrySelectReserves()
     {
         if (samus.MaxReserveEnergy == 0) return false;
-        selectedCategory = PauseEquipmentCategories.Reserves;
+        selectedCategory = PauseEquipmentCategory.Reserves;
         selectedItem = 0;
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
         return true;
@@ -113,10 +113,10 @@ internal sealed partial class PauseMenuState
     {
         bool left = (pressed & SnesButton.Left) != 0, right = (pressed & SnesButton.Right) != 0;
         bool up = (pressed & SnesButton.Up) != 0, down = (pressed & SnesButton.Down) != 0;
-        int beams = PauseEquipmentCategories.Beams, suits = PauseEquipmentCategories.Suits, boots = PauseEquipmentCategories.Boots;
+        PauseEquipmentCategory beams = PauseEquipmentCategory.Beams, suits = PauseEquipmentCategory.Suits, boots = PauseEquipmentCategory.Boots;
         switch (selectedCategory)
         {
-            case PauseEquipmentCategories.Beams:
+            case PauseEquipmentCategory.Beams:
                 if (right)
                 {
                     if (!TrySelectEquipment(suits, up ? 0 : PauseEquipmentCategories.BeamRightSuitItem, 1) && !up)
@@ -125,7 +125,7 @@ internal sealed partial class PauseMenuState
                 else if (down) TrySelectEquipment(beams, selectedItem + 1, 1);
                 else if (up && !TrySelectEquipment(beams, selectedItem - 1, -1)) TrySelectReserves();
                 break;
-            case PauseEquipmentCategories.Suits:
+            case PauseEquipmentCategory.Suits:
                 if (left)
                 {
                     if (down || !TrySelectReserves()) TrySelectEquipment(beams, 0, 1);
@@ -133,7 +133,7 @@ internal sealed partial class PauseMenuState
                 else if (up) TrySelectEquipment(suits, selectedItem - 1, -1);
                 else if (down && !TrySelectEquipment(suits, selectedItem + 1, 1)) TrySelectEquipment(boots, 0, 1);
                 break;
-            case PauseEquipmentCategories.Boots:
+            case PauseEquipmentCategory.Boots:
                 if (left)
                 {
                     if (up || !TrySelectEquipment(beams, PauseEquipmentCategories.PlasmaItem, -1)) TrySelectReserves();
@@ -142,7 +142,7 @@ internal sealed partial class PauseMenuState
                 else if (up && !TrySelectEquipment(boots, selectedItem - 1, -1))
                     TrySelectEquipment(suits, PauseEquipmentCategories.Get(suits).ItemCount - 1, -1);
                 break;
-            case PauseEquipmentCategories.Reserves:
+            case PauseEquipmentCategory.Reserves:
                 if (right)
                 {
                     if (down || !TrySelectEquipment(suits, 0, 1)) TrySelectEquipment(boots, 0, 1);

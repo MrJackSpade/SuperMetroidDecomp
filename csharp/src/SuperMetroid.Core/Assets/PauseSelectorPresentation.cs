@@ -21,7 +21,7 @@ public sealed class PauseSelectorPresentation
         Dictionary<int, int>? durationOverrides, int initialDuration, int palette)
     { this.anchorOverrides = anchorOverrides; this.reserve = reserve; this.beam = beam; this.equipment = equipment; PhaseCount = phaseCount; this.durationOverrides = durationOverrides; InitialDurationTicks = initialDuration; PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
     /// <summary>Gets the selected screen-pixel anchor for an equipment category and item.</summary>
-    public MapLabelPoint Anchor(int category, int item)
+    public MapLabelPoint Anchor(PauseEquipmentCategory category, int item)
     {
         string name = PauseSelectorDefinitions.Anchor(category, item);
         var basis = PauseSelectorDefinitions.StockAnchor(category, item);
@@ -37,11 +37,17 @@ public sealed class PauseSelectorPresentation
             ? duration : MenuSelectorTiming.Duration(normalized);
     }
     /// <summary>Draws the selected category's normalized selector composition at the item's anchor.</summary>
-    public void Draw(OamBuffer oam, int category, int item, int phase)
+    public void Draw(OamBuffer oam, PauseEquipmentCategory category, int item, int phase)
     {
         var point = Anchor(category, item);
         int normalized = NormalizePhase(phase);
-        var composition = (category switch { 0 => reserve, 1 => beam, _ => equipment }).Get(normalized);
+        var composition = (category switch
+        {
+            PauseEquipmentCategory.Reserves => reserve,
+            PauseEquipmentCategory.Beams => beam,
+            PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
+            _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
+        }).Get(normalized);
         composition.DrawOnScreen(oam, (ushort)point.X, (ushort)point.Y, PaletteBits);
     }
     /// <summary>Loads and validates equipment-selector anchors, frames, animation, palette, and timing.</summary>

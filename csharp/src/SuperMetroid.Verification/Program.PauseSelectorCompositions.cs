@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -15,7 +16,8 @@ internal static partial class Program
         AssertTrue(!stock.StoresCompositionParts, "stock selector stores no sprite part records");
         foreach (string name in new[] { "Reserve", "Beam", "Equipment" })
         {
-            int category = name == "Reserve" ? 0 : name == "Beam" ? 1 : 2;
+            PauseEquipmentCategory category = name == "Reserve" ? PauseEquipmentCategory.Reserves
+                : name == "Beam" ? PauseEquipmentCategory.Beams : PauseEquipmentCategory.Suits;
             var original = document.Frames[name];
             for (int index = 0; index < original.Length; index++)
             {
@@ -53,11 +55,11 @@ internal static partial class Program
             var edited = PauseSelectorPresentation.Load(stream);
             AssertEqual(changed == 0 ? phases.Length - 1 : 1, edited.StoredCompositionOverrideCount,
                 "only differences from the first authored phase are captured");
-            for (int category = 0; category < 4; category++)
+            foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
             foreach (int phase in Enumerable.Range(0, phases.Length).Append(phases.Length).Append(int.MaxValue))
             {
                 var source = phases[phase % phases.Length];
-                string name = category switch { 0 => source.Reserve, 1 => source.Beam, _ => source.Equipment };
+                string name = category switch { PauseEquipmentCategory.Reserves => source.Reserve, PauseEquipmentCategory.Beams => source.Beam, _ => source.Equipment };
                 var composition = MenuSpriteCompiler.Compile(document.Frames[name], name);
                 var anchor = edited.Anchor(category, 0);
                 var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
@@ -76,15 +78,15 @@ internal static partial class Program
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);
         int bases = 0x820000 | ReadVerificationWord(rom, 0x82c1e8);
-        foreach (var anchor in PauseSelectorDefinitions.Anchors().Where(a => (a.Category < 2 ? a.Category : 2) == group))
+        foreach (var anchor in PauseSelectorDefinitions.Anchors().Where(a => Math.Min((int)a.Category, 2) == group))
         {
-            int positions = 0x820000 | ReadVerificationWord(rom, 0x82c18e + anchor.Category * 2);
+            int positions = 0x820000 | ReadVerificationWord(rom, 0x82c18e + (int)anchor.Category * 2);
             ushort x = (ushort)(ReadVerificationWord(rom, positions + anchor.Item * 4) - 1);
             ushort y = (ushort)(ReadVerificationWord(rom, positions + anchor.Item * 4 + 2) - 1);
             for (int phase = 0; phase < 14; phase++)
             foreach (int occupied in new[] { 0, 127, 128 })
             {
-                int sprite = ReadVerificationWord(rom, bases + anchor.Category * 2) + rom.ReadByte(program + phase * 3 + 2);
+                int sprite = ReadVerificationWord(rom, bases + (int)anchor.Category * 2) + rom.ReadByte(program + phase * 3 + 2);
                 int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + sprite * 2);
                 var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
                 for (int i = 0; i < occupied; i++) { expected.AddRawSmallSprite(12, 34, 56); actual.AddRawSmallSprite(12, 34, 56); }

@@ -16,7 +16,7 @@ internal static partial class Program
         var samus = new SamusState { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = 2, Health = 50, MaxHealth = 99 };
         var menu = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: catalog);
         EnterPauseEquipment(menu);
-        AssertEqual(PauseEquipmentCategories.Reserves, menu.SelectedCategory, "fixture settles on the reserve page selection");
+        AssertEqual(PauseEquipmentCategory.Reserves, menu.SelectedCategory, "fixture settles on the reserve page selection");
         var pixels = menu.Render();
         byte[] vram = menu.CaptureRenderSnapshot().Memory.Vram.ToArray();
 

@@ -870,7 +870,7 @@ static void VerifySamusLiquidPhysics()
     var sample = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, XPosition = 64, YPosition = 100 };
     sample.Kinematics.YRadius = 12; // top 88, exclusive bottom 112, occupied bottom pixel 111
     sample.LiquidPhysics.ConfigureWater(surfaceY: 110);
-    AssertEqual(SamusLiquidPhysicsState.Water,
+    AssertEqual(SamusLiquidMedium.Water,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "water below the occupied bottom pixel affects movement");
     AssertTrue(sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
@@ -879,30 +879,30 @@ static void VerifySamusLiquidPhysics()
         "partially submerged body leaves top above water");
 
     sample.LiquidPhysics.ConfigureWater(surfaceY: 111);
-    AssertEqual(SamusLiquidPhysicsState.Air,
+    AssertEqual(SamusLiquidMedium.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "occupied bottom pixel equal to surface remains dry, matching native DEC");
     sample.LiquidPhysics.ConfigureWater(surfaceY: 112);
-    AssertEqual(SamusLiquidPhysicsState.Air,
+    AssertEqual(SamusLiquidMedium.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "liquid equality is not submerged");
     AssertTrue(!sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
         "palette liquid gate treats surface equality as dry");
     sample.LiquidPhysics.ConfigureWater(surfaceY: 110, liquidOptions: 4);
-    AssertEqual(SamusLiquidPhysicsState.Air,
+    AssertEqual(SamusLiquidMedium.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "water option bit two disables physics");
     AssertTrue(!sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
         "palette liquid gate also honors disabled-water option bit");
 
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110);
-    AssertEqual(SamusLiquidPhysicsState.LavaAcid,
+    AssertEqual(SamusLiquidMedium.LavaOrAcid,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "negative general FX Y selects lava/acid surface");
     AssertTrue(sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
         "palette liquid gate falls through negative FX Y to lava/acid surface");
     sample.EquippedItems = SamusEquipmentFlags.GravitySuit.ToNativeWord();
-    AssertEqual(SamusLiquidPhysicsState.Air,
+    AssertEqual(SamusLiquidMedium.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "Gravity Suit bypasses liquid movement physics");
     AssertTrue(sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
@@ -935,13 +935,13 @@ static void VerifySamusLiquidPhysics()
     AssertEqual(0x0900, sample.Kinematics.YSubacceleration, "lava gravity fraction");
 
     var speed = sample.HorizontalSpeed;
-    speed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.Air);
+    speed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Air);
     AssertEqual(SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "air X table base");
-    speed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.Water);
+    speed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Water);
     AssertEqual(SamusMovementRomData.HorizontalMotion.WaterSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "water X table base");
-    speed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.LavaAcid);
+    speed.SelectEnvironmentSpeedTable(SamusLiquidMedium.LavaOrAcid);
     AssertEqual(SamusMovementRomData.HorizontalMotion.LavaAcidSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "lava X table base");
 
@@ -978,7 +978,7 @@ static void VerifySamusLiquidPhysics()
         "pose-change water delay below bottom-minus-one");
     sample.LiquidPhysics.PrepareAnimationFrame(bus, sample);
     AssertEqual(3, sample.AnimationFrameBuffer, "continuous water animation delay");
-    AssertEqual(SamusLiquidPhysicsState.Water, sample.LiquidPhysics.LiquidPhysicsType,
+    AssertEqual(SamusLiquidMedium.Water, sample.LiquidPhysics.LiquidPhysicsType,
         "continuous water animation remembers medium");
     sample.EquippedItems = SamusEquipmentFlags.GravitySuit.ToNativeWord();
     sample.LiquidPhysics.PrepareAnimationFrame(bus, sample);
@@ -1063,9 +1063,9 @@ static void VerifySamusLiquidPhysics()
         WritePoseDefinition(bus, (int)released.Pose, [8, 2, 0xff, 0xff, 0, 0, 12, 0]);
         released.HorizontalSpeed.BaseSpeed = 2;
         released.Grapple.ReleasedMovementActive = true;
-        if (medium == SamusLiquidPhysicsState.Water)
+        if (medium == (int)SamusLiquidMedium.Water)
             released.LiquidPhysics.ConfigureWater(surfaceY: 127);
-        else if (medium == SamusLiquidPhysicsState.LavaAcid)
+        else if (medium == (int)SamusLiquidMedium.LavaOrAcid)
             released.LiquidPhysics.ConfigureLavaAcid(surfaceY: 127);
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, released);
         SamusAerialMovement.StepReleasedFromGrapple(

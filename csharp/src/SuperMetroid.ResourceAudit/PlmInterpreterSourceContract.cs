@@ -30,7 +30,8 @@ internal static class PlmInterpreterSourceContract
         // Calculated scroll programs retain the same completion mutation.
         ["FinishScrollMutation/2"] = "56ED242C6D1033089B7D352FB6BD23A5F1F4425DA1C583962035AE345C819DB3",
         ["SetupScrollSlot/5"] = "90427E5947D2E103127996ADD0748C112C8F7139E365F6EF4AC20EEE7656AFDD",
-        ["SetupStation/6"] = "4666424900C476A3E92A52EFA09DEF447C57A12278F7ACA95ACCF21824334035",
+        // #627 decodes station animation list words into StationAnimationList; no program reads change.
+        ["SetupStation/6"] = "BCB7F88A91D291BBC12B18C2E2441E9B415F725B0595A1E7CB232EE63896B944",
         ["SpawnEyeDoorProjectile/3"] = "528A979BBCEFD1FD759D8507E71C4D7B88503590E40577116BC0843C98FD0F7E",
         ["SpawnEyeDoorProjectile/4"] = "2CFF585079A6B3D8D6FB70A2C1C2DC00C74F46B7A5541F070CFB765AE6215232",
         // #627 typed handlers test membership, then throw on an unhandled member; no program reads or operand widths change.
@@ -52,7 +53,7 @@ internal static class PlmInterpreterSourceContract
         ["TryStepScrollPlm/3"] = "3E7FD154C88BC9644F274C7B75B77C61B7F1CFC8452913C988415733FB168E2D",
         // #1269 station lock timing; the unpause-release change drops the second lock; no
         // program reads or operand widths change.
-        ["TryStepStation/7"] = "8CED1EABD72AF7F2C5B7269DC3A57EDD3AECF55485BC4DB1E93C2AC1BB030B0F",
+        ["TryStepStation/7"] = "0CE80C17413AC43E1963088603470A6D85DDC15CE7B383EAD31A2678DAF433A7",
         ["TryStepWreckedShipTreadmill/3"] = "ED6CDE07E6C1DEF7DB2187EA0DD41010CFAA5FB9961A34EB61C57893E8486420",
     };
 }

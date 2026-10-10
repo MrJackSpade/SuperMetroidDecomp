@@ -48,7 +48,7 @@ internal sealed partial class InstalledSamusIsolationTests
     }
 
     private Pair Create(SamusPoseId pose = SamusPoseId.FacingRightNormalPose,
-        ushort equipment = 0, ushort medium = SamusLiquidPhysicsState.Air, bool lowCeiling = false)
+        ushort equipment = 0, SamusLiquidMedium medium = SamusLiquidMedium.Air, bool lowCeiling = false)
     {
         scenarios++;
         return new Pair(this, pose, equipment, medium, lowCeiling);
@@ -67,7 +67,7 @@ internal sealed partial class InstalledSamusIsolationTests
         internal readonly CrystalFlashColorCatalog Crystal;
 
         internal Actor(InstalledSamusIsolationTests tests, bool edited, SamusPoseId pose,
-            ushort equipment, ushort medium, bool lowCeiling)
+            ushort equipment, SamusLiquidMedium medium, bool lowCeiling)
         {
             Body = edited ? tests.artwork.Edited : tests.artwork.Stock;
             Suits = edited ? tests.suits.Edited : tests.suits.Stock;
@@ -82,8 +82,8 @@ internal sealed partial class InstalledSamusIsolationTests
             Samus.YPosition = (ushort)(FloorY - Samus.Kinematics.YRadius);
             Samus.InitializeAnimation(Memory);
             Samus.CommitPoseHistory(Memory);
-            if (medium == SamusLiquidPhysicsState.Water) Samus.LiquidPhysics.ConfigureWater(0);
-            else if (medium == SamusLiquidPhysicsState.LavaAcid) Samus.LiquidPhysics.ConfigureLavaAcid(0);
+            if (medium == SamusLiquidMedium.Water) Samus.LiquidPhysics.ConfigureWater(0);
+            else if (medium == SamusLiquidMedium.LavaOrAcid) Samus.LiquidPhysics.ConfigureLavaAcid(0);
             Samus.LoadSuitPalette(Memory, Colors);
             var blocks = new ushort[RoomWidth * RoomHeight];
             for (int x = 0; x < RoomWidth; x++)
@@ -102,7 +102,7 @@ internal sealed partial class InstalledSamusIsolationTests
         internal Actor Stock { get; }
         internal Actor Edited { get; }
         internal Pair(InstalledSamusIsolationTests tests, SamusPoseId pose,
-            ushort equipment, ushort medium, bool lowCeiling)
+            ushort equipment, SamusLiquidMedium medium, bool lowCeiling)
         {
             this.tests = tests;
             Stock = new(tests, false, pose, equipment, medium, lowCeiling);

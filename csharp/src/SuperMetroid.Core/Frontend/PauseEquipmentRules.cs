@@ -13,26 +13,26 @@ internal static class PauseEquipmentRules
     /// order. These are independent bit identities, not a numeric sequence; callers
     /// use the selected bit to test inventory or toggle exactly that upgrade.
     /// Reserve/unknown categories reject before item selection; category-local holes reject.</summary>
-    public static ushort Mask(int category, int item)
+    public static ushort Mask(PauseEquipmentCategory category, int item)
     {
-        if (category is not (PauseEquipmentCategories.Beams or PauseEquipmentCategories.Suits or PauseEquipmentCategories.Boots))
+        if (category is not (PauseEquipmentCategory.Beams or PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots))
             throw new ArgumentOutOfRangeException(nameof(category), "Reserves have their own controls, not equipment masks.");
         return (category, item) switch
         {
-            (PauseEquipmentCategories.Beams, 0) => (ushort)SamusBeamFlags.Charge,
-            (PauseEquipmentCategories.Beams, 1) => (ushort)SamusBeamFlags.Ice,
-            (PauseEquipmentCategories.Beams, 2) => (ushort)SamusBeamFlags.Wave,
-            (PauseEquipmentCategories.Beams, 3) => (ushort)SamusBeamFlags.Spazer,
-            (PauseEquipmentCategories.Beams, 4) => (ushort)SamusBeamFlags.Plasma,
-            (PauseEquipmentCategories.Suits, 0) => (ushort)SamusEquipmentFlags.VariaSuit,
-            (PauseEquipmentCategories.Suits, 1) => (ushort)SamusEquipmentFlags.GravitySuit,
-            (PauseEquipmentCategories.Suits, 2) => (ushort)SamusEquipmentFlags.MorphBall,
-            (PauseEquipmentCategories.Suits, 3) => (ushort)SamusEquipmentFlags.Bombs,
-            (PauseEquipmentCategories.Suits, 4) => (ushort)SamusEquipmentFlags.SpringBall,
-            (PauseEquipmentCategories.Suits, 5) => (ushort)SamusEquipmentFlags.ScrewAttack,
-            (PauseEquipmentCategories.Boots, 0) => (ushort)SamusEquipmentFlags.HiJumpBoots,
-            (PauseEquipmentCategories.Boots, 1) => (ushort)SamusEquipmentFlags.SpaceJump,
-            (PauseEquipmentCategories.Boots, 2) => (ushort)SamusEquipmentFlags.SpeedBooster,
+            (PauseEquipmentCategory.Beams, 0) => (ushort)SamusBeamFlags.Charge,
+            (PauseEquipmentCategory.Beams, 1) => (ushort)SamusBeamFlags.Ice,
+            (PauseEquipmentCategory.Beams, 2) => (ushort)SamusBeamFlags.Wave,
+            (PauseEquipmentCategory.Beams, 3) => (ushort)SamusBeamFlags.Spazer,
+            (PauseEquipmentCategory.Beams, 4) => (ushort)SamusBeamFlags.Plasma,
+            (PauseEquipmentCategory.Suits, 0) => (ushort)SamusEquipmentFlags.VariaSuit,
+            (PauseEquipmentCategory.Suits, 1) => (ushort)SamusEquipmentFlags.GravitySuit,
+            (PauseEquipmentCategory.Suits, 2) => (ushort)SamusEquipmentFlags.MorphBall,
+            (PauseEquipmentCategory.Suits, 3) => (ushort)SamusEquipmentFlags.Bombs,
+            (PauseEquipmentCategory.Suits, 4) => (ushort)SamusEquipmentFlags.SpringBall,
+            (PauseEquipmentCategory.Suits, 5) => (ushort)SamusEquipmentFlags.ScrewAttack,
+            (PauseEquipmentCategory.Boots, 0) => (ushort)SamusEquipmentFlags.HiJumpBoots,
+            (PauseEquipmentCategory.Boots, 1) => (ushort)SamusEquipmentFlags.SpaceJump,
+            (PauseEquipmentCategory.Boots, 2) => (ushort)SamusEquipmentFlags.SpeedBooster,
             _ => throw new ArgumentOutOfRangeException(nameof(item)),
         };
     }

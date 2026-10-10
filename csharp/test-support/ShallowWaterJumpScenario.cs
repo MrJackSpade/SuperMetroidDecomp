@@ -39,7 +39,7 @@ internal sealed class ShallowWaterJumpScenario
 
     /// <summary>Native WRAM seed words for the takeoff state, in the capture tool's order.</summary>
     internal string TakeoffSeed() =>
-        $"{Samus.XPosition:X4} {Samus.Kinematics.XSubposition:X4} {Samus.YPosition:X4} {Samus.Kinematics.YSubposition:X4} {(int)Samus.Pose:X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.FxYPosition:X4} {Samus.LiquidPhysics.LiquidOptions:X4} {Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
+        $"{Samus.XPosition:X4} {Samus.Kinematics.XSubposition:X4} {Samus.YPosition:X4} {Samus.Kinematics.YSubposition:X4} {(int)Samus.Pose:X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.FxYPosition:X4} {Samus.LiquidPhysics.LiquidOptions:X4} {(int)Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
 
     /// <summary>Holds jump for <see cref="JumpFrameCount"/> frames; returns the header and one row per frame, and the apex.</summary>
     internal (List<string> Rows, uint Apex) Jump()
@@ -50,7 +50,7 @@ internal sealed class ShallowWaterJumpScenario
         {
             Runtime.StepFrame((ushort)SnesButton.A);
             apex = Math.Min(apex, Samus.Kinematics.YFixed);
-            rows.Add($"{frame},{(int)Samus.Pose:X2},{Samus.Kinematics.YFixed:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{Samus.Kinematics.YDirection},{Samus.Kinematics.YRadius},{Samus.LiquidPhysics.LiquidPhysicsType}");
+            rows.Add($"{frame},{(int)Samus.Pose:X2},{Samus.Kinematics.YFixed:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{Samus.Kinematics.YDirection},{Samus.Kinematics.YRadius},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
         }
         return (rows, apex);
     }

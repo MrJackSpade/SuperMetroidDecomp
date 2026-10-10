@@ -86,7 +86,7 @@ internal static class PauseMapIndicatorAnimation
 
 /// <summary>One bank-$82 equipment-category table record used by the pause screen.</summary>
 internal readonly record struct PauseEquipmentCategoryDefinition(
-    int Category,
+    PauseEquipmentCategory Category,
     int OffsetTableAddress,
     int TilemapPointerTableAddress,
     int ItemCount,
@@ -95,14 +95,6 @@ internal readonly record struct PauseEquipmentCategoryDefinition(
 /// <summary>Native reserve, beam, suit/misc, and boot category definitions.</summary>
 internal static class PauseEquipmentCategories
 {
-    /// <summary>$82:AC58 category dispatcher: reserve tanks, low selector byte zero.</summary>
-    public const int Reserves = 0;
-    /// <summary>$82:AFBE Weapons category, low selector byte one.</summary>
-    public const int Beams = 1;
-    /// <summary>$82:B0C2 Suit category, low selector byte two.</summary>
-    public const int Suits = 2;
-    /// <summary>$82:B150 Boots category, low selector byte three.</summary>
-    public const int Boots = 3;
     /// <summary>$82:C04C Weapons mask table index of Spazer.</summary>
     public const int SpazerItem = 3;
     /// <summary>$82:C04C Weapons mask table index of Plasma; bottom of beam list.</summary>
@@ -116,14 +108,18 @@ internal static class PauseEquipmentCategories
     /// a numeric sequence. Pointer fields correspond to $82:C02C/C034/C044;
     /// item counts follow $82:ABCC/ABEB/AC05 and copy lengths $82:AFCE/B0C8/B156.
     /// Reserves use separate controls and retain the managed zero-data contract.
-    /// Invalid categories preserve the former array's IndexOutOfRangeException.</remarks>
-    public static PauseEquipmentCategoryDefinition Get(int category) => category switch
+    /// </remarks>
+    /// <summary>The three inventory categories in native scan order; reserves use separate controls.</summary>
+    public static IReadOnlyList<PauseEquipmentCategory> InventoryCategories { get; } =
+        [PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits, PauseEquipmentCategory.Boots];
+
+    public static PauseEquipmentCategoryDefinition Get(PauseEquipmentCategory category) => category switch
     {
-        Reserves => new(Reserves, 0, 0, 0, 0),
-        Beams => new(Beams, 0x82c06c, 0x82c08c, 5, 5),
-        Suits => new(Suits, 0x82c076, 0x82c096, 6, 9),
-        Boots => new(Boots, 0x82c082, 0x82c0a2, 3, 9),
-        _ => throw new IndexOutOfRangeException(),
+        PauseEquipmentCategory.Reserves => new(PauseEquipmentCategory.Reserves, 0, 0, 0, 0),
+        PauseEquipmentCategory.Beams => new(PauseEquipmentCategory.Beams, 0x82c06c, 0x82c08c, 5, 5),
+        PauseEquipmentCategory.Suits => new(PauseEquipmentCategory.Suits, 0x82c076, 0x82c096, 6, 9),
+        PauseEquipmentCategory.Boots => new(PauseEquipmentCategory.Boots, 0x82c082, 0x82c0a2, 3, 9),
+        _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
     };
 }
 
@@ -136,4 +132,17 @@ internal enum PauseButtonLabel
     Exit,
     /// <summary>$82:A6AB SAMUS label at the right of the button row.</summary>
     Samus,
+}
+
+/// <summary>Native equipment-screen categories: the low byte of the selector index ($82:AC58 dispatch).</summary>
+public enum PauseEquipmentCategory : byte
+{
+    /// <summary>Reserve-tank controls, selector byte zero.</summary>
+    Reserves = 0,
+    /// <summary>$82:AFBE Weapons category, selector byte one.</summary>
+    Beams = 1,
+    /// <summary>$82:B0C2 Suit category, selector byte two.</summary>
+    Suits = 2,
+    /// <summary>$82:B150 Boots category, selector byte three.</summary>
+    Boots = 3,
 }

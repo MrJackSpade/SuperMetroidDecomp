@@ -14,7 +14,25 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// <summary>The cartridge's library-two block-break sound operand, $84:CADF and peers.</summary>
     internal const byte BreakSoundId = 0x0a;
 
-    private readonly record struct Program(ushort Start, bool Respawns, bool RestoresLevelWord,
+    /// <summary>Program roles in the native control-address enumeration order.</summary>
+    private enum Role
+    {
+        RespawningShot1x1,
+        RespawningShot2x1,
+        RespawningShot1x2,
+        RespawningShot2x2,
+        PermanentShot1x1,
+        PermanentShot2x1,
+        PermanentShot1x2,
+        PermanentShot2x2,
+        RespawningSuperMissile,
+        RespawningPowerBomb,
+        PermanentSuperMissile,
+        PermanentPowerBomb,
+        EnemyBreakableTerrain,
+    }
+
+    private readonly record struct Program(Role Role, ushort Start, bool Respawns, bool RestoresLevelWord,
         ushort FirstDraw, int DrawStride, ushort RestoreDraw = 0,
         RoomPlmInstruction SoundOpcode = RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct)
     {
@@ -22,51 +40,60 @@ internal static class RoomPlmShotBlockProgramDefinitions
         internal ushort TerminalAddress => checked((ushort)(Start + 3 + 4 * FrameCount));
     }
 
-    private const int ProgramCount = 13;
-
     // Enumeration preserves the public control-address order; named program roles
     // determine shape, restoration and sound routing instead of stored records.
-    private static Program ProgramAt(int index)
+    private static readonly Program[] Programs = [.. Enum.GetValues<Role>().Select(ProgramFor)];
+
+    private static ushort StartOf(Role role) => role switch
     {
-        ushort start = index switch
+        Role.RespawningShot1x1 => RoomPlmInstructionLists.RespawningShotBlock1x1,
+        Role.RespawningShot2x1 => RoomPlmInstructionLists.RespawningShotBlock2x1,
+        Role.RespawningShot1x2 => RoomPlmInstructionLists.RespawningShotBlock1x2,
+        Role.RespawningShot2x2 => RoomPlmInstructionLists.RespawningShotBlock2x2,
+        Role.PermanentShot1x1 => RoomPlmInstructionLists.PermanentShotBlock1x1,
+        Role.PermanentShot2x1 => RoomPlmInstructionLists.PermanentShotBlock2x1,
+        Role.PermanentShot1x2 => RoomPlmInstructionLists.PermanentShotBlock1x2,
+        Role.PermanentShot2x2 => RoomPlmInstructionLists.PermanentShotBlock2x2,
+        Role.RespawningSuperMissile => RoomPlmInstructionLists.RespawningSuperMissileBlock,
+        Role.RespawningPowerBomb => RoomPlmInstructionLists.RespawningPowerBombBlock,
+        Role.PermanentSuperMissile => RoomPlmInstructionLists.PermanentSuperMissileBlock,
+        Role.PermanentPowerBomb => RoomPlmInstructionLists.PermanentPowerBombBlock,
+        Role.EnemyBreakableTerrain => EnemyBreakableTerrainDefinitions.InstructionList,
+        _ => throw new InvalidOperationException($"Undefined shot-block role {role}."),
+    };
+
+    private static Program ProgramFor(Role role)
+    {
+        bool respawns = role is Role.RespawningShot1x1 or Role.RespawningShot2x1 or
+            Role.RespawningShot1x2 or Role.RespawningShot2x2 or Role.RespawningSuperMissile or
+            Role.RespawningPowerBomb;
+        (ushort first, int stride, ushort restore) = role switch
         {
-            0 => RoomPlmInstructionLists.RespawningShotBlock1x1,
-            1 => RoomPlmInstructionLists.RespawningShotBlock2x1,
-            2 => RoomPlmInstructionLists.RespawningShotBlock1x2,
-            3 => RoomPlmInstructionLists.RespawningShotBlock2x2,
-            4 => RoomPlmInstructionLists.PermanentShotBlock1x1,
-            5 => RoomPlmInstructionLists.PermanentShotBlock2x1,
-            6 => RoomPlmInstructionLists.PermanentShotBlock1x2,
-            7 => RoomPlmInstructionLists.PermanentShotBlock2x2,
-            8 => RoomPlmInstructionLists.RespawningSuperMissileBlock,
-            9 => RoomPlmInstructionLists.RespawningPowerBombBlock,
-            10 => RoomPlmInstructionLists.PermanentSuperMissileBlock,
-            11 => RoomPlmInstructionLists.PermanentPowerBombBlock,
-            12 => EnemyBreakableTerrainDefinitions.InstructionList,
-            _ => throw new IndexOutOfRangeException(),
-        };
-        bool respawns = start is RoomPlmInstructionLists.RespawningShotBlock1x1 or
-            RoomPlmInstructionLists.RespawningShotBlock2x1 or RoomPlmInstructionLists.RespawningShotBlock1x2 or
-            RoomPlmInstructionLists.RespawningShotBlock2x2 or RoomPlmInstructionLists.RespawningSuperMissileBlock or
-            RoomPlmInstructionLists.RespawningPowerBombBlock;
-        (ushort first, int stride, ushort restore) = start switch
-        {
-            RoomPlmInstructionLists.RespawningShotBlock2x1 or RoomPlmInstructionLists.PermanentShotBlock2x1 =>
+            Role.RespawningShot2x1 or Role.PermanentShot2x1 =>
                 (RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8, RoomPlmShotBlockDrawDefinitions.RestoreHorizontal),
-            RoomPlmInstructionLists.RespawningShotBlock1x2 or RoomPlmInstructionLists.PermanentShotBlock1x2 =>
+            Role.RespawningShot1x2 or Role.PermanentShot1x2 =>
                 (RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8, RoomPlmShotBlockDrawDefinitions.RestoreVertical),
-            RoomPlmInstructionLists.RespawningShotBlock2x2 or RoomPlmInstructionLists.PermanentShotBlock2x2 =>
+            Role.RespawningShot2x2 or Role.PermanentShot2x2 =>
                 (RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16, RoomPlmShotBlockDrawDefinitions.RestoreSquare),
-            _ => (RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6, (ushort)0),
+            Role.RespawningShot1x1 or Role.PermanentShot1x1 or Role.RespawningSuperMissile or
+                Role.RespawningPowerBomb or Role.PermanentSuperMissile or Role.PermanentPowerBomb or
+                Role.EnemyBreakableTerrain =>
+                (RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6, (ushort)0),
+            _ => throw new InvalidOperationException($"Undefined shot-block role {role}."),
         };
-        RoomPlmInstruction sound = start switch
+        RoomPlmInstruction sound = role switch
         {
-            RoomPlmInstructionLists.RespawningSuperMissileBlock or RoomPlmInstructionLists.PermanentSuperMissileBlock =>
+            Role.RespawningSuperMissile or Role.PermanentSuperMissile =>
                 RoomPlmInstruction.QueueSoundLibrary2Maximum6,
-            EnemyBreakableTerrainDefinitions.InstructionList => RoomPlmInstruction.QueueSoundLibrary2Maximum3,
-            _ => RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct,
+            Role.EnemyBreakableTerrain => RoomPlmInstruction.QueueSoundLibrary2Maximum3,
+            Role.RespawningShot1x1 or Role.RespawningShot2x1 or Role.RespawningShot1x2 or
+                Role.RespawningShot2x2 or Role.PermanentShot1x1 or Role.PermanentShot2x1 or
+                Role.PermanentShot1x2 or Role.PermanentShot2x2 or Role.RespawningPowerBomb or
+                Role.PermanentPowerBomb => RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct,
+            _ => throw new InvalidOperationException($"Undefined shot-block role {role}."),
         };
-        return new(start, respawns, respawns && restore == 0, first, stride, respawns ? restore : (ushort)0, sound);
+        return new(role, StartOf(role), respawns, respawns && restore == 0, first, stride,
+            respawns ? restore : (ushort)0, sound);
     }
 
     /// <summary>
@@ -76,9 +103,8 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// </summary>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
-        for (int index = 0; index < ProgramCount; index++)
+        foreach (Program program in Programs)
         {
-            Program program = ProgramAt(index);
             int offset = address - program.Start - 5;
             if (offset < 0 || offset % 4 != 0 || offset / 4 >= program.FrameCount)
                 continue;
@@ -97,9 +123,8 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// </summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        for (int index = 0; index < ProgramCount; index++)
+        foreach (Program program in Programs)
         {
-            Program program = ProgramAt(index);
             if (address == program.Start)
             {
                 value = (ushort)program.SoundOpcode;
@@ -120,7 +145,7 @@ internal static class RoomPlmShotBlockProgramDefinitions
                         : frame == 7 ? (ushort)1 : (ushort)4;
                     // The permanent Power Bomb parent uses the native faster
                     // 3/2/1/1 sequence, unlike ordinary/Super Missile parents.
-                    if (program.Start == RoomPlmInstructionLists.PermanentPowerBombBlock)
+                    if (program.Role == Role.PermanentPowerBomb)
                         value = (ushort)(frame < 2 ? 3 - frame : 1);
                     return true;
                 }
@@ -147,9 +172,8 @@ internal static class RoomPlmShotBlockProgramDefinitions
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        for (int index = 0; index < ProgramCount; index++)
+        foreach (Program program in Programs)
         {
-            Program program = ProgramAt(index);
             if (address == program.Start + 2)
             {
                 value = BreakSoundId;

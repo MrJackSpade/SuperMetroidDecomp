@@ -51,7 +51,7 @@ internal sealed partial class PauseMenuState
         // Preserve that behavior and clear both bytes of the packed selector.
         samus.ReserveEnergy = 0;
         reserveTransferSoundDelay = 0;
-        selectedCategory = PauseEquipmentCategories.Reserves;
+        selectedCategory = PauseEquipmentCategory.Reserves;
         selectedItem = PauseReserveTransferRomData.ModeItem;
     }
 }

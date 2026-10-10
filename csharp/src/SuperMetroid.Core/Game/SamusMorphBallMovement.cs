@@ -68,7 +68,7 @@ public static class SamusMorphBallMovement
             speed.HandleExtraRunSpeed(
                 movementType, controllerInput: 0,
                 speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
-                liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidPhysicsState.Air);
+                liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidMedium.Air);
             uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
             var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(

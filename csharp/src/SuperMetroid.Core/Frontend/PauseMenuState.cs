@@ -38,7 +38,7 @@ internal sealed partial class PauseMenuState
     private PauseMenuTransition transition;
     private int transitionFadeCounter;
     private int transitionBrightness = 15;
-    private int selectedCategory;
+    private PauseEquipmentCategory selectedCategory;
     private int selectedItem;
     private ushort mapHorizontalScroll;
     private ushort mapVerticalScroll;
@@ -448,11 +448,11 @@ internal sealed partial class PauseMenuState
         // including empty tanks. The first beam is only the no-reserve fallback.
         if (samus.MaxReserveEnergy != 0)
         {
-            selectedCategory = PauseEquipmentCategories.Reserves;
+            selectedCategory = PauseEquipmentCategory.Reserves;
             selectedItem = PauseReserveTransferRomData.ModeItem;
             return;
         }
-        for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
+        foreach (PauseEquipmentCategory categoryIndex in PauseEquipmentCategories.InventoryCategories)
         {
             PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Get(categoryIndex);
             ushort collected = GetCollectedBits(categoryIndex);
@@ -466,15 +466,15 @@ internal sealed partial class PauseMenuState
             }
         }
 
-        selectedCategory = 0;
+        selectedCategory = PauseEquipmentCategory.Reserves;
         selectedItem = 0;
     }
 
-    private ushort GetCollectedBits(int category) =>
-        category == 1 ? samus.CollectedBeams : samus.CollectedItems;
+    private ushort GetCollectedBits(PauseEquipmentCategory category) =>
+        category == PauseEquipmentCategory.Beams ? samus.CollectedBeams : samus.CollectedItems;
 
-    private ushort GetEquippedBits(int category) =>
-        category == 1 ? samus.EquippedBeams : samus.EquippedItems;
+    private ushort GetEquippedBits(PauseEquipmentCategory category) =>
+        category == PauseEquipmentCategory.Beams ? samus.EquippedBeams : samus.EquippedItems;
 
     private void RebuildEquipmentTilemap()
     {

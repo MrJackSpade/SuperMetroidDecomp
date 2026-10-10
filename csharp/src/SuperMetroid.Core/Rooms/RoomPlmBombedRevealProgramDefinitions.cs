@@ -7,42 +7,59 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmBombedRevealProgramDefinitions
 {
+    /// <summary>The six supported one-frame lists.</summary>
+    private enum Reveal
+    {
+        Crumble1x1,
+        Crumble2x1,
+        Crumble1x2,
+        Crumble2x2,
+        PowerBomb,
+        SuperMissile,
+    }
+
+    /// <summary>Bytes in each list: a duration/draw pair followed by deletion.</summary>
+    private const int ListLength = 6;
+
+    private static ushort StartOf(Reveal reveal) => reveal switch
+    {
+        Reveal.Crumble1x1 => RoomPlmInstructionLists.CrumbleReveal1x1,
+        Reveal.Crumble2x1 => RoomPlmInstructionLists.CrumbleReveal2x1,
+        Reveal.Crumble1x2 => RoomPlmInstructionLists.CrumbleReveal1x2,
+        Reveal.Crumble2x2 => RoomPlmInstructionLists.CrumbleReveal2x2,
+        Reveal.PowerBomb => RoomPlmInstructionLists.BombedPowerBombBlockUnused,
+        Reveal.SuperMissile => RoomPlmInstructionLists.BombedSuperMissileBlockUnused,
+        _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
+    };
+
+    private static ushort DrawOf(Reveal reveal) => reveal switch
+    {
+        Reveal.Crumble1x1 => RoomPlmBombedRevealDrawDefinitions.CrumbleSingle,
+        Reveal.Crumble2x1 => RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal,
+        Reveal.Crumble1x2 => RoomPlmContactCrumbleRestoreDrawDefinitions.Vertical,
+        Reveal.Crumble2x2 => RoomPlmContactCrumbleRestoreDrawDefinitions.Square,
+        Reveal.PowerBomb => RoomPlmBombedRevealDrawDefinitions.PowerBomb,
+        Reveal.SuperMissile => RoomPlmBombedRevealDrawDefinitions.SuperMissile,
+        _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
+    };
+
     internal static bool TryReadWord(ushort address, out ushort value)
     {
-        // Each supported list is one duration/draw pair followed by deletion.
         // The intervening four unused bomb-reveal lists are outside this owner.
-        int relative = address - RoomPlmInstructionLists.CrumbleReveal1x1;
-        if ((uint)relative >= 4 * 6)
+        foreach (Reveal reveal in Enum.GetValues<Reveal>())
         {
-            relative = address - RoomPlmInstructionLists.BombedPowerBombBlockUnused;
-            if ((uint)relative >= 2 * 6)
+            int offset = address - StartOf(reveal);
+            if ((uint)offset >= ListLength || (offset & 1) != 0)
+                continue;
+            value = offset switch
             {
-                value = 0;
-                return false;
-            }
+                0 => 1,
+                2 => DrawOf(reveal),
+                _ => (ushort)RoomPlmInstruction.Delete,
+            };
+            return true;
         }
-        int offset = relative % 6;
-        if ((offset & 1) != 0)
-        {
-            value = 0;
-            return false;
-        }
-        ushort start = (ushort)(address - offset);
-        value = offset switch
-        {
-            0 => 1,
-            4 => (ushort)RoomPlmInstruction.Delete,
-            _ => start switch
-            {
-                RoomPlmInstructionLists.CrumbleReveal1x1 => RoomPlmBombedRevealDrawDefinitions.CrumbleSingle,
-                RoomPlmInstructionLists.CrumbleReveal2x1 => RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal,
-                RoomPlmInstructionLists.CrumbleReveal1x2 => RoomPlmContactCrumbleRestoreDrawDefinitions.Vertical,
-                RoomPlmInstructionLists.CrumbleReveal2x2 => RoomPlmContactCrumbleRestoreDrawDefinitions.Square,
-                RoomPlmInstructionLists.BombedPowerBombBlockUnused => RoomPlmBombedRevealDrawDefinitions.PowerBomb,
-                RoomPlmInstructionLists.BombedSuperMissileBlockUnused => RoomPlmBombedRevealDrawDefinitions.SuperMissile,
-                _ => throw new InvalidOperationException("Reveal list bounds admitted an unknown program."),
-            },
-        };
-        return true;
+        value = 0;
+        return false;
     }
 }

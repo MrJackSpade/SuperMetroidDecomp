@@ -127,13 +127,13 @@ internal static partial class Program
         EnterPauseEquipment(pause);
         AssertEqual(1, pause.ScreenMode, "pause R transition reaches equipment page");
         // $82:ABAD-$ABB5 selects the reserve mode control whenever reserve capacity exists (#1266).
-        AssertEqual((PauseEquipmentCategories.Reserves, PauseReserveTransferRomData.ModeItem),
+        AssertEqual((PauseEquipmentCategory.Reserves, PauseReserveTransferRomData.ModeItem),
             (pause.SelectedCategory, pause.SelectedItem), "pause entry selects the reserve mode control");
         pause.Step(0, (ushort)SnesButton.Right);
-        AssertEqual(2, pause.SelectedCategory, "pause Right moves to suits/misc category");
+        AssertEqual(PauseEquipmentCategory.Suits, pause.SelectedCategory, "pause Right moves to suits/misc category");
         AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");
         pause.Render();
-        AssertEqual((int)PauseSelectorDefinitions.NativeSpriteId(2), pause.LastIndicatorSpritemapId, "pause selector category base ID");
+        AssertEqual((int)PauseSelectorDefinitions.NativeSpriteId(PauseEquipmentCategory.Suits), pause.LastIndicatorSpritemapId, "pause selector category base ID");
         AssertEqual(0x90, pause.LastIndicatorOriginX, "pause Morph selector X origin");
         AssertEqual(0x70, pause.LastIndicatorOriginY, "pause Morph selector Y origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
@@ -186,7 +186,7 @@ internal static partial class Program
             roomMapY: 1,
             gameplayVram: gameplayVram, mapPresentation: presentation);
         EnterPauseEquipment(beamPause);
-        AssertEqual(PauseEquipmentCategories.Reserves, beamPause.SelectedCategory,
+        AssertEqual(PauseEquipmentCategory.Reserves, beamPause.SelectedCategory,
             "Wave-only pause entry selects the reserve mode control while capacity exists");
         SelectPauseBeams(beamPause);
         beamPause.Step(0, (ushort)SnesButton.A);

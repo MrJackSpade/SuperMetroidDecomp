@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -48,9 +49,9 @@ public sealed class PauseEquipmentLabelPresentation
         ValidateTilemap(tilemap);
         if (hyperBeam)
         {
-            for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(1); item++)
+            for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(PauseEquipmentCategory.Beams); item++)
             {
-                CompiledLabel destination = labels[PauseEquipmentLabelDefinitions.Key(1, item)];
+                CompiledLabel destination = labels[PauseEquipmentLabelDefinitions.Key(PauseEquipmentCategory.Beams, item)];
                 WriteBlank(tilemap.Slice(destination.DestinationByte,
                     PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
             }
@@ -58,14 +59,14 @@ public sealed class PauseEquipmentLabelPresentation
             hyper.CopyTo(tilemap.Slice(hyper.DestinationByte,
                     PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
         }
-        for (int category = 1; category <= 3; category++)
+        foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(category); item++)
         {
-            if (category == 1 && hyperBeam) continue;
+            if (category == PauseEquipmentCategory.Beams && hyperBeam) continue;
 
             ushort mask = Frontend.PauseEquipmentRules.Mask(category, item);
-            ushort collected = category == 1 ? collectedBeams : collectedItems;
-            ushort equipped = category == 1 ? equippedBeams : equippedItems;
+            ushort collected = category == PauseEquipmentCategory.Beams ? collectedBeams : collectedItems;
+            ushort equipped = category == PauseEquipmentCategory.Beams ? equippedBeams : equippedItems;
             string key = PauseEquipmentLabelDefinitions.Key(category, item);
             CompiledLabel label = labels[key];
             Span<byte> destination = tilemap.Slice(label.DestinationByte, label.WordCount * sizeof(ushort));
@@ -83,7 +84,7 @@ public sealed class PauseEquipmentLabelPresentation
     /// Applies one native equipment-button patch. A nine-word Plasma write deliberately
     /// continues into the first four Varia words, retaining the retail VAR glitch.
     /// </summary>
-    public void ApplyLabel(Span<byte> tilemap, int category, int item, int wordCount, bool disabled)
+    public void ApplyLabel(Span<byte> tilemap, PauseEquipmentCategory category, int item, int wordCount, bool disabled)
     {
         ValidateTilemap(tilemap);
         string key = PauseEquipmentLabelDefinitions.Key(category, item);

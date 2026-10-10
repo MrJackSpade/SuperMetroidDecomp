@@ -77,7 +77,7 @@ internal static partial class Program
             AssertEqual(expectedFrame == 0 ? 0 : 2, snapshot.Memory.ModeledSpriteCount, "explicit hidden and visible phases reach real OAM");
             if (expectedFrame == 1)
             {
-                var oam = new OamBuffer(); oam.BeginFrame(); edited.PauseSelectors.Draw(oam, 1, 0, expectedFrame);
+                var oam = new OamBuffer(); oam.BeginFrame(); edited.PauseSelectors.Draw(oam, PauseEquipmentCategory.Beams, 0, expectedFrame);
                 AssertEqual((byte)112, oam.LowTable[0], "authored selector anchor plus X offset");
                 AssertEqual((byte)86, oam.LowTable[1], "authored selector anchor plus Y offset");
                 var attributes = new SnesObjAttributeWord((ushort)(oam.LowTable[2] | oam.LowTable[3] << 8));
@@ -101,7 +101,7 @@ internal static partial class Program
         customMenu.Step(0, (ushort)SnesButton.A);
         AssertEqual((ushort)0, customSamus.EquippedBeams, "custom hidden/visible selector cannot prevent actual equipment toggle");
         AssertEqual((ushort)SamusBeamFlags.Charge, customSamus.CollectedBeams, "selector edit cannot change collection");
-        var shortened = Create(guard, catalog, 1, 0);
+        var shortened = Create(guard, catalog, PauseEquipmentCategory.Beams, 0);
         for (int tick = 0; shortened.ItemSelectorAnimationState.Frame != 12 && tick < 100; tick++) shortened.Step(0, 0);
         var oldTiming = shortened.ItemSelectorAnimationState;
         AssertEqual(12, oldTiming.Frame, "short-cycle fixture reaches a stock-only phase");
@@ -132,11 +132,11 @@ internal static partial class Program
         }
         finally { File.WriteAllBytes(stockPath, bytes); }
         Console.WriteLine("Pause selectors: sixteen anchors/672 native OAM cases, 1600 guarded native frames, authored timing/parts/palettes, actual toggle, current-content restore and strict failures pass.");
-        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog content, int category, int item)
+        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog content, PauseEquipmentCategory category, int item)
         {
             var samus = new SamusState();
-            if (category == 0) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = 2; }
-            else if (category == 1) samus.CollectedBeams = samus.EquippedBeams = PauseEquipmentRules.Mask(category, item);
+            if (category == PauseEquipmentCategory.Reserves) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = 2; }
+            else if (category == PauseEquipmentCategory.Beams) samus.CollectedBeams = samus.EquippedBeams = PauseEquipmentRules.Mask(category, item);
             else samus.CollectedItems = samus.EquippedItems = PauseEquipmentRules.Mask(category, item);
             var pause = new PauseMenuState(addressSpace, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: content);
             EnterPauseEquipment(pause);
@@ -155,7 +155,7 @@ internal static partial class Program
             Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c0ec), 43);
             Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c1e8), 8);
             foreach (var anchor in PauseSelectorDefinitions.Anchors())
-                Add((0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c18e + anchor.Category * 2)) + anchor.Item * 4, 4);
+                Add((0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c18e + (int)anchor.Category * 2)) + anchor.Item * 4, 4);
             foreach (int id in new[] { 0x14, 0x15, 0x16 })
             {
                 Add(0x82c569 + id * 2, 2);

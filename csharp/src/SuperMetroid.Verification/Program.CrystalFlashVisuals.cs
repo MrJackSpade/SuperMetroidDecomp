@@ -7,6 +7,10 @@ using static SuperMetroid.Core.Game.SamusPaletteRomData;
 
 internal static partial class Program
 {
+    /// <summary>Checks Crystal Flash palette timing and isolates the visible body and scanline color-window contributions in the captured frame.</summary>
+    /// <param name="runtime">Runtime whose active Crystal Flash frame is captured and rendered.</param>
+    /// <param name="elapsed">Number of elapsed frames since the activation timeline began.</param>
+    /// <returns>Flags indicating whether the body and color window visibly change the rendered image.</returns>
     private static (bool Body, bool Window) VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, int elapsed)
     {
         var samus = runtime.Samus!;

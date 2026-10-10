@@ -11,6 +11,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies door-transition autosave defaults and compatibility, captures completed transitions, resumes gameplay state, and preserves existing saves when writes are disabled or fail.</summary>
     private static void VerifyDoorTransitionAutosave()
     {
         AssertTrue(new SuperMetroidGameOptions().DoorTransitionAutosave, "new sessions enable door recovery");

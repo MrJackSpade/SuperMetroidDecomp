@@ -4,6 +4,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that legacy nineteen-field shinespark graphs restore crash-travel aliases correctly, survive current-format round-trips, and reject unknown field identities.</summary>
     private static void VerifyLegacyShinesparkGraph()
     {
         foreach (var phase in new[] { ShinesparkPhase.Inactive, ShinesparkPhase.Crash, ShinesparkPhase.CrashEchoCircle, ShinesparkPhase.CrashFinish })

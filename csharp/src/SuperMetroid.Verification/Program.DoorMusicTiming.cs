@@ -8,6 +8,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies retail door-scroll completion, destination music upload and track timing, and unchanged or zero-track queue behavior.</summary>
     private static void VerifyDoorMusicTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

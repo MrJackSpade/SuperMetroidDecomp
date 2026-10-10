@@ -11,6 +11,7 @@ internal static partial class Program
     // waits ($8B:D484-$D48C) before its scene setup, so calls two to ten resume inside it and
     // make no main-loop RNG call; every later call makes one. The port never advanced the RNG
     // in the ending and ran the setup at once, so in the 100% movie the RNG fell behind.
+    /// <summary>Verifies ending setup's nine NMI waits defer scene initialization and skip main-loop RNG advances on resumed calls.</summary>
     private static void VerifyEndingSetupNmiWaits()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

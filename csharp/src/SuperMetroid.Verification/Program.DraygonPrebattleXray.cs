@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that pre-battle X-Ray keeps Draygon's offscreen body clipped by the native HDMA window and that the body appears when combat begins.</summary>
     private static void VerifyDraygonPrebattleXray()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

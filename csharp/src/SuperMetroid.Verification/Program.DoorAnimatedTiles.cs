@@ -11,6 +11,7 @@ internal static partial class Program
     // every $82:E737 fade step. Entering the Tourian statue room from the left (as the 100%
     // movie does) the statue programs have therefore advanced by those frames when gameplay
     // resumes; skipping them left every statue unlock 18 frames late.
+    /// <summary>Verifies door-transition handler calls advance Tourian statue tiles through destination construction and fade-in.</summary>
     private static void VerifyDoorAnimatedTiles()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

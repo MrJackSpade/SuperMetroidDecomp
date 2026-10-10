@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks Draygon eye-particle cadence and facing-relative spawn coordinates around the 128-frame boundary.</summary>
     private static void VerifyDraygonEyeEffects()
     {
         foreach (bool facingRight in new[] { false, true })

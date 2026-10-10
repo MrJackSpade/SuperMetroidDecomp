@@ -8,6 +8,7 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that defeated-room cannon processing does not respawn Draygon and that the Space Jump exit finalizes scrolling before destination OAM and fade.</summary>
     private static void VerifyDraygonDefeatedRoom()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

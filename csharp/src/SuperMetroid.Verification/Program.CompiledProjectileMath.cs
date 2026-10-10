@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled projectile and enemy trigonometry readers against cartridge-derived samples across their supported angle, speed, phase, and radius ranges.</summary>
     private static void VerifyCompiledProjectileMath(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 20; parameter++)

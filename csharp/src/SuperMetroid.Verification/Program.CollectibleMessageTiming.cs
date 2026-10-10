@@ -8,6 +8,7 @@ internal static partial class Program
 {
     // #1255: $84:8968 grants energy before its synchronous bank-$85 message,
     // but the following PLM empty draw and main-loop HUD update wait for return.
+    /// <summary>Verifies that a retail energy-tank pickup grants and refills energy before its synchronous message, while deferring the pickup-tile and HUD updates until dismissal and the following NMI.</summary>
     private static void VerifyCollectibleMessageTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

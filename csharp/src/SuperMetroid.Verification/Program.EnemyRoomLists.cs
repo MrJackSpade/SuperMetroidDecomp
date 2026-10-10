@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Compares compiled enemy populations and graphics sets with retail room-state pointers and ROM records, including order, terminators, and death quotas.</summary>
     private static void VerifyCompiledEnemyRoomLists()
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

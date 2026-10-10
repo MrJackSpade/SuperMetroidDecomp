@@ -44,6 +44,9 @@ internal static partial class Program
             $"instruction lists are named{(bus is null ? "" : " and ROM-readable")}.");
     }
 
+    /// <summary>Finds the public constant <see cref="ushort"/> fields that declare projectile pointers in a catalog type.</summary>
+    /// <param name="catalog">Catalog type whose public static fields are inspected.</param>
+    /// <returns>Literal <see cref="ushort"/> fields declared by the catalog.</returns>
     private static FieldInfo[] GetEnemyProjectilePointerConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
         .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
         .ToArray();

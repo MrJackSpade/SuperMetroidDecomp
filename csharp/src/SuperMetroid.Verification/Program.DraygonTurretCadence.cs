@@ -7,6 +7,7 @@ internal static partial class Program
     // #1269: $A5:87AA times Draygon's wall turrets from NMI_FrameCounter ($05B6), never the
     // separate 8-bit counter at $05B5. The two drift apart, and the 100% movie fired a
     // turret on a frame where only $05B6's low six bits were zero.
+    /// <summary>Checks Draygon's turret cadence against the 16-bit NMI counter and verifies goop speed, Power Bomb cleanup, and dead-body hit behavior in the retail room.</summary>
     private static void VerifyDraygonTurretCadence()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

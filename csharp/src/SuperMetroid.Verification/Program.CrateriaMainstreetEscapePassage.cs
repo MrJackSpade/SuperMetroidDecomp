@@ -10,6 +10,7 @@ internal static partial class Program
     // list opens two air blocks there, moves four blocks right and opens two more. The port
     // only ran the setup's quake, so in the 100% movie Samus's spring ball hit a bombable
     // block native had already cleared.
+    /// <summary>Verifies room setup opens both Crateria mainstreet passage pairs only when the critters-escaped event is set.</summary>
     private static void VerifyCrateriaMainstreetEscapePassage()
     {
         RoomLevelData Load(bool crittersEscaped)

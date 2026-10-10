@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native ending-cinematic VRAM DMA lane placement and the post-credits reward transfer while running the associated ending checks.</summary>
     private static void VerifyEndingDma()
     {
         Suite(nameof(VerifyObjSubscreenAddition), () => VerifyObjSubscreenAddition());

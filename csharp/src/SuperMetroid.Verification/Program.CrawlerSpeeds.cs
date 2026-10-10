@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares both native crawler-speed tables and production reset paths with the compiled values,
+    /// including preserve-sentinel signs and all Yard direction transforms.
+    /// </summary>
+    /// <param name="rom">Cartridge address space containing the reference crawler and Yard velocity tables.</param>
     private static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

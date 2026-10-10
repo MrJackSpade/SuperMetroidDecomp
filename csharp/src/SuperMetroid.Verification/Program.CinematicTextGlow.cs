@@ -4,6 +4,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies cinematic text-glow palette timing, rectangle preservation and debugger restoration, plus native slot exhaustion and reuse.</summary>
     private static void VerifyCinematicTextGlow()
     {
         var glow = new CinematicTextGlowSystem();

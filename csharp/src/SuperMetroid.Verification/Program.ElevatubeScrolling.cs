@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies north and south elevatube entry preserves room-main movement and scrolls the camera from prior displacement.</summary>
     private static void VerifyElevatubeScrolling()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

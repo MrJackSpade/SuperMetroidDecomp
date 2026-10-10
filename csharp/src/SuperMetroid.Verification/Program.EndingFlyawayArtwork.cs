@@ -8,6 +8,8 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Compares native and installed ending flyaway uploads, checks cartridge-art read isolation, and verifies edited map artwork is applied on rebind without disturbing pending upload timing.</summary>
+    /// <param name="installation">Installation supplying Ceres flight artwork and the map-override location used by the rebind check.</param>
     private static void VerifyEndingFlyawayArtwork(GameInstallation installation)
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

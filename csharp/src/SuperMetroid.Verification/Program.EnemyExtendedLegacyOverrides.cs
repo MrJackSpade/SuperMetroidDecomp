@@ -102,6 +102,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Builds version-ordered fixtures pairing each declared historical extended-enemy schema with its cumulative frame count.</summary>
+    /// <returns>One version/count pair for each discovered schema version.</returns>
     private static (int Version, int Count)[] ExtendedEnemySchemaFixtures()
     {
         Type catalog = typeof(EnemyExtendedFrameDefinitions);

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies door sound suppression rejects new sound requests while preserving queued sounds, music commands, re-enable behavior, and reset semantics.</summary>
     private static void VerifyDoorSoundDisableGuard()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

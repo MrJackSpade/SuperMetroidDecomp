@@ -7,6 +7,7 @@ using System.Text.Json;
 
 internal static partial class Program
 {
+    /// <summary>Verifies extracted enemy tiles, palettes, and special-frame artwork against cartridge data, including overrides and invalid-resource rejection.</summary>
     private static void VerifyEnemyTileArtwork()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

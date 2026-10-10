@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks both facings of the crouched walk-off transition, including native center/subpixel correction, deferred falling-radius publication, and downward-motion initialization.</summary>
     private static void VerifyCompactWalkOffCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

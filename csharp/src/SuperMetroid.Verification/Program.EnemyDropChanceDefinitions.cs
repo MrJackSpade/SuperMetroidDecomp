@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares all native enemy-drop records with ROM data and checks valid and invalid pointers through production selection without cartridge fallback.</summary>
+    /// <param name="rom">Retail address space supplying the original drop-probability record bytes.</param>
     private static void VerifyEnemyDropChanceDefinitions(SuperMetroidAddressSpace rom)
     {
         Span<byte> actual = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];

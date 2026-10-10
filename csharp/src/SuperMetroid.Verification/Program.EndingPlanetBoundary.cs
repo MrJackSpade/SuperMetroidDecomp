@@ -65,6 +65,7 @@ internal static partial class Program
         return output;
     }
 
+    /// <summary>Verifies native DMA extents and PPU wrapping/composition from the Zebes explosion through the planet-to-ship transition.</summary>
     private static void VerifyEndingPlanetBoundary()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

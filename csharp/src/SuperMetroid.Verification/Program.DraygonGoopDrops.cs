@@ -4,6 +4,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Draygon goop displays both burst images before spawning one positioned critical-energy pickup, then cannot spawn another after deletion.</summary>
     private static void VerifyDraygonGoopDrops()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

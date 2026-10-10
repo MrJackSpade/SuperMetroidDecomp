@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies flyaway OAM slot order keeps all afterglow pieces ahead of starfield overflow and the ship occludes its priority-zero pixels.</summary>
     private static void VerifyEndingExplosionSlotOrder()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

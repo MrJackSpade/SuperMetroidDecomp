@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Draygon cannon visual extraction, stock validation, override persistence, and rejection of invalid artwork.</summary>
+    /// <param name="rom">Cartridge address space used to compare extracted cannon layouts with native records.</param>
     private static void VerifyDraygonCannonVisualInstallation(
         SuperMetroidAddressSpace rom)
     {

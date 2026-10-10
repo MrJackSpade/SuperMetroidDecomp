@@ -4,6 +4,8 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Exercises Dead Torizo's contact and damage triggers, checking that the intact corpse remains solid until rotting begins and then releases collision without restarting after completion.</summary>
+    /// <returns>Zero when every trigger path preserves the expected collision transitions.</returns>
     private static int VerifyDeadTorizoCollision()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

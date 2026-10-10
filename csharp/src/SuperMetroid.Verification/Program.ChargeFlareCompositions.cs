@@ -7,6 +7,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted charge-flare compositions against native OAM output and validates editable offsets and malformed-resource rejection.</summary>
+    /// <param name="bus">Cartridge address space supplying native composition data and selector words.</param>
+    /// <param name="flareOnly">When <see langword="true"/>, skips the additional grapple presentation and artwork checks.</param>
+    /// <param name="sourceRom">ROM path used to load installed presentation assets when it is not the repository's retail ROM.</param>
     private static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
         bool flareOnly = false, string sourceRom = "Super Metroid.smc")
     {

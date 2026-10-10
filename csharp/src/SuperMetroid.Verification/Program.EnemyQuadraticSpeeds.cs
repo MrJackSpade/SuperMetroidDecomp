@@ -4,6 +4,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares compiled quadratic-speed tables with cartridge bytes and, unless requested otherwise, checks their enemy and projectile consumers.</summary>
+    /// <param name="rom">Address space supplying the native quadratic-speed table bytes.</param>
+    /// <param name="definitionsOnly">When <see langword="true"/>, limits verification to table windows and bounds checks.</param>
     private static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int offset) => (ushort)(rom.ReadByte(0xa0838f + offset) | rom.ReadByte(0xa08390 + offset) << 8);

@@ -12,6 +12,7 @@ internal static partial class Program
     // rising-lava rumble ($88:B21D) on the door-entry frame is queued before the handler's
     // library-two cancel ($71) and DisableSounds. In the 100% movie's Rising Tide exit that
     // extra rumble lengthens the door's sound-queue wait by one drained sound.
+    /// <summary>Verifies that the door-entry frame queues Rising Tide's HDMA rumble before the door sound cancel, extending the expected queue wait.</summary>
     private static void VerifyDoorEntryRoomFxSound()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

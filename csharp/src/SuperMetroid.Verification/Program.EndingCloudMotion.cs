@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend;
 
 internal static partial class Program
 {
+    /// <summary>Checks each ending-cloud role's zoom activation threshold, delayed first movement, and horizontal/vertical trajectory after the threshold reverses.</summary>
     private static void VerifyEndingCloudMotion()
     {
         foreach (EndingSpriteRole role in new[] { EndingSpriteRole.CloudRightA, EndingSpriteRole.CloudRightB,

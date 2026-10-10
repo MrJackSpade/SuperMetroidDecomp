@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Verifies compression header boundaries, all command forms, decompressed bytes, and strict malformed-stream failures.</summary>
     private static void VerifySmCompressionFormat()
     {
         // All eight three-bit command codes; command seven (relative inverted copy) is decoded

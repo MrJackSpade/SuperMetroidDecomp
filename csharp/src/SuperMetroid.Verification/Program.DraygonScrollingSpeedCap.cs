@@ -30,6 +30,12 @@ internal static partial class Program
         Console.WriteLine("  Draygon scrolling-speed cap: carried Samus's previous position stays within twelve pixels.");
     }
 
+    /// <summary>Runs one Draygon carry move at the supplied body coordinate and reads Samus's previous-position words after the scrolling-speed cap.</summary>
+    /// <param name="bus">Retail address space used to initialize Samus's grabbed state.</param>
+    /// <param name="checkpoint">Frame-start camera checkpoint against which the movement distance is capped.</param>
+    /// <param name="bodyX">Draygon body X coordinate supplied to the carry operation.</param>
+    /// <param name="bodyY">Draygon body Y coordinate supplied to the carry operation.</param>
+    /// <returns>Samus's capped previous X and Y positions after the carry move.</returns>
     private static (ushort X, ushort Y) PreviousAfterDraygonMove(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, SamusCameraPoint checkpoint, ushort bodyX, ushort bodyY)
     {

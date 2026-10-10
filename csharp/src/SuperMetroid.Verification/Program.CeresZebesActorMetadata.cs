@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all six compiled Zebes actors against retail spawn, placement, appearance, motion, and scene-completion data.</summary>
+    /// <param name="retail">The supported cartridge address space used as the metadata oracle.</param>
     private static void VerifyCeresZebesActorMetadata(ISnesAddressSpace retail)
     {
         int[] xAddresses = [0x8bc83c, 0x8bc944, 0x8bc958, 0x8bc96c, 0x8bc980, 0x8bc993];

@@ -11,6 +11,7 @@ internal static partial class Program
     // Through_Door, $71 and DisableSounds, so an enemy instruction's sound on the entry frame
     // is admitted ahead of the door's cancel. In the 100% movie a Ninja Pirate's $3F queued
     // there lengthens the Metal Pirates exit's sound-queue wait.
+    /// <summary>Reproduces enemy sound dispatch on the door-entry frame and verifies the Ki Hunter spit sound is queued before the door's library-two cancel.</summary>
     private static void VerifyDoorEntryEnemySound()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that compiled Crocomire skeleton frames match native presentation roots, component geometry, sequence order, and exact banked-pointer membership.</summary>
+    /// <param name="rom">Retail address space used to read the native skeleton pointers and component records.</param>
     private static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var selected = new SortedSet<ushort>();

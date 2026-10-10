@@ -49,6 +49,7 @@ internal static partial class Program
             [KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, digest)]);
     }
 
+    /// <summary>Verifies legacy enemy-art overrides merge inherited stock frames and bindings into the selected content identity.</summary>
     private static void VerifyLegacyEnemyIdentityMerges()
     {
         var baseline = new EnemyIdentityFixture();

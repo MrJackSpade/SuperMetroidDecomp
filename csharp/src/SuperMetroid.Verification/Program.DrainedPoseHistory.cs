@@ -2,6 +2,8 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that drained-state pose transitions shift pose history and that Hyper Beam setup leaves the history unchanged.</summary>
+    /// <param name="bus">Test address space used to derive the current pose's direction and movement metadata.</param>
     private static void VerifyDrainedPoseHistory(TestAddressSpace bus)
     {
         foreach (byte source in new[] { SamusPoseIds.CrouchingRightPose, SamusPoseIds.CrouchingLeftPose })

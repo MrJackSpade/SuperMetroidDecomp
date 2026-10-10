@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks SNES unsigned-division zero cases and compares enemy-angle calculation against every row in the native release fixture.</summary>
     private static void VerifyEnemyAngleDivision()
     {
         AssertEqual(ushort.MaxValue, SnesUnsignedDivision.Quotient(0, 0), "Hardware zero-over-zero quotient");

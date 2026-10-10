@@ -8,6 +8,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies stock and edited post-credits reward-icon data across native uploads, rendering, partial rebinds, malformed overrides, and installed-content repair.</summary>
+    /// <param name="installation">Installed game content whose reward-icon assets and override directory are exercised.</param>
     private static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
         EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();

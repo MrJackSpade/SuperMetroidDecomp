@@ -88,6 +88,7 @@ internal static partial class Program
     }
 }
 
+/// <summary>Retail room identities used to verify fresh Draygon BG2 staging and DMA production.</summary>
 internal static class DraygonProductionAuditDefinitions
 {
     /// <summary>$8F:DA60, fresh two-screen-wide/tall Maridia Draygon room.</summary>

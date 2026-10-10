@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks the flare timing catalog against the cartridge and compares production cadence with a native model across loop and timer boundaries.</summary>
+    /// <param name="bus">Retail cartridge address space supplying the native timing bytes and reference trajectory.</param>
     private static void VerifyChargeFlareDefinitions(SuperMetroidAddressSpace bus)
     {
         for (int address = 0x90c481; address < 0x90c4b5; address++)

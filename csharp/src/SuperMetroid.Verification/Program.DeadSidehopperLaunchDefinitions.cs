@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks all four native corpse launch vectors and the timer, palette, phase, and instruction effects that gate each launch.</summary>
+    /// <param name="rom">The cartridge address space supplying the original horizontal and vertical launch words.</param>
     private static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

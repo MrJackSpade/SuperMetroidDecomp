@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -24,9 +25,23 @@ internal static partial class Program
         graphicsOffsetFixtures.Add(offset, result);
         return result;
     }
+
+    /// <summary>Points one pose's <c>$92:D94E</c> tile-animation list pointer at a synthetic record.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Samus tile-animation list pointer")]
+    private static void WriteSamusTileAnimationPointer(TestAddressSpace bus, SamusPoseId pose, ushort pointer) =>
+        WriteTestWord(bus, SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + (int)pose * 2, pointer);
+
+    /// <summary>Seeds one pose's <c>$92:9263/$92:945D</c> top and bottom spritemap base indices.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Samus pose's spritemap base indices")]
+    private static void WriteSamusSpritemapBases(TestAddressSpace bus, SamusPoseId pose, ushort top, ushort bottom)
+    {
+        WriteTestWord(bus, SamusSpritemapArtworkCatalog.TopBaseAddress + (int)pose * 2, top);
+        WriteTestWord(bus, SamusSpritemapArtworkCatalog.BottomBaseAddress + (int)pose * 2, bottom);
+    }
     // Adapt this fixture's sparse, deliberately distinctive artwork to the installed
     // catalog boundary. Unspecified complete DMA groups retain valid stock layout;
     // sprite maps remain the fixture's own compact compositions, including zero pointers.
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture decoding seeded Samus rendering tables into an artwork catalog")]
     private static void BindSyntheticSamusRendering(TestAddressSpace bus, SamusState samus)
     {
         SamusBodyArtworkCatalog stock = renderingFixtureStock.Value;

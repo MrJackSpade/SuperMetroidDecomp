@@ -111,8 +111,7 @@ static void VerifySamusAerialTurnsAndWallJump()
             targetXDirection, targetMovementType, 0xff, 0xfb,
             8, 0, 19, 0,
         ]);
-        WriteTestWord(bus, 0x91b010 + (int)expectedPose * 2, 0xc000);
-        bus.WriteBytes(0x91c000, [2]);
+        WritePoseAnimationDelays(bus, expectedPose, 0xc000, [2]);
 
         var samus = new SamusState
         {
@@ -137,12 +136,9 @@ static void VerifySamusAerialTurnsAndWallJump()
     WritePoseDefinition(bus, 0x69, [8, 2, 0xff, 1, 8, 0, 19, 0]);
     WritePoseDefinition(bus, 0x9e, [4, 0x17, 0xff, 0xfb, 8, 0, 19, 0]);
     WritePoseDefinition(bus, 0x6a, [4, 2, 0xff, 8, 8, 0, 19, 0]);
-    WriteTestWord(bus, 0x91b010 + 0x9e * 2, 0xc100);
-    WriteTestWord(bus, 0x91b010 + 0x6a * 2, 0xc110);
-    bus.WriteBytes(0x91c100, [2, 2, 2, 0xf8, 0x6a]);
-    bus.WriteBytes(0x91c110, [3]);
-    WriteTestWord(bus, 0x909ea1, 0x2800);
-    WriteTestWord(bus, 0x909ea7, 0);
+    WritePoseAnimationDelays(bus, SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose, 0xc100, [2, 2, 2, 0xf8, 0x6a]);
+    WritePoseAnimationDelays(bus, SamusPoseId.NormalJumpAimDiagonalUpLeftPose, 0xc110, [3]);
+    SeedAerialTurnDryVerticalAcceleration(bus);
     var turn = new SamusState { Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 48)) };
     turn.RefreshCollisionRadii(bus);
     turn.HorizontalSpeed.BaseSpeed = 1;
@@ -220,12 +216,9 @@ static void VerifySamusAerialTurnsAndWallJump()
     // Ordinary spin art, wall-jump art, and both dry launch table pairs.
     WritePoseDefinition(bus, 0x19, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
     WritePoseDefinition(bus, 0x83, [8, 0x14, 0x19, 0xff, 8, 0, 19, 0]);
-    WriteTestWord(bus, 0x91b010 + 0x19 * 2, 0xc200);
-    WriteTestWord(bus, 0x91b010 + 0x83 * 2, 0xc220);
-    bus.WriteBytes(0x91c200, [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0xff]);
-    bus.WriteBytes(0x91c220, [4, 4, 0xfb, 2, 2, 2, 2, 2, 2, 2, 2, 0xfe, 8]);
-    WriteTestWord(bus, 0x909ed1, 4);
-    WriteTestWord(bus, 0x909ed7, 0xa000);
+    WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpRightPose, 0xc200, [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0xff]);
+    WritePoseAnimationDelays(bus, SamusPoseId.WallJumpRightPose, 0xc220, [4, 4, 0xfb, 2, 2, 2, 2, 2, 2, 2, 2, 0xfe, 8]);
+    SeedWallJumpDryLaunchSpeed(bus);
 
     var earlyContact = CreateSpinSamus(animationFrame: 0);
     var releasedWallJump = CreateSpinSamus(animationFrame: 0x0b);
@@ -300,7 +293,7 @@ static void VerifySamusAerialTurnsAndWallJump()
     // Left changes the first native branch to a rightward probe, so no wall is contacted.
     WritePoseDefinition(bus, (int)SamusPoseId.SpinJumpLeftPose,
         [4, 3, 0xff, 0xff, 0, 0, 12, 0]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.SpinJumpLeftPose * 2, 0xc200);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.SpinJumpLeftPose, 0xc200);
     SamusState rightOnlyLeftWall = CreateLeftSpinSamus(animationFrame: 0x0b);
     AerialMovementResult rightOnlyLeftWallTrigger = SamusAerialMovement.StepSpinJump(
         bus,
@@ -455,14 +448,14 @@ static void VerifySamusKnockbackAndDamageBoost()
     // Pose definitions live at `$91:B629 + pose * 8`. Only the fields consumed by this
     // slice are nonzero: X direction, movement type, vertical graphics offset, and radius.
     // `$53/$54` are type-$0A hurt poses; `$4F/$50` are type-$19 damage-boost poses.
-    bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
-    bus.WriteBytes(0x91b771, [0x08, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]); // $29
-    bus.WriteBytes(0x91b891, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D
-    bus.WriteBytes(0x91b8a1, [0x08, 0x19, 0x4e, 0xff, 0x08, 0x00, 0x13, 0x00]); // $4F
-    bus.WriteBytes(0x91b8a9, [0x04, 0x19, 0x4d, 0xff, 0x08, 0x00, 0x13, 0x00]); // $50
-    bus.WriteBytes(0x91b8c1, [0x08, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]); // $53
-    bus.WriteBytes(0x91b8c9, [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]); // $54
-    bus.WriteBytes(0x91bb51, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]); // $A5
+    WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.FallingRightPose, [0x08, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.NeutralJumpRightPose, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.DamageBoostLeftPose, [0x08, 0x19, 0x4e, 0xff, 0x08, 0x00, 0x13, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.DamageBoostRightPose, [0x04, 0x19, 0x4d, 0xff, 0x08, 0x00, 0x13, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.KnockbackRightPose, [0x08, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.KnockbackLeftPose, [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.NormalLandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]);
 
     // One representative pose for each retail Morph/Spring movement type admitted by
     // `$90:DF15/$91:EE27`. Alternating facings make the pose-direction-only knockback
@@ -478,20 +471,14 @@ static void VerifySamusKnockbackAndDamageBoost()
     WritePoseDefinition(bus, (int)SamusPoseId.SpringBallFallingRightPose,
         [0x08, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
 
-    // Animation-pointer table entries are `$91:B010 + pose * 2`. One long ordinary
-    // delay is enough to keep animation unrelated to this movement-focused assertion.
-    WriteTestWord(bus, 0x91b062, 0xc100); // $29
-    WriteTestWord(bus, 0x91b0ae, 0xc110); // $4F
-    WriteTestWord(bus, 0x91b0b0, 0xc120); // $50
-    WriteTestWord(bus, 0x91b0b6, 0xc130); // $53
-    WriteTestWord(bus, 0x91b0b8, 0xc140); // $54
-    WriteTestWord(bus, 0x91b15a, 0xc150); // $A5
-    bus.WriteBytes(0x91c100, [0x10]);
-    bus.WriteBytes(0x91c110, [0x08]);
-    bus.WriteBytes(0x91c120, [0x08]);
-    bus.WriteBytes(0x91c130, [0x02]);
-    bus.WriteBytes(0x91c140, [0x02]);
-    bus.WriteBytes(0x91c150, [0x04]);
+    // One long ordinary delay is enough to keep animation unrelated to this
+    // movement-focused assertion.
+    WritePoseAnimationDelays(bus, SamusPoseId.FallingRightPose, 0xc100, [0x10]);
+    WritePoseAnimationDelays(bus, SamusPoseId.DamageBoostLeftPose, 0xc110, [0x08]);
+    WritePoseAnimationDelays(bus, SamusPoseId.DamageBoostRightPose, 0xc120, [0x08]);
+    WritePoseAnimationDelays(bus, SamusPoseId.KnockbackRightPose, 0xc130, [0x02]);
+    WritePoseAnimationDelays(bus, SamusPoseId.KnockbackLeftPose, 0xc140, [0x02]);
+    WritePoseAnimationDelays(bus, SamusPoseId.NormalLandingLeftPose, 0xc150, [0x04]);
 
     // Every ball pose shares this synthetic rolling stream. Starting at frame three proves
     // the same-pose knockback transition does not accidentally call InitializeAnimation.
@@ -504,21 +491,11 @@ static void VerifySamusKnockbackAndDamageBoost()
         SamusPoseId.SpringBallFallingRightPose,
     })
     {
-        WriteTestWord(bus, 0x91b010 + (int)pose * 2, 0xc160);
+        WritePoseAnimationDelayPointer(bus, pose, 0xc160);
     }
-    bus.WriteBytes(0x91c160, [0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0xff]);
+    WriteAnimationDelayStream(bus, 0xc160, [0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0xff]);
 
-    // `$90:99D6` selects dry-air knockback magnitude 5.0000. Normal jump's independent
-    // value is 4.E000, but damage boost must preserve the existing hurt velocity.
-    // Both use the compiled NTSC 0.1C00 gravity in this no-water/no-lava fixture.
-    // `$90:99D6` is the selector's code address, while the named arrays themselves live at
-    // `$90:9EE9/$9EEF`. Their non-adjacent placement is explicit in the symbol map.
-    WriteTestWord(bus, 0x909ee9, 0x0005);
-    WriteTestWord(bus, 0x909eef, 0x0000);
-    WriteTestWord(bus, 0x909eb9, 0x0004);
-    WriteTestWord(bus, 0x909ebf, 0xe000);
-    WriteTestWord(bus, 0x909ea1, 0x1c00);
-    WriteTestWord(bus, 0x909ea7, 0x0000);
+    SeedKnockbackDryVerticalRows(bus);
 
     // The compiled native hurt row accelerates by 1.8000. Damage boost still indexes
     // its own row rather than a hurt-specific substitute.
@@ -957,10 +934,8 @@ static void VerifySamusKnockbackAndDamageBoost()
         [0x08, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
     WritePoseDefinition(bus, (int)SamusPoseId.UnusedKnockbackLeftPose,
         [0x04, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.UnusedKnockbackRightPose * 2, 0xc170);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.UnusedKnockbackLeftPose * 2, 0xc171);
-    WriteTestByte(bus, 0x91c170, 4);
-    WriteTestByte(bus, 0x91c171, 4);
+    WritePoseAnimationDelays(bus, SamusPoseId.UnusedKnockbackRightPose, 0xc170, [4]);
+    WritePoseAnimationDelays(bus, SamusPoseId.UnusedKnockbackLeftPose, 0xc171, [4]);
     var unusedMovementHit = new SamusState
     {
         Pose = SamusPoseId.UnusedKnockbackRightPose,
@@ -978,6 +953,40 @@ static void VerifySamusKnockbackAndDamageBoost()
         "movement type $07 installs special hurt movement");
 
     Console.WriteLine("  Samus knockback: all 28 interrupt entries, humanoid/ball starts, timer, 16.16 hurt arc, cleanup, and damage-boost handoff agree.");
+}
+
+/// <summary>Seeds the dry-air `$90:9EA1/$9EA7` vertical sub-acceleration and acceleration words.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the aerial-turn dry vertical acceleration")]
+static void SeedAerialTurnDryVerticalAcceleration(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x909ea1, 0x2800);
+    WriteTestWord(bus, 0x909ea7, 0);
+}
+
+/// <summary>Seeds the dry wall-jump `$90:9ED1/$9ED7` initial Y speed and subspeed words.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the dry wall-jump launch speed")]
+static void SeedWallJumpDryLaunchSpeed(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x909ed1, 4);
+    WriteTestWord(bus, 0x909ed7, 0xa000);
+}
+
+/// <summary>
+/// `$90:99D6` selects dry-air knockback magnitude 5.0000. Normal jump's independent value is
+/// 4.E000, but damage boost must preserve the existing hurt velocity. Both use the compiled
+/// NTSC 0.1C00 gravity in this no-water/no-lava fixture. `$90:99D6` is the selector's code
+/// address, while the named arrays themselves live at `$90:9EE9/$9EEF`. Their non-adjacent
+/// placement is explicit in the symbol map.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the dry knockback, jump and gravity rows")]
+static void SeedKnockbackDryVerticalRows(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x909ee9, 0x0005);
+    WriteTestWord(bus, 0x909eef, 0x0000);
+    WriteTestWord(bus, 0x909eb9, 0x0004);
+    WriteTestWord(bus, 0x909ebf, 0xe000);
+    WriteTestWord(bus, 0x909ea1, 0x1c00);
+    WriteTestWord(bus, 0x909ea7, 0x0000);
 }
 
 // Exercises the bank-$9B/$94 connected-pendulum order with deliberately tiny ROM tables.

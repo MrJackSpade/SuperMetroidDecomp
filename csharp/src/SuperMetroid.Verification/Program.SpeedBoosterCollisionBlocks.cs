@@ -169,8 +169,7 @@ internal static partial class Program
         const int blockY = 4;
         const ushort emptyPopulation = 0x9000;
         var bus = new TestAddressSpace();
-        SeedSpeedBoosterInstructionLists(bus);
-        bus.WriteBytes(0x8f0000 | emptyPopulation, [0x00, 0x00]);
+        SeedSpeedBoosterBlockCartridge(bus, emptyPopulation);
 
         ushort[] words = new ushort[width * height];
         byte[] behaviors = new byte[words.Length];
@@ -210,8 +209,10 @@ internal static partial class Program
         return samus;
     }
 
-    private static void SeedSpeedBoosterInstructionLists(TestAddressSpace bus)
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Speed Booster block PLM instruction lists and an empty room population")]
+    private static void SeedSpeedBoosterBlockCartridge(TestAddressSpace bus, ushort emptyPopulation)
     {
+        bus.WriteBytes(0x8f0000 | emptyPopulation, [0x00, 0x00]);
         const ushort drawPointer = 0xa000;
         WriteOneBlockDraw(bus, drawPointer, 0x00b6);
 

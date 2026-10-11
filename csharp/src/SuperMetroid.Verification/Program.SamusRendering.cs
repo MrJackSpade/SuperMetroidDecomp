@@ -86,7 +86,7 @@ static void VerifySamusRenderingSlice()
     var unusedInstructionSamus = new SamusState { Pose = unusedInstructionPose };
 
     // `$FA gg aa` selects `gg` only when both vertical speed halves are zero.
-    bus.WriteBytes(0x910302, [0x01, 0xfa, 0x31, 0x32]);
+    WriteUnusedPoseDelayInstruction(bus, [0x01, 0xfa, 0x31, 0x32]);
     unusedInstructionSamus.InitializeAnimation(bus);
     unusedInstructionSamus.AnimateDeathFrame(bus);
     AssertEqual(0xfa, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
@@ -100,7 +100,7 @@ static void VerifySamusRenderingSlice()
         "$FA` nonzero Y subspeed selects second pose byte");
 
     // `$FC eeee gg aa` uses a little-endian equipment word and distinct pose bytes.
-    bus.WriteBytes(0x910302, [0x01, 0xfc, 0x02, 0x00, 0x41, 0x42]);
+    WriteUnusedPoseDelayInstruction(bus, [0x01, 0xfc, 0x02, 0x00, 0x41, 0x42]);
     unusedInstructionSamus.Kinematics.YSubspeed = 0;
     unusedInstructionSamus.EquippedItems = 0;
     unusedInstructionSamus.InitializeAnimation(bus);
@@ -275,28 +275,14 @@ static void VerifySamusRenderingSlice()
     // Give every synthetic spritemap index used below one visible OBJ. Top and bottom base
     // indices are both zero, so finalized OAM count becomes a direct witness: one means the
     // top-only branch, two means the native bottom selector accepted that pose/frame.
-    bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
-    for (int index = 0; index <= 3; index++)
-        WriteTestWord(bus, 0x92808d + index * 2, 0xe000);
-    bus.WriteBytes(0x908d80, [
-        0xf8, 0x00, 0xf8, 0x00,
-        0xfc, 0xfe, 0xfc, 0xfe,
-        0x00, 0x00, 0x00, 0x00,
-        0xfc, 0x00, 0xfc, 0x00,
-        0x05, 0x04, 0x05, 0x04,
-        0x00, 0x00, 0x00, 0x00,
-    ]);
+    SeedBodyHalfRoutingSpritemaps(bus);
 
     // Reset the unrelated flicker inputs before exercising the complete `$90:86EE/$870C`
     // bottom-half matrix using authored pose/movement pairs. Movement type $0C has no
     // authored pose record, so production correctly cannot reach that dispatcher slot.
     samus.InvincibilityTimer = 0;
     samus.KnockbackTimer = 0;
-    // Every diagnostic pose below must have a valid upper-LoROM tile-animation record.
-    // A zero pointer would address $92:0000, which the actual cartridge does not map.
-    // Keep tile selection constant so this matrix tests body-half routing only.
-    for (int frame = 0; frame < 4; frame++)
-        bus.WriteBytes(0x92e100 + frame * 4, [7, 12, 0xff, 0]);
+    SeedBodyHalfRoutingTileAnimation(bus);
     foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
     {
         (SamusPoseId.DeathSequenceRightPose, (byte)0x0a, (ushort)0, 1, "$D7 frame zero top-only"),
@@ -320,12 +306,9 @@ static void VerifySamusRenderingSlice()
     })
     {
         WritePoseDefinition(bus, (int)pose, [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
-        WriteTestWord(bus,
-            SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + (int)pose * 2,
-            0xe100);
+        WriteSamusTileAnimationPointer(bus, pose, 0xe100);
         AssertEqual(movementType, (byte)SamusState.ReadMovementType(bus, pose), "Rendering fixture uses native movement identity");
-        WriteTestWord(bus, 0x929263 + (int)pose * 2, 0);
-        WriteTestWord(bus, 0x92945d + (int)pose * 2, 0);
+        WriteSamusSpritemapBases(bus, pose, top: 0, bottom: 0);
         samus.Pose = pose;
         samus.AnimationFrame = frame;
         oam.BeginFrame();
@@ -369,12 +352,9 @@ static void VerifySamusRenderingSlice()
     AssertEqual(0x0084, samus.SpritemapPosition.Y,
         "morph transition frame one reads signed minus-two table byte");
 
-    WritePoseDefinition(bus, 0x39, [8, 0x0f, 0xff, 0xff, 9, 0, 16, 0]);
-    WriteTestWord(bus,
-        SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + 0x39 * 2,
-        0xe100);
-    WriteTestWord(bus, 0x929263 + 0x39 * 2, 0);
-    WriteTestWord(bus, 0x92945d + 0x39 * 2, 0);
+    WritePoseDefinition(bus, (int)SamusPoseId.UnusedPose39, [8, 0x0f, 0xff, 0xff, 9, 0, 16, 0]);
+    WriteSamusTileAnimationPointer(bus, SamusPoseId.UnusedPose39, 0xe100);
+    WriteSamusSpritemapBases(bus, SamusPoseId.UnusedPose39, top: 0, bottom: 0);
     samus.Pose = SamusPoseId.UnusedPose39;
     samus.AnimationFrame = 0;
     oam.BeginFrame();
@@ -388,9 +368,7 @@ static void VerifySamusRenderingSlice()
     // remain generic, but frame two and later use Y-1. Keep frame two here because pose `$00`
     // already carries a deliberately different graphics offset in the fixture above.
     samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-    WriteTestWord(bus,
-        SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + (int)samus.Pose * 2,
-        0xe100);
+    WriteSamusTileAnimationPointer(bus, samus.Pose, 0xe100);
     samus.AnimationFrame = 2;
     samus.Position = samus.Position.WithWholeY(0x0086);
     oam.BeginFrame();
@@ -404,19 +382,16 @@ static void VerifySamusRenderingSlice()
     // next frame's byte becomes the high half of the subtraction. Its low byte produces the
     // expected on-screen nudge; retaining the wrapped high byte proves this is the actual
     // 65816 operation rather than a visually plausible host-only byte lookup.
-    bus.WriteBytes(0x908d28, [
+    WriteLandingVerticalOffsets(bus, [
         3, 6, 0, 0,
         3, 6, 0, 0,
         3, 3, 6, 0,
         3, 3, 6, 0,
         0,
     ]);
-    WritePoseDefinition(bus, 0xa4, [8, 0, 0xff, 0xff, 9, 0, 21, 0]);
-    WriteTestWord(bus,
-        SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + 0xa4 * 2,
-        0xe100);
-    WriteTestWord(bus, 0x929263 + 0xa4 * 2, 0);
-    WriteTestWord(bus, 0x92945d + 0xa4 * 2, 0);
+    WritePoseDefinition(bus, (int)SamusPoseId.NormalLandingRightPose, [8, 0, 0xff, 0xff, 9, 0, 21, 0]);
+    WriteSamusTileAnimationPointer(bus, SamusPoseId.NormalLandingRightPose, 0xe100);
+    WriteSamusSpritemapBases(bus, SamusPoseId.NormalLandingRightPose, top: 0, bottom: 0);
     samus.Pose = SamusPoseId.NormalLandingRightPose;
     samus.AnimationFrame = 0;
     oam.BeginFrame();
@@ -635,7 +610,7 @@ static void VerifySamusVisorPalette()
     var bus = new TestAddressSpace();
     var cgram = new SnesCgram();
     ushort[] colors = [0x1000, 0x1001, 0x1002, 0x2000, 0x2001, 0x2002];
-    WriteTestWords(bus, 0x9ba3c0, colors);
+    WriteVisorColors(bus, colors);
 
     var visorColors = SamusVisorColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusVisorColorExtractor.Extract(bus)));
     var state = new SamusVisorPaletteState { PresentationColors = visorColors };
@@ -726,16 +701,7 @@ static void VerifySamusHurtFlashPalette()
     var bus = new TestAddressSpace();
     var cgram = new SnesCgram();
 
-    // Use the compiled Power/Varia/Gravity pointer identities. Seed all sixteen
-    // colors distinctly so a partial ten-color copy cannot pass.
-    for (int color = 0; color < 16; color++)
-    {
-        WriteTestWord(bus, 0x9b9400 + color * 2, unchecked((ushort)(0x0100 + color)));
-        WriteTestWord(bus, 0x9b9520 + color * 2, unchecked((ushort)(0x0200 + color)));
-        WriteTestWord(bus, 0x9b9800 + color * 2, unchecked((ushort)(0x0300 + color)));
-        WriteTestWord(bus, 0x9ba380 + color * 2, unchecked((ushort)(0x4000 + color)));
-        WriteTestWord(bus, 0x9ba3a0 + color * 2, unchecked((ushort)(0x5000 + color)));
-    }
+    SeedHurtFlashPalettes(bus);
 
     var hurtColors = SamusHurtColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusHurtColorExtractor.Extract(bus)));
     var samus = new SamusState
@@ -896,6 +862,7 @@ static void VerifySamusHurtFlashPalette()
 /// The graphics payload uses diagnostic values because correctness here is about routing;
 /// the DebugRunner separately executes the same code against the user's actual cartridge.
 /// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for retail pose $01 frame zero rendering")]
 static void SeedPoseOneSamusData(TestAddressSpace bus)
 {
     // Pose definition $91:B631: facing right, standing movement type, +6 graphics Y.
@@ -956,6 +923,7 @@ static void SeedPoseOneSamusData(TestAddressSpace bus)
 /// indices, pose metadata, and raw chest-cover attributes are retail values; the one-piece
 /// body maps keep this verifier focused on routing because DebugRunner covers real artwork.
 /// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for front-view poses $00/$9B rendering")]
 static void SeedForwardFacingSamusData(TestAddressSpace bus)
 {
     // Both records face neither left nor right, use standing movement type zero, have an
@@ -993,6 +961,7 @@ static void SeedForwardFacingSamusData(TestAddressSpace bus)
 }
 
 /// <summary>Seeds the retail pose-$09 pointer topology with compact diagnostic spritemaps.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for retail pose $09 rendering")]
 static void SeedPoseNineSamusData(TestAddressSpace bus)
 {
     // Pose $09: facing right, movement type one, new-pose-unless-buttons $01, +6 graphics
@@ -1016,6 +985,73 @@ static void SeedPoseNineSamusData(TestAddressSpace bus)
     // zero choose the same top set/position and bottom set/position record.
     WriteTestWord(bus, 0x92d960, 0xdc48);
     bus.WriteBytes(0x92dc48, [0x07, 0x0c, 0x00, 0x06]);
+}
+
+/// <summary>
+/// Installs a delay stream at <c>$91:0302</c>, the mutable low-bank WRAM alias that pose
+/// <c>$FD</c>'s overread of the bank-$91 delay pointer table selects.
+/// </summary>
+[CpuBusBoundary("exact bus test: low-bank WRAM alias $91:0302 reached by pose $FD's delay-pointer overread")]
+static void WriteUnusedPoseDelayInstruction(TestAddressSpace bus, ReadOnlySpan<byte> stream) =>
+    bus.WriteBytes(0x910302, stream);
+
+/// <summary>
+/// Gives every spritemap index the body-half matrix uses one visible OBJ, and seeds the
+/// posture-transition Y offsets that matrix positions against.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the body-half routing spritemaps")]
+static void SeedBodyHalfRoutingSpritemaps(TestAddressSpace bus)
+{
+    bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
+    for (int index = 0; index <= 3; index++)
+        WriteTestWord(bus, SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2, 0xe000);
+    bus.WriteBytes(SamusRenderingRomData.Body.PostureTransitionVerticalOffsets, [
+        0xf8, 0x00, 0xf8, 0x00,
+        0xfc, 0xfe, 0xfc, 0xfe,
+        0x00, 0x00, 0x00, 0x00,
+        0xfc, 0x00, 0xfc, 0x00,
+        0x05, 0x04, 0x05, 0x04,
+        0x00, 0x00, 0x00, 0x00,
+    ]);
+}
+
+/// <summary>
+/// Every diagnostic pose in the body-half matrix needs a valid upper-LoROM tile-animation
+/// record; a zero pointer would address $92:0000, which the cartridge does not map. Tile
+/// selection stays constant so the matrix tests body-half routing only.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the body-half routing tile-animation records")]
+static void SeedBodyHalfRoutingTileAnimation(TestAddressSpace bus)
+{
+    for (int frame = 0; frame < 4; frame++)
+        bus.WriteBytes(0x92e100 + frame * 4, [7, 12, 0xff, 0]);
+}
+
+/// <summary>Seeds the byte-packed <c>$90:8D28</c> landing vertical-offset table.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the landing vertical-offset table")]
+static void WriteLandingVerticalOffsets(TestAddressSpace bus, ReadOnlySpan<byte> offsets) =>
+    bus.WriteBytes(SamusRenderingRomData.Body.LandingVerticalOffsets, offsets);
+
+/// <summary>Seeds the six <c>$9B:A3C0</c> visor room-cycle colors.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the visor room-cycle colors")]
+static void WriteVisorColors(TestAddressSpace bus, ushort[] colors) =>
+    WriteTestWords(bus, SamusPaletteRomData.Visor.Colors, colors);
+
+/// <summary>
+/// Seeds all sixteen Power/Varia/Gravity suit, hurt-flash and intro colors distinctly so a
+/// partial ten-color copy cannot pass.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the suit, hurt-flash and intro palettes")]
+static void SeedHurtFlashPalettes(TestAddressSpace bus)
+{
+    for (int color = 0; color < 16; color++)
+    {
+        WriteTestWord(bus, SamusRenderingRomData.Body.PowerSuitPalette + color * 2, unchecked((ushort)(0x0100 + color)));
+        WriteTestWord(bus, SamusRenderingRomData.Body.VariaSuitPalette + color * 2, unchecked((ushort)(0x0200 + color)));
+        WriteTestWord(bus, SamusRenderingRomData.Body.GravitySuitPalette + color * 2, unchecked((ushort)(0x0300 + color)));
+        WriteTestWord(bus, SamusPaletteRomData.HurtFlash.Colors + color * 2, unchecked((ushort)(0x4000 + color)));
+        WriteTestWord(bus, SamusPaletteRomData.HurtFlash.IntroColors + color * 2, unchecked((ushort)(0x5000 + color)));
+    }
 }
 
 // Checks required-new/required-held masks, extra-button acceptance, ROM priority order,

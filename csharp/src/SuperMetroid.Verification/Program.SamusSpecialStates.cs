@@ -21,11 +21,10 @@ static int ReadRetailCrystalFlashStockFadeSteps()
         nativeColors.ReadCartridgeByte(0x888d85 + 3 * 3 + component));
 }
 
-/// <summary>Crystal Flash, X-ray, and death-sequence verification.</summary>
-static void VerifySamusCrystalFlash()
+/// <summary>Seeds the Crystal Flash pose records, delay streams, palette records and Power Bomb fade color.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Crystal Flash poses, animation and palettes")]
+static void SeedCrystalFlashCartridge(TestAddressSpace bus)
 {
-    var bus = new TestAddressSpace();
-
     // Only bytes zero, one, and six matter to this fixture: facing, movement type, and Y
     // radius. The production implementation still reads them through the actual ROM table
     // addresses instead of receiving test-only pose metadata.
@@ -80,6 +79,14 @@ static void VerifySamusCrystalFlash()
     // bank-$88 Power Bomb table. Components 4/3/2 make its exact four-call fade cadence
     // observable without depending on a second copy of the production state machine.
     bus.WriteBytes(0x888d85 + 3 * 3, [0x04, 0x03, 0x02]);
+}
+
+/// <summary>Crystal Flash, X-ray, and death-sequence verification.</summary>
+static void VerifySamusCrystalFlash()
+{
+    var bus = new TestAddressSpace();
+
+    SeedCrystalFlashCartridge(bus);
 
     var crystalColors = CrystalFlashColorCatalog.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.CrystalFlashColorExtractor.Extract(bus)));
@@ -320,15 +327,10 @@ static void VerifySamusCrystalFlash()
     Console.WriteLine("  Crystal Flash: prerequisites, handlers, resources, HDMA bubble, palette, and ROM animation agree.");
 }
 
-/// <summary>
-/// Walks `$91:E16D/$91:EEA6/$91:FCAF`, `$90:E94F`, `$88:86EF-$8AA3`, and
-/// `$91:DCB4-$DD30`: admission, all four bodies, dedicated turning, angle frames, setup,
-/// widening, aiming, visor palette, teardown, and the native crouched-turn stand-up glitch.
-/// </summary>
-static void VerifySamusXray()
+/// <summary>Seeds the X-ray pose records, visor and suit colors, and the two window tangent words.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for X-ray poses, visor palettes and the absolute-tangent table")]
+static void SeedXrayCartridge(TestAddressSpace bus)
 {
-    var bus = new TestAddressSpace();
-
     // Complete literal pose records from `$91:B631/B751/B851/BCD1-BCF9`. X-ray does not
     // invent a new movement type: standing bodies are zero, crouched bodies five, and its
     // intermediate turn bodies use `$0E`, which makes the installed movement handler RTS.
@@ -373,6 +375,18 @@ static void VerifySamusXray()
     // table entry. Ten scanlines from the origin, the 8.8 accumulator lands on X+39.
     WriteTestWord(bus, SamusXrayRomData.Window.AbsoluteTangentTable + 0x36 * 2, 0x03fe);
     WriteTestWord(bus, SamusXrayRomData.Window.AbsoluteTangentTable + 0x4a * 2, 0x03fe);
+}
+
+/// <summary>
+/// Walks `$91:E16D/$91:EEA6/$91:FCAF`, `$90:E94F`, `$88:86EF-$8AA3`, and
+/// `$91:DCB4-$DD30`: admission, all four bodies, dedicated turning, angle frames, setup,
+/// widening, aiming, visor palette, teardown, and the native crouched-turn stand-up glitch.
+/// </summary>
+static void VerifySamusXray()
+{
+    var bus = new TestAddressSpace();
+
+    SeedXrayCartridge(bus);
 
     var cgram = new SnesCgram();
     var xrayColors = SamusVisorColorCatalog.Load(new MemoryStream(
@@ -643,10 +657,8 @@ static void VerifySamusXray()
         [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]);
     WritePoseDefinition(bus, (int)SamusPoseId.FallingRightPose,
         [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.NormalLandingRightPose * 2, 0xc700);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FallingRightPose * 2, 0xc710);
-    bus.WriteBytes(0x91c700, [0x01, 0xff]);
-    bus.WriteBytes(0x91c710, [0x01, 0xff]);
+    WritePoseAnimationDelays(bus, SamusPoseId.NormalLandingRightPose, 0xc700, [0x01, 0xff]);
+    WritePoseAnimationDelays(bus, SamusPoseId.FallingRightPose, 0xc710, [0x01, 0xff]);
     var landing = Rejected(SamusPoseId.NormalLandingRightPose);
     AssertTrue(!landing.Xray.TryBegin(bus, landing, previousMovementType: SamusMovementType.Standing),
         "X-ray rejects landing pose");
@@ -674,15 +686,12 @@ static void VerifySamusXray()
 }
 
 /// <summary>
-/// Walks `$9B:B3A7-$B85F` and `$90:8976-$89FF`: movement-type-selected `$D7/$D8`
-/// setup, animation-only preflash, five death-tile transfers, alternating suit/suitless
-/// palettes, 60-call flash, nine explosion frames, non-Samus palette whiteout, and terminal
-/// no-draw state.
+/// Seeds the death-sequence pose records and delay streams, the ten suit and suitless
+/// palettes, the explosion timer/palette records and the whiteout shades.
 /// </summary>
-static void VerifySamusDeathSequence()
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Samus death sequence")]
+static void SeedSamusDeathSequenceCartridge(TestAddressSpace bus, ushort[] shades)
 {
-    var bus = new TestAddressSpace();
-
     // Source standing/morph/spin records prove three distinct `$9B:B420` decisions. The
     // death records are literal `$91:BCE1/BCE9`: type `$0A`, ordinary humanoid radii, and
     // right/left direction bytes. Their delay stream is exactly 2,2,2,2,2,2,FE,01.
@@ -696,15 +705,15 @@ static void VerifySamusDeathSequence()
         [0x08, 0x0a, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
     WritePoseDefinition(bus, (int)SamusPoseId.DeathSequenceLeftPose,
         [0x04, 0x0a, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingRightNormalPose * 2, 0xc000);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.MorphBallGroundLeftPose * 2, 0xc010);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.SpinJumpRightPose * 2, 0xc020);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DeathSequenceRightPose * 2, 0xb567);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DeathSequenceLeftPose * 2, 0xb567);
-    bus.WriteBytes(0x91c000, [0x01, 0xff]);
-    bus.WriteBytes(0x91c010, [0x01, 0xff]);
-    bus.WriteBytes(0x91c020, [0x01, 0xff]);
-    bus.WriteBytes(0x91b567, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xfe, 0x01]);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.FacingRightNormalPose, 0xc000);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.MorphBallGroundLeftPose, 0xc010);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.SpinJumpRightPose, 0xc020);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.DeathSequenceRightPose, 0xb567);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.DeathSequenceLeftPose, 0xb567);
+    WriteAnimationDelayStream(bus, 0xc000, [0x01, 0xff]);
+    WriteAnimationDelayStream(bus, 0xc010, [0x01, 0xff]);
+    WriteAnimationDelayStream(bus, 0xc020, [0x01, 0xff]);
+    WriteAnimationDelayStream(bus, 0xb567, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xfe, 0x01]);
 
     // Ten suit and ten suitless pointers reproduce `$9B:B7D3/B80F`. Every palette gets a
     // unique first color, making each table index independently visible in assertions.
@@ -728,37 +737,43 @@ static void VerifySamusDeathSequence()
     bus.WriteBytes(SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress,
         [0x15, 0x00, 0x06, 0x02, 0x03, 0x03, 0x04, 0x04, 0x05, 0x05,
          0x05, 0x06, 0x06, 0x07, 0x06, 0x08, 0x50, 0x09]);
-    ushort[] shades =
-    [
-        0x0421, 0x0c63, 0x14a5, 0x1ce7, 0x2529, 0x2d6b, 0x35ad, 0x4210,
-        0x4a52, 0x4e73, 0x5294, 0x56b5, 0x5ad6, 0x5ef7, 0x6318, 0x6739,
-        0x6b5a, 0x6f7b, 0x739c, 0x77bd, 0x7bde, 0x7fff,
-    ];
     WriteTestWords(bus, 0x9bb835, shades);
-    // Install the existing synthetic colors through the production artwork boundary.
-    // This fixture exercises Power suit; the other suit families use the same supplied colors.
+}
+
+/// <summary>
+/// Installs the seeded synthetic death colors through the production artwork boundary. This
+/// fixture exercises Power suit; the other suit families use the same supplied colors.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture decoding the seeded Samus death palettes")]
+static SamusDeathPaletteArtworkCatalog DecodeSamusDeathFixtureArtwork(TestAddressSpace bus, ushort[] shades)
+{
     ushort[] FixturePalette(int pointer) => Enumerable.Range(0, 16)
         .Select(color => (ushort)(bus.ReadByte(pointer + color * 2) | bus.ReadByte(pointer + color * 2 + 1) << 8)).ToArray();
     ushort[][] suitColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bc000 + palette * 0x20)).ToArray();
     ushort[][] suitlessColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bd400 + palette * 0x20)).ToArray();
     ushort[] paletteIndices = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
         .Select(index => (ushort)bus.ReadByte(SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress + index * 2 + 1)).ToArray();
-    var artwork = new SamusDeathPaletteArtworkCatalog([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)], ToColors(suitlessColors), ToColors(shades), paletteIndices);
+    return new SamusDeathPaletteArtworkCatalog([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)], ToColors(suitlessColors), ToColors(shades), paletteIndices);
+}
 
-    ushort ReadFixtureWord(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-    ushort[] ReadFixturePalette(int pointerAddress)
-    {
-        ushort pointer = ReadFixtureWord(pointerAddress);
-        return Enumerable.Range(0, 16).Select(color =>
-            ReadFixtureWord(0x9b0000 | (pointer + color * 2))).ToArray();
-    }
-    var deathPalettes = new SamusDeathPaletteArtworkCatalog(
-        ToColors(Enumerable.Range(0, 3).Select(suit => Enumerable.Range(0, 10).Select(palette =>
-            ReadFixturePalette(0x9bb7d3 + suit * 20 + palette * 2)).ToArray()).ToArray()),
-        ToColors(Enumerable.Range(0, 10).Select(palette => ReadFixturePalette(0x9bb80f + palette * 2)).ToArray()),
-        ToColors(shades),
-        Enumerable.Range(0, 9).Select(frame => (ushort)bus.ReadByte(
-            SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress + frame * 2 + 1)).ToArray());
+/// <summary>
+/// Walks `$9B:B3A7-$B85F` and `$90:8976-$89FF`: movement-type-selected `$D7/$D8`
+/// setup, animation-only preflash, five death-tile transfers, alternating suit/suitless
+/// palettes, 60-call flash, nine explosion frames, non-Samus palette whiteout, and terminal
+/// no-draw state.
+/// </summary>
+static void VerifySamusDeathSequence()
+{
+    var bus = new TestAddressSpace();
+
+    ushort[] shades =
+    [
+        0x0421, 0x0c63, 0x14a5, 0x1ce7, 0x2529, 0x2d6b, 0x35ad, 0x4210,
+        0x4a52, 0x4e73, 0x5294, 0x56b5, 0x5ad6, 0x5ef7, 0x6318, 0x6739,
+        0x6b5a, 0x6f7b, 0x739c, 0x77bd, 0x7bde, 0x7fff,
+    ];
+    SeedSamusDeathSequenceCartridge(bus, shades);
+    SamusDeathPaletteArtworkCatalog artwork = DecodeSamusDeathFixtureArtwork(bus, shades);
     var guardedBus = NewSamusDeathExplosionTimingReadGuard(bus);
     var samus = new SamusState
     {

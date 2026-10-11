@@ -33,8 +33,7 @@ internal static partial class Program
             var bus = new TestAddressSpace();
             SeedRoomPlmPopulationRom(bus);
             const ushort population = 0x9500;
-            bus.WriteBytes(0x8f0000 | population,
-                [0xd3, 0xb6, 0x06, 0x06, 0x00, 0x00, 0x00, 0x00]);
+            WriteStationVisualMapPopulation(bus, population);
             const int width = 16;
             const int block = 6 + 6 * width;
             var definitions = new byte[0x400 * 8];
@@ -138,4 +137,10 @@ internal static partial class Program
                 Directory.Delete(testRoot, recursive: true);
         }
     }
+
+    /// <summary>Seeds one map-station `$B6D3` room PLM record at block (6,6) and its terminator.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the map-station room PLM population")]
+    static void WriteStationVisualMapPopulation(TestAddressSpace bus, ushort population) =>
+        bus.WriteBytes(0x8f0000 | population,
+            [0xd3, 0xb6, 0x06, 0x06, 0x00, 0x00, 0x00, 0x00]);
 }

@@ -105,6 +105,7 @@ internal static partial class Program
     /// describe cartridge words as words; repeating two byte stores obscures both width and
     /// byte order.
     /// </summary>
+    [CpuBusBoundary("exact bus test: seeds one little-endian word of the sparse synthetic CPU address space fixture")]
     [CpuBusAccess]
     static void WriteTestWord(TestAddressSpace bus, int address, ushort value)
     {
@@ -116,6 +117,7 @@ internal static partial class Program
     /// Writes consecutive native words without repeating address-stride arithmetic in every
     /// fixture. Each element still routes through the endian-aware primitive above.
     /// </summary>
+    [CpuBusBoundary("exact bus test: seeds consecutive little-endian words of the sparse synthetic CPU address space fixture")]
     [CpuBusAccess]
     static void WriteTestWords(TestAddressSpace bus, int address, params ushort[] values)
     {
@@ -130,6 +132,7 @@ internal static partial class Program
     /// still-unknown bytes must remain byte-for-byte fixture evidence. This helper owns only
     /// the verified table base, record stride, and record-width invariant.
     /// </summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$91 Samus pose definition record")]
     static void WritePoseDefinition(
         TestAddressSpace bus,
         int pose,
@@ -144,13 +147,16 @@ internal static partial class Program
                 nameof(definition));
         }
 
-        bus.WriteBytes(0x91b629 + pose * 8, definition);
+        bus.WriteBytes(
+            SamusMovementRomData.Poses.Definitions + pose * SamusMovementRomData.Poses.DefinitionByteCount,
+            definition);
     }
 
     /// <summary>
     /// Replaces one byte of a previously installed pose definition. This is used only when
     /// a test intentionally varies one discriminator while retaining the rest of its fixture.
     /// </summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one byte of a bank-$91 Samus pose definition record")]
     static void WritePoseDefinitionByte(TestAddressSpace bus, int pose, int byteOffset, byte value)
     {
         if ((uint)pose > byte.MaxValue)
@@ -158,7 +164,40 @@ internal static partial class Program
         if ((uint)byteOffset >= 8)
             throw new ArgumentOutOfRangeException(nameof(byteOffset));
 
-        WriteTestByte(bus, 0x91b629 + pose * 8 + byteOffset, value);
+        WriteTestByte(
+            bus,
+            SamusMovementRomData.Poses.Definitions + pose * SamusMovementRomData.Poses.DefinitionByteCount + byteOffset,
+            value);
+    }
+
+    /// <summary>
+    /// Points one pose's entry in the bank-$91 animation-delay pointer table
+    /// (<c>$91:B010</c>, one same-bank word per pose) at a synthetic delay stream.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$91 Samus animation-delay pointer")]
+    static void WritePoseAnimationDelayPointer(TestAddressSpace bus, SamusPoseId pose, ushort stream) =>
+        WriteTestWord(bus, SamusAnimationDelayDefinitions.PointerTableAddress + (int)pose * sizeof(ushort), stream);
+
+    /// <summary>Installs one synthetic animation-delay stream at a bank-$91 offset.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$91 Samus animation-delay stream")]
+    static void WriteAnimationDelayStream(TestAddressSpace bus, ushort stream, ReadOnlySpan<byte> delays)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bus.WriteBytes(SamusMovementRomData.Banks.Pose | stream, delays);
+    }
+
+    /// <summary>
+    /// Installs a pose's animation-delay pointer and the stream it selects together, the common
+    /// fixture shape for a pose whose delay bytes no other pose shares.
+    /// </summary>
+    static void WritePoseAnimationDelays(
+        TestAddressSpace bus,
+        SamusPoseId pose,
+        ushort stream,
+        ReadOnlySpan<byte> delays)
+    {
+        WritePoseAnimationDelayPointer(bus, pose, stream);
+        WriteAnimationDelayStream(bus, stream, delays);
     }
 
     /// <summary>

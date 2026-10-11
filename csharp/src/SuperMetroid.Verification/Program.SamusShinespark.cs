@@ -12,6 +12,24 @@ using SuperMetroid.Core.Spatial;
 internal static partial class Program
 {
 
+/// <summary>
+/// Seeds the six compiled stored-shine phase targets with distinct sentinel colors, making an
+/// incorrect suit or phase selection immediately observable, plus a distinct first Power Suit color.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the stored-shine and Power Suit palettes")]
+static void SeedStoredShinePalettes(TestAddressSpace bus)
+{
+    for (int frame = 0; frame < 6; frame++)
+    {
+        AssertTrue(SamusPaletteRomData.FullBodyCycles.TryStoredShinePalettePointer(
+            0, unchecked((ushort)(frame * 2)), out ushort pointer),
+            $"compiled Power stored-shine phase {frame} exists");
+        WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | pointer,
+            unchecked((ushort)(0x1100 + frame)));
+    }
+    WriteTestWord(bus, SamusRenderingRomData.Body.PowerSuitPalette, 0x0321);
+}
+
 /// <summary>Stored-shine and shinespark verification.</summary>
 static void VerifySamusStoredShineAndShinespark()
 {
@@ -34,28 +52,15 @@ static void VerifySamusStoredShineAndShinespark()
     {
         WritePoseDefinition(bus, (int)pose,
             [(byte)(((int)pose & 1) != 0 ? 0x08 : 0x04), 0x1b, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
-        ushort stream = unchecked((ushort)(0xc600 + (int)pose));
-        WriteTestWord(bus, 0x91b010 + (int)pose * 2, stream);
-        WriteTestByte(bus, 0x910000 | stream, 4);
+        WritePoseAnimationDelays(bus, pose, unchecked((ushort)(0xc600 + (int)pose)), [4]);
     }
     WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
         [0x08, 0x00, 0xff, 0x02, 0x00, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingRightNormalPose * 2, 0xc500);
-    WriteTestByte(bus, 0x91c500, 4);
+    WritePoseAnimationDelays(bus, SamusPoseId.FacingRightNormalPose, 0xc500, [4]);
 
     // No sine-table region is installed: echo mechanics use compiled stock samples.
 
-    // Seed the six compiled stored-shine phase targets with distinct sentinel
-    // colors, making an incorrect suit or phase selection immediately observable.
-    for (int frame = 0; frame < 6; frame++)
-    {
-        AssertTrue(SamusPaletteRomData.FullBodyCycles.TryStoredShinePalettePointer(
-            0, unchecked((ushort)(frame * 2)), out ushort pointer),
-            $"compiled Power stored-shine phase {frame} exists");
-        WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | pointer,
-            unchecked((ushort)(0x1100 + frame)));
-    }
-    WriteTestWord(bus, 0x9b9400, 0x0321);
+    SeedStoredShinePalettes(bus);
     var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
     var cycleColors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(

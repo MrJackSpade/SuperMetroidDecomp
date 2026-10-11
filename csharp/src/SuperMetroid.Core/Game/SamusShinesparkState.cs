@@ -170,8 +170,8 @@ public sealed class SamusShinesparkState
     /// </summary>
     public ushort CrashAngularTravel
     {
-        get => _firstReleasedCrashEcho.YPosition;
-        private set => _firstReleasedCrashEcho.YPosition = value;
+        get => _firstReleasedCrashEcho.Position.Y;
+        private set => _firstReleasedCrashEcho.Position = _firstReleasedCrashEcho.Position.WithY(value);
     }
 
     /// <summary>
@@ -431,10 +431,7 @@ false);
 
         // Each active handler samples echoes before motion. Runtime suppresses its ordinary
         // post-motion producer while this special handler owns the frame.
-        samus.HorizontalSpeed.CaptureSpeedEchoPosition(
-            gameTimeFrames,
-            samus.Position.X.Whole,
-            samus.Position.Y.Whole);
+        samus.HorizontalSpeed.CaptureSpeedEchoPosition(gameTimeFrames, samus.Position.Whole);
 
         BlockMoveResult? horizontal = null;
         BlockMoveResult? vertical = null;
@@ -554,10 +551,8 @@ false);
         // word. A preceding echo or crash can therefore shorten this orbit.
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
             encodedIndex: 0,
-            samus.Position.X.Whole,
-            samus.Position.X.Whole,
-            samus.Position.Y.Whole,
-            samus.Position.Y.Whole);
+            samus.Position.Whole,
+            samus.Position.Whole);
         Phase = ShinesparkPhase.Crash;
         CrashSoundRequested = true;
         CrashSoundSuppressed = _audioPowerBomb?.IsActive == true;
@@ -569,8 +564,8 @@ false);
     /// </summary>
     private short CrashAngularDelta
     {
-        get => unchecked((short)_firstReleasedCrashEcho.XPosition);
-        set => _firstReleasedCrashEcho.XPosition = unchecked((ushort)value);
+        get => unchecked((short)_firstReleasedCrashEcho.Position.X);
+        set => _firstReleasedCrashEcho.Position = _firstReleasedCrashEcho.Position.WithX(unchecked((ushort)value));
     }
 
     /// <summary>Ports `$90:D346-$D3F2`, including the three overloaded-index substates.</summary>
@@ -618,17 +613,13 @@ false);
 
         // Projectile_SinLookup consumes a byte angle/radius and returns wrapped 16-bit
         // offsets. Both additions below deliberately retain that unsigned WRAM wrapping.
-        (ushort firstOffsetX, ushort firstOffsetY) =
-            ProjectileSinLookup(FirstCrashEchoAngle, CrashRadius);
-        (ushort secondOffsetX, ushort secondOffsetY) =
-            ProjectileSinLookup(SecondCrashEchoAngle, CrashRadius);
+        Offset16<RoomPixels> firstOffset = ProjectileSinLookup(FirstCrashEchoAngle, CrashRadius);
+        Offset16<RoomPixels> secondOffset = ProjectileSinLookup(SecondCrashEchoAngle, CrashRadius);
         ushort encodedIndex = unchecked((ushort)((CrashSubphase << 8) | CrashRadius));
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
             encodedIndex,
-            unchecked((ushort)(samus.Position.X.Whole + firstOffsetX)),
-            unchecked((ushort)(samus.Position.X.Whole + secondOffsetX)),
-            unchecked((ushort)(samus.Position.Y.Whole + firstOffsetY)),
-            unchecked((ushort)(samus.Position.Y.Whole + secondOffsetY)));
+            samus.Position.Whole + firstOffset,
+            samus.Position.Whole + secondOffset);
 
         return new ShinesparkMovementResult(
 false);
@@ -669,17 +660,11 @@ false);
         {
             if (unchecked((short)(projectileCounter - 4)) < 0)
             {
-                _firstReleasedCrashEcho.Initialize(
-                    departureAngles.First,
-                    samus.Position.X.Whole,
-                    samus.Position.Y.Whole);
+                _firstReleasedCrashEcho.Initialize(departureAngles.First, samus.Position.Whole);
                 projectiles?.InitializeShinesparkEcho(3, departureAngles.First);
             }
 
-            _secondReleasedCrashEcho.Initialize(
-                departureAngles.Second,
-                samus.Position.X.Whole,
-                samus.Position.Y.Whole);
+            _secondReleasedCrashEcho.Initialize(departureAngles.Second, samus.Position.Whole);
             projectiles?.InitializeShinesparkEcho(4, departureAngles.Second);
         }
 
@@ -728,7 +713,7 @@ false,             CrashSequenceFinished: true);
         if (!StepReleasedCrashEcho(samus, layer1,
             echo, projectileOwnsSlot: true)) return false;
         projectile.Velocity = projectile.Velocity.WithX(unchecked((short)echo.Radius));
-        projectile.Position = projectile.Position.WithWhole(new(echo.XPosition, echo.YPosition));
+        projectile.Position = projectile.Position.WithWhole(echo.Position);
         return true;
     }
 
@@ -745,14 +730,14 @@ false,             CrashSequenceFinished: true);
         // The point is recalculated from the *current* Samus position on every frame; these
         // are expanding radial copies, not ordinary projectiles with independent velocity.
         slot.Radius = unchecked((ushort)(slot.Radius + 8));
-        (ushort offsetX, ushort offsetY) =
-            ProjectileSinLookup(slot.Angle, unchecked((byte)slot.Radius));
-        slot.XPosition = unchecked((ushort)(samus.Position.X.Whole + offsetX));
+        Offset16<RoomPixels> offset = ProjectileSinLookup(slot.Angle, unchecked((byte)slot.Radius));
+        Position16<RoomPixels> point = samus.Position.Whole + offset;
+        slot.Position = slot.Position.WithX(point.X);
 
         // Native performs the X viewport rejection before calculating/publishing Y. The
         // cleared result is identical either way, but retaining the branch order makes a
         // debugger trace line up with `$90:D4F2-$D51E` instruction for instruction.
-        short screenX = unchecked((short)(slot.XPosition - layer1.X));
+        short screenX = unchecked((short)(slot.Position.X - layer1.X));
         if (screenX is < 0 or >= 256)
         {
             LastReleasedCrashEchoClear = new();
@@ -760,8 +745,8 @@ false,             CrashSequenceFinished: true);
             return false;
         }
 
-        slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + offsetY));
-        short screenY = unchecked((short)(slot.YPosition - layer1.Y));
+        slot.Position = slot.Position.WithY(point.Y);
+        short screenY = unchecked((short)(slot.Position.Y - layer1.Y));
         if (screenY is < 0 or >= 256)
         {
             LastReleasedCrashEchoClear = new();
@@ -772,7 +757,7 @@ false,             CrashSequenceFinished: true);
     }
 
     /// <summary>Exact byte-split multiplication used by `$90:CC39/$90:CC8A`.</summary>
-    private static (ushort X, ushort Y) ProjectileSinLookup(
+    private static Offset16<RoomPixels> ProjectileSinLookup(
         SnesAngle angle,
         byte radius)
     {
@@ -780,7 +765,7 @@ false,             CrashSequenceFinished: true);
         ushort y = LookupSignedComponent(
             angle.AddRaw(-SnesAngle.QuarterTurn.RawValue),
             radius);
-        return (x, y);
+        return new(unchecked((short)x), unchecked((short)y));
     }
 
     private static ushort LookupSignedComponent(
@@ -929,25 +914,22 @@ false,             CrashSequenceFinished: true);
         public bool Active { get; private set; }
         public SnesAngle Angle { get; set; }
         public ushort Radius { get; set; }
-        public ushort XPosition { get; set; }
-        public ushort YPosition { get; set; }
+        public Position16<RoomPixels> Position { get; set; }
 
-        public ShinesparkReleasedEcho Snapshot => new(
-            Active, XPosition, YPosition);
+        public ShinesparkReleasedEcho Snapshot => new(Active, Position);
 
         // Crash entry changes only the drawing enable. It does not clear coordinates,
         // projectile ownership, or the aliased angular-travel word.
         public void DisableDrawing() => Active = false;
 
-        public void Initialize(SnesAngle angle, ushort xPosition, ushort yPosition)
+        public void Initialize(SnesAngle angle, Position16<RoomPixels> position)
         {
             Active = true;
             Angle = angle;
             // Crash finish clears projectile X velocity (the departing radius). The
             // separate speed-echo drawing field is 64; it is not this projectile word.
             Radius = 0;
-            XPosition = xPosition;
-            YPosition = yPosition;
+            Position = position;
         }
 
         public void Clear()
@@ -955,8 +937,7 @@ false,             CrashSequenceFinished: true);
             Active = false;
             Angle = SnesAngle.Zero;
             Radius = 0;
-            XPosition = 0;
-            YPosition = 0;
+            Position = Position16<RoomPixels>.Zero;
         }
     }
 }
@@ -995,12 +976,10 @@ public readonly record struct ShinesparkMovementResult(
 
 /// <summary>Immutable debugger view of one departing crash-echo projectile.</summary>
 /// <param name="Active">Speed-echo drawing enable, independent of current projectile-slot ownership; replacing the projectile need not clear these drawing words.</param>
-/// <param name="XPosition">Whole room-pixel echo X coordinate with native sixteen-bit wrapping; slot-three storage also aliases the crash angular-delta word.</param>
-/// <param name="YPosition">Whole room-pixel echo Y coordinate with native sixteen-bit wrapping; slot-three storage also aliases the crash angular-travel word.</param>
+/// <param name="Position">Whole room-pixel echo position with native sixteen-bit wrapping; slot-three storage also aliases the crash angular-delta (X) and angular-travel (Y) words.</param>
 public readonly record struct ShinesparkReleasedEcho(
     bool Active,
-    ushort XPosition,
-    ushort YPosition);
+    Position16<RoomPixels> Position);
 
 /// <summary>Debugger-only witness captured immediately before an off-camera echo clears.</summary>
 public readonly record struct ShinesparkReleasedEchoClear();

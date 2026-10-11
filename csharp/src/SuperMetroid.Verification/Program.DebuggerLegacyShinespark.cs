@@ -13,9 +13,9 @@ internal static partial class Program
             var restored = DebuggerObjectGraphSerializer.Deserialize<SamusShinesparkState>(legacy);
             bool crash = phase != ShinesparkPhase.Inactive;
             AssertEqual(phase, restored.Phase, "legacy spark phase survives graph restoration");
-            AssertEqual(crash ? (ushort)92 : (ushort)333, restored.FirstReleasedCrashEcho.YPosition,
+            AssertEqual(crash ? (ushort)92 : (ushort)333, restored.FirstReleasedCrashEcho.Position.Y,
                 "active crash travel or inactive echo Y owns the restored alias");
-            AssertEqual(crash ? unchecked((ushort)(short)delta) : (ushort)222, restored.FirstReleasedCrashEcho.XPosition,
+            AssertEqual(crash ? unchecked((ushort)(short)delta) : (ushort)222, restored.FirstReleasedCrashEcho.Position.X,
                 "legacy signed crash delta is sign-extended without overwriting an inactive echo");
             using var roundTrip = new MemoryStream();
             DebuggerObjectGraphSerializer.Serialize(roundTrip, restored);
@@ -37,8 +37,7 @@ internal static partial class Program
         var state = new SamusShinesparkState();
         typeof(SamusShinesparkState).GetProperty(nameof(SamusShinesparkState.Phase))!.SetValue(state, phase);
         object echo = typeof(SamusShinesparkState).GetField("_firstReleasedCrashEcho", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(state)!;
-        echo.GetType().GetProperty("XPosition")!.SetValue(echo, (ushort)222);
-        echo.GetType().GetProperty("YPosition")!.SetValue(echo, (ushort)333);
+        echo.GetType().GetProperty("Position")!.SetValue(echo, new Position16<RoomPixels>(222, 333));
         using var original = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(original, state);
         byte[] bytes = original.ToArray();

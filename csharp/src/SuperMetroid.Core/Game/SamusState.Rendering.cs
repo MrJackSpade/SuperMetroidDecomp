@@ -724,27 +724,23 @@ public sealed partial class SamusState
             // whose Samus draw handler is suppressed must also freeze these copies.
             if (HorizontalSpeed.AdvanceDepartingSpeedEcho(
                     slot: 1,
-                    Position.X.Whole,
-                    Position.Y.Whole))
+                    Position.Whole))
             {
                 DrawActiveSpeedBoosterEcho(
                     bus,
                     oam,
-                    HorizontalSpeed.SecondSpeedEchoXPosition,
-                    HorizontalSpeed.SecondSpeedEchoYPosition,
+                    HorizontalSpeed.SecondSpeedEchoPosition,
                     layer1);
             }
 
             if (HorizontalSpeed.AdvanceDepartingSpeedEcho(
                     slot: 0,
-                    Position.X.Whole,
-                    Position.Y.Whole))
+                    Position.Whole))
             {
                 DrawActiveSpeedBoosterEcho(
                     bus,
                     oam,
-                    HorizontalSpeed.FirstSpeedEchoXPosition,
-                    HorizontalSpeed.FirstSpeedEchoYPosition,
+                    HorizontalSpeed.FirstSpeedEchoPosition,
                     layer1);
             }
 
@@ -760,14 +756,12 @@ public sealed partial class SamusState
         DrawActiveSpeedBoosterEcho(
             bus,
             oam,
-            HorizontalSpeed.SecondSpeedEchoXPosition,
-            HorizontalSpeed.SecondSpeedEchoYPosition,
+            HorizontalSpeed.SecondSpeedEchoPosition,
             layer1);
         DrawActiveSpeedBoosterEcho(
             bus,
             oam,
-            HorizontalSpeed.FirstSpeedEchoXPosition,
-            HorizontalSpeed.FirstSpeedEchoYPosition,
+            HorizontalSpeed.FirstSpeedEchoPosition,
             layer1);
     }
 
@@ -792,13 +786,11 @@ public sealed partial class SamusState
         // Slot one precedes slot zero just like native's X=2,0 loop.
         DrawActiveSpeedBoosterEcho(
             bus, oam,
-            HorizontalSpeed.SecondSpeedEchoXPosition,
-            HorizontalSpeed.SecondSpeedEchoYPosition,
+            HorizontalSpeed.SecondSpeedEchoPosition,
             layer1);
         DrawActiveSpeedBoosterEcho(
             bus, oam,
-            HorizontalSpeed.FirstSpeedEchoXPosition,
-            HorizontalSpeed.FirstSpeedEchoYPosition,
+            HorizontalSpeed.FirstSpeedEchoPosition,
             layer1);
     }
 
@@ -823,30 +815,29 @@ public sealed partial class SamusState
         if (second.Active)
         {
             DrawActiveSpeedBoosterEcho(
-                bus, oam, second.XPosition, second.YPosition, layer1);
+                bus, oam, second.Position, layer1);
         }
 
         ShinesparkReleasedEcho first = Shinespark.FirstReleasedCrashEcho;
         if (first.Active)
         {
             DrawActiveSpeedBoosterEcho(
-                bus, oam, first.XPosition, first.YPosition, layer1);
+                bus, oam, first.Position, layer1);
         }
     }
 
     private void DrawActiveSpeedBoosterEcho(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        ushort echoX,
-        ushort echoY,
+        Position16<RoomPixels> echo,
         Position16<RoomPixels> layer1)
     {
         // Zero X is the cartridge's empty-slot sentinel, not merely an off-screen point.
-        if (echoX == 0)
+        if (echo.X == 0)
             return;
 
         sbyte graphicsYOffset = ReadGraphicsYOffset(bus);
-        short screenY = unchecked((short)(echoY - graphicsYOffset - layer1.Y));
+        short screenY = unchecked((short)(echo.Y - graphicsYOffset - layer1.Y));
 
         // The original accepts screen Y 0..247. Horizontal clipping remains OAM/PPU work,
         // exactly as it is for the current Samus body.
@@ -855,7 +846,7 @@ public sealed partial class SamusState
 
         var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus speed-booster echo requires installed spritemap artwork.");
-        ushort screenX = unchecked((ushort)(echoX - layer1.X));
+        ushort screenX = unchecked((ushort)(echo.X - layer1.X));
         oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Samus zero-pointer spritemap requires WRAM."),
             TopSpritemapIndex, screenX, unchecked((ushort)screenY),

@@ -2325,10 +2325,7 @@ Landed: true, HitCeiling: false);
             // coordinates with the same frame ordering as the cartridge.
             if (!suitOwnsSamus && LastShinesparkMovement is null)
             {
-                Samus.HorizontalSpeed.CaptureSpeedEchoPosition(
-                    GameTime.Frames,
-                    Samus.Position.X.Whole,
-                    Samus.Position.Y.Whole);
+                Samus.HorizontalSpeed.CaptureSpeedEchoPosition(GameTime.Frames, Samus.Position.Whole);
             }
 
             // Every ordinary downward collision calls `$91:F046` inside movement, before

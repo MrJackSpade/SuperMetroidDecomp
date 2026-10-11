@@ -330,13 +330,13 @@ static void VerifySamusStoredShineAndShinespark()
     AssertEqual(4, horizontal.Shinespark.CrashRadius,
         "crash orbit expands by four");
     AssertEqual(unchecked((ushort)(crashCenterX - 2)),
-        horizontal.HorizontalSpeed.FirstSpeedEchoXPosition,
+        horizontal.HorizontalSpeed.FirstSpeedEchoPosition.X,
         "right-facing first crash echo folds into negative X half");
     AssertEqual(unchecked((ushort)(crashCenterY - 2)),
-        horizontal.HorizontalSpeed.FirstSpeedEchoYPosition,
+        horizontal.HorizontalSpeed.FirstSpeedEchoPosition.Y,
         "right-facing first crash echo folds into negative Y half");
     AssertEqual(unchecked((ushort)(crashCenterX + 2)),
-        horizontal.HorizontalSpeed.SecondSpeedEchoXPosition,
+        horizontal.HorizontalSpeed.SecondSpeedEchoPosition.X,
         "opposite crash echo uses positive X half");
     AssertTrue(!firstCrash.CrashSequenceFinished,
         "first crash orbit frame cannot finish sequence");
@@ -377,7 +377,7 @@ static void VerifySamusStoredShineAndShinespark()
         "horizontal-right second departing echo uses opposite ROM table angle $80");
     AssertEqual(0, horizontal.Shinespark.FirstReleasedCrashEchoRadius,
         "departing projectile radius starts at zero, separate from drawing speed");
-    AssertEqual(crashCenterX, horizontal.Shinespark.FirstReleasedCrashEcho.XPosition,
+    AssertEqual(crashCenterX, horizontal.Shinespark.FirstReleasedCrashEcho.Position.X,
         "departing echo does not move in its spawn frame");
 
     horizontal.Shinespark.StepReleasedCrashEchoProjectiles(
@@ -387,16 +387,16 @@ static void VerifySamusStoredShineAndShinespark()
     AssertEqual(8, horizontal.Shinespark.FirstReleasedCrashEchoRadius,
         "speed-echo pre-instruction expands radius by eight");
     AssertEqual(crashCenterX,
-        horizontal.Shinespark.FirstReleasedCrashEcho.XPosition,
+        horizontal.Shinespark.FirstReleasedCrashEcho.Position.X,
         "angle-zero departing echo has zero X component");
     AssertEqual(unchecked((ushort)(horizontal.Position.Y.Whole - 8)),
-        horizontal.Shinespark.FirstReleasedCrashEcho.YPosition,
+        horizontal.Shinespark.FirstReleasedCrashEcho.Position.Y,
         "angle-zero departing echo uses negative cosine-table Y component");
     AssertEqual(crashCenterX,
-        horizontal.Shinespark.SecondReleasedCrashEcho.XPosition,
+        horizontal.Shinespark.SecondReleasedCrashEcho.Position.X,
         "angle-$80 departing echo has zero X component");
     AssertEqual(unchecked((ushort)(horizontal.Position.Y.Whole + 8)),
-        horizontal.Shinespark.SecondReleasedCrashEcho.YPosition,
+        horizontal.Shinespark.SecondReleasedCrashEcho.Position.Y,
         "angle-$80 departing echo uses positive cosine-table Y component");
 
     // These are vertical rays, recentered on the aligned standing body rather
@@ -455,7 +455,7 @@ static void VerifySamusStoredShineAndShinespark()
     AssertEqual(128, countFour.Shinespark.CrashAngularTravel,
         "capacity-four finish retains the angular-travel word because slot three was not allocated");
     AssertEqual(countFour.Shinespark.CrashAngularTravel,
-        countFour.Shinespark.FirstReleasedCrashEcho.YPosition,
+        countFour.Shinespark.FirstReleasedCrashEcho.Position.Y,
         "inactive first echo Y and crash travel expose the same native word");
     AssertTrue(!countFour.Shinespark.FirstReleasedCrashEcho.Active &&
         countFour.Shinespark.SecondReleasedCrashEcho.Active,

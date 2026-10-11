@@ -473,6 +473,14 @@ internal static class DebuggerStateFieldMigrations
                 Set(fileSelect, "screenFade", fade);
             }),
 
+        // #628: speed-echo and released crash-echo positions, rebuilt from the retired words.
+        new(typeof(SamusHorizontalSpeedState).FullName!, ["<FirstSpeedEchoPosition>k__BackingField"], null,
+            speed => Set(speed, "<FirstSpeedEchoPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(speed, "FirstSpeedEchoXPosition", "FirstSpeedEchoYPosition"))),
+        new(typeof(SamusHorizontalSpeedState).FullName!, ["<SecondSpeedEchoPosition>k__BackingField"], null,
+            speed => Set(speed, "<SecondSpeedEchoPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(speed, "SecondSpeedEchoXPosition", "SecondSpeedEchoYPosition"))),
+        new("SuperMetroid.Core.Game.SamusShinesparkState+ReleasedEchoSlot", ["<Position>k__BackingField"], null,
+            echo => Set(echo, "<Position>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(echo, "XPosition", "YPosition"))),
+
         // #628: grapple spatial values, rebuilt from the retired component words.
         new(typeof(SamusGrappleState).FullName!, ["<Anchor>k__BackingField"], null,
             grapple => Set(grapple, "<Anchor>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(grapple, "AnchorX", "AnchorY"))),

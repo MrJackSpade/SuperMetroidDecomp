@@ -365,13 +365,13 @@ static void VerifySamusHorizontalSpeed()
     // `$90:EEE7` samples post-movement positions only on game-time multiples of four and
     // alternates native word offsets zero/two. These become the two trailing bodies drawn
     // by `$90:87BD`; capture itself deliberately contains no interpolation.
-    AssertTrue(!booster.CaptureSpeedEchoPosition(3, 100, 80), "speed echo skips non-fourth frame");
-    AssertTrue(booster.CaptureSpeedEchoPosition(4, 101, 81), "speed echo captures slot zero");
+    AssertTrue(!booster.CaptureSpeedEchoPosition(3, new(100, 80)), "speed echo skips non-fourth frame");
+    AssertTrue(booster.CaptureSpeedEchoPosition(4, new(101, 81)), "speed echo captures slot zero");
     AssertEqual(2, booster.SpeedEchoIndex, "speed echo advances to slot one");
-    AssertTrue(booster.CaptureSpeedEchoPosition(8, 105, 82), "speed echo captures slot one");
+    AssertTrue(booster.CaptureSpeedEchoPosition(8, new(105, 82)), "speed echo captures slot one");
     AssertEqual(0, booster.SpeedEchoIndex, "speed echo alternation wraps after slot one");
-    AssertEqual(101, booster.FirstSpeedEchoXPosition, "first speed echo X snapshot");
-    AssertEqual(105, booster.SecondSpeedEchoXPosition, "second speed echo X snapshot");
+    AssertEqual(101, booster.FirstSpeedEchoPosition.X, "first speed echo X snapshot");
+    AssertEqual(105, booster.SecondSpeedEchoPosition.X, "second speed echo X snapshot");
 
     booster.CancelRunningMomentum(SamusFacingDirection.Right);
     AssertTrue(booster.NormalSuitPaletteRestoreRequested,
@@ -386,17 +386,17 @@ static void VerifySamusHorizontalSpeed()
     // `$90:87D3-$90:884B` advances slot one, then slot zero as an actual draw side effect.
     // Both stored bodies trail a rightward-running Samus, so +8 approaches X=120 while Y
     // independently approaches 90 by two. Crossing clears a slot before it can emit OAM.
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(1, 120, 90),
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(1, new(120, 90)),
         "right departure slot one remains before crossing");
-    AssertEqual(113, booster.SecondSpeedEchoXPosition,
+    AssertEqual(113, booster.SecondSpeedEchoPosition.X,
         "right departure slot one advances positive eight");
-    AssertEqual(84, booster.SecondSpeedEchoYPosition,
+    AssertEqual(84, booster.SecondSpeedEchoPosition.Y,
         "right departure slot one approaches Samus Y by two");
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, 120, 90),
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, new(120, 90)),
         "right departure slot zero remains before crossing");
-    AssertEqual(109, booster.FirstSpeedEchoXPosition,
+    AssertEqual(109, booster.FirstSpeedEchoPosition.X,
         "right departure slot zero advances positive eight");
-    AssertEqual(83, booster.FirstSpeedEchoYPosition,
+    AssertEqual(83, booster.FirstSpeedEchoPosition.Y,
         "right departure slot zero approaches Samus Y by two");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(0xffff, booster.SpeedEchoIndex,
@@ -407,16 +407,16 @@ static void VerifySamusHorizontalSpeed()
     booster.CancelRunningMomentum(SamusFacingDirection.Left);
     AssertEqual(8, booster.FirstSpeedEchoXSpeed,
         "repeated cancellation cannot reverse an active departure");
-    AssertTrue(!booster.AdvanceDepartingSpeedEcho(1, 120, 90),
+    AssertTrue(!booster.AdvanceDepartingSpeedEcho(1, new(120, 90)),
         "right departure slot one clears on crossing");
-    AssertEqual(0, booster.SecondSpeedEchoXPosition,
+    AssertEqual(0, booster.SecondSpeedEchoPosition.X,
         "crossed slot one publishes empty sentinel");
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, 120, 90),
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, new(120, 90)),
         "right departure slot zero remains one more frame");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(0xffff, booster.SpeedEchoIndex,
         "one surviving departure keeps high-bit index");
-    AssertTrue(!booster.AdvanceDepartingSpeedEcho(0, 120, 90),
+    AssertTrue(!booster.AdvanceDepartingSpeedEcho(0, new(120, 90)),
         "right departure slot zero eventually crosses");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(0, booster.SpeedEchoIndex,
@@ -428,28 +428,26 @@ static void VerifySamusHorizontalSpeed()
     var leftDeparture = new SamusHorizontalSpeedState();
     leftDeparture.SetShinesparkCrashEchoState(
         encodedIndex: 0,
-        firstX: 150,
-        secondX: 154,
-        firstY: 90,
-        secondY: 94);
+        first: new(150, 90),
+        second: new(154, 94));
     leftDeparture.CancelRunningMomentum(SamusFacingDirection.Left);
     AssertEqual(unchecked((ushort)-8), leftDeparture.FirstSpeedEchoXSpeed,
         "left-facing first departure speed is negative eight");
     AssertEqual(unchecked((ushort)-8), leftDeparture.SecondSpeedEchoXSpeed,
         "left-facing second departure speed is negative eight");
-    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(1, 140, 100),
+    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(1, new(140, 100)),
         "left departure slot one remains before crossing");
-    AssertEqual(146, leftDeparture.SecondSpeedEchoXPosition,
+    AssertEqual(146, leftDeparture.SecondSpeedEchoPosition.X,
         "left departure slot one advances negative eight");
-    AssertEqual(96, leftDeparture.SecondSpeedEchoYPosition,
+    AssertEqual(96, leftDeparture.SecondSpeedEchoPosition.Y,
         "left departure slot one approaches Samus Y by two");
-    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(0, 140, 100),
+    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(0, new(140, 100)),
         "left departure slot zero remains before crossing");
-    AssertEqual(142, leftDeparture.FirstSpeedEchoXPosition,
+    AssertEqual(142, leftDeparture.FirstSpeedEchoPosition.X,
         "left departure slot zero advances negative eight");
-    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(1, 140, 100),
+    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(1, new(140, 100)),
         "left departure slot one clears after passing Samus");
-    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(0, 140, 100),
+    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(0, new(140, 100)),
         "left departure slot zero clears after passing Samus");
     leftDeparture.FinishDepartingSpeedEchoFrame();
     AssertEqual(0, leftDeparture.SpeedEchoIndex,

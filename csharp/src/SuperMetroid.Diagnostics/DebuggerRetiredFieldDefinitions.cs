@@ -425,6 +425,14 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Frontend.IntroCinematicState", "fadeDelay")] = Discard,
         [("SuperMetroid.Core.Frontend.IntroRinkaSystem", "rinkas")] = Remember,
         [("SuperMetroid.Core.Frontend.IntroCeresFlightState", "musicQueueTimer")] = Discard,
+        // #628: released crash-echo position words became one position.
+        [("SuperMetroid.Core.Game.SamusShinesparkState+ReleasedEchoSlot", "<XPosition>k__BackingField")] = Remember,
+        [("SuperMetroid.Core.Game.SamusShinesparkState+ReleasedEchoSlot", "<YPosition>k__BackingField")] = Remember,
+        // #628: speed-echo position words became two positions.
+        [(typeof(SamusHorizontalSpeedState).FullName!, "<FirstSpeedEchoXPosition>k__BackingField")] = Remember,
+        [(typeof(SamusHorizontalSpeedState).FullName!, "<SecondSpeedEchoXPosition>k__BackingField")] = Remember,
+        [(typeof(SamusHorizontalSpeedState).FullName!, "<FirstSpeedEchoYPosition>k__BackingField")] = Remember,
+        [(typeof(SamusHorizontalSpeedState).FullName!, "<SecondSpeedEchoYPosition>k__BackingField")] = Remember,
         // #628: grapple anchor, rope, flare, velocity and offset words became spatial values.
         [(typeof(SamusGrappleState).FullName!, "<AnchorX>k__BackingField")] = Remember,
         [(typeof(SamusGrappleState).FullName!, "<AnchorY>k__BackingField")] = Remember,

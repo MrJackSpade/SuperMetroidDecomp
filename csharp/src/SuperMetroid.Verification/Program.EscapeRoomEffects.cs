@@ -34,7 +34,7 @@ internal static partial class Program
                     var actual = SoftwareLayeredSnapshotRenderer.Render(capture);
                     var noObjects = new OrdinaryGameplayRenderLayer(layer.Registers with
                     { MainScreenLayers = layer.Registers.MainScreenLayers & ~SnesMainScreenLayers.Obj },
-                        layer.HorizontalScrolls, layer.VerticalScrolls);
+                        layer.Bg2LineScrolls);
                     var baseline = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [noObjects], capture.ObjectSelection, capture.Brightness));
                     foreach (var sprite in runtime.Enemies.RoomSpriteObjects.Where(s => s.IsActive))
                     {
@@ -50,7 +50,7 @@ internal static partial class Program
                     var stationary = new OrdinaryGameplayRenderLayer(noObjects.Registers with
                     {
                         Bg1Scroll = layer.Registers.Bg1Scroll - displayedShake.Bg1
-                    }, layer.HorizontalScrolls, layer.VerticalScrolls);
+                    }, layer.Bg2LineScrolls);
                     var unshaken = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [stationary], capture.ObjectSelection, capture.Brightness));
                     visibleShake |= baseline.Where((pixel, index) => index >= 32 * 256 && pixel != unshaken[index]).Count() > 500;
                     AssertTrue(baseline.AsSpan(0, 32 * 256).SequenceEqual(unshaken.AsSpan(0, 32 * 256)), "escape shake does not move HUD");

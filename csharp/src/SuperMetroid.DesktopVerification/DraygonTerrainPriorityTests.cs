@@ -67,7 +67,7 @@ internal static partial class Program
     {
         var layer = (OrdinaryGameplayRenderLayer)capture.Layers[0];
         var r = layer.Registers;
-        if (!layer.HorizontalScrolls.IsEmpty || !layer.VerticalScrolls.IsEmpty ||
+        if (!layer.Bg2LineScrolls.Horizontal.IsEmpty || !layer.Bg2LineScrolls.Vertical.IsEmpty ||
             r.MainScreenWindowMask != SnesMainScreenLayers.None)
             throw new InvalidOperationException("Draygon priority audit requires the ordinary BG scroll path.");
         var isolated = new OrdinaryGameplayRenderLayer(r with

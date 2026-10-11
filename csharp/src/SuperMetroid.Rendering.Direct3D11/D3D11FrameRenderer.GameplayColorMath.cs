@@ -38,9 +38,9 @@ public sealed partial class D3D11FrameRenderer
         for (int y = 32; y < 224; y++)
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4, line = y - 32;
-            data[offset] = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2Scroll.X : layer.Gameplay.HorizontalScrolls[line];
-            ushort verticalScroll = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Scroll.Y : layer.Gameplay.VerticalScrolls[line];
-            data[offset + 1] = unchecked((ushort)(verticalScroll + SnesPpuLayout.FirstVisibleBackgroundScanline));
+            var scroll = layer.Gameplay.Bg2ScrollAt(line);
+            data[offset] = scroll.X;
+            data[offset + 1] = unchecked((ushort)(scroll.Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
             data[offset + 2] = (uint)(layer.Lines[y].Left | layer.Lines[y].Right << 8);
             // The high half carries the main-screen enable register for this line;
             // the low half retains the independent color-window edges.

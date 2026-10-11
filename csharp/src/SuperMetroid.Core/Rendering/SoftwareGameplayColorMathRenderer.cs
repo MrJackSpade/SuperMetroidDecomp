@@ -141,9 +141,8 @@ public static class SoftwareGameplayColorMathRenderer
     private static Position16<BgPlanePixels> Bg2Source(OrdinaryGameplayRegisters r, OrdinaryGameplayRenderLayer gameplay,
         int lineIndex, Position16<ScreenPixels> screen)
     {
-        ushort horizontal = gameplay.HorizontalScrolls.IsEmpty ? r.Bg2Scroll.X : gameplay.HorizontalScrolls[lineIndex];
-        ushort vertical = gameplay.VerticalScrolls.IsEmpty ? r.Bg2Scroll.Y : gameplay.VerticalScrolls[lineIndex];
-        return new(unchecked((ushort)r.Bg2Mosaic.SourceX(screen.X, horizontal)),
-            unchecked((ushort)r.Bg2Mosaic.SourceY(screen.Y, vertical)));
+        Position16<Bg2Pixels> scroll = gameplay.Bg2ScrollAt(lineIndex);
+        return new(unchecked((ushort)r.Bg2Mosaic.SourceX(screen.X, scroll.X)),
+            unchecked((ushort)r.Bg2Mosaic.SourceY(screen.Y, scroll.Y)));
     }
 }

@@ -137,9 +137,9 @@ internal static class XrayGameplayTests
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(Word(), Word()), new Position16<Bg2Pixels>(Word(), Word()),
                 frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64), Word(), Word(), Word(), Word(),
                 (SnesMainScreenLayers)(random.Next(32) & 0x13));
-            var gameplay = new OrdinaryGameplayRenderLayer(registers,
+            var gameplay = new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray(),
-                Enumerable.Range(0, 192).Select(_ => Word()).ToArray());
+                Enumerable.Range(0, 192).Select(_ => Word()).ToArray()));
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
             var bg3 = new Bg2BppColorMathRenderLayer(Word(), Word(), frame % 2 == 0 ? 32 : 64, 32,
                 ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<BgPlanePixels>(Word(), Word())).ToArray());

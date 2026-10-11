@@ -48,7 +48,7 @@ public static partial class GameplayDisplayCapture
         // Reveal BG2 must not inherit the room's parallax or liquid HDMA. Excluded
         // rooms retain their original map and per-line register values.
         var gameplay = reveal ? new OrdinaryGameplayRenderLayer(registers)
-            : new OrdinaryGameplayRenderLayer(registers, ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
+            : new OrdinaryGameplayRenderLayer(registers, ordinary.Bg2LineScrolls);
         var sub = mode != XrayRoomBlendMode.Fireflea && runtime.DisplayedRoomLayer3Fx is { } fx
             ? SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx) : null;
         if (mode != XrayRoomBlendMode.Fireflea && sub is null)

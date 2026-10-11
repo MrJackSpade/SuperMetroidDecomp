@@ -48,6 +48,11 @@ dotnet_diagnostic.SME6277.severity = error
 dotnet_diagnostic.SME6278.severity = error
 # #627: a masked local compared against several values is a hand-decoded selector.
 dotnet_diagnostic.SME6279.severity = error
+# #628: spatial values are typed, never parallel components, parameters or collections.
+dotnet_diagnostic.SME6280.severity = error
+dotnet_diagnostic.SME6281.severity = error
+dotnet_diagnostic.SME6282.severity = error
+dotnet_diagnostic.SME6283.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
 # #620: advisory until the existing reusable guards are migrated.

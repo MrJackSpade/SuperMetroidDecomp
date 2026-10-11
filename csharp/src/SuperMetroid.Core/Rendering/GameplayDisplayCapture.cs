@@ -131,12 +131,12 @@ public static partial class GameplayDisplayCapture
             Bg2Mosaic: BackgroundMosaicSampling.ForBg2(runtime.Enemies.Phantoon?.Blending.DisplayedMosaic ?? 0));
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
-        var layer = new OrdinaryGameplayRenderLayer(registers,
+        var layer = new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(
             VisibleLines(runtime.Enemies.Phantoon?.Wave.DisplayedScrolls ?? lavaX ?? waterX ?? skyX),
             VisibleLines(crocomireBg
                 ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
                     ? melting.Bg2ScrollByScanline : null
-                : lavaY),
+                : lavaY)),
             runtime.DoorTransitionMainScreenLayers is null && runtime.Enemies.MotherBrain?.RisingHdmaActive == true
                 ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default);
         return new(PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedOam),

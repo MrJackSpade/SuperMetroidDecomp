@@ -12,8 +12,8 @@ public static partial class RenderFrameSnapshotCodec
         WriteMapSize(writer, r.Bg2MapSize); writer.Write(r.Bg2TilemapWord);
         writer.Write(r.Bg1CharacterWord); writer.Write(r.Bg2CharacterWord); writer.Write(r.HudCharacterWord);
         writer.Write((byte)r.MainScreenLayers);
-        WriteScrolls(writer, layer.HorizontalScrolls);
-        WriteScrolls(writer, layer.VerticalScrolls);
+        WriteScrolls(writer, layer.Bg2LineScrolls.Horizontal);
+        WriteScrolls(writer, layer.Bg2LineScrolls.Vertical);
         SnesWindowRegisters w = r.Windows;
         writer.Write(w.Window12Selection); writer.Write(w.Window34Selection); writer.Write(w.ObjectColorSelection);
         writer.Write(w.FirstLeft); writer.Write(w.FirstRight); writer.Write(w.SecondLeft); writer.Write(w.SecondRight);
@@ -42,7 +42,7 @@ public static partial class RenderFrameSnapshotCodec
         if (version >= RenderPacketFormat.GameplayMosaicVersion)
             registers = registers with { Bg2Mosaic = new(reader.ReadByte()) };
         ushort[] mainScreen = version >= RenderPacketFormat.GameplayMainScreenHdmaVersion ? ReadScrolls(reader) : [];
-        return new(registers, horizontal, vertical, mainScreen);
+        return new(registers, new Bg2HdmaScrollTables(horizontal, vertical), mainScreen);
     }
 
     private static void WriteScrolls(BinaryWriter writer, ReadOnlySpan<ushort> values)

@@ -2,7 +2,7 @@
 
 Spatial data — positions, displacements, velocities, sizes and radii — is carried as one typed
 value, never as parallel X/Y, width/height or horizontal/vertical scalars. The types live in
-`csharp/src/SuperMetroid.Core/Spatial` and the analyzer rules SME6280-SME628x enforce them.
+`csharp/src/SuperMetroid.Core/Spatial` and the analyzer rules SME6280-SME6283 (errors) enforce them.
 
 ## Coordinate spaces
 
@@ -108,7 +108,8 @@ the wrapped value (collision and PLM grid probes).
   `WithX`/`WithY` or a named domain operation.
 - Methods that accept or return one location/vector/size take one typed value, not adjacent
   scalar parameters or tuples.
-- Collections store spatial values, not parallel component arrays.
+- Collections store spatial values, not parallel component arrays. Independent hardware streams
+  (the BG2 HDMA scroll tables, `Bg2HdmaScrollTables`) are one adapter type that answers per-line values.
 - Components are split only at exact boundaries — native WRAM/save-state/snapshot codecs,
   hardware registers, rendering-backend and P/Invoke adapters, and external file formats (the
   JSON document record itself) — through one named codec operation, and those declarations carry

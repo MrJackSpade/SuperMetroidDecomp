@@ -54,15 +54,15 @@ internal static partial class Program
         scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
         ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
         var bgOnly = new OrdinaryGameplayRenderLayer(ordinary.Registers with { MainScreenLayers = SnesMainScreenLayers.Bg2 },
-            ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
+            ordinary.Bg2LineScrolls);
         var background = SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { bgOnly }, scene.ObjectSelection, scene.Brightness));
         // Force the native BG2SC=$4A layout independently of the capture's selected dimensions.
         var nativeLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2MapSize = new Extent16<TilemapCells>(32, 64) },
-            ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
+            ordinary.Bg2LineScrolls);
         var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { nativeLayout }, scene.ObjectSelection, scene.Brightness));
         AssertTrue(background.SequenceEqual(expectedPixels), "ocean background has no horizontal insertion of the vertical page");
         var wrongLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2MapSize = new Extent16<TilemapCells>(64, 32) },
-            ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
+            ordinary.Bg2LineScrolls);
         var wrongPixels = SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { wrongLayout }, scene.ObjectSelection, scene.Brightness));
         AssertEqual(32, bgOnly.Registers.Bg2FirstScanline, "accepted ocean NMI exposes BG2 below the HUD");
         AssertEqual(224, bgOnly.Registers.Bg2EndScanline, "accepted ocean NMI exposes the full gameplay height");

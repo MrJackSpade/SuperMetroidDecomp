@@ -36,7 +36,7 @@ internal static class BackgroundMosaicTests
                 SnesMainScreenLayers.Obj | (mode == 2 ? SnesMainScreenLayers.None : SnesMainScreenLayers.Bg2) |
                     (mode == 3 ? SnesMainScreenLayers.Bg1 : SnesMainScreenLayers.None),
                 Bg2Mosaic: new(size));
-            var ordinary = new OrdinaryGameplayRenderLayer(registers, horizontal, vertical);
+            var ordinary = new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(horizontal, vertical));
             RenderLayer layer = mode is 0 or 3 ? ordinary : new GameplayColorMathRenderLayer(ordinary,
                 Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false,
                 mode == 2 ? SnesColorMathControl.Backdrop : SnesColorMathControl.None,

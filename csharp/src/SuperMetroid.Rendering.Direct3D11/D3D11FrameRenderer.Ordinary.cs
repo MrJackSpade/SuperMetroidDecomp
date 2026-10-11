@@ -67,9 +67,9 @@ public sealed partial class D3D11FrameRenderer
         {
             int line = y - SnesPpuLayout.GameplayHudHeightPixels;
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            data[offset] = layer.HorizontalScrolls.IsEmpty ? r.Bg2Scroll.X : layer.HorizontalScrolls[line];
-            ushort verticalScroll = layer.VerticalScrolls.IsEmpty ? r.Bg2Scroll.Y : layer.VerticalScrolls[line];
-            data[offset + 1] = unchecked((ushort)(verticalScroll + SnesPpuLayout.FirstVisibleBackgroundScanline));
+            var scroll = layer.Bg2ScrollAt(line);
+            data[offset] = scroll.X;
+            data[offset + 1] = unchecked((ushort)(scroll.Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);

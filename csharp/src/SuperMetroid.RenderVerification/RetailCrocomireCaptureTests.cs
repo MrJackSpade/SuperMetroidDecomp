@@ -27,7 +27,7 @@ internal static class RetailCrocomireCaptureTests
             runtime.StepFrame(0);
             var scene = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
             var baseLayer = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-            if (!baseLayer.VerticalScrolls.IsEmpty || death.MeltingHdmaActive)
+            if (!baseLayer.Bg2LineScrolls.Vertical.IsEmpty || death.MeltingHdmaActive)
                 throw new InvalidOperationException("Crocomire fight incorrectly enabled melting HDMA.");
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
             PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime),

@@ -35,7 +35,7 @@ internal static partial class Program
                 x.Length == 0 ? null : x, y.Length == 0 ? null : y,
                 mapSize, registers.Bg2TilemapWord, registers.Bg1CharacterWord,
                 registers.Bg2CharacterWord, registers.HudCharacterWord, mainScreenLayers: layers);
-            var layer = new OrdinaryGameplayRenderLayer(registers, x, y);
+            var layer = new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(x, y));
             // Mutating both caller arrays after capture must not alter retained HDMA.
             Array.Fill(x, (ushort)1234);
             Array.Fill(y, (ushort)5678);
@@ -50,7 +50,7 @@ internal static partial class Program
                     old.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.Bg2ViewportLayerVersion);
                 AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(old),
                     "older format cannot contain gameplay layer");
-                AssertThrows<ArgumentException>(() => new OrdinaryGameplayRenderLayer(registers, new ushort[1]),
+                AssertThrows<ArgumentException>(() => new Bg2HdmaScrollTables(new ushort[1], default),
                     "reject partial gameplay HDMA");
                 AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,
                     new RenderLayer[] { new ObjRenderLayer(), layer }, 3, 15), "base cannot erase prior operations");

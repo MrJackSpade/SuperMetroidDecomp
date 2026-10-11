@@ -33,39 +33,32 @@ public readonly record struct OrdinaryGameplayRegisters(
 /// </summary>
 public sealed record OrdinaryGameplayRenderLayer : RenderLayer
 {
-    private readonly ushort[] horizontalScrolls;
-    private readonly ushort[] verticalScrolls;
     private readonly ushort[] mainScreenLayersByLine;
     /// <summary>Captured register values for this composition operation; PPU memory and OAM belong to the enclosing render snapshot, not this value.</summary>
     public OrdinaryGameplayRegisters Registers { get; }
-    /// <summary>Owned BG2 horizontal register replacements for physical lines 32..223, indexed 0..191; empty means use the X of <see cref="OrdinaryGameplayRegisters.Bg2Scroll"/> on every line.</summary>
-    public ReadOnlySpan<ushort> HorizontalScrolls => horizontalScrolls;
-    /// <summary>Owned BG2 vertical register replacements for physical lines 32..223, before the renderer's visible-line adjustment; empty means use the Y of <see cref="OrdinaryGameplayRegisters.Bg2Scroll"/> on every line.</summary>
-    public ReadOnlySpan<ushort> VerticalScrolls => verticalScrolls;
+    /// <summary>Owned BG2 HDMA scroll replacements for physical lines 32..223; an inactive axis uses <see cref="OrdinaryGameplayRegisters.Bg2Scroll"/> on every line.</summary>
+    public Bg2HdmaScrollTables Bg2LineScrolls { get; }
     /// <summary>Owned TM layer-enable words for physical lines 32..223; nonempty entries replace the fallback gameplay mask, not the separate TMW window mask or fixed HUD composition.</summary>
     public ReadOnlySpan<ushort> MainScreenLayersByLine => mainScreenLayersByLine;
 
     /// <summary>Captures immutable register inputs and copies optional scanline tables for the first backdrop/HUD/BG/OBJ operation; Mode-1 priority composition precedes later color-math and overlay operations.</summary>
     /// <param name="registers">Captured Mode-1 state with a 32- or 64-cell BG2 tilemap on each axis.</param>
-    /// <param name="horizontalScrolls">Empty or exactly 192 BG2 horizontal pixel-register values; index zero corresponds to physical line 32.</param>
-    /// <param name="verticalScrolls">Empty or exactly 192 BG2 vertical pixel-register values; these are literal offsets, not precomputed source-row coordinates.</param>
+    /// <param name="bg2LineScrolls">Optional BG2 HDMA scroll replacements for physical lines 32..223.</param>
     /// <param name="mainScreenLayersByLine">Empty or exactly 192 TM replacement masks in <see cref="SnesMainScreenLayers"/> encoding.</param>
-    /// <exception cref="ArgumentException">BG2 dimensions are unsupported or a nonempty scanline table does not contain exactly 192 values.</exception>
+    /// <exception cref="ArgumentException">BG2 dimensions are unsupported or a nonempty TM table does not contain exactly 192 values.</exception>
     public OrdinaryGameplayRenderLayer(OrdinaryGameplayRegisters registers,
-        ReadOnlySpan<ushort> horizontalScrolls = default, ReadOnlySpan<ushort> verticalScrolls = default,
-        ReadOnlySpan<ushort> mainScreenLayersByLine = default)
+        Bg2HdmaScrollTables bg2LineScrolls = default, ReadOnlySpan<ushort> mainScreenLayersByLine = default)
     {
         if (registers.Bg2MapSize.X is not (32 or 64) || registers.Bg2MapSize.Y is not (32 or 64)
             || registers.Bg2MapSize.X * registers.Bg2MapSize.Y is not (1024 or 2048 or 4096))
             throw new ArgumentException("Gameplay BG2 requires 32 or 64 tiles on each axis.", nameof(registers));
-        int lines = SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels;
-        if ((!horizontalScrolls.IsEmpty && horizontalScrolls.Length != lines)
-            || (!verticalScrolls.IsEmpty && verticalScrolls.Length != lines)
-            || (!mainScreenLayersByLine.IsEmpty && mainScreenLayersByLine.Length != lines))
+        if (!mainScreenLayersByLine.IsEmpty && mainScreenLayersByLine.Length != Bg2HdmaScrollTables.GameplayLines)
             throw new ArgumentException("Gameplay HDMA tables must contain exactly 192 register values.");
         Registers = registers;
-        this.horizontalScrolls = horizontalScrolls.ToArray();
-        this.verticalScrolls = verticalScrolls.ToArray();
+        Bg2LineScrolls = bg2LineScrolls;
         this.mainScreenLayersByLine = mainScreenLayersByLine.ToArray();
     }
+
+    /// <summary>The BG2 scroll registers on gameplay line <paramref name="line"/> (0..191).</summary>
+    public Position16<Bg2Pixels> Bg2ScrollAt(int line) => Bg2LineScrolls.At(line, Registers.Bg2Scroll);
 }

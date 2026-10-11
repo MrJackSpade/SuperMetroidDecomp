@@ -57,7 +57,7 @@ internal static class RetailRoomPublicationTests
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
                 if (fx == PublishedFx.Heat &&
                     (packet.Layers!.Layers[0] is not OrdinaryGameplayRenderLayer heat ||
-                    heat.VerticalScrolls.ToArray().Distinct().Count() != 3))
+                    heat.Bg2LineScrolls.Vertical.ToArray().Distinct().Count() != 3))
                     throw new InvalidOperationException("Heat packet lost the three-valued vertical distortion table.");
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: room {room:X4} publication {tick}");

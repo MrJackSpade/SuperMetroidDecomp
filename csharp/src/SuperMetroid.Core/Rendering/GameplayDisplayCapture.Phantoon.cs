@@ -15,7 +15,7 @@ public static partial class GameplayDisplayCapture
         var gameplay = new OrdinaryGameplayRenderLayer(ordinary.Registers with
         {
             MainScreenLayers = ordinary.Registers.MainScreenLayers & ~SnesMainScreenLayers.Bg2,
-        }, ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
+        }, ordinary.Bg2LineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
         // $88:80D9: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
         // IRQ band; below it BG2 adds to eligible main sources, never occluding BG1.

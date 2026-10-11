@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace SuperMetroid.EnsureAnalyzer;
 
@@ -16,6 +17,32 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
 
     /// <summary>A signature passes one spatial value as adjacent scalar parameters.</summary>
     public const string ParameterClumpId = "SME6281";
+
+    /// <summary>A type keeps the components of one spatial value in parallel collections.</summary>
+    public const string CollectionClumpId = "SME6282";
+
+    /// <summary>A spatial value is rebuilt component by component where a whole-value operation exists.</summary>
+    public const string ComponentArithmeticId = "SME6283";
+
+    private static readonly DiagnosticDescriptor CollectionClumpRule = new(
+        CollectionClumpId,
+        "Spatial values stored as parallel collections",
+        "'{0}' and '{1}' of {2} hold the {3} components of one spatial value per element; store a collection of typed spatial values",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Parallel X/Y (or width/height, horizontal/vertical) arrays or lists indexed by the same element must be one " +
+            "collection of spatial values unless a measured data-oriented layout is encapsulated behind [SpatialComponents].");
+
+    private static readonly DiagnosticDescriptor ComponentArithmeticRule = new(
+        ComponentArithmeticId,
+        "Spatial value rebuilt component by component",
+        "{0} is built from per-axis '{1}' of '{2}' and '{3}'; use the whole-value operator",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A spatial value constructed from the per-axis sum or difference of two spatial values duplicates the " +
+            "type's whole-value operator and its wrap rules.");
 
     /// <summary>Marks an approved spatial value type or a narrow storage/hardware adapter.</summary>
     public const string SpatialComponentsAttributeName = "SpatialComponentsAttribute";
@@ -48,7 +75,8 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
     ];
 
     /// <inheritdoc />
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [MemberClumpRule, ParameterClumpRule];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+        [MemberClumpRule, ParameterClumpRule, CollectionClumpRule, ComponentArithmeticRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -57,7 +85,55 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
         context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
+        context.RegisterOperationAction(AnalyzeConstruction, OperationKind.ObjectCreation);
     }
+
+    private static void AnalyzeConstruction(OperationAnalysisContext context)
+    {
+        var creation = (IObjectCreationOperation)context.Operation;
+        if (creation.Type is not INamedTypeSymbol type || !IsSpatialValueType(type) || creation.Arguments.Length != 2 ||
+            IsExempt(context.ContainingSymbol))
+            return;
+        if (Unwrap(creation.Arguments[0].Value) is not IBinaryOperation first ||
+            Unwrap(creation.Arguments[1].Value) is not IBinaryOperation second ||
+            first.OperatorKind != second.OperatorKind ||
+            first.OperatorKind is not (BinaryOperatorKind.Add or BinaryOperatorKind.Subtract))
+            return;
+        // Both arguments must combine the X then Y members of the same two spatial receivers.
+        if (AxisOf(first.LeftOperand, "X") is not { } leftX || AxisOf(first.RightOperand, "X") is not { } rightX ||
+            AxisOf(second.LeftOperand, "Y") is not { } leftY || AxisOf(second.RightOperand, "Y") is not { } rightY ||
+            leftX != leftY || rightX != rightY)
+            return;
+        // Only a same-type combination duplicates an operator; building one space from another
+        // (room minus camera as a screen position) is a named conversion.
+        if (!SymbolEqualityComparer.Default.Equals(ReceiverType(first.LeftOperand), type) ||
+            !SymbolEqualityComparer.Default.Equals(ReceiverType(first.RightOperand), type))
+            return;
+        context.ReportDiagnostic(Diagnostic.Create(ComponentArithmeticRule, creation.Syntax.GetLocation(),
+            type.Name, first.OperatorKind == BinaryOperatorKind.Add ? "+" : "-", leftX, rightX));
+    }
+
+    /// <summary>The receiver text when <paramref name="operand"/> reads axis <paramref name="axis"/> of a spatial value.</summary>
+    private static string? AxisOf(IOperation operand, string axis) =>
+        Unwrap(operand) is IPropertyReferenceOperation { Instance: { } instance } property &&
+        property.Property.Name == axis && instance.Type is INamedTypeSymbol owner && IsSpatialValueType(owner)
+            ? instance.Syntax.ToString()
+            : null;
+
+    private static ITypeSymbol? ReceiverType(IOperation operand) =>
+        Unwrap(operand) is IPropertyReferenceOperation { Instance: { } instance } ? instance.Type : null;
+
+    private static IOperation Unwrap(IOperation operation)
+    {
+        while (operation is IConversionOperation conversion)
+            operation = conversion.Operand;
+        return operation;
+    }
+
+    private static bool IsSpatialValueType(INamedTypeSymbol type) =>
+        type.IsValueType && type.GetAttributes().Any(attribute =>
+            attribute.AttributeClass?.Name == SpatialComponentsAttributeName) &&
+        type.GetMembers("X").Any() && type.GetMembers("Y").Any();
 
     private static void AnalyzeType(SymbolAnalysisContext context)
     {
@@ -69,6 +145,18 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
             .Select(member => (Member: member, Type: ScalarType(member)))
             .Where(entry => entry.Type is not null)
             .ToArray();
+        ReportPairs(context, type, members, MemberClumpRule);
+        var collections = type.GetMembers()
+            .Where(member => !member.IsImplicitlyDeclared && member.Locations.Any(location => location.IsInSource))
+            .Select(member => (Member: member, Type: CollectionType(member)))
+            .Where(entry => entry.Type is not null)
+            .ToArray();
+        ReportPairs(context, type, collections, CollectionClumpRule);
+    }
+
+    private static void ReportPairs(SymbolAnalysisContext context, INamedTypeSymbol type,
+        (ISymbol Member, ITypeSymbol? Type)[] members, DiagnosticDescriptor rule)
+    {
         var reported = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
         foreach ((ISymbol first, ITypeSymbol? firstType) in members)
         {
@@ -86,7 +174,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
                     continue;
                 reported.Add(first);
                 reported.Add(second);
-                context.ReportDiagnostic(Diagnostic.Create(MemberClumpRule, first.Locations[0],
+                context.ReportDiagnostic(Diagnostic.Create(rule, first.Locations[0],
                     first.Name, second.Name, type.Name, axis));
                 break;
             }
@@ -142,6 +230,27 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
             }
         }
         return null;
+    }
+
+    /// <summary>The collection type of an array or list member whose elements are scalars.</summary>
+    private static ITypeSymbol? CollectionType(ISymbol member)
+    {
+        ITypeSymbol? type = member switch
+        {
+            IFieldSymbol { IsConst: false } field => field.Type,
+            IPropertySymbol { IsIndexer: false } property => property.Type,
+            _ => null,
+        };
+        ITypeSymbol? element = type switch
+        {
+            IArrayTypeSymbol array => array.ElementType,
+            INamedTypeSymbol { IsGenericType: true, TypeArguments.Length: 1 } generic when
+                generic.Name is "List" or "IList" or "IReadOnlyList" or "ImmutableArray" or "ReadOnlyCollection" or
+                    "Span" or "ReadOnlySpan" or "Memory" =>
+                generic.TypeArguments[0],
+            _ => null,
+        };
+        return element is not null && IsScalar(element) ? type : null;
     }
 
     private static ITypeSymbol? ScalarType(ISymbol member) => member switch

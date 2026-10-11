@@ -24,15 +24,22 @@ DIAGNOSTIC = re.compile(
 RULES = {
     "SME6280": "spatial value stored as parallel components",
     "SME6281": "spatial value passed as parallel parameters",
+    "SME6282": "spatial values stored as parallel collections",
+    "SME6283": "spatial value rebuilt component by component",
 }
 
 
-def owner_of(rule, message):
-    if rule == "SME6280":
-        match = re.search(r" of (\w+) are the ", message)
-    else:
-        match = re.search(r" of ([\w.]+) are the ", message)
-    return match.group(1) if match else "unknown"
+def owner_of(rule, message, path):
+    patterns = {
+        "SME6280": r" of (\w+) are the ",
+        "SME6281": r" of ([\w.]+) are the ",
+        "SME6282": r" of (\w+) hold the ",
+    }
+    if rule in patterns:
+        match = re.search(patterns[rule], message)
+        return match.group(1) if match else "unknown"
+    # SME6283 names no owner type: group component arithmetic by file.
+    return path.rsplit("/", 1)[-1]
 
 
 def main(log_path):
@@ -48,7 +55,7 @@ def main(log_path):
     previous = json.loads(INVENTORY.read_text(encoding="utf-8")) if INVENTORY.exists() else {}
     groups = collections.defaultdict(list)
     for (path, line_number, column, rule), message in sorted(findings.items()):
-        groups[owner_of(rule, message)].append({
+        groups[owner_of(rule, message, path)].append({
             "file": path, "line": line_number, "column": column,
             "rule": rule, "message": message, "status": "open",
         })

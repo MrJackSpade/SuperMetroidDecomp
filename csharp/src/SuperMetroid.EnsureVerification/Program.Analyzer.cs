@@ -71,6 +71,35 @@ internal static partial class Program
         }
     }
 
+    /// <summary>#628 spatial data-clump rules: positive and negative cases for each diagnostic.</summary>
+    private static void VerifySpatialClumpAnalyzer()
+    {
+        var analyzer = new SpatialClumpAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer);
+        const string attribute = "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SpatialComponentsAttribute(string reason) : System.Attribute { }";
+
+        // SME6280: paired X/Y, width/height or horizontal/vertical members of one type.
+        Expect("class Camera { public ushort CameraX { get; set; } public ushort CameraY { get; set; } }",
+            SpatialClumpAnalyzer.MemberClumpId, "'CameraX' and 'CameraY'");
+        Expect("class Kinematics { public ushort ExtraXDisplacement; public ushort ExtraYDisplacement; }",
+            SpatialClumpAnalyzer.MemberClumpId, "X/Y components");
+        Expect("class Box { public int Width; public int Height; }",
+            SpatialClumpAnalyzer.MemberClumpId, "width/height");
+        // A spatial value type or a declared boundary adapter, unrelated names, or different types pass.
+        Expect(attribute + " [SpatialComponents(\"value\")] struct Point { public ushort X; public ushort Y; }");
+        Expect("class C { public int MaxValue; public int MaxCount; public ushort X; public int Y; }");
+        Expect("class C { public int Index; public int Xenon; public int Yield; }");
+
+        // SME6281: adjacent paired parameters.
+        Expect("class C { void Move(ushort cameraX, ushort cameraY) { } }",
+            SpatialClumpAnalyzer.ParameterClumpId, "'cameraX' and 'cameraY'");
+        Expect("class C { void Draw(int x, int y, int palette) { } }",
+            SpatialClumpAnalyzer.ParameterClumpId, "'x' and 'y'");
+        Expect(attribute + " class C { [SpatialComponents(\"hardware\")] void Write(ushort x, ushort y) { } }");
+        Expect("class C { void M(int x, int count, int y) { } }");
+    }
+
     /// <summary>#627 primitive-domain rules: positive and negative cases for each diagnostic.</summary>
     private static void VerifyPrimitiveDomainAnalyzer()
     {

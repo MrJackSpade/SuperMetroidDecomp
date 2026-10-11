@@ -38,6 +38,11 @@ internal static class DebuggerSpatialFieldMerges
         where TSpace : ISpatialSpace =>
         new(SignedWord(instance, x), SignedWord(instance, y));
 
+    /// <summary>A signed 8.8 velocity from the two retired unsigned axis words.</summary>
+    internal static Vector88<TSpace> Vector88FromWords<TSpace>(object instance, string x, string y)
+        where TSpace : ISpatialSpace =>
+        new(unchecked((short)Word(instance, x)), unchecked((short)Word(instance, y)));
+
     /// <summary>A 16.16 position from the four retired whole/subpixel words.</summary>
     internal static FixedPosition<TSpace> FixedPosition<TSpace>(
         object instance, string xWhole, string xFraction, string yWhole, string yFraction)

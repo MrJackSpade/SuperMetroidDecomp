@@ -425,6 +425,9 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Frontend.IntroCinematicState", "fadeDelay")] = Discard,
         [("SuperMetroid.Core.Frontend.IntroRinkaSystem", "rinkas")] = Remember,
         [("SuperMetroid.Core.Frontend.IntroCeresFlightState", "musicQueueTimer")] = Discard,
+        // #628: Mother Brain forced Samus velocity words became one 8.8 velocity.
+        [(typeof(MotherBrainRainbowBeamSamusMovement).FullName!, "<CustomXVelocity>k__BackingField")] = Remember,
+        [(typeof(MotherBrainRainbowBeamSamusMovement).FullName!, "<CustomYVelocity>k__BackingField")] = Remember,
         // #628: Samus spritemap-origin words became one screen position.
         [(typeof(SamusState).FullName!, "<SpritemapXPosition>k__BackingField")] = Remember,
         [(typeof(SamusState).FullName!, "<SpritemapYPosition>k__BackingField")] = Remember,

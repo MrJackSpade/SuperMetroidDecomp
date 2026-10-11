@@ -472,6 +472,10 @@ internal static class DebuggerStateFieldMigrations
                 Set(fileSelect, "screenFade", fade);
             }),
 
+        // #628: Mother Brain forced Samus velocity words became one 8.8 velocity.
+        new(typeof(MotherBrainRainbowBeamSamusMovement).FullName!, ["<CustomVelocity>k__BackingField"], null,
+            value => Set(value, "<CustomVelocity>k__BackingField", DebuggerSpatialFieldMerges.Vector88FromWords<RoomPixels>(value, "CustomXVelocity", "CustomYVelocity"))),
+
         // #628: Samus spritemap-origin words became one screen position.
         new(typeof(SamusState).FullName!, ["<SpritemapPosition>k__BackingField"], null,
             value => Set(value, "<SpritemapPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<ScreenPixels>(value, "SpritemapXPosition", "SpritemapYPosition"))),

@@ -39,8 +39,8 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     movement.BeginFallingAfterRainbowBeam();
     MotherBrainForcedSamusMovementResult first =
         movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual(0xff02, movement.CustomXVelocity, "rainbow fall first eased X velocity");
-    AssertEqual(0x0018, movement.CustomYVelocity, "rainbow fall first accelerated Y velocity");
+    AssertEqual(new Vector88<RoomPixels>(unchecked((short)0xff02), 0x0018), movement.CustomVelocity,
+        "rainbow fall first eased X and accelerated Y velocity");
     AssertEqual(100, samus.Position.X.Whole, "rainbow fall signed X plus fractional carry");
     AssertEqual(0x01aa, samus.Kinematics.Position.X.Fraction, "rainbow fall preserves X low sub-byte");
     AssertEqual(101, samus.Position.Y.Whole, "rainbow fall Y fractional carry");
@@ -52,9 +52,9 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     // there instead of allowing a positive recoil; subsequent calls must remain zero.
     for (int call = 1; call < 128; call++)
         movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual(0, movement.CustomXVelocity, "rainbow fall X easing clamps at zero");
+    AssertEqual(0, movement.CustomVelocity.X, "rainbow fall X easing clamps at zero");
     movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual(0, movement.CustomXVelocity, "rainbow fall X easing stays zero");
+    AssertEqual(0, movement.CustomVelocity.X, "rainbow fall X easing stays zero");
     AssertEqual(0x00c0, samus.Position.Y.Whole, "rainbow fall clamps at arena floor Y $C0");
     AssertEqual(0, samus.Kinematics.Position.Y.Fraction, "arena floor clamp clears Y subposition");
 

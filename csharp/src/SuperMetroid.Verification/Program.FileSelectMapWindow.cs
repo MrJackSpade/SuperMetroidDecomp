@@ -142,7 +142,7 @@ internal static partial class Program
             if (area != 0)
                 AssertEqual(0x4a52, graphics.Cgram.Colors[86], "switching area restores Crateria inactive color");
             for (int offset = 0; offset < FileSelectMapRomData.TilemapBytes; offset++)
-                AssertEqual(bus.ReadByte(FileSelectMapRomData.AreaBackgrounds + area * FileSelectMapRomData.TilemapBytes + offset),
+                AssertEqual(FileSelectAreaMapGraphicsRomByte(bus, FileSelectMapRomData.AreaBackgrounds + area * FileSelectMapRomData.TilemapBytes + offset),
                     graphics.Vram.ReadByte(FileSelectMapRomData.AreaBackgroundVram * 2 + offset), "selected area BG3 DMA bytes");
             Rgba32[] frame = graphics.RenderBackgrounds();
             AssertEqual(256 * 224, frame.Length, "area map physical viewport size");
@@ -156,4 +156,7 @@ internal static partial class Program
             PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}-labels.png", new Extent16<ScreenPixels>(256, 224), labelled);
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for file select area map graphics")]
+    private static byte FileSelectAreaMapGraphicsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -184,8 +184,9 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for palette pointer words")]
     private static ushort ReadPalettePointerWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for full-body cycle palette colors")]
     private static void AssertPaletteColors(

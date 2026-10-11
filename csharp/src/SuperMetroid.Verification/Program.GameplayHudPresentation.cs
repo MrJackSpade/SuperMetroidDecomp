@@ -16,7 +16,7 @@ internal static partial class Program
             "installed gameplay HUD JSON is the deterministic cartridge extraction");
         GameplayHudPresentation presentation = GameplayHudPresentation.Load(new MemoryStream(extracted));
         for (int index = 0; index < GameplayHudDefinitions.TopRowByteCount; index++)
-            AssertEqual(bus.ReadByte(GameplayHudDefinitions.TopRowAddress + index),
+            AssertEqual(GameplayHudPresentationAssetsRomByte(bus, GameplayHudDefinitions.TopRowAddress + index),
                 presentation.TopRowTransfer.Span[index], $"stock immutable HUD row byte {index}");
         var guard = new MutableCartridgeReadGuard(bus);
         guard.Forbid(address =>
@@ -170,6 +170,9 @@ internal static partial class Program
 
         Console.WriteLine("Gameplay HUD presentation: exact stock/live parity, ROM guard, layout/art edits, rebind and strict failures pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay HUD presentation assets")]
+    private static byte GameplayHudPresentationAssetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static bool InHudRange(int address, int start, int length) =>
         (uint)(address - start) < (uint)length;

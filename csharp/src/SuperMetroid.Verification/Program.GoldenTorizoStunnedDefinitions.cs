@@ -44,9 +44,9 @@ internal static partial class Program
             AssertEqual(descriptor.ByteCount,
                 ReadWord(unchecked((ushort)(transfer + 2))),
                 $"Golden Torizo stunned transfer $AA:{transfer:X4} length");
-            int source = rom.ReadByte((bank << 16) | (transfer + 4)) |
-                rom.ReadByte((bank << 16) | (transfer + 5)) << 8 |
-                rom.ReadByte((bank << 16) | (transfer + 6)) << 16;
+            int source = GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | (transfer + 4)) |
+                GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | (transfer + 5)) << 8 |
+                GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | (transfer + 6)) << 16;
             AssertEqual(descriptor.SourceAddress, source,
                 $"Golden Torizo stunned transfer $AA:{transfer:X4} source");
             AssertEqual(descriptor.DestinationWord,
@@ -62,8 +62,11 @@ internal static partial class Program
             "VRAM descriptors match the pinned cartridge; no spritemap selectors.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | address) |
+                GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo stunned definitions")]
+    private static byte GoldenTorizoStunnedDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

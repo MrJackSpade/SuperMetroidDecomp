@@ -24,12 +24,15 @@ internal static partial class Program
         {
             int address = arguments[index] + offset;
             ushort expected = offset == 2
-                ? (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8)
-                : rom.ReadByte(address);
+                ? (ushort)(KraidDefeatedPlmFieldRomByte(rom, address) | KraidDefeatedPlmFieldRomByte(rom, address + 1) << 8)
+                : KraidDefeatedPlmFieldRomByte(rom, address);
             AssertEqual(expected, field(requests[index]), "Native defeated-room inline field");
             AssertEqual(expected, field(enumerated[index]), "Native defeated-room operation order");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = requests[invalid], "Defeated-room list bounds");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid defeated PLM field")]
+    private static byte KraidDefeatedPlmFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -18,7 +18,7 @@ internal static partial class Program
         for (int index = 0; index < 5; index++)
         {
             int instruction = 0x819206 + index * 9 + fieldOffset;
-            AssertEqual(opcode, rom.ReadByte(instruction), $"native text {name} immediate opcode");
+            AssertEqual(opcode, GameOverTextFieldRomByte(rom, instruction), $"native text {name} immediate opcode");
             int expected = ReadVerificationWord(rom, instruction + 1);
             AssertEqual(expected, field(GameOverRomData.Text.Get((GameOverTextElement)index)),
                 $"game-over text {name} selector {index}");
@@ -28,4 +28,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => GameOverRomData.Text.Get((GameOverTextElement)invalid),
                 $"invalid game-over text {name} selector {invalid}");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for game over text field")]
+    private static byte GameOverTextFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

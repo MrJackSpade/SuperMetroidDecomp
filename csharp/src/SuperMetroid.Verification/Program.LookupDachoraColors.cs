@@ -14,7 +14,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyLookupDachoraColors(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupDachoraColorsRomByte(rom, address) | LookupDachoraColorsRomByte(rom, address + 1) << 8);
         ushort[] Row(int address) => Enumerable.Range(0, 16).Select(color => Word(address + color * 2)).ToArray();
         ushort[] normal = Row(DachoraColorRomData.DefaultSource);
         ushort[][] speed = Enumerable.Range(0, 4).Select(frame => Row(DachoraColorRomData.SpeedSource + frame * 32)).ToArray();
@@ -63,4 +63,7 @@ internal static partial class Program
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup Dachora colors")]
+    private static byte LookupDachoraColorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

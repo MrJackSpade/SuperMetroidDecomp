@@ -153,8 +153,9 @@ internal static partial class Program
             .GetProperty("SpriteMapPointer")!.GetValue(actor)!;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain words")]
     private static ushort ReadIntroMotherBrainWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewIntroMotherBrainDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(

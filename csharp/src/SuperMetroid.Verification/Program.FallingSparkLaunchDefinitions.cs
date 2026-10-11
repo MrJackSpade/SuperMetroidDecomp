@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(FallingSparkLaunchDefinitionsRomByte(rom, address) | FallingSparkLaunchDefinitionsRomByte(rom, address + 1) << 8);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CartridgeReadGuard(rom)
@@ -57,4 +57,7 @@ internal static partial class Program
         AssertEqual(previousX, projectile.Position.X.Whole, "Failed allocation preserves occupied projectile");
         Console.WriteLine("Falling sparks: 16 native words including overread, all 65536 RNG selections, real spawns and horizontal motion pass with launch-table reads forbidden.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for falling spark launch definitions")]
+    private static byte FallingSparkLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

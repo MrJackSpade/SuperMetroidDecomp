@@ -5,8 +5,8 @@ internal static partial class Program
 {
     private static void VerifyKraidHeadCommandMapping(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int pointer) => (ushort)(rom.ReadByte(0xa70000 | pointer)
-            | rom.ReadByte(0xa70000 | (pointer + 1)) << 8);
+        ushort Word(int pointer) => (ushort)(KraidHeadCommandMappingRomByte(rom, 0xa70000 | pointer)
+            | KraidHeadCommandMappingRomByte(rom, 0xa70000 | (pointer + 1)) << 8);
         var expected = new List<KraidHeadInstructionDefinition>();
         // Decode the original stream independently: native opcodes determine record size.
         for (int pointer = 0x96d2; pointer < 0x9788;)
@@ -53,4 +53,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => KraidHeadInstructionDefinitions.Resolve(0), "Head low-half command rejection");
         AssertThrows<InvalidDataException>(() => KraidHeadInstructionDefinitions.Resolve(0xffff), "Head upper command rejection");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid head command mapping")]
+    private static byte KraidHeadCommandMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

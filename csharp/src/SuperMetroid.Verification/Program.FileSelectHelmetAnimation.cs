@@ -9,17 +9,20 @@ internal static partial class Program
         for (int frame = 0; frame < 9; frame++)
             AssertEqual(ReadVerificationWord(rom, 0x819e2c + 2 * frame),
                 FileSelectHelmetAnimation.SpritemapId(frame), $"original helmet sprite {frame}");
-        AssertEqual((byte)0xa9, rom.ReadByte(0x819df3), "native helmet timer LDA");
+        AssertEqual((byte)0xa9, FileSelectHelmetAnimationRomByte(rom, 0x819df3), "native helmet timer LDA");
         AssertEqual((int)ReadVerificationWord(rom, 0x819df4), FileSelectHelmetAnimation.FrameDuration,
             "native helmet frame duration");
-        AssertEqual((byte)0xc9, rom.ReadByte(0x819dfd), "native helmet frame CMP");
+        AssertEqual((byte)0xc9, FileSelectHelmetAnimationRomByte(rom, 0x819dfd), "native helmet frame CMP");
         AssertEqual((int)ReadVerificationWord(rom, 0x819dfe), FileSelectHelmetAnimation.FrameCount,
             "native helmet frame count");
-        AssertEqual((byte)0xa9, rom.ReadByte(0x819e08), "native helmet terminal LDA");
+        AssertEqual((byte)0xa9, FileSelectHelmetAnimationRomByte(rom, 0x819e08), "native helmet terminal LDA");
         AssertEqual((int)ReadVerificationWord(rom, 0x819e09), FileSelectHelmetAnimation.FrameCount - 1,
             "native helmet terminal frame clamp");
         foreach (int invalid in new[] { int.MinValue, -1, 9, 65536, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => FileSelectHelmetAnimation.SpritemapId(invalid),
                 "unsupported helmet sample");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for file select helmet animation")]
+    private static byte FileSelectHelmetAnimationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

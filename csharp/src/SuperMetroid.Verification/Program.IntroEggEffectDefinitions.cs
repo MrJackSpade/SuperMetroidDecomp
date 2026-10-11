@@ -78,8 +78,9 @@ internal static partial class Program
             $"{name} instruction list");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro egg effect words")]
     private static ushort ReadIntroEggEffectWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewIntroEggEffectDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(

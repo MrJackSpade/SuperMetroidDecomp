@@ -38,7 +38,7 @@ internal static partial class Program
         AssertTrue(edits.GetValue(page) is null, "Resolving spores does not cache attributes");
 
         var original = new byte[0x840];
-        for (int offset = 0; offset < original.Length; offset++) original[offset] = rom.ReadByte(0x8a98c0 + offset);
+        for (int offset = 0; offset < original.Length; offset++) original[offset] = SporeAttributeStorageAndEditsRomByte(rom, 0x8a98c0 + offset);
         for (int index = 0; index < 1056; index++)
         {
             byte[] changed = original.ToArray();
@@ -56,6 +56,9 @@ internal static partial class Program
         foreach (int length in new[] { 0, 1, 0x83f, 0x841 })
             AssertThrows<ArgumentException>(() => new RoomFxSporeTilemap(new byte[length]), "Incomplete spore page rejects");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for spore attribute storage and edits")]
+    private static byte SporeAttributeStorageAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifySporeTilemapAttributes(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {

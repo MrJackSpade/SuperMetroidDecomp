@@ -61,8 +61,11 @@ internal static partial class Program
             "the existing facing-screen frame match the pinned cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(GoldenTorizoLeftTurnDefinitionsRomByte(rom, (bank << 16) | address) |
+                GoldenTorizoLeftTurnDefinitionsRomByte(rom, (bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo left turn definitions")]
+    private static byte GoldenTorizoLeftTurnDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -4,11 +4,12 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres haze ramp")]
     private static byte[] OriginalCeresHazeRamp(ISnesAddressSpace rom, int counter)
     {
         // Execute the original descending table-fill semantics using its LDX operand.
-        int lastIndex = rom.ReadByte(0x88de54);
-        AssertEqual(lastIndex, (int)rom.ReadByte(0x88deba), "Native fade-in/out use identical fill lengths");
+        int lastIndex = rom.ReadCartridgeByte(0x88de54);
+        AssertEqual(lastIndex, (int)rom.ReadCartridgeByte(0x88deba), "Native fade-in/out use identical fill lengths");
         var table = new byte[lastIndex + 1];
         int value = counter;
         for (int index = lastIndex; index >= 0; index--)
@@ -22,7 +23,7 @@ internal static partial class Program
         byte held = 0;
         while (true)
         {
-            byte count = rom.ReadByte(cursor++);
+            byte count = rom.ReadCartridgeByte(cursor++);
             if (count == 0) break;
             AssertTrue(count < 128 && y + count <= rows.Length, "Native nonrepeating indirect band geometry");
             int offset = ReadVerificationWord(rom, cursor) - tableBase;

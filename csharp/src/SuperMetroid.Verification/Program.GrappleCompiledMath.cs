@@ -12,7 +12,7 @@ internal static partial class Program
         for (int i = 0; i < native.Length; i++)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
-            native[i] = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            native[i] = unchecked((short)(CompiledGrappleMathRomByte(rom, address) | CompiledGrappleMathRomByte(rom, address + 1) << 8));
         }
 
         // No bus argument is accepted by either production delegate. This makes an
@@ -71,4 +71,7 @@ internal static partial class Program
         }
         Console.WriteLine($"Compiled grapple: {pointCount} native radial coordinates/biases and {releaseCount} release velocities match without a production bus.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled grapple math")]
+    private static byte CompiledGrappleMathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -57,10 +57,13 @@ internal static partial class Program
         Suite(nameof(VerifyGoldenTorizoLeftFootOrbDefinitions), () => VerifyGoldenTorizoLeftFootOrbDefinitions(rom));
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(GoldenTorizoInitialDefinitionsRomByte(rom, (bank << 16) | address) |
+                GoldenTorizoInitialDefinitionsRomByte(rom, (bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo initial definitions")]
+    private static byte GoldenTorizoInitialDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyGoldenTorizoAwakeningDefinitions(ISnesAddressSpace rom)
     {
@@ -168,8 +171,11 @@ internal static partial class Program
             "seven physical frames and nine hitbox lists match the pinned cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(GoldenTorizoAwakeningDefinitionsRomByte(rom, (bank << 16) | address) |
+                GoldenTorizoAwakeningDefinitionsRomByte(rom, (bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo awakening definitions")]
+    private static byte GoldenTorizoAwakeningDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

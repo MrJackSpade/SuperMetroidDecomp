@@ -49,9 +49,9 @@ internal static partial class Program
         foreach (ushort address in addresses)
         {
             AssertTrue(EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(address,out byte b),"Eye door owned native field byte");
-            AssertEqual(rom.ReadByte(0x840000 | address),b,"Eye door original " + field + " byte");
+            AssertEqual(EyeDoorProgramFieldRomByte(rom, 0x840000 | address),b,"Eye door original " + field + " byte");
             AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address,out byte combinedByte),"Eye door composed byte ownership");
-            AssertEqual(rom.ReadByte(0x840000 | address),combinedByte,"Eye door original composed " + field + " byte");
+            AssertEqual(EyeDoorProgramFieldRomByte(rom, 0x840000 | address),combinedByte,"Eye door original composed " + field + " byte");
             if (address == 0xda8b) continue;
             AssertTrue(EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(address,out ushort w),"Eye door owned overlapping native word");
             AssertEqual(ReadSamusEaterPlmWord(rom,0x840000 | address),w,"Eye door original " + field + " overlapping word");
@@ -59,4 +59,7 @@ internal static partial class Program
             AssertEqual(ReadSamusEaterPlmWord(rom,0x840000 | address),combinedWord,"Eye door original composed " + field + " overlapping word");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for eye door program field")]
+    private static byte EyeDoorProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

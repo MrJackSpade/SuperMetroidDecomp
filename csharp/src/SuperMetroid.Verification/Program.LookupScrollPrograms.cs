@@ -51,7 +51,7 @@ internal static partial class Program
             int cursor = 0, pair = 0;
             while (true)
             {
-                byte index = rom.ReadByte(0x8f0000 | (pointer + cursor++));
+                byte index = ScrollProgramFieldRomByte(rom, 0x8f0000 | (pointer + cursor++));
                 if ((index & 0x80) != 0)
                 {
                     if (field == 3)
@@ -62,7 +62,7 @@ internal static partial class Program
                     }
                     break;
                 }
-                byte state = rom.ReadByte(0x8f0000 | (pointer + cursor++));
+                byte state = ScrollProgramFieldRomByte(rom, 0x8f0000 | (pointer + cursor++));
                 if (field == 1)
                 {
                     AssertEqual((int)index,actual[pair].Index,"Scroll original ordered storage index");
@@ -82,4 +82,7 @@ internal static partial class Program
         AssertEqual(285,totalPairs,"Scroll original pair count");
         AssertEqual(743,totalBytes,"Scroll original byte count");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for scroll program field")]
+    private static byte ScrollProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

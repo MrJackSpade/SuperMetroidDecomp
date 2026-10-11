@@ -6,10 +6,10 @@ internal static partial class Program
 {
     private static void VerifyKiHunterMotionDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(KiHunterMotionDefinitionsRomByte(rom, address) | KiHunterMotionDefinitionsRomByte(rom, address + 1) << 8);
         AssertEqual(Word(0xa8f180), KiHunterMotionDefinitions.SwoopTriggerDistance, "Native KiHunter proximity");
         ushort low = Word(0xa8f182), high = Word(0xa8f184);
-        byte radius = rom.ReadByte(0xa8f186);
+        byte radius = KiHunterMotionDefinitionsRomByte(rom, 0xa8f186);
         AssertEqual(low, KiHunterMotionDefinitions.GravityFraction, "Native KiHunter fractional acceleration");
         AssertEqual(high, KiHunterMotionDefinitions.GravityWhole, "Native KiHunter whole acceleration");
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
@@ -45,4 +45,7 @@ internal static partial class Program
         }
         Console.WriteLine("KiHunter motion: native constants, 65536 bus-free orbit placements and all gravity fractional carries pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ki Hunter motion definitions")]
+    private static byte KiHunterMotionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

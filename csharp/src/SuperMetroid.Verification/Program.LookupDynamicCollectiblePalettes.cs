@@ -24,7 +24,7 @@ internal static partial class Program
                 AssertEqual((ushort)0x8764, ReadCollectibleGraphicsWord(rom,program), "Native dynamic upload opcode");
                 for (int tile = 0; tile < 8; tile++)
                 {
-                    byte expected = rom.ReadByte(0x840000 | (program + 4 + tile));
+                    byte expected = DynamicCollectiblePaletteSelectorsRomByte(rom, 0x840000 | (program + 4 + tile));
                     AssertEqual(expected, RoomPlmDynamicCollectibleGraphicsDefinitions.PaletteOffset(kind,tile), "Native dynamic palette calculation");
                     AssertEqual(expected, graphic.PaletteOffsets.Span[tile], "Native dynamic palette exported DTO");
                     AssertEqual(expected, exported[raw - 4].PaletteOffsets.Span[tile], "Native dynamic palette enumeration DTO");
@@ -34,4 +34,7 @@ internal static partial class Program
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmDynamicCollectibleGraphicsDefinitions.PaletteOffset(kind,bad), "Dynamic palette tile bounds");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for dynamic collectible palette selectors")]
+    private static byte DynamicCollectiblePaletteSelectorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

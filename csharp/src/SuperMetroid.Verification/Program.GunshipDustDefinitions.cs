@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledGunshipDust(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(CompiledGunshipDustRomByte(rom, address) | CompiledGunshipDustRomByte(rom, address + 1) << 8);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewGunshipDustGuard(rom));
@@ -59,6 +59,9 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => spawn(invalid, samus), "Invalid dust parameter still rejected before full-pool return");
         Console.WriteLine("Gunship dust: 12 native words, 393216 real wrapped spawns, full-pool retention and parameter validation pass with migrated reads forbidden.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Gunship dust")]
+    private static byte CompiledGunshipDustRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static CartridgeReadGuard NewGunshipDustGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

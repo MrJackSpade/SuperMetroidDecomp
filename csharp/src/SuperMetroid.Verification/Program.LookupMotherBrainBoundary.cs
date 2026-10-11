@@ -26,8 +26,8 @@ internal static partial class Program
                 int count = direction & 0x7fff;
                 AssertEqual((ushort)(0x8000 | shape.Count(run)), direction, "Mother Brain vertical boundary run");
                 cursor += 2 + count * 2;
-                sbyte x = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
-                sbyte y = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
+                sbyte x = unchecked((sbyte)MotherBrainBoundaryGeometryRomByte(rom, 0x840000 | cursor++));
+                sbyte y = unchecked((sbyte)MotherBrainBoundaryGeometryRomByte(rom, 0x840000 | cursor++));
                 AssertEqual(x, shape.NextX(run), "Mother Brain native boundary X");
                 AssertEqual(y, shape.NextY(run), "Mother Brain native boundary Y");
                 foreach (var draw in new[] {dto,exports[index]})
@@ -50,6 +50,9 @@ internal static partial class Program
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain boundary geometry")]
+    private static byte MotherBrainBoundaryGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 0));

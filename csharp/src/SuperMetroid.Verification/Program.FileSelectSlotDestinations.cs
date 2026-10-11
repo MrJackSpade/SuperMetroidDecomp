@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -33,7 +34,7 @@ internal static partial class Program
             for (int slot = 0; slot < 3; slot++)
             {
                 int instruction = instructions[slot];
-                AssertEqual((byte)0xa2, rom.ReadByte(instruction), "native slot LDX immediate");
+                AssertEqual((byte)0xa2, FileSelectSlotDestinationsRomByte(rom, instruction), "native slot LDX immediate");
                 int expected = ReadVerificationWord(rom, instruction + 1);
                 AssertEqual(expected, destination(slot, field), $"slot destination {dataPage}/{field}/{slot}");
                 FileSelectSlotFieldDocument exported = (dataPage ? document.DataSlots : document.MainSlots)[slot];
@@ -44,7 +45,7 @@ internal static partial class Program
                 }
                 else
                 {
-                    AssertEqual((byte)0xa0, rom.ReadByte(instruction - 3), "native slot label LDY immediate");
+                    AssertEqual((byte)0xa0, FileSelectSlotDestinationsRomByte(rom, instruction - 3), "native slot label LDY immediate");
                     int source = 0x810000 | ReadVerificationWord(rom, instruction - 2);
                     ushort firstTile = ReadVerificationWord(rom, source);
                     string[] pages = dataPage
@@ -64,13 +65,16 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for file select slot destinations")]
+    private static byte FileSelectSlotDestinationsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyFileSelectSlotLabelSources(SuperMetroid.Core.Hardware.ISnesAddressSpace rom)
     {
         int[][] loadInstructions = [[0x819f13, 0x819f46, 0x819f7c], [0x819636, 0x819666, 0x819696]];
         foreach (int[] view in loadInstructions)
         for (int slot = 0; slot < 3; slot++)
         {
-            AssertEqual((byte)0xa0, rom.ReadByte(view[slot]), "native slot label LDY");
+            AssertEqual((byte)0xa0, FileSelectSlotLabelSourcesRomByte(rom, view[slot]), "native slot label LDY");
             ushort source = ReadVerificationWord(rom, view[slot] + 1);
             AssertEqual(source, FileSelectTilemaps.SlotLabel(slot), "original slot label source");
             AssertEqual((ushort)0xffff, ReadVerificationWord(rom, 0x810000 | (source + 30)),
@@ -79,4 +83,7 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 3, 65536, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => FileSelectTilemaps.SlotLabel(invalid), "slot label source bounds");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for file select slot label sources")]
+    private static byte FileSelectSlotLabelSourcesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

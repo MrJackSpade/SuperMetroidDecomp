@@ -202,8 +202,9 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Hopper animation words")]
     private static ushort ReadHopperAnimationWord(SuperMetroidAddressSpace source, int address) =>
-        (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+        (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewHopperAnimationGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

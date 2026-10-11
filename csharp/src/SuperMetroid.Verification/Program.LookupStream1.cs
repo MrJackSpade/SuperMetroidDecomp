@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
     {
-        byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => rom.ReadByte(address + i)).ToArray();
+        byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldBackgroundRomByte(rom, address + i)).ToArray();
         byte[] front = Read(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
         byte[] back = Read(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes);
         byte[] frontPixels = SnesGraphics.DecodePlanarTiles(front, 4, 16, out Extent16<ImagePixels> size);
@@ -69,12 +69,15 @@ internal static partial class Program
         Console.WriteLine($"World BG3:6144 native pixels,{calculated} geometry/mask defaults,{stored.Count} exact source pixels/10footprints,96 independent tile edits/all-pixel inversion and actual full uploads pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 world background")]
+    private static byte LookupStream1WorldBackgroundRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1DeathPixels(ISnesAddressSpace rom)
     {
         var pages = SamusSpecialSequenceRomData.Death.TileSegments;
         int pageBytes = SamusSpecialSequenceRomData.Death.TileSegmentByteCount;
         byte[] native = Enumerable.Range(0, SamusDeathTileAtlasFormat.TotalByteCount)
-            .Select(index => rom.ReadByte(pages[index / pageBytes].SourceAddress + index % pageBytes)).ToArray();
+            .Select(index => LookupStream1DeathPixelsRomByte(rom, pages[index / pageBytes].SourceAddress + index % pageBytes)).ToArray();
         SamusDeathTileAtlas Create(byte[] planar)
         {
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 8, out Extent16<ImagePixels> size);
@@ -126,9 +129,12 @@ internal static partial class Program
         Console.WriteLine($"Death atlas:5120 native bytes,151 exact source tiles,zero stock relation overrides,{edits.Count} independent source/derived-byte edits,canonical hashes and five actual uploads pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 death pixels")]
+    private static byte LookupStream1DeathPixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1EscapeDachoraCadence(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1EscapeDachoraCadenceRomByte(rom, address) | LookupStream1EscapeDachoraCadenceRomByte(rom, address + 1) << 8);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         for (int index = 0; index < EscapeDachoraInstructionProgramDefinitions.MechanicsWordCount; index++)
@@ -181,9 +187,12 @@ internal static partial class Program
         }
         Console.WriteLine("Escape Dachora cadence:139 native records,463 uninterrupted ticks,two complete pacing round trips and full accelerating departure pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 escape Dachora cadence")]
+    private static byte LookupStream1EscapeDachoraCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1PowampCadence(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1PowampCadenceRomByte(rom, address) | LookupStream1PowampCadenceRomByte(rom, address + 1) << 8);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         var align = typeof(RoomEnemySystem).GetMethod("AlignPowampBalloonY", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
@@ -249,9 +258,12 @@ internal static partial class Program
         }
         Console.WriteLine("Powamp cadence:12 native holds,376 uninterrupted exposure ticks,both Goto/Sleep boundaries and native balloon centers pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Powamp cadence")]
+    private static byte LookupStream1PowampCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1MetroidPulse(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1MetroidPulseRomByte(rom, address) | LookupStream1MetroidPulseRomByte(rom, address + 1) << 8);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (bool chasing in new[] { true, false })
@@ -290,9 +302,12 @@ internal static partial class Program
         }
         Console.WriteLine("Metroid pulse:25 native records,320 actual exposure ticks,two callback boundaries and exact sound/RNG ownership pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Metroid pulse")]
+    private static byte LookupStream1MetroidPulseRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1AtmosphericCadence(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1AtmosphericCadenceRomByte(rom, address) | LookupStream1AtmosphericCadenceRomByte(rom, address + 1) << 8);
         for (byte type = 1; type <= 7; type++)
         {
             int pointer = 0x900000 | Word(0x908b93 + type * 2);
@@ -310,6 +325,9 @@ internal static partial class Program
         }
         Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence(NewSamusAtmosphericAnimationReadGuard(rom)));
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 atmospheric cadence")]
+    private static byte LookupStream1AtmosphericCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1TimerCadence(ISnesAddressSpace rom)
     {
         var failures = new List<string>();
@@ -318,7 +336,7 @@ internal static partial class Program
             var timer = new EscapeTimer();
             typeof(EscapeTimer).GetProperty(nameof(EscapeTimer.RawStatus))!.SetValue(timer, (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace));
             timer.SetTime(0, 1, 0x50);
-            byte correction = rom.ReadByte(0x809eec + frame);
+            byte correction = LookupStream1TimerCadenceRomByte(rom, 0x809eec + frame);
             byte expected = correction == 2 ? (byte)0x48 : (byte)0x49;
             bool expired = timer.Process(frame);
             if (timer.CentisecondsBcd != expected)
@@ -329,7 +347,7 @@ internal static partial class Program
         int total = 0;
         for (int index = 0; index < 128; index++)
         {
-            byte expected = rom.ReadByte(0x809eec + index);
+            byte expected = LookupStream1TimerCadenceRomByte(rom, 0x809eec + index);
             total += expected;
             AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)index), "Every native rational cadence sample");
             AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 128)), "Native128-frame wrap");
@@ -352,11 +370,14 @@ internal static partial class Program
         }
         Console.WriteLine("Timer cadence:128 native corrections,384 phase observations,128 actual countdown updates and exact124/125 expiration pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 timer cadence")]
+    private static byte LookupStream1TimerCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
     {
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
         var image = IndexedPng.Read(new MemoryStream(png), new(200, 8));
-        byte[] native = Enumerable.Range(0, 800).Select(index => rom.ReadByte(0xb0c000 + index)).ToArray();
+        byte[] native = Enumerable.Range(0, 800).Select(index => LookupStream1TimerGlyphsRomByte(rom, 0xb0c000 + index)).ToArray();
         var stock = EscapeTimerTileAtlas.Load(new MemoryStream(png));
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         HashSet<int> Fill(EscapeTimerTileAtlas value) => (HashSet<int>)typeof(EscapeTimerTileAtlas).GetField("fillPixels", flags)!.GetValue(value)!;
@@ -488,12 +509,15 @@ internal static partial class Program
         AssertTrue(Transfer(stock).SequenceEqual(native), "Stock timer remains immutable");
         Console.WriteLine("Timer font:836 direct outline pixels,312 shared/reflected pixels,275 retained fill positions/four deviations,173 calculated digit/T/I/E basis fill sites,1600 independent PNG edits,800 native planar bytes and exact two-page queue/VRAM uploads pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 timer glyphs")]
+    private static byte LookupStream1TimerGlyphsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1XrayBodyFrames(ISnesAddressSpace rom, bool basisOnly = false, bool finalOnly = false)
     {
         int count = SamusBodyArtworkCatalog.FrameCount * 4;
-        byte[] native = Enumerable.Range(0, count).Select(index => rom.ReadByte(0x92db48 + index)).ToArray();
+        byte[] native = Enumerable.Range(0, count).Select(index => LookupStream1XrayBodyFramesRomByte(rom, 0x92db48 + index)).ToArray();
         ushort[] Words(int address, int length) => Enumerable.Range(0, length).Select(index =>
-            (ushort)(rom.ReadByte(address + index * 2) | rom.ReadByte(address + index * 2 + 1) << 8)).ToArray();
+            (ushort)(LookupStream1XrayBodyFramesRomByte(rom, address + index * 2) | LookupStream1XrayBodyFramesRomByte(rom, address + index * 2 + 1) << 8)).ToArray();
         ushort[] top = Words(0x92d91e, 13), bottom = Words(0x92d938, 11), poses = Words(0x92d94e, 253);
         ushort[] starts = top.Concat(bottom).Order().ToArray();
         SamusBodyTileDefinition[][] Groups(ushort[] pointers) => pointers.Select(pointer =>
@@ -752,9 +776,12 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => stock.Frame((SamusPoseId)0xfd, 0), "Original pose bound preserved");
         Console.WriteLine($"Body frames:{count - Stored(stock).Count} calculated/aliased components, exact remaining basis,{edits} independent component edits, actual pose selection and original canonical hashes pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 X-ray body frames")]
+    private static byte LookupStream1XrayBodyFramesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1BodyPosePointers(ISnesAddressSpace rom)
     {
-        ushort[] native = Enumerable.Range(0, 253).Select(pose => (ushort)(rom.ReadByte(0x92d94e + pose * 2) | rom.ReadByte(0x92d94f + pose * 2) << 8)).ToArray();
+        ushort[] native = Enumerable.Range(0, 253).Select(pose => (ushort)(LookupStream1BodyPosePointersRomByte(rom, 0x92d94e + pose * 2) | LookupStream1BodyPosePointersRomByte(rom, 0x92d94f + pose * 2) << 8)).ToArray();
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
         ushort[] top = template.TopSetPointers.ToArray(), bottom = template.BottomSetPointers.ToArray();
         var topGroups = Enumerable.Range(0, 13).Select(set => template.TopSet(set).ToArray()).ToArray();
@@ -797,6 +824,9 @@ internal static partial class Program
         Console.WriteLine("Body pose pointers:253 native semantic cases,156 list identities, zero stock overrides,253 independent edits, supplied frame resolution and exact canonical hashes pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body pose pointers")]
+    private static byte LookupStream1BodyPosePointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static string CanonicalBodyHash(SamusBodyArtworkCatalog template, ushort[] upper, ushort[] lower, ushort[] posePointers, SamusBodyFrameSelection[] frames, SamusBodyTileDefinition[][] upperGroups, SamusBodyTileDefinition[][] lowerGroups) =>
         SelectedPresentationHash.Create(nameof(SamusBodyArtworkCatalog), content =>
         {
@@ -829,7 +859,7 @@ internal static partial class Program
 
     private static void VerifyLookupStream1BodySetPointers(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1BodySetPointersRomByte(rom, address) | LookupStream1BodySetPointersRomByte(rom, address + 1) << 8);
         ushort[] top = Enumerable.Range(0, 13).Select(set => Word(0x92d91e + set * 2)).ToArray();
         ushort[] bottom = Enumerable.Range(0, 11).Select(set => Word(0x92d938 + set * 2)).ToArray();
         var physical = top.Select((pointer, set) => (Upper: true, Set: set, Pointer: pointer))
@@ -884,9 +914,12 @@ internal static partial class Program
         Console.WriteLine("Body allocation pointers:24 native semantic identities, zero stock overrides,24 valid independent allocation edits, runtime addresses and exact canonical hashes pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body set pointers")]
+    private static byte LookupStream1BodySetPointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1BodyGraphicsOrigins(ISnesAddressSpace rom)
     {
-        sbyte[] native = Enumerable.Range(0, 253).Select(pose => unchecked((sbyte)rom.ReadByte(0x91b62d + pose * 8))).ToArray();
+        sbyte[] native = Enumerable.Range(0, 253).Select(pose => unchecked((sbyte)LookupStream1BodyGraphicsOriginsRomByte(rom, 0x91b62d + pose * 8))).ToArray();
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
         SamusBodyArtworkCatalog Create(sbyte[] selected) => new(
             template.TopSetPointers.ToArray(), template.BottomSetPointers.ToArray(), template.PosePointers.ToArray(),
@@ -928,12 +961,15 @@ internal static partial class Program
         Console.WriteLine("Body graphics origins:253 direct native/default values, zero stock overrides,253 independent visual edits isolated from physics and hash/bounds checks pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body graphics origins")]
+    private static byte LookupStream1BodyGraphicsOriginsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1DrainedGeometry(ISnesAddressSpace rom)
     {
         string directory = Path.GetFullPath("csharp/test-temp/drained-geometry-native");
         SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
         SamusBodyArtworkCatalog stock = SamusBodyArtworkFiles.Load(directory, null);
-        sbyte[] native = Enumerable.Range(0, 32).Select(index => unchecked((sbyte)rom.ReadByte(0x908def + index))).ToArray();
+        sbyte[] native = Enumerable.Range(0, 32).Select(index => unchecked((sbyte)LookupStream1DrainedGeometryRomByte(rom, 0x908def + index))).ToArray();
         var field = typeof(SamusBodyArtworkCatalog).GetField("drainedYOffsets",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         int Stored(SamusBodyArtworkCatalog art) => ((Dictionary<int, sbyte>)field.GetValue(art)!).Count;
@@ -997,12 +1033,15 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, 32, out _), "Default drained bound");
         Console.WriteLine("Drained geometry:32 native defaults, zero stock fallbacks,32 independent edits,22 actual draws and independent empty/pointer/pixel/shifted-art checks pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 drained geometry")]
+    private static byte LookupStream1DrainedGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1PostureGeometry(ISnesAddressSpace rom)
     {
         string directory = Path.GetFullPath("csharp/test-temp/posture-geometry-native");
         SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
         SamusBodyArtworkCatalog stock = SamusBodyArtworkFiles.Load(directory, null);
-        sbyte[] native = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)rom.ReadByte(0x908d80 + index))).ToArray();
+        sbyte[] native = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1PostureGeometryRomByte(rom, 0x908d80 + index))).ToArray();
         var field = typeof(SamusBodyArtworkCatalog).GetField("postureYOffsets",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         int Stored(SamusBodyArtworkCatalog art) => ((Dictionary<int, sbyte>)field.GetValue(art)!).Count;
@@ -1064,10 +1103,13 @@ internal static partial class Program
         AssertTrue(Stored(shifted) > 0, "Edited source geometry stores explicit independent differences");
         Console.WriteLine("Posture geometry:24 direct native defaults, zero stock fallbacks,24 offset edits,12 actual draw cases and empty/pointer/pixel/shifted-art independence pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 posture geometry")]
+    private static byte LookupStream1PostureGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1BodyFacingOffsets(ISnesAddressSpace rom)
     {
-        ushort[] landing = Enumerable.Range(0, 17).Select(index => (ushort)rom.ReadByte(0x908d28 + index)).ToArray();
-        sbyte[] posture = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)rom.ReadByte(0x908d80 + index))).ToArray();
+        ushort[] landing = Enumerable.Range(0, 17).Select(index => (ushort)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d28 + index)).ToArray();
+        sbyte[] posture = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d80 + index))).ToArray();
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
         SamusBodyArtworkCatalog Create(ushort[] selectedLanding, sbyte[] selectedPosture) => new(
             template.TopSetPointers.ToArray(), template.BottomSetPointers.ToArray(), template.PosePointers.ToArray(),
@@ -1144,10 +1186,13 @@ internal static partial class Program
         Console.WriteLine("Body facing offsets:17 direct landing defaults with zero overrides,24 posture bytes,41 independent edits,16 unaligned windows and content identities pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body facing offsets")]
+    private static byte LookupStream1BodyFacingOffsetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1BodyOamBases(ISnesAddressSpace rom)
     {
         ushort[] ReadWords(int address, int count) => Enumerable.Range(0, count)
-            .Select(index => (ushort)(rom.ReadByte(address + index * 2) | rom.ReadByte(address + index * 2 + 1) << 8)).ToArray();
+            .Select(index => (ushort)(LookupStream1BodyOamBasesRomByte(rom, address + index * 2) | LookupStream1BodyOamBasesRomByte(rom, address + index * 2 + 1) << 8)).ToArray();
         ushort[] top = ReadWords(0x929263, 253), bottom = ReadWords(0x92945d, 253), pointers = ReadWords(0x92808d, 2096);
         // Marker parts confirm selected supplied payload identity, not native artwork.
         SamusSpritemapDefinition[] definitions = pointers.Where(pointer => pointer != 0).Distinct()
@@ -1221,10 +1266,13 @@ internal static partial class Program
         AssertTrue(stock.TopBases.SequenceEqual(top) && stock.BottomBases.SequenceEqual(bottom), "Stock bases immutable after edits");
         Console.WriteLine("Samus OAM bases:506 native named cases, zero stock overrides,506 independent edits, actual supplied payload selection, exact canonical hashes and original bounds pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body OAM bases")]
+    private static byte LookupStream1BodyOamBasesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1HurtBlend(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, 32).Select(index =>
-            (ushort)(rom.ReadByte(0x9ba380 + index * 2) | rom.ReadByte(0x9ba381 + index * 2) << 8)).ToArray();
+            (ushort)(LookupStream1HurtBlendRomByte(rom, 0x9ba380 + index * 2) | LookupStream1HurtBlendRomByte(rom, 0x9ba381 + index * 2) << 8)).ToArray();
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
         SamusHurtColorCatalog Create(ushort[] supplied) => SamusHurtColorCatalog.Load(new MemoryStream(SamusHurtColorCatalog.Write(
             new SamusHurtColorDocument { Version = 1, Hurt = supplied.Take(16).Select(Color).ToArray(), Intro = supplied.Skip(16).Select(Color).ToArray() })));
@@ -1275,9 +1323,12 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(SamusHurtColorVariant.Intro, index), "Color bounds preserved");
         Console.WriteLine("Hurt/intro:32 native colors,30 direct relations,zero stock shade samples,zero stock overrides,96 independent RGB edits and exact exception membership pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 hurt blend")]
+    private static byte LookupStream1HurtBlendRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1NonBeamProgramLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1NonBeamProgramLayoutRomByte(rom, address) | LookupStream1NonBeamProgramLayoutRomByte(rom, address + 1) << 8);
         var expected = new Dictionary<int, ushort>();
         for (int cursor = 0x939ebb; cursor < 0x93a1a1;)
         {
@@ -1318,9 +1369,12 @@ internal static partial class Program
         Console.WriteLine("NonBeam projectile programs:214 direct native mechanics words, exact domain and zero stored fallbacks pass; selected holds and phase counts remain required.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 non beam program layout")]
+    private static byte LookupStream1NonBeamProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1ChargedProgramLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1ChargedProgramLayoutRomByte(rom, address) | LookupStream1ChargedProgramLayoutRomByte(rom, address + 1) << 8);
         var expected = new Dictionary<int, ushort>();
         for (int cursor = 0x938e77; cursor < 0x939ebb;)
         {
@@ -1358,9 +1412,12 @@ internal static partial class Program
         Console.WriteLine("Charged projectile programs:1078 direct native mechanics words, exact domain and zero stored fallbacks pass; holds, phase counts and loop-entry choices remain required.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 charged program layout")]
+    private static byte LookupStream1ChargedProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1PlasmaProgramLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1PlasmaProgramLayoutRomByte(rom, address) | LookupStream1PlasmaProgramLayoutRomByte(rom, address + 1) << 8);
         var expected = new Dictionary<int, ushort>();
         for (int cursor = 0x938cf7; cursor < 0x938e77;)
         {
@@ -1398,9 +1455,12 @@ internal static partial class Program
         Console.WriteLine("Plasma projectile programs:104 direct native mechanics words, exact domain and zero stored fallbacks pass; holds1/15/2 and cyclic phase count8 remain required.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Plasma program layout")]
+    private static byte LookupStream1PlasmaProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1SpazerProgramLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1SpazerProgramLayoutRomByte(rom, address) | LookupStream1SpazerProgramLayoutRomByte(rom, address + 1) << 8);
         var expected = new Dictionary<int, ushort>();
         for (int cursor = 0x938977; cursor < 0x938cf7;)
         {
@@ -1438,9 +1498,12 @@ internal static partial class Program
         Console.WriteLine("Spazer projectile programs:240 direct native mechanics words, exact domain and zero stored fallbacks pass; hold2 and phase counts3/10 remain required.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Spazer program layout")]
+    private static byte LookupStream1SpazerProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1WaveIceProgramLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1WaveIceProgramLayoutRomByte(rom, address) | LookupStream1WaveIceProgramLayoutRomByte(rom, address + 1) << 8);
         var expected = new Dictionary<int, ushort>();
         for (int cursor = 0x93873b; cursor < 0x938977;)
         {
@@ -1478,9 +1541,12 @@ internal static partial class Program
         Console.WriteLine("Wave/Ice projectile programs:148 direct native mechanics words, exact domain and zero stored fallbacks pass; holds4/1 and phase counts16/4 remain required.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 wave ice program layout")]
+    private static byte LookupStream1WaveIceProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1PowerProgramLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1PowerProgramLayoutRomByte(rom, address) | LookupStream1PowerProgramLayoutRomByte(rom, address + 1) << 8);
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
         var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
         int admitted = 0;
@@ -1510,6 +1576,9 @@ internal static partial class Program
         Console.WriteLine("Power projectile programs:32 direct native mechanics words, eight self-loop targets, exact domain and zero stored Power fallbacks pass; hold15 remains required.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 power program layout")]
+    private static byte LookupStream1PowerProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -1525,7 +1594,7 @@ internal static partial class Program
         var field = typeof(SamusArmCannonArtworkCatalog).GetField("posePointers",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         Dictionary<int, ushort> Stored(SamusArmCannonArtworkCatalog value) => (Dictionary<int, ushort>)field.GetValue(value)!;
-        ushort Native(int pose) => (ushort)(rom.ReadByte(0x90C7DF + pose * 2) | rom.ReadByte(0x90C7E0 + pose * 2) << 8);
+        ushort Native(int pose) => (ushort)(LookupStream1CannonPosesRomByte(rom, 0x90C7DF + pose * 2) | LookupStream1CannonPosesRomByte(rom, 0x90C7E0 + pose * 2) << 8);
         string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), hash =>
         {
             hash.AppendWords("pose pointers", value.PosePointers.Select(pointer => (ushort)pointer).ToArray());
@@ -1562,12 +1631,16 @@ internal static partial class Program
         Console.WriteLine("Cannon poses:253 direct native defaults, zero stock overrides,253 independent arbitrary pointer edits/hashes and exact FD-FF rejection pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 cannon poses")]
+    private static byte LookupStream1CannonPosesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the invalid-pose animation-delay alias pointers and the live WRAM they reach through bank $91's low-half mirror")]
     private static void VerifyLookupStream1AnimationAliases(CartridgeImportAddressSpace bus)
     {
         for (int pose = 0xFD; pose <= 0xFF; pose++)
         {
             int source = SamusAnimationDelayDefinitions.DelayStreamsAddress + (pose - 0xFD) * 2;
-            ushort expectedPointer = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+            ushort expectedPointer = (ushort)(bus.ReadCartridgeByte(source) | bus.ReadCartridgeByte(source + 1) << 8);
             ushort pointer = SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose);
             AssertEqual(expectedPointer, pointer, $"animation alias ${pose:X2} reads its running-delay source");
             for (int change = 0; change < 2; change++)
@@ -1586,14 +1659,14 @@ internal static partial class Program
         for (int pose = 0; pose < 256; pose++)
         {
             if (pose < 0xDB)
-                AssertEqual(rom.ReadByte(0x90DDAA + pose - 0x35), SamusHudDefinitions.PostureObservation((SamusPoseId)pose),
+                AssertEqual(LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35), SamusHudDefinitions.PostureObservation((SamusPoseId)pose),
                     $"HUD exact bounded posture observation {pose:X2}");
             else
                 AssertThrows<ArgumentOutOfRangeException>(() => SamusHudDefinitions.PostureObservation((SamusPoseId)pose),
                     "HUD rejects prefiltered posture observation");
             foreach (bool grapple in new[] { false, true })
             {
-                bool expected = pose >= 0xF1 || (pose < 0xDB && (rom.ReadByte(0x90DDAA + pose - 0x35) == 0 || grapple));
+                bool expected = pose >= 0xF1 || (pose < 0xDB && (LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0 || grapple));
                 AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, grapple),
                     $"HUD actual admission {pose:X2}, Grapple={grapple}");
             }
@@ -1601,9 +1674,12 @@ internal static partial class Program
         Console.WriteLine("HUD posture: twelve real flags plus207 bounded instruction bytes, all512 admission branches and rejection domain match native.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 HUD posture")]
+    private static byte LookupStream1HudPostureRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1EscapeDachoraPrograms(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(0xb30000 | address) | rom.ReadByte(0xb30000 | address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1EscapeDachoraProgramsRomByte(rom, 0xb30000 | address) | LookupStream1EscapeDachoraProgramsRomByte(rom, 0xb30000 | address + 1) << 8);
         var controls = new List<ushort>(); var visuals = new List<ushort>();
         for (int cursor = 0xe964; cursor < 0xeaa8;)
         {
@@ -1643,9 +1719,12 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(invalid), "Dachora odd/adjacent control pointers reject");
         Console.WriteLine("Escape Dachora:119 controls/43 visual operands match independent native traversal; exact branches/order/domains pass; selected holds and acceleration cadence remain required.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 escape Dachora programs")]
+    private static byte LookupStream1EscapeDachoraProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1PowampPrograms(ISnesAddressSpace rom)
     {
-        ushort Word(int pointer) => (ushort)(rom.ReadByte(0xa80000 | pointer) | rom.ReadByte(0xa80000 | pointer + 1) << 8);
+        ushort Word(int pointer) => (ushort)(LookupStream1PowampProgramsRomByte(rom, 0xa80000 | pointer) | LookupStream1PowampProgramsRomByte(rom, 0xa80000 | pointer + 1) << 8);
         var expectedMechanics = new List<ushort>(); var expectedVisual = new List<ushort>();
         // Traverse original native words, using their instruction/frame encoding rather than the calculated program layout.
         for (int cursor = 0xc163; cursor < 0xc19f;)
@@ -1685,9 +1764,12 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => PowampInstructionProgramDefinitions.ReadMechanicsWord(invalid), "Powamp non-word/adjacent control pointer rejects");
         Console.WriteLine("Powamp program layout:18 native controls,12 visual operands, exact order/domains/byte classification pass; five chosen timing inputs remain required.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Powamp programs")]
+    private static byte LookupStream1PowampProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1TimerLayoutRomByte(rom, address) | LookupStream1TimerLayoutRomByte(rom, address + 1) << 8);
         byte[] json = EscapeTimerPresentationExtractor.Extract(rom);
         var stock = EscapeTimerPresentation.Load(new MemoryStream(json));
         var document = System.Text.Json.JsonSerializer.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
@@ -1706,7 +1788,7 @@ internal static partial class Program
                 int native = address + 2 + index * 5;
                 var part = calculated[index];
                 AssertEqual(Word(native), part.X.Raw, "Timer calculated X/size native word");
-                AssertEqual(rom.ReadByte(native + 2), part.Y, "Timer calculated native Y");
+                AssertEqual(LookupStream1TimerLayoutRomByte(rom, native + 2), part.Y, "Timer calculated native Y");
                 AssertEqual((ushort)(Word(native + 3) & ~0x0e00), part.Attributes.Raw, "Timer calculated native tile/priority/flips with inherited palette removed");
                 AssertTrue(part.InheritPalette, "Timer part inherits independently supplied timer palette");
                 parts++;
@@ -1785,9 +1867,12 @@ internal static partial class Program
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 timer layout")]
+    private static byte LookupStream1TimerLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        short Word(int address) => unchecked((short)(LookupStream1FlarePlacementRomByte(rom, address) | LookupStream1FlarePlacementRomByte(rom, address + 1) << 8));
         byte[] json = ChargeFlarePlacementExtractor.Extract(rom);
         var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -1862,7 +1947,7 @@ internal static partial class Program
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             samus.TileTransfers.BindArtwork(body);
-            int direction = rom.ReadByte(0x91b629 + (int)pose * 8 + 3);
+            int direction = LookupStream1FlarePlacementRomByte(rom, 0x91b629 + (int)pose * 8 + 3);
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
             short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
             short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
@@ -1881,15 +1966,18 @@ internal static partial class Program
         }
         Console.WriteLine("Beam/Grapple flare origins:128 direct native words, zero stock overrides,128 independent edits, bounded aliases and four actual OAM fixtures pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 flare placement")]
+    private static byte LookupStream1FlarePlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static CartridgeReadGuard NewLookupFlareForbiddenBus() =>
         CartridgeReadGuard.Unbacked().RejectWrites(address => $"Unexpected flare write {address:X6}");
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
-            AssertEqual(rom.ReadByte(0x91b629 + pose * 8), SamusPoseDispatchDefinitions.ReadFacing((SamusPoseId)pose), "Native named-pose facing case");
-            AssertEqual(rom.ReadByte(0x91b62a + pose * 8), SamusPoseDispatchDefinitions.ReadMovement((SamusPoseId)pose), "Native named-pose raw movement case");
-            AssertEqual(rom.ReadByte(0x91b62b + pose * 8), (byte)SamusPoseDispatchDefinitions.ReadNoInputPose((SamusPoseId)pose), "Native named-pose no-input case");
+            AssertEqual(LookupStream1RomByte(rom, 0x91b629 + pose * 8), SamusPoseDispatchDefinitions.ReadFacing((SamusPoseId)pose), "Native named-pose facing case");
+            AssertEqual(LookupStream1RomByte(rom, 0x91b62a + pose * 8), SamusPoseDispatchDefinitions.ReadMovement((SamusPoseId)pose), "Native named-pose raw movement case");
+            AssertEqual(LookupStream1RomByte(rom, 0x91b62b + pose * 8), (byte)SamusPoseDispatchDefinitions.ReadNoInputPose((SamusPoseId)pose), "Native named-pose no-input case");
         }
         Suite(nameof(VerifyLookupStream1SamusPolicyDomains), () => VerifyLookupStream1SamusPolicyDomains(rom));
         Suite(nameof(VerifyLookupStream1MetroidLayout), () => VerifyLookupStream1MetroidLayout(rom));
@@ -1904,7 +1992,7 @@ internal static partial class Program
         Suite(nameof(VerifyLookupStream1CommonFrames), () => VerifyLookupStream1CommonFrames(rom));
         Suite(nameof(VerifyLookupStream1EnemyMovement), () => VerifyLookupStream1EnemyMovement(rom));
         Suite(nameof(VerifyLookupStream1CadencePrograms), () => VerifyLookupStream1CadencePrograms(rom));
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1RomByte(rom, address) | LookupStream1RomByte(rom, address + 1) << 8);
         foreach (SamusLiquidMedium medium in Enum.GetValues<SamusLiquidMedium>())
         {
             for (int variant = 0; variant < 4; variant++)
@@ -1933,14 +2021,17 @@ internal static partial class Program
             AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Gravity(invalid), "stream1 invalid gravity medium");
         }
         for (int address = 0x90c254; address <= 0x90c28e; address++)
-            AssertEqual(rom.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(address), "stream1 all native cooldown bytes including padding");
-        AssertEqual(rom.ReadByte(0x90c291), SamusProjectileCooldownDefinitions.ReadByte(0x90c291), "stream1 bounded spacetime beam cooldown");
+            AssertEqual(LookupStream1RomByte(rom, address), SamusProjectileCooldownDefinitions.ReadByte(address), "stream1 all native cooldown bytes including padding");
+        AssertEqual(LookupStream1RomByte(rom, 0x90c291), SamusProjectileCooldownDefinitions.ReadByte(0x90c291), "stream1 bounded spacetime beam cooldown");
         foreach (int invalid in new[] { int.MinValue, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, int.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusProjectileCooldownDefinitions.ReadByte(invalid), "stream1 invalid cooldown address");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1")]
+    private static byte LookupStream1RomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1PowampMotion(ISnesAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        short Word(int address) => unchecked((short)(LookupStream1PowampMotionRomByte(rom, address) | LookupStream1PowampMotionRomByte(rom, address + 1) << 8));
         for (int phase = 0; phase < 12; phase++)
             AssertEqual(Word(0xa8c1a1 + 2 * phase), PowampMotionDefinitions.WiggleOffset(phase), "Powamp native wiggle triangle");
         for (int pose = 0; pose < 3; pose++)
@@ -1964,9 +2055,12 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.SpikeYAcceleration(invalid), "Powamp Y direction domain");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Powamp motion")]
+    private static byte LookupStream1PowampMotionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1EnemyMovement(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1EnemyMovementRomByte(rom, address) | LookupStream1EnemyMovementRomByte(rom, address + 1) << 8);
         for (ushort index = 0; index < 13; index++)
         {
             var intervals = BullMovementDefinitions.Intervals(index);
@@ -1987,12 +2081,15 @@ internal static partial class Program
         foreach (ushort invalid in new ushort[] { 1, 19, 20, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => CacatacProjectileDefinitions.InstructionList((CacatacSpikeDirection)invalid), "stream1 Cacatac invalid direction selector");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 enemy movement")]
+    private static byte LookupStream1EnemyMovementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1CadencePrograms(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1CadenceProgramsRomByte(rom, address) | LookupStream1CadenceProgramsRomByte(rom, address + 1) << 8);
         for (int address = 0x90c481; address < 0x90c4b5; address++)
         {
-            AssertEqual(rom.ReadByte(address), ChargeFlareAnimationDefinitions.ReadByte(address), "stream1 original flare pointer/cadence byte");
+            AssertEqual(LookupStream1CadenceProgramsRomByte(rom, address), ChargeFlareAnimationDefinitions.ReadByte(address), "stream1 original flare pointer/cadence byte");
             if (address < 0x90c4b4)
                 AssertEqual(Word(address), ChargeFlareAnimationDefinitions.ReadWord(address), "stream1 original flare unaligned word");
         }
@@ -2047,9 +2144,12 @@ internal static partial class Program
                 AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "stream1 presentation enumeration bounds");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 cadence programs")]
+    private static byte LookupStream1CadenceProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1ProjectileMotion(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1ProjectileMotionRomByte(rom, address) | LookupStream1ProjectileMotionRomByte(rom, address + 1) << 8);
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
             AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address), "stream1 all native projectile motion words");
         foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d2, 0x90c37b, int.MaxValue })
@@ -2067,11 +2167,14 @@ internal static partial class Program
             AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)), slot.Velocity.Y.SignedRawValue, "stream1 actual initializer Y preserves adjacent missile-data overread");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 projectile motion")]
+    private static byte LookupStream1ProjectileMotionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1Selection(ISnesAddressSpace rom)
     {
         for (int address = 0x9383c1; address < 0x9386db; address += 2)
         {
-            ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort expected = (ushort)(LookupStream1SelectionRomByte(rom, address) | LookupStream1SelectionRomByte(rom, address + 1) << 8);
             AssertEqual(expected, SamusProjectileSelectionDefinitions.ReadWord(address),
                 $"stream1 original projectile selector/header {address:X6}");
             AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(address + 1),
@@ -2081,9 +2184,12 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(invalid),
                 "stream1 selector exact address-domain rejection");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 selection")]
+    private static byte LookupStream1SelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1LaunchRoles(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1LaunchRolesRomByte(rom, address) | LookupStream1LaunchRolesRomByte(rom, address + 1) << 8);
         for (int index = 0; index < 5; index++)
         {
             var launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
@@ -2119,6 +2225,9 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeEtecoonDefinitions.Initialization(invalid), "Etecoon invalid role rejection");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 launch roles")]
+    private static byte LookupStream1LaunchRolesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1SparkSpikePrograms(ISnesAddressSpace rom)
     {
         Check(0xf353, 0xf391, 17, 14,
@@ -2151,7 +2260,7 @@ internal static partial class Program
                 {
                     var actual = mechanics(mechanical++);
                     AssertEqual((ushort)address, actual.Address, "spark/spike original mechanics ordering");
-                    ushort native = (ushort)(rom.ReadByte(0x860000 | address) | rom.ReadByte(0x860000 | (address + 1)) << 8);
+                    ushort native = (ushort)(LookupStream1SparkSpikeProgramsRomByte(rom, 0x860000 | address) | LookupStream1SparkSpikeProgramsRomByte(rom, 0x860000 | (address + 1)) << 8);
                     AssertEqual(native, actual.Value, "spark/spike original mechanics word");
                     AssertEqual(native, read((ushort)address), "spark/spike direct mechanics read");
                 }
@@ -2169,6 +2278,9 @@ internal static partial class Program
                 AssertTrue(!owns(invalid), "spark/spike outside byte-domain rejection");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 spark spike programs")]
+    private static byte LookupStream1SparkSpikeProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1CommonFrames(ISnesAddressSpace rom)
     {
         byte[] originalBanks = [0xa0, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xb2, 0xb3];
@@ -2181,16 +2293,19 @@ internal static partial class Program
             AssertTrue(!CommonEnemyEmptyExtendedFrameDefinitions.HasFrame((byte)bank, 0x8050), "common empty frame excludes neighboring pointer");
             if (expected)
             {
-                AssertEqual((byte)0, rom.ReadByte(bank << 16 | 0x804d), "native common OAM has zero components");
-                AssertEqual((byte)1, rom.ReadByte(bank << 16 | 0x804f), "native common extended frame has one component");
+                AssertEqual((byte)0, LookupStream1CommonFramesRomByte(rom, bank << 16 | 0x804d), "native common OAM has zero components");
+                AssertEqual((byte)1, LookupStream1CommonFramesRomByte(rom, bank << 16 | 0x804f), "native common extended frame has one component");
             }
         }
         var deletion = CommonEnemyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(0);
         AssertEqual((ushort)0x84fc, deletion.Address, "shared projectile delete identity");
-        AssertEqual((ushort)(rom.ReadByte(0x8684fc) | rom.ReadByte(0x8684fd) << 8), deletion.Value, "shared projectile delete native instruction");
+        AssertEqual((ushort)(LookupStream1CommonFramesRomByte(rom, 0x8684fc) | LookupStream1CommonFramesRomByte(rom, 0x8684fd) << 8), deletion.Value, "shared projectile delete native instruction");
         foreach (int invalid in new[] { int.MinValue, -1, 1, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CommonEnemyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "shared delete enumeration bounds");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 common frames")]
+    private static byte LookupStream1CommonFramesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1HibashiDragonFireball(ISnesAddressSpace rom)
     {
         Check(0x860000, 0xb4bf, 0xb4ef, 16, 8,
@@ -2222,7 +2337,7 @@ internal static partial class Program
                 {
                     var word = mechanics(m++);
                     AssertEqual((ushort)address, word.Address, "Hibashi/Dragon native control order");
-                    ushort value = (ushort)(rom.ReadByte(bank | address) | rom.ReadByte(bank | (address + 1)) << 8);
+                    ushort value = (ushort)(LookupStream1HibashiDragonFireballRomByte(rom, bank | address) | LookupStream1HibashiDragonFireballRomByte(rom, bank | (address + 1)) << 8);
                     AssertEqual(value, word.Value, "Hibashi/Dragon original native control value");
                     AssertEqual(value, read((ushort)address), "Hibashi/Dragon direct control read");
                 }
@@ -2240,9 +2355,12 @@ internal static partial class Program
                 AssertTrue(!owns(invalid), "Hibashi/Dragon external byte domain");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Hibashi dragon fireball")]
+    private static byte LookupStream1HibashiDragonFireballRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1Sciser(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1SciserRomByte(rom, address) | LookupStream1SciserRomByte(rom, address + 1) << 8);
         var frames = SuperMetroid.Core.Assets.SciserVisualDefinitions.Frames();
         AssertEqual(12, frames.Length, "Sciser visual catalog size");
         string[] names = ["right", "left", "down", "up"];
@@ -2288,13 +2406,16 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Sciser visual index domain");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Sciser")]
+    private static byte LookupStream1SciserRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1DeathDefinitions(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1DeathDefinitionsRomByte(rom, address) | LookupStream1DeathDefinitionsRomByte(rom, address + 1) << 8);
         var initialFrames = SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
         AssertEqual(28, initialFrames.Length, "death retail movement domain");
         for (int movement = 0; movement < initialFrames.Length; movement++)
-            AssertEqual(rom.ReadByte(0x9bb420 + movement), initialFrames[movement], "native movement death phase");
+            AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + movement), initialFrames[movement], "native movement death phase");
         var segments = SamusSpecialSequenceRomData.Death.TileSegments;
         AssertEqual(5, segments.Length, "five death graphics transfers");
         for (int index = 0; index < segments.Length; index++)
@@ -2314,6 +2435,9 @@ internal static partial class Program
         AssertEqual(initialFrames.Length, frameIndex, "death frame enumerable count");
         AssertEqual(segments.Length, segmentIndex, "death transfer enumerable count");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 death definitions")]
+    private static byte LookupStream1DeathDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1NuclearWaffle(ISnesAddressSpace rom)
     {
         Confirm(0xa6, 0x9490, NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord,
@@ -2344,7 +2468,7 @@ internal static partial class Program
                 {
                     var actual = mechanics(index++);
                     AssertEqual((ushort)pointer, actual.Address, "Nuclear Waffle control ordering");
-                    AssertEqual((ushort)(rom.ReadByte(bank << 16 | pointer) | rom.ReadByte(bank << 16 | (pointer + 1)) << 8),
+                    AssertEqual((ushort)(LookupStream1NuclearWaffleRomByte(rom, bank << 16 | pointer) | LookupStream1NuclearWaffleRomByte(rom, bank << 16 | (pointer + 1)) << 8),
                         actual.Value, "Nuclear Waffle native controls");
                 }
                 else AssertThrows<InvalidDataException>(() => read((ushort)pointer), "Nuclear Waffle noncontrol rejection");
@@ -2355,9 +2479,12 @@ internal static partial class Program
                 AssertThrows<IndexOutOfRangeException>(() => visual(invalid), "Nuclear Waffle visual index bounds");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Nuclear Waffle")]
+    private static byte LookupStream1NuclearWaffleRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1VisualCatalogsRomByte(rom, address) | LookupStream1VisualCatalogsRomByte(rom, address + 1) << 8);
         var selectors = ChargeFlareSpriteDefinitions.Selectors;
         var nativePointers = new List<ushort>();
         byte[] json = ChargeFlareSpriteExtractor.Extract(rom);
@@ -2404,9 +2531,12 @@ internal static partial class Program
             AssertEqual((ushort)(index is 1 or 2 or 4 or 5 ? 1 : 8), Word(0xa20000 | dragon[index].Pointer), "native Dragon record size");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 visual catalogs")]
+    private static byte LookupStream1VisualCatalogsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1OwtchStoke(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1OwtchStokeRomByte(rom, address) | LookupStream1OwtchStokeRomByte(rom, address + 1) << 8);
         var controls = new HashSet<int>();
         var visuals = new HashSet<int>();
         for (int side = 0; side < 2; side++)
@@ -2443,9 +2573,12 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Owtch visual bounds");
         AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(0, 0xa3af), "unknown visual owner rejected");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Owtch Stoke")]
+    private static byte LookupStream1OwtchStokeRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1PuyoAndQuota(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1PuyoAndQuotaRomByte(rom, address) | LookupStream1PuyoAndQuotaRomByte(rom, address + 1) << 8);
         for (ushort argument = 0; argument <= 24; argument += 2)
         {
             ushort pointer = Word(0x84db28 + argument);
@@ -2454,7 +2587,7 @@ internal static partial class Program
             if (argument < 18)
             {
                 AssertTrue(eventNumber is null, "nine no-op quota identities have no event");
-                AssertEqual((byte)0x60, rom.ReadByte(0x840000 | pointer), "native distinct no-op RTS");
+                AssertEqual((byte)0x60, LookupStream1PuyoAndQuotaRomByte(rom, 0x840000 | pointer), "native distinct no-op RTS");
             }
             else AssertEqual(Word(0x840000 | (pointer + 9)), (ushort)eventNumber!.Value, "native quota observer event operand");
         }
@@ -2496,9 +2629,12 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 17, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Puyo visual bounds");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Puyo and quota")]
+    private static byte LookupStream1PuyoAndQuotaRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1MetroidLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1MetroidLayoutRomByte(rom, address) | LookupStream1MetroidLayoutRomByte(rom, address + 1) << 8);
         var frames = MetroidVisualDefinitions.Frames();
         AssertEqual(4, frames.Length, "Metroid body identities");
         for (int frame = 0; frame < 4; frame++)
@@ -2539,6 +2675,9 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 25, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Metroid visual index bounds");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Metroid layout")]
+    private static byte LookupStream1MetroidLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1SamusPolicyDomains(ISnesAddressSpace rom)
     {
         for (int pose = 0; pose <= byte.MaxValue; pose++)
@@ -2546,8 +2685,8 @@ internal static partial class Program
             if (pose is >= 0xc9 and <= 0xce)
             {
                 var angles = SamusShinesparkProjectileRomData.DepartureAngles((SamusPoseId)pose);
-                AssertEqual(rom.ReadByte(0x90d4c6 + (pose - 0xc9) * 2), angles.First.TableIndex, "native crash first departure angle");
-                AssertEqual(rom.ReadByte(0x90d4c7 + (pose - 0xc9) * 2), angles.Second.TableIndex, "native crash opposite departure angle");
+                AssertEqual(LookupStream1SamusPolicyDomainsRomByte(rom, 0x90d4c6 + (pose - 0xc9) * 2), angles.First.TableIndex, "native crash first departure angle");
+                AssertEqual(LookupStream1SamusPolicyDomainsRomByte(rom, 0x90d4c7 + (pose - 0xc9) * 2), angles.Second.TableIndex, "native crash opposite departure angle");
             }
             else AssertThrows<InvalidOperationException>(() => SamusShinesparkProjectileRomData.DepartureAngles((SamusPoseId)pose), "crash departure exact pose domain");
         }
@@ -2561,11 +2700,14 @@ internal static partial class Program
         foreach (byte invalid in new byte[] { 16, byte.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.ForCrateriaRoom(invalid), "atmospheric room exact domain");
         foreach (var (header, room) in new[] { (0x91f8, 0), (0x93fe, 5), (0x948c, 7), (0x94fd, 9), (0x9552, 10), (0x957d, 11), (0x95a8, 12), (0x95ff, 14) })
-            AssertEqual((byte)room, rom.ReadByte(0x8f0000 | header), "native atmospheric room header identity");
+            AssertEqual((byte)room, LookupStream1SamusPolicyDomainsRomByte(rom, 0x8f0000 | header), "native atmospheric room header identity");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Samus policy domains")]
+    private static byte LookupStream1SamusPolicyDomainsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1ArmCannonTileSources(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1ArmCannonTileSourcesRomByte(rom, address) | LookupStream1ArmCannonTileSourcesRomByte(rom, address + 1) << 8);
         var nativeSources = new SortedSet<ushort>();
         for (int direction = 0; direction < 10; direction++)
         {
@@ -2608,7 +2750,7 @@ internal static partial class Program
                 AssertEqual(Word(list + frame * 2), SamusArmCannonArtworkFormat.StockTileSource(aim, frame),
                     "Direct calculated cannon source defaults match original native operands");
         }
-        byte[] nativePlanar = expected.SelectMany(pointer => Enumerable.Range(0, 32).Select(offset => rom.ReadByte((0x9a0000 | pointer) + offset))).ToArray();
+        byte[] nativePlanar = expected.SelectMany(pointer => Enumerable.Range(0, 32).Select(offset => LookupStream1ArmCannonTileSourcesRomByte(rom, (0x9a0000 | pointer) + offset))).ToArray();
         AssertEqual(ReferenceIdentity(json, nativePlanar), stock.ContentIdentity, "Calculated cannon selectors preserve canonical native content identity");
         Suite(nameof(VerifySelectors), () => VerifySelectors(stock, -1, 0));
         for (int direction = 0; direction < 10; direction++)
@@ -2682,13 +2824,16 @@ internal static partial class Program
                 AssertTrue(catalog.TryResolveTile(source, 32, out var tile), "Actual cannon transfer resolves every calculated identity");
                 for (int offset = 0; offset < 32; offset++)
                 {
-                    byte native = rom.ReadByte(source + offset);
+                    byte native = LookupStream1ArmCannonTileSourcesRomByte(rom, source + offset);
                     if (hasEdit && index == 5 && offset == 0) native ^= 0x80;
                     AssertEqual(native, tile.Span[offset], "Calculated identity retains original tile bytes and isolated edited pixel");
                 }
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 arm cannon tile sources")]
+    private static byte LookupStream1ArmCannonTileSourcesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -2704,7 +2849,7 @@ internal static partial class Program
         var field = typeof(SamusArmCannonArtworkCatalog).GetField("drawingData",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => (Dictionary<int, byte>)field.GetValue(value)!;
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1CannonDrawingControlsRomByte(rom, address) | LookupStream1CannonDrawingControlsRomByte(rom, address + 1) << 8);
         var headers = new HashSet<int>();
         var descriptors = new SortedSet<int>();
         for (int pose = 0; pose < 253; pose++)
@@ -2712,7 +2857,7 @@ internal static partial class Program
             int pointer = Word(0x90C7DF + pose * 2);
             descriptors.Add(pointer);
             headers.Add(pointer); headers.Add(pointer + 1);
-            if ((rom.ReadByte(0x900000 | pointer) & 0x80) != 0)
+            if ((LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | pointer) & 0x80) != 0)
             { headers.Add(pointer + 2); headers.Add(pointer + 3); }
         }
         AssertEqual(130, headers.Count, "cannon original distinct direction/mode control-byte count");
@@ -2722,17 +2867,17 @@ internal static partial class Program
         for (int descriptor = 0; descriptor < boundaries.Length - 1; descriptor++)
         {
             int pointer = boundaries[descriptor], next = boundaries[descriptor + 1];
-            if ((rom.ReadByte(0x900000 | pointer) & 0x80) != 0 || next - pointer <= 4) continue;
+            if ((LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | pointer) & 0x80) != 0 || next - pointer <= 4) continue;
             bool constantPair = true;
             for (int address = pointer + 4; address < next; address++)
-                constantPair &= rom.ReadByte(0x900000 | address) == rom.ReadByte(0x900000 | (pointer + 2 + ((address - pointer) & 1)));
+                constantPair &= LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address) == LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (pointer + 2 + ((address - pointer) & 1)));
             if (constantPair)
                 for (int address = pointer + 4; address < next; address++) aliases.Add(address, pointer + 2 + ((address - pointer) & 1));
             else
             {
                 bool fixedX = true;
                 for (int address = pointer + 4; address < next; address += 2)
-                    fixedX &= rom.ReadByte(0x900000 | address) == rom.ReadByte(0x900000 | (pointer + 2));
+                    fixedX &= LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address) == LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (pointer + 2));
                 if (fixedX)
                 {
                     for (int address = pointer + 4; address < next; address += 2) aliases.Add(address, pointer + 2);
@@ -2741,7 +2886,7 @@ internal static partial class Program
                     {
                         bool repeatedHalf = true;
                         for (int address = pointer + 3 + frames; address < next; address += 2)
-                            repeatedHalf &= rom.ReadByte(0x900000 | address) == rom.ReadByte(0x900000 | (address - frames));
+                            repeatedHalf &= LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address) == LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (address - frames));
                         if (repeatedHalf)
                             for (int address = pointer + 3 + frames; address < next; address += 2)
                                 aliases.Add(address, address - frames);
@@ -2762,7 +2907,7 @@ internal static partial class Program
             int end = boundaries[Array.IndexOf(boundaries, later) + 1] - later;
             for (int offset = 3; offset < end; offset += 2)
             {
-                AssertEqual(rom.ReadByte(0x900000 | (earlier + offset)), rom.ReadByte(0x900000 | (later + offset)),
+                AssertEqual(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (earlier + offset)), LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (later + offset)),
                     "native horizontally reflected poses share this vertical profile");
                 if (!aliases.ContainsKey(later + offset)) aliases.Add(later + offset, earlier + offset);
             }
@@ -2770,7 +2915,7 @@ internal static partial class Program
         foreach ((int earlierPose, int laterPose) in new (int, int)[] { (0x03,0x04), (0x15,0x16), (0x85,0x86) })
         {
             int earlierY = Word(0x90C7DF + earlierPose * 2) + 7, laterY = Word(0x90C7DF + laterPose * 2) + 7;
-            AssertEqual(rom.ReadByte(0x900000 | earlierY), rom.ReadByte(0x900000 | laterY), "native fully upward secondary pose shares Y");
+            AssertEqual(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | earlierY), LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | laterY), "native fully upward secondary pose shares Y");
             aliases.Add(laterY, earlierY);
         }
         var reflections = new Dictionary<int, int>();
@@ -2787,14 +2932,14 @@ internal static partial class Program
         })
         {
             int earlier = Word(0x90C7DF + earlierPose * 2), later = Word(0x90C7DF + laterPose * 2);
-            bool variableDirection = (rom.ReadByte(0x900000 | later) & 0x80) != 0;
+            bool variableDirection = (LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | later) & 0x80) != 0;
             int first = variableDirection ? 4 : 2;
             int end = variableDirection ? boundaries[Array.IndexOf(boundaries, later) + 1] - later : first + 2;
             for (int offset = first; offset < end; offset += 2)
             {
                 int source = earlier + offset, target = later + offset;
-                byte expected = unchecked((byte)(-unchecked((sbyte)rom.ReadByte(0x900000 | source)) - 8));
-                AssertEqual(expected, rom.ReadByte(0x900000 | target), "native paired cover spans reflect around Samus origin");
+                byte expected = unchecked((byte)(-unchecked((sbyte)LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | source)) - 8));
+                AssertEqual(expected, LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | target), "native paired cover spans reflect around Samus origin");
                 reflections.Add(target, source);
             }
         }
@@ -2805,7 +2950,7 @@ internal static partial class Program
         for (int index = 0; index < count; index++)
         {
             ushort address = (ushort)(start + index);
-            byte expected = rom.ReadByte(0x900000 | address);
+            byte expected = LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address);
             bool calculated = SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out byte value);
             AssertEqual(headers.Contains(address), calculated, "cannon only original controls/cost aliases are calculated");
             if (calculated) AssertEqual(expected, value, "cannon direct original header/cost calculation");
@@ -2822,7 +2967,7 @@ internal static partial class Program
             {
                 AssertEqual((ushort)reflections[address], reflectedSource, "cannon original opposite-facing source");
                 AssertTrue(reflectedSource < address && !calculated && !alias, "cannon reflection is an acyclic independent source relation");
-                AssertEqual(expected, SamusArmCannonArtworkFormat.ReflectCoverX(rom.ReadByte(0x900000 | reflectedSource)), "cannon reflected native default");
+                AssertEqual(expected, SamusArmCannonArtworkFormat.ReflectCoverX(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | reflectedSource)), "cannon reflected native default");
             }
             AssertEqual(!calculated && !alias && !reflection, Stored(stock).ContainsKey(index), "cannon exact coordinate storage membership");
             AssertEqual(expected, stock.ReadDrawingByte(address), "cannon complete installed byte window");
@@ -2853,10 +2998,13 @@ internal static partial class Program
         Console.WriteLine("Cannon drawing:130 native controls,24 cost aliases,290 shared coordinates,29 reflected origins,135 exact basis bytes and608 independent edits pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 cannon drawing controls")]
+    private static byte LookupStream1CannonDrawingControlsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1AtmosphericAttributes(ISnesAddressSpace rom)
     {
         ushort[] Native(int address) => Enumerable.Range(0, 4).Select(frame =>
-            (ushort)(rom.ReadByte(address + frame * 2) | rom.ReadByte(address + frame * 2 + 1) << 8)).ToArray();
+            (ushort)(LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2) | LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2 + 1) << 8)).ToArray();
         ushort[] one = Native(0x908C0F), shared = Native(0x908C17);
         var stock = new SamusAtmosphericArtworkCatalog(one, shared);
         int Stored(SamusAtmosphericArtworkCatalog catalog, string name) =>
@@ -2899,6 +3047,9 @@ internal static partial class Program
         Console.WriteLine("Atmospheric attributes: eight direct native defaults, exact OBJ field basis, zero stock overrides, eight full-word edits and canonical identities pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 atmospheric attributes")]
+    private static byte LookupStream1AtmosphericAttributesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1EscapeText(ISnesAddressSpace rom)
     {
         byte[] json = EscapeTypewriterExtractor.Extract(rom);
@@ -2915,7 +3066,7 @@ internal static partial class Program
         int Stored(EscapeTypewriterProgram program) => ((System.Collections.IDictionary)program.Lines.GetType()
             .GetField("overrides", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .GetValue(program.Lines)!).Count;
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1EscapeTextRomByte(rom, address) | LookupStream1EscapeTextRomByte(rom, address + 1) << 8);
         int totalFrames = 0;
         foreach (EscapeTypewriterProgramId id in new[] { EscapeTypewriterProgramId.Ceres, EscapeTypewriterProgramId.Zebes })
         {
@@ -2959,7 +3110,7 @@ internal static partial class Program
                         if (command == 0) { done = true; break; }
                         if (command == 1) { delay = Word(cursor + 2); cursor += 4; continue; }
                         if (command == 13) { destination = Word(cursor + 2); cursor += 4; continue; }
-                        byte character = rom.ReadByte(cursor++);
+                        byte character = LookupStream1EscapeTextRomByte(rom, cursor++);
                         if (character != ' ')
                         {
                             int glyph = character == '!' ? '[' : character;
@@ -2996,6 +3147,9 @@ internal static partial class Program
         Console.WriteLine($"Escape text: five direct native lines, zero stock overrides, independent edits/line counts and {totalFrames} actual native-oracle frames pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 escape text")]
+    private static byte LookupStream1EscapeTextRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1VisorColors(ISnesAddressSpace rom)
     {
         var document = System.Text.Json.JsonSerializer.Deserialize<SamusVisorColorDocument>(
@@ -3009,7 +3163,7 @@ internal static partial class Program
         ushort Native(int index)
         {
             int address = SamusVisorColorFormat.SourceAddress + index * 2;
-            return (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            return (ushort)(LookupStream1VisorColorsRomByte(rom, address) | LookupStream1VisorColorsRomByte(rom, address + 1) << 8);
         }
         AssertEqual(0, Stored(stock).Count, "visor stock stores no sampled fallback colors");
         AssertEqual(Native(0), SamusVisorColorDefinitions.WideningStart, "visor required widening basis");
@@ -3035,9 +3189,12 @@ internal static partial class Program
         Console.WriteLine("Visor: six direct native defaults, exact two-color/step basis, zero stock overrides and six independent edits pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 visor colors")]
+    private static byte LookupStream1VisorColorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1WorldForeground(ISnesAddressSpace rom)
     {
-        byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => rom.ReadByte(address + i)).ToArray();
+        byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldForegroundRomByte(rom, address + i)).ToArray();
         byte[] front = Read(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
         byte[] back = Read(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(front, 4, 16, out Extent16<ImagePixels> size);
@@ -3103,9 +3260,12 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.ForegroundSourcePixel(pixels.Length), "Foreground upper bound");
         Console.WriteLine($"World foreground:{pixels.Length} native pixels,{calculated} exact source relations,{stored.Count} source pixels/{masks.Count} masks/{fontDifferences} font differences,{edits.Count} independent tile/source edits/full inversion/full uploads pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 world foreground")]
+    private static byte LookupStream1WorldForegroundRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1ProjectileRadiusLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1ProjectileRadiusLayoutRomByte(rom, address) | LookupStream1ProjectileRadiusLayoutRomByte(rom, address + 1) << 8);
         var expected = new List<ushort>();
         for (int address = 0x9386db; address < 0x93a1a1;)
         {
@@ -3139,7 +3299,7 @@ internal static partial class Program
             AssertTrue(SamusProjectileRadiusDefinitions.TryCalculatedPair(frame, out ushort pair), "Every native frame has a calculated family policy");
             AssertEqual(Word(0x930000 | (pointer + 4)), pair, "Direct family policy has no native-table fallback");
             for (int component = 0; component < 2; component++)
-                AssertEqual(rom.ReadByte(0x930000 | (pointer + 4 + component)),
+                AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4 + component)),
                     SamusProjectileRadiusDefinitions.ReadByte(0x930000 | (pointer + 4 + component)), "Native physical radius bytes preserved");
         }
         var document = new ProjectileFrameBindingDocument
@@ -3167,8 +3327,8 @@ internal static partial class Program
                 AssertTrue(!shots.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
                 AssertEqual(duration, slot.InstructionTimer, "Actual timer unchanged");
                 AssertEqual(sprite, slot.SpritemapPointer, "Independent installed artwork selection");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius independent of art edit");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius independent of art edit");
+                AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius independent of art edit");
+                AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius independent of art edit");
                 AssertEqual(Word(0x930000 | (pointer + 6)), slot.AnimationFrame, "Actual trail phase unchanged");
                 AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
                 interpreted++;
@@ -3177,13 +3337,13 @@ internal static partial class Program
                 AssertTrue(!(bool)runBomb.Invoke(bombs, [bomb])!, "Actual bomb timed frame survives");
                 AssertEqual(duration, bomb.InstructionTimer, "Actual bomb timer unchanged");
                 AssertEqual(sprite, bomb.SpritemapPointer, "Independent bomb artwork selection");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), bomb.Radius.X, "Actual bomb X radius");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), bomb.Radius.Y, "Actual bomb Y radius");
+                AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), bomb.Radius.X, "Actual bomb X radius");
+                AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), bomb.Radius.Y, "Actual bomb Y radius");
                 AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Actual bomb record progression");
                 bombInterpreted++;
             }
         }        for (int step = 0; step < 4; step++)
-            AssertEqual(-4 - unchecked((sbyte)rom.ReadByte(0x93ae70 + 7 * step)),
+            AssertEqual(-4 - unchecked((sbyte)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x93ae70 + 7 * step)),
                 ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(step), "Shared lobe source derives from centered native OAM");
         AssertEqual((Word(0x93d64c) & 0x1ff) + 4, ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread,
             "Shared initial Spazer lane source");
@@ -3202,9 +3362,12 @@ internal static partial class Program
         AssertEqual((byte)0, SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1), "Separate bounded MurderBeam Y contract preserved");
         Console.WriteLine($"Projectile radii:805 native calculated records/1610 bytes,{interpreted} actual projectile/{bombInterpreted} bomb records with zero reads and independent art edits; exact domain/order/bounds pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 projectile radius layout")]
+    private static byte LookupStream1ProjectileRadiusLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1ProjectilePrograms(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1ProjectileProgramsRomByte(rom, address) | LookupStream1ProjectileProgramsRomByte(rom, address + 1) << 8);
         var programs = new List<(ushort Start, int Ticks)>();
         var records = new List<ushort>();
         var mechanics = new HashSet<int>();
@@ -3278,7 +3441,7 @@ internal static partial class Program
                         AssertTrue(word is > 0 and < 0x8000, "Native command reaches a timed frame");
                         looped = !visited.Add(pointer);
                         timer = word; sprite = Word(0x930000 | (pointer + 2));
-                        x = rom.ReadByte(0x930000 | (pointer + 4)); y = rom.ReadByte(0x930000 | (pointer + 5));
+                        x = LookupStream1ProjectileProgramsRomByte(rom, 0x930000 | (pointer + 4)); y = LookupStream1ProjectileProgramsRomByte(rom, 0x930000 | (pointer + 5));
                         trail = Word(0x930000 | (pointer + 6)); pointer += 8;
                     }
                 }
@@ -3306,6 +3469,9 @@ internal static partial class Program
         }
         Console.WriteLine($"Projectile programs:1816 native words,805 records,105 complete programs,{actualTicks} exact ticks per owner,{loops} loop returns/{deletions} terminal deletions, zero runtime reads; original domain preserved.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 projectile programs")]
+    private static byte LookupStream1ProjectileProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -3329,7 +3495,7 @@ internal static partial class Program
         for (int index = 0; index < document.DrawingData.Length; index++)
         {
             ushort address = (ushort)(0xc9d9 + index);
-            byte expected = rom.ReadByte(0x900000 | address);
+            byte expected = LookupStream1CannonPlacementRomByte(rom, 0x900000 | address);
             if (!SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out _) &&
                 !SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out _) &&
                 !SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out _))
@@ -3394,11 +3560,11 @@ internal static partial class Program
                 samus.TileTransfers.BindArtwork(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
                 cannon.Update(rom, samus); cannon.Update(rom, samus);
-                int pointer = rom.ReadByte(0x90c7df + (int)pose * 2) | rom.ReadByte(0x90c7e0 + (int)pose * 2) << 8;
-                int offset = (rom.ReadByte(0x900000 | pointer) & 128) != 0 ? 4 : 2;
-                int x = unchecked((sbyte)rom.ReadByte(0x900000 | (pointer + offset + frame * 2)));
-                int y = unchecked((sbyte)rom.ReadByte(0x900000 | (pointer + offset + frame * 2 + 1)));
-                int graphics = unchecked((sbyte)rom.ReadByte(0x91b629 + (int)pose * 8 + 4));
+                int pointer = LookupStream1CannonPlacementRomByte(rom, 0x90c7df + (int)pose * 2) | LookupStream1CannonPlacementRomByte(rom, 0x90c7e0 + (int)pose * 2) << 8;
+                int offset = (LookupStream1CannonPlacementRomByte(rom, 0x900000 | pointer) & 128) != 0 ? 4 : 2;
+                int x = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (pointer + offset + frame * 2)));
+                int y = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (pointer + offset + frame * 2 + 1)));
+                int graphics = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x91b629 + (int)pose * 8 + 4));
                 var cannonOam = new OamBuffer();
                 var cannonWrites = new VramWriteQueue();
                 cannon.Draw(rom, cannonOam, cannonWrites, samus, Position16<RoomPixels>.Zero, 0);
@@ -3412,6 +3578,9 @@ internal static partial class Program
         Console.WriteLine($"Cannon placement:135 direct body/tail defaults,608 native bytes/independent edits,zero stock fallbacks,canonical hashes,independent empty/zero/shifted body art and{draws} actual OAM draws pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 cannon placement")]
+    private static byte LookupStream1CannonPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyLookupStream1OamPointers(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -3419,7 +3588,7 @@ internal static partial class Program
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
         var stock = body.Spritemaps;
         ushort[] native = Enumerable.Range(0, 2096).Select(index =>
-            (ushort)(rom.ReadByte(0x92808d + index * 2) | rom.ReadByte(0x92808e + index * 2) << 8)).ToArray();
+            (ushort)(LookupStream1OamPointersRomByte(rom, 0x92808d + index * 2) | LookupStream1OamPointersRomByte(rom, 0x92808e + index * 2) << 8)).ToArray();
         int aliases = 0, directPointers = 0;
         var nativeDefinitions = stock.Definitions.ToDictionary(map => map.Pointer);
         for (int index = 0; index < native.Length; index++)
@@ -3472,13 +3641,22 @@ internal static partial class Program
             .Concat(stored.OrderBy(pair => pair.Key).Select(pair => $"{pair.Key:X4},{0x92808d + pair.Key * 2:X6},{pair.Value:X4}")));
         AssertThrows<InvalidDataException>(() => stock.TryGet(2096, out _), "Original upper index rejection");
         AssertThrows<InvalidDataException>(() => stock.TryGet(ushort.MaxValue, out _), "Original full ushort rejection");
+        VerifySamusZeroOamSelectorReadsLowBankMemory(stock);
+        Console.WriteLine($"Samus OAM pointers:2096 native selectors, {aliases} exact aliases/{directPointers} direct calculations/{stored.Count} retained composition inputs,2096 independent edits,empty OAM,actual identity/WRAM selection and domain checks pass.");
+    }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Samus OAM pointer table")]
+    private static byte LookupStream1OamPointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [CpuBusBoundary("exact bus test: Samus spritemap selector zero reads its record from bank $92's low-half live memory")]
+    private static void VerifySamusZeroOamSelectorReadsLowBankMemory(SamusSpritemapArtworkCatalog stock)
+    {
         var memory = new TestAddressSpace();
         byte[] record = [1, 0, 3, 0, 2, 0x34, 0x12];
         for (int index = 0; index < record.Length; index++) memory.WriteByte(0x920000 + index, record[index]);
         var oam = new OamBuffer(); oam.BeginFrame();
         oam.AddSamusSpritemap(memory, 3, new Position16<OamPixels>(127, 131), stock);
         AssertTrue(oam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }), "Native zero selector still reads mutable memory through actual renderer");
-        Console.WriteLine($"Samus OAM pointers:2096 native selectors, {aliases} exact aliases/{directPointers} direct calculations/{stored.Count} retained composition inputs,2096 independent edits,empty OAM,actual identity/WRAM selection and domain checks pass.");
     }
 
     private static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
@@ -3505,7 +3683,7 @@ internal static partial class Program
                 AssertEqual(0, contour.Count, "Zero stock morph-circle contour overrides");
                 for (int index = 0; index < image.Length; index++)
                 {
-                    byte native = rom.ReadByte(glyph.SourceAddress + index);
+                    byte native = LookupStream1BodyPixelsRomByte(rom, glyph.SourceAddress + index);
                     AssertEqual(native, image[index], "Every native body pixel byte");
                     byte mask = SamusBodyPixelDefinitions.ContourMask(upper, set, position, index);
                     AssertEqual((byte)0, (byte)(native & ~mask), "Exact native circular silhouette");
@@ -3517,7 +3695,7 @@ internal static partial class Program
                     bool diagnostic = SamusBodyPixelDefinitions.TryDiagnosticByte(upper, set, position, index, out byte glyphByte);
                     if (diagnostic) { AssertEqual(native, glyphByte, "Direct native Ep drawing"); diagnosticBytes++; }
                     else if (blank) { AssertEqual((byte)0, native, "Direct native transparent allocation"); blankBytes++; }
-                    else if (shared) { AssertEqual(rom.ReadByte(groups[set][sourcePosition].SourceAddress + sourceIndex), native, "Direct native shared anatomical patch"); sharedBytes++; }
+                    else if (shared) { AssertEqual(LookupStream1BodyPixelsRomByte(rom, groups[set][sourcePosition].SourceAddress + sourceIndex), native, "Direct native shared anatomical patch"); sharedBytes++; }
                     else
                     {
                         retained++;
@@ -3566,12 +3744,15 @@ internal static partial class Program
         AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.Frames.ToArray(), top, cableEdits), cableBody.ContentIdentity, "Exact cable edit hash");
         Console.WriteLine($"Body pixels: {bytes} native bytes, {blankBytes} blank and {sharedBytes} shared bytes, exact {retained} selected inputs, nine individual upper edits plus nine simultaneous distinct cable edits, {diagnosticBytes} drawn diagnostic bytes, {circleBits} circular transparency bits and canonical hashes pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body pixels")]
+    private static byte LookupStream1BodyPixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(LookupStream1BodyTransfersRomByte(rom, address) | LookupStream1BodyTransfersRomByte(rom, address + 1) << 8);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var sourceField = typeof(SamusBodyTileDefinition).GetField("sourceAddressOverride", flags)!;
         var sizeField = typeof(SamusBodyTileDefinition).GetField("firstSizeOverride", flags)!;
@@ -3589,7 +3770,7 @@ internal static partial class Program
             {
                 var value = groups[set][position];
                 int address = 0x920000 | (Word((upper ? 0x92d91e : 0x92d938) + set * 2) + position * 7);
-                int source = Word(address) | rom.ReadByte(address + 2) << 16;
+                int source = Word(address) | LookupStream1BodyTransfersRomByte(rom, address + 2) << 16;
                 ushort first = Word(address + 3), second = Word(address + 5);
                 AssertEqual(source, SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position), "Direct native packed allocation source");
                 AssertTrue(SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, value.Planar.Length, out ushort calculated), "Every native record has a direct row calculation");
@@ -3599,7 +3780,7 @@ internal static partial class Program
                 AssertEqual(second, value.SecondSize, "Installed native remaining row");
                 AssertTrue(sourceField.GetValue(value) is null && sizeField.GetValue(value) is null, "Zero stock metadata overrides");
                 byte[] pixels = value.Planar.ToArray();
-                for (int index = 0; index < pixels.Length; index++) AssertEqual(rom.ReadByte(source + index), pixels[index], "Separate native pixel payload preserved");
+                for (int index = 0; index < pixels.Length; index++) AssertEqual(LookupStream1BodyTransfersRomByte(rom, source + index), pixels[index], "Separate native pixel payload preserved");
                 // Preserve schema-valid non-tile-aligned individual row splits too.
                 ushort editedFirst = (ushort)(second == 0 ? first - 1 : first + 1);
                 var supplied = new SamusBodyTileDefinition(source ^ 0x123456, editedFirst,
@@ -3657,18 +3838,18 @@ internal static partial class Program
             var state = new SamusTileTransferState(); state.BindArtwork(body);
             state.SelectForPoseFrame(guard, selected.Pose, selected.Phase);
             int frameAddress = 0x920000 | (Word(0x92d94e + (int)selected.Pose * 2) + selected.Phase * 4);
-            int topAddress = 0x920000 | (Word(0x92d91e + rom.ReadByte(frameAddress) * 2) + rom.ReadByte(frameAddress + 1) * 7);
+            int topAddress = 0x920000 | (Word(0x92d91e + LookupStream1BodyTransfersRomByte(rom, frameAddress) * 2) + LookupStream1BodyTransfersRomByte(rom, frameAddress + 1) * 7);
             AssertEqual(topAddress, state.TopDefinitionAddress, "Native physical upper selection including cross-group position");
-            if (rom.ReadByte(frameAddress + 2) != 255)
-                AssertEqual(0x920000 | (Word(0x92d938 + rom.ReadByte(frameAddress + 2) * 2) + rom.ReadByte(frameAddress + 3) * 7),
+            if (LookupStream1BodyTransfersRomByte(rom, frameAddress + 2) != 255)
+                AssertEqual(0x920000 | (Word(0x92d938 + LookupStream1BodyTransfersRomByte(rom, frameAddress + 2) * 2) + LookupStream1BodyTransfersRomByte(rom, frameAddress + 3) * 7),
                     state.BottomDefinitionAddress, "Native physical lower selection including cross-group position");
             var actual = new SnesVram(); var expected = new SnesVram();
             void Copy(int address, int destination)
             {
-                int source = Word(address) | rom.ReadByte(address + 2) << 16;
+                int source = Word(address) | LookupStream1BodyTransfersRomByte(rom, address + 2) << 16;
                 int first = Word(address + 3), second = Word(address + 5);
-                expected.LoadBytes(destination * 2, Enumerable.Range(0, first).Select(index => rom.ReadByte(source + index)).ToArray());
-                expected.LoadBytes((destination + 0x100) * 2, Enumerable.Range(0, second).Select(index => rom.ReadByte(source + first + index)).ToArray());
+                expected.LoadBytes(destination * 2, Enumerable.Range(0, first).Select(index => LookupStream1BodyTransfersRomByte(rom, source + index)).ToArray());
+                expected.LoadBytes((destination + 0x100) * 2, Enumerable.Range(0, second).Select(index => LookupStream1BodyTransfersRomByte(rom, source + first + index)).ToArray());
             }
             Copy(state.TopDefinitionAddress, 0x6000);
             if (state.BottomTransferEnabled) Copy(state.BottomDefinitionAddress, 0x6080);
@@ -3679,5 +3860,8 @@ internal static partial class Program
         }
         Console.WriteLine($"Body transfers:{records} direct native records,zero stock metadata overrides,independent metadata/empty-OAM edits,canonical hash and{transfers} actual split DMA/cross-group selections pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body transfers")]
+    private static byte LookupStream1BodyTransfersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

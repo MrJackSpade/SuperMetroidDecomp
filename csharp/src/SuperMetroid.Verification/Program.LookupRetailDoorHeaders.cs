@@ -48,8 +48,8 @@ internal static partial class Program
         foreach (ushort pointer in EnumerateRetailDoorPointers())
         {
             int address = (0x830000 | pointer) + offset;
-            int expected = rom.ReadByte(address);
-            if (width == 2) expected |= rom.ReadByte(address + 1) << 8;
+            int expected = DoorHeaderFieldRomByte(rom, address);
+            if (width == 2) expected |= DoorHeaderFieldRomByte(rom, address + 1) << 8;
             CartridgeDoorHeader actual = DoorDefinitions.Get(pointer);
             AssertEqual(expected, field(actual), $"Door {pointer:X4} native field at {offset}");
             if (offset == 10)
@@ -57,4 +57,7 @@ internal static partial class Program
                     "Door setup selection preserves the Ceres Mode7 consumer predicate");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for door header field")]
+    private static byte DoorHeaderFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

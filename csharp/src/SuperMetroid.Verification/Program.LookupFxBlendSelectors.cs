@@ -22,7 +22,7 @@ internal static partial class Program
     private static void VerifyFxBlendSourceAddresses(ISnesAddressSpace rom)
     {
         // Original LDA.l operand at89:AB5F supplies the color-one base.
-        int nativeBase = rom.ReadByte(0x89ab5f) | rom.ReadByte(0x89ab60) << 8 | rom.ReadByte(0x89ab61) << 16;
+        int nativeBase = FxBlendSourceAddressesRomByte(rom, 0x89ab5f) | FxBlendSourceAddressesRomByte(rom, 0x89ab60) << 8 | FxBlendSourceAddressesRomByte(rom, 0x89ab61) << 16;
         AssertEqual(0x89aa02, nativeBase, "Pinned native blend load operand");
         foreach (int value in Enumerable.Range(0, 256))
         {
@@ -32,6 +32,9 @@ internal static partial class Program
             else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.SourceAddress((RoomFxPaletteBlend)id), "Noncatalogued source rejects");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for FX blend source addresses")]
+    private static byte FxBlendSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyFxBlendPageDispatch(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {

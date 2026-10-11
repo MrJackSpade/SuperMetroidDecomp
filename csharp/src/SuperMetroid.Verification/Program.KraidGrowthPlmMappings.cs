@@ -15,7 +15,7 @@ internal static partial class Program
     private static void VerifyKraidGrowthPlmField(SuperMetroidAddressSpace rom, int offset,
         Func<KraidPlmRequest, ushort> field)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(KraidGrowthPlmFieldRomByte(rom, address) | KraidGrowthPlmFieldRomByte(rom, address + 1) << 8);
         var requests = KraidPlmDefinitions.GrowthCeiling;
         var enumerated = requests.ToArray();
         AssertEqual(9, requests.Count, "Nine native growth callbacks");
@@ -23,11 +23,14 @@ internal static partial class Program
         for (int index = 0; index < 9; index++)
         {
             int callback = 0xa70000 | Word(0xa7acc5 + 2 * index);
-            ushort expected = offset == 6 ? Word(callback + offset) : rom.ReadByte(callback + offset);
+            ushort expected = offset == 6 ? Word(callback + offset) : KraidGrowthPlmFieldRomByte(rom, callback + offset);
             AssertEqual(expected, field(requests[index]), "Native callback inline PLM field");
             AssertEqual(expected, field(enumerated[index]), "Ordered calculated PLM enumeration");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 9, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = requests[invalid], "Growth request list bounds");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth PLM field")]
+    private static byte KraidGrowthPlmFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

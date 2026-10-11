@@ -76,15 +76,18 @@ internal static partial class Program
         ushort ReadWord(ushort pointer)
         {
             int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
-            return unchecked((ushort)(bus.ReadByte(address) |
-                (bus.ReadByte(address + 1) << 8)));
+            return unchecked((ushort)(CompiledLibraryBackgroundProgramsRomByte(bus, address) |
+                (CompiledLibraryBackgroundProgramsRomByte(bus, address + 1) << 8)));
         }
 
         int ReadLong(ushort pointer)
         {
             int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
-            return bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8) |
-                (bus.ReadByte(address + 2) << 16);
+            return CompiledLibraryBackgroundProgramsRomByte(bus, address) | (CompiledLibraryBackgroundProgramsRomByte(bus, address + 1) << 8) |
+                (CompiledLibraryBackgroundProgramsRomByte(bus, address + 2) << 16);
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled library background programs")]
+    private static byte CompiledLibraryBackgroundProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

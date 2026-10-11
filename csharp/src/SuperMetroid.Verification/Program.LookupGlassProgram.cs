@@ -35,7 +35,7 @@ internal static partial class Program
             else if (FieldAt(raw) == field)
             {
                 count++;
-                byte expected = rom.ReadByte(0x840000 | raw);
+                byte expected = GlassFieldRomByte(rom, 0x840000 | raw);
                 AssertEqual(expected, b, "Glass native field byte");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "Glass composed byte ownership");
                 AssertEqual(expected, shared, "Glass composed native byte");
@@ -54,4 +54,7 @@ internal static partial class Program
         AssertEqual(field switch { 0 => 86, 1 => 34, 2 => 22, 3 => 2, 4 => 4, 5 => 1, 6 => 18, _ => 80 }, count,
             "Glass independent field byte count");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for glass field")]
+    private static byte GlassFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

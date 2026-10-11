@@ -154,20 +154,7 @@ static void VerifyLibraryBackgroundLoader()
     AssertTrue(typed.CartridgeReads > 0 && typed.WorkRamReads > 0,
         "native library-background command and decompression reads use typed ROM/WRAM");
 
-    // The list cursor is sixteen-bit. Reading a command word at $8F:FFFF fetches
-    // its second byte from the $8F:0000 WRAM mirror, not from the next ROM bank.
-    WriteLibraryByte(rom, 0xffff, 0);
-    var wrappedBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-    wrappedBus.WriteByte(0x8f0000, 0);
-    var wrapped = new LibraryBackgroundTypedReadGuard(wrappedBus);
-    native = SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(
-        wrapped, new SnesVram(), 0xffff, activeDoorPointer: 0);
-    AssertEqual(1, SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.Read(wrappedBus, 0xffff).Instructions.Count + 1,
-        "bank-end native library-background terminator executes once");
-    AssertEqual(1, wrapped.CartridgeReads,
-        "bank-end command low byte comes from cartridge");
-    AssertEqual(1, wrapped.WorkRamReads,
-        "bank-end command high byte comes from the WRAM mirror");
+    VerifyLibraryBackgroundBankEndWrap(rom);
 
     // Command A is the actual starting-Ceres list shape and must overwrite stale VRAM on
     // both pages with the native blank tile rather than relying on a fresh host array.
@@ -183,6 +170,27 @@ static void VerifyLibraryBackgroundLoader()
 
     Console.WriteLine(
         "  Library BG: typed ROM/WRAM command reads, decompression, Ceres BG2 pages, and native clear agree.");
+}
+
+/// <summary>
+/// The list cursor is sixteen-bit: a command word at $8F:FFFF takes its high byte from the
+/// $8F:0000 low-WRAM mirror, not from the next ROM bank.
+/// </summary>
+[CpuBusBoundary("exact bus test: library-background command word wrapping from $8F:FFFF into the $8F:0000 low-WRAM mirror")]
+private static void VerifyLibraryBackgroundBankEndWrap(byte[] rom)
+{
+    WriteLibraryByte(rom, 0xffff, 0);
+    var wrappedBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+    wrappedBus.WriteByte(0x8f0000, 0);
+    var wrapped = new LibraryBackgroundTypedReadGuard(wrappedBus);
+    _ = SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(
+        wrapped, new SnesVram(), 0xffff, activeDoorPointer: 0);
+    AssertEqual(1, SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.Read(wrappedBus, 0xffff).Instructions.Count + 1,
+        "bank-end native library-background terminator executes once");
+    AssertEqual(1, wrapped.CartridgeReads,
+        "bank-end command low byte comes from cartridge");
+    AssertEqual(1, wrapped.WorkRamReads,
+        "bank-end command high byte comes from the WRAM mirror");
 }
 
 [CpuBusBoundary("exact bus test: counts cartridge and WRAM reads separately to witness that library backgrounds route each source byte through its typed bus read")]

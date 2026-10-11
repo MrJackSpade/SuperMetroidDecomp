@@ -16,7 +16,7 @@ internal static partial class Program
             RoomFxType type = OriginalFxTilemapTypes[index];
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
             var bytes = new byte[0x840];
-            for (int offset = 0; offset < bytes.Length; offset++) bytes[offset] = rom.ReadByte(source + offset);
+            for (int offset = 0; offset < bytes.Length; offset++) bytes[offset] = FxTilemapPageDispatchRomByte(rom, source + offset);
             native.Add(type, bytes);
             ushort marker = (ushort)(index + 1);
             markers.Add(type, marker);
@@ -71,4 +71,7 @@ internal static partial class Program
             document.Pages.Add(type.ToString(), cells);
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for FX tilemap page dispatch")]
+    private static byte FxTilemapPageDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

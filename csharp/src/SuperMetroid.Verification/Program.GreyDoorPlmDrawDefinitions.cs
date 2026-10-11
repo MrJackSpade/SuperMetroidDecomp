@@ -13,7 +13,7 @@ internal static partial class Program
         Suite(nameof(VerifyGreyDoorProgramDefinitions), () => VerifyGreyDoorProgramDefinitions(rom));
         Suite(nameof(VerifyBombTorizoGreyDoorProgramDefinitions), () => VerifyBombTorizoGreyDoorProgramDefinitions(rom));
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(GreyDoorPlmDrawDefinitionsRomByte(bus, address) | GreyDoorPlmDrawDefinitionsRomByte(bus, address + 1) << 8);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             GreyDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
@@ -39,7 +39,7 @@ internal static partial class Program
 
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
-            bank84[offset] = rom.ReadByte(0x848000 + offset);
+            bank84[offset] = GreyDoorPlmDrawDefinitionsRomByte(rom, 0x848000 + offset);
         ushort[] headers =
         [
             (ushort)PlmHeaderId.BombTorizoGreyDoor,
@@ -167,6 +167,9 @@ internal static partial class Program
         Console.WriteLine(
             "  Grey doors: 420 ordinary and 117 Bomb Torizo program bytes, five close/unlock/open/reload paths, 20 physical draws, and editable visual blocks pass with source reads blocked.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grey door PLM draw definitions")]
+    private static byte GreyDoorPlmDrawDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static CartridgeReadGuard NewGreyDoorDrawGuard(
         ISnesAddressSpace source,

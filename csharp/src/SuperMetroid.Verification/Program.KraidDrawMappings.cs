@@ -135,6 +135,7 @@ internal static partial class Program
                     "Kraid unknown pointer has no visual ID");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid draw ROM words")]
     private static ushort KraidDrawRomWord(SuperMetroidAddressSpace rom, int address) =>
-        (ushort)(rom.ReadByte(0x840000 | address) | rom.ReadByte(0x840000 | (address + 1)) << 8);
+        (ushort)(rom.ReadCartridgeByte(0x840000 | address) | rom.ReadCartridgeByte(0x840000 | (address + 1)) << 8);
 }

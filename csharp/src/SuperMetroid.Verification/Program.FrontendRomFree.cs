@@ -853,25 +853,26 @@ internal static partial class Program
         return guard;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for block frontend extended BG2 streams")]
     private static void BlockFrontendExtendedBg2Streams(HashSet<int> blockedPresentationBytes,
         ISnesAddressSpace catalogueSource, byte bank, EnemyBg2FrameDefinitionSequence frames)
     {
         foreach (EnemyBg2FrameDefinition frame in frames)
         {
             int root = (bank << 16) | frame.Pointer;
-            int components = catalogueSource.ReadByte(root);
+            int components = catalogueSource.ReadCartridgeByte(root);
             for (int component = 0; component < components; component++)
             {
                 int record = root + 2 + component * 8;
-                ushort stream = (ushort)(catalogueSource.ReadByte(record + 4) |
-                    catalogueSource.ReadByte(record + 5) << 8);
+                ushort stream = (ushort)(catalogueSource.ReadCartridgeByte(record + 4) |
+                    catalogueSource.ReadCartridgeByte(record + 5) << 8);
                 ushort cursor = stream;
                 for (int command = 0;
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
                 {
                     int address = (bank << 16) | cursor;
-                    ushort first = (ushort)(catalogueSource.ReadByte(address) |
-                        catalogueSource.ReadByte(address + 1) << 8);
+                    ushort first = (ushort)(catalogueSource.ReadCartridgeByte(address) |
+                        catalogueSource.ReadCartridgeByte(address + 1) << 8);
                     if (command == 0)
                     {
                         AssertEqual(EnemyBg2FrameLayout.StreamMarker, first,
@@ -885,8 +886,8 @@ internal static partial class Program
                     blockedPresentationBytes.Add(address + 1);
                     if (first == 0xffff)
                         break;
-                    int count = catalogueSource.ReadByte(address + 2) |
-                        catalogueSource.ReadByte(address + 3) << 8;
+                    int count = catalogueSource.ReadCartridgeByte(address + 2) |
+                        catalogueSource.ReadCartridgeByte(address + 3) << 8;
                     for (int offset = 2; offset < 4 + count * 2; offset++)
                         blockedPresentationBytes.Add(address + offset);
                     cursor = unchecked((ushort)(cursor + 4 + count * 2));

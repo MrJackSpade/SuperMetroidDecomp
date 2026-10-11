@@ -21,7 +21,7 @@ internal static partial class Program
                 cursor += 2;
                 for (int index = 0; index < count; index++, cursor += 2)
                     words.Add((ushort)(ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0xfff));
-                byte x = rom.ReadByte(0x840000 | cursor++), y = rom.ReadByte(0x840000 | cursor++);
+                byte x = CrocomireStockMappingRomByte(rom, 0x840000 | cursor++), y = CrocomireStockMappingRomByte(rom, 0x840000 | cursor++);
                 if (x == 0 && y == 0) break;
             }
             native.Add(frame.Pointer, words.ToArray());
@@ -68,5 +68,8 @@ internal static partial class Program
         entries[0].Blocks[0] = 0xf058;
         AssertThrows<InvalidDataException>(() => new RoomPlmCrocomireVisualCatalog(entries), "Crocomire visual bits only");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire stock mapping")]
+    private static byte CrocomireStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

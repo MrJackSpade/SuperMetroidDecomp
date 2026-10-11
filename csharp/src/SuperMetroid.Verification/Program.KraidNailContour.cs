@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyKraidNailContour(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        ushort Word(int a) => (ushort)(KraidNailContourRomByte(rom, a) | KraidNailContourRomByte(rom, a + 1) << 8);
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
         var enemies = new RoomEnemySystem();
@@ -50,4 +50,7 @@ internal static partial class Program
         for (int i = 0; i < histogram.Length; i++) AssertEqual(expectedHistogram[i], histogram[i], "Native contour selection distribution");
         Console.WriteLine($"Kraid nail contour: 983040 actual edge/direction probes pass bus-free; {overreadCases} relative-Y words select adjacent records.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail contour")]
+    private static byte KraidNailContourRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

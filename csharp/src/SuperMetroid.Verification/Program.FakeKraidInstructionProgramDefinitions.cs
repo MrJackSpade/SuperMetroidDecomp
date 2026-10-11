@@ -20,10 +20,10 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
         int population = EnemyRomTablePointers.Kraid.FakeKraidPopulationRecord;
-        EnemyDefinitionId populationDefinition = EnemyDefinitionIds.FromHeaderPointer((ushort)(rom.ReadByte(population) |
-            rom.ReadByte(population + 1) << 8));
-        ushort extraProperties = (ushort)(rom.ReadByte(population + 10) |
-            rom.ReadByte(population + 11) << 8);
+        EnemyDefinitionId populationDefinition = EnemyDefinitionIds.FromHeaderPointer((ushort)(FakeKraidInstructionProgramDefinitionsRomByte(rom, population) |
+            FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 1) << 8));
+        ushort extraProperties = (ushort)(FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 10) |
+            FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 11) << 8);
         AssertEqual(EnemyDefinitionId.MiniKraid, populationDefinition,
             "retail Fake Kraid population matches the installed visual family");
         AssertTrue((extraProperties &
@@ -204,6 +204,9 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid instruction program definitions")]
+    private static byte FakeKraidInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static int ProbeFakeKraidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -215,10 +218,11 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid instruction words")]
     private static ushort ReadFakeKraidInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static bool IsFakeKraidSelectorByte(int address)
     {

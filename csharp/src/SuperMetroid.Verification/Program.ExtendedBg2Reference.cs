@@ -5,10 +5,11 @@ internal static partial class Program
     // Native $A0:96CA copies each $FFFE stream into the $7E:2000 tilemap,
     // later transferred to VRAM word $4800. This test reference reads raw
     // cartridge streams independently of installed catalogs and runtime writers.
+    [CpuBusBoundary("exact bus test: retail ROM oracle for reference extended BG2 VRAM")]
     private static byte[] ReadReferenceExtendedBg2Vram(
         ISnesAddressSpace rom, byte bank, ushort pointer, bool newInstructionFrame)
     {
-        byte ReadByte(int address) => rom.ReadByte((bank << 16) | (address & 0xffff));
+        byte ReadByte(int address) => rom.ReadCartridgeByte((bank << 16) | (address & 0xffff));
         ushort ReadWord(int address) => (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
         var vram = new byte[0x10000];
         if (!newInstructionFrame)

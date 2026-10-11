@@ -29,11 +29,14 @@ internal static partial class Program
             if (!owned) AssertEqual((ushort)0, actual, "Mother Brain mutation missing word is zero");
             else if ((draw ? operands : controls).Contains(address))
             {
-                ushort expected = (ushort)(rom.ReadByte(0x840000 | raw) | rom.ReadByte(0x840000 | (raw + 1)) << 8);
+                ushort expected = (ushort)(MotherBrainMutationProgramFieldRomByte(rom, 0x840000 | raw) | MotherBrainMutationProgramFieldRomByte(rom, 0x840000 | (raw + 1)) << 8);
                 AssertEqual(expected, actual, "Mother Brain mutation original field");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "Mother Brain shared reader ownership");
                 AssertEqual(expected, shared, "Mother Brain shared reader original field");
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain mutation program field")]
+    private static byte MotherBrainMutationProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

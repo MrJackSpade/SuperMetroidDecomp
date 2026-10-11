@@ -21,8 +21,9 @@ internal static partial class Program
             "Crocomire bridge dust, Ceres debris columns, Rinka resource tokens and dead Tourian corpse layouts match every native word.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for small table words")]
     private static ushort SmallTableWord(ISnesAddressSpace rom, int address) =>
-        (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
     private static T InvokePrivateStatic<T>(Type owner, string method, params object[] arguments) =>
         (T)owner.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, arguments)!;
@@ -57,14 +58,17 @@ internal static partial class Program
         for (int puff = 0; puff < 7; puff++)
         {
             int call = 0xa48f35 + 20 * puff;
-            AssertEqual((byte)0xa9, rom.ReadByte(call), $"Dust {puff} X operand opcode");
-            AssertEqual((byte)0xa9, rom.ReadByte(call + 5), $"Dust {puff} Y operand opcode");
+            AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call), $"Dust {puff} X operand opcode");
+            AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call + 5), $"Dust {puff} Y operand opcode");
             (ushort x, ushort y) = RoomEnemySystem.CrocomireBridgeDustPosition(puff);
             AssertEqual(SmallTableWord(rom, call + 1), x, $"Crocomire bridge dust {puff} X");
             AssertEqual(SmallTableWord(rom, call + 6), y, $"Crocomire bridge dust {puff} Y");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => RoomEnemySystem.CrocomireBridgeDustPosition(7), "Dust upper bound");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire bridge dust positions")]
+    private static byte CrocomireBridgeDustPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyCeresFallingDebrisColumns(ISnesAddressSpace rom)
     {
@@ -110,13 +114,13 @@ internal static partial class Program
                 for (int column = 0; column < layout.ColumnWordOffsets.Length; column++)
                 {
                     int block = copy + 20 * column;
-                    AssertEqual((byte)0xc9, rom.ReadByte(block + 3), $"{name} column {column} CMP opcode");
+                    AssertEqual((byte)0xc9, DeadTourianCorpseLayoutsRomByte(rom, block + 3), $"{name} column {column} CMP opcode");
                     AssertEqual(layout.MaximumY, SmallTableWord(rom, block + 4), $"{name} column {column} rot depth");
-                    AssertEqual((byte)0xbd, rom.ReadByte(block + 8), $"{name} column {column} LDA abs,X opcode");
+                    AssertEqual((byte)0xbd, DeadTourianCorpseLayoutsRomByte(rom, block + 8), $"{name} column {column} LDA abs,X opcode");
                     AssertEqual((ushort)(workBuffer / 2 + layout.ColumnWordOffsets[column]),
                         (ushort)(SmallTableWord(rom, block + 9) / 2), $"{name} column {column} word offset");
                 }
-                AssertEqual((byte)0x60, rom.ReadByte(copy + 20 * layout.ColumnWordOffsets.Length),
+                AssertEqual((byte)0x60, DeadTourianCorpseLayoutsRomByte(rom, copy + 20 * layout.ColumnWordOffsets.Length),
                     $"{name} copy routine ends after its last column");
 
                 // Initialization routine: per tile row, PHB / LDX #sheet / LDY #work / LDA #length-1 / MVN / PLB.
@@ -127,17 +131,20 @@ internal static partial class Program
                 {
                     var expected = layout.InitialGraphicsCopies[row];
                     int group = init + 14 * row;
-                    AssertEqual((byte)0xa2, rom.ReadByte(group + 1), $"{name} row {row} LDX opcode");
-                    AssertEqual((byte)0xa0, rom.ReadByte(group + 4), $"{name} row {row} LDY opcode");
-                    AssertEqual((byte)0x54, rom.ReadByte(group + 10), $"{name} row {row} MVN opcode");
+                    AssertEqual((byte)0xa2, DeadTourianCorpseLayoutsRomByte(rom, group + 1), $"{name} row {row} LDX opcode");
+                    AssertEqual((byte)0xa0, DeadTourianCorpseLayoutsRomByte(rom, group + 4), $"{name} row {row} LDY opcode");
+                    AssertEqual((byte)0x54, DeadTourianCorpseLayoutsRomByte(rom, group + 10), $"{name} row {row} MVN opcode");
                     int sheetBase = SmallTableWord(rom, group + 2) - expected.SourceOffset;
                     tileSheetBase ??= sheetBase;
                     AssertEqual(tileSheetBase.Value, sheetBase, $"{name} row {row} shares the corpse tile sheet");
                     AssertEqual(workBuffer + expected.DestinationOffset, SmallTableWord(rom, group + 5), $"{name} row {row} destination");
                     AssertEqual(expected.Length - 1, SmallTableWord(rom, group + 8), $"{name} row {row} length");
                 }
-                AssertEqual((byte)0x60, rom.ReadByte(init + 14 * layout.InitialGraphicsCopies.Length), $"{name} copies end with RTS");
+                AssertEqual((byte)0x60, DeadTourianCorpseLayoutsRomByte(rom, init + 14 * layout.InitialGraphicsCopies.Length), $"{name} copies end with RTS");
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for dead Tourian corpse layouts")]
+    private static byte DeadTourianCorpseLayoutsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

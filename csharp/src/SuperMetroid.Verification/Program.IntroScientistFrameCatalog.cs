@@ -13,7 +13,7 @@ internal static partial class Program
         int pointer = 0x8ccf;
         for (int index = 0; index < 10; index++)
         {
-            int count = rom.ReadByte(0x8c0000 + pointer) | rom.ReadByte(0x8c0001 + pointer) << 8;
+            int count = IntroScientistFrameCatalogRomByte(rom, 0x8c0000 + pointer) | IntroScientistFrameCatalogRomByte(rom, 0x8c0001 + pointer) << 8;
             AssertEqual((ushort)pointer, frames[index].Pointer, "scientist frame follows original record chain");
             AssertEqual(count, frames[index].StockPartCount, "original scientist part count");
             AssertEqual(names[index], frames[index].Name, "published scientist asset key");
@@ -28,4 +28,7 @@ internal static partial class Program
         }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "scientist catalog enumeration agrees with indexing");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro scientist frame catalog")]
+    private static byte IntroScientistFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

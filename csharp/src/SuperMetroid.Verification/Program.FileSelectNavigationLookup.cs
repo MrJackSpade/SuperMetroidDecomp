@@ -12,8 +12,8 @@ internal static partial class Program
             [2, 3], [0, 2, 3], [1, 2, 3], [0, 1, 2, 3]];
         for (int slot = 0; slot < 3; slot++)
         {
-            AssertEqual((byte)(1 << slot), rom.ReadByte(0x81975b + slot), "native copy occupancy bit");
-            AssertEqual((byte)(1 << slot), rom.ReadByte(0x819bec + slot), "native clear occupancy bit");
+            AssertEqual((byte)(1 << slot), FileSelectSourceNavigationRomByte(rom, 0x81975b + slot), "native copy occupancy bit");
+            AssertEqual((byte)(1 << slot), FileSelectSourceNavigationRomByte(rom, 0x819bec + slot), "native clear occupancy bit");
         }
         for (int occupied = 0; occupied < original.Length; occupied++)
         {
@@ -29,13 +29,16 @@ internal static partial class Program
         Console.WriteLine("Source/clear navigation: all eight original choice lists, 20 selectable states, input priority and rejection pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for file select source navigation")]
+    private static byte FileSelectSourceNavigationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyFileSelectDestinationNavigation(ISnesAddressSpace rom)
     {
         // Original destination lists exclude just the source, even if another
         // slot is empty. Native $81:9843/$81:98A8 compare directly with that source.
         int[][] original = [[1, 2, 3], [0, 2, 3], [0, 1, 3]];
-        AssertEqual((byte)0xec, rom.ReadByte(0x819843), "native downward source-slot CPX");
-        AssertEqual((byte)0xec, rom.ReadByte(0x8198a8), "native upward source-slot CPX");
+        AssertEqual((byte)0xec, FileSelectDestinationNavigationRomByte(rom, 0x819843), "native downward source-slot CPX");
+        AssertEqual((byte)0xec, FileSelectDestinationNavigationRomByte(rom, 0x8198a8), "native upward source-slot CPX");
         AssertEqual(ReadVerificationWord(rom, 0x819844), ReadVerificationWord(rom, 0x8198a9),
             "both directions exclude the same live source");
         AssertEqual((ushort)4, ReadVerificationWord(rom, 0x81983f), "native destination end boundary");
@@ -52,6 +55,9 @@ internal static partial class Program
                 "unsupported copy source");
         Console.WriteLine("Copy destination navigation: all three original choice lists, nine selectable states, input priority and rejection pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for file select destination navigation")]
+    private static byte FileSelectDestinationNavigationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyOriginalSubmenuChoices(int[] original,
         Func<int, SnesButton, int> actual, string description)

@@ -26,7 +26,7 @@ internal static partial class Program
             else if (FieldAt(raw) == field)
             {
                 count++;
-                byte expected = rom.ReadByte(0x840000 | raw);
+                byte expected = ChozoProgramFieldRomByte(rom, 0x840000 | raw);
                 AssertEqual(expected, b, "ChozoProgram native field byte");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "ChozoProgram composed byte ownership");
                 AssertEqual(expected, shared, "ChozoProgram composed native byte");
@@ -44,4 +44,7 @@ internal static partial class Program
         }
         AssertEqual(field switch {0 => 36,1 => 14,2 => 2,3 => 2,_ => 2}, count, "ChozoProgram independent field count");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo program field")]
+    private static byte ChozoProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

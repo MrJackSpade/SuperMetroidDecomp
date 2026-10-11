@@ -8,10 +8,10 @@ internal static partial class Program
     {
         Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(rom));
         Suite(nameof(VerifyKraidLowHalfBoundaryMapping), () => VerifyKraidLowHalfBoundaryMapping(rom));
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        ushort Word(int a) => (ushort)(KraidMouthHitboxesBusByte(rom, a) | KraidMouthHitboxesBusByte(rom, a + 1) << 8);
         ushort PointerWord(ushort pointer) => (ushort)(
-            rom.ReadByte(0xa70000 | pointer) |
-            rom.ReadByte(0xa70000 | unchecked((ushort)(pointer + 1))) << 8);
+            KraidMouthHitboxesBusByte(rom, 0xa70000 | pointer) |
+            KraidMouthHitboxesBusByte(rom, 0xa70000 | unchecked((ushort)(pointer + 1))) << 8);
         for (int cursor = 0x96d2; cursor < 0x9788;)
         {
             ushort command = Word(0xa70000 | cursor);
@@ -108,6 +108,22 @@ internal static partial class Program
 
         Console.WriteLine("Kraid mouth geometry: all head-program pointers, 32 native rectangle words, seven low-half boundary bytes, 32768 live address-space starts and 1572864 authored collision probes match; unrelated cartridge pointers reject.");
     }
+
+    /// <summary>
+    /// Independent CPU-bus oracle for Kraid mouth geometry: retail cartridge bytes, and for
+    /// pointers below $8000 the live low-WRAM mirror or the unmapped-window rejection that
+    /// bank $A7's lower half selects.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM and live low-half CPU-bus oracle for Kraid mouth hitbox words")]
+    private static byte KraidMouthHitboxesBusByte(SuperMetroidAddressSpace rom, int address) =>
+        SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
+        {
+            SnesDmaSourceKind.WorkRam => rom.ReadWorkRamByte(address),
+            SnesDmaSourceKind.SaveRam => rom.ReadSaveRamByte(address),
+            SnesDmaSourceKind.Cartridge => rom.ReadCartridgeByte(address),
+            _ => throw new InvalidOperationException(
+                $"CPU read ${address >> 16:X2}:{address & 0xffff:X4} is outside the runtime address map."),
+        };
 
     private static MutableCartridgeReadGuard NewKraidMouthLowHalfGuard(ISnesAddressSpace source)
     {

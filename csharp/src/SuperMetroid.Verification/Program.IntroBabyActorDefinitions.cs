@@ -27,8 +27,8 @@ internal static partial class Program
         compiledInput.LoadObject(retail, IntroBabyDiscoveryInputDefinitions.HeaderStart,
             definitionWord: IntroBabyDiscoveryInputDefinitions.ReadWord);
         ushort NativeInputWord(ushort pointer) => (ushort)(
-            retail.ReadByte(DemoInputRomData.BankBase | pointer) |
-            retail.ReadByte(DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))) << 8);
+            IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | pointer) |
+            IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))) << 8);
         cartridgeInput.LoadObject(retail, IntroBabyDiscoveryInputDefinitions.HeaderStart,
             definitionWord: NativeInputWord);
         for (int frame = 0; frame < 128; frame++)
@@ -87,8 +87,8 @@ internal static partial class Program
         var reference = new IntroBabyDiscoveryState(referenceBus,
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Game.SamusState()),
             demoWordReader: pointer => (ushort)(
-                referenceBus.ReadByte(DemoInputRomData.BankBase | pointer) |
-                referenceBus.ReadByte(DemoInputRomData.BankBase |
+                IntroBabyActorDefinitionsRomByte(referenceBus, DemoInputRomData.BankBase | pointer) |
+                IntroBabyActorDefinitionsRomByte(referenceBus, DemoInputRomData.BankBase |
                     unchecked((ushort)(pointer + 1))) << 8));
         for (int block = 0; block < discovery.Level.ForegroundEntries.Length; block++)
         {
@@ -220,8 +220,12 @@ internal static partial class Program
             "  Intro baby actors: definition, 138 discovery, 142 scientist, 72 demo-input and 768 collision bytes match; full guarded scenes pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Baby actor definitions")]
+    private static byte IntroBabyActorDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Baby actor words")]
     private static ushort ReadIntroBabyActorWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewIntroBabyActorDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(

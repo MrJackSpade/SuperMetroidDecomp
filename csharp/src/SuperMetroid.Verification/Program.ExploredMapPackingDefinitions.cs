@@ -21,7 +21,7 @@ internal static partial class Program
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => unchecked((ushort)(
-            retail.ReadByte(address) | retail.ReadByte(address + 1) << 8));
+            ExploredMapPackingDefinitionsRomByte(retail, address) | ExploredMapPackingDefinitionsRomByte(retail, address + 1) << 8));
 
         int exportedByteCount = 0;
         for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
@@ -29,7 +29,7 @@ internal static partial class Program
             ExploredMapPackingDefinition definition =
                 ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture());
             ExploredMapPackingDefinitions.OccupiedByteIndexes indexes = definition.AreaByteIndexes;
-            AssertEqual(retail.ReadByte(
+            AssertEqual(ExploredMapPackingDefinitionsRomByte(retail,
                     ExploredMapPackingDefinitions.NativeByteCountTable + area),
                 unchecked((byte)indexes.Count),
                 $"packed map area {area} byte count");
@@ -44,7 +44,7 @@ internal static partial class Program
                 $"packed map area {area} source pointer");
             for (int index = 0; index < indexes.Count; index++)
             {
-                AssertEqual(retail.ReadByte(0x810000 |
+                AssertEqual(ExploredMapPackingDefinitionsRomByte(retail, 0x810000 |
                         unchecked((ushort)(nativeSourcePointer + index))),
                     indexes[index],
                     $"packed map area {area} byte index {index}");
@@ -93,6 +93,9 @@ internal static partial class Program
         Console.WriteLine(
             "  Explored-map packing: six area records and all 327 exported byte indexes match the cartridge; production save/load round-trips with the native codec tables forbidden.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for explored map packing definitions")]
+    private static byte ExploredMapPackingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyCalculatedMapPackingBindings(ISnesAddressSpace native, byte[] explored)
     {

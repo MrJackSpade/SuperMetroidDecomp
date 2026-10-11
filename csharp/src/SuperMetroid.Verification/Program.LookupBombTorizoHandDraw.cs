@@ -76,8 +76,8 @@ internal static partial class Program
                     }
                     cells++;
                 }
-                x = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
-                y = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
+                x = unchecked((sbyte)BombTorizoHandDrawFieldRomByte(rom, 0x840000 | cursor++));
+                y = unchecked((sbyte)BombTorizoHandDrawFieldRomByte(rom, 0x840000 | cursor++));
                 if (field == 0)
                 {
                     AssertEqual(x, shape.NextX(run), "Torizo hand native next X");
@@ -107,4 +107,7 @@ internal static partial class Program
         }
         AssertEqual(24, cells, "Torizo hand complete native cell domain");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for bomb Torizo hand draw field")]
+    private static byte BombTorizoHandDrawFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

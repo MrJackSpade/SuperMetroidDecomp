@@ -24,10 +24,10 @@ internal static partial class Program
             int definition = GameplayMessageRomData.Assets.DefinitionTable +
                 ((byte)id - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
             int content = GameplayMessageRomData.Assets.BankBase |
-                (bus.ReadByte(definition + 4) | bus.ReadByte(definition + 5) << 8);
+                (GameplayMessageTitlesRomByte(bus, definition + 4) | GameplayMessageTitlesRomByte(bus, definition + 5) << 8);
             ReadOnlySpan<ushort> row = installed.Tilemap.Slice(width, width);
             for (int column = 0; column < width; column++)
-                AssertEqual((ushort)(bus.ReadByte(content + column * 2) | bus.ReadByte(content + column * 2 + 1) << 8),
+                AssertEqual((ushort)(GameplayMessageTitlesRomByte(bus, content + column * 2) | GameplayMessageTitlesRomByte(bus, content + column * 2 + 1) << 8),
                     row[column], $"installed UTF-8 gameplay title {id} column {column} matches the cartridge tilemap");
             comparedWords += width;
         }
@@ -68,6 +68,9 @@ internal static partial class Program
         Console.WriteLine(
             $"Gameplay-message titles: {GameplayMessageTitleDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; live edit/rebind and invalid glyph rejection pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay message titles")]
+    private static byte GameplayMessageTitlesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static CartridgeReadGuard NewForbiddenGameplayMessageBus() =>
         CartridgeReadGuard.Unbacked()

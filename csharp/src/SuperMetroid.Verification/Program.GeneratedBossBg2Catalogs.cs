@@ -94,7 +94,7 @@ internal static partial class Program
         string family, EnemyBg2FrameDefinition[] expected, EnemyBg2FrameDefinitionSequence frames,
         Func<ushort, bool> isFrame, Func<int, EnemyBg2FrameDefinition> frameAt, Func<byte[]> extract)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(GeneratedBg2CatalogRomByte(rom, address) | GeneratedBg2CatalogRomByte(rom, address + 1) << 8);
         AssertEqual(expected.Length, frames.Length, $"{family} catalog count");
         for (int index = 0; index < expected.Length; index++)
         {
@@ -120,4 +120,7 @@ internal static partial class Program
         AssertTrue(originalJson.SequenceEqual(generatedJson), $"{family} exact native extraction JSON");
         return generatedJson;
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for generated BG2 catalog")]
+    private static byte GeneratedBg2CatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

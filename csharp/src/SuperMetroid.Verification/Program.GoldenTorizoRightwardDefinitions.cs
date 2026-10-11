@@ -118,8 +118,11 @@ internal static partial class Program
             "match the pinned cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(GoldenTorizoRightwardDefinitionsRomByte(rom, (bank << 16) | address) |
+                GoldenTorizoRightwardDefinitionsRomByte(rom, (bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo rightward definitions")]
+    private static byte GoldenTorizoRightwardDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

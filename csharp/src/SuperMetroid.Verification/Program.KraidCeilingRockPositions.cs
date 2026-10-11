@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyKraidCeilingRockCoordinates(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        ushort Word(int a) => (ushort)(KraidCeilingRockCoordinatesRomByte(rom, a) | KraidCeilingRockCoordinatesRomByte(rom, a + 1) << 8);
         for (int offset = 0; offset <= 18; offset++)
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + offset),
                 KraidCeilingRockPositions.AtByteOffset(offset), "Native byte-addressed ceiling rock lookup");
@@ -15,10 +15,13 @@ internal static partial class Program
                 "Ceiling rock byte-window bounds");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid ceiling rock coordinates")]
+    private static byte KraidCeilingRockCoordinatesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        ushort Word(int a) => (ushort)(KraidCeilingRockPositionsRomByte(rom, a) | KraidCeilingRockPositionsRomByte(rom, a + 1) << 8);
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -53,6 +56,9 @@ internal static partial class Program
         }
         Console.WriteLine("Kraid ceiling rocks: all 18 byte reads and 589824 actual growth updates match with placement reads forbidden.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid ceiling rock positions")]
+    private static byte KraidCeilingRockPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static CartridgeReadGuard NewKraidCeilingGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

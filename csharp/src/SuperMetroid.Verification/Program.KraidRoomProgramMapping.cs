@@ -18,8 +18,8 @@ internal static partial class Program
             for (int word = 0; word < list.Words; word++)
             {
                 ushort address = (ushort)(list.Start + word * 2);
-                expected.Add(address, (ushort)(rom.ReadByte(0x840000 | address) |
-                    rom.ReadByte(0x840000 | (address + 1)) << 8));
+                expected.Add(address, (ushort)(KraidRoomProgramMappingRomByte(rom, 0x840000 | address) |
+                    KraidRoomProgramMappingRomByte(rom, 0x840000 | (address + 1)) << 8));
             }
         ushort[] enumerated = KraidRoomPlmProgramDefinitions.NativeWordAddresses().ToArray();
         AssertEqual(55, enumerated.Length, "Kraid room program word count");
@@ -33,9 +33,12 @@ internal static partial class Program
             bool isTimer = address == 0xabab;
             AssertEqual(isTimer, KraidRoomPlmProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte actualByte),
                 "Kraid room byte timer domain");
-            AssertEqual(isTimer ? rom.ReadByte(0x84abab) : (byte)0, actualByte,
+            AssertEqual(isTimer ? KraidRoomProgramMappingRomByte(rom, 0x84abab) : (byte)0, actualByte,
                 "Kraid room original timer byte or zero on rejection");
         }
         Console.WriteLine("Kraid room programs: 55 native words, byte timer, exact enumeration and complete address domains pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid room program mapping")]
+    private static byte KraidRoomProgramMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

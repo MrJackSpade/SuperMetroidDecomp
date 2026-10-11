@@ -8,9 +8,9 @@ internal static partial class Program
         var nativeRooms = new HashSet<ushort>();
         for (int instruction = 0x8882cd; instruction <= 0x8882e6; instruction += 5)
         {
-            AssertEqual((byte)0xc9, rom.ReadByte(instruction), "Native CMP immediate");
-            AssertEqual((byte)0xf0, rom.ReadByte(instruction + 3), "Native BEQ suppression");
-            int branchTarget = instruction + 5 + unchecked((sbyte)rom.ReadByte(instruction + 4));
+            AssertEqual((byte)0xc9, QuakeSoundSuppressionRomByte(rom, instruction), "Native CMP immediate");
+            AssertEqual((byte)0xf0, QuakeSoundSuppressionRomByte(rom, instruction + 3), "Native BEQ suppression");
+            int branchTarget = instruction + 5 + unchecked((sbyte)QuakeSoundSuppressionRomByte(rom, instruction + 4));
             AssertEqual(0x8882ed, branchTarget, "All native room matches share suppression branch");
             nativeRooms.Add(ReadVerificationWord(rom, instruction + 1));
         }
@@ -37,4 +37,7 @@ internal static partial class Program
             AssertEqual(1, state.SoundRequests.Count, "Unsuppressed room resets previous sentinel");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for quake sound suppression")]
+    private static byte QuakeSoundSuppressionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

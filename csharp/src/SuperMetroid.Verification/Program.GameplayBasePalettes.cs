@@ -84,6 +84,9 @@ internal static partial class Program
         }
 
         static ushort ReadWord(ISnesAddressSpace addressSpace, int address) =>
-            (ushort)(addressSpace.ReadByte(address) | addressSpace.ReadByte(address + 1) << 8);
+            (ushort)(GameplayBasePalettesRomByte(addressSpace, address) | GameplayBasePalettesRomByte(addressSpace, address + 1) << 8);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay base palettes")]
+    private static byte GameplayBasePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

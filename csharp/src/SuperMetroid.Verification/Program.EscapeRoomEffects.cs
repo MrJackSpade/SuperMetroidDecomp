@@ -69,8 +69,8 @@ internal static partial class Program
             if (room == 0x9804)
             {
                 var level = runtime.LevelData!;
-                int origin = level.GetBlockIndex(15, 10);
-                AssertEqual((byte)0x4f, level.GetCollisionBlock(15, 10).Behavior, "retail room loader installs rescue wall");
+                int origin = level.GetBlockIndex(new(15, 10));
+                AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Behavior, "retail room loader installs rescue wall");
                 runtime.Plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 1, true);
                 for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
                 AssertTrue(runtime.System.HasEvent(EventNumber.CrittersEscaped), "live rescue room publishes escaped event");

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -17,7 +18,7 @@ public static class MapLandmarkExtractor
     /// <exception cref="InvalidDataException">Required records, unused slots, destination bindings, or list boundaries differ from compiled definitions.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        var points = new Dictionary<string, MapLabelPoint>();
+        var points = new Dictionary<string, Point32<MapPixels>>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int boss = Pointer(FileSelectMapIconRomData.BossLists, area);

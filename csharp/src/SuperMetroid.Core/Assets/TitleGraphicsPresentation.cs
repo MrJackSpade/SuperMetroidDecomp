@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -36,11 +37,11 @@ public sealed class TitleGraphicsPresentation
     public ReadOnlySpan<byte> BabyCharacters => babyCharacters;
 
     /// <summary>Draws one ROM-selected title frame from installed composition data.</summary>
-    public void DrawSprite(ushort pointer, OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    public void DrawSprite(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin, ushort paletteBits)
     {
         if (!sprites.TryGetValue(pointer, out SpriteComposition? composition))
             throw new InvalidDataException($"Title spritemap $8C:{pointer:X4} is missing from installed artwork.");
-        composition.DrawOnScreen(oam, x, y, paletteBits);
+        composition.DrawOnScreen(oam, origin, paletteBits);
     }
 
     /// <summary>Loads and validates the editable title graphics and map assets.</summary>

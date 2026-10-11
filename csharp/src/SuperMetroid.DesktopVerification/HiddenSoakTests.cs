@@ -35,7 +35,7 @@ internal static partial class Program
             Check(game.GameState == SuperMetroidGameState.MainGameplay, "soak startup failed");
             var runtime = game.RuntimeForVerification ?? throw new InvalidOperationException("Soak has no active runtime.");
             ushort room = paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb;
-            runtime.LoadCartridgeRoomForDebug(room, 0, 0);
+            runtime.LoadCartridgeRoomForDebug(room, new(0, 0));
             runtime.RunNmi(0, true);
             Step(0);
             if (paused) Step((ushort)SnesButton.Start);

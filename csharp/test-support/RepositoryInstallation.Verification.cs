@@ -6,6 +6,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Installation fixtures only the verifiers use; the developer tools link only the shared part.</summary>
 internal static partial class RepositoryInstallation
@@ -120,9 +121,9 @@ internal static partial class RepositoryInstallation
             titlePalettePresentation ?? Maps.TitlePalette, titleGraphicsPresentation ?? Maps.TitleGraphics);
 
     internal static PauseMenuState CreatePause(ISnesAddressSpace bus, SamusState samus, Bank80SystemState system,
-        AreaId areaIndex, byte roomMapX, byte roomMapY, CartridgeAudioState? audio = null,
+        AreaId areaIndex, Point32<MapTiles> roomMapPosition, CartridgeAudioState? audio = null,
         SnesVram? gameplayVram = null, MapRevealMode mapRevealMode = MapRevealMode.None) =>
-        new(bus, samus, system, areaIndex, roomMapX, roomMapY, audio, gameplayVram, mapRevealMode, Maps);
+        new(bus, samus, system, areaIndex, roomMapPosition, audio, gameplayVram, mapRevealMode, Maps);
 
     /// <summary>
     /// A private copy of the installation for a check that corrupts and restores stock files, so

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 internal static partial class Program
 {
     private static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
@@ -79,7 +80,7 @@ internal static partial class Program
         body.VariableB=0x96f4;body.VariableC=64;
         state.CurrentHeadTilemap=0xa0c8;state.VulnerableMouthHitbox=0x97a0;state.InvulnerableMouthHitbox=0x97c0;
         var words=new ushort[32*64];for(int i=32*32;i<33*32;i++)words[i]=0x8000;
-        var level=new RoomLevelData(32,64,words,new byte[2048],new ushort[2048],new byte[8]);
+        var level=new RoomLevelData(new Size32<RoomBlocks>(32, 64),words,new byte[2048],new ushort[2048],new byte[8]);
         typeof(SuperMetroidRuntime).GetProperty("LevelData")!.SetValue(runtime,level);
         var samus=runtime.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=2;

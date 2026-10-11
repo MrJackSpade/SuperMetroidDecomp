@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -32,8 +33,7 @@ internal static partial class Program
             var levelWords = new ushort[blockCount];
             levelWords[5] = 0xb123;
             var level = new RoomLevelData(
-                width,
-                height,
+                new Size32<RoomBlocks>(width, height),
                 levelWords,
                 new byte[blockCount],
                 new ushort[blockCount],
@@ -45,7 +45,7 @@ internal static partial class Program
             samus.Kinematics.XRadius = 8;
             samus.Kinematics.YRadius = 16;
 
-            RoomCollisionBlock block = level.GetCollisionBlock(1, 1);
+            RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
             plms.TrySpawnSamusEater(level, block, headerPointer, samus);
 
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
@@ -59,7 +59,7 @@ internal static partial class Program
             AssertEqual(1, slot.InstructionTimer, "Samus Eater starts on timer one");
             AssertEqual(
                 0x8123,
-                level.GetCollisionBlock(1, 1).LevelWord,
+                level.GetCollisionBlock(new(1, 1)).LevelWord,
                 "Samus Eater deactivates its trigger");
         }
 

@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -34,7 +35,7 @@ internal static partial class Program
         ]);
         var guarded = new MotherBrainGlassProgramReadGuard(source);
         const int width = 32;
-        var level = new RoomLevelData(width, 16,
+        var level = new RoomLevelData(new Size32<RoomBlocks>(width, 16),
             new ushort[width * 16], new byte[width * 16],
             new ushort[width * 16], new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();

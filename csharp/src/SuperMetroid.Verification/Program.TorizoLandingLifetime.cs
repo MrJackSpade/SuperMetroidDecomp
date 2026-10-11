@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 internal static partial class Program
 {
     private static int VerifyTorizoLandingLifetime()
@@ -81,7 +82,7 @@ internal static partial class Program
         body.Properties=0x2000;body.CurrentInstruction=0xbc80;body.InstructionTimer=5;
         body.XPosition=128;body.YPosition=(ushort)(190-body.YRadius);
         var words=new ushort[256];for(int i=12*16;i<13*16;i++)words[i]=0x8000;
-        var level=new RoomLevelData(16,16,words,new byte[256],new ushort[256],new byte[8]);
+        var level=new RoomLevelData(new Size32<RoomBlocks>(16, 16),words,new byte[256],new ushort[256],new byte[8]);
         typeof(SuperMetroidRuntime).GetProperty("LevelData")!.SetValue(runtime,level);
         var samus=runtime.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;

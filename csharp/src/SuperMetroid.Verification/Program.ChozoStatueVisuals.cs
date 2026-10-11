@@ -100,7 +100,7 @@ internal static partial class Program
             {
                 crumblePlms.Step(guarded, crumbleLevel,
                     crumbleLevel.CreateBackgroundStreamer(), 0, 0, 0);
-                seenCrumbleWords.Add(crumbleLevel.GetCollisionBlock(3, 4).LevelWord);
+                seenCrumbleWords.Add(crumbleLevel.GetCollisionBlock(new(3, 4)).LevelWord);
             }
             foreach (ushort word in new ushort[] { 0x0053, 0x0054, 0x0055, 0x00ff })
                 AssertTrue(seenCrumbleWords.Contains(word),

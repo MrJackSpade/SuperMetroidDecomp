@@ -29,10 +29,10 @@ internal static partial class Program
         int doorX = -1;
         int doorY = -1;
         byte behavior = 0;
-        for (int y = 0; y < level.HeightInBlocks && doorX < 0; y++)
-        for (int x = 0; x < level.WidthInBlocks; x++)
+        for (int y = 0; y < level.Size.Height && doorX < 0; y++)
+        for (int x = 0; x < level.Size.Width; x++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(x, y);
+            RoomCollisionBlock block = level.GetCollisionBlock(new(x, y));
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
             CartridgeDoorHeader? candidate = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false).Door;
@@ -47,8 +47,7 @@ internal static partial class Program
 
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
-            cameraX: (ushort)(doorX / 16 * 256),
-            cameraY: (ushort)(doorY / 16 * 256));
+            camera: new((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;

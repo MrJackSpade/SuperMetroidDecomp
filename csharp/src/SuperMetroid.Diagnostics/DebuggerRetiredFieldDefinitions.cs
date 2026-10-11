@@ -427,6 +427,13 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Frontend.IntroCeresFlightState", "musicQueueTimer")] = Discard,
     };
 
+    // #628: component fields merged into spatial values are remembered for their composition.
+    static DebuggerRetiredFieldDefinitions()
+    {
+        foreach ((string type, string field) in DebuggerSpatialFieldMerges.RetiredFields)
+            Retired.Add((type, field), Remember);
+    }
+
     /// <summary>Returns the migration of a retired serialized field.</summary>
     internal static bool TryGetMigration(Type declaringType, string serializedName, out RetiredFieldMigration migrate) =>
         Retired.TryGetValue((declaringType.FullName!, serializedName), out migrate!);

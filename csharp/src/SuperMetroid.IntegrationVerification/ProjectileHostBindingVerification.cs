@@ -132,7 +132,7 @@ internal static class ProjectileHostBindingVerification
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         {
             var a = new OamBuffer(); var b = new OamBuffer();
-            actual.Draw(id, a, 100, 100); expected.Draw(id, b, 100, 100);
+            actual.Draw(id, a, new(100, 100)); expected.Draw(id, b, new(100, 100));
             if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable))
                 throw new InvalidDataException("Host bound different composition content than the installed selection.");
         }
@@ -165,7 +165,7 @@ internal static class ProjectileHostBindingVerification
         for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
         {
             var a = new OamBuffer(); var b = new OamBuffer();
-            actual.Draw(selector, a, 100, 100); expected.Draw(selector, b, 100, 100);
+            actual.Draw(selector, a, new(100, 100)); expected.Draw(selector, b, new(100, 100));
             if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable) || a.NextByteOffset != b.NextByteOffset)
                 throw new InvalidDataException("Host restored stale flare composition content.");
         }

@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -91,8 +92,7 @@ internal static partial class Program
             "ProcessBombTorizoWalkInstruction",
             instanceFlags)!;
         var level = new RoomLevelData(
-            64,
-            64,
+            new Size32<RoomBlocks>(64, 64),
             new ushort[4096],
             new byte[4096],
             new ushort[4096],

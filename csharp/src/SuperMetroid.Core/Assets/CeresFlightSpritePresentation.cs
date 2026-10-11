@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -21,20 +22,19 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
     /// <summary>Appends an installed Ceres flight composition to OAM in authored part order, choosing the caller's native origin-clipping path without advancing actor motion or animation.</summary>
     /// <param name="pointer">Bank-$8C spritemap identity for one of the six installed star, station, asteroid, or vortex drawings.</param>
     /// <param name="oam">Destination OAM buffer for the ordered sprite parts.</param>
-    /// <param name="x">Composition origin's screen X coordinate in native wrapped pixels.</param>
-    /// <param name="y">Composition origin's screen Y coordinate in native wrapped pixels.</param>
+    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Encoded OBJ palette bits applied only to parts authored to inherit the drawing owner's palette.</param>
     /// <param name="originIsOnScreen">True for ordinary on-screen origin clipping; false for the native off-screen path with opposite Y-wrap clipping for negative origins.</param>
-    public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException(
                 $"Ceres flight sprite frame $8C:{pointer:X4} is not installed.");
         if (originIsOnScreen)
-            frame.DrawOnScreen(oam, x, y, paletteBits);
+            frame.DrawOnScreen(oam, origin, paletteBits);
         else
-            frame.DrawOffScreen(oam, x, y, paletteBits);
+            frame.DrawOffScreen(oam, origin, paletteBits);
     }
 
     /// <summary>Loads exactly the six named visual compositions, rejecting duplicate properties, unsupported versions, missing frames, and invalid OAM parts; compiles selected artwork without importing actor timing or motion.</summary>

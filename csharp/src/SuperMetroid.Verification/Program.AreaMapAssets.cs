@@ -60,8 +60,8 @@ internal static partial class Program
             {
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
-                    bool discoverable = map.IsDiscoverable(x, y);
-                    bool stationVisible = map.IsRevealedByMapStation(x, y);
+                    bool discoverable = map.IsDiscoverable(new(x, y));
+                    bool stationVisible = map.IsRevealedByMapStation(new(x, y));
                     AssertTrue(!stationVisible || discoverable,
                         $"{area} station mask cell ({x},{y}) exists in tilemap");
                     publicCount += stationVisible ? 1 : 0;
@@ -77,10 +77,10 @@ internal static partial class Program
         }
 
         AreaMapCartridgeData brinstar = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Brinstar);
-        AssertTrue(brinstar.IsRevealedByMapStation(9, 1),
+        AssertTrue(brinstar.IsRevealedByMapStation(new(9, 1)),
             "representative Brinstar public map cell");
-        AssertTrue(brinstar.IsDiscoverable(23, 2) &&
-                   !brinstar.IsRevealedByMapStation(23, 2),
+        AssertTrue(brinstar.IsDiscoverable(new(23, 2)) &&
+                   !brinstar.IsRevealedByMapStation(new(23, 2)),
             "representative Brinstar secret-only map cell");
         Console.WriteLine(
             "  Area maps: seven tilemaps/masks and coverage counts agree.");

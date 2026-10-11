@@ -30,8 +30,8 @@ internal static class MapAssetExtractor
             {
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
-                    bool discoverable = map.IsDiscoverable(x, y);
-                    bool stationVisible = map.IsRevealedByMapStation(x, y);
+                    bool discoverable = map.IsDiscoverable(new(x, y));
+                    bool stationVisible = map.IsRevealedByMapStation(new(x, y));
                     if (stationVisible && !discoverable)
                     {
                         throw new InvalidDataException(

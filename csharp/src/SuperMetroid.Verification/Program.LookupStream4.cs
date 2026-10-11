@@ -7,6 +7,7 @@ using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -1768,7 +1769,7 @@ internal static partial class Program
         {
             ushort[] blocks = new ushort[2];
             blocks[solidRow] = 0x8000;
-            var level = new RoomLevelData(1, 2, blocks, new byte[2], new ushort[2], []);
+            var level = new RoomLevelData(new Size32<RoomBlocks>(1, 2), blocks, new byte[2], new ushort[2], []);
             for (int segmentIndex = 0; segmentIndex < 7; segmentIndex++)
             foreach (ushort y in new ushort[] { 13, 14, 15, 0xfff0, 0xfff1 })
             {

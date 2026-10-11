@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -32,25 +33,24 @@ public sealed class SpriteComposition
     }
     /// <summary>Appends all parts using the ordinary on-screen origin clipping path.</summary>
     /// <param name="oam">Object-attribute buffer that receives the ordered parts.</param>
-    /// <param name="x">Horizontal composition origin in screen-space pixels.</param>
-    /// <param name="y">Vertical composition origin in screen-space pixels.</param>
+    /// <param name="origin">Composition origin in screen-space pixels.</param>
     /// <param name="paletteBits">OBJ palette bits applied only to parts configured to inherit them.</param>
-    public void DrawOnScreen(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    public void DrawOnScreen(OamBuffer oam, Position16<ScreenPixels> origin, ushort paletteBits)
     {
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         foreach (var part in parts)
             oam.AddOnScreenSpritePart(part.X, part.Y,
-                part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, x, y);
+                part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, origin.X, origin.Y);
     }
 
     /// <summary>Preserves the cartridge's opposite Y-wrap clipping for negative origins.</summary>
-    public void DrawOffScreen(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    public void DrawOffScreen(OamBuffer oam, Position16<ScreenPixels> origin, ushort paletteBits)
     {
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         foreach (var part in parts)
             oam.AddOffScreenSpritePart(part.X, part.Y,
                 part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes,
-                x, y);
+                origin.X, origin.Y);
     }
 }
 

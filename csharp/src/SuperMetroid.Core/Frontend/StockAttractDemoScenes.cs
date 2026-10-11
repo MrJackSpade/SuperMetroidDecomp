@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -110,10 +111,8 @@ public static class StockAttractDemoScenes
         Demonstration.LandingSite => new(
             RoomPointer: 0x91f8,
             DoorPointer: 0x896a,
-            CameraX: CameraForScreens(4),
-            CameraY: CameraForScreens(4),
-            SamusYFromTop: 64,
-            SamusXFromCenter: 1,
+            CameraPosition: CameraAtScreen(new(4, 4)),
+            SamusOffset: new(1, 64),
             Duration: 1235,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -128,10 +127,8 @@ public static class StockAttractDemoScenes
         Demonstration.MissileDoor => new(
             RoomPointer: 0x9f11,
             DoorPointer: 0x8eaa,
-            CameraX: CameraForScreens(0),
-            CameraY: CameraForScreens(0),
-            SamusYFromTop: GroundedY(8, demonstration),
-            SamusXFromCenter: -46,
+            CameraPosition: CameraAtScreen(new(0, 0)),
+            SamusOffset: new(-46, GroundedY(8, demonstration)),
             Duration: 337,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -146,10 +143,8 @@ public static class StockAttractDemoScenes
         Demonstration.PreSporeSpawnHall => new(
             RoomPointer: 0x9d9c,
             DoorPointer: 0x8dc6,
-            CameraX: CameraForScreens(1),
-            CameraY: CameraForScreens(0),
-            SamusYFromTop: GroundedY(13, demonstration),
-            SamusXFromCenter: -32,
+            CameraPosition: CameraAtScreen(new(1, 0)),
+            SamusOffset: new(-32, GroundedY(13, demonstration)),
             Duration: 378,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -164,10 +159,8 @@ public static class StockAttractDemoScenes
         Demonstration.SpeedBooster => new(
             RoomPointer: 0xb106,
             DoorPointer: 0x970e,
-            CameraX: CameraForScreens(7),
-            CameraY: CameraForScreens(0),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: 72,
+            CameraPosition: CameraAtScreen(new(7, 0)),
+            SamusOffset: new(72, GroundedY(10, demonstration)),
             Duration: 420,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -182,10 +175,8 @@ public static class StockAttractDemoScenes
         Demonstration.GrappleBeam => new(
             RoomPointer: 0xaffb,
             DoorPointer: 0x9792,
-            CameraX: CameraForScreens(0),
-            CameraY: CameraForScreens(0),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: -62,
+            CameraPosition: CameraAtScreen(new(0, 0)),
+            SamusOffset: new(-62, GroundedY(10, demonstration)),
             Duration: 444,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -200,10 +191,8 @@ public static class StockAttractDemoScenes
         Demonstration.PseudoScrewAttack => new(
             RoomPointer: 0x9d19,
             DoorPointer: 0x8e7a,
-            CameraX: CameraForScreens(2),
-            CameraY: CameraForScreens(6),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: 39,
+            CameraPosition: CameraAtScreen(new(2, 6)),
+            SamusOffset: new(39, GroundedY(10, demonstration)),
             Duration: 613,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -218,10 +207,8 @@ public static class StockAttractDemoScenes
         Demonstration.IceBeam => new(
             RoomPointer: 0xa408,
             DoorPointer: 0xa36c,
-            CameraX: CameraForScreens(1),
-            CameraY: CameraForScreens(1),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: 86,
+            CameraPosition: CameraAtScreen(new(1, 1)),
+            SamusOffset: new(86, GroundedY(10, demonstration)),
             Duration: 509,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -236,10 +223,8 @@ public static class StockAttractDemoScenes
         Demonstration.FirefleaRoom => new(
             RoomPointer: 0x9c5e,
             DoorPointer: 0x8cca,
-            CameraX: CameraForScreens(2),
-            CameraY: CameraForScreens(0),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: 73,
+            CameraPosition: CameraAtScreen(new(2, 0)),
+            SamusOffset: new(73, GroundedY(10, demonstration)),
             Duration: 410,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -254,10 +239,8 @@ public static class StockAttractDemoScenes
         Demonstration.BrinstarDiagonalRoom => new(
             RoomPointer: 0x9e52,
             DoorPointer: 0x8dea,
-            CameraX: CameraForScreens(5),
-            CameraY: CameraForScreens(3),
-            SamusYFromTop: GroundedY(12, demonstration),
-            SamusXFromCenter: -30,
+            CameraPosition: CameraAtScreen(new(5, 3)),
+            SamusOffset: new(-30, GroundedY(12, demonstration)),
             Duration: 279,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -272,10 +255,8 @@ public static class StockAttractDemoScenes
         Demonstration.LowerNorfairEntrance => new(
             RoomPointer: 0xaf14,
             DoorPointer: 0x967e,
-            CameraX: CameraForScreens(3),
-            CameraY: CameraForScreens(0),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: 75,
+            CameraPosition: CameraAtScreen(new(3, 0)),
+            SamusOffset: new(75, GroundedY(10, demonstration)),
             Duration: 970,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -290,10 +271,8 @@ public static class StockAttractDemoScenes
         Demonstration.ScrewAttack => new(
             RoomPointer: 0x9879,
             DoorPointer: 0x8982,
-            CameraX: CameraForScreens(0),
-            CameraY: CameraForScreens(0),
-            SamusYFromTop: GroundedY(13, demonstration),
-            SamusXFromCenter: -15,
+            CameraPosition: CameraAtScreen(new(0, 0)),
+            SamusOffset: new(-15, GroundedY(13, demonstration)),
             Duration: 213,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -308,10 +287,8 @@ public static class StockAttractDemoScenes
         Demonstration.Dachora => new(
             RoomPointer: 0x9cb3,
             DoorPointer: 0x8dd2,
-            CameraX: CameraForScreens(4),
-            CameraY: CameraForScreens(2),
-            SamusYFromTop: 128,
-            SamusXFromCenter: 5,
+            CameraPosition: CameraAtScreen(new(4, 2)),
+            SamusOffset: new(5, 128),
             Duration: 791,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -326,10 +303,8 @@ public static class StockAttractDemoScenes
         Demonstration.PrePhantoonHall => new(
             RoomPointer: 0xcc6f,
             DoorPointer: 0xa21c,
-            CameraX: CameraForScreens(2),
-            CameraY: CameraForScreens(0),
-            SamusYFromTop: 96,
-            SamusXFromCenter: 4,
+            CameraPosition: CameraAtScreen(new(2, 0)),
+            SamusOffset: new(4, 96),
             Duration: 751,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -344,10 +319,8 @@ public static class StockAttractDemoScenes
         Demonstration.DiagonalShinespark => new(
             RoomPointer: 0x91f8,
             DoorPointer: 0x896a,
-            CameraX: CameraForScreens(3),
-            CameraY: CameraForScreens(4),
-            SamusYFromTop: 176,
-            SamusXFromCenter: 0,
+            CameraPosition: CameraAtScreen(new(3, 4)),
+            SamusOffset: new(0, 176),
             Duration: 199,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -362,10 +335,8 @@ public static class StockAttractDemoScenes
         Demonstration.EyeDoor => new(
             RoomPointer: 0xa56b,
             DoorPointer: 0x919e,
-            CameraX: CameraForScreens(0),
-            CameraY: CameraForScreens(1),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: -46,
+            CameraPosition: CameraAtScreen(new(0, 1)),
+            SamusOffset: new(-46, GroundedY(10, demonstration)),
             Duration: 723,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -380,10 +351,8 @@ public static class StockAttractDemoScenes
         Demonstration.RedBrinstarElevator => new(
             RoomPointer: 0xa322,
             DoorPointer: 0x90ea,
-            CameraX: CameraForScreens(0),
-            CameraY: CameraForScreens(7),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: -86,
+            CameraPosition: CameraAtScreen(new(0, 7)),
+            SamusOffset: new(-86, GroundedY(10, demonstration)),
             Duration: 356,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -398,10 +367,8 @@ public static class StockAttractDemoScenes
         Demonstration.Kraid => new(
             RoomPointer: 0xa59f,
             DoorPointer: 0x91b6,
-            CameraX: CameraForScreens(0),
-            CameraY: CameraForScreens(1),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: -65,
+            CameraPosition: CameraAtScreen(new(0, 1)),
+            SamusOffset: new(-65, GroundedY(10, demonstration)),
             Duration: 319,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -416,10 +383,8 @@ public static class StockAttractDemoScenes
         Demonstration.TourianEntrance => new(
             RoomPointer: 0xa66a,
             DoorPointer: 0x91f2,
-            CameraX: CameraForScreens(0),
-            CameraY: CameraForScreens(0),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: -79,
+            CameraPosition: CameraAtScreen(new(0, 0)),
+            SamusOffset: new(-79, GroundedY(10, demonstration)),
             Duration: 407,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -434,10 +399,8 @@ public static class StockAttractDemoScenes
         Demonstration.GauntletEntrance => new(
             RoomPointer: 0x91f8,
             DoorPointer: 0x890a,
-            CameraX: CameraForScreens(6),
-            CameraY: CameraForScreens(2),
-            SamusYFromTop: 128,
-            SamusXFromCenter: 48,
+            CameraPosition: CameraAtScreen(new(6, 2)),
+            SamusOffset: new(48, 128),
             Duration: 256,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -452,10 +415,8 @@ public static class StockAttractDemoScenes
         Demonstration.AdvancedGrappleBeam => new(
             RoomPointer: 0xd0b9,
             DoorPointer: 0xa474,
-            CameraX: CameraForScreens(2),
-            CameraY: CameraForScreens(0),
-            SamusYFromTop: GroundedY(12, demonstration),
-            SamusXFromCenter: 0,
+            CameraPosition: CameraAtScreen(new(2, 0)),
+            SamusOffset: new(0, GroundedY(12, demonstration)),
             Duration: 818,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -470,10 +431,8 @@ public static class StockAttractDemoScenes
         Demonstration.InfiniteBombJump => new(
             RoomPointer: 0x91f8,
             DoorPointer: 0x890a,
-            CameraX: CameraForScreens(6),
-            CameraY: CameraForScreens(2),
-            SamusYFromTop: 123,
-            SamusXFromCenter: 32,
+            CameraPosition: CameraAtScreen(new(6, 2)),
+            SamusOffset: new(32, 123),
             Duration: 389,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -488,10 +447,8 @@ public static class StockAttractDemoScenes
         Demonstration.SpecialBeamAttack => new(
             RoomPointer: 0x9ad9,
             DoorPointer: 0x8d42,
-            CameraX: CameraForScreens(0),
-            CameraY: CameraForScreens(4),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: -73,
+            CameraPosition: CameraAtScreen(new(0, 4)),
+            SamusOffset: new(-73, GroundedY(10, demonstration)),
             Duration: 394,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -506,10 +463,8 @@ public static class StockAttractDemoScenes
         Demonstration.CrystalFlash => new(
             RoomPointer: 0x91f8,
             DoorPointer: 0x890a,
-            CameraX: CameraForScreens(6),
-            CameraY: CameraForScreens(2),
-            SamusYFromTop: GroundedY(10, demonstration),
-            SamusXFromCenter: 4,
+            CameraPosition: CameraAtScreen(new(6, 2)),
+            SamusOffset: new(4, GroundedY(10, demonstration)),
             Duration: 512,
             RoomSetupPointer: RoomSetupFor(demonstration),
             SamusSetupPointer: SamusSetupFor(demonstration),
@@ -525,7 +480,7 @@ public static class StockAttractDemoScenes
     };
 
     /// <summary>$82:8774-8918: seventeen staged actors stand on identified flat native floor cells. Their selected room-screen floor rows convert to pixels, then subtract the actual immutable pose radius. This does not use editable room artwork or infer the six other placements.</summary>
-    private static ushort GroundedY(int floorRow, Demonstration demonstration)
+    private static short GroundedY(int floorRow, Demonstration demonstration)
     {
         SamusPoseId pose = SamusSetupFor(demonstration) switch
         {
@@ -537,7 +492,7 @@ public static class StockAttractDemoScenes
                 throw new InvalidOperationException("This demonstration does not use a grounded staging pose."),
             _ => throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {SamusSetupFor(demonstration)}."),
         };
-        return (ushort)(floorRow * 16 - SamusPoseCollisionDefinitions.ReadVerticalRadius(pose));
+        return (short)(floorRow * 16 - SamusPoseCollisionDefinitions.ReadVerticalRadius(pose));
     }
 
     /// <summary>$82:8774-8918: Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the native no-op callback.</summary>
@@ -629,7 +584,7 @@ public static class StockAttractDemoScenes
             : EquippedBeamsFor(demonstration);
 
     /// <summary>$82:86A9-86B8 camera origins use whole256-pixel room screens.</summary>
-    private static ushort CameraForScreens(int screens) => (ushort)(screens * 256);
+    private static Position16<RoomPixels> CameraAtScreen(Point32<RoomScreens> screen) => screen.ToRoomPixels();
 
     /// <summary>$91:888D-89FC ammo fields express the number of native five-round upgrades.</summary>
     private static ushort AmmoForPacks(int packs) => (ushort)(packs * 5);

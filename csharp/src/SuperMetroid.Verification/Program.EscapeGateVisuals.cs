@@ -80,7 +80,7 @@ internal static partial class Program
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x53 * 8] = 0x53;
         blockDefinitions[0x54 * 8] = 0x54;
-        RoomLevelData CreateLevel() => new(width, width,
+        RoomLevelData CreateLevel() => new RoomLevelData(new(width, width),
             new ushort[width * width], new byte[width * width],
             new ushort[width * width], blockDefinitions);
         var system = new Bank80SystemState();
@@ -114,10 +114,8 @@ internal static partial class Program
             Pointer: 0xaa8c,
             DestinationRoomPointer: 0xde4d,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
-            PlmX: gateX,
-            PlmY: gateY,
-            DestinationScreenX: 0,
-            DestinationScreenY: 0,
+            PlmBlock: new(gateX, gateY),
+            DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
             SetupCodePointer: DoorSetupCode.None);
         AssertTrue(closing.TrySpawnDoorClosingPlm(guarded, closingLevel,

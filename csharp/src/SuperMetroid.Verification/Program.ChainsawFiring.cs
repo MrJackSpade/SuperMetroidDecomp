@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -13,7 +14,7 @@ internal static partial class Program
     private static void VerifyChainsawFiring()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = new RoomLevelData(16, 16, new ushort[256], new byte[256],
+        var level = new RoomLevelData(new Size32<RoomBlocks>(16, 16), new ushort[256], new byte[256],
             new ushort[256], new byte[8]);
         var samus = new SamusState
         {
@@ -27,8 +28,7 @@ internal static partial class Program
             samus,
             new Bank80SystemState(),
             AreaId.Crateria,
-            0,
-            0);
+            new(0, 0));
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         pause.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
@@ -60,7 +60,7 @@ internal static partial class Program
         // makes that otherwise invisible call fail loudly through the production path.
         ushort[] reactiveWords = new ushort[256];
         reactiveWords[0] = (ushort)((int)RoomCollisionType.BombableBlock << 12);
-        var reactiveLevel = new RoomLevelData(16, 16, reactiveWords, new byte[256],
+        var reactiveLevel = new RoomLevelData(new Size32<RoomBlocks>(16, 16), reactiveWords, new byte[256],
             new ushort[256], new byte[8]);
         var reactiveSamus = new SamusState
         {
@@ -94,7 +94,7 @@ internal static partial class Program
                 (ushort)((int)RoomCollisionType.VerticalExtension << 12);
             doorBts[doorOrigin + row * 16] = unchecked((byte)-row);
         }
-        var doorLevel = new RoomLevelData(16, 16, doorWords, doorBts,
+        var doorLevel = new RoomLevelData(new Size32<RoomBlocks>(16, 16), doorWords, doorBts,
             new ushort[256], new byte[8]);
         var doorSamus = new SamusState
         {
@@ -234,8 +234,7 @@ internal static partial class Program
         byte[] interferenceBts = new byte[25];
         interferenceWords[yellowDoorBlock] = 0x8000;
         var interferenceLevel = new RoomLevelData(
-            5,
-            5,
+            new Size32<RoomBlocks>(5, 5),
             interferenceWords,
             interferenceBts,
             new ushort[25],
@@ -297,8 +296,7 @@ internal static partial class Program
         breakingWords[bombableBlock] =
             (ushort)((int)RoomCollisionType.BombableBlock << 12);
         var breakingLevel = new RoomLevelData(
-            5,
-            5,
+            new Size32<RoomBlocks>(5, 5),
             breakingWords,
             new byte[25],
             new ushort[25],

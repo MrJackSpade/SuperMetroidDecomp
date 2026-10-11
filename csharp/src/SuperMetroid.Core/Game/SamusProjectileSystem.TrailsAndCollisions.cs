@@ -515,9 +515,9 @@ public sealed partial class SamusProjectileSystem
             : unchecked((ushort)(slot.XPosition + slot.XRadius - 1));
         int blockX = targetX >> 4;
 
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)topBlock >= (uint)level.HeightInBlocks ||
-            (uint)bottomBlock >= (uint)level.HeightInBlocks)
+        if ((uint)blockX >= (uint)level.Size.Width ||
+            (uint)topBlock >= (uint)level.Size.Height ||
+            (uint)bottomBlock >= (uint)level.Size.Height)
         {
             return false;
         }
@@ -529,7 +529,7 @@ public sealed partial class SamusProjectileSystem
         int span = bottomBlock - topBlock;
         for (int blockY = topBlock; blockY <= bottomBlock; blockY++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+            RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
             var context = new ShotSpan(span, bottomBlock - blockY, targetX);
             if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan))
                 everyBlockSolid = false;
@@ -550,9 +550,9 @@ public sealed partial class SamusProjectileSystem
             : unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
         int blockY = targetY >> 4;
 
-        if ((uint)blockY >= (uint)level.HeightInBlocks ||
-            (uint)leftBlock >= (uint)level.WidthInBlocks ||
-            (uint)rightBlock >= (uint)level.WidthInBlocks)
+        if ((uint)blockY >= (uint)level.Size.Height ||
+            (uint)leftBlock >= (uint)level.Size.Width ||
+            (uint)rightBlock >= (uint)level.Size.Width)
         {
             return false;
         }
@@ -561,7 +561,7 @@ public sealed partial class SamusProjectileSystem
         int span = rightBlock - leftBlock;
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+            RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
             var context = new ShotSpan(span, rightBlock - blockX, targetY);
             if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan, horizontalMovement: false))
                 everyBlockSolid = false;
@@ -651,7 +651,7 @@ public sealed partial class SamusProjectileSystem
             // $94:A147/A15E dispatch non-square slopes through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
             int centerBlock = horizontalMovement ? slot.YPosition >> 4 : slot.XPosition >> 4;
-            int slopeBlock = horizontalMovement ? block.Index / level.WidthInBlocks : block.Index % level.WidthInBlocks;
+            int slopeBlock = horizontalMovement ? block.Index / level.Size.Width : block.Index % level.Size.Width;
             if (centerBlock != slopeBlock) return false;
 
             int x = slot.XPosition & 15;
@@ -724,7 +724,7 @@ public sealed partial class SamusProjectileSystem
                 case RoomCollisionType.VerticalExtension:
                     if (offset == 0)
                         return null;
-                    targetIndex = block.Index + (offset * level.WidthInBlocks);
+                    targetIndex = block.Index + (offset * level.Size.Width);
                     break;
 
                 case RoomCollisionType.Air:

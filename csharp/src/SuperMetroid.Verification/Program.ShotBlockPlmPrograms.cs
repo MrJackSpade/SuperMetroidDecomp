@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -362,7 +363,7 @@ internal static partial class Program
         (ushort physical, ushort immediate, ushort streamed) Render(
             RoomPlmShotBlockVisualCatalog visuals)
         {
-            var level = new RoomLevelData(width, width, words,
+            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words,
                 new byte[words.Length], new ushort[words.Length], definitions);
             var streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
@@ -478,7 +479,7 @@ internal static partial class Program
         var words = new ushort[width * height];
         words[blockIndex] = 0xc321;
         var level = new RoomLevelData(
-            width, height, words, new byte[words.Length],
+            new Size32<RoomBlocks>(width, height), words, new byte[words.Length],
             new ushort[words.Length], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnProjectileShotBlock(

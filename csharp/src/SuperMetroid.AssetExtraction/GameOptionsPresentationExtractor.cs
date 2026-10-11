@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -42,7 +43,7 @@ public static class GameOptionsPresentationExtractor
                     GameOptionsPresentationDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        MapLabelPoint[] controllerAnchors = Enumerable.Range(0, GameOptionsRomData.Rows.ControllerActionCount)
+        Point32<TilemapCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsRomData.Rows.ControllerActionCount)
             .Select(GameOptionsRomData.ControllerLabels.Destination)
             .Select(ByteOffsetPoint)
             .ToArray();
@@ -76,7 +77,7 @@ public static class GameOptionsPresentationExtractor
                 MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
         }
 
-        var headings = new Dictionary<string, MapLabelPoint>(StringComparer.Ordinal)
+        var headings = new Dictionary<string, Point32<ScreenPixels>>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.PrimaryMenu] = new(
                 GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Primary),
@@ -88,7 +89,7 @@ public static class GameOptionsPresentationExtractor
                 GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Special),
                 GameOptionsRomData.Spritemaps.HeadingY),
         };
-        var cursors = new Dictionary<string, MapLabelPoint[]>(StringComparer.Ordinal)
+        var cursors = new Dictionary<string, Point32<ScreenPixels>[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.PrimaryMenu] = Points(
                 GameOptionsRomData.Cursors.PrimaryX, GameOptionsRomData.Rows.PrimaryCount, GameOptionsRomData.Cursors.PrimaryY),
@@ -154,15 +155,15 @@ public static class GameOptionsPresentationExtractor
         return cells;
     }
 
-    private static MapLabelPoint[] Points(ushort x, int count, Func<int, ushort> rowY)
+    private static Point32<ScreenPixels>[] Points(ushort x, int count, Func<int, ushort> rowY)
     {
-        var result = new MapLabelPoint[count];
+        var result = new Point32<ScreenPixels>[count];
         for (int index = 0; index < result.Length; index++)
             result[index] = new(x, rowY(index));
         return result;
     }
 
-    private static MapLabelPoint ByteOffsetPoint(ushort byteOffset)
+    private static Point32<TilemapCells> ByteOffsetPoint(ushort byteOffset)
     {
         int cell = byteOffset / sizeof(ushort);
         return new(cell % GameOptionsRomData.MenuTilemapWidth,

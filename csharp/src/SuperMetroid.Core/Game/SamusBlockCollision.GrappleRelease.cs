@@ -32,7 +32,7 @@ public static partial class SamusBlockCollision
         int maximum = 0;
         for (int column = firstColumn; column <= lastColumn; column++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(column, boundary >> 4);
+            RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(new(column, boundary >> 4));
             int depth;
             // The post-grapple table treats even vertical extensions as solid, without
             // following BTS. Ordinary movement's dispatcher is not interchangeable.

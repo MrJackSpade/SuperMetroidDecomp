@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -89,7 +90,7 @@ internal static partial class Program
             var native = new FileSelectStationMarker(bus, typedArea, index,
                 original.SaveMarkers);
             var installed = new FileSelectStationMarker(guard, typedArea, index, original.SaveMarkers);
-            AssertEqual((native.MapX, native.MapY), (installed.MapX, installed.MapY), "stock selected marker coordinates");
+            AssertEqual(native.MapPosition, installed.MapPosition, "stock selected marker coordinates");
             for (int frame = 0; frame < 128; frame++)
             {
                 native.Step(); installed.Step();
@@ -103,7 +104,7 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapSaveMarkerDocument>(File.ReadAllBytes(Path.Combine(stock, MapSaveMarkerFormat.FileName)), options)!;
-        var points = new Dictionary<string, MapLabelPoint>(document.Markers);
+        var points = new Dictionary<string, Point32<MapPixels>>(document.Markers);
         points["Maridia.Save.0"] = points["Maridia.Save.0"] with { X = points["Maridia.Save.0"].X + 8 };
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapSaveMarkerFormat.FileName);
@@ -162,7 +163,7 @@ internal static partial class Program
         byte[] Draw(FileSelectStationMarker marker)
         {
             var oam = new OamBuffer(); oam.BeginFrame();
-            marker.Draw(oam, 24, 8, original.Sprites);
+            marker.Draw(oam, new(24, 8), original.Sprites);
             oam.FinalizeFrame();
             return oam.LowTable.ToArray().Concat(oam.HighTable.ToArray()).ToArray();
         }

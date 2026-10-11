@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -14,21 +15,20 @@ public sealed class RoomVisualLayout
 
     /// <summary>Copies and validates both initial visual planes for one room-level source, rejecting mismatched dimensions and any collision/type bits in the artwork words.</summary>
     /// <param name="sourceAddress">Room state's full 24-bit level-data source identity, used for artwork lookup rather than runtime cartridge access.</param>
-    /// <param name="widthInBlocks">Positive row stride in native 16-pixel blocks.</param>
-    /// <param name="heightInBlocks">Positive number of block rows; each plane must contain width times height words.</param>
+    /// <param name="size">Positive plane size in native 16-pixel blocks: the width is the row stride and each plane must contain width times height words.</param>
     /// <param name="foregroundVisualWords">Row-major BG1 words: block selector bits 0..9 and parent horizontal/vertical flip bits 10..11 only.</param>
     /// <param name="backgroundVisualWords">Row-major BG2 words with the same permitted bit fields; collision/type and BTS data are not supplied here.</param>
     /// <exception cref="ArgumentOutOfRangeException">The source is outside 24 bits or a dimension is nonpositive.</exception>
     /// <exception cref="InvalidDataException">A plane has the wrong word count or includes bits 12..15.</exception>
-    public RoomVisualLayout(int sourceAddress, int widthInBlocks, int heightInBlocks,
+    public RoomVisualLayout(int sourceAddress, Size32<RoomBlocks> size,
         ReadOnlySpan<ushort> foregroundVisualWords,
         ReadOnlySpan<ushort> backgroundVisualWords)
     {
         if ((uint)sourceAddress > 0xffffff)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress));
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(widthInBlocks);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(heightInBlocks);
-        int expected = checked(widthInBlocks * heightInBlocks);
+        if (size.Width <= 0 || size.Height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Room layout dimensions must be positive.");
+        int expected = size.Area;
         if (foregroundVisualWords.Length != expected || backgroundVisualWords.Length != expected)
             throw new InvalidDataException(
                 $"Room layout ${sourceAddress:X6} needs {expected} visual words in each plane.");
@@ -37,18 +37,18 @@ public sealed class RoomVisualLayout
                 $"Room layout ${sourceAddress:X6} contains a collision/type bit in visual artwork.");
 
         SourceAddress = sourceAddress;
-        WidthInBlocks = widthInBlocks;
-        HeightInBlocks = heightInBlocks;
+        Size = size;
         foreground = foregroundVisualWords.ToArray();
         background = backgroundVisualWords.ToArray();
     }
 
     /// <summary>Full 24-bit room-level source identity shared by room states using the same initial artwork allocation.</summary>
     public int SourceAddress { get; }
-    /// <summary>Row stride of each visual plane, measured in native 16-pixel blocks rather than 8-pixel SNES characters.</summary>
-    public int WidthInBlocks { get; }
-    /// <summary>Number of 16-pixel block rows represented by each visual plane; does not resize the compiled collision allocation.</summary>
-    public int HeightInBlocks { get; }
+    /// <summary>
+    /// Size of each visual plane in native 16-pixel blocks rather than 8-pixel SNES characters: the width
+    /// is the row stride; the height does not resize the compiled collision allocation.
+    /// </summary>
+    public Size32<RoomBlocks> Size { get; }
     /// <summary>Copied initial BG1 block selectors and parent flips in row-major order, with collision/type bits excluded; runtime streaming combines them with the unmodified native type bits.</summary>
     public ReadOnlyMemory<ushort> ForegroundVisualWords => foreground;
     /// <summary>Copied initial BG2 block selectors and parent flips in row-major order, independent of native type bits, BTS, and subsequent scripted room changes.</summary>
@@ -97,8 +97,8 @@ public sealed class RoomVisualLayoutCatalog
         foreach ((int source, RoomVisualLayout layout) in this.layouts.OrderBy(pair => pair.Key))
         {
             content.Append("source", source);
-            content.Append("width", layout.WidthInBlocks);
-            content.Append("height", layout.HeightInBlocks);
+            content.Append("width", layout.Size.Width);
+            content.Append("height", layout.Size.Height);
             content.AppendWords("foreground", layout.ForegroundVisualWords.Span);
             content.AppendWords("background", layout.BackgroundVisualWords.Span);
         }

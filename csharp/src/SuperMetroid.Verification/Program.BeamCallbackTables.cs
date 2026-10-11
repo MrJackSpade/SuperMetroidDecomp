@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -28,8 +29,7 @@ internal static partial class Program
             "beam combination rejects index beyond low nibble");
 
         var room = new RoomLevelData(
-            16,
-            16,
+            new Size32<RoomBlocks>(16, 16),
             new ushort[256],
             new byte[256],
             new ushort[256],

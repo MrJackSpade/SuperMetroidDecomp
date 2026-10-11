@@ -27,8 +27,7 @@ internal static partial class Program
             {
                 var actual = edited.Get((MapScrollDirection)other);
                 var expected = entries[((MapScrollDirection)other).ToString()];
-                AssertEqual((ushort)expected.X, actual.X, "independent direction X edit");
-                AssertEqual((ushort)expected.Y, actual.Y, "independent direction Y edit");
+                AssertEqual(expected.Position.ToPosition16(), actual.Position, "independent direction position edit");
                 AssertEqual(expected.DurationTicks.Length, actual.PhaseCount, "selected direction phase count");
                 for (int phase = 0; phase < actual.PhaseCount; phase++)
                     AssertEqual((byte)expected.DurationTicks[phase], actual.Duration(phase), "selected direction durations");
@@ -50,14 +49,14 @@ internal static partial class Program
     {
         for (int index = 0; index < 4; index++)
             AssertEqual(ReadVerificationWord(rom, 0x81af32 + 10 * index),
-                presentation.Get((MapScrollDirection)(index + 1)).X, "original arrow X selected by direction");
+                presentation.Get((MapScrollDirection)(index + 1)).Position.X, "original arrow X selected by direction");
     }
 
     private static void VerifyMapArrowYSelection(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
         for (int index = 0; index < 4; index++)
             AssertEqual((ushort)(ReadVerificationWord(rom, 0x81af34 + 10 * index) - 1),
-                presentation.Get((MapScrollDirection)(index + 1)).Y, "original arrow Y selected by direction with native OAM bias");
+                presentation.Get((MapScrollDirection)(index + 1)).Position.Y, "original arrow Y selected by direction with native OAM bias");
     }
 
     private static void VerifyMapArrowShapeCases(ISnesAddressSpace rom)

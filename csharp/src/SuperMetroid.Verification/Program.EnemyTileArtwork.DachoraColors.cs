@@ -6,6 +6,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -77,7 +78,7 @@ internal static partial class Program
         load.Invoke(enemies, [slot, DachoraPalettePhase.Default, 0]);
         CheckLive(DachoraPalettePhase.Default, 0);
 
-        var empty = new RoomLevelData(16, 16, new ushort[256], new byte[256],
+        var empty = new RoomLevelData(new Size32<RoomBlocks>(16, 16), new ushort[256], new byte[256],
             new ushort[256], new byte[8]);
         MethodInfo accelerate = type.GetMethod("AccelerateDachora", flags)!;
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)

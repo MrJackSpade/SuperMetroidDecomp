@@ -18,10 +18,10 @@ internal static partial class Program
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         var menu = new FileSelectRoomMapGraphics(guard, system, AreaId.Crateria, mapPresentation: original);
         var samus = new SamusState();
-        var pause = new PauseMenuState(guard, samus, system, AreaId.Crateria, 0, 0, mapPresentation: original);
-        var nativePause = new PauseMenuState(bus, samus, system, AreaId.Crateria, 0, 0,
+        var pause = new PauseMenuState(guard, samus, system, AreaId.Crateria, new(0, 0), mapPresentation: original);
+        var nativePause = new PauseMenuState(bus, samus, system, AreaId.Crateria, new(0, 0),
             mapPresentation: original);
-        Rgba32[] pauseBefore = pause.Render(), menuBefore = menu.RenderBackgrounds(0, 0).ToArray();
+        Rgba32[] pauseBefore = pause.Render(), menuBefore = menu.RenderBackgrounds(new(0, 0)).ToArray();
         AssertTrue(pauseBefore.AsSpan().SequenceEqual(nativePause.Render()), "installed stock atlas gives exact pause pixels with artwork ROM blocked");
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, MapTileAtlasFormat.FileName);
@@ -39,11 +39,11 @@ internal static partial class Program
         AssertTrue(decoded.AsSpan().SequenceEqual(image.Pixels), "every edited PNG pixel reaches compiled tile data");
         menu.BindMapPresentation(edited);
         pause.BindMapPresentation(edited);
-        AssertTrue(!menuBefore.AsSpan().SequenceEqual(menu.RenderBackgrounds(0, 0)), "PNG artwork changes rendered file-select map");
+        AssertTrue(!menuBefore.AsSpan().SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "PNG artwork changes rendered file-select map");
         AssertTrue(!pauseBefore.AsSpan().SequenceEqual(pause.Render()), "PNG artwork changes rendered pause map");
         bool InnerMapChanged(Rgba32[] before, Rgba32[] after) => Enumerable.Range(64, 96)
             .Any(y => Enumerable.Range(64, 128).Any(x => before[y * 256 + x] != after[y * 256 + x]));
-        AssertTrue(InnerMapChanged(menuBefore, menu.RenderBackgrounds(0, 0)), "file-select artwork change reaches map interior, not only frame chrome");
+        AssertTrue(InnerMapChanged(menuBefore, menu.RenderBackgrounds(new(0, 0))), "file-select artwork change reaches map interior, not only frame chrome");
         AssertTrue(InnerMapChanged(pauseBefore, pause.Render()), "pause artwork change reaches map interior, not only frame chrome");
         using var state = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(state, menu);
@@ -51,7 +51,7 @@ internal static partial class Program
         menu = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(state);
         menu.BindMapPresentation(original);
         pause.BindMapPresentation(original);
-        AssertTrue(menuBefore.AsSpan().SequenceEqual(menu.RenderBackgrounds(0, 0)), "restored menu replaces stale modified atlas pixels");
+        AssertTrue(menuBefore.AsSpan().SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "restored menu replaces stale modified atlas pixels");
         AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "pause rebind restores exact stock atlas pixels");
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");

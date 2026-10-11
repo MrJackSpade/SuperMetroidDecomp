@@ -192,10 +192,8 @@ static void VerifyDoorOpeningTrajectories()
             Pointer: 0x8000,
             DestinationRoomPointer: 0x9000,
             Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
-            PlmX: 0,
-            PlmY: 0,
-            DestinationScreenX: 3,
-            DestinationScreenY: 2,
+            PlmBlock: new(0, 0),
+            DestinationScreen: new(3, 2),
             SamusDistance: 0x0100,
             SetupCodePointer: DoorSetupCode.None);
         ushort finalCameraY = direction == 3

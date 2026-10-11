@@ -89,7 +89,7 @@ internal static partial class Program
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),
-                            level.GetCollisionBlock(drawX + cell, drawY).LevelWord,
+                            level.GetCollisionBlock(new(drawX + cell, drawY)).LevelWord,
                             "Station native physical word at original absolute run position");
                     drawX = 8 + unchecked((sbyte)offset);
                     drawY = 8 + unchecked((sbyte)(offset >> 8));

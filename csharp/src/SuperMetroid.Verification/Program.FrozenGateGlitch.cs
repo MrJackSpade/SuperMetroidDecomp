@@ -51,8 +51,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(
             RoomHeaderPointers.Caterpillar,
-            FrozenGateCameraX,
-            FrozenGateCameraY);
+            new(FrozenGateCameraX, FrozenGateCameraY));
 
         RoomLevelData level = runtime.LevelData!;
         RoomPlmSystem plms = runtime.Plms;

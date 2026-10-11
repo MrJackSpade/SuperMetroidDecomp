@@ -44,8 +44,8 @@ internal static partial class Program
             int count = layerBytes / 2;
             int backgroundOffset = 2 + layerBytes + count;
             int backgroundBytes = Math.Min(layerBytes, native.Length - backgroundOffset);
-            AssertEqual(width, layout.WidthInBlocks, $"room ${source:X6} visual stride");
-            AssertEqual(count / width, layout.HeightInBlocks,
+            AssertEqual(width, layout.Size.Width, $"room ${source:X6} visual stride");
+            AssertEqual(count / width, layout.Size.Height,
                 $"room ${source:X6} visual allocation height");
             for (int index = 0; index < count; index++)
             {
@@ -89,7 +89,7 @@ internal static partial class Program
                     new RoomLevelCorpusReadGuard(bus, source), room,
                     characterArt: characters, paletteArt: palettes,
                     metatileArt: metatiles, visualLayouts: stock).LevelData;
-                AssertEqual(blockCount, loaded.WidthInBlocks * loaded.HeightInBlocks,
+                AssertEqual(blockCount, loaded.Size.Width * loaded.Size.Height,
                     $"room ${header.Pointer:X4} state ${statePointer:X4} physical allocation");
                 for (int blockIndex = 0; blockIndex < blockCount; blockIndex++)
                 {
@@ -190,7 +190,7 @@ internal static partial class Program
                     compiledOther.LevelData.BehaviorBytes.Span) &&
                 nativeOther.LevelData.BackgroundEntries.Span.SequenceEqual(
                     compiledOther.LevelData.BackgroundEntries.Span) &&
-                nativeOther.LevelData.HeightInBlocks == compiledOther.LevelData.HeightInBlocks,
+                nativeOther.LevelData.Size.Height == compiledOther.LevelData.Size.Height,
                 $"compiled room ${pointer:X4} retains native collision, BTS, BG2, and allocation height");
         }
 

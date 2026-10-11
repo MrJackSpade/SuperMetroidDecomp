@@ -70,8 +70,8 @@ internal static partial class Program
                 var calculatedOam = new OamBuffer();
                 originalOam.BeginFrame(); calculatedOam.BeginFrame();
                 DrawImportedSpritemap(bus, originalOam, header, 120, y, 0x0800, originIsOnScreen: y == 72);
-                if (y == 72) calculated.DrawOnScreen(calculatedOam, 120, y, 0x0800);
-                else calculated.DrawOffScreen(calculatedOam, 120, y, 0x0800);
+                if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
+                else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
                 originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
                 AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
                     "cloud grid preserves native OAM and clipping");
@@ -181,7 +181,7 @@ internal static partial class Program
                 var installedOam = new OamBuffer();
                 installedOam.BeginFrame();
                 stock.CloudSprites.Draw(definition.Pointer, installedOam,
-                    120, y, 0x0800, onScreen);
+                    new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                         nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
@@ -415,12 +415,12 @@ internal static partial class Program
         var preservedCloudOam = new OamBuffer();
         preservedCloudOam.BeginFrame();
         repaired.LoadEndingObjectArt().CloudSprites.Draw(0xb83b, preservedCloudOam,
-            120, 72, 0x0800, originIsOnScreen: true);
+            new(120, 72), 0x0800, originIsOnScreen: true);
         preservedCloudOam.FinalizeFrame();
         var editedCloudOam = new OamBuffer();
         editedCloudOam.BeginFrame();
         editedCloudSprites.CloudSprites.Draw(0xb83b, editedCloudOam,
-            120, 72, 0x0800, originIsOnScreen: true);
+            new(120, 72), 0x0800, originIsOnScreen: true);
         editedCloudOam.FinalizeFrame();
         AssertTrue(preservedCloudOam.LowTable.SequenceEqual(editedCloudOam.LowTable) &&
                 preservedCloudOam.HighTable.SequenceEqual(editedCloudOam.HighTable),

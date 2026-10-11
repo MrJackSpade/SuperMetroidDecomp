@@ -29,7 +29,7 @@ internal static partial class Program
                 authored.AddProjectileSpritePart(new(0), 0, new(0), 0, 0);
             }
             DrawImportedProjectileSpritemap(rom, native, id, origin, origin);
-            content.Draw(id, authored, origin, origin);
+            content.Draw(id, authored, new(origin, origin));
             AssertTrue(native.LowTable.SequenceEqual(authored.LowTable), "Extracted composition retains all low OAM bytes");
             AssertTrue(native.HighTable.SequenceEqual(authored.HighTable), "Extracted composition retains all high OAM bits");
             AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Extracted composition retains native capacity wrapping");
@@ -53,11 +53,11 @@ internal static partial class Program
         if (!compositionOnly)
             VerifyIntroProjectileArtwork(rom, content, edited, editedId);
         var baselineOam = new OamBuffer(); var editedOam = new OamBuffer();
-        content.Draw(editedId, baselineOam, 100, 100); edited.Draw(editedId, editedOam, 100, 100);
+        content.Draw(editedId, baselineOam, new(100, 100)); edited.Draw(editedId, editedOam, new(100, 100));
         AssertEqual(unchecked((byte)(baselineOam.LowTable[0] + (original.OffsetX == 255 ? -1 : 1))), editedOam.LowTable[0], "Edited offset reaches emitted OAM");
         AssertTrue(!baselineOam.LowTable.SequenceEqual(editedOam.LowTable), "Visual edit is observable");
         document.Frames[name][0] = original;
-        editedOam = new OamBuffer(); edited.Draw(editedId, editedOam, 100, 100);
+        editedOam = new OamBuffer(); edited.Draw(editedId, editedOam, new(100, 100));
         AssertTrue(!baselineOam.LowTable.SequenceEqual(editedOam.LowTable), "Loaded composition owns immutable compiled parts");
 
         void Reject(ProjectileSpriteDocument bad) => AssertThrows<InvalidDataException>(() => ProjectileSpriteCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(bad, options))), "Malformed composition rejected");
@@ -72,7 +72,7 @@ internal static partial class Program
             byte[] malformed = System.Text.Encoding.UTF8.GetBytes(System.Text.Encoding.UTF8.GetString(json).Insert(1, field));
             AssertThrows<InvalidDataException>(() => ProjectileSpriteCatalog.Load(new MemoryStream(malformed)), "Duplicate or unknown mechanics fields rejected");
         }
-        AssertThrows<InvalidDataException>(() => content.Draw(0, new OamBuffer(), 0, 0), "Unknown sprite is loud");
+        AssertThrows<InvalidDataException>(() => content.Draw(0, new OamBuffer(), new(0, 0)), "Unknown sprite is loud");
         Console.WriteLine($"Projectile compositions: 417 extracted sprites/{draws} native OAM comparisons, observable edits, immutable load and invalid-field rejection pass without a draw-time ROM.");
     }
 
@@ -400,7 +400,7 @@ internal static partial class Program
         var compositionEdited = installation.LoadProjectiles();
         AssertTrue(compositionEdited.SelectedSha256 != flareEdited.SelectedSha256, "Composition-only flare edit changes content identity");
         var flareOam = new OamBuffer();
-        compositionEdited.FlareCompositions.Draw(0, flareOam, 100, 100);
+        compositionEdited.FlareCompositions.Draw(0, flareOam, new(100, 100));
         AssertEqual(117, flareOam.GetEntry(0).X, "Installed flare composition emits selected part offset");
         File.WriteAllText(compositionStock, "broken stock");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Flare composition override cannot conceal corrupt stock");

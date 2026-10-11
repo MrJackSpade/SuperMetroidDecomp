@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -393,10 +394,11 @@ public static partial class GameSaveJsonCodec
             {
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
+                    var cell = new Point32<MapTiles>(x, y);
                     int byteIndex = areaIndex * Bank80SystemState.ExploredMapBytesPerArea +
-                        AreaMapLayout.GetBitByteIndex(x, y);
-                    if ((bytes[byteIndex] & AreaMapLayout.GetBitMask(x)) != 0)
-                        tiles.Add(new MapCoordinateJsonDocument(x, y));
+                        AreaMapLayout.GetBitByteIndex(cell);
+                    if ((bytes[byteIndex] & AreaMapLayout.GetBitMask(cell.X)) != 0)
+                        tiles.Add(MapCoordinateJsonDocument.FromCell(cell));
                 }
             }
             areas[areaIndex] = new ExploredAreaJsonDocument(area, tiles.ToArray());
@@ -424,17 +426,17 @@ public static partial class GameSaveJsonCodec
             int previousIndex = -1;
             foreach (MapCoordinateJsonDocument tile in area.Tiles)
             {
-                if (tile is null || (uint)tile.X >= AreaMapLayout.WidthInTiles ||
-                    (uint)tile.Y >= AreaMapLayout.HeightInTiles)
+                if (tile is null || !AreaMapLayout.Size.Contains(tile.Cell))
                     throw new InvalidDataException(
                         $"progression.exploredAreas[{areaIndex}] contains an invalid tile");
-                int logicalIndex = tile.Y * AreaMapLayout.WidthInTiles + tile.X;
+                Point32<MapTiles> cell = tile.Cell;
+                int logicalIndex = AreaMapLayout.Size.RowMajorIndex(cell);
                 if (logicalIndex <= previousIndex)
                     throw new InvalidDataException(
                         $"progression.exploredAreas[{areaIndex}].tiles must be row-major and unique");
                 int byteIndex = areaIndex * Bank80SystemState.ExploredMapBytesPerArea +
-                    AreaMapLayout.GetBitByteIndex(tile.X, tile.Y);
-                result[byteIndex] |= AreaMapLayout.GetBitMask(tile.X);
+                    AreaMapLayout.GetBitByteIndex(cell);
+                result[byteIndex] |= AreaMapLayout.GetBitMask(cell.X);
                 previousIndex = logicalIndex;
             }
         }

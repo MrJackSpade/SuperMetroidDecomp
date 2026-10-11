@@ -677,7 +677,7 @@ internal static partial class Program
             var installed = new OamBuffer();
             installed.BeginFrame();
             stock.CaretSprites.Draw(definition.Pointer, installed,
-                originX, originY, paletteBits);
+                new(originX, originY), paletteBits);
             installed.FinalizeFrame();
             AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
                     installed.HighTable.SequenceEqual(native.HighTable) &&
@@ -710,12 +710,12 @@ internal static partial class Program
             var previousOam = new OamBuffer();
             previousOam.BeginFrame();
             previous.Draw(IntroCaretSpriteDefinitions.Still, previousOam,
-                originX, originY, paletteBits);
+                new(originX, originY), paletteBits);
             previousOam.FinalizeFrame();
             var stockOam = new OamBuffer();
             stockOam.BeginFrame();
             stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Still, stockOam,
-                originX, originY, paletteBits);
+                new(originX, originY), paletteBits);
             stockOam.FinalizeFrame();
             AssertTrue(previousOam.LowTable.SequenceEqual(stockOam.LowTable) &&
                     previousOam.HighTable.SequenceEqual(stockOam.HighTable),
@@ -729,12 +729,12 @@ internal static partial class Program
         IntroCaretSpritePresentation edited = IntroCaretSpritePresentation.Load(editedJson);
         var changed = new OamBuffer();
         changed.BeginFrame();
-        edited.Draw(IntroCaretSpriteDefinitions.Still, changed, originX, originY, paletteBits);
+        edited.Draw(IntroCaretSpriteDefinitions.Still, changed, new(originX, originY), paletteBits);
         changed.FinalizeFrame();
         var original = new OamBuffer();
         original.BeginFrame();
         stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Still, original,
-            originX, originY, paletteBits);
+            new(originX, originY), paletteBits);
         original.FinalizeFrame();
         AssertTrue(!changed.LowTable.SequenceEqual(original.LowTable) &&
                 changed.LowTable[..2].SequenceEqual(original.LowTable[..2]) &&
@@ -827,8 +827,7 @@ internal static partial class Program
             var installed = new OamBuffer();
             installed.BeginFrame();
             stock.MotherBrainSprites.Draw(definition.Pointer, installed,
-                IntroMotherBrainSpriteState.XPosition,
-                IntroMotherBrainSpriteState.YPosition,
+                new(IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition),
                 IntroMotherBrainSpriteState.PaletteBits);
             installed.FinalizeFrame();
             AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
@@ -851,13 +850,13 @@ internal static partial class Program
         var stockOam = new OamBuffer();
         stockOam.BeginFrame();
         stock.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, stockOam,
-            IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition,
+            new(IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition),
             IntroMotherBrainSpriteState.PaletteBits);
         stockOam.FinalizeFrame();
         var editedOam = new OamBuffer();
         editedOam.BeginFrame();
         edited.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, editedOam,
-            IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition,
+            new(IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition),
             IntroMotherBrainSpriteState.PaletteBits);
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) &&
@@ -913,7 +912,7 @@ internal static partial class Program
             var installed = new OamBuffer();
             installed.BeginFrame();
             stock.MotherBrainExplosionSprites.Draw(definition.Pointer, installed,
-                x, y, palette);
+                new(x, y), palette);
             installed.FinalizeFrame();
             AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
                     installed.HighTable.SequenceEqual(native.HighTable) &&

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -219,7 +220,7 @@ internal static partial class Program
                 definitions[0x54 * 8 + tile * 2] = 0x18;
             }
 
-            var level = new RoomLevelData(width, width, words,
+            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words,
                 new byte[words.Length], new ushort[words.Length], definitions);
             var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
             AssertTrue(plms.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
@@ -261,7 +262,7 @@ internal static partial class Program
             var definitions = new byte[0x400 * 8];
             for (int tile = 0; tile < 4; tile++)
                 definitions[0xbc * 8 + tile * 2] = tileIndex;
-            var level = new RoomLevelData(width, width, words,
+            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words,
                 new byte[words.Length], new ushort[words.Length], definitions);
             var plms = new RoomPlmSystem();
             AssertTrue(plms.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
@@ -301,7 +302,7 @@ internal static partial class Program
         words[blockIndex] = 0xb321;
         var behaviors = new byte[words.Length];
         behaviors[blockIndex] = bts;
-        var level = new RoomLevelData(width, width, words, behaviors,
+        var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words, behaviors,
             new ushort[words.Length], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnSamusContactCrumbleBlock(level, blockIndex,

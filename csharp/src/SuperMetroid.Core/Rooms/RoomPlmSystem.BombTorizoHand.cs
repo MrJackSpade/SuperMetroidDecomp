@@ -57,7 +57,7 @@ public sealed partial class RoomPlmSystem
         }
 
         slot.InstructionPointer = RoomPlmInstructionLists.BombTorizoCrumblingChozo;
-        _bombTorizoHandRoomWidth = level.WidthInBlocks;
+        _bombTorizoHandRoomWidth = level.Size.Width;
     }
 
     private void BeginBombTorizoHandFrame()

@@ -57,8 +57,7 @@ internal static partial class Program
             var guard = new MaridiaElevatubeSourceGuard(new TestAddressSpace());
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             int blockIndex = level.GetBlockIndex(
-                MaridiaElevatubePlmRomData.BlockX,
-                MaridiaElevatubePlmRomData.BlockY);
+                new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
             plms.Step(guard, level, streamer, 0, 0, 0);
             AssertEqual((ushort)0x8180,
                 level.GetCollisionBlockByIndex(blockIndex).LevelWord,

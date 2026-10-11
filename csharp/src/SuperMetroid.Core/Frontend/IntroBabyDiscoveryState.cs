@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -434,8 +435,7 @@ internal sealed class IntroBabyDiscoveryState
         const int height = IntroBabyDiscoveryCollisionDefinitions.RoomRows;
         ushort[] foreground = IntroBabyDiscoveryCollisionDefinitions.CreateForeground();
         return new RoomLevelData(
-            width,
-            height,
+            new Size32<RoomBlocks>(width, height),
             foreground,
             new byte[width * height],
             new ushort[width * height],

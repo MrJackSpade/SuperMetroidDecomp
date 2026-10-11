@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -25,7 +26,7 @@ internal static partial class Program
                     ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension) << 12);
                 bts[origin + offset * stride] = unchecked((byte)-offset);
             }
-            var level = new RoomLevelData(width, width, words, bts, new ushort[words.Length], new byte[8]);
+            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words, bts, new ushort[words.Length], new byte[8]);
             int hitBlock = origin + hitOffset * stride;
             var samus = new SamusState
             {

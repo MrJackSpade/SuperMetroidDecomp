@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -1715,7 +1716,7 @@ internal static partial class Program
         }
         AssertEqual(25, parts, "All twenty-five native timer parts are calculated");
         foreach ((string name, int address) in new[] { ("Label", 0x809f73), ("Minutes", 0x809f7c), ("Seconds", 0x809f85), ("Centiseconds", 0x809f8e) })
-            AssertEqual(new MapLabelPoint(unchecked((short)Word(address)), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(name), "Timer centered anchor matches native renderer immediate");
+            AssertEqual(new Point32<ScreenPixels>(unchecked((short)Word(address)), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(name), "Timer centered anchor matches native renderer immediate");
         var timer = new EscapeTimer(); timer.Clear();
         for (int digit = 0; digit < 10; digit++)
         {
@@ -1774,7 +1775,7 @@ internal static partial class Program
                 Draw($"Digit.{bcd >> 4}", selected.Anchors[anchor]);
                 Draw($"Digit.{bcd & 15}", selected.Anchors[anchor] with { X = selected.Anchors[anchor].X + selected.DigitSpacing });
             }
-            void Draw(string frame, MapLabelPoint anchor)
+            void Draw(string frame, Point32<ScreenPixels> anchor)
             {
                 foreach (var part in selected.Frames[frame])
                     result.AddOnScreenSpritePart(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), unchecked((byte)(sbyte)part.OffsetY),
@@ -2372,7 +2373,7 @@ internal static partial class Program
             var expected = new OamBuffer();
             var actual = new OamBuffer();
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, selector, 100, 100);
-            stock.Draw(selector, actual, 100, 100);
+            stock.Draw(selector, actual, new(100, 100));
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                 "calculated flare selector draws exact native composition");
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "calculated flare native OAM cursor");

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -15,7 +16,7 @@ internal static partial class Program
             var words = new ushort[16 * 16];
             const int block = 3 * 16 + 3;
             words[block] = 0xc321;
-            var level = new RoomLevelData(16, 16, words, new byte[words.Length],
+            var level = new RoomLevelData(new Size32<RoomBlocks>(16, 16), words, new byte[words.Length],
                 new ushort[words.Length], new byte[1024 * 8]);
             var streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem();

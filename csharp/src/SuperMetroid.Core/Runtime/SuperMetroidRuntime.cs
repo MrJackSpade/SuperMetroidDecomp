@@ -3778,10 +3778,10 @@ Landed: true, HitCeiling: false);
                     _addressSpace,
                     System,
                     roomGeometry.AreaIndex,
-                    roomGeometry.MapX,
-                    roomGeometry.MapY,
-                    LevelData.WidthInBlocks,
-                    LevelData.HeightInBlocks,
+                    checked((byte)roomGeometry.MapPosition.X),
+                    checked((byte)roomGeometry.MapPosition.Y),
+                    LevelData.Size.Width,
+                    LevelData.Size.Height,
                     Samus.XPosition,
                     Samus.YPosition,
                     NmiFrameCounter8,
@@ -4214,7 +4214,7 @@ Landed: true, HitCeiling: false);
             {
                 Enemies.SpawnSaveStationElectricity(
                     saveStation.BlockIndex,
-                    level.WidthInBlocks);
+                    level.Size.Width);
                 System.MarkSaveStationUsed(
                     saveStation.AreaIndex,
                     saveStation.StationIndex & 7);

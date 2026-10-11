@@ -88,11 +88,11 @@ internal static partial class Program
         ProjectileSpriteCatalog compositions = ProjectileSpriteCatalog.Load(
             new MemoryStream(ProjectileSpriteExtractor.Extract(rom)));
         var stockOam = new OamBuffer();
-        compositions.Draw(originalSprite, stockOam, 100, 100);
+        compositions.Draw(originalSprite, stockOam, new(100, 100));
         ushort replacement = ProjectileSpriteDefinitions.NativePointers.ToArray().First(sprite =>
         {
             var comparison = new OamBuffer();
-            compositions.Draw(sprite, comparison, 100, 100);
+            compositions.Draw(sprite, comparison, new(100, 100));
             return !comparison.LowTable.SequenceEqual(stockOam.LowTable) ||
                 !comparison.HighTable.SequenceEqual(stockOam.HighTable);
         });
@@ -109,7 +109,7 @@ internal static partial class Program
                 SamusProjectileRomData.Banks.Projectile | editedPointer),
             editedShot.InstructionTimer, "visual edit does not change frame duration");
         var editedOam = new OamBuffer();
-        compositions.Draw(editedShot.SpritemapPointer, editedOam, 100, 100);
+        compositions.Draw(editedShot.SpritemapPointer, editedOam, new(100, 100));
         AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) ||
             !editedOam.HighTable.SequenceEqual(stockOam.HighTable),
             "edited visual binding changes emitted OAM, not merely a cached pointer");

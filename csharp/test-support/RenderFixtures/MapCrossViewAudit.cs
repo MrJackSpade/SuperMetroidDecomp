@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Representative retail rooms used to compare both map presentation paths.</summary>
 internal static class MapCrossViewAuditDefinitions
@@ -46,11 +47,11 @@ internal static class MapCrossViewAudit
             bus,
             MapCrossViewAuditDefinitions.WaterRoom);
         if (reportedRoom.Identity != new RoomIdentity(AreaId.Brinstar, 0x27) ||
-            reportedRoom.MapX < AreaMapLayout.PageWidthInTiles)
+            reportedRoom.MapPosition.X < AreaMapLayout.PageWidthInTiles)
         {
             throw new InvalidDataException(
                 $"Map audit expected right-page room $01/$27, got {reportedRoom.Identity} " +
-                $"at map ({reportedRoom.MapX},{reportedRoom.MapY}).");
+                $"at map {reportedRoom.MapPosition}.");
         }
 
         Console.WriteLine(
@@ -82,10 +83,10 @@ internal static class MapCrossViewAudit
             bus,
             system,
             room.AreaIndex,
-            room.MapX,
-            room.MapY,
-            room.WidthInScreens * 16,
-            room.HeightInScreens * 16,
+            checked((byte)room.MapPosition.X),
+            checked((byte)room.MapPosition.Y),
+            room.Size.ToRoomBlocks().Width,
+            room.Size.ToRoomBlocks().Height,
             samus.XPosition,
             samus.YPosition,
             nmiFrameCounter: 8);
@@ -95,22 +96,17 @@ internal static class MapCrossViewAudit
             samus,
             system,
             room.AreaIndex,
-            room.MapX,
-            room.MapY);
+            room.MapPosition);
         _ = pause.Render();
 
-        ushort expectedMarkerX = unchecked((ushort)(
-            8 * hud.MinimapCenterX - pause.MapHorizontalScroll));
-        ushort expectedMarkerY = unchecked((ushort)(
-            8 * hud.MinimapCenterY - pause.MapVerticalScroll));
-        if (pause.LastIndicatorOriginX != expectedMarkerX ||
-            pause.LastIndicatorOriginY != expectedMarkerY)
+        Position16<ScreenPixels> expectedMarker = new Point32<MapTiles>(hud.MinimapCenterX, hud.MinimapCenterY)
+            .ToMapPixels().ToScreen(pause.MapScroll);
+        if (pause.LastIndicatorOrigin != expectedMarker)
         {
             throw new InvalidDataException(
                 $"Room {room.Identity} map marker mismatch: HUD center=" +
                 $"({hud.MinimapCenterX},{hud.MinimapCenterY}), pause origin=" +
-                $"({pause.LastIndicatorOriginX},{pause.LastIndicatorOriginY}), expected=" +
-                $"({expectedMarkerX},{expectedMarkerY}).");
+                $"{pause.LastIndicatorOrigin}, expected={expectedMarker}.");
         }
 
         int comparisons = 0;

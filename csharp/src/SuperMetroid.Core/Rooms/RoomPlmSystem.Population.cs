@@ -67,7 +67,7 @@ public sealed partial class RoomPlmSystem
         _writeNoobTubeEarthquakeType = setEarthquakeType;
         _spawnNoobTubeProjectile = spawnNoobTubeProjectile;
         _downwardGateSamus = getSamus;
-        _downwardGateRoomWidth = level.WidthInBlocks;
+        _downwardGateRoomWidth = level.Size.Width;
         _eyeDoorSystem = system;
         _eyeDoorSamus = getSamus;
         _spawnEyeDoorProjectile = spawnEyeDoorProjectile;
@@ -93,7 +93,7 @@ recordIndex,
                 // dimensions. The bounded native allocation preserves that ordering for
                 // the two shipped off-room door records; setup routines that genuinely
                 // require authored terrain still validate when they consume the index.
-                blockIndex = level.GetPlmBlockIndex(record.BlockX, record.BlockY);
+                blockIndex = level.GetPlmBlockIndex(new(record.BlockX, record.BlockY));
             }
             catch (ArgumentOutOfRangeException error)
             {

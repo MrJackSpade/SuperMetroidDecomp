@@ -29,7 +29,7 @@ internal static partial class Program
         }
 
         ushort Word(RoomLevelData level, int x) =>
-            level.GetCollisionBlockByIndex(level.GetBlockIndex(x, 0x0b)).LevelWord;
+            level.GetCollisionBlockByIndex(level.GetBlockIndex(new(x, 0x0b))).LevelWord;
 
         RoomLevelData opened = Load(crittersEscaped: true);
         foreach (int x in new[] { 0x3d, 0x3e, 0x41, 0x42 })

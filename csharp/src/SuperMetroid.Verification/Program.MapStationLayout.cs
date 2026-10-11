@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -18,7 +19,7 @@ internal static partial class Program
             {
                 var system = new Bank80SystemState();
                 for (int i = 0; i < rules.Length; i++)
-                    if ((mask & (1 << i)) != 0) system.MarkExploredMapTile(area, rules[i].CellX, rules[i].CellY);
+                    if ((mask & (1 << i)) != 0) system.MarkExploredMapTile(area, rules[i].Cell);
                 var native = new FileSelectMapIcons(system, area);
                 var installed = new FileSelectMapIcons(system, area);
                 native.BindStations(original.Stations);
@@ -35,7 +36,7 @@ internal static partial class Program
         // every possible station-discovery subset above compares the original drawing path.
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapStationLayoutDocument>(File.ReadAllBytes(Path.Combine(stock, MapStationLayoutFormat.FileName)), options)!;
-        var points = new Dictionary<string, MapLabelPoint>(document.Markers);
+        var points = new Dictionary<string, Point32<MapPixels>>(document.Markers);
         const string moved = "Brinstar.Missile.0";
         points[moved] = new(80, 64);
         Directory.CreateDirectory(overrides);
@@ -45,7 +46,7 @@ internal static partial class Program
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "station position edit changes catalog identity");
         var state = new Bank80SystemState();
-        state.MarkExploredMapTile(AreaId.Brinstar, 10, 8); // Edited visual cell, not native discovery cell.
+        state.MarkExploredMapTile(AreaId.Brinstar, new(10, 8)); // Edited visual cell, not native discovery cell.
         var baseIcons = new FileSelectMapIcons(state, AreaId.Brinstar);
         var editIcons = new FileSelectMapIcons(state, AreaId.Brinstar);
         baseIcons.BindStations(original.Stations);
@@ -55,21 +56,21 @@ internal static partial class Program
         editIcons.BindLandmarks(edited.Landmarks);
         editIcons.BindSprites(edited.Sprites);
         AssertTrue(Draw(baseIcons).AsSpan().SequenceEqual(Draw(editIcons)), "moving icon onto explored tile cannot reveal it");
-        state.MarkExploredMapTile(AreaId.Brinstar, 5, 8);
+        state.MarkExploredMapTile(AreaId.Brinstar, new(5, 8));
         AssertTrue(!Draw(baseIcons).AsSpan().SequenceEqual(Draw(editIcons)), "native discovery reveals relocated icon");
         var marker = new FileSelectStationMarker(bus, AreaId.Brinstar, 0,
             original.SaveMarkers);
         var nativeGraphics = new FileSelectRoomMapGraphics(bus, state, AreaId.Brinstar,
             mapPresentation: original);
         var graphics = new FileSelectRoomMapGraphics(guard, state, AreaId.Brinstar, mapPresentation: original);
-        var nativePixels = nativeGraphics.Render(0, 0, marker);
-        AssertTrue(nativePixels.AsSpan().SequenceEqual(graphics.Render(0, 0, marker)), "stock station full-menu pixels with ROM layout blocked");
+        var nativePixels = nativeGraphics.Render(new(0, 0), marker);
+        AssertTrue(nativePixels.AsSpan().SequenceEqual(graphics.Render(new(0, 0), marker)), "stock station full-menu pixels with ROM layout blocked");
         byte[] before = Enumerable.Range(0, Bank80SystemState.ExploredMapBytesPerArea)
             .Select(i => state.GetExploredMapByteRaw(AreaId.Brinstar, i)).ToArray();
         graphics.BindMapPresentation(edited);
-        AssertTrue(!nativePixels.AsSpan().SequenceEqual(graphics.Render(0, 0, marker)), "edited station changes actual menu pixels after rebind");
+        AssertTrue(!nativePixels.AsSpan().SequenceEqual(graphics.Render(new(0, 0), marker)), "edited station changes actual menu pixels after rebind");
         graphics.BindMapPresentation(original);
-        AssertTrue(nativePixels.AsSpan().SequenceEqual(graphics.Render(0, 0, marker)), "station rebind restores stock pixels");
+        AssertTrue(nativePixels.AsSpan().SequenceEqual(graphics.Render(new(0, 0), marker)), "station rebind restores stock pixels");
         AssertTrue(before.AsSpan().SequenceEqual(Enumerable.Range(0, before.Length)
             .Select(i => state.GetExploredMapByteRaw(AreaId.Brinstar, i)).ToArray()), "layout render/rebind preserves exploration bytes");
         string rebuilt = Path.Combine(overrides, "rebuilt");
@@ -93,7 +94,7 @@ internal static partial class Program
 
         static byte[] Draw(FileSelectMapIcons icons)
         {
-            var oam = new OamBuffer(); oam.BeginFrame(); icons.DrawBeforeMarker(oam, 0, 0); oam.FinalizeFrame();
+            var oam = new OamBuffer(); oam.BeginFrame(); icons.DrawBeforeMarker(oam, new(0, 0)); oam.FinalizeFrame();
             return oam.LowTable.ToArray().Concat(oam.HighTable.ToArray()).ToArray();
         }
     }

@@ -45,7 +45,7 @@ internal static partial class Program
         for (int i = 0; i < 54; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Room, installed.Phase, "installed menu reaches room and recreates catalog scroll");
         ushort ScrollX(FileSelectMapMenuState menu) => ((FileSelectMapScroll)typeof(FileSelectMapMenuState)
-            .GetField("scroll", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(menu)!).Horizontal;
+            .GetField("scroll", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(menu)!).Scroll.X;
         ushort initialScrollX = ScrollX(installed);
         for (int i = 0; i < 16; i++) StepBoth((ushort)SnesButton.Left);
         AssertTrue(initialScrollX != ScrollX(installed), "installed menu test actually scrolls before saving");

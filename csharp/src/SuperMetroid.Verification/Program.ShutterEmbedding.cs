@@ -22,7 +22,7 @@ internal static partial class Program
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, 0, 0);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, new(0, 0));
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slot];
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;

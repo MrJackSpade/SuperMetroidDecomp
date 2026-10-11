@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -479,7 +480,7 @@ public sealed partial class FileSelectMenuState
             int selected = IsMainScreenPhase
                 ? SelectedItem
                 : confirmation ? confirmationSelection : submenuSelection;
-            MapLabelPoint point = mapPresentation.FileSelect.CursorPosition(
+            Point32<ScreenPixels> point = mapPresentation.FileSelect.CursorPosition(
                 IsMainScreenPhase, confirmation, selected);
             return (checked((ushort)point.X), checked((ushort)point.Y));
         }

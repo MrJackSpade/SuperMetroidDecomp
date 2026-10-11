@@ -47,7 +47,7 @@ internal static partial class Program
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(edited));
         for (int palette = 0; palette < 8; palette++)
         {
-            installed.BeginFrame(); edited.Sprites.Draw(MapSpriteId.MarkerBoss, installed, 100, 100, (ushort)(palette << 9));
+            installed.BeginFrame(); edited.Sprites.Draw(MapSpriteId.MarkerBoss, installed, new(100, 100), (ushort)(palette << 9));
             AssertEqual((byte)112, installed.LowTable[0], "authored horizontal offset reaches OAM");
             AssertEqual((byte)96, installed.LowTable[1], "authored vertical offset reaches OAM");
             var attributes = new SnesObjAttributeWord((ushort)(installed.LowTable[2] | installed.LowTable[3] << 8));
@@ -59,7 +59,7 @@ internal static partial class Program
         }
         frames["Marker.Boss"] = [];
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        installed.BeginFrame(); AreaMapPresentationCatalog.Load(stock, overrides).Sprites.Draw(MapSpriteId.MarkerBoss, installed, 0, 0, 0);
+        installed.BeginFrame(); AreaMapPresentationCatalog.Load(stock, overrides).Sprites.Draw(MapSpriteId.MarkerBoss, installed, new(0, 0), 0);
         AssertEqual(0, installed.NextByteOffset, "authored empty visual frame is valid");
         frames.Remove("Marker.Boss");
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
@@ -97,17 +97,17 @@ internal static partial class Program
             var room = new FileSelectRoomMapGraphics(guard, system, AreaId.WreckedShip, mapPresentation: original);
             var nativeRoom = new FileSelectRoomMapGraphics(bus, system,
                 AreaId.WreckedShip, mapPresentation: original);
-            var before = nativeRoom.Render(0, 0, marker);
-            AssertTrue(before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "stock map sprite pixels match with source reads blocked");
+            var before = nativeRoom.Render(new(0, 0), marker);
+            AssertTrue(before.AsSpan().SequenceEqual(room.Render(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
             room.BindMapPresentation(replacement);
-            AssertTrue(!before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "independent sprite resource edit changes file-select pixels");
+            AssertTrue(!before.AsSpan().SequenceEqual(room.Render(new(0, 0), marker)), "independent sprite resource edit changes file-select pixels");
             using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, room); capture.Position = 0;
             room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
             room.BindMapPresentation(original);
-            AssertTrue(before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "restored sprite resources bind current content");
+            AssertTrue(before.AsSpan().SequenceEqual(room.Render(new(0, 0), marker)), "restored sprite resources bind current content");
             var pauseNative = new PauseMenuState(bus, new SamusState(), system,
-                AreaId.WreckedShip, 19, 20, mapPresentation: original);
-            var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.WreckedShip, 19, 20, mapPresentation: original);
+                AreaId.WreckedShip, new(19, 20), mapPresentation: original);
+            var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.WreckedShip, new(19, 20), mapPresentation: original);
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "pause map sprite pixels match with source reads blocked");
             pause.BindMapPresentation(replacement);

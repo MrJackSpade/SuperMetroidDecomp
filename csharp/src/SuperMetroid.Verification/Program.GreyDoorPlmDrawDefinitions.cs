@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -65,7 +66,7 @@ internal static partial class Program
             byte[] blockDefinitions = new byte[0x400 * 8];
             blockDefinitions[(originalVisual & 0x3ff) * 8] = 0xae;
             blockDefinitions[0x53 * 8] = 0x53;
-            var level = new RoomLevelData(width, width,
+            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], blockDefinitions);
             var plms = new RoomPlmSystem
@@ -109,10 +110,8 @@ internal static partial class Program
                     Pointer: 0,
                     DestinationRoomPointer: 0,
                     Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
-                    PlmX: 4,
-                    PlmY: 4,
-                    DestinationScreenX: 0,
-                    DestinationScreenY: 0,
+                    PlmBlock: new(4, 4),
+                    DestinationScreen: new(0, 0),
                     SamusDistance: 0,
                     SetupCodePointer: DoorSetupCode.None);
                 AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor,
@@ -145,7 +144,7 @@ internal static partial class Program
                 AssertEqual(0, guarded.ForbiddenReadAttempts,
                     $"resident grey door ${(int)header:X4} never rereads program or draw data");
 
-                var reopenedLevel = new RoomLevelData(width, width,
+                var reopenedLevel = new RoomLevelData(new Size32<RoomBlocks>(width, width),
                     new ushort[width * width], new byte[width * width],
                     new ushort[width * width], blockDefinitions);
                 BackgroundTilemapStreamer reopenedStreamer =
@@ -183,10 +182,8 @@ internal static partial class Program
             Pointer: 0,
             DestinationRoomPointer: 0,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
-            PlmX: 4,
-            PlmY: 4,
-            DestinationScreenX: 0,
-            DestinationScreenY: 0,
+            PlmBlock: new(4, 4),
+            DestinationScreen: new(0, 0),
             SamusDistance: 0,
             SetupCodePointer: DoorSetupCode.None);
         AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor, system),
@@ -224,7 +221,7 @@ internal static partial class Program
             "Bomb Torizo grey door avoids both compiled program and draw sources");
 
         const int width = 16;
-        var reopenedLevel = new RoomLevelData(width, width,
+        var reopenedLevel = new RoomLevelData(new Size32<RoomBlocks>(width, width),
             new ushort[width * width], new byte[width * width],
             new ushort[width * width], blockDefinitions);
         BackgroundTilemapStreamer reopenedStreamer =
@@ -278,7 +275,7 @@ internal static partial class Program
         const int origin = 4 + 4 * width;
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x54 * 8] = 0x54;
-        var level = new RoomLevelData(width, width,
+        var level = new RoomLevelData(new Size32<RoomBlocks>(width, width),
             new ushort[width * width], new byte[width * width],
             new ushort[width * width], blockDefinitions);
         var plms = new RoomPlmSystem { GreyDoorVisuals = edited };

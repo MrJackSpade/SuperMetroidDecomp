@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -173,8 +174,7 @@ internal static partial class Program
             : blockDefinitions.ToArray();
 
         return new RoomLevelData(
-            widthInBlocks,
-            heightInBlocks,
+            new Size32<RoomBlocks>(widthInBlocks, heightInBlocks),
             foreground,
             behavior,
             clearedBackground,

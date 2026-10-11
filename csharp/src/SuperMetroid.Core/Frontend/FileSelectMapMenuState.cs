@@ -103,7 +103,7 @@ public sealed partial class FileSelectMapMenuState
         AreaMapPresentationCatalog catalog = mapPresentation ?? throw new InvalidOperationException(
             "File-select map requires installed map presentation assets.");
         var anchor = FileSelectMapLoadAnchors.Get(typedArea, stationIndex);
-        return new FileSelectMapScroll(bus, catalog.Get(typedArea), roomGraphics.MapSystem, anchor.X, anchor.Y);
+        return new FileSelectMapScroll(bus, catalog.Get(typedArea), roomGraphics.MapSystem, anchor);
     }
 
     /// <summary>Advances one menu update, retaining input latching during entry and native ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
@@ -198,11 +198,11 @@ public sealed partial class FileSelectMapMenuState
             FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>
                 FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations, false),
                     roomGraphics.RenderFrameOnly(), navigation.Window!, composed),
-            FileSelectMapNavigationPhase.Room when !markerDrawn => roomGraphics.RenderBackgrounds(scroll.Horizontal, scroll.Vertical),
+            FileSelectMapNavigationPhase.Room when !markerDrawn => roomGraphics.RenderBackgrounds(scroll.Scroll),
             FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested =>
-                roomGraphics.Render(scroll.Horizontal, scroll.Vertical, marker, drawArrows ? animations : null),
+                roomGraphics.Render(scroll.Scroll, marker, drawArrows ? animations : null),
             FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 =>
-                roomGraphics.Render(scroll.Horizontal, scroll.Vertical, marker, drawArrows ? animations : null),
+                roomGraphics.Render(scroll.Scroll, marker, drawArrows ? animations : null),
             FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == FileSelectMapRomData.ReturnSetupFrames - 1 =>
                 FileSelectMapWindowCompositor.CompositeInitialEntryWindow(
                     areaGraphics.Render(usedStations), roomGraphics.RenderFrameOnly(), composed),

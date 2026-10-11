@@ -63,8 +63,8 @@ internal static partial class Program
 
         RoomLevelData level = runtime.LevelData ??
             throw new InvalidDataException("Botwoon Hallway level data was not loaded.");
-        AssertEqual(64, level.WidthInBlocks, "Botwoon Hallway retail width");
-        AssertEqual(16, level.HeightInBlocks, "Botwoon Hallway retail height");
+        AssertEqual(64, level.Size.Width, "Botwoon Hallway retail width");
+        AssertEqual(16, level.Size.Height, "Botwoon Hallway retail height");
 
         SamusState samus = runtime.Samus ??
             throw new InvalidDataException("Botwoon Hallway did not initialize Samus.");

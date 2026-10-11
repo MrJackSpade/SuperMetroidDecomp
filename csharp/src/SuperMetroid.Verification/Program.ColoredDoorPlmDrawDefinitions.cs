@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -73,7 +74,7 @@ internal static partial class Program
             byte[] blockDefinitions = new byte[0x400 * 8];
             blockDefinitions[originalVisual * 8] = 0x04;
             blockDefinitions[0x53 * 8] = 0x53;
-            var level = new RoomLevelData(width, width,
+            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], blockDefinitions);
             var plms = new RoomPlmSystem
@@ -115,10 +116,8 @@ internal static partial class Program
                 Pointer: 0,
                 DestinationRoomPointer: 0,
                 Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
-                PlmX: 4,
-                PlmY: 4,
-                DestinationScreenX: 0,
-                DestinationScreenY: 0,
+                PlmBlock: new(4, 4),
+                DestinationScreen: new(0, 0),
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
             AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor, system),
@@ -155,7 +154,7 @@ internal static partial class Program
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident colored door ${(int)header:X4} completes without program/draw ROM reads");
 
-            var reopenedLevel = new RoomLevelData(width, width,
+            var reopenedLevel = new RoomLevelData(new Size32<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], blockDefinitions);
             BackgroundTilemapStreamer reopenedStreamer = reopenedLevel.CreateBackgroundStreamer();

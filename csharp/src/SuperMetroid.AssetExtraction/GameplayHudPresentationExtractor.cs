@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -87,6 +88,6 @@ public static class GameplayHudPresentationExtractor
         };
     }
 
-    private static MapLabelPoint Point(int index) =>
+    private static Point32<TilemapCells> Point(int index) =>
         new(index % GameplayHudDefinitions.Width, index / GameplayHudDefinitions.Width);
 }

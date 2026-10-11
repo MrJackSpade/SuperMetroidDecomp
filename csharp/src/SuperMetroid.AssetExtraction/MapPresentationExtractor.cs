@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -28,7 +29,7 @@ public static class MapPresentationExtractor
             var map = AreaMapImporter.Load(bus, area);
             AreaMapPresentationAsset.Write(buffer, map);
             stationCells.Add(area.ToString(), Enumerable.Range(0, AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
-                .Where(i => map.IsRevealedByMapStation(i % AreaMapLayout.WidthInTiles, i / AreaMapLayout.WidthInTiles)).ToArray());
+                .Where(i => map.IsRevealedByMapStation(new(i % AreaMapLayout.WidthInTiles, i / AreaMapLayout.WidthInTiles))).ToArray());
             byte[] bytes = buffer.ToArray();
             string name = AreaMapCatalogFormat.FileName(area);
             // Exclusive creation prevents this stock importer from overwriting edited
@@ -78,7 +79,7 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, MapStaticPalettesFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(paletteBytes);
         hashes.Add(MapStaticPalettesFormat.FileName, Convert.ToHexString(SHA256.HashData(paletteBytes)));
-        var labelPoints = new Dictionary<string, MapLabelPoint>();
+        var labelPoints = new Dictionary<string, Point32<ScreenPixels>>();
         for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelectMapRomData.AreaCount; area++)
         {
             int address = SuperMetroid.Core.Frontend.FileSelectMapRomData.LabelPositions + area * 4;

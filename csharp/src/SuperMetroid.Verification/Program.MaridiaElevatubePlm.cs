@@ -24,8 +24,7 @@ internal static partial class Program
         var guarded = new MaridiaElevatubeSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int blockIndex = level.GetBlockIndex(
-            MaridiaElevatubePlmRomData.BlockX,
-            MaridiaElevatubePlmRomData.BlockY);
+            new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
         int heardAtFrame = -1;
         for (int frame = 0; frame < 24 && plms.ActiveCount != 0; frame++)
         {

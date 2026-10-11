@@ -8,6 +8,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -206,14 +207,14 @@ static void VerifyHudStateAndBg3Rendering()
     foreach (ushort slope in new ushort[] { 0x0028, 0x4228, 0x8028, 0xc228 })
     {
         var slopeSystem = new Bank80SystemState();
-        int currentAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(x, 5) * 2;
-        int aboveAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(x, 4) * 2;
+        int currentAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(new(x, 5)) * 2;
+        int aboveAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(new(x, 4)) * 2;
         ushort savedCurrent = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), currentAddress);
         ushort savedAbove = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), aboveAddress);
         WriteTestWord(bus, currentAddress, slope);
         WriteTestWord(bus, aboveAddress, 0x0029);
         hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, (byte)x, 4, 16, 16, 128, 128, 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
-        AssertTrue(slopeSystem.IsMapTileExplored(0, x, 4), "sloped hallway explores its upper corner on either map page");
+        AssertTrue(slopeSystem.IsMapTileExplored(0, new(x, 4)), "sloped hallway explores its upper corner on either map page");
         AssertEqual(0x2c1f, hud.Tiles[28], "upper corner remains blank on native discovery update");
         hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, (byte)x, 4, 16, 16, 128, 128, 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
         AssertEqual(0x2829, hud.Tiles[28], "upper corner displays its explored palette on following update");
@@ -223,11 +224,11 @@ static void VerifyHudStateAndBg3Rendering()
     var ordinaryCornerSystem = new Bank80SystemState();
     // Character $029 is adjacent in the graphics catalog but must not get the $028
     // exploration side effect; this also rejects indiscriminate upper-cell revealing.
-    int ordinaryAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(30, 5) * 2;
+    int ordinaryAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(new(30, 5)) * 2;
     ushort ordinarySaved = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), ordinaryAddress);
     WriteTestWord(bus, ordinaryAddress, 0x0029);
     hud.UpdateMinimap(bus, ordinaryCornerSystem, AreaId.Crateria, 30, 4, 16, 16, 128, 128, 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
-    AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, 30, 4), "ordinary map character does not explore upper corner");
+    AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, new(30, 4)), "ordinary map character does not explore upper corner");
     WriteTestWord(bus, ordinaryAddress, ordinarySaved);
 
     // A reveal override combines with display state only. Remove the station-mask bit from
@@ -236,7 +237,7 @@ static void VerifyHudStateAndBg3Rendering()
     const int secretHudX = 25;
     const int secretHudY = 4;
     const int publicHudX = 26;
-    int secretHudByte = AreaMapLayout.GetBitByteIndex(secretHudX, secretHudY);
+    int secretHudByte = AreaMapLayout.GetBitByteIndex(new(secretHudX, secretHudY));
     bus.WriteByte(
         0x829000 + secretHudByte,
         (byte)(bus.ReadByte(0x829000 + secretHudByte) & ~AreaMapLayout.GetBitMask(secretHudX)));
@@ -271,7 +272,7 @@ static void VerifyHudStateAndBg3Rendering()
         mapRevealMode: MapRevealMode.Secret, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
     AssertEqual(0x2c00, hud.Tiles[26] & 0x3c00,
         "Secret HUD override reveals cartridge secret-only cell as unentered");
-    overrideSystem.MarkExploredMapTile(AreaId.Crateria, secretHudX, secretHudY);
+    overrideSystem.MarkExploredMapTile(AreaId.Crateria, new(secretHudX, secretHudY));
     hud.UpdateMinimap(
         bus,
         overrideSystem,
@@ -304,7 +305,7 @@ static void VerifyHudStateAndBg3Rendering()
         "returning HUD override to None immediately hides unentered public cell");
     AssertTrue(!overrideSystem.HasAreaMap(AreaId.Crateria),
         "HUD reveal override does not grant the map station");
-    AssertTrue(!overrideSystem.IsMapTileExplored(AreaId.Crateria, publicHudX, secretHudY),
+    AssertTrue(!overrideSystem.IsMapTileExplored(AreaId.Crateria, new(publicHudX, secretHudY)),
         "HUD reveal override does not persist an unentered cell");
 
     // Room $01/$27 lives on the right-hand map page. Give only its eastern neighbor an
@@ -316,8 +317,7 @@ static void VerifyHudStateAndBg3Rendering()
     const int rightPageNeighborX = 35;
     const int rightPageCenterY = 19;
     int rightPageMapByte = AreaMapLayout.GetBitByteIndex(
-        rightPageNeighborX,
-        rightPageCenterY);
+        new(rightPageNeighborX, rightPageCenterY));
     bus.WriteByte(
         0x829000 + rightPageMapByte,
         AreaMapLayout.GetBitMask(rightPageNeighborX));
@@ -879,9 +879,9 @@ static void VerifyRoomLevelData()
     byte[] behavior = [0x00, 0x45, 0x80, 0x11, 0x22, 0x33];
     ushort[] background = [0, 1, 2, 3, 4, 5];
     var definitions = new byte[8 * 4];
-    var level = new RoomLevelData(width, height, foreground, behavior, background, definitions);
+    var level = new RoomLevelData(new Size32<RoomBlocks>(width, height), foreground, behavior, background, definitions);
 
-    RoomCollisionBlock block = level.GetCollisionBlock(blockX: 1, blockY: 1);
+    RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
     AssertEqual(4, block.Index, "room collision row-major index");
     AssertEqual(0xe002, block.LevelWord, "room collision level word");
     AssertEqual(0x22, block.Behavior, "room collision parallel BTS byte");
@@ -890,12 +890,12 @@ static void VerifyRoomLevelData()
     AssertEqual(2, block.VisualBlockIndex, "room collision visual block index");
 
     // Pixel (31,17) is block (1,1); shifts must occur before multiplication/indexing.
-    AssertEqual(block, level.GetCollisionBlockAtPixel(31, 17), "room pixel-to-block conversion");
+    AssertEqual(block, level.GetCollisionBlockAtPixel(new(31, 17)), "room pixel-to-block conversion");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => level.GetCollisionBlock(width, 0),
+        () => level.GetCollisionBlock(new(width, 0)),
         "room collision rejects X beyond header width");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => level.GetCollisionBlock(0, height),
+        () => level.GetCollisionBlock(new(0, height)),
         "room collision rejects Y beyond header height");
 
     BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();

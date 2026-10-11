@@ -134,7 +134,7 @@ internal static partial class Program
                     bus.ReadByte(record + 2), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
                     128, 112);
             }
-            presentation.DrawSprite(checked((ushort)frame.Pointer), installedOam, 128, 112, 0);
+            presentation.DrawSprite(checked((ushort)frame.Pointer), installedOam, new(128, 112), 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                 nativeOam.HighTable.SequenceEqual(installedOam.HighTable), "Title composition matches independent native OBJ records");
         }

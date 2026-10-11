@@ -41,7 +41,7 @@ internal static partial class Program
                 native.FinalizeFrame();
                 var installed = new OamBuffer();
                 installed.BeginFrame();
-                stock.RinkaSprites.Draw(definition.Pointer, installed, x, y, palette,
+                stock.RinkaSprites.Draw(definition.Pointer, installed, new(x, y), palette,
                     onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&

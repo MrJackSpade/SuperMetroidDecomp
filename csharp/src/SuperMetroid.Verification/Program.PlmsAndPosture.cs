@@ -246,21 +246,21 @@ static void VerifyBreakableGrapplePlms()
     AssertEqual(4, first2x2Draw.Count,
         "2x2 draw record emits one debugger-visible redraw for each mutated level word");
     AssertEqual(0x0053,
-        respawning2x2.GetCollisionBlock(3, 3).LevelWord,
+        respawning2x2.GetCollisionBlock(new(3, 3)).LevelWord,
         "2x2 first row begins at PLM origin");
     AssertEqual(0x0053,
-        respawning2x2.GetCollisionBlock(4, 4).LevelWord,
+        respawning2x2.GetCollisionBlock(new(4, 4)).LevelWord,
         "signed {0,+1} record draws the 2x2 lower-right block");
 
     StepMany(respawning2x2Plms, bus, respawning2x2, respawning2x2Streamer, 12);
-    AssertEqual(0x00ff, respawning2x2.GetCollisionBlock(4, 4).LevelWord,
+    AssertEqual(0x00ff, respawning2x2.GetCollisionBlock(new(4, 4)).LevelWord,
         "BTS-3 reaches its four-block blank frame after three four-frame transitions");
     StepMany(respawning2x2Plms, bus, respawning2x2, respawning2x2Streamer, 384 + 12);
-    AssertEqual(0xf058, respawning2x2.GetCollisionBlock(3, 3).LevelWord,
+    AssertEqual(0xf058, respawning2x2.GetCollisionBlock(new(3, 3)).LevelWord,
         "BTS-3 restores the type-F parent after the exact 384-frame blank hold");
-    AssertEqual(0x5058, respawning2x2.GetCollisionBlock(4, 3).LevelWord,
+    AssertEqual(0x5058, respawning2x2.GetCollisionBlock(new(4, 3)).LevelWord,
         "BTS-3 restores the type-5 horizontal extension");
-    AssertEqual(0xd058, respawning2x2.GetCollisionBlock(3, 4).LevelWord,
+    AssertEqual(0xd058, respawning2x2.GetCollisionBlock(new(3, 4)).LevelWord,
         "BTS-3 restores the type-D vertical extension row");
     AssertEqual(1, respawning2x2Plms.ActiveCount,
         "timer-one restored frame keeps BTS-3 PLM alive through this handler pass");
@@ -276,14 +276,14 @@ static void VerifyBreakableGrapplePlms()
         permanent1x2, blockIndex, behavior: 6),
         "BTS-6 collision setup occupies a native PLM slot");
     permanent1x2Plms.Step(bus, permanent1x2, permanent1x2Streamer, 0, 0, 0);
-    AssertEqual(0x0053, permanent1x2.GetCollisionBlock(3, 3).LevelWord,
+    AssertEqual(0x0053, permanent1x2.GetCollisionBlock(new(3, 3)).LevelWord,
         "vertical draw writes BTS-6 origin");
-    AssertEqual(0x0053, permanent1x2.GetCollisionBlock(3, 4).LevelWord,
+    AssertEqual(0x0053, permanent1x2.GetCollisionBlock(new(3, 4)).LevelWord,
         "vertical draw advances its second word by one room row");
-    AssertEqual(0, permanent1x2.GetCollisionBlock(4, 3).LevelWord,
+    AssertEqual(0, permanent1x2.GetCollisionBlock(new(4, 3)).LevelWord,
         "vertical draw does not accidentally advance into the neighboring column");
     StepMany(permanent1x2Plms, bus, permanent1x2, permanent1x2Streamer, 12);
-    AssertEqual(0x00ff, permanent1x2.GetCollisionBlock(3, 4).LevelWord,
+    AssertEqual(0x00ff, permanent1x2.GetCollisionBlock(new(3, 4)).LevelWord,
         "permanent BTS-6 finishes on two vertical blank-air words");
     permanent1x2Plms.Step(bus, permanent1x2, permanent1x2Streamer, 0, 0, 0);
     AssertEqual(0, permanent1x2Plms.ActiveCount,

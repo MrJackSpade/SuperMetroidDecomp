@@ -250,7 +250,7 @@ public sealed partial class RoomPlmSystem
         // Both `$B3:9590` and `$B3:9ADD` pass the literal hardcoded coordinates (15,4).
         // Validate through RoomLevelData rather than allowing a malformed fixture to install
         // a PLM whose later vertical draws would address unrelated host memory.
-        int blockIndex = level.GetBlockIndex(15, 4);
+        int blockIndex = level.GetBlockIndex(new(15, 4));
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot slot = _slots[slotIndex];
@@ -300,7 +300,7 @@ public sealed partial class RoomPlmSystem
                 "Spore Spawn ceiling header must be $B78F (crumble) or $B793 (clear).");
         }
 
-        int blockIndex = level.GetBlockIndex(7, 30);
+        int blockIndex = level.GetBlockIndex(new(7, 30));
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot slot = _slots[slotIndex];
@@ -357,7 +357,7 @@ public sealed partial class RoomPlmSystem
                 "Kraid room mutation header is outside the authored Kraid mutation set."),
         };
 
-        int blockIndex = level.GetBlockIndex(blockX, blockY);
+        int blockIndex = level.GetBlockIndex(new(blockX, blockY));
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot slot = _slots[slotIndex];
@@ -410,7 +410,7 @@ public sealed partial class RoomPlmSystem
                 "Crocomire arena header must be $B747, $B74B, $B74F, $B753, or $B757."),
         };
 
-        int blockIndex = level.GetBlockIndex(blockX, blockY);
+        int blockIndex = level.GetBlockIndex(new(blockX, blockY));
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot slot = _slots[slotIndex];
@@ -464,7 +464,7 @@ public sealed partial class RoomPlmSystem
             ClearSlot(slot);
             slot.Active = true;
             slot.HeaderPointer = header;
-            slot.BlockIndex = level.GetBlockIndex(blockX, blockY);
+            slot.BlockIndex = level.GetBlockIndex(new(blockX, blockY));
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
             slot.PreInstruction = 0;
@@ -477,7 +477,7 @@ public sealed partial class RoomPlmSystem
             // instruction timer is allowed to consume and delete this allocated slot.
             for (int rowOffset = 0; rowOffset < 10; rowOffset++)
             {
-                int blockIndex = level.GetBlockIndex(blockX, blockY + rowOffset);
+                int blockIndex = level.GetBlockIndex(new(blockX, blockY + rowOffset));
                 ushort current = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
                 ushort replacement = header == PlmHeaderId.CreateBabyMetroidInvisibleWall
                     ? unchecked((ushort)((current & 0x0fff) | 0x8000))
@@ -542,7 +542,7 @@ public sealed partial class RoomPlmSystem
 
             ClearSlot(slot);
             slot.Active = true;
-            slot.BlockIndex = level.GetBlockIndex(blockX, blockY);
+            slot.BlockIndex = level.GetBlockIndex(new(blockX, blockY));
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
             slot.InstructionPointer = instructionPointer;
@@ -554,7 +554,7 @@ public sealed partial class RoomPlmSystem
                 // synchronously, before the first draw instruction changes their artwork.
                 WritePlmCollisionTypeAndBts(level, slot.BlockIndex, MotherBrainDeathRomData.EscapeDoorCollision);
                 for (int row = 1; row < 4; row++)
-                    WritePlmCollisionTypeAndBts(level, slot.BlockIndex + row * level.WidthInBlocks,
+                    WritePlmCollisionTypeAndBts(level, slot.BlockIndex + row * level.Size.Width,
                         MotherBrainDeathRomData.EscapeDoorExtension);
             }
             return true;
@@ -1391,7 +1391,7 @@ public sealed partial class RoomPlmSystem
                 case RoomPlmInstruction.MoveTourianAccessDown:
                     // Native PLM_BlockIndices are byte offsets, so AB59 adds room width
                     // twice. C# stores logical word indexes; adding width once is identical.
-                    slot.BlockIndex = checked(slot.BlockIndex + level.WidthInBlocks);
+                    slot.BlockIndex = checked(slot.BlockIndex + level.Size.Width);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
@@ -1510,8 +1510,8 @@ public sealed partial class RoomPlmSystem
         // After its words, a signed-byte X/Y pair locates another record relative to the PLM
         // origin. A zero pair terminates. The 2x2 bomb art is consequently two horizontal
         // records: row zero, then `{dx=0,dy=1}` and row one.
-        int originX = blockIndex % level.WidthInBlocks;
-        int originY = blockIndex / level.WidthInBlocks;
+        int originX = blockIndex % level.Size.Width;
+        int originY = blockIndex / level.Size.Width;
         if (RoomPlmBombedRevealDrawDefinitions.TryGet(drawPointer, out var bombedReveal))
         {
             DrawCompiledBlockInstruction(level, streamer, bombedReveal, originX, originY,
@@ -2048,7 +2048,7 @@ public sealed partial class RoomPlmSystem
         int blockIndex;
         try
         {
-            blockIndex = level.GetPlmBlockIndex(x, y);
+            blockIndex = level.GetPlmBlockIndex(new(x, y));
         }
         catch (ArgumentOutOfRangeException error)
         {
@@ -2079,8 +2079,8 @@ public sealed partial class RoomPlmSystem
         streamer.SetLevelEntry(blockIndex,
             new RoomLevelWord(levelWord).WithVisualWord(renderedWord).Raw);
 
-        int blockX = blockIndex % level.WidthInBlocks;
-        int blockY = blockIndex / level.WidthInBlocks;
+        int blockX = blockIndex % level.Size.Width;
+        int blockY = blockIndex / level.Size.Width;
         if (!IsInsideNativeDrawWindow(blockX, blockY, layer1XPosition, layer1YPosition))
             return;
 

@@ -50,13 +50,13 @@ internal static partial class Program
                 RoomScrollState lastRow = RoomScrollStates.FromCartridge(
                     unchecked((byte)(scrollPointer + 1)),
                     $"verification implicit scroll word ${scrollPointer:X4}");
-                int logicalCount = header.WidthInScreens * header.HeightInScreens;
+                int logicalCount = header.Size.Width * header.Size.Height;
                 for (int index = 0; index < expected.Length; index++)
                 {
                     // $82:E88D writes only the room's cells; the rest keeps the WRAM the
                     // previous grid (here, the previous audited state) left behind.
                     expected[index] = index < logicalCount
-                        ? (byte)(index / header.WidthInScreens == header.HeightInScreens - 1
+                        ? (byte)(index / header.Size.Width == header.Size.Height - 1
                             ? lastRow
                             : RoomScrollState.Green)
                         : bus.ReadWorkRamByte(RoomScrollGrid.WorkRamAddress + index);
@@ -66,8 +66,7 @@ internal static partial class Program
             RoomScrollGrid compiled = RoomScrollDefinitions.CreateGrid(
                 new RoomScrollNoReadAddressSpace(bus),
                 scrollPointer,
-                header.WidthInScreens,
-                header.HeightInScreens);
+                header.Size);
             AssertTrue(expected.AsSpan().SequenceEqual(compiled.Storage),
                 $"compiled scroll grid for state $8F:{header.State.Pointer:X4}");
         }
@@ -97,14 +96,14 @@ internal static partial class Program
             ceresResidue[index] = bus.ReadWorkRamByte(RoomScrollGrid.WorkRamAddress + index);
         guardedCeres.InitializeStartingCeresRoom();
         var expectedCeres = new byte[RoomScrollGrid.StorageByteCount];
-        int ceresLogicalCount = ceres.WidthInScreens * ceres.HeightInScreens;
+        int ceresLogicalCount = ceres.Size.Width * ceres.Size.Height;
         RoomScrollState ceresLastRow = RoomScrollStates.FromCartridge(
             unchecked((byte)(ceres.State.ScrollPointer + 1)),
             "Ceres implicit scroll word");
         for (int index = 0; index < expectedCeres.Length; index++)
         {
             expectedCeres[index] = index < ceresLogicalCount
-                ? (byte)(index / ceres.WidthInScreens == ceres.HeightInScreens - 1
+                ? (byte)(index / ceres.Size.Width == ceres.Size.Height - 1
                     ? ceresLastRow
                     : RoomScrollState.Green)
                 : ceresResidue[index];

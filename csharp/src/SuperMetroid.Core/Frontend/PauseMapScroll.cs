@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -22,27 +23,27 @@ internal static class PauseMapScrollLayout
 /// Pause-page held-input arbitration and the shared $82:925D eight-update scroll pulse.
 /// File select uses different vertical bounds; pause must not inherit those limits.
 /// </summary>
-internal sealed class PauseMapScroll(ushort minimumX, ushort maximumX, ushort minimumY, ushort maximumY)
+internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<MapPixels> maximum)
 {
     private MapScrollDirection direction;
     private int tick;
 
-    public bool CanScroll(MapScrollDirection candidate, ushort horizontal, ushort vertical) => candidate switch
+    public bool CanScroll(MapScrollDirection candidate, Position16<MapPixels> scroll) => candidate switch
     {
-        MapScrollDirection.Left => Signed(minimumX - PauseMapScrollLayout.LeftMargin - horizontal) < 0,
-        MapScrollDirection.Right => Signed(maximumX - PauseMapScrollLayout.RightMargin - horizontal) >= 0,
-        MapScrollDirection.Up => Signed(minimumY - PauseMapScrollLayout.TopMargin - vertical) < 0,
-        MapScrollDirection.Down => Signed(maximumY - PauseMapScrollLayout.BottomMargin - vertical) >= 0,
+        MapScrollDirection.Left => Signed(minimum.X - PauseMapScrollLayout.LeftMargin - scroll.X) < 0,
+        MapScrollDirection.Right => Signed(maximum.X - PauseMapScrollLayout.RightMargin - scroll.X) >= 0,
+        MapScrollDirection.Up => Signed(minimum.Y - PauseMapScrollLayout.TopMargin - scroll.Y) < 0,
+        MapScrollDirection.Down => Signed(maximum.Y - PauseMapScrollLayout.BottomMargin - scroll.Y) >= 0,
         MapScrollDirection.None => false,
         _ => throw new ArgumentOutOfRangeException(nameof(candidate), candidate, "Undefined map scroll direction."),
     };
 
-    public bool Step(ushort heldInput, ref ushort horizontal, ref ushort vertical)
+    public bool Step(ushort heldInput, ref Position16<MapPixels> scroll)
     {
-        bool left = CanScroll(MapScrollDirection.Left, horizontal, vertical);
-        bool right = CanScroll(MapScrollDirection.Right, horizontal, vertical);
-        bool up = CanScroll(MapScrollDirection.Up, horizontal, vertical);
-        bool down = CanScroll(MapScrollDirection.Down, horizontal, vertical);
+        bool left = CanScroll(MapScrollDirection.Left, scroll);
+        bool right = CanScroll(MapScrollDirection.Right, scroll);
+        bool up = CanScroll(MapScrollDirection.Up, scroll);
+        bool down = CanScroll(MapScrollDirection.Down, scroll);
         SnesButton held = (SnesButton)heldInput;
         if (direction == MapScrollDirection.None)
         {
@@ -61,10 +62,7 @@ internal sealed class PauseMapScroll(ushort minimumX, ushort maximumX, ushort mi
         if (direction == MapScrollDirection.None) return false;
         if (++tick == FileSelectMapRomData.ScrollPulseTick)
         {
-            if (direction == MapScrollDirection.Left) horizontal = Wrap(horizontal - FileSelectMapRomData.ScrollStepPixels);
-            if (direction == MapScrollDirection.Right) horizontal = Wrap(horizontal + FileSelectMapRomData.ScrollStepPixels);
-            if (direction == MapScrollDirection.Up) vertical = Wrap(vertical - FileSelectMapRomData.ScrollStepPixels);
-            if (direction == MapScrollDirection.Down) vertical = Wrap(vertical + FileSelectMapRomData.ScrollStepPixels);
+            scroll += MapScrollControls.StepOffset(direction);
         }
         if (tick != FileSelectMapRomData.ScrollStepTicks) return false;
         tick = 0;
@@ -73,5 +71,4 @@ internal sealed class PauseMapScroll(ushort minimumX, ushort maximumX, ushort mi
     }
 
     private static short Signed(int value) => unchecked((short)value);
-    private static ushort Wrap(int value) => unchecked((ushort)value);
 }

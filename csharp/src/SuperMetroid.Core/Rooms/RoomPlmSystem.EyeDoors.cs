@@ -57,7 +57,7 @@ public sealed partial class RoomPlmSystem
             WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.EyeCollisionWord);
             WritePlmCollisionTypeAndBts(
                 level,
-                checked(slot.BlockIndex + level.WidthInBlocks),
+                checked(slot.BlockIndex + level.Size.Width),
                 EyeDoorPlmRomData.EyeExtensionWord);
             return;
         }
@@ -167,8 +167,8 @@ public sealed partial class RoomPlmSystem
                 SamusState? samus = _eyeDoorSamus?.Invoke();
                 if (samus is null)
                     throw new InvalidOperationException("Eye-door proximity bytecode requires Samus.");
-                int plmX = slot.BlockIndex % level.WidthInBlocks;
-                int plmY = slot.BlockIndex / level.WidthInBlocks;
+                int plmX = slot.BlockIndex % level.Size.Width;
+                int plmY = slot.BlockIndex / level.Size.Width;
                 byte maxX = ReadProgramByte(bus, unchecked((ushort)(slot.InstructionPointer + 2)));
                 byte maxY = ReadProgramByte(bus, unchecked((ushort)(slot.InstructionPointer + 3)));
                 ushort destination = ReadProgramWord(
@@ -295,7 +295,7 @@ public sealed partial class RoomPlmSystem
         PlmSlot slot,
         RoomBlockBehavior facing)
     {
-        slot.BlockIndex = checked(slot.BlockIndex - level.WidthInBlocks);
+        slot.BlockIndex = checked(slot.BlockIndex - level.Size.Width);
         WritePlmCollisionTypeAndBts(
             level,
             slot.BlockIndex,
@@ -304,7 +304,7 @@ public sealed partial class RoomPlmSystem
         {
             WritePlmCollisionTypeAndBts(
                 level,
-                checked(slot.BlockIndex + row * level.WidthInBlocks),
+                checked(slot.BlockIndex + row * level.Size.Width),
                 unchecked((ushort)(0xd000 | unchecked((byte)-row))));
         }
         slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));

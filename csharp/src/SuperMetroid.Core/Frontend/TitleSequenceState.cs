@@ -424,13 +424,13 @@ public sealed class TitleSequenceState
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             artwork.DrawSprite(activeSpritemap, oam,
-                activeOriginX, activeOriginY, activeCharacterOffset);
+                new(activeOriginX, activeOriginY), activeCharacterOffset);
         }
 
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
             artwork.DrawSprite(TitleSequenceRomData.Sprites.NintendoCopyright, oam,
-                TitleSequenceRomData.Sprites.CopyrightX, TitleSequenceRomData.Sprites.CopyrightY,
+                new(TitleSequenceRomData.Sprites.CopyrightX, TitleSequenceRomData.Sprites.CopyrightY),
                 TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         }
 

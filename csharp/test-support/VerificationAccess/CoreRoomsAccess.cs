@@ -253,8 +253,7 @@ internal static class LandingSiteEntryStateAccess
                     doorPointer);
             return new LandingSiteEntryState(
                 RoomIdentity: roomIdentity,
-                RoomMapX: room.MapX,
-                RoomMapY: room.MapY,
+                RoomMapPosition: room.MapPosition,
                 UpScroller: room.UpScroller,
                 DownScroller: room.DownScroller);
         }
@@ -413,7 +412,7 @@ internal static class RoomLevelDataAccess
         internal void RestoreFrom(RoomLevelData source)
         {
             ArgumentNullException.ThrowIfNull(source);
-            if (source.WidthInBlocks != self.WidthInBlocks || source.HeightInBlocks != self.HeightInBlocks ||
+            if (source.Size.Width != self.Size.Width || source.Size.Height != self.Size.Height ||
                 source.DoorListPointer != self.DoorListPointer ||
                 PrivateState.Field<byte[]>(source, "_blockDefinitions").Length != PrivateState.Field<byte[]>(self, "_blockDefinitions").Length ||
                 PrivateState.Field<ushort[]>(source, "_streamingForegroundAllocation").Length != PrivateState.Field<ushort[]>(self, "_streamingForegroundAllocation").Length ||

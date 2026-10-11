@@ -451,9 +451,8 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     // X=88 and reverses when its positive leading edge first enters this wall.
     for (int row = 0; row < roomHeight; row++)
         foreground[row * roomWidth + 6] = 0x8000;
-    RoomLevelData level = new(
-        roomWidth,
-        roomHeight,
+    RoomLevelData level = new RoomLevelData(
+        new(roomWidth, roomHeight),
         foreground,
         new byte[foreground.Length],
         new ushort[foreground.Length],
@@ -1379,9 +1378,8 @@ static void VerifyCeresRidleyRoomEntry()
 
     const int roomWidth = 32;
     const int roomHeight = 16;
-    RoomLevelData air = new(
-        roomWidth,
-        roomHeight,
+    RoomLevelData air = new RoomLevelData(
+        new(roomWidth, roomHeight),
         new ushort[roomWidth * roomHeight],
         new byte[roomWidth * roomHeight],
         new ushort[roomWidth * roomHeight],

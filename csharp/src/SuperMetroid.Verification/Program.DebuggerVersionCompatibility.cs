@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -9,6 +10,7 @@ internal static partial class Program
     {
         Suite(nameof(VerifyRoomCallbackStateIdentity), () => VerifyRoomCallbackStateIdentity());
         Suite(nameof(VerifyLegacyShinesparkGraph), () => VerifyLegacyShinesparkGraph());
+        Suite(nameof(VerifyDebuggerSpatialFieldMerges), () => VerifyDebuggerSpatialFieldMerges());
         Suite(nameof(VerifyFieldIdentityRestorationIgnoresMetadataOrder), () => VerifyFieldIdentityRestorationIgnoresMetadataOrder());
         Suite(nameof(VerifyLegacyRoomVisualLayoutState), () => VerifyLegacyRoomVisualLayoutState());
         Suite(nameof(VerifyLegacyMutableMemoryGraph), () => VerifyLegacyMutableMemoryGraph());
@@ -368,7 +370,7 @@ internal static partial class Program
                 "_visualStreamingForegroundAllocation" and not
                 "_visualStreamingBackgroundAllocation"),
             "pre-layout debugger state selects exactly its prior room fields");
-        var level = new RoomLevelData(1, 1, [0x8000], [0], [0x8000], new byte[8]);
+        var level = new RoomLevelData(new Size32<RoomBlocks>(1, 1), [0x8000], [0], [0x8000], new byte[8]);
         foreach (string name in new[] { "_visualStreamingForegroundAllocation",
                      "_visualStreamingBackgroundAllocation" })
             type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!

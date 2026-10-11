@@ -40,8 +40,7 @@ public sealed partial class RoomPlmSystem
         };
 
         int origin = level.GetBlockIndex(
-            WreckedShipTreadmillPlmRomData.BlockX,
-            WreckedShipTreadmillPlmRomData.BlockY);
+            new(WreckedShipTreadmillPlmRomData.BlockX, WreckedShipTreadmillPlmRomData.BlockY));
         EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillPlmRomData.BlockCount);
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
@@ -85,8 +84,7 @@ public sealed partial class RoomPlmSystem
     {
         ArgumentNullException.ThrowIfNull(level);
         int blockIndex = level.GetBlockIndex(
-            MaridiaElevatubePlmRomData.BlockX,
-            MaridiaElevatubePlmRomData.BlockY);
+            new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
@@ -152,13 +150,13 @@ public sealed partial class RoomPlmSystem
         int origin,
         int count)
     {
-        int originX = origin % level.WidthInBlocks;
-        int originY = origin / level.WidthInBlocks;
-        if (originX + count <= level.WidthInBlocks)
+        int originX = origin % level.Size.Width;
+        int originY = origin / level.Size.Width;
+        if (originX + count <= level.Size.Width)
             return;
         throw new InvalidDataException(
             $"Wrecked Ship treadmill row ({originX},{originY}).." +
-            $"({originX + count - 1},{originY}) exceeds a {level.WidthInBlocks}-block room row.");
+            $"({originX + count - 1},{originY}) exceeds a {level.Size.Width}-block room row.");
     }
 }
 

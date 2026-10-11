@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -15,7 +16,7 @@ public static class PauseReserveTankDefinitions
     /// <param name="index">Zero-based tank/cap anchor, 0..5, not a reserve-energy quantity.</param>
     /// <returns>The stock screen-pixel origin before editable anchor deviations are applied.</returns>
     /// <exception cref="IndexOutOfRangeException">The anchor is outside the six-entry strip.</exception>
-    public static MapLabelPoint StockAnchor(int index)
+    public static Point32<ScreenPixels> StockAnchor(int index)
     {
         if ((uint)index >= AnchorCount) throw new IndexOutOfRangeException();
         return new(24 + index * 8, 95);

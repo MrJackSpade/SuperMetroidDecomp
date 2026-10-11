@@ -50,7 +50,7 @@ public sealed partial class SuperMetroidRuntime
 
         Samus = new SamusState
         {
-            XPosition = scene.SamusX, YPosition = scene.SamusY,
+            XPosition = scene.SamusPosition.X, YPosition = scene.SamusPosition.Y,
             EquippedItems = scene.Items, CollectedItems = scene.Items,
             EquippedBeams = scene.EquippedBeams, CollectedBeams = scene.CollectedBeams,
             Health = scene.Health, MaxHealth = scene.Health,
@@ -71,7 +71,7 @@ public sealed partial class SuperMetroidRuntime
         var room = LoadCartridgeRoomHeader(scene.RoomPointer);
         ActiveLoadStation = null;
         CeresElevatorArrival = null;
-        LoadCartridgeRoom(door, room, scene.CameraX, scene.CameraY,
+        LoadCartridgeRoom(door, room, scene.CameraPosition.X, scene.CameraPosition.Y,
             RoomViewportLoadMode.DisplayInitialViewport);
         ApplyAttractRoomSetup(scene.RoomSetupPointer);
         Samus.LoadSuitPalette(_addressSpace, Cgram);

@@ -50,7 +50,7 @@ internal static partial class Program
         var runtime = CreateRetailRuntimeFixture(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new(0, 0));
         runtime.RunNmi(0, true);
         var getaway = runtime.Enemies.CeresRidley!;
         getaway.Mode7Active = true;

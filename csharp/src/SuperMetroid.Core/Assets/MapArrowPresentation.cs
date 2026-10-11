@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -35,7 +36,7 @@ public sealed class MapArrowPresentation
                 entry.DurationTicks is null || entry.DurationTicks.Length is < 1 or > MapArrowFormat.MaximumPhases ||
                 entry.DurationTicks.Any(ticks => ticks is < 1 or > MapArrowFormat.MaximumDuration))
                 throw new InvalidDataException($"Map arrow {name} requires screen X=0..255/Y=0..223 and 1-255 phases of 1-254 ticks.");
-            return new(entry.X, entry.Y, entry.DurationTicks);
+            return new(entry.Position, entry.DurationTicks);
         }
     }
     /// <summary>Validates and writes a map-arrow presentation document as JSON.</summary>
@@ -50,19 +51,16 @@ public sealed class MapArrowPresentation
 public sealed class MapArrowVisual
 {
     private readonly Dictionary<int, byte>? durationOverrides;
-    internal MapArrowVisual(int x, int y, int[] durations)
+    internal MapArrowVisual(Point32<ScreenPixels> position, int[] durations)
     {
-        X = (ushort)x;
-        Y = (ushort)y;
+        Position = position.ToPosition16();
         PhaseCount = durations.Length;
         for (int phase = 0; phase < durations.Length; phase++)
             if (durations[phase] != MenuSelectorTiming.Duration(phase))
                 (durationOverrides ??= new()).Add(phase, (byte)durations[phase]);
     }
-    /// <summary>Gets the arrow's horizontal screen-pixel anchor.</summary>
-    public ushort X { get; }
-    /// <summary>Gets the arrow's vertical screen-pixel anchor.</summary>
-    public ushort Y { get; }
+    /// <summary>Gets the arrow's screen-pixel anchor.</summary>
+    public Position16<ScreenPixels> Position { get; }
     /// <summary>Gets the number of authored animation phases.</summary>
     public int PhaseCount { get; }
 
@@ -86,8 +84,12 @@ public sealed record MapArrowDocument
     public required Dictionary<string, MapArrowEntry> Arrows { get; init; }
 }
 /// <summary>Defines one arrow's screen anchor and per-phase durations.</summary>
+[SpatialComponents("External format: map-arrows.json stores each arrow anchor as flat x/y fields.")]
 public sealed record MapArrowEntry
 {
+    /// <summary>The authored screen-pixel anchor.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public Point32<ScreenPixels> Position => new(X, Y);
     /// <summary>Gets the horizontal screen-pixel anchor from zero through 255.</summary>
     public required int X { get; init; }
     /// <summary>Gets the vertical screen-pixel anchor from zero through 223.</summary>

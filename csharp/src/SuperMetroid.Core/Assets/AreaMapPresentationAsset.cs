@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -22,10 +23,11 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
-            int i = Index(x, y);
-            discoverable[i] = rules.IsDiscoverable(x, y);
-            station[i] = rules.IsRevealedByMapStation(x, y);
-            revealsAbove[i] = rules.RevealsCellAbove(x, y);
+            var cell = new Point32<MapTiles>(x, y);
+            int i = Index(cell);
+            discoverable[i] = rules.IsDiscoverable(cell);
+            station[i] = rules.IsRevealedByMapStation(cell);
+            revealsAbove[i] = rules.RevealsCellAbove(cell);
         }
     }
 
@@ -74,13 +76,13 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     }
 
     /// <summary>Gets the edited packed SNES BG word at logical map-tile coordinates X 0–63, Y 0–31; native two-page ordering is applied later when building a screen tilemap.</summary>
-    public MapTileWord GetTile(int x, int y) => cells[Index(x, y)];
+    public MapTileWord GetTile(Point32<MapTiles> cell) => cells[Index(cell)];
     /// <summary>Gets the supplied rule snapshot for whether logical cell (X 0–63, Y 0–31) can be discovered, independent of the edited character or blank artwork.</summary>
-    public bool IsDiscoverable(int x, int y) => discoverable[Index(x, y)];
+    public bool IsDiscoverable(Point32<MapTiles> cell) => discoverable[Index(cell)];
     /// <summary>Gets the supplied rule snapshot for whether downloading this area's map reveals logical cell (X 0–63, Y 0–31); no exploration or save bits are changed.</summary>
-    public bool IsRevealedByMapStation(int x, int y) => station[Index(x, y)];
+    public bool IsRevealedByMapStation(Point32<MapTiles> cell) => station[Index(cell)];
     /// <summary>Gets the supplied slope-rule snapshot for whether visiting logical cell (X 0–63, Y 0–31) also explores the cell above; replacing its artwork does not change this rule.</summary>
-    public bool RevealsCellAbove(int x, int y) => revealsAbove[Index(x, y)];
+    public bool RevealsCellAbove(Point32<MapTiles> cell) => revealsAbove[Index(cell)];
 
     /// <summary>Importer entrypoint: writes presentation only, never source addresses or gameplay rules.</summary>
     public static void Write(Stream json, IAreaMapView map)
@@ -91,8 +93,9 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
-            MapTileWord tile = map.GetTile(x, y);
-            cells[Index(x, y)] = new()
+            var cell = new Point32<MapTiles>(x, y);
+            MapTileWord tile = map.GetTile(cell);
+            cells[Index(cell)] = new()
             {
                 TileColumn = tile.CharacterIndex % MapPresentationFormat.AtlasColumns,
                 TileRow = tile.CharacterIndex / MapPresentationFormat.AtlasColumns,
@@ -107,10 +110,10 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         }, MapPresentationFormat.JsonOptions);
     }
 
-    private static int Index(int x, int y)
+    private static int Index(Point32<MapTiles> cell)
     {
-        _ = AreaMapLayout.GetTilemapWordIndex(x, y); // Shared coordinate validation; storage here is row-major.
-        return y * AreaMapLayout.WidthInTiles + x;
+        _ = AreaMapLayout.GetTilemapWordIndex(cell); // Shared coordinate validation; storage here is row-major.
+        return AreaMapLayout.Size.RowMajorIndex(cell);
     }
 }
 

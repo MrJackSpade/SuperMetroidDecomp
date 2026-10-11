@@ -12,7 +12,7 @@ public sealed partial class RoomPlmSystem
             throw new InvalidOperationException("Animal rescue wall setup has no free PLM slot.");
         WritePlmCollisionTypeAndBts(level, blockIndex, EscapeAnimalPlmRomData.OriginCollision);
         for (int row = 1; row <= 2; row++)
-            WritePlmCollisionTypeAndBts(level, blockIndex + row * level.WidthInBlocks,
+            WritePlmCollisionTypeAndBts(level, blockIndex + row * level.Size.Width,
                 EscapeAnimalPlmRomData.ExtensionCollision);
     }
 
@@ -39,8 +39,7 @@ public sealed partial class RoomPlmSystem
             ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = level.GetBlockIndex(
-                CrateriaMainstreetEscapePassagePlmDefinitions.BlockX,
-                CrateriaMainstreetEscapePassagePlmDefinitions.BlockY);
+                new(CrateriaMainstreetEscapePassagePlmDefinitions.BlockX, CrateriaMainstreetEscapePassagePlmDefinitions.BlockY));
             slot.RestoreLevelWord = 0;
             slot.HeaderPointer = PlmHeaderId.CrateriaMainstreetEscapePassage;
             slot.LoopTimer = 0;

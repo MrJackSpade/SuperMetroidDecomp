@@ -30,7 +30,7 @@ internal static partial class Program
         runtime.System.LoadBossBytes(memory.AsSpan(NativeSnapshotMemory.BossBits, Bank80SystemState.AreaCount));
         runtime.System.LoadEventBytes(memory.AsSpan(NativeSnapshotMemory.Events, Bank80SystemState.EventByteCount));
         runtime.System.LoadOpenedDoorBytes(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, Bank80SystemState.DoorBitByteCount));
-        runtime.LoadCartridgeRoomForDebug(W(NativeSnapshotMemory.Room), W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY));
+        runtime.LoadCartridgeRoomForDebug(W(NativeSnapshotMemory.Room), new(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
         typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.XSubposition))!.SetValue(runtime.Camera, W(NativeSnapshotMemory.CameraXFraction));
         typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.YSubposition))!.SetValue(runtime.Camera, W(NativeSnapshotMemory.CameraYFraction));
         foreach (var (property, address) in new[]
@@ -49,7 +49,7 @@ internal static partial class Program
         // these from the pristine room header would no longer represent this movie frame.
         RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load room collision data.");
-        for (int index = 0; index < level.WidthInBlocks * level.HeightInBlocks; index++)
+        for (int index = 0; index < level.Size.Width * level.Size.Height; index++)
         {
             level.SetForegroundEntry(index, W(NativeSnapshotMemory.Level + index * sizeof(ushort)));
             level.SetBehavior(index, memory[NativeSnapshotMemory.Bts + index]);

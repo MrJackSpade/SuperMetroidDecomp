@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -69,7 +70,7 @@ internal static partial class Program
         var guarded = new NoobTubeDrawReadGuard(bus, lists);
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x59 * 8] = 0x59;
-        var level = new RoomLevelData(width, height,
+        var level = new RoomLevelData(new Size32<RoomBlocks>(width, height),
             new ushort[width * height], new byte[width * height],
             new ushort[width * height], blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();

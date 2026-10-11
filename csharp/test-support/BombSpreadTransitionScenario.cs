@@ -39,7 +39,7 @@ internal sealed class BombSpreadTransitionScenario
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)
         {
-            int index = y * level.WidthInBlocks + x;
+            int index = y * level.Size.Width + x;
             level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
                 y >= 32 || (wallRoute && x == (left ? 29 : 33)) ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);

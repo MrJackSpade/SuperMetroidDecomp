@@ -15,18 +15,18 @@ internal static class RetailSaveCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.CrateriaSaveStation, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.CrateriaSaveStation, new(0, 0));
         var station = runtime.Plms.Stations.Single(s => s.Kind == StationKind.Save);
         var level = runtime.LevelData!;
         var samus = runtime.Samus!;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.AnimationFrame = 0;
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
-        samus.XPosition = (ushort)(station.BlockIndex % level.WidthInBlocks * 16 + 13);
-        samus.YPosition = (ushort)(station.BlockIndex / level.WidthInBlocks * 16 - samus.Kinematics.YRadius);
+        samus.XPosition = (ushort)(station.BlockIndex % level.Size.Width * 16 + 13);
+        samus.YPosition = (ushort)(station.BlockIndex / level.Size.Width * 16 - samus.Kinematics.YRadius);
         samus.InputLocked = false; samus.PrimeGraphics(bus);
         if (!runtime.Plms.TryNotifyStationCollision(station.BlockIndex, new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor),
-            samus.Pose, horizontal: false, movingPositive: true, roomWidthInBlocks: level.WidthInBlocks))
+            samus.Pose, horizontal: false, movingPositive: true, roomWidthInBlocks: level.Size.Width))
             throw new InvalidOperationException("Save fixture could not trigger resident station.");
         bool confirmation = false, electricity = false, completion = false, finished = false;
         bool pressedLastFrame = false;

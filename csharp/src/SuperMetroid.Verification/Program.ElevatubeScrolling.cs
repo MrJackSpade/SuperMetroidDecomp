@@ -20,7 +20,7 @@ internal static partial class Program
             // incoming tube callback; no Ceres carrier belongs in this room.
             runtime.LoadCartridgeRoomForDebug(door.DestinationRoomPointer);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door,
-                cameraY: fromNorth ? (ushort)0 : (ushort)2304);
+                camera: new(0, fromNorth ? (ushort)0 : (ushort)2304));
             var samus = runtime.Samus!;
             var camera = runtime.Camera!;
             samus.XPosition = MaridiaElevatubeRomData.SamusCenterX;

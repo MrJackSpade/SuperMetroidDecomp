@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -17,7 +18,7 @@ internal static partial class Program
         var blocks = new ushort[width * height];
         for (int x = 0; x < width; x++)
             blocks[6 * width + x] = 0x8000; // floor at row 6; rows 0-5 are air
-        var level = new RoomLevelData(width, height, blocks, new byte[blocks.Length],
+        var level = new RoomLevelData(new Size32<RoomBlocks>(width, height), blocks, new byte[blocks.Length],
             new ushort[blocks.Length], new byte[8]);
 
         var drop = new RoomEnemyProjectileSlot(0)

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -23,12 +24,10 @@ internal static partial class Program
                 ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (list + record * 4 + 2));
                 var system = new Bank80SystemState();
                 system.SetAreaMapAcquired(area);
-                var pause = CreateRetailPauseFixture(bus, new SamusState(), system, (AreaId)area, 0, 0);
+                var pause = CreateRetailPauseFixture(bus, new SamusState(), system, (AreaId)area, new(0, 0));
                 // Center the marker under test without changing its authored position.
-                typeof(PauseMenuState).GetField("mapHorizontalScroll", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                    .SetValue(pause, unchecked((ushort)(x - 128)));
-                typeof(PauseMenuState).GetField("mapVerticalScroll", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                    .SetValue(pause, unchecked((ushort)(y - 112)));
+                typeof(PauseMenuState).GetField("mapScrollPosition", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                    .SetValue(pause, new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112))));
                 var alive = pause.Render();
                 AssertEqual(0, record, "retail authored boss markers use area-boss bit zero");
                 for (int other = 0; other < 6; other++)
@@ -74,8 +73,8 @@ internal static partial class Program
                 var liveGraphics = new FileSelectRoomMapGraphics(bus, system, (AreaId)area, mapPresentation: RetailPresentationFixture());
                 var marker = new FileSelectStationMarker(bus, (AreaId)area, 0, RetailPresentationFixture().SaveMarkers);
                 ushort scrollX = unchecked((ushort)(x - 128)), scrollY = unchecked((ushort)(y - 112));
-                AssertTrue(liveGraphics.Render(scrollX, scrollY, marker).SequenceEqual(
-                    savedGraphics.Render(scrollX, scrollY, marker)),
+                AssertTrue(liveGraphics.Render(new(scrollX, scrollY), marker).SequenceEqual(
+                    savedGraphics.Render(new(scrollX, scrollY), marker)),
                     "existing-save menu restores exact boss-marker pixels with its slot-owned progression");
                 var runtime = CreateRetailRuntimeFixture(restored);
                 runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -86,18 +85,16 @@ internal static partial class Program
                 ushort room = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(restored, (AreaId)area, 0).RoomPointer;
                 for (int entry = 0; entry < 2; entry++)
                 {
-                    runtime.LoadCartridgeRoomForDebug(room, 0, 0);
+                    runtime.LoadCartridgeRoomForDebug(room, new(0, 0));
                     AssertTrue(dead.SequenceEqual(CenteredPause(restored, runtime.System).Render()),
                         "ordinary room load/reload preserves defeated marker and acquired map");
                 }
 
                 PauseMenuState CenteredPause(ISnesAddressSpace addressSpace, Bank80SystemState state)
                 {
-                    var reopened = CreateRetailPauseFixture(addressSpace, new SamusState(), state, (AreaId)area, 0, 0);
-                    typeof(PauseMenuState).GetField("mapHorizontalScroll", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                        .SetValue(reopened, unchecked((ushort)(x - 128)));
-                    typeof(PauseMenuState).GetField("mapVerticalScroll", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                        .SetValue(reopened, unchecked((ushort)(y - 112)));
+                    var reopened = CreateRetailPauseFixture(addressSpace, new SamusState(), state, (AreaId)area, new(0, 0));
+                    typeof(PauseMenuState).GetField("mapScrollPosition", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                        .SetValue(reopened, new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112))));
                     return reopened;
                 }
                 markers++;

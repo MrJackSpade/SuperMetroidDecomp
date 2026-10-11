@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -6,13 +7,13 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class AreaMapStockRules(IAreaMapView stock, IReadOnlySet<int> stationCells) : IAreaMapView
 {
     public AreaId Area => stock.Area;
-    public MapTileWord GetTile(int x, int y) => stock.GetTile(x, y);
-    public bool IsDiscoverable(int x, int y) => AreaMapExplorationRules.IsDiscoverable(GetTile(x, y));
-    public bool RevealsCellAbove(int x, int y) => AreaMapExplorationRules.RevealsCellAbove(GetTile(x, y));
-    public bool IsRevealedByMapStation(int x, int y)
+    public MapTileWord GetTile(Point32<MapTiles> cell) => stock.GetTile(cell);
+    public bool IsDiscoverable(Point32<MapTiles> cell) => AreaMapExplorationRules.IsDiscoverable(GetTile(cell));
+    public bool RevealsCellAbove(Point32<MapTiles> cell) => AreaMapExplorationRules.RevealsCellAbove(GetTile(cell));
+    public bool IsRevealedByMapStation(Point32<MapTiles> cell)
     {
-        _ = AreaMapLayout.GetTilemapWordIndex(x, y);
-        return stationCells.Contains(y * AreaMapLayout.WidthInTiles + x);
+        _ = AreaMapLayout.GetTilemapWordIndex(cell);
+        return stationCells.Contains(AreaMapLayout.Size.RowMajorIndex(cell));
     }
 }
 
@@ -20,8 +21,8 @@ internal sealed class AreaMapStockRules(IAreaMapView stock, IReadOnlySet<int> st
 internal sealed class AreaMapDecodeRules(AreaId area) : IAreaMapView
 {
     public AreaId Area => area;
-    public MapTileWord GetTile(int x, int y) => throw new InvalidOperationException("Decode rules contain no artwork.");
-    public bool IsDiscoverable(int x, int y) => false;
-    public bool IsRevealedByMapStation(int x, int y) => false;
-    public bool RevealsCellAbove(int x, int y) => false;
+    public MapTileWord GetTile(Point32<MapTiles> cell) => throw new InvalidOperationException("Decode rules contain no artwork.");
+    public bool IsDiscoverable(Point32<MapTiles> cell) => false;
+    public bool IsRevealedByMapStation(Point32<MapTiles> cell) => false;
+    public bool RevealsCellAbove(Point32<MapTiles> cell) => false;
 }

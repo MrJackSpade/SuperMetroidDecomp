@@ -34,10 +34,10 @@ internal static partial class Program
 
         var level = runtime.LevelData!;
         bool selected = false;
-        for (int y = 0; y < level.HeightInBlocks && !selected; y++)
-        for (int x = 0; x < level.WidthInBlocks && !selected; x++)
+        for (int y = 0; y < level.Size.Height && !selected; y++)
+        for (int x = 0; x < level.Size.Width && !selected; x++)
         {
-            var block = level.GetCollisionBlock(x, y);
+            var block = level.GetCollisionBlock(new(x, y));
             if (block.CollisionType != RoomCollisionType.DoorBlock ||
                 level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, publishDoorSideEffects: false)
                     .Door?.DestinationRoomPointer != FixtureRoomHeaders.MotherBrain)

@@ -52,8 +52,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (!actor.IsActive || actor.SpriteMapPointer == 0)
                 continue;
 
-            installedArt.Draw(actor.SpriteMapPointer, oam, actor.XPosition,
-                actor.YPosition, IntroCinematicRomData.Objects.ExplosionPalette.Raw);
+            installedArt.Draw(actor.SpriteMapPointer, oam, new(actor.XPosition, actor.YPosition), IntroCinematicRomData.Objects.ExplosionPalette.Raw);
         }
     }
 

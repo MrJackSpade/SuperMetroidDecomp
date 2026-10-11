@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -16,7 +17,7 @@ internal static partial class Program
             definitions[i * 2] = (byte)i;
             definitions[i * 2 + 1] = (byte)(i >> 8);
         }
-        var level = new RoomLevelData(32, 32, Enumerable.Repeat((ushort)0x8000, 1024).ToArray(),
+        var level = new RoomLevelData(new Size32<RoomBlocks>(32, 32), Enumerable.Repeat((ushort)0x8000, 1024).ToArray(),
             new byte[1024], new ushort[1024], definitions);
         ushort[] Build(byte area = (byte)AreaId.Brinstar) => XrayRevealTilemap.Build(level, vram, 248, 248, 16, 16, area);
         void Set(int index, RoomCollisionType type, byte bts)

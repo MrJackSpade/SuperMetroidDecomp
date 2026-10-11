@@ -34,7 +34,7 @@ internal static partial class Program
             AssertTrue(nativeRoom.Vram.Bytes.SequenceEqual(installedRoom.Vram.Bytes), "stock resolved frame/footer/area label matches full native VRAM");
             AssertTrue(nativeRoom.RenderFrameOnly().AsSpan().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
-                AssertTrue(nativeRoom.RenderBackgrounds(scroll, scroll).AsSpan().SequenceEqual(installedRoom.RenderBackgrounds(scroll, scroll)), "fixed room frame remains exact while map scrolls");
+                AssertTrue(nativeRoom.RenderBackgrounds(new(scroll, scroll)).AsSpan().SequenceEqual(installedRoom.RenderBackgrounds(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");
         }
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original, verifyCapturedRendering: true));
         Directory.CreateDirectory(overrides);

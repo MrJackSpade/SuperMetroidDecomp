@@ -55,7 +55,7 @@ internal static partial class Program
         AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "held Run widens the X-ray beam fully");
         var horizontal = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         var horizontalPixels = SoftwareLayeredSnapshotRenderer.Render(horizontal);
-        var probe = runtime.LevelData!.GetPlmCollisionBlockByIndex(7 * runtime.LevelData.WidthInBlocks + 12);
+        var probe = runtime.LevelData!.GetPlmCollisionBlockByIndex(7 * runtime.LevelData.Size.Width + 12);
         AssertEqual((ushort)255, XrayRevealTable.Find(probe.CollisionType, probe.Behavior)!.Value.TopLeft,
             "native air definition replaces decorative wall art with the blank metatile");
         var ordinaryPixels = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime));

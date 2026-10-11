@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -29,14 +30,13 @@ internal static partial class Program
             runtime.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."),
             runtime.System,
             room.AreaIndex,
-            room.MapX,
-            room.MapY,
+            room.MapPosition,
             PrivateState.Field<CartridgeAudioState>(game, "audio"),
             runtime.Vram,
             game.ConfiguredOptions.MapReveal,
             PrivateState.Field<AreaMapPresentationCatalog>(game, "mapPresentation"));
-        PrivateState.SetField(menu, "mapHorizontalScroll", W(PauseMemory.MapHorizontalScroll));
-        PrivateState.SetField(menu, "mapVerticalScroll", W(PauseMemory.MapVerticalScroll));
+        PrivateState.SetField(menu, "mapScrollPosition",
+            new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
         object palette = PrivateState.Field<object>(menu, "paletteAnimation");
         PrivateState.SetField(palette, "timer", memory[PauseMemory.PaletteAnimationTimer]);
         PrivateState.SetField(palette, "frame", memory[PauseMemory.PaletteAnimationFrame]);

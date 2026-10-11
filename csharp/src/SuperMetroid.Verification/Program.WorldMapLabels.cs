@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -35,7 +36,7 @@ internal static partial class Program
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<WorldMapLabelDocument>(File.ReadAllBytes(Path.Combine(stock, WorldMapLabelFormat.FileName)), options)!;
-        var areas = new Dictionary<string, MapLabelPoint>(document.Areas);
+        var areas = new Dictionary<string, Point32<ScreenPixels>>(document.Areas);
         areas["Crateria"] = areas["Crateria"] with { X = areas["Crateria"].X + 8 };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, WorldMapLabelFormat.FileName);

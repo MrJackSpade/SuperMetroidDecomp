@@ -15,7 +15,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarRoom08, cameraX: 1024);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarRoom08, camera: new(1024, 0));
         var level = runtime.LevelData!;
         var samus = runtime.Samus!;
         samus.InputLocked = false;

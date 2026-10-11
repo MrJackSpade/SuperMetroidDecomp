@@ -63,7 +63,7 @@ public sealed partial class RoomPlmSystem
     {
         ChozoStatuePlmDefinition definition =
             ChozoStatuePlmDefinitions.Resolve(request.HeaderPointer);
-        int index = level.GetBlockIndex(request.BlockX, request.BlockY);
+        int index = level.GetBlockIndex(new(request.BlockX, request.BlockY));
         for (int i = _slots.Length - 1; i >= 0; i--)
         {
             PlmSlot slot = _slots[i];
@@ -149,8 +149,7 @@ public sealed partial class RoomPlmSystem
     private static void RunChozoStatuePreInstruction(RoomLevelData level, PlmSlot slot)
     {
         if (slot.PreInstruction != ChozoStatuePlmRomData.WaitForLowerNorfairHand) return;
-        int index = level.GetBlockIndex(ChozoStatuePlmRomData.LowerNorfairTriggerX,
-            ChozoStatuePlmRomData.LowerNorfairTriggerY);
+        int index = level.GetBlockIndex(new(ChozoStatuePlmRomData.LowerNorfairTriggerX, ChozoStatuePlmRomData.LowerNorfairTriggerY));
         if (level.GetCollisionBlockByIndex(index).LevelWord != ChozoStatuePlmRomData.BlankAirLevelWord) return;
         WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
             ChozoStatuePlmRomData.LowerNorfairHandBts.Value);

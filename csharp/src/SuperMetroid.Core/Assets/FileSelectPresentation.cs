@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -78,7 +79,7 @@ public sealed class FileSelectPresentation
             : throw new ArgumentOutOfRangeException(nameof(slot));
     }
 
-    internal void ApplyPatch(Span<ushort> tilemap, string name, MapLabelPoint anchor)
+    internal void ApplyPatch(Span<ushort> tilemap, string name, Point32<TilemapCells> anchor)
     {
         FileSelectCompiledPatch patch = name switch
         {
@@ -90,12 +91,11 @@ public sealed class FileSelectPresentation
         for (int index = 0; index < patch.Count; index++)
         {
             FileSelectCompiledPatchCell cell = patch.Cell(index);
-            tilemap[(anchor.Y + cell.Y) * FileSelectPresentationDefinitions.Width +
-                anchor.X + cell.X] = cell.Word;
+            tilemap[FileSelectPresentationDefinitions.PageSize.RowMajorIndex(anchor + cell.Offset)] = cell.Word;
         }
     }
 
-    internal void WriteDigit(Span<ushort> tilemap, MapLabelPoint anchor, int offset, int digit)
+    internal void WriteDigit(Span<ushort> tilemap, Point32<TilemapCells> anchor, int offset, int digit)
     {
         if ((uint)digit >= FileSelectPresentationDefinitions.DigitCount)
             throw new ArgumentOutOfRangeException(nameof(digit));
@@ -103,7 +103,7 @@ public sealed class FileSelectPresentation
             digits is null ? (ushort)(FileSelectLayout.DigitTileBase + digit) : digits[digit];
     }
 
-    internal void WriteSlotLetter(Span<ushort> tilemap, MapLabelPoint anchor, int slot)
+    internal void WriteSlotLetter(Span<ushort> tilemap, Point32<TilemapCells> anchor, int slot)
     {
         if ((uint)slot >= FileSelectPresentationDefinitions.SlotLetterCount)
             throw new ArgumentOutOfRangeException(nameof(slot));
@@ -111,12 +111,12 @@ public sealed class FileSelectPresentation
             slotLetters is null ? (ushort)(FileSelectLayout.SamusLetterTileBase + slot) : slotLetters[slot];
     }
 
-    internal MapLabelPoint DynamicAnchor(string name) =>
-        document.DynamicAnchors.TryGetValue(name, out MapLabelPoint? anchor)
+    internal Point32<TilemapCells> DynamicAnchor(string name) =>
+        document.DynamicAnchors.TryGetValue(name, out Point32<TilemapCells> anchor)
             ? anchor
             : throw new InvalidDataException($"Unknown file-select dynamic anchor {name}.");
 
-    internal MapLabelPoint CursorPosition(bool main, bool confirmation, int selected) =>
+    internal Point32<ScreenPixels> CursorPosition(bool main, bool confirmation, int selected) =>
         Point(main
             ? document.MainCursorAnchors
             : confirmation
@@ -126,22 +126,22 @@ public sealed class FileSelectPresentation
 
     internal void DrawBorder(OamBuffer oam, string page)
     {
-        MapLabelPoint anchor = document.BorderAnchors[page];
+        Point32<ScreenPixels> anchor = document.BorderAnchors[page];
         sprites[FileSelectPresentationDefinitions.BorderFrameName(page)].DrawOnScreen(
-            oam, checked((ushort)anchor.X), checked((ushort)anchor.Y),
+            oam, anchor.ToExactPosition16(),
             PaletteBits(document.ObjectPalette));
     }
 
-    internal void DrawCursor(OamBuffer oam, int frame, MapLabelPoint anchor) =>
+    internal void DrawCursor(OamBuffer oam, int frame, Point32<ScreenPixels> anchor) =>
         sprites[FileSelectPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
-            oam, checked((ushort)anchor.X), checked((ushort)anchor.Y),
+            oam, anchor.ToExactPosition16(),
             PaletteBits(document.ObjectPalette));
 
     internal void DrawHelmet(OamBuffer oam, int frame, int slot)
     {
-        MapLabelPoint anchor = Point(document.HelmetAnchors, slot, "helmet");
+        Point32<ScreenPixels> anchor = Point(document.HelmetAnchors, slot, "helmet");
         sprites[FileSelectPresentationDefinitions.HelmetFrameName(frame)].DrawOnScreen(
-            oam, checked((ushort)anchor.X), checked((ushort)anchor.Y),
+            oam, anchor.ToExactPosition16(),
             PaletteBits(document.ObjectPalette));
     }
 
@@ -219,17 +219,17 @@ public sealed class FileSelectPresentation
                 throw new InvalidDataException($"File-select patch {name} is null.");
             if (patch.Cells is null || patch.Cells.Length == 0)
                 throw new InvalidDataException($"File-select patch {name} is empty.");
-            var claimed = new HashSet<(int X, int Y)>();
+            var claimed = new HashSet<Point32<TilemapCells>>();
             var compiled = new FileSelectCompiledPatchCell[patch.Cells.Length];
             for (int index = 0; index < compiled.Length; index++)
             {
                 FileSelectPatchCellDocument cell = patch.Cells[index] ??
                     throw new InvalidDataException($"File-select patch {name} cell {index} is null.");
                 if (cell.X < 0 || cell.Y < 0 ||
-                    !claimed.Add((cell.X, cell.Y)))
+                    !claimed.Add(cell.Offset))
                     throw new InvalidDataException(
                         $"File-select patch {name} contains an invalid or duplicate coordinate.");
-                compiled[index] = new(cell.X, cell.Y,
+                compiled[index] = new(cell.Offset,
                     CompileCell(cell.Cell, $"file-select patch {name} cell {index}"));
             }
             patches.Add(name, new(name, compiled));
@@ -271,19 +271,19 @@ public sealed class FileSelectPresentation
         {
             ValidatePatch(slot.EnergyAnchor, patches[FileSelectPresentationDefinitions.EnergyPatch]);
             ValidatePatch(slot.NoDataAnchor, patches[FileSelectPresentationDefinitions.NoDataPatch]);
-            ValidatePatch(new(slot.TimeValueAnchor.X + 2, slot.TimeValueAnchor.Y),
+            ValidatePatch(slot.TimeValueAnchor + new Point32<TilemapCells>(2, 0),
                 patches[FileSelectPresentationDefinitions.TimeColonPatch]);
             if (slot.TimeValueAnchor.X + 5 > FileSelectPresentationDefinitions.Width)
                 throw new InvalidDataException("File-select time field escapes its page.");
         }
 
-        static void ValidatePatch(MapLabelPoint anchor, FileSelectCompiledPatch patch)
+        static void ValidatePatch(Point32<TilemapCells> anchor, FileSelectCompiledPatch patch)
         {
             for (int index = 0; index < patch.Count; index++)
             {
-                FileSelectCompiledPatchCell cell = patch.Cell(index);
-                if (anchor.X + cell.X >= FileSelectPresentationDefinitions.Width ||
-                    anchor.Y + cell.Y >= FileSelectPresentationDefinitions.Height)
+                Point32<TilemapCells> placed = anchor + patch.Cell(index).Offset;
+                if (placed.X >= FileSelectPresentationDefinitions.Width ||
+                    placed.Y >= FileSelectPresentationDefinitions.Height)
                     throw new InvalidDataException("File-select patch placement escapes its page.");
             }
         }
@@ -322,26 +322,25 @@ public sealed class FileSelectPresentation
         ValidateTilePoint(slot.TimeValueAnchor, "slot time");
     }
 
-    private static void ValidatePoints(MapLabelPoint[]? points, int count, string owner)
+    private static void ValidatePoints(Point32<ScreenPixels>[]? points, int count, string owner)
     {
         if (points is null || points.Length != count)
             throw new InvalidDataException($"File-select {owner} requires {count} points.");
-        foreach (MapLabelPoint? point in points)
+        foreach (Point32<ScreenPixels> point in points)
             ValidatePoint(point, owner);
     }
 
-    private static void ValidatePoint(MapLabelPoint? point, string owner)
+    private static void ValidatePoint(Point32<ScreenPixels> point, string owner)
     {
-        if (point is null || point.X < 0 || point.X > 0x1ff ||
+        if (point.X < 0 || point.X > 0x1ff ||
             (uint)point.Y > byte.MaxValue)
             throw new InvalidDataException(
                 $"File-select {owner} requires X=0..511 and Y=0..255.");
     }
 
-    private static void ValidateTilePoint(MapLabelPoint? point, string owner)
+    private static void ValidateTilePoint(Point32<TilemapCells> point, string owner)
     {
-        if (point is null || (uint)point.X >= FileSelectPresentationDefinitions.Width ||
-            (uint)point.Y >= FileSelectPresentationDefinitions.Height)
+        if (!FileSelectPresentationDefinitions.PageSize.Contains(point))
             throw new InvalidDataException(
                 $"File-select {owner} requires a coordinate inside the 32x32 page.");
     }
@@ -357,7 +356,7 @@ public sealed class FileSelectPresentation
                 throw new InvalidDataException($"{owner} is missing {name}.");
     }
 
-    private static MapLabelPoint Point(MapLabelPoint[] points, int index, string owner) =>
+    private static Point32<ScreenPixels> Point(Point32<ScreenPixels>[] points, int index, string owner) =>
         (uint)index < points.Length ? points[index] :
             throw new ArgumentOutOfRangeException(owner);
 
@@ -386,17 +385,17 @@ public sealed record FileSelectPresentationDocument
     /// <summary>Exactly the named border compositions, four cursor frames, and eight helmet frames, using sprite-part offsets relative to their drawing anchors.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Sprites { get; init; }
     /// <summary>Main, copy, and clear border origins in screen pixels, with X=0-511 and Y=0-255.</summary>
-    public required Dictionary<string, MapLabelPoint> BorderAnchors { get; init; }
+    public required Dictionary<string, Point32<ScreenPixels>> BorderAnchors { get; init; }
     /// <summary>Six missile-cursor origins in main-menu selection order, in screen pixels with X=0-511 and Y=0-255.</summary>
-    public required MapLabelPoint[] MainCursorAnchors { get; init; }
+    public required Point32<ScreenPixels>[] MainCursorAnchors { get; init; }
     /// <summary>Four missile-cursor origins in data-management selection order, in screen pixels with X=0-511 and Y=0-255.</summary>
-    public required MapLabelPoint[] DataCursorAnchors { get; init; }
+    public required Point32<ScreenPixels>[] DataCursorAnchors { get; init; }
     /// <summary>Two missile-cursor origins in confirmation-option order, in screen pixels with X=0-511 and Y=0-255.</summary>
-    public required MapLabelPoint[] ConfirmationCursorAnchors { get; init; }
+    public required Point32<ScreenPixels>[] ConfirmationCursorAnchors { get; init; }
     /// <summary>Three helmet origins in save-slot order, in screen pixels with X=0-511 and Y=0-255.</summary>
-    public required MapLabelPoint[] HelmetAnchors { get; init; }
+    public required Point32<ScreenPixels>[] HelmetAnchors { get; init; }
     /// <summary>Exactly the four named copy/clear slot-letter anchors, in tile coordinates inside the 32-by-32 page.</summary>
-    public required Dictionary<string, MapLabelPoint> DynamicAnchors { get; init; }
+    public required Dictionary<string, Point32<TilemapCells>> DynamicAnchors { get; init; }
     /// <summary>OBJ palette selector 0-7 applied to border, cursor, and helmet compositions.</summary>
     public required int ObjectPalette { get; init; }
     /// <summary>Menu-update duration 1-65535 for each of the four looping missile-cursor frames.</summary>
@@ -413,8 +412,12 @@ public sealed record FileSelectPatchDocument
 }
 
 /// <summary>One authored glyph or artwork cell in a sparse file-select tilemap patch.</summary>
+[SpatialComponents("External format: file-select.json stores each patch cell offset as flat x/y fields.")]
 public sealed record FileSelectPatchCellDocument
 {
+    /// <summary>The authored tile offset from the patch's placement anchor.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public Point32<TilemapCells> Offset => new(X, Y);
     /// <summary>Nonnegative horizontal tile offset from the patch's placement anchor.</summary>
     public required int X { get; init; }
     /// <summary>Nonnegative vertical tile offset from the patch's placement anchor.</summary>
@@ -427,13 +430,13 @@ public sealed record FileSelectPatchCellDocument
 public sealed record FileSelectSlotFieldDocument
 {
     /// <summary>Origin of the ENERGY label patch; the engine also derives energy-tank placement from this anchor.</summary>
-    public required MapLabelPoint EnergyAnchor { get; init; }
+    public required Point32<TilemapCells> EnergyAnchor { get; init; }
     /// <summary>Origin of the two decimal health digits, written at horizontal offsets zero and one.</summary>
-    public required MapLabelPoint HealthAnchor { get; init; }
+    public required Point32<TilemapCells> HealthAnchor { get; init; }
     /// <summary>Origin of the empty-slot NO DATA patch, used when the slot contains no valid save.</summary>
-    public required MapLabelPoint NoDataAnchor { get; init; }
+    public required Point32<TilemapCells> NoDataAnchor { get; init; }
     /// <summary>Origin of the five-tile HH:MM field: hour digits at offsets 0-1, colon at 2, and minute digits at 3-4.</summary>
-    public required MapLabelPoint TimeValueAnchor { get; init; }
+    public required Point32<TilemapCells> TimeValueAnchor { get; init; }
 }
 
 internal sealed class FileSelectCompiledPatch
@@ -461,7 +464,7 @@ internal sealed class FileSelectCompiledPatch
     internal FileSelectCompiledPatchCell Cell(int index) => suppliedCells is null
         ? FileSelectPresentationDefinitions.PatchCell(name, index) : suppliedCells[index];
 }
-internal readonly record struct FileSelectCompiledPatchCell(int X, int Y, ushort Word);
+internal readonly record struct FileSelectCompiledPatchCell(Point32<TilemapCells> Offset, ushort Word);
 
 /// <summary>Schema names and fixed dimensions for <c>file-select.json</c>.</summary>
 public static class FileSelectPresentationDefinitions
@@ -501,7 +504,7 @@ public static class FileSelectPresentationDefinitions
                 : (ushort)(SmallLetterA + NoDataLabel[index] - 'A'),
             _ => throw new InvalidDataException($"Unknown file-select patch {name}."),
         };
-        return new(index, 0, word);
+        return new(new Point32<TilemapCells>(index, 0), word);
     }
 
     /// <summary>Supported file-select presentation JSON schema version.</summary>
@@ -514,6 +517,8 @@ public static class FileSelectPresentationDefinitions
     public const int Height = 32;
     /// <summary>Number of row-major tile cells required in each menu page.</summary>
     public const int CellCount = Width * Height;
+    /// <summary>Size of each menu tilemap page in tile cells.</summary>
+    public static Size32<TilemapCells> PageSize => new(Width, Height);
     /// <summary>Width in characters of the sheet addressed by authored background tile cells.</summary>
     public const int CharacterColumns = 32;
     /// <summary>Height in characters of the sheet addressed by authored background tile cells.</summary>

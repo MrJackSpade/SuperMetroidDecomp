@@ -47,8 +47,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(
             PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader,
-            cameraX: 0,
-            cameraY: 0);
+            camera: new(0, 0));
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
         Rgba32[] baseline = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();

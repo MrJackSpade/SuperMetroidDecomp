@@ -3,6 +3,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -64,7 +65,7 @@ internal static partial class Program
         var blocks = new ushort[64];
         Array.Fill(blocks, (ushort)0x8000, 32, 32);
         var level = new RoomLevelData(
-            8, 8, blocks, new byte[64], new ushort[64], new byte[8]);
+            new Size32<RoomBlocks>(8, 8), blocks, new byte[64], new ushort[64], new byte[8]);
         left.XPosition = 64;
         left.YPosition = 63;
         left.XRadius = 2;

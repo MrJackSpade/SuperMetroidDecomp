@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>
 /// Verification views of private Core state. Each member reads exactly the private state its
@@ -60,17 +61,15 @@ internal static partial class CoreAccess
 
     extension(PauseMenuState pause)
     {
-        internal ushort LastIndicatorOriginX => PrivateState.Field<ushort>(pause, "lastIndicatorOriginX");
-        internal ushort LastIndicatorOriginY => PrivateState.Field<ushort>(pause, "lastIndicatorOriginY");
+        internal Position16<ScreenPixels> LastIndicatorOrigin => PrivateState.Field<Position16<ScreenPixels>>(pause, "lastIndicatorOrigin");
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
         internal bool PageTransitionActive => PrivateState.Field<PauseMenuTransition>(pause, "transition") != PauseMenuTransition.None;
-        internal ushort MapHorizontalScroll => PrivateState.Field<ushort>(pause, "mapHorizontalScroll");
-        internal ushort MapVerticalScroll => PrivateState.Field<ushort>(pause, "mapVerticalScroll");
+        internal Position16<MapPixels> MapScroll => PrivateState.Field<Position16<MapPixels>>(pause, "mapScrollPosition");
 
         internal MapTileWord ReadDisplayedMapTile(int mapX, int mapY)
         {
             var vram = PrivateState.Field<SnesVram>(pause, "vram");
-            int byteAddress = (PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(mapX, mapY)) * 2;
+            int byteAddress = (PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(new(mapX, mapY))) * 2;
             return new MapTileWord(unchecked((ushort)(vram.ReadByte(byteAddress) | (vram.ReadByte(byteAddress + 1) << 8))));
         }
     }

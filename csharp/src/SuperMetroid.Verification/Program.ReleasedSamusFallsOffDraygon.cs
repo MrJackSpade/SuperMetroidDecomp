@@ -17,7 +17,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, cameraX: 256, cameraY: 288);
+        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new(256, 288));
         DraygonEnemyState draygon = runtime.Enemies.Draygon!;
         // Stage the end of the intro rather than replaying the dance; the fight's hitboxes
         // carry Draygon's own touch routine.

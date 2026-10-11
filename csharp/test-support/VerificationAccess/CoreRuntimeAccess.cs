@@ -41,13 +41,13 @@ internal static class SuperMetroidRuntimeAccess
             self.InitializeDebugSamus(xPosition, yPosition: 0);
             ushort yRadius = self.Samus!.Kinematics.YRadius;
 
-            if ((uint)minimumFloorBlockY >= (uint)self.LevelData.HeightInBlocks)
+            if ((uint)minimumFloorBlockY >= (uint)self.LevelData.Size.Height)
                 throw new ArgumentOutOfRangeException(nameof(minimumFloorBlockY));
 
             int blockX = xPosition >> 4;
-            for (int blockY = minimumFloorBlockY; blockY < self.LevelData.HeightInBlocks; blockY++)
+            for (int blockY = minimumFloorBlockY; blockY < self.LevelData.Size.Height; blockY++)
             {
-                RoomCollisionBlock floor = self.LevelData.GetCollisionBlock(blockX, blockY);
+                RoomCollisionBlock floor = self.LevelData.GetCollisionBlock(new(blockX, blockY));
 
                 byte height;
                 if (floor.CollisionType == RoomCollisionType.SolidBlock)

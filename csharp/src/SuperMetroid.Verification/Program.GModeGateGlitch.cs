@@ -392,7 +392,7 @@ internal static partial class Program
             getSamus: () => samus,
             isAreaTorizoDefeated: () => false);
 
-        int accessBlock = level.GetBlockIndex(stationX + 1, stationY);
+        int accessBlock = level.GetBlockIndex(new(stationX + 1, stationY));
         AssertTrue(plms.TryNotifyStationTouch(
                 accessBlock,
                 new RoomBlockBehavior((byte)StationAccessBehavior.EnergyRight)),

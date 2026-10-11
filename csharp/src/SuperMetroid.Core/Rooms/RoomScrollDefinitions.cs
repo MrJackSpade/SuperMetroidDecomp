@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -210,21 +211,19 @@ public static class RoomScrollDefinitions
     /// <summary>Creates the native scroll allocation selected by one compiled room state.</summary>
     /// <param name="bus">Address space backing the mutable runtime scroll grid.</param>
     /// <param name="scrollPointer">High-bit-set words select explicit bank-$8F allocations; nonnegative words select implicit cells with the final-row state given by their low byte plus one.</param>
-    /// <param name="widthInScreens">Logical room width in 256-pixel screens.</param>
-    /// <param name="heightInScreens">Logical room height in 256-pixel screens.</param>
+    /// <param name="size">Logical room size in 256-pixel screens.</param>
     /// <returns>A fresh mutable grid initialized from the compiled 50-byte allocation or the native implicit-scroll rule.</returns>
     public static RoomScrollGrid CreateGrid(
         ISnesAddressSpace bus,
         ushort scrollPointer,
-        int widthInScreens,
-        int heightInScreens)
+        Size32<RoomScreens> size)
     {
         short signedPointer = unchecked((short)scrollPointer);
         return signedPointer < 0
             ? RoomScrollGrid.LoadCompiled(
-                bus, Get(scrollPointer).Storage.Span, widthInScreens, heightInScreens)
+                bus, Get(scrollPointer).Storage.Span, size.Width, size.Height)
             : RoomScrollGrid.CreateImplicit(
-                bus, widthInScreens, heightInScreens,
+                bus, size.Width, size.Height,
                 RoomScrollStates.FromCartridge(
                     unchecked((byte)(scrollPointer + 1)),
                     $"implicit scroll word ${scrollPointer:X4}"));

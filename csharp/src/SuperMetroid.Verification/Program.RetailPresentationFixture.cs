@@ -5,6 +5,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -29,9 +30,9 @@ internal static partial class Program
 
     private static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus,
         SamusState samus, Bank80SystemState system, AreaId areaIndex,
-        byte roomMapX, byte roomMapY, CartridgeAudioState? audio = null,
+        Point32<MapTiles> roomMapPosition, CartridgeAudioState? audio = null,
         SnesVram? gameplayVram = null, MapRevealMode mapRevealMode = MapRevealMode.None) =>
-        RepositoryInstallation.CreatePause(bus, samus, system, areaIndex, roomMapX, roomMapY, audio,
+        RepositoryInstallation.CreatePause(bus, samus, system, areaIndex, roomMapPosition, audio,
             gameplayVram, mapRevealMode);
 
     /// <summary>

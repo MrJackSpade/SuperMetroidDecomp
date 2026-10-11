@@ -52,7 +52,7 @@ public sealed partial class RoomPlmSystem
         streamer.SetLevelEntry(slot.BlockIndex, glassLevelWord);
 
         _motherBrainGlassSlotIndex = physicalSlot;
-        _motherBrainGlassRoomWidth = level.WidthInBlocks;
+        _motherBrainGlassRoomWidth = level.Size.Width;
         _motherBrainGlassWasLoaded = true;
         _motherBrainGlassLastRoomArgument = 0;
     }

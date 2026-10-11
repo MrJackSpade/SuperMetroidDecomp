@@ -29,12 +29,12 @@ internal static class RoomPerformanceStateFixture
             // The actual map-room entrance runs its cartridge setup and door PLM;
             // this does not simulate an entire route merely to benchmark one room.
             var door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(data.Bus, RoomPerformanceFixtureDefinitions.CrateriaMapEntranceDoor);
-            runtime.LoadCartridgeRoomThroughDoorForVerification(door, camera, camera);
+            runtime.LoadCartridgeRoomThroughDoorForVerification(door, new(camera, camera));
         }
         else
         {
             ushort room = surface ? RoomHeaderPointers.LandingSite : RoomHeaderPointersTooling.CrateriaSaveStation;
-            runtime.LoadCartridgeRoomForDebug(room, camera, camera);
+            runtime.LoadCartridgeRoomForDebug(room, new(camera, camera));
         }
         runtime.Samus!.InputLocked = true;
         runtime.Samus.XPosition = (ushort)(camera + (surface ? 128 : 64));

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Game;
 
@@ -626,28 +627,28 @@ public sealed class Bank80SystemState
     /// The 64-column map is stored as two 32-by-32 bit planes, each row occupying four
     /// bytes; it is not a conventional eight-byte-wide linear bitmap.
     /// </summary>
-    public void MarkExploredMapTile(int areaIndex, int mapX, int mapY)
+    public void MarkExploredMapTile(int areaIndex, Point32<MapTiles> cell)
     {
-        ValidateExploredMapCoordinate(areaIndex, mapX, mapY);
-        int byteIndex = ResolveExploredMapByteIndex(areaIndex, mapX, mapY);
-        _exploredMapTiles[byteIndex] |= AreaMapLayout.GetBitMask(mapX);
+        ValidateExploredMapCoordinate(areaIndex, cell);
+        int byteIndex = ResolveExploredMapByteIndex(areaIndex, cell);
+        _exploredMapTiles[byteIndex] |= AreaMapLayout.GetBitMask(cell.X);
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
-    public void MarkExploredMapTile(AreaId areaIndex, int mapX, int mapY) =>
-        MarkExploredMapTile(AreaIds.ToIndex(areaIndex), mapX, mapY);
+    public void MarkExploredMapTile(AreaId areaIndex, Point32<MapTiles> cell) =>
+        MarkExploredMapTile(AreaIds.ToIndex(areaIndex), cell);
 
     /// <summary>Returns whether a 64-by-32 area-map cell has been visited.</summary>
-    public bool IsMapTileExplored(int areaIndex, int mapX, int mapY)
+    public bool IsMapTileExplored(int areaIndex, Point32<MapTiles> cell)
     {
-        ValidateExploredMapCoordinate(areaIndex, mapX, mapY);
-        int byteIndex = ResolveExploredMapByteIndex(areaIndex, mapX, mapY);
-        return (_exploredMapTiles[byteIndex] & AreaMapLayout.GetBitMask(mapX)) != 0;
+        ValidateExploredMapCoordinate(areaIndex, cell);
+        int byteIndex = ResolveExploredMapByteIndex(areaIndex, cell);
+        return (_exploredMapTiles[byteIndex] & AreaMapLayout.GetBitMask(cell.X)) != 0;
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
-    public bool IsMapTileExplored(AreaId areaIndex, int mapX, int mapY) =>
-        IsMapTileExplored(AreaIds.ToIndex(areaIndex), mapX, mapY);
+    public bool IsMapTileExplored(AreaId areaIndex, Point32<MapTiles> cell) =>
+        IsMapTileExplored(AreaIds.ToIndex(areaIndex), cell);
 
     /// <summary>Returns one byte from an area's native explored-map plane for SRAM packing.</summary>
     public byte GetExploredMapByteRaw(int areaIndex, int byteIndex)
@@ -797,20 +798,18 @@ public sealed class Bank80SystemState
             throw new ArgumentOutOfRangeException(nameof(areaIndex), areaIndex, "Area index must be in the allocated 0-7 range.");
     }
 
-    private static int ResolveExploredMapByteIndex(int areaIndex, int mapX, int mapY)
+    private static int ResolveExploredMapByteIndex(int areaIndex, Point32<MapTiles> cell)
     {
         int areaOffset = areaIndex * ExploredMapBytesPerArea;
-        return areaOffset + AreaMapLayout.GetBitByteIndex(mapX, mapY);
+        return areaOffset + AreaMapLayout.GetBitByteIndex(cell);
     }
 
-    private static void ValidateExploredMapCoordinate(int areaIndex, int mapX, int mapY)
+    private static void ValidateExploredMapCoordinate(int areaIndex, Point32<MapTiles> cell)
     {
         if ((uint)areaIndex >= ExploredMapAreaCount)
             throw new ArgumentOutOfRangeException(nameof(areaIndex));
-        if ((uint)mapX >= 64)
-            throw new ArgumentOutOfRangeException(nameof(mapX));
-        if ((uint)mapY >= 32)
-            throw new ArgumentOutOfRangeException(nameof(mapY));
+        if (!AreaMapLayout.Size.Contains(cell))
+            throw new ArgumentOutOfRangeException(nameof(cell));
     }
 }
 

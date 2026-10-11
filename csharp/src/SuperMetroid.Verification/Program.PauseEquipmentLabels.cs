@@ -29,9 +29,9 @@ internal static partial class Program
         foreach (SamusState inventory in inventories)
         {
             byte[] expected = EquipmentPage(new PauseMenuState(bus, Clone(inventory), new Bank80SystemState(),
-                AreaId.Crateria, 0, 0, mapPresentation: original));
+                AreaId.Crateria, new(0, 0), mapPresentation: original));
             byte[] actual = EquipmentPage(new PauseMenuState(guard, Clone(inventory), new Bank80SystemState(),
-                AreaId.Crateria, 0, 0, mapPresentation: original));
+                AreaId.Crateria, new(0, 0), mapPresentation: original));
             AssertTrue(expected.AsSpan().SequenceEqual(actual),
                 "installed equipment labels match native tilemap with label ROM sources forbidden");
         }
@@ -51,7 +51,7 @@ internal static partial class Program
         var liveSamus = new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge,
             EquippedBeams = (ushort)SamusBeamFlags.Charge };
         var live = new PauseMenuState(guard, liveSamus, new Bank80SystemState(), AreaId.Crateria,
-            0, 0, mapPresentation: original);
+            new(0, 0), mapPresentation: original);
         byte[] before = EquipmentPage(live);
         live.BindMapPresentation(edited);
         byte[] after = live.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
@@ -66,7 +66,7 @@ internal static partial class Program
         var glitchSamus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300,
             CollectedBeams = 0x100f, EquippedBeams = 4 };
         var glitch = new PauseMenuState(guard, glitchSamus, new Bank80SystemState(), AreaId.Crateria,
-            0, 0, mapPresentation: original);
+            new(0, 0), mapPresentation: original);
         EquipmentPage(glitch);
         SelectPauseBoots(glitch);
         glitch.Step(0, (ushort)(SnesButton.Left | SnesButton.A));

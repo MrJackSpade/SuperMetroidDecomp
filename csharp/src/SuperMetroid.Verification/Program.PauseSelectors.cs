@@ -7,6 +7,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -49,7 +50,7 @@ internal static partial class Program
                 }
             }
         }
-        var anchors = new Dictionary<string, MapLabelPoint>(document.Anchors) { ["Beam.Charge"] = new(100, 90) };
+        var anchors = new Dictionary<string, Point32<ScreenPixels>>(document.Anchors) { ["Beam.Charge"] = new(100, 90) };
         var parts = new SpriteVisualPart[]
         {
             new() { OffsetX = 12, OffsetY = -4, TileColumn = 2, TileRow = 3, Size = 16, Priority = 3, Palette = 5, FlipX = true, FlipY = true },
@@ -63,7 +64,7 @@ internal static partial class Program
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "selector-only edit changes catalog identity");
         var customSamus = new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge, EquippedBeams = (ushort)SamusBeamFlags.Charge };
-        var customMenu = new PauseMenuState(guard, customSamus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: edited);
+        var customMenu = new PauseMenuState(guard, customSamus, new Bank80SystemState(), AreaId.Crateria, new(0, 0), mapPresentation: edited);
         customMenu.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
         while (customMenu.ScreenMode == 0) customMenu.Step(0, 0);
         AssertEqual((0, 4), customMenu.ItemSelectorAnimationState, "custom initial duration applies exactly at page setup");
@@ -96,7 +97,7 @@ internal static partial class Program
         }
         customMenu.BindMapPresentation(catalog);
         AssertEqual(timing, customMenu.ItemSelectorAnimationState, "rebind does not reset saved visual timing");
-        customMenu.Render(); AssertEqual((ushort)47, customMenu.LastIndicatorOriginX, "restored stock anchor replaces edited anchor");
+        customMenu.Render(); AssertEqual((ushort)47, customMenu.LastIndicatorOrigin.X, "restored stock anchor replaces edited anchor");
         customMenu.BindMapPresentation(edited); AssertTrue(before.AsSpan().SequenceEqual(customMenu.Render()), "restored edit returns exact pixels without advancing animation");
         customMenu.Step(0, (ushort)SnesButton.A);
         AssertEqual((ushort)0, customSamus.EquippedBeams, "custom hidden/visible selector cannot prevent actual equipment toggle");
@@ -110,7 +111,7 @@ internal static partial class Program
         AssertEqual(0, shortened.CaptureRenderSnapshot().Memory.ModeledSpriteCount, "short cycle safely projects saved phase modulo its new length");
         for (int tick = 0; tick < oldTiming.Timer; tick++) shortened.Step(0, 0);
         AssertEqual((1, 3), shortened.ItemSelectorAnimationState, "next expiry advances into the authored short cycle");
-        var empty = new PauseMenuState(guard, new SamusState(), new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: edited);
+        var empty = new PauseMenuState(guard, new SamusState(), new Bank80SystemState(), AreaId.Crateria, new(0, 0), mapPresentation: edited);
         EnterPauseEquipment(empty);
         var emptyTiming = empty.ItemSelectorAnimationState;
         for (int tick = 0; tick < 40; tick++) empty.Step(0, 0);
@@ -138,7 +139,7 @@ internal static partial class Program
             if (category == PauseEquipmentCategory.Reserves) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = 2; }
             else if (category == PauseEquipmentCategory.Beams) samus.CollectedBeams = samus.EquippedBeams = PauseEquipmentRules.Mask(category, item);
             else samus.CollectedItems = samus.EquippedItems = PauseEquipmentRules.Mask(category, item);
-            var pause = new PauseMenuState(addressSpace, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: content);
+            var pause = new PauseMenuState(addressSpace, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0), mapPresentation: content);
             EnterPauseEquipment(pause);
             if (category == 0 && item == 1) pause.Step(0, (ushort)SnesButton.Down);
             return pause;

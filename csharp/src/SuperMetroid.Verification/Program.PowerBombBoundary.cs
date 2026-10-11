@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
     private static void VerifyPowerBombBoundary()
     {
-        var level = new RoomLevelData(5, 5, new ushort[25], new byte[25], new ushort[25], new byte[8]);
+        var level = new RoomLevelData(new Size32<RoomBlocks>(5, 5), new ushort[25], new byte[25], new ushort[25], new byte[8]);
         Check(32, 32, 0x1000, [(1,1), (2,1), (3,1), (1,1), (1,2),
             (1,2), (2,2), (3,2), (3,1), (3,2)]);
         Check(0, 0, 0x1000, [(0,0), (1,0), (0,0), (0,0), (1,0), (1,0)]);

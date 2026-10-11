@@ -14,7 +14,7 @@ internal static partial class Program
         {
             var navigationSamus = new SamusState { CollectedItems = ushort.MaxValue, CollectedBeams = 0x100f,
                 EquippedBeams = 4, EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots };
-            var navigation = CreateRetailPauseFixture(bus, navigationSamus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+            var navigation = CreateRetailPauseFixture(bus, navigationSamus, new Bank80SystemState(), AreaId.Crateria, new(0, 0));
             EnterPauseEquipment(navigation);
             SelectPauseBoots(navigation);
             for (int step = 0; step < boot; step++) navigation.Step(0, (ushort)SnesButton.Down);
@@ -28,7 +28,7 @@ internal static partial class Program
         // before the tested press; this isolates the Boots-handler Left+A ordering.
         var samus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300,
             CollectedBeams = 0x100f, EquippedBeams = 4 };
-        var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+        var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0));
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         AssertEqual(0, pause.SelectedItem, "fixture starts on Hi-Jump Boots");

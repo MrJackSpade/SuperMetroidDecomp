@@ -23,7 +23,7 @@ internal static class MinimapBlinkAudit
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(room, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(room, new(0, 0));
         runtime.Samus!.XPosition = 128;
         runtime.Samus.YPosition = 128;
         runtime.RunNmi(0, true);

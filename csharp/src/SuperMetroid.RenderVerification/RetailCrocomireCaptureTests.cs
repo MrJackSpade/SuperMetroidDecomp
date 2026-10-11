@@ -12,7 +12,7 @@ internal static class RetailCrocomireCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(CrocomireCaptureFixture.Room, CrocomireCaptureFixture.CameraX, 0);
+        runtime.LoadCartridgeRoomForDebug(CrocomireCaptureFixture.Room, new(CrocomireCaptureFixture.CameraX, 0));
         var samus = runtime.Samus!;
         samus.XPosition = CrocomireCaptureFixture.InitialSamusX; samus.YPosition = 120;
         samus.Pose = SamusPoseId.FacingRightNormalPose;

@@ -137,8 +137,7 @@ internal static partial class Program
         tubePlms.Step(tubeGuard, tubeLevel,
             tubeLevel.CreateBackgroundStreamer(), 0, 0, 0);
         int tubeBlock = tubeLevel.GetBlockIndex(
-            MaridiaElevatubePlmRomData.BlockX,
-            MaridiaElevatubePlmRomData.BlockY);
+            new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
         AssertEqual((ushort)0x8180,
             tubeLevel.GetCollisionBlockByIndex(tubeBlock).LevelWord,
             "elevatube retains shared native physical word");

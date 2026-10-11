@@ -68,7 +68,7 @@ internal static partial class SwapchainTests
         // Room-local pause slice, matching the portable capture fixture; no traversal.
         foreach (var game in new[] { legacy, captured, headless })
         {
-            game.RuntimeForVerification!.LoadCartridgeRoomForDebug(room, 0, 0);
+            game.RuntimeForVerification!.LoadCartridgeRoomForDebug(room, new(0, 0));
             game.RuntimeForVerification!.RunNmi(0, true);
         }
         nint window = CreateWindowExW(0, "STATIC", "Hidden slow-consumer test", 0, 0, 0, 640, 480, 0, 0, 0, 0);

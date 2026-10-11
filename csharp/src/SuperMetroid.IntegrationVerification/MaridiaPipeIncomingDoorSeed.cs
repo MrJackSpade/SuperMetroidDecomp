@@ -20,9 +20,9 @@ internal static class MaridiaPipeIncomingDoorSeed
         }
         if (entry < 0) throw new InvalidDataException("Plasma Spark has no matching northern elevatube door block.");
         ushort x = MaridiaPipeFixtureDefinitions.TubeCenterX;
-        ushort y = checked((ushort)((entry / level.WidthInBlocks) * 16 - 96));
+        ushort y = checked((ushort)((entry / level.Size.Width) * 16 - 96));
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom,
-            (ushort)(x & 0xff00), (ushort)(y & 0xff00));
+            new((ushort)(x & 0xff00), (ushort)(y & 0xff00)));
         runtime.Samus!.Kinematics.SetXFixed((uint)x << 16);
         runtime.Samus.Kinematics.SetYFixed((uint)y << 16);
         // Let gravity reach the authored door block. Publishing a pending door here

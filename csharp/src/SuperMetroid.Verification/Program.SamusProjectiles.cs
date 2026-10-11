@@ -8,6 +8,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -252,9 +253,8 @@ static void VerifySamusPowerBeamProjectiles()
     SamusBombProjectileSystem CreateSyntheticBombs() => new() { FrameBindings = fixtureFrames };
     ushort NativeWord(int a) => (ushort)(nativeProjectileRom.ReadByte(a) | nativeProjectileRom.ReadByte(a + 1) << 8);
     ushort NativeDamage(int table, int beam) => NativeWord(0x930000 | NativeWord(table + beam * 2));
-    RoomLevelData air = new(
-        width,
-        height,
+    RoomLevelData air = new RoomLevelData(
+        new Size32<RoomBlocks>(width, height),
         new ushort[width * height],
         new byte[width * height],
         new ushort[width * height],
@@ -1086,9 +1086,8 @@ static void VerifySamusPowerBeamProjectiles()
     var wallWords = new ushort[width * height];
     for (int y = 0; y < height; y++)
         wallWords[y * width + 6] = 0x8000;
-    RoomLevelData wall = new(
-        width,
-        height,
+    RoomLevelData wall = new RoomLevelData(
+        new Size32<RoomBlocks>(width, height),
         wallWords,
         new byte[wallWords.Length],
         new ushort[wallWords.Length],
@@ -1195,9 +1194,8 @@ static void VerifySamusPowerBeamProjectiles()
     var solidShotBehaviors = new byte[solidShotWords.Length];
     for (int y = 0; y < height; y++)
         solidShotWords[y * width + 6] = 0xc000;
-    RoomLevelData solidShotWall = new(
-        width,
-        height,
+    RoomLevelData solidShotWall = new RoomLevelData(
+        new Size32<RoomBlocks>(width, height),
         solidShotWords,
         solidShotBehaviors,
         new ushort[solidShotWords.Length],
@@ -1235,7 +1233,7 @@ static void VerifySamusPowerBeamProjectiles()
     int synthesizedSolidShotBlocks = 0;
     for (int y = 0; y < height; y++)
     {
-        if (solidShotWall.GetCollisionBlock(6, y).LevelWord == 0x8052)
+        if (solidShotWall.GetCollisionBlock(new(6, y)).LevelWord == 0x8052)
             synthesizedSolidShotBlocks++;
     }
     AssertTrue(synthesizedSolidShotBlocks > 0,
@@ -1249,9 +1247,8 @@ static void VerifySamusPowerBeamProjectiles()
     var waveShotBehaviors = new byte[waveShotWords.Length];
     for (int y = 0; y < height; y++)
         waveShotWords[y * width + 6] = 0x4000;
-    RoomLevelData waveShotWall = new(
-        width,
-        height,
+    RoomLevelData waveShotWall = new RoomLevelData(
+        new Size32<RoomBlocks>(width, height),
         waveShotWords,
         waveShotBehaviors,
         new ushort[waveShotWords.Length],
@@ -1292,7 +1289,7 @@ static void VerifySamusPowerBeamProjectiles()
     int synthesizedAirShotBlocks = 0;
     for (int y = 0; y < height; y++)
     {
-        if (waveShotWall.GetCollisionBlock(6, y).LevelWord == 0x0052)
+        if (waveShotWall.GetCollisionBlock(new(6, y)).LevelWord == 0x0052)
             synthesizedAirShotBlocks++;
     }
     AssertTrue(synthesizedAirShotBlocks > 0,
@@ -1595,9 +1592,8 @@ static void VerifySamusPowerBeamProjectiles()
         0x8f0000 | unchecked((ushort)(
             coloredDoorPopulation + coloredDoorHeaders.Length * 6)),
         0);
-    RoomLevelData coloredDoors = new(
-        16,
-        16,
+    RoomLevelData coloredDoors = new RoomLevelData(
+        new Size32<RoomBlocks>(16, 16),
         coloredDoorWords,
         coloredDoorBehaviors,
         new ushort[coloredDoorWords.Length],
@@ -1618,7 +1614,7 @@ static void VerifySamusPowerBeamProjectiles()
         "colored-door setup scans all yellow, green, and red orientations");
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
-        RoomCollisionBlock block = coloredDoors.GetCollisionBlock(index + 1, 3);
+        RoomCollisionBlock block = coloredDoors.GetCollisionBlock(new(index + 1, 3));
         AssertEqual(RoomCollisionType.ShootableBlock, block.CollisionType,
             $"colored-door setup installs shootable collision for header {index}");
         AssertEqual(0x44, block.Behavior,
@@ -1657,9 +1653,8 @@ static void VerifySamusPowerBeamProjectiles()
 
     var residentWords = new ushort[16 * 16];
     residentWords[residentDoorBlock] = 0x8120;
-    RoomLevelData residentDoorLevel = new(
-        16,
-        16,
+    RoomLevelData residentDoorLevel = new RoomLevelData(
+        new Size32<RoomBlocks>(16, 16),
         residentWords,
         new byte[residentWords.Length],
         new ushort[residentWords.Length],
@@ -1716,9 +1711,8 @@ static void VerifySamusPowerBeamProjectiles()
 
     var reopenedWords = new ushort[16 * 16];
     reopenedWords[residentDoorBlock] = 0x8120;
-    RoomLevelData reopenedDoorLevel = new(
-        16,
-        16,
+    RoomLevelData reopenedDoorLevel = new RoomLevelData(
+        new Size32<RoomBlocks>(16, 16),
         reopenedWords,
         new byte[reopenedWords.Length],
         new ushort[reopenedWords.Length],
@@ -1804,9 +1798,8 @@ static void VerifySamusPowerBeamProjectiles()
 
     var greyDoorWords = new ushort[16 * 16];
     greyDoorWords[greyDoorBlock] = 0x8220;
-    RoomLevelData greyDoorLevel = new(
-        16,
-        16,
+    RoomLevelData greyDoorLevel = new RoomLevelData(
+        new Size32<RoomBlocks>(16, 16),
         greyDoorWords,
         new byte[greyDoorWords.Length],
         new ushort[greyDoorWords.Length],
@@ -1877,9 +1870,8 @@ static void VerifySamusPowerBeamProjectiles()
 
     var reloadedGreyWords = new ushort[16 * 16];
     reloadedGreyWords[greyDoorBlock] = 0x8220;
-    RoomLevelData reloadedGreyLevel = new(
-        16,
-        16,
+    RoomLevelData reloadedGreyLevel = new RoomLevelData(
+        new Size32<RoomBlocks>(16, 16),
         reloadedGreyWords,
         new byte[reloadedGreyWords.Length],
         new ushort[reloadedGreyWords.Length],
@@ -1918,9 +1910,8 @@ static void VerifySamusPowerBeamProjectiles()
         blueDoorBehaviors[blueDoorOrigin + rowOffset * width] =
             unchecked((byte)-rowOffset);
     }
-    RoomLevelData blueDoor = new(
-        width,
-        height,
+    RoomLevelData blueDoor = new RoomLevelData(
+        new Size32<RoomBlocks>(width, height),
         blueDoorWords,
         blueDoorBehaviors,
         new ushort[blueDoorWords.Length],
@@ -1933,9 +1924,8 @@ static void VerifySamusPowerBeamProjectiles()
     // omitting that probe advances the leading edge to block $70 and skips the cap entirely.
     var contactDoorWords = blueDoorWords.ToArray();
     var contactDoorBehaviors = blueDoorBehaviors.ToArray();
-    RoomLevelData contactDoor = new(
-        width,
-        height,
+    RoomLevelData contactDoor = new RoomLevelData(
+        new Size32<RoomBlocks>(width, height),
         contactDoorWords,
         contactDoorBehaviors,
         new ushort[contactDoorWords.Length],
@@ -2169,9 +2159,8 @@ static void VerifySamusPowerBeamProjectiles()
         integratedSuperWords[index] = 0xc000;
         integratedSuperBehaviors[index] = 10;
     }
-    RoomLevelData integratedSuperWall = new(
-        width,
-        height,
+    RoomLevelData integratedSuperWall = new RoomLevelData(
+        new Size32<RoomBlocks>(width, height),
         integratedSuperWords,
         integratedSuperBehaviors,
         new ushort[integratedSuperWords.Length],
@@ -2212,7 +2201,7 @@ static void VerifySamusPowerBeamProjectiles()
     int integratedSuperMutations = 0;
     for (int y = 0; y < height; y++)
     {
-        if (integratedSuperWall.GetCollisionBlock(6, y).LevelWord == 0x809f)
+        if (integratedSuperWall.GetCollisionBlock(new(6, y)).LevelWord == 0x809f)
             integratedSuperMutations++;
     }
     AssertTrue(integratedSuperMutations > 0,
@@ -2230,7 +2219,7 @@ static void VerifySamusPowerBeamProjectiles()
         skippedBehaviors[y * width + 6] = 10;
         skippedWords[y * width + 7] = 0x8000;
     }
-    RoomLevelData skippedWall = new(width, height, skippedWords, skippedBehaviors,
+    RoomLevelData skippedWall = new RoomLevelData(new Size32<RoomBlocks>(width, height), skippedWords, skippedBehaviors,
         new ushort[skippedWords.Length], new byte[8]);
     var skippedSamus = new SamusState
     {

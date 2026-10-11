@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -20,8 +21,7 @@ internal static partial class Program
             const int height = 16;
             int blockCount = width * height;
             var level = new RoomLevelData(
-                width,
-                height,
+                new Size32<RoomBlocks>(width, height),
                 new ushort[blockCount],
                 new byte[blockCount],
                 new ushort[blockCount],

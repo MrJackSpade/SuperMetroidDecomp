@@ -8,6 +8,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -15,8 +16,8 @@ internal static partial class Program
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
-        var pause = CreateRetailPauseFixture(bus, new SamusState(), new Bank80SystemState(), AreaId.Crateria, 10, 10);
-        Set("mapScroll", new PauseMapScroll(0, 512, 0, 256));
+        var pause = CreateRetailPauseFixture(bus, new SamusState(), new Bank80SystemState(), AreaId.Crateria, new(10, 10));
+        Set("mapScroll", new PauseMapScroll(new(0, 0), new(512, 256)));
         var fields = typeof(PauseMenuState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .Where(field => !field.IsDefined(typeof(NonSerializedAttribute))).OrderBy(field => field.Name, StringComparer.Ordinal).ToArray();
         AssertTrue(LegacyLayout(typeof(PauseMenuState), fields, fields.Where(field => field.Name is not "mapArrows" and not "mapLabelsBeforeIcons"))
@@ -30,8 +31,7 @@ internal static partial class Program
         var arrowAttributes = new HashSet<ushort>();
         foreach (var (x, y) in new (int, int)[] { (100, 70), (-24, 70), (-23, 70), (280, 70), (281, 70), (100, -56), (100, -55), (100, 79), (100, 80) })
         {
-            Set("mapHorizontalScroll", unchecked((ushort)x));
-            Set("mapVerticalScroll", unchecked((ushort)y));
+            Set("mapScrollPosition", new Position16<MapPixels>(unchecked((ushort)x), unchecked((ushort)y)));
             pause.Step(0, 0);
             // Literal $82:A92B increment-before-read palette timing and raw colors.
             if (nativePaletteTimer != 0 && --nativePaletteTimer == 0)
@@ -95,7 +95,7 @@ internal static partial class Program
             pause.BindMapPresentation(RetailPresentationFixture());
         }
         AssertTrue(beforeRestore.AsSpan().SequenceEqual(pause.Render()), "debugger restore/rebind retains the current arrow display");
-        Set("mapHorizontalScroll", (ushort)100); Set("mapVerticalScroll", (ushort)70);
+        Set("mapScrollPosition", new Position16<MapPixels>(100, 70));
         pause.Step(0, 0); _ = pause.Render(); int stable = pause.LastRenderedSpriteCount;
         pause.Step((ushort)SnesButton.R, 0); _ = pause.Render();
         AssertEqual(stable, pause.LastRenderedSpriteCount, "R press retains arrows on its native stable-page dispatch");

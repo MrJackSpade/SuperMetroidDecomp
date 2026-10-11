@@ -19,7 +19,7 @@ internal static class RuntimeOverlayTests
         runtime.RunNmi(0, true);
         long sequence = 0;
         Check("Ceres mixed-mode initial publication");
-        runtime.LoadCartridgeRoomForDebug(OverlayFixtureRooms.AlphaPowerBomb, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(OverlayFixtureRooms.AlphaPowerBomb, new(0, 0));
         runtime.RunNmi(0, true);
         Check("ordinary room without overlays");
 

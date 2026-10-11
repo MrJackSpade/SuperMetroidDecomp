@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -62,7 +63,7 @@ public static class PauseSelectorDefinitions
     /// <summary>Projects the $82:C196..C1D5 selector lists from category columns and eight-pixel rows.</summary>
     /// <remarks>Suit/misc leaves two extra rows between Gravity and Morph Ball.
     /// Both native coordinates include the draw routine's one-pixel bias, removed here.</remarks>
-    public static MapLabelPoint StockAnchor(PauseEquipmentCategory category, int item)
+    public static Point32<ScreenPixels> StockAnchor(PauseEquipmentCategory category, int item)
     {
         _ = Anchor(category, item);
         (int x, int y) = category switch

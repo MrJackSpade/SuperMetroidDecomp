@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -41,12 +42,13 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
         return Program[offset / 2];
     }
 
-    public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y, ushort paletteBits, bool originIsOnScreen)
+    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin, ushort paletteBits, bool originIsOnScreen)
     {
         int offset = pointer - FrameStart;
         if (offset < 0 || offset % FrameStride != 0 || offset / FrameStride >= FrameCount)
             throw new InvalidDataException($"Animal escape sprite $8C:{pointer:X4} is outside its four frames.");
-        oam.AddRawSmallSprite(unchecked((ushort)(x - SpriteOffset)), unchecked((ushort)(y - SpriteOffset)),
+        Position16<ScreenPixels> corner = origin - new Offset16<ScreenPixels>((short)SpriteOffset, (short)SpriteOffset);
+        oam.AddRawSmallSprite(corner.X, corner.Y,
             (ushort)(FirstAttributes + offset / FrameStride));
     }
 }

@@ -38,7 +38,7 @@ internal static partial class Program
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 64; x++)
         {
-            int index = y * level.WidthInBlocks + x;
+            int index = y * level.Size.Width + x;
             RoomCollisionType type = y >= 32 || x == WallColumn ? RoomCollisionType.SolidBlock
                 : x == SlopeColumn && y == BeamRow ? RoomCollisionType.Slope
                 : RoomCollisionType.Air;

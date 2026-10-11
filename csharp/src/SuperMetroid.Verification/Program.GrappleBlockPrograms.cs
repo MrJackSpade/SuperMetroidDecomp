@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -184,7 +185,7 @@ internal static partial class Program
                 definitions[0xb8 * 8 + tile * 2] = 0x18;
             }
 
-            var level = new RoomLevelData(width, width, words,
+            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words,
                 new byte[words.Length], new ushort[words.Length], definitions);
             var plms = new RoomPlmSystem { GrappleBlockVisuals = visuals };
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
@@ -294,7 +295,7 @@ internal static partial class Program
         const int blockIndex = 27;
         var words = new ushort[width * width];
         words[blockIndex] = 0xe123;
-        var level = new RoomLevelData(width, width, words,
+        var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words,
             new byte[words.Length], new ushort[words.Length], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, bts),

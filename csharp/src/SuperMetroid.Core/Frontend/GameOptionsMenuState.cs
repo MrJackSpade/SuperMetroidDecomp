@@ -3,6 +3,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -517,12 +518,12 @@ public sealed class GameOptionsMenuState
         // Keep the cursor actor in OAM at the installed hidden anchor during transitions.
         if (cursorPage is null)
         {
-            MapLabelPoint hidden = (mapPresentation ?? throw new InvalidOperationException(
+            Point32<ScreenPixels> hidden = (mapPresentation ?? throw new InvalidOperationException(
                 "Options cursor requires installed presentation assets."))
                 .GameOptions.HiddenCursor;
             return (checked((ushort)hidden.X), checked((ushort)hidden.Y));
         }
-        MapLabelPoint point = (mapPresentation ?? throw new InvalidOperationException(
+        Point32<ScreenPixels> point = (mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets."))
             .GameOptions.CursorPosition(PresentationPageName(cursorPage.Value), SelectedItem);
         return (checked((ushort)point.X), checked((ushort)point.Y));

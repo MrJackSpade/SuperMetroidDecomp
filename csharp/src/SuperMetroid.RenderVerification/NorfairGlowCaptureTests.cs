@@ -12,7 +12,7 @@ internal static class NorfairGlowCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(NorfairGlowFixture.Cathedral, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(NorfairGlowFixture.Cathedral, new(0, 0));
         runtime.Samus!.InputLocked = true;
         LayeredRenderSnapshot? original = null;
         SuperMetroid.Core.Assets.Rgba32[]? initialPixels = null;

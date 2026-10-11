@@ -7,6 +7,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -125,9 +126,8 @@ static void VerifySamusStoredShineAndShinespark()
     // Exercise all six stable direction poses through the public install and movement
     // handlers. The pose definition's literal X-direction byte—not target-pose parity in
     // production—selects horizontal sign, while the phase selects which block axes run.
-    RoomLevelData directionLevel = new(
-        width,
-        height,
+    RoomLevelData directionLevel = new RoomLevelData(
+        new Size32<RoomBlocks>(width, height),
         new ushort[width * height],
         new byte[width * height],
         new ushort[width * height],

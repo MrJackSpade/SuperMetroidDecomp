@@ -36,7 +36,7 @@ internal static partial class Program
             runtime.Hud.QueueUpload(bus, runtime.VramWrites);
             runtime.RunNmi(0, true);
             var pause = CreateRetailPauseFixture(bus, samus, runtime.System, AreaId.Crateria,
-                28, 1, gameplayVram: runtime.Vram);
+                new(28, 1), gameplayVram: runtime.Vram);
             var nativeVram = new SnesVram();
             nativeVram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(cart, 0x9ab200, 0x2000));
             nativeVram.LoadBytes(0xb000, runtime.Vram.Bytes.Slice(0xb000, 0x100));

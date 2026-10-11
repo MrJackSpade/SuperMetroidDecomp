@@ -6,6 +6,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -119,7 +120,7 @@ internal static partial class Program
             RoomPlmDynamicCollectibleArtCatalog art)
     {
         const int width = 64;
-        var level = new RoomLevelData(width, 64,
+        var level = new RoomLevelData(new Size32<RoomBlocks>(width, 64),
             new ushort[width * 64], new byte[width * 64],
             new ushort[width * 64], new byte[0x400 * 8]);
         var vram = new SnesVram();

@@ -68,10 +68,10 @@ internal static partial class Program
 
         AssertEqual(1, parsed, "n00b-tube population record loads");
         AssertEqual(NoobTubePlmRomData.SolidProjectileTriggerLevelWord,
-            level.GetCollisionBlock(blockX, blockY).LevelWord,
+            level.GetCollisionBlock(new(blockX, blockY)).LevelWord,
             "n00b-tube setup installs the complete type-$8 collision word");
         AssertEqual((int)RoomBlockBehaviorValues.ResidentPlmProjectileTrigger.Value,
-            level.GetCollisionBlock(blockX, blockY).Behavior,
+            level.GetCollisionBlock(new(blockX, blockY)).Behavior,
             "n00b-tube setup installs BTS $44");
 
         // First pass follows the event-not-set branch, publishes intact art, and sleeps
@@ -265,7 +265,7 @@ internal static partial class Program
             samus: new SamusState());
 
         foreach (NoobTubeProjectileRequest request in requests)
-            enemies.SpawnNoobTubeProjectile(request, level.WidthInBlocks);
+            enemies.SpawnNoobTubeProjectile(request, level.Size.Width);
         AssertEqual(17, enemies.ActiveEnemyProjectileCount,
             "complete n00b-tube burst fits the native eighteen-slot projectile pool");
 

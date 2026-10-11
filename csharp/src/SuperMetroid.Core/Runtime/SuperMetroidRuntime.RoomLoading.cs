@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -69,8 +70,8 @@ public sealed partial class SuperMetroidRuntime
         return LoadCartridgeRoom(
             door,
             room,
-            station.CameraX,
-            station.CameraY,
+            station.CameraPosition.X,
+            station.CameraPosition.Y,
             RoomViewportLoadMode.DisplayInitialViewport);
     }
 
@@ -117,8 +118,8 @@ public sealed partial class SuperMetroidRuntime
         // depend on those same words. In particular, loading a post-Morph-Ball save must not
         // accidentally construct the untouched new-game version of Blue Brinstar.
         RestoreSavedPlayerState(slot, resetBossesOnLoad);
-        Samus!.XPosition = station.SamusX;
-        Samus.YPosition = station.SamusY;
+        Samus!.XPosition = station.SamusPosition.X;
+        Samus.YPosition = station.SamusPosition.Y;
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
         if (room.AreaIndex != requestedArea)
         {
@@ -131,8 +132,8 @@ public sealed partial class SuperMetroidRuntime
         InitialViewportResult viewport = LoadCartridgeRoom(
             door,
             room,
-            station.CameraX,
-            station.CameraY,
+            station.CameraPosition.X,
+            station.CameraPosition.Y,
             RoomViewportLoadMode.DisplayInitialViewport);
         // LoadFromLoadStation writes `$1E75 = 1`. Without this room-entry lockout, the
         // first standing floor probe after loading directly on a save pod immediately
@@ -239,8 +240,8 @@ public sealed partial class SuperMetroidRuntime
         // hurt check from it. The $22 branch locks Samus's state handlers.
         samus.Health = samus.MaxHealth;
         samus.PreviousHealthForHurtCheck = samus.Health;
-        samus.Kinematics.SetXFixed((uint)station.SamusX << 16);
-        samus.Kinematics.SetYFixed((uint)station.SamusY << 16);
+        samus.Kinematics.SetXFixed((uint)station.SamusPosition.X << 16);
+        samus.Kinematics.SetYFixed((uint)station.SamusPosition.Y << 16);
         samus.InputLocked = true;
         ActiveLoadStation = station;
 
@@ -253,8 +254,8 @@ public sealed partial class SuperMetroidRuntime
         InitialViewportResult viewport = LoadCartridgeRoom(
             door,
             room,
-            station.CameraX,
-            station.CameraY,
+            station.CameraPosition.X,
+            station.CameraPosition.Y,
             RoomViewportLoadMode.DisplayInitialViewport,
             GunshipLoadScenario.EscapingCeres);
         samus.LoadSuitPalette(_addressSpace, Cgram);
@@ -829,8 +830,8 @@ public sealed partial class SuperMetroidRuntime
             else
                 Camera.RetainSubpositions(InheritedLayer1XSubposition, InheritedLayer1YSubposition);
         }
-        BackgroundScroll.Layer2ScrollX = room.State.Layer2ScrollX;
-        BackgroundScroll.Layer2ScrollY = room.State.Layer2ScrollY;
+        BackgroundScroll.Layer2ScrollX = room.State.Layer2Scroll.X;
+        BackgroundScroll.Layer2ScrollY = room.State.Layer2Scroll.Y;
         if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)
             BackgroundScroll.PrimePreviousBlocks();
         else
@@ -957,11 +958,11 @@ public sealed partial class SuperMetroidRuntime
             setEarthquakeTimer: value => Enemies.EarthquakeTimer = value,
             setEarthquakeType: value => Enemies.EarthquakeType = value,
             spawnNoobTubeProjectile: request =>
-                Enemies.SpawnNoobTubeProjectile(request, LevelData.WidthInBlocks),
+                Enemies.SpawnNoobTubeProjectile(request, LevelData.Size.Width),
             spawnEyeDoorProjectile: request =>
                 Enemies.SpawnEyeDoorProjectile(
                     request,
-                    LevelData.WidthInBlocks,
+                    LevelData.Size.Width,
                     System),
             spawnOldTourianEscapeShaftWallExplosion: Enemies.SpawnOldTourianEscapeShaftWallExplosion,
             disableDraygonCannon: Enemies.DisableDraygonCannon);
@@ -976,7 +977,7 @@ public sealed partial class SuperMetroidRuntime
             Plms.TrySpawnShaktoolRoomController(Camera.Scrolls);
         if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
             Plms.SetupCrittersEscapeBlock(LevelData,
-                LevelData.GetBlockIndex(EscapeAnimalPlmRomData.WallX, EscapeAnimalPlmRomData.WallY));
+                LevelData.GetBlockIndex(new(EscapeAnimalPlmRomData.WallX, EscapeAnimalPlmRomData.WallY)));
         // `$8F:91A9` spawns the fake-wall PLM; SpawnHardcodedPLM silently drops it when all
         // forty native slots are occupied.
         if (room.State.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)
@@ -1055,7 +1056,7 @@ public sealed partial class SuperMetroidRuntime
             Hud.DisableMinimapForBoss();
             if (Enemies.BossId == RidleyMapDefinitions.NorfairBossId)
                 for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
-                    System.MarkExploredMapTile(room.AreaIndex, room.MapX, room.MapY + row + 1);
+                    System.MarkExploredMapTile(room.AreaIndex, room.MapPosition + new Point32<MapTiles>(0, row + 1));
         }
         SetupEscapeRoomEffects(room.State.SetupCallback);
         // Gate setup runs while the room PLM population is constructed, but Enemies.Load
@@ -1372,7 +1373,7 @@ public sealed partial class SuperMetroidRuntime
         {
             if (Samus?.Xray.AreEnemyProjectilesSuspended == true)
                 continue;
-            Enemies.ApplyDownwardGateProjectileRequest(request, LevelData.WidthInBlocks);
+            Enemies.ApplyDownwardGateProjectileRequest(request, LevelData.Size.Width);
         }
     }
 
@@ -1388,8 +1389,9 @@ public sealed partial class SuperMetroidRuntime
         DoorDirection direction = door.Orientation.Direction;
         uint step = DoorOpeningScrollState.GetSamusStep(door);
 
-        ushort destinationX = unchecked((ushort)(door.DestinationScreenX << 8));
-        ushort destinationY = unchecked((ushort)(door.DestinationScreenY << 8));
+        Position16<RoomPixels> destination = door.DestinationScreen.ToRoomPixels();
+        ushort destinationX = destination.X;
+        ushort destinationY = destination.Y;
         uint xFixed = sourceXFixed;
         uint yFixed = sourceYFixed;
 
@@ -1492,7 +1494,7 @@ public sealed partial class SuperMetroidRuntime
         {
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,
-            XPosition = ActiveLoadStation.SamusX,
+            XPosition = ActiveLoadStation.SamusPosition.X,
             YPosition = 0,
         };
         BindSamusPalettePresentation();
@@ -1534,10 +1536,10 @@ public sealed partial class SuperMetroidRuntime
             _addressSpace,
             System,
             roomGeometry.AreaIndex,
-            roomGeometry.MapX,
-            roomGeometry.MapY,
-            LevelData?.WidthInBlocks ?? ActiveRoom.WidthInScreens * 16,
-            LevelData?.HeightInBlocks ?? ActiveRoom.HeightInScreens * 16,
+            checked((byte)roomGeometry.MapPosition.X),
+            checked((byte)roomGeometry.MapPosition.Y),
+            LevelData?.Size.Width ?? ActiveRoom.Size.ToRoomBlocks().Width,
+            LevelData?.Size.Height ?? ActiveRoom.Size.ToRoomBlocks().Height,
             Samus.XPosition,
             Samus.YPosition,
             NmiFrameCounter8,
@@ -1557,8 +1559,7 @@ public sealed partial class SuperMetroidRuntime
         {
             return new ActiveRoomGeometry(
                 ActiveRoom.AreaIndex,
-                ActiveRoom.MapX,
-                ActiveRoom.MapY,
+                ActiveRoom.MapPosition,
                 ActiveRoom.UpScroller,
                 ActiveRoom.DownScroller);
         }
@@ -1567,8 +1568,7 @@ public sealed partial class SuperMetroidRuntime
         {
             return new ActiveRoomGeometry(
                 LandingSiteEntry.AreaIndex,
-                LandingSiteEntry.RoomMapX,
-                LandingSiteEntry.RoomMapY,
+                LandingSiteEntry.RoomMapPosition,
                 LandingSiteEntry.UpScroller,
                 LandingSiteEntry.DownScroller);
         }
@@ -1588,8 +1588,7 @@ public sealed partial class SuperMetroidRuntime
 /// <summary>Room-header fields shared by camera tracking and minimap publication.</summary>
 internal readonly record struct ActiveRoomGeometry(
     AreaId AreaIndex,
-    byte MapX,
-    byte MapY,
+    Point32<MapTiles> MapPosition,
     byte UpScroller,
     byte DownScroller);
 

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -34,7 +35,7 @@ public sealed class FileSelectMapAnimations
                 "Map arrows require installed animation definitions.");
             var direction = MapScrollControls.ArrowAt(index);
             MapArrowVisual visual = installed.Get(direction);
-            replacement = new Arrow(visual.X, visual.Y, MapArrowDefinitions.SpriteBase(direction));
+            replacement = new Arrow(visual.Position, MapArrowDefinitions.SpriteBase(direction));
             phaseCount = visual.PhaseCount;
             if (previous is not null)
             {
@@ -97,13 +98,14 @@ public sealed class FileSelectMapAnimations
         foreach (Arrow arrow in arrows)
         {
             if (!arrow.Visible) continue;
-            installed.Draw(arrow.Base, oam, arrow.X, unchecked((ushort)(arrow.Y + verticalOffset)), SnesObjPalettes.Index3.PaletteBits);
+            installed.Draw(arrow.Base, oam, arrow.Position + new Offset16<ScreenPixels>(0, unchecked((short)verticalOffset)),
+                SnesObjPalettes.Index3.PaletteBits);
         }
     }
 
-    private sealed class Arrow(ushort x, ushort y, MapSpriteId spriteBase)
+    private sealed class Arrow(Position16<ScreenPixels> position, MapSpriteId spriteBase)
     {
-        public readonly ushort X = x, Y = y;
+        public readonly Position16<ScreenPixels> Position = position;
         public readonly MapSpriteId Base = spriteBase;
         public int Timer, Frame;
         public bool Visible;

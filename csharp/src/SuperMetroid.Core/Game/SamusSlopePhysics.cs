@@ -165,14 +165,14 @@ public static class SamusSlopePhysics
     {
         int blockX = xPosition >> 4;
         int blockY = yPosition >> 4;
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
+        if ((uint)blockX >= (uint)level.Size.Width ||
+            (uint)blockY >= (uint)level.Size.Height)
         {
             block = default;
             return false;
         }
 
-        block = level.GetCollisionBlock(blockX, blockY);
+        block = level.GetCollisionBlock(new(blockX, blockY));
         return true;
     }
 

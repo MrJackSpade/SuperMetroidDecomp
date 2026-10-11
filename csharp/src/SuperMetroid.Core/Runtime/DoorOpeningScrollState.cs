@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -78,8 +79,9 @@ internal sealed class DoorOpeningScrollState
         uint samusStep = GetSamusStep(door);
         (sourceSamusXFixed, sourceSamusYFixed) = ApplySetupMovement(
             door, sourceSamusXFixed, sourceSamusYFixed);
-        ushort destinationX = unchecked((ushort)(door.DestinationScreenX << 8));
-        ushort destinationY = unchecked((ushort)(door.DestinationScreenY << 8));
+        Position16<RoomPixels> destination = door.DestinationScreen.ToRoomPixels();
+        ushort destinationX = destination.X;
+        ushort destinationY = destination.Y;
 
         var setupCamera = GetSetupCamera(door);
         ushort cameraX = setupCamera.X;
@@ -140,8 +142,9 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Layer-one origin after the directional setup's initial call.</summary>
     internal static (ushort X, ushort Y) GetSetupCamera(CartridgeDoorHeader door)
     {
-        ushort x = unchecked((ushort)(door.DestinationScreenX << 8));
-        ushort y = unchecked((ushort)(door.DestinationScreenY << 8));
+        Position16<RoomPixels> destination = door.DestinationScreen.ToRoomPixels();
+        ushort x = destination.X;
+        ushort y = destination.Y;
         return door.Orientation.Direction switch
         {
             DoorDirection.Right => (unchecked((ushort)(x - 252)), y),

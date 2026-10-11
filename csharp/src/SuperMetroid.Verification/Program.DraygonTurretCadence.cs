@@ -14,7 +14,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, cameraX: 256, cameraY: 288);
+        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new(256, 288));
         var boss = runtime.Enemies.Draygon!;
         AssertEqual(DraygonAiFunction.IntroInitialDelay, boss.Function, "fight intro waits before the dance");
 

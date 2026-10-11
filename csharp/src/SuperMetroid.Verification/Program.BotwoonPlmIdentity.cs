@@ -17,7 +17,7 @@ internal static partial class Program
             AssertTrue(plms.TrySpawnBotwoonWall(assets.LevelData, header), "Botwoon native slot allocation succeeds until full");
             var slot = plms.PopulationSlots.Single(slot => slot.NativeSlotIndex == 39 - i);
             AssertEqual(header, slot.HeaderPointer, "hardcoded Botwoon header identity survives allocation");
-            AssertEqual(assets.LevelData.GetBlockIndex(15, 4), slot.BlockIndex, "hardcoded Botwoon placement");
+            AssertEqual(assets.LevelData.GetBlockIndex(new(15, 4)), slot.BlockIndex, "hardcoded Botwoon placement");
             AssertEqual((ushort)((i & 1) == 0 ? 1 : 64), slot.InstructionTimer, "header-specific Botwoon delay");
             AssertEqual((i & 1) == 0 ? RoomPlmInstructionLists.ClearBotwoonWall : RoomPlmInstructionLists.CrumbleBotwoonWall,
                 slot.InstructionPointer, "header-specific Botwoon program");

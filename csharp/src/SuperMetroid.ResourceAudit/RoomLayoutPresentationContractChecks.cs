@@ -11,7 +11,7 @@ internal static class RoomLayoutPresentationContractChecks
     internal static void Run()
     {
         int first = RoomVisualLayoutSourceDefinitions.All.First();
-        RoomVisualLayout Layout(int source) => new(source, 1, 1, [0], [0]);
+        RoomVisualLayout Layout(int source) => new(source, new(1, 1), [0], [0]);
         var owned = RoomVisualLayoutSourceDefinitions.All.ToDictionary(source => source, Layout);
         var incomplete = new Dictionary<int, RoomVisualLayout>(owned);
         incomplete.Remove(first);

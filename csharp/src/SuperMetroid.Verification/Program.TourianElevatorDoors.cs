@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -50,7 +51,7 @@ internal static partial class Program
             int target = horizontal ? 6 : 9;
             blocks[target] = 0x9000;
             behaviors[target] = bts;
-            var level = new RoomLevelData(4, 4, blocks, behaviors, new ushort[16], [], doorListPointer: list);
+            var level = new RoomLevelData(new Size32<RoomBlocks>(4, 4), blocks, behaviors, new ushort[16], [], doorListPointer: list);
             var state = new SamusKinematicsState
             {
                 XPosition = 24, YPosition = 24, XRadius = 7, YRadius = 7, CollisionPose = pose,

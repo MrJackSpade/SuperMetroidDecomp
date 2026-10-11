@@ -3,13 +3,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
     private static WorldMapLabelLayout CreateWindowLabelFixture(int x, int y)
     {
         var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Game.AreaId)area).ToString(),
-            _ => new MapLabelPoint(x, y));
+            _ => new Point32<ScreenPixels>(x, y));
         using var stream = new MemoryStream();
         WorldMapLabelLayout.Write(stream, new() { Version = 1, Areas = points });
         stream.Position = 0;

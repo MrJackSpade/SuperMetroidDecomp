@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -93,7 +94,7 @@ internal static partial class Program
             definitions[i * 2] = (byte)i;
             definitions[i * 2 + 1] = (byte)(i >> 8);
         }
-        var level = new RoomLevelData(32, 32,
+        var level = new RoomLevelData(new Size32<RoomBlocks>(32, 32),
             Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024],
             new ushort[1024], definitions);
         level.SetPlmForegroundEntry(33, (ushort)((int)RoomCollisionType.ShootableBlock << 12));
@@ -113,7 +114,7 @@ internal static partial class Program
 
         var item = new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 1,
             InWorldCollectibleKind.Bombs, 0);
-        var overlayLevel = new RoomLevelData(32, 32, new ushort[1024], new byte[1024],
+        var overlayLevel = new RoomLevelData(new Size32<RoomBlocks>(32, 32), new ushort[1024], new byte[1024],
             new ushort[1024], definitions);
         var noRomVisualData = new TestAddressSpace();
         ushort[] itemMap = new ushort[XrayTilemapLayout.BufferWords];

@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -204,7 +205,7 @@ internal static partial class Program
             var room = runtime.ActiveRoom!;
             AssertEqual(!defeated, runtime.Hud.MinimapDisabled, "only live Ridley disables the minimap");
             for (int row = 0; row < 2; row++)
-                AssertEqual(!defeated, runtime.System.IsMapTileExplored(room.AreaIndex, room.MapX, room.MapY + row + 1),
+                AssertEqual(!defeated, runtime.System.IsMapTileExplored(room.AreaIndex, room.MapPosition + new Point32<MapTiles>(0, row + 1)),
                     "Ridley initializes both native arena map cells");
             if (!defeated)
             {
@@ -616,7 +617,7 @@ internal static partial class Program
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = 1 };
-        var menu = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Norfair, 0, 0,
+        var menu = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Norfair, new(0, 0),
             mapPresentation: RetailPresentationFixture());
         T Get<T>(string field) => (T)typeof(PauseMenuState).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(menu)!;
         for (int direction = 0; direction < 2; direction++)
@@ -709,10 +710,10 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.SourceRoom);
         var level = runtime.LevelData!;
         bool found = false;
-        for (int y = 0; y < level.HeightInBlocks && !found; y++)
-        for (int x = 0; x < level.WidthInBlocks && !found; x++)
+        for (int y = 0; y < level.Size.Height && !found; y++)
+        for (int x = 0; x < level.Size.Width && !found; x++)
         {
-            var block = level.GetCollisionBlock(x, y);
+            var block = level.GetCollisionBlock(new(x, y));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
             if (door.Door?.DestinationRoomPointer != NativeSnapshotMemory.RidleyRoom) continue;
@@ -1376,7 +1377,7 @@ internal static partial class Program
                     // all subsequent live links are checked through the semantic phase.
                 }
                 var activeLevel = runtime.LevelData ?? throw new InvalidDataException("Missing active collision data.");
-                for (int block = 0; block < activeLevel.WidthInBlocks * activeLevel.HeightInBlocks; block++)
+                for (int block = 0; block < activeLevel.Size.Width * activeLevel.Size.Height; block++)
                 {
                     Check($"Room block {block}", activeLevel.ForegroundEntries.Span[block], NativeSnapshotMemory.Level + block * 2);
                     byte expectedBehavior = memory[NativeSnapshotMemory.Bts + block];
@@ -1568,12 +1569,12 @@ internal static partial class Program
                 Console.Error.WriteLine($"Pose history: port={(int)samus.PoseHistory.PreviousPose:X4}/{samus.PoseHistory.PreviousDirectionAndMovement:X4}/{(int)samus.PoseHistory.LastDifferentPose:X4}/{samus.PoseHistory.LastDifferentDirectionAndMovement:X4}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
                 Console.Error.WriteLine($"Liquid diagnostic: Y={samus.YPosition:X4}, surface={samus.LiquidPhysics.LavaAcidYPosition:X4}, pose={(int)samus.Pose:X2}, radius={samus.Kinematics.YRadius}");
                 Console.Error.WriteLine($"Shot diagnostic: locked={samus.InputLocked}, HUD={samus.SelectedHudItem}, grappleDebug={runtime.DebugGrappleItemSelected}, charge={runtime.Projectiles.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.Controller1.Current:X4}, new={runtime.Controller1.NewlyPressed:X4}, spawn={runtime.Projectiles.LastFiredProjectileSnapshot}");
-                Console.Error.WriteLine($"Room width={level.WidthInBlocks}, Samus radius={samus.Kinematics.XRadius}/{samus.Kinematics.YRadius}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
-                for (int block = 0; block < level.WidthInBlocks * level.HeightInBlocks; block++)
+                Console.Error.WriteLine($"Room width={level.Size.Width}, Samus radius={samus.Kinematics.XRadius}/{samus.Kinematics.YRadius}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
+                for (int block = 0; block < level.Size.Width * level.Size.Height; block++)
                 {
                     ushort expectedBlock = W(NativeSnapshotMemory.Level + block * 2);
                     ushort actualBlock = level.ForegroundEntries.Span[block];
-                    if (expectedBlock != actualBlock) Console.Error.WriteLine($"Block {block} ({block % level.WidthInBlocks},{block / level.WidthInBlocks}): native={expectedBlock:X4} port={actualBlock:X4}");
+                    if (expectedBlock != actualBlock) Console.Error.WriteLine($"Block {block} ({block % level.Size.Width},{block / level.Size.Width}): native={expectedBlock:X4} port={actualBlock:X4}");
                 }
                 throw new InvalidDataException($"Full movie first divergence at update {frame} (SMV source frame {(frame == 0 ? 0 : updates[frame - 1].GetProperty("sourceFrame").GetInt32())}): " + string.Join("; ", mismatches));
             }

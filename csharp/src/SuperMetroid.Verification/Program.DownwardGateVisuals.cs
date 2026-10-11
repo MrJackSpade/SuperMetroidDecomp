@@ -42,10 +42,10 @@ internal static partial class Program
             AssertEqual(visuals.GetWord(0xa55d, 0, 1) == 0x0053
                     ? (ushort)0x0053 : (ushort)0x000f,
                 streamer.BuildPlmLevelBlockUpdate(
-                    gateBlockIndex + level.WidthInBlocks, 0).TopRow[0],
+                    gateBlockIndex + level.Size.Width, 0).TopRow[0],
                 "first gate PLM step draws its selected second-column visual word");
             StepDownwardGatePlm(plms, bus, level, streamer);
-            int columnIndex = gateBlockIndex + level.WidthInBlocks;
+            int columnIndex = gateBlockIndex + level.Size.Width;
             int triggerIndex = gateBlockIndex - 1;
             ushort streamed = level.CreateBackgroundStreamer()
                 .BuildPlmLevelBlockUpdate(columnIndex, 0).TopRow[0];

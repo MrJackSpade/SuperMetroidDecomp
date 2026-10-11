@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -19,10 +20,10 @@ internal static partial class Program
             int expected = ReadVerificationWord(rom, 0x81aa1c + area * 4 + field);
             var stock = FileSelectMapWindowMotions.StockOrigin(area);
             AssertEqual(expected, vertical ? stock.Y : stock.X, $"native area {area} origin field {field}");
-            MapLabelPoint installed = labels.Get(area);
+            Point32<ScreenPixels> installed = labels.Get(area);
             AssertEqual(expected, vertical ? installed.Y : installed.X, $"imported area {area} origin field {field}");
 
-            var editedAreas = new Dictionary<string, MapLabelPoint>();
+            var editedAreas = new Dictionary<string, Point32<ScreenPixels>>();
             for (int identity = 0; identity < 6; identity++)
                 editedAreas.Add(((AreaId)identity).ToString(), labels.Get(identity));
             int editedCoordinate = vertical ? 223 : 255;

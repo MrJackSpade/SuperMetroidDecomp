@@ -175,7 +175,7 @@ internal static class DoorCatalogAudit
         NativeDoorHeader physical = native.Headers.First(h => !h.IsElevatorPseudoDoor);
         NativeDoorHeader pseudo = native.Headers.First(h => h.IsElevatorPseudoDoor);
         Require(CompareHeader(physical) is null && CompareHeader(pseudo) is null, "native headers accepted");
-        Require(CompareHeader(physical with { PlmX = (byte)(physical.PlmX ^ 1) }) is not null, "changed physical field");
+        Require(CompareHeader(physical with { PlmBlock = physical.PlmBlock.WithX(physical.PlmBlock.X ^ 1) }) is not null, "changed physical field");
         Require(CompareHeader(physical with { Orientation = 0x0c }) is not null, "undecodable physical orientation");
         Require(CompareHeader(pseudo with { DestinationRoomPointer = 0x91f8 }) is not null, "pseudo-door identity cannot be a physical header");
         Require(CompareHeader(physical with { DestinationRoomPointer = 0 }) is not null, "physical record cannot pass as a pseudo-door");

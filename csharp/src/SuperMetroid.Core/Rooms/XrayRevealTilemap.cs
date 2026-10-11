@@ -28,10 +28,10 @@ public static class XrayRevealTilemap
             Write(destination + 32, ReadBg1(sourceX, sourceY + 1));
             Write(destination + 33, ReadBg1(sourceX + 1, sourceY + 1));
         }
-        int firstBlock = (byte)(layer1Y >> 4) * level.WidthInBlocks + (layer1X >> 4);
+        int firstBlock = (byte)(layer1Y >> 4) * level.Size.Width + (layer1X >> 4);
         for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
         {
-            int first = firstBlock + row * level.WidthInBlocks;
+            int first = firstBlock + row * level.Size.Width;
             // The prior column may own a 2-wide reveal crossing the left edge. Its
             // right half is copied before this row's own commands overwrite it.
             if (first != 0 && Lookup(first - 1) is { } predecessor)

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -10,7 +11,7 @@ internal static partial class Program
         // mode two, base speed 1.6000. $90:906C retains horizontal movement when
         // the native speed calculation returns carry even without forward input.
         var memory = new SuperMetroidAddressSpace();
-        var level = new RoomLevelData(32, 32, new ushort[32 * 32],
+        var level = new RoomLevelData(new Size32<RoomBlocks>(32, 32), new ushort[32 * 32],
             new byte[32 * 32], new ushort[32 * 32], new byte[0x400 * 8]);
         var samus = new SamusState
         {

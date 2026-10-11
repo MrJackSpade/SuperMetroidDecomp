@@ -47,8 +47,8 @@ internal static partial class Program
         system.SetOpenedDoorBit(31);
         system.MarkSaveStationUsed(AreaId.Norfair, 3);
         system.SetAreaMapAcquired(AreaId.Brinstar);
-        system.MarkExploredMapTile(AreaId.Brinstar, 9, 1);
-        system.MarkExploredMapTile(AreaId.Brinstar, 23, 2);
+        system.MarkExploredMapTile(AreaId.Brinstar, new(9, 1));
+        system.MarkExploredMapTile(AreaId.Brinstar, new(23, 2));
         var time = new GameTimeState();
         time.Load(frames: 41, seconds: 32, minutes: 21, hours: 7);
         ControllerBindings bindings = ControllerBindings.Default.AssignAndSwap(

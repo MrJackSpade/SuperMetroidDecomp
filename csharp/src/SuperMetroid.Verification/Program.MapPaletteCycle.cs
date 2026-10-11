@@ -51,9 +51,9 @@ internal static partial class Program
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "palette edit invalidates selected content identity");
 
         var system = new Bank80SystemState();
-        var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.Crateria, 0, 0, mapPresentation: original);
+        var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.Crateria, new(0, 0), mapPresentation: original);
         var nativePause = new PauseMenuState(bus, new SamusState(), system, AreaId.Crateria,
-            0, 0, mapPresentation: original);
+            new(0, 0), mapPresentation: original);
         for (int tick = 0; tick < 60; tick++)
         {
             pause.Step(0, 0); nativePause.Step(0, 0);
@@ -90,8 +90,7 @@ internal static partial class Program
                 if (editedPixels[pixel] != stockPixels[pixel])
                     AssertTrue(editedPalette3.Contains(editedPixels[pixel]) && stockPalette3.Contains(stockPixels[pixel]),
                         "palette-three highlight edit recolors only palette-three pixels, not the palette-seven pause cursor");
-            AssertEqual(nativePause.MapHorizontalScroll, pause.MapHorizontalScroll, "palette-only edit preserves map horizontal navigation");
-            AssertEqual(nativePause.MapVerticalScroll, pause.MapVerticalScroll, "palette-only edit preserves map vertical navigation");
+            AssertEqual(nativePause.MapScroll, pause.MapScroll, "palette-only edit preserves map navigation");
         }
         AssertTrue(cycleColorsChanged, "edited highlight colors animate in restored pause CGRAM with palette ROM blocked");
         pause.BindMapPresentation(original);

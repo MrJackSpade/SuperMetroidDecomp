@@ -250,7 +250,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, cameraX: 0, cameraY: 0);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, camera: new(0, 0));
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;

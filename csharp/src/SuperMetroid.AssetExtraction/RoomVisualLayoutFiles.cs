@@ -7,6 +7,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -99,7 +100,7 @@ public static class RoomVisualLayoutFiles
         {
             if (entry is null || name != SourceFileName(entry.SourceAddress) ||
                 !RetailSources.TryGetValue(entry.SourceAddress, out int width) ||
-                width != entry.WidthInBlocks || entry.HeightInBlocks <= 0)
+                entry.Size.Width != width || entry.Size.Height <= 0)
                 throw new InvalidDataException(
                     $"Room-layout manifest {manifestPath} has an invalid source entry.");
             string stockPath = Path.Combine(stockDirectory, name);
@@ -117,16 +118,14 @@ public static class RoomVisualLayoutFiles
                 jsonStream, JsonOptions, $"room layout {selectedPath}");
             if (document.FormatVersion != FormatVersion ||
                 document.SourceAddress != entry.SourceAddress ||
-                document.WidthInBlocks != width ||
-                document.HeightInBlocks != entry.HeightInBlocks ||
+                document.Size != entry.Size ||
                 document.ForegroundVisualWords is null ||
                 document.BackgroundVisualWords is null)
                 throw new InvalidDataException($"Room layout {selectedPath} has incompatible dimensions or identity.");
             RoomVisualLayout layout;
             try
             {
-                layout = new RoomVisualLayout(document.SourceAddress,
-                    document.WidthInBlocks, document.HeightInBlocks,
+                layout = new RoomVisualLayout(document.SourceAddress, document.Size,
                     document.ForegroundVisualWords, document.BackgroundVisualWords);
             }
             catch (InvalidDataException error)
@@ -149,7 +148,7 @@ public static class RoomVisualLayoutFiles
         var sources = new Dictionary<int, int>();
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
-            int width = checked(header.WidthInScreens * 16);
+            int width = header.Size.ToRoomBlocks().Width;
             foreach (ushort pointer in RoomStateSelectionDefinitions.GetStatePointers(header.Pointer))
             {
                 int source = RoomStateDefinitions.Get(pointer).CompressedLevelDataAddress;
@@ -193,11 +192,21 @@ public static class RoomVisualLayoutFiles
             widthInBlocks, blockCount / widthInBlocks, foreground, background);
     }
 
+    [SpatialComponents("External format: room-layouts.json manifest stores widthInBlocks/heightInBlocks.")]
     private sealed record LayoutFileEntry(int SourceAddress, int WidthInBlocks,
-        int HeightInBlocks, string Sha256);
+        int HeightInBlocks, string Sha256)
+    {
+        [JsonIgnore]
+        public Size32<RoomBlocks> Size => new(WidthInBlocks, HeightInBlocks);
+    }
     private sealed record LayoutFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, LayoutFileEntry> Entries);
+    [SpatialComponents("External format: per-source room-layout JSON stores widthInBlocks/heightInBlocks.")]
     private sealed record RoomVisualLayoutDocument(int FormatVersion, int SourceAddress,
         int WidthInBlocks, int HeightInBlocks, ushort[] ForegroundVisualWords,
-        ushort[] BackgroundVisualWords);
+        ushort[] BackgroundVisualWords)
+    {
+        [JsonIgnore]
+        public Size32<RoomBlocks> Size => new(WidthInBlocks, HeightInBlocks);
+    }
 }

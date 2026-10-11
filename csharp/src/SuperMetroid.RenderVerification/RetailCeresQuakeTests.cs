@@ -15,7 +15,7 @@ internal static class RetailCeresQuakeTests
             var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
             runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(room, 0, 0);
+            runtime.LoadCartridgeRoomForDebug(room, new(0, 0));
             runtime.Enemies.CeresStatus = CeresQuakeFixture.EscapeStatus;
             var offsets = new HashSet<RoomShakeFrameResult>();
             int shaking = 0;

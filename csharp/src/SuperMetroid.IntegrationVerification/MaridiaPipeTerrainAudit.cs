@@ -34,8 +34,8 @@ internal static class MaridiaPipeTerrainAudit
                 int worldX = unchecked((ushort)(registerX - offsetX + screenX));
                 int worldY = unchecked((ushort)(registerY - offsetY + screenY + 1));
                 int blockX = worldX / 16, blockY = worldY / 16;
-                if (blockX >= level.WidthInBlocks || blockY >= level.HeightInBlocks) continue;
-                var tiles = LevelBlockTilemapExpander.Expand(source[blockY * level.WidthInBlocks + blockX], level.BlockDefinitions.Span);
+                if (blockX >= level.Size.Width || blockY >= level.Size.Height) continue;
+                var tiles = LevelBlockTilemapExpander.Expand(source[blockY * level.Size.Width + blockX], level.BlockDefinitions.Span);
                 ushort expected = (worldY & 8) == 0
                     ? (worldX & 8) == 0 ? tiles.TopLeft : tiles.TopRight
                     : (worldX & 8) == 0 ? tiles.BottomLeft : tiles.BottomRight;

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Game;
 
@@ -41,21 +42,24 @@ public static class AreaMapLayout
     /// <summary>$0400 BG tile words per page, arranged as 32 rows of 32 cells; the second page begins after these 1024 words.</summary>
     public const int TilemapWordsPerPage = 0x400;
 
+    /// <summary>The logical 64-by-32 area-map size.</summary>
+    public static Size32<MapTiles> Size => new(WidthInTiles, HeightInTiles);
+
     /// <summary>Returns the native byte offset containing one map bit.</summary>
-    public static int GetBitByteIndex(int mapX, int mapY)
+    public static int GetBitByteIndex(Point32<MapTiles> cell)
     {
-        ValidateCoordinate(mapX, mapY);
-        int pageOffset = mapX >= PageWidthInTiles ? BitPlaneBytesPerPage : 0;
-        int byteColumnWithinPage = (mapX & (PageWidthInTiles - 1)) >> 3;
-        return pageOffset + mapY * 4 + byteColumnWithinPage;
+        ValidateCoordinate(cell);
+        int pageOffset = cell.X >= PageWidthInTiles ? BitPlaneBytesPerPage : 0;
+        int byteColumnWithinPage = (cell.X & (PageWidthInTiles - 1)) >> 3;
+        return pageOffset + cell.Y * 4 + byteColumnWithinPage;
     }
 
     /// <summary>Returns the native word offset containing one map tile.</summary>
-    public static int GetTilemapWordIndex(int mapX, int mapY)
+    public static int GetTilemapWordIndex(Point32<MapTiles> cell)
     {
-        ValidateCoordinate(mapX, mapY);
-        int pageOffset = mapX >= PageWidthInTiles ? TilemapWordsPerPage : 0;
-        return pageOffset + mapY * PageWidthInTiles + (mapX & (PageWidthInTiles - 1));
+        ValidateCoordinate(cell);
+        int pageOffset = cell.X >= PageWidthInTiles ? TilemapWordsPerPage : 0;
+        return pageOffset + cell.Y * PageWidthInTiles + (cell.X & (PageWidthInTiles - 1));
     }
 
     /// <summary>Returns the MSB-first mask used by both cartridge one-bit planes.</summary>
@@ -66,12 +70,12 @@ public static class AreaMapLayout
         return unchecked((byte)(0x80 >> (mapX & 7)));
     }
 
-    private static void ValidateCoordinate(int mapX, int mapY)
+    private static void ValidateCoordinate(Point32<MapTiles> cell)
     {
-        if ((uint)mapX >= WidthInTiles)
-            throw new ArgumentOutOfRangeException(nameof(mapX));
-        if ((uint)mapY >= HeightInTiles)
-            throw new ArgumentOutOfRangeException(nameof(mapY));
+        if ((uint)cell.X >= WidthInTiles)
+            throw new ArgumentOutOfRangeException(nameof(cell), "Map X lies outside the 64-tile area map.");
+        if ((uint)cell.Y >= HeightInTiles)
+            throw new ArgumentOutOfRangeException(nameof(cell), "Map Y lies outside the 32-tile area map.");
     }
 }
 

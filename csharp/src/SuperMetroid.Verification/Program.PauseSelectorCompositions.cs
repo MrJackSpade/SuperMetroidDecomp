@@ -33,7 +33,7 @@ internal static partial class Program
                     AssertTrue(edited.StoresCompositionParts, "independent selector part edit retained");
                     var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
                     var anchor = edited.Anchor(category, 0);
-                    MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, (ushort)anchor.X, (ushort)anchor.Y, edited.PaletteBits);
+                    MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, new((ushort)anchor.X, (ushort)anchor.Y), edited.PaletteBits);
                     edited.Draw(actual, category, 0, 0);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
@@ -63,7 +63,7 @@ internal static partial class Program
                 var composition = MenuSpriteCompiler.Compile(document.Frames[name], name);
                 var anchor = edited.Anchor(category, 0);
                 var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
-                composition.DrawOnScreen(expected, (ushort)anchor.X, (ushort)anchor.Y, edited.PaletteBits);
+                composition.DrawOnScreen(expected, new((ushort)anchor.X, (ushort)anchor.Y), edited.PaletteBits);
                 edited.Draw(actual, category, 0, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),

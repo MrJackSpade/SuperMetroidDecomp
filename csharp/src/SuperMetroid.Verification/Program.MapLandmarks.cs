@@ -61,18 +61,18 @@ internal static partial class Program
             var native = new FileSelectRoomMapGraphics(bus, system, area,
                 mapPresentation: original);
             var room = new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original);
-            var before = native.Render(0, 0, marker);
-            AssertTrue(before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "full file-select landmark stock pixel parity");
+            var before = native.Render(new(0, 0), marker);
+            AssertTrue(before.AsSpan().SequenceEqual(room.Render(new(0, 0), marker)), "full file-select landmark stock pixel parity");
             room.BindMapPresentation(edited);
-            AssertTrue(!before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "edited landmarks change file-select pixels");
+            AssertTrue(!before.AsSpan().SequenceEqual(room.Render(new(0, 0), marker)), "edited landmarks change file-select pixels");
             using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, room); capture.Position = 0;
             room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
             room.BindMapPresentation(original);
-            AssertTrue(before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "restored file-select uses current landmark content");
+            AssertTrue(before.AsSpan().SequenceEqual(room.Render(new(0, 0), marker)), "restored file-select uses current landmark content");
             if (area != AreaId.WreckedShip) continue;
             var pauseNative = new PauseMenuState(bus, new SamusState(), system, area,
-                19, 20, mapPresentation: original);
-            var pause = new PauseMenuState(guard, new SamusState(), system, area, 19, 20, mapPresentation: original);
+                new(19, 20), mapPresentation: original);
+            var pause = new PauseMenuState(guard, new SamusState(), system, area, new(19, 20), mapPresentation: original);
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "pause stock boss pixels with ROM coordinates blocked");
             pause.BindMapPresentation(edited);
@@ -99,8 +99,8 @@ internal static partial class Program
 
         static byte[] Draw(FileSelectMapIcons icons, AreaId area)
         {
-            var oam = new OamBuffer(); oam.BeginFrame(); icons.DrawBossMarkers(oam, 24, 8);
-            if (area != AreaId.Ceres) icons.DrawAfterMarker(oam, 24, 8);
+            var oam = new OamBuffer(); oam.BeginFrame(); icons.DrawBossMarkers(oam, new(24, 8));
+            if (area != AreaId.Ceres) icons.DrawAfterMarker(oam, new(24, 8));
             oam.FinalizeFrame(); return oam.LowTable.ToArray().Concat(oam.HighTable.ToArray()).ToArray();
         }
     }

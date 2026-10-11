@@ -60,10 +60,8 @@ internal static partial class Program
                 Pointer: 0x8000,
                 DestinationRoomPointer: 0x9000,
                 Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
-                PlmX: 0,
-                PlmY: 0,
-                DestinationScreenX: 3,
-                DestinationScreenY: 2,
+                PlmBlock: new(0, 0),
+                DestinationScreen: new(3, 2),
                 SamusDistance: 0x0100,
                 SetupCodePointer: DoorSetupCode.None);
             DoorOpeningScrollState transition = DoorOpeningScrollState.Create(
@@ -109,10 +107,10 @@ internal static partial class Program
         int doorX = -1;
         int doorY = -1;
         byte behavior = 0;
-        for (int y = 0; y < level.HeightInBlocks && doorX < 0; y++)
-        for (int x = 0; x < level.WidthInBlocks; x++)
+        for (int y = 0; y < level.Size.Height && doorX < 0; y++)
+        for (int x = 0; x < level.Size.Width; x++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(x, y);
+            RoomCollisionBlock block = level.GetCollisionBlock(new(x, y));
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
             CartridgeDoorHeader? candidate = level.ResolveDoorCollision(
@@ -131,8 +129,7 @@ internal static partial class Program
 
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
-            cameraX: (ushort)(doorX / 16 * 256),
-            cameraY: (ushort)(doorY / 16 * 256));
+            camera: new((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
         SamusState samus = runtime.Samus!;
         samus.XPosition = (ushort)(doorX * 16 + 8);
         samus.YPosition = (ushort)(doorY * 16 + 8);

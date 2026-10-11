@@ -27,8 +27,8 @@ public static class XrayRevealOverlays
             if ((uint)graphics >= XrayOverlayRomData.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item ${(int)item.Header:X4} has invalid X-ray graphics slot {graphics}.");
             ushort word = overlays.ItemMetatile(graphics);
-            Write(level, tilemap, word, item.BlockIndex % level.WidthInBlocks,
-                item.BlockIndex / level.WidthInBlocks, layer1X, layer1Y);
+            Write(level, tilemap, word, item.BlockIndex % level.Size.Width,
+                item.BlockIndex / level.Size.Width, layer1X, layer1Y);
         }
         if (specialPointer == 0) return;
         foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(specialPointer))

@@ -32,7 +32,7 @@ public sealed partial class RoomPlmSystem
         ArgumentNullException.ThrowIfNull(door);
         ArgumentNullException.ThrowIfNull(system);
 
-        int blockIndex = level.GetBlockIndex(door.PlmX, door.PlmY);
+        int blockIndex = level.GetBlockIndex(door.PlmBlock);
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot resident = _slots[slotIndex];

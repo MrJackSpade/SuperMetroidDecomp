@@ -25,7 +25,7 @@ internal static partial class Program
         _ = Load(document);
         using (var stream = new MemoryStream()) TitleGraphicsPresentation.WriteMap(stream, document);
         foreach (TitleSpriteFrame frame in frames)
-            Load(document).DrawSprite(checked((ushort)frame.Pointer), new OamBuffer(), 0, 0, 0);
+            Load(document).DrawSprite(checked((ushort)frame.Pointer), new OamBuffer(), new(0, 0), 0);
 
         // An unchanged frame count must not disguise one missing selector. Test every
         // compiled selector independently; the old loader accepted each substitution.
@@ -54,7 +54,7 @@ internal static partial class Program
         };
         TitleGraphicsPresentation selected = Load(document with { Sprites = edited });
         var oam = new OamBuffer();
-        selected.DrawSprite(checked((ushort)edited[0].Pointer), oam, 20, 30, 0);
+        selected.DrawSprite(checked((ushort)edited[0].Pointer), oam, new(20, 30), 0);
         AssertEqual(4, oam.NextByteOffset, "a required frame may still have editable OAM parts");
         AssertEqual((byte)23, oam.LowTable[0], "edited title X offset is applied");
         AssertEqual((byte)26, oam.LowTable[1], "edited title Y offset is applied");

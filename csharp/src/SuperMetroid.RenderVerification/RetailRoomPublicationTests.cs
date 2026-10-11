@@ -30,7 +30,7 @@ internal static class RetailRoomPublicationTests
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
             // Room-local setup, explicitly not an incoming door/elevator transition.
-            runtime.LoadCartridgeRoomForDebug(room, 0, 0);
+            runtime.LoadCartridgeRoomForDebug(room, new(0, 0));
             runtime.RunNmi(0, true);
             switch (fx)
             {

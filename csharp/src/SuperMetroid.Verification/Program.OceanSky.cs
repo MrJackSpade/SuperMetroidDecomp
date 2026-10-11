@@ -14,7 +14,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean, cameraX: 128, cameraY: 768);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean, camera: new(128, 768));
         // Capture consumes the accepted NMI's register snapshot, not the room's
         // mutable scroll state. Draining only VRAM left the BG2 scanline window at
         // its zero-initialized 0..0 range, so both page layouts rendered no sky.

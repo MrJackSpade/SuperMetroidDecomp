@@ -20,8 +20,8 @@ internal static partial class Program
 
         var nativeSamus = Samus(); var installedSamus = Samus();
         var native = new PauseMenuState(bus, nativeSamus, new Bank80SystemState(),
-            AreaId.Brinstar, 0, 0, mapPresentation: original);
-        var installed = new PauseMenuState(guard, installedSamus, new Bank80SystemState(), AreaId.Brinstar, 0, 0,
+            AreaId.Brinstar, new(0, 0), mapPresentation: original);
+        var installed = new PauseMenuState(guard, installedSamus, new Bank80SystemState(), AreaId.Brinstar, new(0, 0),
             mapPresentation: original);
         EnterEquipment(native); EnterEquipment(installed);
         for (int frame = 0; frame < 64; frame++)
@@ -52,9 +52,9 @@ internal static partial class Program
         using (var output = File.Create(path)) PauseReserveUiPresentation.Write(output, editedDocument);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "reserve UI override changes selected content identity");
-        var stockPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Brinstar, 0, 0,
+        var stockPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Brinstar, new(0, 0),
             mapPresentation: original);
-        var editedPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Brinstar, 0, 0,
+        var editedPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Brinstar, new(0, 0),
             mapPresentation: edited);
         AssertTrue(stockPause.ReadReserveSupplyDigit(2) != editedPause.ReadReserveSupplyDigit(2),
             "edited reserve digit reaches the actual mutable equipment page");

@@ -91,8 +91,8 @@ internal static partial class Program
                 var generated = new OamBuffer();
                 native.BeginFrame(); generated.BeginFrame();
                 DrawImportedSpritemap(bus, native, 0x8c0000 | pointer, 120, y, 0x0800, originIsOnScreen: y == 72);
-                if (y == 72) calculated.DrawOnScreen(generated, 120, y, 0x0800);
-                else calculated.DrawOffScreen(generated, 120, y, 0x0800);
+                if (y == 72) calculated.DrawOnScreen(generated, new(120, y), 0x0800);
+                else calculated.DrawOffScreen(generated, new(120, y), 0x0800);
                 native.FinalizeFrame(); generated.FinalizeFrame();
                 AssertTrue(native.LowTable.SequenceEqual(generated.LowTable) && native.HighTable.SequenceEqual(generated.HighTable),
                     "calculated grid preserves native OAM and clipping");
@@ -216,7 +216,7 @@ internal static partial class Program
                 var installedOam = new OamBuffer();
                 installedOam.BeginFrame();
                 stock.ExplosionSprites.Draw(frame.Pointer, installedOam,
-                    120, y, 0x0800, onScreen);
+                    new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                         nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&

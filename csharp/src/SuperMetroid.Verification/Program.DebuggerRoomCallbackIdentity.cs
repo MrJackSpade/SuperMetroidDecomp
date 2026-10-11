@@ -16,7 +16,7 @@ internal static partial class Program
         var runtime = (SuperMetroidRuntime)RuntimeHelpers.GetUninitializedObject(typeof(SuperMetroidRuntime));
         var samus = new SamusState { XPosition = 137, Health = 83 };
         typeof(SuperMetroidRuntime).GetField("<Samus>k__BackingField", fields)!.SetValue(runtime, samus);
-        var room = new CartridgeRoomHeader(0, 0, AreaId.Maridia, 0, 0, 1, 1, 0, 0, 0, 0, null!);
+        var room = new CartridgeRoomHeader(0, 0, AreaId.Maridia, new(0, 0), new(1, 1), 0, 0, 0, 0, null!);
         closureType.GetField("<>4__this", fields)!.SetValue(target, runtime);
         closureType.GetField("room", fields)!.SetValue(target, room);
         var callback = closureType.GetMethod("<LoadCartridgeRoom>b__0", fields)!

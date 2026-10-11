@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -21,7 +22,7 @@ public sealed partial class FileSelectAreaMapGraphics
 public sealed partial class FileSelectRoomMapGraphics
 {
     /// <summary>Captures the installed room map/frame and optional marker/arrows without advancing any animation.</summary>
-    public LayeredRenderSnapshot CaptureRenderSnapshot(ushort horizontalScroll = 0, ushort verticalScroll = 0,
+    public LayeredRenderSnapshot CaptureRenderSnapshot(Position16<MapPixels> scroll = default,
         FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, bool frameOnly = false)
     {
         var layers = new List<RenderLayer>();
@@ -34,12 +35,12 @@ public sealed partial class FileSelectRoomMapGraphics
                 layers.Add(new Bg4BppRenderLayer(MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, 0,
                     FileSelectMapRomData.RoomFrameVerticalScroll, 32, 32, priority));
                 layers.Add(new Bg4BppRenderLayer(MenuPpuState.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
-                    horizontalScroll, verticalScroll, 64, 32, priority));
+                    scroll.X, scroll.Y, 64, 32, priority));
             }
         OamBuffer oam;
         if (marker is not null && !frameOnly)
         {
-            oam = PrepareIcons(horizontalScroll, verticalScroll, marker, animations);
+            oam = PrepareIcons(scroll, marker, animations);
             layers.Add(new ObjRenderLayer());
         }
         else { oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame(); }

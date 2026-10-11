@@ -245,7 +245,7 @@ internal static partial class Program
             artworkOverrides.Add(path);
         }
         var edited = installation.LoadMaps();
-        AssertEqual(24, edited.Arrows.Get(SuperMetroid.Core.Frontend.MapScrollDirection.Left).X, "full installation consumes arrow override");
+        AssertEqual(24, edited.Arrows.Get(SuperMetroid.Core.Frontend.MapScrollDirection.Left).Position.X, "full installation consumes arrow override");
         AssertEqual(104, edited.SaveMarkers.Get(SuperMetroid.Core.Game.AreaId.Maridia, 0).X, "full installation consumes save-marker override");
         AssertEqual(160, edited.Landmarks.Get("Boss.Phantoon").X, "full installation consumes landmark override");
         AssertEqual(80, edited.Stations.Get("Brinstar.Missile.0").X, "full installation consumes station position override");

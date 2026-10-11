@@ -470,6 +470,8 @@ internal static class DebuggerStateFieldMigrations
                 fade.SetTiming(1, 1);
                 Set(fileSelect, "screenFade", fade);
             }),
+        // #628: spatial values whose components older layouts stored separately.
+        .. DebuggerSpatialFieldMerges.Introductions,
     ];
 
     private static readonly Dictionary<string, DebuggerFieldIntroduction[]> introductionsByType =

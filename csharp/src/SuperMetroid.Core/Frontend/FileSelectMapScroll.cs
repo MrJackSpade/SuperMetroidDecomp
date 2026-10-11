@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -23,23 +24,14 @@ public sealed class FileSelectMapScroll
 {
     private int tick;
 
-    /// <summary>Gets the current wrapped horizontal map offset in pixels.</summary>
-    public ushort Horizontal { get; private set; }
+    /// <summary>Gets the current wrapped map scroll offset in map pixels.</summary>
+    public Position16<MapPixels> Scroll { get; private set; }
 
-    /// <summary>Gets the current wrapped vertical map offset in pixels.</summary>
-    public ushort Vertical { get; private set; }
+    /// <summary>Gets the leftmost and adjusted upper revealed-map coordinates used by the native arrow boundaries.</summary>
+    public Position16<MapPixels> Minimum { get; }
 
-    /// <summary>Gets the leftmost revealed-map coordinate used by the native arrow boundary.</summary>
-    public ushort MinimumX { get; }
-
-    /// <summary>Gets the rightmost revealed-map coordinate used by the native arrow boundary.</summary>
-    public ushort MaximumX { get; }
-
-    /// <summary>Gets the adjusted upper revealed-map coordinate used by the native arrow boundary.</summary>
-    public ushort MinimumY { get; }
-
-    /// <summary>Gets the lower revealed-map coordinate used by the native arrow boundary.</summary>
-    public ushort MaximumY { get; }
+    /// <summary>Gets the rightmost and lower revealed-map coordinates used by the native arrow boundaries.</summary>
+    public Position16<MapPixels> Maximum { get; }
 
     /// <summary>Gets the direction of the accepted eight-tick scroll step, or <see cref="MapScrollDirection.None"/>.</summary>
     public MapScrollDirection Direction { get; private set; }
@@ -48,10 +40,9 @@ public sealed class FileSelectMapScroll
     /// <param name="bus">Installed address space required by the file-select host contract.</param>
     /// <param name="map">Area map whose station or explored cells define the visible bounds.</param>
     /// <param name="system">Persistent area-map and explored-cell state.</param>
-    /// <param name="playerMapX">Player marker's horizontal map coordinate in pixels.</param>
-    /// <param name="playerMapY">Player marker's vertical map coordinate in pixels.</param>
+    /// <param name="player">Player marker's map coordinate in pixels.</param>
     public FileSelectMapScroll(ISnesAddressSpace bus, IAreaMapView map,
-        Bank80SystemState system, ushort playerMapX, ushort playerMapY)
+        Bank80SystemState system, Position16<MapPixels> player)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(map);
@@ -59,7 +50,7 @@ public sealed class FileSelectMapScroll
         // Native selects one plane, not the union: a downloaded map uses its station
         // mask even if an explored secret cell lies outside that mask.
         bool Visible(int x, int y) => system.HasAreaMap(map.Area)
-            ? map.IsRevealedByMapStation(x, y) : system.IsMapTileExplored(map.Area, x, y);
+            ? map.IsRevealedByMapStation(new(x, y)) : system.IsMapTileExplored(map.Area, new(x, y));
         int left = 26, right = 28, top = 1, bottom = 11;
         for (int x = 0; x < 64; x++)
             if (Enumerable.Range(0, 32).Any(y => Visible(x, y))) { left = x; break; }
@@ -71,27 +62,29 @@ public sealed class FileSelectMapScroll
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { top = y; break; }
         for (int y = 31; y > 0; y--)
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { bottom = y; break; }
-        MinimumX = Wrap(left * 8 - (map.Area == AreaId.Maridia ? 24 : 0));
-        MaximumX = Wrap(right * 8);
+        ushort minimumX = Wrap(left * 8 - (map.Area == AreaId.Maridia ? 24 : 0));
+        ushort maximumX = Wrap(right * 8);
         ushort nativeMinimumY = Wrap(top * 8);
-        MaximumY = Wrap(bottom * 8);
-        Horizontal = Wrap(MinimumX + Wrap(MaximumX - MinimumX) / 2 - 128);
-        ushort screenX = Wrap(playerMapX - Horizontal);
+        ushort maximumY = Wrap(bottom * 8);
+        ushort horizontal = Wrap(minimumX + Wrap(maximumX - minimumX) / 2 - 128);
+        ushort screenX = Wrap(player.X - horizontal);
         if (Signed(224 - screenX) < 0)
-            Horizontal = Wrap(Horizontal - Signed(224 - screenX));
+            horizontal = Wrap(horizontal - Signed(224 - screenX));
         else if (Signed(32 - screenX) >= 0)
-            Horizontal = Wrap(Horizontal - Wrap(32 - screenX));
-        ushort middle = Wrap(nativeMinimumY + Wrap(MaximumY - nativeMinimumY) / 2 + 16);
+            horizontal = Wrap(horizontal - Wrap(32 - screenX));
+        ushort middle = Wrap(nativeMinimumY + Wrap(maximumY - nativeMinimumY) / 2 + 16);
         ushort offset = Wrap((112 - middle) & ~7);
-        Vertical = Wrap(-offset);
-        short distance = Signed(64 - Wrap(playerMapY + offset));
+        ushort vertical = Wrap(-offset);
+        short distance = Signed(64 - Wrap(player.Y + offset));
         if (distance >= 0)
         {
-            Vertical = Wrap(Vertical - distance);
-            if (Signed(Vertical + 40) < 0) Vertical = Wrap(-40);
+            vertical = Wrap(vertical - distance);
+            if (Signed(vertical + 40) < 0) vertical = Wrap(-40);
         }
+        Scroll = new(horizontal, vertical);
+        Maximum = new(maximumX, maximumY);
         // $81:AD17 adjusts the upper arrow boundary only after positioning.
-        MinimumY = Wrap(nativeMinimumY + 24);
+        Minimum = new(minimumX, Wrap(nativeMinimumY + 24));
     }
 
     /// <summary>Determines whether another eight-pixel step fits within the native boundary for a direction.</summary>
@@ -99,10 +92,10 @@ public sealed class FileSelectMapScroll
     /// <returns><see langword="true"/> when the corresponding scroll arrow may accept a step.</returns>
     public bool CanScroll(MapScrollDirection direction) => direction switch
     {
-        MapScrollDirection.Left => Signed(MinimumX - 24 - Horizontal) < 0,
-        MapScrollDirection.Right => Signed(MaximumX - 232 - Horizontal) >= 0,
-        MapScrollDirection.Up => Signed(MinimumY - 64 - Vertical) < 0,
-        MapScrollDirection.Down => Signed(MaximumY - 145 - Vertical) >= 0,
+        MapScrollDirection.Left => Signed(Minimum.X - 24 - Scroll.X) < 0,
+        MapScrollDirection.Right => Signed(Maximum.X - 232 - Scroll.X) >= 0,
+        MapScrollDirection.Up => Signed(Minimum.Y - 64 - Scroll.Y) < 0,
+        MapScrollDirection.Down => Signed(Maximum.Y - 145 - Scroll.Y) >= 0,
         MapScrollDirection.None => false,
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
@@ -128,10 +121,7 @@ public sealed class FileSelectMapScroll
         // move eight pixels on tick four, then finish and queue sound on tick eight.
         if (++tick == FileSelectMapRomData.ScrollPulseTick)
         {
-            if (Direction == MapScrollDirection.Left) Horizontal = Wrap(Horizontal - FileSelectMapRomData.ScrollStepPixels);
-            if (Direction == MapScrollDirection.Right) Horizontal = Wrap(Horizontal + FileSelectMapRomData.ScrollStepPixels);
-            if (Direction == MapScrollDirection.Up) Vertical = Wrap(Vertical - FileSelectMapRomData.ScrollStepPixels);
-            if (Direction == MapScrollDirection.Down) Vertical = Wrap(Vertical + FileSelectMapRomData.ScrollStepPixels);
+            Scroll += MapScrollControls.StepOffset(Direction);
         }
         if (tick != FileSelectMapRomData.ScrollStepTicks) return false;
         tick = 0;

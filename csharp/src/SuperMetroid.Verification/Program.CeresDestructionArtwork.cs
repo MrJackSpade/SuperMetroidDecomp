@@ -50,7 +50,7 @@ internal static partial class Program
                 var installedOam = new OamBuffer();
                 installedOam.BeginFrame();
                 stock.CeresDestruction.Sprites.Draw(frame.Pointer, installedOam,
-                    120, y, 0x0800, onScreen);
+                    new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(installedOam.LowTable.SequenceEqual(nativeOam.LowTable) &&
                         installedOam.HighTable.SequenceEqual(nativeOam.HighTable) &&

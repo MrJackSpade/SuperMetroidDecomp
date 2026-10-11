@@ -73,12 +73,12 @@ internal static partial class Program
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(room.Pointer, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(room.Pointer, new(0, 0));
         var level = runtime.LevelData!;
-        for (int y = 0; y < level.HeightInBlocks; y++)
-        for (int x = 0; x < level.WidthInBlocks; x++)
+        for (int y = 0; y < level.Size.Height; y++)
+        for (int x = 0; x < level.Size.Width; x++)
         {
-            int index = level.GetBlockIndex(x, y);
+            int index = level.GetBlockIndex(new(x, y));
             level.SetForegroundEntry(index, y >= 10 ? (ushort)0x8000 : (ushort)0);
             level.SetBehavior(index, 0);
         }

@@ -358,7 +358,7 @@ internal static partial class Program
             var native = new OamBuffer();
             var actual = new OamBuffer();
             DrawImportedProjectileSpritemap(rom, native, pointer, 255, 255);
-            selected.Draw(pointer, actual, 255, 255);
+            selected.Draw(pointer, actual, new(255, 255));
             AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "All417 calculated/remaining identities extract and draw exact native OAM");
         }
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
@@ -370,8 +370,8 @@ internal static partial class Program
         var editedMissile = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var originalMissileOam = new OamBuffer();
         var editedMissileOam = new OamBuffer();
-        selected.Draw(superMissilePointer, originalMissileOam, 255, 255);
-        editedMissile.Draw(superMissilePointer, editedMissileOam, 255, 255);
+        selected.Draw(superMissilePointer, originalMissileOam, new(255, 255));
+        editedMissile.Draw(superMissilePointer, editedMissileOam, new(255, 255));
         byte[] expectedMissileOam = originalMissileOam.LowTable.ToArray();
         expectedMissileOam[4]++;
         AssertTrue(expectedMissileOam.SequenceEqual(editedMissileOam.LowTable) && originalMissileOam.HighTable.SequenceEqual(editedMissileOam.HighTable), "Independent SuperMissile tail edit changes only its emitted X byte");
@@ -383,12 +383,12 @@ internal static partial class Program
         var edited = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var baselineOam = new OamBuffer();
         var editedOam = new OamBuffer();
-        selected.Draw(editedPointer, baselineOam, 255, 255);
-        edited.Draw(editedPointer, editedOam, 255, 255);
+        selected.Draw(editedPointer, baselineOam, new(255, 255));
+        edited.Draw(editedPointer, editedOam, new(255, 255));
         AssertEqual(unchecked((byte)(baselineOam.LowTable[0] + 1)), editedOam.LowTable[0], "Independent composition edit reaches calculated identity");
         document.Frames[editedName][0] = before;
         var ownedOam = new OamBuffer();
-        edited.Draw(editedPointer, ownedOam, 255, 255);
+        edited.Draw(editedPointer, ownedOam, new(255, 255));
         AssertTrue(ownedOam.LowTable.SequenceEqual(editedOam.LowTable), "Loaded composition owns independent edited content");
         const ushort quadPointer = 0xed9e;
         string quadName = ProjectileSpriteDefinitions.Name(quadPointer);
@@ -397,8 +397,8 @@ internal static partial class Program
         var editedQuadCatalog = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var nativeQuad = new OamBuffer();
         var editedQuad = new OamBuffer();
-        selected.Draw(quadPointer, nativeQuad, 255, 255);
-        editedQuadCatalog.Draw(quadPointer, editedQuad, 255, 255);
+        selected.Draw(quadPointer, nativeQuad, new(255, 255));
+        editedQuadCatalog.Draw(quadPointer, editedQuad, new(255, 255));
         byte[] expectedQuad = nativeQuad.LowTable.ToArray();
         expectedQuad[3] ^= 0x40;
         AssertTrue(expectedQuad.AsSpan().SequenceEqual(editedQuad.LowTable) && nativeQuad.HighTable.SequenceEqual(editedQuad.HighTable), "Independent one-quadrant reflection edit changes only its exact emitted OAM attribute bit");
@@ -409,8 +409,8 @@ internal static partial class Program
         var editedWaveCatalog = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var nativeWave = new OamBuffer();
         var editedWave = new OamBuffer();
-        selected.Draw(wavePointer, nativeWave, 255, 255);
-        editedWaveCatalog.Draw(wavePointer, editedWave, 255, 255);
+        selected.Draw(wavePointer, nativeWave, new(255, 255));
+        editedWaveCatalog.Draw(wavePointer, editedWave, new(255, 255));
         byte[] expectedWave = nativeWave.LowTable.ToArray();
         expectedWave[1]++;
         AssertTrue(expectedWave.AsSpan().SequenceEqual(editedWave.LowTable) && nativeWave.HighTable.SequenceEqual(editedWave.HighTable), "Independent diagonal Wave Y edit changes exactly its emitted coordinate and preserves X ninth bit");
@@ -420,7 +420,7 @@ internal static partial class Program
             var native = new OamBuffer();
             var actual = new OamBuffer();
             DrawImportedProjectileSpritemap(rom, native, ChargeFlareSpriteDefinitions.Selectors[selector], 255, 255);
-            flare.Draw(selector, actual, 255, 255);
+            flare.Draw(selector, actual, new(255, 255));
             AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "Existing flare span caller preserves exact extracted OAM");
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");

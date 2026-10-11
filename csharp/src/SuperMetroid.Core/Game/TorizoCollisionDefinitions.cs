@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical component of one Golden Torizo extended frame; not editable art.</summary>
 internal readonly record struct GoldenTorizoCollisionComponent(
-    short X, short Y, ushort HitboxList);
+    Offset16<RoomPixels> Offset, ushort HitboxList);
 
 /// <summary>Native ordered touch/shot rectangle from a bank-$AA hitbox list.</summary>
 internal readonly record struct GoldenTorizoCollisionHitbox(
@@ -49,76 +49,76 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Right-facing hitbox lists follow the left-facing block by this many bytes.</summary>
     internal const ushort RightFacingListOffset = 0x015e;
 
-    private static readonly GoldenTorizoCollisionComponent[] SingleEmpty = [new(0, 0, EmptyList)];
+    private static readonly GoldenTorizoCollisionComponent[] SingleEmpty = [new(new(0, 0), EmptyList)];
 
     /// <summary>The 42 left-facing frames from $AA:A4FA, in native order.</summary>
     private static readonly GoldenTorizoCollisionComponent[][] LeftFrames =
     [
-        [new(-15, -30, 0x87c7), new(-5, -24, 0x8858), new(0, 0, 0x892a), new(-5, -24, 0x88dc)],
-        [new(-15, -30, 0x87c7), new(-5, -25, 0x8858), new(0, 0, 0x884a), new(-5, -25, 0x88cc)],
-        [new(-15, -31, 0x87c7), new(-5, -26, 0x885a), new(0, 0, 0x884a), new(-5, -26, 0x88bc)],
-        [new(-15, -32, 0x87c7), new(-5, -25, 0x886a), new(0, 0, 0x884a), new(-5, -25, 0x88ba)],
-        [new(-15, -32, 0x87c7), new(-5, -24, 0x887a), new(0, 0, 0x884a), new(-5, -24, 0x88ba)],
-        [new(-15, -30, 0x87c7), new(-5, -24, 0x887a), new(0, 0, 0x892a), new(-5, -24, 0x88ba)],
-        [new(-15, -31, 0x87c7), new(-5, -25, 0x886a), new(0, 0, 0x884a), new(-5, -25, 0x88ba)],
-        [new(-15, -31, 0x87c7), new(-5, -26, 0x885a), new(0, 0, 0x884a), new(-5, -26, 0x88bc)],
-        [new(-15, -32, 0x87c7), new(-5, -25, 0x8858), new(0, 0, 0x884a), new(-5, -25, 0x88cc)],
-        [new(-15, -31, 0x87c7), new(-5, -24, 0x8858), new(0, 0, 0x884a), new(-5, -24, 0x88dc)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x885a), new(0, 0, 0x892a)],
-        [new(-9, -31, 0x87c7), new(-4, -25, 0x886a), new(0, 0, 0x892a)],
-        [new(-9, -31, 0x87c7), new(-4, -25, 0x887a), new(0, 0, 0x892a)],
-        [new(-9, -31, 0x87c7), new(-4, -25, 0x888a), new(0, 0, 0x892a)],
-        [new(-4, -25, 0x889a), new(-9, -31, 0x87c7), new(0, 0, 0x892a)],
-        [new(-4, -25, 0x889a), new(-9, -31, 0x87c7), new(0, 0, 0x892a)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x8858), new(0, 0, 0x892a)],
-        [new(-9, -31, 0x87c7), new(-4, -25, 0x886a), new(0, 0, 0x892a)],
-        [new(-9, -31, 0x87c7), new(-4, -25, 0x887a), new(0, 0, 0x892a)],
-        [new(-9, -31, 0x87c7), new(-4, -25, 0x888a), new(0, 0, 0x892a)],
-        [new(-4, -25, 0x889a), new(-9, -31, 0x87c7), new(0, 0, 0x892a)],
-        [new(-4, -25, 0x889a), new(-9, -31, 0x87c7), new(0, 0, 0x892a)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x886a), new(0, 0, 0x892a)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x886a), new(0, 0, 0x892a), new(-4, -25, 0x88dc)],
-        [new(-4, -25, 0x886a), new(-15, -31, 0x87c7), new(0, 0, 0x892a), new(-4, -25, 0x88ec)],
-        [new(-4, -25, 0x886a), new(-15, -31, 0x87c7), new(0, 0, 0x892a), new(-4, -25, 0x88fc)],
-        [new(-4, -25, 0x886a), new(-15, -31, 0x87c7), new(0, 0, 0x892a), new(-4, -25, 0x890c)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x886a), new(0, 0, 0x892a), new(-4, -25, 0x88ba)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x887a), new(0, 0, 0x892a), new(-4, -25, 0x88ba)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x888a), new(0, 0, 0x892a), new(-4, -25, 0x88ba)],
-        [new(-4, -25, 0x889a), new(-15, -31, 0x87c7), new(0, 0, 0x892a), new(-4, -25, 0x88ba)],
-        [new(-4, -25, 0x88aa), new(-15, -31, 0x87c7), new(0, 0, 0x892a), new(-4, -25, 0x88ba)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x886a), new(0, 0, 0x892a)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x887a), new(0, 0, 0x892a)],
-        [new(-4, -25, 0x888a), new(-15, -31, 0x87c7), new(0, 0, 0x892a)],
-        [new(-4, -25, 0x889a), new(-15, -31, 0x87c7), new(0, 0, 0x892a)],
-        [new(-4, -25, 0x88aa), new(-15, -31, 0x87c7), new(0, 0, 0x892a)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x885a), new(0, 0, 0x892a), new(-4, -25, 0x88cc)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x885a), new(0, 0, 0x892a), new(-4, -25, 0x88dc)],
-        [new(-15, -31, 0x87c7), new(-4, -25, 0x885a), new(0, 0, 0x892a), new(-4, -25, 0x88ec)],
-        [new(-4, -25, 0x885a), new(-15, -31, 0x87c7), new(0, 0, 0x892a), new(-4, -25, 0x88fc)],
-        [new(-4, -25, 0x885a), new(-15, -31, 0x87c7), new(0, 0, 0x892a), new(-4, -25, 0x890c)],
+        [new(new(-15, -30), 0x87c7), new(new(-5, -24), 0x8858), new(new(0, 0), 0x892a), new(new(-5, -24), 0x88dc)],
+        [new(new(-15, -30), 0x87c7), new(new(-5, -25), 0x8858), new(new(0, 0), 0x884a), new(new(-5, -25), 0x88cc)],
+        [new(new(-15, -31), 0x87c7), new(new(-5, -26), 0x885a), new(new(0, 0), 0x884a), new(new(-5, -26), 0x88bc)],
+        [new(new(-15, -32), 0x87c7), new(new(-5, -25), 0x886a), new(new(0, 0), 0x884a), new(new(-5, -25), 0x88ba)],
+        [new(new(-15, -32), 0x87c7), new(new(-5, -24), 0x887a), new(new(0, 0), 0x884a), new(new(-5, -24), 0x88ba)],
+        [new(new(-15, -30), 0x87c7), new(new(-5, -24), 0x887a), new(new(0, 0), 0x892a), new(new(-5, -24), 0x88ba)],
+        [new(new(-15, -31), 0x87c7), new(new(-5, -25), 0x886a), new(new(0, 0), 0x884a), new(new(-5, -25), 0x88ba)],
+        [new(new(-15, -31), 0x87c7), new(new(-5, -26), 0x885a), new(new(0, 0), 0x884a), new(new(-5, -26), 0x88bc)],
+        [new(new(-15, -32), 0x87c7), new(new(-5, -25), 0x8858), new(new(0, 0), 0x884a), new(new(-5, -25), 0x88cc)],
+        [new(new(-15, -31), 0x87c7), new(new(-5, -24), 0x8858), new(new(0, 0), 0x884a), new(new(-5, -24), 0x88dc)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x885a), new(new(0, 0), 0x892a)],
+        [new(new(-9, -31), 0x87c7), new(new(-4, -25), 0x886a), new(new(0, 0), 0x892a)],
+        [new(new(-9, -31), 0x87c7), new(new(-4, -25), 0x887a), new(new(0, 0), 0x892a)],
+        [new(new(-9, -31), 0x87c7), new(new(-4, -25), 0x888a), new(new(0, 0), 0x892a)],
+        [new(new(-4, -25), 0x889a), new(new(-9, -31), 0x87c7), new(new(0, 0), 0x892a)],
+        [new(new(-4, -25), 0x889a), new(new(-9, -31), 0x87c7), new(new(0, 0), 0x892a)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x8858), new(new(0, 0), 0x892a)],
+        [new(new(-9, -31), 0x87c7), new(new(-4, -25), 0x886a), new(new(0, 0), 0x892a)],
+        [new(new(-9, -31), 0x87c7), new(new(-4, -25), 0x887a), new(new(0, 0), 0x892a)],
+        [new(new(-9, -31), 0x87c7), new(new(-4, -25), 0x888a), new(new(0, 0), 0x892a)],
+        [new(new(-4, -25), 0x889a), new(new(-9, -31), 0x87c7), new(new(0, 0), 0x892a)],
+        [new(new(-4, -25), 0x889a), new(new(-9, -31), 0x87c7), new(new(0, 0), 0x892a)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x886a), new(new(0, 0), 0x892a)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x886a), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88dc)],
+        [new(new(-4, -25), 0x886a), new(new(-15, -31), 0x87c7), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88ec)],
+        [new(new(-4, -25), 0x886a), new(new(-15, -31), 0x87c7), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88fc)],
+        [new(new(-4, -25), 0x886a), new(new(-15, -31), 0x87c7), new(new(0, 0), 0x892a), new(new(-4, -25), 0x890c)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x886a), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88ba)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x887a), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88ba)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x888a), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88ba)],
+        [new(new(-4, -25), 0x889a), new(new(-15, -31), 0x87c7), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88ba)],
+        [new(new(-4, -25), 0x88aa), new(new(-15, -31), 0x87c7), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88ba)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x886a), new(new(0, 0), 0x892a)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x887a), new(new(0, 0), 0x892a)],
+        [new(new(-4, -25), 0x888a), new(new(-15, -31), 0x87c7), new(new(0, 0), 0x892a)],
+        [new(new(-4, -25), 0x889a), new(new(-15, -31), 0x87c7), new(new(0, 0), 0x892a)],
+        [new(new(-4, -25), 0x88aa), new(new(-15, -31), 0x87c7), new(new(0, 0), 0x892a)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x885a), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88cc)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x885a), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88dc)],
+        [new(new(-15, -31), 0x87c7), new(new(-4, -25), 0x885a), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88ec)],
+        [new(new(-4, -25), 0x885a), new(new(-15, -31), 0x87c7), new(new(0, 0), 0x892a), new(new(-4, -25), 0x88fc)],
+        [new(new(-4, -25), 0x885a), new(new(-15, -31), 0x87c7), new(new(0, 0), 0x892a), new(new(-4, -25), 0x890c)],
     ];
 
     /// <summary>The seven awakening frames from $AA:AA12, in native order.</summary>
     private static readonly GoldenTorizoCollisionComponent[][] AwakeningFrames =
     [
-        [new(0, 0, 0x87e8)],
-        [new(0, 0, 0x87f6)],
-        [new(0, 0, 0x8804)],
-        [new(0, 0, 0x8812)],
-        [new(-5, -24, 0x885a), new(0, 0, 0x8820)],
-        [new(-5, -24, 0x886a), new(0, 0, 0x882e)],
-        [new(-5, -24, 0x886a), new(0, 0, 0x883c)],
+        [new(new(0, 0), 0x87e8)],
+        [new(new(0, 0), 0x87f6)],
+        [new(new(0, 0), 0x8804)],
+        [new(new(0, 0), 0x8812)],
+        [new(new(-5, -24), 0x885a), new(new(0, 0), 0x8820)],
+        [new(new(-5, -24), 0x886a), new(new(0, 0), 0x882e)],
+        [new(new(-5, -24), 0x886a), new(new(0, 0), 0x883c)],
     ];
 
     /// <summary>The six jump-back frames ending the right-facing run (three per facing).</summary>
     private static readonly GoldenTorizoCollisionComponent[][] JumpBackFrames =
     [
-        [new(-16, -29, 0x87c7), new(-4, -22, 0x885a), new(0, 0, 0x891c)],
-        [new(-16, -30, 0x87c7), new(-4, -24, 0x8858), new(0, 0, 0x891c)],
-        [new(-16, -30, 0x87c7), new(-3, -24, 0x8858), new(0, 0, 0x891c)],
-        [new(15, -28, 0x87c7), new(4, -22, 0x89b8), new(0, 0, 0x8a7a)],
-        [new(15, -29, 0x87c7), new(4, -24, 0x89b6), new(0, 0, 0x8a7a)],
-        [new(15, -29, 0x87c7), new(3, -24, 0x89b6), new(0, 0, 0x8a7a)],
+        [new(new(-16, -29), 0x87c7), new(new(-4, -22), 0x885a), new(new(0, 0), 0x891c)],
+        [new(new(-16, -30), 0x87c7), new(new(-4, -24), 0x8858), new(new(0, 0), 0x891c)],
+        [new(new(-16, -30), 0x87c7), new(new(-3, -24), 0x8858), new(new(0, 0), 0x891c)],
+        [new(new(15, -28), 0x87c7), new(new(4, -22), 0x89b8), new(new(0, 0), 0x8a7a)],
+        [new(new(15, -29), 0x87c7), new(new(4, -24), 0x89b6), new(new(0, 0), 0x8a7a)],
+        [new(new(15, -29), 0x87c7), new(new(3, -24), 0x89b6), new(new(0, 0), 0x8a7a)],
     ];
 
     private static int MirroredCount => LeftFrames.Length + AwakeningFrames.Length;
@@ -260,7 +260,7 @@ internal readonly struct TorizoCollisionComponents(GoldenTorizoCollisionComponen
             ushort list = part.HitboxList == TorizoCollisionDefinitions.EmptyList
                 ? TorizoCollisionDefinitions.EmptyList
                 : (ushort)(part.HitboxList + TorizoCollisionDefinitions.RightFacingListOffset);
-            return part with { X = (short)-part.X, HitboxList = list };
+            return part with { Offset = part.Offset.MirroredX(), HitboxList = list };
         }
     }
 

@@ -312,6 +312,73 @@ internal static class DebuggerSpatialFieldMigrations
         Whole<RoomPixels>(typeof(RoomEnemyPopulationRecord).FullName!, BackingField("Position"),
             BackingField("XPosition"), BackingField("YPosition")),
         Radius(typeof(RoomEnemyDefinition).FullName!, BackingField("Radius"), BackingField("XRadius"), BackingField("YRadius")),
+
+        // Enemy family state. Views over common slot words keep their native words and need no
+        // migration; host-stored words and extra-WRAM arrays are rebuilt here.
+        new(typeof(DeadSidehopperEnemyState).FullName!, BackingField("Velocity"),
+            [BackingField("HorizontalVelocity"), BackingField("VerticalVelocity")], Types<ushort>(2), (_, v) => EightEight<RoomPixels>(v)),
+        new(typeof(TorizoEnemyState).FullName!, BackingField("Velocity"),
+            [BackingField("HorizontalVelocity"), BackingField("VerticalVelocity")], Types<ushort>(2), (_, v) => EightEight<RoomPixels>(v)),
+        Whole<RoomPixels>(typeof(MagdolliteEnemyState).FullName!, BackingField("ThrowOrigin"),
+            BackingField("ThrowOriginX"), BackingField("ThrowOriginY")),
+        Whole<RoomPixels>(typeof(NuclearWaffleEnemyState).FullName!, BackingField("Origin"), BackingField("OriginX"), BackingField("OriginY")),
+        Whole<RoomPixels>(typeof(NuclearWaffleEnemyState).FullName!, BackingField("InitialHead"),
+            BackingField("InitialHeadX"), BackingField("InitialHeadY")),
+        Whole<RoomPixels>(typeof(PipeBugEnemyState).FullName!, BackingField("SpawnPosition"), BackingField("SpawnX"), BackingField("SpawnY")),
+        Whole<RoomPixels>(typeof(WreckedShipGhostEnemyState).FullName!, BackingField("PreviousSamusPosition"),
+            BackingField("PreviousSamusX"), BackingField("PreviousSamusY")),
+        Whole<RoomPixels>(typeof(WreckedShipGhostEnemyState).FullName!, BackingField("SamusLowerBound"),
+            BackingField("SamusXLowerBound"), BackingField("SamusYLowerBound")),
+        Whole<RoomPixels>(typeof(WreckedShipGhostEnemyState).FullName!, BackingField("SamusUpperBound"),
+            BackingField("SamusXUpperBound"), BackingField("SamusYUpperBound")),
+        Offset<Bg2Pixels>(typeof(DraygonEnemyState).FullName!, BackingField("BodyGraphicsDisplacement"),
+            BackingField("BodyGraphicsXDisplacement"), BackingField("BodyGraphicsYDisplacement")),
+        // The spiral center never had an X fraction word; the restored X fraction is zero.
+        new(typeof(DraygonEnemyState).FullName!, BackingField("SpiralCenter"),
+            [BackingField("SpiralCenterX"), BackingField("SpiralCenterY"), BackingField("SpiralCenterYSubposition")], Types<ushort>(3),
+            (_, v) => FixedPosition<RoomPixels>.FromWords(Word(v[0]), 0, Word(v[1]), Word(v[2]))),
+        VectorWords(typeof(DraygonEnemyState).FullName!, BackingField("UnusedDeathVelocity"),
+            BackingField("UnusedDeathXSpeed"), BackingField("UnusedDeathXSubspeed"),
+            BackingField("UnusedDeathYSpeed"), BackingField("UnusedDeathYSubspeed")),
+        Whole<Bg2Pixels>(typeof(MotherBrainEnemyState).FullName!, BackingField("Bg2Scroll"),
+            BackingField("Bg2XScroll"), BackingField("Bg2YScroll")),
+        FixedWords<RoomPixels>(typeof(MotherBrainEnemyState).FullName!, BackingField("HandBeamNextPosition"),
+            BackingField("HandBeamNextXPosition"), BackingField("HandBeamNextXSubposition"),
+            BackingField("HandBeamNextYPosition"), BackingField("HandBeamNextYSubposition")),
+        new(typeof(MotherBrainEnemyState).FullName!, BackingField("HandBeamNextVelocity"),
+            [BackingField("HandBeamNextXVelocity"), BackingField("HandBeamNextYVelocity")], Types<ushort>(2),
+            (_, v) => EightEight<RoomPixels>(v)),
+        // Choot and Beetom extra-WRAM words: the enemy system and every family view share one
+        // array, so both owners rebuild the identical typed array (see SharedPositions).
+        SharedPositions(typeof(RoomEnemySystem).FullName!, "_chootSpawnPositions", "_chootSpawnXPositions", "_chootSpawnYPositions"),
+        SharedPositions(typeof(RoomEnemySystem).FullName!, "_chootInitialFallingPositions",
+            "_chootInitialFallingXPositions", "_chootInitialFallingYPositions"),
+        SharedPositions(typeof(RoomEnemySystem).FullName!, "_chootFallingOrigins", "_chootFallingXOrigins", "_chootFallingYOrigins"),
+        SharedPositions(typeof(ChootEnemyState).FullName!, "_spawnPositions", "_spawnXPositions", "_spawnYPositions"),
+        SharedPositions(typeof(ChootEnemyState).FullName!, "_initialFallingPositions", "_initialFallingXPositions", "_initialFallingYPositions"),
+        SharedPositions(typeof(ChootEnemyState).FullName!, "_fallingOrigins", "_fallingXOrigins", "_fallingYOrigins"),
+        SharedOffsets(typeof(RoomEnemySystem).FullName!, "_beetomInitialAttachmentOffsets",
+            "_beetomInitialAttachmentXOffsets", "_beetomInitialAttachmentYOffsets"),
+        SharedOffsets(typeof(BeetomEnemyState).FullName!, "_initialAttachmentOffsets",
+            "_initialAttachmentXOffsets", "_initialAttachmentYOffsets"),
+
+        // Enemy request records retained in the last cutscene/beam step results and request queues.
+        Whole<RoomPixels>(typeof(BabyMetroidDeathExplosionRequest).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("YPosition")),
+        Whole<RoomPixels>(typeof(BabyMetroidReleaseDustRequest).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("YPosition")),
+        Signed<RoomPixels>(typeof(MotherBrainRainbowExplosionRequest).FullName!, BackingField("Offset"),
+            BackingField("XOffset"), BackingField("YOffset")),
+        Signed<RoomPixels>(typeof(MotherBrainDeathExplosionRequest).FullName!, BackingField("Offset"),
+            BackingField("XOffset"), BackingField("YOffset")),
+        Whole<RoomPixels>(typeof(MotherBrainEscapeDoorExplosionRequest).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("YPosition")),
+        BytePair<RoomBlocks>(typeof(MotherBrainEscapeDoorPlmRequest).FullName!, BackingField("Block"),
+            BackingField("BlockX"), BackingField("BlockY")),
+        BytePair<RoomBlocks>(typeof(MotherBrainPlmRequest).FullName!, BackingField("Block"),
+            BackingField("BlockX"), BackingField("BlockY")),
+        Whole<RoomPixels>("SuperMetroid.Core.Game.CeresElevatorArrivalState+CeresElevatorProjectile", BackingField("Position"),
+            BackingField("XPosition"), BackingField("YPosition")),
     ];
 
     private static readonly Dictionary<(string Type, string Field), DebuggerSpatialFieldMigration> ByLegacyField =
@@ -410,6 +477,39 @@ internal static class DebuggerSpatialFieldMigrations
         string x, string xFraction, string y, string yFraction) =>
         new(type, field, [x, xFraction, y, yFraction], Types<ushort>(4),
             (_, v) => FixedVector<RoomPixels>.FromWords(Word(v[0]), Word(v[1]), Word(v[2]), Word(v[3])));
+
+    // A legacy capture restores one shared component array per axis; the enemy system and each
+    // family view reference the same instances. Rebuilding keyed by the restored X array keeps
+    // the typed array shared exactly as the legacy arrays were.
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<ushort[], Array> RebuiltSharedArrays = new();
+
+    private static DebuggerSpatialFieldMigration SharedPositions(string type, string field, string x, string y) =>
+        new(type, field, [x, y], Types<ushort[]>(2),
+            (_, v) => SharedArray(v, (xWord, yWord) => new Position16<RoomPixels>(xWord, yWord)));
+
+    private static DebuggerSpatialFieldMigration SharedOffsets(string type, string field, string x, string y) =>
+        new(type, field, [x, y], Types<ushort[]>(2),
+            (_, v) => SharedArray(v, (xWord, yWord) => new Offset16<RoomPixels>(unchecked((short)xWord), unchecked((short)yWord))));
+
+    private static TValue[] SharedArray<TValue>(object?[] v, Func<ushort, ushort, TValue> rebuild)
+    {
+        ushort[] xs = Words(v[0]);
+        ushort[] ys = Words(v[1]);
+        if (xs.Length != ys.Length)
+            throw new InvalidDataException($"Legacy spatial component arrays have lengths {xs.Length} and {ys.Length}.");
+        Array shared = RebuiltSharedArrays.GetValue(xs, _ =>
+        {
+            var values = new TValue[xs.Length];
+            for (int index = 0; index < values.Length; index++)
+                values[index] = rebuild(xs[index], ys[index]);
+            return values;
+        });
+        return shared as TValue[] ?? throw new InvalidDataException(
+            $"Legacy spatial component array was already rebuilt as {shared.GetType()}, not {typeof(TValue[])}.");
+    }
+
+    private static ushort[] Words(object? value) => value as ushort[] ??
+        throw new InvalidDataException($"Legacy spatial component {value?.GetType().Name ?? "null"} is not a word array.");
 
     private static DebuggerSpatialFieldMigration Radius(string type, string field, string x, string y) =>
         new(type, field, [x, y], Types<ushort>(2), (_, v) => new Extent16<RoomPixels>(Word(v[0]), Word(v[1])));

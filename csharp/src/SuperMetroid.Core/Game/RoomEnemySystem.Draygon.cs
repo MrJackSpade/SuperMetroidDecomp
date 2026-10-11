@@ -880,10 +880,11 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case DraygonInstruction.DraygonBody_DisplaceGraphics:
-                state.BodyGraphicsXDisplacement =
-                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
-                state.BodyGraphicsYDisplacement =
-                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 4)));
+            {
+                ushort xDisplacement = ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
+                ushort yDisplacement = ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 4)));
+                state.BodyGraphicsDisplacement = new(unchecked((short)xDisplacement), unchecked((short)yDisplacement));
+            }
                 cursor = unchecked((ushort)(cursor + 6));
                 return true;
 

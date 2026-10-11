@@ -165,11 +165,9 @@ public sealed partial class RoomEnemySystem
         if (state.DeathExplosionCount >= 10)
             state.DeathExplosionCount = 0;
 
-        RidleyDeathExplosionPlacement placement =
-            RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount);
-        ushort x = unchecked((ushort)(body.Position.X.Whole + placement.XOffset));
-        ushort y = unchecked((ushort)(body.Position.Y.Whole + placement.YOffset));
-        SpawnRidleyDust(x, y, variant: 3);
+        SpawnRidleyDust(
+            body.Position.Whole + RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount),
+            variant: 3);
         state.LastDeathSoundEffect = 0x0024;
     }
 }

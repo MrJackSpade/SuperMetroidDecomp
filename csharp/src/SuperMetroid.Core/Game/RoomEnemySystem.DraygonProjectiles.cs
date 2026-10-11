@@ -26,7 +26,7 @@ public sealed partial class RoomEnemySystem
             turret,
             RoomEnemyProjectileKind.DraygonWallTurret,
             graphicsIndex: EnemyPaletteBits.Palette5);
-        turret.Position = FixedPosition<RoomPixels>.FromWhole(new(target.X, target.Y));
+        turret.Position = FixedPosition<RoomPixels>.FromWhole(target.Origin);
 
         // PlaceAndAim negates the common zero-up angle, then adds $40 before retaining the
         // low byte. ConvertAngleToXy stores unsigned magnitudes; the pre-instruction applies

@@ -13,9 +13,9 @@ internal static partial class Program
         var font = new MenuLargeFontArtwork(image);
         AssertEqual(336, font.StoredFaceByteCount, "one-bit authored silhouettes only");
         AssertEqual(3, font.StoredEditCount, "three independently reviewed T/W/N drawing choices");
-        AssertTrue(font.HasPixelOverride(0x11, 3, 6), "T's wider shadow terminal");
-        AssertTrue(font.HasPixelOverride(0x2f, 4, 7), "W's interrupted interior shadow");
-        AssertTrue(font.HasPixelOverride(0x37, 1, 6), "N's selected lower-left bevel");
+        AssertTrue(font.HasPixelOverride(0x11, new(3, 6)), "T's wider shadow terminal");
+        AssertTrue(font.HasPixelOverride(0x2f, new(4, 7)), "W's interrupted interior shadow");
+        AssertTrue(font.HasPixelOverride(0x37, new(1, 6)), "N's selected lower-left bevel");
         AssertMenuInkRegionEqual(image, 0x37, 0, 3, 0x36, 0, 3, 8, 5, "N/M lower contour");
         AssertMenuInkRegionEqual(image, 0x2f, 0, 6, 0x2f, 0, 7, 8, 1, "W repeated upper ink row");
         AssertMenuInkRegionEqual(image, 0x2f, 0, 6, 0x3f, 0, 0, 8, 2, "W repeated ink across tile boundary");

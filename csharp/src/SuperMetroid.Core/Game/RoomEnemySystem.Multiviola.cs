@@ -13,32 +13,20 @@ public sealed class MultiviolaEnemyState
 
     internal MultiviolaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Native <c>$0FAC,x</c>, whole half of horizontal 16.16 velocity.</summary>
-    public ushort XVelocity
+    /// <summary>
+    /// Signed 16.16 velocity: native <c>$0FAC,x</c>/<c>$0FAE,x</c> hold the horizontal whole and
+    /// fraction words, <c>$0FB0,x</c>/<c>$0FB2,x</c> the vertical ones.
+    /// </summary>
+    public FixedVector<RoomPixels> Velocity
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Native <c>$0FAE,x</c>, fractional half of horizontal velocity.</summary>
-    public ushort XSubvelocity
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
-    }
-
-    /// <summary>Native <c>$0FB0,x</c>, whole half of vertical 16.16 velocity.</summary>
-    public ushort YVelocity
-    {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
-    }
-
-    /// <summary>Native <c>$0FB2,x</c>, fractional half of vertical velocity.</summary>
-    public ushort YSubvelocity
-    {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => FixedVector<RoomPixels>.FromWords(_slot.VariableC, _slot.VariableD, _slot.VariableE, _slot.VariableF);
+        internal set
+        {
+            _slot.VariableC = value.X.WholeWord;
+            _slot.VariableD = value.X.Fraction;
+            _slot.VariableE = value.Y.WholeWord;
+            _slot.VariableF = value.Y.Fraction;
+        }
     }
 }
 
@@ -95,9 +83,7 @@ public sealed partial class RoomEnemySystem
             NativeMultiviolaNegate(ref state, horizontal: true);
         }
 
-        int horizontalDisplacement = JoinMultiviolaVelocity(
-            state.XVelocity,
-            state.XSubvelocity);
+        int horizontalDisplacement = state.Velocity.X.RawValue;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
@@ -113,9 +99,7 @@ public sealed partial class RoomEnemySystem
         if ((unchecked((ushort)(slot.Parameter1 + MultiviolaSineOffset)) & 0x0080) == 0)
             NativeMultiviolaNegate(ref state, horizontal: false);
 
-        int verticalDisplacement = JoinMultiviolaVelocity(
-            state.YVelocity,
-            state.YSubvelocity);
+        int verticalDisplacement = state.Velocity.Y.RawValue;
         if (MoveEnemyVertically(level, slot, verticalDisplacement))
             slot.Parameter1 ^= MultiviolaVerticalReflection;
     }
@@ -137,10 +121,8 @@ public sealed partial class RoomEnemySystem
             slot.Parameter1,
             magnitude,
             MultiviolaSineOffset);
-        state.XVelocity = unchecked((ushort)(xProduct >> 16));
-        state.XSubvelocity = unchecked((ushort)xProduct);
-        state.YVelocity = unchecked((ushort)(yProduct >> 16));
-        state.YSubvelocity = unchecked((ushort)yProduct);
+        state.Velocity = new FixedVector<RoomPixels>(
+            SnesSignedSixteenSixteen.FromRaw(xProduct), SnesSignedSixteenSixteen.FromRaw(yProduct));
     }
 
     /// <summary>
@@ -155,17 +137,16 @@ public sealed partial class RoomEnemySystem
     {
         if (horizontal)
         {
-            state.XVelocity = unchecked((ushort)~state.XVelocity);
-            state.XSubvelocity = unchecked((ushort)(~state.XSubvelocity + 1));
+            state.Velocity = state.Velocity.WithX(NativeMultiviolaNegate(state.Velocity.X));
             return;
         }
 
-        state.YVelocity = unchecked((ushort)~state.YVelocity);
-        state.YSubvelocity = unchecked((ushort)(~state.YSubvelocity + 1));
+        state.Velocity = state.Velocity.WithY(NativeMultiviolaNegate(state.Velocity.Y));
     }
 
-    private static int JoinMultiviolaVelocity(ushort whole, ushort fraction) =>
-        unchecked((whole << 16) | fraction);
+    private static SnesSignedSixteenSixteen NativeMultiviolaNegate(SnesSignedSixteenSixteen axis) =>
+        SnesSignedSixteenSixteen.FromParts(
+            unchecked((short)~axis.WholeWord), unchecked((ushort)(~axis.Fraction + 1)));
 
     private MultiviolaEnemyState RequireMultiviolaState(RoomEnemySlot slot) =>
         _multiviolaStates[slot.SlotIndex] ?? throw new InvalidOperationException(

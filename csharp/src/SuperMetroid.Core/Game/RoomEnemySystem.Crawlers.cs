@@ -32,18 +32,20 @@ public sealed class CrawlerEnemyState
 
     internal CrawlerEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Signed two's-complement 8.8 X motion word, used as the tangent on horizontal surfaces or as the wall-probe direction on vertical surfaces. Native <c>Crawler.XVelocity</c> at $0FA8,x, projected through common variable A.</summary>
-    public ushort XVelocity
+    /// <summary>
+    /// Signed two's-complement 8.8 motion words. On horizontal surfaces X is the tangent and Y
+    /// the floor/ceiling-probe direction; on vertical surfaces Y is the tangent and X the
+    /// wall-probe direction. Native <c>Crawler.XVelocity</c>/<c>YVelocity</c> at $0FA8,x/$0FAA,x,
+    /// projected through common variables A and B.
+    /// </summary>
+    public EightEightVector<RoomPixels> Velocity
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
-
-    /// <summary>Signed two's-complement 8.8 Y motion word, used as the tangent on vertical surfaces or as the floor/ceiling-probe direction on horizontal surfaces. Native <c>Crawler.YVelocity</c> at $0FAA,x, projected through common variable B.</summary>
-    public ushort YVelocity
-    {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => new(new SnesSignedEightEight(_slot.VariableA), new SnesSignedEightEight(_slot.VariableB));
+        internal set
+        {
+            _slot.VariableA = value.X.RawValue;
+            _slot.VariableB = value.Y.RawValue;
+        }
     }
 
     /// <summary>Current bank-$A3 indirect crawling or falling target; animation commands install the surface-specific target. Native <c>Crawler.function</c> at $0FB2,x, projected through common variable F.</summary>
@@ -202,15 +204,14 @@ public sealed partial class RoomEnemySystem
         slot.SpritemapPointer = 0x804d;
         slot.InstructionTimer = 1;
         ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
-        state.XVelocity = velocity;
-        state.YVelocity = velocity;
+        state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
         switch (slot.Properties & 3)
         {
             case 0:
-                state.XVelocity = Negate16(state.XVelocity);
+                state.Velocity = state.Velocity.ReversedX();
                 break;
             case 2:
-                state.YVelocity = Negate16(state.YVelocity);
+                state.Velocity = state.Velocity.ReversedY();
                 break;
         }
     }
@@ -255,23 +256,23 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        int wallProbe = Shift8AddMagnitude(state.XVelocity, 1);
+        int wallProbe = Shift8AddMagnitude(state.Velocity.X.RawValue, 1);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
         {
             state.ConsecutiveTurnCounter = 0;
             AlignEnemyYWithNonSquareSlope(level, slot);
-            int tangent = unchecked((short)state.YVelocity) << 8;
+            int tangent = state.Velocity.Y.SignedRawValue << 8;
             if (MoveEnemyVertically(level, slot, tangent))
             {
-                state.XVelocity = Negate16(state.XVelocity);
+                state.Velocity = state.Velocity.ReversedX();
                 SetHZoomerVerticalInstruction(slot, state);
                 return;
             }
 
             bool samusBelow = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)) >= 0;
-            bool movingDown = unchecked((short)state.YVelocity) >= 0;
+            bool movingDown = state.Velocity.Y.SignedRawValue >= 0;
             if (samusBelow != movingDown)
-                state.YVelocity = Negate16(state.YVelocity);
+                state.Velocity = state.Velocity.ReversedY();
             return;
         }
 
@@ -281,7 +282,7 @@ public sealed partial class RoomEnemySystem
             BeginCrawlerFall(state);
             return;
         }
-        state.YVelocity = Negate16(state.YVelocity);
+        state.Velocity = state.Velocity.ReversedY();
         SetHZoomerVerticalInstruction(slot, state);
     }
 
@@ -292,23 +293,23 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        int surfaceProbe = Shift8AddMagnitude(state.YVelocity, 1);
+        int surfaceProbe = Shift8AddMagnitude(state.Velocity.Y.RawValue, 1);
         if (MoveEnemyVertically(level, slot, surfaceProbe))
         {
             state.ConsecutiveTurnCounter = 0;
             int tangent = GetCrawlerSlopeAdjustedHorizontalDisplacement(slot, state, level);
             if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, tangent))
             {
-                state.YVelocity = Negate16(state.YVelocity);
+                state.Velocity = state.Velocity.ReversedY();
                 SetHZoomerHorizontalInstruction(slot, state);
                 return;
             }
 
             AlignEnemyYWithNonSquareSlope(level, slot);
             bool samusRight = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0;
-            bool movingRight = unchecked((short)state.XVelocity) >= 0;
+            bool movingRight = state.Velocity.X.SignedRawValue >= 0;
             if (samusRight != movingRight)
-                state.XVelocity = Negate16(state.XVelocity);
+                state.Velocity = state.Velocity.ReversedX();
             return;
         }
 
@@ -318,7 +319,7 @@ public sealed partial class RoomEnemySystem
             BeginCrawlerFall(state);
             return;
         }
-        state.XVelocity = Negate16(state.XVelocity);
+        state.Velocity = state.Velocity.ReversedX();
         SetHZoomerHorizontalInstruction(slot, state);
     }
 
@@ -334,7 +335,7 @@ public sealed partial class RoomEnemySystem
         CrawlerEnemyState state) =>
         SetHZoomerInstructionList(
             slot,
-            unchecked((short)state.YVelocity) < 0
+            state.Velocity.Y.SignedRawValue < 0
                 ? CrawlerAnimationDefinitions.InitialInstruction(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideDown)
                 : CrawlerAnimationDefinitions.InitialInstruction(
@@ -345,7 +346,7 @@ public sealed partial class RoomEnemySystem
         CrawlerEnemyState state) =>
         SetHZoomerInstructionList(
             slot,
-            unchecked((short)state.XVelocity) < 0
+            state.Velocity.X.SignedRawValue < 0
                 ? CrawlerAnimationDefinitions.InitialInstruction(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideRight)
                 : CrawlerAnimationDefinitions.InitialInstruction(
@@ -394,17 +395,17 @@ public sealed partial class RoomEnemySystem
         // Native sets the next function but still executes this attached movement
         // call. Falling displacement begins on the following AI frame.
         TriggerCrawlerEarthquakeFall(state);
-        int wallProbe = Shift8AddMagnitude(state.XVelocity, 1);
+        int wallProbe = Shift8AddMagnitude(state.Velocity.X.RawValue, 1);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
         {
             state.ConsecutiveTurnCounter = 0;
             AlignEnemyYWithNonSquareSlope(level, slot);
-            int tangent = unchecked((short)state.YVelocity) << 8;
+            int tangent = state.Velocity.Y.SignedRawValue << 8;
             if (!MoveEnemyVertically(level, slot, tangent))
                 return;
 
             // Inside corner: the wall normal changes from X to Y.
-            state.XVelocity = Negate16(state.XVelocity);
+            state.Velocity = state.Velocity.ReversedX();
             SetCrawlerVerticalSurfaceInstruction(slot, state);
             return;
         }
@@ -418,7 +419,7 @@ public sealed partial class RoomEnemySystem
 
         // Outside corner: reverse the tangent for up to three frames while the instruction
         // list rotates the actor around the exposed block edge.
-        state.YVelocity = Negate16(state.YVelocity);
+        state.Velocity = state.Velocity.ReversedY();
         SetCrawlerVerticalSurfaceInstruction(slot, state);
     }
 
@@ -429,7 +430,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        int surfaceProbe = Shift8AddMagnitude(state.YVelocity, 1);
+        int surfaceProbe = Shift8AddMagnitude(state.Velocity.Y.RawValue, 1);
         if (MoveEnemyVertically(level, slot, surfaceProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -437,7 +438,7 @@ public sealed partial class RoomEnemySystem
             if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, tangent))
             {
                 // Inside corner: the surface normal changes from Y to X.
-                state.YVelocity = Negate16(state.YVelocity);
+                state.Velocity = state.Velocity.ReversedY();
                 SetCrawlerHorizontalSurfaceInstruction(slot, state);
             }
             else
@@ -454,7 +455,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        state.XVelocity = Negate16(state.XVelocity);
+        state.Velocity = state.Velocity.ReversedX();
         SetCrawlerHorizontalSurfaceInstruction(slot, state);
     }
 
@@ -471,8 +472,7 @@ public sealed partial class RoomEnemySystem
             // Parameter $FF is the native "choose default speed after first landing" path.
             if (slot.Parameter1 == 0x00ff)
             {
-                state.XVelocity = 0x0080;
-                state.YVelocity = 0x0080;
+                state.Velocity = new EightEightVector<RoomPixels>(0x0080, 0x0080);
             }
             state.FallingYSubvelocity = 0;
             state.FallingYVelocity = 0;
@@ -505,7 +505,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         CrawlerEnemyState state)
     {
-        CrawlerSurfaceOrientation orientation = (short)state.YVelocity < 0
+        CrawlerSurfaceOrientation orientation = state.Velocity.Y.SignedRawValue < 0
             ? CrawlerSurfaceOrientation.UpsideDown
             : CrawlerSurfaceOrientation.UpsideUp;
         SetCrawlerInstructionFromTable(slot, orientation);
@@ -515,7 +515,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         CrawlerEnemyState state)
     {
-        CrawlerSurfaceOrientation orientation = (short)state.XVelocity < 0
+        CrawlerSurfaceOrientation orientation = state.Velocity.X.SignedRawValue < 0
             ? CrawlerSurfaceOrientation.UpsideRight
             : CrawlerSurfaceOrientation.UpsideLeft;
         SetCrawlerInstructionFromTable(slot, orientation);
@@ -542,11 +542,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         CrawlerEnemyState state,
         RoomLevelData level) =>
-        GetSurfaceSlopeAdjustedHorizontalDisplacement(
-            slot,
-            state.XVelocity,
-            state.YVelocity,
-            level);
+        GetSurfaceSlopeAdjustedHorizontalDisplacement(slot, state.Velocity, level);
 
     /// <summary>
     /// Shared geometry from <c>MoveEnemyRightBy_14_12_ProcessSlopes</c>. Both the common
@@ -554,11 +550,10 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static int GetSurfaceSlopeAdjustedHorizontalDisplacement(
         RoomEnemySlot slot,
-        ushort xVelocity,
-        ushort yVelocity,
+        EightEightVector<RoomPixels> velocity,
         RoomLevelData level)
     {
-        ushort surfaceY = unchecked((short)yVelocity) < 0
+        ushort surfaceY = velocity.Y.SignedRawValue < 0
             ? unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))
             : unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int blockX = slot.Position.X.Whole >> 4;
@@ -570,10 +565,10 @@ public sealed partial class RoomEnemySystem
             int slopeShape = block.Bts.SlopeShape;
             if (block.CollisionType == RoomCollisionType.Slope && slopeShape >= 5)
             {
-                return CrawlerSlopeDefinitions.Scale(xVelocity, slopeShape);
+                return CrawlerSlopeDefinitions.Scale(velocity.X.RawValue, slopeShape);
             }
         }
-        return unchecked((short)xVelocity) << 8;
+        return velocity.X.SignedRawValue << 8;
     }
 
     private CrawlerEnemyState RequireCrawlerState(RoomEnemySlot slot) =>

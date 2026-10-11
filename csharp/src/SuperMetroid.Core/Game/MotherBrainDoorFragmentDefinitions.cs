@@ -2,10 +2,8 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical spawn and signed 8.8 velocity for one exploded escape-door fragment.</summary>
 internal readonly record struct MotherBrainDoorFragmentDefinition(
-    short XOffset,
-    short YOffset,
-    short XVelocity,
-    short YVelocity);
+    Offset16<RoomPixels> Offset,
+    EightEightVector<RoomPixels> Velocity);
 
 /// <summary>Compiled physical definitions for Mother Brain's eight escape-door fragments.</summary>
 internal static class MotherBrainDoorFragmentDefinitions
@@ -28,6 +26,7 @@ internal static class MotherBrainDoorFragmentDefinitions
                 nameof(parameter), parameter, "Mother Brain door fragment parameter must be zero through seven.");
         }
 
-        return new(0, (short)(-0x20 + 8 * parameter), 0x0500, YVelocities[parameter]);
+        return new(new Offset16<RoomPixels>(0, (short)(-0x20 + 8 * parameter)),
+            new EightEightVector<RoomPixels>(0x0500, YVelocities[parameter]));
     }
 }

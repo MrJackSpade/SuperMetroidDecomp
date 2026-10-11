@@ -37,14 +37,12 @@ public sealed class CeresElevatorArrivalState
         // what previously made the level-data concealer teal until touchdown.
         pad = LoadProjectile(
             CeresElevatorArrivalDefinitions.MovingPad,
-            samus.Position.X.Whole,
-            unchecked((ushort)(samus.Position.Y.Whole + CeresElevatorArrivalDefinitions.MovingPadYOffset)));
+            MovingPadUnder(samus));
         pad.WaitTimer = CeresElevatorArrivalDefinitions.MovingPadWaitFrames;
 
         platform = LoadProjectile(
             CeresElevatorArrivalDefinitions.StationaryPlatform,
-            samus.Position.X.Whole,
-            CeresElevatorArrivalDefinitions.StationaryPlatformY);
+            samus.Position.Whole.WithY(CeresElevatorArrivalDefinitions.StationaryPlatformY));
     }
 
     /// <summary>True after both projectiles delete themselves when Samus reaches Y=72.</summary>
@@ -78,8 +76,7 @@ public sealed class CeresElevatorArrivalState
 
                 // `$86:A342` samples the old Samus position for the pad, then increments
                 // Samus. That one-pixel separation is visible throughout the descent.
-                pad.YPosition = unchecked((ushort)(
-                    samus.Position.Y.Whole + CeresElevatorArrivalDefinitions.MovingPadYOffset));
+                pad.Position = pad.Position.WithY(MovingPadUnder(samus).Y);
                 samus.Position += new Offset16<RoomPixels>(0, 1);
                 if ((short)unchecked((ushort)(
                     samus.Position.Y.Whole - CeresElevatorArrivalDefinitions.LandingThresholdY)) >= 0)
@@ -108,23 +105,25 @@ public sealed class CeresElevatorArrivalState
     /// <summary>
     /// Emits the low-priority bank-$8D spritemaps selected by the live instruction lists.
     /// </summary>
-    public void Draw(OamBuffer oam, ushort cameraX, ushort cameraY)
+    public void Draw(OamBuffer oam, Position16<RoomPixels> camera)
     {
         ArgumentNullException.ThrowIfNull(oam);
-        DrawProjectile(pad, oam, cameraX, cameraY);
-        DrawProjectile(platform, oam, cameraX, cameraY);
+        DrawProjectile(pad, oam, camera);
+        DrawProjectile(platform, oam, camera);
     }
+
+    /// <summary>The moving pad's position: Samus's whole position, <c>MovingPadYOffset</c> lower.</summary>
+    private static Position16<RoomPixels> MovingPadUnder(SamusState samus) =>
+        samus.Position.Whole + new Offset16<RoomPixels>(0, (short)CeresElevatorArrivalDefinitions.MovingPadYOffset);
 
     private static CeresElevatorProjectile LoadProjectile(
         CeresElevatorProjectileDefinition definition,
-        ushort xPosition,
-        ushort yPosition)
+        Position16<RoomPixels> position)
     {
         return new CeresElevatorProjectile(
             definition.DefinitionPointer,
             definition.InitialInstruction,
-            xPosition,
-            yPosition,
+            position,
             CeresElevatorArrivalDefinitions.NativeGraphicsIndex);
     }
 
@@ -169,17 +168,15 @@ public sealed class CeresElevatorArrivalState
     private void DrawProjectile(
         CeresElevatorProjectile projectile,
         OamBuffer oam,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         if (!projectile.Active ||
             projectile.SpritemapPointer == CeresElevatorArrivalDefinitions.NoSpritemap)
             return;
 
-        ushort screenX = unchecked((ushort)(projectile.XPosition - cameraX));
-        ushort screenY = unchecked((ushort)(projectile.YPosition - cameraY));
-        if (((screenX + 128) & 0xfe00) != 0 ||
-            ((screenY + 128) & 0xfe00) != 0)
+        Position16<ScreenPixels> screen = projectile.Position.ToScreen(camera);
+        if (((screen.X + 128) & 0xfe00) != 0 ||
+            ((screen.Y + 128) & 0xfe00) != 0)
         {
             return;
         }
@@ -187,11 +184,11 @@ public sealed class CeresElevatorArrivalState
         var installed = projectileSpritemaps ?? throw new InvalidOperationException(
             "Ceres elevator projectiles require installed sprite artwork.");
         oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
-            new Position16<OamPixels>(screenX, screenY),
+            screen.ToOam(),
             new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
             unchecked((byte)projectile.GraphicsIndex),
             clipVerticalWrap: true,
-            originYIsOnScreen: (screenY & 0xff00) == 0);
+            originYIsOnScreen: (screen.Y & 0xff00) == 0);
     }
 
     private sealed class CeresElevatorProjectile
@@ -199,22 +196,20 @@ public sealed class CeresElevatorArrivalState
         public CeresElevatorProjectile(
             ushort definitionPointer,
             ushort instructionPointer,
-            ushort xPosition,
-            ushort yPosition,
+            Position16<RoomPixels> position,
             ushort graphicsIndex)
         {
             DefinitionPointer = definitionPointer;
             InstructionPointer = instructionPointer;
-            XPosition = xPosition;
-            YPosition = yPosition;
+            Position = position;
             GraphicsIndex = graphicsIndex;
         }
 
         public ushort DefinitionPointer { get; }
         public ushort GraphicsIndex { get; }
         public bool Active { get; set; } = true;
-        public ushort XPosition { get; }
-        public ushort YPosition { get; set; }
+        /// <summary>Whole room position; the pre-instruction only rewrites Y.</summary>
+        public Position16<RoomPixels> Position { get; set; }
         public ushort WaitTimer { get; set; }
         public ushort InstructionPointer { get; set; }
         public ushort InstructionTimer { get; set; } = 1;

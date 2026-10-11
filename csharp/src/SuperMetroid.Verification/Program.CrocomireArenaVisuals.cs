@@ -53,11 +53,11 @@ internal static partial class Program
                 edited.GetWord((ushort)CrocomireArenaDraw.CreateInvisibleWall, 2, 7),
                 "Crocomire override edits final wall column");
             VerifyCrocomireVisualDraw(PlmHeaderId.ClearCrocomireBridge,
-                9, 0, 0x0080, 0x0058, edited);
+                new(9, 0), 0x0080, 0x0058, edited);
             VerifyCrocomireVisualDraw(PlmHeaderId.CreateCrocomireInvisibleWall,
-                2, 7, 0x8080, 0x0059, edited);
+                new(2, 7), 0x8080, 0x0059, edited);
             VerifyCrocomireVisualDraw(PlmHeaderId.ClearCrocomireBridge,
-                9, 0, 0x0080, 0x0080, null);
+                new(9, 0), 0x0080, 0x0080, null);
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmCrocomireVisualFiles.Extract(rom, refreshed,
@@ -92,7 +92,7 @@ internal static partial class Program
     }
 
     private static void VerifyCrocomireVisualDraw(PlmHeaderId header,
-        int xOffset, int yOffset, ushort physicalWord, ushort visualWord,
+        Offset16<RoomBlocks> blockOffset, ushort physicalWord, ushort visualWord,
         RoomPlmCrocomireVisualCatalog? visuals)
     {
         const int width = 32;
@@ -107,7 +107,7 @@ internal static partial class Program
             $"Crocomire visual header ${(int)header:X4} allocates");
         var guard = new CrocomireSourceGuard(new TestAddressSpace());
         plms.Step(guard, level, level.CreateBackgroundStreamer(), new(0, 0), 0);
-        int blockIndex = (3 + yOffset) * width + 5 + xOffset;
+        int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,
             $"Crocomire visual header ${(int)header:X4} retains physical block");

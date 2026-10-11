@@ -81,8 +81,7 @@ public sealed class BeetomEnemyState
     private readonly ushort[] _fallingFlags;
     private readonly ushort[] _attachedFlags;
     private readonly ushort[] _directions;
-    private readonly ushort[] _initialAttachmentXOffsets;
-    private readonly ushort[] _initialAttachmentYOffsets;
+    private readonly Offset16<RoomPixels>[] _initialAttachmentOffsets;
 
     internal BeetomEnemyState(
         RoomEnemySlot slot,
@@ -93,8 +92,7 @@ public sealed class BeetomEnemyState
         ushort[] fallingFlags,
         ushort[] attachedFlags,
         ushort[] directions,
-        ushort[] initialAttachmentXOffsets,
-        ushort[] initialAttachmentYOffsets)
+        Offset16<RoomPixels>[] initialAttachmentOffsets)
     {
         _slot = slot;
         _installedInstructionLists = installedInstructionLists;
@@ -104,8 +102,7 @@ public sealed class BeetomEnemyState
         _fallingFlags = fallingFlags;
         _attachedFlags = attachedFlags;
         _directions = directions;
-        _initialAttachmentXOffsets = initialAttachmentXOffsets;
-        _initialAttachmentYOffsets = initialAttachmentYOffsets;
+        _initialAttachmentOffsets = initialAttachmentOffsets;
     }
 
     /// <summary>Native variable B: quadratic-speed record index, converted to a byte offset by multiplying by eight; falling increases it up to $40.</summary>
@@ -132,10 +129,8 @@ public sealed class BeetomEnemyState
     public bool AttachedToSamus { get => _attachedFlags[_slot.SlotIndex] != 0; internal set => _attachedFlags[_slot.SlotIndex] = value ? (ushort)1 : (ushort)0; }
     /// <summary>Native $7E:7812,x direction word: zero left-facing, one right-facing; collision toggles it, while the flung state moves opposite this facing.</summary>
     public ushort Direction { get => _directions[_slot.SlotIndex]; internal set => _directions[_slot.SlotIndex] = value; }
-    /// <summary>Native $7E:780C,x signed room-pixel Samus-minus-Beetom X captured on initial attachment; retained although following snaps directly to Samus.</summary>
-    public ushort InitialAttachmentXOffset { get => _initialAttachmentXOffsets[_slot.SlotIndex]; internal set => _initialAttachmentXOffsets[_slot.SlotIndex] = value; }
-    /// <summary>Native $7E:780E,x signed room-pixel Samus-minus-Beetom Y captured on initial attachment; retained although following uses Samus Y minus four.</summary>
-    public ushort InitialAttachmentYOffset { get => _initialAttachmentYOffsets[_slot.SlotIndex]; internal set => _initialAttachmentYOffsets[_slot.SlotIndex] = value; }
+    /// <summary>Native $7E:780C,x/$780E,x signed room-pixel Samus-minus-Beetom offset captured on initial attachment; retained although following snaps X directly to Samus and uses Samus Y minus four.</summary>
+    public Offset16<RoomPixels> InitialAttachmentOffset { get => _initialAttachmentOffsets[_slot.SlotIndex]; internal set => _initialAttachmentOffsets[_slot.SlotIndex] = value; }
 }
 
 /// <summary>Literal translation of Beetom enemy <c>$E87F</c> at <c>$A8:B696-$BED2</c>.</summary>
@@ -174,8 +169,7 @@ public sealed partial class RoomEnemySystem
     private readonly ushort[] _beetomFallingFlags = new ushort[MaximumEnemyCount];
     private readonly ushort[] _beetomAttachedToSamusFlags = new ushort[MaximumEnemyCount];
     private readonly ushort[] _beetomDirections = new ushort[MaximumEnemyCount];
-    private readonly ushort[] _beetomInitialAttachmentXOffsets = new ushort[MaximumEnemyCount];
-    private readonly ushort[] _beetomInitialAttachmentYOffsets = new ushort[MaximumEnemyCount];
+    private readonly Offset16<RoomPixels>[] _beetomInitialAttachmentOffsets = new Offset16<RoomPixels>[MaximumEnemyCount];
     private readonly BeetomEnemyState?[] _beetomStates = new BeetomEnemyState?[MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
@@ -193,8 +187,7 @@ public sealed partial class RoomEnemySystem
             _beetomFallingFlags,
             _beetomAttachedToSamusFlags,
             _beetomDirections,
-            _beetomInitialAttachmentXOffsets,
-            _beetomInitialAttachmentYOffsets);
+            _beetomInitialAttachmentOffsets);
         _beetomStates[slot.SlotIndex] = state;
 
         state.FunctionTimer = 0;
@@ -609,8 +602,7 @@ public sealed partial class RoomEnemySystem
             state.AttachedToSamus = true;
             state.ButtonCounter = BeetomMashCount;
             slot.Layer = 2;
-            state.InitialAttachmentXOffset = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
-            state.InitialAttachmentYOffset = unchecked((ushort)(samus.Position.Y.Whole - slot.Position.Y.Whole));
+            state.InitialAttachmentOffset = samus.Position.Whole - slot.Position.Whole;
         }
 
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)

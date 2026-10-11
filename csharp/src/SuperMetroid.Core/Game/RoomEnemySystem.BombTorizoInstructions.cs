@@ -251,7 +251,7 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_GotoY_IfRising:
-                cursor = unchecked((short)state.VerticalVelocity) < 0
+                cursor = state.Velocity.Y.SignedRawValue < 0
                     ? ReadOperand0()
                     : unchecked((ushort)(cursor + 4));
                 return true;
@@ -595,8 +595,8 @@ public sealed partial class RoomEnemySystem
         ushort cursor,
         ushort tableOffset)
     {
-        state.HorizontalVelocity = GoldenTorizoWalkDefinitions.Velocity(tableOffset);
-        int displacement = unchecked((short)state.HorizontalVelocity) << 16;
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(GoldenTorizoWalkDefinitions.Velocity(tableOffset)));
+        int displacement = state.Velocity.X.SignedRawValue << 16;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.AirTransitionTimer = 0;
@@ -618,10 +618,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot torizo,
         TorizoEnemyState state)
     {
-        state.HorizontalVelocity = (torizo.Parameter1 & 0x8000) != 0
-            ? (ushort)512
-            : unchecked((ushort)-512);
-        state.VerticalVelocity = unchecked((ushort)-1472);
+        state.Velocity = new EightEightVector<RoomPixels>(
+            (torizo.Parameter1 & 0x8000) != 0 ? (short)512 : (short)-512, -1472);
         state.VerticalAcceleration = 40;
         torizo.InstructionTimer = 1;
     }
@@ -630,10 +628,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot torizo,
         TorizoEnemyState state)
     {
-        state.HorizontalVelocity = (torizo.Parameter1 & 0x8000) != 0
-            ? unchecked((ushort)-768)
-            : (ushort)768;
-        state.VerticalVelocity = unchecked((ushort)-1152);
+        state.Velocity = new EightEightVector<RoomPixels>(
+            (torizo.Parameter1 & 0x8000) != 0 ? (short)-768 : (short)768, -1152);
         state.VerticalAcceleration = 40;
         torizo.InstructionTimer = 1;
     }
@@ -665,8 +661,8 @@ public sealed partial class RoomEnemySystem
         ushort collisionFacingRight,
         ushort collisionFacingLeft)
     {
-        state.HorizontalVelocity = BombTorizoMovementDefinitions.WalkVelocity(tableOffset);
-        int displacement = unchecked((short)state.HorizontalVelocity) << 16;
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(BombTorizoMovementDefinitions.WalkVelocity(tableOffset)));
+        int displacement = state.Velocity.X.SignedRawValue << 16;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.AirTransitionTimer = 0;
@@ -714,10 +710,8 @@ public sealed partial class RoomEnemySystem
 
         // $AA:C22D launches away from the currently faced direction at 3 px/frame and
         // starts with -4.5 px/frame vertical speed, adding 40/256 px/frame each tick.
-        state.HorizontalVelocity = (torizo.Parameter1 & 0x8000) != 0
-            ? unchecked((ushort)-768)
-            : (ushort)768;
-        state.VerticalVelocity = unchecked((ushort)-1152);
+        state.Velocity = new EightEightVector<RoomPixels>(
+            (torizo.Parameter1 & 0x8000) != 0 ? (short)-768 : (short)768, -1152);
         state.VerticalAcceleration = 40;
         torizo.InstructionTimer = 1;
         return target;

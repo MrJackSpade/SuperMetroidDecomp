@@ -24,7 +24,7 @@ internal static partial class Program
             BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,
             BodyStumbleRequested: false, LatchSoundQueued: false, ReleaseDustClouds: [],
             AmbientCrySoundQueued: false,
-            DeathExplosion: new BabyMetroidDeathExplosionRequest(0x0080, 0x0080, 3, 0x0013),
+            DeathExplosion: new BabyMetroidDeathExplosionRequest(new(0x0080, 0x0080), 3, 0x0013),
             BabyPaletteTransfer: null, AttackTileTransfer: null, BackgroundPaletteTransfer: null);
 
         typeof(RoomEnemySystem).GetMethod("ApplyBabyMetroidFrameEffects", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -39,7 +39,7 @@ internal static partial class Program
             DeathExplosions = [], CorpseRottingVramTransfers = [], EscapeSequenceTileTransfers = [],
             EscapePaletteFxRequests = [], EscapeDoorParticleSpawns = [],
             CorpseDustRequests = [new MotherBrainCorpseDustRequest(0x0080, 0x0080, 0x000a, SoundEffectQueued: true, SoundEffect: 0x0010)],
-            EscapeDoorExplosion = new MotherBrainEscapeDoorExplosionRequest(0x0080, 0x0080, 0x0003, 0x0024),
+            EscapeDoorExplosion = new MotherBrainEscapeDoorExplosionRequest(new(0x0080, 0x0080), 0x0003, 0x0024),
         };
         state.LastSoundEffectLibrary3 = null;
         typeof(RoomEnemySystem).GetMethod("ApplyLiveMotherBrainDeath", BindingFlags.Instance | BindingFlags.NonPublic)!

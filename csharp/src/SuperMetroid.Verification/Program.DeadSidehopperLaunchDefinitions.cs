@@ -28,7 +28,7 @@ internal static partial class Program
                 state.StateTimer = (ushort)raw;
                 state.PaletteStage = paletteStage;
                 state.JumpPhase = phase;
-                state.VerticalVelocity = state.HorizontalVelocity = 0x1234;
+                state.Velocity = new EightEightVector<RoomPixels>(0x1234, 0x1234);
                 slot.CurrentInstruction = 0x5678;
                 slot.InstructionTimer = 9;
                 slot.Timer = 17;
@@ -37,8 +37,8 @@ internal static partial class Program
                 bool expired = (timer & 0x8000) != 0;
                 bool launch = expired && paletteStage == 0;
                 AssertEqual(timer, state.StateTimer, "Exact native delay decrement and wrap");
-                AssertEqual(launch ? vx : (ushort)0x1234, state.HorizontalVelocity, "Timer and palette gates control X launch");
-                AssertEqual(launch ? vy : (ushort)0x1234, state.VerticalVelocity, "Timer and palette gates control Y launch");
+                AssertEqual(launch ? vx : (ushort)0x1234, state.Velocity.X.RawValue, "Timer and palette gates control X launch");
+                AssertEqual(launch ? vy : (ushort)0x1234, state.Velocity.Y.RawValue, "Timer and palette gates control Y launch");
                 AssertEqual(expired ? (launch ? DeadSidehopperAiFunction.ActivatedMovement : DeadSidehopperAiFunction.TransformPalette) : DeadSidehopperAiFunction.PostLandingDelay,
                     state.Function, "Exact launch versus transformation handoff");
                 AssertEqual(launch ? (ushort)0xece3 : (ushort)0x5678, slot.CurrentInstruction, "Launch restarts native instruction list");

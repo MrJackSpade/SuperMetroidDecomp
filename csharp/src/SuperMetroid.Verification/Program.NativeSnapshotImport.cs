@@ -277,7 +277,7 @@ internal static partial class Program
                 typeof(RoomEnemySlot).GetProperty("Variable" + (char)('A' + word))!.SetValue(slot, W(address + 48 + word * 2));
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
             {
-                pipe.SpawnX = slot.VariableB; pipe.SpawnY = slot.VariableC;
+                pipe.SpawnPosition = new(slot.VariableB, slot.VariableC);
                 pipe.DelayOrCounter = slot.VariableD;
                 pipe.AnimationState = (PipeBugAnimationSelector)slot.VariableE;
                 pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * 64);

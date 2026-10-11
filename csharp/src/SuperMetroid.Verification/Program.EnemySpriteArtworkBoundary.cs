@@ -29,7 +29,7 @@ internal static partial class Program
         {
             var expected = new OamBuffer(); var actual = new OamBuffer();
             DrawImportedEnemySpritemap(source, expected, frame.Bank, frame.Pointer,
-                x, y, 0x0a00, 0x01ff, clip, (y & 0xff00) == 0);
+                new(x, y), 0x0a00, 0x01ff, clip, (y & 0xff00) == 0);
             drawEnemy.Invoke(enemies, [actual, frame.Bank, frame.Pointer, new Position16<OamPixels>(x, y), (ushort)0x0a00, (ushort)0x01ff, clip, (y & 0xff00) == 0]);
             Equal(expected, actual, $"enemy {frame.Name}");
             enemyCases++;
@@ -42,7 +42,7 @@ internal static partial class Program
             sprite.GraphicsIndex = 0x0a04;
             actual = new OamBuffer(); expected = new OamBuffer();
             drawSpriteObjects.Invoke(enemies, [actual, Position16<RoomPixels>.Zero]);
-            DrawImportedEnemySpritemap(source, expected, frame.Bank, frame.Pointer, x, y, 0x0a00, 4);
+            DrawImportedEnemySpritemap(source, expected, frame.Bank, frame.Pointer, new(x, y), 0x0a00, 4);
             Equal(expected, actual, $"room sprite object {frame.Name}");
             sprite.Clear();
             spriteObjectCases++;
@@ -60,7 +60,7 @@ internal static partial class Program
             roomSlot.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
             roomSlot.Position = roomSlot.Position.WithWhole(new(x, y)); roomSlot.GraphicsIndex = 0x0a04;
             var expected = new OamBuffer(); var actual = new OamBuffer();
-            DrawImportedEnemyProjectileSpritemap(source, expected, pointer, x, y, 0x0a04, (y & 0xff00) == 0);
+            DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(x, y), 0x0a04, (y & 0xff00) == 0);
             drawProjectile.Invoke(enemies, [actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false]);
             Equal(expected, actual, $"room projectile {frame.Name}");
 
@@ -77,7 +77,7 @@ internal static partial class Program
             roomSlot.GraphicsIndex = 0x0a04; roomSlot.SpritemapPointer = pointer;
             var actual = new OamBuffer(); var expected = new OamBuffer();
             drawProjectile.Invoke(enemies, [actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false]);
-            DrawImportedEnemyProjectileSpritemap(source, expected, pointer, 128, 96, 0x0a04, true);
+            DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(128, 96), 0x0a04, true);
             Equal(expected, actual, $"direct projectile {name}");
         }
         roomSlot.Clear();
@@ -86,14 +86,14 @@ internal static partial class Program
         var elevator = new CeresElevatorArrivalState(memory, samus, projectileArtwork);
         elevator.Step(samus);
         var elevatorActual = new OamBuffer(); var elevatorExpected = new OamBuffer();
-        elevator.Draw(elevatorActual, 0, 0);
+        elevator.Draw(elevatorActual, Position16<RoomPixels>.Zero);
         foreach (string name in new[] { "pad", "platform" })
         {
             object actor = typeof(CeresElevatorArrivalState).GetField(name, flags)!.GetValue(elevator)!;
             ushort Read(string property) => (ushort)actor.GetType().GetProperty(property)!.GetValue(actor)!;
-            ushort y = Read("YPosition");
+            var position = (Position16<RoomPixels>)actor.GetType().GetProperty("Position")!.GetValue(actor)!;
             DrawImportedEnemyProjectileSpritemap(source, elevatorExpected, Read("SpritemapPointer"),
-                Read("XPosition"), y, Read("GraphicsIndex"), (y & 0xff00) == 0);
+                position.ToScreen(Position16<RoomPixels>.Zero).ToOam(), Read("GraphicsIndex"), (position.Y & 0xff00) == 0);
         }
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 

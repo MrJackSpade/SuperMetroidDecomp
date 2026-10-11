@@ -289,14 +289,8 @@ public sealed partial class RoomEnemySystem
                 // $84 allocator searches the same descending pool for each call.
                 SpawnRoomGraphicsDustExplosion(new(248, 72), animationIndex: 9);
                 SpawnRoomGraphicsDustExplosion(new(248, 152), animationIndex: 9);
-                state.RequestPlm(
-                    blockX: 15,
-                    blockY: 4,
-                    header: PlmHeaderId.FillMotherBrainsWall);
-                state.RequestPlm(
-                    blockX: 15,
-                    blockY: 9,
-                    header: PlmHeaderId.FillMotherBrainsWall);
+                state.RequestPlm(new(15, 4), PlmHeaderId.FillMotherBrainsWall);
+                state.RequestPlm(new(15, 9), PlmHeaderId.FillMotherBrainsWall);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
             }
         }
@@ -605,71 +599,71 @@ public sealed partial class RoomEnemySystem
             // motion and are occasionally opposite the literal signed Y operand. These
             // cases preserve the actual additions performed by `$9579`, not the labels.
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1:
-                MoveMotherBrainBody(1, -2);
+                MoveMotherBrainBody(new(1, -2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyRightBy2:
-                MoveMotherBrainBody(2, 0);
+                MoveMotherBrainBody(new(2, 0));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy1:
-                MoveMotherBrainBody(0, 1);
+                MoveMotherBrainBody(new(0, 1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep:
                 RunMotherBrainFootstep();
-                MoveMotherBrainBody(3, 1);
+                MoveMotherBrainBody(new(3, 1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy2_RightBy15:
-                MoveMotherBrainBody(15, -2);
+                MoveMotherBrainBody(new(15, -2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy4_RightBy6:
-                MoveMotherBrainBody(6, -4);
+                MoveMotherBrainBody(new(6, -4));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy4_LeftBy2:
-                MoveMotherBrainBody(-2, 4);
+                MoveMotherBrainBody(new(-2, 4));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep:
                 RunMotherBrainFootstep();
-                MoveMotherBrainBody(-1, 2);
+                MoveMotherBrainBody(new(-1, 2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d:
                 RunMotherBrainFootstep();
-                MoveMotherBrainBody(-1, 2);
+                MoveMotherBrainBody(new(-1, 2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyLeftBy2:
-                MoveMotherBrainBody(-2, 0);
+                MoveMotherBrainBody(new(-2, 0));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy1:
-                MoveMotherBrainBody(0, -1);
+                MoveMotherBrainBody(new(0, -1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy1_LeftBy3:
-                MoveMotherBrainBody(-3, -1);
+                MoveMotherBrainBody(new(-3, -1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep:
                 RunMotherBrainFootstep();
-                MoveMotherBrainBody(-15, 2);
+                MoveMotherBrainBody(new(-15, 2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy4_LeftBy6:
-                MoveMotherBrainBody(-6, 4);
+                MoveMotherBrainBody(new(-6, 4));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy4_RightBy2:
-                MoveMotherBrainBody(2, -4);
+                MoveMotherBrainBody(new(2, -4));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy2_RightBy1:
-                MoveMotherBrainBody(1, -2);
+                MoveMotherBrainBody(new(1, -2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 

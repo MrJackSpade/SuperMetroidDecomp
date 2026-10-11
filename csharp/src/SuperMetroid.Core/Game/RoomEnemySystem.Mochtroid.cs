@@ -29,32 +29,20 @@ public sealed class MochtroidEnemyState
 
     internal MochtroidEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Gets the fractional word of the signed horizontal 16.16 velocity.</summary>
-    public ushort XSubvelocity
+    /// <summary>
+    /// Signed 16.16 velocity: X fraction and whole words in variables A and B, Y fraction and
+    /// whole words in variables C and D.
+    /// </summary>
+    public FixedVector<RoomPixels> Velocity
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
-
-    /// <summary>Gets the signed whole-pixel word of the horizontal 16.16 velocity.</summary>
-    public short XVelocity
-    {
-        get => unchecked((short)_slot.VariableB);
-        internal set => _slot.VariableB = unchecked((ushort)value);
-    }
-
-    /// <summary>Gets the fractional word of the signed vertical 16.16 velocity.</summary>
-    public ushort YSubvelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Gets the signed whole-pixel word of the vertical 16.16 velocity.</summary>
-    public short YVelocity
-    {
-        get => unchecked((short)_slot.VariableD);
-        internal set => _slot.VariableD = unchecked((ushort)value);
+        get => FixedVector<RoomPixels>.FromWords(_slot.VariableB, _slot.VariableA, _slot.VariableD, _slot.VariableC);
+        internal set
+        {
+            _slot.VariableA = value.X.Fraction;
+            _slot.VariableB = value.X.WholeWord;
+            _slot.VariableC = value.Y.Fraction;
+            _slot.VariableD = value.Y.WholeWord;
+        }
     }
 
     /// <summary>Variable E; used only by the shipped-but-unreferenced shake mode.</summary>
@@ -76,12 +64,6 @@ public sealed class MochtroidEnemyState
 
     /// <summary>$7E:8800 parallel word; contact damage occurs when this reaches 80.</summary>
     public ushort AttachmentDamageTimer { get; internal set; }
-
-    /// <summary>Gets the combined signed horizontal velocity in 16.16 fixed-point units.</summary>
-    public int SignedXVelocity => unchecked((XVelocity << 16) | XSubvelocity);
-
-    /// <summary>Gets the combined signed vertical velocity in 16.16 fixed-point units.</summary>
-    public int SignedYVelocity => unchecked((YVelocity << 16) | YSubvelocity);
 }
 
 /// <summary>
@@ -158,7 +140,7 @@ public sealed partial class RoomEnemySystem
         // This is a proportional attraction toward Samus—not a fixed-speed seek—and the
         // accumulated fraction is observable before either whole component reaches ±3.
         int yDifference = unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole));
-        int yVelocity = unchecked(state.SignedYVelocity - ((yDifference >> 2) << 8));
+        int yVelocity = unchecked(state.Velocity.Y.RawValue - ((yDifference >> 2) << 8));
         yVelocity = ClampMochtroidVelocity(yVelocity);
         StoreMochtroidYVelocity(state, yVelocity);
         if (MoveEnemyVertically(level, slot, yVelocity))
@@ -167,7 +149,7 @@ public sealed partial class RoomEnemySystem
         // Y is intentionally resolved first. Horizontal collision therefore sees the
         // vertically adjusted position, matching $A3:A80D followed by $A3:A87C.
         int xDifference = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
-        int xVelocity = unchecked(state.SignedXVelocity - ((xDifference >> 2) << 8));
+        int xVelocity = unchecked(state.Velocity.X.RawValue - ((xDifference >> 2) << 8));
         xVelocity = ClampMochtroidVelocity(xVelocity);
         StoreMochtroidXVelocity(state, xVelocity);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
@@ -229,14 +211,12 @@ public sealed partial class RoomEnemySystem
 
     private static void StoreMochtroidXVelocity(MochtroidEnemyState state, int velocity)
     {
-        state.XVelocity = unchecked((short)(velocity >> 16));
-        state.XSubvelocity = unchecked((ushort)velocity);
+        state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromRaw(velocity));
     }
 
     private static void StoreMochtroidYVelocity(MochtroidEnemyState state, int velocity)
     {
-        state.YVelocity = unchecked((short)(velocity >> 16));
-        state.YSubvelocity = unchecked((ushort)velocity);
+        state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromRaw(velocity));
     }
 
     private static void SetMochtroidInstructionList(

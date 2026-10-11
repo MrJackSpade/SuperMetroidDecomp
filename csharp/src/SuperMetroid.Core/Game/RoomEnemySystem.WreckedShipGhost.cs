@@ -68,29 +68,24 @@ public sealed class WreckedShipGhostEnemyState
     public ushort VerticalVelocityWhole { get; internal set; }
 
     /// <summary>
-    /// Extended word $05: horizontal movement class: 0 left, 4 stationary, or 8 right.
-    /// These values are byte offsets used by the native nine-entry spawn-offset table.
+    /// Extended word $05: Samus's horizontal movement class as the spawn-offset table's column
+    /// byte offset: 0 left, 4 stationary, or 8 right. Added to <see cref="SpawnRowOffset"/> it
+    /// indexes the native nine-entry spawn-offset table; it is a table offset, not a coordinate.
     /// </summary>
-    public ushort HorizontalMovementClass { get; internal set; }
-
-    /// <summary>Extended words $06-$08: previous Samus X and its asymmetric ±1 bounds.</summary>
-    public ushort PreviousSamusX { get; internal set; }
-    /// <summary>Gets the inclusive lower horizontal bound used by the nearly-still test.</summary>
-    public ushort SamusXLowerBound { get; internal set; }
-    /// <summary>Gets the exclusive upper horizontal bound used by the nearly-still test.</summary>
-    public ushort SamusXUpperBound { get; internal set; }
+    public ushort SpawnColumnOffset { get; internal set; }
 
     /// <summary>
-    /// Extended word $09: vertical movement class: 0 up, 12 stationary, or 24 down.
+    /// Extended word $09: Samus's vertical movement class as the spawn-offset table's row byte
+    /// offset: 0 up, 12 stationary, or 24 down.
     /// </summary>
-    public ushort VerticalMovementClass { get; internal set; }
+    public ushort SpawnRowOffset { get; internal set; }
 
-    /// <summary>Extended words $0A-$0C: previous Samus Y and its asymmetric ±1 bounds.</summary>
-    public ushort PreviousSamusY { get; internal set; }
-    /// <summary>Gets the inclusive lower vertical bound used by the nearly-still test.</summary>
-    public ushort SamusYLowerBound { get; internal set; }
-    /// <summary>Gets the exclusive upper vertical bound used by the nearly-still test.</summary>
-    public ushort SamusYUpperBound { get; internal set; }
+    /// <summary>Extended words $06/$0A: Samus's previous whole-pixel position.</summary>
+    public Position16<RoomPixels> PreviousSamusPosition { get; internal set; }
+    /// <summary>Extended words $07/$0B: the inclusive lower corner of the nearly-still box (previous position -1).</summary>
+    public Position16<RoomPixels> SamusLowerBound { get; internal set; }
+    /// <summary>Extended words $08/$0C: the exclusive upper corner of the nearly-still box (previous position +1).</summary>
+    public Position16<RoomPixels> SamusUpperBound { get; internal set; }
 
     /// <summary>Extended word $0D: 64-frame timer while Samus remains nearly still.</summary>
     public ushort StablePositionTimer { get; internal set; }
@@ -221,6 +216,9 @@ public sealed partial class RoomEnemySystem
         state.Function = WreckedShipGhostAiFunction.TrackingSamusForSpawn;
     }
 
+    /// <summary>The one-pixel margin of the nearly-still box on each axis.</summary>
+    private static readonly Offset16<RoomPixels> WreckedShipGhostStillMargin = new(1, 1);
+
     /// <summary>
     /// Ports $A8:9D36. The one-pixel upper bound is exclusive in retail; this asymmetric
     /// comparison is deliberately not replaced by an absolute-distance convenience test.
@@ -230,14 +228,15 @@ public sealed partial class RoomEnemySystem
         WreckedShipGhostEnemyState state,
         SamusState samus)
     {
-        ushort samusX = samus.Position.X.Whole;
-        ushort samusY = samus.Position.Y.Whole;
+        Position16<RoomPixels> samusPosition = samus.Position.Whole;
+        Offset16<RoomPixels> fromLower = samusPosition - state.SamusLowerBound;
+        Offset16<RoomPixels> fromUpper = samusPosition - state.SamusUpperBound;
 
         bool withinPreviousBox =
-            unchecked((short)(samusX - state.SamusXLowerBound)) >= 0 &&
-            unchecked((short)(samusX - state.SamusXUpperBound)) < 0 &&
-            unchecked((short)(samusY - state.SamusYLowerBound)) >= 0 &&
-            unchecked((short)(samusY - state.SamusYUpperBound)) < 0;
+            fromLower.X >= 0 &&
+            fromUpper.X < 0 &&
+            fromLower.Y >= 0 &&
+            fromUpper.Y < 0;
 
         if (withinPreviousBox)
         {
@@ -246,39 +245,40 @@ public sealed partial class RoomEnemySystem
             {
                 // Remaining inside the tiny box for 64 frames means "stationary" on both
                 // axes and therefore selects the central spawn offset.
-                state.HorizontalMovementClass = 4;
-                state.VerticalMovementClass = 12;
-                SpawnWreckedShipGhost(slot, state, samusX, samusY);
+                state.SpawnColumnOffset = 4;
+                state.SpawnRowOffset = 12;
+                SpawnWreckedShipGhost(slot, state, samusPosition);
                 return;
             }
         }
         else
         {
             state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
-            ushort horizontalClass = unchecked((short)(samusX - state.PreviousSamusX)) switch
+            Offset16<RoomPixels> motion = samusPosition - state.PreviousSamusPosition;
+            ushort horizontalClass = motion.X switch
             {
                 < 0 => 0,
                 0 => 4,
                 _ => 8,
             };
 
-            if (horizontalClass != state.HorizontalMovementClass)
+            if (horizontalClass != state.SpawnColumnOffset)
             {
-                state.HorizontalMovementClass = horizontalClass;
+                state.SpawnColumnOffset = horizontalClass;
                 state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
             }
             else
             {
-                ushort verticalClass = unchecked((short)(samusY - state.PreviousSamusY)) switch
+                ushort verticalClass = motion.Y switch
                 {
                     < 0 => 0,
                     0 => 12,
                     _ => 24,
                 };
 
-                if (verticalClass != state.VerticalMovementClass)
+                if (verticalClass != state.SpawnRowOffset)
                 {
-                    state.VerticalMovementClass = verticalClass;
+                    state.SpawnRowOffset = verticalClass;
                     state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
                 }
                 else
@@ -286,7 +286,7 @@ public sealed partial class RoomEnemySystem
                     state.StableDirectionTimer = unchecked((ushort)(state.StableDirectionTimer - 1));
                     if (state.StableDirectionTimer == 0)
                     {
-                        SpawnWreckedShipGhost(slot, state, samusX, samusY);
+                        SpawnWreckedShipGhost(slot, state, samusPosition);
                         return;
                     }
                 }
@@ -295,31 +295,27 @@ public sealed partial class RoomEnemySystem
 
         // The native tracker publishes a fresh asymmetric [position-1, position+1) box at
         // the end of every non-spawning frame.
-        state.PreviousSamusX = samusX;
-        state.SamusXLowerBound = unchecked((ushort)(samusX - 1));
-        state.SamusXUpperBound = unchecked((ushort)(samusX + 1));
-        state.PreviousSamusY = samusY;
-        state.SamusYLowerBound = unchecked((ushort)(samusY - 1));
-        state.SamusYUpperBound = unchecked((ushort)(samusY + 1));
+        state.PreviousSamusPosition = samusPosition;
+        state.SamusLowerBound = samusPosition - WreckedShipGhostStillMargin;
+        state.SamusUpperBound = samusPosition + WreckedShipGhostStillMargin;
     }
 
     /// <summary>Installs the direction-selected relative position and begins $A8:9B42.</summary>
     private static void SpawnWreckedShipGhost(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state,
-        ushort samusX,
-        ushort samusY)
+        Position16<RoomPixels> samusPosition)
     {
-        int byteOffset = state.HorizontalMovementClass + state.VerticalMovementClass;
+        int byteOffset = state.SpawnColumnOffset + state.SpawnRowOffset;
         if ((byteOffset & 3) != 0 || (uint)(byteOffset / 4) >= WreckedShipGhostAppearanceDefinitions.SpawnCount)
         {
             throw new InvalidDataException(
-                $"Wrecked Ship ghost movement classes ${state.HorizontalMovementClass:X4}/" +
-                $"${state.VerticalMovementClass:X4} do not select a retail spawn offset.");
+                $"Wrecked Ship ghost movement classes ${state.SpawnColumnOffset:X4}/" +
+                $"${state.SpawnRowOffset:X4} do not select a retail spawn offset.");
         }
 
         (short xOffset, short yOffset) = WreckedShipGhostAppearanceDefinitions.SpawnOffset(byteOffset / 4);
-        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samusX + xOffset)), unchecked((ushort)(samusY + yOffset))));
+        slot.Position = slot.Position.WithWhole(samusPosition + new Offset16<RoomPixels>(xOffset, yOffset));
         state.Function = WreckedShipGhostAiFunction.BrighteningAndFlickering;
         state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
         state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
@@ -376,14 +372,11 @@ public sealed partial class RoomEnemySystem
         state.FlickerTableOffset = 2;
         state.VerticalVelocityFraction = 0;
         state.VerticalVelocityWhole = WreckedShipGhostInitialVerticalVelocityWhole;
-        state.HorizontalMovementClass = 4;
-        state.PreviousSamusX = samus.Position.X.Whole;
-        state.SamusXLowerBound = samus.Position.X.Whole;
-        state.SamusXUpperBound = samus.Position.X.Whole;
-        state.VerticalMovementClass = 12;
-        state.PreviousSamusY = samus.Position.Y.Whole;
-        state.SamusYLowerBound = samus.Position.Y.Whole;
-        state.SamusYUpperBound = samus.Position.Y.Whole;
+        state.SpawnColumnOffset = 4;
+        state.SpawnRowOffset = 12;
+        state.PreviousSamusPosition = samus.Position.Whole;
+        state.SamusLowerBound = samus.Position.Whole;
+        state.SamusUpperBound = samus.Position.Whole;
         state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
         state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
     }

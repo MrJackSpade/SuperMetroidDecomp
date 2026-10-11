@@ -86,8 +86,7 @@ public sealed partial class RoomEnemySystem
             return;
         if (state.FightMode != RidleyFightMode.NotFighting)
         {
-            if (RidleyCollisionDefinitions.IsOutsideInteractionWindow(
-                body.Position.X.Whole, body.Position.Y.Whole, camera.X, camera.Y))
+            if (RidleyCollisionDefinitions.IsOutsideInteractionWindow(body.Position.Whole, camera))
             {
                 body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 return;
@@ -165,7 +164,7 @@ public sealed partial class RoomEnemySystem
             // Missile family one gets the tiny dud and library-one sound $3D. Beams and
             // supers use the larger smoke variant $0C, exactly as $A6:E126 selects it.
             ushort dustVariant = typeNibble == 1 ? (ushort)6 : (ushort)12;
-            SpawnRidleyDust(joint.XPosition, joint.YPosition, dustVariant);
+            SpawnRidleyDust(new(joint.XPosition, joint.YPosition), dustVariant);
             if (typeNibble == 1)
                 LastEnemyProjectileDudSoundEffect = 0x003d;
             return true;
@@ -175,7 +174,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Allocates enemy projectile $E509 with one ROM-authored dust variant.</summary>
-    private void SpawnRidleyDust(ushort x, ushort y, ushort variant)
+    private void SpawnRidleyDust(Position16<RoomPixels> position, ushort variant)
     {
         RoomEnemyProjectileSlot? dust = AllocateEnemyProjectile();
         if (dust is null)
@@ -185,7 +184,7 @@ public sealed partial class RoomEnemySystem
             dust,
             RoomEnemyProjectileKind.MiscDustExplosion,
             graphicsIndex: 0);
-        dust.Position = dust.Position.WithWhole(new(x, y));
+        dust.Position = dust.Position.WithWhole(position);
         dust.InstructionPointer = MiscDustProjectileDefinitions.InstructionList(
             Math.Min(variant, (ushort)0x001d));
         dust.InstructionTimer = 1;

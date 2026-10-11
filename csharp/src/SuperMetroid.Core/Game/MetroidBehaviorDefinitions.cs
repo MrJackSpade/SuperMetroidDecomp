@@ -1,8 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One world-position displacement during Metroid's Power Bomb escape shake.</summary>
-internal readonly record struct MetroidEscapeDisplacement(short X, short Y);
-
 /// <summary>Compiled fixed behavior definitions for ordinary Metroids.</summary>
 internal static class MetroidBehaviorDefinitions
 {
@@ -14,7 +11,7 @@ internal static class MetroidBehaviorDefinitions
     private const ushort ThirdCry = 0x005a;
 
     /// <summary><c>BombedOffVelocities</c> at $A3:EA3F: four successive two-pixel cardinal displacements.</summary>
-    internal static MetroidEscapeDisplacement EscapeDisplacement(ushort countdown)
+    internal static Offset16<RoomPixels> EscapeDisplacement(ushort countdown)
     {
         int phase = countdown & 3;
         int signedRadius = 2 - 2 * (phase & 2);

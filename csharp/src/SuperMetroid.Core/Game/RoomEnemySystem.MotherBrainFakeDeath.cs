@@ -100,10 +100,7 @@ public sealed partial class RoomEnemySystem
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;
                 state.FunctionTimer = 0;
                 state.GrayFadeIndex = 0;
-                state.RequestPlm(
-                    blockX: 14,
-                    blockY: 2,
-                    header: PlmHeaderId.ClearMotherBrainCeilingBlock);
+                state.RequestPlm(new(14, 2), PlmHeaderId.ClearMotherBrainCeilingBlock);
                 return;
 
             case MotherBrainBodyFunction.FakeDeathDescentFadeToGray:
@@ -445,7 +442,7 @@ public sealed partial class RoomEnemySystem
         MotherBrainTubeCollapseFunction next,
         ushort timer)
     {
-        state.RequestPlm(blockX, blockY, header);
+        state.RequestPlm(new(blockX, blockY), header);
         state.TubeCollapseFunction = next;
         state.TubeCollapseTimer = timer;
     }
@@ -651,8 +648,8 @@ public sealed partial class RoomEnemySystem
             MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD => 12,
             _ => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
         };
-        state.RequestPlm(blockX: 2, blockY: firstRow, header: firstHeader);
-        state.RequestPlm(blockX: 2, blockY: unchecked((byte)(firstRow + 1)), header: secondHeader);
+        state.RequestPlm(new(2, firstRow), firstHeader);
+        state.RequestPlm(new(2, unchecked((byte)(firstRow + 1))), secondHeader);
         state.Function = next;
     }
 

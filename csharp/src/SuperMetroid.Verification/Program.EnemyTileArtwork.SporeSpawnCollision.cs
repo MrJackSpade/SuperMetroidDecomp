@@ -57,9 +57,9 @@ internal static partial class Program
             {
                 int record = root + 2 + component * 8;
                 SporeSpawnCollisionComponent compiled = components[component];
-                AssertEqual(ReadWord(record), unchecked((ushort)compiled.X),
+                AssertEqual(ReadWord(record), unchecked((ushort)compiled.Offset.X),
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} X");
-                AssertEqual(ReadWord(record + 2), unchecked((ushort)compiled.Y),
+                AssertEqual(ReadWord(record + 2), unchecked((ushort)compiled.Offset.Y),
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} Y");
                 AssertEqual(ReadWord(record + 6), compiled.HitboxPointer,
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} list");

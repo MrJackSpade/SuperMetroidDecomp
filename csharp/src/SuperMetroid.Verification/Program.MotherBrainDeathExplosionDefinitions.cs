@@ -28,8 +28,7 @@ internal static partial class Program
             var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
             motherBrainField.SetValue(enemies, new MotherBrainEnemyState(body));
             var request = new MotherBrainDeathExplosionRequest(
-                XOffset: -7,
-                YOffset: 9,
+                Offset: new(-7, 9),
                 ProjectileParameter: parameter,
                 SoundEffect: 0);
             spawn.Invoke(enemies, [request]);

@@ -77,7 +77,7 @@ internal static partial class Program
         var body=runtime.Enemies.Slots.First(e=>e.EnemyDefinitionPointer==EnemyDefinitionId.BombTorizo);
         var state=(TorizoEnemyState)typeof(RoomEnemySystem).GetField("_torizoState",flags)!.GetValue(runtime.Enemies)!;
         state.Function=TorizoFunction.Active;state.PreInstruction=TorizoPreInstruction.Jump;state.ReturnInstruction=0xbc88;
-        state.VerticalVelocity=0x400;state.VerticalAcceleration=40;state.HorizontalVelocity=0;
+        state.Velocity=new EightEightVector<RoomPixels>(0,0x400);state.VerticalAcceleration=40;
         body.Health=body.Definition.Health;body.Parameter1=body.Parameter2=0;
         body.Properties=0x2000;body.CurrentInstruction=0xbc80;body.InstructionTimer=5;
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));

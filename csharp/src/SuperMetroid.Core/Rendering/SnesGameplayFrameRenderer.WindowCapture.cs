@@ -38,8 +38,8 @@ public static partial class SnesGameplayFrameRenderer
         if (!explosion.IsActive) return null;
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
-        int centerX = unchecked((short)(explosion.XPosition - layer1X));
-        int centerY = unchecked((short)(explosion.YPosition - layer1Y));
+        int centerX = unchecked((short)(explosion.Position.X - layer1X));
+        int centerY = unchecked((short)(explosion.Position.Y - layer1Y));
         byte red = ExpandFiveBit(explosion.FixedColorRed);
         byte green = ExpandFiveBit(explosion.FixedColorGreen);
         byte blue = ExpandFiveBit(explosion.FixedColorBlue);

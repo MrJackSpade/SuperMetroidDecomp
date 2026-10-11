@@ -29,7 +29,7 @@ public static partial class GameplayDisplayCapture
                 ?? throw new InvalidOperationException("The Ceres elevator shaft has no NMI-published Mode 7 matrix.");
             registers = new(unchecked((short)m.MatrixA), unchecked((short)m.MatrixB),
                 unchecked((short)m.MatrixC), unchecked((short)m.MatrixA),
-                unchecked((short)m.CenterX), unchecked((short)m.CenterY),
+                unchecked((short)m.Center.X), unchecked((short)m.Center.Y),
                 unchecked((short)Add(ppu.Bg1HorizontalScroll, shake.Bg1X)),
                 unchecked((short)Add(ppu.Bg1VerticalScroll, shake.Bg1Y)));
         }

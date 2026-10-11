@@ -26,7 +26,7 @@ internal static partial class Program
                 ushort expected = (ushort)(importBus.ReadCartridgeByte(source) |
                     importBus.ReadCartridgeByte(source + 1) << 8);
                 var effects = new SamusAtmosphericEffectsState();
-                effects.SetSlot(0, type, frame, 2, 128, 128);
+                effects.SetSlot(0, type, frame, 2, new(128, 128));
                 var oam = new OamBuffer();
                 oam.BeginFrame();
                 effects.UpdateAndDraw(runtimeBus, oam, new(0, 0), 128,
@@ -38,7 +38,7 @@ internal static partial class Program
             }
 
             var missing = new SamusAtmosphericEffectsState();
-            missing.SetSlot(0, 1, 0, 2, 128, 128);
+            missing.SetSlot(0, 1, 0, 2, new(128, 128));
             AssertThrows<InvalidOperationException>(() =>
             {
                 var oam = new OamBuffer();
@@ -49,7 +49,7 @@ internal static partial class Program
             runtimeBus.WriteByte(SamusMovementRomData.Banks.Movement, 0x5a);
             runtimeBus.WriteByte(SamusMovementRomData.Banks.Movement + 1, 0x34);
             var mutable = new SamusAtmosphericEffectsState();
-            mutable.SetSlot(0, 2, 0, 2, 128, 128);
+            mutable.SetSlot(0, 2, 0, 2, new(128, 128));
             var mutableOam = new OamBuffer();
             mutableOam.BeginFrame();
             mutable.UpdateAndDraw(runtimeBus, mutableOam, new(0, 0), 128);

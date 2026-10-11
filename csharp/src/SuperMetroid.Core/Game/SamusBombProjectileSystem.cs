@@ -98,8 +98,8 @@ public sealed class SamusBombProjectileSystem
             // $88:8B4E offers Crystal Flash only if Samus has remained on the exact bomb
             // origin. Failure (including moving one pixel) releases $0CEA immediately.
             bool crystalFlashStarted =
-                samus.Position.X.Whole == PowerBombExplosion.XPosition &&
-                samus.Position.Y.Whole == PowerBombExplosion.YPosition &&
+                samus.Position.X.Whole == PowerBombExplosion.Position.X &&
+                samus.Position.Y.Whole == PowerBombExplosion.Position.Y &&
                 samus.CrystalFlash.TryBegin(
                     bus,
                     samus,
@@ -608,7 +608,7 @@ public sealed class SamusBombProjectileSystem
             }
             if (fuse.SpawnExplosion)
             {
-                PowerBombExplosion.Spawn(slot.Position.X.Whole, slot.Position.Y.Whole);
+                PowerBombExplosion.Spawn(slot.Position.Whole);
                 explosionStarted = true;
             }
         }
@@ -658,8 +658,8 @@ public sealed class SamusBombProjectileSystem
             {
                 CollectPowerBombBoundaryReactions(
                     level,
-                    PowerBombExplosion.XPosition,
-                    PowerBombExplosion.YPosition,
+                    PowerBombExplosion.Position.X,
+                    PowerBombExplosion.Position.Y,
                     PowerBombExplosion.ExplosionRadius,
                     blockReactions,
                     roomPlms,

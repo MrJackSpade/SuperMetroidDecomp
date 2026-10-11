@@ -171,9 +171,9 @@ public sealed partial class SamusProjectileSystem
         // body renderer. Only Samus's center is transformed; the pose-selected muzzle
         // offsets are added afterward. Retail then restores `$0AF6/$0AFA`, so this path
         // must never write the public physics coordinates merely to reuse the arithmetic.
-        SamusMode7Point renderPoint = mode7Transform is { } transform
-            ? transform.Transform(samus.Position.X.Whole, samus.Position.Y.Whole)
-            : new SamusMode7Point(samus.Position.X.Whole, samus.Position.Y.Whole);
+        Position16<RoomPixels> renderPoint = mode7Transform is { } transform
+            ? transform.Transform(samus.Position.Whole)
+            : samus.Position.Whole;
         ushort screenX = unchecked((ushort)(renderPoint.X + xOffset - layer1.X));
         ushort screenY = unchecked((ushort)(renderPoint.Y + yOffset - poseYOffset - layer1.Y));
 

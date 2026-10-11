@@ -32,7 +32,7 @@ internal static partial class Program
         })
         for (byte direction = 0; direction < 16; direction++)
         foreach (ushort coordinate in new ushort[] { 0, 100, 255, ushort.MaxValue })
-        foreach (SamusMode7Transform? transform in new SamusMode7Transform?[] { null, new(240, 16, 65520, 128, 112) })
+        foreach (SamusMode7Transform? transform in new SamusMode7Transform?[] { null, new(240, 16, 65520, new(128, 112)) })
         for (int component = 0; component < 3; component++)
         {
             // Exercise all original low-nibble operands at the renderer's metadata
@@ -46,7 +46,7 @@ internal static partial class Program
             int xTable = running ? SamusProjectileRomData.Origins.FlareRunningX : SamusProjectileRomData.Origins.FlareDefaultX;
             int yTable = running ? SamusProjectileRomData.Origins.FlareRunningY : SamusProjectileRomData.Origins.FlareDefaultY;
             short Word(int address) => unchecked((short)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
-            var point = transform is { } selectedTransform ? selectedTransform.Transform(coordinate, coordinate) : new SamusMode7Point(coordinate, coordinate);
+            var point = transform is { } selectedTransform ? selectedTransform.Transform(new(coordinate, coordinate)) : new Position16<RoomPixels>(coordinate, coordinate);
             ushort x = unchecked((ushort)(point.X + Word(xTable + direction * 2)));
             ushort y = unchecked((ushort)(point.Y + Word(yTable + direction * 2) - yOffset));
             ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));

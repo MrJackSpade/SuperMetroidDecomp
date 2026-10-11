@@ -180,7 +180,7 @@ static void VerifySamusCrystalFlash()
             SuperMetroid.AssetExtraction.PowerBombFixedColorExtractor.Extract(bus))),
     };
     crystalWindow.Arm();
-    crystalWindow.BeginCrystalFlash(samus.Position.X.Whole, samus.Position.Y.Whole);
+    crystalWindow.BeginCrystalFlash(new(samus.Position.X.Whole, samus.Position.Y.Whole));
     AssertTrue(!crystalWindow.IsArmed,
         "Crystal Flash spawn clears one-at-a-time Power Bomb flag");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
@@ -778,8 +778,7 @@ static void VerifySamusDeathSequence()
     AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
         samus.PoseHistory.PreviousDirectionAndMovement, "death commits right metadata");
     AssertEqual(5, samus.AnimationFrame, "ordinary death starts unmorphed frame five");
-    AssertEqual(0x00a0, samus.DeathSequence.ScreenX, "death captures screen X");
-    AssertEqual(0x00c0, samus.DeathSequence.ScreenY, "death captures screen Y");
+    AssertEqual(new Position16<ScreenPixels>(0x00a0, 0x00c0), samus.DeathSequence.ScreenPosition, "death captures screen position");
     AssertTrue(!samus.DeathSequence.SpinJumpSoundRequested, "ordinary death does not request spin SFX");
     AssertEqual(2, samus.AnimationFrameTimer, "death pose retains two-tick delay");
 

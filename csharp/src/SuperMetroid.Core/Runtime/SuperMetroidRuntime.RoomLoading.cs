@@ -793,8 +793,7 @@ public sealed partial class SuperMetroidRuntime
                 MatrixA: 0x0100,
                 MatrixB: 0,
                 MatrixC: 0,
-                CenterX: 0x0080,
-                CenterY: 0x03f0)
+                Center: new(0x0080, 0x03f0))
             : null;
         ActiveSamusMode7Transform = initialMode7Transform;
         // `$8F:E4E0` writes the initial matrix as part of door setup before the shaft is

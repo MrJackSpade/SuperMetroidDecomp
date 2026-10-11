@@ -152,8 +152,8 @@ internal static partial class Program
         {
             var nativeEffects = new SamusAtmosphericEffectsState();
             var installedEffects = new SamusAtmosphericEffectsState();
-            nativeEffects.SetSlot(0, type, 0, 2, 128, 128);
-            installedEffects.SetSlot(0, type, 0, 2, 128, 128);
+            nativeEffects.SetSlot(0, type, 0, 2, new(128, 128));
+            installedEffects.SetSlot(0, type, 0, 2, new(128, 128));
             var nativeEffectOam = new OamBuffer();
             var installedEffectOam = new OamBuffer();
             nativeEffectOam.BeginFrame();
@@ -181,8 +181,8 @@ internal static partial class Program
                 $"atmospheric type {type} frame {frame} imported exact native attributes");
             var nativeEffects = new SamusAtmosphericEffectsState();
             var installedEffects = new SamusAtmosphericEffectsState();
-            nativeEffects.SetSlot(0, type, frame, 2, 128, 128);
-            installedEffects.SetSlot(0, type, frame, 2, 128, 128);
+            nativeEffects.SetSlot(0, type, frame, 2, new(128, 128));
+            installedEffects.SetSlot(0, type, frame, 2, new(128, 128));
             var nativeEffectOam = new OamBuffer();
             var installedEffectOam = new OamBuffer();
             nativeEffectOam.BeginFrame();
@@ -513,8 +513,8 @@ internal static partial class Program
             "edited Samus spritemap part changes production OAM X by one pixel");
         var stockSplash = new SamusAtmosphericEffectsState();
         var editedSplash = new SamusAtmosphericEffectsState();
-        stockSplash.SetSlot(0, 3, 0, 2, 128, 128);
-        editedSplash.SetSlot(0, 3, 0, 2, 128, 128);
+        stockSplash.SetSlot(0, 3, 0, 2, new(128, 128));
+        editedSplash.SetSlot(0, 3, 0, 2, new(128, 128));
         var stockSplashOam = new OamBuffer();
         var editedSplashOam = new OamBuffer();
         stockSplashOam.BeginFrame();
@@ -527,8 +527,8 @@ internal static partial class Program
             "edited water-entry spritemap reaches the production atmospheric owner");
         var stockDirect = new SamusAtmosphericEffectsState();
         var editedDirect = new SamusAtmosphericEffectsState();
-        stockDirect.SetSlot(0, 1, 0, 2, 128, 128);
-        editedDirect.SetSlot(0, 1, 0, 2, 128, 128);
+        stockDirect.SetSlot(0, 1, 0, 2, new(128, 128));
+        editedDirect.SetSlot(0, 1, 0, 2, new(128, 128));
         var stockDirectOam = new OamBuffer();
         var editedDirectOam = new OamBuffer();
         stockDirectOam.BeginFrame();

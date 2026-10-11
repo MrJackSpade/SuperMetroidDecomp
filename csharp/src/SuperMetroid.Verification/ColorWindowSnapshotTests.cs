@@ -51,7 +51,7 @@ internal static partial class Program
             var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombFixedColors };
             AssertTrue(SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, explosion, 0, 0) is null,
                 "inactive Power Bomb emits no operation");
-            explosion.Arm(); explosion.Spawn(centerX, 120);
+            explosion.Arm(); explosion.Spawn(new(centerX, 120));
             var phases = new HashSet<PowerBombExplosionPhase>();
             for (int tick = 0; tick < 2000 && explosion.IsActive; tick++)
             {

@@ -49,7 +49,7 @@ internal static partial class Program
         runtime.RunNmi(0, true);
 
         runtime.BombProjectiles.PowerBombExplosion.Arm();
-        runtime.BombProjectiles.PowerBombExplosion.Spawn(128, 120);
+        runtime.BombProjectiles.PowerBombExplosion.Spawn(new(128, 120));
         for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);

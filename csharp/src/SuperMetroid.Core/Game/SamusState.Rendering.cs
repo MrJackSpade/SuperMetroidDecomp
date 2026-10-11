@@ -529,9 +529,9 @@ public sealed partial class SamusState
         // `$90:8C1F` temporarily overwrites Samus's integer world point only while Ceres's
         // high status bit is set. Every position selector below therefore consumes the
         // rotated point, but public physics coordinates remain completely untouched.
-        SamusMode7Point renderPoint = mode7Transform is { } transform
-            ? transform.Transform(Position.X.Whole, Position.Y.Whole)
-            : new SamusMode7Point(Position.X.Whole, Position.Y.Whole);
+        Position16<RoomPixels> renderPoint = mode7Transform is { } transform
+            ? transform.Transform(Position.Whole)
+            : Position.Whole;
         ushort renderX = renderPoint.X;
         ushort renderY = renderPoint.Y;
 

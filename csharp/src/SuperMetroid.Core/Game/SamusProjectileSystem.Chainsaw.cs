@@ -69,7 +69,7 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionPointer = fuse.InstructionPointer;
 
         if (fuse.SpawnExplosion)
-            sharedProjectiles.PowerBombExplosion.Spawn(slot.Position.X.Whole, slot.Position.Y.Whole);
+            sharedProjectiles.PowerBombExplosion.Spawn(slot.Position.Whole);
         if (fuse.DeleteProjectile)
             ClearProjectile(slot);
 
@@ -81,8 +81,8 @@ public sealed partial class SamusProjectileSystem
         var reactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             level,
-            sharedProjectiles.PowerBombExplosion.XPosition,
-            sharedProjectiles.PowerBombExplosion.YPosition,
+            sharedProjectiles.PowerBombExplosion.Position.X,
+            sharedProjectiles.PowerBombExplosion.Position.Y,
             sharedProjectiles.PowerBombExplosion.ExplosionRadius,
             reactions,
             roomPlms,

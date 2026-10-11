@@ -1085,8 +1085,8 @@ internal static partial class Program
                     Check($"Atmosphere {index} frame/type", effect.FrameAndType, NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
                     if (effect.Type == 0) continue;
                     Check($"Atmosphere {index} timer", effect.AnimationTimer, NativeSnapshotMemory.AtmosphericTimer + index * 2);
-                    Check($"Atmosphere {index} X", effect.XPosition, NativeSnapshotMemory.AtmosphericX + index * 2);
-                    Check($"Atmosphere {index} Y", effect.YPosition, NativeSnapshotMemory.AtmosphericY + index * 2);
+                    Check($"Atmosphere {index} X", effect.Position.X, NativeSnapshotMemory.AtmosphericX + index * 2);
+                    Check($"Atmosphere {index} Y", effect.Position.Y, NativeSnapshotMemory.AtmosphericY + index * 2);
                 }
                 Check("Liquid animation buffer", samus.AnimationFrameBuffer, NativeSnapshotMemory.AnimationFrameBuffer);
                 Check("LiquidPhysicsType", (ushort)samus.LiquidPhysics.LiquidPhysicsType, NativeSnapshotMemory.LiquidPhysicsType);

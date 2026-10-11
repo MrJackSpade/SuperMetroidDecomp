@@ -769,8 +769,8 @@ static void VerifySamusGrabbedByDraygon()
     AssertEqual(21, samus.Kinematics.Radius.Y, "Draygon entry loads radius 21");
 
     samus.DraygonGrabbed.ApplyOwnerPosition(
-        samus, ownerXPosition: 0x0100, ownerYPosition: 0x0180, draygonFacingRight: true);
-    AssertEqual(8, samus.Position.X.Whole - samus.DraygonGrabbed.OwnerXPosition,
+        samus, ownerPosition: new(0x0100, 0x0180), draygonFacingRight: true);
+    AssertEqual(8, samus.Position.X.Whole - samus.DraygonGrabbed.OwnerPosition.X,
         "right-facing claw offset is +8");
     AssertEqual(0x0108, samus.Position.X.Whole, "right-facing owner placement X");
     AssertEqual(0x01a8, samus.Position.Y.Whole, "owner placement Y is body plus $28");
@@ -856,8 +856,8 @@ static void VerifySamusGrabbedByDraygon()
     // Mirror the entry/owner/release direction without repeating the 60-input route.
     samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: false);
     samus.DraygonGrabbed.ApplyOwnerPosition(
-        samus, ownerXPosition: 0x0100, ownerYPosition: 0x0180, draygonFacingRight: false);
-    AssertEqual(-8, samus.Position.X.Whole - samus.DraygonGrabbed.OwnerXPosition,
+        samus, ownerPosition: new(0x0100, 0x0180), draygonFacingRight: false);
+    AssertEqual(-8, samus.Position.X.Whole - samus.DraygonGrabbed.OwnerPosition.X,
         "left-facing claw offset is -8");
     AssertEqual(0x00f8, samus.Position.X.Whole, "left-facing owner placement X");
     samus.DraygonGrabbed.Release(bus, samus);

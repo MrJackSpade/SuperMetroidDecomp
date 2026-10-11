@@ -45,15 +45,13 @@ public sealed class SamusAtmosphericEffectsState
     /// <param name="type">Native graphics type 0..7; a zero packed frame/type word is inactive.</param>
     /// <param name="animationFrame">Low-byte animation index; interpreted against the selected type when updated.</param>
     /// <param name="animationTimer">Literal native countdown word, including signed delayed-start sentinels such as $8002.</param>
-    /// <param name="worldX">Room-space horizontal anchor in whole pixels, stored with native 16-bit wrapping.</param>
-    /// <param name="worldY">Room-space vertical anchor in whole pixels, stored with native 16-bit wrapping.</param>
+    /// <param name="anchor">Room-space anchor in whole pixels, stored with native 16-bit wrapping.</param>
     public void SetSlot(
         int slotIndex,
         byte type,
         byte animationFrame,
         ushort animationTimer,
-        ushort worldX,
-        ushort worldY)
+        Position16<RoomPixels> anchor)
     {
         ValidateSlotIndex(slotIndex);
         if (type > 7)
@@ -62,8 +60,7 @@ public sealed class SamusAtmosphericEffectsState
         SamusAtmosphericEffectSlot slot = _slots[slotIndex];
         slot.FrameAndType = unchecked((ushort)((type << 8) | animationFrame));
         slot.AnimationTimer = animationTimer;
-        slot.XPosition = worldX;
-        slot.YPosition = worldY;
+        slot.Position = anchor;
     }
 
     /// <summary>
@@ -148,17 +145,14 @@ public sealed class SamusAtmosphericEffectsState
                 case 3:
                     // Diving splash graphics remain pinned to the live water surface even
                     // if room FX moves it while the nine-frame animation is running.
-                    slot.YPosition = fxYPosition;
+                    slot.Position = slot.Position.WithY(fxYPosition);
                     DrawSamusTableSpritemap(bus, oam, slot, 0x018f, camera, artwork);
                     break;
 
                 case 4:
                     // Slots 0/1 drift apart to the right and slots 2/3 to the left. Native
                     // tests bit two of the byte offset (0,2,4,6), equivalent to index >= 2.
-                    slot.XPosition = slotIndex >= 2
-                        ? unchecked((ushort)(slot.XPosition - 1))
-                        : unchecked((ushort)(slot.XPosition + 1));
-                    slot.YPosition = unchecked((ushort)(slot.YPosition - 1));
+                    slot.Position += new Offset16<RoomPixels>(slotIndex >= 2 ? (short)-1 : (short)1, -1);
                     DrawDirectSmallSprite(bus, oam, slot, type, camera, directArtwork);
                     break;
 
@@ -168,7 +162,7 @@ public sealed class SamusAtmosphericEffectsState
 
                 case 6:
                 case 7:
-                    slot.YPosition = unchecked((ushort)(slot.YPosition - 1));
+                    slot.Position -= new Offset16<RoomPixels>(0, 1);
                     DrawDirectSmallSprite(bus, oam, slot, type, camera, directArtwork);
                     break;
 
@@ -188,8 +182,8 @@ public sealed class SamusAtmosphericEffectsState
         Position16<RoomPixels> camera,
         SamusAtmosphericArtworkCatalog? directArtwork)
     {
-        short screenX = unchecked((short)(slot.XPosition - camera.X - 4));
-        short screenY = unchecked((short)(slot.YPosition - camera.Y - 4));
+        short screenX = unchecked((short)(slot.Position.X - camera.X - 4));
+        short screenY = unchecked((short)(slot.Position.Y - camera.Y - 4));
         if (screenX < 0 || screenX >= 0x0100 || screenY < 0 || screenY >= 0x0100)
             return;
 
@@ -230,8 +224,8 @@ public sealed class SamusAtmosphericEffectsState
         Position16<RoomPixels> camera,
         SamusSpritemapArtworkCatalog? artwork)
     {
-        ushort screenX = unchecked((ushort)(slot.XPosition - camera.X));
-        ushort screenY = unchecked((ushort)(slot.YPosition - camera.Y));
+        ushort screenX = unchecked((ushort)(slot.Position.X - camera.X));
+        ushort screenY = unchecked((ushort)(slot.Position.Y - camera.Y));
 
         // `$90:8B83` rejects any nonzero high byte of Y. X is deliberately not clipped;
         // AddSamusSpritemap preserves its ninth hardware coordinate bit and wrap behavior.
@@ -270,18 +264,18 @@ public sealed class SamusAtmosphericEffectSlot
     /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>
     public ushort AnimationTimer { get; internal set; }
 
-    /// <summary>$0ADC array horizontal anchor in whole room pixels; camera subtraction occurs only when drawing, and motion wraps as a native word.</summary>
-    public ushort XPosition { get; internal set; }
-
-    /// <summary>$0AE4 array vertical anchor in whole room pixels; diving splashes follow the live FX surface and lava spray/dust rise one pixel per active update.</summary>
-    public ushort YPosition { get; internal set; }
+    /// <summary>
+    /// $0ADC/$0AE4 array anchor in whole room pixels; camera subtraction occurs only when
+    /// drawing, motion wraps as native words, diving splashes follow the live FX surface and
+    /// lava spray/dust rise one pixel per active update.
+    /// </summary>
+    public Position16<RoomPixels> Position { get; internal set; }
 
     internal void Clear()
     {
         FrameAndType = 0;
         AnimationTimer = 0;
-        XPosition = 0;
-        YPosition = 0;
+        Position = Position16<RoomPixels>.Zero;
     }
 }
 

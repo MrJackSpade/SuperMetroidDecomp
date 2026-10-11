@@ -649,8 +649,8 @@ public static partial class SnesGameplayFrameRenderer
         if (!explosion.IsActive)
             return;
 
-        int centerX = unchecked((short)(explosion.XPosition - layer1X));
-        int centerY = unchecked((short)(explosion.YPosition - layer1Y));
+        int centerX = unchecked((short)(explosion.Position.X - layer1X));
+        int centerY = unchecked((short)(explosion.Position.Y - layer1Y));
         byte addRed = ExpandFiveBit(explosion.FixedColorRed);
         byte addGreen = ExpandFiveBit(explosion.FixedColorGreen);
         byte addBlue = ExpandFiveBit(explosion.FixedColorBlue);

@@ -292,8 +292,7 @@ public sealed partial class RoomEnemySystem
     {
         samus.DraygonGrabbed.ApplyOwnerPosition(
             samus,
-            state.Body.XPosition,
-            state.Body.YPosition,
+            new Position16<RoomPixels>(state.Body.XPosition, state.Body.YPosition),
             state.FacingRight);
         CapSamusScrollingSpeed(samus);
         if (samus.DraygonGrabbed.ConsumeOwnerReleaseSignal())

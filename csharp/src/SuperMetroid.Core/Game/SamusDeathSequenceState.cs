@@ -33,11 +33,8 @@ public sealed class SamusDeathSequenceState
     /// <summary>WRAM `$0AA0`; 60-call flashing counter, then whiteout shade index.</summary>
     public ushort AnimationCounter { get; private set; }
 
-    /// <summary>Screen-space X captured by `$9B:B409-$B410` at death-pose setup.</summary>
-    public ushort ScreenX { get; private set; }
-
-    /// <summary>Screen-space Y captured by `$9B:B413-$B41A` at death-pose setup.</summary>
-    public ushort ScreenY { get; private set; }
+    /// <summary>Screen-space position captured by `$9B:B409-$B41A` at death-pose setup.</summary>
+    public Position16<ScreenPixels> ScreenPosition { get; private set; }
 
     /// <summary>Set only when the source movement type was spin jumping and SFX `$32` is queued.</summary>
     public bool SpinJumpSoundRequested { get; private set; }
@@ -110,8 +107,7 @@ public sealed class SamusDeathSequenceState
         // renderer adds layer 1 back before emitting OAM. Retain world coordinates in Samus
         // for this host's shared camera/minimap model and capture the mathematically identical
         // screen-space pair here for the eventual explosion-spritemap path.
-        ScreenX = unchecked((ushort)(samus.Position.X.Whole - layer1.X));
-        ScreenY = unchecked((ushort)(samus.Position.Y.Whole - layer1.Y));
+        ScreenPosition = samus.Position.Whole.ToScreen(layer1);
 
         PreFlashingTimer = SamusSpecialSequenceRomData.Death.PreFlashFrameCount;
         AnimationTimer = 3;
@@ -246,7 +242,7 @@ public sealed class SamusDeathSequenceState
             return;
         oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Samus death spritemap requires WRAM."),
-            spritemap, ScreenX, ScreenY, artwork ?? throw new InvalidOperationException(
+            spritemap, ScreenPosition.X, ScreenPosition.Y, artwork ?? throw new InvalidOperationException(
                 "Samus death spritemap requires installed artwork."));
     }
 

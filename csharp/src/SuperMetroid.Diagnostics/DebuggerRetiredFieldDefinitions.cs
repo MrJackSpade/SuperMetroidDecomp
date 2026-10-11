@@ -425,6 +425,21 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Frontend.IntroCinematicState", "fadeDelay")] = Discard,
         [("SuperMetroid.Core.Frontend.IntroRinkaSystem", "rinkas")] = Remember,
         [("SuperMetroid.Core.Frontend.IntroCeresFlightState", "musicQueueTimer")] = Discard,
+        // #628: Mode 7 centre words became one position.
+        [(typeof(SamusMode7Transform).FullName!, "<CenterX>k__BackingField")] = Remember,
+        [(typeof(SamusMode7Transform).FullName!, "<CenterY>k__BackingField")] = Remember,
+        // #628: Draygon owner position words became one position.
+        [(typeof(SamusDraygonGrabbedState).FullName!, "<OwnerXPosition>k__BackingField")] = Remember,
+        [(typeof(SamusDraygonGrabbedState).FullName!, "<OwnerYPosition>k__BackingField")] = Remember,
+        // #628: death screen words became one screen position.
+        [(typeof(SamusDeathSequenceState).FullName!, "<ScreenX>k__BackingField")] = Remember,
+        [(typeof(SamusDeathSequenceState).FullName!, "<ScreenY>k__BackingField")] = Remember,
+        // #628: Power Bomb explosion centre words became one position.
+        [(typeof(SamusPowerBombExplosionState).FullName!, "<XPosition>k__BackingField")] = Remember,
+        [(typeof(SamusPowerBombExplosionState).FullName!, "<YPosition>k__BackingField")] = Remember,
+        // #628: atmospheric-effect anchor words became one position.
+        [(typeof(SamusAtmosphericEffectSlot).FullName!, "<XPosition>k__BackingField")] = Remember,
+        [(typeof(SamusAtmosphericEffectSlot).FullName!, "<YPosition>k__BackingField")] = Remember,
         // #628: released crash-echo position words became one position.
         [("SuperMetroid.Core.Game.SamusShinesparkState+ReleasedEchoSlot", "<XPosition>k__BackingField")] = Remember,
         [("SuperMetroid.Core.Game.SamusShinesparkState+ReleasedEchoSlot", "<YPosition>k__BackingField")] = Remember,

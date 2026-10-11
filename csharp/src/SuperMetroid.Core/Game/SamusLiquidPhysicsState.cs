@@ -528,8 +528,8 @@ public sealed partial class SamusLiquidPhysicsState
 
         // Landing owns WRAM slots two and three (byte offsets +4/+6), not the running-foot
         // slots zero/one. Both begin immediately on frame zero with timer three.
-        AtmosphericEffects.SetSlot(2, type, 0, 3, firstX, y);
-        AtmosphericEffects.SetSlot(3, type, 0, 3, secondX, y);
+        AtmosphericEffects.SetSlot(2, type, 0, 3, new(firstX, y));
+        AtmosphericEffects.SetSlot(3, type, 0, 3, new(secondX, y));
     }
 
     private void DeleteLandingPair()
@@ -624,18 +624,16 @@ public sealed partial class SamusLiquidPhysicsState
         {
             AtmosphericEffects.SetSlot(
                 0, type: 3, animationFrame: 0, animationTimer: 2,
-                samus.Position.X.Whole, FxYPosition);
+                new(samus.Position.X.Whole, FxYPosition));
             return;
         }
 
         AtmosphericEffects.SetSlot(
             0, type: 1, animationFrame: 0, animationTimer: 3,
-            unchecked((ushort)(samus.Position.X.Whole + 4)),
-            unchecked((ushort)(bottom - 4)));
+            new(unchecked((ushort)(samus.Position.X.Whole + 4)), unchecked((ushort)(bottom - 4))));
         AtmosphericEffects.SetSlot(
             1, type: 1, animationFrame: 0, animationTimer: 3,
-            unchecked((ushort)(samus.Position.X.Whole - 3)),
-            unchecked((ushort)(bottom - 4)));
+            new(unchecked((ushort)(samus.Position.X.Whole - 3)), unchecked((ushort)(bottom - 4))));
     }
 
     private void TrySpawnAirBubbles(
@@ -654,8 +652,7 @@ public sealed partial class SamusLiquidPhysicsState
 
         AtmosphericEffects.SetSlot(
             2, type: 5, animationFrame: 0, animationTimer: 3,
-            samus.Position.X.Whole,
-            unchecked((ushort)(top + 6)));
+            new(samus.Position.X.Whole, unchecked((ushort)(top + 6))));
         ushort random = system.NextRandom();
         QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, (byte)((random & 1) != 0 ? 0x0f : 0x11)), maximumQueued: 6);
     }
@@ -683,7 +680,7 @@ public sealed partial class SamusLiquidPhysicsState
         {
             AtmosphericEffects.SetSlot(
                 slot, type: 4, animationFrame: 0, timers[slot],
-                xPositions[slot], LavaAcidYPosition);
+                new(xPositions[slot], LavaAcidYPosition));
         }
 
         if ((nmiFrameCounter & 1) == 0)
@@ -752,8 +749,8 @@ public sealed partial class SamusLiquidPhysicsState
             ? unchecked((ushort)(samus.Position.X.Whole + 8))
             : unchecked((ushort)(samus.Position.X.Whole - 8));
         ushort y = unchecked((ushort)(samus.Position.Y.Whole + 16));
-        AtmosphericEffects.SetSlot(0, type, 0, 0x8002, firstX, y);
-        AtmosphericEffects.SetSlot(1, type, 0, 3, secondX, y);
+        AtmosphericEffects.SetSlot(0, type, 0, 0x8002, new(firstX, y));
+        AtmosphericEffects.SetSlot(1, type, 0, 3, new(secondX, y));
     }
 
     private void QueueSound(SoundEffectId soundEffect, byte maximumQueued) =>

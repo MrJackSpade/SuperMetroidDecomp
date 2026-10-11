@@ -59,15 +59,15 @@ internal static partial class Program
         var guarded = new ForbiddenPowerBombColorBus(rom);
         if (crystalFlash)
         {
-            native.BeginCrystalFlash(128, 112);
-            installed.BeginCrystalFlash(128, 112);
+            native.BeginCrystalFlash(new(128, 112));
+            installed.BeginCrystalFlash(new(128, 112));
         }
         else
         {
             native.Arm();
             installed.Arm();
-            native.Spawn(128, 112);
-            installed.Spawn(128, 112);
+            native.Spawn(new(128, 112));
+            installed.Spawn(new(128, 112));
         }
 
         int frames = 0;
@@ -110,7 +110,7 @@ internal static partial class Program
             "Power Bomb color override changes the selected component");
         var state = new SamusPowerBombExplosionState { PresentationColors = edited.PowerBombFixedColors };
         state.Arm();
-        state.Spawn(128, 112);
+        state.Spawn(new(128, 112));
         var forbidden = new ForbiddenPowerBombColorBus(new TestAddressSpace());
         _ = state.StepFrame(forbidden); // Native setup precedes the first colored frame.
         _ = state.StepFrame(forbidden);

@@ -88,8 +88,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                 matrixB: unchecked((short)mode7.MatrixB),
                 matrixC: unchecked((short)mode7.MatrixC),
                 matrixD: unchecked((short)mode7.MatrixA),
-                centerX: unchecked((short)mode7.CenterX),
-                centerY: unchecked((short)mode7.CenterY),
+                centerX: unchecked((short)mode7.Center.X),
+                centerY: unchecked((short)mode7.Center.Y),
                 // Mode 7 reuses BG1HOFS/BG1VOFS as M7HOFS/M7VOFS. MainScrollingRoutine
                 // continues publishing those live camera words even though its ordinary
                 // tilemap row/column producers return early while `$0783` is nonzero.

@@ -216,8 +216,8 @@ public sealed partial class RoomEnemySystem
             return;
         // `LSR; ADC $12; LSR` carries the first shift's low bit into the addition.
         int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + (horizontalRadius & 1)) >> 1;
-        int xDistance = Math.Abs(unchecked((short)(powerBomb.XPosition - projectile.XPosition)));
-        int yDistance = Math.Abs(unchecked((short)(powerBomb.YPosition - projectile.YPosition)));
+        int xDistance = Math.Abs(unchecked((short)(powerBomb.Position.X - projectile.XPosition)));
+        int yDistance = Math.Abs(unchecked((short)(powerBomb.Position.Y - projectile.YPosition)));
         if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
             return;
         projectile.ReleaseIdentityOnly();

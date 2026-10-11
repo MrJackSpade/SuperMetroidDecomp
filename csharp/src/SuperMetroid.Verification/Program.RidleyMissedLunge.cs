@@ -92,7 +92,7 @@ internal static partial class Program
 
         var bomb = new SamusPowerBombExplosionState();
         bomb.Arm();
-        bomb.Spawn(200, 400);
+        bomb.Spawn(new(200, 400));
         typeof(RoomEnemySystem).GetField("_audioPowerBomb", flags)!.SetValue(enemies, bomb);
         ResetLunge(160, 400);
         run(slot, state, samus, 0, null);

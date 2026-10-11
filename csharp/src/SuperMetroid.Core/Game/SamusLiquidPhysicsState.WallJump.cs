@@ -20,6 +20,6 @@ public sealed partial class SamusLiquidPhysicsState
             : SamusWallJumpDustDefinitions.HorizontalOffset;
         AtmosphericEffects.SetSlot(SamusWallJumpDustDefinitions.Slot,
             SamusWallJumpDustDefinitions.Type, 0, SamusWallJumpDustDefinitions.InitialTimer,
-            unchecked((ushort)(samus.Position.X.Whole + offset)), bottom);
+            new(unchecked((ushort)(samus.Position.X.Whole + offset)), bottom));
     }
 }

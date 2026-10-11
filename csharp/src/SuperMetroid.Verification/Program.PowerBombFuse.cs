@@ -42,7 +42,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombFixedColors };
         explosion.Arm();
-        explosion.Spawn(128, 128);
+        explosion.Spawn(new(128, 128));
         ushort retainedSpeed = 0;
         bool completed = false;
         for (int frame = 0; frame < 400; frame++)
@@ -57,7 +57,7 @@ internal static partial class Program
         // Original-CPU #441 replay: $88:8B4E clears both radii/status, but does not
         // write $0CF0. Allocation at $88:8AA4 also leaves that word alone.
         AssertEqual(retainedSpeed, explosion.RadiusSpeed, "cleanup preserves native radius-speed word");
-        explosion.Spawn(128, 128);
+        explosion.Spawn(new(128, 128));
         AssertEqual(retainedSpeed, explosion.RadiusSpeed, "next allocation preserves radius speed until setup");
     }
 }

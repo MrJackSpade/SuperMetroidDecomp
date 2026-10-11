@@ -1204,8 +1204,8 @@ static void VerifySamusAtmosphericEffects()
     SamusAtmosphericEffectSlot entrySplash = samus.LiquidPhysics.AtmosphericEffects.Slots[0];
     AssertEqual(3, entrySplash.Type, "water entry selects diving-splash type");
     AssertEqual(2, entrySplash.AnimationTimer, "diving splash initial timer");
-    AssertEqual(100, entrySplash.XPosition, "diving splash Samus X");
-    AssertEqual(110, entrySplash.YPosition, "diving splash surface Y");
+    AssertEqual(100, entrySplash.Position.X, "diving splash Samus X");
+    AssertEqual(110, entrySplash.Position.Y, "diving splash surface Y");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0d), 6),
         samus.LiquidPhysics.SoundRequests.Single(), "water-entry library-two sound");
 
@@ -1224,7 +1224,7 @@ static void VerifySamusAtmosphericEffects()
     samus.LiquidPhysics.PrepareAnimationFrame(bus, samus, nmiFrameCounter: 128, bubbleSystem);
     SamusAtmosphericEffectSlot bubble = samus.LiquidPhysics.AtmosphericEffects.Slots[2];
     AssertEqual(5, bubble.Type, "128-frame submerged cadence creates bubbles");
-    AssertEqual(94, bubble.YPosition, "bubble origin is Samus top plus six");
+    AssertEqual(94, bubble.Position.Y, "bubble origin is Samus top plus six");
     AssertTrue(samus.LiquidPhysics.SoundRequests.Any(request =>
         request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
         request.SoundEffect.Value is 0x0f or 0x11),
@@ -1251,14 +1251,14 @@ static void VerifySamusAtmosphericEffects()
     // applies +1/-1 motion before clipping. The next call reloads ROM timer zero, advances to
     // frame one, and consumes its distinct `$2A49` attribute word.
     var effects = new SamusAtmosphericEffectsState();
-    effects.SetSlot(0, type: 4, animationFrame: 0, animationTimer: 2, worldX: 104, worldY: 104);
+    effects.SetSlot(0, type: 4, animationFrame: 0, animationTimer: 2, anchor: new(104, 104));
     var oam = new OamBuffer();
     oam.BeginFrame();
     effects.UpdateAndDraw(bus, oam, camera: new(0, 0), fxYPosition: 0,
         directArtwork: atmosphericArt);
     AssertEqual(1, effects.Slots[0].AnimationTimer, "atmospheric positive timer decrements");
-    AssertEqual(105, effects.Slots[0].XPosition, "lava slot zero drifts right");
-    AssertEqual(103, effects.Slots[0].YPosition, "lava spray rises one pixel");
+    AssertEqual(105, effects.Slots[0].Position.X, "lava slot zero drifts right");
+    AssertEqual(103, effects.Slots[0].Position.Y, "lava spray rises one pixel");
     AssertEqual(0x048, oam.GetEntry(0).TileNumber, "lava frame zero direct OAM tile");
     AssertEqual(5, oam.GetEntry(0).Palette, "lava direct OAM retains ROM palette");
 
@@ -1274,13 +1274,13 @@ static void VerifySamusAtmosphericEffects()
     // `$8002` is not a large positive delay: one call reaches `$8001` and does nothing;
     // the next reaches `$8000`, reloads the current ROM duration, moves, and draws.
     effects.Clear();
-    effects.SetSlot(1, type: 4, animationFrame: 0, animationTimer: 0x8002, worldX: 100, worldY: 100);
+    effects.SetSlot(1, type: 4, animationFrame: 0, animationTimer: 0x8002, anchor: new(100, 100));
     oam.BeginFrame();
     effects.UpdateAndDraw(bus, oam, new(0, 0), 0, directArtwork: atmosphericArt);
-    AssertEqual(100, effects.Slots[1].XPosition, "$8001 suppresses atmospheric motion");
+    AssertEqual(100, effects.Slots[1].Position.X, "$8001 suppresses atmospheric motion");
     AssertEqual(0, oam.NextByteOffset, "$8001 suppresses atmospheric drawing");
     effects.UpdateAndDraw(bus, oam, new(0, 0), 0, directArtwork: atmosphericArt);
-    AssertEqual(101, effects.Slots[1].XPosition, "$8000 reload call begins motion");
+    AssertEqual(101, effects.Slots[1].Position.X, "$8000 reload call begins motion");
     AssertEqual(4, oam.NextByteOffset, "$8000 reload call emits one OAM record");
 
     // Running frame two with stage four produces dry-room type-seven dust. The first slot
@@ -1347,11 +1347,11 @@ static void VerifySamusAtmosphericEffects()
         "Norfair landing creates right dust slot");
     AssertEqual(6, landing.LiquidPhysics.AtmosphericEffects.Slots[3].Type,
         "Norfair landing creates left dust slot");
-    AssertEqual(108, landing.LiquidPhysics.AtmosphericEffects.Slots[2].XPosition,
+    AssertEqual(108, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.X,
         "landing dust right X offset");
-    AssertEqual(92, landing.LiquidPhysics.AtmosphericEffects.Slots[3].XPosition,
+    AssertEqual(92, landing.LiquidPhysics.AtmosphericEffects.Slots[3].Position.X,
         "landing dust left X offset");
-    AssertEqual(111, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
+    AssertEqual(111, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.Y,
         "landing dust uses pose-defined inclusive bottom pixel");
 
     // Whole speed five changes only the impact sound to hard `$04`; Screw Attack changes
@@ -1388,7 +1388,7 @@ static void VerifySamusAtmosphericEffects()
     // Active liquid returns without touching the landing slots. This is intentionally not
     // deletion: seed an unrelated type-seven record and prove its packed word survives.
     landing.LiquidPhysics.AtmosphericEffects.SetSlot(
-        2, type: 7, animationFrame: 2, animationTimer: 9, worldX: 77, worldY: 88);
+        2, type: 7, animationFrame: 2, animationTimer: 9, anchor: new(77, 88));
     landing.LiquidPhysics.ConfigureWater(surfaceY: 110);
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1411,10 +1411,10 @@ static void VerifySamusAtmosphericEffects()
         "Ceres deletes landing packed word");
     AssertEqual(9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer,
         "Ceres delete preserves atmospheric timer");
-    AssertEqual(77, landing.LiquidPhysics.AtmosphericEffects.Slots[2].XPosition,
+    AssertEqual(77, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.X,
         "Ceres delete preserves atmospheric X");
     landing.LiquidPhysics.AtmosphericEffects.SetSlot(
-        2, type: 7, animationFrame: 0, animationTimer: 3, worldX: 1, worldY: 2);
+        2, type: 7, animationFrame: 0, animationTimer: 3, anchor: new(1, 2));
     landing.Kinematics.YSpeed = 0;
     landing.Kinematics.YSubspeed = 0;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1435,11 +1435,11 @@ static void VerifySamusAtmosphericEffects()
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(1, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "Landing Site type-A FX selects splash");
-    AssertEqual(104, landing.LiquidPhysics.AtmosphericEffects.Slots[2].XPosition,
+    AssertEqual(104, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.X,
         "landing splash right X offset");
-    AssertEqual(97, landing.LiquidPhysics.AtmosphericEffects.Slots[3].XPosition,
+    AssertEqual(97, landing.LiquidPhysics.AtmosphericEffects.Slots[3].Position.X,
         "landing splash left X offset");
-    AssertEqual(107, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
+    AssertEqual(107, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.Y,
         "landing splash rises four pixels above feet");
 
     Console.WriteLine(

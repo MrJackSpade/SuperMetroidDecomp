@@ -32,9 +32,9 @@ public sealed partial class RoomEnemySystem
             return;
         }
         state.FightMode = RidleyFightMode.PowerBombDodge;
-        ushort targetX = unchecked((short)(bomb.XPosition - RidleyLungeDefinitions.DodgeSplitX)) >= 0
+        ushort targetX = unchecked((short)(bomb.Position.X - RidleyLungeDefinitions.DodgeSplitX)) >= 0
             ? RidleyLungeDefinitions.DodgeLeftX : RidleyLungeDefinitions.DodgeRightX;
-        ushort targetY = unchecked((short)(bomb.YPosition - RidleyLungeDefinitions.DodgeSplitY)) >= 0
+        ushort targetY = unchecked((short)(bomb.Position.Y - RidleyLungeDefinitions.DodgeSplitY)) >= 0
             ? RidleyLungeDefinitions.DodgeUpperY : RidleyLungeDefinitions.DodgeLowerY;
         MoveNorfairRidleyToward(slot, state, targetX, targetY, ReadRidleyHealthMovementDivisorIndex(state));
     }

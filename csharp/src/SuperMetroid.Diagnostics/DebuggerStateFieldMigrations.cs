@@ -473,6 +473,26 @@ internal static class DebuggerStateFieldMigrations
                 Set(fileSelect, "screenFade", fade);
             }),
 
+        // #628: Mode 7 centre words became one position.
+        new(typeof(SamusMode7Transform).FullName!, ["<Center>k__BackingField"], null,
+            value => Set(value, "<Center>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "CenterX", "CenterY"))),
+
+        // #628: Draygon owner position words became one position.
+        new(typeof(SamusDraygonGrabbedState).FullName!, ["<OwnerPosition>k__BackingField"], null,
+            value => Set(value, "<OwnerPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "OwnerXPosition", "OwnerYPosition"))),
+
+        // #628: death screen words became one screen position.
+        new(typeof(SamusDeathSequenceState).FullName!, ["<ScreenPosition>k__BackingField"], null,
+            value => Set(value, "<ScreenPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<ScreenPixels>(value, "ScreenX", "ScreenY"))),
+
+        // #628: Power Bomb explosion centre words became one position.
+        new(typeof(SamusPowerBombExplosionState).FullName!, ["<Position>k__BackingField"], null,
+            value => Set(value, "<Position>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "XPosition", "YPosition"))),
+
+        // #628: atmospheric-effect anchor words became one position.
+        new(typeof(SamusAtmosphericEffectSlot).FullName!, ["<Position>k__BackingField"], null,
+            value => Set(value, "<Position>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "XPosition", "YPosition"))),
+
         // #628: speed-echo and released crash-echo positions, rebuilt from the retired words.
         new(typeof(SamusHorizontalSpeedState).FullName!, ["<FirstSpeedEchoPosition>k__BackingField"], null,
             speed => Set(speed, "<FirstSpeedEchoPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(speed, "FirstSpeedEchoXPosition", "FirstSpeedEchoYPosition"))),

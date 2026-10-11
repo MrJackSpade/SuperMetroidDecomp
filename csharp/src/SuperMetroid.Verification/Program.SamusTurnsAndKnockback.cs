@@ -364,10 +364,10 @@ static void VerifySamusAerialTurnsAndWallJump()
     SamusAtmosphericEffectSlot wallDust = eligible.LiquidPhysics.AtmosphericEffects.Slots[3];
     AssertEqual(0x0600, wallDust.FrameAndType, "wall jump creates native dust in slot three");
     AssertEqual(3, wallDust.AnimationTimer, "wall dust begins with timer three");
-    AssertEqual(eligible.Position.X.Whole - 6, wallDust.XPosition, "right-facing wall dust is six pixels behind Samus");
+    AssertEqual(eligible.Position.X.Whole - 6, wallDust.Position.X, "right-facing wall dust is six pixels behind Samus");
     // $91:FA76 runs after the wall-jump pose is installed: Get_Samus_Bottom_Boundary uses
     // that pose's radius (Y + radius - 1), not the spin radius still live in kinematics.
-    AssertEqual(eligible.Position.Y.Whole + SamusState.ReadPoseYRadius(eligible.Pose) - 1, wallDust.YPosition,
+    AssertEqual(eligible.Position.Y.Whole + SamusState.ReadPoseYRadius(eligible.Pose) - 1, wallDust.Position.Y,
         "wall dust is anchored at last occupied bottom pixel");
     AssertEqual(SamusPoseId.WallJumpRightPose, eligible.Pose, "right-facing spin selects right wall-jump pose");
     AssertEqual(4, eligible.Kinematics.YSpeed, "wall jump reads whole launch speed");

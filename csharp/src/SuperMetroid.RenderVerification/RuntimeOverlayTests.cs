@@ -26,7 +26,7 @@ internal static class RuntimeOverlayTests
         // Deliberately combine owners rather than claim this is a natural pickup
         // sequence. This isolates the production composition order in one room.
         runtime.BombProjectiles.PowerBombExplosion.Arm();
-        runtime.BombProjectiles.PowerBombExplosion.Spawn(128, 120);
+        runtime.BombProjectiles.PowerBombExplosion.Spawn(new(128, 120));
         for (int tick = 0; tick < 50; tick++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int tick = 0; tick < 13; tick++) runtime.MessageBox.Step(0);

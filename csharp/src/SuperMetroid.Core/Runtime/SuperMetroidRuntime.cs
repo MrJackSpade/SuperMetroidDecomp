@@ -1797,9 +1797,7 @@ public sealed partial class SuperMetroidRuntime
                         // shared explosion words, then spawns `$88:A2BD/$A32A`. This beta
                         // pass occurs after bomb alpha, so the retained type-`$0300` slot
                         // observes the released flag and deletes on the following frame.
-                        BombProjectiles.PowerBombExplosion.BeginCrystalFlash(
-                            Samus.Position.X.Whole,
-                            Samus.Position.Y.Whole);
+                        BombProjectiles.PowerBombExplosion.BeginCrystalFlash(Samus.Position.Whole);
                     }
                 }
                 // Drained controller functions install movement-type-$1B poses whose normal
@@ -3664,8 +3662,8 @@ Landed: true, HitCeiling: false);
                     BombProjectiles.PowerBombExplosion;
                 Enemies.ResolveOrdinaryPowerBombHits(
                     _addressSpace,
-                    powerBomb.XPosition,
-                    powerBomb.YPosition,
+                    powerBomb.Position.X,
+                    powerBomb.Position.Y,
                     unchecked((byte)(powerBomb.ExplosionRadius >> 8)),
                     Samus);
             }

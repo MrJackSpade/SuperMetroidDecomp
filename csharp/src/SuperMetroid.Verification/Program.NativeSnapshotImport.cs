@@ -220,7 +220,7 @@ internal static partial class Program
             ushort packed = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
             samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, (byte)(packed >> 8), (byte)packed,
                 W(NativeSnapshotMemory.AtmosphericTimer + index * 2),
-                W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2));
+                new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
         }
         typeof(SamusState).GetProperty(nameof(samus.AnimationFrameBuffer))!.SetValue(samus, W(NativeSnapshotMemory.AnimationFrameBuffer));
         typeof(SamusLiquidPhysicsState).GetProperty("LiquidPhysicsType")!.SetValue(samus.LiquidPhysics,

@@ -97,9 +97,9 @@ internal static partial class Program
             // cleanup cannot accidentally enter Crystal Flash in this carry fixture.
             ushort bombX = (ushort)(samus.Position.X.Whole - 24);
             runtime.BombProjectiles.PowerBombExplosion.Arm();
-            runtime.BombProjectiles.PowerBombExplosion.Spawn(bombX, samus.Position.Y.Whole);
+            runtime.BombProjectiles.PowerBombExplosion.Spawn(new(bombX, samus.Position.Y.Whole));
             expectedExplosion.Arm();
-            expectedExplosion.Spawn(bombX, samus.Position.Y.Whole);
+            expectedExplosion.Spawn(new(bombX, samus.Position.Y.Whole));
         }
         runtime.Plms.NotifyChozoStatueHandCollision(level, block, samus, samus.Pose, movingDown: true);
         AssertTrue(samus.StationaryScriptControlLocked && samus.InputLocked,

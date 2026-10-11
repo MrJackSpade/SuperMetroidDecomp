@@ -180,7 +180,7 @@ internal static partial class Program
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
             ushort? expectedOperand = null;
             if (projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard)
             {

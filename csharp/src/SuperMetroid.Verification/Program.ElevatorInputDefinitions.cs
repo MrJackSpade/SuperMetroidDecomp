@@ -35,8 +35,7 @@ internal static partial class Program
 
             RoomEnemySlot slot = enemies.Slots[0];
             slot.Parameter1 = direction;
-            slot.XPosition = 0x0100;
-            slot.YPosition = 0x0180;
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0180));
             var samus = new SamusState();
             samus.TileTransfers.BindArtwork(bodyArtwork);
             initialize(slot, samus);

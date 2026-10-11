@@ -27,7 +27,7 @@ internal static partial class Program
         foreach (short position in new short[] { -129, -128, -1, 0, 128, 255, 383, 384 })
         {
             actor.DrawPriority = priority;
-            actor.XPosition = actor.YPosition = unchecked((ushort)position);
+            actor.Position = actor.Position.WithWhole(new(unchecked((ushort)position), unchecked((ushort)position)));
             enemies.EarthquakeType = type;
             enemies.EarthquakeTimer = timer;
             short dx = 0, dy = 0;
@@ -48,15 +48,15 @@ internal static partial class Program
             var actual = new OamBuffer();
             actual.BeginFrame();
             if (priority == EnemyProjectileDrawPriority.High)
-                enemies.DrawHighPriorityEnemyProjectiles(actual, 0, 0, frozen);
-            else enemies.DrawLowPriorityEnemyProjectiles(actual, 0, 0, frozen);
+                enemies.DrawHighPriorityEnemyProjectiles(actual, new(0, 0), frozen);
+            else enemies.DrawLowPriorityEnemyProjectiles(actual, new(0, 0), frozen);
             actual.FinalizeFrame();
             string quakeCase = $"type={type}, timer={timer}, priority={priority}, origin={position}";
             AssertSameBytes(expected.LowTable, actual.LowTable, $"native quake OAM low table: {quakeCase}");
             AssertSameBytes(expected.HighTable, actual.HighTable, $"native quake OAM high table: {quakeCase}");
             AssertEqual(timer, enemies.EarthquakeTimer, "drawing leaves quake timer untouched");
-            AssertEqual(unchecked((ushort)position), actor.XPosition, "drawing preserves world X");
-            AssertEqual(unchecked((ushort)position), actor.YPosition, "drawing preserves world Y");
+            AssertEqual(unchecked((ushort)position), actor.Position.X.Whole, "drawing preserves world X");
+            AssertEqual(unchecked((ushort)position), actor.Position.Y.Whole, "drawing preserves world Y");
             cases++;
         }
         Console.WriteLine($"Projectile quake: {cases} native OAM/edge/timer cases passed.");

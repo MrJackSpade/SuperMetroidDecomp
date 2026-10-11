@@ -28,8 +28,7 @@ internal static partial class Program
                     byte initialState = (byte)((timerIndex + distanceIndex) % 5);
                     slot.Parameter1 = (ushort)(timerIndex << 8 | initialState);
                     slot.Parameter2 = (ushort)(distanceIndex << 8);
-                    slot.XPosition = spawnX;
-                    slot.YPosition = 0x0100;
+                    slot.Position = slot.Position.WithWhole(new(spawnX, 0x0100));
                     initialize(slot);
 
                     OwtchEnemyState state = enemies.OwtchStates[0]!;

@@ -26,7 +26,7 @@ internal static partial class Program
         {
             runtime.Projectiles.Reset();
             samus.Position = samus.Position.WithWhole(new(120, 491));
-            body.XPosition = 176; body.YPosition = 592;
+            body.Position = body.Position.WithWhole(new(176, 592));
             body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = 100;
             body.VariableB = closed ? KraidHeadInstructionDefinitions.RoarInitial : (ushort)0x96ec;
@@ -63,7 +63,7 @@ internal static partial class Program
             Check("Nail contact slot " + index, () =>
             {
                 var nail = runtime.Enemies.Slots[index];
-                nail.XPosition = 100; nail.YPosition = 400;
+                nail.Position = nail.Position.WithWhole(new(100, 400));
                 nail.Properties = nail.Properties.Without(EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted | EnemyProperties.Invisible);
                 ResetSamus(100, 400);
                 ushort damage = nail.Definition.Damage;
@@ -78,7 +78,7 @@ internal static partial class Program
         Check("Belly projectile leading edge", () =>
         {
             var lint = runtime.Enemies.Slots[2];
-            lint.XPosition = 126; lint.YPosition = 400;
+            lint.Position = lint.Position.WithWhole(new(126, 400));
             lint.Properties = lint.Properties.Without(EnemyProperties.IgnoreSamusCollision);
             lint.VariableA = (ushort)KraidAiFunction.LintInactive;
             ResetSamus(100, 400);
@@ -90,7 +90,7 @@ internal static partial class Program
         Check("First closed head after rising", () =>
         {
             runtime.Projectiles.Reset();
-            body.XPosition = 176; body.YPosition = 457;
+            body.Position = body.Position.WithWhole(new(176, 457));
             body.VariableA = (ushort)KraidAiFunction.RaiseBody;
             state.VulnerableMouthHitbox = state.InvulnerableMouthHitbox = 0;
             typeof(RoomEnemySystem).GetMethod("RunKraidRiseFunction", flags)!.Invoke(runtime.Enemies,
@@ -98,7 +98,7 @@ internal static partial class Program
             AssertEqual(KraidHeadInstructionDefinitions.RoarContinuation, body.VariableB, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Slots[0];
             shot.Type = 0x8004; shot.Damage = 40;
-            shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.YPosition - 106)));
+            shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));
             shot.Radius = new(8, 8);
             typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ProjectileCounter))!
                 .SetValue(runtime.Projectiles, (ushort)1);
@@ -108,12 +108,12 @@ internal static partial class Program
         });
         Check("Kraid body contact", () =>
         {
-            body.XPosition = 176; body.YPosition = 592;
+            body.Position = body.Position.WithWhole(new(176, 592));
             body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = 100;
             ResetSamus(180, 500);
             typeof(RoomEnemySystem).GetMethod("RunKraidBodyMain", flags)!.Invoke(runtime.Enemies,
-                new object?[] { body, samus, (ushort)0, (ushort)384, null, null, null });
+                new object?[] { body, samus, new Position16<RoomPixels>((ushort)0, (ushort)384), null, null, null });
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid ejects Samus eight pixels left");
             AssertEqual((ushort)492, samus.Position.Y.Whole, "Kraid ejects Samus eight pixels up");
             AssertEqual((ushort)(999 - body.Definition.Damage), samus.Health, "Kraid body touch damage");

@@ -8,15 +8,14 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     /// <summary>Ports $86:8427, evaluated at each projectile draw pass before room-shake timer consumption.</summary>
-    private (short X, short Y) GetEnemyProjectileShake(bool timeIsFrozen)
+    private Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)
     {
         if (EarthquakeTimer == 0 || timeIsFrozen || EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
             return default;
         RoomShakeDefinition definition = RoomShakeDefinitions.ForType(EarthquakeType);
-        Offset16<RoomPixels> shake = (EarthquakeTimer & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0
+        return (EarthquakeTimer & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0
             ? -definition.Projectile
             : definition.Projectile;
-        return (shake.X, shake.Y);
     }
 
     /// <summary>

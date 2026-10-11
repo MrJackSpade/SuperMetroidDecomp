@@ -28,8 +28,7 @@ internal static partial class Program
             .Invoke(runtime.Enemies, [ridley])!;
 
         // Native update 56046: Ridley on frame $E983, both Super Missile slots on his body.
-        ridley.XPosition = 0x00a4;
-        ridley.YPosition = 0x0148;
+        ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));
         ridley.SpritemapPointer = 0xe983;
         ridley.Properties = 0x3800;
         ridley.InvincibilityTimer = 0;
@@ -37,7 +36,7 @@ internal static partial class Program
         ridley.Health = 9340;
         state.FightMode = RidleyFightMode.PowerBombDodge;
         state.HealthStage = 0;
-        runtime.Enemies.PrepareEnemyProcessingList(ridley.XPosition, ridley.YPosition);
+        runtime.Enemies.PrepareEnemyProcessingList(ridley.Position.Whole);
         foreach (int index in new[] { 0, 1 })
         {
             SamusProjectileSlot shot = runtime.Projectiles.Slots[index];

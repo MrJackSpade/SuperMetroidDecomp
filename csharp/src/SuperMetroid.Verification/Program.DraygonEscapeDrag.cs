@@ -19,8 +19,7 @@ internal static partial class Program
         samus.DraygonGrabbed.Release(bus, samus);
 
         var state = new DraygonEnemyState(enemies.Slots[0]) { Function = DraygonAiFunction.CarrySamus };
-        state.Body.XPosition = 0x013b;
-        state.Body.YPosition = 0x0176;
+        state.Body.Position = state.Body.Position.WithWhole(new(0x013b, 0x0176));
         typeof(RoomEnemySystem).GetMethod("MoveSamusWithDraygon", flags)!.Invoke(enemies, [state, samus]);
 
         AssertEqual((ushort)(0x013b - 8), samus.Position.X.Whole, "the escaped Samus is placed eight pixels left of Draygon");

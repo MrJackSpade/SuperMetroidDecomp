@@ -45,8 +45,7 @@ internal static partial class Program
                 new SnesVram(), new SnesCgram(), () => 0);
             var actor = enemies.Slots[0];
             var state = enemies.YardStates[0]!;
-            actor.XPosition = actor.YPosition = 512;
-            actor.XSubposition = actor.YSubposition = 0xF000;
+            actor.Position = new(new(512, 0xF000), new(512, 0xF000));
             actor.InstructionTimer = ushort.MaxValue;
             state.MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = behavior;
@@ -73,9 +72,9 @@ internal static partial class Program
                 uint accelerated = unchecked(vy + 0x2000);
                 vy = unchecked((short)((accelerated >> 16) - 4)) < 0
                     ? accelerated : (vy & 0xFFFF0000) | (accelerated & 0xFFFF);
-                enemies.StepFrame(384, 384, false, samus, level: level);
-                AssertEqual(x, ((uint)actor.XPosition << 16) | actor.XSubposition, "Yard airborne X trajectory");
-                AssertEqual(y, ((uint)actor.YPosition << 16) | actor.YSubposition, "Yard airborne Y trajectory");
+                enemies.StepFrame(new(384, 384), false, samus, level: level);
+                AssertEqual(x, actor.Position.X.RawValue, "Yard airborne X trajectory");
+                AssertEqual(y, actor.Position.Y.RawValue, "Yard airborne Y trajectory");
                 AssertEqual(vx, ((uint)state.AirborneXVelocity << 16) | state.AirborneXSubvelocity, "Yard native friction words");
                 AssertEqual(vy, ((uint)state.AirborneYVelocity << 16) | state.AirborneYSubvelocity, "Yard native gravity words");
                 AssertEqual(YardMovementFunction.Airborne, state.MovementFunction, "empty fixture remains airborne");

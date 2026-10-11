@@ -16,9 +16,8 @@ internal static partial class Program
         var scratch = Expression.Variable(scratchType, "scratch");
         Expression Field(string path) => path.Split('.').Aggregate((Expression)shot, Expression.PropertyOrField);
         var nativeShot = Expression.New(shotType.GetConstructor(
-            Enumerable.Repeat(typeof(ushort), 6).ToArray())!,
-            Field("Position.X.Whole"), Field("Position.Y.Whole"),
-            Field("Radius.X"), Field("Radius.Y"),
+            [typeof(Position16<RoomPixels>), typeof(Extent16<RoomPixels>), typeof(ushort), typeof(ushort)])!,
+            Field("Position.Whole"), Field("Radius"),
             Field(nameof(SamusProjectileSlot.Type)), Field(nameof(SamusProjectileSlot.Damage)));
         // Enter the body-contour branch at its exact Y threshold. The surrounding
         // mouth/body dispatch is covered by the encounter collision fixtures.
@@ -44,13 +43,13 @@ internal static partial class Program
         {
             short y = unchecked((short)raw);
             short expected = NativeKraidBodyLeftEdge(rom, y);
-            body.YPosition = (ushort)raw;
+            body.Position = body.Position.WithWholeY((ushort)raw);
             shot.Position = shot.Position.WithWholeY(unchecked((ushort)(raw + y)));
             foreach (ushort bodyX in new ushort[] { 256, 32768, 65520 })
             foreach (ushort radius in new ushort[] { 0, 4, 16 })
             for (int delta = -1; delta <= 1; delta++)
             {
-                body.XPosition = bodyX;
+                body.Position = body.Position.WithWholeX(bodyX);
                 shot.Radius = shot.Radius.WithX(radius);
                 shot.Position = shot.Position.WithWholeX(unchecked((ushort)(bodyX + expected - radius + delta)));
                 bool reference = unchecked((short)(bodyX + expected -

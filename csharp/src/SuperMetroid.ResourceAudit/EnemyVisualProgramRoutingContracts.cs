@@ -14,18 +14,24 @@ internal static class EnemyVisualProgramRoutingContracts
         ["ReadEnemyVisualSelector"] = "DDCA6A13A4F9F6278F5B19F1790A73E509DB240F1266136A88F5847EDB95D360",
         ["SetEnemyProjectileVisualOperand"] = "EE891D65133B250AE6404621D0F69587B2B0F4246BBFE0962D66C44C9F71C4D1",
         // #628 re-pin: the OAM origin is passed as one typed Position16<OamPixels>; spritemap routing unchanged.
-        ["DrawEnemySpritemap"] = "E37C021B9CA1D51D6DA7106CA127CA8EC88BDB3F23E0DC6FCF77290B938BE533",
+        // #628 re-pin: callers now supply that origin as the one parameter; same lookup and empty-frame branch.
+        ["DrawEnemySpritemap"] = "A9C871C1C49A4A8A0649A73CD949B8D95E21B9A58B1B0653DC4EEDF5752980B7",
         // #1275 re-pin: $A6:E4D2's low-energy branch also stores the Ridley timer; routing unchanged.
         // #627 re-pin: enemy identity aliases became EnemyDefinitionId members of equal value; routing unchanged.
         // #627 types the Baby Metroid goto opcodes; same cases and guards, typed call replaces the discarded bool.
         // #627 split the opcode switch: common commands first (ProcessCommonEnemyInstruction), then
         // closed per-owner handlers (TryProcessOwnedEnemyInstruction); frame words and the selector path unchanged.
-        ["ProcessInstructions"] = "E9A74D03DF7BDE95A523C3C264DB852BF00A045AB28EA63A3068E39CA5278CE2",
+        // #628 re-pin: the camera is one typed Position16<RoomPixels> parameter and enemy slot
+        // positions are typed values; same opcodes, frame words and selector path.
+        ["ProcessInstructions"] = "120F5EC11044EE74B2F57106301B47CB7F61604AACF90DBBF59EFEC544EAA4FD",
         ["ProcessCommonEnemyInstruction"] = "916EF0E5A274D53A3BEF0DB168B3B2D693C51201F8EC560EC372D0EE7F0B2982",
-        ["TryProcessOwnedEnemyInstruction"] = "D875D535D3C7F7BC6F6224D7A25C5EAC580C8CC96649A587C53C7B5D0FD75B03",
+        // #628 re-pin: the forwarded camera is one typed value; same owners and dispatch order.
+        ["TryProcessOwnedEnemyInstruction"] = "2C9F4A39C974971834210C66857A3C9633757C9EF84361DEEE3261613E59C370",
         // #627 decodes the word into EnemyProjectileInstruction; same cases, guards and order.
         // #628 re-pin: Samus position/radius reads became typed values; same cases, guards and order.
-        ["ProcessEnemyProjectileInstructions"] = "A970892EAC6833B389976195835D2D82338FE89477F6261EE9F0140210688572",
+        // #628 re-pin: the camera parameter and enemy-projectile position/velocity/radius are typed
+        // values; same cases, guards and order.
+        ["ProcessEnemyProjectileInstructions"] = "8F52FDFCF0B99148800089171A9AF7089CE69D8F1BB6B61B97081420A28E9849",
     };
 
     internal static void Inspect(CSharpCompilation compilation, AuditReport report)

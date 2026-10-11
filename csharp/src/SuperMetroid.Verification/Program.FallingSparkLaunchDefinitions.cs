@@ -28,32 +28,31 @@ internal static partial class Program
             AssertEqual(whole, compiled.Whole, "Every RNG word preserves native spark whole velocity");
             AssertEqual(fraction, compiled.Fraction, "Every RNG word preserves native spark fractional velocity");
             projectile.Clear();
-            projectile.XVelocity = projectile.YVelocity = 0xffff;
-            source.XPosition = source.XSubposition = (ushort)raw;
-            source.YPosition = source.YSubposition = (ushort)(ushort.MaxValue - raw);
+            projectile.Velocity = new(new SnesSignedEightEight(0xffff), new SnesSignedEightEight(0xffff));
+            source.Position = new(new((ushort)raw, (ushort)raw), new((ushort)(ushort.MaxValue - raw), (ushort)(ushort.MaxValue - raw)));
             advances = 0;
             spawn(source);
             AssertEqual(1, advances, "Successful spark spawn advances RNG once");
             AssertEqual(RoomEnemyProjectileKind.FallingSpark, projectile.Kind, "Reverse allocator owns last free slot");
-            AssertEqual(source.XPosition, projectile.XPosition, "Spark copies source X");
-            AssertEqual(source.XSubposition, projectile.XSubposition, "Spark copies source X fraction");
-            AssertEqual(unchecked((ushort)(source.YPosition + 8)), projectile.YPosition, "Spark Y offset wraps");
-            AssertEqual(source.YSubposition, projectile.YSubposition, "Spark copies source Y fraction");
-            AssertEqual((ushort)0, projectile.XVelocity, "Spark clears aliased vertical fraction");
-            AssertEqual((ushort)0, projectile.YVelocity, "Spark clears aliased vertical whole");
+            AssertEqual(source.Position.X.Whole, projectile.Position.X.Whole, "Spark copies source X");
+            AssertEqual(source.Position.X.Fraction, projectile.Position.X.Fraction, "Spark copies source X fraction");
+            AssertEqual(unchecked((ushort)(source.Position.Y.Whole + 8)), projectile.Position.Y.Whole, "Spark Y offset wraps");
+            AssertEqual(source.Position.Y.Fraction, projectile.Position.Y.Fraction, "Spark copies source Y fraction");
+            AssertEqual((ushort)0, projectile.Velocity.X.RawValue, "Spark clears aliased vertical fraction");
+            AssertEqual((ushort)0, projectile.Velocity.Y.RawValue, "Spark clears aliased vertical whole");
             AssertEqual(whole, projectile.Variable1, "Actual spark whole launch field");
             AssertEqual(fraction, projectile.Variable0, "Actual spark fractional launch field");
-            uint expected = unchecked(((uint)source.XPosition << 16 | source.XSubposition) + ((uint)whole << 16 | fraction));
+            uint expected = unchecked(((uint)source.Position.X.Whole << 16 | source.Position.X.Fraction) + ((uint)whole << 16 | fraction));
             move(projectile);
-            AssertEqual((ushort)(expected >> 16), projectile.XPosition, "Native signed launch reaches actual wrapped movement");
-            AssertEqual((ushort)expected, projectile.XSubposition, "Native fractional launch reaches actual movement");
+            AssertEqual((ushort)(expected >> 16), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
+            AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");
         }
         foreach (var occupied in enemies.EnemyProjectiles) occupied.Kind = RoomEnemyProjectileKind.FallingSpark;
         advances = 0;
-        ushort previousX = projectile.XPosition;
+        ushort previousX = projectile.Position.X.Whole;
         spawn(source);
         AssertEqual(0, advances, "Full projectile pool does not consume spark RNG");
-        AssertEqual(previousX, projectile.XPosition, "Failed allocation preserves occupied projectile");
+        AssertEqual(previousX, projectile.Position.X.Whole, "Failed allocation preserves occupied projectile");
         Console.WriteLine("Falling sparks: 16 native words including overread, all 65536 RNG selections, real spawns and horizontal motion pass with launch-table reads forbidden.");
     }
 

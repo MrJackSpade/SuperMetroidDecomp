@@ -26,9 +26,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetMethod("DrawEnemySpritemap",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(
                     ordinaryEnemies,
-                    [emptyDraw, bank, CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap,
-                        (ushort)0x0080, (ushort)0x0080, (ushort)0, (ushort)0,
-                        false, true]);
+                    [emptyDraw, bank, CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, new Position16<OamPixels>((ushort)0x0080, (ushort)0x0080), (ushort)0, (ushort)0, false, true]);
             AssertEqual(0, emptyDraw.NextByteOffset,
                 $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
             int root = (bank << 16) |
@@ -96,15 +94,13 @@ internal static partial class Program
         RoomEnemySlot slot = enemies.Slots[0];
         slot.Definition = default(RoomEnemyDefinition) with { Bank = bank };
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.Frame;
-        slot.XPosition = 0x0080;
-        slot.YPosition = 0x0080;
+        slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
-            [slot, (ushort)0x0080, (ushort)0x0080,
-                (ushort)2, (ushort)2, selectShot, null];
+            [slot, new Position16<RoomPixels>((ushort)0x0080, (ushort)0x0080), new Extent16<RoomPixels>((ushort)2, (ushort)2), selectShot, null];
         bool found = (bool)typeof(RoomEnemySystem)
             .GetMethod("TryFindExtendedHitboxCallback", flags)!
             .Invoke(enemies, arguments)!;
         AssertTrue(found, "shared empty extended point overlaps its origin");
-        return (ushort)arguments[6]!;
+        return (ushort)arguments[4]!;
     }
 }

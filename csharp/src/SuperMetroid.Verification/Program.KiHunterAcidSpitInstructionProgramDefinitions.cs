@@ -43,8 +43,7 @@ internal static partial class Program
 
         var body = new RoomEnemySlot(0)
         {
-            XPosition = 128,
-            YPosition = 112,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             VramTilesIndex = 0x0200,
             PaletteIndex = 0x0c00,
         };
@@ -66,11 +65,9 @@ internal static partial class Program
         Array.Fill(blocks, (ushort)0x8000, 32, 32);
         var level = new RoomLevelData(
             new Extent16<RoomBlocks>(8, 8), blocks, new byte[64], new ushort[64], new byte[8]);
-        left.XPosition = 64;
-        left.YPosition = 63;
-        left.XRadius = 2;
-        left.YRadius = 2;
-        left.YVelocity = 0x0100;
+        left.Position = left.Position.WithWhole(new(64, 63));
+        left.Radius = new(2, 2);
+        left.Velocity = left.Velocity.WithY(new SnesSignedEightEight(0x0100));
         move.Invoke(enemies, [left, level]);
         AssertEqual(KiHunterAcidSpitInstructionProgramDefinitions.HitFloor,
             left.InstructionPointer,
@@ -151,7 +148,7 @@ internal static partial class Program
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
                 if (projectile.IsActive && projectile.InstructionTimer != 0)
                 {
                     ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));

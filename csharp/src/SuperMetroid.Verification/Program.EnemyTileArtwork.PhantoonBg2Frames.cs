@@ -222,14 +222,13 @@ internal static partial class Program
             Bank = PhantoonBg2FrameDefinitions.Bank,
         };
         slot.SpritemapPointer = pointer;
-        slot.XPosition = 0x0080;
-        slot.YPosition = 0x0080;
+        slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
-            [slot, targetX, targetY, (ushort)2, (ushort)2, selectShot, null];
+            [slot, new Position16<RoomPixels>(targetX, targetY), new Extent16<RoomPixels>((ushort)2, (ushort)2), selectShot, null];
         bool found = (bool)typeof(RoomEnemySystem)
             .GetMethod("TryFindExtendedHitboxCallback", flags)!
             .Invoke(enemies, arguments)!;
-        return found ? (ushort)arguments[6]! : (ushort)0;
+        return found ? (ushort)arguments[4]! : (ushort)0;
     }
 
     private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog art,
@@ -255,9 +254,8 @@ internal static partial class Program
             slot.ExtraProperties = slot.ExtraProperties.With(
                 EnemyExtraProperties.NewInstructionFrame);
         slot.SpritemapPointer = pointer;
-        slot.XPosition = 0x0080;
-        slot.YPosition = 0x0080;
-        enemies.DrawLayers(new OamBuffer(), 0, 0, 0, 0);
+        slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
+        enemies.DrawLayers(new OamBuffer(), new(0, 0), 0, 0);
         return vram.Bytes.ToArray();
     }
 }

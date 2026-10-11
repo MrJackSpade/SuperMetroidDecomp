@@ -12,17 +12,17 @@ public sealed partial class RoomEnemySystem
     /// Ports <c>CalculateAngleOf_12_14_Offset</c> at $A0:C0AF. Zero points upward and the
     /// result advances clockwise in 256 units per turn, matching bank-$A0 enemy callers.
     /// </summary>
-    private static byte CalculateCartridgeAngle(short x, short y)
+    private static byte CalculateCartridgeAngle(Offset16<RoomPixels> delta)
     {
         int quadrant = 0;
-        ushort absoluteX = unchecked((ushort)x);
-        ushort absoluteY = unchecked((ushort)y);
-        if (x < 0)
+        ushort absoluteX = unchecked((ushort)delta.X);
+        ushort absoluteY = unchecked((ushort)delta.Y);
+        if (delta.X < 0)
         {
             quadrant += 2;
             absoluteX = unchecked((ushort)-absoluteX);
         }
-        if (y < 0)
+        if (delta.Y < 0)
         {
             quadrant++;
             absoluteY = unchecked((ushort)-absoluteY);

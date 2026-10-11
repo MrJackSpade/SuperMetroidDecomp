@@ -36,8 +36,7 @@ internal static partial class Program
 
         RoomEnemySystem startingSystem = NewSystem();
         RoomEnemySlot startingOwner = startingSystem.Slots[0];
-        startingOwner.XPosition = 128;
-        startingOwner.YPosition = 96;
+        startingOwner.Position = startingOwner.Position.WithWhole(new(128, 96));
         spawnStarting.Invoke(startingSystem, [startingOwner, (byte)0]);
         RoomEnemyProjectileSlot starting = startingSystem.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame);
@@ -157,8 +156,7 @@ internal static partial class Program
         RoomEnemyProjectileSlot SpawnDestroyable(RoomEnemySystem enemies, ushort parameter)
         {
             RoomEnemySlot body = enemies.Slots[0];
-            body.XPosition = 128;
-            body.YPosition = 96;
+            body.Position = body.Position.WithWhole(new(128, 96));
             // Native parameter word: spawn type in the high byte, index in the low byte.
             spawnDestroyable.Invoke(enemies, [body, (PhantoonFlameSpawnType)(parameter >> 8), (byte)parameter]);
             return enemies.EnemyProjectiles.Single(projectile => projectile.Kind ==
@@ -181,7 +179,7 @@ internal static partial class Program
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }

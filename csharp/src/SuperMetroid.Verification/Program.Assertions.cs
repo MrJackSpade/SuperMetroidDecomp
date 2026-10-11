@@ -86,9 +86,7 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
         int address = MotherBrainFallingTubePopulationDefinitions.NativeBank | pointer;
         ushort Word(int offset) => (ushort)(ReadByte(address + offset) |
             ReadByte(address + offset + 1) << 8);
-        return new RoomEnemyPopulationRecord(
-            (EnemyDefinitionId)Word(0), Word(2), Word(4), Word(6), Word(8), Word(10),
-            Word(12), Word(14));
+        return new RoomEnemyPopulationRecord((EnemyDefinitionId)Word(0), new(Word(2), Word(4)), Word(6), Word(8), Word(10), Word(12), Word(14));
     }
 
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
@@ -104,11 +102,7 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
             EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
             if (slot == RoomEnemySystem.MaximumEnemyCount)
                 throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");
-            records.Add(new RoomEnemyPopulationRecord(
-                definitionPointer, ReadFixtureWord(cursor + 2),
-                ReadFixtureWord(cursor + 4), ReadFixtureWord(cursor + 6),
-                ReadFixtureWord(cursor + 8), ReadFixtureWord(cursor + 10),
-                ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
+            records.Add(new RoomEnemyPopulationRecord(definitionPointer, new(ReadFixtureWord(cursor + 2), ReadFixtureWord(cursor + 4)), ReadFixtureWord(cursor + 6), ReadFixtureWord(cursor + 8), ReadFixtureWord(cursor + 10), ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
             cursor += 16;
         }
         throw new InvalidDataException($"Fixture population ${pointer:X4} is unterminated.");

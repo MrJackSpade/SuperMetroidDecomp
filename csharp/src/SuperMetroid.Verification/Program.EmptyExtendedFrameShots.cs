@@ -22,12 +22,11 @@ internal static partial class Program
         samus.InputLocked = true;
 
         // Native update 37306: the pirate at ($1F4,$A0) on $804F, the charged beam at ($1F2,$A3).
-        pirate.XPosition = 0x01f4;
-        pirate.YPosition = 0x00a0;
+        pirate.Position = pirate.Position.WithWhole(new(0x01f4, 0x00a0));
         pirate.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.Frame;
         pirate.InstructionTimer = 0x7fff;
         ushort health = pirate.Health;
-        runtime.Enemies.PrepareEnemyProcessingList(pirate.XPosition, pirate.YPosition);
+        runtime.Enemies.PrepareEnemyProcessingList(pirate.Position.Whole);
 
         SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x9010; shot.Damage = 60; shot.Direction = 7;

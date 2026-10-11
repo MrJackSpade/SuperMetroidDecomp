@@ -10,7 +10,7 @@ internal static partial class Program
         var guarded = new RoomSpriteObjectDefinitionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", flags)!
-            .CreateDelegate<Func<RoomEnemySystem, ushort, ushort, RoomSpriteObjectKind,
+            .CreateDelegate<Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind,
                 ushort, RoomSpriteObjectSlot?>>();
         var step = typeof(RoomEnemySystem).GetMethod("StepRoomSpriteObjects", flags)!
             .CreateDelegate<Action<RoomEnemySystem>>();
@@ -39,8 +39,7 @@ internal static partial class Program
             busField.SetValue(enemies, guarded);
             RoomSpriteObjectSlot? slot = spawn(
                 enemies,
-                unchecked((ushort)(0x1000 + objectNumber)),
-                unchecked((ushort)(0x2000 + objectNumber)),
+                new(unchecked((ushort)(0x1000 + objectNumber)), unchecked((ushort)(0x2000 + objectNumber))),
                 kind,
                 0x0600);
             AssertTrue(slot is not null,

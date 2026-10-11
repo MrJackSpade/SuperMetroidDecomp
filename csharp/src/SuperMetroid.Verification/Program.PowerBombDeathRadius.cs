@@ -32,7 +32,7 @@ internal static partial class Program
             higher.Properties = killerRespawns ? (ushort)EnemyProperties.RespawnIfKilled : (ushort)0;
             var lower = Place(enemies.Slots[0], unchecked((ushort)(explosionX + lowerXOffset)), 1000);
 
-            enemies.ResolveOrdinaryPowerBombHits(fixture.Bus, explosionX, explosionY, radius);
+            enemies.ResolveOrdinaryPowerBombHits(fixture.Bus, new(explosionX, explosionY), radius);
 
             if (killerLethal)
             {
@@ -50,10 +50,8 @@ internal static partial class Program
             actor.Definition = RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer);
             actor.AiBank = actor.Definition.Bank;
             actor.Health = health;
-            actor.XPosition = x;
-            actor.YPosition = explosionY;
-            actor.XRadius = actor.Definition.XRadius;
-            actor.YRadius = actor.Definition.YRadius;
+            actor.Position = actor.Position.WithWhole(new(x, explosionY));
+            actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);
             actor.Properties = 0;
             return actor;
         }

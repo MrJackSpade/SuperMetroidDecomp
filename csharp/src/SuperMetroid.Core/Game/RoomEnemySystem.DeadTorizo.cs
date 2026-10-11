@@ -171,14 +171,14 @@ public sealed partial class RoomEnemySystem
         {
             ushort verticalDistance;
             ushort verticalRadius;
-            if (unchecked((short)(kinematics.Position.Y.Whole - slot.YPosition)) >= 0)
+            if (unchecked((short)(kinematics.Position.Y.Whole - slot.Position.Y.Whole)) >= 0)
             {
-                verticalDistance = unchecked((ushort)(kinematics.Position.Y.Whole - slot.YPosition));
+                verticalDistance = unchecked((ushort)(kinematics.Position.Y.Whole - slot.Position.Y.Whole));
                 verticalRadius = hitbox.Bottom;
             }
             else
             {
-                verticalDistance = unchecked((ushort)(slot.YPosition - kinematics.Position.Y.Whole));
+                verticalDistance = unchecked((ushort)(slot.Position.Y.Whole - kinematics.Position.Y.Whole));
                 verticalRadius = hitbox.Top;
             }
 
@@ -189,14 +189,14 @@ public sealed partial class RoomEnemySystem
 
             ushort horizontalDistance;
             ushort horizontalRadius;
-            if (unchecked((short)(kinematics.Position.X.Whole - slot.XPosition)) >= 0)
+            if (unchecked((short)(kinematics.Position.X.Whole - slot.Position.X.Whole)) >= 0)
             {
-                horizontalDistance = unchecked((ushort)(kinematics.Position.X.Whole - slot.XPosition));
+                horizontalDistance = unchecked((ushort)(kinematics.Position.X.Whole - slot.Position.X.Whole));
                 horizontalRadius = hitbox.Right;
             }
             else
             {
-                horizontalDistance = unchecked((ushort)(slot.XPosition - kinematics.Position.X.Whole));
+                horizontalDistance = unchecked((ushort)(slot.Position.X.Whole - kinematics.Position.X.Whole));
                 horizontalRadius = hitbox.Left;
             }
 
@@ -287,8 +287,7 @@ public sealed partial class RoomEnemySystem
         state.LastFinishedEntryIndex = entryIndex;
         ushort random = RequireRandomNumber();
         SpawnRoomGraphicsDustExplosion(
-            unchecked((ushort)((random & 0x001f) + 272)),
-            188,
+            new(unchecked((ushort)((random & 0x001f) + 272)), 188),
             animationIndex: 10);
         state.DustSpawnCount++;
         if ((_randomEnemyCounter & 7) == 0)
@@ -321,17 +320,17 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static void MoveBankA9EnemyWithVelocity(RoomEnemySlot slot)
     {
-        int xCarry = (slot.XSubposition >> 8) + (byte)slot.VariableB;
-        slot.XSubposition = unchecked((ushort)(
-            (slot.XSubposition & 0x00ff) | ((xCarry & 0xff) << 8)));
-        slot.XPosition = unchecked((ushort)(
-            slot.XPosition + unchecked((sbyte)(slot.VariableB >> 8)) + (xCarry >> 8)));
+        int xCarry = (slot.Position.X.Fraction >> 8) + (byte)slot.VariableB;
+        slot.Position = slot.Position.WithFractionX(unchecked((ushort)(
+            (slot.Position.X.Fraction & 0x00ff) | ((xCarry & 0xff) << 8))));
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+            slot.Position.X.Whole + unchecked((sbyte)(slot.VariableB >> 8)) + (xCarry >> 8))));
 
-        int yCarry = (slot.YSubposition >> 8) + (byte)slot.VariableC;
-        slot.YSubposition = unchecked((ushort)(
-            (slot.YSubposition & 0x00ff) | ((yCarry & 0xff) << 8)));
-        slot.YPosition = unchecked((ushort)(
-            slot.YPosition + unchecked((sbyte)(slot.VariableC >> 8)) + (yCarry >> 8)));
+        int yCarry = (slot.Position.Y.Fraction >> 8) + (byte)slot.VariableC;
+        slot.Position = slot.Position.WithFractionY(unchecked((ushort)(
+            (slot.Position.Y.Fraction & 0x00ff) | ((yCarry & 0xff) << 8))));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
+            slot.Position.Y.Whole + unchecked((sbyte)(slot.VariableC >> 8)) + (yCarry >> 8))));
     }
 
     private void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)
@@ -358,20 +357,19 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Runs the post-enemy ordinary-spritemap hook at <c>$A9:D39A</c>.</summary>
-    private void DrawDeadTorizoHook(OamBuffer oam, ushort cameraX, ushort cameraY)
+    private void DrawDeadTorizoHook(OamBuffer oam, Position16<RoomPixels> camera)
     {
         if (_deadTorizo is null)
             return;
 
-        ushort screenY = unchecked((ushort)(187 - cameraY));
+        ushort screenY = unchecked((ushort)(187 - camera.Y));
         if (unchecked((short)screenY) < 0)
             return;
         DrawEnemySpritemap(
             oam,
             DeadTorizoArtworkDefinitions.SpritemapBank,
             DeadTorizoArtworkDefinitions.HookSpritemap,
-            unchecked((ushort)(296 - cameraX)),
-            screenY,
+            new(unchecked((ushort)(296 - camera.X)), screenY),
             0,
             0);
     }

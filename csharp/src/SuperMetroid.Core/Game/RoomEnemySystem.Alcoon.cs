@@ -219,8 +219,8 @@ public sealed partial class RoomEnemySystem
         _alcoonStates[slot.SlotIndex] = state;
 
         state.StepCounter = 0;
-        state.SpawnYPosition = slot.YPosition;
-        state.SpawnXPosition = slot.XPosition;
+        state.SpawnYPosition = slot.Position.Y.Whole;
+        state.SpawnXPosition = slot.Position.X.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.CurrentInstruction = AlcoonInstructionProgramDefinitions.WalkingLeft;
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
@@ -247,8 +247,8 @@ public sealed partial class RoomEnemySystem
             GuardAlcoonJumpSimulation(++iterations, slot);
         }
 
-        state.LandingYPosition = slot.YPosition;
-        slot.YPosition = state.SpawnYPosition;
+        state.LandingYPosition = slot.Position.Y.Whole;
+        slot.Position = slot.Position.WithWholeY(state.SpawnYPosition);
     }
 
     /// <summary>Ports <c>MainAI_Alcoon</c> and all seven indirect targets.</summary>
@@ -297,7 +297,7 @@ public sealed partial class RoomEnemySystem
         if (WrappedMagnitude(unchecked((ushort)(state.LandingYPosition - samus.Position.Y.Whole))) >= 0x20)
             return;
 
-        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
+        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (WrappedMagnitude(signedXDistance) >= AlcoonEmergeXDistance)
             return;
 
@@ -349,7 +349,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
+        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (unchecked((short)signedXDistance) < 0)
         {
             state.XVelocity = unchecked((ushort)-2);
@@ -380,7 +380,7 @@ public sealed partial class RoomEnemySystem
         // walking actor fall by the same amount before the remainder of main AI runs.
         MoveEnemyVertically(level, slot, 2 << 16);
 
-        ushort spawnDistance = unchecked((ushort)(state.SpawnXPosition - slot.XPosition));
+        ushort spawnDistance = unchecked((ushort)(state.SpawnXPosition - slot.Position.X.Whole));
         if (WrappedMagnitude(spawnDistance) >= AlcoonHideXDistance)
         {
             state.Function = AlcoonEnemyFunction.HidingRising;
@@ -397,7 +397,7 @@ public sealed partial class RoomEnemySystem
         if (state.StepCounter != 0)
             return;
 
-        bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0;
+        bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
         bool movingLeft = unchecked((short)state.XVelocity) < 0;
         if (samusIsLeft != movingLeft)
             return;
@@ -421,7 +421,7 @@ public sealed partial class RoomEnemySystem
     private static void RunAlcoonHidingFall(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(slot, state);
-        if (unchecked((short)(slot.YPosition - state.SpawnYPosition)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - state.SpawnYPosition)) < 0)
         {
             AccelerateAlcoonY(state);
             return;
@@ -429,8 +429,7 @@ public sealed partial class RoomEnemySystem
 
         // Like the original, the reset snaps only whole coordinates. Both subpositions and
         // the last animation map remain live while the actor waits underground.
-        slot.YPosition = state.SpawnYPosition;
-        slot.XPosition = state.SpawnXPosition;
+        slot.Position = slot.Position.WithWhole(new(state.SpawnXPosition, state.SpawnYPosition));
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
     }
 
@@ -454,12 +453,11 @@ public sealed partial class RoomEnemySystem
 
     private static void AddAlcoonYVelocity(RoomEnemySlot slot, AlcoonEnemyState state)
     {
-        uint fixedY = ((uint)slot.YPosition << 16) | slot.YSubposition;
+        uint fixedY = slot.Position.Y.RawValue;
         fixedY = unchecked(fixedY + (uint)ComposeSignedFixed(
             state.YVelocity,
             state.YSubvelocity));
-        slot.YPosition = unchecked((ushort)(fixedY >> 16));
-        slot.YSubposition = unchecked((ushort)fixedY);
+        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedY)));
     }
 
     private static void GuardAlcoonJumpSimulation(int iterations, RoomEnemySlot slot)

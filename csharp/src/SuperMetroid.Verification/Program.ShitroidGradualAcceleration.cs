@@ -23,15 +23,13 @@ internal static partial class Program
         shitroid.VariableA = (ushort)ShitroidAiFunction.RiseAfterFeeding;
         shitroid.VariableB = 0;
         shitroid.VariableC = 0;
-        shitroid.XPosition = 0x02d6;
-        shitroid.YPosition = 0x009c;
-        shitroid.YSubposition = 0x6b00;
+        shitroid.Position = shitroid.Position.WithWholeX(0x02d6).WithWholeY(0x009c).WithFractionY(0x6b00);
         var runMain = typeof(RoomEnemySystem).GetMethod("RunShitroidMain", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        runMain.Invoke(runtime.Enemies, [shitroid, runtime.Samus, (ushort)0x0200, (ushort)0x0000, null]);
+        runMain.Invoke(runtime.Enemies, [shitroid, runtime.Samus, new Position16<RoomPixels>((ushort)0x0200, (ushort)0x0000), null]);
 
         AssertEqual((ushort)0xfff1, shitroid.VariableC, "the reversal step borrows once, reaching Y velocity $FFF1");
-        AssertEqual((ushort)0x009c, shitroid.YPosition, "the rise stays within the same pixel");
-        AssertEqual((ushort)0x5c00, shitroid.YSubposition, "the Y subpixel moves by -$F00");
+        AssertEqual((ushort)0x009c, shitroid.Position.Y.Whole, "the rise stays within the same pixel");
+        AssertEqual((ushort)0x5c00, shitroid.Position.Y.Fraction, "the Y subpixel moves by -$F00");
         Console.WriteLine("Shitroid gradual acceleration: the native SBC borrow chain sets the first rise's velocity.");
     }
 
@@ -59,8 +57,8 @@ internal static partial class Program
             samus.Health = 500;
             samus.Position = samus.Position.WithWhole(new(0x01c3, 0x00b9));
             samus.Kinematics.YSpeed = ySpeed;
-            runMain.Invoke(runtime.Enemies, [shitroid, samus, (ushort)0x0158, (ushort)0x0000, null]);
-            AssertEqual(expectedX, shitroid.XPosition, $"Y speed {ySpeed}: the drain's X add takes CMP #4's carry");
+            runMain.Invoke(runtime.Enemies, [shitroid, samus, new Position16<RoomPixels>((ushort)0x0158, (ushort)0x0000), null]);
+            AssertEqual(expectedX, shitroid.Position.X.Whole, $"Y speed {ySpeed}: the drain's X add takes CMP #4's carry");
             AssertEqual(expectedSpeed, samus.Kinematics.YSpeed, $"Y speed {ySpeed}: the drain clamps only speeds of 4 or more");
         }
         Console.WriteLine("Shitroid drain carry: a Y speed of 4 or more adds one pixel to the latched X.");

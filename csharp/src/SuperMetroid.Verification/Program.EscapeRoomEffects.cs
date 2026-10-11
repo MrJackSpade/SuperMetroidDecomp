@@ -38,8 +38,8 @@ internal static partial class Program
                     var baseline = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [noObjects], capture.ObjectSelection, capture.Brightness));
                     foreach (var sprite in runtime.Enemies.RoomSpriteObjects.Where(s => s.IsActive))
                     {
-                        int x = sprite.XPosition - runtime.Camera!.PixelPosition.X, y = sprite.YPosition - runtime.Camera.PixelPosition.Y;
-                        if (Math.Abs(sprite.XPosition - runtime.Samus.Position.X.Whole) < 40 && Math.Abs(sprite.YPosition - runtime.Samus.Position.Y.Whole) < 40) continue;
+                        int x = sprite.Position.X.Whole - runtime.Camera!.PixelPosition.X, y = sprite.Position.Y.Whole - runtime.Camera.PixelPosition.Y;
+                        if (Math.Abs(sprite.Position.X.Whole - runtime.Samus.Position.X.Whole) < 40 && Math.Abs(sprite.Position.Y.Whole - runtime.Samus.Position.Y.Whole) < 40) continue;
                         int changed = 0;
                         for (int py = Math.Max(32, y - 8); py < Math.Min(224, y + 8); py++)
                             for (int px = Math.Max(0, x - 8); px < Math.Min(256, x + 8); px++)

@@ -14,8 +14,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot robot,
         WorkRobotEnemyState state,
         WorkRobotLaser definition,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -29,8 +28,8 @@ public sealed partial class RoomEnemySystem
             projectile,
             (RoomEnemyProjectileKind)definition,
             unchecked((ushort)(robot.VramTilesIndex | robot.PaletteIndex)));
-        projectile.XVelocity = state.LaserXVelocity;
-        projectile.YVelocity = definition switch
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(state.LaserXVelocity));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(definition switch
         {
             WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
                 unchecked((ushort)-0x0080),
@@ -38,17 +37,14 @@ public sealed partial class RoomEnemySystem
             WorkRobotLaser.Horizontal => 0,
             _ => throw new InvalidOperationException(
                 $"Undefined Work Robot laser definition {definition}."),
-        };
+        }));
 
         // All five initializers place the muzzle four pixels in the signed facing direction
         // and sixteen pixels above the robot. The temporary graphics word comes from the
         // owner; pre-instruction $D3BF clears it before the first draw, matching the ROM's
         // use of palette/tile bits embedded directly in the bank-$8D laser spritemaps.
-        projectile.XPosition = unchecked((ushort)(robot.XPosition +
-            (unchecked((short)state.LaserXVelocity) < 0 ? -4 : 4)));
-        projectile.YPosition = unchecked((ushort)(robot.YPosition - 16));
-        projectile.XSubposition = 0;
-        projectile.YSubposition = 0;
+        projectile.Position = new(new(unchecked((ushort)(robot.Position.X.Whole +
+            (unchecked((short)state.LaserXVelocity) < 0 ? -4 : 4))), 0), new(unchecked((ushort)(robot.Position.Y.Whole - 16)), 0));
         // $86:D326 clears the graphics word in the down-left/right initializer itself.
         // Upward and horizontal variants retain the owner's word until common
         // pre-instruction $D3BF clears it on their first projectile pass.
@@ -60,11 +56,11 @@ public sealed partial class RoomEnemySystem
         // `CMP Layer1YPosition`, so lasers only request sound while their owner's absolute
         // top edge is above scanline 224, even when a lower room row is on screen.
         bool horizontallyVisible =
-            unchecked((short)(robot.XPosition + robot.XRadius - cameraX)) >= 0 &&
-            unchecked((short)(robot.XPosition - robot.XRadius - 0x0101 - cameraX)) < 0;
+            unchecked((short)(robot.Position.X.Whole + robot.Radius.X - camera.X)) >= 0 &&
+            unchecked((short)(robot.Position.X.Whole - robot.Radius.X - 0x0101 - camera.X)) < 0;
         bool verticallyVisible =
-            unchecked((short)(robot.YPosition + robot.YRadius - cameraY)) >= 0 &&
-            unchecked((short)(robot.YPosition - robot.YRadius - 0x00e0)) < 0;
+            unchecked((short)(robot.Position.Y.Whole + robot.Radius.Y - camera.Y)) >= 0 &&
+            unchecked((short)(robot.Position.Y.Whole - robot.Radius.Y - 0x00e0)) < 0;
         if (horizontallyVisible && verticallyVisible)
             LastWorkRobotSoundEffect = WorkRobotLaserSound;
     }

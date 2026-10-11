@@ -22,7 +22,7 @@ internal static partial class Program
             enemies.StepEnemyProjectiles(level, null);
             enemies.StepEnemyProjectiles(level, null);
             var oam = new OamBuffer();
-            enemies.DrawEnemyProjectiles(oam, 0, 0);
+            enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             AssertTrue(oam.NextByteOffset > 0, "closed gate has visible OAM before grapple impact");
             byte[] expected = oam.LowTable[..oam.NextByteOffset].ToArray();
             int hitIndex = gateIndex + (trigger == DownwardGateTriggerBehavior.GreenLeft ? -1 : 1);
@@ -44,7 +44,7 @@ internal static partial class Program
                 StepDownwardGatePlm(plms, bus, level, streamer);
                 AssertEqual(0, plms.TakeDownwardGateProjectileRequests().Count, "rejected grapple does not wake or replace gate actor");
                 enemies.StepEnemyProjectiles(level, null);
-                enemies.DrawEnemyProjectiles(oam, 0, 0);
+                enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
                 AssertTrue(oam.LowTable[..oam.NextByteOffset].SequenceEqual(expected),
                     $"green gate OAM remains visible and identical on {trigger} frame {frame}");
                 if (frame == 2)

@@ -41,8 +41,7 @@ internal static partial class Program
         RoomEnemySlot door = enemies.Slots[1];
         door.EnemyDefinitionPointer = EnemyDefinitionId.CeresDoor;
         door.VariableB = 1;
-        door.XPosition = 100;
-        door.YPosition = 80;
+        door.Position = door.Position.WithWhole(new(100, 80));
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
             new MemoryStream(stockJson, writable: false));
@@ -57,7 +56,7 @@ internal static partial class Program
             enemies.EarthquakeTimer = phase;
             var oam = new OamBuffer();
             oam.BeginFrame();
-            enemies.DrawCeresRidleyImmediateBabyAndDoor(oam, 0, 0);
+            enemies.DrawCeresRidleyImmediateBabyAndDoor(oam, new(0, 0));
             oam.FinalizeFrame();
             baseX ??= oam.GetEntry(0).X;
             AssertEqual(baseX.Value + expectedOffsets[phase], oam.GetEntry(0).X,
@@ -74,7 +73,7 @@ internal static partial class Program
         nativeOverlay.FinalizeFrame();
         var installedOverlay = new OamBuffer();
         installedOverlay.BeginFrame();
-        enemies.DrawCeresRidleyImmediateBabyAndDoor(installedOverlay, 0, 0);
+        enemies.DrawCeresRidleyImmediateBabyAndDoor(installedOverlay, new(0, 0));
         installedOverlay.FinalizeFrame();
         AssertTrue(nativeOverlay.LowTable.SequenceEqual(installedOverlay.LowTable) &&
                    nativeOverlay.HighTable.SequenceEqual(installedOverlay.HighTable),
@@ -96,7 +95,7 @@ internal static partial class Program
                 new MemoryStream(editedJson, writable: false)));
         var editedOverlay = new OamBuffer();
         editedOverlay.BeginFrame();
-        enemies.DrawCeresRidleyImmediateBabyAndDoor(editedOverlay, 0, 0);
+        enemies.DrawCeresRidleyImmediateBabyAndDoor(editedOverlay, new(0, 0));
         editedOverlay.FinalizeFrame();
         AssertEqual(nativeOverlay.GetEntry(0).X, editedOverlay.GetEntry(0).X,
             "private-overlay visual edit preserves the native quake/X coordinate");

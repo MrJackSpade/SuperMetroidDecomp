@@ -11,16 +11,16 @@ internal static partial class Program
         var overlaps = typeof(RoomEnemySystem).GetMethod("IsWithinRidleyRectangle", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<RoomEnemySlot, ushort, ushort, ushort, ushort, bool>>();
         var bounds = new RoomEnemySystem().Slots[0];
-        bounds.XRadius = bounds.YRadius = 8;
+        bounds.Radius = new(8, 8);
         // Native $A9:EF06 adds both radii plus one before its unsigned comparison.
         foreach (ushort targetRadius in new ushort[] { 2, 4, 8 })
         {
             ushort extent = (ushort)(8 + targetRadius);
-            bounds.XPosition = (ushort)(128 + extent); bounds.YPosition = (ushort)(256 - extent);
+            bounds.Position = bounds.Position.WithWhole(new((ushort)(128 + extent), (ushort)(256 - extent)));
             AssertTrue(overlaps(bounds, 128, 256, targetRadius, targetRadius), "Ridley arrival includes touching actor edges");
-            bounds.XPosition++;
+            bounds.Position = bounds.Position.WithWholeX(unchecked((ushort)(bounds.Position.X.Whole + 1)));
             AssertTrue(!overlaps(bounds, 128, 256, targetRadius, targetRadius), "Ridley arrival rejects one pixel past X edge");
-            bounds.XPosition = 128; bounds.YPosition--;
+            bounds.Position = bounds.Position.WithWholeX(128); bounds.Position = bounds.Position.WithWholeY(unchecked((ushort)(bounds.Position.Y.Whole - 1)));
             AssertTrue(!overlaps(bounds, 128, 256, targetRadius, targetRadius), "Ridley arrival rejects one pixel past Y edge");
         }
 
@@ -44,7 +44,7 @@ internal static partial class Program
         body.CurrentInstruction = W(seed, 0xf92); body.InstructionTimer = W(seed, 0xf94);
         body.Timer = W(seed, 0xf90); body.FrameCounter = W(seed, 0xfa4);
         body.SpritemapPointer = W(seed, 0xf8e);
-        body.XSubposition = W(seed, 0xf7c); body.YSubposition = W(seed, 0xf80);
+        body.Position = body.Position.WithFractionX(W(seed, 0xf7c)); body.Position = body.Position.WithFractionY(W(seed, 0xf80));
         ushort random = 0;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(SuperMetroid.Core.Game.RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => random));
@@ -55,9 +55,9 @@ internal static partial class Program
             samus.Position = samus.Position.WithWhole(new(W(expected, 0xaf6), W(expected, 0xafa)));
             samus.Pose = (SamusPoseId)W(expected, 0xa1c); samus.RefreshCollisionRadii(bus);
             random = W(expected, 0x5e5);
-            enemies.StepFrame(W(expected, 0x911), W(expected, 0x915), false, samus,
+            enemies.StepFrame(new(W(expected, 0x911), W(expected, 0x915)), false, samus,
                 level: runtime.LevelData, controllerInput: W(expected, 0x8b));
-            string actual = $"{(ushort)state.Function:X4},{body.XPosition:X4},{body.XSubposition:X4},{body.YPosition:X4},{body.YSubposition:X4},{state.HorizontalVelocity:X4},{state.VerticalVelocity:X4}";
+            string actual = $"{(ushort)state.Function:X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.HorizontalVelocity:X4},{state.VerticalVelocity:X4}";
             string native = string.Join(",", new[] {0xfa8,0xf7a,0xf7c,0xf7e,0xf80,0xfaa,0xfac}.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)
                 throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={body.CurrentInstruction:X4}/{body.InstructionTimer}; timer={state.FunctionTimer} native={W(expected,0xfb2)}");

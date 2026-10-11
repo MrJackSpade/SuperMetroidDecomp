@@ -160,8 +160,8 @@ public sealed partial class RoomEnemySystem
             Behavior = (OwtchBehaviorState)initialState,
             SinkYOffset = 0,
             UndergroundTimer = undergroundTimer,
-            MinimumXPosition = unchecked((ushort)(slot.XPosition - travelDistance)),
-            MaximumXPosition = unchecked((ushort)(slot.XPosition + travelDistance)),
+            MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - travelDistance)),
+            MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + travelDistance)),
         };
         _owtchStates[slot.SlotIndex] = state;
 
@@ -170,7 +170,7 @@ public sealed partial class RoomEnemySystem
         if (state.Behavior == OwtchBehaviorState.Underground)
         {
             state.SinkYOffset = OwtchMaximumBurialDepth;
-            slot.YPosition = unchecked((ushort)(slot.YPosition + OwtchMaximumBurialDepth));
+            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + OwtchMaximumBurialDepth)));
         }
     }
 
@@ -196,7 +196,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case OwtchBehaviorState.Sinking:
-                slot.YPosition = unchecked((ushort)(slot.YPosition + 1));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
                 state.SinkYOffset = unchecked((ushort)(state.SinkYOffset + 1));
                 if (unchecked((short)(state.SinkYOffset - OwtchMaximumBurialDepth)) >= 0)
                 {
@@ -207,7 +207,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case OwtchBehaviorState.Rising:
-                slot.YPosition = unchecked((ushort)(slot.YPosition - 1));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 1)));
                 state.SinkYOffset = unchecked((ushort)(state.SinkYOffset - 1));
                 if (state.SinkYOffset == 0)
                 {
@@ -249,16 +249,16 @@ public sealed partial class RoomEnemySystem
             ? state.RightVelocity
             : state.LeftVelocity;
 
-        uint fractionalSum = (uint)slot.XSubposition + subvelocity;
-        slot.XSubposition = unchecked((ushort)fractionalSum);
+        uint fractionalSum = (uint)slot.Position.X.Fraction + subvelocity;
+        slot.Position = slot.Position.WithFractionX(unchecked((ushort)fractionalSum));
         if (fractionalSum > ushort.MaxValue)
-            slot.XPosition = unchecked((ushort)(slot.XPosition + 1));
-        slot.XPosition = unchecked((ushort)(slot.XPosition + velocity));
+            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + 1)));
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + velocity)));
 
         if (!movingRight)
         {
             if (!IsNegative16(unchecked((ushort)(
-                    slot.XPosition - state.MinimumXPosition))))
+                    slot.Position.X.Whole - state.MinimumXPosition))))
             {
                 return;
             }
@@ -270,7 +270,7 @@ public sealed partial class RoomEnemySystem
         }
 
         if (!IsNegative16(unchecked((ushort)(
-                slot.XPosition - state.MaximumXPosition))))
+                slot.Position.X.Whole - state.MaximumXPosition))))
         {
             state.Behavior = OwtchBehaviorState.MovingLeft;
         }

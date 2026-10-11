@@ -129,7 +129,7 @@ internal static partial class Program
         var samus = new SamusState { Health = 99 };
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments =
-            [slot, samus, null, (ushort)0, (ushort)0, (ushort)0];
+            [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0];
 
         for (int frame = 0; frame < 1000; frame++)
         {

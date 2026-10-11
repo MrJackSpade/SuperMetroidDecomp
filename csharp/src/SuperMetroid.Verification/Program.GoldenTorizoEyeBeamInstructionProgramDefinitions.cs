@@ -44,8 +44,7 @@ internal static partial class Program
             var random = new Queue<ushort>([0x0080, 0x0080, 0x0010]);
             RoomEnemySystem enemies = CreateSystem(guard, random, eyeBeamExplosions: false);
             RoomEnemySlot torizo = enemies.Slots[0];
-            torizo.XPosition = 1000;
-            torizo.YPosition = 500;
+            torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
             spawn.Invoke(enemies, [torizo, (ushort)0]);
             RoomEnemyProjectileSlot beam = enemies.EnemyProjectiles[^1];
@@ -53,9 +52,9 @@ internal static partial class Program
                 beam.InstructionPointer,
                 $"Golden Torizo {facingRight} eye beam normal program");
             AssertEqual(unchecked((ushort)(1000 + (facingRight ? 20 : -20))),
-                beam.XPosition,
+                beam.Position.X.Whole,
                 $"Golden Torizo {facingRight} eye beam X origin");
-            AssertEqual((ushort)470, beam.YPosition,
+            AssertEqual((ushort)470, beam.Position.Y.Whole,
                 $"Golden Torizo {facingRight} eye beam Y origin");
             AssertEqual(
                 (ushort)EnemyProjectilePreInstruction.GoldenTorizoEyeBeam,
@@ -96,11 +95,8 @@ internal static partial class Program
             new Queue<ushort>([0x0080, 0x0080, 0x0010]),
             eyeBeamExplosions: false);
         RoomEnemyProjectileSlot wallBeam = SpawnBeam(wallEnemies, spawn);
-        wallBeam.XPosition = 157;
-        wallBeam.YPosition = 128;
-        wallBeam.XSubposition = 0;
-        wallBeam.XVelocity = 256;
-        wallBeam.YVelocity = 0;
+        wallBeam.Position = wallBeam.Position.WithWholeX(157).WithWholeY(128).WithFractionX(0);
+        wallBeam.Velocity = new(new SnesSignedEightEight(256), new SnesSignedEightEight(0));
         runMovement.Invoke(wallEnemies, [wallBeam, wallRoom]);
         AssertEqual(GoldenTorizoEyeBeamInstructionProgramDefinitions.WallImpact,
             wallBeam.InstructionPointer,
@@ -223,8 +219,7 @@ internal static partial class Program
         RoomEnemyProjectileSlot SpawnBeam(RoomEnemySystem enemies, MethodInfo spawnMethod)
         {
             RoomEnemySlot torizo = enemies.Slots[0];
-            torizo.XPosition = 1000;
-            torizo.YPosition = 500;
+            torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             torizo.Parameter1 = 0x8000;
             spawnMethod.Invoke(enemies, [torizo, (ushort)0]);
             return enemies.EnemyProjectiles[^1];
@@ -232,24 +227,23 @@ internal static partial class Program
 
         void CollideWithFloor(RoomEnemySystem enemies, RoomEnemyProjectileSlot beam)
         {
-            beam.XPosition = 128;
-            beam.YPosition = 157;
-            beam.XVelocity = 0;
-            beam.YSubposition = 0;
-            beam.YVelocity = 256;
+            beam.Position = beam.Position.WithWhole(new(128, 157));
+            beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(0));
+            beam.Position = beam.Position.WithFractionY(0);
+            beam.Velocity = beam.Velocity.WithY(new SnesSignedEightEight(256));
             runMovement.Invoke(enemies, [beam, floorRoom]);
             AssertEqual(GoldenTorizoEyeBeamInstructionProgramDefinitions.FloorImpact,
                 beam.InstructionPointer,
                 "Golden Torizo eye beam floor collision selects floor impact");
             AssertEqual((ushort)1, beam.InstructionTimer,
                 "Golden Torizo eye beam floor impact is immediately armed");
-            AssertEqual((ushort)6, unchecked((ushort)(beam.YPosition & 0x000f)),
+            AssertEqual((ushort)6, unchecked((ushort)(beam.Position.Y.Whole & 0x000f)),
                 "Golden Torizo eye beam floor impact uses native low-nibble alignment");
         }
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile, SamusState? samus)
         {
-            process.Invoke(system, [projectile, samus, (ushort)0, (ushort)0]);
+            process.Invoke(system, [projectile, samus, Position16<RoomPixels>.Zero]);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
         RoomEnemySystem CreateSystem(

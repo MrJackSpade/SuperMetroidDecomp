@@ -219,14 +219,12 @@ public sealed partial class RoomEnemySystem
 
         TorizoInitializationDefinition definition = isGolden
             ? TorizoInitializationDefinitions.Golden : TorizoInitializationDefinitions.Bomb;
-        torizo.XPosition = definition.X;
-        torizo.YPosition = definition.Y;
+        torizo.Position = torizo.Position.WithWhole(new(definition.X, definition.Y));
         torizo.CurrentInstruction = definition.Instruction;
         torizo.Properties = unchecked((ushort)(torizo.Properties | definition.PropertyMask));
         torizo.ExtraProperties = torizo.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
-        torizo.XRadius = definition.XRadius;
-        torizo.YRadius = definition.YRadius;
+        torizo.Radius = new(definition.XRadius, definition.YRadius);
         torizo.InstructionTimer = 1;
         torizo.Timer = 0;
         torizo.PaletteIndex = 0;

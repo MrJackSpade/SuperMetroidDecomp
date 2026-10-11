@@ -72,12 +72,12 @@ public sealed partial class RoomEnemySystem
         // $CAF5 always composes positions, but only the selected tail controller
         // updates offsets. Function zero and stagger/stop returns retain them.
         RidleyTailSegment first = state.TailSegments[0];
-        first.YPosition = unchecked((ushort)(slot.YPosition + first.YOffset + 16));
+        first.YPosition = unchecked((ushort)(slot.Position.Y.Whole + first.YOffset + 16));
         first.XPosition = state.FacingDirection switch
         {
-            RidleyFacing.Left => unchecked((ushort)(slot.XPosition + 0x0020 + first.XOffset)),
-            RidleyFacing.Turning => slot.XPosition,
-            RidleyFacing.Right => unchecked((ushort)(slot.XPosition - 0x0020 + first.XOffset)),
+            RidleyFacing.Left => unchecked((ushort)(slot.Position.X.Whole + 0x0020 + first.XOffset)),
+            RidleyFacing.Turning => slot.Position.X.Whole,
+            RidleyFacing.Right => unchecked((ushort)(slot.Position.X.Whole - 0x0020 + first.XOffset)),
             _ => throw new InvalidOperationException(
                 $"Undefined {nameof(RidleyFacing)} {(int)state.FacingDirection}."),
         };
@@ -88,7 +88,7 @@ public sealed partial class RoomEnemySystem
             RidleyTailSegment current = state.TailSegments[index];
             current.YPosition = unchecked((ushort)(previous.YPosition + current.YOffset));
             current.XPosition = state.FacingDirection == RidleyFacing.Turning
-                ? slot.XPosition
+                ? slot.Position.X.Whole
                 : unchecked((ushort)(previous.XPosition + current.XOffset));
         }
 
@@ -122,7 +122,7 @@ public sealed partial class RoomEnemySystem
                 // Read the existing seed; this branch never advances the cartridge RNG.
                 if ((RequireRandomNumber() & 0xff) >= 0xf0)
                     AimCeresRidleyTailWhip(state, samus, unchecked((byte)(state.TailWhipRequest - 1)));
-                else if (samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.XPosition)) < 128)
+                else if (samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 128)
                     AimCeresRidleyTailWhip(state, samus, additionalAngle: 0);
             }
 
@@ -172,8 +172,7 @@ public sealed partial class RoomEnemySystem
             }
         }
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(targetX - root.XPosition)),
-            unchecked((short)(targetY - root.YPosition)));
+            new(unchecked((short)(targetX - root.XPosition)), unchecked((short)(targetY - root.YPosition))));
         byte targetByte = unchecked((byte)-(cartridgeAngle - 0x80));
         ushort additional = unchecked((ushort)(additionalAngle << 8));
 
@@ -356,8 +355,7 @@ public sealed partial class RoomEnemySystem
     private void DrawRidleySupplementalSprites(
         OamBuffer oam,
         RoomEnemySlot slot,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         RidleyEnemyState state = RequireRidley(slot);
         if ((slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && CeresStatus != 0) ||
@@ -376,8 +374,7 @@ public sealed partial class RoomEnemySystem
                 state.SpritemapPaletteIndex,
                 tip,
                 tipSpritemap,
-                cameraX,
-                cameraY);
+                camera);
 
             // $A6:DB59-$DBBF walks back from segment five to the base after emitting the
             // tip. Lower OAM indices win equal-priority overlap, so reversing this visually
@@ -388,8 +385,7 @@ public sealed partial class RoomEnemySystem
                     state.SpritemapPaletteIndex,
                     state.TailSegments[index],
                     RidleySupplementalVisualDefinitions.SegmentFrameAt(index),
-                    cameraX,
-                    cameraY);
+                    camera);
         }
 
         if (state.FacingDirection == RidleyFacing.Turning)
@@ -401,12 +397,11 @@ public sealed partial class RoomEnemySystem
             oam,
             RidleySupplementalVisualDefinitions.Bank,
             wingSpritemap,
-            unchecked((ushort)(slot.XPosition - cameraX)),
-            unchecked((ushort)(slot.YPosition - cameraY)),
+            new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))),
             state.SpritemapPaletteIndex,
             0,
             clipVerticalWrap: true,
-            originYIsOnScreen: unchecked((ushort)(slot.YPosition - cameraY)) < 0x0100);
+            originYIsOnScreen: unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 0x0100);
     }
 
     /// <summary>
@@ -417,8 +412,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public void DrawCeresRidleyImmediateBabyAndDoor(
         OamBuffer oam,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
@@ -429,7 +423,7 @@ public sealed partial class RoomEnemySystem
             Ridley.MovementAnimationEnabled != 0)
             return;
 
-        DrawCeresRidleyBabyAndDoor(oam, cameraX, cameraY);
+        DrawCeresRidleyBabyAndDoor(oam, camera);
     }
 
     /// <summary>
@@ -439,8 +433,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public void DrawCeresRidleyPostEnemyHook(
         OamBuffer oam,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
@@ -449,13 +442,12 @@ public sealed partial class RoomEnemySystem
             Ridley.MovementAnimationEnabled == 0)
             return;
 
-        DrawCeresRidleyBabyAndDoor(oam, cameraX, cameraY);
+        DrawCeresRidleyBabyAndDoor(oam, camera);
     }
 
     private void DrawCeresRidleyBabyAndDoor(
         OamBuffer oam,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         RidleyEnemyState state = Ridley
             ?? throw new InvalidOperationException("Ceres Ridley Baby draw requires active state.");
@@ -469,13 +461,12 @@ public sealed partial class RoomEnemySystem
                     oam,
                     bank: CeresBabyInstructionProgramDefinitions.Bank,
                     pointer: babySpritemap,
-                    unchecked((ushort)(state.BabyXPosition - cameraX)),
-                    unchecked((ushort)(state.BabyYPosition - cameraY)),
+                    new(unchecked((ushort)(state.BabyXPosition - camera.X)), unchecked((ushort)(state.BabyYPosition - camera.Y))),
                     paletteBits: 0,
                     baseTileIndex: 0,
                     clipVerticalWrap: true,
                     originYIsOnScreen:
-                        unchecked((ushort)(state.BabyYPosition - cameraY)) < 0x0100);
+                        unchecked((ushort)(state.BabyYPosition - camera.Y)) < 0x0100);
             }
         }
 
@@ -498,8 +489,7 @@ public sealed partial class RoomEnemySystem
                 oam,
                 bank: CeresDoorInstructionProgramDefinitions.Bank,
                 pointer: CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap,
-                unchecked((ushort)(door.XPosition - cameraX + quakeXOffset)),
-                unchecked((ushort)(door.YPosition - cameraY)),
+                new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))),
                 paletteBits: EnemyPaletteBits.Palette2,
                 baseTileIndex: 0);
         }
@@ -606,8 +596,7 @@ public sealed partial class RoomEnemySystem
             EnemyDefinitionId.CeresDoor);
         RoomEnemyPopulationRecord population = new(
             EnemyDefinitionId.CeresDoor,
-            xPosition,
-            YPosition: 0x007f,
+            Position: new(xPosition, 0x007f),
             InitializationParameter: 0,
             Properties: (ushort)(
                 EnemyProperties.ProcessInstructions |
@@ -627,17 +616,15 @@ public sealed partial class RoomEnemySystem
         ushort paletteIndex,
         RidleyTailSegment segment,
         ushort spritemap,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
-        ushort screenX = unchecked((ushort)(segment.XPosition - cameraX));
-        ushort screenY = unchecked((ushort)(segment.YPosition - cameraY));
+        ushort screenX = unchecked((ushort)(segment.XPosition - camera.X));
+        ushort screenY = unchecked((ushort)(segment.YPosition - camera.Y));
         DrawEnemySpritemap(
             oam,
             RidleySupplementalVisualDefinitions.Bank,
             spritemap,
-            screenX,
-            screenY,
+            new(screenX, screenY),
             paletteIndex,
             0,
             clipVerticalWrap: true,
@@ -672,10 +659,8 @@ public sealed partial class RoomEnemySystem
 
         if (!TryFindExtendedHitboxCallback(
                 slot,
-                samus.Position.X.Whole,
-                samus.Position.Y.Whole,
-                samus.Kinematics.Radius.X,
-                samus.Kinematics.Radius.Y,
+                samus.Position.Whole,
+                samus.Kinematics.Radius,
                 selectShotCallback: false,
                 out ushort touchAiPointer))
         {
@@ -741,9 +726,9 @@ public sealed partial class RoomEnemySystem
         foreach (RidleyCollisionComponent component in components)
         {
             ushort componentX = unchecked((ushort)(
-                slot.XPosition + component.X));
+                slot.Position.X.Whole + component.X));
             ushort componentY = unchecked((ushort)(
-                slot.YPosition + component.Y));
+                slot.Position.Y.Whole + component.Y));
             ReadOnlySpan<RidleyCollisionHitbox> hitboxes =
                 RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer);
             foreach (RidleyCollisionHitbox hitbox in hitboxes)

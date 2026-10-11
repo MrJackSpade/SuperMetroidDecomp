@@ -55,20 +55,20 @@ internal static partial class Program
                 MotherBrainTurretDefinitions.ForDirection(definition.InitialDirection);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainRoomTurret, turret.Kind,
                 $"production Mother Brain turret kind {parameter}");
-            AssertEqual(definition.X, turret.XPosition,
+            AssertEqual(definition.X, turret.Position.X.Whole,
                 $"production Mother Brain turret X {parameter}");
-            AssertEqual(definition.Y, turret.YPosition,
+            AssertEqual(definition.Y, turret.Position.Y.Whole,
                 $"production Mother Brain turret Y {parameter}");
-            AssertEqual(definition.AllowedRotationPointer, turret.XSubposition,
+            AssertEqual(definition.AllowedRotationPointer, turret.Position.X.Fraction,
                 $"production Mother Brain turret rotation pointer {parameter}");
             AssertEqual(unchecked((ushort)(0x0100 | (byte)definition.InitialDirection)),
-                turret.YSubposition,
+                turret.Position.Y.Fraction,
                 $"production Mother Brain turret packed direction {parameter}");
             AssertEqual(directionDefinition.InstructionPointer, turret.InstructionPointer,
                 $"production Mother Brain turret instruction {parameter}");
-            AssertEqual(MotherBrainTurretDefinitions.MinimumRotationDelay, turret.XVelocity,
+            AssertEqual(MotherBrainTurretDefinitions.MinimumRotationDelay, turret.Velocity.X.RawValue,
                 $"production Mother Brain turret rotation timer {parameter}");
-            AssertEqual(MotherBrainTurretDefinitions.MinimumFiringCooldown, turret.YVelocity,
+            AssertEqual(MotherBrainTurretDefinitions.MinimumFiringCooldown, turret.Velocity.Y.RawValue,
                 $"production Mother Brain turret cooldown {parameter}");
 
             foreach (sbyte delta in new sbyte[] { -1, 1 })
@@ -76,8 +76,7 @@ internal static partial class Program
             {
                 var rotation = new RoomEnemyProjectileSlot(0)
                 {
-                    XSubposition = definition.AllowedRotationPointer,
-                    YSubposition = unchecked((ushort)(unchecked((byte)delta) << 8 | current)),
+                    Position = new(new(0, definition.AllowedRotationPointer), new(0, unchecked((ushort)(unchecked((byte)delta) << 8 | current)))),
                 };
                 byte candidate = unchecked((byte)((current + delta) & 7));
                 bool allowed = rom.ReadByte(
@@ -90,7 +89,7 @@ internal static partial class Program
                 selectDirection.Invoke(null, [rotation]);
                 AssertEqual(unchecked((ushort)(
                         unchecked((byte)expectedDelta) << 8 | expectedDirection)),
-                    rotation.YSubposition,
+                    rotation.Position.Y.Fraction,
                     $"production Mother Brain turret rotation {parameter}/{current}/{delta}");
             }
         }
@@ -125,9 +124,7 @@ internal static partial class Program
             busField.SetValue(enemies, guarded);
             var turret = new RoomEnemyProjectileSlot(0)
             {
-                XPosition = 0x0400,
-                YPosition = 0x0200,
-                YSubposition = direction,
+                Position = new(new(0x0400, 0), new(0x0200, direction)),
             };
             spawnBullet.Invoke(enemies, [turret]);
 
@@ -139,13 +136,13 @@ internal static partial class Program
                 $"production Mother Brain turret bullet direction {direction}");
             AssertEqual((ushort)(direction * 2), bullet.Variable0,
                 $"production Mother Brain turret bullet direction offset {direction}");
-            AssertEqual(unchecked((ushort)(0x0400 + definition.BulletXOffset)), bullet.XPosition,
+            AssertEqual(unchecked((ushort)(0x0400 + definition.BulletXOffset)), bullet.Position.X.Whole,
                 $"production Mother Brain turret bullet X {direction}");
-            AssertEqual(unchecked((ushort)(0x0200 + definition.BulletYOffset)), bullet.YPosition,
+            AssertEqual(unchecked((ushort)(0x0200 + definition.BulletYOffset)), bullet.Position.Y.Whole,
                 $"production Mother Brain turret bullet Y {direction}");
-            AssertEqual(unchecked((ushort)definition.BulletXVelocity), bullet.XVelocity,
+            AssertEqual(unchecked((ushort)definition.BulletXVelocity), bullet.Velocity.X.RawValue,
                 $"production Mother Brain turret bullet X velocity {direction}");
-            AssertEqual(unchecked((ushort)definition.BulletYVelocity), bullet.YVelocity,
+            AssertEqual(unchecked((ushort)definition.BulletYVelocity), bullet.Velocity.Y.RawValue,
                 $"production Mother Brain turret bullet Y velocity {direction}");
         }
 

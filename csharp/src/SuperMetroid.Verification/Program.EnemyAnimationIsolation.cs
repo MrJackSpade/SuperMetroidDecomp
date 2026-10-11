@@ -28,7 +28,7 @@ internal static partial class Program
             stock.Step(frame); edited.Step(frame);
             AssertEnemyAnimationMechanics(stock, edited, frame);
             AssertAnimationValues(stock.Enemies.BoyonStates[0]!, edited.Enemies.BoyonStates[0]!, $"Boyon frame {frame}");
-            heights.Add(stock.Actor.YPosition);
+            heights.Add(stock.Actor.Position.Y.Whole);
             nativeFrames.Add(stock.Actor.SpritemapPointer);
             if (stock.Enemies.LastBoyonSoundEffect is not null) bounceSounds++;
             var before = stock.Draw(); var after = edited.Draw();
@@ -59,7 +59,7 @@ internal static partial class Program
             AssertEnemyAnimationMechanics(stock, edited, frame);
             AssertAnimationValues(stock.Torizo!, edited.Torizo!, $"Golden Torizo attack frame {frame}");
             nativeFrames.Add(stock.Actor.SpritemapPointer);
-            heights.Add(stock.Actor.YPosition);
+            heights.Add(stock.Actor.Position.Y.Whole);
             if (stock.Enemies.LastBombTorizoSoundEffect is not null) shotFrames.Add(frame);
             CompareTorizoHitWindows(stock, edited, frame, ref hitSamples, ref missSamples);
             var before = stock.Draw(); var after = edited.Draw();
@@ -114,8 +114,7 @@ internal static partial class Program
         for (int y = -64; y <= 32; y += 8)
         for (int x = -48; x <= 48; x += 8)
         {
-            object?[] before = [stock.Actor, unchecked((ushort)(stock.Actor.XPosition + x)),
-                unchecked((ushort)(stock.Actor.YPosition + y)), (ushort)2, (ushort)2, shot, (ushort)0];
+            object?[] before = [stock.Actor, new Position16<RoomPixels>(unchecked((ushort)(stock.Actor.Position.X.Whole + x)), unchecked((ushort)(stock.Actor.Position.Y.Whole + y))), new Extent16<RoomPixels>((ushort)2, (ushort)2), shot, (ushort)0];
             object?[] after = (object?[])before.Clone();
             after[0] = edited.Actor;
             bool hit = (bool)collide.Invoke(stock.Enemies, before)!;

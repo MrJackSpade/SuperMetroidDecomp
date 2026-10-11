@@ -115,12 +115,14 @@ internal static partial class Program
                      })
             for (int shot = 0; shot <= 1; shot++)
             {
-                nativeSlot.XPosition = compiledSlot.XPosition = x;
-                nativeSlot.YPosition = compiledSlot.YPosition = y;
+                compiledSlot.Position = compiledSlot.Position.WithWholeX(x);
+                nativeSlot.Position = nativeSlot.Position.WithWholeX(x);
+                compiledSlot.Position = compiledSlot.Position.WithWholeY(y);
+                nativeSlot.Position = nativeSlot.Position.WithWholeY(y);
                 object?[] nativeArguments =
-                    [nativeSlot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
+                    [nativeSlot, new Position16<RoomPixels>(x, y), Extent16<RoomPixels>.Zero, shot != 0, (ushort)0];
                 object?[] compiledArguments =
-                    [compiledSlot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
+                    [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot != 0, (ushort)0];
                 bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
                 bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                 AssertEqual(nativeHit, compiledHit,

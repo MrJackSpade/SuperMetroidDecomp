@@ -110,7 +110,7 @@ internal static partial class Program
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
             slot.InstructionTimer = 1;
             process.Invoke(enemies,
-                [slot, samus, null, (ushort)0, (ushort)0, (ushort)0]);
+                [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(ReadNinjaPirateWord(rom, 0xb20000 | address),
                 slot.SpritemapPointer,
                 $"production execution selects ninja Pirate frame $B2:{address:X4}");
@@ -147,8 +147,8 @@ internal static partial class Program
                 $"ninja Pirate claw program $B2:{program:X4} first spawn count");
             RoomEnemyProjectileSlot claw = enemies.EnemyProjectiles.Single(p => p.IsActive);
             AssertEqual(
-                unchecked((ushort)(slot.XPosition + expectedFirstXOffset)),
-                claw.XPosition,
+                unchecked((ushort)(slot.Position.X.Whole + expectedFirstXOffset)),
+                claw.Position.X.Whole,
                 $"ninja Pirate claw program $B2:{program:X4} first spawn X");
         }
 
@@ -177,10 +177,8 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyNinja;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
-            slot.XPosition = 0x0100;
-            slot.YPosition = 0x0100;
-            slot.XRadius = 8;
-            slot.YRadius = 16;
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
+            slot.Radius = new(8, 16);
             slot.Parameter2 = 0x0080;
             typeof(RoomEnemySystem).GetMethod("InitializeNinjaSpacePirate", flags)!
                 .Invoke(enemies, [slot]);
@@ -195,7 +193,7 @@ internal static partial class Program
         {
             MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
-                [slot, samus, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++) process.Invoke(enemies, arguments);
         }
     }

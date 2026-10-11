@@ -102,7 +102,7 @@ internal static partial class Program
                 for (int x = -8; x <= 48; x += 8)
                 for (int y = -144; y <= -64; y += 8)
                 {
-                    shot.Position = shot.Position.WithWhole(new((ushort)(baseline.Body.XPosition + x), (ushort)(baseline.Body.YPosition + y)));
+                    shot.Position = shot.Position.WithWhole(new((ushort)(baseline.Body.Position.X.Whole + x), (ushort)(baseline.Body.Position.Y.Whole + y)));
                     (short left, short top, _, short bottom) = KraidMouthHitboxes.Resolve(hitbox);
                     bool expected = y - shot.Radius.Y - 1 < bottom && y + shot.Radius.Y >= top && x + shot.Radius.X >= left;
                     AssertEqual(expected, baseline.Hit(hitbox, shot), "stock native mouth geometry");
@@ -141,7 +141,7 @@ internal static partial class Program
             hit = Enemies.KraidMouthHitboxOverlapsShot;
             transfer = typeof(RoomEnemySystem).GetMethod("TransferKraidHeadTilemap", flags)!
                 .CreateDelegate<Action<KraidEnemyState, ushort>>(Enemies);
-            Body.XPosition = 512; Body.YPosition = 512;
+            Body.Position = Body.Position.WithWhole(new(512, 512));
             byte[] sentinel = new byte[SnesVram.ByteCount]; Array.Fill(sentinel, (byte)0xcd); Vram.LoadBytes(0, sentinel);
         }
 

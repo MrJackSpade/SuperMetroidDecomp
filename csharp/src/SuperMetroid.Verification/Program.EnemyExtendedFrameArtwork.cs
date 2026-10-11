@@ -1445,10 +1445,9 @@ internal static partial class Program
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.SpritemapPointer = pointer;
         slot.InstructionTimer = 7;
-        slot.XPosition = x;
-        slot.YPosition = y;
+        slot.Position = slot.Position.WithWhole(new(x, y));
         var oam = new OamBuffer();
-        enemies.DrawLayers(oam, 0, 0, 0, 0);
+        enemies.DrawLayers(oam, new(0, 0), 0, 0);
         inspect?.Invoke(slot);
         return oam;
     }
@@ -1466,24 +1465,22 @@ internal static partial class Program
             Bank = EnemyExtendedFrameDefinitions.Bank,
         };
         slot.SpritemapPointer = pointer;
-        slot.XPosition = 0x0040;
-        slot.YPosition = 0x0080;
+        slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
         SpacePirateCollisionComponent component =
             SpacePirateCollisionDefinitions.ComponentsAt(pointer)[0];
         SpacePirateCollisionHitbox hitbox =
             SpacePirateCollisionDefinitions.HitboxesAt(component.HitboxPointer)[0];
-        ushort sampleX = unchecked((ushort)(slot.XPosition + component.X +
+        ushort sampleX = unchecked((ushort)(slot.Position.X.Whole + component.X +
             (hitbox.Left + hitbox.Right) / 2));
-        ushort sampleY = unchecked((ushort)(slot.YPosition + component.Y +
+        ushort sampleY = unchecked((ushort)(slot.Position.Y.Whole + component.Y +
             (hitbox.Top + hitbox.Bottom) / 2));
         MethodInfo collision = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
         object?[] arguments =
-            [slot, sampleX, sampleY, (ushort)0, (ushort)0,
-                false, (ushort)0];
+            [slot, new Position16<RoomPixels>(sampleX, sampleY), new Extent16<RoomPixels>((ushort)0, (ushort)0), false, (ushort)0];
         AssertTrue((bool)collision.Invoke(enemies, arguments)!,
             "Space Pirate stock hitbox contains its sampled point");
-        return (ushort)arguments[6]!;
+        return (ushort)arguments[4]!;
     }
 
     private static EnemyDefinitionId PirateDefinitionForFrame(ushort pointer)

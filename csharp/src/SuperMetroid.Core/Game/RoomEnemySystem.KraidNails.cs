@@ -31,7 +31,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case KraidAiFunction.FingernailWaitForLint:
-                if (unchecked((short)(_slots[2].XPosition - 256)) >= 0)
+                if (unchecked((short)(_slots[2].Position.X.Whole - 256)) >= 0)
                 {
                     nail.VariableA = (ushort)part.NextFunction;
                     nail.Properties = nail.Properties.Without(
@@ -75,15 +75,13 @@ public sealed partial class RoomEnemySystem
         {
             part.AlternateSpawnFlag = 0;
             RoomEnemySlot body = _slots[0];
-            nail.XPosition = unchecked((ushort)(
-                (body.XPosition - body.XRadius - nail.XRadius) & 0xfff0));
-            nail.YPosition = unchecked((ushort)(_slots[1].YPosition + 128));
+            nail.Position = nail.Position.WithWhole(new(unchecked((ushort)(
+                (body.Position.X.Whole - body.Radius.X - nail.Radius.X) & 0xfff0)), unchecked((ushort)(_slots[1].Position.Y.Whole + 128))));
             return;
         }
 
         part.AlternateSpawnFlag = 1;
-        nail.XPosition = 50;
-        nail.YPosition = 240;
+        nail.Position = nail.Position.WithWhole(new(50, 240));
         nail.VariableB = 0;
         nail.VariableC = 1;
         nail.VariableD = 0;
@@ -120,9 +118,9 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot body = _slots[0];
         ushort contourX = unchecked((ushort)(
-            body.XPosition + KraidNailContour.LeftOffset(
-                unchecked((ushort)(nail.YPosition - body.YPosition)))));
-        return unchecked((short)(nail.XPosition + nail.XRadius - contourX)) >= 0 &&
+            body.Position.X.Whole + KraidNailContour.LeftOffset(
+                unchecked((ushort)(nail.Position.Y.Whole - body.Position.Y.Whole)))));
+        return unchecked((short)(nail.Position.X.Whole + nail.Radius.X - contourX)) >= 0 &&
             unchecked((short)nail.VariableC) >= 0;
     }
 

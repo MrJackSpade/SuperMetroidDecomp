@@ -44,12 +44,11 @@ internal static partial class Program
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.Parameter1 = 0x0001;
         slot.Parameter2 = 0;
-        slot.XPosition = 0x0100;
-        slot.YPosition = 0x0100;
+        slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
         initialize(slot);
         ChootEnemyState state = enemies.ChootStates[0]!;
         object?[] processArguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
         RunChootInstructionProgram(
             enemies,

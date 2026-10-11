@@ -241,10 +241,7 @@ public sealed partial class RoomEnemySystem
         int displacement = state.MovementDirection == 0
             ? ComposeEvirFixed(state.UpVelocity, state.UpSubvelocity)
             : ComposeEvirFixed(state.DownVelocity, state.DownSubvelocity);
-        (slot.YPosition, slot.YSubposition) = AddEvirPosition(
-            slot.YPosition,
-            slot.YSubposition,
-            displacement);
+        slot.Position = slot.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(displacement));
 
         // DEC/BPL means zero expires immediately into $FFFF. Every later reset uses the
         // unshifted high parameter byte, despite initialization's unrelated aliasing bug.
@@ -260,8 +257,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         EvirEnemyState state,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         if (slot.FrozenTimer == 0)
         {
@@ -291,7 +287,7 @@ public sealed partial class RoomEnemySystem
                 ResetEvirProjectilePosition(slot, state);
                 break;
             case EvirAiFunction.ProjectileMoving:
-                RunMovingEvirProjectile(slot, state, cameraX, cameraY);
+                RunMovingEvirProjectile(slot, state, camera);
                 break;
             case EvirAiFunction.ProjectileRegenerating:
                 RunRegeneratingEvirProjectile(slot, state);
@@ -309,7 +305,7 @@ public sealed partial class RoomEnemySystem
     {
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Evir facing AI requires the active Samus actor.");
-        state.FacingDirection = unchecked((short)(activeSamus.Position.X.Whole - body.XPosition)) < 0
+        state.FacingDirection = unchecked((short)(activeSamus.Position.X.Whole - body.Position.X.Whole)) < 0
             ? (ushort)0
             : (ushort)1;
         RequestEvirInstruction(
@@ -325,9 +321,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EnemyDefinitionId.Evir, "arms body", initializing);
         EvirEnemyState bodyState = RequireEvirState(body);
         state.FacingDirection = bodyState.FacingDirection;
-        arms.XPosition = unchecked((ushort)(
-            body.XPosition + (state.FacingDirection == 0 ? -4 : 4)));
-        arms.YPosition = unchecked((ushort)(body.YPosition + 10));
+        arms.Position = arms.Position.WithWhole(new(unchecked((ushort)(
+            body.Position.X.Whole + (state.FacingDirection == 0 ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 10))));
         RequestEvirInstruction(
             arms,
             state,
@@ -345,9 +340,8 @@ public sealed partial class RoomEnemySystem
             "projectile body");
         EvirEnemyState bodyState = RequireEvirState(body);
         state.FacingDirection = bodyState.FacingDirection;
-        projectile.XPosition = unchecked((ushort)(
-            body.XPosition + (state.FacingDirection == 0 ? -4 : 4)));
-        projectile.YPosition = unchecked((ushort)(body.YPosition + 18));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
+            body.Position.X.Whole + (state.FacingDirection == 0 ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 18))));
     }
 
     private void TryLaunchEvirProjectile(
@@ -364,7 +358,7 @@ public sealed partial class RoomEnemySystem
             "projectile body");
         if (!IsWithinStrictModularDistance(
                 activeSamus.Position.X.Whole,
-                body.XPosition,
+                body.Position.X.Whole,
                 EvirActivationDistance))
         {
             return;
@@ -373,8 +367,7 @@ public sealed partial class RoomEnemySystem
         // CalculateAngleOfSamusFromEnemy returns zero up/clockwise. The two native angle
         // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(activeSamus.Position.X.Whole - projectile.XPosition)),
-            unchecked((short)(activeSamus.Position.Y.Whole - projectile.YPosition)));
+            new(unchecked((short)(activeSamus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(activeSamus.Position.Y.Whole - projectile.Position.Y.Whole))));
         byte transformedAngle = unchecked((byte)-(byte)(cartridgeAngle - 0x40));
         (state.XVelocity, state.XSubvelocity) = ReadEightBitCosineFixedProduct(
             transformedAngle,
@@ -393,31 +386,23 @@ public sealed partial class RoomEnemySystem
     private void RunMovingEvirProjectile(
         RoomEnemySlot projectile,
         EvirEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
-        StartEvirRegenerationIfFarOffscreen(projectile, state, cameraX, cameraY);
-        (projectile.XPosition, projectile.XSubposition) = AddEvirPosition(
-            projectile.XPosition,
-            projectile.XSubposition,
-            ComposeEvirFixed(state.XVelocity, state.XSubvelocity));
-        (projectile.YPosition, projectile.YSubposition) = AddEvirPosition(
-            projectile.YPosition,
-            projectile.YSubposition,
-            ComposeEvirFixed(state.YVelocity, state.YSubvelocity));
+        StartEvirRegenerationIfFarOffscreen(projectile, state, camera);
+        projectile.Position = projectile.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(ComposeEvirFixed(state.XVelocity, state.XSubvelocity)));
+        projectile.Position = projectile.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(ComposeEvirFixed(state.YVelocity, state.YSubvelocity)));
     }
 
     private void StartEvirRegenerationIfFarOffscreen(
         RoomEnemySlot projectile,
         EvirEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         bool farOffscreen =
-            IsNegative16(projectile.XPosition + EvirFarOffscreenDistance - cameraX) ||
-            IsNegative16(cameraX + 256 + EvirFarOffscreenDistance - projectile.XPosition) ||
-            IsNegative16(projectile.YPosition + EvirFarOffscreenDistance - cameraY) ||
-            IsNegative16(cameraY + 256 + EvirFarOffscreenDistance - projectile.YPosition);
+            IsNegative16(projectile.Position.X.Whole + EvirFarOffscreenDistance - camera.X) ||
+            IsNegative16(camera.X + 256 + EvirFarOffscreenDistance - projectile.Position.X.Whole) ||
+            IsNegative16(projectile.Position.Y.Whole + EvirFarOffscreenDistance - camera.Y) ||
+            IsNegative16(camera.Y + 256 + EvirFarOffscreenDistance - projectile.Position.Y.Whole);
         if (!farOffscreen)
             return;
 
@@ -460,8 +445,8 @@ public sealed partial class RoomEnemySystem
         }
 
         ResetEvirProjectilePosition(projectile, state);
-        projectile.XPosition = unchecked((ushort)(
-            projectile.XPosition + state.RegenerationXOffset));
+        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
+            projectile.Position.X.Whole + state.RegenerationXOffset)));
     }
 
     /// <summary>Instruction $A8:878F.</summary>
@@ -500,17 +485,6 @@ public sealed partial class RoomEnemySystem
     private static int ComposeEvirFixed(short whole, ushort fraction) =>
         unchecked((whole << 16) | fraction);
 
-    private static (ushort Position, ushort Subposition) AddEvirPosition(
-        ushort position,
-        ushort subposition,
-        int displacement)
-    {
-        int fixedPosition = unchecked((position << 16) | subposition);
-        fixedPosition = unchecked(fixedPosition + displacement);
-        return (
-            unchecked((ushort)(fixedPosition >> 16)),
-            unchecked((ushort)fixedPosition));
-    }
 
     private static void RequestEvirInstruction(
         RoomEnemySlot slot,

@@ -23,17 +23,16 @@ internal static partial class Program
             // Run the first real animation entry before freezing; a never-drawn
             // zero spritemap is intentionally ineligible for native shot hits.
             for (int warmup = 0; warmup < 32 && enemy.SpritemapPointer is 0 or 0x804d; warmup++)
-                runtime.Enemies.StepFrame((ushort)Math.Max(0, enemy.XPosition - 128),
-                    (ushort)Math.Max(0, enemy.YPosition - 128), timeIsFrozen: false, level: runtime.LevelData);
+                runtime.Enemies.StepFrame(new((ushort)Math.Max(0, enemy.Position.X.Whole - 128), (ushort)Math.Max(0, enemy.Position.Y.Whole - 128)),
+timeIsFrozen: false, level: runtime.LevelData);
             AssertTrue(enemy.SpritemapPointer is not (0 or 0x804d), "Real enemy animation has published a collision-eligible spritemap");
             int target = left ? 0x123f : 0x0280;
-            enemy.XPosition = (ushort)((target % 64) * 16 + 8);
-            enemy.YPosition = (ushort)((target / 64) * 16 + 8);
+            enemy.Position = enemy.Position.WithWhole(new((ushort)((target % 64) * 16 + 8), (ushort)((target / 64) * 16 + 8)));
             enemy.Properties |= (ushort)EnemyProperties.ProcessOffScreen;
             enemy.InvincibilityTimer = 0;
             // Populate the real interactive list while freezing AI movement. The
             // remote enemy must be eligible, not silently excluded as offscreen.
-            runtime.Enemies.StepFrame(0, 0, timeIsFrozen: true, level: runtime.LevelData);
+            runtime.Enemies.StepFrame(new(0, 0), timeIsFrozen: true, level: runtime.LevelData);
             AssertTrue(runtime.Enemies.InteractiveEnemyIndexes.Contains(enemy.NativeIndex), "Remote control enemy is collision-eligible");
 
             var words = new ushort[64 * 128];
@@ -64,8 +63,7 @@ internal static partial class Program
             // Positive control: move only the eligible enemy onto the unchanged
             // live projectile. A real collision proves the negative was spatial,
             // not a dead projectile, inactive enemy or disabled collision path.
-            enemy.XPosition = shots.Slots[0].Position.X.Whole;
-            enemy.YPosition = shots.Slots[0].Position.Y.Whole;
+            enemy.Position = enemy.Position.WithWhole(shots.Slots[0].Position.Whole);
             AssertEqual(1, runtime.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs), "World-space overlap reaches the same enemy collision dispatcher");
         }
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");

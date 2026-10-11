@@ -106,8 +106,8 @@ public sealed partial class RoomEnemySystem
             InstructionListTableIndex = ZoaAnimationSelector.None,
             PreviousInstructionListTableIndex = ZoaAnimationSelector.None,
             XSpeedTableIndex = 0,
-            SpawnXPosition = slot.XPosition,
-            SpawnYPosition = slot.YPosition,
+            SpawnXPosition = slot.Position.X.Whole,
+            SpawnYPosition = slot.Position.Y.Whole,
         };
         _zoaStates[slot.SlotIndex] = state;
 
@@ -123,8 +123,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         ZoaEnemyState state,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         if (samus is null)
             throw new InvalidOperationException("Zoa AI requires the active Samus actor.");
@@ -138,7 +137,7 @@ public sealed partial class RoomEnemySystem
                 RunZoaRising(slot, state, samus);
                 return;
             case ZoaEnemyFunction.Shooting:
-                RunZoaShooting(slot, state, cameraX, cameraY);
+                RunZoaShooting(slot, state, camera);
                 return;
             default:
                 throw new InvalidDataException(
@@ -151,7 +150,7 @@ public sealed partial class RoomEnemySystem
         ZoaEnemyState state,
         SamusState samus)
     {
-        ushort signedDistance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
+        ushort signedDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         ushort absoluteDistance = unchecked((short)signedDistance) < 0
             ? unchecked((ushort)-signedDistance)
             : signedDistance;
@@ -174,7 +173,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
-        if (unchecked((short)(samus.Position.Y.Whole - slot.YPosition)) < 0)
+        if (unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)) < 0)
         {
             // NTSC subtracts exactly 0.5 px/frame. The PAL regional constant is 0.625;
             // this project targets the user's Japan/USA retail ROM and reads NTSC data.
@@ -191,8 +190,7 @@ public sealed partial class RoomEnemySystem
     private static void RunZoaShooting(
         RoomEnemySlot slot,
         ZoaEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         int unsignedDisplacement = ZoaSpeedDefinitions.Displacement(state.XSpeedTableIndex);
 
@@ -202,7 +200,7 @@ public sealed partial class RoomEnemySystem
             ? -unsignedDisplacement
             : unsignedDisplacement;
         AddZoaDisplacement(slot, xDisplacement, yDisplacement: 0);
-        if (EnemyCenterIsOnScreen(slot, cameraX, cameraY))
+        if (EnemyCenterIsOnScreen(slot, camera))
         {
             SetZoaInstructionList(slot, state);
             return;
@@ -213,8 +211,7 @@ public sealed partial class RoomEnemySystem
         // `$A3:B51E-$B527` stores only the whole words: the subpixel fractions left by the
         // rise and the shot carry into the next flight.
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        slot.XPosition = state.SpawnXPosition;
-        slot.YPosition = state.SpawnYPosition;
+        slot.Position = slot.Position.WithWhole(new(state.SpawnXPosition, state.SpawnYPosition));
         state.InstructionListTableIndex = ZoaAnimationSelector.None;
         SetZoaInstructionList(slot, state);
         state.Function = ZoaEnemyFunction.WaitForSamus;
@@ -227,17 +224,15 @@ public sealed partial class RoomEnemySystem
     {
         if (xDisplacement != 0)
         {
-            uint x = ((uint)slot.XPosition << 16) | slot.XSubposition;
+            uint x = slot.Position.X.RawValue;
             x = unchecked(x + (uint)xDisplacement);
-            slot.XPosition = unchecked((ushort)(x >> 16));
-            slot.XSubposition = unchecked((ushort)x);
+            slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)x)));
         }
         if (yDisplacement != 0)
         {
-            uint y = ((uint)slot.YPosition << 16) | slot.YSubposition;
+            uint y = slot.Position.Y.RawValue;
             y = unchecked(y + (uint)yDisplacement);
-            slot.YPosition = unchecked((ushort)(y >> 16));
-            slot.YSubposition = unchecked((ushort)y);
+            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)y)));
         }
     }
 

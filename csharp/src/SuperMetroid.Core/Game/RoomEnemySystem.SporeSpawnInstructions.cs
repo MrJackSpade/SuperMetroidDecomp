@@ -49,8 +49,7 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case SporeSpawnInstruction.Harden:
-                body.XPosition = SporeSpawnDeathCenterX;
-                body.YPosition = SporeSpawnDeathCenterY;
+                body.Position = body.Position.WithWhole(new(SporeSpawnDeathCenterX, SporeSpawnDeathCenterY));
                 body.Properties = body.Properties
                     .With(EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions)
                     .Without(EnemyProperties.IgnoreSamusCollision);
@@ -163,8 +162,7 @@ public sealed partial class RoomEnemySystem
     {
         ushort random = _nextRandom!();
         SpawnRoomGraphicsDustExplosion(
-            unchecked((ushort)(state.Body.XPosition + (random & 0x007f) - 64)),
-            unchecked((ushort)(state.Body.YPosition + ((random & 0x7f00) >> 8) - 64)),
+            new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((random & 0x7f00) >> 8) - 64))),
             animationIndex: 0x0015);
         LastSporeSpawnSoundEffectLibrary2 = 0x0029;
     }
@@ -173,8 +171,7 @@ public sealed partial class RoomEnemySystem
     {
         ushort random = _nextRandom!();
         _ = SpawnRoomSpriteObject(
-            unchecked((ushort)(state.Body.XPosition + (random & 0x007f) - 64)),
-            unchecked((ushort)(state.Body.YPosition + ((random & 0x3f00) >> 8) - 32)),
+            new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((random & 0x3f00) >> 8) - 32))),
             RoomSpriteObjectKind.SporeSpawnDyingExplosion,
             graphicsIndex: 0);
         LastSporeSpawnSoundEffectLibrary2 = 0x0025;
@@ -188,7 +185,7 @@ public sealed partial class RoomEnemySystem
             ushort x = unchecked((ushort)((random & 0x007f) + 64));
             ushort y = unchecked((ushort)(((random & 0x3f00) >> 8) + 528));
             _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
-            SpawnEnemyDropFromEnemyHeader(x, y, EnemyDefinitionId.SporeSpawn);
+            SpawnEnemyDropFromEnemyHeader(new(x, y), EnemyDefinitionId.SporeSpawn);
         }
         state.DeathDropRequested = true;
     }

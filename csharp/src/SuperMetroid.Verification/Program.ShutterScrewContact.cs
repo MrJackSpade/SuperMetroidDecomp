@@ -36,7 +36,7 @@ internal static partial class Program
                 record.Invoke(samus.Kinematics, [direction, (ushort?)null]);
 
             typeof(RoomEnemySystem).GetMethod("RunVerticalShutterMain", flags)!
-                .Invoke(runtime.Enemies, [shutter, state, samus, (ushort)0, (ushort)0]);
+                .Invoke(runtime.Enemies, [shutter, state, samus, Position16<RoomPixels>.Zero]);
             string context = $"contact damage {contactDamage}";
             AssertEqual(reacts, state.Function is VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown,
                 $"{context}: the idle shutter starts moving");

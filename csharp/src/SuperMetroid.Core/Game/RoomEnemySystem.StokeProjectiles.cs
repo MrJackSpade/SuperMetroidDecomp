@@ -22,36 +22,28 @@ public sealed partial class RoomEnemySystem
         projectile.Variable0 = direction == 0
             ? (ushort)StokeProjectileFunction.MoveLeft
             : (ushort)StokeProjectileFunction.MoveRight;
-        projectile.XPosition = stoke.XPosition;
-        projectile.XSubposition = stoke.XSubposition;
-        projectile.YPosition = unchecked((ushort)(stoke.YPosition + 2));
-        projectile.YSubposition = stoke.YSubposition;
-        projectile.YVelocity = 0xff00;
-        projectile.XVelocity = 0x0100;
+        projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(unchecked((ushort)(stoke.Position.Y.Whole + 2)), stoke.Position.Y.Fraction));
+        projectile.Velocity = new(new SnesSignedEightEight(0x0100), new SnesSignedEightEight(0xff00));
     }
 
     /// <summary>Ports pre-instruction <c>$86:DB5B</c> and its two indirect movers.</summary>
     private static void RunStokeProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         ushort horizontalVelocity = ClosedNativeWords.Decode<StokeProjectileFunction>(projectile.Variable0, "Stoke projectile movement function") switch
         {
             // This is not a typo: $DB62 reads EnemyProjectile_YVelocity, producing -1 px.
-            StokeProjectileFunction.MoveLeft => projectile.YVelocity,
-            StokeProjectileFunction.MoveRight => projectile.XVelocity,
+            StokeProjectileFunction.MoveLeft => projectile.Velocity.Y.RawValue,
+            StokeProjectileFunction.MoveRight => projectile.Velocity.X.RawValue,
             _ => throw new InvalidDataException(
                 $"Stoke projectile movement pointer $86:{projectile.Variable0:X4} is not translated."),
         };
 
-        (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
-            projectile.XPosition,
-            projectile.XSubposition,
-            horizontalVelocity);
+        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(horizontalVelocity).ToSixteenSixteenDelta());
 
         // Stoke's $DBB6 helper is another byte-for-byte clone of Cacatac's $DAC2 cull.
-        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, cameraX, cameraY);
+        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
 }
 

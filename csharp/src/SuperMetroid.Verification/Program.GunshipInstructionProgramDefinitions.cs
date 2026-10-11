@@ -125,7 +125,7 @@ internal static partial class Program
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
 
@@ -141,7 +141,7 @@ internal static partial class Program
             RoomEnemySlot top = enemies.Slots[0];
             top.EnemyDefinitionPointer = EnemyDefinitionId.ShipTop;
             top.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
-            top.YPosition = 0x0200;
+            top.Position = top.Position.WithWholeY(0x0200);
             typeof(RoomEnemySystem).GetMethod("InitializeGunshipTop", flags)!
                 .Invoke(enemies, [top]);
             AssertEqual(GunshipInstructionProgramDefinitions.TopHull, top.CurrentInstruction,
@@ -150,7 +150,7 @@ internal static partial class Program
             RoomEnemySlot bottom = enemies.Slots[1];
             bottom.EnemyDefinitionPointer = EnemyDefinitionId.ShipBottomEntrance;
             bottom.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
-            bottom.YPosition = 0x0200;
+            bottom.Position = bottom.Position.WithWholeY(0x0200);
             bottom.Parameter2 = 0;
             top.VramTilesIndex = 0x1234;
             typeof(RoomEnemySystem).GetMethod("InitializeGunshipBottom", flags)!

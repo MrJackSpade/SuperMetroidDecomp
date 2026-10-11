@@ -262,7 +262,7 @@ internal static partial class Program
             // $1997 IDs, $1A4B X, $1A93 Y: one word per slot.
             var portProjectiles = traceEnemies.EnemyProjectiles.Select((projectile, slot) => (projectile, slot))
                 .Where(entry => entry.projectile.IsActive)
-                .Select(entry => $"{entry.slot}:{(ushort)entry.projectile.Kind:X4}@{entry.projectile.XPosition:X}/{entry.projectile.YPosition:X}" +
+                .Select(entry => $"{entry.slot}:{(ushort)entry.projectile.Kind:X4}@{entry.projectile.Position.X.Whole:X}/{entry.projectile.Position.Y.Whole:X}" +
                     $"#{entry.projectile.InstructionPointer:X4}/{entry.projectile.InstructionTimer:X}");
             var nativeProjectiles = Enumerable.Range(0, 18).Where(slot => Word(memory, 0x1997 + 2 * slot) != 0)
                 .Select(slot => $"{slot}:{Native(0x1997 + 2 * slot)}@{Word(memory, 0x1a4b + 2 * slot):X}/{Word(memory, 0x1a93 + 2 * slot):X}" +
@@ -401,8 +401,8 @@ internal static partial class Program
                 Word(memory, MovieDesyncMemory.EnemyProjectileX + offset) !=
                 Word(memory, MovieDesyncMemory.EnemyProjectileVar1 + offset);
             if (!bubbleXUnwritten)
-                Check($"Enemy projectile {slot} X", projectile.XPosition, MovieDesyncMemory.EnemyProjectileX + offset);
-            Check($"Enemy projectile {slot} Y", projectile.YPosition, MovieDesyncMemory.EnemyProjectileY + offset);
+                Check($"Enemy projectile {slot} X", projectile.Position.X.Whole, MovieDesyncMemory.EnemyProjectileX + offset);
+            Check($"Enemy projectile {slot} Y", projectile.Position.Y.Whole, MovieDesyncMemory.EnemyProjectileY + offset);
         }
         foreach (var actor in runtime.Enemies.Slots)
         {
@@ -410,10 +410,10 @@ internal static partial class Program
             string owner = $"Enemy {actor.SlotIndex}";
             Check(owner + " identity", (ushort)actor.EnemyDefinitionPointer, address + MovieDesyncMemory.EnemyIdentityOffset);
             if (actor.EnemyDefinitionPointer == EnemyDefinitionId.None) continue;
-            Check(owner + " X", actor.XPosition, address + MovieDesyncMemory.EnemyXOffset);
-            Check(owner + " X fraction", actor.XSubposition, address + MovieDesyncMemory.EnemyXFractionOffset);
-            Check(owner + " Y", actor.YPosition, address + MovieDesyncMemory.EnemyYOffset);
-            Check(owner + " Y fraction", actor.YSubposition, address + MovieDesyncMemory.EnemyYFractionOffset);
+            Check(owner + " X", actor.Position.X.Whole, address + MovieDesyncMemory.EnemyXOffset);
+            Check(owner + " X fraction", actor.Position.X.Fraction, address + MovieDesyncMemory.EnemyXFractionOffset);
+            Check(owner + " Y", actor.Position.Y.Whole, address + MovieDesyncMemory.EnemyYOffset);
+            Check(owner + " Y fraction", actor.Position.Y.Fraction, address + MovieDesyncMemory.EnemyYFractionOffset);
             Check(owner + " health", actor.Health, address + MovieDesyncMemory.EnemyHealthOffset);
         }
         return mismatches;

@@ -81,7 +81,7 @@ internal static partial class Program
             "Eye Door sweat impact disables movement with the native inert pre-instruction");
         AssertEqual((ushort)1, sweat.InstructionTimer,
             "Eye Door sweat impact requests a same-pass animation tick");
-        AssertEqual((ushort)76, sweat.YPosition,
+        AssertEqual((ushort)76, sweat.Position.Y.Whole,
             "Eye Door sweat applies the native four-pixel floor-impact correction");
 
         RunForcedTicks(sweat, 4);
@@ -149,7 +149,7 @@ internal static partial class Program
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, samus, Position16<RoomPixels>.Zero]);
                 ObserveFrame(projectile);
             }
         }

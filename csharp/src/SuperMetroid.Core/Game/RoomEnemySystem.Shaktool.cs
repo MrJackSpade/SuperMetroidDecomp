@@ -184,14 +184,9 @@ public sealed partial class RoomEnemySystem
 
         (int xDisplacement, int yDisplacement) = ShaktoolOrbitTables.Displacement(
             unchecked((byte)(state.OrbitAngle >> 8)));
-        (slot.XPosition, slot.XSubposition) = AddShaktoolFixed(
-            previous.XPosition,
-            previous.XSubposition,
-            xDisplacement);
-        (slot.YPosition, slot.YSubposition) = AddShaktoolFixed(
-            previous.YPosition,
-            previous.YSubposition,
-            yDisplacement);
+        slot.Position = previous.Position.Advance(new(
+            SnesSignedSixteenSixteen.FromRaw(xDisplacement),
+            SnesSignedSixteenSixteen.FromRaw(yDisplacement)));
     }
 
     /// <summary>Ports the common orbit step at <c>$AA:DCAC</c>.</summary>
@@ -244,16 +239,15 @@ public sealed partial class RoomEnemySystem
         ShaktoolSegmentState state,
         RoomLevelData level)
     {
-        ushort previousX = slot.XPosition;
-        ushort previousY = slot.YPosition;
+        ushort previousX = slot.Position.X.Whole;
+        ushort previousY = slot.Position.Y.Whole;
         AdvanceShaktoolOrbit(slot, state);
-        ushort candidateX = slot.XPosition;
-        ushort candidateY = slot.YPosition;
+        ushort candidateX = slot.Position.X.Whole;
+        ushort candidateY = slot.Position.Y.Whole;
 
         // The native helper restores only whole-pixel words before collision. Subpositions
         // remain those produced by DC2A, a subtle asymmetry that affects wall alignment.
-        slot.XPosition = previousX;
-        slot.YPosition = previousY;
+        slot.Position = slot.Position.WithWhole(new(previousX, previousY));
         int xDisplacement = unchecked((short)(candidateX - previousX)) << 16;
         bool collided = MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
@@ -261,7 +255,7 @@ public sealed partial class RoomEnemySystem
             xDisplacement);
         if (!collided)
         {
-            slot.YPosition = previousY;
+            slot.Position = slot.Position.WithWholeY(previousY);
             int yDisplacement = unchecked((short)(candidateY - previousY)) << 16;
             collided = MoveEnemyVertically(level, slot, yDisplacement);
         }
@@ -272,8 +266,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        slot.XPosition = candidateX;
-        slot.YPosition = candidateY;
+        slot.Position = slot.Position.WithWhole(new(candidateX, candidateY));
         ShaktoolMotionFlags flags = (ShaktoolMotionFlags)slot.Parameter1;
         if ((flags & ShaktoolMotionFlags.Straightening) != 0)
         {
@@ -319,8 +312,7 @@ public sealed partial class RoomEnemySystem
         }
         else
         {
-            slot.XPosition = previousX;
-            slot.YPosition = previousY;
+            slot.Position = slot.Position.WithWhole(new(previousX, previousY));
             ReverseShaktoolChainEndpoints(slot);
 
             // DB0E is called twice. The second call reads the parameter word just written
@@ -334,8 +326,7 @@ public sealed partial class RoomEnemySystem
         state.OrientationAndAcceleration = 0;
         RoomEnemySlot owner = SlotFromNativeIndex(state.OwnerNativeIndex);
         byte angle = CalculateCartridgeAngle(
-            unchecked((short)(slot.XPosition - owner.XPosition)),
-            unchecked((short)(slot.YPosition - owner.YPosition)));
+            new(unchecked((short)(slot.Position.X.Whole - owner.Position.X.Whole)), unchecked((short)(slot.Position.Y.Whole - owner.Position.Y.Whole))));
         ushort target = unchecked((ushort)(angle << 8));
         target = ((ShaktoolMotionFlags)slot.Parameter1 & ShaktoolMotionFlags.Clockwise) != 0
             ? unchecked((ushort)(target - 0x4000))
@@ -367,15 +358,11 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemySlot head = group[0];
         RoomEnemySlot tail = group[6];
-        (tail.XSubposition, head.XSubposition) = (head.XSubposition, tail.XSubposition);
-        (tail.YSubposition, head.YSubposition) = (head.YSubposition, tail.YSubposition);
-        (tail.XPosition, head.XPosition) = (head.XPosition, tail.XPosition);
-        (tail.YPosition, head.YPosition) = (head.YPosition, tail.YPosition);
+        (tail.Position, head.Position) = (head.Position, tail.Position);
 
         for (int index = 1; index < ShaktoolSegmentCount - 1; index++)
         {
-            group[index].XSubposition = 0x8000;
-            group[index].YSubposition = 0x8000;
+            group[index].Position = group[index].Position.WithFractionX(0x8000).WithFractionY(0x8000);
         }
     }
 
@@ -470,17 +457,6 @@ public sealed partial class RoomEnemySystem
             : throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} has no initialized Shaktool state.");
 
-    private static (ushort Position, ushort Subposition) AddShaktoolFixed(
-        ushort position,
-        ushort subposition,
-        int displacement)
-    {
-        int fixedPosition = unchecked((position << 16) | subposition);
-        fixedPosition = unchecked(fixedPosition + displacement);
-        return (
-            unchecked((ushort)(fixedPosition >> 16)),
-            unchecked((ushort)fixedPosition));
-    }
 
     /// <summary>Animation callback dispatcher for <c>$AA:D931-$D9BA</c>.</summary>
     private bool TryProcessShaktoolInstruction(
@@ -554,14 +530,7 @@ public sealed partial class RoomEnemySystem
         // both components by a quarter turn.
         ushort xVelocity = ReadShaktoolCommonSineSample(angle + 64);
         ushort yVelocity = ReadShaktoolCommonSineSample(angle);
-        (slot.XPosition, slot.XSubposition) = AddEightBitVelocity(
-            slot.XPosition,
-            slot.XSubposition,
-            xVelocity);
-        (slot.YPosition, slot.YSubposition) = AddEightBitVelocity(
-            slot.YPosition,
-            slot.YSubposition,
-            yVelocity);
+        slot.Position = slot.Position.Advance(new(new SnesSignedEightEight(xVelocity).ToSixteenSixteenDelta(), new SnesSignedEightEight(yVelocity).ToSixteenSixteenDelta()));
     }
 
     private static ushort ReadShaktoolCommonSineSample(int fullTableIndex) =>

@@ -93,11 +93,11 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(-1), "Rumble lower bound");
         AssertThrows<IndexOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(4), "Rumble upper bound");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        foreach (var origin in new[] { (X: (ushort)232, Y: (ushort)631), (X: (ushort)1, Y: (ushort)65530) })
+        foreach (Position16<RoomPixels> origin in new Position16<RoomPixels>[] { new(232, 631), new(1, 65530) })
         {
             var system = new RoomEnemySystem();
             var slot = system.Slots[0];
-            slot.XPosition = origin.X; slot.YPosition = origin.Y;
+            slot.Position = slot.Position.WithWhole(origin);
             slot.VariableD = 48; slot.VariableE = 0; slot.VariableF = 0;
             system.CeresStatus = 2;
             int randomCalls = 0;
@@ -120,8 +120,8 @@ internal static partial class Program
                     ushort program = MiscDustProjectileDefinitions.InstructionList((ushort)(ordinal % 2 == 0 ? 12 : 3));
                     // Native pool allocation descends; identify each emission through its unique current ordinal below.
                     var particle = particles[emitted - ordinal - 1];
-                    AssertEqual(x, particle.XPosition, "Actual produced native X including 16-bit wrap");
-                    AssertEqual(y, particle.YPosition, "Actual produced native Y including 16-bit wrap");
+                    AssertEqual(x, particle.Position.X.Whole, "Actual produced native X including 16-bit wrap");
+                    AssertEqual(y, particle.Position.Y.Whole, "Actual produced native Y including 16-bit wrap");
                     AssertEqual(program, particle.InstructionPointer, "RNG changes animation only");
                 }
                 AssertEqual(call == 49, slot.Properties.HasAny(EnemyProperties.Invisible), "Hide only at destruction expiry");
@@ -149,7 +149,7 @@ internal static partial class Program
                 .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
             var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonHiddenFlameRain", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
-            body.XPosition = 111; body.YPosition = 99; body.VariableA = 42; body.VariableE = 17;
+            body.Position = body.Position.WithWhole(new(111, 99)); body.VariableA = 42; body.VariableE = 17;
             body.VariableF = (ushort)PhantoonAiFunction.FadeOutDuringFlameRain;
             fade(body, state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
@@ -166,16 +166,16 @@ internal static partial class Program
                 if (elapsed < duration)
                 {
                     AssertEqual(1, randomCalls, "Next location is not chosen before delay expires");
-                    AssertEqual((ushort)111, body.XPosition, "Hidden wait does not interpolate X");
-                    AssertEqual((ushort)99, body.YPosition, "Hidden wait does not interpolate Y");
+                    AssertEqual((ushort)111, body.Position.X.Whole, "Hidden wait does not interpolate X");
+                    AssertEqual((ushort)99, body.Position.Y.Whole, "Hidden wait does not interpolate Y");
                     AssertEqual((ushort)42, body.VariableA, "Hidden wait does not advance path cursor");
                     AssertEqual(0, system.EnemyProjectiles.Count(projectile => projectile.IsActive), "No rain launches before expiry");
                 }
             }
             AssertEqual(2, randomCalls, "Expiration consumes one separate placement RNG word");
             AssertEqual(ReadVerificationWord(rom, 0xa7cdad + nextPattern * 8), body.VariableA, "Exact delayed native path cursor");
-            AssertEqual(ReadVerificationWord(rom, 0xa7cdaf + nextPattern * 8), body.XPosition, "Exact delayed native X");
-            AssertEqual(ReadVerificationWord(rom, 0xa7cdb1 + nextPattern * 8), body.YPosition, "Exact delayed native Y");
+            AssertEqual(ReadVerificationWord(rom, 0xa7cdaf + nextPattern * 8), body.Position.X.Whole, "Exact delayed native X");
+            AssertEqual(ReadVerificationWord(rom, 0xa7cdb1 + nextPattern * 8), body.Position.Y.Whole, "Exact delayed native Y");
             AssertEqual((ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain, body.VariableF, "Native rain appearance handoff");
             AssertEqual((ushort)0, eye.VariableC, "Rain handoff clears fade counter");
             var flames = system.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
@@ -183,7 +183,7 @@ internal static partial class Program
             foreach (var flame in flames)
             {
                 AssertEqual(RoomEnemyProjectileKind.PhantoonDestroyableFlame, flame.Kind, "Actual rain projectile family");
-                AssertEqual((ushort)40, flame.YPosition, "Actual rain starts at ceiling");
+                AssertEqual((ushort)40, flame.Position.Y.Whole, "Actual rain starts at ceiling");
             }
         }
         AssertEqual(210, totalTicks, "Three exact native hidden wait lengths");
@@ -208,7 +208,7 @@ internal static partial class Program
                 .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
             var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonFirstRoundFigureEight", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
-            body.XPosition = 128; body.YPosition = 96; body.VariableE = 1; body.Parameter2 = 1;
+            body.Position = body.Position.WithWhole(new(128, 96)); body.VariableE = 1; body.Parameter2 = 1;
             begin(body, state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
             AssertEqual(duration, eye.VariableA, "Native first-round closed-eye duration");
@@ -237,8 +237,8 @@ internal static partial class Program
             foreach (var flame in flames)
             {
                 AssertEqual(RoomEnemyProjectileKind.PhantoonDestroyableFlame, flame.Kind, "Expiry produces actual Phantoon flame family");
-                AssertEqual(body.XPosition, flame.XPosition, "Spiral begins at current independently traversed body X");
-                AssertEqual(unchecked((ushort)(body.YPosition + 16)), flame.YPosition, "Spiral begins at current body offset Y");
+                AssertEqual(body.Position.X.Whole, flame.Position.X.Whole, "Spiral begins at current independently traversed body X");
+                AssertEqual(unchecked((ushort)(body.Position.Y.Whole + 16)), flame.Position.Y.Whole, "Spiral begins at current body offset Y");
             }
         }
         AssertEqual(2280, totalTicks, "Three native closed-eye durations in both directions");
@@ -349,7 +349,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system, (Func<ushort>)(() => (ushort)bucket));
             var open = typeof(RoomEnemySystem).GetMethod("BeginPhantoonEyeTracking", flags)!.CreateDelegate<Action<PhantoonEnemyState>>(system);
             var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonEyeTracking", BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, SamusState>>();
-            body.XPosition = 128; body.YPosition = 96;
+            body.Position = body.Position.WithWhole(new(128, 96));
             open(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd41 + bucket * 2);
             AssertEqual(duration, body.VariableE, "Native selected vulnerability duration");
@@ -360,8 +360,8 @@ internal static partial class Program
             for (int elapsed = 1; elapsed <= duration; elapsed++)
             {
                 tick(body, state, samus); ticks++;
-                AssertEqual((ushort)128, body.XPosition, "Exposure duration does not advance a spatial trajectory");
-                AssertEqual((ushort)96, body.YPosition, "Exposure body remains at current Y");
+                AssertEqual((ushort)128, body.Position.X.Whole, "Exposure duration does not advance a spatial trajectory");
+                AssertEqual((ushort)96, body.Position.Y.Whole, "Exposure body remains at current Y");
                 if (elapsed < duration)
                 {
                     AssertEqual((ushort)(duration - elapsed), body.VariableE, "One exact countdown decrement per actor call");
@@ -1185,11 +1185,11 @@ internal static partial class Program
                 var slot = enemies.Slots[0];
                 slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
                 slot.Parameter2 = (ushort)(0x8000 | direction);
-                slot.XPosition = origin; slot.YPosition = origin;
+                slot.Position = slot.Position.WithWhole(new(origin, origin));
                 typeof(RoomEnemySystem).GetMethod("InitializeMorphBallEye", flags)!
                     .CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
-                AssertEqual(unchecked((ushort)(origin + expected.Item1)), slot.XPosition, "Actual mount X with native wrap");
-                AssertEqual(unchecked((ushort)(origin + expected.Item2)), slot.YPosition, "Actual mount Y with native wrap");
+                AssertEqual(unchecked((ushort)(origin + expected.Item1)), slot.Position.X.Whole, "Actual mount X with native wrap");
+                AssertEqual(unchecked((ushort)(origin + expected.Item2)), slot.Position.Y.Whole, "Actual mount Y with native wrap");
                 AssertEqual(expected.Item3, slot.CurrentInstruction, "Actual directional mount program");
                 AssertEqual(MorphBallEyeAiFunction.MountNoOp, enemies.MorphBallEyeStates[0]!.Function, "Mount remains decorative");
             }
@@ -1414,20 +1414,20 @@ internal static partial class Program
             eye.VariableC = 123;
             rainMethod.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(enemies)(body, state);
             AssertEqual(Word(0xa7cdad + pattern * 8), body.VariableA, "Real rain cursor handoff");
-            AssertEqual(Word(0xa7cdaf + pattern * 8), body.XPosition, "Real rain body placement X");
-            AssertEqual(Word(0xa7cdb1 + pattern * 8), body.YPosition, "Real rain body placement Y");
+            AssertEqual(Word(0xa7cdaf + pattern * 8), body.Position.X.Whole, "Real rain body placement X");
+            AssertEqual(Word(0xa7cdb1 + pattern * 8), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual((ushort)0, eye.VariableC, "Real rain direction reset");
             AssertEqual((ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain, body.VariableF, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
-            var flames = enemies.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.XVelocity).ToArray();
+            var flames = enemies.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.Velocity.X.RawValue).ToArray();
             AssertEqual(8, flames.Length, "Actual rain population");
-            AssertTrue(flames.All(flame => flame.XPosition != body.XPosition), "Calculated rain gap lies at the body X");
+            AssertTrue(flames.All(flame => flame.Position.X.Whole != body.Position.X.Whole), "Calculated rain gap lies at the body X");
             for (int i = 0; i < 8; i++)
             {
                 int column = (rom.ReadByte(0xa7cfc2 + pattern) + i) % 9;
-                AssertEqual((ushort)rom.ReadByte(0x8698f7 + column), flames[i].XPosition, "Actual rain column order with wrap");
-                AssertEqual((ushort)40, flames[i].YPosition, "Actual rain ceiling Y");
-                AssertEqual((ushort)((i + 1) * 8), flames[i].XVelocity, "Actual staggered rain delay");
+                AssertEqual((ushort)rom.ReadByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
+                AssertEqual((ushort)40, flames[i].Position.Y.Whole, "Actual rain ceiling Y");
+                AssertEqual((ushort)((i + 1) * 8), flames[i].Velocity.X.RawValue, "Actual staggered rain delay");
             }
         }
 
@@ -1448,13 +1448,12 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>();
         RoomEnemySlot eyeBody = eyeEnemies.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.Slots[1];
-        eyeBody.XPosition = 0x4000;
-        eyeBody.YPosition = 0x4000;
+        eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, ushort direction) in eyeTargets)
         {
             pointEye(eyeBody, trackingEye, new SamusState
             {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.XPosition + x)), unchecked((ushort)(eyeBody.YPosition + y)))),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
             AssertEqual(PhantoonPatternDefinitions.EyeInstruction(direction),
                 trackingEye.CurrentInstruction,
@@ -1799,14 +1798,14 @@ internal static partial class Program
         enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         var door = enemies.Slots[1];
         door.EnemyDefinitionPointer = EnemyDefinitionId.CeresDoor;
-        door.VariableB = 1; door.YPosition = 80;
+        door.VariableB = 1; door.Position = door.Position.WithWholeY(80);
         foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })
         for (ushort phase = 0; phase < 4; phase++)
         {
-            door.XPosition = x; enemies.EarthquakeTimer = phase;
+            door.Position = door.Position.WithWholeX(x); enemies.EarthquakeTimer = phase;
             var actual = new OamBuffer(); actual.BeginFrame();
-            enemies.DrawCeresRidleyImmediateBabyAndDoor(actual, camera, 0); actual.FinalizeFrame();
+            enemies.DrawCeresRidleyImmediateBabyAndDoor(actual, new(camera, 0)); actual.FinalizeFrame();
             ushort native = (ushort)(rom.ReadByte(0xa6a321 + phase) | rom.ReadByte(0xa6a322 + phase) << 8);
             AssertEqual(native & 0x1ff, CeresDoorQuakeDefinitions.XOffset(phase) & 0x1ff,
                 "Native overlapping high byte retains the same ninth coordinate bit");

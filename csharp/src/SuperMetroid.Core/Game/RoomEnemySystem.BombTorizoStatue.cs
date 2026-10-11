@@ -34,11 +34,10 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0);
 
         projectile.InstructionPointer = definition.InstructionList;
-        projectile.XPosition = unchecked((ushort)(
-            request.PlmBlock.X * 16 + definition.XOffset));
-        projectile.YPosition = unchecked((ushort)(
-            request.PlmBlock.Y * 16 + definition.YOffset));
-        projectile.YVelocity = definition.YVelocity;
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
+            request.PlmBlock.X * 16 + definition.XOffset)), unchecked((ushort)(
+            request.PlmBlock.Y * 16 + definition.YOffset))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(definition.YVelocity));
         projectile.Variable1 = definition.Acceleration;
         return projectile;
     }
@@ -52,16 +51,16 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         bool collided = MoveProjectileAxis(projectile, level, horizontal: false);
-        if (unchecked((short)projectile.YVelocity) < 0 || !collided)
+        if (unchecked((short)projectile.Velocity.Y.RawValue) < 0 || !collided)
         {
             // The initializer writes $0010 to every fragment's own F word, but A8EF's ROM
             // instruction omits X and reads `$1B23` (physical slot zero) literally. The
             // retail quirk normally leaves these first eight actors at constant speed;
             // retaining it matters if another projectile already occupies slot zero.
-            projectile.YVelocity = unchecked((ushort)(
-                projectile.YVelocity + _enemyProjectiles[0].Variable1));
-            if ((projectile.YVelocity & 0xf000) == 0x1000)
-                projectile.YVelocity = 0x1000;
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+                projectile.Velocity.Y.RawValue + _enemyProjectiles[0].Variable1))));
+            if ((projectile.Velocity.Y.RawValue & 0xf000) == 0x1000)
+                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0x1000));
             return;
         }
 

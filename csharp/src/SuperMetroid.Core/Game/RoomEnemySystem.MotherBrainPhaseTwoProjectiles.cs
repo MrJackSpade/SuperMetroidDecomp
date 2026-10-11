@@ -33,10 +33,10 @@ public sealed partial class RoomEnemySystem
         ring.Variable0 = 8;
         ring.Variable1 = 0;
         ring.DirectionParameter = angle;
-        ring.XVelocity = MultiplyCartridgeSinCos(0x0450, angle);
-        ring.YVelocity = MultiplyCartridgeSinCos(
+        ring.Velocity = ring.Velocity.WithX(new SnesSignedEightEight(MultiplyCartridgeSinCos(0x0450, angle)));
+        ring.Velocity = ring.Velocity.WithY(new SnesSignedEightEight(MultiplyCartridgeSinCos(
             0x0450,
-            unchecked((byte)(angle + 0x40)));
+            unchecked((byte)(angle + 0x40)))));
 
         // `$C2F3` falls through into `$C320`, making the mouth position observable before
         // the projectile scheduler performs the first of eight delayed attachment frames.
@@ -83,8 +83,7 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0);
         RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
             "Mother Brain purple breath requires the linked head record.");
-        breath.XPosition = unchecked((ushort)(head.XPosition + 6));
-        breath.YPosition = unchecked((ushort)(head.YPosition + 0x0010));
+        breath.Position = breath.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 6)), unchecked((ushort)(head.Position.Y.Whole + 0x0010))));
     }
 
     /// <summary>Ports the small-breath spawn at <c>$A9:9368</c> and initializer <c>$86:CA83</c>.</summary>
@@ -100,8 +99,7 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0);
         RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
             "Mother Brain purple breath requires the linked head record.");
-        breath.XPosition = unchecked((ushort)(head.XPosition + 6));
-        breath.YPosition = unchecked((ushort)(head.YPosition + 0x0010));
+        breath.Position = breath.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 6)), unchecked((ushort)(head.Position.Y.Whole + 0x0010))));
         state.SmallPurpleBreathActive = true;
     }
 
@@ -120,12 +118,10 @@ public sealed partial class RoomEnemySystem
                 $"Mother Brain drool offset parameter {parameter} is outside 0..5.");
         }
 
-        drool.XPosition = unchecked((ushort)(
-            head.XPosition + MotherBrainDroolXOffsets[parameter]));
-        drool.YPosition = unchecked((ushort)(
-            head.YPosition + MotherBrainDroolYOffsets[parameter]));
-        drool.XVelocity = 0;
-        drool.YVelocity = 0;
+        drool.Position = drool.Position.WithWhole(new(unchecked((ushort)(
+            head.Position.X.Whole + MotherBrainDroolXOffsets[parameter])), unchecked((ushort)(
+            head.Position.Y.Whole + MotherBrainDroolYOffsets[parameter]))));
+        drool.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
     }
 
     /// <summary>
@@ -135,15 +131,12 @@ public sealed partial class RoomEnemySystem
     private static void RunMotherBrainFallingDroolPreInstruction(
         RoomEnemyProjectileSlot drool)
     {
-        drool.YVelocity = unchecked((ushort)(drool.YVelocity + 0x000c));
-        (drool.YPosition, drool.YSubposition) = AddEightBitVelocity(
-            drool.YPosition,
-            drool.YSubposition,
-            drool.YVelocity);
-        if (drool.YPosition < 0x00d7)
+        drool.Velocity = drool.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(drool.Velocity.Y.RawValue + 0x000c))));
+        drool.Position = drool.Position.AdvanceY(drool.Velocity.Y.ToSixteenSixteenDelta());
+        if (drool.Position.Y.Whole < 0x00d7)
             return;
 
-        drool.YPosition = unchecked((ushort)(drool.YPosition - 4));
+        drool.Position = drool.Position.WithWholeY(unchecked((ushort)(drool.Position.Y.Whole - 4)));
         drool.InstructionPointer = EnemyProjectileInstructionLists.MotherBrainDroolFalling;
         drool.InstructionTimer = 1;
     }
@@ -167,14 +160,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        (ring.XPosition, ring.XSubposition) = AddEightBitVelocity(
-            ring.XPosition,
-            ring.XSubposition,
-            ring.XVelocity);
-        (ring.YPosition, ring.YSubposition) = AddEightBitVelocity(
-            ring.YPosition,
-            ring.YSubposition,
-            ring.YVelocity);
+        ring.Position = ring.Position.Advance(ring.Velocity.ToSixteenSixteen());
 
         BabyMetroidCutsceneState? baby = state.BabyMetroid;
         if (baby is { IsDeleted: false })
@@ -196,8 +182,8 @@ public sealed partial class RoomEnemySystem
                 RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
                     "A Mother Brain onion ring hit the Baby without its physical slot.");
                 babySlot.Health = baby.Health;
-                ushort ringX = ring.XPosition;
-                ushort ringY = ring.YPosition;
+                ushort ringX = ring.Position.X.Whole;
+                ushort ringY = ring.Position.Y.Whole;
                 ExplodeMotherBrainOnionRing(ring, state, ringX, ringY);
                 return;
             }
@@ -207,8 +193,8 @@ public sealed partial class RoomEnemySystem
         // timer. It writes a fresh $60 only after applying suit-divided damage.
         if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
         {
-            ushort ringX = ring.XPosition;
-            ushort ringY = ring.YPosition;
+            ushort ringX = ring.Position.X.Whole;
+            ushort ringY = ring.Position.Y.Whole;
             ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? (ushort)(0x0050 >> 2)
                 : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
@@ -226,10 +212,10 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        short signedY = unchecked((short)ring.YPosition);
-        short signedX = unchecked((short)ring.XPosition);
-        short screenX = unchecked((short)(ring.XPosition - cameraX));
-        if (signedY < 0x20 || ring.YPosition >= 0x00d8 || signedX < 0 ||
+        short signedY = unchecked((short)ring.Position.Y.Whole);
+        short signedX = unchecked((short)ring.Position.X.Whole);
+        short screenX = unchecked((short)(ring.Position.X.Whole - cameraX));
+        if (signedY < 0x20 || ring.Position.Y.Whole >= 0x00d8 || signedX < 0 ||
             screenX < 0 || screenX >= 0x00f8)
         {
             EarthquakeTimer = 10;
@@ -237,8 +223,8 @@ public sealed partial class RoomEnemySystem
             ExplodeMotherBrainOnionRing(
                 ring,
                 state,
-                ring.XPosition,
-                ring.YPosition);
+                ring.Position.X.Whole,
+                ring.Position.Y.Whole);
         }
     }
 
@@ -248,25 +234,24 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
             "Mother Brain onion ring requires the linked head record.");
-        ring.XPosition = unchecked((ushort)(head.XPosition + 0x000a));
-        ring.YPosition = unchecked((ushort)(head.YPosition + 0x0010));
+        ring.Position = ring.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 0x000a)), unchecked((ushort)(head.Position.Y.Whole + 0x0010))));
     }
 
     private static bool MotherBrainOnionRingOverlapsSamus(
         RoomEnemyProjectileSlot ring,
         SamusState samus) =>
-        WrappedMagnitude(unchecked((ushort)(ring.XPosition - samus.Position.X.Whole))) <
-            ring.XRadius + samus.Kinematics.Radius.X &&
-        WrappedMagnitude(unchecked((ushort)(ring.YPosition - samus.Position.Y.Whole))) <
-            ring.YRadius + samus.Kinematics.Radius.Y;
+        WrappedMagnitude(unchecked((ushort)(ring.Position.X.Whole - samus.Position.X.Whole))) <
+            ring.Radius.X + samus.Kinematics.Radius.X &&
+        WrappedMagnitude(unchecked((ushort)(ring.Position.Y.Whole - samus.Position.Y.Whole))) <
+            ring.Radius.Y + samus.Kinematics.Radius.Y;
 
     private static bool MotherBrainOnionRingOverlapsBaby(
         RoomEnemyProjectileSlot ring,
         BabyMetroidCutsceneState baby) =>
-        WrappedMagnitude(unchecked((ushort)(ring.XPosition - baby.XPosition))) <
-            ring.XRadius + BabyMetroidCutsceneState.XHitboxRadius &&
-        WrappedMagnitude(unchecked((ushort)(ring.YPosition - baby.YPosition))) <
-            ring.YRadius + BabyMetroidCutsceneState.YHitboxRadius;
+        WrappedMagnitude(unchecked((ushort)(ring.Position.X.Whole - baby.XPosition))) <
+            ring.Radius.X + BabyMetroidCutsceneState.XHitboxRadius &&
+        WrappedMagnitude(unchecked((ushort)(ring.Position.Y.Whole - baby.YPosition))) <
+            ring.Radius.Y + BabyMetroidCutsceneState.YHitboxRadius;
 
     private void ExplodeMotherBrainOnionRing(
         RoomEnemyProjectileSlot ring,
@@ -278,7 +263,7 @@ public sealed partial class RoomEnemySystem
         // allocator reuses this physical slot, the outer projectile scheduler will advance
         // the newborn dust list during the same pass, matching EprojRunOne's original X.
         ring.Clear();
-        SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 3);
+        SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 3);
         state.LastSoundEffectLibrary3 = 0x0013;
     }
 }

@@ -23,9 +23,8 @@ internal static partial class Program
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var target = enemies.Slots[0];
-        target.XPosition = samus.Position.X.Whole;
-        target.YPosition = (ushort)(samus.Position.Y.Whole - 8);
-        enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
+        target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
+        enemies.StepFrame(new(0, 0), false, samus, level: assets.LevelData);
         enemies.ResolveOrdinarySamusContact(samus, 0);
         var state = enemies.MetroidStates[0]!;
         AssertEqual(MetroidAiFunction.AttachedToSamus, state.Function, "real touch attaches Metroid to morphed Samus");
@@ -37,7 +36,7 @@ internal static partial class Program
             ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
             bombs.StepFrame(bus, assets.LevelData, samus, input, input);
             if (firstExplosion < 0 && bombs.Slots.Any(b => b.Type != 0 && b.BombTimer == 0)) firstExplosion = frame;
-            enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
+            enemies.StepFrame(new(0, 0), false, samus, level: assets.LevelData);
             enemies.ResolveOrdinaryBombHits(bombs, shots, samus);
             if (state.Function == MetroidAiFunction.PowerBombEscape && detached < 0) detached = frame;
             if (detached >= 0) break;
@@ -51,14 +50,14 @@ internal static partial class Program
         for (int frame = 0; frame < 4; frame++)
         {
             int index = state.EscapeTimer & 3;
-            ushort expectedX = unchecked((ushort)(target.XPosition + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + index * 2)));
-            ushort expectedY = unchecked((ushort)(target.YPosition + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + (index + 4) * 2)));
+            ushort expectedX = unchecked((ushort)(target.Position.X.Whole + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + index * 2)));
+            ushort expectedY = unchecked((ushort)(target.Position.Y.Whole + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + (index + 4) * 2)));
             // Move Samus away to prevent touch from immediately changing the returned
             // Homing state. The escape routine itself ignores her new position.
             samus.Position = samus.Position.WithWholeX(32);
-            enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
-            AssertEqual(expectedX, target.XPosition, "native post-bomb escape X");
-            AssertEqual(expectedY, target.YPosition, "native post-bomb escape Y");
+            enemies.StepFrame(new(0, 0), false, samus, level: assets.LevelData);
+            AssertEqual(expectedX, target.Position.X.Whole, "native post-bomb escape X");
+            AssertEqual(expectedY, target.Position.Y.Whole, "native post-bomb escape Y");
             AssertEqual(frame == 3 ? MetroidAiFunction.Homing : MetroidAiFunction.PowerBombEscape,
                 state.Function, "native escape phase ends after four updates");
         }
@@ -100,8 +99,7 @@ internal static partial class Program
         samus.PoseHistory.LastDifferentPose = 0;
         var target = runtime.Enemies.Slots[0];
         foreach (var other in runtime.Enemies.Slots.Skip(1)) other.Clear();
-        target.XPosition = 128; target.YPosition = 145;
-        target.XSubposition = target.YSubposition = 0;
+        target.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 145));
         runtime.Controller1.Latch(0);
         var state = runtime.Enemies.MetroidStates[0]!;
 
@@ -123,7 +121,7 @@ internal static partial class Program
             runtime.StepFrame(input);
             if (frame < 61) continue;
             AssertEqual(expected[frame - 61],
-                (target.XPosition, target.YPosition, state.Function, state.EscapeTimer, samus.Health),
+                (target.Position.X.Whole, target.Position.Y.Whole, state.Function, state.EscapeTimer, samus.Health),
                 $"native bomb/EnemyMain detach trajectory at frame {frame}");
             AssertEqual(0x00950000u, samus.Kinematics.Position.X.RawValue, "Samus remains at native release X");
             AssertEqual(0x0099ffffu, samus.Kinematics.Position.Y.RawValue, "Samus stays on the floor during detach");

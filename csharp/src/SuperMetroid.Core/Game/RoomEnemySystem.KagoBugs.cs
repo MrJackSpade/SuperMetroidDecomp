@@ -35,8 +35,7 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
 
         projectile.Variable1 = source.NativeIndex;
-        projectile.XPosition = source.XPosition;
-        projectile.YPosition = source.YPosition;
+        projectile.Position = projectile.Position.WithWhole(source.Position.Whole);
 
         // Kago samples the existing random word and never advances it. SpawnEprojInner has
         // already cleared subpositions, velocities, flags, and collision scratch for us.
@@ -68,7 +67,7 @@ public sealed partial class RoomEnemySystem
     private void EnableKagoBugShotCollisionWhenSeparated(RoomEnemyProjectileSlot projectile)
     {
         RoomEnemySlot source = SlotFromNativeIndex(projectile.Variable1);
-        int distance = Math.Abs(unchecked((short)(source.XPosition - projectile.XPosition)));
+        int distance = Math.Abs(unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole)));
         if (distance >= KagoBugSourceCollisionEnableDistance)
             projectile.BlocksSamusProjectiles = true;
     }
@@ -104,21 +103,20 @@ public sealed partial class RoomEnemySystem
         {
             // A wall ends the rising phase immediately in the cartridge: both X velocity
             // and the upward component are replaced before selecting the falling list.
-            projectile.XVelocity = 0;
-            projectile.YVelocity = 0x0100;
+            projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0x0100));
             BeginKagoBugFall(projectile);
             return;
         }
 
         if (MoveProjectileAxis(projectile, level, horizontal: false))
         {
-            projectile.YVelocity = 0x0100;
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0x0100));
             BeginKagoBugFall(projectile);
             return;
         }
 
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + KagoBugGravity));
-        if (unchecked((short)projectile.YVelocity) >= 0)
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + KagoBugGravity))));
+        if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
             BeginKagoBugFall(projectile);
     }
 
@@ -132,7 +130,7 @@ public sealed partial class RoomEnemySystem
         // and deliberately postpones both vertical motion and gravity until the next frame.
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
-            projectile.XVelocity = 0;
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
             return;
         }
 
@@ -145,7 +143,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + KagoBugGravity));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + KagoBugGravity))));
     }
 
     private static void BeginKagoBugFall(RoomEnemyProjectileSlot projectile)
@@ -163,10 +161,10 @@ public sealed partial class RoomEnemySystem
         EnableKagoBugShotCollisionWhenSeparated(projectile);
 
         ushort upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & 0x0300) + 0x0800));
-        projectile.YVelocity = unchecked((ushort)-upwardMagnitude);
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-upwardMagnitude)));
 
         RoomEnemySlot source = SlotFromNativeIndex(projectile.Variable1);
-        short sourceDelta = unchecked((short)(source.XPosition - projectile.XPosition));
+        short sourceDelta = unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole));
         bool jumpLeft;
         if (Math.Abs((int)sourceDelta) >= KagoBugSourceHomingDistance)
         {
@@ -180,9 +178,9 @@ public sealed partial class RoomEnemySystem
             jumpLeft = (upwardMagnitude & 0x0100) != 0;
         }
 
-        projectile.XVelocity = jumpLeft
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(jumpLeft
             ? unchecked((ushort)-KagoBugHorizontalSpeed)
-            : KagoBugHorizontalSpeed;
+            : KagoBugHorizontalSpeed));
         projectile.PreInstruction =
             (ushort)EnemyProjectilePreInstruction.KagoBug_Jumping;
     }
@@ -201,8 +199,7 @@ public sealed partial class RoomEnemySystem
     {
         LastKagoBugDropRequest = new KagoBugDropRequest();
         SpawnEnemyDropFromEnemyHeader(
-            projectile.XPosition,
-            projectile.YPosition,
+            projectile.Position.Whole,
             EnemyDefinitionId.Kago);
     }
 

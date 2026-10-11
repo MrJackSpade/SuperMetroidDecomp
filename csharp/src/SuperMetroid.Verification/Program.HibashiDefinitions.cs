@@ -21,11 +21,11 @@ internal static partial class Program
 
         RoomEnemySlot graphics = enemies.Slots[0];
         graphics.Parameter2 = 0;
-        graphics.YPosition = 0x0200;
+        graphics.Position = graphics.Position.WithWholeY(0x0200);
         initialize(graphics);
         RoomEnemySlot hitbox = enemies.Slots[1];
         hitbox.Parameter2 = 1;
-        hitbox.YPosition = graphics.YPosition;
+        hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
         initialize(hitbox);
 
         for (int frameIndex = 0; frameIndex < 22; frameIndex++)
@@ -36,15 +36,15 @@ internal static partial class Program
             AssertEqual(ReadHibashiWord(rom, yRadiusTable + frameIndex * 2), frame.YRadius,
                 $"Hibashi Y radius {frameIndex}");
 
-            hitbox.XRadius = 0;
+            hitbox.Radius = hitbox.Radius.WithX(0);
             applyFrame(graphics, frameIndex);
-            AssertEqual(unchecked((ushort)(0x0200 - frame.YOffset)), hitbox.YPosition,
+            AssertEqual(unchecked((ushort)(0x0200 - frame.YOffset)), hitbox.Position.Y.Whole,
                 $"Hibashi production Y position {frameIndex}");
-            AssertEqual(frame.YRadius, hitbox.YRadius,
+            AssertEqual(frame.YRadius, hitbox.Radius.Y,
                 $"Hibashi production Y radius {frameIndex}");
             AssertEqual(frameIndex, enemies.LastHibashiActivityFrameIndex!.Value,
                 $"Hibashi production frame publication {frameIndex}");
-            AssertEqual(frameIndex == 0 ? (ushort)8 : (ushort)0, hitbox.XRadius,
+            AssertEqual(frameIndex == 0 ? (ushort)8 : (ushort)0, hitbox.Radius.X,
                 $"Hibashi production X radius {frameIndex}");
         }
 
@@ -81,22 +81,20 @@ internal static partial class Program
         programGraphics.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
         programGraphics.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         programGraphics.Parameter2 = 0;
-        programGraphics.XPosition = 0x0180;
-        programGraphics.YPosition = 0x0200;
+        programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
         initializeProgram(programGraphics);
 
         RoomEnemySlot programHitbox = programSystem.Slots[1];
         programHitbox.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
         programHitbox.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         programHitbox.Parameter2 = 1;
-        programHitbox.XPosition = programGraphics.XPosition;
-        programHitbox.YPosition = programGraphics.YPosition;
+        programHitbox.Position = programHitbox.Position.WithWhole(programGraphics.Position.Whole);
         initializeProgram(programHitbox);
 
         object?[] graphicsArguments =
-            [programGraphics, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [programGraphics, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         object?[] hitboxArguments =
-            [programHitbox, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [programHitbox, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
         // The visible stream needs 59 actor frames through its final callback. The margin
         // proves both actors remain parked on their terminal sleep commands afterward.
@@ -137,9 +135,9 @@ internal static partial class Program
             "Hibashi graphics program executes final activity callback");
         AssertEqual((ushort)1, programSystem.HibashiStates[0]!.FinishedActivityFlag,
             "Hibashi graphics program publishes finished activity");
-        AssertEqual((ushort)0, programHitbox.XRadius,
+        AssertEqual((ushort)0, programHitbox.Radius.X,
             "Hibashi finished program clears hitbox X radius");
-        AssertEqual((ushort)0, programHitbox.YRadius,
+        AssertEqual((ushort)0, programHitbox.Radius.Y,
             "Hibashi finished program clears hitbox Y radius");
         AssertTrue(programGraphics.Properties.HasAny(EnemyProperties.Invisible),
             "Hibashi finished program hides graphics actor");

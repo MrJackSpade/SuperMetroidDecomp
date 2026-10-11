@@ -20,10 +20,8 @@ internal static partial class Program
             slot.Definition = RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer);
             slot.AiBank = slot.Definition.Bank;
             slot.Health = slot.Definition.Health;
-            slot.XRadius = slot.Definition.XRadius;
-            slot.YRadius = slot.Definition.YRadius;
-            slot.XPosition = (ushort)(0x25f + index * 16);
-            slot.YPosition = 0xb98;
+            slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
+            slot.Position = slot.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
             slot.Properties = 0x0c00;
             slot.Parameter2 = (ushort)index;
             typeof(RoomEnemySystem).GetMethod("InitializeEtecoon", flags)!.Invoke(enemies, [slot]);
@@ -33,13 +31,13 @@ internal static partial class Program
         enemies.ElevatorDoorTransitionActive = true;
         for (int frame = 0; frame < 3; frame++)
         {
-            enemies.StepFrame(0x200, 0xb00, false, samus, level: level);
+            enemies.StepFrame(new(0x200, 0xb00), false, samus, level: level);
             AssertEqual(0, enemies.SoundRequests.Count, "transition does not consume the Etecoon fanfare");
             foreach (var state in enemies.EtecoonStates.Where(state => state is not null))
                 AssertEqual((ushort)0xffff, state!.FunctionTimer, "transition preserves dormant Etecoon timer");
         }
         enemies.ElevatorDoorTransitionActive = false;
-        enemies.StepFrame(0x200, 0xb00, false, samus, level: level);
+        enemies.StepFrame(new(0x200, 0xb00), false, samus, level: level);
         AssertEqual(1, enemies.SoundRequests.Count, "trio publishes one fanfare after fade");
         var request = enemies.SoundRequests[0];
         AssertEqual(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x35), request.SoundEffect,
@@ -53,7 +51,7 @@ internal static partial class Program
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
         queue.QueueSound(request.SoundEffect, request.MaximumQueued);
         AssertTrue(queue.HasQueuedSounds, "post-fade fanfare reaches CPU queue");
-        enemies.StepFrame(0x200, 0xb00, false, samus, level: level);
+        enemies.StepFrame(new(0x200, 0xb00), false, samus, level: level);
         AssertEqual(0, enemies.SoundRequests.Count, "next frame does not repeat fanfare");
         var channels = (ManagedSpcSoundChannel[][])typeof(ManagedSpcPlayer)
             .GetField("soundChannels", flags)!.GetValue(renderer.Player)!;

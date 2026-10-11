@@ -45,11 +45,11 @@ internal static partial class Program
             AssertEqual(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, projectile.Kind,
                 $"Crocomire bridge fragment {fragment} kind");
             AssertEqual(CrocomireBridgeFragmentDefinitions.XPosition((ushort)(fragment * 2)),
-                projectile.XPosition,
+                projectile.Position.X.Whole,
                 $"Crocomire bridge fragment {fragment} production X");
-            AssertEqual((ushort)187, projectile.YPosition,
+            AssertEqual((ushort)187, projectile.Position.Y.Whole,
                 $"Crocomire bridge fragment {fragment} production Y");
-            AssertEqual((ushort)0x0074, projectile.YVelocity,
+            AssertEqual((ushort)0x0074, projectile.Velocity.Y.RawValue,
                 $"Crocomire bridge fragment {fragment} production Y velocity");
             AssertEqual(checked((ushort)((fragment + 1) * 2)), death.BridgeFragmentCursor,
                 $"Crocomire bridge fragment {fragment} cursor");

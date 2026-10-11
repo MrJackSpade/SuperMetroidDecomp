@@ -48,20 +48,19 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_nextRandom", instanceFlags)!
                 .SetValue(enemies, (Func<ushort>)(() => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff));
             RoomEnemySlot torizo = enemies.Slots[0];
-            torizo.XPosition = 1000;
-            torizo.YPosition = 500;
+            torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
             initialize.Invoke(enemies, [projectile, torizo, definition]);
 
             AssertEqual(definition.InstructionList, projectile.InstructionPointer,
                 $"{name} production instruction");
-            AssertEqual(unchecked((ushort)(1000 + definition.XOffset)), projectile.XPosition,
+            AssertEqual(unchecked((ushort)(1000 + definition.XOffset)), projectile.Position.X.Whole,
                 $"{name} production X");
-            AssertEqual(unchecked((ushort)(definition.BaseXVelocity - 128)), projectile.XVelocity,
+            AssertEqual(unchecked((ushort)(definition.BaseXVelocity - 128)), projectile.Velocity.X.RawValue,
                 $"{name} production X jitter");
-            AssertEqual(unchecked((ushort)(500 + definition.YOffset)), projectile.YPosition,
+            AssertEqual(unchecked((ushort)(500 + definition.YOffset)), projectile.Position.Y.Whole,
                 $"{name} production Y");
-            AssertEqual(unchecked((ushort)(definition.BaseYVelocity + 127)), projectile.YVelocity,
+            AssertEqual(unchecked((ushort)(definition.BaseYVelocity + 127)), projectile.Velocity.Y.RawValue,
                 $"{name} production Y jitter");
             AssertEqual(2, randomCall, $"{name} independent RNG calls");
         }
@@ -112,8 +111,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_nextRandom", instanceFlags)!
             .SetValue(enemies, (Func<ushort>)(() => 0));
         RoomEnemySlot torizo = enemies.Slots[0];
-        torizo.XPosition = 1000;
-        torizo.YPosition = 500;
+        torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
 
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(methodName, instanceFlags)!;
@@ -126,15 +124,15 @@ internal static partial class Program
         AssertTrue(projectile.IsActive, $"{methodName} facing {facingRight} allocation");
         AssertEqual(expected.InstructionList, projectile.InstructionPointer,
             $"{methodName} facing {facingRight} instruction");
-        AssertEqual(unchecked((ushort)(1000 + expected.XOffset)), projectile.XPosition,
+        AssertEqual(unchecked((ushort)(1000 + expected.XOffset)), projectile.Position.X.Whole,
             $"{methodName} facing {facingRight} X");
-        AssertEqual(unchecked((ushort)(500 + expected.YOffset)), projectile.YPosition,
+        AssertEqual(unchecked((ushort)(500 + expected.YOffset)), projectile.Position.Y.Whole,
             $"{methodName} facing {facingRight} Y");
         if (!velocityIsReplaced)
         {
-            AssertEqual(unchecked((ushort)(expected.BaseXVelocity - 128)), projectile.XVelocity,
+            AssertEqual(unchecked((ushort)(expected.BaseXVelocity - 128)), projectile.Velocity.X.RawValue,
                 $"{methodName} facing {facingRight} X jitter");
-            AssertEqual(unchecked((ushort)(expected.BaseYVelocity - 128)), projectile.YVelocity,
+            AssertEqual(unchecked((ushort)(expected.BaseYVelocity - 128)), projectile.Velocity.Y.RawValue,
                 $"{methodName} facing {facingRight} Y jitter");
         }
     }

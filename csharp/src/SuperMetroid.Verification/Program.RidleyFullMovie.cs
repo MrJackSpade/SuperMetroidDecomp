@@ -51,7 +51,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 158));
         var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
-        body.XPosition = 139; body.YPosition = 282;
+        body.Position = body.Position.WithWhole(new(139, 282));
         body.SpritemapPointer = 0xe9e9; body.Properties = 0x3800;
         state.FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = 1; state.FacingDirection = RidleyFacing.Left;
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = 10;
@@ -63,7 +63,7 @@ internal static partial class Program
         var enemyPhase = typeof(SuperMetroidRuntime).GetMethod("RunEnemyMainPhase", BindingFlags.Instance | BindingFlags.NonPublic)!;
         enemyPhase.Invoke(runtime, null);
         AssertEqual((ushort)399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
-        AssertTrue(body.XPosition < 139, "fixture advances body into collision boundary");
+        AssertTrue(body.Position.X.Whole < 139, "fixture advances body into collision boundary");
         body.SpritemapPointer = 0xe9e9;
         runtime.Enemies.ResolveRidleySamusContact(samus);
         AssertEqual((ushort)359, samus.Health, "next pre-AI body overlap remains damaging");
@@ -79,7 +79,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!;
         state.Function = RidleyAiFunction.NorfairSwoopSetup; state.FunctionTimer = 112;
-        body.XPosition = 212; body.YPosition = 200; state.FacingDirection = RidleyFacing.Right;
+        body.Position = body.Position.WithWhole(new(212, 200)); state.FacingDirection = RidleyFacing.Right;
         var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
         dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
         AssertEqual((ushort)112, state.FunctionTimer, "native swoop setup retains general AI timer");
@@ -124,7 +124,7 @@ internal static partial class Program
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
-        body.XPosition = 211; body.YPosition = 346;
+        body.Position = body.Position.WithWhole(new(211, 346));
         state.HorizontalVelocity = 0xc0; state.VerticalVelocity = 0x400;
         state.FacingDirection = RidleyFacing.Right; state.Function = RidleyAiFunction.NorfairFireballAttack;
         state.GrabState = 0; state.FeetDistanceIndex = 0;
@@ -148,8 +148,7 @@ internal static partial class Program
         AssertEqual((ushort)9, bombs.CooldownTimer, "native unlocked alpha resumes cooldown");
         // Native source8395: a descending lunge grabs standing Samus. Ground attacks
         // have their own reversal; this entry must negate after its lunge acceleration.
-        body.XPosition = 172; body.XSubposition = 0x6300;
-        body.YPosition = 345; body.YSubposition = 0x0a00;
+        body.Position = new(new(172, 0x6300), new(345, 0x0a00));
         state.HorizontalVelocity = 0x2b0; state.VerticalVelocity = 0x3cd;
         state.FacingDirection = RidleyFacing.Right; state.HealthStage = 3; state.HitRoomBoundary = false;
         state.GrabState = 0; state.FeetDistanceIndex = 0;
@@ -162,8 +161,7 @@ internal static partial class Program
         AssertEqual((ushort)0xfc25, state.VerticalVelocity, "native lunge grab reverses before carry acceleration");
         AssertEqual((ushort)31, state.FunctionTimer, "native lunge grab falls through countdown");
         // Source10132 takes the zero-health branch, whose JMP executes C538 immediately.
-        body.XPosition = 134; body.XSubposition = 0x7d00;
-        body.YPosition = 356; body.YSubposition = 0xec00; body.Health = 0;
+        body.Position = new(new(134, 0x7d00), new(356, 0xec00)); body.Health = 0;
         state.HorizontalVelocity = 0x1de; state.VerticalVelocity = 0x419;
         state.FightMode = RidleyFightMode.Fighting; state.GrabState = 0; state.FunctionTimer = 0x29;
         samus.Position = samus.Position.WithWhole(new(134, 411)); samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -178,7 +176,7 @@ internal static partial class Program
         {
             state.Function = function; state.FunctionTimer = 0;
             state.HorizontalVelocity = 0xffca; state.VerticalVelocity = 0xfecb;
-            state.TargetX = 208; body.XPosition = 212; body.YPosition = 142;
+            state.TargetX = 208; body.Position = body.Position.WithWhole(new(212, 142));
             dispatch.Invoke(runtime.Enemies, [body, state, samus, (ushort)0, runtime.LevelData]);
             AssertEqual((ushort)0xffca, state.HorizontalVelocity, "native expiry skips X acceleration");
             AssertEqual((ushort)0xfecb, state.VerticalVelocity, "native expiry skips Y acceleration");
@@ -384,25 +382,22 @@ internal static partial class Program
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         var projectile = runtime.Enemies.EnemyProjectiles[16];
-        projectile.XPosition = 0x49; projectile.XSubposition = 0x8c00;
-        projectile.YPosition = 0x54; projectile.YSubposition = 0xd900;
-        projectile.XVelocity = 0xfb64; projectile.YVelocity = 0xfe1b;
-        projectile.XRadius = 6; projectile.YRadius = 6;
+        projectile.Position = new(new(0x49, 0x8c00), new(0x54, 0xd900));
+        projectile.Velocity = new(new SnesSignedEightEight(0xfb64), new SnesSignedEightEight(0xfe1b));
+        projectile.Radius = new(6, 6);
         var move = typeof(RoomEnemySystem).GetMethod("MoveProjectileAxis", BindingFlags.Static | BindingFlags.NonPublic)!;
         AssertTrue(!(bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, true])!, "source1248 fireball crosses empty square-slope quadrant horizontally");
         AssertTrue(!(bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, false])!, "source1248 fireball clears terrain vertically");
-        AssertEqual((ushort)0x44, projectile.XPosition, "native source1249 fireball X");
-        AssertEqual((ushort)0xf000, projectile.XSubposition, "native source1249 fireball X fraction");
-        AssertEqual((ushort)0x52, projectile.YPosition, "native source1249 fireball Y");
-        AssertEqual((ushort)0xf400, projectile.YSubposition, "native source1249 fireball Y fraction");
-        projectile.XPosition = 60; projectile.XSubposition = 0;
-        projectile.YPosition = 84; projectile.XVelocity = 0xff00;
+        AssertEqual((ushort)0x44, projectile.Position.X.Whole, "native source1249 fireball X");
+        AssertEqual((ushort)0xf000, projectile.Position.X.Fraction, "native source1249 fireball X fraction");
+        AssertEqual((ushort)0x52, projectile.Position.Y.Whole, "native source1249 fireball Y");
+        AssertEqual((ushort)0xf400, projectile.Position.Y.Fraction, "native source1249 fireball Y fraction");
+        projectile.Position = projectile.Position.WithWholeX(60).WithFractionX(0).WithWholeY(84); projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0xff00));
         AssertTrue((bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, true])!, "occupied top-left quarter stops horizontal motion");
-        AssertEqual((ushort)62, projectile.XPosition, "native square reaction snaps to eight-pixel edge even when initially embedded");
-        projectile.XPosition = 52; projectile.YPosition = 94;
-        projectile.YSubposition = 0; projectile.YVelocity = 0xff00;
+        AssertEqual((ushort)62, projectile.Position.X.Whole, "native square reaction snaps to eight-pixel edge even when initially embedded");
+        projectile.Position = projectile.Position.WithWholeX(52).WithWholeY(94).WithFractionY(0); projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0xff00));
         AssertTrue((bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, false])!, "occupied top-left quarter stops vertical motion");
-        AssertEqual((ushort)94, projectile.YPosition, "native square reaction snaps below occupied quarter");
+        AssertEqual((ushort)94, projectile.Position.Y.Whole, "native square reaction snaps below occupied quarter");
         Console.WriteLine("Ridley fireball square slope: native source1248 trajectory and occupied horizontal/vertical quadrants pass.");
     }
 
@@ -426,7 +421,7 @@ internal static partial class Program
             AssertEqual(sample.Item2, fireball.Damage, "native area initializer overrides fireball damage");
             afterburn.Invoke(runtime.Enemies, [fireball, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, (ushort)0x0e00, (ushort)0]);
             AssertEqual(sample.Item2, runtime.Enemies.EnemyProjectiles[slotIndex--].Damage, "directional afterburn runs the same area initializer");
-            samus.Position = samus.Position.WithWhole(new(fireball.XPosition, fireball.YPosition));
+            samus.Position = samus.Position.WithWhole(fireball.Position.Whole);
             samus.Health = 700; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
             samus.RefreshCollisionRadii(bus);
             collide.Invoke(null, [fireball, samus]);
@@ -451,8 +446,8 @@ internal static partial class Program
         impact.Invoke(runtime.Enemies, [body, state, null, runtime.LevelData]);
         var dust = runtime.Enemies.EnemyProjectiles[17];
         AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
-        AssertEqual((ushort)4, dust.XPosition, "native tail impact dust X");
-        AssertEqual((ushort)130, dust.YPosition, "native tail impact dust Y includes twelve-pixel offset");
+        AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
+        AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
         AssertEqual(MiscDustProjectileDefinitions.InstructionList(9), dust.InstructionPointer, "native impact selects variant nine");
         AssertTrue(runtime.Enemies.SoundRequests.Any(request => request.SoundEffect == SoundEffectLibrary2Sounds.RidleyTailTerrainImpact && request.MaximumQueued == 6), "native impact queues library-two sound 76");
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
@@ -461,16 +456,16 @@ internal static partial class Program
     private static void VerifyRidleyScreenGate()
     {
         var update = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyIntangibility", BindingFlags.Static | BindingFlags.NonPublic)!;
-        var body = new RoomEnemySlot(0) { XPosition = 64, YPosition = 253 };
+        var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
         var state = new RidleyEnemyState { FightMode = RidleyFightMode.Fighting, IntangibilityTimer = 3 };
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
-        update.Invoke(null, [body, state, (ushort)0, (ushort)287]);
+        update.Invoke(null, [body, state, new Position16<RoomPixels>((ushort)0, (ushort)287)]);
         AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native above-camera Ridley disables collision");
         AssertEqual((ushort)3, state.IntangibilityTimer, "offscreen return preserves release timer");
         // At the next AI call Y257 is inside. EnemyMain already tested the old
         // collision bit; the cleared gate is consumed by the following update.
-        body.YPosition = 257;
-        update.Invoke(null, [body, state, (ushort)0, (ushort)287]);
+        body.Position = body.Position.WithWholeY(257);
+        update.Invoke(null, [body, state, new Position16<RoomPixels>((ushort)0, (ushort)287)]);
         AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native reentry clears collision gate");
         AssertEqual((ushort)2, state.IntangibilityTimer, "onscreen AI resumes release timer");
         AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(64, 254, 0, 287), "one pixel above native window");
@@ -591,7 +586,7 @@ internal static partial class Program
         ];
         foreach (var sample in cases)
         {
-            var slot = new RoomEnemySlot(0) { XPosition = sample.X,
+            var slot = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)),
                 CurrentInstruction = NativeSnapshotMemory.RidleyRightFlyingSleep,
                 InstructionTimer = 7, Timer = 9 };
             var state = new RidleyEnemyState { FacingDirection = sample.Facing };
@@ -905,8 +900,8 @@ internal static partial class Program
                 if (color != DoorTransitionPaletteDefinitions.VisorColorIndex)
                     words.Add(runtime.Cgram.Colors[color].ToWord());
             foreach (var actor in runtime.Enemies.Slots)
-                words.AddRange([(ushort)actor.EnemyDefinitionPointer, actor.XPosition, actor.XSubposition,
-                    actor.YPosition, actor.YSubposition, actor.Health, actor.SpritemapPointer,
+                words.AddRange([(ushort)actor.EnemyDefinitionPointer, actor.Position.X.Whole, actor.Position.X.Fraction,
+                    actor.Position.Y.Whole, actor.Position.Y.Fraction, actor.Health, actor.SpritemapPointer,
                     actor.CurrentInstruction, actor.InstructionTimer]);
             return words.ToArray();
         }
@@ -1242,16 +1237,16 @@ internal static partial class Program
                 string owner = $"Enemy {actor.SlotIndex}";
                 Check(owner + " identity", (ushort)actor.EnemyDefinitionPointer, address);
                 if (actor.EnemyDefinitionPointer == 0 || W(address) == 0) continue;
-                Check(owner + " X", actor.XPosition, address + 2);
-                Check(owner + " X fraction", actor.XSubposition, address + 4);
-                Check(owner + " Y", actor.YPosition, address + 6);
-                Check(owner + " Y fraction", actor.YSubposition, address + 8);
+                Check(owner + " X", actor.Position.X.Whole, address + 2);
+                Check(owner + " X fraction", actor.Position.X.Fraction, address + 4);
+                Check(owner + " Y", actor.Position.Y.Whole, address + 6);
+                Check(owner + " Y fraction", actor.Position.Y.Fraction, address + 8);
                 Check(owner + " health", actor.Health, address + 20);
                 Check(owner + " spritemap", actor.SpritemapPointer, address + 22);
                 Check(owner + " instruction", actor.CurrentInstruction, address + 26);
                 Check(owner + " instruction timer", actor.InstructionTimer, address + 28);
-                Check(owner + " XRadius", actor.XRadius, address + 10);
-                Check(owner + " YRadius", actor.YRadius, address + 12);
+                Check(owner + " XRadius", actor.Radius.X, address + 10);
+                Check(owner + " YRadius", actor.Radius.Y, address + 12);
                 Check(owner + " Properties", actor.Properties, address + 14);
                 Check(owner + " ExtraProperties", actor.ExtraProperties, address + 16);
                 Check(owner + " AiHandlerBits", actor.AiHandlerBits, address + 18);
@@ -1476,15 +1471,15 @@ internal static partial class Program
                 string owner = $"Enemy projectile {projectile.SlotIndex}";
                 Check(owner + " identity", (ushort)projectile.Kind, NativeSnapshotMemory.EnemyProjectileId + index);
                 if (!projectile.IsActive || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
-                Check(owner + " X", projectile.XPosition, NativeSnapshotMemory.EnemyProjectileX + index);
-                Check(owner + " Y", projectile.YPosition, NativeSnapshotMemory.EnemyProjectileY + index);
+                Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.EnemyProjectileX + index);
+                Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.EnemyProjectileY + index);
                 Check(owner + " Graphics", projectile.GraphicsIndex, NativeSnapshotMemory.EnemyProjectileGraphics + index);
                 Check(owner + " Timer", projectile.GeneralTimer, NativeSnapshotMemory.EnemyProjectileTimer + index);
                 Check(owner + " PreInstruction", projectile.PreInstruction, NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
-                Check(owner + " XFraction", projectile.XSubposition, NativeSnapshotMemory.EnemyProjectileXFraction + index);
-                Check(owner + " YFraction", projectile.YSubposition, NativeSnapshotMemory.EnemyProjectileYFraction + index);
-                Check(owner + " XVelocity", projectile.XVelocity, NativeSnapshotMemory.EnemyProjectileXVelocity + index);
-                Check(owner + " YVelocity", projectile.YVelocity, NativeSnapshotMemory.EnemyProjectileYVelocity + index);
+                Check(owner + " XFraction", projectile.Position.X.Fraction, NativeSnapshotMemory.EnemyProjectileXFraction + index);
+                Check(owner + " YFraction", projectile.Position.Y.Fraction, NativeSnapshotMemory.EnemyProjectileYFraction + index);
+                Check(owner + " XVelocity", projectile.Velocity.X.RawValue, NativeSnapshotMemory.EnemyProjectileXVelocity + index);
+                Check(owner + " YVelocity", projectile.Velocity.Y.RawValue, NativeSnapshotMemory.EnemyProjectileYVelocity + index);
                 Check(owner + " Instruction", projectile.InstructionPointer, NativeSnapshotMemory.EnemyProjectileInstruction + index);
                 ushort nativeMap = W(NativeSnapshotMemory.EnemyProjectileSpritemap + index);
                 if (checkedProjectileCompositions.Add((projectile.PresentationOperandAddress, projectile.SpritemapPointer, nativeMap)))
@@ -1506,7 +1501,7 @@ internal static partial class Program
                         mismatches.Add(owner + $" composition differs from native ${nativeMap:X4}");
                 }
                 Check(owner + " InstructionTimer", projectile.InstructionTimer, NativeSnapshotMemory.EnemyProjectileInstructionTimer + index);
-                Check(owner + " radii", (ushort)(projectile.XRadius | projectile.YRadius << 8), NativeSnapshotMemory.EnemyProjectileRadius + index);
+                Check(owner + " radii", (ushort)(projectile.Radius.X | projectile.Radius.Y << 8), NativeSnapshotMemory.EnemyProjectileRadius + index);
                 ushort properties = projectile.Damage;
                 if (projectile.DrawPriority == EnemyProjectileDrawPriority.High) properties |= NativeSnapshotMemory.EnemyProjectileHighDraw;
                 if (!projectile.CanDamageSamus) properties |= NativeSnapshotMemory.EnemyProjectileNoContact;

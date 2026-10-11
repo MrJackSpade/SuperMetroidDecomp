@@ -37,19 +37,19 @@ internal static partial class Program
             eye.VariableC = 123;
             rainMethod.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(enemies)(body, state);
             AssertEqual(Word(0xa7cdad + pattern * 8), body.VariableA, "Real rain cursor handoff");
-            AssertEqual(Word(0xa7cdaf + pattern * 8), body.XPosition, "Real rain body placement X");
-            AssertEqual(Word(0xa7cdb1 + pattern * 8), body.YPosition, "Real rain body placement Y");
+            AssertEqual(Word(0xa7cdaf + pattern * 8), body.Position.X.Whole, "Real rain body placement X");
+            AssertEqual(Word(0xa7cdb1 + pattern * 8), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual((ushort)0, eye.VariableC, "Real rain direction reset");
             AssertEqual((ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain, body.VariableF, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
-            var flames = enemies.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.XVelocity).ToArray();
+            var flames = enemies.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.Velocity.X.RawValue).ToArray();
             AssertEqual(8, flames.Length, "Actual rain population");
             for (int i = 0; i < 8; i++)
             {
                 int column = (rom.ReadByte(0xa7cfc2 + pattern) + i) % 9;
-                AssertEqual((ushort)rom.ReadByte(0x8698f7 + column), flames[i].XPosition, "Actual rain column order with wrap");
-                AssertEqual((ushort)40, flames[i].YPosition, "Actual rain ceiling Y");
-                AssertEqual((ushort)((i + 1) * 8), flames[i].XVelocity, "Actual staggered rain delay");
+                AssertEqual((ushort)rom.ReadByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
+                AssertEqual((ushort)40, flames[i].Position.Y.Whole, "Actual rain ceiling Y");
+                AssertEqual((ushort)((i + 1) * 8), flames[i].Velocity.X.RawValue, "Actual staggered rain delay");
             }
         }
 
@@ -70,13 +70,12 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>();
         RoomEnemySlot eyeBody = eyeEnemies.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.Slots[1];
-        eyeBody.XPosition = 0x4000;
-        eyeBody.YPosition = 0x4000;
+        eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, ushort direction) in eyeTargets)
         {
             pointEye(eyeBody, trackingEye, new SamusState
             {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.XPosition + x)), unchecked((ushort)(eyeBody.YPosition + y)))),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
             AssertEqual(PhantoonPatternDefinitions.EyeInstruction(direction),
                 trackingEye.CurrentInstruction,

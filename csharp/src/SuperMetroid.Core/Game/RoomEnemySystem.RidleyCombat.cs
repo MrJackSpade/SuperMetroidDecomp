@@ -42,13 +42,12 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level,
         SamusProjectileSystem? samusProjectiles,
         SamusBombProjectileSystem sharedProjectiles,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         RidleyEnemyState state = RequireNorfairRidley(body);
         if ((body.FrameCounter & 1) == 0)
         {
-            UpdateNorfairRidleyIntangibility(body, state, cameraX, cameraY);
+            UpdateNorfairRidleyIntangibility(body, state, camera);
             PrepareNorfairRidleyCombatFrame(state, sharedProjectiles);
             RunNorfairRidleyFunction(body, state, samus, controllerInput, level);
             if (state.MovementAnimationEnabled != 0)
@@ -81,15 +80,14 @@ public sealed partial class RoomEnemySystem
     private static void UpdateNorfairRidleyIntangibility(
         RoomEnemySlot body,
         RidleyEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         if (state.FightMode == RidleyFightMode.Dying)
             return;
         if (state.FightMode != RidleyFightMode.NotFighting)
         {
             if (RidleyCollisionDefinitions.IsOutsideInteractionWindow(
-                body.XPosition, body.YPosition, cameraX, cameraY))
+                body.Position.X.Whole, body.Position.Y.Whole, camera.X, camera.Y))
             {
                 body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 return;
@@ -187,8 +185,7 @@ public sealed partial class RoomEnemySystem
             dust,
             RoomEnemyProjectileKind.MiscDustExplosion,
             graphicsIndex: 0);
-        dust.XPosition = x;
-        dust.YPosition = y;
+        dust.Position = dust.Position.WithWhole(new(x, y));
         dust.InstructionPointer = MiscDustProjectileDefinitions.InstructionList(
             Math.Min(variant, (ushort)0x001d));
         dust.InstructionTimer = 1;

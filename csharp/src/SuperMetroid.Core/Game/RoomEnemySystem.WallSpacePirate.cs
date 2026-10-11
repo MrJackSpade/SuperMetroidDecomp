@@ -255,27 +255,27 @@ public sealed partial class RoomEnemySystem
         // Native math rewrites both whole positions every frame ($B2:F0F9/$F113) and leaves
         // the fractions untouched. The jump ellipse is parameter2 pixels wide and
         // parameter2/4 pixels tall.
-        slot.XPosition = unchecked((ushort)(
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
             state.WallJumpArcCenterX +
             ReadEightBitNegativeSineProduct(
                 state.WallJumpArcAngle,
-                (ushort)(slot.Parameter2 >> 1))));
-        slot.YPosition = unchecked((ushort)(
+                (ushort)(slot.Parameter2 >> 1)))));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
             state.WallJumpArcCenterY -
-            ReadEightBitCosineProduct(state.WallJumpArcAngle, (ushort)(slot.Parameter2 >> 2))));
+            ReadEightBitCosineProduct(state.WallJumpArcAngle, (ushort)(slot.Parameter2 >> 2)))));
     }
 
     private static bool WallSpacePirateCanAttack(RoomEnemySlot slot, SamusState samus) =>
-        Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.YPosition))) <
+        Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))) <
             WallPirateSamusDetectionBand;
 
     private static void SnapWallSpacePirateXToTile(RoomEnemySlot slot)
     {
         // `$B2:EFFF` deliberately has two alignment grids. Nibbles 0..10 round down to an
         // eight-pixel boundary; 11..15 round up to the next sixteen-pixel boundary.
-        slot.XPosition = (slot.XPosition & 0x000f) < 11
-            ? unchecked((ushort)(slot.XPosition & 0xfff8))
-            : unchecked((ushort)((slot.XPosition & 0xfff0) + 16));
+        slot.Position = slot.Position.WithWholeX((slot.Position.X.Whole & 0x000f) < 11
+            ? unchecked((ushort)(slot.Position.X.Whole & 0xfff8))
+            : unchecked((ushort)((slot.Position.X.Whole & 0xfff0) + 16)));
     }
 
     private static void InstallWallSpacePirateInstruction(
@@ -351,9 +351,9 @@ public sealed partial class RoomEnemySystem
         int signedHalfSpan = jumpingRight
             ? slot.Parameter2 >> 1
             : -(slot.Parameter2 >> 1);
-        state.WallJumpDestinationX = unchecked((ushort)(slot.XPosition + signedSpan));
-        state.WallJumpArcCenterX = unchecked((ushort)(slot.XPosition + signedHalfSpan));
-        state.WallJumpArcCenterY = slot.YPosition;
+        state.WallJumpDestinationX = unchecked((ushort)(slot.Position.X.Whole + signedSpan));
+        state.WallJumpArcCenterX = unchecked((ushort)(slot.Position.X.Whole + signedHalfSpan));
+        state.WallJumpArcCenterY = slot.Position.Y.Whole;
         state.WallJumpArcAngle = jumpingRight ? (ushort)64 : (ushort)192;
     }
 

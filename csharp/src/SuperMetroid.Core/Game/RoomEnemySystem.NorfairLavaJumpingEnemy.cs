@@ -122,8 +122,8 @@ public sealed partial class RoomEnemySystem
 
         // The jumping parent returns to exactly these population coordinates after every
         // arc. Subpositions are deliberately not saved or cleared by the retail routine.
-        state.SpawnX = slot.XPosition;
-        state.SpawnY = slot.YPosition;
+        state.SpawnX = slot.Position.X.Whole;
+        state.SpawnY = slot.Position.Y.Whole;
         slot.CurrentInstruction = NorfairLavaJumperInstructionProgramDefinitions.Hidden;
         state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
     }
@@ -184,10 +184,9 @@ public sealed partial class RoomEnemySystem
                 // The low screen-row nibble is the retail lava-entry sentinel. Once the
                 // actor reaches row $xF0 it snaps to its exact population origin, restores
                 // the hidden list, and sleeps off-screen until the next jump begins.
-                if ((slot.YPosition & 0x00f0) == 0x00f0)
+                if ((slot.Position.Y.Whole & 0x00f0) == 0x00f0)
                 {
-                    slot.XPosition = state.SpawnX;
-                    slot.YPosition = state.SpawnY;
+                    slot.Position = slot.Position.WithWhole(new(state.SpawnX, state.SpawnY));
                     InstallNorfairLavaJumpingEnemyInstructionList(
                         slot,
                         state,
@@ -253,7 +252,7 @@ public sealed partial class RoomEnemySystem
         }
 
         follower.Properties = follower.Properties.Without(EnemyProperties.Invisible);
-        follower.YPosition = parent.YPosition;
+        follower.Position = follower.Position.WithWholeY(parent.Position.Y.Whole);
     }
 
     private RoomEnemySlot GetPrecedingNorfairLavaJumpingEnemySlot(RoomEnemySlot follower)
@@ -285,10 +284,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state)
     {
-        (slot.YPosition, slot.YSubposition) = AddEightBitVelocity(
-            slot.YPosition,
-            slot.YSubposition,
-            state.YVelocity);
+        slot.Position = slot.Position.AdvanceY(new SnesSignedEightEight(state.YVelocity).ToSixteenSixteenDelta());
     }
 
     /// <summary>Ports function six at $A2:C012 without restarting an unchanged list.</summary>

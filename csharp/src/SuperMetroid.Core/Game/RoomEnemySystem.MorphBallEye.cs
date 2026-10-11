@@ -209,8 +209,7 @@ public sealed partial class RoomEnemySystem
 
         int mountDirection = slot.Parameter2 & 0x000f;
         var mount = MorphBallEyeGeometryDefinitions.Mount(mountDirection);
-        slot.XPosition = unchecked((ushort)(slot.XPosition + mount.X));
-        slot.YPosition = unchecked((ushort)(slot.YPosition + mount.Y));
+        slot.Position += new Offset16<RoomPixels>(unchecked((short)(mount.X)), unchecked((short)(mount.Y)));
         state.Function = MorphBallEyeAiFunction.MountNoOp;
         slot.CurrentInstruction = mount.Program;
 
@@ -258,8 +257,8 @@ public sealed partial class RoomEnemySystem
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
-        if (!IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.YPosition, EyeActivateYDistance) ||
-            !IsWithinStrictModularDistance(samus.Position.X.Whole, eye.XPosition, EyeActivateXDistance))
+        if (!IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.Position.Y.Whole, EyeActivateYDistance) ||
+            !IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, EyeActivateXDistance))
         {
             return;
         }
@@ -296,8 +295,8 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         bool inProximity =
-            IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.YPosition, EyeDeactivateYDistance) &&
-            IsWithinStrictModularDistance(samus.Position.X.Whole, eye.XPosition, EyeDeactivateXDistance);
+            IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.Position.Y.Whole, EyeDeactivateYDistance) &&
+            IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, EyeDeactivateXDistance);
         if (!inProximity)
         {
             LastMorphBallEyeSoundEffect = EyeDeactivationSound;
@@ -331,8 +330,7 @@ public sealed partial class RoomEnemySystem
 
     private static SnesAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
         SnesAngle.FromTableIndex(CalculateCartridgeAngle(
-            unchecked((short)(samus.Position.X.Whole - eye.XPosition)),
-            unchecked((short)(samus.Position.Y.Whole - eye.YPosition))));
+            new(unchecked((short)(samus.Position.X.Whole - eye.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - eye.Position.Y.Whole)))));
 
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)
     {

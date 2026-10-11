@@ -105,8 +105,8 @@ internal static partial class Program
         RoomEnemySlot top = enemies.Slots[0];
         RoomEnemySlot bottom = enemies.Slots[1];
         RoomEnemySlot pad = enemies.Slots[2];
-        AssertEqual(0x006f, top.YPosition, "post-Ceres top begins seventeen pixels above Samus");
-        AssertEqual(0x0097, bottom.YPosition, "post-Ceres bottom begins twenty-three pixels below Samus");
+        AssertEqual(0x006f, top.Position.Y.Whole, "post-Ceres top begins seventeen pixels above Samus");
+        AssertEqual(0x0097, bottom.Position.Y.Whole, "post-Ceres bottom begins twenty-three pixels below Samus");
         AssertEqual(0xa80c, top.VariableF, "post-Ceres top selects descent function three");
 
         int frames = 0;
@@ -117,13 +117,13 @@ internal static partial class Program
         bool observedLandingClamp = false;
         while (enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted && frames < 800)
         {
-            ushort previousTopY = top.YPosition;
-            ushort previousTopSubY = top.YSubposition;
+            ushort previousTopY = top.Position.Y.Whole;
+            ushort previousTopSubY = top.Position.Y.Fraction;
             ushort previousFunction = top.VariableF;
             ushort cameraY = samus.Position.Y.Whole > 120
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
-            enemies.StepFrame(cameraX: 0x0400, cameraY, timeIsFrozen: false, samus);
+            enemies.StepFrame(camera: new(0x0400, cameraY), timeIsFrozen: false, samus);
             frames++;
             observedEngineSound |= enemies.SoundRequests.Contains(
                 new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4d), MaximumQueued: 6));
@@ -131,15 +131,15 @@ internal static partial class Program
             if (top.VariableF == 0xa80c)
             {
                 AssertEqual(
-                    unchecked((ushort)(top.YPosition + 17)),
+                    unchecked((ushort)(top.Position.Y.Whole + 17)),
                     samus.Position.Y.Whole,
                     $"gunship descent rigid Samus whole Y frame {frames}");
-                AssertEqual(top.YSubposition, samus.Kinematics.Position.Y.Fraction,
+                AssertEqual(top.Position.Y.Fraction, samus.Kinematics.Position.Y.Fraction,
                     $"gunship descent rigid Samus sub-Y frame {frames}");
                 if (previousTopY >= 0x0300)
                 {
                     uint previous = ((uint)previousTopY << 16) | previousTopSubY;
-                    uint current = ((uint)top.YPosition << 16) | top.YSubposition;
+                    uint current = top.Position.Y.RawValue;
                     AssertEqual(0x0002_8000u, current - previous,
                         "gunship descent slows to cartridge 2.8 fixed pixels");
                     observedSlowDescent = true;
@@ -150,10 +150,10 @@ internal static partial class Program
             {
                 // $A2:A8B2 clamps whole Y positions only; each hull keeps this call's subpixel sum.
                 ushort carriedSubY = unchecked((ushort)(previousTopSubY + 0x8000));
-                AssertEqual((ushort)0x045f, top.YPosition, "landing clamp top Y");
-                AssertEqual(carriedSubY, top.YSubposition, "landing clamp keeps top subpixel");
-                AssertEqual(carriedSubY, bottom.YSubposition, "landing clamp keeps bottom subpixel");
-                AssertEqual(carriedSubY, pad.YSubposition, "landing clamp keeps pad subpixel");
+                AssertEqual((ushort)0x045f, top.Position.Y.Whole, "landing clamp top Y");
+                AssertEqual(carriedSubY, top.Position.Y.Fraction, "landing clamp keeps top subpixel");
+                AssertEqual(carriedSubY, bottom.Position.Y.Fraction, "landing clamp keeps bottom subpixel");
+                AssertEqual(carriedSubY, pad.Position.Y.Fraction, "landing clamp keeps pad subpixel");
                 observedLandingClamp = true;
             }
 
@@ -203,12 +203,12 @@ internal static partial class Program
 
         var openingSound = new EnemySoundRequest(
             SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6);
-        enemies.StepFrame(0x0400, 0x0400, timeIsFrozen: false, samus);
+        enemies.StepFrame(new(0x0400, 0x0400), timeIsFrozen: false, samus);
         AssertTrue(!enemies.SoundRequests.Contains(openingSound),
             "idle ship does not publish an entrance sound without Down");
         ushort deckX = samus.Position.X.Whole;
-        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.XPosition + 16)));
-        enemies.StepFrame(0x0400, 0x0400, timeIsFrozen: false, samus,
+        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.Position.X.Whole + 16)));
+        enemies.StepFrame(new(0x0400, 0x0400), timeIsFrozen: false, samus,
             newlyPressedControllerInput: 0x0400);
         AssertTrue(!enemies.SoundRequests.Contains(openingSound),
             "Down outside entrance does not publish an opening sound");
@@ -219,8 +219,7 @@ internal static partial class Program
         zebesTimebombSet = true;
         var takeoffWrites = new VramWriteQueue();
         enemies.StepFrame(
-            cameraX: 0x0400,
-            cameraY: 0x0400,
+            camera: new(0x0400, 0x0400),
             timeIsFrozen: false,
             samus,
             newlyPressedControllerInput: 0x0400,
@@ -231,7 +230,7 @@ internal static partial class Program
             "entry frame publishes exactly one library-three $14 Max6 sound");
         if (entrySoundOnly)
         {
-            enemies.StepFrame(0x0400, 0x0400, timeIsFrozen: false, samus,
+            enemies.StepFrame(new(0x0400, 0x0400), timeIsFrozen: false, samus,
                 newlyPressedControllerInput: 0x0400);
             AssertTrue(!enemies.SoundRequests.Contains(openingSound),
                 "opening animation does not republish the entry sound");
@@ -249,8 +248,7 @@ internal static partial class Program
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
             enemies.StepFrame(
-                cameraX: 0x0400,
-                cameraY: takeoffCameraY,
+                camera: new(0x0400, takeoffCameraY),
                 timeIsFrozen: false,
                 samus,
                 vramWriteQueue: takeoffWrites);
@@ -272,7 +270,7 @@ internal static partial class Program
             "takeoff queues all five cartridge dust-cloud tile chunks");
         AssertEqual(6, maximumLiftoffDustActors,
             "takeoff frame 64 spawns all six room-graphics dust actors");
-        AssertTrue(top.YPosition < 0x0100,
+        AssertTrue(top.Position.Y.Whole < 0x0100,
             "state-$26 boundary occurs after top hull passes Y=$0100");
 
         Console.WriteLine(

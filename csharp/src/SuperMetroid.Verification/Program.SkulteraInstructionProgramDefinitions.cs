@@ -81,7 +81,7 @@ internal static partial class Program
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
             slot.InstructionTimer = 1;
             process.Invoke(enemies,
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0]);
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(ReadSkulteraInstructionWord(rom, 0xa30000 | address),
                 slot.SpritemapPointer,
                 $"production execution selects Skultera frame $A3:{address:X4}");
@@ -123,8 +123,7 @@ internal static partial class Program
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.Parameter1 = startsLeft ? (ushort)0x0100 : (ushort)0x0000;
             slot.Parameter2 = 0x0120;
-            slot.XPosition = 0x0100;
-            slot.YPosition = 0x0200;
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));
             initialize(slot);
             slot.InstructionTimer = 1;
             return enemies;
@@ -137,7 +136,7 @@ internal static partial class Program
         {
             MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
         }

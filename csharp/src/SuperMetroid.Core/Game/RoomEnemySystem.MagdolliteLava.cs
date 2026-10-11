@@ -31,12 +31,8 @@ public sealed partial class RoomEnemySystem
         // copies both subpixels from the throwing overlay, starts two pixels below it, and
         // stores the one-bit facing parameter exactly as supplied by the enemy bytecode.
         projectile.DirectionParameter = directionParameter;
-        projectile.XPosition = source.XPosition;
-        projectile.XSubposition = source.XSubposition;
-        projectile.YPosition = unchecked((ushort)(source.YPosition + 2));
-        projectile.YSubposition = source.YSubposition;
-        projectile.YVelocity = MagdolliteLavaUpwardSpeed;
-        projectile.XVelocity = MagdolliteLavaHorizontalSpeed;
+        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(unchecked((ushort)(source.Position.Y.Whole + 2)), source.Position.Y.Fraction));
+        projectile.Velocity = new(new SnesSignedEightEight(MagdolliteLavaHorizontalSpeed), new SnesSignedEightEight(MagdolliteLavaUpwardSpeed));
         projectile.PreInstruction =
             (ushort)EnemyProjectilePreInstruction.MagdolliteLava;
         projectile.InstructionPointer = directionParameter == 0
@@ -47,24 +43,20 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports $86:E049-$E09B, including the cartridge's asymmetric velocity use.</summary>
     private static void RunMagdolliteLavaPreInstruction(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         // The left routine at $E050 deliberately adds the Y-velocity word to X. The right
         // routine at $E07A uses X velocity. They begin as -$0300 and +$0300 respectively,
         // so expressing this oddity literally keeps debugger state aligned with the ROM.
         ushort horizontalVelocity = projectile.DirectionParameter == 0
-            ? projectile.YVelocity
-            : projectile.XVelocity;
-        (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
-            projectile.XPosition,
-            projectile.XSubposition,
-            horizontalVelocity);
+            ? projectile.Velocity.Y.RawValue
+            : projectile.Velocity.X.RawValue;
+        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(horizontalVelocity).ToSixteenSixteenDelta());
 
         // $86:E049 deletes actors outside the inclusive 256x256 camera square after their
         // horizontal move. No vertical movement occurs despite the field's directional use.
-        if (unchecked((ushort)(projectile.XPosition - cameraX)) >= 256 ||
-            unchecked((ushort)(projectile.YPosition - cameraY)) >= 256)
+        if (unchecked((ushort)(projectile.Position.X.Whole - camera.X)) >= 256 ||
+            unchecked((ushort)(projectile.Position.Y.Whole - camera.Y)) >= 256)
         {
             projectile.Clear();
         }
@@ -75,8 +67,7 @@ public sealed partial class RoomEnemySystem
     {
         LastMagdolliteLavaDropRequest = new MagdolliteLavaDropRequest();
         SpawnEnemyDropFromEnemyHeader(
-            projectile.XPosition,
-            projectile.YPosition,
+            projectile.Position.Whole,
             EnemyDefinitionId.Magdollite);
     }
 }

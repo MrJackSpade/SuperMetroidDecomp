@@ -71,7 +71,7 @@ internal static partial class Program
             runtime.StepFrame(input);
             var heads = runtime.Enemies.Slots.Take(2).ToArray();
             var states = runtime.Enemies.NuclearWaffleStates.Where(state => state is not null).ToArray();
-            trace.WriteLine($"{frame},{samus.Position.X.Whole},{samus.Position.Y.Whole},{runtime.Camera!.PixelPosition.X},{runtime.Camera.PixelPosition.Y},{heads[0].XPosition},{heads[0].YPosition},{states[0]!.CurrentAngle},{heads[1].XPosition},{heads[1].YPosition},{states[1]!.CurrentAngle},{(int)samus.Pose:X2}");
+            trace.WriteLine($"{frame},{samus.Position.X.Whole},{samus.Position.Y.Whole},{runtime.Camera!.PixelPosition.X},{runtime.Camera.PixelPosition.Y},{heads[0].Position.X.Whole},{heads[0].Position.Y.Whole},{states[0]!.CurrentAngle},{heads[1].Position.X.Whole},{heads[1].Position.Y.Whole},{states[1]!.CurrentAngle},{(int)samus.Pose:X2}");
             if (frame % 8 != 0) continue;
             var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
             var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
@@ -86,11 +86,11 @@ internal static partial class Program
             var background = SoftwareLayeredSnapshotRenderer.Render(withoutObjects);
             for (int actor = 0; actor < 2; actor++)
             {
-                int x = heads[actor].XPosition - runtime.Camera.PixelPosition.X;
-                int y = heads[actor].YPosition - runtime.Camera.PixelPosition.Y;
+                int x = heads[actor].Position.X.Whole - runtime.Camera.PixelPosition.X;
+                int y = heads[actor].Position.Y.Whole - runtime.Camera.PixelPosition.Y;
                 if (x < 8 || x >= 248 || y < 40 || y >= 216) continue;
-                if (Math.Abs((int)samus.Position.X.Whole - heads[actor].XPosition) < 32 &&
-                    Math.Abs((int)samus.Position.Y.Whole - heads[actor].YPosition) < 40) continue;
+                if (Math.Abs((int)samus.Position.X.Whole - heads[actor].Position.X.Whole) < 32 &&
+                    Math.Abs((int)samus.Position.Y.Whole - heads[actor].Position.Y.Whole) < 40) continue;
                 int changed = 0;
                 for (int dy = -8; dy < 8; dy++)
                 for (int dx = -8; dx < 8; dx++)
@@ -100,7 +100,7 @@ internal static partial class Program
                 }
                 if (changed < 8) continue;
                 visibleFrames[actor]++;
-                visiblePositions[actor].Add((heads[actor].XPosition, heads[actor].YPosition));
+                visiblePositions[actor].Add((heads[actor].Position.X.Whole, heads[actor].Position.Y.Whole));
             }
             PngWriterTooling.WriteRgba(Path.Combine(output, $"frame-{frame:D3}.png"), new Extent16<ScreenPixels>(256, 224), pixels);
         }

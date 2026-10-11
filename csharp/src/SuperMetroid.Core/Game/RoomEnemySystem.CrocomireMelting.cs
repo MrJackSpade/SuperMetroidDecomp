@@ -28,8 +28,7 @@ public sealed partial class RoomEnemySystem
                 EnemyProperties.ProcessInstructions |
                     EnemyProperties.ProcessOffScreen |
                     EnemyProperties.IgnoreSamusCollision);
-            tongue.XPosition = state.Body.XPosition;
-            tongue.YPosition = unchecked((ushort)(state.Body.YPosition + 16));
+            tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, unchecked((ushort)(state.Body.Position.Y.Whole + 16))));
         }
 
         // $A4:938D-93A2 clears the first $400 bytes.
@@ -144,14 +143,14 @@ public sealed partial class RoomEnemySystem
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         death.MeltingHdmaActive = true;
-        int lineCount = Math.Clamp((state.Tongue?.YPosition ?? state.Body.YPosition) - 72, 0, 256);
+        int lineCount = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
         Span<ushort> scrolls = death.MutableBg2ScrollByScanline;
         scrolls.Slice(0, lineCount).Fill(CrocomireBg2VerticalScroll);
         if (lineCount < scrolls.Length)
             scrolls.Slice(lineCount).Fill(CrocomireBg2VerticalScroll);
 
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
-        death.BodyXBeforeMelting = state.Body.XPosition;
+        death.BodyXBeforeMelting = state.Body.Position.X.Whole;
     }
 
     private void RunCrocomireMelting(CrocomireEnemyState state, SamusState? samus)
@@ -159,8 +158,8 @@ public sealed partial class RoomEnemySystem
         SpawnCrocomireAcidSmoke(state, samus);
         CrocomireDeathState death = RequireCrocomireDeath();
         death.RumbleYOffset--;
-        state.Body.XPosition = unchecked((ushort)(
-            death.BodyXBeforeMelting + ((death.RumbleYOffset & 2) != 0 ? 4 : 0)));
+        state.Body.Position = state.Body.Position.WithWholeX(unchecked((ushort)(
+            death.BodyXBeforeMelting + ((death.RumbleYOffset & 2) != 0 ? 4 : 0))));
 
         if (!EraseNextCrocomireMeltingColumn())
         {
@@ -254,7 +253,7 @@ public sealed partial class RoomEnemySystem
         CrocomireDeathState death)
     {
         Span<ushort> output = death.MutableBg2ScrollByScanline;
-        int line = Math.Clamp((state.Tongue?.YPosition ?? state.Body.YPosition) - 72, 0, 256);
+        int line = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
         ushort adjustedY = death.AdjustedDestinationY;
         ushort currentY = adjustedY;
         uint fraction = 0;

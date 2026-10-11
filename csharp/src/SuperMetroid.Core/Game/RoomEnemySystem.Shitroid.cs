@@ -301,13 +301,12 @@ public sealed partial class RoomEnemySystem
     private void RunShitroidMain(
         RoomEnemySlot slot,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         SamusBombProjectileSystem? sharedProjectiles)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
-        _shitroidCameraX = cameraX;
-        _shitroidCameraY = cameraY;
+        _shitroidCameraX = camera.X;
+        _shitroidCameraY = camera.Y;
 
         // Shitroid's private shot handler applies recoil but no health loss. The main AI
         // redundantly restores $7FFF every processed frame, exactly as the cartridge does.
@@ -364,8 +363,8 @@ public sealed partial class RoomEnemySystem
                     slot,
                     state,
                     15,
-                    victim.XPosition,
-                    unchecked((ushort)(victim.YPosition - 32)),
+                    victim.Position.X.Whole,
+                    unchecked((ushort)(victim.Position.Y.Whole - 32)),
                     0x0400);
                 if (ShitroidActorsOverlap(slot, victim))
                     state.Function = ShitroidAiFunction.AttachToSidehopper;
@@ -387,7 +386,7 @@ public sealed partial class RoomEnemySystem
                 goto case ShitroidAiFunction.RiseAfterFeeding;
 
             case ShitroidAiFunction.RiseAfterFeeding:
-                GraduallyAccelerateShitroid(slot, state, 0, slot.XPosition, 104, 0x0400);
+                GraduallyAccelerateShitroid(slot, state, 0, slot.Position.X.Whole, 104, 0x0400);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.HoverNearSamus;
@@ -578,16 +577,15 @@ public sealed partial class RoomEnemySystem
         if (!AccelerateShitroidExactly(
             state,
             0x0200,
-            victim.XPosition,
-            unchecked((ushort)(victim.YPosition - 32))))
+            victim.Position.X.Whole,
+            unchecked((ushort)(victim.Position.Y.Whole - 32))))
         {
             return;
         }
 
         state.XVelocity = 0;
         state.YVelocity = 0;
-        slot.XPosition = victim.XPosition;
-        slot.YPosition = unchecked((ushort)(victim.YPosition - 32));
+        slot.Position = slot.Position.WithWhole(new(victim.Position.X.Whole, unchecked((ushort)(victim.Position.Y.Whole - 32))));
         SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.LatchedOn);
         state.Function = ShitroidAiFunction.DrainSidehopper;
         state.PaletteDelay = 1;
@@ -599,9 +597,8 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
-        slot.XPosition = unchecked((ushort)(victim.XPosition + ShitroidShakeX[shakeIndex]));
-        slot.YPosition = unchecked((ushort)(
-            victim.YPosition + ShitroidShakeY[shakeIndex] - 32));
+        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(victim.Position.X.Whole + ShitroidShakeX[shakeIndex])), unchecked((ushort)(
+            victim.Position.Y.Whole + ShitroidShakeY[shakeIndex] - 32))));
         ushort oldTimer = state.StateTimer;
         state.StateTimer = unchecked((ushort)(oldTimer - 1));
         if (oldTimer == 1)
@@ -617,7 +614,7 @@ public sealed partial class RoomEnemySystem
         ShitroidEnemyState state,
         SamusState samus)
     {
-        UpdateShitroidHorizontalLock(state, slot.XPosition, samus.Position.X.Whole, threshold: 8);
+        UpdateShitroidHorizontalLock(state, slot.Position.X.Whole, samus.Position.X.Whole, threshold: 8);
         if (state.HorizontalLockAccumulator >= 0x0100 ||
             unchecked((short)(samus.Position.X.Whole - 512)) < 0)
         {
@@ -683,8 +680,7 @@ public sealed partial class RoomEnemySystem
             samus.Kinematics.YSpeed = 2;
 
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
-        slot.XPosition = unchecked((ushort)(samus.Position.X.Whole + ShitroidShakeX[shakeIndex] + xCarry));
-        slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + ShitroidShakeY[shakeIndex] - 20));
+        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + ShitroidShakeX[shakeIndex] + xCarry)), unchecked((ushort)(samus.Position.Y.Whole + ShitroidShakeY[shakeIndex] - 20))));
 
         // `$A9:C560-$C57C` subtracts four without Varia and two with it. The native
         // expression is written as `health + (equipped & 1) + (-4 or -3)`, so reducing
@@ -701,7 +697,7 @@ public sealed partial class RoomEnemySystem
         ShitroidEnemyState state,
         SamusState samus)
     {
-        UpdateShitroidHorizontalLock(state, slot.XPosition, samus.Position.X.Whole, threshold: 2);
+        UpdateShitroidHorizontalLock(state, slot.Position.X.Whole, samus.Position.X.Whole, threshold: 2);
         ushort targetY = SelectShitroidHoverY(
             state,
             unchecked((ushort)(samus.Position.Y.Whole - 18)));
@@ -748,22 +744,22 @@ public sealed partial class RoomEnemySystem
         // GradualAccelerationDivisorTable ($A9:F56A) holds $10 down to $01.
         byte divisor = (byte)(16 - divisorTableIndex);
         state.XVelocity = BabyMetroidGradualAcceleration.AccelerateHorizontally(
-            slot.XPosition, targetX, state.XVelocity, divisor, offscreenReversalKick,
+            slot.Position.X.Whole, targetX, state.XVelocity, divisor, offscreenReversalKick,
             () => ShitroidIsOffScreen(slot));
         state.YVelocity = BabyMetroidGradualAcceleration.AccelerateVertically(
-            slot.YPosition, targetY, state.YVelocity, divisor);
+            slot.Position.Y.Whole, targetY, state.YVelocity, divisor);
     }
 
     private bool ShitroidIsOffScreen(RoomEnemySlot slot)
     {
-        if (unchecked((short)slot.YPosition) < 0)
+        if (unchecked((short)slot.Position.Y.Whole) < 0)
             return true;
-        int screenY = unchecked((short)(slot.YPosition + 96 - _shitroidCameraY));
+        int screenY = unchecked((short)(slot.Position.Y.Whole + 96 - _shitroidCameraY));
         if (screenY is < 0 or >= 416)
             return true;
-        if (unchecked((short)slot.XPosition) < 0)
+        if (unchecked((short)slot.Position.X.Whole) < 0)
             return true;
-        int screenX = unchecked((short)(slot.XPosition + 16 - _shitroidCameraX));
+        int screenX = unchecked((short)(slot.Position.X.Whole + 16 - _shitroidCameraX));
         return screenX is < 0 or >= 288;
     }
 
@@ -774,13 +770,13 @@ public sealed partial class RoomEnemySystem
         ushort targetY)
     {
         (bool xArrived, ushort xVelocity) = AccelerateShitroidAxis(
-            state.Slot.XPosition,
+            state.Slot.Position.X.Whole,
             targetX,
             state.XVelocity,
             acceleration);
         state.XVelocity = xVelocity;
         (bool yArrived, ushort yVelocity) = AccelerateShitroidAxis(
-            state.Slot.YPosition,
+            state.Slot.Position.Y.Whole,
             targetY,
             state.YVelocity,
             acceleration);
@@ -813,10 +809,10 @@ public sealed partial class RoomEnemySystem
     }
 
     private static bool ShitroidActorsOverlap(RoomEnemySlot left, RoomEnemySlot right) =>
-        Math.Abs(unchecked((short)(right.XPosition - left.XPosition))) <
-            left.XRadius + right.XRadius + 1 &&
-        Math.Abs(unchecked((short)(right.YPosition - left.YPosition))) <
-            left.YRadius + right.YRadius + 1;
+        Math.Abs(unchecked((short)(right.Position.X.Whole - left.Position.X.Whole))) <
+            left.Radius.X + right.Radius.X + 1 &&
+        Math.Abs(unchecked((short)(right.Position.Y.Whole - left.Position.Y.Whole))) <
+            left.Radius.Y + right.Radius.Y + 1;
 
     private static bool ShitroidOverlapsRectangle(
         RoomEnemySlot slot,
@@ -824,8 +820,8 @@ public sealed partial class RoomEnemySystem
         ushort y,
         ushort xRadius,
         ushort yRadius) =>
-        Math.Abs(unchecked((short)(x - slot.XPosition))) < slot.XRadius + xRadius + 1 &&
-        Math.Abs(unchecked((short)(y - slot.YPosition))) < slot.YRadius + yRadius + 1;
+        Math.Abs(unchecked((short)(x - slot.Position.X.Whole))) < slot.Radius.X + xRadius + 1 &&
+        Math.Abs(unchecked((short)(y - slot.Position.Y.Whole))) < slot.Radius.Y + yRadius + 1;
 
     /// <summary>Ports the private touch callback at <c>$A9:F789</c>.</summary>
     private void ResolveShitroidTouch(RoomEnemySlot slot, SamusState samus)
@@ -841,8 +837,8 @@ public sealed partial class RoomEnemySystem
             // The native expression `$80-angle+$80`, truncated to a byte, is simply the
             // negated source angle. Magnitude $40 is added to the current 8.8 velocity.
             SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
-                unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
-                unchecked((short)(samus.Position.Y.Whole - slot.YPosition))));
+                unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)),
+                unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
             SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
             state.XVelocity = unchecked((ushort)(
                 state.XVelocity + MultiplyCartridgeSinCos(0x0040, angle.TableIndex)));
@@ -887,8 +883,8 @@ public sealed partial class RoomEnemySystem
 
         BreakReleasedShitroidFollow(state);
         SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
-            unchecked((short)(slotZeroProjectile.Position.X.Whole - slot.XPosition)),
-            unchecked((short)(slotZeroProjectile.Position.Y.Whole - slot.YPosition))));
+            unchecked((short)(slotZeroProjectile.Position.X.Whole - slot.Position.X.Whole)),
+            unchecked((short)(slotZeroProjectile.Position.Y.Whole - slot.Position.Y.Whole))));
         SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
         ushort magnitude = unchecked((ushort)(8 * collisionDamage));
         if (magnitude >= 0x00f0)
@@ -910,7 +906,7 @@ public sealed partial class RoomEnemySystem
 
         // The private reaction tail-calls main AI. Preserve the extra state/movement/palette
         // tick rather than reducing the power bomb to a state flag.
-        RunShitroidMain(slot, samus, _shitroidCameraX, _shitroidCameraY, null);
+        RunShitroidMain(slot, samus, new(_shitroidCameraX, _shitroidCameraY), null);
     }
 
     /// <summary>Function 26: shots/contact release function 25 into the exit sequence.</summary>

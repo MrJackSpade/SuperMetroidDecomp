@@ -28,19 +28,14 @@ public sealed partial class RoomEnemySystem
         projectile.InstructionPointer = PolypRockInstructionProgramDefinitions.Initial;
         projectile.PreInstruction = PolypRockPreInstruction;
         projectile.Variable0 = (ushort)PolypRockFunction.Rising;
-        projectile.YVelocity = initialYSpeed;
-        projectile.XVelocity = xVelocity;
-        projectile.XPosition = source.XPosition;
-        projectile.XSubposition = source.XSubposition;
-        projectile.YPosition = source.YPosition;
-        projectile.YSubposition = source.YSubposition;
+        projectile.Velocity = new(new SnesSignedEightEight(xVelocity), new SnesSignedEightEight(initialYSpeed));
+        projectile.Position = source.Position;
     }
 
     /// <summary>Ports pre-instruction $86:BC0F and its rising/falling dispatcher.</summary>
     private static void RunPolypRockPreInstruction(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         switch (ClosedNativeWords.Decode<PolypRockFunction>(projectile.Variable0, "Polyp rock function"))
         {
@@ -55,18 +50,18 @@ public sealed partial class RoomEnemySystem
                     $"Polyp rock function $86:{projectile.Variable0:X4} is not translated.");
         }
 
-        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, cameraX, cameraY);
+        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
 
     private static void StepRisingPolypRock(RoomEnemyProjectileSlot projectile)
     {
-        projectile.YVelocity = unchecked((ushort)(
-            projectile.YVelocity - PolypRockGravityStep));
-        if (unchecked((short)projectile.YVelocity) < 0)
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+            projectile.Velocity.Y.RawValue - PolypRockGravityStep))));
+        if (unchecked((short)projectile.Velocity.Y.RawValue) < 0)
         {
             // Crossing below zero consumes an entire apex frame: retail installs falling
             // state and returns before either vertical or horizontal movement.
-            projectile.YVelocity = 0;
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0));
             projectile.Variable0 = (ushort)PolypRockFunction.Falling;
             return;
         }
@@ -76,24 +71,24 @@ public sealed partial class RoomEnemySystem
         // while the visual arc still advances at gameplay-frame rate.
         AddPolypRockQuadraticStep(
             projectile,
-            unchecked((ushort)(projectile.YVelocity + 1)),
+            unchecked((ushort)(projectile.Velocity.Y.RawValue + 1)),
             negative: true);
-        AddPolypRockQuadraticStep(projectile, projectile.YVelocity, negative: true);
+        AddPolypRockQuadraticStep(projectile, projectile.Velocity.Y.RawValue, negative: true);
         MovePolypRockHorizontally(projectile);
     }
 
     private static void StepFallingPolypRock(RoomEnemyProjectileSlot projectile)
     {
-        projectile.YVelocity = unchecked((ushort)(
-            projectile.YVelocity + PolypRockGravityStep));
-        if (unchecked((short)(projectile.YVelocity - PolypRockTerminalSpeedIndex)) >= 0)
-            projectile.YVelocity = PolypRockTerminalSpeedIndex;
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+            projectile.Velocity.Y.RawValue + PolypRockGravityStep))));
+        if (unchecked((short)(projectile.Velocity.Y.RawValue - PolypRockTerminalSpeedIndex)) >= 0)
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(PolypRockTerminalSpeedIndex));
 
         AddPolypRockQuadraticStep(
             projectile,
-            unchecked((ushort)(projectile.YVelocity - 1)),
+            unchecked((ushort)(projectile.Velocity.Y.RawValue - 1)),
             negative: false);
-        AddPolypRockQuadraticStep(projectile, projectile.YVelocity, negative: false);
+        AddPolypRockQuadraticStep(projectile, projectile.Velocity.Y.RawValue, negative: false);
         MovePolypRockHorizontally(projectile);
     }
 
@@ -117,23 +112,20 @@ public sealed partial class RoomEnemySystem
             (negative ? 4 : 0);
         ushort fraction = EnemyQuadraticSpeedDefinitions.ReadWord(record);
         projectile.Variable1 = fraction;
-        uint fractionalSum = (uint)projectile.YSubposition + fraction;
-        projectile.YSubposition = unchecked((ushort)fractionalSum);
+        uint fractionalSum = (uint)projectile.Position.Y.Fraction + fraction;
+        projectile.Position = projectile.Position.WithFractionY(unchecked((ushort)fractionalSum));
         if (fractionalSum > ushort.MaxValue)
-            projectile.YPosition = unchecked((ushort)(projectile.YPosition + 1));
+            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
 
         ushort whole = EnemyQuadraticSpeedDefinitions.ReadWord(record + 2);
         projectile.Variable1 = whole;
-        projectile.YPosition = unchecked((ushort)(projectile.YPosition + whole));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + whole)));
     }
 
     /// <summary>Ports $86:BCF4's split signed-8.8 horizontal addition.</summary>
     private static void MovePolypRockHorizontally(RoomEnemyProjectileSlot projectile)
     {
-        (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
-            projectile.XPosition,
-            projectile.XSubposition,
-            projectile.XVelocity);
+        projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
     }
 }
 

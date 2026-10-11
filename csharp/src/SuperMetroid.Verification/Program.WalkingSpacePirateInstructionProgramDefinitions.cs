@@ -71,7 +71,7 @@ internal static partial class Program
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
             slot.InstructionTimer = 1;
             process.Invoke(enemies,
-                [slot, samus, null, (ushort)0, (ushort)0, (ushort)0]);
+                [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(ReadWalkingPirateWord(rom, 0xb20000 | address),
                 slot.SpritemapPointer,
                 $"production execution selects walking Pirate frame $B2:{address:X4}");
@@ -143,8 +143,7 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyWalking;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
-            slot.XPosition = 0x0100;
-            slot.YPosition = 0x0100;
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             typeof(RoomEnemySystem).GetMethod("InitializeWalkingSpacePirate", flags)!
                 .Invoke(enemies, [slot]);
             var samus = new SamusState
@@ -163,7 +162,7 @@ internal static partial class Program
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
             object?[] arguments =
-                [slot, samus, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
         }

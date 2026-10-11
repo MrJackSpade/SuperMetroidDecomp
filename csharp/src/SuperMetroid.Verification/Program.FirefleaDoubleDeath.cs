@@ -21,7 +21,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         RoomEnemySlot fireflea = runtime.Enemies.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea);
-        ushort x = fireflea.XPosition, y = fireflea.YPosition;
+        ushort x = fireflea.Position.X.Whole, y = fireflea.Position.Y.Whole;
         // Screw attack contact ($0A6E = 3) kills through CommonA3_NormalEnemyTouchAI.
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         samus.EquippedItems = (ushort)SamusEquipmentFlags.ScrewAttack;
@@ -33,10 +33,10 @@ internal static partial class Program
         var explosions = runtime.Enemies.EnemyProjectiles
             .Where(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion).ToArray();
         AssertEqual(2, explosions.Length, "the touch death and the unconditional EnemyDeath each spawn an explosion");
-        var real = explosions.Single(p => p.XPosition == x && p.YPosition == y);
+        var real = explosions.Single(p => p.Position.X.Whole == x && p.Position.Y.Whole == y);
         var cleared = explosions.Single(p => p != real);
-        AssertEqual((ushort)0, cleared.XPosition, "the second explosion reads the cleared X position");
-        AssertEqual((ushort)0, cleared.YPosition, "the second explosion reads the cleared Y position");
+        AssertEqual((ushort)0, cleared.Position.X.Whole, "the second explosion reads the cleared X position");
+        AssertEqual((ushort)0, cleared.Position.Y.Whole, "the second explosion reads the cleared Y position");
         AssertEqual(EnemyDefinitionId.None, cleared.EnemyHeaderPointer, "the second explosion carries header zero");
         AssertEqual(EnemyDeathInstructionProgramDefinitions.SmallExplosion, cleared.InstructionPointer,
             "EnemyDeath's returned A selects the small explosion");

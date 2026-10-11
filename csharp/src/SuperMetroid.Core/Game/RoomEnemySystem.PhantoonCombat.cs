@@ -110,14 +110,14 @@ public sealed partial class RoomEnemySystem
         if ((_nextRandom!() & 1) != 0)
         {
             body.VariableA = 136;
-            body.XPosition = 208;
+            body.Position = body.Position.WithWholeX(208);
         }
         else
         {
             body.VariableA = 399;
-            body.XPosition = 48;
+            body.Position = body.Position.WithWholeX(48);
         }
-        body.YPosition = 96;
+        body.Position = body.Position.WithWholeY(96);
         state.Eye!.VariableC = 0;
         body.VariableC = 1;
         body.VariableB = 0;
@@ -211,8 +211,7 @@ public sealed partial class RoomEnemySystem
         ushort pattern = unchecked((ushort)(_nextRandom!() & 7));
         var placement = PhantoonPatternDefinitions.RainPlacement(pattern);
         body.VariableA = placement.Cursor;
-        body.XPosition = placement.X;
-        body.YPosition = placement.Y;
+        body.Position = body.Position.WithWhole(new(placement.X, placement.Y));
         state.Eye!.VariableC = 0;
         body.VariableF = (ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain;
         SpawnPhantoonFlameRain(body, pattern);
@@ -233,7 +232,7 @@ public sealed partial class RoomEnemySystem
 
         state.Tentacles!.VariableA = 0;
         body.VariableF = (ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain;
-        SpawnPhantoonFlameRain(body, body.XPosition < 128 ? (ushort)0 : (ushort)2);
+        SpawnPhantoonFlameRain(body, body.Position.X.Whole < 128 ? (ushort)0 : (ushort)2);
     }
 
     private void RunPhantoonFadeOutBeforeRage(
@@ -254,8 +253,7 @@ public sealed partial class RoomEnemySystem
         if (!TickPhantoonFunctionTimer(body))
             return;
         body.VariableF = (ushort)PhantoonAiFunction.FadeInForRage;
-        body.XPosition = 128;
-        body.YPosition = 32;
+        body.Position = body.Position.WithWhole(new(128, 32));
         state.Eye!.VariableF = 0;
     }
 
@@ -354,7 +352,7 @@ public sealed partial class RoomEnemySystem
             targetX = unchecked((ushort)(tentacles.VariableE & 0x7fff));
         }
 
-        if (unchecked((short)(targetX - body.XPosition)) < 0)
+        if (unchecked((short)(targetX - body.Position.X.Whole)) < 0)
         {
             if (unchecked((short)(tentacles.VariableC - PhantoonMotionDefinitions.SwoopNegativeXThreshold)) >= 0)
                 tentacles.VariableC = unchecked((ushort)(tentacles.VariableC - 0x20));
@@ -363,17 +361,14 @@ public sealed partial class RoomEnemySystem
         {
             tentacles.VariableC = unchecked((ushort)(tentacles.VariableC + 0x20));
         }
-        (body.XPosition, body.XSubposition) = AddEightBitVelocity(
-            body.XPosition,
-            body.XSubposition,
-            tentacles.VariableC);
-        if (unchecked((short)(body.XPosition - 0xffc0)) < 0)
-            body.XPosition = 0xffc0;
-        else if (unchecked((short)(body.XPosition - 0x01c0)) >= 0)
-            body.XPosition = 0x01c0;
+        body.Position = body.Position.AdvanceX(new SnesSignedEightEight(tentacles.VariableC).ToSixteenSixteenDelta());
+        if (unchecked((short)(body.Position.X.Whole - 0xffc0)) < 0)
+            body.Position = body.Position.WithWholeX(0xffc0);
+        else if (unchecked((short)(body.Position.X.Whole - 0x01c0)) >= 0)
+            body.Position = body.Position.WithWholeX(0x01c0);
 
         ushort targetY = fatal ? (ushort)112 : unchecked((ushort)(samus.Position.Y.Whole - 48));
-        if (unchecked((short)(targetY - body.YPosition)) < 0)
+        if (unchecked((short)(targetY - body.Position.Y.Whole)) < 0)
         {
             if (unchecked((short)(tentacles.VariableD - PhantoonMotionDefinitions.SwoopNegativeYThreshold)) >= 0)
                 tentacles.VariableD = unchecked((ushort)(tentacles.VariableD - 0x40));
@@ -382,14 +377,11 @@ public sealed partial class RoomEnemySystem
         {
             tentacles.VariableD = unchecked((ushort)(tentacles.VariableD + 0x40));
         }
-        (body.YPosition, body.YSubposition) = AddEightBitVelocity(
-            body.YPosition,
-            body.YSubposition,
-            tentacles.VariableD);
-        if (unchecked((short)(body.YPosition - 64)) < 0)
-            body.YPosition = 64;
-        else if (unchecked((short)(body.YPosition - 216)) >= 0)
-            body.YPosition = 216;
+        body.Position = body.Position.AdvanceY(new SnesSignedEightEight(tentacles.VariableD).ToSixteenSixteenDelta());
+        if (unchecked((short)(body.Position.Y.Whole - 64)) < 0)
+            body.Position = body.Position.WithWholeY(64);
+        else if (unchecked((short)(body.Position.Y.Whole - 216)) >= 0)
+            body.Position = body.Position.WithWholeY(216);
     }
 
     private static void PointPhantoonEyeAtSamus(
@@ -397,8 +389,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot eye,
         SamusState samus)
     {
-        short deltaX = unchecked((short)(samus.Position.X.Whole - body.XPosition));
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - body.YPosition));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - body.Position.X.Whole));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - body.Position.Y.Whole));
         ushort direction;
         if (Math.Abs((int)deltaY) < 32)
             direction = deltaX < 0 ? (ushort)7 : (ushort)2;

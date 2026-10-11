@@ -142,8 +142,8 @@ internal static partial class Program
             var enemies = CreateEscapeDachoraProgramSystem(guard, flags);
             var slot = enemies.Slots[0];
             slot.CurrentInstruction = program == 0 ? (ushort)0xe964 : program == 1 ? (ushort)0xe9d0 : (ushort)0xea34;
-            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
-            int records = program == 2 ? 19 : 60, expectedX = slot.XPosition, calls = 0;
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            int records = program == 2 ? 19 : 60, expectedX = slot.Position.X.Whole, calls = 0;
             for (int record = 0; record < records; record++)
             {
                 int address;
@@ -167,13 +167,13 @@ internal static partial class Program
                     AssertEqual((ushort)(duration - held), slot.InstructionTimer, "Every uninterrupted escape Dachora exposure tick");
                     AssertEqual(visual, slot.SpritemapPointer, "Native escape Dachora pose order");
                     AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Escape Dachora exact timed cursor");
-                    AssertEqual(unchecked((ushort)expectedX), slot.XPosition, "Native callback displacement occurs only at pose completion");
+                    AssertEqual(unchecked((ushort)expectedX), slot.Position.X.Whole, "Native callback displacement occurs only at pose completion");
                 }
             }
             AssertEqual(program == 0 ? 180 : program == 1 ? 120 : 163, calls, "Exact full native pacing/departure duration");
             process.Invoke(enemies, arguments);
             expectedX += Word(0xb3eadf);
-            AssertEqual(unchecked((ushort)expectedX), slot.XPosition, "Final movement callback is preserved");
+            AssertEqual(unchecked((ushort)expectedX), slot.Position.X.Whole, "Final movement callback is preserved");
             ushort next = program == 0 ? (ushort)0xe968 : program == 1 ? (ushort)0xe9d4 : (ushort)0xea80;
             AssertEqual((ushort)(next + 4), slot.CurrentInstruction, "Pacing reversal/maximum speed loop selects exact native record");
             AssertEqual(Word(0xb30000 | next), slot.InstructionTimer, "Loop reload keeps native cadence");
@@ -203,11 +203,11 @@ internal static partial class Program
             body.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
             body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             initialize(body);
-            body.YPosition = 100;
+            body.Position = body.Position.WithWholeY(100);
             var slot = isBody ? body : balloon;
             slot.CurrentInstruction = root;
             slot.InstructionTimer = 1;
-            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             int calls = 0;
             for (int pose = 0; pose < 3; pose++)
             {
@@ -224,7 +224,7 @@ internal static partial class Program
                     {
                         align.Invoke(null, [body, balloon]);
                         int nativeOffset = unchecked((short)Word(0xa80000 | ((root == 0xc183 ? 0xc277 : 0xc27d) + pose * 2)));
-                        AssertEqual((ushort)(100 + nativeOffset), balloon.YPosition, "Native pose-driven balloon collision center");
+                        AssertEqual((ushort)(100 + nativeOffset), balloon.Position.Y.Whole, "Native pose-driven balloon collision center");
                     }
                 }
             }
@@ -239,9 +239,9 @@ internal static partial class Program
             {
                 AssertEqual((ushort)(root + 12), slot.CurrentInstruction, "Powamp Sleep parks at existing terminal cursor");
                 AssertEqual((ushort)0, slot.InstructionTimer, "Powamp Sleep follows full terminal hold");
-                ushort terminalY = balloon.YPosition;
+                ushort terminalY = balloon.Position.Y.Whole;
                 align.Invoke(null, [body, balloon]);
-                AssertEqual(terminalY, balloon.YPosition, "Sleep preserves terminal balloon collision center");
+                AssertEqual(terminalY, balloon.Position.Y.Whole, "Sleep preserves terminal balloon collision center");
                 process.Invoke(enemies, arguments);
                 AssertEqual(ushort.MaxValue, slot.InstructionTimer, "Sleeping Powamp retains native timer underflow");
             }
@@ -260,7 +260,7 @@ internal static partial class Program
             int records = chasing ? 20 : 5, randomCalls = 0, calls = 0;
             var guard = new MetroidInstructionReadGuard(rom);
             var (enemies, slot) = NewMetroidInstructionSystem(guard, flags, root, () => { randomCalls++; return 5; });
-            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int record = 0; record < records; record++)
             {
                 ushort address = (ushort)(root + record * 4);

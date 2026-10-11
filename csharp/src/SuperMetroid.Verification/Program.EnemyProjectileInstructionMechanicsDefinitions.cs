@@ -147,7 +147,7 @@ internal static partial class Program
              animation++)
         {
             RoomEnemySystem enemies = CreateRoomEnemySystem();
-            spawnDustMethod.Invoke(enemies, [(ushort)128, (ushort)96, animation]);
+            spawnDustMethod.Invoke(enemies, [new Position16<RoomPixels>((ushort)128, (ushort)96), animation]);
             RoomEnemyProjectileSlot dust = enemies.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
 
@@ -206,8 +206,7 @@ internal static partial class Program
         var motherBrainBody = new RoomEnemySlot(0);
         var motherBrainHead = new RoomEnemySlot(1)
         {
-            XPosition = 0x0137,
-            YPosition = 0x008b,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0137, 0x008b)),
         };
         var motherBrainState = new MotherBrainEnemyState(motherBrainBody)
         {
@@ -222,9 +221,9 @@ internal static partial class Program
         RoomEnemyProjectileSlot rainbow = rainbowEnemies.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging);
-        AssertEqual(0x0137, rainbow.XPosition,
+        AssertEqual(0x0137, rainbow.Position.X.Whole,
             "real rainbow-charge producer pins its initial X to Mother Brain's head");
-        AssertEqual(0x008b, rainbow.YPosition,
+        AssertEqual(0x008b, rainbow.Position.Y.Whole,
             "real rainbow-charge producer pins its initial Y to Mother Brain's head");
         for (int frame = 0; frame < 30; frame++)
             Process(rainbowEnemies, rainbow, samus);
@@ -250,9 +249,9 @@ internal static partial class Program
         RoomEnemyProjectileSlot explosion = explosionEnemies.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion);
-        AssertEqual(0x00f7, explosion.XPosition,
+        AssertEqual(0x00f7, explosion.Position.X.Whole,
             "real rainbow-impact producer applies its signed X offset");
-        AssertEqual(0x0087, explosion.YPosition,
+        AssertEqual(0x0087, explosion.Position.Y.Whole,
             "real rainbow-impact producer applies its signed Y offset");
         for (int frame = 0; frame < 18; frame++)
             Process(explosionEnemies, explosion, samus);
@@ -271,8 +270,7 @@ internal static partial class Program
             RoomEnemySystem deathExplosionEnemies = CreateRoomEnemySystem();
             var deathBody = new RoomEnemySlot(0)
             {
-                XPosition = 0x0080,
-                YPosition = 0x0070,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0070)),
             };
             typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
                 .SetValue(deathExplosionEnemies, new MotherBrainEnemyState(deathBody));
@@ -303,8 +301,7 @@ internal static partial class Program
         RoomEnemySystem handBeamEnemies = CreateRoomEnemySystem();
         var handBeamBody = new RoomEnemySlot(0)
         {
-            XPosition = 0x0070,
-            YPosition = 0x0090,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0070, 0x0090)),
         };
         var handBeamState = new MotherBrainEnemyState(handBeamBody);
         typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
@@ -342,7 +339,7 @@ internal static partial class Program
             }
             processMethod.Invoke(
                 handBeamEnemies,
-                [handBeam, handBeamTarget, (ushort)0, (ushort)0]);
+                [handBeam, handBeamTarget, Position16<RoomPixels>.Zero]);
             AssertEqual(referenceOperand, handBeam.PresentationOperandAddress,
                 $"hand-beam frame {frame} selects the native visual operand");
             AssertEqual((ushort)referenceTimer, handBeam.InstructionTimer,
@@ -365,8 +362,7 @@ internal static partial class Program
         var ringBody = new RoomEnemySlot(0);
         var ringHead = new RoomEnemySlot(1)
         {
-            XPosition = 0x0080,
-            YPosition = 0x0060,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0060)),
         };
         var ringState = new MotherBrainEnemyState(ringBody)
         {
@@ -382,9 +378,9 @@ internal static partial class Program
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing);
         for (int frame = 0; frame < 52; frame++)
             Process(ringEnemies, ring, samus);
-        AssertEqual(6, ring.XRadius,
+        AssertEqual(6, ring.Radius.X,
             "real room onion ring reaches its compiled final X radius");
-        AssertEqual(6, ring.YRadius,
+        AssertEqual(6, ring.Radius.Y,
             "real room onion ring reaches its compiled final Y radius");
         Process(ringEnemies, ring, samus);
         AssertEqual(0xc462, ring.InstructionPointer,
@@ -432,7 +428,7 @@ internal static partial class Program
         void Process(RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile, SamusState target)
         {
             bool selectsFrame = projectile.InstructionTimer == 1;
-            processMethod.Invoke(enemies, [projectile, target, (ushort)0, (ushort)0]);
+            processMethod.Invoke(enemies, [projectile, target, Position16<RoomPixels>.Zero]);
             if (!projectile.IsActive || !selectsFrame || projectile.InstructionTimer == 0 || projectile.PresentationOperandAddress == 0)
                 return;
             ushort operand = projectile.PresentationOperandAddress;
@@ -474,8 +470,7 @@ internal static partial class Program
             var body = new RoomEnemySlot(0);
             var head = new RoomEnemySlot(1)
             {
-                XPosition = 0x0100,
-                YPosition = 0x0080,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0080)),
             };
             var state = new MotherBrainEnemyState(body)
             {
@@ -491,7 +486,7 @@ internal static partial class Program
             spawnDroolMethod.Invoke(droolEnemies, [state]);
             RoomEnemyProjectileSlot drool = droolEnemies.EnemyProjectiles.Single(
                 projectile => projectile.Kind == expectedKind);
-            ushort attachedY = drool.YPosition;
+            ushort attachedY = drool.Position.Y.Whole;
 
             for (int frame = 0; frame < 50; frame++)
                 Process(droolEnemies, drool, samus);
@@ -504,12 +499,12 @@ internal static partial class Program
                 (ushort)EnemyProjectilePreInstruction.MotherBrainsDrool_Falling,
                 drool.PreInstruction,
                 $"{expectedKind} switches to falling after its fifth attached stage");
-            AssertEqual(unchecked((ushort)(attachedY + 12)), drool.YPosition,
+            AssertEqual(unchecked((ushort)(attachedY + 12)), drool.Position.Y.Whole,
                 $"{expectedKind} release command moves the actor down twelve pixels");
             AssertEqual(0xc8ce, drool.InstructionPointer,
                 $"{expectedKind} release frame reaches its terminal sleep");
 
-            drool.YPosition = 0x00d7;
+            drool.Position = drool.Position.WithWholeY(0x00d7);
             typeof(RoomEnemySystem).GetMethod(
                 "RunMotherBrainFallingDroolPreInstruction",
                 BindingFlags.Static | BindingFlags.NonPublic)!

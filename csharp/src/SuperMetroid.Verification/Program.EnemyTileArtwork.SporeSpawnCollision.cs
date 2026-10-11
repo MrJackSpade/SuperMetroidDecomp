@@ -33,8 +33,7 @@ internal static partial class Program
             };
         // The test-only cartridge walker supplies an independent reference.
         installedSlot.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
-        installedSlot.XPosition = 0x100;
-        installedSlot.YPosition = 0x100;
+        installedSlot.Position = installedSlot.Position.WithWhole(new(0x100, 0x100));
 
         var seenLists = new HashSet<ushort>();
         int frameCount = 0;
@@ -73,8 +72,7 @@ internal static partial class Program
                 ushort targetX = unchecked((ushort)(0x100 + x));
                 ushort targetY = unchecked((ushort)(0x100 + y));
                 object?[] installedArguments =
-                    [installedSlot, targetX, targetY, (ushort)2, (ushort)2,
-                        shot != 0, (ushort)0];
+                    [installedSlot, new Position16<RoomPixels>(targetX, targetY), new Extent16<RoomPixels>((ushort)2, (ushort)2), shot != 0, (ushort)0];
                 bool nativeFound = NativeCallback(root, targetX, targetY, shot != 0, out ushort nativeCallback);
                 bool installedFound = (bool)walker.Invoke(installed, installedArguments)!;
                 AssertEqual(nativeFound, installedFound,

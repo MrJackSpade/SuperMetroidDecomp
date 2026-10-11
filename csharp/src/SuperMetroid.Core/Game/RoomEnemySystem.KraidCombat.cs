@@ -94,18 +94,18 @@ public sealed partial class RoomEnemySystem
     private void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
-        _slots[2].YPosition = unchecked((ushort)(body.YPosition - 20));
-        _slots[3].YPosition = unchecked((ushort)(body.YPosition + 46));
-        _slots[4].YPosition = unchecked((ushort)(body.YPosition + 112));
+        _slots[2].Position = _slots[2].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 20)));
+        _slots[3].Position = _slots[3].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 46)));
+        _slots[4].Position = _slots[4].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 112)));
         state.ThinkingTimer = ReadKraidThinkingTimer();
     }
 
     private void SetupKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.SecondPhaseThinking;
-        _slots[2].YPosition = unchecked((ushort)(body.YPosition - 20));
-        _slots[3].YPosition = unchecked((ushort)(body.YPosition + 46));
-        _slots[4].YPosition = unchecked((ushort)(body.YPosition + 112));
+        _slots[2].Position = _slots[2].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 20)));
+        _slots[3].Position = _slots[3].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 46)));
+        _slots[4].Position = _slots[4].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 112)));
         state.ThinkingTimer = ReadKraidThinkingTimer();
     }
 

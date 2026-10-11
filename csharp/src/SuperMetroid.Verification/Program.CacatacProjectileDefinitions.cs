@@ -16,10 +16,7 @@ internal static partial class Program
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnCacatacSpike", flags)!
             .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
         RoomEnemySlot source = enemies.Slots[0];
-        source.XPosition = 0x1234;
-        source.XSubposition = 0x5678;
-        source.YPosition = 0x9abc;
-        source.YSubposition = 0xdef0;
+        source.Position = new(new(0x1234, 0x5678), new(0x9abc, 0xdef0));
         source.PaletteIndex = 0x0c00;
         source.VramTilesIndex = 0x0123;
 
@@ -48,12 +45,12 @@ internal static partial class Program
             RoomEnemyProjectileSlot actual = enemies.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
             AssertEqual(native, actual.InstructionPointer, $"spawned Cacatac instruction {direction}");
-            AssertEqual(expectedNegative, actual.YVelocity, $"spawned Cacatac negative speed {direction}");
-            AssertEqual(expectedPositive, actual.XVelocity, $"spawned Cacatac positive speed {direction}");
-            AssertEqual(source.XPosition, actual.XPosition, $"spawned Cacatac X {direction}");
-            AssertEqual(source.XSubposition, actual.XSubposition, $"spawned Cacatac X fraction {direction}");
-            AssertEqual(source.YPosition, actual.YPosition, $"spawned Cacatac Y {direction}");
-            AssertEqual(source.YSubposition, actual.YSubposition, $"spawned Cacatac Y fraction {direction}");
+            AssertEqual(expectedNegative, actual.Velocity.Y.RawValue, $"spawned Cacatac negative speed {direction}");
+            AssertEqual(expectedPositive, actual.Velocity.X.RawValue, $"spawned Cacatac positive speed {direction}");
+            AssertEqual(source.Position.X.Whole, actual.Position.X.Whole, $"spawned Cacatac X {direction}");
+            AssertEqual(source.Position.X.Fraction, actual.Position.X.Fraction, $"spawned Cacatac X fraction {direction}");
+            AssertEqual(source.Position.Y.Whole, actual.Position.Y.Whole, $"spawned Cacatac Y {direction}");
+            AssertEqual(source.Position.Y.Fraction, actual.Position.Y.Fraction, $"spawned Cacatac Y fraction {direction}");
         }
 
         AssertThrows<InvalidDataException>(

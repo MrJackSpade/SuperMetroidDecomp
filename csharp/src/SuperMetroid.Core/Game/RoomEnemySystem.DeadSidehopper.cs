@@ -91,10 +91,9 @@ public sealed partial class RoomEnemySystem
         if (_slots[0].Properties.HasAny(EnemyProperties.Invisible))
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
 
-        slot.XPosition = 488;
-        slot.YPosition = 184;
+        slot.Position = slot.Position.WithWhole(new(488, 184));
         slot.PaletteIndex = EnemyPaletteBits.Palette1;
-        slot.YRadius = 21;
+        slot.Radius = slot.Radius.WithY(21);
         SetDeadSidehopperInstruction(
             slot,
             DeadSidehopperInstructionProgramDefinitions.AliveIdle);
@@ -266,7 +265,7 @@ public sealed partial class RoomEnemySystem
         DeadSidehopperEnemyState state,
         RoomLevelData? level)
     {
-        bool beforeTerrainBoundary = unchecked((short)(slot.XPosition - 544)) < 0;
+        bool beforeTerrainBoundary = unchecked((short)(slot.Position.X.Whole - 544)) < 0;
         int horizontalDisplacement = unchecked((short)state.HorizontalVelocity) << 8;
         if (beforeTerrainBoundary)
         {
@@ -295,7 +294,7 @@ public sealed partial class RoomEnemySystem
                 slot,
                 horizontal: false,
                 state.VerticalVelocity);
-            return unchecked((short)(slot.YPosition - 184)) >= 0;
+            return unchecked((short)(slot.Position.Y.Whole - 184)) >= 0;
         }
 
         int verticalDisplacement = unchecked((short)state.VerticalVelocity) << 8;
@@ -310,8 +309,8 @@ public sealed partial class RoomEnemySystem
         bool horizontal,
         ushort velocity)
     {
-        ushort position = horizontal ? slot.XPosition : slot.YPosition;
-        ushort subposition = horizontal ? slot.XSubposition : slot.YSubposition;
+        ushort position = horizontal ? slot.Position.X.Whole : slot.Position.Y.Whole;
+        ushort subposition = horizontal ? slot.Position.X.Fraction : slot.Position.Y.Fraction;
         int carry = (subposition >> 8) + (byte)velocity;
         subposition = unchecked((ushort)(
             (subposition & 0x00ff) | ((carry & 0xff) << 8)));
@@ -319,13 +318,11 @@ public sealed partial class RoomEnemySystem
             position + unchecked((sbyte)(velocity >> 8)) + (carry >> 8)));
         if (horizontal)
         {
-            slot.XPosition = position;
-            slot.XSubposition = subposition;
+            slot.Position = slot.Position.WithX(new(position, subposition));
         }
         else
         {
-            slot.YPosition = position;
-            slot.YSubposition = subposition;
+            slot.Position = slot.Position.WithY(new(position, subposition));
         }
     }
 
@@ -362,7 +359,7 @@ public sealed partial class RoomEnemySystem
             DeadSidehopperInstructionProgramDefinitions.AliveCorpse);
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
         slot.Properties = unchecked((ushort)(slot.Properties | DeadMonsterSolidProperty));
-        slot.YRadius = 12;
+        slot.Radius = slot.Radius.WithY(12);
     }
 
     /// <summary>
@@ -525,8 +522,7 @@ public sealed partial class RoomEnemySystem
         state.LastFinishedEntryIndex = entryIndex;
         ushort random = RequireRandomNumber();
         SpawnRoomGraphicsDustExplosion(
-            unchecked((ushort)(slot.XPosition + (random & 0x001a) - 14)),
-            unchecked((ushort)(slot.YPosition + 16)),
+            new(unchecked((ushort)(slot.Position.X.Whole + (random & 0x001a) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
             animationIndex: 10);
         state.DustSpawnCount++;
         if ((_randomEnemyCounter & 7) == 0)

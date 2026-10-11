@@ -27,11 +27,8 @@ public sealed partial class RoomEnemySystem
             segment,
             RoomEnemyProjectileKind.BotwoonBody,
             unchecked((ushort)(head.VramTilesIndex | head.PaletteIndex)));
-        segment.XPosition = head.XPosition;
-        segment.YPosition = head.YPosition;
-        segment.XSubposition = 0;
-        segment.YSubposition = 0;
-        segment.YVelocity = 0;
+        segment.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
+        segment.Velocity = segment.Velocity.WithY(new SnesSignedEightEight(0));
 
         // ai_var_A is the live spawn argument. Every nonzero segment begins with orientation
         // $10; argument zero is the tail cap and begins at $30.
@@ -41,7 +38,7 @@ public sealed partial class RoomEnemySystem
         segment.InstructionTimer = 1;
         segment.Variable0 = instruction;
         segment.DirectionParameter = orientation;
-        segment.XVelocity = (ushort)BotwoonBodyFunction.Main;
+        segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Main));
 
         int segmentIndex = spawnArgument >> 1;
         state.BodySegments[segmentIndex] = segment;
@@ -58,11 +55,11 @@ public sealed partial class RoomEnemySystem
         BotwoonEnemyState state = _botwoonState ?? throw new InvalidOperationException(
             "A live Botwoon body segment has no owning head state.");
         BotwoonBodyFunction function =
-            ClosedNativeWords.Decode<BotwoonBodyFunction>(segment.XVelocity, "Botwoon body function");
+            ClosedNativeWords.Decode<BotwoonBodyFunction>(segment.Velocity.X.RawValue, "Botwoon body function");
         if (state.BodyDeathStarted && function == BotwoonBodyFunction.Main)
         {
             function = BotwoonBodyFunction.BeginDying;
-            segment.XVelocity = (ushort)function;
+            segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)function));
         }
 
         switch (function)
@@ -76,13 +73,13 @@ public sealed partial class RoomEnemySystem
                 // normally owns indexes $0A..$22 because allocation descended from $22.
                 segment.DirectionParameter = unchecked((ushort)(
                     4 * (segment.SlotIndex * 2) + 96));
-                segment.XVelocity = (ushort)BotwoonBodyFunction.DyingDelay;
+                segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.DyingDelay));
                 goto case BotwoonBodyFunction.DyingDelay;
 
             case BotwoonBodyFunction.DyingDelay:
                 segment.DirectionParameter = unchecked((ushort)(segment.DirectionParameter + 1));
                 if (unchecked((short)(segment.DirectionParameter - 256)) >= 0)
-                    segment.XVelocity = (ushort)BotwoonBodyFunction.Falling;
+                    segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Falling));
                 segment.InstructionTimer = 0;
                 ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
                 return;
@@ -133,22 +130,19 @@ public sealed partial class RoomEnemySystem
         byte randomEnemyCounter)
     {
         int displacement = ReadQuadraticEnemySpeed(
-            unchecked((ushort)(segment.YVelocity >> 8)),
+            unchecked((ushort)(segment.Velocity.Y.RawValue >> 8)),
             negative: false);
-        (segment.YPosition, segment.YSubposition) = AddBotwoonFixed(
-            segment.YPosition,
-            segment.YSubposition,
-            displacement);
-        if (unchecked((short)(segment.YPosition - 200)) < 0)
+        segment.Position = segment.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(displacement));
+        if (unchecked((short)(segment.Position.Y.Whole - 200)) < 0)
         {
-            segment.YVelocity = unchecked((ushort)(segment.YVelocity + 192));
+            segment.Velocity = segment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(segment.Velocity.Y.RawValue + 192))));
             segment.InstructionTimer = 0;
             ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
             return;
         }
 
-        segment.YPosition = 200;
-        segment.XVelocity = (ushort)BotwoonBodyFunction.Landed;
+        segment.Position = segment.Position.WithWholeY(200);
+        segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Landed));
         segment.InstructionPointer = BotwoonProjectileCodePointers.BodyLandedInstruction;
         segment.InstructionTimer = 1;
         segment.GraphicsIndex = EnemyPaletteBits.Palette5;
@@ -174,10 +168,7 @@ public sealed partial class RoomEnemySystem
             spit,
             RoomEnemyProjectileKind.BotwoonSpit,
             unchecked((ushort)(head.VramTilesIndex | head.PaletteIndex)));
-        spit.XPosition = head.XPosition;
-        spit.YPosition = head.YPosition;
-        spit.XSubposition = 0;
-        spit.YSubposition = 0;
+        spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         spit.InstructionPointer = BotwoonProjectileInstructionProgramDefinitions.Spit;
         spit.InstructionTimer = 1;
         spit.DirectionParameter = angle;
@@ -187,39 +178,32 @@ public sealed partial class RoomEnemySystem
         // not lose their subpixel motion.
         int xMagnitude = ReadUnsignedSineMagnitudeProduct(angle, speed, 0x40);
         int yMagnitude = ReadUnsignedSineMagnitudeProduct(angle, speed, 0x80);
-        spit.XVelocity = unchecked((ushort)(xMagnitude >> 16));
+        spit.Velocity = spit.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(xMagnitude >> 16))));
         spit.Variable0 = unchecked((ushort)xMagnitude);
-        spit.YVelocity = unchecked((ushort)(yMagnitude >> 16));
+        spit.Velocity = spit.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(yMagnitude >> 16))));
         spit.Variable1 = unchecked((ushort)yMagnitude);
     }
 
     /// <summary>Ports <c>EprojPreInstr_BotwoonsSpit</c> at <c>$86:EC05</c>.</summary>
     private static void RunBotwoonSpitPreInstruction(
         RoomEnemyProjectileSlot spit,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
-        int xMagnitude = unchecked((spit.XVelocity << 16) | spit.Variable0);
-        int yMagnitude = unchecked((spit.YVelocity << 16) | spit.Variable1);
+        int xMagnitude = unchecked((spit.Velocity.X.RawValue << 16) | spit.Variable0);
+        int yMagnitude = unchecked((spit.Velocity.Y.RawValue << 16) | spit.Variable1);
         int xDisplacement = ((spit.DirectionParameter + 64) & 0x80) != 0
             ? -xMagnitude
             : xMagnitude;
         int yDisplacement = ((spit.DirectionParameter + 128) & 0x80) != 0
             ? -yMagnitude
             : yMagnitude;
-        (spit.XPosition, spit.XSubposition) = AddBotwoonFixed(
-            spit.XPosition,
-            spit.XSubposition,
-            xDisplacement);
-        (spit.YPosition, spit.YSubposition) = AddBotwoonFixed(
-            spit.YPosition,
-            spit.YSubposition,
-            yDisplacement);
+        spit.Position = spit.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
+        spit.Position = spit.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
 
-        if (unchecked((short)(spit.XPosition - cameraX)) < 0 ||
-            unchecked((short)(cameraX + 256 - spit.XPosition)) < 0 ||
-            unchecked((short)(spit.YPosition - cameraY)) < 0 ||
-            unchecked((short)(cameraY + 256 - spit.YPosition)) < 0)
+        if (unchecked((short)(spit.Position.X.Whole - camera.X)) < 0 ||
+            unchecked((short)(camera.X + 256 - spit.Position.X.Whole)) < 0 ||
+            unchecked((short)(spit.Position.Y.Whole - camera.Y)) < 0 ||
+            unchecked((short)(camera.Y + 256 - spit.Position.Y.Whole)) < 0)
         {
             spit.Clear();
         }

@@ -288,8 +288,8 @@ public sealed partial class RoomEnemySystem
 
         for (int history = 0; history < 4; history++)
         {
-            state.HeadHistoryX[history] = head.XPosition;
-            state.HeadHistoryY[history] = head.YPosition;
+            state.HeadHistoryX[history] = head.Position.X.Whole;
+            state.HeadHistoryY[history] = head.Position.Y.Whole;
         }
         // BotwoonPositionHistory ($7E:9000-$93FF) is never seeded by InitAI_Botwoon. It
         // lies inside the $7E:7000-$97FF range Initialise_Enemies ($A0:8AA9) zeroes on room
@@ -488,10 +488,10 @@ public sealed partial class RoomEnemySystem
         BotwoonHoleDefinition hole =
             BotwoonNavigationDefinitions.HoleForByteOffset(state.TargetHoleOffset);
         short dx = ClampBotwoonTargetDelta(
-            unchecked((short)(hole.TargetX - head.XPosition)));
+            unchecked((short)(hole.TargetX - head.Position.X.Whole)));
         short dy = ClampBotwoonTargetDelta(
-            unchecked((short)(hole.TargetY - head.YPosition)));
-        byte angle = CalculateCartridgeAngle(dx, dy);
+            unchecked((short)(hole.TargetY - head.Position.Y.Whole)));
+        byte angle = CalculateCartridgeAngle(new(dx, dy));
         state.TargetAngle = angle;
         state.MovementAngle = unchecked((byte)(64 - angle));
 
@@ -577,15 +577,14 @@ public sealed partial class RoomEnemySystem
             totalX = unchecked((short)-totalX);
             totalY = unchecked((short)-totalY);
         }
-        head.XPosition = unchecked((ushort)(head.XPosition + totalX));
-        head.YPosition = unchecked((ushort)(head.YPosition + totalY));
+        head.Position += new Offset16<RoomPixels>(totalX, totalY);
     }
 
     private static void RecordBotwoonHeadPosition(RoomEnemySlot head, BotwoonEnemyState state)
     {
         int ringIndex = state.RingByteOffset >> 2;
-        state.HistoryX[ringIndex] = head.XPosition;
-        state.HistoryY[ringIndex] = head.YPosition;
+        state.HistoryX[ringIndex] = head.Position.X.Whole;
+        state.HistoryY[ringIndex] = head.Position.Y.Whole;
     }
 
     private static void PositionBotwoonBody(BotwoonEnemyState state)
@@ -601,8 +600,7 @@ public sealed partial class RoomEnemySystem
 
             ToggleBotwoonSegmentAtHole(state, segmentIndex, historyOffset);
             int historyIndex = historyOffset >> 2;
-            segment.XPosition = state.HistoryX[historyIndex];
-            segment.YPosition = state.HistoryY[historyIndex];
+            segment.Position = segment.Position.WithWhole(new(state.HistoryX[historyIndex], state.HistoryY[historyIndex]));
             historyOffset = unchecked((ushort)(
                 (historyOffset - state.SegmentSpacingBytes) & 0x03ff));
         }
@@ -641,19 +639,19 @@ public sealed partial class RoomEnemySystem
             short dy;
             if (argument == 24)
             {
-                dx = unchecked((short)(head.XPosition - segment.XPosition));
-                dy = unchecked((short)(head.YPosition - segment.YPosition));
+                dx = unchecked((short)(head.Position.X.Whole - segment.Position.X.Whole));
+                dy = unchecked((short)(head.Position.Y.Whole - segment.Position.Y.Whole));
             }
             else
             {
                 RoomEnemyProjectileSlot previous = state.BodySegments[segmentIndex + 1]!;
-                dx = unchecked((short)(previous.XPosition - segment.XPosition));
-                dy = unchecked((short)(previous.YPosition - segment.YPosition));
+                dx = unchecked((short)(previous.Position.X.Whole - segment.Position.X.Whole));
+                dy = unchecked((short)(previous.Position.Y.Whole - segment.Position.Y.Whole));
                 if (argument == 0)
                     extraAngle = unchecked((ushort)(extraAngle + 512));
             }
 
-            ushort angle = unchecked((ushort)(extraAngle + CalculateCartridgeAngle(dx, dy)));
+            ushort angle = unchecked((ushort)(extraAngle + CalculateCartridgeAngle(new(dx, dy))));
             segment.DirectionParameter = unchecked((ushort)(2 * (angle >> 5)));
         }
     }
@@ -667,10 +665,10 @@ public sealed partial class RoomEnemySystem
         {
             BotwoonHoleDefinition hole = BotwoonNavigationDefinitions.HoleForByteOffset(
                 unchecked((ushort)rectangleOffset));
-            if (unchecked((short)(head.XPosition - hole.Left)) >= 0 &&
-                unchecked((short)(head.XPosition - hole.Right)) < 0 &&
-                unchecked((short)(head.YPosition - hole.Top)) >= 0 &&
-                unchecked((short)(head.YPosition - hole.Bottom)) < 0)
+            if (unchecked((short)(head.Position.X.Whole - hole.Left)) >= 0 &&
+                unchecked((short)(head.Position.X.Whole - hole.Right)) < 0 &&
+                unchecked((short)(head.Position.Y.Whole - hole.Top)) >= 0 &&
+                unchecked((short)(head.Position.Y.Whole - hole.Bottom)) < 0)
             {
                 state.HoleLatch = true;
                 state.InsideHole = !state.InsideHole;
@@ -723,8 +721,8 @@ public sealed partial class RoomEnemySystem
 
     private static void AnimateBotwoonHeadFromMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        short dx = unchecked((short)(head.XPosition - state.HeadHistoryX[3]));
-        short dy = unchecked((short)(head.YPosition - state.HeadHistoryY[3]));
+        short dx = unchecked((short)(head.Position.X.Whole - state.HeadHistoryX[3]));
+        short dy = unchecked((short)(head.Position.Y.Whole - state.HeadHistoryY[3]));
         if (dx != 0 || dy != 0)
         {
             ushort instruction;
@@ -740,7 +738,7 @@ public sealed partial class RoomEnemySystem
                 head.Layer = 2;
                 // `$B3:9E10` (AND #$FBFF) restores collision once the head is outside.
                 head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-                byte angle = CalculateCartridgeAngle(dx, dy);
+                byte angle = CalculateCartridgeAngle(new(dx, dy));
                 instruction = BotwoonInstructionDefinitions.HeadMovementInstruction(angle);
             }
             InstallBotwoonHeadInstruction(head, state, instruction);
@@ -751,8 +749,8 @@ public sealed partial class RoomEnemySystem
             state.HeadHistoryX[index] = state.HeadHistoryX[index - 1];
             state.HeadHistoryY[index] = state.HeadHistoryY[index - 1];
         }
-        state.HeadHistoryX[0] = head.XPosition;
-        state.HeadHistoryY[0] = head.YPosition;
+        state.HeadHistoryX[0] = head.Position.X.Whole;
+        state.HeadHistoryY[0] = head.Position.Y.Whole;
     }
 
     private void AimBotwoonAtSamus(
@@ -762,8 +760,7 @@ public sealed partial class RoomEnemySystem
     {
         head.Layer = 2;
         byte angle = CalculateCartridgeAngle(
-            unchecked((short)(samus.Position.X.Whole - head.XPosition)),
-            unchecked((short)(samus.Position.Y.Whole - head.YPosition)));
+            new(unchecked((short)(samus.Position.X.Whole - head.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - head.Position.Y.Whole))));
         ushort instruction = BotwoonInstructionDefinitions.HeadSpitInstruction(angle);
         InstallBotwoonHeadInstruction(head, state, instruction);
         state.SpitAngle = unchecked((byte)(64 - angle));
@@ -836,19 +833,16 @@ public sealed partial class RoomEnemySystem
         int displacement = ReadQuadraticEnemySpeed(
             unchecked((ushort)(state.DeathFallAccumulator >> 8)),
             negative: false);
-        (head.YPosition, head.YSubposition) = AddBotwoonFixed(
-            head.YPosition,
-            head.YSubposition,
-            displacement);
-        if (unchecked((short)(head.YPosition - 200)) < 0)
+        head.Position = head.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(displacement));
+        if (unchecked((short)(head.Position.Y.Whole - 200)) < 0)
         {
             state.DeathFallAccumulator = unchecked((ushort)(state.DeathFallAccumulator + 192));
             return;
         }
 
-        head.YPosition = 200;
+        head.Position = head.Position.WithWholeY(200);
         state.Function = BotwoonEnemyFunction.WaitForBody;
-        SpawnRoomGraphicsDustExplosion(head.XPosition, head.YPosition, animationIndex: 0x001d);
+        SpawnRoomGraphicsDustExplosion(head.Position.Whole, animationIndex: 0x001d);
         LastBotwoonSoundEffect = 0x0024;
         head.Properties = head.Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
@@ -874,8 +868,7 @@ public sealed partial class RoomEnemySystem
             _botwoonDropRequests.Add(request);
             LastBotwoonDropRequest = request;
             SpawnEnemyDropFromChanceTable(
-                request.X,
-                request.Y,
+                new(request.X, request.Y),
                 request.ItemDropChancesPointer);
         }
         state.DropRequested = true;
@@ -908,8 +901,7 @@ public sealed partial class RoomEnemySystem
             {
                 state.LargeExplosionTimer = 12;
                 SpawnRoomSpriteObject(
-                    unchecked((ushort)((_nextRandom!() & 0x001f) + 232)),
-                    unchecked((ushort)(state.WallExplosionFrame + (_nextRandom!() & 0x001f) - 8)),
+                    new(unchecked((ushort)((_nextRandom!() & 0x001f) + 232)), unchecked((ushort)(state.WallExplosionFrame + (_nextRandom!() & 0x001f) - 8))),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
                     graphicsIndex: 0x0a00);
                 LastBotwoonSoundEffect = 0x0024;
@@ -924,8 +916,7 @@ public sealed partial class RoomEnemySystem
                 for (int explosion = 0; explosion < 2; explosion++)
                 {
                     SpawnRoomSpriteObject(
-                        unchecked((ushort)((_nextRandom!() & 0x003f) + 224)),
-                        unchecked((ushort)(state.WallExplosionFrame + (_nextRandom!() & 0x001f) - 8)),
+                        new(unchecked((ushort)((_nextRandom!() & 0x003f) + 224)), unchecked((ushort)(state.WallExplosionFrame + (_nextRandom!() & 0x001f) - 8))),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
                         graphicsIndex: 0x0a00);
                 }
@@ -963,27 +954,10 @@ public sealed partial class RoomEnemySystem
         int yMagnitude = ReadUnsignedSineMagnitudeProduct(angle, magnitude, 0x80);
         int xDisplacement = ((angle + 64) & 0x80) != 0 ? -xMagnitude : xMagnitude;
         int yDisplacement = ((angle + 128) & 0x80) != 0 ? -yMagnitude : yMagnitude;
-        (head.XPosition, head.XSubposition) = AddBotwoonFixed(
-            head.XPosition,
-            head.XSubposition,
-            xDisplacement);
-        (head.YPosition, head.YSubposition) = AddBotwoonFixed(
-            head.YPosition,
-            head.YSubposition,
-            yDisplacement);
+        head.Position = head.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
+        head.Position = head.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
     }
 
-    private static (ushort Position, ushort Subposition) AddBotwoonFixed(
-        ushort position,
-        ushort subposition,
-        int displacement)
-    {
-        int fixedPosition = unchecked((position << 16) | subposition);
-        fixedPosition = unchecked(fixedPosition + displacement);
-        return (
-            unchecked((ushort)(fixedPosition >> 16)),
-            unchecked((ushort)fixedPosition));
-    }
 
     /// <summary>Animation callback dispatcher for $B3:94C7-$9572.</summary>
     private bool TryProcessBotwoonInstruction(
@@ -1003,20 +977,17 @@ public sealed partial class RoomEnemySystem
             case BotwoonInstruction.EnemyRadius_8x10_duplicate:
             case BotwoonInstruction.EnemyRadius_8x10_duplicate_again:
             case BotwoonInstruction.EnemyRadius_8x10_duplicate_again2:
-                head.XRadius = 8;
-                head.YRadius = 16;
+                head.Radius = new(8, 16);
                 break;
             case BotwoonInstruction.EnemyRadius_CxC:
             case BotwoonInstruction.EnemyRadius_CxC_duplicate:
             case BotwoonInstruction.EnemyRadius_CxC_duplicate_again:
             case BotwoonInstruction.EnemyRadius_CxC_duplicate_again2:
-                head.XRadius = 12;
-                head.YRadius = 12;
+                head.Radius = new(12, 12);
                 break;
             case BotwoonInstruction.EnemyRadius_10x8:
             case BotwoonInstruction.EnemyRadius_10x8_duplicate:
-                head.XRadius = 16;
-                head.YRadius = 8;
+                head.Radius = new(16, 8);
                 break;
             case BotwoonInstruction.SetSpittingFlag:
                 state.SpitFrameReached = true;

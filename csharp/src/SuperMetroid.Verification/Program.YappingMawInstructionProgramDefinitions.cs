@@ -38,7 +38,7 @@ internal static partial class Program
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
                 NewYappingMawInstructionSystem(guard, flags, entry);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunYappingMawInstructionFrames(process, enemies, arguments, slot, count: 5);
             AssertEqual(unchecked((ushort)(entry + 4)), slot.CurrentInstruction,
                 $"Yapping Maw attack direction {direction} completes its loop");
@@ -85,7 +85,7 @@ internal static partial class Program
             (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) =
                 NewYappingMawInstructionSystem(guard, flags, entry);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunYappingMawInstructionFrames(process, enemies, arguments, slot, count: 1);
             AssertEqual(unchecked((ushort)x), state.HeldSamusXOffset,
                 $"Yapping Maw {name} callback X offset");
@@ -149,8 +149,7 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
-            slot.XPosition = 128;
-            slot.YPosition = 128;
+            slot.Position = slot.Position.WithWhole(new(128, 128));
             slot.Parameter1 = 128;
             slot.Parameter2 = parameter2;
             initialize.Invoke(enemies, [slot]);

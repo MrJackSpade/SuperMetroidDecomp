@@ -30,14 +30,12 @@ public sealed partial class RoomEnemySystem
             kind,
             unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
 
-        projectile.XVelocity = movingRight
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(movingRight
             ? KiHunterAcidHorizontalSpeed
-            : unchecked((ushort)-KiHunterAcidHorizontalSpeed);
-        projectile.XPosition = unchecked((ushort)(body.XPosition + (movingRight ? 22 : -22)));
-        projectile.YVelocity = 0;
-        projectile.YPosition = unchecked((ushort)(body.YPosition - 16));
-        projectile.XSubposition = 0;
-        projectile.YSubposition = 0;
+            : unchecked((ushort)-KiHunterAcidHorizontalSpeed)));
+        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole + (movingRight ? 22 : -22))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 16))).WithFractionX(0).WithFractionY(0);
     }
 
     /// <summary>
@@ -50,8 +48,8 @@ public sealed partial class RoomEnemySystem
         bool movingRight)
     {
         projectile.PreInstruction = KiHunterAcidMovingPreInstruction;
-        projectile.XPosition = unchecked((ushort)(
-            projectile.XPosition + (movingRight ? 19 : -19)));
+        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
+            projectile.Position.X.Whole + (movingRight ? 19 : -19))));
     }
 
     /// <summary>
@@ -71,13 +69,13 @@ public sealed partial class RoomEnemySystem
 
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
-            projectile.XVelocity = 0;
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
             return;
         }
 
-        ushort accelerated = unchecked((ushort)(projectile.YVelocity + KiHunterAcidGravity));
-        projectile.YVelocity = unchecked((short)(accelerated - KiHunterAcidTerminalYSpeed)) >= 0
+        ushort accelerated = unchecked((ushort)(projectile.Velocity.Y.RawValue + KiHunterAcidGravity));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((short)(accelerated - KiHunterAcidTerminalYSpeed)) >= 0
             ? KiHunterAcidTerminalYSpeed
-            : accelerated;
+            : accelerated));
     }
 }

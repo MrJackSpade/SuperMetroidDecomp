@@ -31,8 +31,7 @@ internal static partial class Program
             "ProcessEnemyProjectileInstructions",
             flags)!;
         RoomEnemySlot source = enemies.Slots[0];
-        source.XPosition = 0x0120;
-        source.YPosition = 0x0080;
+        source.Position = source.Position.WithWhole(new(0x0120, 0x0080));
         source.Parameter2 = 0;
 
         foreach (RoomEnemyProjectileKind kind in new[]
@@ -58,7 +57,7 @@ internal static partial class Program
                 AssertEqual(program, projectile.InstructionPointer,
                     $"{kind} {(movingRight ? "right" : "left")} selects named program");
 
-                object?[] arguments = [projectile, null, (ushort)0, (ushort)0];
+                object?[] arguments = [projectile, null, Position16<RoomPixels>.Zero];
                 for (int frame = 0; frame < 4; frame++)
                 {
                     projectile.InstructionTimer = 1;

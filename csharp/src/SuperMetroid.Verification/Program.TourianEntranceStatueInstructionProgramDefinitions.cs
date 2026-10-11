@@ -59,7 +59,7 @@ internal static partial class Program
 
             process.Invoke(
                 enemies,
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0]);
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertTrue(slot.Properties.HasAny(EnemyProperties.Deleted),
                 $"Tourian entrance-statue parameter {parameter} executes native delete");
         }

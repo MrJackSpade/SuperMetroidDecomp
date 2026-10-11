@@ -51,8 +51,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
 
         RoomEnemySlot body = enemies.Slots[0];
-        body.XPosition = 128;
-        body.YPosition = 256;
+        body.Position = body.Position.WithWhole(new(128, 256));
         spawnSpawner(body, 0);
         RoomEnemyProjectileSlot spawner = Single(RoomEnemyProjectileKind.SporeSpawnSpawner);
         Run(spawner, 2, [0xdc02]);
@@ -130,7 +129,7 @@ internal static partial class Program
             for (int frame = 0; frame < frames; frame++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, samus, Position16<RoomPixels>.Zero]);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
                 if (projectile.IsActive && projectile.InstructionTimer != 0)
                 {

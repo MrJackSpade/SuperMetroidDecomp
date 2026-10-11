@@ -216,8 +216,8 @@ public sealed partial class RoomEnemySystem
                 CacatacDirection.InitialStop => CacatacEnemyFunction.Stopped,
                 _ => throw new InvalidOperationException($"Undefined Cacatac direction {direction}."),
             },
-            MaximumXPosition = unchecked((ushort)(slot.XPosition + distance)),
-            MinimumXPosition = unchecked((ushort)(slot.XPosition - distance)),
+            MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + distance)),
+            MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - distance)),
             UpsideUp = upsideUp,
         };
         _cacatacStates[slot.SlotIndex] = state;
@@ -257,22 +257,22 @@ public sealed partial class RoomEnemySystem
             ? state.RightVelocity
             : state.LeftVelocity;
 
-        uint fractionalSum = (uint)slot.XSubposition + subvelocity;
-        slot.XSubposition = unchecked((ushort)fractionalSum);
+        uint fractionalSum = (uint)slot.Position.X.Fraction + subvelocity;
+        slot.Position = slot.Position.WithFractionX(unchecked((ushort)fractionalSum));
         if (fractionalSum > ushort.MaxValue)
-            slot.XPosition = unchecked((ushort)(slot.XPosition + 1));
-        slot.XPosition = unchecked((ushort)(slot.XPosition + velocity));
+            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + 1)));
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + velocity)));
 
         if (!movingRight)
         {
-            if (!IsNegative16(unchecked((ushort)(slot.XPosition - state.MinimumXPosition))))
+            if (!IsNegative16(unchecked((ushort)(slot.Position.X.Whole - state.MinimumXPosition))))
                 return;
             state.Function = CacatacEnemyFunction.MovingRight;
             state.Direction = CacatacDirection.Right;
             return;
         }
 
-        if (IsNegative16(unchecked((ushort)(slot.XPosition - state.MaximumXPosition))))
+        if (IsNegative16(unchecked((ushort)(slot.Position.X.Whole - state.MaximumXPosition))))
             return;
         state.Function = CacatacEnemyFunction.MovingLeft;
         state.Direction = CacatacDirection.Left;

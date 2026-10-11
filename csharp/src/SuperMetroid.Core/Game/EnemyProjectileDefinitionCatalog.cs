@@ -17,8 +17,8 @@ internal readonly record struct EnemyProjectileDefinition(
     ushort TouchInstructionList,
     ushort ShotInstructionList)
 {
-    internal byte XRadius => unchecked((byte)RadiusWord);
-    internal byte YRadius => unchecked((byte)(RadiusWord >> 8));
+    /// <summary>The collision half-extents decoded from the packed radius word (X low byte, Y high byte).</summary>
+    internal Extent16<RoomPixels> Radius => new(unchecked((byte)RadiusWord), unchecked((byte)(RadiusWord >> 8)));
     internal ushort Damage => unchecked((ushort)(Properties & 0x0fff));
     internal EnemyProjectileDrawPriority DrawPriority =>
         (Properties & 0x1000) != 0

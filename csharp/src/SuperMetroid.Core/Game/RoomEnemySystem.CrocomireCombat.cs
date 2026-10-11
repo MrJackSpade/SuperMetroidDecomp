@@ -67,7 +67,7 @@ public sealed partial class RoomEnemySystem
         // the pending-hit state. This wrapped signed comparison is the cartridge's exact
         // `body left edge - (camera + 256)` test.
         bool bodyLeftEdgeIsOnScreen = unchecked((short)(
-            body.XPosition - body.XRadius - 256 - _crocomireCameraX)) < 0;
+            body.Position.X.Whole - body.Radius.X - 256 - _crocomireCameraX)) < 0;
         ushort stepCount = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
@@ -126,8 +126,7 @@ public sealed partial class RoomEnemySystem
             ? (ushort)6
             : (ushort)29;
         SpawnRoomGraphicsDustExplosion(
-            projectileX,
-            projectileY,
+            new(projectileX, projectileY),
             animationIndex);
     }
 

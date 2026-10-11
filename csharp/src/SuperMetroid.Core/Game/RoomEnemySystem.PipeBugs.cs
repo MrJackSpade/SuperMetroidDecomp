@@ -183,9 +183,9 @@ public sealed partial class RoomEnemySystem
     private void InitializeBrinstarPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
-        state.SpawnX = slot.XPosition;
-        state.SpawnY = slot.YPosition;
-        state.EmergenceTopY = unchecked((ushort)(slot.YPosition - BrinstarPipeBugEmergenceHeight));
+        state.SpawnX = slot.Position.X.Whole;
+        state.SpawnY = slot.Position.Y.Whole;
+        state.EmergenceTopY = unchecked((ushort)(slot.Position.Y.Whole - BrinstarPipeBugEmergenceHeight));
         state.Function = PipeBugEnemyFunction.BrinstarWaitUntilOnScreen;
         state.DelayOrCounter = BrinstarPipeBugRespawnFrames;
         state.AnimationState = PipeBugAnimationSelector.None;
@@ -199,8 +199,8 @@ public sealed partial class RoomEnemySystem
     private void InitializeNorfairPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
-        state.SpawnX = slot.XPosition;
-        state.SpawnY = slot.YPosition;
+        state.SpawnX = slot.Position.X.Whole;
+        state.SpawnY = slot.Position.Y.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         state.LinearSpeedTableOffset = unchecked((ushort)((slot.Parameter2 >> 8) * 8));
         state.DelayOrCounter = 0;
@@ -214,10 +214,9 @@ public sealed partial class RoomEnemySystem
     private void InitializeYellowPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
-        state.SpawnX = slot.XPosition;
-        state.SpawnY = slot.YPosition;
-        slot.XSubposition = 0;
-        slot.YSubposition = 0;
+        state.SpawnX = slot.Position.X.Whole;
+        state.SpawnY = slot.Position.Y.Whole;
+        slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = slot.Parameter1 != 0
@@ -243,8 +242,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         switch (state.Function)
         {
@@ -252,7 +250,7 @@ public sealed partial class RoomEnemySystem
                 // The poorly named native CheckIfEnemyIsOnScreen returns zero when the
                 // origin is visible. $B3:8880 branches on that zero result, so this initial
                 // state arms the proximity check on-screen, not after a despawn boundary.
-                if (!EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY))
+                if (!EnemyWithNormalSpritesIsOffScreen(slot, camera))
                     state.Function = PipeBugEnemyFunction.BrinstarWaitForSamus;
                 return;
             case PipeBugEnemyFunction.BrinstarWaitForSamus:
@@ -264,7 +262,7 @@ public sealed partial class RoomEnemySystem
                 RunBrinstarPipeBugEmergence(slot, state, samus!);
                 return;
             case PipeBugEnemyFunction.BrinstarFlyHorizontally:
-                RunBrinstarPipeBugFlight(slot, state, cameraX);
+                RunBrinstarPipeBugFlight(slot, state, camera.X);
                 return;
             case PipeBugEnemyFunction.BrinstarRespawnDelay:
                 if (state.DelayOrCounter-- == 1)
@@ -273,51 +271,51 @@ public sealed partial class RoomEnemySystem
 
             case PipeBugEnemyFunction.NorfairWaitForFormation:
                 RunNorfairPipeBugFormationWait(slot, state);
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairWaitForSamus:
                 RequirePipeBugSamus(samus);
                 RunNorfairPipeBugSamusWait(slot, state, samus!);
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairRise:
                 RequirePipeBugSamus(samus);
                 RunNorfairPipeBugRise(slot, state, samus!);
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairLeaderStagger:
                 state.DelayOrCounter = unchecked((ushort)(state.DelayOrCounter + 1));
                 state.Function = PipeBugEnemyFunction.NorfairWaitForStagger;
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairUpperNearStagger:
                 RunNorfairPipeBugVerticalStagger(slot, state, -16);
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairUpperFarStagger:
                 RunNorfairPipeBugVerticalStagger(slot, state, -32);
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairLowerNearStagger:
                 RunNorfairPipeBugVerticalStagger(slot, state, 16);
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairLowerFarStagger:
                 RunNorfairPipeBugVerticalStagger(slot, state, 32);
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairWaitForStagger:
                 RequirePipeBugSamus(samus);
                 RunNorfairPipeBugStaggerWait(slot, state, samus!);
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairFlyLeft:
                 AddPipeBugLinearVelocity(slot, horizontal: true, state.LinearSpeedTableOffset + 4);
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairFlyRight:
                 AddPipeBugLinearVelocity(slot, horizontal: true, state.LinearSpeedTableOffset);
-                ResetNorfairPipeBugIfOffScreen(slot, state, cameraX, cameraY);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
 
             case PipeBugEnemyFunction.YellowWaitForSamus:
@@ -329,17 +327,17 @@ public sealed partial class RoomEnemySystem
                 return;
             case PipeBugEnemyFunction.YellowFlyLeft:
                 RequirePipeBugSamus(samus);
-                RunYellowPipeBugStraightFlight(slot, state, samus!, cameraX, cameraY, movingLeft: true);
+                RunYellowPipeBugStraightFlight(slot, state, samus!, camera, movingLeft: true);
                 return;
             case PipeBugEnemyFunction.YellowFlyRight:
                 RequirePipeBugSamus(samus);
-                RunYellowPipeBugStraightFlight(slot, state, samus!, cameraX, cameraY, movingLeft: false);
+                RunYellowPipeBugStraightFlight(slot, state, samus!, camera, movingLeft: false);
                 return;
             case PipeBugEnemyFunction.YellowArcLeft:
-                RunYellowPipeBugArc(slot, state, cameraX, cameraY, movingLeft: true);
+                RunYellowPipeBugArc(slot, state, camera, movingLeft: true);
                 return;
             case PipeBugEnemyFunction.YellowArcRight:
-                RunYellowPipeBugArc(slot, state, cameraX, cameraY, movingLeft: false);
+                RunYellowPipeBugArc(slot, state, camera, movingLeft: false);
                 return;
             default:
                 throw new InvalidDataException(
@@ -352,13 +350,13 @@ public sealed partial class RoomEnemySystem
         PipeBugEnemyState state,
         SamusState samus)
     {
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.YPosition));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
         if (deltaY >= 0 || unchecked((short)(deltaY + BrinstarPipeBugTriggerTop)) < 0)
             return;
 
-        ushort deltaX = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
+        ushort deltaX = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         state.VariableA = (ushort)(state.VariableA & 0x7fff | (deltaX & 0x8000));
-        if (WrappedMagnitude(unchecked((ushort)(slot.XPosition - samus.Position.X.Whole))) >=
+        if (WrappedMagnitude(unchecked((ushort)(slot.Position.X.Whole - samus.Position.X.Whole))) >=
             BrinstarPipeBugTriggerWidth)
         {
             return;
@@ -381,11 +379,13 @@ public sealed partial class RoomEnemySystem
         // $B3:88E3 decrements the subposition as a separate word, then subtracts either one
         // or two pixels according to the old word. This is deliberately not normal 16.16
         // subtraction; preserving the oddity prevents a one-pixel/frame timing drift.
-        bool oldSubpositionWasNonzero = slot.YSubposition-- != 0;
-        slot.YPosition = unchecked((ushort)(
-            slot.YPosition + (oldSubpositionWasNonzero ? -1 : -2)));
-        if (unchecked((short)(state.EmergenceTopY - slot.YPosition)) < 0 ||
-            slot.YPosition >= samus.Position.Y.Whole)
+        SnesFixedPosition y = slot.Position.Y;
+        bool oldSubpositionWasNonzero = y.Fraction != 0;
+        slot.Position = slot.Position.WithY(new(
+            unchecked((ushort)(y.Whole + (oldSubpositionWasNonzero ? -1 : -2))),
+            unchecked((ushort)(y.Fraction - 1))));
+        if (unchecked((short)(state.EmergenceTopY - slot.Position.Y.Whole)) < 0 ||
+            slot.Position.Y.Whole >= samus.Position.Y.Whole)
         {
             return;
         }
@@ -400,18 +400,16 @@ public sealed partial class RoomEnemySystem
         PipeBugEnemyState state,
         ushort cameraX)
     {
-        slot.XPosition = unchecked((ushort)(slot.XPosition +
-            ((state.VariableA & 0x8000) != 0 ? -2 : 2)));
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
+            ((state.VariableA & 0x8000) != 0 ? -2 : 2))));
         // $B3:8949 tests only the horizontal screen extent.
         if (!EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;
 
-        slot.XPosition = state.SpawnX;
-        slot.XSubposition = 0;
-        slot.YPosition = state.SpawnY;
+        slot.Position = slot.Position.WithWholeX(state.SpawnX).WithFractionX(0).WithWholeY(state.SpawnY);
         // This apparently strange assignment is literal $B3:8958 behavior: the original
         // stores the integer spawn Y into both halves rather than clearing the fraction.
-        slot.YSubposition = state.SpawnY;
+        slot.Position = slot.Position.WithFractionY(state.SpawnY);
         state.AnimationState = PipeBugAnimationSelector.None;
         SelectBrinstarPipeBugAnimation(slot, state);
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
@@ -454,8 +452,8 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         ushort triggerWidth = unchecked((byte)leader.Parameter2);
-        if (!IsWithinStrictModularDistance(leader.XPosition, samus.Position.X.Whole, triggerWidth) ||
-            unchecked((short)(leader.YPosition - samus.Position.Y.Whole)) < 0)
+        if (!IsWithinStrictModularDistance(leader.Position.X.Whole, samus.Position.X.Whole, triggerWidth) ||
+            unchecked((short)(leader.Position.Y.Whole - samus.Position.Y.Whole)) < 0)
         {
             return;
         }
@@ -466,7 +464,7 @@ public sealed partial class RoomEnemySystem
         // timers intact, including zero timers in cleared respawn placeholders.
         leader.InstructionTimer = 1;
         leader.Timer = 0;
-        bool samusIsRight = unchecked((short)(samus.Position.X.Whole - leader.XPosition)) >= 0;
+        bool samusIsRight = unchecked((short)(samus.Position.X.Whole - leader.Position.X.Whole)) >= 0;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(leader);
         foreach (RoomEnemySlot member in formation)
         {
@@ -491,14 +489,14 @@ public sealed partial class RoomEnemySystem
     {
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
         AddPipeBugLinearVelocity(slot, horizontal: false, byteOffset: 132);
-        if (unchecked((short)(slot.YPosition - samus.Position.Y.Whole)) >= 0)
+        if (unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= 0)
             return;
 
         state.Function = state.NorfairPostRiseFunction;
-        state.EmergenceY = slot.YPosition;
+        state.EmergenceY = slot.Position.Y.Whole;
         InstallPipeBugInstruction(
             slot,
-            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0
+            unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0
                 ? NorfairPipeBugInstructionProgramDefinitions.RisingRight
                 : NorfairPipeBugInstructionProgramDefinitions.RisingLeft);
     }
@@ -517,12 +515,11 @@ public sealed partial class RoomEnemySystem
             byteOffset: signedOffset < 0 ? 132 : 128);
         ushort target = unchecked((ushort)(state.EmergenceY + signedOffset));
         bool reached = signedOffset < 0
-            ? unchecked((short)(slot.YPosition - target)) < 0
-            : unchecked((short)(slot.YPosition - target)) >= 0;
+            ? unchecked((short)(slot.Position.Y.Whole - target)) < 0
+            : unchecked((short)(slot.Position.Y.Whole - target)) >= 0;
         if (!reached)
             return;
-        slot.YPosition = target;
-        slot.YSubposition = 0;
+        slot.Position = slot.Position.WithY(new(target, 0));
         state.Function = PipeBugEnemyFunction.NorfairWaitForStagger;
     }
 
@@ -538,7 +535,7 @@ public sealed partial class RoomEnemySystem
         state.DelayOrCounter = 0;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        if (unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0)
+        if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0)
         {
             state.Function = PipeBugEnemyFunction.NorfairFlyRight;
             slot.CurrentInstruction = NorfairPipeBugInstructionProgramDefinitions.FlyingRight;
@@ -557,15 +554,13 @@ public sealed partial class RoomEnemySystem
     private static void ResetNorfairPipeBugIfOffScreen(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
-        if (EnemyCenterIsOnScreen(slot, cameraX, cameraY))
+        if (EnemyCenterIsOnScreen(slot, camera))
             return;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;
-        slot.XPosition = state.SpawnX;
-        slot.YPosition = state.SpawnY;
+        slot.Position = slot.Position.WithWhole(new(state.SpawnX, state.SpawnY));
     }
 
     private RoomEnemySlot[] RequireNorfairPipeBugFormation(RoomEnemySlot leader)
@@ -598,12 +593,12 @@ public sealed partial class RoomEnemySystem
         PipeBugEnemyState state,
         SamusState samus)
     {
-        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.XPosition));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
         bool inFront = slot.Parameter1 != 0
             ? deltaX < 0 && unchecked((short)(deltaX + YellowPipeBugTriggerDistance)) >= 0
             : deltaX >= 0 && unchecked((short)(deltaX - YellowPipeBugTriggerDistance)) < 0;
         if (!inFront ||
-            !IsWithinStrictModularDistance(slot.YPosition, samus.Position.Y.Whole, YellowPipeBugTriggerHeight))
+            !IsWithinStrictModularDistance(slot.Position.Y.Whole, samus.Position.Y.Whole, YellowPipeBugTriggerHeight))
         {
             return;
         }
@@ -636,19 +631,18 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         SamusState samus,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         bool movingLeft)
     {
         AddYellowPipeBugHorizontalVelocity(slot, state, movingLeft);
-        if (ResetYellowPipeBugIfOffScreen(slot, state, cameraX, cameraY))
+        if (ResetYellowPipeBugIfOffScreen(slot, state, camera))
             return;
         if (state.ArcCompleted)
             return;
 
         bool passedSamus = movingLeft
-            ? unchecked((short)(slot.XPosition - samus.Position.X.Whole - YellowPipeBugArcTriggerDistance)) < 0
-            : unchecked((short)(samus.Position.X.Whole - slot.XPosition - YellowPipeBugArcTriggerDistance)) < 0;
+            ? unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole - YellowPipeBugArcTriggerDistance)) < 0
+            : unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole - YellowPipeBugArcTriggerDistance)) < 0;
         if (!passedSamus)
             return;
 
@@ -658,7 +652,7 @@ public sealed partial class RoomEnemySystem
         state.DelayOrCounter = 0;
         state.ArcCounter = YellowPipeBugArcCounterStart;
         state.ArcPhase = 1;
-        state.ArcStartX = slot.XPosition;
+        state.ArcStartX = slot.Position.X.Whole;
         InstallPipeBugInstruction(
             slot,
             movingLeft
@@ -669,11 +663,10 @@ public sealed partial class RoomEnemySystem
     private static void RunYellowPipeBugArc(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         bool movingLeft)
     {
-        if (ResetYellowPipeBugIfOffScreen(slot, state, cameraX, cameraY))
+        if (ResetYellowPipeBugIfOffScreen(slot, state, camera))
             return;
         AddYellowPipeBugHorizontalVelocity(slot, state, movingLeft);
         if (state.ArcPhase != 0)
@@ -696,8 +689,8 @@ public sealed partial class RoomEnemySystem
         AddPipeBugDisplacement(slot, horizontal: false,
             ReadQuadraticEnemySpeed(state.ArcCounter, negative: true));
         bool returnedToSpawnY = movingLeft
-            ? unchecked((short)(slot.YPosition - state.SpawnY)) < 0
-            : unchecked((short)(state.SpawnY - slot.YPosition)) >= 0;
+            ? unchecked((short)(slot.Position.Y.Whole - state.SpawnY)) < 0
+            : unchecked((short)(state.SpawnY - slot.Position.Y.Whole)) >= 0;
         if (!returnedToSpawnY)
             return;
 
@@ -716,16 +709,12 @@ public sealed partial class RoomEnemySystem
     private static bool ResetYellowPipeBugIfOffScreen(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         // Every Geega flight function resets through CheckIfEnemyCenterIsOnScreen.
-        if (EnemyCenterIsOnScreen(slot, cameraX, cameraY))
+        if (EnemyCenterIsOnScreen(slot, camera))
             return false;
-        slot.XPosition = state.SpawnX;
-        slot.YPosition = state.SpawnY;
-        slot.XSubposition = 0;
-        slot.YSubposition = 0;
+        slot.Position = FixedPosition<RoomPixels>.FromWhole(new(state.SpawnX, state.SpawnY));
         state.Function = PipeBugEnemyFunction.YellowWaitForSamus;
         state.ArcCompleted = false;
         slot.InstructionTimer = 1;
@@ -764,20 +753,18 @@ public sealed partial class RoomEnemySystem
         ushort whole,
         ushort fraction)
     {
-        ushort position = horizontal ? slot.XPosition : slot.YPosition;
-        ushort subposition = horizontal ? slot.XSubposition : slot.YSubposition;
+        ushort position = horizontal ? slot.Position.X.Whole : slot.Position.Y.Whole;
+        ushort subposition = horizontal ? slot.Position.X.Fraction : slot.Position.Y.Fraction;
         uint sum = (uint)subposition + fraction;
         position = unchecked((ushort)(position + whole + (sum > ushort.MaxValue ? 1 : 0)));
         subposition = unchecked((ushort)sum);
         if (horizontal)
         {
-            slot.XPosition = position;
-            slot.XSubposition = subposition;
+            slot.Position = slot.Position.WithX(new(position, subposition));
         }
         else
         {
-            slot.YPosition = position;
-            slot.YSubposition = subposition;
+            slot.Position = slot.Position.WithY(new(position, subposition));
         }
     }
 
@@ -787,18 +774,16 @@ public sealed partial class RoomEnemySystem
         int displacement)
     {
         uint position = horizontal
-            ? ((uint)slot.XPosition << 16) | slot.XSubposition
-            : ((uint)slot.YPosition << 16) | slot.YSubposition;
+            ? slot.Position.X.RawValue
+            : slot.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
         if (horizontal)
         {
-            slot.XPosition = unchecked((ushort)(position >> 16));
-            slot.XSubposition = unchecked((ushort)position);
+            slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
         }
         else
         {
-            slot.YPosition = unchecked((ushort)(position >> 16));
-            slot.YSubposition = unchecked((ushort)position);
+            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
         }
     }
 

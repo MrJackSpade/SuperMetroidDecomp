@@ -251,10 +251,10 @@ public sealed partial class RoomEnemySystem
         state.VerticalVelocity = 1;
         state.HorizontalSubvelocity = 0;
         state.HorizontalVelocity = unchecked((ushort)-1);
-        state.UpperPatrolY = unchecked((ushort)(body.YPosition - 16));
+        state.UpperPatrolY = unchecked((ushort)(body.Position.Y.Whole - 16));
         state.LowerPatrolY = unchecked((ushort)(state.UpperPatrolY + 32));
-        state.SpawnX = body.XPosition;
-        state.SpawnY = body.YPosition;
+        state.SpawnX = body.Position.X.Whole;
+        state.SpawnY = body.Position.Y.Whole;
 
         // Parameter bit 15 selects the permanently ground-bound form used by two red
         // Ki-Hunters. Its following wing record starts deleted and the body skips every
@@ -276,8 +276,7 @@ public sealed partial class RoomEnemySystem
 
         wings.Properties = wings.Properties.With(EnemyProperties.ProcessInstructions);
         InstallKiHunterInstruction(wings, KiHunterInstructionProgramDefinitions.WingsLeft);
-        wings.XPosition = body.XPosition;
-        wings.YPosition = body.YPosition;
+        wings.Position = wings.Position.WithWhole(body.Position.Whole);
         state.Function = KiHunterEnemyFunction.FollowBody;
         wings.PaletteIndex = body.PaletteIndex;
         wings.VramTilesIndex = body.VramTilesIndex;
@@ -355,11 +354,11 @@ public sealed partial class RoomEnemySystem
         {
             state.VerticalVelocity = unchecked((ushort)-state.VerticalVelocity);
         }
-        else if (unchecked((short)(body.YPosition - state.UpperPatrolY)) < 0)
+        else if (unchecked((short)(body.Position.Y.Whole - state.UpperPatrolY)) < 0)
         {
             state.VerticalVelocity = 1;
         }
-        else if (unchecked((short)(body.YPosition - state.LowerPatrolY)) >= 0)
+        else if (unchecked((short)(body.Position.Y.Whole - state.LowerPatrolY)) >= 0)
         {
             state.VerticalVelocity = unchecked((ushort)-1);
         }
@@ -374,11 +373,11 @@ public sealed partial class RoomEnemySystem
         }
         AlignEnemyYWithNonSquareSlope(level, body);
 
-        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - body.XPosition));
+        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - body.Position.X.Whole));
         ushort absoluteXDistance = WrappedMagnitude(signedXDistance);
         ushort triggerDistance = KiHunterMotionDefinitions.SwoopTriggerDistance;
         if (unchecked((short)(absoluteXDistance - triggerDistance)) >= 0 ||
-            unchecked((short)(samus.Position.Y.Whole - body.YPosition - 32)) < 0)
+            unchecked((short)(samus.Position.Y.Whole - body.Position.Y.Whole - 32)) < 0)
         {
             return;
         }
@@ -387,9 +386,9 @@ public sealed partial class RoomEnemySystem
         state.AngularVelocityFraction = 0;
         state.SwoopAnimationChanged = false;
         state.SwoopHorizontalRadius = absoluteXDistance;
-        state.SwoopVerticalRadius = unchecked((ushort)(samus.Position.Y.Whole - body.YPosition));
+        state.SwoopVerticalRadius = unchecked((ushort)(samus.Position.Y.Whole - body.Position.Y.Whole));
         state.TargetXOrSpeedIndex = samus.Position.X.Whole;
-        state.SwoopOriginY = body.YPosition;
+        state.SwoopOriginY = body.Position.Y.Whole;
         state.Function = KiHunterEnemyFunction.Swooping;
 
         bool swoopLeft = (signedXDistance & 0x8000) != 0;
@@ -460,7 +459,7 @@ public sealed partial class RoomEnemySystem
         ushort targetX = unchecked((ushort)(
             state.TargetXOrSpeedIndex +
             ReadEightBitCosineProduct(state.Angle, state.SwoopHorizontalRadius)));
-        int horizontalDisplacement = unchecked((short)(targetX - body.XPosition)) << 16;
+        int horizontalDisplacement = unchecked((short)(targetX - body.Position.X.Whole)) << 16;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
             state.HorizontalSubvelocity = 0;
@@ -473,7 +472,7 @@ public sealed partial class RoomEnemySystem
         ushort targetY = unchecked((ushort)(
             state.SwoopOriginY +
             ReadEightBitNegativeSineProduct(state.Angle, state.SwoopVerticalRadius)));
-        int verticalDisplacement = unchecked((short)(targetY - body.YPosition)) << 16;
+        int verticalDisplacement = unchecked((short)(targetY - body.Position.Y.Whole)) << 16;
         if (MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
     }
@@ -505,7 +504,7 @@ public sealed partial class RoomEnemySystem
                 level,
                 body,
                 ComposeKiHunterFixed(state.VerticalVelocity, state.VerticalSubvelocity)) ||
-            unchecked((short)(body.YPosition - state.SpawnY)) < 0)
+            unchecked((short)(body.Position.Y.Whole - state.SpawnY)) < 0)
         {
             state.Function = KiHunterEnemyFunction.FlyingPatrol;
         }
@@ -543,7 +542,7 @@ public sealed partial class RoomEnemySystem
         state.VerticalSubvelocity = 0;
         ushort random = RequireRandomNumber();
         state.VerticalVelocity = unchecked((ushort)((random & 1) - 8));
-        bool jumpLeft = unchecked((short)(body.XPosition - samus.Position.X.Whole)) >= 0;
+        bool jumpLeft = unchecked((short)(body.Position.X.Whole - samus.Position.X.Whole)) >= 0;
         state.HorizontalSubvelocity = 0;
         state.HorizontalVelocity = jumpLeft ? unchecked((ushort)-2) : (ushort)2;
         InstallKiHunterInstruction(
@@ -610,7 +609,7 @@ public sealed partial class RoomEnemySystem
         if (state.WaitTimer != 0)
             return;
 
-        ushort distance = WrappedMagnitude(unchecked((ushort)(body.XPosition - samus.Position.X.Whole)));
+        ushort distance = WrappedMagnitude(unchecked((ushort)(body.Position.X.Whole - samus.Position.X.Whole)));
         state.Function = distance < KiHunterGroundAttackDistance
             ? KiHunterEnemyFunction.SelectAcidSpit
             : KiHunterEnemyFunction.StartGroundJump;
@@ -622,7 +621,7 @@ public sealed partial class RoomEnemySystem
         KiHunterEnemyState state,
         SamusState samus)
     {
-        bool samusRight = unchecked((short)(body.XPosition - samus.Position.X.Whole)) < 0;
+        bool samusRight = unchecked((short)(body.Position.X.Whole - samus.Position.X.Whole)) < 0;
         InstallKiHunterInstruction(
             body,
             samusRight
@@ -635,8 +634,7 @@ public sealed partial class RoomEnemySystem
     private void FollowKiHunterBody(RoomEnemySlot wings)
     {
         RoomEnemySlot body = GetKiHunterBody(wings);
-        wings.XPosition = body.XPosition;
-        wings.YPosition = body.YPosition;
+        wings.Position = wings.Position.WithWhole(body.Position.Whole);
     }
 
     /// <summary>Ports detached wing dispatcher <c>$A8:F7CF</c>.</summary>
@@ -667,12 +665,12 @@ public sealed partial class RoomEnemySystem
             negativeHalf: true)));
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
         ushort byteAngle = unchecked((byte)(state.Angle >> 8));
-        wings.YPosition = unchecked((ushort)(
+        wings.Position = wings.Position.WithWholeY(unchecked((ushort)(
             state.OrbitCenterY +
             ReadEightBitNegativeSineProduct(byteAngle, radius) -
-            state.OrbitYOffset));
-        wings.XPosition = unchecked((ushort)(
-            state.OrbitCenterX + ReadEightBitCosineProduct(byteAngle, radius) - state.OrbitXOffset));
+            state.OrbitYOffset)));
+        wings.Position = wings.Position.WithWholeX(unchecked((ushort)(
+            state.OrbitCenterX + ReadEightBitCosineProduct(byteAngle, radius) - state.OrbitXOffset)));
 
         if (unchecked((short)(state.Angle + 0x4000)) < 0)
         {
@@ -700,17 +698,16 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyVertically(
                 level,
                 wings,
-                unchecked((short)(desiredY - wings.YPosition)) << 16))
+                unchecked((short)(desiredY - wings.Position.Y.Whole)) << 16))
         {
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
-            wings.XPosition = state.SavedWingX;
-            wings.YPosition = state.SavedWingY;
+            wings.Position = wings.Position.WithWhole(new(state.SavedWingX, state.SavedWingY));
             DecrementKiHunterDetachedSpeedIndex(state);
             return;
         }
 
-        wings.XPosition = unchecked((ushort)(
-            state.OrbitCenterX + ReadEightBitCosineProduct(byteAngle, radius) - state.FallingArcXOffset));
+        wings.Position = wings.Position.WithWholeX(unchecked((ushort)(
+            state.OrbitCenterX + ReadEightBitCosineProduct(byteAngle, radius) - state.FallingArcXOffset)));
         if (unchecked((short)(state.Angle + 0x4000)) >= 0)
         {
             BeginDetachedKiHunterWingOrbit(wings, state);
@@ -760,8 +757,8 @@ public sealed partial class RoomEnemySystem
     /// <summary>Initializes all fields written by <c>$A8:F701/$F851/$F87F/$F98D</c>.</summary>
     private static void DetachKiHunterWings(RoomEnemySlot wings, KiHunterEnemyState state)
     {
-        state.SavedWingY = wings.YPosition;
-        state.SavedWingX = wings.XPosition;
+        state.SavedWingY = wings.Position.Y.Whole;
+        state.SavedWingX = wings.Position.X.Whole;
         CalculateKiHunterDetachedSpeedReset(state);
 
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
@@ -773,7 +770,7 @@ public sealed partial class RoomEnemySystem
         state.Function = KiHunterEnemyFunction.DetachedWing;
         state.WingFunction = KiHunterWingFunction.Orbit;
         state.OrbitCenterY = unchecked((ushort)(state.SavedWingY - state.LowerPatrolY));
-        state.OrbitCenterX = wings.XPosition;
+        state.OrbitCenterX = wings.Position.X.Whole;
         state.TargetXOrSpeedIndex = state.DetachedSpeedReset;
         InstallKiHunterInstruction(
             wings,
@@ -804,8 +801,8 @@ public sealed partial class RoomEnemySystem
         state.WingFunction = KiHunterWingFunction.Orbit;
         state.TargetXOrSpeedIndex = state.DetachedSpeedReset;
         state.Angle = unchecked((ushort)-0x2000);
-        state.OrbitCenterX = wings.XPosition;
-        state.OrbitCenterY = wings.YPosition;
+        state.OrbitCenterX = wings.Position.X.Whole;
+        state.OrbitCenterY = wings.Position.Y.Whole;
     }
 
     private static void BeginDetachedKiHunterWingCollisionArc(
@@ -815,8 +812,8 @@ public sealed partial class RoomEnemySystem
         state.WingFunction = KiHunterWingFunction.FallingCollisionArc;
         state.TargetXOrSpeedIndex = state.DetachedSpeedReset;
         state.Angle = unchecked((ushort)-0x6000);
-        state.OrbitCenterX = wings.XPosition;
-        state.OrbitCenterY = wings.YPosition;
+        state.OrbitCenterX = wings.Position.X.Whole;
+        state.OrbitCenterY = wings.Position.Y.Whole;
     }
 
     private static ushort ReadKiHunterQuadraticAngleDelta(ushort speedIndex, bool negativeHalf)

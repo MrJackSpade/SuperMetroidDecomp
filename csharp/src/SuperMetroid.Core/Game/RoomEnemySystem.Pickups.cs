@@ -92,8 +92,7 @@ public sealed partial class RoomEnemySystem
                 explosion,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
                 graphicsIndex: 0);
-            explosion.XPosition = enemy.XPosition;
-            explosion.YPosition = enemy.YPosition;
+            explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.EnemyHeaderPointer = enemy.EnemyDefinitionPointer;
             explosion.KilledEnemyNativeIndex = respawns
                 ? unchecked((ushort)(enemy.NativeIndex | 0x8000))
@@ -165,22 +164,21 @@ public sealed partial class RoomEnemySystem
             ushort random = _nextRandom!();
             ushort x = unchecked((ushort)((random & xMask) + xBase));
             ushort y = unchecked((ushort)(((random & yMask) >> 8) + yBase));
-            SpawnEnemyDropFromEnemyHeader(x, y, enemyHeaderPointer);
+            SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
         }
     }
 
     private void SpawnEnemyDropScatterAround(
         EnemyDefinitionId enemyHeaderPointer,
         int count,
-        ushort originX,
-        ushort originY)
+        Position16<RoomPixels> origin)
     {
         for (int drop = 0; drop < count; drop++)
         {
             ushort random = _nextRandom!();
-            ushort x = unchecked((ushort)(originX + (random & 0x001f) - 16));
-            ushort y = unchecked((ushort)(originY + ((random & 0x1f00) >> 8) - 16));
-            SpawnEnemyDropFromEnemyHeader(x, y, enemyHeaderPointer);
+            ushort x = unchecked((ushort)(origin.X + (random & 0x001f) - 16));
+            ushort y = unchecked((ushort)(origin.Y + ((random & 0x1f00) >> 8) - 16));
+            SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
         }
     }
 
@@ -190,8 +188,7 @@ public sealed partial class RoomEnemySystem
     /// <c>SpawnEprojWithRoomGfx</c> followed by <c>InitAI_EnemyProjectile_Pickup</c>.
     /// </summary>
     internal RoomEnemyProjectileSlot? SpawnEnemyDropFromEnemyHeader(
-        ushort x,
-        ushort y,
+        Position16<RoomPixels> position,
         EnemyDefinitionId enemyHeaderPointer)
     {
         EnsureLoaded();
@@ -203,8 +200,7 @@ public sealed partial class RoomEnemySystem
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
             graphicsIndex: 0);
-        pickup.XPosition = x;
-        pickup.YPosition = y;
+        pickup.Position = pickup.Position.WithWhole(position);
         pickup.EnemyHeaderPointer = enemyHeaderPointer;
         pickup.KilledEnemyNativeIndex = 0xffff;
         InitializeDirectEnemyPickup(pickup);
@@ -217,8 +213,7 @@ public sealed partial class RoomEnemySystem
     /// without manufacturing a fake enemy header solely to get back to the same six bytes.
     /// </summary>
     internal RoomEnemyProjectileSlot? SpawnEnemyDropFromChanceTable(
-        ushort x,
-        ushort y,
+        Position16<RoomPixels> position,
         ushort itemDropChancesPointer)
     {
         EnsureLoaded();
@@ -230,8 +225,7 @@ public sealed partial class RoomEnemySystem
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
             graphicsIndex: 0);
-        pickup.XPosition = x;
-        pickup.YPosition = y;
+        pickup.Position = pickup.Position.WithWhole(position);
         pickup.ItemDropChancesPointerOverride = itemDropChancesPointer;
         pickup.KilledEnemyNativeIndex = 0xffff;
         InitializeDirectEnemyPickup(pickup);
@@ -442,8 +436,8 @@ public sealed partial class RoomEnemySystem
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
             projectile.Variable1 < EnemyPickupLifetime - EnemyPickupGrappleDelay &&
-            AbsoluteWrappedDelta(projectile.XPosition, samus.Grapple.Anchor.X) < 16 &&
-            AbsoluteWrappedDelta(projectile.YPosition, samus.Grapple.Anchor.Y) < 16)
+            AbsoluteWrappedDelta(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < 16 &&
+            AbsoluteWrappedDelta(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < 16)
         {
             CollectEnemyPickup(projectile, samus);
             return;
@@ -451,10 +445,10 @@ public sealed partial class RoomEnemySystem
 
         // $86:F057's subtract/borrow formulation is exactly strict radius-sum overlap for
         // valid actor radii. Equality is not contact, matching the BCS exits in both axes.
-        if (AbsoluteWrappedDelta(samus.Position.X.Whole, projectile.XPosition) >=
-                samus.Kinematics.Radius.X + projectile.XRadius ||
-            AbsoluteWrappedDelta(samus.Position.Y.Whole, projectile.YPosition) >=
-                samus.Kinematics.Radius.Y + projectile.YRadius)
+        if (AbsoluteWrappedDelta(samus.Position.X.Whole, projectile.Position.X.Whole) >=
+                samus.Kinematics.Radius.X + projectile.Radius.X ||
+            AbsoluteWrappedDelta(samus.Position.Y.Whole, projectile.Position.Y.Whole) >=
+                samus.Kinematics.Radius.Y + projectile.Radius.Y)
         {
             return;
         }

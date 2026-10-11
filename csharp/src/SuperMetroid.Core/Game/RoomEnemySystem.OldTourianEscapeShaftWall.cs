@@ -19,9 +19,9 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion,
             graphicsIndex: 0);
-        projectile.XPosition = OldTourianEscapeShaftWallExplosionDefinitions.XPosition;
+        projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionDefinitions.XPosition);
         projectile.Variable0 = OldTourianEscapeShaftWallExplosionDefinitions.XPosition;
-        projectile.YPosition = OldTourianEscapeShaftWallExplosionDefinitions.YPosition;
+        projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionDefinitions.YPosition);
         projectile.Variable1 = OldTourianEscapeShaftWallExplosionDefinitions.YPosition;
     }
 }

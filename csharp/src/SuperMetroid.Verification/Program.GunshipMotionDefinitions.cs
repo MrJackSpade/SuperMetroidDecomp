@@ -25,22 +25,21 @@ internal static partial class Program
                 new GunshipMotionDefinitionReadGuard(rom));
             var applyBrake = brakeMethod.CreateDelegate<Action<RoomEnemySlot, SamusState>>(enemies);
             RoomEnemySlot top = enemies.Slots[0];
-            top.XPosition = 0x1234;
-            top.YPosition = 0x2000;
+            top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
             top.VariableE = frame;
-            enemies.Slots[1].YPosition = 0x2100;
-            enemies.Slots[2].YPosition = 0x2200;
+            enemies.Slots[1].Position = enemies.Slots[1].Position.WithWholeY(0x2100);
+            enemies.Slots[2].Position = enemies.Slots[2].Position.WithWholeY(0x2200);
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
 
             applyBrake(top, samus);
 
             AssertEqual(unchecked((ushort)(0x3000 + expected)), samus.Position.Y.Whole,
                 $"gunship production brake Samus Y {frame}");
-            AssertEqual(unchecked((ushort)(0x2000 + expected)), top.YPosition,
+            AssertEqual(unchecked((ushort)(0x2000 + expected)), top.Position.Y.Whole,
                 $"gunship production brake top Y {frame}");
-            AssertEqual(unchecked((ushort)(0x2100 + expected)), enemies.Slots[1].YPosition,
+            AssertEqual(unchecked((ushort)(0x2100 + expected)), enemies.Slots[1].Position.Y.Whole,
                 $"gunship production brake bottom Y {frame}");
-            AssertEqual(unchecked((ushort)(0x2200 + expected)), enemies.Slots[2].YPosition,
+            AssertEqual(unchecked((ushort)(0x2200 + expected)), enemies.Slots[2].Position.Y.Whole,
                 $"gunship production brake pad Y {frame}");
         }
 
@@ -58,9 +57,9 @@ internal static partial class Program
             RoomEnemySlot top = enemies.Slots[0];
             top.VariableC = phase;
             top.VariableD = 1;
-            top.YPosition = 0x2000;
-            enemies.Slots[1].YPosition = 0x2100;
-            enemies.Slots[2].YPosition = 0x2200;
+            top.Position = top.Position.WithWholeY(0x2000);
+            enemies.Slots[1].Position = enemies.Slots[1].Position.WithWholeY(0x2100);
+            enemies.Slots[2].Position = enemies.Slots[2].Position.WithWholeY(0x2200);
 
             stepBob(top);
 
@@ -68,11 +67,11 @@ internal static partial class Program
                 $"gunship production bob timer {phase}");
             AssertEqual(unchecked((ushort)((phase + 1) & 3)), top.VariableC,
                 $"gunship production bob phase {phase}");
-            AssertEqual(unchecked((ushort)(0x2000 + expectedDelta)), top.YPosition,
+            AssertEqual(unchecked((ushort)(0x2000 + expectedDelta)), top.Position.Y.Whole,
                 $"gunship production bob top Y {phase}");
-            AssertEqual(unchecked((ushort)(0x2100 + expectedDelta)), enemies.Slots[1].YPosition,
+            AssertEqual(unchecked((ushort)(0x2100 + expectedDelta)), enemies.Slots[1].Position.Y.Whole,
                 $"gunship production bob bottom Y {phase}");
-            AssertEqual(unchecked((ushort)(0x2200 + expectedDelta)), enemies.Slots[2].YPosition,
+            AssertEqual(unchecked((ushort)(0x2200 + expectedDelta)), enemies.Slots[2].Position.Y.Whole,
                 $"gunship production bob pad Y {phase}");
         }
 

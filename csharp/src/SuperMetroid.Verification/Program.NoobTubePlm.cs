@@ -269,9 +269,9 @@ internal static partial class Program
 
         RoomEnemyProjectileSlot crack = enemies.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeCrack);
-        AssertEqual(0x0080, crack.XPosition,
+        AssertEqual(0x0080, crack.Position.X.Whole,
             "crack initializer uses PLM X plus six blocks");
-        AssertEqual(0x0050, crack.YPosition,
+        AssertEqual(0x0050, crack.Position.Y.Whole,
             "crack initializer uses PLM Y plus three blocks");
 
         RoomEnemyProjectileSlot firstShard = enemies.EnemyProjectiles.Single(projectile =>
@@ -279,11 +279,11 @@ internal static partial class Program
             projectile.InstructionPointer == 0xd47d);
         AssertEqual(0x0048, firstShard.Variable1,
             "first shard stores signed X origin in variable F");
-        AssertEqual(0x0058, firstShard.YPosition,
+        AssertEqual(0x0058, firstShard.Position.Y.Whole,
             "first shard stores its signed Y offset");
-        AssertEqual(0xfe80, firstShard.XVelocity,
+        AssertEqual(0xfe80, firstShard.Velocity.X.RawValue,
             "first shard retains negative 8.8 X velocity");
-        AssertEqual(0x0140, firstShard.YVelocity,
+        AssertEqual(0x0140, firstShard.Velocity.Y.RawValue,
             "first shard retains positive 8.8 Y velocity");
 
         RoomEnemyProjectileSlot lastShard = enemies.EnemyProjectiles.Single(projectile =>
@@ -291,25 +291,25 @@ internal static partial class Program
             projectile.InstructionPointer == 0xd5bd);
         AssertEqual(0x0078, lastShard.Variable1,
             "last shard uses final signed X offset");
-        AssertEqual(0x0060, lastShard.YPosition,
+        AssertEqual(0x0060, lastShard.Position.Y.Whole,
             "last shard uses final signed Y offset");
-        AssertEqual(0xffc0, lastShard.XVelocity,
+        AssertEqual(0xffc0, lastShard.Velocity.X.RawValue,
             "last shard uses final signed X velocity");
-        AssertEqual(0x0180, lastShard.YVelocity,
+        AssertEqual(0x0180, lastShard.Velocity.Y.RawValue,
             "last shard uses final signed Y velocity");
 
         RoomEnemyProjectileSlot firstBubble = enemies.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
             projectile.Variable1 == 0x0048);
-        AssertEqual(0x0070, firstBubble.YPosition,
+        AssertEqual(0x0070, firstBubble.Position.Y.Whole,
             "first bubble uses its first absolute PLM-origin offset");
         AssertEqual(NoobTubeProjectileRomData.BubbleInitialYVelocity,
-            firstBubble.YVelocity, "first bubble starts with cartridge upward velocity");
+            firstBubble.Velocity.Y.RawValue, "first bubble starts with cartridge upward velocity");
 
         RoomEnemyProjectileSlot lastBubble = enemies.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
             projectile.Variable1 == 0x00d8);
-        AssertEqual(0x0074, lastBubble.YPosition,
+        AssertEqual(0x0074, lastBubble.Position.Y.Whole,
             "last bubble uses its final absolute PLM-origin offset");
 
         AssertTrue(requests.All(request => request.PlmBlockIndex == blockIndex),

@@ -23,7 +23,7 @@ internal static partial class Program
             {
                 author.Oam.Frames[selected] = [new() { OffsetX = 0, OffsetY = 0, Parts = [original with { OffsetY = offset }] }];
                 var fixture = new BossDisplayFixture(definition, author.Build());
-                fixture.SetFrame(frame.Pointer, false); fixture.Actor.YPosition = originY;
+                fixture.SetFrame(frame.Pointer, false); fixture.Actor.Position = fixture.Actor.Position.WithWholeY(originY);
                 var result = fixture.Draw();
                 AssertEqual(4, result.NextByteOffset, "BG2-only replacement emits exactly its authored sprite");
                 AssertEqual(expectedY, result.LowTable[1], "new BG2-only OAM obeys complementary native carry/sign wrap tests");
@@ -32,7 +32,7 @@ internal static partial class Program
             foreach ((ushort x, ushort y) in new[] { ((ushort)512, (ushort)128), ((ushort)128, (ushort)512) })
             {
                 var fixture = new BossDisplayFixture(definition, author.Build());
-                fixture.SetFrame(frame.Pointer, false); fixture.Actor.XPosition = x; fixture.Actor.YPosition = y;
+                fixture.SetFrame(frame.Pointer, false); fixture.Actor.Position = fixture.Actor.Position.WithWhole(new(x, y));
                 AssertEqual(0, fixture.Draw().NextByteOffset, "off-window extended components are not emitted");
                 checks++;
             }

@@ -63,12 +63,12 @@ public sealed partial class RoomEnemySystem
     private static bool TryWalkMotherBrainBackwardsForHandBeam(
         MotherBrainEnemyState state)
     {
-        ushort targetMinusBody = unchecked((ushort)(0x0028 - state.Body.XPosition));
+        ushort targetMinusBody = unchecked((ushort)(0x0028 - state.Body.Position.X.Whole));
         if ((targetMinusBody & 0x8000) == 0)
             return true;
         if (state.Pose != MotherBrainBodyPose.Standing)
             return false;
-        if (unchecked((short)(state.Body.XPosition - 0x0030)) < 0)
+        if (unchecked((short)(state.Body.Position.X.Whole - 0x0030)) < 0)
             return true;
 
         SetMotherBrainInstructionList(
@@ -95,23 +95,20 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0x0040);
         beam.Variable0 = 0;
         beam.Variable1 = 0;
-        beam.XVelocity = 0;
-        beam.YVelocity = 0;
-        beam.XSubposition = 0;
-        beam.YSubposition = 0;
+        beam.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
         beam.GraphicsIndex = 0x0400;
-        beam.XPosition = unchecked((ushort)(state.Body.XPosition + 0x0040));
-        beam.YPosition = unchecked((ushort)(state.Body.YPosition - 0x0030));
+        beam.Position = beam.Position.WithWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + 0x0040)), unchecked((ushort)(state.Body.Position.Y.Whole - 0x0030))));
 
-        state.HandBeamNextXPosition = beam.XPosition;
+        state.HandBeamNextXPosition = beam.Position.X.Whole;
         state.HandBeamNextXSubposition = 0;
-        state.HandBeamNextYPosition = beam.YPosition;
+        state.HandBeamNextYPosition = beam.Position.Y.Whole;
         state.HandBeamNextYSubposition = 0;
 
-        short deltaX = unchecked((short)(samus.Position.X.Whole - beam.XPosition));
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - beam.YPosition));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - beam.Position.X.Whole));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - beam.Position.Y.Whole));
         byte angle = unchecked((byte)(
-            0x80 - CalculateCartridgeAngle(deltaX, deltaY)));
+            0x80 - CalculateCartridgeAngle(new(deltaX, deltaY))));
         state.HandBeamNextAngle = angle;
         state.HandBeamNextXVelocity = MultiplyCartridgeSinCos(0x0c00, angle);
         state.HandBeamNextYVelocity = MultiplyCartridgeSinCos(
@@ -140,52 +137,33 @@ public sealed partial class RoomEnemySystem
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamFired,
             graphicsIndex: 0);
-        beam.XPosition = state.HandBeamNextXPosition;
-        beam.XSubposition = state.HandBeamNextXSubposition;
-        beam.YPosition = state.HandBeamNextYPosition;
-        beam.YSubposition = state.HandBeamNextYSubposition;
-        beam.XVelocity = state.HandBeamNextXVelocity;
-        beam.YVelocity = state.HandBeamNextYVelocity;
+        beam.Position = new(new(state.HandBeamNextXPosition, state.HandBeamNextXSubposition), new(state.HandBeamNextYPosition, state.HandBeamNextYSubposition));
+        beam.Velocity = new(new SnesSignedEightEight(state.HandBeamNextXVelocity), new SnesSignedEightEight(state.HandBeamNextYVelocity));
 
-        (beam.XPosition, beam.XSubposition) = AddEightBitVelocity(
-            beam.XPosition,
-            beam.XSubposition,
-            beam.XVelocity);
-        (beam.YPosition, beam.YSubposition) = AddEightBitVelocity(
-            beam.YPosition,
-            beam.YSubposition,
-            beam.YVelocity);
-        state.HandBeamNextXPosition = beam.XPosition;
-        state.HandBeamNextXSubposition = beam.XSubposition;
-        state.HandBeamNextYPosition = beam.YPosition;
-        state.HandBeamNextYSubposition = beam.YSubposition;
+        beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
+        state.HandBeamNextXPosition = beam.Position.X.Whole;
+        state.HandBeamNextXSubposition = beam.Position.X.Fraction;
+        state.HandBeamNextYPosition = beam.Position.Y.Whole;
+        state.HandBeamNextYSubposition = beam.Position.Y.Fraction;
 
         ushort angleRandom = _nextRandom!();
         byte scatterAngle = unchecked((byte)(
             state.HandBeamNextAngle + unchecked((byte)angleRandom)));
         ushort speedRandom = _nextRandom!();
         ushort scatterSpeed = unchecked((ushort)(speedRandom & 0x0700));
-        beam.XVelocity = MultiplyCartridgeSinCos(scatterSpeed, scatterAngle);
-        beam.YVelocity = MultiplyCartridgeSinCos(
+        beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(MultiplyCartridgeSinCos(scatterSpeed, scatterAngle)));
+        beam.Velocity = beam.Velocity.WithY(new SnesSignedEightEight(MultiplyCartridgeSinCos(
             scatterSpeed,
-            unchecked((byte)(scatterAngle + 0x40)));
-        (beam.XPosition, beam.XSubposition) = AddEightBitVelocity(
-            beam.XPosition,
-            beam.XSubposition,
-            beam.XVelocity);
-        (beam.YPosition, beam.YSubposition) = AddEightBitVelocity(
-            beam.YPosition,
-            beam.YSubposition,
-            beam.YVelocity);
+            unchecked((byte)(scatterAngle + 0x40)))));
+        beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
 
         if (IsMotherBrainHandBeamOutsideArena(beam))
         {
-            ushort impactX = beam.XPosition;
-            ushort impactY = beam.YPosition;
+            ushort impactX = beam.Position.X.Whole;
+            ushort impactY = beam.Position.Y.Whole;
             beam.Clear();
             SpawnRoomGraphicsDustExplosion(
-                impactX,
-                impactY,
+                new(impactX, impactY),
                 animationIndex: 0x001d);
             state.LastSoundEffectLibrary3 = 0x0013;
             EarthquakeTimer = 0x000a;
@@ -195,16 +173,15 @@ public sealed partial class RoomEnemySystem
 
         beam.Variable0 = unchecked((ushort)((parentParameter + 1) & 3));
         beam.Variable1 = 0;
-        beam.XVelocity = 0;
-        beam.YVelocity = 0;
+        beam.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         beam.InstructionPointer = MotherBrainHandBeamInstructionProgramDefinitions.Initial;
         beam.InstructionTimer = 1;
     }
 
     private static bool IsMotherBrainHandBeamOutsideArena(
         RoomEnemyProjectileSlot beam) =>
-        unchecked((short)(beam.YPosition - 0x0022)) < 0 ||
-        unchecked((short)(beam.YPosition - 0x00ce)) >= 0 ||
-        unchecked((short)(beam.XPosition - 0x0002)) < 0 ||
-        unchecked((short)(beam.XPosition - 0x00ee)) >= 0;
+        unchecked((short)(beam.Position.Y.Whole - 0x0022)) < 0 ||
+        unchecked((short)(beam.Position.Y.Whole - 0x00ce)) >= 0 ||
+        unchecked((short)(beam.Position.X.Whole - 0x0002)) < 0 ||
+        unchecked((short)(beam.Position.X.Whole - 0x00ee)) >= 0;
 }

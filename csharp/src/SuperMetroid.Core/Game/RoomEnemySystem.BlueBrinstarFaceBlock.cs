@@ -115,14 +115,14 @@ public sealed partial class RoomEnemySystem
         if (state.Activated)
             return;
 
-        ushort verticalDelta = unchecked((ushort)(samus!.Position.Y.Whole - slot.YPosition));
+        ushort verticalDelta = unchecked((ushort)(samus!.Position.Y.Whole - slot.Position.Y.Whole));
         if (AbsoluteFaceBlockDelta(verticalDelta) >= slot.Parameter1)
             return;
 
         // Variable B is written after the Y test but before the X test, including on frames
         // that fail horizontal range or side. That write order is visible to debuggers and
         // is preserved rather than collapsing the two comparisons into host geometry.
-        ushort horizontalDelta = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
+        ushort horizontalDelta = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         state.LastHorizontalDelta = horizontalDelta;
         if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.Parameter1)
             return;

@@ -119,8 +119,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        state.BalloonSpawnX = slot.XPosition;
-        state.BalloonSpawnY = slot.YPosition;
+        state.BalloonSpawnX = slot.Position.X.Whole;
+        state.BalloonSpawnY = slot.Position.Y.Whole;
         state.Function = PowampEnemyFunction.BalloonNoOp;
         SetPowampInstruction(slot, PowampInstructionProgramDefinitions.BalloonDeflated);
         state.BalloonGrappleTravelDistance = slot.Parameter2;
@@ -238,7 +238,7 @@ public sealed partial class RoomEnemySystem
 
         // CMP target,body followed by BMI means "continue while body is still below the
         // target". A room collision completes the rise regardless of its Y coordinate.
-        bool reachedTarget = !IsNegative16(targetY - body.YPosition);
+        bool reachedTarget = !IsNegative16(targetY - body.Position.Y.Whole);
         if (collided || reachedTarget)
         {
             if (IsPowampCentered(state.WiggleIndex))
@@ -322,9 +322,9 @@ public sealed partial class RoomEnemySystem
     {
         MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
         ushort spawnY = RequirePowampState(balloon).BalloonSpawnY;
-        if (!IsNegative16(body.YPosition - spawnY))
+        if (!IsNegative16(body.Position.Y.Whole - spawnY))
         {
-            body.YPosition = spawnY;
+            body.Position = body.Position.WithWholeY(spawnY);
             state.Function = PowampEnemyFunction.DeflatedResting;
             state.FunctionTimer = PowampRestFrames;
             SetPowampInstruction(body, PowampInstructionProgramDefinitions.BodySlow);
@@ -456,8 +456,8 @@ public sealed partial class RoomEnemySystem
 
         ushort x = unchecked((ushort)(
             RequirePowampState(balloon).BalloonSpawnX + PowampMotionDefinitions.WiggleOffset(state.WiggleIndex)));
-        balloon.XPosition = x;
-        body.XPosition = x;
+        balloon.Position = balloon.Position.WithWholeX(x);
+        body.Position = body.Position.WithWholeX(x);
         if (stopWhenCentered && IsPowampCentered(state.WiggleIndex))
             return true;
 
@@ -488,7 +488,7 @@ public sealed partial class RoomEnemySystem
         ushort byteOffset = unchecked((ushort)(cursor - 4 - basePointer));
         byteOffset >>= 1;
         int index = byteOffset < 6 ? byteOffset / 2 : 0;
-        balloon.YPosition = unchecked((ushort)(body.YPosition + PowampMotionDefinitions.BalloonOffset(index, sinking)));
+        balloon.Position = balloon.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + PowampMotionDefinitions.BalloonOffset(index, sinking))));
     }
 
     private static void StartPowampDeflating(PowampEnemyState state, RoomEnemySlot balloon)

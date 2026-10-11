@@ -123,11 +123,11 @@ public sealed partial class RoomEnemySystem
             displacement);
         if (!reverse && unchecked((short)state.XVelocity) < 0)
         {
-            reverse = unchecked((short)(slot.XPosition - state.MinimumXPosition)) < 0;
+            reverse = unchecked((short)(slot.Position.X.Whole - state.MinimumXPosition)) < 0;
         }
         if (!reverse && unchecked((short)state.XVelocity) >= 0)
         {
-            reverse = unchecked((short)(slot.XPosition - state.MaximumXPosition)) >= 0;
+            reverse = unchecked((short)(slot.Position.X.Whole - state.MaximumXPosition)) >= 0;
         }
         if (reverse)
         {

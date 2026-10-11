@@ -946,19 +946,20 @@ internal static partial class Program
                 "ProcessEnemyProjectileInstructions", flags)!;
             var enemy = new RoomEnemySlot(0)
             {
-                XPosition = 128, YPosition = 96,
-                VramTilesIndex = 0x0200, PaletteIndex = 0x0c00,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+                VramTilesIndex = 0x0200,
+                PaletteIndex = 0x0c00,
             };
             spawn(enemy);
             foreach (RoomEnemyProjectileSlot particle in enemies.EnemyProjectiles
                          .Where(particle => particle.IsActive))
             {
                 particle.InstructionTimer = 1;
-                process.Invoke(enemies, [particle, new SamusState(), (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [particle, new SamusState(), Position16<RoomPixels>.Zero]);
             }
             var oam = new OamBuffer();
             oam.BeginFrame();
-            enemies.DrawEnemyProjectiles(oam, cameraX: 0, cameraY: 0);
+            enemies.DrawEnemyProjectiles(oam, new(0, 0));
             return oam;
         }
 
@@ -975,17 +976,16 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
             RoomEnemyProjectileSlot slot = enemies.EnemyProjectiles[0];
             slot.Kind = kind;
-            slot.XPosition = 128;
-            slot.YPosition = 96;
+            slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.GraphicsIndex = 0x0a04;
             slot.InstructionPointer = unchecked((ushort)(operand - 2));
             slot.InstructionTimer = 1;
             typeof(RoomEnemySystem).GetMethod(
                 "ProcessEnemyProjectileInstructions", flags)!
-                .Invoke(enemies, [slot, new SamusState(), (ushort)0, (ushort)0]);
+                .Invoke(enemies, [slot, new SamusState(), Position16<RoomPixels>.Zero]);
             var oam = new OamBuffer();
             oam.BeginFrame();
-            enemies.DrawEnemyProjectiles(oam, 0, 0);
+            enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
         }
 
@@ -997,18 +997,18 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
             RoomEnemyProjectileSlot slot = enemies.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
-            slot.XPosition = slot.Variable1 = 128;
-            slot.YPosition = 96;
+            slot.Variable1 = 128;
+            slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.GraphicsIndex = 0x0a04;
             slot.InstructionPointer = unchecked((ushort)(
                 NoobTubeProjectileInstructionProgramDefinitions.ShardInstructionLists[0] + 4));
             slot.InstructionTimer = 1;
             typeof(RoomEnemySystem).GetMethod(
                 "ProcessEnemyProjectileInstructions", flags)!
-                .Invoke(enemies, [slot, new SamusState(), (ushort)0, (ushort)0]);
+                .Invoke(enemies, [slot, new SamusState(), Position16<RoomPixels>.Zero]);
             var oam = new OamBuffer();
             oam.BeginFrame();
-            enemies.DrawEnemyProjectiles(oam, 0, 0);
+            enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
         }
     }

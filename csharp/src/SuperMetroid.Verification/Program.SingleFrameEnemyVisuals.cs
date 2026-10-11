@@ -53,8 +53,7 @@ internal static partial class Program
                 definition.Name + " inherits installed stock");
             AssertEqual(count, parts.Length, definition.Name + " native sprite count");
             var actual = new OamBuffer();
-            draw.Invoke(enemies, [actual, definition.Bank, definition.Pointer,
-                (ushort)128, (ushort)112, (ushort)0x0c00, (ushort)0x20, false, true]);
+            draw.Invoke(enemies, [actual, definition.Bank, definition.Pointer, new Position16<OamPixels>((ushort)128, (ushort)112), (ushort)0x0c00, (ushort)0x20, false, true]);
             var expected = new OamBuffer();
             ImportedSpritemapOracle.DrawEnemy(rom, expected, definition.Bank, definition.Pointer,
                 128, 112, 0x0c00, 0x20);

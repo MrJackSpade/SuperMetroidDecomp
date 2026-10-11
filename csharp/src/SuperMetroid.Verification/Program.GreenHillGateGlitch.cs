@@ -73,7 +73,7 @@ internal static partial class Program
         RoomEnemyProjectileSlot gateActor = runtime.Enemies.EnemyProjectiles.Single(projectile =>
             projectile.IsActive &&
             projectile.Kind == RoomEnemyProjectileKind.DownwardGateClosed);
-        ushort closedGateY = gateActor.YPosition;
+        ushort closedGateY = gateActor.Position.Y.Whole;
 
         runtime.InitializeDebugGroundedSamus(
             checked((ushort)startX),
@@ -132,7 +132,7 @@ internal static partial class Program
                 projectile.IsActive &&
                 projectile.Kind is RoomEnemyProjectileKind.DownwardGateClosed or
                     RoomEnemyProjectileKind.DownwardGateMoving);
-            AssertTrue(gateActor.YPosition < closedGateY,
+            AssertTrue(gateActor.Position.Y.Whole < closedGateY,
                 "successful Grapple trigger moves the visible gate actor upward");
         }
 

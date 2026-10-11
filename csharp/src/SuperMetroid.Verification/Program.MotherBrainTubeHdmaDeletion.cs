@@ -33,7 +33,7 @@ internal static partial class Program
         RoomEnemySlot tube = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes);
         tube.VariableA = (ushort)MotherBrainTubeFunction.MainTube_Falling;
         tube.VariableC = 0;
-        tube.YPosition = 0x00fc; // the head follows at Y-$38 = $C4, the landing height
+        tube.Position = tube.Position.WithWholeY(0x00fc); // the head follows at Y-$38 = $C4, the landing height
         typeof(RoomEnemySystem).GetMethod("RunMotherBrainFallingTubeMain", flags)!.Invoke(runtime.Enemies, [tube]);
         AssertTrue(runtime.Enemies.MotherBrainDeletedHdmaObjects, "the main tube's landing deletes HDMA objects 0-3");
 

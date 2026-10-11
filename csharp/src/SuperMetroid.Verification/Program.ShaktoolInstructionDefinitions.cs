@@ -53,7 +53,7 @@ internal static partial class Program
                 "ReverseShaktoolAfterCollision", flags)!
             .CreateDelegate<Action<RoomEnemySlot, ShaktoolSegmentState, ushort, ushort>>(
                 enemies);
-        reverse(tail, tailState, tail.XPosition, tail.YPosition);
+        reverse(tail, tailState, tail.Position.X.Whole, tail.Position.Y.Whole);
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(ShaktoolInstructionDefinitions.CollisionForSegment(index),
@@ -128,7 +128,7 @@ internal static partial class Program
                 "ReverseShaktoolAfterCollision", flags)!
             .CreateDelegate<Action<RoomEnemySlot, ShaktoolSegmentState, ushort, ushort>>(
                 enemies);
-        reverse(tail, tailState, tail.XPosition, tail.YPosition);
+        reverse(tail, tailState, tail.Position.X.Whole, tail.Position.Y.Whole);
         for (int index = 0; index < 7; index++)
             RunForcedShaktoolInstructions(process, enemies, enemies.Slots[index], 8);
 
@@ -173,13 +173,13 @@ internal static partial class Program
     {
         bool moved = false;
         object?[] arguments =
-            [segment, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [segment, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int step = 0; step < steps; step++)
         {
-            (ushort X, ushort Y) before = (segment.XPosition, segment.YPosition);
+            (ushort X, ushort Y) before = (segment.Position.X.Whole, segment.Position.Y.Whole);
             segment.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
-            moved |= segment.XPosition != before.X || segment.YPosition != before.Y;
+            moved |= segment.Position.X.Whole != before.X || segment.Position.Y.Whole != before.Y;
         }
         return moved;
     }
@@ -215,8 +215,7 @@ internal static partial class Program
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xaa };
             slot.Parameter2 = unchecked((ushort)(index * 2));
-            slot.XPosition = unchecked((ushort)(0x0100 + index * 16));
-            slot.YPosition = 0x0200;
+            slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(slot);
         }
         return enemies;

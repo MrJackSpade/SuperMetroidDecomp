@@ -56,8 +56,7 @@ internal static partial class Program
                  })
         {
             installedFoot.SpritemapPointer = frame;
-            installedFoot.XPosition = originX;
-            installedFoot.YPosition = originY;
+            installedFoot.Position = installedFoot.Position.WithWhole(new(originX, originY));
             KraidFootCollisionDefinitions.TryGetComponents(frame, out var components);
             foreach (KraidFootCollisionComponent component in components)
             {
@@ -68,7 +67,7 @@ internal static partial class Program
                 for (int shot = 0; shot <= 1; shot++)
                 {
                     object?[] installedArguments =
-                        [installedFoot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
+                        [installedFoot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot != 0, (ushort)0];
                     bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
                     bool installedHit = (bool)walker.Invoke(installed, installedArguments)!;
                     AssertEqual(nativeHit, installedHit,

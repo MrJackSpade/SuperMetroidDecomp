@@ -42,8 +42,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         var source = new RoomEnemySlot(0)
         {
-            XPosition = 128,
-            YPosition = 96,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             VramTilesIndex = 0x0200,
             PaletteIndex = 0x0c00,
         };
@@ -67,7 +66,7 @@ internal static partial class Program
             "Skree burst selects the named Skree particle program");
         // SpawnEprojInner copies the definition's $0004 properties: four damage, contact enabled.
         AssertTrue(skree.All(projectile => projectile.CanDamageSamus && projectile.Damage == 4 &&
-                projectile.InvincibilityFrames == 96 && projectile.XRadius == 2 && projectile.YRadius == 2),
+                projectile.InvincibilityFrames == 96 && projectile.Radius.X == 2 && projectile.Radius.Y == 2),
             "Skree particles damage Samus with the definition's four-point contact");
         RunCompleteLoops(
             skree,
@@ -90,7 +89,7 @@ internal static partial class Program
             "Metaree burst selects the named Metaree particle program");
         // SpawnEprojInner copies the definition's $0004 properties: four damage, contact enabled.
         AssertTrue(metaree.All(projectile => projectile.CanDamageSamus && projectile.Damage == 4 &&
-                projectile.InvincibilityFrames == 96 && projectile.XRadius == 2 && projectile.YRadius == 2),
+                projectile.InvincibilityFrames == 96 && projectile.Radius.X == 2 && projectile.Radius.Y == 2),
             "Metaree particles damage Samus with the definition's four-point contact");
         RunCompleteLoops(
             metaree,
@@ -167,7 +166,7 @@ internal static partial class Program
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [projectile, samus, Position16<RoomPixels>.Zero]);
         }
     }
 

@@ -106,10 +106,8 @@ internal static partial class Program
                 .GetMethod("RunYardCrawlingMovement", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, YardEnemyState, RoomLevelData>>(enemies);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.XPosition = 0x0200;
-            slot.YPosition = 0x0200;
-            slot.XRadius = 8;
-            slot.YRadius = 8;
+            slot.Position = slot.Position.WithWhole(new(0x0200, 0x0200));
+            slot.Radius = new(8, 8);
             slot.CurrentInstruction = 0xffff;
             var state = new YardEnemyState(slot)
             {

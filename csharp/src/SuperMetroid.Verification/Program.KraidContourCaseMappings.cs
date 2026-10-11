@@ -29,13 +29,12 @@ internal static partial class Program
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.Slots[0];
         var shot = new SamusProjectileSystem().Slots[0];
-        body.XPosition = 256;
-        body.YPosition = 32768;
+        body.Position = body.Position.WithWhole(new(256, 32768));
         shot.Radius = shot.Radius.WithX(0);
         foreach (short y in new short[] { -32768, -31746, -31745 })
         {
-            shot.Position = shot.Position.WithWholeY(unchecked((ushort)(body.YPosition + y)));
-            int edge = body.XPosition + NativeKraidBodyLeftEdge(rom, y);
+            shot.Position = shot.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + y)));
+            int edge = body.Position.X.Whole + NativeKraidBodyLeftEdge(rom, y);
             for (int delta = -1; delta <= 1; delta++)
             {
                 shot.Position = shot.Position.WithWholeX((ushort)(edge + delta));

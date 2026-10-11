@@ -87,14 +87,14 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot head = state.Head ?? throw new InvalidOperationException(
             "Mother Brain's rainbow beam requires the physical head slot.");
         sequence.SynchronizeLiveActor(
-            state.Body.XPosition,
-            state.Body.YPosition,
+            state.Body.Position.X.Whole,
+            state.Body.Position.Y.Whole,
             state.Pose,
             state.Form,
             state.Body.Properties,
             state.Body.ExtraProperties,
-            head.XPosition,
-            head.YPosition,
+            head.Position.X.Whole,
+            head.Position.Y.Whole,
             head.Health,
             head.Properties,
             head.ExtraProperties,
@@ -281,10 +281,8 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging,
             graphicsIndex: 0);
-        projectile.XVelocity = 0;
-        projectile.YVelocity = 0;
-        projectile.XSubposition = 0;
-        projectile.YSubposition = 0;
+        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         projectile.GraphicsIndex = 0;
         RunMotherBrainRainbowChargingPreInstruction(projectile);
     }
@@ -294,8 +292,7 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot head = MotherBrain?.Head ?? throw new InvalidOperationException(
             "Mother Brain rainbow charge ran without the physical head slot.");
-        projectile.XPosition = head.XPosition;
-        projectile.YPosition = head.YPosition;
+        projectile.Position = projectile.Position.WithWhole(head.Position.Whole);
     }
 
     /// <summary>Ports `$86:C92F-$C960`; the signed offsets remain in velocity words.</summary>
@@ -312,11 +309,9 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion,
             graphicsIndex: 0);
-        projectile.XVelocity = unchecked((ushort)request.XOffset);
-        projectile.YVelocity = unchecked((ushort)request.YOffset);
+        projectile.Velocity = new(new SnesSignedEightEight(unchecked((ushort)request.XOffset)), new SnesSignedEightEight(unchecked((ushort)request.YOffset)));
         projectile.GraphicsIndex = 0;
-        projectile.XPosition = unchecked((ushort)(samusXBeforeMovement + request.XOffset));
-        projectile.YPosition = unchecked((ushort)(samusYBeforeMovement + request.YOffset));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(samusXBeforeMovement + request.XOffset)), unchecked((ushort)(samusYBeforeMovement + request.YOffset))));
     }
 
     private static void RunMotherBrainRainbowExplosionPreInstruction(
@@ -325,8 +320,7 @@ public sealed partial class RoomEnemySystem
     {
         SamusState target = samus ?? throw new InvalidOperationException(
             "Mother Brain rainbow explosion requires the live Samus actor.");
-        projectile.XPosition = unchecked((ushort)(target.Position.X.Whole + projectile.XVelocity));
-        projectile.YPosition = unchecked((ushort)(target.Position.Y.Whole + projectile.YVelocity));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(target.Position.X.Whole + projectile.Velocity.X.RawValue)), unchecked((ushort)(target.Position.Y.Whole + projectile.Velocity.Y.RawValue))));
     }
 
     private void ApplyMotherBrainRainbowTileTransfer(

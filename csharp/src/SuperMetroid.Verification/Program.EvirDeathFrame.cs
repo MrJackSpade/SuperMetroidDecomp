@@ -22,9 +22,8 @@ internal static partial class Program
             slot.EnemyDefinitionPointer = index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir;
             slot.Definition = RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer);
             slot.AiBank = slot.Definition.Bank;
-            slot.XPosition = slot.YPosition = 128;
-            slot.XRadius = slot.Definition.XRadius;
-            slot.YRadius = slot.Definition.YRadius;
+            slot.Position = slot.Position.WithWhole(new(128, 128));
+            slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Health = slot.Definition.Health;
             slot.SpritemapPointer = 0x8b59;
             slot.Properties = index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision;
@@ -38,20 +37,20 @@ internal static partial class Program
         // Contact kills the body after the real scheduler has selected all three slots.
         // Arms and spit are marked deleted by the native contact tail but still receive
         // their already-scheduled calls before next frame's population pass removes them.
-        enemies.StepFrame(0, 0, false, samus, level: fixture.Level,
+        enemies.StepFrame(new(0, 0), false, samus, level: fixture.Level,
             resolveSamusContactBeforeAi: true);
         AssertEqual(EnemyDefinitionId.None, body.EnemyDefinitionPointer, "Screw Attack clears Evir body during contact");
         AssertEqual((ushort)1, enemies.EnemiesKilled, "only body counts as a killed enemy");
         AssertTrue(arms.Properties.HasAny(EnemyProperties.Deleted) && projectile.Properties.HasAny(EnemyProperties.Deleted),
             "Evir contact tail marks both following physical slots deleted");
         AssertEqual((ushort)1, arms.FrameCounter, "already-selected arms still receive their native final AI call");
-        AssertEqual((ushort)0xfffc, arms.XPosition, "arms read cleared body X and facing rather than stale pre-death values");
-        AssertEqual((ushort)10, arms.YPosition, "arms use cleared body Y plus native offset");
-        AssertEqual((ushort)0xfffc, projectile.XPosition, "idle spit retains the physical cleared-body alias");
-        AssertEqual((ushort)18, projectile.YPosition, "idle spit uses cleared body Y plus native offset");
+        AssertEqual((ushort)0xfffc, arms.Position.X.Whole, "arms read cleared body X and facing rather than stale pre-death values");
+        AssertEqual((ushort)10, arms.Position.Y.Whole, "arms use cleared body Y plus native offset");
+        AssertEqual((ushort)0xfffc, projectile.Position.X.Whole, "idle spit retains the physical cleared-body alias");
+        AssertEqual((ushort)18, projectile.Position.Y.Whole, "idle spit uses cleared body Y plus native offset");
         AssertTrue(enemies.EnemyProjectiles.Any(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion),
             "normal death explosion remains alive");
-        enemies.StepFrame(0, 0, false, samus, level: fixture.Level);
+        enemies.StepFrame(new(0, 0), false, samus, level: fixture.Level);
         AssertEqual(EnemyDefinitionId.None, arms.EnemyDefinitionPointer, "next frame removes deleted arms");
         AssertEqual(EnemyDefinitionId.None, projectile.EnemyDefinitionPointer, "next frame removes deleted spit");
         AssertEqual(0, enemies.ActiveEnemyIndexes.Count, "no orphan Evir remains active");

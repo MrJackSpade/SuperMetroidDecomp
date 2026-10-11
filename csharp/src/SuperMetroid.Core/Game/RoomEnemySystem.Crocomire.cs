@@ -178,10 +178,8 @@ public sealed partial class RoomEnemySystem
             InstallCrocomireInstructionList(
                 slot,
                 CrocomireInstructionProgramDefinitions.Dead);
-            slot.XPosition = 0x0240;
-            slot.YPosition = 0x0090;
-            slot.XRadius = 0x0028;
-            slot.YRadius = 0x001c;
+            slot.Position = slot.Position.WithWhole(new(0x0240, 0x0090));
+            slot.Radius = new(0x0028, 0x001c);
             RequireSetRoomScrollState(0, RoomScrollState.Blue);
             RequireSetRoomScrollState(1, RoomScrollState.Blue);
             RequireSetRoomScrollState(2, RoomScrollState.Blue);
@@ -280,7 +278,7 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot body = state.Body;
         HandleCrocomireBridgeApproach(body);
-        if (unchecked((short)(body.XPosition - CrocomireBridgeThreshold)) < 0)
+        if (unchecked((short)(body.Position.X.Whole - CrocomireBridgeThreshold)) < 0)
             return;
 
         CrocomireBridgeCollapseStarted = true;
@@ -292,7 +290,7 @@ public sealed partial class RoomEnemySystem
         state.ReactionTimer = 0;
         state.ProjectileCounter = 0;
         state.StepCounter = 0x0800;
-        body.YRadius = 16;
+        body.Radius = body.Radius.WithY(16);
         LastCrocomireSoundEffect = 0x003b;
         CrocomireDeathState death = RequireCrocomireDeath();
         death.BridgeFragmentCursor = 0;
@@ -319,7 +317,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null || state.DeathSequenceIndex != CrocomireDeathPhase.Fighting)
             return;
         ushort leftEdge = unchecked((ushort)(
-            body.XPosition - body.XRadius - samus.Kinematics.Radius.X));
+            body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X));
         if (unchecked((short)(leftEdge - samus.Position.X.Whole)) >= 0)
             return;
 

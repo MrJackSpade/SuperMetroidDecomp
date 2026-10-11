@@ -91,9 +91,9 @@ public sealed partial class RoomEnemySystem
             samus.Grapple.Phase = GrapplePhase.Dropped;
         }
 
-        short quarterDeltaX = unchecked((short)(0x0040 - (body.XPosition >> 2)));
-        short quarterDeltaY = unchecked((short)(0x0078 - (body.YPosition >> 2)));
-        byte cartridgeAngle = CalculateCartridgeAngle(quarterDeltaX, quarterDeltaY);
+        short quarterDeltaX = unchecked((short)(0x0040 - (body.Position.X.Whole >> 2)));
+        short quarterDeltaY = unchecked((short)(0x0078 - (body.Position.Y.Whole >> 2)));
+        byte cartridgeAngle = CalculateCartridgeAngle(new(quarterDeltaX, quarterDeltaY));
         byte movementAngle = unchecked((byte)(0x40 - cartridgeAngle));
         state.DeathMovementAngle = movementAngle;
 

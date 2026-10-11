@@ -191,8 +191,8 @@ public sealed partial class RoomEnemySystem
 
         SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Idle);
         state.Function = ChootEnemyFunction.WaitingForSamus;
-        state.SpawnXPosition = slot.XPosition;
-        state.SpawnYPosition = slot.YPosition;
+        state.SpawnXPosition = slot.Position.X.Whole;
+        state.SpawnYPosition = slot.Position.Y.Whole;
 
         // Parameter one's high byte selects one of five genuine pattern streams. The sixth
         // ROM table word points back into the pointer table and is documented garbage; no
@@ -250,7 +250,7 @@ public sealed partial class RoomEnemySystem
         // GetSignedYMinusX treats the wrapped word as signed before taking its magnitude.
         // In particular, $8000 remains $8000 after negation; ordinary Math.Abs(short) would
         // throw and a wider subtraction would disagree near the world-coordinate seam.
-        ushort distance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
+        ushort distance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if ((distance & 0x8000) != 0)
             distance = unchecked((ushort)-distance);
         if (unchecked((short)(distance - ChootActivationDistance)) >= 0)
@@ -278,10 +278,9 @@ public sealed partial class RoomEnemySystem
         // negation bug, without consulting room collision during this authored leap.
         ushort tableIndex = unchecked((ushort)(state.YSpeedTableIndex >> 8));
         int upwardDisplacement = ReadQuadraticEnemySpeed(tableIndex, negative: true);
-        uint fixedY = ((uint)slot.YPosition << 16) | slot.YSubposition;
+        uint fixedY = slot.Position.Y.RawValue;
         fixedY = unchecked(fixedY + (uint)upwardDisplacement);
-        slot.YPosition = unchecked((ushort)(fixedY >> 16));
-        slot.YSubposition = unchecked((ushort)fixedY);
+        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedY)));
 
         state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex - 0x0200));
         if (unchecked((short)state.YSpeedTableIndex) >= 0)
@@ -289,9 +288,9 @@ public sealed partial class RoomEnemySystem
 
         // The apex transition snaps only the whole positions to precalculated origins;
         // subpositions deliberately survive until the final spawn reset, just as in WRAM.
-        slot.XPosition = state.InitialFallingXPosition;
+        slot.Position = slot.Position.WithWholeX(state.InitialFallingXPosition);
         state.FallingXOrigin = state.InitialFallingXPosition;
-        slot.YPosition = state.InitialFallingYPosition;
+        slot.Position = slot.Position.WithWholeY(state.InitialFallingYPosition);
         state.FallingYOrigin = state.InitialFallingYPosition;
         state.FallingPatternIndex = 0;
         state.FallingPatternLoopCounter = unchecked((ushort)(
@@ -319,19 +318,15 @@ public sealed partial class RoomEnemySystem
             // The last terminator restores exact spawn coordinates/subpositions, reinstalls
             // idle bytecode, and rearms the same calculated ascent for the next activation.
             state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
-            slot.XPosition = state.SpawnXPosition;
-            slot.XSubposition = 0;
-            slot.YPosition = state.SpawnYPosition;
-            slot.YSubposition = 0;
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(state.SpawnXPosition, state.SpawnYPosition));
             SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Idle);
             state.Function = ChootEnemyFunction.WaitingForSamus;
             return;
         }
 
-        slot.XPosition = unchecked((ushort)(
-            state.FallingXOrigin + unchecked((short)point.XOffset)));
-        slot.YPosition = unchecked((ushort)(
-            state.FallingYOrigin + unchecked((short)point.YOffset)));
+        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(
+            state.FallingXOrigin + unchecked((short)point.XOffset))), unchecked((ushort)(
+            state.FallingYOrigin + unchecked((short)point.YOffset)))));
         state.FallingPatternIndex = unchecked((ushort)(
             state.FallingPatternIndex + 0x0100));
     }

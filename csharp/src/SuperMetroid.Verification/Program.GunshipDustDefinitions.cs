@@ -27,32 +27,32 @@ internal static partial class Program
                 // Every world X and Y, including independent positive/negative wrap,
                 // enters the actual allocator/header initializer with stale slot values.
                 samus.Position = samus.Position.WithWhole(new((ushort)origin, (ushort)(ushort.MaxValue - origin)));
-                slot.XSubposition = slot.YSubposition = 0xffff;
-                slot.XVelocity = slot.YVelocity = 0x1234;
+                slot.Position = slot.Position.WithFractionY(0xffff).WithFractionX(0xffff);
+                slot.Velocity = new(new SnesSignedEightEight(0x1234), new SnesSignedEightEight(0x1234));
                 spawn(parameter, samus);
                 AssertEqual(RoomEnemyProjectileKind.GunshipLiftoffDustCloud, slot.Kind, "Native reverse allocation chooses last free slot");
-                AssertEqual(unchecked((ushort)(samus.Position.X.Whole + dx)), slot.XPosition, "Actual dust signed X placement and wrap");
-                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word(0x86a2c5))), slot.YPosition, "Actual dust Y placement and wrap");
+                AssertEqual(unchecked((ushort)(samus.Position.X.Whole + dx)), slot.Position.X.Whole, "Actual dust signed X placement and wrap");
+                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word(0x86a2c5))), slot.Position.Y.Whole, "Actual dust Y placement and wrap");
                 AssertEqual(instruction, slot.InstructionPointer, "Actual dust program selection");
                 AssertEqual(parameter, slot.Variable0, "Dust retains native even parameter");
                 AssertEqual((ushort)1, slot.InstructionTimer, "Dust begins on first program tick");
-                AssertEqual((ushort)0, slot.XSubposition, "Dust clears stale X fraction");
-                AssertEqual((ushort)0, slot.YSubposition, "Dust clears stale Y fraction");
-                AssertEqual((ushort)0, slot.XVelocity, "Dust clears stale X velocity");
-                AssertEqual((ushort)0, slot.YVelocity, "Dust clears stale Y velocity");
+                AssertEqual((ushort)0, slot.Position.X.Fraction, "Dust clears stale X fraction");
+                AssertEqual((ushort)0, slot.Position.Y.Fraction, "Dust clears stale Y fraction");
+                AssertEqual((ushort)0, slot.Velocity.X.RawValue, "Dust clears stale X velocity");
+                AssertEqual((ushort)0, slot.Velocity.Y.RawValue, "Dust clears stale Y velocity");
             }
         }
         foreach (var occupied in enemies.EnemyProjectiles)
         {
             occupied.Kind = RoomEnemyProjectileKind.PhantoonStartingFlame;
-            occupied.XPosition = 0x1234;
+            occupied.Position = occupied.Position.WithWholeX(0x1234);
             occupied.InstructionPointer = 0x5678;
         }
         for (ushort parameter = 0; parameter <= 10; parameter += 2) spawn(parameter, samus);
         foreach (var occupied in enemies.EnemyProjectiles)
         {
             AssertEqual(RoomEnemyProjectileKind.PhantoonStartingFlame, occupied.Kind, "Full pool retains owner");
-            AssertEqual((ushort)0x1234, occupied.XPosition, "Full pool retains X");
+            AssertEqual((ushort)0x1234, occupied.Position.X.Whole, "Full pool retains X");
             AssertEqual((ushort)0x5678, occupied.InstructionPointer, "Full pool retains program");
         }
         foreach (ushort invalid in new ushort[] { 1, 3, 9, 11, 12, 0xffff })

@@ -40,8 +40,7 @@ internal static partial class Program
                 CurrentInstruction = start,
                 InstructionTimer = 1,
             };
-            object?[] args = [tube, null, null, (ushort)0, (ushort)0,
-                (ushort)0];
+            object?[] args = [tube, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             processInstructions.Invoke(enemies, args);
             AssertEqual((ushort)(start + 4), tube.CurrentInstruction,
                 $"falling tube {index} advances from frame to terminal opcode");

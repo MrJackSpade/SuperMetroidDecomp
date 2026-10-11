@@ -82,7 +82,7 @@ internal static partial class Program
         var top = runtime.Enemies.Slots.First(slot => slot.Definition.InitializationAiPointer == 0xa644);
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.Position = samus.Position.WithWhole(new(top.XPosition, (ushort)(top.YPosition - 30)));
+        samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
         samus.InitializeAnimation(bus);
         samus.PrimeGraphics(bus);
         typeof(EscapeTimer).GetProperty(nameof(EscapeTimer.RawStatus))!.SetValue(runtime.EscapeTimer, (ushort)0x8006);

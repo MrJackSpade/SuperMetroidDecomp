@@ -22,8 +22,7 @@ internal static partial class Program
             busField.SetValue(enemies, guarded);
             RoomEnemySlot enemy = enemies.Slots[0];
             enemy.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
-            enemy.XPosition = unchecked((ushort)(0xfff0 + animation));
-            enemy.YPosition = unchecked((ushort)(0x0100 + animation));
+            enemy.Position = enemy.Position.WithWhole(new(unchecked((ushort)(0xfff0 + animation)), unchecked((ushort)(0x0100 + animation))));
 
             enemies.StartGenericEnemyDeath(enemy, animation);
             RoomEnemyProjectileSlot explosion =
@@ -32,9 +31,9 @@ internal static partial class Program
                 $"production enemy death explosion kind {animation}");
             AssertEqual(expected, explosion.InstructionPointer,
                 $"production enemy death explosion instruction {animation}");
-            AssertEqual(unchecked((ushort)(0xfff0 + animation)), explosion.XPosition,
+            AssertEqual(unchecked((ushort)(0xfff0 + animation)), explosion.Position.X.Whole,
                 $"production enemy death explosion X {animation}");
-            AssertEqual(unchecked((ushort)(0x0100 + animation)), explosion.YPosition,
+            AssertEqual(unchecked((ushort)(0x0100 + animation)), explosion.Position.Y.Whole,
                 $"production enemy death explosion Y {animation}");
         }
 

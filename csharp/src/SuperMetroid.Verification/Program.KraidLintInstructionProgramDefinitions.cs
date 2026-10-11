@@ -47,7 +47,7 @@ internal static partial class Program
                     typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
                 process.Invoke(
                     enemies,
-                    [lint, null, null, (ushort)0, (ushort)0, (ushort)0]);
+                    [lint, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
                 VerifyExecutedEnemySelector(rom, lint, executedOperands);
                 AssertEqual((ushort)0x7fff, lint.InstructionTimer,
                     $"Kraid lint ${(int)definition:X4}/${program:X4} installs native duration");

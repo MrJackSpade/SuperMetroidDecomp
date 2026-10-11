@@ -21,7 +21,7 @@ public sealed partial class RoomEnemySystem
     {
         PointPhantoonEyeAtSamus(body, state.Eye!, samus);
         MovePhantoonInSwoop(body, state, samus, fatal: true);
-        if (body.XPosition is >= 96 and < 160)
+        if (body.Position.X.Whole is >= 96 and < 160)
             body.VariableF = (ushort)PhantoonAiFunction.DyingFadeInOut;
     }
 
@@ -60,12 +60,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot tentacles = state.Tentacles!;
         var (xOffset, yOffset, explosionType, delay) = PhantoonDeathExplosionDefinitions.Read(tentacles.VariableF);
         body.VariableE = delay;
-        ushort x = unchecked((ushort)(body.XPosition + xOffset));
-        ushort y = unchecked((ushort)(body.YPosition + yOffset));
+        ushort x = unchecked((ushort)(body.Position.X.Whole + xOffset));
+        ushort y = unchecked((ushort)(body.Position.Y.Whole + yOffset));
 
         int before = _enemyProjectiles.Count(projectile => projectile.IsActive);
         state.DeathExplosionRequests++;
-        SpawnRoomGraphicsDustExplosion(x, y, explosionType);
+        SpawnRoomGraphicsDustExplosion(new(x, y), explosionType);
         if (_enemyProjectiles.Count(projectile => projectile.IsActive) > before)
             state.DeathExplosionsSpawned++;
         state.LastCombatSoundEffect = explosionType == 0x001d ? (ushort)0x0024 : (ushort)0x002b;
@@ -151,8 +151,7 @@ public sealed partial class RoomEnemySystem
         body.VariableF = (ushort)PhantoonAiFunction.Dead;
         body.VariableE = 60;
         state.Eye.VariableF = 0;
-        body.XPosition = 384;
-        body.YPosition = 128;
+        body.Position = body.Position.WithWhole(new(384, 128));
 
         ushort[] clearedTilemap = new ushort[0x0200];
         Array.Fill(clearedTilemap, PhantoonBlankBg2Tile);

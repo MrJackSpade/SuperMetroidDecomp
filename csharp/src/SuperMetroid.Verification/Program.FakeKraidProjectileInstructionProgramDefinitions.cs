@@ -33,8 +33,7 @@ internal static partial class Program
 
         var source = new RoomEnemySlot(0)
         {
-            XPosition = 128,
-            YPosition = 112,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             VramTilesIndex = 0x0200,
             PaletteIndex = 0x0c00,
         };
@@ -126,7 +125,7 @@ internal static partial class Program
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
             if (projectile.IsActive && projectile.InstructionTimer != 0)
             {
                 ushort operand = (ushort)(projectile.InstructionPointer - 2);

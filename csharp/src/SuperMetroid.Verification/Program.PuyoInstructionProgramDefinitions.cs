@@ -58,7 +58,7 @@ internal static partial class Program
             "real Puyo initializer installs compiled fast grounded program");
 
         object?[] processArguments =
-            [puyo, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [puyo, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         foreach (ushort program in PuyoGroundedInstructionPrograms)
         {
             puyo.CurrentInstruction = program;

@@ -33,14 +33,14 @@ internal static partial class Program
         RoomEnemySlot slot = enemies.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.KzanTop;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
-        slot.YPosition = 0x0080;
+        slot.Position = slot.Position.WithWholeY(0x0080);
         initialize(slot);
         AssertEqual(KzanInstructionProgramDefinitions.Idle, slot.CurrentInstruction,
             "Kzan initializer installs compiled program identity");
 
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         process.Invoke(enemies, arguments);
         AssertEqual(ReadKzanInstructionWord(rom, 0xa60000 |
                 KzanInstructionProgramDefinitionsTooling.PresentationWord), slot.SpritemapPointer,

@@ -68,15 +68,15 @@ internal static partial class Program
             "particle counted branch immediately begins its next display cycle");
 
         Run(tail, 1);
-        ushort tailY = tail.YPosition;
+        ushort tailY = tail.Position.Y.Whole;
         Run(tail, 1);
-        AssertEqual(unchecked((ushort)(tailY + 8)), tail.YPosition,
+        AssertEqual(unchecked((ushort)(tailY + 8)), tail.Position.Y.Whole,
             "particle tail applies its first compiled Y displacement");
         Run(tail, 1);
-        AssertEqual(unchecked((ushort)(tailY + 12)), tail.YPosition,
+        AssertEqual(unchecked((ushort)(tailY + 12)), tail.Position.Y.Whole,
             "particle tail applies its second compiled Y displacement");
         Run(tail, 1);
-        AssertEqual(unchecked((ushort)(tailY + 14)), tail.YPosition,
+        AssertEqual(unchecked((ushort)(tailY + 14)), tail.Position.Y.Whole,
             "particle tail applies its third compiled Y displacement");
         Run(tail, 1);
         AssertTrue(!tail.IsActive, "particle tail deletes after four authored poses");
@@ -170,7 +170,7 @@ internal static partial class Program
             for (int frame = 0; frame < frames; frame++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }

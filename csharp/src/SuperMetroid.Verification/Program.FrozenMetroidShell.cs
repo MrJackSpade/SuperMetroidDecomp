@@ -14,11 +14,10 @@ internal static partial class Program
         var installation = RepositoryInstallation.Installation;
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         var slot = enemies.Slots[0];
-        slot.XPosition = 120;
-        slot.YPosition = 100;
+        slot.Position = slot.Position.WithWhole(new(120, 100));
         typeof(RoomEnemySystem).GetMethod("InitializeMetroid", instance)!.Invoke(enemies, [slot]);
         var state = enemies.MetroidStates[0]!;
-        state.OuterBodyA.XPosition = 500; // Isolate the shell from the electrical overlay.
+        state.OuterBodyA.Position = state.OuterBodyA.Position.WithWholeX(500); // Isolate the shell from the electrical overlay.
         var shell = state.OuterBodyB;
         shell.InstructionPointer = 0xc4ba; // Native alternating empty shell record.
         typeof(RoomEnemySystem).GetMethod("LoadRoomSpriteObjectFrame",
@@ -28,7 +27,7 @@ internal static partial class Program
         var step = typeof(RoomEnemySystem).GetMethod("StepRoomSpriteObjects", instance)!;
         var actual = new OamBuffer();
         actual.BeginFrame();
-        draw.Invoke(enemies, [actual, (ushort)0, (ushort)0]);
+        draw.Invoke(enemies, [actual, Position16<RoomPixels>.Zero]);
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
             "The reproduction must begin on the native empty shell frame.");
         ushort retainedTimer = shell.InstructionTimer;
@@ -48,7 +47,7 @@ internal static partial class Program
             Require(shell.InstructionTimer == retainedTimer && shell.DisableFlags == 1,
                 "Freezing must preserve the native animation timer while disabling advancement.");
             actual.BeginFrame();
-            draw.Invoke(enemies, [actual, (ushort)0, (ushort)0]);
+            draw.Invoke(enemies, [actual, Position16<RoomPixels>.Zero]);
             Require(actual.NextByteOffset == expected.NextByteOffset &&
                 actual.LowTable.SequenceEqual(expected.LowTable) &&
                 actual.HighTable.SequenceEqual(expected.HighTable),

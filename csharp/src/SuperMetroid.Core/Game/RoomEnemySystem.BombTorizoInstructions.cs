@@ -322,7 +322,7 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_GotoY_IfNotHitGround:
-                cursor = torizo.YPosition == 375
+                cursor = torizo.Position.Y.Whole == 375
                     ? unchecked((ushort)(cursor + 4))
                     : ReadOperand0();
                 return true;
@@ -336,8 +336,7 @@ public sealed partial class RoomEnemySystem
                 LastBombTorizoMusicRequest = new BombTorizoMusicRequest(
                     MusicCommand.SelectTrack(5),
                     MusicCommandDelay.EightFrames);
-                torizo.XRadius = 18;
-                torizo.YRadius = 48;
+                torizo.Radius = new(18, 48);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -503,7 +502,7 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null)
             return unchecked((ushort)(cursor + 4));
-        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.XPosition)));
+        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)));
         bool isGroundedBall = samus.Pose is
             SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallMovingRightPose or
             SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.SpringBallGroundRightPose or
@@ -528,7 +527,7 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null)
             return unchecked((ushort)(cursor + 4));
-        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.XPosition)));
+        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)));
         if (!BombTorizoFunction12IsNonNegative(torizo, samus) ||
             distance < 0x20 || distance >= 0x60 || (_nextRandom!() & 0x0110) != 0)
         {
@@ -549,7 +548,7 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null)
             return unchecked((ushort)(cursor + 4));
-        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.XPosition)));
+        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)));
         if (distance < 0x70 || !BombTorizoFunction12IsNonNegative(torizo, samus))
             return unchecked((ushort)(cursor + 4));
         SnesButton heldButtons = SnesButtons.FromRaw(
@@ -576,7 +575,7 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null)
             return unchecked((ushort)(cursor + 4));
-        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.XPosition)));
+        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)));
         if (state.DecisionCounter < 8 &&
             (distance >= 0x20 || !BombTorizoFunction12IsNonNegative(torizo, samus)))
         {
@@ -650,10 +649,10 @@ public sealed partial class RoomEnemySystem
     {
         BombTorizoPostureDisplacement displacement =
             BombTorizoMovementDefinitions.Posture(tableOffset);
-        torizo.XPosition = unchecked((ushort)(
-            torizo.XPosition + (subtract ? -displacement.X : displacement.X)));
-        torizo.YPosition = unchecked((ushort)(
-            torizo.YPosition + (subtract ? -displacement.Y : displacement.Y)));
+        torizo.Position = torizo.Position.WithWholeX(unchecked((ushort)(
+            torizo.Position.X.Whole + (subtract ? -displacement.X : displacement.X))));
+        torizo.Position = torizo.Position.WithWholeY(unchecked((ushort)(
+            torizo.Position.Y.Whole + (subtract ? -displacement.Y : displacement.Y))));
     }
 
     private ushort ProcessBombTorizoWalkInstruction(
@@ -692,7 +691,7 @@ public sealed partial class RoomEnemySystem
         ushort cursor,
         ushort target)
     {
-        if (samus is null || Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.XPosition))) >= 0x38)
+        if (samus is null || Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole))) >= 0x38)
             return unchecked((ushort)(cursor + 4));
         if (BombTorizoParameterMatchesSamusDelta(torizo, samus))
             return unchecked((ushort)(cursor + 4));
@@ -707,7 +706,7 @@ public sealed partial class RoomEnemySystem
         ushort cursor,
         ushort target)
     {
-        if (samus is null || Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.XPosition))) >= 0x20 ||
+        if (samus is null || Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole))) >= 0x20 ||
             !BombTorizoFunction12IsNonNegative(torizo, samus))
         {
             return unchecked((ushort)(cursor + 4));
@@ -732,7 +731,7 @@ public sealed partial class RoomEnemySystem
         // Keep that subtraction direction explicit: Torizo_Func_12 below deliberately uses
         // the inverse delta, and collapsing both tests into one "faces Samus" helper silently
         // reverses one family of ROM branches.
-        return (((short)torizo.Parameter1 ^ unchecked((short)(samus.Position.X.Whole - torizo.XPosition))) &
+        return (((short)torizo.Parameter1 ^ unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole))) &
             short.MinValue) == 0;
     }
 
@@ -742,7 +741,7 @@ public sealed partial class RoomEnemySystem
     {
         // $AA:C58B calls Torizo_Func_12, whose operand is parameter1 XOR
         // (enemyX-SamusX), rather than the SamusX-enemyX test used by the walkers.
-        return (((short)torizo.Parameter1 ^ unchecked((short)(torizo.XPosition - samus.Position.X.Whole))) &
+        return (((short)torizo.Parameter1 ^ unchecked((short)(torizo.Position.X.Whole - samus.Position.X.Whole))) &
             short.MinValue) == 0;
     }
 }

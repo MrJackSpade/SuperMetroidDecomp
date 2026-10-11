@@ -23,11 +23,10 @@ internal static partial class Program
         RoomEnemySlot head = state.Head ?? throw new InvalidOperationException("Mother Brain has no head enemy.");
         state.DrawBrain = true;
         state.SmallPurpleBreathGenerationEnabled = true;
-        head.XPosition = 0x007c;
-        head.YPosition = 0x0058;
+        head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
         int Breaths() => runtime.Enemies.EnemyProjectiles.Count(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall);
-        void Draw() => runtime.Enemies.DrawLayers(new OamBuffer(), 0, 0, 5, 5);
+        void Draw() => runtime.Enemies.DrawLayers(new OamBuffer(), new(0, 0), 5, 5);
 
         runtime.System.SetRandomNumber(0x8000);
         Draw();
@@ -39,8 +38,8 @@ internal static partial class Program
         AssertTrue(state.SmallPurpleBreathActive, "the initializer marks the small breath active");
         RoomEnemyProjectileSlot breath = runtime.Enemies.EnemyProjectiles.First(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall);
-        AssertEqual((ushort)0x0082, breath.XPosition, "the breath starts six pixels right of the head");
-        AssertEqual((ushort)0x0068, breath.YPosition, "the breath starts sixteen pixels below the head");
+        AssertEqual((ushort)0x0082, breath.Position.X.Whole, "the breath starts six pixels right of the head");
+        AssertEqual((ushort)0x0068, breath.Position.Y.Whole, "the breath starts sixteen pixels below the head");
         AssertEqual((ushort)0x7fff, runtime.System.RandomNumber, "the spawn only samples the RNG");
 
         Draw();
@@ -49,7 +48,7 @@ internal static partial class Program
         // 8+8+10+10+11+11+12+12 frames, then $86:CAEE clears the flag and Delete removes it.
         for (int frame = 0; frame < 120 && Breaths() != 0; frame++)
             runtime.Enemies.StepEnemyProjectileInstructions(runtime.LevelData!, runtime.Samus,
-                runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y);
+                new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y));
         AssertEqual(0, Breaths(), "the small breath deletes itself after its eight poses");
         AssertTrue(!state.SmallPurpleBreathActive, "its last instruction clears the active flag");
 

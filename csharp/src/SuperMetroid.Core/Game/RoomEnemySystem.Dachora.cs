@@ -213,8 +213,8 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         MoveEnemyVertically(level, slot, 1 << 16);
-        if (!DachoraWithinAxis(slot.YPosition, samus.Position.Y.Whole, DachoraActivationYDistance) ||
-            !DachoraWithinAxis(slot.XPosition, samus.Position.X.Whole, DachoraActivationXDistance))
+        if (!DachoraWithinAxis(slot.Position.Y.Whole, samus.Position.Y.Whole, DachoraActivationYDistance) ||
+            !DachoraWithinAxis(slot.Position.X.Whole, samus.Position.X.Whole, DachoraActivationXDistance))
         {
             return;
         }
@@ -261,7 +261,7 @@ public sealed partial class RoomEnemySystem
         if (!hitWall)
             AlignEnemyYWithNonSquareSlope(level, slot);
 
-        if (!hitWall && unchecked((short)(slot.XPosition - DachoraLeftTurnX)) >= 0)
+        if (!hitWall && unchecked((short)(slot.Position.X.Whole - DachoraLeftTurnX)) >= 0)
             return;
 
         InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.RunningRight);
@@ -294,7 +294,7 @@ public sealed partial class RoomEnemySystem
         }
 
         AlignEnemyYWithNonSquareSlope(level, slot);
-        if (unchecked((short)(slot.XPosition - DachoraShinesparkX)) < 0)
+        if (unchecked((short)(slot.Position.X.Whole - DachoraShinesparkX)) < 0)
             return;
 
         InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.ChargeRight);
@@ -302,7 +302,7 @@ public sealed partial class RoomEnemySystem
         state.SpeedOrTimer = DachoraChargeDuration;
         state.Subspeed = 0;
         state.PaletteAnimationTimer = 0;
-        slot.YPosition = unchecked((ushort)(slot.YPosition + 8));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 8)));
         LastDachoraSoundEffect = DachoraChargeSound;
     }
 
@@ -386,7 +386,7 @@ public sealed partial class RoomEnemySystem
             RequireDachoraState(echo).VerticalSubaccelerationOrLifetime = 0;
         state.VerticalAcceleration = 0;
         state.VerticalSubaccelerationOrLifetime = 0;
-        slot.YPosition = unchecked((ushort)(slot.YPosition - 8));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 8)));
         LastDachoraSoundEffect = DachoraLaunchSound;
 
         ushort echoList = slot.Parameter1 != 0
@@ -500,8 +500,7 @@ public sealed partial class RoomEnemySystem
             if (echoState.VerticalSubaccelerationOrLifetime != 0)
                 continue;
 
-            echo.XPosition = body.XPosition;
-            echo.YPosition = body.YPosition;
+            echo.Position = echo.Position.WithWhole(body.Position.Whole);
             echoState.VerticalSubaccelerationOrLifetime = DachoraEchoLifetime;
             return;
         }

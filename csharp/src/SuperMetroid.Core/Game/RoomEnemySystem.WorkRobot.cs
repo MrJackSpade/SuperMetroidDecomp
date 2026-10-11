@@ -183,8 +183,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level,
         ushort opcode,
         ref ushort cursor,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         if (!IsWorkRobotDefinition(slot.EnemyDefinitionPointer))
             return false;
@@ -264,7 +263,7 @@ public sealed partial class RoomEnemySystem
                     checkLedge: false, 0, 0, 0);
                 return true;
             case WorkRobotInstruction.PlaySFXIfOnScreen:
-                if (IsWorkRobotOriginStrictlyOnScreen(slot, cameraX, cameraY))
+                if (IsWorkRobotOriginStrictlyOnScreen(slot, camera))
                     LastWorkRobotSoundEffect = WorkRobotFootstepSound;
                 cursor = next;
                 return true;
@@ -275,37 +274,37 @@ public sealed partial class RoomEnemySystem
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.UpRight,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserUpRight,
-                    cameraX, cameraY);
+                    camera);
                 return true;
             case WorkRobotInstruction.TryShootingLaserUpLeft:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.UpLeft,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserUpLeft,
-                    cameraX, cameraY);
+                    camera);
                 return true;
             case WorkRobotInstruction.TryShootingLaserRight:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.Horizontal,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserRight,
-                    cameraX, cameraY);
+                    camera);
                 return true;
             case WorkRobotInstruction.TryShootingLaserLeft:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.Horizontal,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserLeft,
-                    cameraX, cameraY);
+                    camera);
                 return true;
             case WorkRobotInstruction.TryShootingLaserDownRight:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.DownRight,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserDownRight,
-                    cameraX, cameraY);
+                    camera);
                 return true;
             case WorkRobotInstruction.TryShootingLaserDownLeft:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.DownLeft,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserDownLeft,
-                    cameraX, cameraY);
+                    camera);
                 return true;
             case WorkRobotInstruction.DecrementLaserCooldown:
                 DecrementWorkRobotLaserCooldown(state);
@@ -354,13 +353,12 @@ public sealed partial class RoomEnemySystem
 
         // The ROM moves only whole X/Y words for this temporary foot probe. In particular,
         // MoveEnemyDown's collision-produced Y subposition survives after Y is restored.
-        state.BackupYPosition = slot.YPosition;
-        state.BackupXPosition = slot.XPosition;
-        slot.XPosition = unchecked((ushort)(
-            slot.XPosition + ledgeProbeDirection * slot.XRadius * 2));
+        state.BackupYPosition = slot.Position.Y.Whole;
+        state.BackupXPosition = slot.Position.X.Whole;
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+            slot.Position.X.Whole + ledgeProbeDirection * slot.Radius.X * 2)));
         bool floorFound = MoveEnemyVertically(level, slot, 1 << 16);
-        slot.XPosition = state.BackupXPosition;
-        slot.YPosition = state.BackupYPosition;
+        slot.Position = slot.Position.WithWhole(new(state.BackupXPosition, state.BackupYPosition));
         if (floorFound)
             return nextCursor;
 
@@ -371,12 +369,11 @@ public sealed partial class RoomEnemySystem
 
     private static bool IsWorkRobotOriginStrictlyOnScreen(
         RoomEnemySlot robot,
-        ushort cameraX,
-        ushort cameraY) =>
-        unchecked((short)(robot.XPosition - cameraX)) > 0 &&
-        unchecked((short)(cameraX + 256 - robot.XPosition)) >= 0 &&
-        unchecked((short)(robot.YPosition - cameraY)) > 0 &&
-        unchecked((short)(cameraY + 224 - robot.YPosition)) >= 0;
+        Position16<RoomPixels> camera) =>
+        unchecked((short)(robot.Position.X.Whole - camera.X)) > 0 &&
+        unchecked((short)(camera.X + 256 - robot.Position.X.Whole)) >= 0 &&
+        unchecked((short)(robot.Position.Y.Whole - camera.Y)) > 0 &&
+        unchecked((short)(camera.Y + 224 - robot.Position.Y.Whole)) >= 0;
 
     private ushort TryFireWorkRobotLaser(
         RoomEnemySlot robot,
@@ -384,8 +381,7 @@ public sealed partial class RoomEnemySystem
         ushort nextCursor,
         WorkRobotLaser projectileDefinition,
         ushort firingInstruction,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         if (state.LaserCooldown != 0)
         {
@@ -397,7 +393,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException(
                 "Work Robot laser instruction requires a non-advancing random-seed reader.");
         state.LaserCooldown = unchecked((ushort)((readRandomNumber() & 0x001f) + 0x0010));
-        SpawnWorkRobotLaser(robot, state, projectileDefinition, cameraX, cameraY);
+        SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
         return firingInstruction;
     }
 
@@ -414,7 +410,7 @@ public sealed partial class RoomEnemySystem
     private static void ResolveWorkRobotTouch(RoomEnemySlot robot, SamusState samus)
     {
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(
-            robot.XPosition < samus.Position.X.Whole ? (short)4 : (short)-4, 0));
+            robot.Position.X.Whole < samus.Position.X.Whole ? (short)4 : (short)-4, 0));
     }
 
     /// <summary>
@@ -435,13 +431,13 @@ public sealed partial class RoomEnemySystem
         bool facingLeft = unchecked((short)state.LaserXVelocity) < 0;
         if (facingLeft)
         {
-            robot.CurrentInstruction = samus.Position.X.Whole < robot.XPosition
+            robot.CurrentInstruction = samus.Position.X.Whole < robot.Position.X.Whole
                 ? WorkRobotInstructionProgramDefinitions.FacingLeftShotSamusAhead
                 : WorkRobotInstructionProgramDefinitions.FacingLeftShotSamusBehind;
         }
         else
         {
-            robot.CurrentInstruction = samus.Position.X.Whole >= robot.XPosition
+            robot.CurrentInstruction = samus.Position.X.Whole >= robot.Position.X.Whole
                 ? WorkRobotInstructionProgramDefinitions.FacingRightShotSamusAhead
                 : WorkRobotInstructionProgramDefinitions.FacingRightShotSamusBehind;
         }

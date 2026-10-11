@@ -45,8 +45,7 @@ internal static partial class Program
         RoomEnemySlot body = enemies.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
-        body.XPosition = 0x0180;
-        body.YPosition = 0x00a0;
+        body.Position = body.Position.WithWhole(new(0x0180, 0x00a0));
         body.VramTilesIndex = 0x0200;
         body.PaletteIndex = 0x0a00;
         initialize(body);
@@ -59,11 +58,11 @@ internal static partial class Program
         RoomEnemyProjectileSlot left = enemies.EnemyProjectiles.Single(
             projectile =>
                 projectile.Kind == RoomEnemyProjectileKind.DragonFireball &&
-                unchecked((short)projectile.XVelocity) < 0);
+                unchecked((short)projectile.Velocity.X.RawValue) < 0);
         RoomEnemyProjectileSlot right = enemies.EnemyProjectiles.Single(
             projectile =>
                 projectile.Kind == RoomEnemyProjectileKind.DragonFireball &&
-                unchecked((short)projectile.XVelocity) >= 0);
+                unchecked((short)projectile.Velocity.X.RawValue) >= 0);
         AssertEqual(
             DragonFireballInstructionProgramDefinitions.RisingLeft,
             left.InstructionPointer,
@@ -76,8 +75,8 @@ internal static partial class Program
         RunLoop(left, DragonFireballInstructionProgramDefinitions.RisingLeft, "rising left");
         RunLoop(right, DragonFireballInstructionProgramDefinitions.RisingRight, "rising right");
 
-        left.YVelocity = 0xfff0;
-        right.YVelocity = 0xfff0;
+        left.Velocity = left.Velocity.WithY(new SnesSignedEightEight(0xfff0));
+        right.Velocity = right.Velocity.WithY(new SnesSignedEightEight(0xfff0));
         runPreInstruction(left, 0);
         runPreInstruction(right, 0);
         AssertEqual(
@@ -98,7 +97,7 @@ internal static partial class Program
 
         left.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         left.InstructionTimer = 1;
-        process.Invoke(enemies, [left, null, (ushort)0, (ushort)0]);
+        process.Invoke(enemies, [left, null, Position16<RoomPixels>.Zero]);
         AssertTrue(!left.IsActive,
             "Dragon's shared shot list deletes through the common projectile owner");
 
@@ -148,7 +147,7 @@ internal static partial class Program
             for (int step = 0; step < 3; step++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
                 AssertEqual((ushort)(program + 2 + (step % 2) * 4), projectile.PresentationOperandAddress,
                     $"Dragon-fireball {name} selects the exact native frame operand");
                 selectedPresentation.Add(projectile.PresentationOperandAddress);

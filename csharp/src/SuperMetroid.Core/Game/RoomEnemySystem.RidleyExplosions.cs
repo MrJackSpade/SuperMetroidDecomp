@@ -36,8 +36,7 @@ public sealed partial class RoomEnemySystem
             // instruction from the still-live shared Ridley joints below.
             RoomEnemyPopulationRecord population = new(
                 EnemyDefinitionId.RidleyExplosion,
-                XPosition: 0,
-                YPosition: 0,
+                Position: Position16<RoomPixels>.Zero,
                 InitializationParameter: 0,
                 Properties: (ushort)(
                     EnemyProperties.ProcessInstructions |
@@ -82,8 +81,7 @@ public sealed partial class RoomEnemySystem
         {
             int tailIndex = (int)part >> 1;
             RidleyTailSegment tail = state.TailSegments[tailIndex];
-            fragment.XPosition = tail.XPosition;
-            fragment.YPosition = tail.YPosition;
+            fragment.Position = fragment.Position.WithWhole(new(tail.XPosition, tail.YPosition));
             int tailTipOrientation =
                 (((tail.Angle & 0x00ff) +
                     (state.TailSegments[5].Angle & 0x00ff) + 8) & 0x00f0) >> 4;
@@ -97,8 +95,7 @@ public sealed partial class RoomEnemySystem
             RidleyExplosionDefinitions.SelectBodyPart(
                 part,
                 facingRight: state.FacingDirection != RidleyFacing.Left);
-        fragment.XPosition = unchecked((ushort)(body.XPosition + bodyPart.XOffset));
-        fragment.YPosition = unchecked((ushort)(body.YPosition + bodyPart.YOffset));
+        fragment.Position = fragment.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + bodyPart.XOffset)), unchecked((ushort)(body.Position.Y.Whole + bodyPart.YOffset))));
         fragment.CurrentInstruction = bodyPart.InstructionList;
     }
 
@@ -115,14 +112,7 @@ public sealed partial class RoomEnemySystem
         int magnitude = Math.Max(0, Math.Abs(horizontal) - 4);
         fragment.VariableB = unchecked((ushort)(horizontal < 0 ? -magnitude : magnitude));
         fragment.VariableC = unchecked((ushort)(fragment.VariableC + 4));
-        (fragment.XPosition, fragment.XSubposition) = AddEightBitVelocity(
-            fragment.XPosition,
-            fragment.XSubposition,
-            fragment.VariableB);
-        (fragment.YPosition, fragment.YSubposition) = AddEightBitVelocity(
-            fragment.YPosition,
-            fragment.YSubposition,
-            fragment.VariableC);
+        fragment.Position = fragment.Position.Advance(new(new SnesSignedEightEight(fragment.VariableB).ToSixteenSixteenDelta(), new SnesSignedEightEight(fragment.VariableC).ToSixteenSixteenDelta()));
 
         fragment.VariableF = unchecked((ushort)(fragment.VariableF - 1));
         if (unchecked((short)fragment.VariableF) >= 0)

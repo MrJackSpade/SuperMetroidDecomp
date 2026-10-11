@@ -111,8 +111,7 @@ public sealed partial class RoomEnemySystem
     private void RunPhantoonMain(
         RoomEnemySlot body,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
         state.LastMaterializationSound = null;
@@ -230,12 +229,16 @@ public sealed partial class RoomEnemySystem
         // write-stack index, so that frame skips the part sync and BG2 scroll entirely.
         if (dispatched == PhantoonAiFunction.AlmostDead)
             return;
-        state.Eye!.XPosition = state.Tentacles!.XPosition = state.Mouth!.XPosition = body.XPosition;
-        state.Eye.YPosition = state.Tentacles.YPosition = state.Mouth.YPosition = body.YPosition;
+        state.Mouth!.Position = state.Mouth!.Position.WithWholeX(body.Position.X.Whole);
+        state.Tentacles!.Position = state.Tentacles!.Position.WithWholeX(body.Position.X.Whole);
+        state.Eye!.Position = state.Eye!.Position.WithWholeX(body.Position.X.Whole);
+        state.Mouth.Position = state.Mouth.Position.WithWholeY(body.Position.Y.Whole);
+        state.Tentacles.Position = state.Tentacles.Position.WithWholeY(body.Position.Y.Whole);
+        state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
         if (state.Eye.Parameter1 == 0)
         {
-            state.Bg2HorizontalScroll = unchecked((ushort)(cameraX - body.XPosition + 40));
-            state.Bg2VerticalScroll = unchecked((ushort)(cameraY - body.YPosition + 40));
+            state.Bg2HorizontalScroll = unchecked((ushort)(camera.X - body.Position.X.Whole + 40));
+            state.Bg2VerticalScroll = unchecked((ushort)(camera.Y - body.Position.Y.Whole + 40));
         }
     }
 
@@ -374,14 +377,12 @@ public sealed partial class RoomEnemySystem
             var (dx, dy) = PhantoonPathDefinitions.Step(body.VariableA);
             if (eye.VariableC != 0)
             {
-                body.XPosition = unchecked((ushort)(body.XPosition - dx));
-                body.YPosition = unchecked((ushort)(body.YPosition - dy));
+                body.Position -= new Offset16<RoomPixels>(unchecked((short)(dx)), unchecked((short)(dy)));
                 body.VariableA = body.VariableA == 0 ? (ushort)(PhantoonPathDefinitions.Length - 1) : unchecked((ushort)(body.VariableA - 1));
             }
             else
             {
-                body.XPosition = unchecked((ushort)(body.XPosition + dx));
-                body.YPosition = unchecked((ushort)(body.YPosition + dy));
+                body.Position += new Offset16<RoomPixels>(unchecked((short)(dx)), unchecked((short)(dy)));
                 body.VariableA = body.VariableA >= PhantoonPathDefinitions.Length - 1 ? (ushort)0 : unchecked((ushort)(body.VariableA + 1));
             }
         }

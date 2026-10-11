@@ -272,7 +272,7 @@ public sealed partial class RoomEnemySystem
         slot.SpritemapPointer = 0x804d;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.YRadius = 0;
+        slot.Radius = slot.Radius.WithY(0);
         slot.CurrentInstruction = MamaTurtleInstructionProgramDefinitions.MamaAsleep;
     }
 
@@ -281,8 +281,8 @@ public sealed partial class RoomEnemySystem
     {
         var state = new BabyTurtleEnemyState(slot)
         {
-            SpawnXPosition = slot.XPosition,
-            SpawnTopBoundary = unchecked((ushort)(slot.YPosition - slot.YRadius)),
+            SpawnXPosition = slot.Position.X.Whole,
+            SpawnTopBoundary = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)),
             Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus,
             XVelocity = slot.Parameter1,
         };
@@ -386,8 +386,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        mama.YRadius = 0;
-        short signedDifference = unchecked((short)(mama.XPosition - samus.Position.X.Whole));
+        mama.Radius = mama.Radius.WithY(0);
+        short signedDifference = unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole));
         int distance = Math.Abs((int)signedDifference);
         if (distance >= 24)
             return;
@@ -395,13 +395,13 @@ public sealed partial class RoomEnemySystem
         // The first 24 contour words describe Samus to the left; the second 24 describe
         // Samus to the right. This asymmetry is visible around the sleeping shell's lip.
         short contourOffset = MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
-        mama.YRadius = unchecked((ushort)-contourOffset);
+        mama.Radius = mama.Radius.WithY(unchecked((ushort)-contourOffset));
         mama.Properties = unchecked((ushort)(mama.Properties | MamaTurtleSolidProperty));
 
         if (!IsSamusRidingPlatform(mama, samus))
             return;
 
-        ushort shellTop = unchecked((ushort)(mama.YPosition - mama.YRadius));
+        ushort shellTop = unchecked((ushort)(mama.Position.Y.Whole - mama.Radius.Y));
         ushort overlap = unchecked((ushort)(samus.Kinematics.BottomBoundary - shellTop));
         if (unchecked((short)overlap) < 0)
             return;
@@ -426,11 +426,11 @@ public sealed partial class RoomEnemySystem
             samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(1, 0);
         }
 
-        mama.YPosition = unchecked((ushort)(mama.YPosition - 1));
-        mama.YRadius = 16;
-        mama.XPosition = (mama.YPosition & 1) == 0
-            ? unchecked((ushort)(mama.XPosition + 1))
-            : unchecked((ushort)(mama.XPosition - 1));
+        mama.Position = mama.Position.WithWholeY(unchecked((ushort)(mama.Position.Y.Whole - 1)));
+        mama.Radius = mama.Radius.WithY(16);
+        mama.Position = mama.Position.WithWholeX((mama.Position.Y.Whole & 1) == 0
+            ? unchecked((ushort)(mama.Position.X.Whole + 1))
+            : unchecked((ushort)(mama.Position.X.Whole - 1)));
 
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, 1 << 16))
             return;
@@ -453,7 +453,7 @@ public sealed partial class RoomEnemySystem
     {
         InstallTurtleInstruction(
             mama,
-            unchecked((short)(mama.XPosition - samus.Position.X.Whole)) >= 0
+            unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole)) >= 0
                 ? MamaTurtleInstructionProgramDefinitions.MamaEnterShellLeft
                 : MamaTurtleInstructionProgramDefinitions.MamaEnterShellRight);
         state.Function = MamaTurtleAiFunction.Idle;
@@ -480,7 +480,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         // The two adjacent {sub,whole} pairs at $8D56 accelerate toward Samus's side.
-        if (unchecked((short)(mama.XPosition - samus.Position.X.Whole)) < 0)
+        if (unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole)) < 0)
         {
             state.XSubAcceleration = 0x1000;
             state.XAcceleration = 0;
@@ -575,7 +575,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
-        if (unchecked((short)(mama.YPosition - MamaTurtlePeakYPosition)) < 0)
+        if (unchecked((short)(mama.Position.Y.Whole - MamaTurtlePeakYPosition)) < 0)
         {
             state.FunctionTimer = MamaTurtlePeakPauseFrames;
             state.Function = MamaTurtleAiFunction.HoveringAtPeak;
@@ -586,7 +586,7 @@ public sealed partial class RoomEnemySystem
 
         if (IsSamusRidingPlatform(mama, samus))
         {
-            mama.YPosition = unchecked((ushort)(mama.YPosition - MamaTurtleRisingSpeed));
+            mama.Position = mama.Position.WithWholeY(unchecked((ushort)(mama.Position.Y.Whole - MamaTurtleRisingSpeed)));
             samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, unchecked((short)(MamaTurtleRisingSpeed)));
             return;
         }
@@ -721,7 +721,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case BabyTurtleAiFunction.CrawlingCarryingSamus:
-                parent.CarryingChildHeight = baby.YRadius;
+                parent.CarryingChildHeight = baby.Radius.Y;
                 if (!IsSamusRidingPlatform(baby, samus))
                     state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
                 return;
@@ -765,8 +765,8 @@ public sealed partial class RoomEnemySystem
             samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(state.XVelocity)), 0);
         }
 
-        ushort previousY = baby.YPosition;
-        baby.YPosition = state.SpawnTopBoundary;
+        ushort previousY = baby.Position.Y.Whole;
+        baby.Position = baby.Position.WithWholeY(state.SpawnTopBoundary);
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, (int)(short)state.XVelocity << 16);
 
@@ -775,7 +775,7 @@ public sealed partial class RoomEnemySystem
         if (parent.Function != MamaTurtleAiFunction.Asleep)
             return;
 
-        short signedDifference = unchecked((short)(parentSlot.XPosition - baby.XPosition));
+        short signedDifference = unchecked((short)(parentSlot.Position.X.Whole - baby.Position.X.Whole));
         int distance = Math.Abs((int)signedDifference);
         short contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
             ? (short)1
@@ -784,7 +784,7 @@ public sealed partial class RoomEnemySystem
 
         if (carryingSamus)
         {
-            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(baby.YPosition - previousY)));
+            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(baby.Position.Y.Whole - previousY)));
         }
     }
 
@@ -793,7 +793,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot baby,
         BabyTurtleEnemyState state)
     {
-        short signedDifference = unchecked((short)(state.SpawnXPosition - baby.XPosition));
+        short signedDifference = unchecked((short)(state.SpawnXPosition - baby.Position.X.Whole));
         int distance = Math.Abs((int)signedDifference);
         if (distance >= BabyTurtleTravelDistance)
         {
@@ -893,9 +893,9 @@ public sealed partial class RoomEnemySystem
             state.XVelocity = unchecked((ushort)-1);
         }
 
-        baby.XPosition = unchecked((short)(baby.XPosition - samus.Position.X.Whole)) >= 0
-            ? unchecked((ushort)(samus.Position.X.Whole + samus.Kinematics.Radius.X + baby.XRadius))
-            : unchecked((ushort)(samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.XRadius));
+        baby.Position = baby.Position.WithWholeX(unchecked((short)(baby.Position.X.Whole - samus.Position.X.Whole)) >= 0
+            ? unchecked((ushort)(samus.Position.X.Whole + samus.Kinematics.Radius.X + baby.Radius.X))
+            : unchecked((ushort)(samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.Radius.X)));
         state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level!, baby, (int)(short)state.XVelocity << 16);
@@ -922,13 +922,13 @@ public sealed partial class RoomEnemySystem
         // loads omit `,x`. The damage callback still runs for the current Mama slot.
         RoomEnemySlot boundsSource = _slots[0];
         ushort left = unchecked((ushort)(
-            boundsSource.XPosition - boundsSource.XRadius - 8));
+            boundsSource.Position.X.Whole - boundsSource.Radius.X - 8));
         ushort right = unchecked((ushort)(
-            boundsSource.XPosition + boundsSource.XRadius + 8));
+            boundsSource.Position.X.Whole + boundsSource.Radius.X + 8));
         ushort top = unchecked((ushort)(
-            boundsSource.YPosition - boundsSource.YRadius + 4));
+            boundsSource.Position.Y.Whole - boundsSource.Radius.Y + 4));
         ushort bottom = unchecked((ushort)(
-            boundsSource.YPosition + boundsSource.YRadius - 4));
+            boundsSource.Position.Y.Whole + boundsSource.Radius.Y - 4));
 
         ushort samusLeftMinusOne = unchecked((ushort)(
             samus.Position.X.Whole - samus.Kinematics.Radius.X - 1));

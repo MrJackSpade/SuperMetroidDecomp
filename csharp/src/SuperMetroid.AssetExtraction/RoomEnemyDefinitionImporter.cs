@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -26,8 +27,7 @@ public static class RoomEnemyDefinitionImporter
             PalettePointer: Word(2),
             Health: Word(4),
             Damage: Word(6),
-            XRadius: Word(8),
-            YRadius: Word(10),
+            Radius: new Extent16<RoomPixels>(Word(8), Word(10)),
             Bank: Byte(12),
             HurtAiTime: Byte(13),
             HurtSoundEffect: Word(14),

@@ -43,8 +43,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemyProjectileSlot>>();
 
         RoomEnemySlot source = enemies.Slots[0];
-        source.XPosition = 0x0120;
-        source.YPosition = 0x0060;
+        source.Position = source.Position.WithWhole(new(0x0120, 0x0060));
         spawn(source);
         RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles.Single(
             candidate => candidate.Kind == RoomEnemyProjectileKind.FallingSpark);
@@ -54,7 +53,7 @@ internal static partial class Program
             "Falling Spark definition selects the named falling program");
 
         var observedOperands = new HashSet<ushort>();
-        object?[] arguments = [projectile, null, (ushort)0, (ushort)0];
+        object?[] arguments = [projectile, null, Position16<RoomPixels>.Zero];
         for (int frame = 0; frame < 4; frame++)
         {
             projectile.InstructionTimer = 1;

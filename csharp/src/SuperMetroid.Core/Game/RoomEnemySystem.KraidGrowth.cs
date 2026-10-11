@@ -53,10 +53,10 @@ public sealed partial class RoomEnemySystem
             case KraidAiFunction.GrowBreakCeilingPlatforms:
                 if ((body.FrameCounter & 7) == 0)
                     RequestKraidRisingRock(body, state);
-                body.XPosition = unchecked((ushort)(body.XPosition +
-                    ((body.YPosition & 2) == 0 ? 1 : -1)));
-                body.YPosition = unchecked((ushort)(body.YPosition - 1));
-                if ((body.YPosition & 3) == 0 && body.VariableF < 18)
+                body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole +
+                    ((body.Position.Y.Whole & 2) == 0 ? 1 : -1))));
+                body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 1)));
+                if ((body.Position.Y.Whole & 3) == 0 && body.VariableF < 18)
                 {
                     int ceilingIndex = body.VariableF / 2;
                     ushort rockX = KraidCeilingRockPositions.AtByteOffset(body.VariableF);
@@ -65,7 +65,7 @@ public sealed partial class RoomEnemySystem
                     _kraidPlmRequests.Add(KraidPlmDefinitions.GrowthCeiling[ceilingIndex]);
                     body.VariableF = unchecked((ushort)(body.VariableF + 2));
                 }
-                if (unchecked((short)(body.YPosition - 296)) < 0)
+                if (unchecked((short)(body.Position.Y.Whole - 296)) < 0)
                     body.VariableA = (ushort)KraidAiFunction.GrowSetBg2Priority;
                 return;
 

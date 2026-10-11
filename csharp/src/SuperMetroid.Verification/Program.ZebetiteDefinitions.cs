@@ -63,8 +63,8 @@ internal static partial class Program
             ushort[] actual =
             [
                 (ushort)population.DefinitionPointer,
-                population.XPosition,
-                population.YPosition,
+                population.Position.X,
+                population.Position.Y,
                 population.InitializationParameter,
                 population.Properties,
                 population.ExtraProperties,
@@ -105,13 +105,13 @@ internal static partial class Program
             ZebetiteGenerationDefinition expected = ZebetiteDefinitions.Generation(generation);
             AssertEqual(expected.GenerationFlags, state.GenerationFlags,
                 $"production Zebetite generation {generation} flags");
-            AssertEqual(expected.YRadius, slot.YRadius,
+            AssertEqual(expected.YRadius, slot.Radius.Y,
                 $"production Zebetite generation {generation} radius");
             AssertEqual(expected.InstructionList, slot.CurrentInstruction,
                 $"production Zebetite generation {generation} instruction");
-            AssertEqual(expected.XPosition, slot.XPosition,
+            AssertEqual(expected.XPosition, slot.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
-            AssertEqual(expected.YPosition(linkedHalf), slot.YPosition,
+            AssertEqual(expected.YPosition(linkedHalf), slot.Position.Y.Whole,
                 $"production Zebetite generation {generation} Y");
 
             foreach (ushort health in healthSamples)

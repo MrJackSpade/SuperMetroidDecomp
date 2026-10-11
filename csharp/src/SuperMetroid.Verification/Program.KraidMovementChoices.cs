@@ -81,14 +81,14 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, KraidPartState>>(enemies);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            body.XPosition = (ushort)raw;
+            body.Position = body.Position.WithWholeX((ushort)raw);
             for (int choice = 0; choice < 8; choice++)
             {
                 rng = (ushort)(choice * 4);
                 reads = 0;
                 part.NextWord = 1;
                 foot.InstructionTimer = 99;
-                var expected = Expected(body.XPosition, rng);
+                var expected = Expected(body.Position.X.Whole, rng);
                 think(body, foot, part);
                 bool right = unchecked((short)(expected.TargetX - raw)) >= 0;
                 AssertEqual(expected.TargetX, state.TargetX, "Actual target includes fallback row");

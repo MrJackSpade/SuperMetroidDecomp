@@ -40,25 +40,24 @@ internal static partial class Program
                 "RunSporeSpawnSporePreInstruction", flags)!
             .CreateDelegate<Action<RoomEnemyProjectileSlot>>();
         RoomEnemySlot body = enemies.Slots[0];
-        body.XPosition = 0x1234;
-        body.YPosition = 0x0200;
+        body.Position = body.Position.WithWhole(new(0x1234, 0x0200));
         for (ushort index = 0; index < 4; index++)
         {
             foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
                 projectile.Clear();
             spawnStalk(body, index);
             RoomEnemyProjectileSlot stalk = enemies.EnemyProjectiles.Single(p => p.IsActive);
-            AssertEqual(body.XPosition, stalk.XPosition, $"Spore Spawn production stalk X {index}");
-            AssertEqual(unchecked((ushort)(body.YPosition + Word(0x86dcb9 + index * 2))),
-                stalk.YPosition, $"Spore Spawn production stalk Y {index}");
+            AssertEqual(body.Position.X.Whole, stalk.Position.X.Whole, $"Spore Spawn production stalk X {index}");
+            AssertEqual(unchecked((ushort)(body.Position.Y.Whole + Word(0x86dcb9 + index * 2))),
+                stalk.Position.Y.Whole, $"Spore Spawn production stalk Y {index}");
 
             foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
                 projectile.Clear();
             spawnSpawner(body, index);
             RoomEnemyProjectileSlot spawner = enemies.EnemyProjectiles.Single(p => p.IsActive);
-            AssertEqual(Word(0x86dce6 + index * 2), spawner.XPosition,
+            AssertEqual(Word(0x86dce6 + index * 2), spawner.Position.X.Whole,
                 $"Spore Spawn production emitter X {index}");
-            AssertEqual((ushort)520, spawner.YPosition,
+            AssertEqual((ushort)520, spawner.Position.Y.Whole,
                 $"Spore Spawn production emitter Y {index}");
         }
 
@@ -67,16 +66,15 @@ internal static partial class Program
         for (int mirrored = 0; mirrored < 2; mirrored++)
         {
             spore.Kind = RoomEnemyProjectileKind.SporeSpawnSpore;
-            spore.XPosition = 0x0200;
-            spore.YPosition = 0x0200;
+            spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
             spore.Variable0 = unchecked((ushort)offset);
             spore.Variable1 = mirrored == 0 ? (ushort)0 : (ushort)0x0080;
             int x = unchecked((sbyte)rom.ReadByte(0x86dd6c + offset));
             int y = unchecked((sbyte)rom.ReadByte(0x86dd6c + ((offset + 1) & 0xff)));
             move(spore);
             AssertEqual(unchecked((ushort)(0x0200 + (mirrored == 0 ? x : -x))),
-                spore.XPosition, $"Spore Spawn production X {offset:X2}/{mirrored}");
-            AssertEqual(unchecked((ushort)(0x0200 + y + y)), spore.YPosition,
+                spore.Position.X.Whole, $"Spore Spawn production X {offset:X2}/{mirrored}");
+            AssertEqual(unchecked((ushort)(0x0200 + y + y)), spore.Position.Y.Whole,
                 $"Spore Spawn production Y {offset:X2}/{mirrored}");
             AssertEqual(unchecked((ushort)(byte)(offset + 2)), spore.Variable0,
                 $"Spore Spawn production cursor {offset:X2}/{mirrored}");

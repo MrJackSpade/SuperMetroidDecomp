@@ -489,7 +489,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(slot, state, level);
-        if (unchecked((short)(slot.XPosition - EtecoonFirstTeachingX)) >= 0)
+        if (unchecked((short)(slot.Position.X.Whole - EtecoonFirstTeachingX)) >= 0)
             return;
 
         state.FunctionTimer = 11;
@@ -503,7 +503,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(slot, state, level);
-        if (unchecked((short)(slot.XPosition - EtecoonRunStartX)) < 0)
+        if (unchecked((short)(slot.Position.X.Whole - EtecoonRunStartX)) < 0)
             return;
 
         state.FunctionTimer = 11;
@@ -517,7 +517,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(slot, state, level);
-        if (unchecked((short)(slot.XPosition - EtecoonRunStartX)) < 0)
+        if (unchecked((short)(slot.Position.X.Whole - EtecoonRunStartX)) < 0)
             return;
 
         state.Function = EtecoonAiFunction.LongJump;
@@ -533,7 +533,7 @@ public sealed partial class RoomEnemySystem
     {
         MoveEtecoonHorizontally(slot, state, level);
         MoveEtecoonVertically(slot, state, samus, level);
-        if (unchecked((short)(slot.XPosition - EtecoonLongJumpMidpointX)) < 0)
+        if (unchecked((short)(slot.Position.X.Whole - EtecoonLongJumpMidpointX)) < 0)
             return;
 
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.RunningRight);
@@ -546,7 +546,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(slot, state, level);
-        if (unchecked((short)(slot.XPosition - EtecoonLongJumpEndX)) < 0)
+        if (unchecked((short)(slot.Position.X.Whole - EtecoonLongJumpEndX)) < 0)
             return;
 
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
@@ -584,7 +584,7 @@ public sealed partial class RoomEnemySystem
             state.FunctionTimer = 11;
             InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
             state.Function = (slot.Parameter2 & 2) != 0 &&
-                unchecked((short)(slot.XPosition - EtecoonLongRunMaximumX)) < 0
+                unchecked((short)(slot.Position.X.Whole - EtecoonLongRunMaximumX)) < 0
                     ? EtecoonAiFunction.WaitForSamusBeforeLongRun
                     : EtecoonAiFunction.IdleBetweenTeachingJumps;
             return;
@@ -664,7 +664,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(slot, state, level);
-        if (unchecked((short)(slot.XPosition - EtecoonRunStartX)) < 0)
+        if (unchecked((short)(slot.Position.X.Whole - EtecoonRunStartX)) < 0)
             return;
 
         state.Function = EtecoonAiFunction.ReturnJump;
@@ -771,21 +771,21 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         SamusState samus,
         int distance) =>
-        Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole))) < distance;
+        Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) < distance;
 
     private static bool EtecoonIsWithinY(
         RoomEnemySlot slot,
         SamusState samus,
         int distance) =>
-        Math.Abs(unchecked((short)(slot.YPosition - samus.Position.Y.Whole))) < distance;
+        Math.Abs(unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole))) < distance;
 
     /// <summary>Ports <c>DetermineDirectionOfSamusFromEnemy</c> for the facing branch.</summary>
     private static ushort DetermineEtecoonDirectionToSamus(
         RoomEnemySlot slot,
         SamusState samus)
     {
-        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.XPosition));
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.YPosition));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
         if (Math.Abs(deltaY) < EtecoonDirectionBand)
             return deltaX < 0 ? (ushort)7 : (ushort)2;
         if (Math.Abs(deltaX) < EtecoonDirectionBand)

@@ -22,17 +22,16 @@ internal static partial class Program
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
 
         RoomEnemySlot free = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == 0);
-        free.XSubposition = 0x1400;
-        free.YSubposition = 0x2800;
+        free.Position = free.Position.WithFractionX(0x1400).WithFractionY(0x2800);
         typeof(RoomEnemySystem).GetMethod("SpawnMotherBrainBabyMetroid",
                 BindingFlags.Instance | BindingFlags.NonPublic)!
             .Invoke(runtime.Enemies, [state]);
 
         AssertTrue(ReferenceEquals(free, state.BabyMetroidSlot), "the Baby takes the first free slot");
-        AssertEqual((ushort)0x0140, free.XPosition, "init writes the Baby's X");
-        AssertEqual((ushort)0x0060, free.YPosition, "init writes the Baby's Y");
-        AssertEqual((ushort)0x1400, free.XSubposition, "the Baby keeps the slot's X fraction");
-        AssertEqual((ushort)0x2800, free.YSubposition, "the Baby keeps the slot's Y fraction");
+        AssertEqual((ushort)0x0140, free.Position.X.Whole, "init writes the Baby's X");
+        AssertEqual((ushort)0x0060, free.Position.Y.Whole, "init writes the Baby's Y");
+        AssertEqual((ushort)0x1400, free.Position.X.Fraction, "the Baby keeps the slot's X fraction");
+        AssertEqual((ushort)0x2800, free.Position.Y.Fraction, "the Baby keeps the slot's Y fraction");
         AssertEqual((ushort)0x2800, state.BabyMetroid!.YSubposition, "the actor moves from the inherited fraction");
         Console.WriteLine("Baby Metroid inherited fractions: spawn and init leave the slot's fractions in place.");
     }

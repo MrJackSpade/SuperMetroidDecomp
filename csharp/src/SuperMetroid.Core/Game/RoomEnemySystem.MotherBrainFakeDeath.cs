@@ -312,7 +312,7 @@ public sealed partial class RoomEnemySystem
         // call here would desynchronize every later Rinka and phase-two attack decision.
         ushort sampledRandom = RequireRandomNumber();
         ushort animation = sampledRandom < 0x4000 ? (ushort)12 : (ushort)3;
-        SpawnRoomGraphicsDustExplosion(x, y, animation);
+        SpawnRoomGraphicsDustExplosion(new(x, y), animation);
         state.LastSoundEffect = 0x24;
     }
 
@@ -460,10 +460,8 @@ public sealed partial class RoomEnemySystem
             return;
 
         InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
-        projectile.XPosition = xPosition;
-        projectile.YPosition = yPosition;
-        projectile.XVelocity = 0;
-        projectile.YVelocity = 0;
+        projectile.Position = projectile.Position.WithWhole(new(xPosition, yPosition));
+        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         projectile.Variable0 = 0xcbea;
     }
 
@@ -473,8 +471,7 @@ public sealed partial class RoomEnemySystem
         if (projectile.Variable0 == 0xcbea)
         {
             SpawnRoomGraphicsDustExplosion(
-                projectile.XPosition,
-                unchecked((ushort)(projectile.YPosition + 8)),
+                new(projectile.Position.X.Whole, unchecked((ushort)(projectile.Position.Y.Whole + 8))),
                 animationIndex: 9);
             projectile.Variable0 = 0xcc08;
         }
@@ -484,18 +481,15 @@ public sealed partial class RoomEnemySystem
                 $"Mother Brain ceiling tube function $86:{projectile.Variable0:X4} is not translated.");
         }
 
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 6));
-        (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
-            projectile.YPosition,
-            projectile.YSubposition,
-            projectile.YVelocity);
-        if (projectile.YPosition < 0x00d0)
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 6))));
+        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+        if (projectile.Position.Y.Whole < 0x00d0)
             return;
 
-        ushort x = projectile.XPosition;
-        ushort y = projectile.YPosition;
+        ushort x = projectile.Position.X.Whole;
+        ushort y = projectile.Position.Y.Whole;
         projectile.Clear();
-        SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 12);
+        SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 12);
     }
 
     private void SpawnMotherBrainFallingTube(ushort populationPointer)
@@ -534,8 +528,7 @@ public sealed partial class RoomEnemySystem
     {
         int tubeIndex = tube.Parameter1 / 2;
         (ushort xRadius, ushort yRadius, ushort floor) = MotherBrainFallingTubeBody(tubeIndex);
-        tube.XRadius = xRadius;
-        tube.YRadius = yRadius;
+        tube.Radius = new(xRadius, yRadius);
         tube.VariableA = tubeIndex == 4 ? (ushort)0x8bcb : (ushort)0x8b88;
         tube.VariableB = floor;
         tube.VariableC = 0;
@@ -570,14 +563,11 @@ public sealed partial class RoomEnemySystem
     private void FallMotherBrainTube(RoomEnemySlot tube, bool mainTube)
     {
         tube.VariableC = unchecked((ushort)(tube.VariableC + 6));
-        (tube.YPosition, tube.YSubposition) = AddEightBitVelocity(
-            tube.YPosition,
-            tube.YSubposition,
-            tube.VariableC);
+        tube.Position = tube.Position.AdvanceY(new SnesSignedEightEight(tube.VariableC).ToSixteenSixteenDelta());
 
         if (!mainTube)
         {
-            if (tube.YPosition >= tube.VariableB)
+            if (tube.Position.Y.Whole >= tube.VariableB)
                 ExplodeMotherBrainTube(tube);
             else
                 SpawnMotherBrainTubeSmoke(tube);
@@ -586,12 +576,12 @@ public sealed partial class RoomEnemySystem
 
         // Hiding the tube and moving the brain are independent native branches.
         // The brain follows the tube throughout its descent, including before hiding.
-        if (tube.YPosition >= 0x00f4)
+        if (tube.Position.Y.Whole >= 0x00f4)
             tube.Properties = tube.Properties.With(EnemyProperties.Invisible);
         MotherBrainEnemyState state = MotherBrain ??
             throw new InvalidOperationException("A falling main tube has no Mother Brain encounter state.");
-        ushort headY = unchecked((ushort)(tube.YPosition - 56));
-        state.Head!.YPosition = headY;
+        ushort headY = unchecked((ushort)(tube.Position.Y.Whole - 56));
+        state.Head!.Position = state.Head!.Position.WithWholeY(headY);
         if (headY < 196)
         {
             SpawnMotherBrainTubeSmoke(tube);
@@ -604,9 +594,8 @@ public sealed partial class RoomEnemySystem
         // `$A9:8C0C/$8C0F` zero the channel words of HDMA objects 0-3, deleting the room's
         // liquid scroll objects (and any X-ray object) for the rest of the encounter.
         MotherBrainDeletedHdmaObjects = true;
-        state.Head.YPosition = 196;
-        state.Body.XPosition = 59;
-        state.Body.YPosition = 279;
+        state.Head.Position = state.Head.Position.WithWholeY(196);
+        state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
 
         // `$A9:903F` is part of the main-tube landing path, not phase-two setup. These
         // lengths and starting angles must exist before `$87A2` gets installed several
@@ -632,17 +621,16 @@ public sealed partial class RoomEnemySystem
         tube.VariableD = 8;
         tube.VariableE = unchecked((ushort)((tube.VariableE + 1) & 3));
         SpawnRoomGraphicsDustExplosion(
-            unchecked((ushort)(tube.XPosition + MotherBrainFallingTubeSmokeXOffsets[tube.VariableE])),
-            208,
+            new(unchecked((ushort)(tube.Position.X.Whole + MotherBrainFallingTubeSmokeXOffsets[tube.VariableE])), 208),
             animationIndex: 9);
     }
 
     private void ExplodeMotherBrainTube(RoomEnemySlot tube)
     {
-        ushort x = tube.XPosition;
-        ushort y = tube.YPosition;
+        ushort x = tube.Position.X.Whole;
+        ushort y = tube.Position.Y.Whole;
         tube.Properties = tube.Properties.With(EnemyProperties.Deleted);
-        SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 3);
+        SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 3);
         if (MotherBrain is not null)
             MotherBrain.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion.Value;
     }

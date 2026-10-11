@@ -33,8 +33,8 @@ public sealed partial class RoomEnemySystem
                 // wrapped result as signed, then takes its absolute value independently
                 // on each axis. If either distance is at least $30, the operand is a
                 // same-bank loop target; otherwise execution skips that operand.
-                int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole)));
-                int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.Position.Y.Whole)));
+                int xDistance = Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)));
+                int yDistance = Math.Abs(unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)));
                 cursor = xDistance >= 0x30 || yDistance >= 0x30
                     ? ReadEnemyInstructionMechanicsWord(
                         slot,
@@ -265,8 +265,8 @@ public sealed partial class RoomEnemySystem
             slot.VariableF = unchecked((ushort)(CeresDoorRumbleGeometryDefinitions.Count - 1));
 
         (short xOffset, short yOffset) = CeresDoorRumbleGeometryDefinitions.Offset(slot.VariableF);
-        ushort explosionX = unchecked((ushort)(slot.XPosition + xOffset));
-        ushort explosionY = unchecked((ushort)(slot.YPosition + yOffset));
+        ushort explosionX = unchecked((ushort)(slot.Position.X.Whole + xOffset));
+        ushort explosionY = unchecked((ushort)(slot.Position.Y.Whole + yOffset));
 
         // GenerateRandomNumber is called exactly once per explosion. Values below $4000
         // select animation $0C; all other values select animation three (smoke).
@@ -274,7 +274,7 @@ public sealed partial class RoomEnemySystem
         ushort animation = randomNumber < 0x4000
             ? CeresDoorExplosionAnimation
             : CeresDoorSmokeAnimation;
-        SpawnRoomGraphicsDustExplosion(explosionX, explosionY, animation);
+        SpawnRoomGraphicsDustExplosion(new(explosionX, explosionY), animation);
 
         // QueueSound_Lib2_Max6 runs even if the finite enemy-projectile pool was full and
         // could not allocate the visual effect, so publish the request unconditionally.

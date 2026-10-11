@@ -15,7 +15,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         ushort cameraY)
     {
-        ushort screenY = unchecked((ushort)(projectile.YPosition - cameraY));
+        ushort screenY = unchecked((ushort)(projectile.Position.Y.Whole - cameraY));
         if (unchecked((short)screenY) >= 0 &&
             screenY >= EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth)
         {

@@ -55,17 +55,17 @@ internal static partial class Program
             system);
         RoomEnemyProjectileSlot attack = enemies.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
-        AssertEqual((ushort)104, attack.XPosition,
+        AssertEqual((ushort)104, attack.Position.X.Whole,
             "eye-door attack initializer applies cartridge PLM X offset");
-        AssertEqual((ushort)80, attack.YPosition,
+        AssertEqual((ushort)80, attack.Position.Y.Whole,
             "eye-door attack initializer applies cartridge PLM Y offset");
         for (int frame = 0; frame < 10; frame++)
             enemies.StepEnemyProjectiles(level, samus);
         AssertEqual((ushort)0x0080, attack.Variable0,
             "direction opcode stores twice the rightward byte angle");
-        AssertEqual((ushort)0x0100, attack.XVelocity,
+        AssertEqual((ushort)0x0100, attack.Velocity.X.RawValue,
             "direction opcode seeds rightward signed 8.8 X velocity");
-        AssertEqual((ushort)0, attack.YVelocity,
+        AssertEqual((ushort)0, attack.Velocity.Y.RawValue,
             "direction opcode seeds zero Y velocity for a level target");
         system.SetOpenedDoorBit(5);
         enemies.StepEnemyProjectiles(level, samus);
@@ -83,9 +83,9 @@ internal static partial class Program
             system);
         RoomEnemyProjectileSlot sweat = enemies.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
-        AssertEqual((ushort)64, sweat.XVelocity,
+        AssertEqual((ushort)64, sweat.Velocity.X.RawValue,
             "mirrored sweat parameter selects positive cartridge X velocity");
-        AssertEqual((ushort)512, sweat.YVelocity,
+        AssertEqual((ushort)512, sweat.Velocity.Y.RawValue,
             "sweat parameter retains cartridge falling velocity");
 
         enemies.SpawnEyeDoorProjectile(
@@ -100,9 +100,9 @@ internal static partial class Program
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
         AssertEqual((ushort)0xe1c6, smoke.InstructionPointer,
             "smoke low parameter byte indexes the cartridge instruction-list pointer table");
-        AssertEqual((ushort)114, smoke.XPosition,
+        AssertEqual((ushort)114, smoke.Position.X.Whole,
             "smoke X uses low random byte and selected mask/base tuple");
-        AssertEqual((ushort)76, smoke.YPosition,
+        AssertEqual((ushort)76, smoke.Position.Y.Whole,
             "smoke Y uses high random byte and selected mask/base tuple");
         AssertEqual(1, randomAdvances,
             "smoke advances cartridge RNG once after sampling current seed");

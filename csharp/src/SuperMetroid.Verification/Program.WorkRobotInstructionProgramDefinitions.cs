@@ -81,12 +81,11 @@ internal static partial class Program
             for (int call = 0; call < 400; call++)
             {
                 robot.InstructionTimer = 1;
-                robot.XPosition = 512;
-                robot.YPosition = unchecked((ushort)(320 - robot.YRadius));
+                robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
                 enemies.WorkRobotStates[0]!.LaserCooldown = ushort.MaxValue;
                 process.Invoke(
                     enemies,
-                    [robot, null, level, (ushort)384, (ushort)192, (ushort)0]);
+                    [robot, null, level, new Position16<RoomPixels>((ushort)384, (ushort)192), (ushort)0]);
             }
         }
 
@@ -135,8 +134,7 @@ internal static partial class Program
         robot = enemies.Slots[0];
         robot.EnemyDefinitionPointer = EnemyDefinitionId.Robot;
         robot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
-        robot.XRadius = 8;
-        robot.YRadius = 16;
+        robot.Radius = new(8, 16);
         var state = new WorkRobotEnemyState(robot) { Powered = true };
         var states = (WorkRobotEnemyState?[])typeof(RoomEnemySystem)
             .GetField("_workRobotStates", flags)!.GetValue(enemies)!;

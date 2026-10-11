@@ -213,24 +213,18 @@ public sealed partial class RoomEnemySystem
             {
                 overlapsSamus = TryFindExtendedHitboxCallback(
                     slot,
-                    samus.Position.X.Whole,
-                    samus.Position.Y.Whole,
-                    samus.Kinematics.Radius.X,
-                    samus.Kinematics.Radius.Y,
+                    samus.Position.Whole,
+                    samus.Kinematics.Radius,
                     selectShotCallback: false,
                     out hitboxTouchAiPointer);
             }
             else
             {
                 overlapsSamus = RadiusBoxesOverlap(
-                    slot.XPosition,
-                    slot.YPosition,
-                    slot.XRadius,
-                    slot.YRadius,
-                    samus.Position.X.Whole,
-                    samus.Position.Y.Whole,
-                    samus.Kinematics.Radius.X,
-                    samus.Kinematics.Radius.Y);
+                    slot.Position.Whole,
+                    slot.Radius,
+                    samus.Position.Whole,
+                    samus.Kinematics.Radius);
             }
 
             EnemyInteractionCallback? hitboxTouchAi = HitboxCallback(slot, hitboxTouchAiPointer);
@@ -504,7 +498,7 @@ public sealed partial class RoomEnemySystem
             {
                 // $F09D does not enter common contact damage. Body overlap is itself the
                 // trigger, and $F0B6 decides whether this population mode may start moving.
-                ReactVerticalShutter(slot, _shutterCameraX, _shutterCameraY);
+                ReactVerticalShutter(slot, new(_shutterCameraX, _shutterCameraY));
             }
             else if (isHorizontalShutter)
             {
@@ -872,24 +866,18 @@ public sealed partial class RoomEnemySystem
                 {
                     overlapsProjectile = TryFindExtendedHitboxCallback(
                         enemy,
-                        projectile.Position.X.Whole,
-                        projectile.Position.Y.Whole,
-                        projectile.Radius.X,
-                        projectile.Radius.Y,
+                        projectile.Position.Whole,
+                        projectile.Radius,
                         selectShotCallback: true,
                         out hitboxShotAiPointer);
                 }
                 else
                 {
                     overlapsProjectile = RadiusBoxesOverlap(
-                        enemy.XPosition,
-                        enemy.YPosition,
-                        enemy.XRadius,
-                        enemy.YRadius,
-                        projectile.Position.X.Whole,
-                        projectile.Position.Y.Whole,
-                        projectile.Radius.X,
-                        projectile.Radius.Y);
+                        enemy.Position.Whole,
+                        enemy.Radius,
+                        projectile.Position.Whole,
+                        projectile.Radius);
                 }
 
                 EnemyInteractionCallback? hitboxShotAi = HitboxCallback(enemy, hitboxShotAiPointer);
@@ -1123,8 +1111,7 @@ public sealed partial class RoomEnemySystem
                     {
                         SpawnKraidArmShotExplosion(
                             projectileType,
-                            projectile.Position.X.Whole,
-                            projectile.Position.Y.Whole);
+                            projectile.Position.Whole);
                     }
                     hitCount++;
                     break;
@@ -1236,7 +1223,7 @@ public sealed partial class RoomEnemySystem
                         projectile.SlotIndex,
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
-                    ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                    ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
                     hitCount++;
                     break;
                 }
@@ -1289,8 +1276,8 @@ public sealed partial class RoomEnemySystem
                         {
                             // $A3:EF31 records the drop origin, EnemyDeath ($A3:EF4B) spawns
                             // the explosion, and only then $A3:EF74 spawns the five drops.
-                            ushort dropOriginX = enemy.XPosition;
-                            ushort dropOriginY = enemy.YPosition;
+                            ushort dropOriginX = enemy.Position.X.Whole;
+                            ushort dropOriginY = enemy.Position.Y.Whole;
                             MetroidEnemyState dyingMetroid = RequireMetroidState(enemy);
                             FinishMetroidDeath(enemy, samus);
                             StartGenericEnemyDeath(enemy, deathAnimation: 4);
@@ -1529,7 +1516,7 @@ public sealed partial class RoomEnemySystem
                     if (isShaktool)
                         ResolveShaktoolShotAfterCommon(enemy);
                     if (isDestroyableVerticalShutter)
-                        ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                        ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
                     if (isHorizontalShutter)
                         ReactHorizontalShutter(enemy);
                     if (isDraygonBody)
@@ -1615,8 +1602,8 @@ public sealed partial class RoomEnemySystem
                         bool spawnsGoldNinjaDrops = isOrdinarySpacePirate &&
                             hitboxShotAi != EnemyInteractionCallback.NormalEnemyShot &&
                             enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja;
-                        ushort dropOriginX = enemy.XPosition;
-                        ushort dropOriginY = enemy.YPosition;
+                        ushort dropOriginX = enemy.Position.X.Whole;
+                        ushort dropOriginY = enemy.Position.Y.Whole;
                         if (isFakeKraid)
                             KillFakeKraid(enemy);
                         else
@@ -1631,8 +1618,7 @@ public sealed partial class RoomEnemySystem
                             SpawnEnemyDropScatterAround(
                                 EnemyDefinitionId.PirateGoldNinja,
                                 count: 5,
-                                dropOriginX,
-                                dropOriginY);
+                                new(dropOriginX, dropOriginY));
                         }
                     }
                 }
@@ -1654,7 +1640,7 @@ public sealed partial class RoomEnemySystem
                 }
                 if (isFakeKraid && enemy.EnemyDefinitionPointer != 0 &&
                     enemyHealthBefore != 0 && enemy.Health == 0)
-                    SpawnFakeKraidDeathDrops(enemy.XPosition, enemy.YPosition);
+                    SpawnFakeKraidDeathDrops(enemy.Position.X.Whole, enemy.Position.Y.Whole);
                 if (isBabyTurtle)
                     ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
                 if (isKago)
@@ -1692,7 +1678,7 @@ public sealed partial class RoomEnemySystem
                 if (isShaktool)
                     ResolveShaktoolShotAfterCommon(enemy);
                 if (isDestroyableVerticalShutter)
-                    ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                    ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
                 if (isHorizontalShutter)
                     ReactHorizontalShutter(enemy);
                 if (isDraygonBody)
@@ -1788,21 +1774,15 @@ public sealed partial class RoomEnemySystem
                 bool overlaps = usesExtendedHitboxes
                     ? TryFindExtendedHitboxCallback(
                         enemy,
-                        bomb.Position.X.Whole,
-                        bomb.Position.Y.Whole,
-                        bomb.Radius.X,
-                        bomb.Radius.Y,
+                        bomb.Position.Whole,
+                        bomb.Radius,
                         selectShotCallback: true,
                         out selectedShotAiPointer)
                     : RadiusBoxesOverlap(
-                        enemy.XPosition,
-                        enemy.YPosition,
-                        enemy.XRadius,
-                        enemy.YRadius,
-                        bomb.Position.X.Whole,
-                        bomb.Position.Y.Whole,
-                        bomb.Radius.X,
-                        bomb.Radius.Y);
+                        enemy.Position.Whole,
+                        enemy.Radius,
+                        bomb.Position.Whole,
+                        bomb.Radius);
                 EnemyInteractionCallback? selectedShotAi = HitboxCallback(enemy, selectedShotAiPointer);
                 if (!overlaps)
                 {
@@ -1859,8 +1839,7 @@ public sealed partial class RoomEnemySystem
                     {
                         SpawnKraidArmShotExplosion(
                             bomb.Type,
-                            bomb.Position.X.Whole,
-                            bomb.Position.Y.Whole);
+                            bomb.Position.Whole);
                     }
                 }
                 else if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja &&
@@ -1889,7 +1868,7 @@ public sealed partial class RoomEnemySystem
                     // `$A2:F0A2` never calls common shot AI. Bomb collision has already
                     // marked the physical bomb, then the callback only advances the shutter
                     // state machine exactly as a beam, missile, touch, or power bomb would.
-                    ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                    ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
                 }
                 else if (isMetroid)
                 {
@@ -2147,7 +2126,7 @@ public sealed partial class RoomEnemySystem
                             if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
                                 selectedShotAi == EnemyInteractionCallback.DestroyableVerticalShutterShot)
                             {
-                                ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                                ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
                             }
 
                             // Bank-$A8 callbacks below reuse the same translated post-common
@@ -2344,8 +2323,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public int ResolveOrdinaryPowerBombHits(
         ISnesAddressSpace bus,
-        ushort explosionX,
-        ushort explosionY,
+        Position16<RoomPixels> explosionCenter,
         byte explosionRadius,
         SamusState? samus = null)
     {
@@ -2390,8 +2368,8 @@ public sealed partial class RoomEnemySystem
             if ((vulnerability & 0x7f) == 0)
                 continue;
 
-            int xDistance = Math.Abs(unchecked((short)(explosionX - enemy.XPosition)));
-            int yDistance = Math.Abs(unchecked((short)(explosionY - enemy.YPosition)));
+            int xDistance = Math.Abs(unchecked((short)(explosionCenter.X - enemy.Position.X.Whole)));
+            int yDistance = Math.Abs(unchecked((short)(explosionCenter.Y - enemy.Position.Y.Whole)));
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 continue;
 
@@ -2483,7 +2461,7 @@ public sealed partial class RoomEnemySystem
             if (isLiteralNoOpReaction || isVerticalShutterReaction || isHorizontalShutterReaction)
             {
                 if (isVerticalShutterReaction)
-                    ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                    ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
                 if (isHorizontalShutterReaction)
                     ReactHorizontalShutter(enemy);
                 enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
@@ -2702,10 +2680,8 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private bool TryFindExtendedHitboxCallback(
         RoomEnemySlot enemy,
-        ushort targetX,
-        ushort targetY,
-        ushort targetXRadius,
-        ushort targetYRadius,
+        Position16<RoomPixels> targetPosition,
+        Extent16<RoomPixels> targetRadius,
         bool selectShotCallback,
         out ushort callback)
     {
@@ -2717,10 +2693,10 @@ public sealed partial class RoomEnemySystem
         if ((enemy.SpritemapPointer & 0x8000) == 0)
             return false;
 
-        ushort targetLeft = unchecked((ushort)(targetX - targetXRadius));
-        ushort targetRight = unchecked((ushort)(targetX + targetXRadius));
-        ushort targetTop = unchecked((ushort)(targetY - targetYRadius));
-        ushort targetBottom = unchecked((ushort)(targetY + targetYRadius));
+        ushort targetLeft = unchecked((ushort)(targetPosition.X - targetRadius.X));
+        ushort targetRight = unchecked((ushort)(targetPosition.X + targetRadius.X));
+        ushort targetTop = unchecked((ushort)(targetPosition.Y - targetRadius.Y));
+        ushort targetBottom = unchecked((ushort)(targetPosition.Y + targetRadius.Y));
 
         if (CommonEnemyEmptyExtendedFrameDefinitions.HasFrame(
                 enemy.Definition.Bank, enemy.SpritemapPointer))
@@ -2730,8 +2706,8 @@ public sealed partial class RoomEnemySystem
             // selecting its common touch/shot callback.
             if (!OverlapsExtendedHitbox(targetLeft, targetRight,
                     targetTop, targetBottom,
-                    enemy.XPosition, enemy.YPosition,
-                    enemy.XPosition, enemy.YPosition,
+                    enemy.Position.X.Whole, enemy.Position.Y.Whole,
+                    enemy.Position.X.Whole, enemy.Position.Y.Whole,
                     selectShotCallback))
                 return false;
             callback = CommonEnemyEmptyExtendedFrameDefinitions.Callback(selectShotCallback);
@@ -2749,8 +2725,8 @@ public sealed partial class RoomEnemySystem
                      SpacePirateCollisionDefinitions.ComponentsAt(
                          enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (SpacePirateCollisionHitbox hitbox in
                          SpacePirateCollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
@@ -2779,8 +2755,8 @@ public sealed partial class RoomEnemySystem
                      DraygonCollisionDefinitions.ComponentsAt(
                          enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (DraygonCollisionHitbox hitbox in
                          DraygonCollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
@@ -2811,8 +2787,8 @@ public sealed partial class RoomEnemySystem
                      SporeSpawnCollisionDefinitions.ComponentsAt(
                          enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (SporeSpawnCollisionHitbox hitbox in
                          SporeSpawnCollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
@@ -2841,8 +2817,8 @@ public sealed partial class RoomEnemySystem
             foreach (PhantoonCollisionComponent component in
                      PhantoonCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (PhantoonCollisionHitbox hitbox in
                          PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
@@ -2872,8 +2848,8 @@ public sealed partial class RoomEnemySystem
             foreach (RidleyCollisionComponent component in
                      RidleyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (RidleyCollisionHitbox hitbox in
                          RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
@@ -2903,8 +2879,8 @@ public sealed partial class RoomEnemySystem
             foreach (CeresSteamCollisionComponent component in
                      CeresSteamCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (CeresSteamCollisionHitbox hitbox in
                          CeresSteamCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
@@ -2936,10 +2912,10 @@ public sealed partial class RoomEnemySystem
             foreach (MaridiaLargeSnailCollisionHitbox hitbox in
                      MaridiaLargeSnailCollisionDefinitions.HitboxesAt(list))
             {
-                ushort left = unchecked((ushort)(enemy.XPosition + hitbox.Left));
-                ushort top = unchecked((ushort)(enemy.YPosition + hitbox.Top));
-                ushort right = unchecked((ushort)(enemy.XPosition + hitbox.Right));
-                ushort bottom = unchecked((ushort)(enemy.YPosition + hitbox.Bottom));
+                ushort left = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Left));
+                ushort top = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Top));
+                ushort right = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Right));
+                ushort bottom = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Bottom));
                 if (!OverlapsExtendedHitbox(targetLeft, targetRight,
                         targetTop, targetBottom, left, top, right, bottom,
                         selectShotCallback))
@@ -2960,8 +2936,8 @@ public sealed partial class RoomEnemySystem
             foreach (CrocomireBodyCollisionComponent component in
                      CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (CrocomireBodyCollisionHitbox hitbox in
                          CrocomireBodyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
@@ -3001,8 +2977,8 @@ public sealed partial class RoomEnemySystem
             foreach (GoldenTorizoCollisionComponent component in
                      TorizoCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (GoldenTorizoCollisionHitbox hitbox in
                          TorizoCollisionDefinitions.HitboxesAt(component.HitboxList))
                 {
@@ -3030,8 +3006,8 @@ public sealed partial class RoomEnemySystem
             // still places two physical components against one shared hitbox list.
             foreach (KraidFootCollisionComponent component in footComponents)
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (KraidFootCollisionHitbox hitbox in
                          KraidFootCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
@@ -3060,8 +3036,8 @@ public sealed partial class RoomEnemySystem
             // Read that stream from the immutable cartridge definition catalog.
             foreach (KraidArmCollisionComponent component in kraidComponents)
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (KraidArmCollisionHitbox hitbox in
                          KraidArmCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
@@ -3088,8 +3064,8 @@ public sealed partial class RoomEnemySystem
             foreach (MotherBrainCollisionComponent component in
                      MotherBrainCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.XPosition + component.X));
-                ushort componentY = unchecked((ushort)(enemy.YPosition + component.Y));
+                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
+                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
                 foreach (MotherBrainCollisionHitbox hitbox in
                          MotherBrainCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
@@ -3286,7 +3262,7 @@ public sealed partial class RoomEnemySystem
             ApplyNormalEnemyTouchDamage(
                 samus,
                 enemy.Definition.Damage,
-                enemy.XPosition);
+                enemy.Position.X.Whole);
             return;
         }
 
@@ -3350,14 +3326,10 @@ public sealed partial class RoomEnemySystem
     }
 
     private static bool RadiusBoxesOverlap(
-        ushort firstX,
-        ushort firstY,
-        ushort firstXRadius,
-        ushort firstYRadius,
-        ushort secondX,
-        ushort secondY,
-        ushort secondXRadius,
-        ushort secondYRadius) =>
-        Math.Abs(unchecked((short)(firstX - secondX))) < firstXRadius + secondXRadius &&
-        Math.Abs(unchecked((short)(firstY - secondY))) < firstYRadius + secondYRadius;
+        Position16<RoomPixels> firstPosition,
+        Extent16<RoomPixels> firstRadius,
+        Position16<RoomPixels> secondPosition,
+        Extent16<RoomPixels> secondRadius) =>
+        Math.Abs(unchecked((short)(firstPosition.X - secondPosition.X))) < firstRadius.X + secondRadius.X &&
+        Math.Abs(unchecked((short)(firstPosition.Y - secondPosition.Y))) < firstRadius.Y + secondRadius.Y;
 }

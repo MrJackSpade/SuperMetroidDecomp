@@ -105,7 +105,7 @@ internal static partial class Program
         BoyonEnemyState bouncingState = bouncingSystem.BoyonStates[0]!;
         var samus = new SamusState
         {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(bouncing.XPosition, bouncing.YPosition)),
+            Position = FixedPosition<RoomPixels>.FromWhole(bouncing.Position.Whole),
         };
         var runMain = typeof(RoomEnemySystem).GetMethod("RunBoyonMain", flags)!
             .CreateDelegate<Action<RoomEnemySlot, BoyonEnemyState, SamusState?>>();
@@ -150,8 +150,7 @@ internal static partial class Program
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = 0;
             slot.Parameter2 = 0x0040;
-            slot.XPosition = 0x0100;
-            slot.YPosition = 0x0200;
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));
             initialize(slot);
             return enemies;
         }
@@ -163,7 +162,7 @@ internal static partial class Program
         {
             MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
         }

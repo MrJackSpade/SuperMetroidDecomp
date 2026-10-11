@@ -41,10 +41,9 @@ public sealed partial class RoomEnemySystem
             case RoomEnemyProjectileKind.NoobTubeCrack:
                 if (request.Parameter != 0)
                     throw new InvalidDataException("N00b-tube crack parameter must be zero.");
-                projectile.XPosition = unchecked((ushort)(
-                    blockX * 16 + NoobTubeProjectileRomData.CrackXOffset));
-                projectile.YPosition = unchecked((ushort)(
-                    blockY * 16 + NoobTubeProjectileRomData.CrackYOffset));
+                projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
+                    blockX * 16 + NoobTubeProjectileRomData.CrackXOffset)), unchecked((ushort)(
+                    blockY * 16 + NoobTubeProjectileRomData.CrackYOffset))));
                 return;
 
             case RoomEnemyProjectileKind.NoobTubeShard:
@@ -57,16 +56,15 @@ public sealed partial class RoomEnemySystem
                     blockX * 16 + NoobTubeProjectileRomData.CrackXOffset +
                     NoobTubeProjectileRomData.ShardXOffsets[index]));
                 projectile.Variable0 = 0;
-                projectile.YPosition = unchecked((ushort)(
+                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
                     blockY * 16 + NoobTubeProjectileRomData.CrackYOffset +
-                    NoobTubeProjectileRomData.ShardYOffsets[index]));
+                    NoobTubeProjectileRomData.ShardYOffsets[index])));
                 projectile.InstructionPointer =
                     NoobTubeProjectileRomData.ShardInstructionLists[index];
                 projectile.InstructionTimer = 1;
-                projectile.XVelocity = unchecked((ushort)
-                    NoobTubeProjectileRomData.ShardXVelocities[index]);
-                projectile.YVelocity = unchecked((ushort)
-                    NoobTubeProjectileRomData.ShardYVelocities[index]);
+                projectile.Velocity = new(new SnesSignedEightEight(unchecked((ushort)
+                    NoobTubeProjectileRomData.ShardXVelocities[index])), new SnesSignedEightEight(unchecked((ushort)
+                    NoobTubeProjectileRomData.ShardYVelocities[index])));
                 return;
             }
 
@@ -79,9 +77,9 @@ public sealed partial class RoomEnemySystem
                 projectile.Variable1 = unchecked((ushort)(
                     blockX * 16 + NoobTubeProjectileRomData.BubbleXOffsets[index]));
                 projectile.Variable0 = 0;
-                projectile.YPosition = unchecked((ushort)(
-                    blockY * 16 + NoobTubeProjectileRomData.BubbleYOffsets[index]));
-                projectile.YVelocity = NoobTubeProjectileRomData.BubbleInitialYVelocity;
+                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
+                    blockY * 16 + NoobTubeProjectileRomData.BubbleYOffsets[index])));
+                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(NoobTubeProjectileRomData.BubbleInitialYVelocity));
                 return;
             }
 
@@ -115,38 +113,29 @@ public sealed partial class RoomEnemySystem
         switch (preInstruction)
         {
             case NoobTubeProjectilePreInstruction.CrackFlickering:
-                if (projectile.XPosition != NoobTubeProjectileRomData.HiddenXPosition)
-                    projectile.Variable0 = projectile.XPosition;
-                projectile.XPosition = (_currentEnemyProjectileFrame8 & 1) != 0
+                if (projectile.Position.X.Whole != NoobTubeProjectileRomData.HiddenXPosition)
+                    projectile.Variable0 = projectile.Position.X.Whole;
+                projectile.Position = projectile.Position.WithWholeX((_currentEnemyProjectileFrame8 & 1) != 0
                     ? NoobTubeProjectileRomData.HiddenXPosition
-                    : projectile.Variable0;
+                    : projectile.Variable0);
                 return;
 
             case NoobTubeProjectilePreInstruction.CrackFalling:
-                (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
-                    projectile.YPosition,
-                    projectile.YSubposition,
-                    NoobTubeProjectileRomData.CrackFallVelocity);
+                projectile.Position = projectile.Position.AdvanceY(new SnesSignedEightEight(NoobTubeProjectileRomData.CrackFallVelocity).ToSixteenSixteenDelta());
                 return;
 
             case NoobTubeProjectilePreInstruction.ShardFlying:
                 (projectile.Variable1, projectile.Variable0) = AddEightBitVelocity(
                     projectile.Variable1,
                     projectile.Variable0,
-                    projectile.XVelocity);
-                (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
-                    projectile.YPosition,
-                    projectile.YSubposition,
-                    projectile.YVelocity);
+                    projectile.Velocity.X.RawValue);
+                projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
                 return;
 
             case NoobTubeProjectilePreInstruction.ShardFalling:
                 MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 2);
-                (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
-                    projectile.YPosition,
-                    projectile.YSubposition,
-                    projectile.YVelocity);
+                projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
                 return;
 
@@ -171,22 +160,18 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         ushort angleStep)
     {
-        ushort tableOffset = unchecked((ushort)((projectile.XVelocity & 0x01fe) | 0x0080));
+        ushort tableOffset = unchecked((ushort)((projectile.Velocity.X.RawValue & 0x01fe) | 0x0080));
         short sine = EnemyTrigonometryTables.SignedSine((byte)(tableOffset >> 1));
         ushort horizontalVelocity = unchecked((ushort)(sine >> 2));
         (projectile.Variable1, projectile.Variable0) = AddEightBitVelocity(
             projectile.Variable1,
             projectile.Variable0,
             horizontalVelocity);
-        projectile.XVelocity = unchecked((ushort)(projectile.XVelocity + angleStep));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue + angleStep))));
     }
 
     private static void MoveNoobTubeBubbleVertically(RoomEnemyProjectileSlot projectile)
     {
-        (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
-            projectile.YPosition,
-            projectile.YSubposition,
-            projectile.YVelocity);
-        projectile.XPosition = projectile.Variable1;
+        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(projectile.Variable1);
     }
 }

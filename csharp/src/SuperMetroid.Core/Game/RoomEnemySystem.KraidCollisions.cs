@@ -18,13 +18,12 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void SpawnKraidArmShotExplosion(
         ushort projectileType,
-        ushort xPosition,
-        ushort yPosition)
+        Position16<RoomPixels> position)
     {
         ushort animationIndex = (projectileType & 0x0200) != 0
             ? (ushort)0x001d
             : (ushort)0x0006;
-        SpawnRoomGraphicsDustExplosion(xPosition, yPosition, animationIndex);
+        SpawnRoomGraphicsDustExplosion(position, animationIndex);
         QueueEnemySound(SoundEffectLibrary1Sounds.DudShot, maximumQueued: 6);
     }
 
@@ -54,10 +53,10 @@ public sealed partial class RoomEnemySystem
             if (index < SamusProjectileSystem.SlotCount)
             {
                 SamusProjectileSlot shot = _projectiles.Slots[index];
-                return new(shot.Position.X.Whole, shot.Position.Y.Whole, shot.Radius.X, shot.Radius.Y, shot.Type, shot.Damage);
+                return new(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage);
             }
             SamusBombProjectileSlot bomb = _sharedProjectiles.Slots[0];
-            return new(bomb.Position.X.Whole, bomb.Position.Y.Whole, bomb.Radius.X, bomb.Radius.Y, bomb.Type, bomb.Damage);
+            return new(bomb.Position.Whole, bomb.Radius, bomb.Type, bomb.Damage);
         }
 
         public void MarkCollision(int index)
@@ -137,10 +136,10 @@ public sealed partial class RoomEnemySystem
                 else
                 {
                     RoomSpriteObjectSlot? dud = SpawnRoomSpriteObject(
-                        shot.X, shot.Y, RoomSpriteObjectKind.EnemyProjectileDud, graphicsIndex: 0);
+                        shot.Position, RoomSpriteObjectKind.EnemyProjectileDud, graphicsIndex: 0);
                     // Create_Sprite_Object returns its native index in $12 only on success.
-                    scratch.Bottom = dud?.NativeIndex ?? shot.X;
-                    scratch.Top = shot.Y;
+                    scratch.Bottom = dud?.NativeIndex ?? shot.Position.X;
+                    scratch.Top = shot.Position.Y;
                     scratch.Left = (ushort)RoomSpriteObjectKind.EnemyProjectileDud;
                     QueueEnemySound(SoundEffectLibrary1Sounds.DudShot, maximumQueued: 3);
                 }
@@ -184,9 +183,9 @@ public sealed partial class RoomEnemySystem
                 KraidCollisionShot shot = shots.Read(index);
                 if (!scratch.OverlapsBody(body, shot))
                     continue;
-                SpawnKraidArmShotExplosion(shot.Type, shot.X, shot.Y);
-                scratch.Bottom = shot.X;
-                scratch.Top = shot.Y;
+                SpawnKraidArmShotExplosion(shot.Type, shot.Position);
+                scratch.Bottom = shot.Position.X;
+                scratch.Top = shot.Position.Y;
                 shots.MarkCollision(index);
                 if ((shot.Type & 0x0010) != 0)
                     state.MouthFlags |= 1;
@@ -208,14 +207,13 @@ public sealed partial class RoomEnemySystem
         (short left, short top, short bottom) = KraidMouthHitboxes.ResolveCollision(_bus!, pointer);
         return new()
         {
-            Left = unchecked((ushort)(body.XPosition + left)),
-            Top = unchecked((ushort)(body.YPosition + top)),
-            Bottom = unchecked((ushort)(body.YPosition + bottom)),
+            Left = unchecked((ushort)(body.Position.X.Whole + left)),
+            Top = unchecked((ushort)(body.Position.Y.Whole + top)),
+            Bottom = unchecked((ushort)(body.Position.Y.Whole + bottom)),
         };
     }
 
-    private readonly record struct KraidCollisionShot(ushort X, ushort Y, ushort XRadius,
-        ushort YRadius, ushort Type, ushort Damage);
+    private readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, ushort Type, ushort Damage);
 
     // These are the bounded DP $12/$14/$16 words local to a native collision pass.
     // Compare the wrapped subtraction's sign, not an unbounded host integer ordering.
@@ -226,19 +224,19 @@ public sealed partial class RoomEnemySystem
         public ushort Left;
 
         public readonly bool OverlapsMouth(KraidCollisionShot shot) =>
-            unchecked((short)(shot.Y - shot.YRadius - 1 - Bottom)) < 0 &&
-            unchecked((short)(shot.Y + shot.YRadius - Top)) >= 0 &&
-            unchecked((short)(shot.X + shot.XRadius - Left)) >= 0;
+            unchecked((short)(shot.Position.Y - shot.Radius.Y - 1 - Bottom)) < 0 &&
+            unchecked((short)(shot.Position.Y + shot.Radius.Y - Top)) >= 0 &&
+            unchecked((short)(shot.Position.X + shot.Radius.X - Left)) >= 0;
 
         public bool OverlapsBody(RoomEnemySlot body, KraidCollisionShot shot)
         {
-            if (unchecked((short)(shot.Y - shot.YRadius - 1 - Bottom)) < 0)
-                return unchecked((short)(shot.Y + shot.YRadius - Top)) >= 0 &&
-                    unchecked((short)(shot.X + shot.XRadius - Left)) >= 0;
+            if (unchecked((short)(shot.Position.Y - shot.Radius.Y - 1 - Bottom)) < 0)
+                return unchecked((short)(shot.Position.Y + shot.Radius.Y - Top)) >= 0 &&
+                    unchecked((short)(shot.Position.X + shot.Radius.X - Left)) >= 0;
 
-            Bottom = unchecked((ushort)(shot.X + shot.XRadius));
-            short relativeY = unchecked((short)(shot.Y - body.YPosition));
-            return unchecked((short)(body.XPosition + KraidBodyContour.LeftEdge(relativeY) - Bottom)) < 0;
+            Bottom = unchecked((ushort)(shot.Position.X + shot.Radius.X));
+            short relativeY = unchecked((short)(shot.Position.Y - body.Position.Y.Whole));
+            return unchecked((short)(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) - Bottom)) < 0;
         }
     }
 

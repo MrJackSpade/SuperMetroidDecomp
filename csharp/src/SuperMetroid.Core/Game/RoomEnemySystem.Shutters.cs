@@ -263,20 +263,20 @@ public sealed partial class RoomEnemySystem
     /// <summary>Last library-two shutter sound queued during the current enemy frame.</summary>
     public ushort? LastShutterSoundEffect { get; private set; }
 
-    private void ResetShutterRoomState(ushort cameraX, ushort cameraY)
+    private void ResetShutterRoomState(Position16<RoomPixels> camera)
     {
         Array.Clear(_growingShutterStates);
         Array.Clear(_verticalShutterStates);
         Array.Clear(_horizontalShutterStates);
-        _shutterCameraX = cameraX;
-        _shutterCameraY = cameraY;
+        _shutterCameraX = camera.X;
+        _shutterCameraY = camera.Y;
         LastShutterSoundEffect = null;
     }
 
-    private void BeginShutterFrame(ushort cameraX, ushort cameraY)
+    private void BeginShutterFrame(Position16<RoomPixels> camera)
     {
-        _shutterCameraX = cameraX;
-        _shutterCameraY = cameraY;
+        _shutterCameraX = camera.X;
+        _shutterCameraY = camera.Y;
         LastShutterSoundEffect = null;
     }
 
@@ -285,18 +285,15 @@ public sealed partial class RoomEnemySystem
         EnemyDefinitionId.Kamer;
 
     /// <summary>Adds a signed 16.16 velocity using the same wrapping carry as ADC.</summary>
-    private static (ushort Position, ushort Subposition) AddShutterVelocity(
-        ushort position,
-        ushort subposition,
+    private static SnesFixedPosition AddShutterVelocity(
+        SnesFixedPosition position,
         short wholeVelocity,
         ushort subvelocity)
     {
-        uint fixedPosition = ((uint)position << 16) | subposition;
+        uint fixedPosition = position.RawValue;
         int velocity = unchecked((wholeVelocity << 16) | subvelocity);
         fixedPosition = unchecked(fixedPosition + (uint)velocity);
-        return (
-            unchecked((ushort)(fixedPosition >> 16)),
-            unchecked((ushort)fixedPosition));
+        return SnesFixedPosition.FromRaw(fixedPosition);
     }
 
     /// <summary>Implements the native strict wrapped absolute-X-distance comparison.</summary>
@@ -319,7 +316,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort maximumDistance)
     {
-        ushort distance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
+        ushort distance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (unchecked((short)distance) < 0)
             distance = unchecked((ushort)-distance);
         return distance < maximumDistance;
@@ -331,19 +328,17 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static bool IsShutterCenterOnScreen(
         RoomEnemySlot slot,
-        ushort cameraX,
-        ushort cameraY) =>
-        unchecked((short)(slot.XPosition - cameraX)) >= 0 &&
-        unchecked((short)(cameraX + 0x0100 - slot.XPosition)) >= 0 &&
-        unchecked((short)(slot.YPosition - cameraY)) >= 0 &&
-        unchecked((short)(cameraY + 0x0100 - slot.YPosition)) >= 0;
+        Position16<RoomPixels> camera) =>
+        unchecked((short)(slot.Position.X.Whole - camera.X)) >= 0 &&
+        unchecked((short)(camera.X + 0x0100 - slot.Position.X.Whole)) >= 0 &&
+        unchecked((short)(slot.Position.Y.Whole - camera.Y)) >= 0 &&
+        unchecked((short)(camera.Y + 0x0100 - slot.Position.Y.Whole)) >= 0;
 
     private void QueueShutterActivationSoundIfOnScreen(
         RoomEnemySlot slot,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
-        if (IsShutterCenterOnScreen(slot, cameraX, cameraY))
+        if (IsShutterCenterOnScreen(slot, camera))
             LastShutterSoundEffect = ShutterActivationSound;
     }
 

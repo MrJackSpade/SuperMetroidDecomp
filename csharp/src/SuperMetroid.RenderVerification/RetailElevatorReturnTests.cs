@@ -63,7 +63,7 @@ internal static class RetailElevatorReturnTests
             arrivalFrames++;
             cameraPositions.Add(runtime.Camera!.PixelPosition.Y);
             var actor = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
-            actorPositions.Add(actor.YPosition);
+            actorPositions.Add(actor.Position.Y.Whole);
             Compare("return");
         }
         if (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive || samus.InputLocked ||

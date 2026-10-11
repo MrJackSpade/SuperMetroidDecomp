@@ -30,10 +30,8 @@ internal static partial class Program
             actor.Definition = RoomEnemyDefinitionCatalog.Get(header);
             actor.AiBank = actor.Definition.Bank;
             actor.Health = lethal ? (ushort)1 : (ushort)1000;
-            actor.XPosition = 128;
-            actor.YPosition = 128;
-            actor.XRadius = actor.Definition.XRadius;
-            actor.YRadius = actor.Definition.YRadius;
+            actor.Position = actor.Position.WithWhole(new(128, 128));
+            actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);
             actor.Properties = respawns ? (ushort)EnemyProperties.RespawnIfKilled : (ushort)0;
             actor.SpritemapPointer = EnemySpritemapDefinitions.Frames.ToArray()
                 .First(frame => frame.Bank == actor.Definition.Bank &&
@@ -41,14 +39,14 @@ internal static partial class Program
 
             // Freeze only the AI while producing the real draw queue. The following
             // explicit damage call represents the later runtime power-bomb phase.
-            enemies.StepFrame(0, 0, timeIsFrozen: true);
+            enemies.StepFrame(new(0, 0), timeIsFrozen: true);
             var before = new OamBuffer();
-            enemies.DrawLayers(before, 0, 0, 0, 7);
+            enemies.DrawLayers(before, new(0, 0), 0, 7);
             AssertTrue(before.NextByteOffset != 0, "live enemy was queued and drawn before power-bomb damage");
-            AssertEqual(1, enemies.ResolveOrdinaryPowerBombHits(fixture.Bus, 128, 128, 64),
+            AssertEqual(1, enemies.ResolveOrdinaryPowerBombHits(fixture.Bus, new(128, 128), 64),
                 "power bomb reaches the queued enemy");
             var after = new OamBuffer();
-            enemies.DrawLayers(after, 0, 0, 0, 7);
+            enemies.DrawLayers(after, new(0, 0), 0, 7);
             if (lethal)
             {
                 AssertEqual(respawns ? EnemyDefinitionId.Respawn : (ushort)0,
@@ -65,7 +63,7 @@ internal static partial class Program
                 AssertTrue(before.LowTable.SequenceEqual(after.LowTable) &&
                     before.HighTable.SequenceEqual(after.HighTable), "survivor keeps its sprite composition");
                 actor.SpritemapPointer = 0;
-                AssertThrows<InvalidDataException>(() => enemies.DrawLayers(new OamBuffer(), 0, 0, 0, 7),
+                AssertThrows<InvalidDataException>(() => enemies.DrawLayers(new OamBuffer(), new(0, 0), 0, 7),
                     "a live actor's missing composition must not be silently hidden");
             }
         }

@@ -62,9 +62,9 @@ internal static partial class Program
                 DraygonBurialEvirDefinitions.ForEntry(entry);
             AssertTrue(sprite.IsActive, $"Draygon burial Evir {entry} active after spawn");
             AssertEqual(kind, sprite.Kind, $"Draygon burial Evir {entry} kind");
-            AssertEqual(definition.InitialX, sprite.XPosition,
+            AssertEqual(definition.InitialX, sprite.Position.X.Whole,
                 $"Draygon burial Evir {entry} spawned X");
-            AssertEqual(definition.InitialY, sprite.YPosition,
+            AssertEqual(definition.InitialY, sprite.Position.Y.Whole,
                 $"Draygon burial Evir {entry} spawned Y");
             AssertEqual(EnemyPaletteBits.Palette7, sprite.GraphicsIndex,
                 $"Draygon burial Evir {entry} palette");
@@ -85,13 +85,13 @@ internal static partial class Program
                 definition.InitialY,
                 definition.YSubspeed,
                 add: ((definition.Angle + 0x0080) & 0x0080) != 0);
-            AssertEqual(expectedX, sprite.XPosition,
+            AssertEqual(expectedX, sprite.Position.X.Whole,
                 $"Draygon burial Evir {entry} moved X");
-            AssertEqual(expectedXSub, sprite.XSubposition,
+            AssertEqual(expectedXSub, sprite.Position.X.Fraction,
                 $"Draygon burial Evir {entry} moved X fraction");
-            AssertEqual(expectedY, sprite.YPosition,
+            AssertEqual(expectedY, sprite.Position.Y.Whole,
                 $"Draygon burial Evir {entry} moved Y");
-            AssertEqual(expectedYSub, sprite.YSubposition,
+            AssertEqual(expectedYSub, sprite.Position.Y.Fraction,
                 $"Draygon burial Evir {entry} moved Y fraction");
         }
 

@@ -171,12 +171,11 @@ internal static partial class Program
             ShotAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyShot,
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         };
-        target.XPosition = 139;
-        target.YPosition = 123;
-        target.XRadius = target.YRadius = 16;
+        target.Position = target.Position.WithWhole(new(139, 123));
+        target.Radius = new(16, 16);
         target.Health = 1000;
         target.SpritemapPointer = 0x8000;
-        combat.System.StepFrame(0, 0, timeIsFrozen: true, samus, level: combat.Level);
+        combat.System.StepFrame(new(0, 0), timeIsFrozen: true, samus, level: combat.Level);
         AssertEqual(1, combat.System.ResolveOrdinaryProjectileHits(
             combat.Bus, combatProjectiles, combatShared, samus),
             "active Chainsaw overlaps one ordinary enemy");

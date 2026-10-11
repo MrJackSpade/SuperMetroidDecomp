@@ -27,16 +27,12 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.FallingSpark,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
-        projectile.XPosition = source.XPosition;
-        projectile.XSubposition = source.XSubposition;
-        projectile.YPosition = unchecked((ushort)(source.YPosition + 8));
-        projectile.YSubposition = source.YSubposition;
+        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(unchecked((ushort)(source.Position.Y.Whole + 8)), source.Position.Y.Fraction));
 
         // `$86:F391` zeros both ordinary velocity words, then calls the shared RNG. The
         // horizontal table is one record short. The compiled definition retains the
         // final RNG outcome's instruction-byte overread, including its signed delta.
-        projectile.XVelocity = 0;
-        projectile.YVelocity = 0;
+        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         Func<ushort> nextRandom = _nextRandom ?? throw new InvalidOperationException(
             "Falling Spark initialization requires the shared cartridge RNG.");
         (projectile.Variable1, projectile.Variable0) = FallingSparkLaunchDefinitions.FromRandom(nextRandom());
@@ -52,7 +48,7 @@ public sealed partial class RoomEnemySystem
         // A nonnegative vertical whole word first passes through the generic signed-8.8
         // collision helper. The helper's accepted subpixel movement is *additional* to the
         // manual 16.16 movement below; omitting it shifts the floor-contact frame.
-        if (unchecked((short)projectile.YVelocity) >= 0)
+        if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
         {
             // The spark's whole velocity word passes through the shared signed-8.8
             // Move_EnemyProjectile_Vertically ($86:897B), including its slope reactions.
@@ -62,16 +58,16 @@ public sealed partial class RoomEnemySystem
                 return;
             }
 
-            uint acceleratedFraction = (uint)projectile.XVelocity + 0x4000;
-            projectile.XVelocity = unchecked((ushort)acceleratedFraction);
+            uint acceleratedFraction = (uint)projectile.Velocity.X.RawValue + 0x4000;
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)acceleratedFraction)));
             ushort acceleratedWhole = unchecked((ushort)(
-                projectile.YVelocity + (acceleratedFraction >> 16)));
+                projectile.Velocity.Y.RawValue + (acceleratedFraction >> 16)));
 
             // CMP #$0004 / BCS deliberately stops storing the whole word once it reaches
             // four. The fractional word still received its $4000 increment immediately
             // before this test, reproducing the cartridge's slightly asymmetric cap.
             if (acceleratedWhole < 4)
-                projectile.YVelocity = acceleratedWhole;
+                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(acceleratedWhole));
         }
 
         AddFallingSparkVerticalVelocity(projectile);
@@ -84,19 +80,19 @@ public sealed partial class RoomEnemySystem
     private static void AddFallingSparkVerticalVelocity(
         RoomEnemyProjectileSlot projectile)
     {
-        uint fraction = (uint)projectile.YSubposition + projectile.XVelocity;
-        projectile.YSubposition = unchecked((ushort)fraction);
-        projectile.YPosition = unchecked((ushort)(
-            projectile.YPosition + projectile.YVelocity + (fraction >> 16)));
+        uint fraction = (uint)projectile.Position.Y.Fraction + projectile.Velocity.X.RawValue;
+        projectile.Position = projectile.Position.WithFractionY(unchecked((ushort)fraction));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
+            projectile.Position.Y.Whole + projectile.Velocity.Y.RawValue + (fraction >> 16))));
     }
 
     private static void AddFallingSparkHorizontalVelocity(
         RoomEnemyProjectileSlot projectile)
     {
-        uint fraction = (uint)projectile.XSubposition + projectile.Variable0;
-        projectile.XSubposition = unchecked((ushort)fraction);
-        projectile.XPosition = unchecked((ushort)(
-            projectile.XPosition + projectile.Variable1 + (fraction >> 16)));
+        uint fraction = (uint)projectile.Position.X.Fraction + projectile.Variable0;
+        projectile.Position = projectile.Position.WithFractionX(unchecked((ushort)fraction));
+        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
+            projectile.Position.X.Whole + projectile.Variable1 + (fraction >> 16))));
     }
 
     private static void BeginFallingSparkFloorImpact(RoomEnemyProjectileSlot projectile)
@@ -117,16 +113,14 @@ public sealed partial class RoomEnemySystem
         // The same aliased pair now represents vertical -0.5 in 16.16. Because the whole
         // word is negative, later frames skip collision and gravity while the impact spark
         // arcs upward through its eleven-frame blinking animation.
-        projectile.XVelocity = 0x8000;
-        projectile.YVelocity = 0xffff;
-        projectile.YPosition = unchecked((ushort)(projectile.YPosition - 2));
+        projectile.Velocity = new(new SnesSignedEightEight(0x8000), new SnesSignedEightEight(0xffff));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 2)));
     }
 
     private void SpawnFallingSparkTrail(RoomEnemyProjectileSlot projectile)
     {
         _ = SpawnRoomSpriteObject(
-            projectile.XPosition,
-            projectile.YPosition,
+            projectile.Position.Whole,
             RoomSpriteObjectKind.FallingSparkTrail,
             projectile.GraphicsIndex);
     }

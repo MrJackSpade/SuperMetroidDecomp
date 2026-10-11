@@ -35,11 +35,11 @@ internal static partial class Program
         // A frozen Metroid takes the frozen branch of its shot AI; one missile finishes it.
         metroid.FrozenTimer = 100;
         metroid.Health = 1;
-        runtime.Enemies.PrepareEnemyProcessingList((ushort)(metroid.XPosition - 0x80), (ushort)(metroid.YPosition - 0x70));
+        runtime.Enemies.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
 
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x0100; shot.Damage = 100; shot.Direction = (ushort)(alreadyMarked ? 0x12 : 0x02);
-        shot.Position = shot.Position.WithWhole(new(metroid.XPosition, metroid.YPosition));
+        shot.Position = shot.Position.WithWhole(metroid.Position.Whole);
         shot.Radius = new(4, 4);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus);

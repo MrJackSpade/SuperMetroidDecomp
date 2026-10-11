@@ -147,8 +147,7 @@ internal static partial class Program
         static DraygonEnemyState NewState(RoomEnemySystem enemies)
         {
             RoomEnemySlot body = enemies.Slots[0];
-            body.XPosition = 128;
-            body.YPosition = 128;
+            body.Position = body.Position.WithWhole(new(128, 128));
             return new DraygonEnemyState(body);
         }
 
@@ -169,7 +168,7 @@ internal static partial class Program
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, samus, Position16<RoomPixels>.Zero]);
                 if (projectile.PresentationOperandAddress != 0)
                     selectedPresentation.Add(projectile.PresentationOperandAddress);
             }

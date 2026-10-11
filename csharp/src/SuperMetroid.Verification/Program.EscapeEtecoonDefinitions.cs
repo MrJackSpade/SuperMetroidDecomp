@@ -57,8 +57,7 @@ internal static partial class Program
                 .SetValue(enemies, (Func<EventNumber, bool>)(_ => false));
             RoomEnemySlot slot = enemies.Slots[0];
             slot.Parameter1 = parameter;
-            slot.XPosition = 0xaaaa;
-            slot.YPosition = 0xbbbb;
+            slot.Position = slot.Position.WithWhole(new(0xaaaa, 0xbbbb));
             initialize.Invoke(enemies, [slot]);
 
             int role = parameter >> 1;
@@ -66,9 +65,9 @@ internal static partial class Program
                 EscapeEtecoonDefinitions.Initialization(parameter);
             EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
                 throw new InvalidDataException("Escape Etecoon initializer omitted typed state.");
-            AssertEqual(expected.XPosition, slot.XPosition,
+            AssertEqual(expected.XPosition, slot.Position.X.Whole,
                 $"production escape Etecoon selector {parameter} X");
-            AssertEqual(expected.YPosition, slot.YPosition,
+            AssertEqual(expected.YPosition, slot.Position.Y.Whole,
                 $"production escape Etecoon selector {parameter} Y");
             AssertEqual(expected.PreInstruction, state.PreInstruction,
                 $"production escape Etecoon selector {parameter} pre-instruction");
@@ -127,11 +126,11 @@ internal static partial class Program
 
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
-        ushort xBeforeGratitude = etecoon.XPosition;
+        ushort xBeforeGratitude = etecoon.Position.X.Whole;
         etecoon.CurrentInstruction =
             EscapeEtecoonInstructionProgramDefinitions.ExpressGratitudeThenEscape;
         RunForcedEscapeEtecoonInstructions(process, enemies, etecoon, 40, rom, selectedPresentation);
-        AssertTrue(unchecked((short)(etecoon.XPosition - xBeforeGratitude)) < 0,
+        AssertTrue(unchecked((short)(etecoon.Position.X.Whole - xBeforeGratitude)) < 0,
             "escape Etecoon gratitude program applies its repeated left displacement");
         AssertEqual(EscapeEtecoonPreInstruction.EscapeRight, state.PreInstruction,
             "escape Etecoon gratitude program hands off to rightward escape");
@@ -198,7 +197,7 @@ internal static partial class Program
         HashSet<ushort> selectedPresentation)
     {
         object?[] arguments =
-            [etecoon, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [etecoon, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int step = 0; step < steps; step++)
         {
             etecoon.InstructionTimer = 1;

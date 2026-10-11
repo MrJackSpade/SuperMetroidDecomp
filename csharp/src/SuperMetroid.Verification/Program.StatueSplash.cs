@@ -30,14 +30,14 @@ internal static partial class Program
             AssertTrue(particle is not null, "retail eye instruction spawned a particle");
             int angle = unchecked((byte)(random - 32));
             ushort nativeX = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + (angle + 64) * 2);
-            AssertEqual(nativeX, particle!.XVelocity, $"native launch velocity for random {random}");
+            AssertEqual(nativeX, particle!.Velocity.X.RawValue, $"native launch velocity for random {random}");
             ushort nativeY = unchecked((ushort)(4 * RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + angle * 2) + 16));
-            AssertEqual(nativeY, particle.YVelocity, $"native launch gravity for random {random}");
+            AssertEqual(nativeY, particle.Velocity.Y.RawValue, $"native launch gravity for random {random}");
             // Children run later in the same descending pool pass, so seed the
             // subsequent integration from the already-advanced production position.
-            int x = (particle.XPosition << 16) | particle.XSubposition;
-            int y = (particle.YPosition << 16) | particle.YSubposition;
-            short vy = unchecked((short)particle.YVelocity);
+            int x = (particle.Position.X.Whole << 16) | particle.Position.X.Fraction;
+            int y = (particle.Position.Y.Whole << 16) | particle.Position.Y.Fraction;
+            short vy = unchecked((short)particle.Velocity.Y.RawValue);
             bool crossed = false;
             for (int frame = 0; frame < 200 && particle.IsActive; frame++)
             {
@@ -50,8 +50,8 @@ internal static partial class Program
                 {
                     var splash = enemies.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueSplash);
                     AssertTrue(splash is not null, "surface crossing spawned splash");
-                    AssertEqual(unchecked((ushort)(x >> 16)), splash!.XPosition, "splash X follows native particle trajectory");
-                    AssertEqual(212, splash.YPosition, "splash is four pixels above water surface");
+                    AssertEqual(unchecked((ushort)(x >> 16)), splash!.Position.X.Whole, "splash X follows native particle trajectory");
+                    AssertEqual(212, splash.Position.Y.Whole, "splash is four pixels above water surface");
                     // Isolate the spawned actor after the real crossing so every
                     // emitted sprite can be compared against its native screen origin.
                     foreach (var other in enemies.EnemyProjectiles)
@@ -67,7 +67,7 @@ internal static partial class Program
                         expectedOam.FinalizeFrame();
                         var actualOam = new OamBuffer();
                         actualOam.BeginFrame();
-                        enemies.DrawEnemyProjectiles(actualOam, 32, 48);
+                        enemies.DrawEnemyProjectiles(actualOam, new(32, 48));
                         actualOam.FinalizeFrame();
                         AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) &&
                             actualOam.HighTable.SequenceEqual(expectedOam.HighTable), "splash OAM stays attached to native surface after camera subtraction");

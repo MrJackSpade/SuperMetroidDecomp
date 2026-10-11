@@ -172,11 +172,10 @@ internal static partial class Program
             slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.MiniKraid;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
-            slot.XPosition = 0x0100;
-            slot.YPosition = 0x0100;
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             samus = new SamusState
             {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(movingRight ? (ushort)0x0140 : (ushort)0x00c0, slot.YPosition)),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(movingRight ? (ushort)0x0140 : (ushort)0x00c0, slot.Position.Y.Whole)),
             };
             initialize(slot, samus);
             state = enemies.FakeKraidStates[0]!;
@@ -193,7 +192,7 @@ internal static partial class Program
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
             object?[] arguments =
-                [slot, samus, level, (ushort)0, (ushort)0, (ushort)0];
+                [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
         }

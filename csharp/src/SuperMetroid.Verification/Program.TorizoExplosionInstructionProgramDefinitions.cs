@@ -51,39 +51,39 @@ internal static partial class Program
 
         for (int frame = 1; frame <= 36; frame++)
         {
-            process.Invoke(lowEnemies, [low, null, (ushort)0, (ushort)0]);
+            process.Invoke(lowEnemies, [low, null, Position16<RoomPixels>.Zero]);
             VerifyExecutedProjectileFrame(rom, low, spriteArtwork, executedOperands);
             AssertTrue(low.IsActive,
                 $"low-health explosion remains active through frame {frame}");
             if (frame == 1)
             {
-                AssertEqual((ushort)1005, low.XPosition,
+                AssertEqual((ushort)1005, low.Position.X.Whole,
                     "low-health explosion first negative X jitter");
-                AssertEqual((ushort)483, low.YPosition,
+                AssertEqual((ushort)483, low.Position.Y.Whole,
                     "low-health explosion first negative Y jitter");
                 AssertEqual((ushort)3, low.GeneralTimer,
                     "low-health explosion installs three-cycle timer");
             }
             else if (frame == 13)
             {
-                AssertEqual((ushort)1013, low.XPosition,
+                AssertEqual((ushort)1013, low.Position.X.Whole,
                     "low-health explosion second X jitter resets around center");
-                AssertEqual((ushort)494, low.YPosition,
+                AssertEqual((ushort)494, low.Position.Y.Whole,
                     "low-health explosion second Y jitter resets around center");
                 AssertEqual((ushort)2, low.GeneralTimer,
                     "low-health explosion second cycle timer");
             }
             else if (frame == 25)
             {
-                AssertEqual((ushort)1009, low.XPosition,
+                AssertEqual((ushort)1009, low.Position.X.Whole,
                     "low-health explosion third X jitter resets around center");
-                AssertEqual((ushort)496, low.YPosition,
+                AssertEqual((ushort)496, low.Position.Y.Whole,
                     "low-health explosion third Y jitter resets around center");
                 AssertEqual((ushort)1, low.GeneralTimer,
                     "low-health explosion final cycle timer");
             }
         }
-        process.Invoke(lowEnemies, [low, null, (ushort)0, (ushort)0]);
+        process.Invoke(lowEnemies, [low, null, Position16<RoomPixels>.Zero]);
         Suite(nameof(VerifyExecutedProjectileFrame), () => VerifyExecutedProjectileFrame(rom, low, spriteArtwork, executedOperands));
         AssertTrue(!low.IsActive,
             "low-health explosion deletes after three exact twelve-frame cycles");
@@ -169,30 +169,30 @@ internal static partial class Program
 
             for (int frame = 1; frame <= visibleFrames; frame++)
             {
-                process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
                 AssertTrue(projectile.IsActive,
                     $"Torizo death {scenario} remains active through frame {frame}");
                 if (frame == 1)
                 {
-                    AssertEqual(unchecked((ushort)expectedFirst.X), projectile.XPosition,
+                    AssertEqual(unchecked((ushort)expectedFirst.X), projectile.Position.X.Whole,
                         $"Torizo death {scenario} first X jitter");
-                    AssertEqual(unchecked((ushort)expectedFirst.Y), projectile.YPosition,
+                    AssertEqual(unchecked((ushort)expectedFirst.Y), projectile.Position.Y.Whole,
                         $"Torizo death {scenario} first Y jitter");
                     AssertEqual((ushort)2, projectile.GeneralTimer,
                         $"Torizo death {scenario} installs two-cycle timer");
                 }
                 else if (frame == secondCycleFrame)
                 {
-                    AssertEqual(unchecked((ushort)expectedSecond.X), projectile.XPosition,
+                    AssertEqual(unchecked((ushort)expectedSecond.X), projectile.Position.X.Whole,
                         $"Torizo death {scenario} second X jitter resets around center");
-                    AssertEqual(unchecked((ushort)expectedSecond.Y), projectile.YPosition,
+                    AssertEqual(unchecked((ushort)expectedSecond.Y), projectile.Position.Y.Whole,
                         $"Torizo death {scenario} second Y jitter resets around center");
                     AssertEqual((ushort)1, projectile.GeneralTimer,
                         $"Torizo death {scenario} final cycle timer");
                 }
             }
-            process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             AssertTrue(!projectile.IsActive,
                 $"Torizo death {scenario} deletes after its second complete cycle");
@@ -213,8 +213,7 @@ internal static partial class Program
         static RoomEnemySlot CreateTorizo(RoomEnemySystem enemies)
         {
             RoomEnemySlot torizo = enemies.Slots[0];
-            torizo.XPosition = 1000;
-            torizo.YPosition = 500;
+            torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             return torizo;
         }
     }

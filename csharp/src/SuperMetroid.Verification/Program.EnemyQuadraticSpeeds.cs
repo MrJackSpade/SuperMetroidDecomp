@@ -30,11 +30,10 @@ internal static partial class Program
         {
             int offset = index * 8 + (negative ? 4 : 0);
             uint expected = unchecked(origin + ((uint)ProjectileWord(offset + 2) << 16 | ProjectileWord(offset)));
-            rock.YPosition = (ushort)(origin >> 16);
-            rock.YSubposition = unchecked((ushort)origin);
+            rock.Position = rock.Position.WithY(new((ushort)(origin >> 16), unchecked((ushort)origin)));
             rock.Variable1 = 0xdead;
             addRock(rock, index, negative);
-            AssertEqual(expected, ((uint)rock.YPosition << 16) | rock.YSubposition, "Polyp real split-word carry/wrap");
+            AssertEqual(expected, rock.Position.Y.RawValue, "Polyp real split-word carry/wrap");
             AssertEqual(ProjectileWord(offset + 2), rock.Variable1, "Polyp final native scratch whole word");
         }
         AssertThrows<InvalidDataException>(() => addRock(rock, 95, false), "Polyp invalid speed remains loud");

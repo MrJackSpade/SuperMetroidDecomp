@@ -73,8 +73,10 @@ internal static partial class Program
         wing.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
         body.Parameter1 = 0;
         wing.Parameter1 = 1;
-        body.XPosition = wing.XPosition = 0x0100;
-        body.YPosition = wing.YPosition = 0x0100;
+        wing.Position = wing.Position.WithWholeX(0x0100);
+        body.Position = body.Position.WithWholeX(0x0100);
+        wing.Position = wing.Position.WithWholeY(0x0100);
+        body.Position = body.Position.WithWholeY(0x0100);
 
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeDragon", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -90,7 +92,7 @@ internal static partial class Program
         DragonEnemyState wingState = enemies.DragonStates[1]!;
         var samus = new SamusState
         {
-            Position = new(new(unchecked((ushort)(body.XPosition + (facingLeft ? -0x10 : 0x10))), 0), new(0, 0)),
+            Position = new(new(unchecked((ushort)(body.Position.X.Whole + (facingLeft ? -0x10 : 0x10))), 0), new(0, 0)),
         };
 
         wait.Invoke(enemies, [body, bodyState, samus]);

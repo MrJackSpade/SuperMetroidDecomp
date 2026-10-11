@@ -183,7 +183,7 @@ internal static partial class Program
         nativeBaby.FinalizeFrame();
         var installedBaby = new OamBuffer();
         installedBaby.BeginFrame();
-        enemies.DrawCeresRidleyImmediateBabyAndDoor(installedBaby, 0, 0);
+        enemies.DrawCeresRidleyImmediateBabyAndDoor(installedBaby, new(0, 0));
         installedBaby.FinalizeFrame();
         AssertTrue(nativeBaby.LowTable.SequenceEqual(installedBaby.LowTable) &&
                    nativeBaby.HighTable.SequenceEqual(installedBaby.HighTable),
@@ -213,7 +213,7 @@ internal static partial class Program
         baby.BabyInstructionTimer = 1;
         var editedBaby = new OamBuffer();
         editedBaby.BeginFrame();
-        enemies.DrawCeresRidleyImmediateBabyAndDoor(editedBaby, 0, 0);
+        enemies.DrawCeresRidleyImmediateBabyAndDoor(editedBaby, new(0, 0));
         editedBaby.FinalizeFrame();
         AssertEqual(nativeBaby.GetEntry(0).X, editedBaby.GetEntry(0).X,
             "Baby art edit preserves the authored world X position");

@@ -21,7 +21,7 @@ internal static partial class Program
         for (int frame = 0; frame < 600; frame++)
         {
             var before = runtime.Enemies.Draygon!;
-            var window = DraygonMainScreenWindow.Select(before.Body.XPosition, before.Body.YPosition,
+            var window = DraygonMainScreenWindow.Select(before.Body.Position.X.Whole, before.Body.Position.Y.Whole,
                 runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y, ((ushort)before.Body.Properties & 0x200) != 0);
             loaded.Game.Step(0);
             // The graphics-drawn hook uses the final camera, exactly like appendage OAM,
@@ -31,10 +31,10 @@ internal static partial class Program
             var boss = runtime.Enemies.Draygon ?? throw new InvalidOperationException("Fixture must remain in Draygon's encounter.");
             verifiedTilemapWords += VerifyDraygonBodyTilemap(runtime);
             // Independent transcription of $A5:9342, including unsigned PPU-word wrapping.
-            ushort expectedX = unchecked((ushort)(boss.BodyGraphicsXDisplacement + cameraX - boss.Body.XPosition - 450));
-            ushort expectedY = unchecked((ushort)(boss.BodyGraphicsYDisplacement + cameraY - boss.Body.YPosition - 192));
+            ushort expectedX = unchecked((ushort)(boss.BodyGraphicsXDisplacement + cameraX - boss.Body.Position.X.Whole - 450));
+            ushort expectedY = unchecked((ushort)(boss.BodyGraphicsYDisplacement + cameraY - boss.Body.Position.Y.Whole - 192));
             if (runtime.BackgroundScroll.Bg2Scroll.X != expectedX || runtime.BackgroundScroll.Bg2Scroll.Y != expectedY)
-                throw new InvalidOperationException($"Draygon frame {frame}: body ({boss.Body.XPosition},{boss.Body.YPosition}), BG2 actual ({runtime.BackgroundScroll.Bg2Scroll.X},{runtime.BackgroundScroll.Bg2Scroll.Y}), native ({expectedX},{expectedY}).");
+                throw new InvalidOperationException($"Draygon frame {frame}: body ({boss.Body.Position.X.Whole},{boss.Body.Position.Y.Whole}), BG2 actual ({runtime.BackgroundScroll.Bg2Scroll.X},{runtime.BackgroundScroll.Bg2Scroll.Y}), native ({expectedX},{expectedY}).");
             if (frame > 0)
             {
                 var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
@@ -68,7 +68,7 @@ internal static partial class Program
             }
             previousX = expectedX;
             previousY = expectedY;
-            positions.Add((boss.Body.XPosition, boss.Body.YPosition));
+            positions.Add((boss.Body.Position.X.Whole, boss.Body.Position.Y.Whole));
             if (frame is 1 or 120 or 240 or 360 or 480)
                 PngWriterTooling.WriteRgba($"{output}/frame-{frame}.png", new Extent16<ScreenPixels>(256, 224),
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));

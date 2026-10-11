@@ -229,10 +229,9 @@ internal static partial class Program
                 slot.ExtraProperties = slot.ExtraProperties.With(
                     EnemyExtraProperties.NewInstructionFrame);
             slot.SpritemapPointer = pointer;
-            slot.XPosition = 0x0080;
-            slot.YPosition = 0x0080;
+            slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
-            enemies.DrawLayers(oam, 0, 0, 0, 0);
+            enemies.DrawLayers(oam, new(0, 0), 0, 0);
             return (oam, vram.Bytes.ToArray());
         }
     }

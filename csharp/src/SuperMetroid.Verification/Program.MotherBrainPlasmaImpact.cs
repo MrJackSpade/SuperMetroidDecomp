@@ -14,8 +14,8 @@ internal static partial class Program
         head.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead;
         head.Definition = RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer);
         head.Properties = head.Properties.With(EnemyProperties.BlocksPlasmaBeam);
-        head.XPosition = head.YPosition = 128;
-        head.XRadius = head.YRadius = 16;
+        head.Position = head.Position.WithWhole(new(128, 128));
+        head.Radius = new(16, 16);
         head.SpritemapPointer = 1;
         head.Health = 18000;
         var state = new MotherBrainEnemyState(enemies.Slots[0]) { Head = head, Form = 2, WalkCounter = 0x1000 };

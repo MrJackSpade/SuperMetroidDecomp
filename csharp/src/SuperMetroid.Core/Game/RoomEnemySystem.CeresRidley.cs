@@ -116,8 +116,7 @@ public sealed partial class RoomEnemySystem
         // verified IgnoreSamusCollision identity used by the scheduler.
         slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        slot.XPosition = 0x00ba;
-        slot.YPosition = 0x00a9;
+        slot.Position = slot.Position.WithWhole(new(0x00ba, 0x00a9));
         CeresStatus = 0;
 
         Ridley = new RidleyEnemyState
@@ -141,8 +140,8 @@ public sealed partial class RoomEnemySystem
             BabyInstructionTimer = 1,
             BabyFunction = CeresBabyFunction.CarriedInArms,
             BabyCurrentSpritemap = 0,
-            BabyXPosition = unchecked((ushort)(slot.XPosition - 16)),
-            BabyYPosition = unchecked((ushort)(slot.YPosition + 22)),
+            BabyXPosition = unchecked((ushort)(slot.Position.X.Whole - 16)),
+            BabyYPosition = unchecked((ushort)(slot.Position.Y.Whole + 22)),
             WingFrame = 5,
             WingAnimationTimer = 0,
             WingAnimationTimerDelta = 0,
@@ -253,7 +252,7 @@ public sealed partial class RoomEnemySystem
             case RidleyAiFunction.CeresLiftoffAccelerating:
                 // $A6:A6AF adds -16 to the 8.8 Y velocity before the common movement pass.
                 state.VerticalVelocity = unchecked((ushort)(state.VerticalVelocity - 16));
-                if (unchecked((short)(slot.YPosition - 112)) < 0)
+                if (unchecked((short)(slot.Position.Y.Whole - 112)) < 0)
                 {
                     state.Function = RidleyAiFunction.CeresLiftoffDecelerating;
                     TickCeresRidleyLiftoffDecelerating(slot, state);
@@ -482,7 +481,7 @@ public sealed partial class RoomEnemySystem
         // The fallthrough from A6AF deliberately applies both -16 and +20 on the crossing
         // frame. Do not combine these into a single acceleration outside this state.
         state.VerticalVelocity = unchecked((ushort)(state.VerticalVelocity + 20));
-        if (unchecked((short)(slot.YPosition - 80)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - 80)) < 0)
         {
             state.Function = RidleyAiFunction.CeresHovering;
             state.FightMode = RidleyFightMode.Fighting;
@@ -539,20 +538,20 @@ public sealed partial class RoomEnemySystem
         int verticalVelocity = unchecked((short)state.VerticalVelocity);
         int magnitude = Math.Max(128, Math.Abs(verticalVelocity));
         state.VerticalVelocity = unchecked((ushort)(verticalVelocity < 0 ? -magnitude : magnitude));
-        AccelerateRidleyToward(slot, state, slot.XPosition, 88, 0);
+        AccelerateRidleyToward(slot, state, slot.Position.X.Whole, 88, 0);
 
-        if (unchecked((short)(slot.YPosition - 80)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - 80)) < 0)
         {
             state.HoverCounter = unchecked((ushort)(state.HoverCounter + 1));
             if (state.HoverCounter >= 48)
                 state.Function = RidleyAiFunction.CeresSwoopSetup;
             return;
         }
-        if (unchecked((short)(slot.YPosition - 128)) >= 0)
+        if (unchecked((short)(slot.Position.Y.Whole - 128)) >= 0)
             return;
 
-        state.FireballBaseXPosition = slot.XPosition;
-        state.FireballBaseYPosition = slot.YPosition;
+        state.FireballBaseXPosition = slot.Position.X.Whole;
+        state.FireballBaseYPosition = slot.Position.Y.Whole;
         // Function $A782 installs the complete retail mouth/fireball instruction stream.
         // Its $E84D/$E904/$E909 commands calculate and spawn bank-$86 actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
@@ -613,7 +612,7 @@ public sealed partial class RoomEnemySystem
         RidleyEnemyState state)
     {
         AccelerateRidleyToward(slot, state, 192, 80, 1);
-        if (unchecked((short)(slot.YPosition - 96)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - 96)) < 0)
         {
             state.Function = RidleyAiFunction.CeresSwoopDescendingAimingDown;
             state.FunctionTimer = 10;
@@ -676,7 +675,7 @@ public sealed partial class RoomEnemySystem
         // Shared Ridley function $BD9A steers toward ($C0,$80). Ceres uses this only for
         // the 100-shot "fake retreat"; the low-energy branch bypasses the Baby retrieval.
         AccelerateRidleyToward(slot, state, 192, 128, 1);
-        if (unchecked((short)(slot.XPosition - 192)) >= 0)
+        if (unchecked((short)(slot.Position.X.Whole - 192)) >= 0)
             state.Function = RidleyAiFunction.CeresFakeRetreatRising;
     }
 
@@ -689,7 +688,7 @@ public sealed partial class RoomEnemySystem
         // 21-underflow wait before Ridley changes to the retrieval pose.
         state.MinimumY = unchecked((ushort)-192);
         AccelerateRidleyToward(slot, state, 192, unchecked((ushort)-128), 1);
-        if (unchecked((short)(slot.YPosition - 32)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - 32)) < 0)
         {
             state.BabyFunction = CeresBabyFunction.Drop;
             state.Function = RidleyAiFunction.CeresWaitBeforeRetrievingBaby;
@@ -705,8 +704,8 @@ public sealed partial class RoomEnemySystem
         ushort handTargetY = unchecked((ushort)(state.BabyYPosition - 56));
         AccelerateRidleyToward(slot, state, handTargetX, handTargetY, 12);
 
-        ushort handX = unchecked((ushort)(slot.XPosition + 14));
-        ushort handY = unchecked((ushort)(slot.YPosition + 66));
+        ushort handX = unchecked((ushort)(slot.Position.X.Whole + 14));
+        ushort handY = unchecked((ushort)(slot.Position.Y.Whole + 66));
         if (Math.Abs(unchecked((short)(state.BabyXPosition - handX))) >= 8 ||
             Math.Abs(unchecked((short)(state.BabyYPosition - handY))) >= 8)
         {
@@ -726,8 +725,8 @@ public sealed partial class RoomEnemySystem
                 // Before the fake retreat, the Baby remains at Ridley's original left-hand
                 // anchor. This function is also why the retrieval target begins coherent
                 // even though the Baby is not a separate RoomEnemySlot.
-                state.BabyXPosition = unchecked((ushort)(slot.XPosition - 16));
-                state.BabyYPosition = unchecked((ushort)(slot.YPosition + 22));
+                state.BabyXPosition = unchecked((ushort)(slot.Position.X.Whole - 16));
+                state.BabyYPosition = unchecked((ushort)(slot.Position.Y.Whole + 22));
                 return;
 
             case CeresBabyFunction.Drop:
@@ -752,8 +751,8 @@ public sealed partial class RoomEnemySystem
             case CeresBabyFunction.CarriedInFeet:
                 // Once the hand rectangles overlap, the Baby follows the grasp point for
                 // the real retreat and disappears with Ridley at the status-one handoff.
-                state.BabyXPosition = unchecked((ushort)(slot.XPosition + 14));
-                state.BabyYPosition = unchecked((ushort)(slot.YPosition + 66));
+                state.BabyXPosition = unchecked((ushort)(slot.Position.X.Whole + 14));
+                state.BabyYPosition = unchecked((ushort)(slot.Position.Y.Whole + 66));
                 return;
 
             case CeresBabyFunction.Idle:
@@ -773,7 +772,7 @@ public sealed partial class RoomEnemySystem
         // is performed before the common movement pass; once the origin is above Y=-128
         // the 64-frame delay is installed and $A6:A99D falls through into its first tick.
         AccelerateRidleyToward(slot, state, 192, unchecked((ushort)-128), 1);
-        if (unchecked((short)(slot.YPosition + 128)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole + 128)) < 0)
         {
             state.Function = RidleyAiFunction.CeresRetreatDelay;
             state.FunctionTimer = 64;
@@ -816,9 +815,9 @@ public sealed partial class RoomEnemySystem
         ushort divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
 
         state.HorizontalVelocity = AccelerateAxis(
-            state.HorizontalVelocity, slot.XPosition, targetX, divisor);
+            state.HorizontalVelocity, slot.Position.X.Whole, targetX, divisor);
         state.VerticalVelocity = AccelerateAxis(
-            state.VerticalVelocity, slot.YPosition, targetY, divisor);
+            state.VerticalVelocity, slot.Position.Y.Whole, targetY, divisor);
     }
 
     /// <summary>
@@ -885,8 +884,8 @@ public sealed partial class RoomEnemySystem
         // $A6:D86B calls the impact routine only when proposed X is strictly below the
         // left bound, before zeroing X velocity. Vertical speed can meet its threshold
         // even when horizontal motion is slow; the right and vertical clamps do not call it.
-        var proposedX = IntegrateUnclampedAxis(slot.XPosition, slot.XSubposition, state.HorizontalVelocity);
-        var proposedY = IntegrateUnclampedAxis(slot.YPosition, slot.YSubposition, state.VerticalVelocity);
+        var proposedX = IntegrateUnclampedAxis(slot.Position.X.Whole, slot.Position.X.Fraction, state.HorizontalVelocity);
+        var proposedY = IntegrateUnclampedAxis(slot.Position.Y.Whole, slot.Position.Y.Fraction, state.VerticalVelocity);
         state.HitRoomBoundary = unchecked((short)(proposedX.Position - state.MinimumX)) < 0 ||
             unchecked((short)(proposedX.Position - state.MaximumX)) >= 0 ||
             unchecked((short)(proposedY.Position - state.MinimumY)) < 0 ||
@@ -898,23 +897,22 @@ public sealed partial class RoomEnemySystem
             EarthquakeType = RidleyWallImpactDefinitions.EarthquakeType;
             EarthquakeTimer = RidleyWallImpactDefinitions.Duration;
         }
-        (slot.XPosition, slot.XSubposition, state.HorizontalVelocity) = IntegrateAxis(
-            slot.XPosition,
-            slot.XSubposition,
+        (SnesFixedPosition x, state.HorizontalVelocity) = IntegrateAxis(
+            slot.Position.X,
             state.HorizontalVelocity,
             state.MinimumX,
             state.MaximumX);
-        (slot.YPosition, slot.YSubposition, state.VerticalVelocity) = IntegrateAxis(
-            slot.YPosition,
-            slot.YSubposition,
+        slot.Position = slot.Position.WithX(x);
+        (SnesFixedPosition y, state.VerticalVelocity) = IntegrateAxis(
+            slot.Position.Y,
             state.VerticalVelocity,
             state.MinimumY,
             state.MaximumY);
+        slot.Position = slot.Position.WithY(y);
     }
 
-    private static (ushort Position, ushort Subposition, ushort Velocity) IntegrateAxis(
-        ushort position,
-        ushort subposition,
+    private static (SnesFixedPosition Position, ushort Velocity) IntegrateAxis(
+        SnesFixedPosition position,
         ushort velocityWord,
         ushort minimum,
         ushort maximum)
@@ -922,15 +920,15 @@ public sealed partial class RoomEnemySystem
         // Ridley's velocities are signed 8.8 values, but the original routine accumulates
         // their fractional byte into the *high* byte of the ordinary 16-bit subposition.
         // Reproduce the byte carry explicitly; a generic 16.16 helper would be off by 256.
-        int fraction = (subposition >> 8) + (velocityWord & 0xff);
-        subposition = unchecked((ushort)((subposition & 0x00ff) | ((fraction & 0xff) << 8)));
-        ushort next = unchecked((ushort)(position + (sbyte)(velocityWord >> 8) + (fraction >> 8)));
+        int fraction = (position.Fraction >> 8) + (velocityWord & 0xff);
+        ushort subposition = unchecked((ushort)((position.Fraction & 0x00ff) | ((fraction & 0xff) << 8)));
+        ushort next = unchecked((ushort)(position.Whole + (sbyte)(velocityWord >> 8) + (fraction >> 8)));
 
         if (unchecked((short)(next - minimum)) < 0)
-            return (minimum, subposition, 0);
+            return (new(minimum, subposition), 0);
         if (unchecked((short)(next - maximum)) >= 0)
-            return (maximum, subposition, 0);
-        return (next, subposition, velocityWord);
+            return (new(maximum, subposition), 0);
+        return (new(next, subposition), velocityWord);
     }
 
     private static (ushort Position, ushort Subposition) IntegrateUnclampedAxis(
@@ -954,8 +952,8 @@ public sealed partial class RoomEnemySystem
         ushort radiusY) =>
         // $A9:EF06 tests overlap with the actor's rectangle, including its boundary.
         // A center-only test delays flight and attack handoffs until Ridley gets too close.
-        Math.Abs(unchecked((short)(slot.XPosition - centerX))) < unchecked((ushort)(slot.XRadius + radiusX + 1)) &&
-            Math.Abs(unchecked((short)(slot.YPosition - centerY))) < unchecked((ushort)(slot.YRadius + radiusY + 1));
+        Math.Abs(unchecked((short)(slot.Position.X.Whole - centerX))) < unchecked((ushort)(slot.Radius.X + radiusX + 1)) &&
+            Math.Abs(unchecked((short)(slot.Position.Y.Whole - centerY))) < unchecked((ushort)(slot.Radius.Y + radiusY + 1));
 
     private static RidleyTailSegment[] CreateInitialRidleyTailSegments()
     {

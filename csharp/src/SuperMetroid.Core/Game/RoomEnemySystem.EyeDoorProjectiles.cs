@@ -77,12 +77,12 @@ public sealed partial class RoomEnemySystem
         }
 
         projectile.Variable1 = request.DoorBit;
-        projectile.XPosition = unchecked((ushort)(
+        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
             blockX * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock + 8 +
-            EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord)));
-        projectile.YPosition = unchecked((ushort)(
+            EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord))));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
             blockY * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock +
-            EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord + 1)));
+            EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord + 1))));
     }
 
     private static void InitializeEyeDoorSweat(
@@ -99,12 +99,11 @@ public sealed partial class RoomEnemySystem
                 "the cartridge velocity-pair table.");
         }
 
-        projectile.XPosition = unchecked((ushort)(
-            blockX * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock - 8));
-        projectile.YPosition = unchecked((ushort)(
-            (blockY + 1) * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock));
-        projectile.XVelocity = unchecked((ushort)EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord));
-        projectile.YVelocity = unchecked((ushort)EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord + 1));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
+            blockX * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock - 8)), unchecked((ushort)(
+            (blockY + 1) * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock))));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord + 1))));
     }
 
     private void InitializeEyeDoorSmoke(
@@ -122,12 +121,11 @@ public sealed partial class RoomEnemySystem
             "Eye-door smoke initialization requires the current cartridge RNG word."))();
         projectile.InstructionPointer = instructionList;
 
-        projectile.XPosition = unchecked((ushort)(
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
             blockX * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock + 8 +
-            placement.XBase + (random & placement.XMask)));
-        projectile.YPosition = unchecked((ushort)(
+            placement.XBase + (random & placement.XMask))), unchecked((ushort)(
             blockY * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock + 8 +
-            placement.YBase + ((random >> 8) & placement.YMask)));
+            placement.YBase + ((random >> 8) & placement.YMask)))));
 
         // $E4FA advances the global seed after sampling it for both coordinates.
         (_nextRandom ?? throw new InvalidOperationException(
@@ -148,10 +146,10 @@ public sealed partial class RoomEnemySystem
         }
 
         int angle = projectile.Variable0 >> 1;
-        projectile.XVelocity = unchecked((ushort)(projectile.XVelocity +
-            ReadEyeDoorAcceleration(angle)));
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity +
-            ReadEyeDoorAcceleration(angle - 64)));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
+            ReadEyeDoorAcceleration(angle)))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue +
+            ReadEyeDoorAcceleration(angle - 64)))));
 
         Bank80SystemState system = _eyeDoorProjectileSystem ??
             throw new InvalidOperationException("A live eye-door projectile has no door-bit owner.");
@@ -169,16 +167,16 @@ public sealed partial class RoomEnemySystem
     {
         MoveEyeDoorEffectHorizontally(projectile, level);
         bool collidedVertically = MoveEyeDoorEffectVertically(projectile, level);
-        if (unchecked((short)projectile.YVelocity) >= 0 && collidedVertically)
+        if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0 && collidedVertically)
         {
-            projectile.YPosition = unchecked((ushort)(projectile.YPosition - 4));
+            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 4)));
             SetEyeDoorEffectImpactList(
                 projectile,
                 EyeDoorSweatInstructionProgramDefinitions.Impact);
             return;
         }
 
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 12));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 12))));
     }
 
     private static short ReadEyeDoorAcceleration(int tableIndex)
@@ -200,28 +198,24 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        (ushort position, ushort subposition) = AddEightBitVelocity(
-            projectile.XPosition,
-            projectile.XSubposition,
-            projectile.XVelocity);
-        int edge = unchecked((short)projectile.XVelocity) < 0
-            ? unchecked((ushort)(position - projectile.XRadius))
-            : unchecked((ushort)(position + projectile.XRadius - 1));
+        SnesFixedPosition moved = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta()).X;
+        int edge = unchecked((short)projectile.Velocity.X.RawValue) < 0
+            ? unchecked((ushort)(moved.Whole - projectile.Radius.X))
+            : unchecked((ushort)(moved.Whole + projectile.Radius.X - 1));
         if (EyeDoorEffectEdgeIsSolid(
             level,
             edge,
-            unchecked((ushort)(projectile.YPosition - projectile.YRadius)),
-            unchecked((ushort)(projectile.YPosition + projectile.YRadius - 1)),
+            unchecked((ushort)(projectile.Position.Y.Whole - projectile.Radius.Y)),
+            unchecked((ushort)(projectile.Position.Y.Whole + projectile.Radius.Y - 1)),
             verticalEdge: false))
         {
-            projectile.XSubposition = 0;
-            projectile.XPosition = SnapEnemyProjectileAxis(projectile.XPosition, edge, projectile.XRadius,
-                movingBack: unchecked((short)projectile.XVelocity) < 0);
+            projectile.Position = projectile.Position.WithFractionX(0);
+            projectile.Position = projectile.Position.WithWholeX(SnapEnemyProjectileAxis(projectile.Position.X.Whole, edge, projectile.Radius.X,
+                movingBack: unchecked((short)projectile.Velocity.X.RawValue) < 0));
             return true;
         }
 
-        projectile.XPosition = position;
-        projectile.XSubposition = subposition;
+        projectile.Position = projectile.Position.WithX(moved);
         return false;
     }
 
@@ -245,28 +239,24 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        (ushort position, ushort subposition) = AddEightBitVelocity(
-            projectile.YPosition,
-            projectile.YSubposition,
-            projectile.YVelocity);
-        int edge = unchecked((short)projectile.YVelocity) < 0
-            ? unchecked((ushort)(position - projectile.YRadius))
-            : unchecked((ushort)(position + projectile.YRadius - 1));
+        SnesFixedPosition moved = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).Y;
+        int edge = unchecked((short)projectile.Velocity.Y.RawValue) < 0
+            ? unchecked((ushort)(moved.Whole - projectile.Radius.Y))
+            : unchecked((ushort)(moved.Whole + projectile.Radius.Y - 1));
         if (EyeDoorEffectEdgeIsSolid(
             level,
             edge,
-            unchecked((ushort)(projectile.XPosition - projectile.XRadius)),
-            unchecked((ushort)(projectile.XPosition + projectile.XRadius - 1)),
+            unchecked((ushort)(projectile.Position.X.Whole - projectile.Radius.X)),
+            unchecked((ushort)(projectile.Position.X.Whole + projectile.Radius.X - 1)),
             verticalEdge: true))
         {
-            projectile.YSubposition = 0;
-            projectile.YPosition = SnapEnemyProjectileAxis(projectile.YPosition, edge, projectile.YRadius,
-                movingBack: unchecked((short)projectile.YVelocity) < 0);
+            projectile.Position = projectile.Position.WithFractionY(0);
+            projectile.Position = projectile.Position.WithWholeY(SnapEnemyProjectileAxis(projectile.Position.Y.Whole, edge, projectile.Radius.Y,
+                movingBack: unchecked((short)projectile.Velocity.Y.RawValue) < 0));
             return true;
         }
 
-        projectile.YPosition = position;
-        projectile.YSubposition = subposition;
+        projectile.Position = projectile.Position.WithY(moved);
         return false;
     }
 
@@ -298,7 +288,7 @@ public sealed partial class RoomEnemySystem
             }
             int blockX = tested == 0 ? (verticalEdge ? startBlock : fixedBlock) : linear % width;
             int blockY = tested == 0 ? (verticalEdge ? fixedBlock : startBlock) : linear / width;
-            int blockIndex = ResolveEnemyCollisionBlockIndex(level, blockX, blockY);
+            int blockIndex = ResolveEnemyCollisionBlockIndex(level, new(unchecked((ushort)(blockX)), unchecked((ushort)(blockY))));
             if (blockIndex < 0)
                 return true;
 

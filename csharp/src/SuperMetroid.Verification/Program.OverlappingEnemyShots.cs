@@ -21,9 +21,8 @@ internal static partial class Program
             var enemy = enemies.Slots[index];
             enemy.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
             enemy.Definition = RoomEnemyDefinitionCatalog.Get(enemy.EnemyDefinitionPointer);
-            enemy.XPosition = enemy.YPosition = 128;
-            enemy.XRadius = enemy.Definition.XRadius;
-            enemy.YRadius = enemy.Definition.YRadius;
+            enemy.Position = enemy.Position.WithWhole(new(128, 128));
+            enemy.Radius = new(enemy.Definition.Radius.X, enemy.Definition.Radius.Y);
             // Keep the real Beetom callback and vulnerability, but enough health to
             // observe damage independently from the death actor and drop machinery.
             enemy.Health = 180;

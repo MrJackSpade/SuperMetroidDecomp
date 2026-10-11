@@ -35,7 +35,7 @@ internal static partial class Program
             new NinjaPaletteReadGuard(bus), stock);
         AssertTrue(nativeColors.Colors.SequenceEqual(stockColors.Colors),
             "Installed ninja target palette preserves full native CGRAM including neighbors");
-        AssertEqual(nativeX, stockSlot.XPosition,
+        AssertEqual(nativeX, stockSlot.Position.X.Whole,
             "Installing ninja palette does not change initial post placement");
         AssertEqual(nativeInstruction, stockSlot.CurrentInstruction,
             "Installing ninja palette does not change initial animation");
@@ -57,7 +57,7 @@ internal static partial class Program
                 (color == NinjaSpacePiratePaletteDefinitions.TargetColor + 4 ? 1 : 0)),
                 editedColors.Colors[color],
                 "Gold-Pirate color edit changes only its shared ninja target color");
-        AssertEqual(nativeX, editedSlot.XPosition,
+        AssertEqual(nativeX, editedSlot.Position.X.Whole,
             "Edited ninja palette does not change physical post placement");
 
         byte[] savedOverride = File.ReadAllBytes(overridePath);
@@ -69,7 +69,7 @@ internal static partial class Program
             EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory));
         AssertTrue(restoredColors.Colors.SequenceEqual(editedColors.Colors),
             "Reload after stock repair retains the selected ninja target colors");
-        AssertEqual(editedSlot.XPosition, restoredSlot.XPosition,
+        AssertEqual(editedSlot.Position.X.Whole, restoredSlot.Position.X.Whole,
             "Reload after stock repair retains ninja placement");
         Console.WriteLine("Ninja Pirate palette: shared gold-Pirate sheet matches native CGRAM; live edit, ROM guard, placement isolation and override persistence pass.");
 
@@ -86,8 +86,7 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyNinja;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
-            slot.XPosition = 0x0100;
-            slot.YPosition = 0x0100;
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.Parameter2 = 0x0080;
             typeof(RoomEnemySystem).GetMethod("InitializeNinjaSpacePirate", flags)!
                 .Invoke(enemies, [slot]);

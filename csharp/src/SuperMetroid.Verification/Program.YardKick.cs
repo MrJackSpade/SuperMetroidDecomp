@@ -19,15 +19,14 @@ internal static partial class Program
             var actor = enemies.Slots[0];
             var state = enemies.YardStates[0]!;
             var samus = new SamusState { Pose = pose, Health = 999, MaxHealth = 999,
-                Position = FixedPosition<RoomPixels>.FromWhole(new(actor.XPosition, actor.YPosition)) };
+                Position = FixedPosition<RoomPixels>.FromWhole(actor.Position.Whole) };
             samus.RefreshCollisionRadii(bus);
-            enemies.StepFrame((ushort)(actor.XPosition - 128), (ushort)(actor.YPosition - 112),
-                false, samus, level: assets.LevelData);
+            enemies.StepFrame(new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)),                 false, samus, level: assets.LevelData);
             // Seed the airborne touch-admission case. The real contact dispatcher
             // must install the kick and consume the published distance words.
             state.MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = YardBehavior.NormalCrawling;
-            samus.Position = samus.Position.WithWhole(new(actor.XPosition, actor.YPosition));
+            samus.Position = samus.Position.WithWhole(actor.Position.Whole);
             samus.InvincibilityTimer = 0;
             samus.AbsoluteMovedLastFrameXFixed = ((uint)whole << 16) | fraction;
             AssertTrue(enemies.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor.NativeIndex),

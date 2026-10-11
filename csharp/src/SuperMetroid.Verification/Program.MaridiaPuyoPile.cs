@@ -22,15 +22,15 @@ internal static partial class Program
         {
             var actor = enemies.Slots[i];
             AssertEqual(EnemyDefinitionId.Puyo, actor.EnemyDefinitionPointer, "pile actor is retail Puyo");
-            AssertEqual(population[i].X, actor.XPosition, "native pile spawn X");
-            AssertEqual(population[i].Y, actor.YPosition, "native pile spawn Y");
+            AssertEqual(population[i].X, actor.Position.X.Whole, "native pile spawn X");
+            AssertEqual(population[i].Y, actor.Position.Y.Whole, "native pile spawn Y");
             AssertEqual(population[i].Delay, enemies.PuyoStates[i]!.HopCooldownTimer, "native full-word initial cooldown");
         }
         var firstHop = Enumerable.Repeat(-1, population.Length).ToArray();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 128)), Health = 999, MaxHealth = 999 };
         for (int frame = 1; frame <= 3841; frame++)
         {
-            enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
+            enemies.StepFrame(new(0, 0), false, samus, level: assets.LevelData);
             for (int i = 0; i < population.Length; i++)
             {
                 var state = enemies.PuyoStates[i]!;
@@ -38,8 +38,8 @@ internal static partial class Program
                 if (frame <= population[i].Delay)
                 {
                     AssertEqual(PuyoEnemyFunction.Grounded, state.Function, "native cooldown holds pile member grounded");
-                    AssertEqual(population[i].X, enemies.Slots[i].XPosition, "waiting pile X does not drift");
-                    AssertEqual(population[i].Y, enemies.Slots[i].YPosition, "waiting pile Y does not collapse");
+                    AssertEqual(population[i].X, enemies.Slots[i].Position.X.Whole, "waiting pile X does not drift");
+                    AssertEqual(population[i].Y, enemies.Slots[i].Position.Y.Whole, "waiting pile Y does not collapse");
                 }
             }
         }

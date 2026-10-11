@@ -67,12 +67,12 @@ public sealed partial class RoomEnemySystem
                 RestrictSamusToKraidFirstScreen(samus);
                 if ((EarthquakeTimer & 5) == 0)
                     RequestKraidRisingRock(body, state);
-                body.XPosition = unchecked((ushort)(body.XPosition +
-                    ((body.YPosition & 2) == 0 ? -1 : 1)));
+                body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole +
+                    ((body.Position.Y.Whole & 2) == 0 ? -1 : 1))));
                 AddSignedKraidVerticalDisplacement(body, -0x8000);
-                if (unchecked((short)(body.YPosition - 457)) < 0)
+                if (unchecked((short)(body.Position.Y.Whole - 457)) < 0)
                 {
-                    body.XPosition = 176;
+                    body.Position = body.Position.WithWholeX(176);
                     // `$C97B` does not leave execution at setup routine `$ADE9`.
                     // That JSR immediately installs `$AEA4`, seeds the random thinking
                     // timer and selects roar list entry `$96DA` for the first attack.
@@ -126,10 +126,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         int displacement)
     {
-        uint position = ((uint)body.YPosition << 16) | body.YSubposition;
+        uint position = body.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
-        body.YPosition = unchecked((ushort)(position >> 16));
-        body.YSubposition = unchecked((ushort)position);
+        body.Position = body.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 
     private ushort ReadKraidThinkingTimer()

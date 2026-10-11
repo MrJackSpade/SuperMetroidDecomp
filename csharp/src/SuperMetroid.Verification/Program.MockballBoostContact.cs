@@ -32,19 +32,18 @@ internal static partial class Program
                 Bank = 0xa3, TouchAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyTouch,
                 VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
             };
-            enemy.XRadius = enemy.YRadius = 8;
+            enemy.Radius = new(8, 8);
             enemy.SpritemapPointer = 0x8000;
             for (int frame = 0; frame < 3; frame++)
             {
                 speed.ContactDamageIndex = SamusContactDamageIndex.None; // Runtime beta clears before movement.
                 SamusMorphBallMovement.StepGrounded(fixture.Bus, floor, samus, (ushort)frame);
-                enemy.XPosition = samus.Position.X.Whole;
-                enemy.YPosition = samus.Position.Y.Whole;
+                enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
                 enemy.Health = 1000;
                 samus.InvincibilityTimer = 1; // Non-attacking control cannot hurt Samus.
                 typeof(RoomEnemySystem).GetMethod("DetermineWhichEnemiesToProcess",
                     System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(fixture.System, new object[] { (ushort)0, (ushort)0 });
+                    .Invoke(fixture.System, new object[] { Position16<RoomPixels>.Zero });
                 fixture.System.ResolveOrdinarySamusContact(samus, 0, floor);
                 AssertEqual(500, enemy.Health, $"pose {(int)pose:X2} mockball frame {frame} inflicts native 500 boost damage");
                 AssertEqual(SamusContactDamageIndex.SpeedBooster, speed.ContactDamageIndex, "moving ball republishes Speed Booster contact attack");

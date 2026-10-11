@@ -47,8 +47,7 @@ internal static partial class Program
         RoomEnemySystem fireballSystem = NewSystem();
         RoomEnemySlot ridley = fireballSystem.Slots[0];
         ridley.EnemyDefinitionPointer = ceresRidleyDefinition;
-        ridley.XPosition = 128;
-        ridley.YPosition = 96;
+        ridley.Position = ridley.Position.WithWhole(new(128, 96));
         typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", instanceFlags)!.SetValue(
             fireballSystem,
             new RidleyEnemyState
@@ -115,8 +114,7 @@ internal static partial class Program
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemyProjectileSlot source = enemies.EnemyProjectiles[0];
-            source.XPosition = 120;
-            source.YPosition = 88;
+            source.Position = source.Position.WithWhole(new(120, 88));
             source.RemainingAfterburns = 1;
             spawnDirectional.Invoke(
                 enemies,
@@ -226,7 +224,7 @@ internal static partial class Program
             RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 

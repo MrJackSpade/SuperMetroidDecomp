@@ -63,7 +63,7 @@ internal static partial class Program
             readRandomNumber: () => random.RandomNumber,
             level: assets.LevelData,
             samus: samus,
-            cameraX: 0x0400,
+            camera: new(0x0400, 0),
             setRoomScrollState: assets.Scrolls.SetStorage,
             isAreaMiniBossDefeated: () => false,
             setAreaMiniBossDefeated: () => { });
@@ -73,7 +73,7 @@ internal static partial class Program
             "ProcessInstructions",
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         object?[] arguments =
-            [body, samus, assets.LevelData, (ushort)0x0400, (ushort)0, (ushort)0];
+            [body, samus, assets.LevelData, new Position16<RoomPixels>((ushort)0x0400, (ushort)0), (ushort)0];
 
         // Each presentation operand follows a compiled duration. Entering at that duration
         // runs the real interpreter without executing unrelated callbacks between frames.

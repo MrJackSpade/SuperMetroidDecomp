@@ -135,11 +135,11 @@ public sealed partial class RoomEnemySystem
 
         slot.CurrentInstruction = HibashiDefinitions.GraphicsInstructionList;
         state.Function = HibashiEnemyFunction.Inactive;
-        state.SpawnYPosition = slot.YPosition;
+        state.SpawnYPosition = slot.Position.Y.Whole;
 
         // The visible graphics record must never participate through its header radius.
         // Its following part receives the dynamic radius from instruction commands.
-        slot.XRadius = 0;
+        slot.Radius = slot.Radius.WithX(0);
     }
 
     /// <summary>Ports <c>MainAI_Hibashi</c> at <c>$A6:9023</c>.</summary>
@@ -218,11 +218,11 @@ public sealed partial class RoomEnemySystem
         HibashiEnemyState state = RequireHibashiState(graphics);
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         HibashiActivityDefinition frame = HibashiDefinitions.ActivityFrame(frameIndex);
-        hitbox.YPosition = unchecked((ushort)(
-            state.SpawnYPosition - frame.YOffset));
-        hitbox.YRadius = frame.YRadius;
+        hitbox.Position = hitbox.Position.WithWholeY(unchecked((ushort)(
+            state.SpawnYPosition - frame.YOffset)));
+        hitbox.Radius = hitbox.Radius.WithY(frame.YRadius);
         if (frameIndex == 0)
-            hitbox.XRadius = 8;
+            hitbox.Radius = hitbox.Radius.WithX(8);
     }
 
     /// <summary>Ports finish-activity instruction <c>$A6:8FD1</c>.</summary>
@@ -232,9 +232,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
 
         state.FinishedActivityFlag = 1;
-        hitbox.XRadius = 0;
-        hitbox.YRadius = 0;
-        graphics.YPosition = state.SpawnYPosition;
+        hitbox.Radius = new(0, 0);
+        graphics.Position = graphics.Position.WithWholeY(state.SpawnYPosition);
         graphics.Properties = graphics.Properties.With(EnemyProperties.Invisible);
         hitbox.Properties = hitbox.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }

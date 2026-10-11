@@ -124,8 +124,8 @@ internal static partial class Program
         {
             EnemyExtendedVisualComponent component = authored[index];
             SpriteVisualPart part = component.Parts.Single();
-            int x = body.XPosition + component.OffsetX + part.OffsetX;
-            int y = body.YPosition + component.OffsetY + part.OffsetY;
+            int x = body.Position.X.Whole + component.OffsetX + part.OffsetX;
+            int y = body.Position.Y.Whole + component.OffsetY + part.OffsetY;
             int palette = part.Palette ?? throw new InvalidDataException("Body OAM fixture requires an explicit palette.");
             ushort tile = checked((ushort)(part.TileRow * 16 + part.TileColumn | palette << 9 |
                 part.Priority << 12 | (part.FlipX ? 0x4000 : 0) | (part.FlipY ? 0x8000 : 0)));

@@ -103,7 +103,7 @@ internal static partial class Program
                 AssertEqual(0, samus.InvincibilityTimer, "Crystal Flash clears immunity after actual contact");
                 AssertEqual(0, samus.KnockbackTimer, "Crystal Flash suppresses the contact knockback request");
                 AssertTrue(!samus.KnockbackActive, "contact does not install ordinary knockback during ammo drain");
-                contactEnemy!.XPosition += 128;
+                contactEnemy!.Position = contactEnemy!.Position.WithWholeX(unchecked((ushort)(contactEnemy!.Position.X.Whole + (128))));
                 contactVerified = true;
                 Console.WriteLine($"Runtime Crystal Flash contact: health {beforeHealth}->{samus.Health}, retail damage={contactDamage}; no retained immunity or knockback.");
             }
@@ -162,9 +162,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ush
             throw new ArgumentOutOfRangeException(nameof(pointer));
         return new RoomEnemyPopulationDefinition(pointer,
         [
-            new RoomEnemyPopulationRecord(
-                CrystalFlashContactDefinitions.RipperHeader, x, y, 0,
-                CrystalFlashContactDefinitions.Properties, 0, 0, 0),
+            new RoomEnemyPopulationRecord(CrystalFlashContactDefinitions.RipperHeader, new(x, y), 0, CrystalFlashContactDefinitions.Properties, 0, 0, 0),
         ], 0);
     }
 

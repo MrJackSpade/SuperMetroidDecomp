@@ -24,9 +24,9 @@ public sealed partial class RoomEnemySystem
             if (enemy.InvincibilityTimer != 0)
                 continue;
 
-            int xDistance = Math.Abs(unchecked((short)(enemy.XPosition - endpoint.X)));
-            int yDistance = Math.Abs(unchecked((short)(enemy.YPosition - endpoint.Y)));
-            if (xDistance >= enemy.XRadius + 8 || yDistance >= enemy.YRadius + 8)
+            int xDistance = Math.Abs(unchecked((short)(enemy.Position.X.Whole - endpoint.X)));
+            int yDistance = Math.Abs(unchecked((short)(enemy.Position.Y.Whole - endpoint.Y)));
+            if (xDistance >= enemy.Radius.X + 8 || yDistance >= enemy.Radius.Y + 8)
                 continue;
 
             // The collision routine stores exactly one, rather than ORing it into an old
@@ -49,7 +49,7 @@ public sealed partial class RoomEnemySystem
             };
             return new GrappleEnemyCollision(
                 reaction,
-                new Position16<RoomPixels>(enemy.XPosition, enemy.YPosition),
+                enemy.Position.Whole,
                 enemy.Definition.Damage);
         }
 
@@ -66,8 +66,7 @@ public sealed partial class RoomEnemySystem
         ushort newlyPressedControllerInput,
         ushort controllerInput,
         RoomLevelData? level,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         byte nmiFrameCounter8)
     {
         if ((enemy.AiHandlerBits & 1) == 0)
@@ -123,8 +122,7 @@ public sealed partial class RoomEnemySystem
                     newlyPressedControllerInput,
                     controllerInput,
                     level,
-                    cameraX,
-                    cameraY,
+                    camera,
                     samusProjectiles: null,
                     nmiFrameCounter8);
                 enemy.AiHandlerBits = 0;

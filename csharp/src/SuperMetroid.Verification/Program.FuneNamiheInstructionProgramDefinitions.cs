@@ -206,8 +206,7 @@ internal static partial class Program
         slot.Parameter1 = unchecked((ushort)(
             (program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0)));
         slot.Parameter2 = 0;
-        slot.XPosition = 128;
-        slot.YPosition = 128;
+        slot.Position = slot.Position.WithWhole(new(128, 128));
         slot.CurrentInstruction = program.Entry;
         slot.InstructionTimer = 1;
 
@@ -230,7 +229,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
 
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-        object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         int frames = program.Active ? 140 : 4;
         for (int frame = 0; frame < frames; frame++)
             process.Invoke(enemies, arguments);

@@ -34,8 +34,7 @@ internal static partial class Program
         {
             Bank = DraygonBg2FrameDefinitions.Bank,
         };
-        slot.XPosition = 0x100;
-        slot.YPosition = 0x100;
+        slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
 
         int draygonFrames = 0;
         int sporeFrames = 0;
@@ -86,11 +85,10 @@ internal static partial class Program
 
             slot.SpritemapPointer = frame.Pointer;
             object?[] arguments =
-                [slot, (ushort)0x100, (ushort)0x100, (ushort)0,
-                    (ushort)0, true, (ushort)0];
+                [slot, new Position16<RoomPixels>(0x100, 0x100), Extent16<RoomPixels>.Zero, true, (ushort)0];
             AssertTrue(!(bool)walker.Invoke(enemies, arguments)!,
                 $"Draygon OAM frame {frame.Name} has no shot callback without ROM reads");
-            arguments[5] = false;
+            arguments[3] = false;
             AssertTrue(!(bool)walker.Invoke(enemies, arguments)!,
                 $"Draygon OAM frame {frame.Name} has no touch callback without ROM reads");
             draygonFrames++;

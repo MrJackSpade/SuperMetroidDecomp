@@ -170,14 +170,12 @@ public sealed partial class RoomEnemySystem
     {
         ushort graphicsIndex = unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex));
         RoomSpriteObjectSlot outerBodyA = SpawnRoomSpriteObject(
-            slot.XPosition,
-            slot.YPosition,
+            slot.Position.Whole,
             RoomSpriteObjectKind.MetroidOuterBodyA,
             graphicsIndex) ?? throw new InvalidOperationException(
                 "Metroid initialization exhausted the retail 32-slot sprite-object pool.");
         RoomSpriteObjectSlot outerBodyB = SpawnRoomSpriteObject(
-            slot.XPosition,
-            slot.YPosition,
+            slot.Position.Whole,
             RoomSpriteObjectKind.MetroidOuterBodyB,
             graphicsIndex) ?? throw new InvalidOperationException(
                 "Metroid initialization exhausted the retail 32-slot sprite-object pool.");
@@ -235,14 +233,14 @@ public sealed partial class RoomEnemySystem
         ushort targetY,
         RoomLevelData level)
     {
-        int yDifference = unchecked((short)(slot.YPosition - targetY));
+        int yDifference = unchecked((short)(slot.Position.Y.Whole - targetY));
         int yVelocity = unchecked(state.SignedYVelocity - ((yDifference >> 2) << 8));
         yVelocity = ClampMetroidVelocity(yVelocity);
         StoreMetroidYVelocity(state, yVelocity);
         if (MoveEnemyVertically(level, slot, yVelocity))
             StoreMetroidYVelocity(state, 0);
 
-        int xDifference = unchecked((short)(slot.XPosition - samus.Position.X.Whole));
+        int xDifference = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
         int xVelocity = unchecked(state.SignedXVelocity - ((xDifference >> 2) << 8));
         xVelocity = ClampMetroidVelocity(xVelocity);
         StoreMetroidXVelocity(state, xVelocity);
@@ -262,12 +260,12 @@ public sealed partial class RoomEnemySystem
         // shifts it right three, sign-extends bit twelve, then clamps the whole result.
         // This is observably not a clean full-word delta: crossing a 256-pixel boundary can
         // reverse the short route. Preserve the byte arithmetic instead of “fixing” it.
-        int yVelocity = CalculateMetroidClosingVelocity(targetY, slot.YPosition);
+        int yVelocity = CalculateMetroidClosingVelocity(targetY, slot.Position.Y.Whole);
         StoreMetroidYVelocity(state, yVelocity << 16);
         if (MoveEnemyVertically(level, slot, yVelocity << 16))
             StoreMetroidYVelocity(state, 0);
 
-        int xVelocity = CalculateMetroidClosingVelocity(samus.Position.X.Whole, slot.XPosition);
+        int xVelocity = CalculateMetroidClosingVelocity(samus.Position.X.Whole, slot.Position.X.Whole);
         StoreMetroidXVelocity(state, xVelocity << 16);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity << 16))
             StoreMetroidXVelocity(state, 0);
@@ -292,8 +290,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort targetY)
     {
-        slot.XPosition = samus.Position.X.Whole;
-        slot.YPosition = targetY;
+        slot.Position = slot.Position.WithWhole(new(samus.Position.X.Whole, targetY));
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
     }
@@ -303,8 +300,7 @@ public sealed partial class RoomEnemySystem
     {
         MetroidEscapeDisplacement displacement =
             MetroidBehaviorDefinitions.EscapeDisplacement(state.EscapeTimer);
-        slot.XPosition = unchecked((ushort)(slot.XPosition + displacement.X));
-        slot.YPosition = unchecked((ushort)(slot.YPosition + displacement.Y));
+        slot.Position += new Offset16<RoomPixels>(unchecked((short)(displacement.X)), unchecked((short)(displacement.Y)));
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
 
@@ -364,10 +360,10 @@ public sealed partial class RoomEnemySystem
                 // Native overlapping byte writes produce delta/4 in signed 16.16 form.
                 StoreMetroidXVelocity(
                     state,
-                    unchecked((short)(slot.XPosition - samus.Position.X.Whole)) << 14);
+                    unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) << 14);
                 StoreMetroidYVelocity(
                     state,
-                    unchecked((short)(slot.YPosition - targetY)) << 14);
+                    unchecked((short)(slot.Position.Y.Whole - targetY)) << 14);
                 state.Function = MetroidAiFunction.Homing;
                 SetMetroidInstructionList(
                     slot,
@@ -387,8 +383,8 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.Function = MetroidAiFunction.ClosingOnSamus;
-        if (Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole))) >= 8 ||
-            Math.Abs(unchecked((short)(slot.YPosition - targetY))) >= 8)
+        if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) >= 8 ||
+            Math.Abs(unchecked((short)(slot.Position.Y.Whole - targetY))) >= 8)
         {
             return;
         }
@@ -440,10 +436,10 @@ public sealed partial class RoomEnemySystem
         // collision slot. The overlapping byte stores encode delta/8 as signed 16.16.
         StoreMetroidXVelocity(
             state,
-            unchecked((short)(slot.XPosition - recoilOriginX)) << 13);
+            unchecked((short)(slot.Position.X.Whole - recoilOriginX)) << 13);
         StoreMetroidYVelocity(
             state,
-            unchecked((short)(slot.YPosition - recoilOriginY)) << 13);
+            unchecked((short)(slot.Position.Y.Whole - recoilOriginY)) << 13);
         state.Function = MetroidAiFunction.Homing;
         SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.ChasingSamus);
 
@@ -499,7 +495,7 @@ public sealed partial class RoomEnemySystem
             ushort x = unchecked((ushort)(originX + (random & 0x001f) - 16));
             ushort y = unchecked((ushort)(originY + ((random & 0x1f00) >> 8) - 16));
             _metroidDropRequests.Add(new MetroidDropRequest());
-            SpawnEnemyDropFromEnemyHeader(x, y, EnemyDefinitionId.Metroid);
+            SpawnEnemyDropFromEnemyHeader(new(x, y), EnemyDefinitionId.Metroid);
         }
     }
 
@@ -530,8 +526,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot metroid,
         ushort graphicsIndex)
     {
-        outerBody.XPosition = metroid.XPosition;
-        outerBody.YPosition = metroid.YPosition;
+        outerBody.Position = outerBody.Position.WithWhole(metroid.Position.Whole);
         outerBody.GraphicsIndex = graphicsIndex;
         outerBody.DisableFlags = 0;
     }

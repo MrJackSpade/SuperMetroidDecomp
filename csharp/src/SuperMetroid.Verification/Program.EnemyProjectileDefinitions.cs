@@ -77,10 +77,8 @@ internal static partial class Program
                 $"{kind} production timer");
             AssertEqual((ushort)0x8000, projectile.SpritemapPointer,
                 $"{kind} production initial spritemap");
-            AssertEqual((ushort)definition.XRadius, projectile.XRadius,
-                $"{kind} production X radius");
-            AssertEqual((ushort)definition.YRadius, projectile.YRadius,
-                $"{kind} production Y radius");
+            AssertEqual(definition.Radius, projectile.Radius,
+                $"{kind} production radius");
             AssertEqual(definition.Damage, projectile.Damage,
                 $"{kind} production damage");
             AssertEqual(definition.DrawPriority, projectile.DrawPriority,
@@ -94,8 +92,8 @@ internal static partial class Program
             AssertEqual((ushort)0x0c00, projectile.GraphicsIndex,
                 $"{kind} production graphics word");
 
-            projectile.XPosition = projectile.YPosition = 0x0100;
-            projectile.XRadius = projectile.YRadius = 1;
+            projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
+            projectile.Radius = new(1, 1);
             projectile.CanDamageSamus = true;
             projectile.PersistsOnSamusContact = true;
             var samus = new SamusState
@@ -114,7 +112,7 @@ internal static partial class Program
                 $"{kind} production touch list");
 
             initialize(projectile, kind, 0);
-            projectile.XPosition = projectile.YPosition = 0x0100;
+            projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = 0;
             var shots = new SamusProjectileSystem();

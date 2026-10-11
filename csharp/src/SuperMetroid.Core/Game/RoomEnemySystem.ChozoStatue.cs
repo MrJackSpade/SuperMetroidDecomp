@@ -400,7 +400,7 @@ public sealed partial class RoomEnemySystem
 
         // The two 32-word tables are joint offsets indexed by the exact byte offset above.
         // Writing Samus after collision reproduces the native cutscene's absolute ownership.
-        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(statue.XPosition + motion.SamusX)), unchecked((ushort)(statue.YPosition + motion.SamusY))));
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + motion.SamusX)), unchecked((ushort)(statue.Position.Y.Whole + motion.SamusY))));
     }
 
     private void ProcessChozoStatueFootstep(
@@ -409,8 +409,8 @@ public sealed partial class RoomEnemySystem
         ushort rawXOffset)
     {
         short xOffset = unchecked((short)rawXOffset);
-        ushort probeX = unchecked((ushort)(statue.XPosition + xOffset));
-        ushort probeY = unchecked((ushort)(statue.YPosition + 28));
+        ushort probeX = unchecked((ushort)(statue.Position.X.Whole + xOffset));
+        ushort probeY = unchecked((ushort)(statue.Position.Y.Whole + 28));
         RoomCollisionBlock current = level.GetCollisionBlockAtPixel(new Position16<RoomPixels>(probeX, probeY));
         int belowIndex = current.Index + level.Size.X;
         if ((uint)belowIndex >= (uint)level.ForegroundEntries.Length ||
@@ -437,8 +437,7 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
             graphicsIndex: 0);
-        projectile.XPosition = unchecked((ushort)(statue.XPosition + unchecked((short)xOffset)));
-        projectile.YPosition = unchecked((ushort)(statue.YPosition + 28));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + unchecked((short)xOffset))), unchecked((ushort)(statue.Position.Y.Whole + 28))));
     }
 
     private void FinishWreckedShipChozoSequence()

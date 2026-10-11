@@ -45,7 +45,7 @@ internal static class RetailSaveCaptureTests
                 if (runtime.Enemies.EnemyProjectiles.Any(p => p.IsActive && p.Kind != RoomEnemyProjectileKind.SaveStationElectricity))
                     throw new InvalidOperationException("Unrelated projectile contaminates electricity visibility assertion.");
                 var oam = new OamBuffer(); oam.BeginFrame();
-                runtime.Enemies.DrawEnemyProjectiles(oam, runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y);
+                runtime.Enemies.DrawEnemyProjectiles(oam, runtime.Camera!.PixelPosition);
                 oam.FinalizeFrame();
                 electricity = SnesObjRenderer.RenderResolved(oam, runtime.Vram, runtime.Cgram,
                     GameplayRenderDefinitions.ObjectSelection).Pixels.Any(p => p.A != 0 && (p.R != 0 || p.G != 0 || p.B != 0));

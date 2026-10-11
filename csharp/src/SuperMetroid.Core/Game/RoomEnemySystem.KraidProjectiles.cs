@@ -21,12 +21,9 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.KraidSpitRock,
             graphicsIndex: 0x0600);
         ushort random = ReadKraidRandomNumber();
-        rock.XPosition = unchecked((ushort)(body.XPosition + 16));
-        rock.YPosition = unchecked((ushort)(body.YPosition - 96));
-        rock.XSubposition = 0;
-        rock.YSubposition = 0;
-        rock.XVelocity = KraidRockLaunchDefinitions.FromRandom(random);
-        rock.YVelocity = unchecked((ushort)-0x0400);
+        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(body.Position.X.Whole + 16)), unchecked((ushort)(body.Position.Y.Whole - 96))));
+        rock.Velocity = rock.Velocity.WithX(new SnesSignedEightEight(KraidRockLaunchDefinitions.FromRandom(random)));
+        rock.Velocity = rock.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-0x0400)));
         rock.GraphicsIndex = 0x0600;
         return true;
     }
@@ -47,12 +44,8 @@ public sealed partial class RoomEnemySystem
         int randomOffset = random & 0x003f;
         if ((random & 1) == 0)
             randomOffset = unchecked((short)~randomOffset);
-        rock.XPosition = unchecked((ushort)(body.XPosition + randomOffset));
-        rock.YPosition = 432;
-        rock.XSubposition = 0;
-        rock.YSubposition = 0;
-        rock.XVelocity = unchecked((ushort)(random & 0x03f0));
-        rock.YVelocity = unchecked((ushort)-0x0500);
+        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(body.Position.X.Whole + randomOffset)), 432));
+        rock.Velocity = new(new SnesSignedEightEight(unchecked((ushort)(random & 0x03f0))), new SnesSignedEightEight(unchecked((ushort)-0x0500)));
         rock.GraphicsIndex = 0x0600;
         state.SpawnedRiseRockCount++;
         LastKraidSoundEffect = new KraidSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x001e));
@@ -67,12 +60,9 @@ public sealed partial class RoomEnemySystem
             rock,
             RoomEnemyProjectileKind.KraidCeilingRock,
             graphicsIndex: 0x0600);
-        rock.XPosition = xPosition;
-        rock.YPosition = 312;
-        rock.XSubposition = 0;
-        rock.YSubposition = 0;
-        rock.XVelocity = 0;
-        rock.YVelocity = unchecked((ushort)((ReadKraidRandomNumber() & 0x003f) + 0x0040));
+        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, 312));
+        rock.Velocity = rock.Velocity.WithX(new SnesSignedEightEight(0));
+        rock.Velocity = rock.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((ReadKraidRandomNumber() & 0x003f) + 0x0040))));
         rock.GraphicsIndex = 0x0600;
         return true;
     }
@@ -88,11 +78,11 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        short horizontal = unchecked((short)(rock.XVelocity + 8));
+        short horizontal = unchecked((short)(rock.Velocity.X.RawValue + 8));
         if (horizontal >= 0x0100)
             horizontal = -0x0100;
-        rock.XVelocity = unchecked((ushort)horizontal);
-        rock.YVelocity = unchecked((ushort)(rock.YVelocity + 0x0040));
+        rock.Velocity = rock.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)horizontal)));
+        rock.Velocity = rock.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(rock.Velocity.Y.RawValue + 0x0040))));
     }
 
     private static void RunKraidCeilingRockPreInstruction(
@@ -104,7 +94,7 @@ public sealed partial class RoomEnemySystem
             rock.Clear();
             return;
         }
-        rock.YVelocity = unchecked((ushort)((rock.YVelocity + 0x0018) & 0x3fff));
+        rock.Velocity = rock.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((rock.Velocity.Y.RawValue + 0x0018) & 0x3fff))));
     }
 
     private ushort ReadKraidRandomNumber() =>

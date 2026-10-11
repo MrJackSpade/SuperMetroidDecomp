@@ -24,10 +24,10 @@ public sealed partial class RoomEnemySystem
             stalk,
             RoomEnemyProjectileKind.SporeSpawnStalk,
             unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
-        stalk.XPosition = body.XPosition;
-        stalk.YPosition = unchecked((ushort)(
-            body.YPosition +
-            SporeSpawnProjectileDefinitions.StalkYOffset(spawnArgument)));
+        stalk.Position = stalk.Position.WithWholeX(body.Position.X.Whole);
+        stalk.Position = stalk.Position.WithWholeY(unchecked((ushort)(
+            body.Position.Y.Whole +
+            SporeSpawnProjectileDefinitions.StalkYOffset(spawnArgument))));
     }
 
     /// <summary>Ports projectile definition $86:DE88 and initializer $86:DCD4.</summary>
@@ -43,8 +43,8 @@ public sealed partial class RoomEnemySystem
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,
             unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
-        spawner.XPosition = SporeSpawnProjectileDefinitions.SpawnerX(spawnArgument);
-        spawner.YPosition = 520;
+        spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectileDefinitions.SpawnerX(spawnArgument));
+        spawner.Position = spawner.Position.WithWholeY(520);
     }
 
     /// <summary>Ports projectile definition $86:DE7A and initializer $86:DC8D.</summary>
@@ -58,8 +58,7 @@ public sealed partial class RoomEnemySystem
             spore,
             RoomEnemyProjectileKind.SporeSpawnSpore,
             SporeSpawnGraphicsIndex);
-        spore.XPosition = x;
-        spore.YPosition = y;
+        spore.Position = spore.Position.WithWhole(new(x, y));
 
         // Var1 retains the original X coordinate. Bit seven alone mirrors horizontal motion,
         // so emitters at $20/$A0 move one way and $60/$E0 move the other.
@@ -75,11 +74,11 @@ public sealed partial class RoomEnemySystem
         int xDelta = movement.X;
         if ((spore.Variable1 & 0x0080) != 0)
             xDelta = -xDelta;
-        spore.XPosition = unchecked((ushort)(spore.XPosition + xDelta));
+        spore.Position = spore.Position.WithWholeX(unchecked((ushort)(spore.Position.X.Whole + xDelta)));
 
         int yDelta = movement.Y;
-        spore.YPosition = unchecked((ushort)(spore.YPosition + yDelta + yDelta));
-        if (unchecked((short)(spore.YPosition - 768)) >= 0)
+        spore.Position = spore.Position.WithWholeY(unchecked((ushort)(spore.Position.Y.Whole + yDelta + yDelta)));
+        if (unchecked((short)(spore.Position.Y.Whole - 768)) >= 0)
             spore.Clear();
 
         // The native word keeps only the wrapped low byte after each two-byte vector pair.
@@ -131,8 +130,7 @@ public sealed partial class RoomEnemySystem
         }
         _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
         SpawnEnemyDropFromEnemyHeader(
-            spore.XPosition,
-            spore.YPosition,
+            spore.Position.Whole,
             EnemyDefinitionId.SporeSpawnStalk);
     }
 }

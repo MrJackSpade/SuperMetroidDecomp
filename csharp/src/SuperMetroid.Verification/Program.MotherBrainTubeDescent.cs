@@ -16,16 +16,15 @@ internal static partial class Program
         var tube = enemies.Slots[2];
         tube.Parameter1 = 8;
         tube.Parameter2 = 0;
-        tube.XPosition = 128;
-        tube.YPosition = 128;
-        state.Head.YPosition = 72;
+        tube.Position = tube.Position.WithWhole(new(128, 128));
+        state.Head.Position = state.Head.Position.WithWholeY(72);
         typeof(RoomEnemySystem).GetMethod("InitializeMotherBrainFallingTube",
             BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [tube]);
         var step = typeof(RoomEnemySystem).GetMethod("RunMotherBrainFallingTubeMain", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        uint expectedPosition = (uint)tube.YPosition << 16;
+        uint expectedPosition = (uint)tube.Position.Y.Whole << 16;
         int speed = 0, movingFramesBeforeHide = 0, hiddenFramesBeforeLanding = 0;
-        ushort previousHeadY = state.Head.YPosition;
+        ushort previousHeadY = state.Head.Position.Y.Whole;
         int frame;
         for (frame = 0; frame < 200; frame++)
         {
@@ -34,14 +33,14 @@ internal static partial class Program
             ushort expectedY = (ushort)(expectedPosition >> 16);
             ushort expectedHead = (ushort)Math.Min(expectedY - 56, 196);
             step(tube);
-            AssertEqual(expectedY, tube.YPosition, $"Tube native acceleration at frame {frame}");
-            AssertEqual((ushort)expectedPosition, tube.YSubposition, "Tube retains fractional motion");
-            AssertEqual(expectedHead, state.Head.YPosition, $"Brain follows tube every frame ({frame})");
+            AssertEqual(expectedY, tube.Position.Y.Whole, $"Tube native acceleration at frame {frame}");
+            AssertEqual((ushort)expectedPosition, tube.Position.Y.Fraction, "Tube retains fractional motion");
+            AssertEqual(expectedHead, state.Head.Position.Y.Whole, $"Brain follows tube every frame ({frame})");
             AssertEqual(expectedY >= 244, tube.Properties.HasAny(EnemyProperties.Invisible),
                 "Tube hiding threshold does not gate head descent");
-            if (expectedY < 244 && state.Head.YPosition > previousHeadY) movingFramesBeforeHide++;
+            if (expectedY < 244 && state.Head.Position.Y.Whole > previousHeadY) movingFramesBeforeHide++;
             if (expectedY >= 244 && expectedHead < 196) hiddenFramesBeforeLanding++;
-            previousHeadY = state.Head.YPosition;
+            previousHeadY = state.Head.Position.Y.Whole;
             if (expectedHead == 196) break;
             AssertTrue(!tube.Properties.HasAny(EnemyProperties.Deleted), "Tube remains alive before landing");
         }

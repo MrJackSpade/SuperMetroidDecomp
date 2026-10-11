@@ -170,8 +170,7 @@ internal static partial class Program
             RoomEnemySlot body = enemies.Slots[0];
             body.EnemyDefinitionPointer = EnemyDefinitionId.KihunterGreen;
             body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
-            body.XPosition = 0x0080;
-            body.YPosition = 0x0080;
+            body.Position = body.Position.WithWhole(new(0x0080, 0x0080));
             RoomEnemySlot wings = enemies.Slots[1];
             wings.EnemyDefinitionPointer = EnemyDefinitionId.KihunterGreenWings;
             wings.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
@@ -192,7 +191,7 @@ internal static partial class Program
         {
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
-            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
         }

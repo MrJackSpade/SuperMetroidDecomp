@@ -35,21 +35,20 @@ internal static partial class Program
             foreach (var occupied in enemies.EnemyProjectiles) occupied.Clear();
             requests.Clear();
             state.CeilingRockSpawnCount = 0;
-            body.XPosition = 128;
-            body.YPosition = (ushort)raw;
+            body.Position = body.Position.WithWhole(new(128, (ushort)raw));
             body.VariableF = (ushort)(index * 2);
             body.VariableA = (ushort)KraidAiFunction.GrowBreakCeilingPlatforms;
             step(body, state);
             ushort y = unchecked((ushort)(raw - 1));
             bool spawn = (y & 3) == 0;
-            AssertEqual(y, body.YPosition, "Ceiling break moves before cadence test");
+            AssertEqual(y, body.Position.Y.Whole, "Ceiling break moves before cadence test");
             AssertEqual(spawn ? 1 : 0, requests.Count, "Ceiling PLM cadence");
             AssertEqual((ushort)(index * 2 + (spawn ? 2 : 0)), body.VariableF, "Ceiling byte selector advances only on emission");
             if (!spawn) continue;
             var rock = enemies.EnemyProjectiles[^1];
-            AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + index * 2), rock.XPosition, "Native ceiling X reaches actual projectile");
-            AssertEqual((ushort)312, rock.YPosition, "Ceiling projectile origin Y");
-            AssertEqual((ushort)127, rock.YVelocity, "Ceiling projectile retains current RNG velocity");
+            AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + index * 2), rock.Position.X.Whole, "Native ceiling X reaches actual projectile");
+            AssertEqual((ushort)312, rock.Position.Y.Whole, "Ceiling projectile origin Y");
+            AssertEqual((ushort)127, rock.Velocity.Y.RawValue, "Ceiling projectile retains current RNG velocity");
             AssertEqual(KraidPlmDefinitions.GrowthCeiling[index], requests[0], "Rock and ceiling mutation stay paired");
         }
         Console.WriteLine("Kraid ceiling rocks: all 18 byte reads and 589824 actual growth updates match with placement reads forbidden.");

@@ -36,8 +36,7 @@ internal static partial class Program
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
             slot.Parameter2 = unchecked((ushort)(index * 2));
             slot.Properties = 0x0010;
-            slot.XPosition = unchecked((ushort)(0x0100 + index * 16));
-            slot.YPosition = 0x0200;
+            slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(slot);
 
             ShaktoolSegmentState state = enemies.ShaktoolSegments[index]!;

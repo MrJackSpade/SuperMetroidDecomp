@@ -25,7 +25,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             busField.SetValue(enemies, guarded);
-            var body = new RoomEnemySlot(0) { XPosition = 0x0100, YPosition = 0x0200 };
+            var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
             motherBrainField.SetValue(enemies, new MotherBrainEnemyState(body));
             var request = new MotherBrainDeathExplosionRequest(
                 XOffset: -7,
@@ -41,13 +41,13 @@ internal static partial class Program
             AssertEqual(MotherBrainDeathExplosionDefinitions.InstructionList(parameter),
                 projectile.InstructionPointer,
                 $"production Mother Brain death explosion instruction {parameter}");
-            AssertEqual(0x00f9, projectile.XPosition,
+            AssertEqual(0x00f9, projectile.Position.X.Whole,
                 $"production Mother Brain death explosion X {parameter}");
-            AssertEqual(0x0209, projectile.YPosition,
+            AssertEqual(0x0209, projectile.Position.Y.Whole,
                 $"production Mother Brain death explosion Y {parameter}");
-            AssertEqual(unchecked((ushort)-7), projectile.XVelocity,
+            AssertEqual(unchecked((ushort)-7), projectile.Velocity.X.RawValue,
                 $"production Mother Brain death explosion X offset {parameter}");
-            AssertEqual(9, projectile.YVelocity,
+            AssertEqual(9, projectile.Velocity.Y.RawValue,
                 $"production Mother Brain death explosion Y offset {parameter}");
         }
 

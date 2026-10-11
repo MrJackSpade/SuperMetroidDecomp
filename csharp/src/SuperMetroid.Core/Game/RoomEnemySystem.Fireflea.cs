@@ -132,22 +132,22 @@ public sealed partial class RoomEnemySystem
 
         if (state.UsesCircularMovement)
         {
-            state.XCenter = slot.XPosition;
-            state.YCenter = slot.YPosition;
+            state.XCenter = slot.Position.X.Whole;
+            state.YCenter = slot.Position.Y.Whole;
             state.Angle = unchecked((ushort)(slot.Parameter1 & 0xff00));
 
             // The initializer passes the complete 8.8 angle word to an eight-bit routine,
             // which reads its low byte. That is the retail missing-division bug; main AI
             // begins using the high byte on frame one and corrects the position immediately.
-            slot.XPosition = unchecked((ushort)(state.XCenter +
-                ReadEightBitCosineProduct(state.Angle, state.Radius)));
-            slot.YPosition = unchecked((ushort)(state.YCenter +
-                ReadEightBitNegativeSineProduct(state.Angle, state.Radius)));
+            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(state.XCenter +
+                ReadEightBitCosineProduct(state.Angle, state.Radius))));
+            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.YCenter +
+                ReadEightBitNegativeSineProduct(state.Angle, state.Radius))));
             return;
         }
 
-        state.MinimumYPosition = unchecked((ushort)(slot.YPosition - state.Radius));
-        state.MaximumYPosition = unchecked((ushort)(slot.YPosition + state.Radius));
+        state.MinimumYPosition = unchecked((ushort)(slot.Position.Y.Whole - state.Radius));
+        state.MaximumYPosition = unchecked((ushort)(slot.Position.Y.Whole + state.Radius));
     }
 
     /// <summary>Ports <c>MainAI_Fireflea</c> at <c>$A3:8DEE</c>.</summary>
@@ -156,10 +156,10 @@ public sealed partial class RoomEnemySystem
         if (state.UsesCircularMovement)
         {
             ushort angle = unchecked((ushort)(state.Angle >> 8));
-            slot.XPosition = unchecked((ushort)(state.XCenter +
-                ReadEightBitCosineProduct(angle, state.Radius)));
-            slot.YPosition = unchecked((ushort)(state.YCenter +
-                ReadEightBitNegativeSineProduct(angle, state.Radius)));
+            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(state.XCenter +
+                ReadEightBitCosineProduct(angle, state.Radius))));
+            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.YCenter +
+                ReadEightBitNegativeSineProduct(angle, state.Radius))));
 
             // `$A3:8E2D` performs an unaligned word read at var0+1. Combining the high byte
             // of sub-angle with the low byte of whole-angle reproduces that exact signed 8.8
@@ -172,19 +172,18 @@ public sealed partial class RoomEnemySystem
 
         (short wholeSpeed, ushort fractionalSpeed) =
             ReadLinearEnemySpeed(state.SpeedTableIndex);
-        uint fixedY = ((uint)slot.YPosition << 16) | slot.YSubposition;
+        uint fixedY = slot.Position.Y.RawValue;
         int displacement = (wholeSpeed << 16) | fractionalSpeed;
         fixedY = unchecked(fixedY + (uint)displacement);
-        slot.YPosition = unchecked((ushort)(fixedY >> 16));
-        slot.YSubposition = unchecked((ushort)fixedY);
+        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedY)));
 
         // Native CMP/BMI and CMP/BPL consume wrapped signed subtraction, not ordinary host
         // bounds comparisons. The actor is intentionally allowed to overshoot before XOR
         // bit two switches between the adjacent positive/negative table entries.
         bool crossedMinimum = unchecked((short)(
-            slot.YPosition - state.MinimumYPosition)) < 0;
+            slot.Position.Y.Whole - state.MinimumYPosition)) < 0;
         bool reachedMaximum = unchecked((short)(
-            slot.YPosition - state.MaximumYPosition)) >= 0;
+            slot.Position.Y.Whole - state.MaximumYPosition)) >= 0;
         if (crossedMinimum || reachedMaximum)
             state.SpeedTableIndex ^= 4;
     }

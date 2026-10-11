@@ -23,7 +23,7 @@ internal static partial class Program
             .ToArray();
         AssertEqual(8, bodies.Length, "the Pillar room spawns one Puromi's eight body projectiles");
         foreach (RoomEnemyProjectileSlot body in bodies)
-            AssertEqual(nativeBodyY, body.YPosition, "Puromi body projectile spawn Y");
+            AssertEqual(nativeBodyY, body.Position.Y.Whole, "Puromi body projectile spawn Y");
         Console.WriteLine("Puromi arc position: the arc uses the negative eight-bit sine, matching native spawn Y.");
     }
 }

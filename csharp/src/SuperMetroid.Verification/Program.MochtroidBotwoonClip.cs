@@ -96,10 +96,7 @@ internal static partial class Program
         {
             slot.Clear();
         }
-        mochtroid.XPosition = expected.EnemyX;
-        mochtroid.YPosition = expected.EnemyY;
-        mochtroid.XSubposition = 0;
-        mochtroid.YSubposition = 0;
+        mochtroid.Position = FixedPosition<RoomPixels>.FromWhole(new(expected.EnemyX, expected.EnemyY));
         mochtroid.FrozenTimer = 1000;
         mochtroid.AiHandlerBits = 4;
 

@@ -35,8 +35,7 @@ public sealed partial class SuperMetroidRuntime
             {
                 Enemies.DrawHighPriorityEnemyProjectiles(
                     Oam,
-                    Camera.PixelPosition.X, Camera.PixelPosition.Y,
-                    TimeIsFrozen);
+                    Camera.PixelPosition,                     TimeIsFrozen);
             }
             drawHighPriorityEnemyProjectiles?.Invoke(Oam);
         }
@@ -45,7 +44,7 @@ public sealed partial class SuperMetroidRuntime
         // call to DrawSamusAndProjectiles. Landing Site's gunship definition selects
         // layer two, so its hull correctly precedes (and can sit behind) Samus OAM.
         if (!deathOwnsSamus && Enemies.IsLoaded)
-            Enemies.DrawLayers(Oam, Camera.PixelPosition.X, Camera.PixelPosition.Y, 0, 2);
+            Enemies.DrawLayers(Oam, Camera.PixelPosition, 0, 2);
 
         if (advanceSamusPalette)
         {
@@ -372,7 +371,7 @@ public sealed partial class SuperMetroidRuntime
         {
             // At phase three Samus/projectiles are emitted before enemy layer three;
             // ordinary enemy layers four and five follow without another insertion.
-            Enemies.DrawLayers(Oam, Camera.PixelPosition.X, Camera.PixelPosition.Y, 3, 5);
+            Enemies.DrawLayers(Oam, Camera.PixelPosition, 3, 5);
         }
 
         // Phase six inserts high-priority enemy projectiles before layer-six actors.
@@ -386,12 +385,11 @@ public sealed partial class SuperMetroidRuntime
         {
             Enemies.DrawLowPriorityEnemyProjectiles(
                 Oam,
-                Camera.PixelPosition.X, Camera.PixelPosition.Y,
-                TimeIsFrozen);
+                Camera.PixelPosition,                 TimeIsFrozen);
         }
 
         if (!deathOwnsSamus && Enemies.IsLoaded)
-            Enemies.DrawLayers(Oam, Camera.PixelPosition.X, Camera.PixelPosition.Y, 6, 7);
+            Enemies.DrawLayers(Oam, Camera.PixelPosition, 6, 7);
 
         if (!deathOwnsSamus && Enemies.IsLoaded && Enemies.Draygon is { } draygon)
         {
@@ -401,9 +399,9 @@ public sealed partial class SuperMetroidRuntime
             // changes the camera between AI and drawing (especially during a grab).
             BackgroundScroll.SetBg2ScrollRegisters(new Position16<Bg2Pixels>(
                 unchecked((ushort)(draygon.BodyGraphicsXDisplacement + Camera.PixelPosition.X -
-                    draygon.Body.XPosition - DraygonBackgroundData.HorizontalOrigin)),
+                    draygon.Body.Position.X.Whole - DraygonBackgroundData.HorizontalOrigin)),
                 unchecked((ushort)(draygon.BodyGraphicsYDisplacement + Camera.PixelPosition.Y -
-                    draygon.Body.YPosition - DraygonBackgroundData.VerticalOrigin))));
+                    draygon.Body.Position.Y.Whole - DraygonBackgroundData.VerticalOrigin))));
         }
 
         // Room scrolling must not replace the persistent body-owned register shadows.
@@ -419,7 +417,7 @@ public sealed partial class SuperMetroidRuntime
             // preserves the hook's actual OAM position instead of inventing a Baby slot.
             Enemies.DrawCeresRidleyPostEnemyHook(
                 Oam,
-                Camera.PixelPosition.X, Camera.PixelPosition.Y);
+                Camera.PixelPosition);
         }
     }
 }

@@ -25,7 +25,7 @@ internal static partial class Program
             var state = new PhantoonEnemyState(body) { Tentacles = tentacles };
             var step = typeof(RoomEnemySystem).GetMethod("RunPhantoonDyingExplosions", BindingFlags.NonPublic | BindingFlags.Instance)!
                 .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(enemies);
-            body.XPosition = body.YPosition = origin;
+            body.Position = body.Position.WithWhole(new(origin, origin));
             body.VariableE = 15;
             body.VariableF = (ushort)PhantoonAiFunction.DyingExplosions;
             if (full) foreach (var projectile in enemies.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
@@ -56,8 +56,8 @@ internal static partial class Program
                     if (!full)
                     {
                         var explosion = enemies.EnemyProjectiles.Single(p => p.IsActive);
-                        AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadByte(0xa7da1d + current * 4))), explosion.XPosition, "Real death explosion wrapped world X");
-                        AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadByte(0xa7da1e + current * 4))), explosion.YPosition, "Real death explosion wrapped world Y");
+                        AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadByte(0xa7da1d + current * 4))), explosion.Position.X.Whole, "Real death explosion wrapped world X");
+                        AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadByte(0xa7da1e + current * 4))), explosion.Position.Y.Whole, "Real death explosion wrapped world Y");
                         int listAddress = 0x86e42c + type * 2;
                         AssertEqual((ushort)(rom.ReadByte(listAddress) | rom.ReadByte(listAddress + 1) << 8), explosion.InstructionPointer, "Real explosion animation selection");
                     }

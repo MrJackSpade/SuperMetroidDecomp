@@ -124,8 +124,7 @@ internal static partial class Program
 
         var source = new RoomEnemySlot(0)
         {
-            XPosition = 128,
-            YPosition = 112,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             VramTilesIndex = 0x0200,
             PaletteIndex = 0x0c00,
         };
@@ -153,9 +152,9 @@ internal static partial class Program
             .ToArray();
         AssertEqual(6, fireballs.Length,
             "all three real Alcoon fire commands spawn in both facings");
-        AssertEqual(3, fireballs.Count(projectile => unchecked((short)projectile.XVelocity) < 0),
+        AssertEqual(3, fireballs.Count(projectile => unchecked((short)projectile.Velocity.X.RawValue) < 0),
             "left-facing Alcoon launches all three fireball arcs left");
-        AssertEqual(3, fireballs.Count(projectile => unchecked((short)projectile.XVelocity) > 0),
+        AssertEqual(3, fireballs.Count(projectile => unchecked((short)projectile.Velocity.X.RawValue) > 0),
             "right-facing Alcoon launches all three fireball arcs right");
 
         foreach (RoomEnemyProjectileSlot fireball in fireballs)
@@ -201,7 +200,7 @@ internal static partial class Program
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
                 if (projectile.IsActive)
                 {
                     ushort expectedOperand = (ushort)(0x9ea0 + 4 * (tick % 4));

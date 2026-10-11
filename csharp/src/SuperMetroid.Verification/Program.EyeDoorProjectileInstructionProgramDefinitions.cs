@@ -72,7 +72,7 @@ internal static partial class Program
             impact.PreInstruction,
             "Eye Door setup installs the native flight pre-instruction operand");
         impact.InstructionTimer = 1;
-        process.Invoke(enemies, [impact, samus, (ushort)0, (ushort)0]);
+        process.Invoke(enemies, [impact, samus, Position16<RoomPixels>.Zero]);
         CheckPresentation(impact, EyeDoorProjectileInstructionProgramDefinitions.FlyingLoop + 2);
         AssertEqual(
             EyeDoorProjectileInstructionProgramDefinitions.FlyingLoop + 4,
@@ -153,7 +153,7 @@ internal static partial class Program
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, samus, Position16<RoomPixels>.Zero]);
                 if (projectile.IsActive)
                 {
                     ushort expected = start == EyeDoorProjectileInstructionProgramDefinitions.Initial

@@ -27,21 +27,20 @@ internal static partial class Program
             GrappleAiPointer = GrappleAiRoutine.Kill,
             DeathAnimation = 4,
         };
-        enemy.XPosition = 100;
-        enemy.YPosition = 100;
-        enemy.XRadius = enemy.YRadius = 8;
+        enemy.Position = enemy.Position.WithWhole(new(100, 100));
+        enemy.Radius = new(8, 8);
         enemy.Health = 500;
-        fixture.System.StepFrame(0, 0, timeIsFrozen: true, samus, level: fixture.Level);
+        fixture.System.StepFrame(new(0, 0), timeIsFrozen: true, samus, level: fixture.Level);
         var contact = fixture.System.ResolveGrappleEndpoint(new(100, 100));
         AssertEqual(GrappleEnemyReaction.Kill, contact.Reaction, "header selects grapple kill independently of enemy health");
         samus.Grapple.Phase = GrapplePhase.Firing;
-        fixture.System.StepFrame(0, 0, timeIsFrozen: false, samus, level: fixture.Level);
+        fixture.System.StepFrame(new(0, 0), timeIsFrozen: false, samus, level: fixture.Level);
         var explosion = fixture.System.EnemyProjectiles.Single(p => p.IsActive);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind, "grapple kill creates the ordinary death actor");
         AssertEqual(1, fixture.System.EnemiesKilled, "grapple death increments kill count once");
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "native death routine drops the active grapple");
-        AssertEqual(100, explosion.XPosition, "death explosion preserves enemy X");
-        AssertEqual(100, explosion.YPosition, "death explosion preserves enemy Y");
+        AssertEqual(100, explosion.Position.X.Whole, "death explosion preserves enemy X");
+        AssertEqual(100, explosion.Position.Y.Whole, "death explosion preserves enemy Y");
         AssertEqual((EnemyDefinitionId)header, explosion.EnemyHeaderPointer, "death actor retains drop-table identity");
         var spriteFrames = new HashSet<string>();
         bool sawPickup = false;
@@ -59,7 +58,7 @@ internal static partial class Program
                 break;
             }
             var oam = new OamBuffer();
-            fixture.System.DrawEnemyProjectiles(oam, 0, 0);
+            fixture.System.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             AssertTrue(oam.NextByteOffset > 0, $"grapple death explosion is visible on frame {frame}");
             spriteFrames.Add(Convert.ToHexString(oam.LowTable[..oam.NextByteOffset]));
         }
@@ -91,13 +90,13 @@ internal static partial class Program
             {
                 GrappleAiPointer = GrappleAiRoutine.Kill,
             };
-            enemy.XPosition = 100; enemy.YPosition = 100;
-            enemy.XRadius = enemy.YRadius = 8;
+            enemy.Position = enemy.Position.WithWhole(new(100, 100));
+            enemy.Radius = new(8, 8);
             enemy.Health = 500;
-            fixture.System.StepFrame(0, 0, timeIsFrozen: true, samus, level: fixture.Level);
+            fixture.System.StepFrame(new(0, 0), timeIsFrozen: true, samus, level: fixture.Level);
             fixture.System.ResolveGrappleEndpoint(new(100, 100));
             samus.Grapple.Phase = GrapplePhase.Firing;
-            fixture.System.StepFrame(0, 0, timeIsFrozen: false, samus, level: fixture.Level);
+            fixture.System.StepFrame(new(0, 0), timeIsFrozen: false, samus, level: fixture.Level);
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
             var movementRoom = CreateRoom(32, 32, new ushort[32 * 32], new byte[32 * 32]);
             var result = SamusGrappleMovement.Step(retail, movementRoom, samus, 0, 0);

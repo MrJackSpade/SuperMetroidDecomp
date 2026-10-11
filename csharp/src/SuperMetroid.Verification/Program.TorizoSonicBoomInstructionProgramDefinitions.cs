@@ -55,18 +55,18 @@ internal static partial class Program
             AssertEqual(expectedProgram, boom.InstructionPointer,
                 $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} sonic-boom program");
             AssertEqual(unchecked((ushort)(1000 + (facingRight ? 32 : -32))),
-                boom.XPosition,
+                boom.Position.X.Whole,
                 $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} sonic-boom X origin");
             AssertEqual(unchecked((ushort)(500 + (facingRight ? -12 : 20))),
-                boom.YPosition,
+                boom.Position.Y.Whole,
                 $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} sonic-boom random Y origin");
             AssertEqual(facingRight ? (ushort)624 : unchecked((ushort)-624),
-                boom.XVelocity,
+                boom.Velocity.X.RawValue,
                 $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} sonic-boom velocity");
 
             for (int frame = 1; frame <= 93; frame++)
             {
-                process.Invoke(enemies, [boom, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [boom, null, Position16<RoomPixels>.Zero]);
                 VerifyExecutedProjectileFrame(rom, boom, spriteArtwork, executedOperands);
                 AssertTrue(boom.IsActive,
                     $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} sonic-boom frame {frame}");
@@ -108,10 +108,8 @@ internal static partial class Program
         RoomEnemySlot impactTorizo = CreateTorizo(impactEnemies, facingRight: true);
         spawnBomb.Invoke(impactEnemies, [impactTorizo, (ushort)0]);
         RoomEnemyProjectileSlot impact = impactEnemies.EnemyProjectiles[^1];
-        impact.XPosition = 157;
-        impact.YPosition = 128;
-        impact.XSubposition = 0;
-        impact.XVelocity = 624;
+        impact.Position = impact.Position.WithWholeX(157).WithWholeY(128).WithFractionX(0);
+        impact.Velocity = impact.Velocity.WithX(new SnesSignedEightEight(624));
         impact.BlocksSamusProjectiles = true;
         impact.CanDamageSamus = true;
         impact.DrawPriority = EnemyProjectileDrawPriority.Low;
@@ -128,7 +126,7 @@ internal static partial class Program
 
         for (int frame = 1; frame <= 60; frame++)
         {
-            process.Invoke(impactEnemies, [impact, null, (ushort)0, (ushort)0]);
+            process.Invoke(impactEnemies, [impact, null, Position16<RoomPixels>.Zero]);
             VerifyExecutedProjectileFrame(rom, impact, spriteArtwork, executedOperands);
             AssertTrue(impact.IsActive, $"Torizo sonic-boom impact frame {frame}");
             AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, impact.PreInstruction,
@@ -142,15 +140,15 @@ internal static partial class Program
             if ((frame - 1) % 12 == 0)
             {
                 int cycle = (frame - 1) / 12;
-                AssertEqual((ushort)158, impact.XPosition,
+                AssertEqual((ushort)158, impact.Position.X.Whole,
                     $"Torizo sonic-boom impact cycle {cycle + 1} X jitter");
-                AssertEqual((ushort)130, impact.YPosition,
+                AssertEqual((ushort)130, impact.Position.Y.Whole,
                     $"Torizo sonic-boom impact cycle {cycle + 1} Y jitter");
                 AssertEqual(unchecked((ushort)(5 - cycle)), impact.GeneralTimer,
                     $"Torizo sonic-boom impact cycle {cycle + 1} timer");
             }
         }
-        process.Invoke(impactEnemies, [impact, null, (ushort)0, (ushort)0]);
+        process.Invoke(impactEnemies, [impact, null, Position16<RoomPixels>.Zero]);
         Suite(nameof(VerifyExecutedProjectileFrame), () => VerifyExecutedProjectileFrame(rom, impact, spriteArtwork, executedOperands));
         AssertTrue(!impact.IsActive,
             "Torizo sonic-boom impact deletes after five exact twelve-frame cycles");
@@ -211,8 +209,7 @@ internal static partial class Program
         static RoomEnemySlot CreateTorizo(RoomEnemySystem enemies, bool facingRight)
         {
             RoomEnemySlot torizo = enemies.Slots[0];
-            torizo.XPosition = 1000;
-            torizo.YPosition = 500;
+            torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
             return torizo;
         }

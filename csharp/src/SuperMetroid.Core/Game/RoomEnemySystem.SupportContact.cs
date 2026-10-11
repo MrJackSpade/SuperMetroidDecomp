@@ -9,18 +9,18 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static bool IsEnemyTouchingSamusFromBelow(RoomEnemySlot enemy, SamusState samus)
     {
-        ushort xDistance = WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - enemy.XPosition)));
+        ushort xDistance = WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - enemy.Position.X.Whole)));
         ushort horizontalGap = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
         bool horizontalOverlap = xDistance < samus.Kinematics.Radius.X ||
-            horizontalGap < enemy.XRadius;
+            horizontalGap < enemy.Radius.X;
         if (!horizontalOverlap)
             return false;
 
-        ushort biasedYDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - enemy.YPosition));
+        ushort biasedYDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - enemy.Position.Y.Whole));
         if (unchecked((short)biasedYDifference) >= 0)
             return false;
         ushort yDistance = unchecked((ushort)-biasedYDifference);
         ushort verticalGap = unchecked((ushort)(yDistance - samus.Kinematics.Radius.Y));
-        return yDistance < samus.Kinematics.Radius.Y || verticalGap <= enemy.YRadius;
+        return yDistance < samus.Kinematics.Radius.Y || verticalGap <= enemy.Radius.Y;
     }
 }

@@ -176,14 +176,14 @@ public sealed partial class RoomEnemySystem
         // absolute value, and performs an unsigned compare. It notably does *not* check that
         // Samus is below the actor; preserving that retail bug matters to the velocity math.
         int horizontalDistance = Math.Abs(
-            unchecked((short)(slot.XPosition - samus.Position.X.Whole)));
+            unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)));
         if (horizontalDistance >= MetareeHorizontalActivationDistance)
             return;
 
         // The SNES unsigned-divider input is the wrapped 16-bit Y difference. If Samus is
         // above Metaree, this deliberately creates the cartridge's enormous dive velocity
         // instead of sanitizing the old bug into modern signed physics.
-        ushort verticalDifference = unchecked((ushort)(samus.Position.Y.Whole - slot.YPosition));
+        ushort verticalDifference = unchecked((ushort)(samus.Position.Y.Whole - slot.Position.Y.Whole));
         state.YVelocity = unchecked((ushort)(
             verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity));
         state.RequestedInstructionListIndex = SkreeMetareeAnimationPhase.PreparingAttack;
@@ -235,13 +235,13 @@ public sealed partial class RoomEnemySystem
 
         // Unlike common movement, Metaree applies whole-pixel words directly and leaves
         // both subpositions untouched. Horizontal steering re-evaluates Samus every frame.
-        slot.YPosition = unchecked((ushort)(slot.YPosition + state.YVelocity));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + state.YVelocity)));
         bool metareeIsLeftOfSamus =
-            unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0;
-        slot.XPosition = unchecked((ushort)(slot.XPosition +
+            unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0;
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
             (metareeIsLeftOfSamus
                 ? MetareeHorizontalDiveSpeed
-                : -MetareeHorizontalDiveSpeed)));
+                : -MetareeHorizontalDiveSpeed))));
     }
 
     private void RunMetareeBurrow(RoomEnemySlot slot, MetareeEnemyState state)
@@ -264,7 +264,7 @@ public sealed partial class RoomEnemySystem
 
         if (state.BurrowTimer == MetareeParticleFrameNtsc)
             SpawnMetareeParticleBurst(slot);
-        slot.YPosition = unchecked((ushort)(slot.YPosition + 1));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
     }
 
     private static void InstallRequestedMetareeInstruction(

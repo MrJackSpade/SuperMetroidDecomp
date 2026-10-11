@@ -19,8 +19,7 @@ internal static partial class Program
         goop.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
         goop.InstructionPointer = DraygonProjectileInstructionProgramDefinitions.GoopShot;
         goop.InstructionTimer = 1;
-        goop.XPosition = 120;
-        goop.YPosition = 240;
+        goop.Position = goop.Position.WithWhole(new(120, 240));
         var burstMaps = new HashSet<ushort>();
         for (int frame = 0; frame < 16; frame++)
         {
@@ -38,8 +37,8 @@ internal static partial class Program
         var pickup = enemies.EnemyProjectiles.Single(projectile => projectile.EnemyHeaderPointer == EnemyDefinitionId.DraygonEye);
         AssertTrue(pickup.IsActive && pickup.SpritemapPointer != 0,
             "critical-energy drop becomes a live rendered pickup in the same handler pass");
-        AssertEqual(120, pickup.XPosition, "drop uses destroyed goop world X");
-        AssertEqual(240, pickup.YPosition, "drop uses destroyed goop world Y");
+        AssertEqual(120, pickup.Position.X.Whole, "drop uses destroyed goop world X");
+        AssertEqual(240, pickup.Position.Y.Whole, "drop uses destroyed goop world Y");
         AssertEqual(goop.SlotIndex - 1, pickup.SlotIndex,
             "drop allocation occurs before parent deletion in the descending shared pool");
         enemies.StepEnemyProjectiles(runtime.LevelData!, runtime.Samus);

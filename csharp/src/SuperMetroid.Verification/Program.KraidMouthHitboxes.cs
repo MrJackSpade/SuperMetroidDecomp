@@ -30,8 +30,7 @@ internal static partial class Program
         Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> overlaps = enemies.KraidMouthHitboxOverlapsShot;
         var body = enemies.Slots[0];
         var shot = new SamusProjectileSystem().Slots[0];
-        body.XPosition = 256;
-        body.YPosition = 256;
+        body.Position = body.Position.WithWhole(new(256, 256));
         shot.Radius = new(4, 4);
         for (int entry = 0; entry < 8; entry++)
         {
@@ -42,9 +41,9 @@ internal static partial class Program
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             for (int edge = -1; edge <= 1; edge++)
             {
-                shot.Position = shot.Position.WithWhole(new((ushort)(body.XPosition + left - shot.Radius.X + edge), (ushort)raw));
-                bool expected = unchecked((short)(raw - shot.Radius.Y - 1 - body.YPosition - bottom)) < 0 &&
-                    unchecked((short)(raw + shot.Radius.Y - body.YPosition - top)) >= 0 && edge >= 0;
+                shot.Position = shot.Position.WithWhole(new((ushort)(body.Position.X.Whole + left - shot.Radius.X + edge), (ushort)raw));
+                bool expected = unchecked((short)(raw - shot.Radius.Y - 1 - body.Position.Y.Whole - bottom)) < 0 &&
+                    unchecked((short)(raw + shot.Radius.Y - body.Position.Y.Whole - top)) >= 0 && edge >= 0;
                 AssertEqual(expected, overlaps(body, pointer, shot), "Actual mouth collision preserves vertical bounds and inclusive left edge");
             }
         }
@@ -94,9 +93,9 @@ internal static partial class Program
             short left = unchecked((short)PointerWord(pointer));
             short top = unchecked((short)PointerWord(unchecked((ushort)(pointer + 2))));
             short bottom = unchecked((short)PointerWord(unchecked((ushort)(pointer + 6))));
-            bool expected = unchecked((short)(shot.Position.Y.Whole - shot.Radius.Y - 1 - body.YPosition - bottom)) < 0 &&
-                unchecked((short)(shot.Position.Y.Whole + shot.Radius.Y - body.YPosition - top)) >= 0 &&
-                unchecked((short)(shot.Position.X.Whole + shot.Radius.X - body.XPosition - left)) >= 0;
+            bool expected = unchecked((short)(shot.Position.Y.Whole - shot.Radius.Y - 1 - body.Position.Y.Whole - bottom)) < 0 &&
+                unchecked((short)(shot.Position.Y.Whole + shot.Radius.Y - body.Position.Y.Whole - top)) >= 0 &&
+                unchecked((short)(shot.Position.X.Whole + shot.Radius.X - body.Position.X.Whole - left)) >= 0;
             AssertEqual(expected, overlaps(body, pointer, shot), "Non-catalog pointers preserve address-space reads");
         }
 

@@ -148,7 +148,7 @@ internal static partial class Program
         void RunForcedTick(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
         }
     }
 

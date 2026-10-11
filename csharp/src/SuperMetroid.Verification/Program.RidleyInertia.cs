@@ -24,17 +24,16 @@ internal static partial class Program
             {
                 short distance = unchecked((short)raw);
                 ushort velocity = unchecked((ushort)((raw % 7) switch { 0 => -1280, 1 => -1, 2 => 0, 3 => 1, 4 => 1280, 5 => short.MinValue, _ => short.MaxValue }));
-                slot.XPosition = unchecked((ushort)(0xff00 + distance));
-                slot.YPosition = unchecked((ushort)(0x100 - distance));
+                slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0xff00 + distance)), unchecked((ushort)(0x100 - distance))));
                 state.HorizontalVelocity = state.VerticalVelocity = velocity;
                 ceres(slot, state, 0xff00, 0x100, index);
-                AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.XPosition, 0xff00, ceresDivisor), state.HorizontalVelocity, "Ceres actual X acceleration");
-                AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.YPosition, 0x100, ceresDivisor), state.VerticalVelocity, "Ceres actual wrapped Y acceleration");
+                AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, ceresDivisor), state.HorizontalVelocity, "Ceres actual X acceleration");
+                AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, ceresDivisor), state.VerticalVelocity, "Ceres actual wrapped Y acceleration");
                 state.HorizontalVelocity = state.VerticalVelocity = velocity;
                 ushort boost = (ushort)(raw % 3 * 16);
                 norfair(slot, state, 0xff00, 0x100, index, boost);
-                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.XPosition, 0xff00, divisor, boost), state.HorizontalVelocity, "Norfair actual X acceleration");
-                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.YPosition, 0x100, divisor, boost), state.VerticalVelocity, "Norfair actual wrapped Y acceleration");
+                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, divisor, boost), state.HorizontalVelocity, "Norfair actual X acceleration");
+                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, divisor, boost), state.VerticalVelocity, "Norfair actual wrapped Y acceleration");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertiaDefinitions.Divisor(-1), "Negative inertia index");

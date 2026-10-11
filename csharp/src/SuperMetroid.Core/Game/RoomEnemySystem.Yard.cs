@@ -155,14 +155,14 @@ public sealed partial class RoomEnemySystem
                 return true;
             }
             case YardInstruction.MoveByPixelsInY:
-                slot.XPosition = unchecked((ushort)(slot.XPosition +
+                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
                     ReadEnemyInstructionMechanicsWord(
                         slot,
-                        unchecked((ushort)(cursor + 2)))));
-                slot.YPosition = unchecked((ushort)(slot.YPosition +
+                        unchecked((ushort)(cursor + 2))))));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole +
                     ReadEnemyInstructionMechanicsWord(
                         slot,
-                        unchecked((ushort)(cursor + 4)))));
+                        unchecked((ushort)(cursor + 4))))));
                 cursor = unchecked((ushort)(cursor + 6));
                 return true;
             case YardInstruction.GoBack4BytesIfHidingOr50PercentChance:
@@ -295,9 +295,9 @@ public sealed partial class RoomEnemySystem
         if (state.Behavior is YardBehavior.AggressiveCrawling or YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched)
             return;
 
-        bool withinVerticalBand = unchecked((short)(slot.YPosition - samus.Position.Y.Whole)) >= -96;
+        bool withinVerticalBand = unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= -96;
         byte samusFacing = samus.ReadPoseXDirection(_bus!);
-        bool samusLookingAtYard = slot.XPosition < samus.Position.X.Whole
+        bool samusLookingAtYard = slot.Position.X.Whole < samus.Position.X.Whole
             ? samusFacing == (byte)SamusFacingDirection.Left
             : samusFacing == (byte)SamusFacingDirection.Right;
         if (withinVerticalBand && samusLookingAtYard)
@@ -386,8 +386,7 @@ public sealed partial class RoomEnemySystem
         // The lookahead offset is temporary, but the normal-axis probe movement is not.
         // Native adds the offset, performs collision/alignment, then subtracts only the
         // original offset from the resulting center.
-        slot.XPosition = unchecked((ushort)(slot.XPosition + lookaheadX));
-        slot.YPosition = unchecked((ushort)(slot.YPosition + lookaheadY));
+        slot.Position += new Offset16<RoomPixels>(unchecked((short)(lookaheadX)), unchecked((short)(lookaheadY)));
         bool surfaceCollision = movesVertically
             ? MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
@@ -397,8 +396,7 @@ public sealed partial class RoomEnemySystem
                 level,
                 slot,
                 Shift8AddMagnitude(state.CrawlingYVelocity, 1));
-        slot.XPosition = unchecked((ushort)(slot.XPosition - lookaheadX));
-        slot.YPosition = unchecked((ushort)(slot.YPosition - lookaheadY));
+        slot.Position -= new Offset16<RoomPixels>(unchecked((short)(lookaheadX)), unchecked((short)(lookaheadY)));
 
         if (!surfaceCollision)
         {
@@ -621,8 +619,8 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         bool shouldTurn = state.AirborneFacingDirection != 0
-            ? slot.XPosition >= samus.Position.X.Whole
-            : slot.XPosition < samus.Position.X.Whole;
+            ? slot.Position.X.Whole >= samus.Position.X.Whole
+            : slot.Position.X.Whole < samus.Position.X.Whole;
         return shouldTurn && TurnYardAround(slot, state);
     }
 

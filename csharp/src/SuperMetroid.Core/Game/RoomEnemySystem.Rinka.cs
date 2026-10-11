@@ -119,25 +119,25 @@ public sealed partial class RoomEnemySystem
     private readonly List<int> _deferredRinkaSpawnSlots = new();
 
     /// <summary>Clears the two shared words and all per-slot/extra-RAM spawn ownership.</summary>
-    private void ResetRinkaRoomState(ushort cameraX, ushort cameraY)
+    private void ResetRinkaRoomState(Position16<RoomPixels> camera)
     {
         Array.Clear(_rinkaStates);
         Array.Clear(_rinkaOccupiedSpawnResources);
         _deferredRinkaSpawnSlots.Clear();
         _rinkaActiveCount = 0;
         _rinkaTerminationFlag = 0;
-        _rinkaCameraX = cameraX;
-        _rinkaCameraY = cameraY;
+        _rinkaCameraX = camera.X;
+        _rinkaCameraY = camera.Y;
     }
 
     /// <summary>
     /// Captures layer-1 coordinates used by $A2:B8D3/$B8FF. StepFrame refreshes these before
     /// any Rinka AI; Load supplies the already-positioned destination camera for initialization.
     /// </summary>
-    private void SetRinkaCamera(ushort cameraX, ushort cameraY)
+    private void SetRinkaCamera(Position16<RoomPixels> camera)
     {
-        _rinkaCameraX = cameraX;
-        _rinkaCameraY = cameraY;
+        _rinkaCameraX = camera.X;
+        _rinkaCameraY = camera.Y;
     }
 
     /// <summary>Ports <c>Rinka_Init</c> at $A2:B602.</summary>
@@ -191,8 +191,7 @@ public sealed partial class RoomEnemySystem
         // EnemySpawnData is a separate WRAM array and survives clearing the common 64-byte
         // actor. Special spawn selection deliberately mutates that snapshot; ordinary
         // Rinkas continue to return to their original population coordinate.
-        slot.XPosition = slot.Spawn.Population.XPosition;
-        slot.YPosition = slot.Spawn.Population.YPosition;
+        slot.Position = slot.Position.WithWhole(new(slot.Spawn.Population.Position.X, slot.Spawn.Population.Position.Y));
         InitializeRinkaLife(slot, state);
     }
 
@@ -229,8 +228,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     internal void CompleteLoaderTimeCameraReads(
         Func<int, bool> loaderInitializedSlot,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         ArgumentNullException.ThrowIfNull(loaderInitializedSlot);
         while (_deferredRinkaSpawnSlots.Count != 0 && loaderInitializedSlot(_deferredRinkaSpawnSlots[0]))
@@ -239,7 +237,7 @@ public sealed partial class RoomEnemySystem
             _deferredRinkaSpawnSlots.RemoveAt(0);
             RinkaEnemyState state = _rinkaStates[slotIndex] ?? throw new InvalidOperationException(
                 $"Deferred Rinka spawn slot {slotIndex} no longer holds a Rinka.");
-            SetRinkaCamera(cameraX, cameraY);
+            SetRinkaCamera(camera);
             ReserveSpecialRinkaSpawn(_slots[slotIndex], state);
         }
     }
@@ -284,8 +282,7 @@ public sealed partial class RoomEnemySystem
                     .With(EnemyProperties.ProcessOffScreen);
 
                 byte sourceAngle = CalculateCartridgeAngle(
-                    unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
-                    unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
+                    new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
                 byte velocityAngle = unchecked((byte)-(sourceAngle + 0x80));
                 state.XVelocity = MultiplyCartridgeSinCos(RinkaSpeed, velocityAngle);
                 state.YVelocity = MultiplyCartridgeSinCos(
@@ -294,14 +291,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case RinkaEnemyFunction.Flying:
-                (slot.XPosition, slot.XSubposition) = AddEightBitVelocity(
-                    slot.XPosition,
-                    slot.XSubposition,
-                    state.XVelocity);
-                (slot.YPosition, slot.YSubposition) = AddEightBitVelocity(
-                    slot.YPosition,
-                    slot.YSubposition,
-                    state.YVelocity);
+                slot.Position = slot.Position.Advance(new(new SnesSignedEightEight(state.XVelocity).ToSixteenSixteenDelta(), new SnesSignedEightEight(state.YVelocity).ToSixteenSixteenDelta()));
                 if (RinkaIsOutsideFlightWindow(slot))
                     RecycleRinkaAfterLeavingViewport(slot, state);
                 return;
@@ -344,7 +334,7 @@ public sealed partial class RoomEnemySystem
         // the wrapping 1 -> 0 -> FFFF countdown, restore ten health, and select a spawn.
         slot.Properties = slot.Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
-        SpawnRinkaDustExplosion(slot.XPosition, slot.YPosition);
+        SpawnRinkaDustExplosion(slot.Position.Whole);
         state.Function = RinkaEnemyFunction.DeathRespawnDelay;
         state.DelayTimer = 1;
     }
@@ -432,8 +422,8 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports $A2:B69B/$B79D's fixed-resource selection without WRAM alias tricks.</summary>
     private void ReserveSpecialRinkaSpawn(RoomEnemySlot slot, RinkaEnemyState state)
     {
-        ushort spawnX = slot.Spawn.Population.XPosition;
-        ushort spawnY = slot.Spawn.Population.YPosition;
+        ushort spawnX = slot.Spawn.Population.Position.X;
+        ushort spawnY = slot.Spawn.Population.Position.Y;
         int mappedIndex = FindRinkaSpawnResource(spawnX, spawnY);
         bool mustRelocate = RinkaSpawnIsOutsideCamera(spawnX, spawnY) ||
             _rinkaOccupiedSpawnResources[mappedIndex];
@@ -475,12 +465,10 @@ public sealed partial class RoomEnemySystem
             RinkaSpawnResource selected = RinkaSpawnResourceAt(selectedIndex);
             RoomEnemyPopulationRecord rewrittenPopulation = slot.Spawn.Population with
             {
-                XPosition = selected.XPosition,
-                YPosition = selected.YPosition,
+                Position = new(selected.XPosition, selected.YPosition),
             };
             slot.Spawn = slot.Spawn with { Population = rewrittenPopulation };
-            slot.XPosition = selected.XPosition;
-            slot.YPosition = selected.YPosition;
+            slot.Position = slot.Position.WithWhole(new(selected.XPosition, selected.YPosition));
         }
 
         _rinkaOccupiedSpawnResources[mappedIndex] = true;
@@ -529,14 +517,14 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports $A2:B8D3's asymmetric (-16..271, -16..239) flight rectangle.</summary>
     private bool RinkaIsOutsideFlightWindow(RoomEnemySlot slot)
     {
-        if (unchecked((short)slot.YPosition) < 0)
+        if (unchecked((short)slot.Position.Y.Whole) < 0)
             return true;
-        ushort relativeY = unchecked((ushort)(slot.YPosition + 16 - _rinkaCameraY));
+        ushort relativeY = unchecked((ushort)(slot.Position.Y.Whole + 16 - _rinkaCameraY));
         if (unchecked((short)relativeY) < 0 || !IsNegative16(relativeY - 256))
             return true;
-        if (unchecked((short)slot.XPosition) < 0)
+        if (unchecked((short)slot.Position.X.Whole) < 0)
             return true;
-        ushort relativeX = unchecked((ushort)(slot.XPosition + 16 - _rinkaCameraX));
+        ushort relativeX = unchecked((ushort)(slot.Position.X.Whole + 16 - _rinkaCameraX));
         return unchecked((short)relativeX) < 0 || !IsNegative16(relativeX - 288);
     }
 

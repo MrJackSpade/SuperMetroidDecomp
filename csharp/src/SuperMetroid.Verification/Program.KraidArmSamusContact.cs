@@ -23,8 +23,7 @@ internal static partial class Program
         AssertEqual(EnemyDefinitionId.KraidArm, arm.EnemyDefinitionPointer, "slot one is Kraid's arm");
 
         // Native update 35724: the arm and Samus as they stand when EnemyMain tests contact.
-        arm.XPosition = 0x00b0;
-        arm.YPosition = 0x01df;
+        arm.Position = arm.Position.WithWhole(new(0x00b0, 0x01df));
         arm.SpritemapPointer = 0x90fd;
         arm.Properties = 0x2800;
         SamusState samus = runtime.Samus!;
@@ -38,7 +37,7 @@ internal static partial class Program
         // $A0:8EB6 builds this frame's interactive list from the native camera (0,$100).
         typeof(RoomEnemySystem).GetMethod("DetermineWhichEnemiesToProcess",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .Invoke(runtime.Enemies, [(ushort)0, (ushort)0x100]);
+            .Invoke(runtime.Enemies, [new Position16<RoomPixels>((ushort)0, (ushort)0x100)]);
         runtime.Enemies.ResolveOrdinarySamusContact(samus, 0, runtime.LevelData, onlyNativeEnemyIndex: 0x40);
 
         AssertEqual((ushort)4, samus.Kinematics.ExtraDisplacement.X.WholePixels, "$A7:94A4 pushes Samus four pixels right");
@@ -50,6 +49,6 @@ internal static partial class Program
     }
 
     private static bool RadiusBoxesOverlapForArm(RoomEnemySlot arm, SamusState samus) =>
-        Math.Abs(arm.XPosition - samus.Position.X.Whole) < arm.XRadius + samus.Kinematics.Radius.X &&
-        Math.Abs(arm.YPosition - samus.Position.Y.Whole) < arm.YRadius + samus.Kinematics.Radius.Y;
+        Math.Abs(arm.Position.X.Whole - samus.Position.X.Whole) < arm.Radius.X + samus.Kinematics.Radius.X &&
+        Math.Abs(arm.Position.Y.Whole - samus.Position.Y.Whole) < arm.Radius.Y + samus.Kinematics.Radius.Y;
 }

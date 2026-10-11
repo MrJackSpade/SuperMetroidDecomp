@@ -539,7 +539,7 @@ public sealed partial class SuperMetroidRuntime
                     $"The door scroll finished before the loader initialized elevator slot {placement.EnemySlot}.");
             }
         }
-        Enemies.CompleteLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, Camera.PixelPosition.X, Camera.PixelPosition.Y);
+        Enemies.CompleteLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, Camera.PixelPosition);
         if (completed && Enemies.HasDeferredLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
         Samus!.Position = state.SamusPosition;
@@ -973,8 +973,7 @@ public sealed partial class SuperMetroidRuntime
                 System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             setAreaBossDefeated: () =>
                 System.SetBossBits(room.AreaIndex, BossBits.AreaBoss),
-            cameraX: Camera.PixelPosition.X,
-            cameraY: Camera.PixelPosition.Y,
+            camera: Camera.PixelPosition,
             hasEvent: System.HasEvent,
             setEvent: System.SetEvent,
             clearEvent: System.ClearEvent,

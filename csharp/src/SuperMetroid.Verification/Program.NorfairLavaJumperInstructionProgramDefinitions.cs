@@ -39,13 +39,12 @@ internal static partial class Program
         RoomEnemySlot parent = enemies.Slots[0];
         parent.EnemyDefinitionPointer = EnemyDefinitionId.Squeept;
         parent.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
-        parent.XPosition = 0x0100;
-        parent.YPosition = 0x01e0;
+        parent.Position = parent.Position.WithWhole(new(0x0100, 0x01e0));
         initialize(parent);
         NorfairLavaJumpingEnemyState parentState =
             enemies.NorfairLavaJumpingEnemyStates[0]!;
         object?[] processArguments =
-            [parent, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [parent, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
         RunNorfairLavaJumperProgram(
             enemies, process, processArguments, parent,

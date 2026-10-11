@@ -239,7 +239,7 @@ public sealed partial class RoomEnemySystem
         // deliberately bypass this proximity rewrite.
         if ((ushort)state.HopType < (ushort)PuyoHopType.Giant)
         {
-            int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.XPosition)));
+            int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)));
             state.HopType = distance < slot.Parameter2
                 ? PuyoHopType.NormalBig
                 : PuyoHopType.NormalSmall;
@@ -247,7 +247,7 @@ public sealed partial class RoomEnemySystem
 
         // Aim toward Samus unless the preceding terrain collision latched the opposite
         // direction. Equality follows the cartridge's BPL path and therefore aims right.
-        PuyoDirection direction = unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0
+        PuyoDirection direction = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
             ? PuyoDirection.Left
             : PuyoDirection.Right;
         if (state.InvertDirection)

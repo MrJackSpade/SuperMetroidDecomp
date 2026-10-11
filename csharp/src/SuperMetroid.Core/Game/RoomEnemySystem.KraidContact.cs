@@ -9,8 +9,8 @@ public sealed partial class RoomEnemySystem
     {
         if (unchecked((short)(body.VariableA - (ushort)KraidAiFunction.DeathInitialize)) >= 0)
             return;
-        short relativeY = unchecked((short)(samus.Position.Y.Whole - body.YPosition));
-        if (unchecked((short)(body.XPosition + KraidBodyContour.LeftEdge(relativeY) -
+        short relativeY = unchecked((short)(samus.Position.Y.Whole - body.Position.Y.Whole));
+        if (unchecked((short)(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -
             samus.Position.X.Whole - samus.Kinematics.Radius.X)) >= 0)
             return;
         if (unchecked((short)(samus.Position.X.Whole - KraidContactDefinitions.MinimumBodyEjectionX)) >= 0)
@@ -27,13 +27,13 @@ public sealed partial class RoomEnemySystem
     {
         if (lint.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) || samus.InvincibilityTimer != 0)
             return;
-        ushort edge = unchecked((ushort)(lint.XPosition + KraidContactDefinitions.LintLeadingEdge));
+        ushort edge = unchecked((ushort)(lint.Position.X.Whole + KraidContactDefinitions.LintLeadingEdge));
         if (unchecked((short)(samus.Position.X.Whole + samus.Kinematics.Radius.X - edge)) < 0 ||
             unchecked((short)(samus.Position.X.Whole - samus.Kinematics.Radius.X - edge)) >= 0 ||
             unchecked((short)(samus.Position.Y.Whole + samus.Kinematics.Radius.Y -
-                lint.YPosition - KraidContactDefinitions.LintTop)) < 0 ||
+                lint.Position.Y.Whole - KraidContactDefinitions.LintTop)) < 0 ||
             unchecked((short)(samus.Position.Y.Whole - samus.Kinematics.Radius.Y -
-                lint.YPosition - KraidContactDefinitions.LintBottom)) >= 0)
+                lint.Position.Y.Whole - KraidContactDefinitions.LintBottom)) >= 0)
             return;
         ushort push = unchecked((ushort)(~(samus.Kinematics.Radius.X + KraidContactDefinitions.LintPush) +
             samus.Kinematics.ExtraDisplacement.X.WholePixels));

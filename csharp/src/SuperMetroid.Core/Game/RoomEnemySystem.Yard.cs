@@ -100,7 +100,7 @@ public sealed class YardEnemyState
     /// <summary>Native extension offset $0E: live surface orientation index 0..7, ordered right/up, right/down, left/up, left/down, upside-down/left, upside-down/right, upright/left, upright/right; only direction instructions or turns publish it.</summary>
     public ushort Direction { get; internal set; }
     /// <summary>Native extension offset $10: mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>
-    public ushort Behavior { get; internal set; }
+    public YardBehavior Behavior { get; internal set; }
     /// <summary>Native parallel $7E:8000 flag: set by a horizontal airborne collision and cleared by a vertical bounce; a record of bounce state rather than a per-frame event.</summary>
     public bool BouncedHorizontally { get; internal set; }
 }
@@ -168,7 +168,7 @@ public sealed partial class RoomEnemySystem
             case YardInstruction.GoBack4BytesIfHidingOr50PercentChance:
                 // The native instruction receives Y already advanced past the opcode.
                 // Subtracting six therefore resumes four bytes before the opcode.
-                cursor = RequireYardState(slot).Behavior == 2 || (_nextRandom!() & 1) != 0
+                cursor = RequireYardState(slot).Behavior == YardBehavior.Hiding || (_nextRandom!() & 1) != 0
                     ? unchecked((ushort)(cursor - 4))
                     : unchecked((ushort)(cursor + 2));
                 return true;
@@ -203,7 +203,7 @@ public sealed partial class RoomEnemySystem
             // instruction writes that word. A first-frame hide can bypass it and
             // must retain the cartridge's zero-initialized attachment direction.
             Direction = 0,
-            Behavior = 0,
+            Behavior = YardBehavior.NormalCrawling,
             IdleCrawlingSpeedIndex = slot.Parameter1,
         };
         _yardStates[slot.SlotIndex] = state;
@@ -248,7 +248,7 @@ public sealed partial class RoomEnemySystem
 
         // A super-missile earthquake drops an attached/hiding Yard, but cannot restart one
         // that is already falling, kicked, or shot through the air.
-        if (state.Behavior is not (3 or 4 or 5) &&
+        if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched) &&
             EarthquakeTimer == 0x001e && EarthquakeType == 0x0014)
         {
             DropYard(slot, state);
@@ -292,7 +292,7 @@ public sealed partial class RoomEnemySystem
         YardEnemyState state,
         SamusState samus)
     {
-        if (state.Behavior is 1 or 3 or 4 or 5)
+        if (state.Behavior is YardBehavior.AggressiveCrawling or YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched)
             return;
 
         bool withinVerticalBand = unchecked((short)(slot.YPosition - samus.YPosition)) >= -96;
@@ -302,7 +302,7 @@ public sealed partial class RoomEnemySystem
             : samusFacing == (byte)SamusFacingDirection.Right;
         if (withinVerticalBand && samusLookingAtYard)
         {
-            if (state.Behavior == 2)
+            if (state.Behavior == YardBehavior.Hiding)
                 return;
             if (state.HidingInstructionList != (ushort)YardMovementFunction.InstructionPending)
             {
@@ -310,12 +310,12 @@ public sealed partial class RoomEnemySystem
                 slot.SpritemapPointer = YardNothingSpritemap;
                 slot.InstructionTimer = 1;
                 slot.Timer = 0;
-                state.Behavior = 2;
+                state.Behavior = YardBehavior.Hiding;
                 return;
             }
         }
 
-        state.Behavior = 0;
+        state.Behavior = YardBehavior.NormalCrawling;
     }
 
     /// <summary>Ports Yard's dynamic bit-$8000 solid-hitbox decision at $A3:CF11.</summary>
@@ -329,7 +329,7 @@ public sealed partial class RoomEnemySystem
         {
             solid = false;
         }
-        else if (state.Behavior == 1)
+        else if (state.Behavior == YardBehavior.AggressiveCrawling)
         {
             solid = !samus.HorizontalSpeed.HasRunningMomentum &&
                 state.MovementFunction == YardMovementFunction.InstructionPending;
@@ -340,7 +340,7 @@ public sealed partial class RoomEnemySystem
         }
         else
         {
-            solid = state.Behavior is not (3 or 5);
+            solid = state.Behavior is not (YardBehavior.Dropped or YardBehavior.BeamLaunched);
         }
 
         slot.Properties = solid
@@ -490,9 +490,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the common detach path at $A3:D164.</summary>
     private static void DropYard(RoomEnemySlot slot, YardEnemyState state)
     {
-        if (state.Behavior == 3)
+        if (state.Behavior == YardBehavior.Dropped)
             return;
-        state.Behavior = 3;
+        state.Behavior = YardBehavior.Dropped;
         state.MovementFunction = YardMovementFunction.Airborne;
         SetYardAirborneLists(slot, state);
         state.AirborneXSubvelocity = 0;
@@ -508,7 +508,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         RoomLevelData level)
     {
-        if (state.Behavior != 3)
+        if (state.Behavior != YardBehavior.Dropped)
         {
             int xDisplacement = ComposeSignedFixed(
                 state.AirborneXVelocity,
@@ -577,13 +577,13 @@ public sealed partial class RoomEnemySystem
         state.TurnTransitionDisableCounter = 0;
         state.TurnTransitionDisabled = true;
 
-        if (state.Behavior == 3)
+        if (state.Behavior == YardBehavior.Dropped)
         {
-            state.Behavior = 0;
+            state.Behavior = YardBehavior.NormalCrawling;
         }
         else
         {
-            state.Behavior = 1;
+            state.Behavior = YardBehavior.AggressiveCrawling;
             slot.Parameter1 = 8;
             MakeYardFaceSamusHorizontally(slot, state, samus);
             SetYardAirborneLists(slot, state);
@@ -628,7 +628,7 @@ public sealed partial class RoomEnemySystem
 
     private static bool TurnYardAround(RoomEnemySlot slot, YardEnemyState state)
     {
-        if (state.Behavior == 2 ||
+        if (state.Behavior == YardBehavior.Hiding ||
             state.MovementFunction == YardMovementFunction.InstructionPending)
         {
             return false;
@@ -654,7 +654,7 @@ public sealed partial class RoomEnemySystem
         YardEnemyState state,
         SamusState samus)
     {
-        state.Behavior = 4;
+        state.Behavior = YardBehavior.Kicked;
         state.MovementFunction = YardMovementFunction.Airborne;
         SetYardAirborneLists(slot, state);
 
@@ -677,7 +677,7 @@ public sealed partial class RoomEnemySystem
         YardEnemyState state,
         SamusState samus)
     {
-        state.Behavior = 5;
+        state.Behavior = YardBehavior.BeamLaunched;
         state.MovementFunction = YardMovementFunction.Airborne;
         SetYardAirborneLists(slot, state);
         state.AirborneYVelocity = 0xffff;
@@ -694,7 +694,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort controllerInput)
     {
-        bool aggressiveCrawlRejectsKick = state.Behavior == 1 &&
+        bool aggressiveCrawlRejectsKick = state.Behavior == YardBehavior.AggressiveCrawling &&
             state.MovementFunction != YardMovementFunction.InstructionPending &&
             SamusIsDirectingTowardYard(state, controllerInput);
         bool kickRequested = !aggressiveCrawlRejectsKick &&
@@ -712,16 +712,16 @@ public sealed partial class RoomEnemySystem
         // deliberately do nothing on overlap. Every other route enters normal enemy touch,
         // restores the population's idle speed, optionally turns, then resumes behavior zero.
         if (state.MovementFunction == YardMovementFunction.InstructionPending ||
-            state.Behavior is 3 or 4)
+            state.Behavior is YardBehavior.Dropped or YardBehavior.Kicked)
         {
             return;
         }
 
         ResolveNormalEnemyTouch(slot, samus);
         slot.Parameter1 = state.IdleCrawlingSpeedIndex;
-        if (state.Behavior != 0)
+        if (state.Behavior != YardBehavior.NormalCrawling)
             TurnYardAround(slot, state);
-        state.Behavior = 0;
+        state.Behavior = YardBehavior.NormalCrawling;
     }
 
     private static bool SamusIsDirectingTowardYard(
@@ -745,7 +745,7 @@ public sealed partial class RoomEnemySystem
         YardEnemyState state,
         SamusState samus)
     {
-        if (state.Behavior is not (3 or 4))
+        if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked))
             ShootYardIntoAir(slot, state, samus);
         LastYardSoundEffect = 0x0070;
     }

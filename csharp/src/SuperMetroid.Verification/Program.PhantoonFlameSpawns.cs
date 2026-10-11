@@ -26,13 +26,29 @@ internal static partial class Program
                 .CreateDelegate<Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool>>(enemies);
             var body = enemies.Slots[0];
             body.XPosition = body.YPosition = origin;
-            AssertTrue(spawn(body, (PhantoonFlameSpawnType)(parameter >> 8), (byte)parameter), "Real Phantoon flame allocation succeeds");
+            PhantoonFlameSpawnType type = ClosedNativeWords.Decode<PhantoonFlameSpawnType>(
+                (byte)(parameter >> 8), "Phantoon flame spawn type");
+            int index = parameter & 255;
+            AssertTrue(spawn(body, type, (byte)parameter), "Real Phantoon flame allocation succeeds");
             var flame = enemies.EnemyProjectiles.Single(p => p.IsActive);
-            int type = parameter >> 8, index = parameter & 255;
-            ushort angle = type == 2 ? rom.ReadByte(0x8698b4 + index) : type == 6 ? rom.ReadByte(0x869979 + index) : (ushort)0;
-            ushort x = type == 4 ? rom.ReadByte(0x8698f7 + (index & 15)) : origin;
-            ushort y = type == 4 ? (ushort)40 : unchecked((ushort)(origin + (type == 6 ? 16 : 32)));
-            ushort speed = type == 2 ? unchecked((ushort)(index < 8 ? 2 : -2)) : type == 6 ? (ushort)128 : type == 4 ? (ushort)((index & 240) >> 1) : (ushort)0;
+            ushort angle = type switch
+            {
+                PhantoonFlameSpawnType.Enraged => rom.ReadByte(0x8698b4 + index),
+                PhantoonFlameSpawnType.Spiral => rom.ReadByte(0x869979 + index),
+                PhantoonFlameSpawnType.Casual or PhantoonFlameSpawnType.Rain => 0,
+                _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {(int)type}."),
+            };
+            ushort x = type == PhantoonFlameSpawnType.Rain ? rom.ReadByte(0x8698f7 + (index & 15)) : origin;
+            ushort y = type == PhantoonFlameSpawnType.Rain ? (ushort)40
+                : unchecked((ushort)(origin + (type == PhantoonFlameSpawnType.Spiral ? 16 : 32)));
+            ushort speed = type switch
+            {
+                PhantoonFlameSpawnType.Enraged => unchecked((ushort)(index < 8 ? 2 : -2)),
+                PhantoonFlameSpawnType.Spiral => 128,
+                PhantoonFlameSpawnType.Rain => (ushort)((index & 240) >> 1),
+                PhantoonFlameSpawnType.Casual => 0,
+                _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {(int)type}."),
+            };
             AssertEqual(angle, flame.Variable0, "Actual flame initial angle");
             AssertEqual(x, flame.XPosition, "Actual flame initial X");
             AssertEqual(y, flame.YPosition, "Actual flame initial wrapped Y");

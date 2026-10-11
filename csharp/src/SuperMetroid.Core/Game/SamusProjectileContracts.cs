@@ -57,8 +57,8 @@ public sealed class SamusProjectileSlot
     public ushort TrailTimer { get; internal set; }
     /// <summary>WRAM <c>$0C7C</c>; missile ignition/acceleration state in the high byte.</summary>
     public ushort Variable { get; internal set; }
-    /// <summary>WRAM $0CA4: auxiliary phase word used by Spazer special-attack particles.</summary>
-    public ushort AuxiliaryPhase { get; internal set; }
+    /// <summary>WRAM $0CA4: phase word used by Spazer special-attack particles.</summary>
+    public SpazerComboPhase AuxiliaryPhase { get; internal set; }
     /// <summary>Gets the semantic identity of the slot's bank-$90 pre-instruction.</summary>
     public SamusProjectilePreInstruction PreInstruction { get; internal set; }
 

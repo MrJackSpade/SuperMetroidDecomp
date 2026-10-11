@@ -51,20 +51,50 @@ internal static class BotwoonInstructionDefinitions
     /// </summary>
     internal static ushort BodyInstruction(ushort byteOffset)
     {
-        if ((byteOffset & 1) != 0 || byteOffset >= 64)
+        BotwoonBodySelector selector = BotwoonBodySelector.Decode(byteOffset);
+        if (selector.Hidden) return BotwoonProjectileInstructionProgramDefinitions.Hidden;
+        return selector.Segment switch
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(byteOffset), byteOffset,
-                "Botwoon body instruction offset must be even and zero through 62.");
-        }
+            BotwoonBodySegment.Tail => (ushort)(BotwoonProjectileInstructionProgramDefinitions.TailUpFacingRight +
+                6 * ((8 - selector.Octant) & 7)),
+            BotwoonBodySegment.Body => (ushort)(BotwoonProjectileInstructionProgramDefinitions.BodyUpLeft +
+                20 * PhysicalDirection(selector.Octant)),
+            _ => throw new InvalidOperationException(
+                $"Undefined {nameof(BotwoonBodySegment)} {(int)selector.Segment}."),
+        };
+    }
 
-        // Each sixteen-entry region has eight visible and eight hidden directions.
-        int selector = byteOffset >> 1;
-        if ((selector & 8) != 0) return BotwoonProjectileInstructionProgramDefinitions.Hidden;
-        int octant = selector & 7;
-        if ((selector & 16) != 0)
-            return (ushort)(BotwoonProjectileInstructionProgramDefinitions.TailUpFacingRight + 6 * ((8 - octant) & 7));
-        return (ushort)(BotwoonProjectileInstructionProgramDefinitions.BodyUpLeft + 20 * PhysicalDirection(octant));
+    /// <summary>Which of Botwoon's segment families a body/tail table entry selects.</summary>
+    private enum BotwoonBodySegment
+    {
+        /// <summary>Entries $00-$1E: one of the body segments.</summary>
+        Body,
+
+        /// <summary>Entries $20-$3E: the tail segment.</summary>
+        Tail,
+    }
+
+    /// <summary>
+    /// One decoded <c>BotwoonsBodyTail_InstListPointers</c> entry: word index bit 4 selects the
+    /// tail region, bit 3 the hidden half of that region, and bits 0-2 the angular octant.
+    /// </summary>
+    private readonly record struct BotwoonBodySelector(BotwoonBodySegment Segment, bool Hidden, int Octant)
+    {
+        internal static BotwoonBodySelector Decode(ushort byteOffset)
+        {
+            if ((byteOffset & 1) != 0 || byteOffset >= 64)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(byteOffset), byteOffset,
+                    "Botwoon body instruction offset must be even and zero through 62.");
+            }
+
+            int entry = byteOffset >> 1;
+            return new(
+                (entry & 16) != 0 ? BotwoonBodySegment.Tail : BotwoonBodySegment.Body,
+                (entry & 8) != 0,
+                entry & 7);
+        }
     }
     // Head and body programs run counterclockwise from up-left. Their physical
     // layout includes an unused down-facing-left slot between down-left and down.

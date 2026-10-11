@@ -37,7 +37,7 @@ internal static partial class Program
         int samples = 0;
         foreach (uint initialX in horizontal)
         foreach (uint initialY in vertical)
-        foreach (ushort behavior in new ushort[] { 3, 4, 5 })
+        foreach (YardBehavior behavior in new[] { YardBehavior.Dropped, YardBehavior.Kicked, YardBehavior.BeamLaunched })
         {
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
@@ -61,7 +61,7 @@ internal static partial class Program
             {
                 // Oracle follows $A3:D1B3's word stores independently of production
                 // helpers. Movement consumes old velocity, then friction/gravity run.
-                if (behavior != 3)
+                if (behavior != YardBehavior.Dropped)
                 {
                     x = unchecked(x + vx);
                     uint changed = unchecked(vx + ((vx & 0x80000000) != 0 ? 0x1000u : 0xFFFFF000u));

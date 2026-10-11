@@ -26,7 +26,7 @@ internal static partial class Program
             // Seed the airborne touch-admission case. The real contact dispatcher
             // must install the kick and consume the published distance words.
             state.MovementFunction = YardMovementFunction.Airborne;
-            state.Behavior = 0;
+            state.Behavior = YardBehavior.NormalCrawling;
             samus.XPosition = actor.XPosition;
             samus.YPosition = actor.YPosition;
             samus.InvincibilityTimer = 0;
@@ -41,7 +41,7 @@ internal static partial class Program
             ushort expectedWhole = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D519 + index * 4);
             AssertEqual(expectedFraction, state.AirborneYSubvelocity, "vertical kick table capped independently of horizontal speed");
             AssertEqual(expectedWhole, state.AirborneYVelocity, "vertical kick table whole word");
-            AssertEqual((ushort)4, state.Behavior, "touch installs kicked behavior");
+            AssertEqual(YardBehavior.Kicked, state.Behavior, "touch installs kicked behavior");
             cases++;
         }
         Console.WriteLine($"Yard kicks: {cases} contact-dispatch cases preserve signed words, fractions and vertical-table cap.");

@@ -129,7 +129,7 @@ internal static partial class Program
             AssertYardAirborneLists(slot, state, expected,
                 $"Yard detach facing {facing}");
 
-            state.Behavior = 0;
+            state.Behavior = YardBehavior.NormalCrawling;
             state.MovementFunction = YardMovementFunction.CrawlingUpsideUpMovingLeft;
             var samus = new SamusState
             {

@@ -64,13 +64,13 @@ internal static partial class Program
             state.Direction = direction;
             state.AirborneFacingDirection = facing;
             state.MovementFunction = YardMovementFunction.Airborne;
-            state.Behavior = 3;
+            state.Behavior = YardBehavior.Dropped;
             state.AirborneYVelocity = 1;
             var samus = new SamusState { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, XPosition = 32, YPosition = 32 };
             samus.RefreshCollisionRadii(bus);
             enemies.StepFrame(128, 128, false, samus, level: floor);
-            AssertEqual((ushort)0, state.Behavior, "dropped Yard lands without becoming aggressive");
+            AssertEqual(YardBehavior.NormalCrawling, state.Behavior, "dropped Yard lands without becoming aggressive");
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,
             // not the still-stale eight-way direction used before falling.
             ushort speed = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3e5f0 + actor.Parameter1 * 2);

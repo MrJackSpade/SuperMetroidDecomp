@@ -39,20 +39,20 @@ public sealed partial class SamusProjectileSystem
             var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(
                 slot.Variable, unchecked((ushort)slot.XVelocity));
             slot.XPosition = unchecked((ushort)(samus.XPosition + x));
-            slot.YPosition = unchecked((ushort)(samus.YPosition + y - (slot.AuxiliaryPhase == 0 ? 0 : 114)));
+            slot.YPosition = unchecked((ushort)(samus.YPosition + y - (slot.AuxiliaryPhase == SpazerComboPhase.Circling ? 0 : 114)));
             switch (slot.AuxiliaryPhase)
             {
-                case 0:
+                case SpazerComboPhase.Circling:
                     AdvanceSpazerAngle(slot);
                     if (slot.Variable == 128)
                     {
                         slot.XVelocity = 160;
                         slot.YVelocity = (short)((slot.SlotIndex & 1) == 0 ? 2 : -2);
                         slot.Direction = 0;
-                        slot.AuxiliaryPhase = 2;
+                        slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
                     }
                     break;
-                case 2:
+                case SpazerComboPhase.FlyingUpTowardsPoint:
                     if (unchecked((short)(slot.YPosition - cameraY - 16)) < 0)
                         BeginSpazerFall(slot);
                     else
@@ -63,14 +63,14 @@ public sealed partial class SamusProjectileSystem
                         {
                             slot.YVelocity = (short)((slot.SlotIndex & 1) == 0 ? -2 : 2);
                             slot.Variable = unchecked((byte)(slot.Variable + 128));
-                            slot.AuxiliaryPhase = 4;
+                            slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
                             FlareCounter = 0;
                             return slot.SlotIndex == 0 ? (ushort)0x26 : (ushort)0;
                         }
                     }
                     break;
-                case 4:
+                case SpazerComboPhase.FlyingUpAwayFromPoint:
                     if (unchecked((short)(slot.YPosition - cameraY - 16)) < 0)
                         BeginSpazerFall(slot);
                     else
@@ -80,7 +80,7 @@ public sealed partial class SamusProjectileSystem
                         if (slot.XVelocity >= 96) BeginSpazerFall(slot);
                     }
                     break;
-                default: throw new InvalidDataException("Spazer reached an invalid native phase.");
+                default: throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {(int)slot.AuxiliaryPhase}.");
             }
         }
         shared.SetSharedCooldown(2);

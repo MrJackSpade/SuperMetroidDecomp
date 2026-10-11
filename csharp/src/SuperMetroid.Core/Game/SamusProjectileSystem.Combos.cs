@@ -56,7 +56,7 @@ public sealed partial class SamusProjectileSystem
                     slot.XSubposition = slot.YSubposition = 0;
                     slot.XVelocity = kind == SamusComboKind.Wave ? (short)0 : (short)40;
                 }
-                if (kind == SamusComboKind.Spazer) slot.AuxiliaryPhase = 0;
+                if (kind == SamusComboKind.Spazer) slot.AuxiliaryPhase = SpazerComboPhase.Circling;
                 if (kind == SamusComboKind.Plasma) slot.XVelocity = 40;
                 slot.YVelocity = kind is SamusComboKind.Wave or SamusComboKind.Ice ? (short)600
                     : kind == SamusComboKind.Spazer ? (short)((i & 1) == 0 ? 4 : -4) : (short)0;

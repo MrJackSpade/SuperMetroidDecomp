@@ -43,17 +43,18 @@ public sealed class FileSelectMapNavigation
     /// </summary>
     public void Step(ushort heldInput)
     {
-        ushort pressed = (ushort)(heldInput & ~previousInput);
+        // Same edge rule as ControllerInputState.NewlyPressedButtons, over the native joypad word.
+        SnesButton pressed = (SnesButton)(heldInput & ~previousInput);
         previousInput = heldInput;
-        bool cancel = (pressed & (ushort)SnesButton.B) != 0;
-        bool confirm = (pressed & (ushort)(SnesButton.Start | SnesButton.A)) != 0;
+        bool cancel = (pressed & SnesButton.B) != 0;
+        bool confirm = (pressed & (SnesButton.Start | SnesButton.A)) != 0;
         switch (Phase)
         {
             case FileSelectMapNavigationPhase.Area:
                 // $81:A800's direction handling changes areas only with enable_debug.
                 // Its non-debug branch replaces the working input word with zero when
                 // a direction/Select edge exists, also suppressing a simultaneous confirm.
-                if ((pressed & (ushort)(SnesButton.Up | SnesButton.Down | SnesButton.Left |
+                if ((pressed & (SnesButton.Up | SnesButton.Down | SnesButton.Left |
                         SnesButton.Right | SnesButton.Select)) != 0) break;
                 // Otherwise B wins over A/Start, and selecting keeps the SRAM area.
                 if (cancel) Phase = FileSelectMapNavigationPhase.OptionsRequested;

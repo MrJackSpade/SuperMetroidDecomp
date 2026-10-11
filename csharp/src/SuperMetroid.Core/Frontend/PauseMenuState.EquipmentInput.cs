@@ -41,15 +41,15 @@ internal sealed partial class PauseMenuState
             PauseEquipmentCategories.Get(dispatchedCategory).LabelWordCount, wasEquipped);
         if (dispatchedCategory == PauseEquipmentCategory.Beams)
         {
-            ushort added = (ushort)(samus.EquippedBeams & ~previousBeams);
-            if ((added & (ushort)SamusBeamFlags.Spazer) != 0 &&
+            SamusBeamFlags added = (SamusBeamFlags)(samus.EquippedBeams & ~previousBeams);
+            if ((added & SamusBeamFlags.Spazer) != 0 &&
                 (samus.EquippedBeams & (ushort)SamusBeamFlags.Plasma) != 0)
             {
                 samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Plasma);
                 UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
                     PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
             }
-            else if ((added & (ushort)SamusBeamFlags.Plasma) != 0 &&
+            else if ((added & SamusBeamFlags.Plasma) != 0 &&
                 (samus.EquippedBeams & (ushort)SamusBeamFlags.Spazer) != 0)
             {
                 samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Spazer);

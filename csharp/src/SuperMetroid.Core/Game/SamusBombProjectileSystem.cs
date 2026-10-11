@@ -815,17 +815,14 @@ public sealed class SamusBombProjectileSystem
         // intentionally visited twice; synchronous PLM terrain mutation means the second
         // visit can observe a different collision type than the first.
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, Block(x, top), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(checked((ushort)x), checked((ushort)top)), reactions, roomPlms, areaIndex, projectileType);
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, Block(left, y), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(checked((ushort)left), checked((ushort)y)), reactions, roomPlms, areaIndex, projectileType);
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, Block(x, bottom), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(checked((ushort)x), checked((ushort)bottom)), reactions, roomPlms, areaIndex, projectileType);
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, Block(right, y), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(checked((ushort)right), checked((ushort)y)), reactions, roomPlms, areaIndex, projectileType);
     }
-
-    /// <summary>A clamped in-room block coordinate pair, which always fits the native word range.</summary>
-    private static Position16<RoomBlocks> Block(int x, int y) => new(checked((ushort)x), checked((ushort)y));
 
     private static void CollectBlockExplosionReactions(
         RoomLevelData level,
@@ -859,7 +856,7 @@ public sealed class SamusBombProjectileSystem
 
             CollectSingleBombedBlockReaction(
                 level,
-                Block(x, y),
+                new Position16<RoomBlocks>(checked((ushort)x), checked((ushort)y)),
                 reactions,
                 roomPlms,
                 areaIndex,

@@ -33,90 +33,8 @@ static void VerifySamusPowerBeamProjectiles()
     var bus = new TestAddressSpace();
 
     // Artwork is synthetic; native program selectors are seeded below.
-
-    // The substituted `$A24D` pointer is a bank-$93 spritemap, not merely an opaque
-    // animation token. One literal entry makes the draw path observable independently of
-    // the separate flare spritemap family seeded below.
-    WriteTestWord(bus, 0x93a24d, 1);
-    WriteTestWord(bus, 0x93a24f, 0);
-    WriteTestByte(bus, 0x93a251, 0);
-    WriteTestWord(bus, 0x93a252, 0x2c20);
-    // Native explosion programs intentionally share synthetic `$A254`; give that pointer
-    // its own visible one-OBJ map so the early explosion draw pass is tested, not inferred
-    // from a nonzero animation pointer.
-    WriteTestWord(bus, 0x93a254, 1);
-    WriteTestWord(bus, 0x93a256, 0);
-    WriteTestByte(bus, 0x93a258, 0);
-    WriteTestWord(bus, 0x93a259, 0x2c30);
-    WriteTestWord(bus, 0x93a25b, 1);
-    WriteTestWord(bus, 0x93a25d, 0);
-    WriteTestByte(bus, 0x93a25f, 0);
-    WriteTestWord(bus, 0x93a260, 0x2a44);
-    WriteTestWord(bus, 0x93a262, 1);
-    WriteTestWord(bus, 0x93a264, 0);
-    WriteTestByte(bus, 0x93a266, 0);
-    WriteTestWord(bus, 0x93a267, 0x2a45);
-    WriteTestWord(bus, 0x93a117, 0);
-
-
-    // `$90:B5BB/$B609` select two independent trail instruction streams from the beam's
-    // low six type bits. Ordinary power selects two empty lists; charged power selects the
-    // long ice-style left list and an empty right list. These are genuine table relationships,
-    // not a verifier-specific particle definition.
-    WriteTestWord(bus, 0x90b5bb, 0xb4c9);
-    WriteTestWord(bus, 0x90b609, 0xb4c9);
-    WriteTestWord(bus, 0x90b5db, 0xb4cb);
-    WriteTestWord(bus, 0x90b629, 0xb4c9);
-    WriteTestWord(bus, 0x90b5fb, 0xb5a1);
-    WriteTestWord(bus, 0x90b649, 0xb4c9);
-    WriteTestWord(bus, 0x90b5fd, 0xb5a1);
-    WriteTestWord(bus, 0x90b64b, 0xb4c9);
-    WriteTestWord(bus, 0x90b4c9, 0x0000);
-    bus.WriteBytes(0x90b5a1, [
-        0x04, 0x00, 0x48, 0x2a,
-        0x04, 0x00, 0x49, 0x2a,
-        0x04, 0x00, 0x4a, 0x2a,
-        0x04, 0x00, 0x4b, 0x2a,
-        0x00, 0x00,
-    ]);
-
-    // This fixture supplies the appearance prefix needed for repeated one-frame tiles
-    // and the first embedded position command. Timing/commands now come from compiled
-    // retail definitions; the complete native program is checked by the trail-art suite.
-    ushort chargedTrailInstruction = 0xb4cb;
-    void WriteChargedTrailWord(ushort value)
-    {
-        WriteTestWord(bus, 0x900000 | chargedTrailInstruction, value);
-        chargedTrailInstruction = unchecked((ushort)(chargedTrailInstruction + 2));
-    }
-    for (int record = 0; record < 4; record++)
-    {
-        WriteChargedTrailWord(1);
-        WriteChargedTrailWord(0x2c38);
-    }
-    for (int record = 0; record < 2; record++)
-    {
-        WriteChargedTrailWord(1);
-        WriteChargedTrailWord(0x2c39);
-    }
-    WriteChargedTrailWord(0xb525);
-    WriteChargedTrailWord(1);
-    WriteChargedTrailWord(0x2c39);
-    WriteChargedTrailWord(0);
-
-    // `$9B:A4B3/$A4CB` first choose a beam-combination family, then a direction-specific
-    // offset list. Plain power's offsets are all zero, so `$9B:A3CC` positions the 8x8 trail
-    // exactly four pixels above and left of the projectile's pre-movement center.
-    WriteTestWord(bus, 0x9ba4b3, 0xa50b);
-    WriteTestWord(bus, 0x9ba4cb, 0xa98f);
-    for (int direction = 0; direction < 10; direction++)
-    {
-        WriteTestWord(bus, 0x9ba50b + direction * 2, 0xa56f);
-        WriteTestWord(bus, 0x9ba98f + direction * 2, 0xaa07);
-    }
-    bus.WriteBytes(0x9ba56f, new byte[32]);
-    bus.WriteBytes(0x9baa07, new byte[32]);
-
+    InstallPowerBeamSpritemapFixture(bus);
+    InstallPowerBeamTrailFixture(bus);
 
     ushort[] nativeUnchargedSounds =
     [
@@ -128,121 +46,10 @@ static void VerifySamusPowerBeamProjectiles()
         0x0017, 0x0019, 0x0018, 0x001a, 0x001b, 0x001e,
         0x001c, 0x001d, 0x001f, 0x0022, 0x0020, 0x0021,
     ];
-    // Poison the retired cartridge tables. Production firing must use the compiled
-    // routing definitions below rather than accepting these verifier-owned replacements.
-    WriteTestWord(bus, 0x90c28f, 0x0040);
-    WriteTestWord(bus, 0x90c2a7, 0x0060);
-    for (int beamType = 1; beamType < 12; beamType++)
-    {
-        // Distinct invalid values expose any remaining read or wrong-family selection.
-        WriteTestWord(bus, 0x90c28f + beamType * 2, unchecked((ushort)(0x0030 + beamType)));
-        WriteTestWord(bus, 0x90c2a7 + beamType * 2, unchecked((ushort)(0x0050 + beamType)));
-    }
-    for (int beamType = 0; beamType < 12; beamType++)
-    {
-        WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable + beamType * 2,
-            (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : beamType < 4
-                ? SamusBeamPreInstructionCodes.WaveThreeFrameTrail : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
-        WriteTestWord(bus, SamusBeamPreInstructionCodes.ChargedTable + beamType * 2,
-            (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
-    }
-    // Installed catalogs require every legal selection; share this fixture sheet.
-    for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
-    {
-        WriteTestWord(bus, 0x90c3b1 + selection * 2, 0x8000);
-        WriteTestWord(bus, 0x90c3c9 + selection * 2, 0xc3e1);
-    }
-    for (int index = 0; index < 0x100; index++)
-        WriteTestByte(bus, 0x9a8000 + index, unchecked((byte)(index ^ 0x5a)));
-    for (int index = 0; index < 16; index++)
-        WriteTestWord(bus, 0x90c3e1 + index * 2, unchecked((ushort)(0x0100 + index)));
-
-    // Samus body palette fixtures for `$91:D743`. The normal table uses all three native
-    // byte offsets so a Gravity restore can prove selection priority independently of the
-    // ten Hyper-shot pointers. Every palette/color word is unique and remains valid BGR555.
-    ushort[] normalSuitPalettePointers =
-    [
-        SamusPaletteRomData.Common.NormalSuitPalettePointer(0),
-        SamusPaletteRomData.Common.NormalSuitPalettePointer(2),
-        SamusPaletteRomData.Common.NormalSuitPalettePointer(4),
-    ];
-    for (int suit = 0; suit < normalSuitPalettePointers.Length; suit++)
-    {
-        for (int color = 0; color < 16; color++)
-        {
-            WriteTestWord(
-                bus,
-                0x9b0000 | unchecked((ushort)(normalSuitPalettePointers[suit] + color * 2)),
-                unchecked((ushort)(0x0100 + suit * 0x20 + color)));
-        }
-    }
-    ushort[] hyperShotPalettePointers = new ushort[10];
-    for (int palette = 0; palette < hyperShotPalettePointers.Length; palette++)
-    {
-        ushort pointer = unchecked((ushort)(0xe400 + palette * 0x20));
-        hyperShotPalettePointers[palette] = pointer;
-        // `$91:D829` has one padding word; timer `$8014` indexes byte offset 20 and thus
-        // palette zero, descending by one palette on each later even timer value.
-        WriteTestWord(bus, 0x91d829 + 0x14 - palette * 2, pointer);
-        for (int color = 0; color < 16; color++)
-        {
-            WriteTestWord(
-                bus,
-                0x9b0000 | unchecked((ushort)(pointer + color * 2)),
-                unchecked((ushort)(0x2000 + palette * 0x20 + color)));
-        }
-    }
-
-    // `$91:D7D5-$D827` is two levels of pointers: each family first selects a
-    // suit-specific list in bank $91, then `$0B62` selects one of six bank-$9B palettes.
-    // Keep every family/suit/frame distinct so a wrong table, offset unit, or wrap cannot
-    // accidentally agree with the expected pixels.
-    ushort[,] beamChargePalettePointers = new ushort[3, 6];
-    ushort[,] pseudoScrewPalettePointers = new ushort[3, 6];
-    for (int suit = 0; suit < 3; suit++)
-    {
-        ushort chargeListPointer = unchecked((ushort)(0xe600 + suit * 12));
-        ushort pseudoListPointer = unchecked((ushort)(0xe624 + suit * 12));
-        WriteTestWord(bus, 0x91d7d5 + suit * 2, chargeListPointer);
-        WriteTestWord(bus, 0x91d7ff + suit * 2, pseudoListPointer);
-        for (int palette = 0; palette < 6; palette++)
-        {
-            ushort chargePointer = unchecked((ushort)(0xe800 + (suit * 6 + palette) * 0x20));
-            ushort pseudoPointer = unchecked((ushort)(0xeb00 + (suit * 6 + palette) * 0x20));
-            beamChargePalettePointers[suit, palette] = chargePointer;
-            pseudoScrewPalettePointers[suit, palette] = pseudoPointer;
-            WriteTestWord(bus, 0x910000 | unchecked((ushort)(chargeListPointer + palette * 2)), chargePointer);
-            WriteTestWord(bus, 0x910000 | unchecked((ushort)(pseudoListPointer + palette * 2)), pseudoPointer);
-            for (int color = 0; color < 16; color++)
-            {
-                WriteTestWord(
-                    bus,
-                    0x9b0000 | unchecked((ushort)(chargePointer + color * 2)),
-                    unchecked((ushort)(0x3000 + suit * 0x100 + palette * 0x20 + color)));
-                WriteTestWord(
-                    bus,
-                    0x9b0000 | unchecked((ushort)(pseudoPointer + color * 2)),
-                    unchecked((ushort)(0x4000 + suit * 0x100 + palette * 0x20 + color)));
-            }
-        }
-    }
-
-    // Every compiled flare identity uses the original one-OBJ synthetic artwork.
-    // Animation timing remains owned by the native compiled instruction sequence.
-    foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
-    {
-        int address = 0x930000 | pointer;
-        WriteTestWord(bus, address, 1);
-        WriteTestWord(bus, address + 2, 0);
-        WriteTestByte(bus, address + 4, 0);
-        WriteTestWord(bus, address + 5, 0x2c30);
-    }
-    for (int index = 0; index < 30; index++)
-        WriteTestByte(bus, 0x90c487 + index, 3);
-    WriteTestByte(bus, 0x90c4a7, 5);
-    WriteTestByte(bus, 0x90c4a8, 0xff);
-    WriteTestByte(bus, 0x90c4ae, 4);
-    WriteTestByte(bus, 0x90c4af, 0xff);
+    PoisonRetiredBeamRoutingTables(bus);
+    InstallBeamTileAtlasFixture(bus);
+    InstallSamusBeamPaletteFixture(bus);
+    InstallChargeFlareFixture(bus);
     // Motion definitions are compiled independently of the synthetic presentation bus.
 
     const int width = 32;
@@ -1056,9 +863,7 @@ static void VerifySamusPowerBeamProjectiles()
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
         executingSide.InstructionTimer = 1;
         executingSide.InstructionPointer = 0x0000;
-        WriteTestWord(bus, 0x900000, command);
-        WriteTestWord(bus, 0x900002, 1);
-        WriteTestWord(bus, 0x900004, 0x2c38);
+        WriteTrailCommandStreamFixture(bus, command);
         trailOam.BeginFrame();
         commandProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: false);
         AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveLeftDown ? 101 :
@@ -1513,30 +1318,7 @@ static void VerifySamusPowerBeamProjectiles()
     // origin. Seed the exact retail right-facing blue-door program and draw lists, then
     // prove the live radius scanner creates the PLM and its timed bank-$84 program clears
     // the complete four-block cap without a test-owned terrain mutation.
-    WriteTestWord(bus, 0x84c4ba, 0x8c19);
-    WriteTestByte(bus, 0x84c4bc, 0x07);
-    WriteTestWord(bus, 0x84c4bd, 0x0006);
-    WriteTestWord(bus, 0x84c4bf, 0xa9fb);
-    WriteTestWord(bus, 0x84c4c1, 0x0006);
-    WriteTestWord(bus, 0x84c4c3, 0xaa07);
-    WriteTestWord(bus, 0x84c4c5, 0x0006);
-    WriteTestWord(bus, 0x84c4c7, 0xaa13);
-    WriteTestWord(bus, 0x84c4c9, 0x005e);
-    WriteTestWord(bus, 0x84c4cb, 0xa683);
-    WriteTestWord(bus, 0x84c4cd, 0x86bc);
-
-    static void WriteDoorDrawList(TestAddressSpace targetBus, int address, ushort[] words)
-    {
-        foreach (ushort word in words)
-        {
-            WriteTestWord(targetBus, address, word);
-            address += 2;
-        }
-    }
-    WriteDoorDrawList(bus, 0x84a9fb, [0x8004, 0x840d, 0x842d, 0x8c2d, 0x8c0d, 0x0000]);
-    WriteDoorDrawList(bus, 0x84aa07, [0x8004, 0x840e, 0x842e, 0x8c2e, 0x8c0e, 0x0000]);
-    WriteDoorDrawList(bus, 0x84aa13, [0x8004, 0x840f, 0x042f, 0x0c2f, 0x8c0f, 0x0000]);
-    WriteDoorDrawList(bus, 0x84a683, [0x8004, 0x0482, 0x04a2, 0x0ca2, 0x0c82, 0x0000]);
+    InstallLandingSiteBlueDoorPlmFixture(bus);
 
     // Room loading runs the shared `$84:C7B1` setup for every colored-door header before
     // gameplay projectiles can inspect the decompressed collision map. Exercise all three
@@ -1550,6 +1332,7 @@ static void VerifySamusPowerBeamProjectiles()
     const ushort coloredDoorPopulation = 0x9000;
     var coloredDoorWords = new ushort[16 * 16];
     var coloredDoorBehaviors = new byte[coloredDoorWords.Length];
+    var coloredDoorRecords = new (ushort Header, byte X, byte Y, ushort Argument)[coloredDoorHeaders.Length];
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
         int blockX = index + 1;
@@ -1558,18 +1341,10 @@ static void VerifySamusPowerBeamProjectiles()
         coloredDoorWords[blockIndex] = unchecked((ushort)(0x8000 | 0x0120 + index));
         coloredDoorBehaviors[blockIndex] = unchecked((byte)(0x40 + (index & 3)));
 
-        int recordAddress = 0x8f0000 | unchecked((ushort)(
-            coloredDoorPopulation + index * 6));
-        WriteTestWord(bus, recordAddress, coloredDoorHeaders[index]);
-        WriteTestByte(bus, recordAddress + 2, unchecked((byte)blockX));
-        WriteTestByte(bus, recordAddress + 3, unchecked((byte)blockY));
-        WriteTestWord(bus, recordAddress + 4, unchecked((ushort)index));
+        coloredDoorRecords[index] = (coloredDoorHeaders[index],
+            unchecked((byte)blockX), unchecked((byte)blockY), unchecked((ushort)index));
     }
-    WriteTestWord(
-        bus,
-        0x8f0000 | unchecked((ushort)(
-            coloredDoorPopulation + coloredDoorHeaders.Length * 6)),
-        0);
+    WriteRoomPlmPopulationFixture(bus, coloredDoorPopulation, coloredDoorRecords);
     RoomLevelData coloredDoors = new RoomLevelData(
         new Extent16<RoomBlocks>(16, 16),
         coloredDoorWords,
@@ -1608,26 +1383,8 @@ static void VerifySamusPowerBeamProjectiles()
     const ushort residentDoorPopulation = 0x9100;
     const ushort residentDoorArgument = 37;
     const int residentDoorBlock = 3 * 16 + 5;
-    WriteTestWord(bus, 0x84c88c, 0x0400);
-    WriteTestWord(bus, 0x840402, 0x0500);
-    WriteTestWord(bus, 0x840406, 0x0600);
-    WriteTestWord(bus, 0x84040e, 0x1300);
-    WriteTestByte(bus, 0x840602, 5);
-    WriteTestWord(bus, 0x840603, 0x0800);
-    WriteTestWord(bus, 0x840605, 1);
-    WriteTestWord(bus, 0x840607, 0x1320);
-    WriteTestWord(bus, 0x840800, 12);
-    WriteTestWord(bus, 0x840802, 0x1340);
-    WriteTestWord(bus, 0x840505, 0x1360);
-    WriteDoorDrawList(bus, 0x841300, [0x0001, 0xc123, 0x0000]);
-    WriteDoorDrawList(bus, 0x841320, [0x0001, 0xc124, 0x0000]);
-    WriteDoorDrawList(bus, 0x841340, [0x0001, 0xc125, 0x0000]);
-    WriteDoorDrawList(bus, 0x841360, [0x0001, 0x8126, 0x0000]);
-    WriteTestWord(bus, 0x8f0000 | residentDoorPopulation, 0xc88a);
-    WriteTestByte(bus, 0x8f0000 | (residentDoorPopulation + 2), 5);
-    WriteTestByte(bus, 0x8f0000 | (residentDoorPopulation + 3), 3);
-    WriteTestWord(bus, 0x8f0000 | (residentDoorPopulation + 4), residentDoorArgument);
-    WriteTestWord(bus, 0x8f0000 | (residentDoorPopulation + 6), 0);
+    InstallResidentDoorPlmGraphFixture(bus);
+    WriteRoomPlmPopulationFixture(bus, residentDoorPopulation, (0xc88a, 5, 3, residentDoorArgument));
 
     var residentWords = new ushort[16 * 16];
     residentWords[residentDoorBlock] = 0x8120;
@@ -1724,54 +1481,12 @@ static void VerifySamusPowerBeamProjectiles()
     // flashing/opening streams. It therefore guards the real cartridge ownership boundary
     // that wakes Zebes after Old Mother Brain room's enemy quota is satisfied.
     const ushort greyDoorPopulation = 0x9180;
-    const ushort greyDoorInitialList = 0x0900;
-    const ushort greyDoorClosedBlueList = 0x0a00;
-    const ushort greyDoorActivationList = 0x0b00;
-    const ushort greyDoorFlashList = greyDoorActivationList + 8;
-    const ushort greyDoorOpenTriggerList = 0x0d00;
-    const ushort greyDoorOpeningList = 0x0e00;
     const ushort greyDoorRawArgument = 0x0c2a;
     const ushort greyDoorPersistedArgument = 0x002a;
     const int greyDoorBlock = 6 * 16 + 2;
 
-    // Header $C842 selects the synthetic initial list. The graph offsets below mirror
-    // $BE70: opened-door target at +2, activation link at +6, and closed draw at +12.
-    WriteTestWord(bus, 0x84c844, greyDoorInitialList);
-    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 2), greyDoorClosedBlueList);
-    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 6), greyDoorActivationList);
-    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 12), 0x1b00);
-
-    // The activation list links a later shot to the one-hit trigger. Its eight-byte setup
-    // falls through to a compact flash loop composed only of a timed draw and shared Goto.
-    WriteTestWord(bus, 0x840000 | (greyDoorActivationList + 2), greyDoorOpenTriggerList);
-    WriteTestWord(bus, 0x840000 | greyDoorFlashList, 1);
-    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 2), 0x1b20);
-    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 4), 0x8724);
-    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 6), greyDoorFlashList);
-
-    // Instruction $8A91 has a one-byte threshold followed by the successful target at
-    // offset three. The target uses the real shared sound-seven and Delete opcodes so the
-    // semantic door pre-pass and generic instruction interpreter are tested together.
-    WriteTestByte(bus, 0x840000 | (greyDoorOpenTriggerList + 2), 1);
-    WriteTestWord(bus, 0x840000 | (greyDoorOpenTriggerList + 3), greyDoorOpeningList);
-    WriteTestWord(bus, 0x840000 | greyDoorOpeningList, 0x8c19);
-    WriteTestByte(bus, 0x840000 | (greyDoorOpeningList + 2), 7);
-    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 3), 1);
-    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 5), 0x1b40);
-    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 7), 0x86bc);
-
-    // Persisted grey doors execute the same closed-blue list layout already exercised by
-    // colored doors: PLM_BTS_Y precedes a one-byte timer and draw pointer at offset five.
-    WriteTestWord(bus, 0x840000 | (greyDoorClosedBlueList + 5), 0x1b60);
-    WriteDoorDrawList(bus, 0x841b00, [0x0001, 0xc220, 0x0000]);
-    WriteDoorDrawList(bus, 0x841b20, [0x0001, 0xc221, 0x0000]);
-    WriteDoorDrawList(bus, 0x841b40, [0x0001, 0x0222, 0x0000]);
-    WriteDoorDrawList(bus, 0x841b60, [0x0001, 0x8223, 0x0000]);
-    WriteTestWord(bus, 0x8f0000 | greyDoorPopulation, 0xc842);
-    WriteTestByte(bus, 0x8f0000 | (greyDoorPopulation + 2), 2);
-    WriteTestByte(bus, 0x8f0000 | (greyDoorPopulation + 3), 6);
-    WriteTestWord(bus, 0x8f0000 | (greyDoorPopulation + 4), greyDoorRawArgument);
-    WriteTestWord(bus, 0x8f0000 | (greyDoorPopulation + 6), 0);
+    InstallGreyDoorPlmGraphFixture(bus);
+    WriteRoomPlmPopulationFixture(bus, greyDoorPopulation, (0xc842, 2, 6, greyDoorRawArgument));
 
     var greyDoorWords = new ushort[16 * 16];
     greyDoorWords[greyDoorBlock] = 0x8220;
@@ -2226,4 +1941,347 @@ static void VerifySamusPowerBeamProjectiles()
 // walk-off, both automatic rebounds, grounded recovery, and blocked unmorph expansion.
 // Every table byte below is copied from the corresponding retail-ROM structure rather
 // than replaced with a host animation or physics constant.
+
+/// <summary>
+/// Seeds the one-object bank-$93 spritemaps that the power-beam projectile and explosion
+/// programs draw through.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for power-beam projectile spritemaps")]
+static void InstallPowerBeamSpritemapFixture(TestAddressSpace bus)
+{
+    // The substituted `$A24D` pointer is a bank-$93 spritemap, not merely an opaque
+    // animation token. One literal entry makes the draw path observable independently of
+    // the separate flare spritemap family seeded below.
+    SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(bus, 0xa24d, x: 0, y: 0, tileAttributes: 0x2c20);
+    // Native explosion programs intentionally share synthetic `$A254`; give that pointer
+    // its own visible one-OBJ map so the early explosion draw pass is tested, not inferred
+    // from a nonzero animation pointer.
+    SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(bus, 0xa254, x: 0, y: 0, tileAttributes: 0x2c30);
+    SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(bus, 0xa25b, x: 0, y: 0, tileAttributes: 0x2a44);
+    SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(bus, 0xa262, x: 0, y: 0, tileAttributes: 0x2a45);
+    WriteTestWord(bus, 0x93a117, 0);
+}
+
+/// <summary>
+/// Seeds the bank-$90 trail-stream selectors and charged-power trail program prefix and
+/// the bank-$9B trail offset tables used by power-beam trails.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for power-beam trail programs and offsets")]
+static void InstallPowerBeamTrailFixture(TestAddressSpace bus)
+{
+    // `$90:B5BB/$B609` select two independent trail instruction streams from the beam's
+    // low six type bits. Ordinary power selects two empty lists; charged power selects the
+    // long ice-style left list and an empty right list. These are genuine table relationships,
+    // not a verifier-specific particle definition.
+    WriteTestWord(bus, 0x90b5bb, 0xb4c9);
+    WriteTestWord(bus, 0x90b609, 0xb4c9);
+    WriteTestWord(bus, 0x90b5db, 0xb4cb);
+    WriteTestWord(bus, 0x90b629, 0xb4c9);
+    WriteTestWord(bus, 0x90b5fb, 0xb5a1);
+    WriteTestWord(bus, 0x90b649, 0xb4c9);
+    WriteTestWord(bus, 0x90b5fd, 0xb5a1);
+    WriteTestWord(bus, 0x90b64b, 0xb4c9);
+    WriteTestWord(bus, 0x90b4c9, 0x0000);
+    bus.WriteBytes(0x90b5a1, [
+        0x04, 0x00, 0x48, 0x2a,
+        0x04, 0x00, 0x49, 0x2a,
+        0x04, 0x00, 0x4a, 0x2a,
+        0x04, 0x00, 0x4b, 0x2a,
+        0x00, 0x00,
+    ]);
+
+    // This fixture supplies the appearance prefix needed for repeated one-frame tiles
+    // and the first embedded position command. Timing/commands now come from compiled
+    // retail definitions; the complete native program is checked by the trail-art suite.
+    WriteTestWords(bus, 0x90b4cb,
+        1, 0x2c38, 1, 0x2c38, 1, 0x2c38, 1, 0x2c38,
+        1, 0x2c39, 1, 0x2c39,
+        0xb525, 1, 0x2c39, 0);
+
+    // `$9B:A4B3/$A4CB` first choose a beam-combination family, then a direction-specific
+    // offset list. Plain power's offsets are all zero, so `$9B:A3CC` positions the 8x8 trail
+    // exactly four pixels above and left of the projectile's pre-movement center.
+    WriteTestWord(bus, 0x9ba4b3, 0xa50b);
+    WriteTestWord(bus, 0x9ba4cb, 0xa98f);
+    for (int direction = 0; direction < 10; direction++)
+    {
+        WriteTestWord(bus, 0x9ba50b + direction * 2, 0xa56f);
+        WriteTestWord(bus, 0x9ba98f + direction * 2, 0xaa07);
+    }
+    bus.WriteBytes(0x9ba56f, new byte[32]);
+    bus.WriteBytes(0x9baa07, new byte[32]);
+}
+
+/// <summary>
+/// Overwrites the retired bank-$90 beam sound and pre-instruction tables with distinct
+/// verifier-owned values so any remaining production read is observable.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture poisoning retired beam routing tables")]
+static void PoisonRetiredBeamRoutingTables(TestAddressSpace bus)
+{
+    // Poison the retired cartridge tables. Production firing must use the compiled
+    // routing definitions below rather than accepting these verifier-owned replacements.
+    WriteTestWord(bus, 0x90c28f, 0x0040);
+    WriteTestWord(bus, 0x90c2a7, 0x0060);
+    for (int beamType = 1; beamType < 12; beamType++)
+    {
+        // Distinct invalid values expose any remaining read or wrong-family selection.
+        WriteTestWord(bus, 0x90c28f + beamType * 2, unchecked((ushort)(0x0030 + beamType)));
+        WriteTestWord(bus, 0x90c2a7 + beamType * 2, unchecked((ushort)(0x0050 + beamType)));
+    }
+    for (int beamType = 0; beamType < 12; beamType++)
+    {
+        WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable + beamType * 2,
+            (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : beamType < 4
+                ? SamusBeamPreInstructionCodes.WaveThreeFrameTrail : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
+        WriteTestWord(bus, SamusBeamPreInstructionCodes.ChargedTable + beamType * 2,
+            (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
+    }
+}
+
+/// <summary>
+/// Seeds one shared beam tile sheet and palette for every legal beam tile-atlas selection.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for beam tile atlas selections")]
+static void InstallBeamTileAtlasFixture(TestAddressSpace bus)
+{
+    // Installed catalogs require every legal selection; share this fixture sheet.
+    for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
+    {
+        WriteTestWord(bus, 0x90c3b1 + selection * 2, 0x8000);
+        WriteTestWord(bus, 0x90c3c9 + selection * 2, 0xc3e1);
+    }
+    for (int index = 0; index < 0x100; index++)
+        WriteTestByte(bus, 0x9a8000 + index, unchecked((byte)(index ^ 0x5a)));
+    for (int index = 0; index < 16; index++)
+        WriteTestWord(bus, 0x90c3e1 + index * 2, unchecked((ushort)(0x0100 + index)));
+}
+
+/// <summary>
+/// Seeds the Samus normal-suit, Hyper-shot, beam-charge, and pseudo-Screw palette pointer
+/// tables in bank $91 and their distinct bank-$9B palettes.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus suit and beam palettes")]
+static void InstallSamusBeamPaletteFixture(TestAddressSpace bus)
+{
+    // Samus body palette fixtures for `$91:D743`. The normal table uses all three native
+    // byte offsets so a Gravity restore can prove selection priority independently of the
+    // ten Hyper-shot pointers. Every palette/color word is unique and remains valid BGR555.
+    ushort[] normalSuitPalettePointers =
+    [
+        SamusPaletteRomData.Common.NormalSuitPalettePointer(0),
+        SamusPaletteRomData.Common.NormalSuitPalettePointer(2),
+        SamusPaletteRomData.Common.NormalSuitPalettePointer(4),
+    ];
+    for (int suit = 0; suit < normalSuitPalettePointers.Length; suit++)
+    {
+        for (int color = 0; color < 16; color++)
+        {
+            WriteTestWord(
+                bus,
+                0x9b0000 | unchecked((ushort)(normalSuitPalettePointers[suit] + color * 2)),
+                unchecked((ushort)(0x0100 + suit * 0x20 + color)));
+        }
+    }
+    ushort[] hyperShotPalettePointers = new ushort[10];
+    for (int palette = 0; palette < hyperShotPalettePointers.Length; palette++)
+    {
+        ushort pointer = unchecked((ushort)(0xe400 + palette * 0x20));
+        hyperShotPalettePointers[palette] = pointer;
+        // `$91:D829` has one padding word; timer `$8014` indexes byte offset 20 and thus
+        // palette zero, descending by one palette on each later even timer value.
+        WriteTestWord(bus, 0x91d829 + 0x14 - palette * 2, pointer);
+        for (int color = 0; color < 16; color++)
+        {
+            WriteTestWord(
+                bus,
+                0x9b0000 | unchecked((ushort)(pointer + color * 2)),
+                unchecked((ushort)(0x2000 + palette * 0x20 + color)));
+        }
+    }
+
+    // `$91:D7D5-$D827` is two levels of pointers: each family first selects a
+    // suit-specific list in bank $91, then `$0B62` selects one of six bank-$9B palettes.
+    // Keep every family/suit/frame distinct so a wrong table, offset unit, or wrap cannot
+    // accidentally agree with the expected pixels.
+    ushort[,] beamChargePalettePointers = new ushort[3, 6];
+    ushort[,] pseudoScrewPalettePointers = new ushort[3, 6];
+    for (int suit = 0; suit < 3; suit++)
+    {
+        ushort chargeListPointer = unchecked((ushort)(0xe600 + suit * 12));
+        ushort pseudoListPointer = unchecked((ushort)(0xe624 + suit * 12));
+        WriteTestWord(bus, 0x91d7d5 + suit * 2, chargeListPointer);
+        WriteTestWord(bus, 0x91d7ff + suit * 2, pseudoListPointer);
+        for (int palette = 0; palette < 6; palette++)
+        {
+            ushort chargePointer = unchecked((ushort)(0xe800 + (suit * 6 + palette) * 0x20));
+            ushort pseudoPointer = unchecked((ushort)(0xeb00 + (suit * 6 + palette) * 0x20));
+            beamChargePalettePointers[suit, palette] = chargePointer;
+            pseudoScrewPalettePointers[suit, palette] = pseudoPointer;
+            WriteTestWord(bus, 0x910000 | unchecked((ushort)(chargeListPointer + palette * 2)), chargePointer);
+            WriteTestWord(bus, 0x910000 | unchecked((ushort)(pseudoListPointer + palette * 2)), pseudoPointer);
+            for (int color = 0; color < 16; color++)
+            {
+                WriteTestWord(
+                    bus,
+                    0x9b0000 | unchecked((ushort)(chargePointer + color * 2)),
+                    unchecked((ushort)(0x3000 + suit * 0x100 + palette * 0x20 + color)));
+                WriteTestWord(
+                    bus,
+                    0x9b0000 | unchecked((ushort)(pseudoPointer + color * 2)),
+                    unchecked((ushort)(0x4000 + suit * 0x100 + palette * 0x20 + color)));
+            }
+        }
+    }
+}
+
+/// <summary>
+/// Seeds one-object artwork for every compiled charge-flare spritemap and the bank-$90 main
+/// flare animation delays.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for charge-flare artwork and delays")]
+static void InstallChargeFlareFixture(TestAddressSpace bus)
+{
+    // Every compiled flare identity uses the original one-OBJ synthetic artwork.
+    // Animation timing remains owned by the native compiled instruction sequence.
+    foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
+    {
+        SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(
+            bus, pointer, x: 0, y: 0, tileAttributes: 0x2c30);
+    }
+    for (int index = 0; index < 30; index++)
+        WriteTestByte(bus, 0x90c487 + index, 3);
+    WriteTestByte(bus, 0x90c4a7, 5);
+    WriteTestByte(bus, 0x90c4a8, 0xff);
+    WriteTestByte(bus, 0x90c4ae, 4);
+    WriteTestByte(bus, 0x90c4af, 0xff);
+}
+
+/// <summary>
+/// Seeds the relocatable grey-door PLM graph in bank $84: header <c>$C842</c>'s initial
+/// list, the activation/flash/open-trigger/opening lists, the closed-blue draw pointer, and
+/// the four door draw lists.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the grey-door PLM instruction graph")]
+static void InstallGreyDoorPlmGraphFixture(TestAddressSpace bus)
+{
+    const ushort greyDoorInitialList = 0x0900;
+    const ushort greyDoorClosedBlueList = 0x0a00;
+    const ushort greyDoorActivationList = 0x0b00;
+    const ushort greyDoorFlashList = greyDoorActivationList + 8;
+    const ushort greyDoorOpenTriggerList = 0x0d00;
+    const ushort greyDoorOpeningList = 0x0e00;
+
+    // Header $C842 selects the synthetic initial list. The graph offsets below mirror
+    // $BE70: opened-door target at +2, activation link at +6, and closed draw at +12.
+    WriteTestWord(bus, 0x84c844, greyDoorInitialList);
+    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 2), greyDoorClosedBlueList);
+    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 6), greyDoorActivationList);
+    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 12), 0x1b00);
+
+    // The activation list links a later shot to the one-hit trigger. Its eight-byte setup
+    // falls through to a compact flash loop composed only of a timed draw and shared Goto.
+    WriteTestWord(bus, 0x840000 | (greyDoorActivationList + 2), greyDoorOpenTriggerList);
+    WriteTestWord(bus, 0x840000 | greyDoorFlashList, 1);
+    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 2), 0x1b20);
+    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 4), 0x8724);
+    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 6), greyDoorFlashList);
+
+    // Instruction $8A91 has a one-byte threshold followed by the successful target at
+    // offset three. The target uses the real shared sound-seven and Delete opcodes so the
+    // semantic door pre-pass and generic instruction interpreter are tested together.
+    WriteTestByte(bus, 0x840000 | (greyDoorOpenTriggerList + 2), 1);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpenTriggerList + 3), greyDoorOpeningList);
+    WriteTestWord(bus, 0x840000 | greyDoorOpeningList, 0x8c19);
+    WriteTestByte(bus, 0x840000 | (greyDoorOpeningList + 2), 7);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 3), 1);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 5), 0x1b40);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 7), 0x86bc);
+
+    // Persisted grey doors execute the same closed-blue list layout already exercised by
+    // colored doors: PLM_BTS_Y precedes a one-byte timer and draw pointer at offset five.
+    WriteTestWord(bus, 0x840000 | (greyDoorClosedBlueList + 5), 0x1b60);
+    WriteTestWords(bus, 0x841b00, 0x0001, 0xc220, 0x0000);
+    WriteTestWords(bus, 0x841b20, 0x0001, 0xc221, 0x0000);
+    WriteTestWords(bus, 0x841b40, 0x0001, 0x0222, 0x0000);
+    WriteTestWords(bus, 0x841b60, 0x0001, 0x8223, 0x0000);
+}
+
+/// <summary>
+/// Seeds the resident colored-door PLM graph in bank $84 reached from header <c>$C88A</c>:
+/// initial, closed-blue, hit, and colored-closed lists and their draw lists.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the resident colored-door PLM instruction graph")]
+static void InstallResidentDoorPlmGraphFixture(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x84c88c, 0x0400);
+    WriteTestWord(bus, 0x840402, 0x0500);
+    WriteTestWord(bus, 0x840406, 0x0600);
+    WriteTestWord(bus, 0x84040e, 0x1300);
+    WriteTestByte(bus, 0x840602, 5);
+    WriteTestWord(bus, 0x840603, 0x0800);
+    WriteTestWord(bus, 0x840605, 1);
+    WriteTestWord(bus, 0x840607, 0x1320);
+    WriteTestWord(bus, 0x840800, 12);
+    WriteTestWord(bus, 0x840802, 0x1340);
+    WriteTestWord(bus, 0x840505, 0x1360);
+    WriteTestWords(bus, 0x841300, 0x0001, 0xc123, 0x0000);
+    WriteTestWords(bus, 0x841320, 0x0001, 0xc124, 0x0000);
+    WriteTestWords(bus, 0x841340, 0x0001, 0xc125, 0x0000);
+    WriteTestWords(bus, 0x841360, 0x0001, 0x8126, 0x0000);
+}
+
+/// <summary>
+/// Seeds the retail right-facing blue-door PLM program at <c>$84:C4BA</c> and its four
+/// bank-$84 draw lists.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Landing Site blue-door PLM program")]
+static void InstallLandingSiteBlueDoorPlmFixture(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x84c4ba, 0x8c19);
+    WriteTestByte(bus, 0x84c4bc, 0x07);
+    WriteTestWord(bus, 0x84c4bd, 0x0006);
+    WriteTestWord(bus, 0x84c4bf, 0xa9fb);
+    WriteTestWord(bus, 0x84c4c1, 0x0006);
+    WriteTestWord(bus, 0x84c4c3, 0xaa07);
+    WriteTestWord(bus, 0x84c4c5, 0x0006);
+    WriteTestWord(bus, 0x84c4c7, 0xaa13);
+    WriteTestWord(bus, 0x84c4c9, 0x005e);
+    WriteTestWord(bus, 0x84c4cb, 0xa683);
+    WriteTestWord(bus, 0x84c4cd, 0x86bc);
+
+    WriteTestWords(bus, 0x84a9fb, 0x8004, 0x840d, 0x842d, 0x8c2d, 0x8c0d, 0x0000);
+    WriteTestWords(bus, 0x84aa07, 0x8004, 0x840e, 0x842e, 0x8c2e, 0x8c0e, 0x0000);
+    WriteTestWords(bus, 0x84aa13, 0x8004, 0x840f, 0x042f, 0x0c2f, 0x8c0f, 0x0000);
+    WriteTestWords(bus, 0x84a683, 0x8004, 0x0482, 0x04a2, 0x0ca2, 0x0c82, 0x0000);
+}
+/// <summary>
+/// Installs a three-word projectile trail stream at bank $90's mutable low-half offset
+/// <c>$0000</c>: <paramref name="command"/>, then a one-frame timed record of tile
+/// <c>$2C38</c>.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for a one-command projectile trail stream at $90:0000")]
+static void WriteTrailCommandStreamFixture(TestAddressSpace bus, ushort command) =>
+    WriteTestWords(bus, 0x900000, command, 1, 0x2c38);
+
+/// <summary>
+/// Installs a bank-$8F room PLM population at <paramref name="population"/>: six-byte
+/// records of header word, block X, block Y, and argument word, terminated by a zero word.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for bank-$8F room PLM populations")]
+static void WriteRoomPlmPopulationFixture(
+    TestAddressSpace bus,
+    ushort population,
+    params ReadOnlySpan<(ushort Header, byte X, byte Y, ushort Argument)> records)
+{
+    for (int index = 0; index < records.Length; index++)
+    {
+        int recordAddress = 0x8f0000 | unchecked((ushort)(population + index * 6));
+        WriteTestWord(bus, recordAddress, records[index].Header);
+        WriteTestByte(bus, recordAddress + 2, records[index].X);
+        WriteTestByte(bus, recordAddress + 3, records[index].Y);
+        WriteTestWord(bus, recordAddress + 4, records[index].Argument);
+    }
+    WriteTestWord(bus, 0x8f0000 | unchecked((ushort)(population + records.Length * 6)), 0);
+}
 }

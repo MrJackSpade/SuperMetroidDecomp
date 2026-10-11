@@ -37,28 +37,28 @@ static void VerifySamusDrainedController()
     WritePoseDefinition(bus, (int)SamusPoseId.FacingLeftNormalPose,
         [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
 
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.CrouchingRightPose * 2, 0xc000);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.CrouchingLeftPose * 2, 0xc001);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.KnockbackLeftPose * 2, 0xc020);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DrainedCrouchingRightPose * 2, 0xb257);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DrainedCrouchingLeftPose * 2, 0xb268);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DrainedStandingRightPose * 2, 0xb288);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DrainedStandingLeftPose * 2, 0xb290);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingRightNormalPose * 2, 0xc010);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingLeftNormalPose * 2, 0xc011);
-    bus.WriteBytes(0x91c000, [0x05, 0x05]);
-    bus.WriteBytes(0x91c010, [0x05, 0x05]);
-    bus.WriteBytes(0x91c020, [0x01, 0xfe, 0x01]);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.CrouchingRightPose, 0xc000);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.CrouchingLeftPose, 0xc001);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.KnockbackLeftPose, 0xc020);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.DrainedCrouchingRightPose, 0xb257);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.DrainedCrouchingLeftPose, 0xb268);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.DrainedStandingRightPose, 0xb288);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.DrainedStandingLeftPose, 0xb290);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.FacingRightNormalPose, 0xc010);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.FacingLeftNormalPose, 0xc011);
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xc000, [0x05, 0x05]);
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xc010, [0x05, 0x05]);
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xc020, [0x01, 0xfe, 0x01]);
 
     // Copy the byte-oriented streams verbatim. Controller-written frame values are byte
     // indices, so command operands remain part of the index space by design.
-    bus.WriteBytes(0x91b257, [
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb257, [
         0x02, 0x02, 0x02, 0x10, 0xf7,
         0x01, 0xfe, 0x01,
         0x10, 0x10, 0x10, 0x10, 0xfe, 0x04,
         0x03, 0xfd, 0x01,
     ]);
-    bus.WriteBytes(0x91b268, [
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb268, [
         0x02, 0x02, 0x10, 0xf7,
         0x01, 0xfe, 0x01,
         0x08, 0x10, 0x10, 0x10, 0x10, 0xfe, 0x04,
@@ -67,52 +67,11 @@ static void VerifySamusDrainedController()
         0x10, 0xfe, 0x11,
         0x10, 0xfe, 0x01,
     ]);
-    bus.WriteBytes(0x91b288, [0x10, 0x10, 0x10, 0x10, 0xff, 0x03, 0xfd, 0x01]);
-    bus.WriteBytes(0x91b290, [0x10, 0x10, 0x10, 0x10, 0xff, 0x03, 0xfd, 0x02]);
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb288, [0x10, 0x10, 0x10, 0x10, 0xff, 0x03, 0xfd, 0x01]);
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb290, [0x10, 0x10, 0x10, 0x10, 0xff, 0x03, 0xfd, 0x02]);
 
-    // `$91:D99E` points at ten complete Hyper Beam palettes in reverse-numbered order.
-    // Distinct synthetic words expose both the pointer index and all-$20-byte copy. The
-    // The compiled Power Suit entry at `$91:D727` independently verifies
-    // controller-zero/command-$17 restoration rather than retaining rainbow colors.
-    for (ushort palette = 0; palette < 10; palette++)
-    {
-        ushort pointer = unchecked((ushort)SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(palette));
-        WriteTestWord(bus, 0x91d99e + palette * 2, pointer);
-        for (ushort color = 0; color < 16; color++)
-        {
-            WriteTestWord(
-                bus,
-                0x9b0000 | (pointer + color * 2),
-                unchecked((ushort)(0x1000 + palette * 0x20 + color)));
-        }
-    }
-    for (ushort color = 0; color < 16; color++)
-        WriteTestWord(bus, SamusPaletteRomData.Banks.Palette |
-            (SamusPaletteRomData.Common.NormalSuitPalettePointer(0) + color * 2),
-            unchecked((ushort)(0x3000 + color)));
-
-    // `$8D:E1F0` points at the compact Hyper Beam projectile-palette program. Each of its
-    // ten records lasts two handler calls and writes CGRAM `$E1-$E8`; synthetic colors make
-    // the record number, color number, and exact loop boundary independently observable.
-    WriteTestWord(bus, 0x8de1f0, 0xc685);
-    WriteTestWord(bus, 0x8de1f2, 0xd900);
-    WriteTestWord(bus, 0x8dd900, 0xc655);
-    WriteTestWord(bus, 0x8dd902, 0x01c2);
-    for (ushort frame = 0; frame < HyperBeamPaletteFxState.FrameCount; frame++)
-    {
-        int record = 0x8dd904 + frame * 20;
-        WriteTestWord(bus, record, 2);
-        for (ushort color = 0; color < HyperBeamPaletteFxState.ColorsPerFrame; color++)
-        {
-            WriteTestWord(
-                bus,
-                record + 2 + color * 2,
-                unchecked((ushort)(0x0100 + frame * 0x20 + color)));
-        }
-        WriteTestWord(bus, record + 18, 0xc595);
-    }
-    WriteTestWord(bus, 0x8dd9cc, 0xc61e);
-    WriteTestWord(bus, 0x8dd9ce, 0xd904);
+    InstallHyperBeamSuitPaletteFixture(bus);
+    InstallHyperBeamProjectilePaletteProgramFixture(bus);
     var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
     var rainbowColors = SamusHyperBeamColorCatalog.Load(new MemoryStream(
@@ -685,12 +644,12 @@ static void VerifySamusGrabbedByDraygon()
         // `$BA-$BD/$EC-$EF` use stationary `$B2B4`; `$BE/$F0` use six-frame `$B53C`.
         ushort leftDelay = index == 4 ? (ushort)0xb53c : (ushort)0xb2b4;
         ushort rightDelay = index == 4 ? (ushort)0xb53c : (ushort)0xb2b4;
-        WriteTestWord(bus, 0x91b010 + (int)leftPoses[index] * 2, leftDelay);
-        WriteTestWord(bus, 0x91b010 + (int)rightPoses[index] * 2, rightDelay);
+        SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, leftPoses[index], leftDelay);
+        SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, rightPoses[index], rightDelay);
 
         // All five poses on a side point to the same held-input transition program.
-        WriteTestWord(bus, 0x919ee2 + (int)leftPoses[index] * 2, 0xae18);
-        WriteTestWord(bus, 0x919ee2 + (int)rightPoses[index] * 2, 0xae56);
+        SyntheticSamusCartridge.WritePoseTransitionPointer(bus, leftPoses[index], 0xae18);
+        SyntheticSamusCartridge.WritePoseTransitionPointer(bus, rightPoses[index], 0xae56);
     }
 
     // Ordinary release destinations need real metadata and a harmless initial delay.
@@ -698,39 +657,24 @@ static void VerifySamusGrabbedByDraygon()
         [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
     WritePoseDefinition(bus, (int)SamusPoseId.FacingLeftNormalPose,
         [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingRightNormalPose * 2, 0xc000);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingLeftNormalPose * 2, 0xc001);
-    bus.WriteBytes(0x91b2b4, [0x10, 0xff]);
-    bus.WriteBytes(0x91b53c, [0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0xff]);
-    bus.WriteBytes(0x91c000, [0x0a]);
-    bus.WriteBytes(0x91c001, [0x0a]);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.FacingRightNormalPose, 0xc000);
+    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.FacingLeftNormalPose, 0xc001);
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb2b4, [0x10, 0xff]);
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb53c, [0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0xff]);
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xc000, [0x0a]);
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xc001, [0x0a]);
 
-    static void WriteTransitionProgram(
-        TestAddressSpace target,
-        int address,
-        (ushort Held, ushort Pose)[] records)
-    {
-        foreach ((ushort held, ushort pose) in records)
-        {
-            WriteTestWord(target, address, 0x0000);
-            WriteTestWord(target, address + 2, held);
-            WriteTestWord(target, address + 4, pose);
-            address += 6;
-        }
-        WriteTestWord(target, address, 0xffff);
-    }
-
-    WriteTransitionProgram(bus, 0x91ae18, [
-        (0x0a40, 0x00bb), (0x0640, 0x00bd), (0x0240, 0x00bc),
-        (0x0010, 0x00bb), (0x0020, 0x00bd), (0x0040, 0x00bc),
-        (0x0200, 0x00be), (0x0100, 0x00be), (0x0800, 0x00be),
-        (0x0400, 0x00be),
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xae18, [
+        (0x0000, 0x0a40, 0x00bb), (0x0000, 0x0640, 0x00bd), (0x0000, 0x0240, 0x00bc),
+        (0x0000, 0x0010, 0x00bb), (0x0000, 0x0020, 0x00bd), (0x0000, 0x0040, 0x00bc),
+        (0x0000, 0x0200, 0x00be), (0x0000, 0x0100, 0x00be), (0x0000, 0x0800, 0x00be),
+        (0x0000, 0x0400, 0x00be),
     ]);
-    WriteTransitionProgram(bus, 0x91ae56, [
-        (0x0940, 0x00ed), (0x0540, 0x00ef), (0x0140, 0x00ee),
-        (0x0010, 0x00ed), (0x0020, 0x00ef), (0x0040, 0x00ee),
-        (0x0200, 0x00f0), (0x0100, 0x00f0), (0x0800, 0x00f0),
-        (0x0400, 0x00f0),
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xae56, [
+        (0x0000, 0x0940, 0x00ed), (0x0000, 0x0540, 0x00ef), (0x0000, 0x0140, 0x00ee),
+        (0x0000, 0x0010, 0x00ed), (0x0000, 0x0020, 0x00ef), (0x0000, 0x0040, 0x00ee),
+        (0x0000, 0x0200, 0x00f0), (0x0000, 0x0100, 0x00f0), (0x0000, 0x0800, 0x00f0),
+        (0x0000, 0x0400, 0x00f0),
     ]);
 
     foreach (bool facingRight in new[] { false, true })
@@ -864,4 +808,64 @@ static void VerifySamusGrabbedByDraygon()
     Console.WriteLine("  Samus/Draygon: ten poses, owner offsets, transitions, escape, and release agree.");
 }
 
+
+/// <summary>
+/// Seeds the <c>$91:D99E</c> Hyper Beam suit-palette pointer table, its ten bank-$9B
+/// palettes, and the normal Power Suit palette with distinct synthetic colors.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Hyper Beam suit palettes")]
+static void InstallHyperBeamSuitPaletteFixture(TestAddressSpace bus)
+{
+    // `$91:D99E` points at ten complete Hyper Beam palettes in reverse-numbered order.
+    // Distinct synthetic words expose both the pointer index and all-$20-byte copy. The
+    // The compiled Power Suit entry at `$91:D727` independently verifies
+    // controller-zero/command-$17 restoration rather than retaining rainbow colors.
+    for (ushort palette = 0; palette < 10; palette++)
+    {
+        ushort pointer = unchecked((ushort)SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(palette));
+        WriteTestWord(bus, 0x91d99e + palette * 2, pointer);
+        for (ushort color = 0; color < 16; color++)
+        {
+            WriteTestWord(
+                bus,
+                0x9b0000 | (pointer + color * 2),
+                unchecked((ushort)(0x1000 + palette * 0x20 + color)));
+        }
+    }
+    for (ushort color = 0; color < 16; color++)
+        WriteTestWord(bus, SamusPaletteRomData.Banks.Palette |
+            (SamusPaletteRomData.Common.NormalSuitPalettePointer(0) + color * 2),
+            unchecked((ushort)(0x3000 + color)));
+}
+
+/// <summary>
+/// Seeds the bank-$8D Hyper Beam projectile-palette program at <c>$8D:E1F0</c>: ten
+/// two-call records of eight synthetic colors and the looping tail.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Hyper Beam projectile-palette program")]
+static void InstallHyperBeamProjectilePaletteProgramFixture(TestAddressSpace bus)
+{
+    // `$8D:E1F0` points at the compact Hyper Beam projectile-palette program. Each of its
+    // ten records lasts two handler calls and writes CGRAM `$E1-$E8`; synthetic colors make
+    // the record number, color number, and exact loop boundary independently observable.
+    WriteTestWord(bus, 0x8de1f0, 0xc685);
+    WriteTestWord(bus, 0x8de1f2, 0xd900);
+    WriteTestWord(bus, 0x8dd900, 0xc655);
+    WriteTestWord(bus, 0x8dd902, 0x01c2);
+    for (ushort frame = 0; frame < HyperBeamPaletteFxState.FrameCount; frame++)
+    {
+        int record = 0x8dd904 + frame * 20;
+        WriteTestWord(bus, record, 2);
+        for (ushort color = 0; color < HyperBeamPaletteFxState.ColorsPerFrame; color++)
+        {
+            WriteTestWord(
+                bus,
+                record + 2 + color * 2,
+                unchecked((ushort)(0x0100 + frame * 0x20 + color)));
+        }
+        WriteTestWord(bus, record + 18, 0xc595);
+    }
+    WriteTestWord(bus, 0x8dd9cc, 0xc61e);
+    WriteTestWord(bus, 0x8dd9ce, 0xd904);
+}
 }

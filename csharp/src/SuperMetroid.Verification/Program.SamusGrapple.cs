@@ -110,14 +110,13 @@ static void VerifySamusGrappleSwingAndRelease()
         SamusPoseId.GrappleCrouchingLeftPose,
     })
     {
-        WriteTestWord(bus, 0x91b010 + (int)pose * 2, 0xbf00);
+        SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, pose, 0xbf00);
     }
-    bus.WriteBytes(0x91bf00, [0x05, 0xff]);
+    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xbf00, [0x05, 0xff]);
 
     // Dry-air wall-jump table zero is 4.A000. A grapple wall jump reaches the same
     // `$90:9949` initializer as an ordinary spin wall jump after its reversed pose choice.
-    WriteTestWord(bus, 0x909ed1, 0x0004);
-    WriteTestWord(bus, 0x909ed7, 0xa000);
+    SyntheticSamusCartridge.WriteDryAirWallJumpSpeed(bus, whole: 0x0004, subspeed: 0xa000);
 
     // Firing source pose $29 is a retail right-facing fall with shot direction two. The
     // compiled mechanics supply +11.F4 X velocity, zero Y velocity, angle $C000,
@@ -125,8 +124,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // Flare presentation is deliberately synthetic.
     WritePoseDefinition(bus, (int)SamusPoseId.FallingRightPose,
         [0x08, 0x06, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
-    WriteTestWord(bus, 0x9bc14a + 2 * 2, 0x0002);
-    WriteTestWord(bus, 0x9bc15e + 2 * 2, 0x0002);
+    WriteGrappleFlareOrigin(bus, direction: 2, new Offset16<RoomPixels>(2, 2));
 
     // Compiled native connection pairs include the crouching table's intentional
     // standing `$AB` entries. Routing assertions below still cover all thirty records.
@@ -140,7 +138,7 @@ static void VerifySamusGrappleSwingAndRelease()
 
     // Samus at Y=56 puts the corrected firing endpoint at Y=50 inside the target.
     // Samus minus its centered anchor is (-24,0), exactly angle $C0.
-    WriteTestByte(bus, 0x9bc1c2 + 0xc0, 5);
+    WriteGrappleSwingFrame(bus, angle: 0xc0, frame: 5);
 
     SamusState firingSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     firingSamus.Kinematics.YSpeed = 1; // selects moving-vertically connection table $C3EE
@@ -467,9 +465,8 @@ static void VerifySamusGrappleSwingAndRelease()
     short[] nativeOriginY = [-16, -12, 2, 0, 6, 6, 0, 2, -12, -16];
     for (int direction = 0; direction < 10; direction++)
     {
-        int tableOffset = direction * 2;
-        WriteTestWord(bus, 0x9bc14a + tableOffset, unchecked((ushort)(direction + 20)));
-        WriteTestWord(bus, 0x9bc15e + tableOffset, unchecked((ushort)(direction + 30)));
+        WriteGrappleFlareOrigin(bus, direction,
+            new Offset16<RoomPixels>(checked((short)(direction + 20)), checked((short)(direction + 30))));
     }
 
     for (int family = 0; family < expectedConnectionPoses.Length; family++)
@@ -588,8 +585,8 @@ static void VerifySamusGrappleSwingAndRelease()
 
     // Override displayed frames independently of the native physical body offsets.
     // Both angles retain right-facing body offset (0,+46), despite art frames three/four.
-    WriteTestByte(bus, 0x9bc1c2 + 0x80, 3);
-    WriteTestByte(bus, 0x9bc1c2 + 0x81, 4);
+    WriteGrappleSwingFrame(bus, angle: 0x80, frame: 3);
+    WriteGrappleSwingFrame(bus, angle: 0x81, frame: 4);
 
     // The already-connected pendulum fixture uses an intentionally empty 32x16 room. Its
     // six-point sweep must stay in bounds while proving that no invented terrain response
@@ -657,10 +654,8 @@ static void VerifySamusGrappleSwingAndRelease()
     // and draw at the connected Flare origin before any rope or Samus objects are appended.
     foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
     {
-        WriteTestWord(bus, 0x930000 | pointer, 1);
-        WriteTestWord(bus, 0x930000 | (pointer + 2), 2);
-        WriteTestByte(bus, 0x930000 | (pointer + 4), 0xfd);
-        WriteTestWord(bus, 0x930000 | (pointer + 5), 0x3456);
+        SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(
+            bus, pointer, x: 2, y: 0xfd, tileAttributes: 0x3456);
     }
     var fixtureFlareSprites = ChargeFlareSpriteCatalog.Load(
         new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
@@ -790,7 +785,7 @@ static void VerifySamusGrappleSwingAndRelease()
 
     // Angle $40 is exactly rightward; the next sample $41 is (+255,+6).
     // Keep those native values and place terrain at the actual nearest probe.
-    WriteTestByte(bus, 0x9bc1c2 + 0x40, 0);
+    WriteGrappleSwingFrame(bus, angle: 0x40, frame: 0);
 
     // Anchor (128,128) is biased to (136,136). With length 32, candidate angle $41's
     // nearest probe is 40 pixels from the anchor at (175,136), block (10,8). Gravity adds
@@ -1008,7 +1003,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // reaches (143,150), solid block (8,9), rather than an invented horizontal wall.
     // Bank $94 must stop at `$6A80`; bank $9B must then consume record four's literal
     // `$B9`, (+24,+16), `$C814` tuple rather than inventing a host-side angle range.
-    WriteTestByte(bus, 0x9bc1c2 + 0x6a, 0);
+    WriteGrappleSwingFrame(bus, angle: 0x6a, frame: 0);
 
     var specialBlocks = new ushort[16 * 16];
     specialBlocks[8 * 16 + 8] = 0x8000; // `$B9`'s later 16-pixel left wall probe
@@ -1152,7 +1147,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // into block (7,7); a two-byte angular step guarantees that sample is visited after
     // quadrant gravity. Releasing Shoot queues `$C856`, whose movement-type-$16` fallback
     // byte in the literal `$B6` definition selects stable crouch `$27` one call later.
-    WriteTestByte(bus, 0x9bc1c2 + 0xd6, 0);
+    WriteGrappleSwingFrame(bus, angle: 0xd6, frame: 0);
     var lockedBlocks = new ushort[16 * 16];
     lockedBlocks[7 * 16 + 7] = 0x8000;
     RoomLevelData lockedLevel = CreateRoom(new(16, 16), lockedBlocks, new byte[lockedBlocks.Length]);
@@ -1204,4 +1199,24 @@ static void VerifySamusGrappleSwingAndRelease()
     Console.WriteLine("  Samus grapple: firing, swing collision, locked/wall-grab specials, wall jump, dropped pose, beam OAM, and release agree.");
 }
 
+/// <summary>
+/// Sets direction <paramref name="direction"/>'s entries of the non-running grapple flare
+/// origin tables <c>$9B:C14A</c> (X) and <c>$9B:C15E</c> (Y), one signed word per direction.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $9B:C14A/$C15E grapple flare origin tables")]
+static void WriteGrappleFlareOrigin(TestAddressSpace bus, int direction, Offset16<RoomPixels> origin)
+{
+    ArgumentOutOfRangeException.ThrowIfNegative(direction);
+    ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(direction, 10);
+    WriteTestWord(bus, 0x9bc14a + direction * 2, unchecked((ushort)origin.X));
+    WriteTestWord(bus, 0x9bc15e + direction * 2, unchecked((ushort)origin.Y));
+}
+
+/// <summary>
+/// Sets the <c>$9B:C1C2</c> swing-frame table entry selected by swing-angle high byte
+/// <paramref name="angle"/> to animation frame <paramref name="frame"/>.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $9B:C1C2 grapple swing-frame table")]
+static void WriteGrappleSwingFrame(TestAddressSpace bus, byte angle, byte frame) =>
+    WriteTestByte(bus, 0x9bc1c2 + angle, frame);
 }

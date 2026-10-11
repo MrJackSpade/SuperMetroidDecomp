@@ -30,10 +30,14 @@ internal static class TorizoCollisionDefinitions
 {
     internal const byte Bank = TorizoInstructionProgramDefinitions.Bank;
 
-    /// <summary>$AA:87D0, the native blank frame.</summary>
-    private const ushort BlankFrame = 0x87d0;
-    /// <summary>$AA:A4F0, the shared facing-screen turning frame.</summary>
-    private const ushort TurningFrame = 0xa4f0;
+    /// <summary>The two frames whose collision is a single empty component.</summary>
+    private enum EmptyFrame : ushort
+    {
+        /// <summary>$AA:87D0, the native blank frame.</summary>
+        Blank = 0x87d0,
+        /// <summary>$AA:A4F0, the shared facing-screen turning frame.</summary>
+        Turning = 0xa4f0,
+    }
     /// <summary>$AA:A4FA, first left-facing frame after the turning frame.</summary>
     private const ushort LeftStart = 0xa4fa;
     /// <summary>$AA:AA12, first awakening frame.</summary>
@@ -122,7 +126,7 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Components of <paramref name="frame"/>; right-facing frames mirror on read.</summary>
     internal static TorizoCollisionComponents ComponentsAt(ushort frame)
     {
-        if (frame is BlankFrame or TurningFrame) return new(SingleEmpty, false);
+        if (Enum.IsDefined((EmptyFrame)frame)) return new(SingleEmpty, false);
         if (TryFind(LeftFrames, LeftStart, frame, out GoldenTorizoCollisionComponent[]? left) ||
             TryFind(AwakeningFrames, AwakeningStart, frame, out left))
             return new(left!, false);

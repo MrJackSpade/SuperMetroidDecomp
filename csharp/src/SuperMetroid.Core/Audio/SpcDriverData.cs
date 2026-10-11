@@ -13,12 +13,9 @@ internal static class SpcDriverData
     internal const int HostStereoFramesPerVideoFrame = HostSampleRate / VideoFramesPerSecond;
     internal const int DspCyclesPerDriverTick = 64;
     internal const int MaximumFastForwardTicks = 0x10000;
-    internal const byte NoPortCommand = byte.MaxValue;
 
     /// <summary>$1E90: the second half of the $AA/$BB ready signal, left on output port 1 by an upload.</summary>
     internal const byte UploadReadyLibraryOnePort = 0xbb;
-    internal const byte PauseMusicCommand = AudioRomData.Apu.PauseMusic;
-    internal const byte ResumeMusicCommand = AudioRomData.Apu.ResumeMusic;
 
     internal static class Ram
     {
@@ -76,8 +73,6 @@ internal static class SpcDriverData
         internal const byte PercussionPlaybackNote = 0xa4;
         internal const byte TieNote = 0xc8;
         internal const byte RestNote = 0xc9;
-        internal const byte PatternFastForwardOn = 0x80;
-        internal const byte PatternFastForwardOff = 0x81;
         internal const byte PatternPointerHighByteMinimum = 1;
         internal const int TrackStartupTicks = 2;
     }
@@ -96,4 +91,50 @@ internal static class SpcDriverData
         internal const byte VoiceSearchStart = 9;
         internal const byte Active = byte.MaxValue;
     }
+}
+
+/// <summary>
+/// Music-port control bytes. Every other byte the CPU writes to the music port is a track
+/// number, which the driver starts unless it is already playing.
+/// </summary>
+internal enum MusicPortCommand : byte
+{
+    /// <summary>Keys off every music channel without changing the track.</summary>
+    Pause = AudioRomData.Apu.PauseMusic,
+    /// <summary>Resumes the paused track.</summary>
+    Resume = AudioRomData.Apu.ResumeMusic,
+    /// <summary>The driver's empty-port value, written after it consumes a command.</summary>
+    None = byte.MaxValue,
+}
+
+/// <summary>
+/// Control words in a top-level music track stream. A word with a nonzero high byte is a
+/// phrase pointer, zero ends the track, and every other low value is a repeat count.
+/// </summary>
+internal enum MusicTrackControl : ushort
+{
+    /// <summary>$0080: process phrases without waiting for note timers.</summary>
+    FastForwardOn = 0x80,
+    /// <summary>$0081: return to ordinary timed processing.</summary>
+    FastForwardOff = 0x81,
+}
+
+/// <summary>Validated decoding of top-level music track control words.</summary>
+internal static class MusicTrackControls
+{
+    /// <summary>Distinguishes a control word from a phrase pointer, end marker or repeat count.</summary>
+    internal static bool TryDecode(ushort record, out MusicTrackControl control)
+    {
+        if (!Enum.IsDefined((MusicTrackControl)record))
+        {
+            control = default;
+            return false;
+        }
+        control = (MusicTrackControl)record;
+        return true;
+    }
+
+    /// <summary>True when <paramref name="record"/> is exactly <paramref name="control"/>.</summary>
+    internal static bool Is(ushort record, MusicTrackControl control) =>
+        TryDecode(record, out MusicTrackControl decoded) && decoded == control;
 }

@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort PhantoonNoOpHitboxCallback = 0x804c;
     private const ushort PhantoonDamageThreshold = 300;
 
     /// <summary>
@@ -69,10 +68,11 @@ public sealed partial class RoomEnemySystem
                     projectile.XRadius,
                     projectile.YRadius,
                     selectShotCallback: true,
-                    out ushort hitboxShotAi))
+                    out ushort hitboxShotAiPointer))
             {
                 continue;
             }
+            EnemyInteractionCallback? hitboxShotAi = HitboxCallback(body, hitboxShotAiPointer);
 
             // `$A0:9B7F` applies this before calling the selected component function. A
             // no-op shell hit therefore still marks the beam and shakes for a Super Missile.
@@ -82,7 +82,7 @@ public sealed partial class RoomEnemySystem
                 EarthquakeType = SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType;
             }
 
-            if (hitboxShotAi == PhantoonNoOpHitboxCallback ||
+            if (hitboxShotAi == EnemyInteractionCallback.NoOp ||
                 body.VariableF >= (ushort)PhantoonAiFunction.DyingFadeInOut)
             {
                 projectiles.ApplyExtendedEnemyCollisionPrelude(
@@ -92,10 +92,10 @@ public sealed partial class RoomEnemySystem
                 return 1;
             }
 
-            if (hitboxShotAi != PhantoonCollisionDefinitions.ShotAi)
+            if (hitboxShotAi != EnemyInteractionCallback.PhantoonShot)
             {
                 throw new InvalidDataException(
-                    $"Phantoon hitbox shot AI $A7:{hitboxShotAi:X4} is not translated.");
+                    $"Phantoon hitbox shot AI $A7:{hitboxShotAiPointer:X4} is not translated.");
             }
 
             // The native extended-hitbox walker marks the projectile before $A7:DD9B.

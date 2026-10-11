@@ -13,7 +13,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
 
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
-        for (Pose pose = Pose.LargeSamusFromEndingStanding; pose <= Pose.SuitlessSamusLowerBody; pose++)
+        foreach (Pose pose in Enum.GetValues<Pose>())
             if (IsHead(pose) && EndingRewardSpriteDefinitions.FramePointer(pose) == pointer)
                 return supplied.CalculateIfMatching(new EndingRewardHeadParts(pose));
         return supplied;

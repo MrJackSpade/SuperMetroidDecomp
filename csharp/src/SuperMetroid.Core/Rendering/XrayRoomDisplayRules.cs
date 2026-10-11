@@ -14,13 +14,24 @@ public enum XrayRoomBlendMode
     Fireflea,
 }
 
+/// <summary>The two room headers CanXrayShowBlocks ($91:D143) explicitly excludes from revelation.</summary>
+public enum XrayExcludedRoom : ushort
+{
+    /// <summary>$8F:A66A, one of the two explicitly excluded room headers in $91:D143.</summary>
+    RoomA66A = 0xA66A,
+    /// <summary>$8F:CEFB, excluded from revelation; $88:81A4 additionally removes BG2 from TM.</summary>
+    HiddenBg2Room = 0xCEFB,
+}
+
 /// <summary>Room and enemy definition values used by CanXrayShowBlocks ($91:D143).</summary>
 public static class XrayRoomDisplayRules
 {
-    /// <summary>$8F:A66A, one of the two explicitly excluded room headers in $91:D143.</summary>
-    public const ushort ExcludedRoomA66A = 0xA66A;
-    /// <summary>$8F:CEFB, excluded from revelation; $88:81A4 additionally removes BG2 from TM.</summary>
-    public const ushort ExcludedRoomWithHiddenBg2 = 0xCEFB;
+    /// <summary>True for the two room headers $91:D143 excludes; every other room is unaffected.</summary>
+    public static bool IsExcludedRoom(ushort roomPointer) => Enum.IsDefined((XrayExcludedRoom)roomPointer);
+
+    /// <summary>True only for the excluded room whose preserved display also drops BG2 ($88:81A4).</summary>
+    public static bool RemovesBg2(ushort roomPointer) =>
+        IsExcludedRoom(roomPointer) && (XrayExcludedRoom)roomPointer == XrayExcludedRoom.HiddenBg2Room;
     /// <summary>
     /// Native CheckIfXrayShouldShowAnyBlocks ($91:D158-D172): five equality
     /// branches on the active enemy-header boss identity preserve the room background.
@@ -45,7 +56,7 @@ public static class XrayRoomDisplayRules
     public static XrayRoomBlendMode Select(ushort roomPointer, RoomFxType fx, ushort bossId)
     {
         if (fx == RoomFxType.Fireflea) return XrayRoomBlendMode.Fireflea;
-        if (roomPointer is ExcludedRoomA66A or ExcludedRoomWithHiddenBg2 || PreservesBossBackground(bossId))
+        if (IsExcludedRoom(roomPointer) || PreservesBossBackground(bossId))
             return XrayRoomBlendMode.PreserveBackgrounds;
         return XrayRoomBlendMode.RevealBlocks;
     }

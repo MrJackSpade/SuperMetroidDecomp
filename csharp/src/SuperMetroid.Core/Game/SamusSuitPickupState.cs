@@ -108,7 +108,7 @@ public sealed class SamusSuitPickupState
         // `$91:D4F7-$D53A/$D5CD-$D610` cancels every independent speed component before
         // changing pose. CancelRunningMomentum also preserves the native departing-echo
         // side effect and publishes the immediate palette restore only when boost was live.
-        samus.HorizontalSpeed.CancelRunningMomentum(samus.ReadPoseXDirection(bus));
+        samus.HorizontalSpeed.CancelRunningMomentum(samus.ReadFacingDirection(bus));
         samus.HorizontalSpeed.ExtraRunSpeed = 0;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         samus.HorizontalSpeed.BaseSpeed = 0;
@@ -372,18 +372,22 @@ public sealed class SamusSuitPickupState
         FixedColorBlue = AddTwoAndClamp(FixedColorBlue, SamusPaletteRomData.SuitPickup.WhiteBlue);
     }
 
-    private void AdvanceColorTowardOrange()
-    {
-        if (FixedColorRed != SamusPaletteRomData.SuitPickup.WhiteRed) FixedColorRed--;
-        if (FixedColorGreen != SamusPaletteRomData.SuitPickup.VariaOrangeGreen) FixedColorGreen--;
-        if (FixedColorBlue != SamusPaletteRomData.SuitPickup.VariaOrangeBlue) FixedColorBlue--;
-    }
+    private void AdvanceColorTowardOrange() => StepColorDownToward(
+        SamusPaletteRomData.SuitPickup.WhiteRed,
+        SamusPaletteRomData.SuitPickup.VariaOrangeGreen,
+        SamusPaletteRomData.SuitPickup.VariaOrangeBlue);
 
-    private void AdvanceColorTowardBlue()
+    private void AdvanceColorTowardBlue() => StepColorDownToward(
+        SamusPaletteRomData.SuitPickup.InitialRed,
+        SamusPaletteRomData.SuitPickup.GravityGreen,
+        SamusPaletteRomData.SuitPickup.GravityBlue);
+
+    /// <summary>Decrements each fixed-color component by one until it reaches its target.</summary>
+    private void StepColorDownToward(byte red, byte green, byte blue)
     {
-        if (FixedColorRed != SamusPaletteRomData.SuitPickup.InitialRed) FixedColorRed--;
-        if (FixedColorGreen != SamusPaletteRomData.SuitPickup.GravityGreen) FixedColorGreen--;
-        if (FixedColorBlue != SamusPaletteRomData.SuitPickup.GravityBlue) FixedColorBlue--;
+        if (FixedColorRed != red) FixedColorRed--;
+        if (FixedColorGreen != green) FixedColorGreen--;
+        if (FixedColorBlue != blue) FixedColorBlue--;
     }
 
     private static byte AddTwoAndClamp(byte value, byte target)

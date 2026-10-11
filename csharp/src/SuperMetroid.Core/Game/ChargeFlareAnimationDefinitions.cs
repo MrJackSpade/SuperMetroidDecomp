@@ -9,10 +9,6 @@ internal static class ChargeFlareAnimationDefinitions
     private const ushort SlowSparks = 0xc4a7;
     /// <summary>$90:C4AE FlareAnimationDelays_FlareFastSparks: six delays followed by restart.</summary>
     private const ushort FastSparks = 0xc4ae;
-    /// <summary>$FF in a flare delay stream resets the frame to zero.</summary>
-    internal const byte Restart = 0xff;
-    /// <summary>$FE subtracts the following byte from the selected frame.</summary>
-    internal const byte Rewind = 0xfe;
     /// <summary>$9B:C049, HandleGrappleBeamFlare: counter one force-selects main frame sixteen.</summary>
     internal const ushort GrappleInitialFrame = 16;
     /// <summary>$9B:C04F, HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
@@ -29,7 +25,7 @@ internal static class ChargeFlareAnimationDefinitions
         if ((uint)delay >= 46)
             throw new InvalidDataException($"Charge-flare cadence byte ${address:X6} is outside the compiled definitions.");
         if (delay < 30) return 3;
-        if (delay == 30) return Rewind;
+        if (delay == 30) return (byte)ChargeFlareDelayCommand.Rewind;
         if (delay == 31) return 14;
 
         // Each spark cycle ramps down for two frames, holds its minimum for
@@ -37,8 +33,29 @@ internal static class ChargeFlareAnimationDefinitions
         int sparkOffset = address - (SamusProjectileRomData.Banks.Movement | SlowSparks);
         int frame = sparkOffset % 7;
         int minimum = sparkOffset < 7 ? 3 : 2;
-        return frame == 6 ? Restart : (byte)Math.Max(minimum, minimum + 2 - frame);
+        return frame == 6 ? (byte)ChargeFlareDelayCommand.Restart : (byte)Math.Max(minimum, minimum + 2 - frame);
     }
+    /// <summary>Distinguishes a flare delay-stream command byte from an ordinary delay.</summary>
+    internal static bool TryDecodeCommand(byte streamByte, out ChargeFlareDelayCommand command)
+    {
+        if (!Enum.IsDefined((ChargeFlareDelayCommand)streamByte))
+        {
+            command = default;
+            return false;
+        }
+        command = (ChargeFlareDelayCommand)streamByte;
+        return true;
+    }
+
     internal static ushort ReadWord(int address) =>
         (ushort)(ReadByte(address) | ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
+}
+
+/// <summary>Command bytes in a charge-flare delay stream; every other byte is a delay.</summary>
+internal enum ChargeFlareDelayCommand : byte
+{
+    /// <summary>$FE subtracts the following byte from the selected frame.</summary>
+    Rewind = 0xfe,
+    /// <summary>$FF resets the frame to zero.</summary>
+    Restart = 0xff,
 }

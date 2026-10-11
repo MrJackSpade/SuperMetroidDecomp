@@ -265,7 +265,7 @@ public sealed partial class RoomPlmSystem
             byteOffset < RoomPlmHeaders.PermanentCollectibleKindCount * 4 &&
             (byteOffset & 3) == 0)
         {
-            kind = (InWorldCollectibleKind)(byteOffset / 4);
+            kind = InWorldCollectibleKinds.AtHeaderEntry(byteOffset / 4);
             return true;
         }
         kind = default;
@@ -810,6 +810,18 @@ public enum InWorldCollectibleKind : byte
     MorphBall,
     /// <summary>Header-table entry twenty: adds 100 reserve-energy capacity and selects automatic reserve mode if no mode was set.</summary>
     ReserveTank,
+}
+
+/// <summary>Bounded transitions into <see cref="InWorldCollectibleKind"/>.</summary>
+internal static class InWorldCollectibleKinds
+{
+    /// <summary>Selects the kind at one bank-$84 header-table entry; entries beyond the table throw.</summary>
+    internal static InWorldCollectibleKind AtHeaderEntry(int entry)
+    {
+        if ((uint)entry > byte.MaxValue || !Enum.IsDefined((InWorldCollectibleKind)entry))
+            throw new InvalidOperationException($"Collectible header-table entry {entry} is not an in-world collectible kind.");
+        return (InWorldCollectibleKind)entry;
+    }
 }
 
 /// <summary>The three parallel item presentations encoded by bank-$84 header ranges.</summary>

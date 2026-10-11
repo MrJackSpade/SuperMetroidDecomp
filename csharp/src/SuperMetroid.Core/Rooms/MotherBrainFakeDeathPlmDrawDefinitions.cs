@@ -139,9 +139,10 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
 
     internal static bool TryDescribeRegular(ushort pointer, out RegularDraw draw)
     {
-        var list = (MotherBrainFakeDeathDraw)pointer;
         draw = default;
-        if (!Enum.IsDefined(list)) return false;
+        // Shared draw-pointer space: words outside this family belong to other owners.
+        if (!Enum.IsDefined((MotherBrainFakeDeathDraw)pointer)) return false;
+        var list = (MotherBrainFakeDeathDraw)pointer;
         switch (list)
         {
             case MotherBrainFakeDeathDraw.BackgroundRowEUnused or MotherBrainFakeDeathDraw.BackgroundRowFUnused:
@@ -316,9 +317,12 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
 
     internal static bool TryDescribeBoundary(ushort pointer, out BoundaryDraw draw)
     {
+        draw = default;
+        // Shared draw-pointer space: words outside this family belong to other owners.
+        if (!Enum.IsDefined((MotherBrainFakeDeathDraw)pointer)) return false;
         var list = (MotherBrainFakeDeathDraw)pointer;
         bool owned = list is MotherBrainFakeDeathDraw.FillWall or MotherBrainFakeDeathDraw.EscapeDoor;
-        draw = owned ? new(list) : default;
+        if (owned) draw = new(list);
         return owned;
     }
 

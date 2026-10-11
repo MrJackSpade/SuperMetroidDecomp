@@ -49,10 +49,10 @@ internal static partial class Program
             }).ToArray(),
         };
         run(slot, state, null, 0, null);
-        AssertEqual(RidleyTailDefinitions.PointDown, state.TailFunctionIndex, "pogo wait runs pointed-tail setup");
+        AssertEqual(RidleyTailFunction.PointDown, state.TailFunctionIndex, "pogo wait runs pointed-tail setup");
         AssertEqual((ushort)0x3ff8, state.TailSegments[0].Angle, "setup immediately advances tail by eight");
         tail(slot, state, null);
-        AssertEqual(RidleyTailDefinitions.Pogo, state.TailFunctionIndex, "all pointed segments finish into normal pogo");
+        AssertEqual(RidleyTailFunction.Pogo, state.TailFunctionIndex, "all pointed segments finish into normal pogo");
         AssertTrue(state.TailSegments.All(segment => segment.Angle == 0x4000 && !segment.Active), "pogo tail points down and stops");
         // $D10E returns on deactivation before recomputing offsets: retain the
         // previous $F8-angle Mode 7 products (-1,+1), not the new angle's (0,2).
@@ -60,13 +60,13 @@ internal static partial class Program
         AssertEqual((ushort)145, state.TailSegments[0].YPosition, "pointed root retains pre-stop native hip Y");
         state.VerticalVelocity = 0;
         tail(slot, state, null);
-        AssertEqual(RidleyTailDefinitions.StabSetup, state.TailFunctionIndex, "descending normal pogo starts stab setup");
+        AssertEqual(RidleyTailFunction.StabSetup, state.TailFunctionIndex, "descending normal pogo starts stab setup");
         tail(slot, state, null);
-        AssertEqual(RidleyTailDefinitions.Stab, state.TailFunctionIndex, "stab setup activates downward stab");
+        AssertEqual(RidleyTailFunction.Stab, state.TailFunctionIndex, "stab setup activates downward stab");
         AssertTrue(state.TailSegments.All(segment => segment.TargetDistance == 0x0a00), "stab sets every segment extension target");
         state.Function = RidleyAiFunction.NorfairFireballRecover;
         run(slot, state, null, 0, null);
-        AssertEqual(RidleyTailDefinitions.Neutral, state.TailFunctionIndex, "leaving pogo restores neutral tail");
+        AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "leaving pogo restores neutral tail");
         AssertEqual((ushort)1, state.TailAngleDelta, "leaving pogo restores native delta");
         var aim = typeof(RoomEnemySystem).GetMethod("AimCeresRidleyTailWhip", flags)!
             .CreateDelegate<Action<RidleyEnemyState, SamusState?, byte>>(enemies);

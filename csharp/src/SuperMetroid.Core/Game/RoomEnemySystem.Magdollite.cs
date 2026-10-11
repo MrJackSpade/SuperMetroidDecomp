@@ -136,9 +136,6 @@ public sealed class MagdolliteEnemyState
 
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MagdollitePowerBombAi = EnemyAiCodePointers.BankA8.MagdollitePowerBomb;
-    internal const ushort MagdolliteTouchAi = EnemyAiCodePointers.BankA8.MagdolliteTouch;
-    internal const ushort MagdolliteShotAi = EnemyAiCodePointers.BankA8.MagdolliteShot;
 
     private readonly MagdolliteEnemyState?[] _magdolliteStates =
         new MagdolliteEnemyState?[MaximumEnemyCount];

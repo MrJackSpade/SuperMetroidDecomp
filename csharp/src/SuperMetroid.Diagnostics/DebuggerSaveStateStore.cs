@@ -107,9 +107,9 @@ internal sealed class DebuggerSaveStateStore
             using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true))
             {
                 writer.Write(DebuggerStateFormat.Magic);
-                writer.Write(contentIdentity is null
-                    ? DebuggerStateFormat.NamedDelegateVersion
-                    : DebuggerStateFormat.CurrentVersion);
+                writer.Write((int)(contentIdentity is null
+                    ? DebuggerStateVersion.NamedDelegate
+                    : DebuggerStateVersion.Current));
                 writer.Write(typeof(SuperMetroidGame).Module.ModuleVersionId.ToByteArray());
                 writer.Write(typeof(DebuggerSaveStateStore).Module.ModuleVersionId.ToByteArray());
                 writer.Write(romDigest);
@@ -159,20 +159,17 @@ internal sealed class DebuggerSaveStateStore
         byte[] magic = reader.ReadBytes(DebuggerStateFormat.Magic.Length);
         if (!magic.AsSpan().SequenceEqual(DebuggerStateFormat.Magic))
             throw new InvalidDataException($"'{path}' is not a Super Metroid debugger state.");
-        int version = reader.ReadInt32();
-        if (version is not (
-                DebuggerStateFormat.CurrentVersion or
-                DebuggerStateFormat.IdentifiedVersion or
-                DebuggerStateFormat.NamedDelegateVersion or
-                DebuggerStateFormat.LegacyTokenVersion))
+        int storedVersion = reader.ReadInt32();
+        if (!Enum.IsDefined((DebuggerStateVersion)storedVersion))
         {
             throw new InvalidDataException(
-                $"Debugger state schema {version} is incompatible with schema {DebuggerStateFormat.CurrentVersion}.");
+                $"Debugger state schema {storedVersion} is incompatible with schema {(int)DebuggerStateVersion.Current}.");
         }
+        var version = (DebuggerStateVersion)storedVersion;
         var warnings = new List<string>();
         ReadBuildIdentity(reader, typeof(SuperMetroidGame).Module.ModuleVersionId, "core build", warnings);
         ReadBuildIdentity(reader, typeof(DebuggerSaveStateStore).Module.ModuleVersionId, "desktop build", warnings);
-        if (warnings.Count != 0 && version == DebuggerStateFormat.LegacyTokenVersion)
+        if (warnings.Count != 0 && version == DebuggerStateVersion.LegacyToken)
             warnings.Add("Legacy debugger state uses compiler method tokens; cross-build delegate compatibility cannot be guaranteed.");
         byte[] storedDigest = reader.ReadBytes(SHA256.HashSizeInBytes);
         if (storedDigest.Length != SHA256.HashSizeInBytes ||
@@ -182,8 +179,8 @@ internal sealed class DebuggerSaveStateStore
                 $"Debugger state slot {slot} was captured from a different ROM (SHA-256 mismatch).");
         }
 
-        GameContentIdentitySnapshot? storedContentIdentity = version >= DebuggerStateFormat.IdentifiedVersion
-            ? ReadContentIdentity(reader, version == DebuggerStateFormat.CurrentVersion)
+        GameContentIdentitySnapshot? storedContentIdentity = version >= DebuggerStateVersion.Identified
+            ? ReadContentIdentity(reader, version == DebuggerStateVersion.Current)
             : null;
         if (contentIdentity is not null)
         {
@@ -207,7 +204,7 @@ internal sealed class DebuggerSaveStateStore
         ushort? roomState = ReadNullableWord(reader);
         using var compressed = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: true);
         DebuggerSaveStateRoot root = DebuggerObjectGraphSerializer.Deserialize<DebuggerSaveStateRoot>(
-            compressed, legacyDelegateTokens: version == DebuggerStateFormat.LegacyTokenVersion);
+            compressed, legacyDelegateTokens: version == DebuggerStateVersion.LegacyToken);
         EnsureRomMatches(root.AddressSpace);
         if (root.Game.FrameNumber != frame || root.Game.GameState != gameState ||
             root.Game.GameplayActiveRoomPointer != room ||

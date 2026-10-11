@@ -216,7 +216,7 @@ public sealed partial class RoomEnemySystem
             WingFrame = 0,
             WingAnimationTimer = 0,
             WingAnimationTimerDelta = 0,
-            TailFunctionIndex = 0,
+            TailFunctionIndex = RidleyTailFunction.None,
             TailAngleDelta = 1,
             TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
             TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
@@ -577,7 +577,7 @@ public sealed partial class RoomEnemySystem
         state.WingAnimationTimerDelta = 8;
         foreach (RidleyTailSegment segment in state.TailSegments)
             segment.Active = true;
-        state.TailFunctionIndex = 1;
+        state.TailFunctionIndex = RidleyTailFunction.Neutral;
         state.Function = RidleyAiFunction.ClearVelocity;
     }
 
@@ -720,7 +720,7 @@ public sealed partial class RoomEnemySystem
     {
         state.TailExtensionSpeed = 0xf0;
         state.IdealInterSegmentTailAngle = 16;
-        state.TailFunctionIndex = RidleyTailDefinitions.Neutral;
+        state.TailFunctionIndex = RidleyTailFunction.Neutral;
         state.Function = RidleyAiFunction.NorfairFireballMoveToSide;
     }
 
@@ -751,7 +751,7 @@ public sealed partial class RoomEnemySystem
         if (!TickRidleyFunctionTimer(state))
             return;
 
-        state.TailFunctionIndex = RidleyTailDefinitions.PogoSetup;
+        state.TailFunctionIndex = RidleyTailFunction.PogoSetup;
         TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Function = RidleyAiFunction.NorfairFireballAttack;
@@ -770,7 +770,7 @@ public sealed partial class RoomEnemySystem
             state.VerticalVelocity = unchecked((ushort)-Math.Max(
                 512,
                 Math.Abs((int)unchecked((short)state.VerticalVelocity))));
-            state.TailFunctionIndex = RidleyTailDefinitions.Neutral;
+            state.TailFunctionIndex = RidleyTailFunction.Neutral;
             state.TailAngleDelta = 1;
             BeginNorfairRidleyGrab(slot, state, samus);
             return;
@@ -795,7 +795,7 @@ public sealed partial class RoomEnemySystem
             state.TailSegments[index].Distance = RidleyTailDefinitions.RestDistance(index);
             state.TailSegments[index].TargetDistance = RidleyTailDefinitions.BounceDistance;
         }
-        state.TailFunctionIndex = RidleyTailDefinitions.Pogo;
+        state.TailFunctionIndex = RidleyTailFunction.Pogo;
         state.PogoBounceCount = unchecked((ushort)(state.PogoBounceCount + 1));
         if (state.PogoBounceCount >= 2)
         {
@@ -812,7 +812,7 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null || samus.YPosition < 352 || TickRidleyFunctionTimer(state))
         {
-            state.TailFunctionIndex = RidleyTailDefinitions.Neutral;
+            state.TailFunctionIndex = RidleyTailFunction.Neutral;
             state.TailAngleDelta = 1;
             state.Function = RidleyAiFunction.NorfairSelectAttack;
             return;
@@ -953,7 +953,7 @@ public sealed partial class RoomEnemySystem
         state.GrabState = 0;
         samus?.SetStationaryScriptControlLock(false);
         state.TailWhipRequest = 1;
-        state.TailFunctionIndex = 1;
+        state.TailFunctionIndex = RidleyTailFunction.Neutral;
         // $A6:BC8F-BC93 leaves the timer untouched once death owns the fight.
         if (unchecked((short)state.FightMode) >= 0)
         {

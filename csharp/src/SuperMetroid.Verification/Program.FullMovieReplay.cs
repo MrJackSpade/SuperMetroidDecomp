@@ -291,7 +291,7 @@ internal static partial class Program
             // $7E:2020: seven ten-word tail records; X/Y at +12/+14.
             string Port(int index) => $"{ridley.TailSegments[index].XPosition:X4}/{ridley.TailSegments[index].YPosition:X4}";
             string NativeTail(int index) => $"{Native(0x2020 + index * 20 + 12)}/{Native(0x2020 + index * 20 + 14)}";
-            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={(ushort)ridley.Function:X4} tailfn={ridley.TailFunctionIndex:X4} v={ridley.HorizontalVelocity:X4}/{ridley.VerticalVelocity:X4} getaway={ridley.Mode7TableByteIndex:X4}");
+            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={(ushort)ridley.Function:X4} tailfn={(int)ridley.TailFunctionIndex:X4} v={ridley.HorizontalVelocity:X4}/{ridley.VerticalVelocity:X4} getaway={ridley.Mode7TableByteIndex:X4}");
             Console.WriteLine("  tail native " + string.Join(" ", Enumerable.Range(0, 7).Select(NativeTail)) + $" fn={Native(0x0fa8)} tailfn={Native(0x2000)} v={Native(0x0faa)}/{Native(0x0fac)} getaway={Native(0x8026)}");
         }
     }

@@ -141,7 +141,7 @@ public sealed partial class SamusState
     {
         if (ReadMovementType(bus) != SamusMovementType.Falling)
             throw new InvalidOperationException("Falling input fallback requires a falling pose.");
-        HorizontalSpeed.CancelRunningMomentum((byte)ReadFacingDirection(bus));
+        HorizontalSpeed.CancelRunningMomentum(ReadFacingDirection(bus));
         HorizontalSpeed.ExtraRunSpeed = 0;
         HorizontalSpeed.ExtraRunSubspeed = 0;
     }
@@ -506,7 +506,7 @@ public sealed partial class SamusState
         // momentum index two, `$91:ECD0` cancels `$0B3C/$0B3E` but deliberately leaves the
         // numeric extra pair intact. The following standing movement pass consumes that
         // final no-base-speed displacement before clearing every X-motion word.
-        HorizontalSpeed.CancelRunningMomentum(ReadPoseXDirection(bus));
+        HorizontalSpeed.CancelRunningMomentum(ReadFacingDirection(bus));
         InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -529,7 +529,7 @@ public sealed partial class SamusState
 
         // This is the mirrored `$91:ECD0` momentum-index-two route used by `$09 -> $01`.
         // ExtraRunSpeed/Subspeed remain available to standing's ordered movement/clear pass.
-        HorizontalSpeed.CancelRunningMomentum(ReadPoseXDirection(bus));
+        HorizontalSpeed.CancelRunningMomentum(ReadFacingDirection(bus));
     }
 
     /// <summary>

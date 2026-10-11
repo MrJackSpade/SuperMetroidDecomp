@@ -166,13 +166,13 @@ public static class EndingRewardSpriteDefinitions
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (index is >= 2 and <= 9)
             return Define("suitless-hair-" + (index - 2 + 1).ToString(System.Globalization.CultureInfo.InvariantCulture),
-                (EndingRewardSpriteFrame)((int)EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame1 + index - 2));
+                EndingRewardSpriteFrameSeries.HairOpening[index - 2]);
         if (index is >= 21 and <= 28)
             return Define("suited-arm-" + (index - 21 + 1).ToString(System.Globalization.CultureInfo.InvariantCulture),
-                (EndingRewardSpriteFrame)((int)EndingRewardSpriteFrame.SamusArmFromEndingFrame1 + index - 21));
+                EndingRewardSpriteFrameSeries.Arm[index - 21]);
         if (index is >= 29 and <= 31)
             return Define("helmetless-head-" + (index - 29 + 2).ToString(System.Globalization.CultureInfo.InvariantCulture),
-                (EndingRewardSpriteFrame)((int)EndingRewardSpriteFrame.SamusHeadFromEndingFrame2 + index - 29));
+                EndingRewardSpriteFrameSeries.HelmetlessHead[index - 29 + 1]);
         return (AssetRole)index switch
         {
             AssetRole.SuitlessIdleUpper => Define("suitless-idle-upper", EndingRewardSpriteFrame.SuitlessSamusStandingArmsStraight),
@@ -328,4 +328,52 @@ internal enum EndingRewardSpriteFrame
     SuitlessSamusOpeningHairFrame8,
     /// <summary>$8C:A243, EndingSequenceSpritemaps_SuitlessSamusLowerBody.</summary>
     SuitlessSamusLowerBody,
+}
+
+/// <summary>Ordered reward-frame series that the native lists and stock compositions step through.</summary>
+internal static class EndingRewardSpriteFrameSeries
+{
+    /// <summary>The eight suitless hair-opening frames, in display order.</summary>
+    internal static IReadOnlyList<EndingRewardSpriteFrame> HairOpening { get; } =
+    [
+        EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame1,
+        EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame2,
+        EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame3,
+        EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame4,
+        EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame5,
+        EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame6,
+        EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame7,
+        EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame8,
+    ];
+
+    /// <summary>The eight suited arm-gesture frames, in display order.</summary>
+    internal static IReadOnlyList<EndingRewardSpriteFrame> Arm { get; } =
+    [
+        EndingRewardSpriteFrame.SamusArmFromEndingFrame1,
+        EndingRewardSpriteFrame.SamusArmFromEndingFrame2,
+        EndingRewardSpriteFrame.SamusArmFromEndingFrame3,
+        EndingRewardSpriteFrame.SamusArmFromEndingFrame4,
+        EndingRewardSpriteFrame.SamusArmFromEndingFrame5,
+        EndingRewardSpriteFrame.SamusArmFromEndingFrame6,
+        EndingRewardSpriteFrame.SamusArmFromEndingFrame7,
+        EndingRewardSpriteFrame.SamusArmFromEndingFrame8,
+    ];
+
+    /// <summary>The four helmetless head-turn frames, in display order.</summary>
+    internal static IReadOnlyList<EndingRewardSpriteFrame> HelmetlessHead { get; } =
+    [
+        EndingRewardSpriteFrame.SamusHeadFromEndingFrame1,
+        EndingRewardSpriteFrame.SamusHeadFromEndingFrame2,
+        EndingRewardSpriteFrame.SamusHeadFromEndingFrame3,
+        EndingRewardSpriteFrame.SamusHeadFromEndingFrame4,
+    ];
+
+    /// <summary>The four small falling, landing, landed and shooting figures.</summary>
+    internal static IReadOnlyList<EndingRewardSpriteFrame> ShootingScene { get; } =
+    [
+        EndingRewardSpriteFrame.SamusFalling,
+        EndingRewardSpriteFrame.SamusLanding,
+        EndingRewardSpriteFrame.SamusLanded,
+        EndingRewardSpriteFrame.SamusShooting,
+    ];
 }

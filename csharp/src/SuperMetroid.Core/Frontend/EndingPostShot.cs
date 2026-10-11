@@ -61,10 +61,15 @@ internal sealed class EndingPostShot
         for (int index = 1; index < EndingPostShotUploadDefinitions.Count; index++)
         {
             EndingPostShotUploadDefinition transfer = EndingPostShotUploadDefinitions.Get(index);
-            ReadOnlySpan<byte> source = transfer.SourceAddress == EndingPostShotDefinitions.LogoMapSource
-                ? map[..transfer.Length]
-                : tiles.Slice(transfer.SourceAddress - EndingPostShotDefinitions.LogoTileSource,
-                    transfer.Length);
+            ReadOnlySpan<byte> source = transfer.Source switch
+            {
+                EndingPostShotUploadSource.LogoMap => map[..transfer.Length],
+                EndingPostShotUploadSource.LogoTiles => tiles.Slice(
+                    transfer.SourceAddress - EndingPostShotDefinitions.LogoTileSource, transfer.Length),
+                EndingPostShotUploadSource.Subtitle => throw new InvalidOperationException(
+                    "The subtitle transfer is not part of the installed logo."),
+                _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
+            };
             vram.LoadBytes(transfer.DestinationWord * sizeof(ushort), source);
         }
     }
@@ -115,17 +120,15 @@ internal sealed class EndingPostShot
     {
         EndingPostShotUploadDefinition transfer = EndingPostShotUploadDefinitions.Get(index);
         int length = transfer.Length;
-        int source = transfer.SourceAddress;
         int destination = transfer.DestinationWord;
-        ReadOnlySpan<byte> bytes;
-        if (source == EndingPostShotDefinitions.SubtitleSource)
-            bytes = font.AsSpan(EndingPostShotDefinitions.SubtitleFontOffset, length);
-        else if (source is >= EndingPostShotDefinitions.LogoTileSource and < EndingPostShotDefinitions.LogoMapSource)
-            bytes = tiles.AsSpan(source - EndingPostShotDefinitions.LogoTileSource, length);
-        else if (source == EndingPostShotDefinitions.LogoMapSource)
-            bytes = map.AsSpan(0, length);
-        else
-            throw new InvalidDataException($"Unmapped post-shot graphics source ${source:X6}.");
+        ReadOnlySpan<byte> bytes = transfer.Source switch
+        {
+            EndingPostShotUploadSource.Subtitle => font.AsSpan(EndingPostShotDefinitions.SubtitleFontOffset, length),
+            EndingPostShotUploadSource.LogoTiles => tiles.AsSpan(
+                transfer.SourceAddress - EndingPostShotDefinitions.LogoTileSource, length),
+            EndingPostShotUploadSource.LogoMap => map.AsSpan(0, length),
+            _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
+        };
         vram.LoadBytes(destination * sizeof(ushort), bytes);
     }
 

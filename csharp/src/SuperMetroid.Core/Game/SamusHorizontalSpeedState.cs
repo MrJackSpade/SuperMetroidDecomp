@@ -596,11 +596,11 @@ public sealed class SamusHorizontalSpeedState
     /// Ports <c>Samus_CancelSpeedBoost</c> at <c>$91:DE53</c>, including the transition
     /// from alternating captured positions into the high-bit echo-departure state.
     /// </summary>
-    /// <param name="poseXDirection">
-    /// Current pose-definition direction byte. Native treats exactly four as facing left;
-    /// every other value uses the right-facing +8 echo velocity branch.
+    /// <param name="facing">
+    /// Current pose-definition direction. Native treats exactly left (four) as facing left;
+    /// every other direction uses the right-facing +8 echo velocity branch.
     /// </param>
-    public void CancelRunningMomentum(byte poseXDirection)
+    public void CancelRunningMomentum(SamusFacingDirection facing)
     {
         if (HasRunningMomentum)
         {
@@ -617,7 +617,7 @@ public sealed class SamusHorizontalSpeedState
         if ((SpeedEchoIndex & 0x8000) == 0)
         {
             SpeedEchoIndex = 0xffff;
-            ushort velocity = (SamusFacingDirection)poseXDirection == SamusFacingDirection.Left
+            ushort velocity = facing == SamusFacingDirection.Left
                 ? unchecked((ushort)-8)
                 : (ushort)8;
             FirstSpeedEchoXSpeed = velocity;
@@ -660,7 +660,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void ClearHorizontalMomentum(SamusFacingDirection facingDirection)
     {
-        CancelRunningMomentum((byte)facingDirection);
+        CancelRunningMomentum(facingDirection);
         ClearHorizontalVelocity();
     }
 
@@ -682,7 +682,7 @@ public sealed class SamusHorizontalSpeedState
     public void ApplyStoppedInputFallback(SamusFacingDirection facingDirection)
     {
         AccelerationMode = SamusHorizontalAccelerationModes.Accelerating;
-        CancelRunningMomentum((byte)facingDirection);
+        CancelRunningMomentum(facingDirection);
     }
 
     /// <summary>
@@ -699,7 +699,7 @@ public sealed class SamusHorizontalSpeedState
         }
         else
             AccelerationMode = 0;
-        CancelRunningMomentum((byte)facingDirection);
+        CancelRunningMomentum(facingDirection);
     }
 
     /// <summary>

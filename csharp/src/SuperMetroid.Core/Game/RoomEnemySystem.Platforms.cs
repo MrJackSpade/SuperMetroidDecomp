@@ -214,8 +214,6 @@ public sealed partial class RoomEnemySystem
     }
 
 
-    internal const ushort PlatformNoOpTouchAi = EnemyAiCodePointers.BankA3.PlatformNoOpTouch;
-    internal const ushort TripperShotAi = EnemyAiCodePointers.BankA3.TripperShot;
 
     private readonly ushort[] _platformYMovementFunctions = new ushort[MaximumEnemyCount];
     private readonly ushort[] _platformPreviousPositions = new ushort[MaximumEnemyCount];

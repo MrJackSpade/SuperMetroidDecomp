@@ -24,14 +24,13 @@ internal static class RoomPlmSharedDeleteProgramDefinitions
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        if (address is Start or End)
+        // The low then high byte of the sole opcode word.
+        if (address is < Start or > End)
         {
-            value = address == Start
-                ? unchecked((byte)RoomPlmInstruction.Delete)
-                : unchecked((byte)((ushort)RoomPlmInstruction.Delete >> 8));
-            return true;
+            value = 0;
+            return false;
         }
-        value = 0;
-        return false;
+        value = unchecked((byte)((ushort)RoomPlmInstruction.Delete >> (8 * (address - Start))));
+        return true;
     }
 }

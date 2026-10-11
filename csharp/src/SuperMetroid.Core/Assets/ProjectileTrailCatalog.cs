@@ -66,8 +66,7 @@ public sealed class ProjectileTrailCatalog
     {
         // A frozen, newly allocated stream has not consumed its first record. Preserve
         // the native retained attributes rather than displaying an animation frame early.
-        if (nextInstruction is Game.ProjectileTrailDefinitions.Empty or Game.ProjectileTrailDefinitions.LeftIce or
-            Game.ProjectileTrailDefinitions.RightIce or Game.ProjectileTrailDefinitions.Wave or Game.ProjectileTrailDefinitions.Missile)
+        if (Game.ProjectileTrailDefinitions.IsListStart(nextInstruction))
             return nativeAttributes;
         return Resolve(unchecked((ushort)(nextInstruction - 4)));
     }

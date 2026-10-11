@@ -39,7 +39,7 @@ public sealed class SamusVisorPaletteState
     public SamusVisorPaletteStepResult Update(
         ISnesAddressSpace bus,
         SnesCgram cgram,
-        ushort specialSamusPaletteType,
+        SamusSpecialPaletteType specialSamusPaletteType,
         LayerBlendingConfiguration layerBlendingDefaultConfig)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -49,7 +49,7 @@ public sealed class SamusVisorPaletteState
 
         // X-ray handler eight owns this same visor color. `$91:D842` returns immediately,
         // preserving both packed bytes so ordinary room animation resumes where it stopped.
-        if ((SamusSpecialPaletteType)specialSamusPaletteType == SamusSpecialPaletteType.Xray)
+        if (specialSamusPaletteType == SamusSpecialPaletteType.Xray)
         {
             return new SamusVisorPaletteStepResult();
         }

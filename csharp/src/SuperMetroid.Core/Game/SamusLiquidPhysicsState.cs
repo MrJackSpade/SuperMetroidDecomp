@@ -305,7 +305,7 @@ public sealed partial class SamusLiquidPhysicsState
                 // Cancel_SpeedBoosting owns the momentum/counter/palette/echo transition;
                 // the two extra-run words are then cleared explicitly by the FX handler.
                 // Acid deliberately skips all three writes.
-                samus.HorizontalSpeed.CancelRunningMomentum(samus.ReadPoseXDirection(bus));
+                samus.HorizontalSpeed.CancelRunningMomentum(samus.ReadFacingDirection(bus));
                 samus.HorizontalSpeed.ExtraRunSpeed = 0;
                 samus.HorizontalSpeed.ExtraRunSubspeed = 0;
             }

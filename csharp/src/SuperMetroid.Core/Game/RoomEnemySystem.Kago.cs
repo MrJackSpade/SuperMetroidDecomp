@@ -61,7 +61,6 @@ public sealed class KagoEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort KagoShotAi = EnemyAiCodePointers.BankA8.KagoShot;
 
     private readonly KagoEnemyState?[] _kagoStates =
         new KagoEnemyState?[MaximumEnemyCount];

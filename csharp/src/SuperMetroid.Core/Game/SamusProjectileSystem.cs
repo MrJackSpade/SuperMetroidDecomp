@@ -276,7 +276,7 @@ public sealed partial class SamusProjectileSystem
             LastVisorPaletteStep = samus.VisorPalette.Update(
                 bus,
                 cgram,
-                samus.Xray.SpecialPaletteType,
+                samus.Xray.SpecialPaletteKind,
                 layerBlendingDefaultConfig);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.Inactive);

@@ -122,8 +122,9 @@ internal static partial class Program
             "a queued X-ray frame remains immutable after gameplay resumes");
         AssertTrue(beforeRelease.SequenceEqual(RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), captured))),
             "a queued X-ray packet retains its reveal memory after gameplay resumes");
-        foreach (ushort roomPointer in new[] { XrayRoomDisplayRules.ExcludedRoomA66A, XrayRoomDisplayRules.ExcludedRoomWithHiddenBg2 })
+        foreach (XrayExcludedRoom excludedRoom in Enum.GetValues<XrayExcludedRoom>())
         {
+            ushort roomPointer = (ushort)excludedRoom;
             runtime.LoadCartridgeRoomForDebug(roomPointer);
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -140,7 +141,7 @@ internal static partial class Program
             AssertTrue(!excluded.RevealBlocks, "native excluded room never substitutes the reveal map");
             AssertTrue(baseFrame.Memory.Vram.SequenceEqual(excludedFrame.Memory.Vram), "excluded room retains original VRAM");
             AssertTrue((excluded.ColorMath & SnesColorMathControl.Obj) == 0, "excluded-room CGADSUB leaves Samus color unchanged");
-            AssertEqual(roomPointer != XrayRoomDisplayRules.ExcludedRoomWithHiddenBg2,
+            AssertEqual(excludedRoom != XrayExcludedRoom.HiddenBg2Room,
                 excluded.Gameplay.Registers.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "CEFB alone removes BG2");
             for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         }

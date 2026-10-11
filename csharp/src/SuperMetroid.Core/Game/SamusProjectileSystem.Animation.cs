@@ -105,24 +105,30 @@ public sealed partial class SamusProjectileSystem
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.MovementNumber,
                 unchecked((ushort)(delayList + frame))));
-        if (delay == ChargeFlareAnimationDefinitions.Restart)
+        if (ChargeFlareAnimationDefinitions.TryDecodeCommand(delay, out ChargeFlareDelayCommand command))
         {
-            frame = 0;
-            delay = ChargeFlareAnimationDefinitions.ReadByte((int)new SnesAddress(
-                SamusProjectileRomData.Banks.MovementNumber,
-                delayList));
-        }
-        else if (delay == ChargeFlareAnimationDefinitions.Rewind)
-        {
-            byte rewind = ChargeFlareAnimationDefinitions.ReadByte(
-                (int)new SnesAddress(
-                    SamusProjectileRomData.Banks.MovementNumber,
-                    unchecked((ushort)(delayList + frame + 1))));
-            frame = unchecked((ushort)(frame - rewind));
-            delay = ChargeFlareAnimationDefinitions.ReadByte(
-                (int)new SnesAddress(
-                    SamusProjectileRomData.Banks.MovementNumber,
-                    unchecked((ushort)(delayList + frame))));
+            switch (command)
+            {
+                case ChargeFlareDelayCommand.Restart:
+                    frame = 0;
+                    delay = ChargeFlareAnimationDefinitions.ReadByte((int)new SnesAddress(
+                        SamusProjectileRomData.Banks.MovementNumber,
+                        delayList));
+                    break;
+                case ChargeFlareDelayCommand.Rewind:
+                    byte rewind = ChargeFlareAnimationDefinitions.ReadByte(
+                        (int)new SnesAddress(
+                            SamusProjectileRomData.Banks.MovementNumber,
+                            unchecked((ushort)(delayList + frame + 1))));
+                    frame = unchecked((ushort)(frame - rewind));
+                    delay = ChargeFlareAnimationDefinitions.ReadByte(
+                        (int)new SnesAddress(
+                            SamusProjectileRomData.Banks.MovementNumber,
+                            unchecked((ushort)(delayList + frame))));
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(ChargeFlareDelayCommand)} {(int)command}.");
+            }
         }
 
         _flareFrames[component] = frame;

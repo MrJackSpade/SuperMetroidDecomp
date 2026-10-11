@@ -123,9 +123,6 @@ public sealed partial class RoomEnemySystem
     }
 
 
-    private const ushort EvirTouchAi = EnemyAiCodePointers.BankA8.EvirTouch;
-    private const ushort EvirPowerBombAi = EnemyAiCodePointers.BankA8.EvirPowerBomb;
-    private const ushort EvirShotAi = EnemyAiCodePointers.BankA8.EvirShot;
     private const ushort EvirSpitSound = 0x005e;
     private const ushort EvirActivationDistance = 0x0080;
     private const ushort EvirProjectileSpeed = 4;

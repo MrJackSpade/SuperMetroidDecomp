@@ -8,7 +8,9 @@ namespace SuperMetroid.Core.Assets;
 /// to reconstruct the original streaked image. Priority3, no flips, inherited palette.</summary>
 internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpritePart>
 {
-    private enum Row { Body, InnerRays, MiddleRays, OuterRays }
+    /// <summary>Right-hand tile and top Y of the four streaked rows, top to bottom in draw
+    /// order: body, inner rays, middle rays, outer rays.</summary>
+    private static readonly (int RightTile, int Top)[] Rows = [(0xbe, 0), (0xe6, -16), (0xd6, -24), (0xb6, -40)];
 
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.Silhouette)
@@ -29,14 +31,7 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
             {
                 int column = (index - 4) % 4;
                 x = 16 - column * 16;
-                (int rightTile, int top) = (Row)((index - 4) / 4) switch
-                {
-                    Row.Body => (0xbe, 0),
-                    Row.InnerRays => (0xe6, -16),
-                    Row.MiddleRays => (0xd6, -24),
-                    Row.OuterRays => (0xb6, -40),
-                    _ => throw new ArgumentOutOfRangeException(nameof(index)),
-                };
+                (int rightTile, int top) = Rows[(index - 4) / 4];
                 tile = rightTile - column * 2;
                 y = top;
             }

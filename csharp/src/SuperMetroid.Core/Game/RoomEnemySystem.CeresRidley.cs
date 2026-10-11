@@ -146,7 +146,7 @@ public sealed partial class RoomEnemySystem
             WingFrame = 5,
             WingAnimationTimer = 0,
             WingAnimationTimerDelta = 0,
-            TailFunctionIndex = 0,
+            TailFunctionIndex = RidleyTailFunction.None,
             TailAngleDelta = 1,
             TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
             TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
@@ -240,7 +240,7 @@ public sealed partial class RoomEnemySystem
                     state.WingAnimationTimerDelta = 8;
                     foreach (RidleyTailSegment segment in state.TailSegments)
                         segment.Active = true;
-                    state.TailFunctionIndex = 1;
+                    state.TailFunctionIndex = RidleyTailFunction.Neutral;
                     state.Function = RidleyAiFunction.ClearVelocity;
                 }
                 break;
@@ -795,7 +795,7 @@ public sealed partial class RoomEnemySystem
         SpawnCeresRidleyMode7Walls();
         state.HorizontalVelocity = 0;
         state.VerticalVelocity = 0;
-        state.TailFunctionIndex = 0;
+        state.TailFunctionIndex = RidleyTailFunction.None;
         state.Function = RidleyAiFunction.CeresPublishEscapeHandoff;
 
         // $A6:A9E3 replaces colors 1..15 of BG palette five. $A6:AA01 is

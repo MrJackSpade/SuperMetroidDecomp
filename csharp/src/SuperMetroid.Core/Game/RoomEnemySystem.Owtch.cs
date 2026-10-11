@@ -110,7 +110,6 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    internal const ushort OwtchShotAi = EnemyAiCodePointers.BankA2.OwtchShot;
 
     private const ushort OwtchMaximumBurialDepth = 16;
 

@@ -40,23 +40,23 @@ internal static partial class SwapchainTests
             if (MailboxCounters(worker).Published != 1000 || worker.LastConsumedSequence != 1000)
                 throw new InvalidOperationException("Retained redraw consumed or manufactured a simulation frame.");
             previousRedraws = worker.RetainedRedraws;
-            Interlocked.Exchange(ref injectedLoss, D3D11RecoveryPolicy.DeviceRemoved);
+            Interlocked.Exchange(ref injectedLoss, (int)DxgiDeviceLoss.DeviceRemoved);
             worker.Resize(801, 601);
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.DeviceRecoveries == 1 &&
                 worker.RetainedRedraws > previousRedraws && worker.LastDrawnSize == (801, 601); });
             if (MailboxCounters(worker).Published != 1000 || worker.LastConsumedSequence != 1000)
                 throw new InvalidOperationException("Device recovery manufactured a simulation frame.");
             var loss = worker.LastDeviceLoss;
-            if (loss is null || loss.FailureHResult != D3D11RecoveryPolicy.DeviceRemoved ||
+            if (loss is null || loss.FailureHResult != (int)DxgiDeviceLoss.DeviceRemoved ||
                 loss.RemovalReason != 0 || loss.Adapter != selection.AdapterDescription || loss.Backend != selection.Kind ||
                 loss.Width != 801 || loss.Height != 601 || loss.Frame?.Sequence != 1000)
                 throw new InvalidOperationException("Device-loss diagnostic lost original failure/device/frame context.");
             worker.AdvanceGeneration(2);
             worker.Resize(319, 601);
-            Interlocked.Exchange(ref injectedLoss, D3D11RecoveryPolicy.DeviceReset);
+            Interlocked.Exchange(ref injectedLoss, (int)DxgiDeviceLoss.DeviceReset);
             worker.Publish(new(new(1001,2,0), new Rgba32(91,27,173)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.DeviceRecoveries == 2 && worker.LastConsumedSequence == 1001; });
-            if (worker.LastDeviceLoss?.FailureHResult != D3D11RecoveryPolicy.DeviceReset ||
+            if (worker.LastDeviceLoss?.FailureHResult != (int)DxgiDeviceLoss.DeviceReset ||
                 worker.LastDeviceLoss!.Frame?.Generation != 2)
                 throw new InvalidOperationException("Reset diagnostic retained obsolete frame/failure context.");
             RenderMailboxCounterView metrics = MailboxCounters(worker);

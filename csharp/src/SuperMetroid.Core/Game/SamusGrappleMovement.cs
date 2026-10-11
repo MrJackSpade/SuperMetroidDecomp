@@ -224,7 +224,8 @@ public static partial class SamusGrappleMovement
             byte delay = ChargeFlareAnimationDefinitions.ReadByte(
                 SamusGrappleRomData.Firing.MainFlareAnimationDelays +
                     grapple.FlareAnimationFrame);
-            if (delay == ChargeFlareAnimationDefinitions.Rewind)
+            if (ChargeFlareAnimationDefinitions.TryDecodeCommand(delay, out ChargeFlareDelayCommand command) &&
+                command == ChargeFlareDelayCommand.Rewind)
             {
                 // `$FE,n` is the compact loop command in the shared delay bytecode. The
                 // subtraction applies to the already-incremented frame word and wraps like

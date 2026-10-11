@@ -32,9 +32,9 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
         => (1 - 16 - anchor.X, anchor.Y - 1);
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
-        for (int stage = 0; stage < 8; stage++)
+        for (int stage = 0; stage < EndingRewardSpriteFrameSeries.HairOpening.Count; stage++)
         {
-            var pose = (Pose)((int)Pose.SuitlessSamusOpeningHairFrame1 + stage);
+            Pose pose = EndingRewardSpriteFrameSeries.HairOpening[stage];
             if (pointer != EndingRewardSpriteDefinitions.FramePointer(pose)) continue;
             if (supplied.PartCount != PartCount(stage)) return supplied;
             return supplied.CalculateIfMatching(new EndingRewardHairParts(stage, supplied));

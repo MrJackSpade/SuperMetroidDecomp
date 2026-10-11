@@ -8,11 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort DraygonTouchAi = EnemyAiCodePointers.BankA5.DraygonTouch;
-    private const ushort DraygonShotAi = EnemyAiCodePointers.BankA5.DraygonShot;
-    private const ushort DraygonPowerBombAi = EnemyAiCodePointers.BankA5.DraygonPowerBomb;
-    private const ushort DraygonDudHitboxShotAi = EnemyAiCodePointers.BankA0.DudShot;
-    private const ushort DraygonNoOpHitboxTouchAi = EnemyAiCodePointers.BankA0.NoOp;
 
     /// <summary>
     /// Ports hurt AI <c>$A5:954D</c>. The body is rendered partly through BG2 palette five

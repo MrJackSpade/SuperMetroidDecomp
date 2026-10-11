@@ -156,7 +156,7 @@ static void VerifySamusHorizontalSpeed()
     speed.HandleExtraRunSpeed(SamusMovementType.Running, controllerInput: 0, speedBoosterEquipped: false);
     speed.HandleExtraRunSpeed(SamusMovementType.SpinJumping, controllerInput: 0, speedBoosterEquipped: false);
     AssertEqual(2, speed.ExtraRunSpeed, "Dash release and spin jump retain extra speed");
-    speed.CancelRunningMomentum(poseXDirection: 8);
+    speed.CancelRunningMomentum(SamusFacingDirection.Right);
     AssertTrue(!speed.HasRunningMomentum, "CancelSpeedBoost clears ordinary momentum flag");
     speed.HandleExtraRunSpeed(SamusMovementType.SpinJumping, controllerInput: 0, speedBoosterEquipped: false);
     AssertEqual(0, speed.ExtraRunSpeed, "post-cancel airborne handler clears extra speed");
@@ -373,7 +373,7 @@ static void VerifySamusHorizontalSpeed()
     AssertEqual(101, booster.FirstSpeedEchoXPosition, "first speed echo X snapshot");
     AssertEqual(105, booster.SecondSpeedEchoXPosition, "second speed echo X snapshot");
 
-    booster.CancelRunningMomentum(poseXDirection: 8);
+    booster.CancelRunningMomentum(SamusFacingDirection.Right);
     AssertTrue(booster.NormalSuitPaletteRestoreRequested,
         "CancelSpeedBoost publishes normal-suit palette restoration");
     AssertEqual(0xffff, booster.SpeedEchoIndex,
@@ -404,7 +404,7 @@ static void VerifySamusHorizontalSpeed()
 
     // Samus_CancelSpeedBoost is called every applicable standing/turn frame. Its BMI guard
     // must preserve an already-running departure even if the new pose faces the other way.
-    booster.CancelRunningMomentum(poseXDirection: 4);
+    booster.CancelRunningMomentum(SamusFacingDirection.Left);
     AssertEqual(8, booster.FirstSpeedEchoXSpeed,
         "repeated cancellation cannot reverse an active departure");
     AssertTrue(!booster.AdvanceDepartingSpeedEcho(1, 120, 90),
@@ -432,7 +432,7 @@ static void VerifySamusHorizontalSpeed()
         secondX: 154,
         firstY: 90,
         secondY: 94);
-    leftDeparture.CancelRunningMomentum(poseXDirection: 4);
+    leftDeparture.CancelRunningMomentum(SamusFacingDirection.Left);
     AssertEqual(unchecked((ushort)-8), leftDeparture.FirstSpeedEchoXSpeed,
         "left-facing first departure speed is negative eight");
     AssertEqual(unchecked((ushort)-8), leftDeparture.SecondSpeedEchoXSpeed,

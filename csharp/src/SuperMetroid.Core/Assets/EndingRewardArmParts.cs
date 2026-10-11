@@ -71,7 +71,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
     }
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
-        for (Pose pose = Pose.SamusArmFromEndingFrame1; pose <= Pose.SamusArmFromEndingFrame8; pose++)
+        foreach (Pose pose in EndingRewardSpriteFrameSeries.Arm)
         {
             if (pointer != EndingRewardSpriteDefinitions.FramePointer(pose)) continue;
             bool split = pose == Pose.SamusArmFromEndingFrame2;

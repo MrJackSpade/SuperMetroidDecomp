@@ -448,7 +448,7 @@ public static class SamusAerialMovement
         // preserve upward velocity even while the head is touching the ceiling.
 
         // `$90:A79E/$90:A7BB` cancel speed boost and explicitly clear both extra words.
-        speed.CancelRunningMomentum(samus.ReadPoseXDirection(bus));
+        speed.CancelRunningMomentum(samus.ReadFacingDirection(bus));
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         return result with { Landed = false, HitCeiling = false };

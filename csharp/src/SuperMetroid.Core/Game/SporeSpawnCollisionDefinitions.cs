@@ -49,10 +49,14 @@ internal static class SporeSpawnCollisionDefinitions
     private const ushort NoOp = EnemyAiCodePointers.BankA0.NoOp;
     private const ushort Dud = EnemyAiCodePointers.BankA0.DudShot;
 
-    /// <summary>$A5:EE65, ExtendedSpritemap_SporeSpawn_Dead: one inactive head component.</summary>
-    private const ushort DeadFrame = 0xee65;
-    /// <summary>$A5:EE6F, ExtendedSpritemap_SporeSpawn_Closed_Closing_Opening_0: one closed head.</summary>
-    private const ushort ClosedFrame = 0xee6f;
+    /// <summary>The two single-head root frames that precede the opening sequence.</summary>
+    private enum HeadRootFrame : ushort
+    {
+        /// <summary>$A5:EE65, ExtendedSpritemap_SporeSpawn_Dead: one inactive head component.</summary>
+        Dead = 0xee65,
+        /// <summary>$A5:EE6F, ExtendedSpritemap_SporeSpawn_Closed_Closing_Opening_0: one closed head.</summary>
+        Closed = 0xee6f,
+    }
     /// <summary>$A5:EE79, ExtendedSpritemap_SporeSpawn_Closed_Closing_Opening_1: first of seven opening roots.</summary>
     private const ushort FirstOpeningFrame = 0xee79;
     /// <summary>$A5:EF3D, ExtendedSpritemap_SporeSpawn_FullyOpen_0: first of three open oscillation roots.</summary>
@@ -110,7 +114,7 @@ internal static class SporeSpawnCollisionDefinitions
         (pointer - FirstFullyOpenFrame) % 18 == 0;
 
     internal static bool IsFrame(ushort pointer) =>
-        pointer is DeadFrame or ClosedFrame || IsOpeningFrame(pointer) || IsFullyOpenFrame(pointer);
+        Enum.IsDefined((HeadRootFrame)pointer) || IsOpeningFrame(pointer) || IsFullyOpenFrame(pointer);
 
     /// <summary>
     /// $A5:EE65..EEE5 and EF3D..EF61: dead/closed roots contain one head;
@@ -120,8 +124,16 @@ internal static class SporeSpawnCollisionDefinitions
     /// </summary>
     internal static ComponentSequence ComponentsAt(ushort pointer)
     {
-        if (pointer == DeadFrame) return new((ushort)SporeSpawnHitboxList.ClosedHead, 0);
-        if (pointer == ClosedFrame) return new((ushort)SporeSpawnHitboxList.OpenHead, 0);
+        if (Enum.IsDefined((HeadRootFrame)pointer))
+        {
+            var root = (HeadRootFrame)pointer;
+            return root switch
+            {
+                HeadRootFrame.Dead => new((ushort)SporeSpawnHitboxList.ClosedHead, 0),
+                HeadRootFrame.Closed => new((ushort)SporeSpawnHitboxList.OpenHead, 0),
+                _ => throw new InvalidOperationException($"Undefined {nameof(HeadRootFrame)} {(int)root}."),
+            };
+        }
         if (IsFullyOpenFrame(pointer))
             return new((ushort)SporeSpawnHitboxList.MovingHead5, InnerPointForPhase((pointer - FirstFullyOpenFrame) / 18));
         if (IsOpeningFrame(pointer))

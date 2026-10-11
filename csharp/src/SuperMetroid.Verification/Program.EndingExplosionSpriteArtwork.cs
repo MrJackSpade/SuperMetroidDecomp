@@ -28,7 +28,8 @@ internal static partial class Program
             int header = 0x8c0000 | pointer;
             int parts = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
             AssertEqual(pointer, frames[i].Pointer, $"explosion catalog native pointer {i}");
-            AssertEqual(pointer, EndingExplosionSpriteDefinitions.Pointer((EndingExplosionSpriteDefinitions.Pose)i),
+            AssertEqual(pointer, i < 10 ? EndingExplosionSpriteDefinitions.PlanetPointer(i) :
+                EndingExplosionSpriteDefinitions.Pointer((EndingExplosionSpriteDefinitions.Pose)i),
                 $"explosion shared pose pointer {i}");
             AssertEqual(parts, frames[i].StockPartCount, $"explosion catalog native part count {i}");
             AssertEqual(names[i], frames[i].Name, $"explosion catalog asset key {i}");
@@ -39,7 +40,14 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.Pointer(
                 (EndingExplosionSpriteDefinitions.Pose)invalid), "explosion pose pointer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPointer(invalid),
+                "explosion planet record bounds");
         }
+        foreach (int planet in new[] { 0, 9 })
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.Pointer(
+                (EndingExplosionSpriteDefinitions.Pose)planet), "planet records are not composite poses");
+        AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPointer(10),
+            "planet record count");
     }
 
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)

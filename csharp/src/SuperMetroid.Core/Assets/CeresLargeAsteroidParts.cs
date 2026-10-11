@@ -20,8 +20,9 @@ internal sealed class CeresLargeAsteroidParts(
 {
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
-        if (pointer is not (CeresLargeAsteroidAtlas.UnderAttack or CeresLargeAsteroidAtlas.Approach)
-            || supplied.PartCount != 19) return supplied;
+        // Shared OAM-record pointer space: other compositions belong to other owners.
+        if (!Enum.IsDefined((CeresLargeAsteroidComposition)pointer) || supplied.PartCount != 19) return supplied;
+        var composition = (CeresLargeAsteroidComposition)pointer;
         static (int X, int Y) Anchor(CompiledSpritePart part) => (part.X.SignedOffset, unchecked((sbyte)part.Y));
         var left = Anchor(supplied.Part(5));
         var right = Anchor(supplied.Part(12));
@@ -30,7 +31,12 @@ internal sealed class CeresLargeAsteroidParts(
         // Keep that independent supplied composition instead of throwing during matching.
         if (left.X > 231 || right.X > 231 || lower.X > 239) return supplied;
         return supplied.CalculateIfMatching(new CeresLargeAsteroidParts(left, right, lower,
-            pointer == CeresLargeAsteroidAtlas.UnderAttack ? 3 : 0));
+            composition switch
+            {
+                CeresLargeAsteroidComposition.UnderAttack => 3,
+                CeresLargeAsteroidComposition.Approach => 0,
+                _ => throw new InvalidOperationException($"Undefined {nameof(CeresLargeAsteroidComposition)} {(int)composition}."),
+            }));
     }
     public int Count => 19;
     public CompiledSpritePart this[int index]
@@ -78,12 +84,18 @@ internal sealed class CeresLargeAsteroidParts(
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>The two bank-$8C OAM records that draw the three large asteroids.</summary>
+internal enum CeresLargeAsteroidComposition : ushort
+{
+    /// <summary>8C:909D,station-under-attack large asteroids at OBJ priority 3,also exposed by the legacy discovery catalog.</summary>
+    UnderAttack = 0x909d,
+    /// <summary>8C:94F7,same three large asteroids at OBJ priority0.</summary>
+    Approach = 0x94f7,
+}
+
+/// <summary>Atlas patches shared by the two large-asteroid compositions.</summary>
 internal static class CeresLargeAsteroidAtlas
 {
-    /// <summary>8C:909D,station-under-attack large asteroids,also exposed by the legacy discovery catalog.</summary>
-    internal const ushort UnderAttack = 0x909d;
-    /// <summary>8C:94F7,same three large asteroids at OBJ priority0.</summary>
-    internal const ushort Approach = 0x94f7;
     /// <summary>Tile$160,upper-left of the left asteroid atlas patch.</summary>
     internal const int Left = 0x160;
     /// <summary>Tile$169,upper-left of the right asteroid atlas patch.</summary>

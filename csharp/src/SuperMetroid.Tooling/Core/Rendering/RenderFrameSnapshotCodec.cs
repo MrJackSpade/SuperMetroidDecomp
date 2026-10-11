@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 /// Portable little-endian display fixtures independent of assembly MVID, CLR object
 /// graphs and GPU resources. Older supported versions retain their original semantics.
 /// </summary>
+[PpuLayoutBoundary("codec: render-frame snapshot serialization (VRAM, CGRAM and OAM images)")]
 public static partial class RenderFrameSnapshotCodec
 {
     /// <summary>Encodes a complete immutable display snapshot into a newly allocated, bounded little-endian SMFRAME packet at the current format version.</summary>

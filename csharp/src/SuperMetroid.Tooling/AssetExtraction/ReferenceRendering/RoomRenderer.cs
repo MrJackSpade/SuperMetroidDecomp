@@ -39,6 +39,19 @@ public static class RoomRenderer
         "Palettes_0_UpperCrateria.bin");
 
     /// <summary>
+    /// The BG character portion of VRAM as <c>$82:E783</c> leaves it: the CRE characters, then the
+    /// area tileset over them from VMADD $0000, at their gameplay character numbers.
+    /// </summary>
+    [PpuLayoutBoundary("backend: reference room renderer's BG character VRAM image")]
+    private static byte[] BackgroundCharacterImage(byte[] areaTiles, byte[] commonTiles)
+    {
+        var vram = new byte[RoomAssetRomDataGraphicsLayoutTooling.BackgroundCharacterVramByteCount];
+        areaTiles.CopyTo(vram, RoomGraphicsLayout.AreaCharacters.Offset * sizeof(ushort));
+        commonTiles.CopyTo(vram, RoomGraphicsLayout.CommonRoomElementCharacters.Offset * sizeof(ushort));
+        return vram;
+    }
+
+    /// <summary>
     /// Loads and composes both static block layers for a room. This mirrors the data setup in
     /// <c>LoadLevelDataAndOtherThings</c> at <c>$82:E7D3</c>, but renders to RGBA instead of PPU VRAM.
     /// </summary>
@@ -69,9 +82,7 @@ public static class RoomRenderer
         // tile-number layout lets unmodified tile-table entries address this byte array.
         byte[] areaTiles = LoadCompressed(rawAssetDirectory, room.AreaTiles);
         byte[] commonTiles = LoadCompressed(rawAssetDirectory, room.CommonTiles);
-        var vram = new byte[RoomAssetRomDataGraphicsLayoutTooling.BackgroundCharacterVramByteCount];
-        areaTiles.CopyTo(vram, RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset);
-        commonTiles.CopyTo(vram, RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset);
+        byte[] vram = BackgroundCharacterImage(areaTiles, commonTiles);
 
         // $82:E7D3 places CRE block definitions at WRAM $7E:A000 and the current area's
         // definitions immediately after them at $7E:A800. A level block index can therefore

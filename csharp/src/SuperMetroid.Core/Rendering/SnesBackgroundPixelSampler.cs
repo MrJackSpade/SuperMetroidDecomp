@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 /// not call count, so clipping, flipped tiles and discontinuous HDMA remain exact.
 /// Create a new sampler after changing VRAM or palette contents.
 /// </summary>
+[PpuLayoutBoundary("backend: software PPU per-pixel background fetch")]
 internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
     int map, int characters, Extent16<TilemapCells> mapSize, bool fourBit)
 {

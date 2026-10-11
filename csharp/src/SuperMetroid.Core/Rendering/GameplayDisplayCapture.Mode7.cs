@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 
 public static partial class GameplayDisplayCapture
 {
+    [PpuLayoutBoundary("codec: Mode 7 gameplay render packet (BG3 and floor base registers)")]
     private static LayeredRenderSnapshot CaptureMode7Base(SuperMetroidRuntime runtime)
     {
         GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;

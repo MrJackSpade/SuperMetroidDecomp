@@ -43,7 +43,7 @@ internal static partial class Program
             }
             else
                 AssertTrue(native.ActiveRoomAssets!.RoomCharacters.Length >
-                    RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset,
+                    RoomGraphicsLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
             AssertTrue(native.Vram.Bytes.SequenceEqual(installed.Vram.Bytes),
                 $"{name} installed artwork preserves the complete displayed VRAM");

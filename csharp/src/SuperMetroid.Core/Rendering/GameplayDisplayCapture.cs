@@ -68,6 +68,7 @@ public static partial class GameplayDisplayCapture
     /// suit effects are deliberately excluded; this is not a substitute for a complete frame.
     /// Mode-7 rooms are rejected rather than silently interpreting their memory as tiles.
     /// </summary>
+    [PpuLayoutBoundary("codec: ordinary gameplay render packet (BG base registers)")]
     public static LayeredRenderSnapshot CaptureOrdinaryBase(SuperMetroidRuntime runtime)
     {
         ArgumentNullException.ThrowIfNull(runtime);

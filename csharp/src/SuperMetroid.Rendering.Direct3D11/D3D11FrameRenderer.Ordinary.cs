@@ -6,6 +6,7 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
+    [PpuLayoutBoundary("backend: Direct3D 11 PPU dispatch of the ordinary gameplay layers")]
     private void DispatchOrdinaryGameplay(OrdinaryGameplayRenderLayer layer)
     {
         OrdinaryGameplayRegisters r = layer.Registers;

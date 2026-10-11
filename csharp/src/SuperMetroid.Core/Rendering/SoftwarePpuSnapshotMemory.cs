@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Per-render scratch readers for legacy software raster kernels.</summary>
+[PpuLayoutBoundary("codec: restores a render snapshot into software PPU memory")]
 internal sealed class SoftwarePpuSnapshotMemory
 {
     internal SnesVram Vram { get; } = new();

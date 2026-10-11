@@ -113,16 +113,16 @@ public sealed class CartridgeRoomAssets
         // BG character allocation. The second transfer from VRAM byte $0000 must therefore
         // overwrite the CRE upload at $5000..$7FFF; reversing these calls produces the
         // characteristic vertical-stripe corruption seen when CRE replaces Ceres tiles.
-        vram.LoadBytes(RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset, CreCharacters);
-        vram.LoadBytes(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset, RoomCharacters);
+        var graphics = new RoomGraphicsVram(vram);
+        graphics.CommonRoomElementCharacters.Load(CreCharacters);
+        graphics.AreaCharacters.Load(RoomCharacters);
         if (PaletteBytes.Length < RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount)
         {
             throw new InvalidDataException(
                 $"Tileset palette expanded to ${PaletteBytes.Length:X} bytes; expected at least $100.");
         }
-        cgram.LoadBytes(
-            PaletteBytes.AsSpan(0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount),
-            destinationIndex: 0);
+        RoomGraphicsVram.TilesetPalette(cgram).LoadPortBytes(
+            PaletteBytes.AsSpan(0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount));
     }
 
     private static RoomLevelData ParseLevelData(

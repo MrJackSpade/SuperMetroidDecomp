@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Reference byte-domain color math from a detached BG plane and register rows.</summary>
+[PpuLayoutBoundary("backend: software PPU background colour-math rasterizer")]
 internal static class SoftwareBgColorMathRenderer
 {
     internal static void Composite(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Bg2BppColorMathRenderLayer layer)

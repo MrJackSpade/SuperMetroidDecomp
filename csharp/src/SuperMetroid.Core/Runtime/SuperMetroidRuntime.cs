@@ -426,8 +426,13 @@ public sealed partial class SuperMetroidRuntime
     /// background command list. Kraid temporarily selects word $2000; ordinary rooms use
     /// word $4000.
     /// </summary>
+    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
     public ushort GameplayHudCharacterBaseWord { get; private set; } =
         GameplayVramLayout.HudCharacterWord;
+
+    /// <summary>Selects the ordinary BG3 character base (BG34NBA=$04), as gameplay PPU initialization does.</summary>
+    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
+    private void SelectGameplayHudCharacterBase() => GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
 
     /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>
     public RoomLayer3FxRenderSnapshot? DisplayedRoomLayer3Fx { get; private set; }
@@ -712,7 +717,7 @@ public sealed partial class SuperMetroidRuntime
         // The immutable first row bypasses WRAM and is DMAed straight from $80:988B.
         VramWrites.Enqueue(sizeInBytes: GameplayHudDefinitions.TopRowByteCount,
             sourceAddress: GameplayHudDefinitions.TopRowAddress,
-            destination: VramDmaDestination.FromNative(0x5800));
+            destination: GameplayVram.HudTilemapDma());
 
         Hud.Initialize(_addressSpace, snapshot);
         Hud.QueueUpload(_addressSpace, VramWrites);

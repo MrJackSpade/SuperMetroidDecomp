@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 public static partial class GameplayDisplayCapture
 {
     /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
+    [PpuLayoutBoundary("codec: X-ray render packet, reveal tilemap written into the snapshot BG2 image")]
     private static LayeredRenderSnapshot? CaptureXray(SuperMetroidRuntime runtime, LayeredRenderSnapshot basis)
     {
         bool finishedThisFrame = runtime.LastXrayBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish };

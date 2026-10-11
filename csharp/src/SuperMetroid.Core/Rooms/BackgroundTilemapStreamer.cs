@@ -285,6 +285,7 @@ public sealed record PlmTilemapUpdate(
     ushort[] BottomRow)
 {
     /// <summary>Applies the two horizontal two-word transfers produced by bank $84.</summary>
+    [PpuLayoutBoundary("codec: DrawPLM two-row BG1 tilemap DMA (VMADD)")]
     public void ExecuteTo(SnesVram vram)
     {
         ArgumentNullException.ThrowIfNull(vram);
@@ -332,6 +333,7 @@ public sealed record TilemapDmaSegment(
     /// <summary>Validates the staging slice and immediately transfers its words to VRAM with the row/column stride; does not enqueue another transfer or advance camera state.</summary>
     /// <param name="vram">Destination VRAM receiving packed BG character words.</param>
     /// <exception cref="InvalidDataException">The source offset/count exceeds the staging array.</exception>
+    [PpuLayoutBoundary("codec: one BG tilemap stream DMA segment (VMADD, VMAIN increment)")]
     public void ExecuteTo(SnesVram vram)
     {
         ArgumentNullException.ThrowIfNull(vram);

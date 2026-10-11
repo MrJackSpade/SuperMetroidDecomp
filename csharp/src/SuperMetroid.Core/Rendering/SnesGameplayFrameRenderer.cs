@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Composes the currently modeled gameplay PPU layers into one desktop frame.</summary>
+[PpuLayoutBoundary("backend: software PPU gameplay frame compositor")]
 public static partial class SnesGameplayFrameRenderer
 {
     /// <summary>Visible SNES viewport width in pixels.</summary>

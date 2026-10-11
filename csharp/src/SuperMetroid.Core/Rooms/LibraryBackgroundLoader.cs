@@ -103,6 +103,7 @@ public static class LibraryBackgroundLoader
 bg3CharacterBaseWord);
     }
 
+    [PpuLayoutBoundary("codec: library-background command 2 VRAM DMA (native source and VMADD)")]
     private static void TransferToVram(ISnesAddressSpace bus, SnesVram vram,
         int sourceAddress, ushort destinationWord, ushort byteCount,
         RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt,
@@ -162,6 +163,7 @@ bg3CharacterBaseWord);
         new LibraryBackgroundMemory(RequireWorkMemory(bus)).WriteDecompressed(destination, decompressed, sourceAddress);
     }
 
+    [PpuLayoutBoundary("codec: Clear_BG2_Tilemap native fill-and-DMA")]
     private static void ClearBg2(ISnesAddressSpace bus, SnesVram vram, bool includeKraidPage)
     {
         // Clear_BG2_Tilemap fills both $800-byte WRAM pages with tile $0338, then performs
@@ -184,6 +186,7 @@ bg3CharacterBaseWord);
     }
 
     /// <summary>Applies one named native fill-and-DMA definition without unpacked literals.</summary>
+    [PpuLayoutBoundary("codec: native library-background fill-and-DMA definition")]
     private static void FillAndTransfer(
         ISnesAddressSpace bus,
         SnesVram vram,

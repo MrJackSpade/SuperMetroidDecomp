@@ -5,6 +5,7 @@ using System.Buffers;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Source-aware reference for native Mode-1/window/color-math configurations.</summary>
+[PpuLayoutBoundary("backend: software PPU gameplay colour-math compositor")]
 public static class SoftwareGameplayColorMathRenderer
 {
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,

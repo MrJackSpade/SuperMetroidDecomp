@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
@@ -16,6 +17,7 @@ namespace SuperMetroid.Core.Rendering;
 public static class SuperMetroidRuntimeFrameRenderer
 {
     /// <summary>Renders the runtime's last NMI-published OAM and current room PPU state.</summary>
+    [PpuLayoutBoundary("backend: gameplay software PPU register setup")]
     public static Rgba32[] Render(SuperMetroidRuntime runtime)
     {
         ArgumentNullException.ThrowIfNull(runtime);

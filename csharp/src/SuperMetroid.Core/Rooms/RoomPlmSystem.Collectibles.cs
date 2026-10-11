@@ -18,7 +18,6 @@ public sealed partial class RoomPlmSystem
     // Instruction $8764 rotates through four $100-byte character allocations. Its table
     // offsets are words into TileTable at $7E:A000 and destinations are VRAM word addresses.
     private const int DynamicBlockDefinitionFirstWord = 0x0470 / 2;
-    private const int DynamicVramFirstByte = 0x3e00 * 2;
 
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
     private Bank80SystemState? _collectibleSystem;
@@ -292,8 +291,7 @@ public sealed partial class RoomPlmSystem
         _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;
 
         // The 256 bytes contain two 16x16 animation frames, four 4bpp tiles apiece.
-        // Word-addressed SNES VRAM destinations become byte offsets in SnesVram.
-        vram.LoadBytes(DynamicVramFirstByte + graphicsSlot * 0x100, graphics.Span);
+        new RoomGraphicsVram(vram).CollectibleSlot(graphicsSlot).Load(graphics.Span);
 
         int startingTileNumber = 0x03e0 + graphicsSlot * 8;
         int firstDefinitionWord = DynamicBlockDefinitionFirstWord + graphicsSlot * 8;

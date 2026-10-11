@@ -80,4 +80,7 @@ public readonly struct GameplayVram(SnesVram vram)
 
     /// <summary>OBJ characters.</summary>
     public VramRegion ObjectCharacters => new(vram, GameplayVramLayout.ObjectCharacters);
+
+    /// <summary>The queued-DMA destination <paramref name="wordOffset"/> words into the BG3 HUD tilemap.</summary>
+    public static VramDmaDestination HudTilemapDma(int wordOffset = 0) => VramDmaDestination.At(GameplayVramLayout.HudTilemap, wordOffset);
 }

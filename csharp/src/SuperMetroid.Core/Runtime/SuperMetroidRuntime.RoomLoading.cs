@@ -747,7 +747,7 @@ public sealed partial class SuperMetroidRuntime
         ActiveRoomAssets = assets;
         // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
         // A later library-background command eight may override it to $02 for Kraid.
-        GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
+        SelectGameplayHudCharacterBase();
         WreckedShipTreadmill.Reset();
         MaridiaElevatube.Reset(
             active: room.State.MainCallback == RoomMainCallback.MaridiaElevatube);
@@ -1397,7 +1397,7 @@ public sealed partial class SuperMetroidRuntime
         // blue value from `Initial_Palette_spritePalette5` in that one entry makes the
         // elevator landing recess appear pre-filled; the cartridge's zero makes it black
         // until the moving pad reaches it and both projectiles delete themselves.
-        Cgram.SetColor(223, Bgr555.Black);
+        new NewGamePalettes(Cgram).ClearCeresElevatorConcealer();
 
         Samus.RefreshCollisionRadii(_addressSpace);
         Samus.InitializeAnimation(_addressSpace);

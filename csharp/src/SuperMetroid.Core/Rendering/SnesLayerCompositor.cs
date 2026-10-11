@@ -43,7 +43,7 @@ public static class SnesLayerCompositor
         if (outputBuffer is not null && outputBuffer.Length != pixelCount)
             throw new ArgumentException("Unexpected backdrop buffer dimensions.", nameof(outputBuffer));
         var pixels = outputBuffer ?? new Rgba32[pixelCount];
-        Array.Fill(pixels, cgram.GetRgba(0));
+        Array.Fill(pixels, new CgramPalettes(cgram).BackdropRgba);
         return pixels;
     }
 

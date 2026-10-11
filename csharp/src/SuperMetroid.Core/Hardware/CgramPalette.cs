@@ -121,8 +121,8 @@ public readonly struct CgramPalettes(SnesCgram cgram)
     /// <summary>The 128 OBJ colours.</summary>
     public CgramPalette Objects => new(cgram, PpuMemoryLayout.ObjectPalettes);
 
-    /// <summary>The backdrop: background palette 0, colour 0.</summary>
-    public Bgr555 Backdrop => All[0];
+    /// <summary>The backdrop (background palette 0, colour 0) as opaque RGBA.</summary>
+    public Rgba32 BackdropRgba => All.Rgba(0);
 
     /// <summary>Background palette row <paramref name="row"/> (0-7).</summary>
     public CgramPalette BackgroundRow(int row) => Background.Slice(RowStart(row), PpuMemoryLayout.ColorsPerRow);

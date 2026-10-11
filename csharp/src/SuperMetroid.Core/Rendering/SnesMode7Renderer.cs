@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Rendering;
 /// interleave is exactly why the title loader writes <c>$2119</c> and <c>$2118</c> in
 /// separate DMA passes at <c>$8B:9BFF-$8B:9C56</c>.
 /// </remarks>
+[PpuLayoutBoundary("backend: software PPU Mode 7 rasterizer")]
 public static class SnesMode7Renderer
 {
     private const int MapWidthInTiles = 128;

@@ -45,9 +45,43 @@ boundary on a local function or lambda has no effect.
 - Preserve PPU behaviour exactly: byte/word port behaviour, VMAIN increment/remap modes, latch
   order, OAM low/high packing, CGRAM masking, register side effects, snapshot ownership.
 
+## Catalogs, aliases and views in practice
+
+- Catalog files end in `Layout.cs` (the production magic-number audit's definition suffix) and
+  declare `public static readonly PpuLayoutCell` fields whose `Name` is the member name.
+- `PpuMemoryLayout` holds the physical containers: all VRAM, all CGRAM, the background and OBJ
+  palette banks and their sixteen 16-colour rows, and the OAM tables. Every screen reuses VRAM,
+  so a screen-level VRAM allocation declares `aliasOf: PpuMemoryLayout.Vram`; a sub-use of a
+  named plane aliases that plane (an enemy BG2 tilemap aliases `GameplayVramLayout.Bg2Tilemap`).
+  CGRAM ranges are declared with `PpuMemoryLayout.Colors(name, first, count, encoding)`, which
+  aliases the smallest covering row, bank or the whole CGRAM.
+- Generic views live in `SuperMetroid.Core.Hardware`: `VramRegion` (byte loads, VMDATA word
+  streams with `VramIncrement.Row/Column`, word/tilemap/byte reads, slices, queued-DMA
+  destinations), `Mode7Vram` (the interleaved map and character planes), `VramStore`,
+  `CgramPalette`/`CgramPalettes` (`Bgr555` reads and writes, CGDATA port streams, banks and rows)
+  and `VramDmaDestination` (the queue's VMADD/increment word). Their cell-binding constructors
+  are `[PpuLayoutAccess]`: only a domain view binds a cell, and callers use its properties.
+- The software rasterizers (`SnesBgTilemapRenderer`, `SnesObjRenderer`, `SnesMode7Renderer`,
+  `SnesGameplayFrameRenderer`, …), the GPU dispatch and render-packet producers model BGnSC/NBA
+  and OBSEL register values and the snapshot images; they are backend or codec boundaries.
+- Data-driven destinations (a native transfer record's VRAM word, a PLM write-table record, a
+  library-background command) are decoded by narrow codec members such as
+  `PlmVramWriteRequest.Destination`.
+
 ## Inventory and checks
 
 `docs/ppu-layout-inventory.json` is generated from the catalogs (owner, name, region, offset,
-count, encoding, aliases, consumers). The verifier checks unique identities, overlap only through
-declared aliases with alias-coherence round trips, bounds, port/latch order, increment/wrap modes,
-and rendering equivalence; a performance check confirms no hot-path allocation.
+count, encoding, aliases, consumers) by `SuperMetroid.DebugRunner --generate-ppu-layout-inventory`,
+run from the repository root; it refuses to write while a catalog rule is broken. The verifier
+(`--ppu-layout-boundary`, part of the full run) requires the committed inventory to list exactly
+the catalog cells and checks:
+
+- `(owner, name)` is unique; a cell's alias shares storage with it; two cells share storage only
+  when one's alias chain reaches the other or a cell covering it;
+- every alias pair round-trips through the typed views on a real backend (VRAM and CGRAM writes
+  through one view read back through the other; `gameplay_TM` is TM's NMI-latched copy);
+- representative typed round trips (tilemap word, `Bgr555` palette entry, object attributes,
+  register value), view and cell bounds, VMAIN one/32-word increments and the 15-bit VMADD wrap,
+  DMA mode 1 and Mode 7 port byte order, OAM low/high-table packing and CGRAM bit-15 masking;
+- representative view paths (palette writes, tilemap row/column writes and reads, Mode 7 map
+  loads) allocate nothing once warm.

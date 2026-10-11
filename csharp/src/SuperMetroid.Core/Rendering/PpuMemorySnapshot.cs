@@ -12,6 +12,7 @@ namespace SuperMetroid.Core.Rendering;
 /// later simulation writes nor software-render scratch buffers can change this image.
 /// Complete images deliberately avoid dependencies on discarded intermediate frames.
 /// </remarks>
+[PpuLayoutBoundary("codec: immutable VRAM/CGRAM/OAM render snapshot")]
 public sealed class PpuMemorySnapshot
 {
     private readonly byte[] vram;

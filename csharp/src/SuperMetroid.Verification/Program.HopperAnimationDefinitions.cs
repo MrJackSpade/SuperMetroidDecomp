@@ -35,7 +35,7 @@ internal static partial class Program
                 $"hopper animation variant {variant}, selector {selector}");
         }
 
-        var guard = new HopperAnimationReadGuard(rom, forbidPresentation: true);
+        var guard = NewHopperAnimationGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         EnemyDefinitionId[] definitions =
         [
@@ -115,7 +115,7 @@ internal static partial class Program
         Suite(nameof(VerifyTourianSidehopperInstructionAlias), () => VerifyTourianSidehopperInstructionAlias(rom, flags, process, artwork));
 
         AssertEqual(0,
-            guard.ObservedPresentationWords.Count,
+            guard.ObservedWords.Count,
             "hopper production programs avoid all cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled hopper mechanics byte");
@@ -158,7 +158,7 @@ internal static partial class Program
     {
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, new HopperAnimationReadGuard(rom, forbidPresentation: true));
+            enemies, NewHopperAnimationGuard(rom));
         typeof(RoomEnemySystem).GetField("_setRandomNumber", flags)!.SetValue(
             enemies, (Action<ushort>)(_ => { }));
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
@@ -205,56 +205,13 @@ internal static partial class Program
     private static ushort ReadHopperAnimationWord(SuperMetroidAddressSpace source, int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
-    private sealed class HopperAnimationReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0xa3aac2 and < 0xa3aae2)
-            {
-                throw new InvalidOperationException(
-                    $"Hopper attempted migrated animation-selector read ${address:X6}.");
-            }
-            if (HopperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled hopper mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < HopperInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        HopperInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                        {
-                            ForbiddenReadAttempts++;
-                            throw new InvalidOperationException(
-                                $"Hopper read visual-selector byte ${address:X6}.");
-                        }
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewHopperAnimationGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .ForbidRange(0xa3aac2, 0xa3aae2 - 0xa3aac2,
+                address => $"Hopper attempted migrated animation-selector read ${address:X6}.")
+            .Forbid(HopperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled hopper mechanics byte ${address:X6}.")
+            .ForbidWords(0xa30000, HopperInstructionProgramDefinitions.PresentationWordCount,
+                HopperInstructionProgramDefinitions.PresentationWordAddress,
+                address => $"Hopper read visual-selector byte ${address:X6}.");
 }

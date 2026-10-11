@@ -148,7 +148,7 @@ internal static partial class Program
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnTourianAccess(level, clear),
             $"Tourian {(clear ? "clear" : "crumble")} PLM allocates");
-        var bus = new TourianAccessSourceGuard(new TestAddressSpace());
+        var bus = NewTourianAccessSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         for (int frame = 0; frame < 120 && plms.ActiveCount != 0; frame++)
@@ -172,31 +172,17 @@ internal static partial class Program
             $"Tourian {(clear ? "clear" : "crumble")} reads no migrated ROM bytes");
     }
 
-    private sealed class TourianAccessSourceGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int pointer = address & 0xffff;
-            if ((address >> 16) == 0x84 &&
-                ((pointer >= TourianAccessPlmProgramDefinitions.Crumble &&
-                  pointer < (ushort)RoomPlmInstruction.MoveTourianAccessDown) ||
-                 (pointer >= TourianAccessPlmProgramDefinitions.Clear &&
-                  pointer < TourianAccessPlmProgramDefinitions.Clear + 6) ||
-                 (pointer >= (ushort)TourianAccessDraw.EmptyRow &&
-                  pointer < 0x930f)))
+    private static CartridgeReadGuard NewTourianAccessSourceGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Tourian access PLM reread compiled source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                int pointer = address & 0xffff;
+                return (address >> 16) == 0x84 &&
+                    ((pointer >= TourianAccessPlmProgramDefinitions.Crumble &&
+                      pointer < (ushort)RoomPlmInstruction.MoveTourianAccessDown) ||
+                     (pointer >= TourianAccessPlmProgramDefinitions.Clear &&
+                      pointer < TourianAccessPlmProgramDefinitions.Clear + 6) ||
+                     (pointer >= (ushort)TourianAccessDraw.EmptyRow &&
+                      pointer < 0x930f));
+            },
+            address => $"Tourian access PLM reread compiled source ${address:X6}.");
 }

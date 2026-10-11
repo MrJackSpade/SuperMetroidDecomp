@@ -17,7 +17,7 @@ internal static partial class Program
         Suite(nameof(VerifyKraidFootGeneratedMechanics), () => VerifyKraidFootGeneratedMechanics(rom));
         Suite(nameof(VerifyKraidFootGeneratedPresentation), () => VerifyKraidFootGeneratedPresentation(rom));
 
-        var guard = new KraidFootInstructionReadGuard(rom);
+        var guard = NewKraidFootInstructionGuard(rom);
         var executedOperands = new HashSet<ushort>();
         RoomEnemySystem enemies = CreateKraidFootInstructionSystem(guard);
         RoomEnemySlot body = enemies.Slots[0];
@@ -90,7 +90,7 @@ internal static partial class Program
 
         AssertEqual(106, executedOperands.Count,
             "all executed Kraid foot selectors match the cartridge");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Kraid foot visual selection requires no runtime ROM reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid foot execution avoids compiled mechanics bytes");
@@ -211,42 +211,9 @@ internal static partial class Program
             source.ReadByte(0xa70000 | address) |
             source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class KraidFootInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (KraidFootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Kraid foot mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa70000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewKraidFootInstructionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(KraidFootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Kraid foot mechanics byte ${address:X6}.")
+            .ObserveWords(0xa70000, KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount, KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

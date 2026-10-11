@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports the live Shitroid's normal cycle and three initialization targets.</summary>
+[CpuBusBoundary("codec: ROM Shitroid cycle and initialization palettes → ShitroidColorCatalog")]
 public static class ShitroidColorExtractor
 {
     /// <summary>Exports the live Shitroid encounter's eight four-color innard-pulse images and three complete initialization/transition target palettes.</summary>

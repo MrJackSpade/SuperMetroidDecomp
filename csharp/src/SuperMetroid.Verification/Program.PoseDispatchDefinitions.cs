@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyPoseDispatchDefinitions(SuperMetroidAddressSpace rom)
     {
-        var forbidden = new SlopeHeightNoReadBus();
+        var forbidden = NewSlopeHeightNoReadBus();
         var samus = new SamusState();
         var commit = typeof(SamusState).GetMethod("CommitPoseHistory",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!

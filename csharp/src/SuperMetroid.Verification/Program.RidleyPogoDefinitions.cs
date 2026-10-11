@@ -25,7 +25,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         int reads = 0, advances = 0;
         ushort seed = 0;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
         typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => { reads++; return seed; }));
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); }));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidleyPogoVelocity", flags)!

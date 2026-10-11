@@ -95,7 +95,7 @@ internal static partial class Program
             else if (value < 0x8000) words.Add(a + 6);
         }
         AssertEqual(1816, words.Count, "All authored duration/trail/control words inventoried");
-        var guard = new ProjectileInstructionReadGuard(rom, words);
+        var guard = NewProjectileInstructionReadGuard(rom, words);
         var trailFrame = typeof(SamusProjectileSystem).GetMethod("GetTrailAnimationFrame", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<SamusProjectileSlot, ushort>>();
         var trailSlot = new SamusProjectileSlot(0);
@@ -167,16 +167,7 @@ internal static partial class Program
         Console.WriteLine($"Projectile instructions: 1816 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");
     }
 
-    private sealed class ProjectileInstructionReadGuard(ISnesAddressSpace source, HashSet<int> words) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (words.Contains(address) || words.Contains(address - 1))
-                throw new InvalidDataException($"Projectile instruction still reads mechanics ROM ${address:X6}.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewProjectileInstructionReadGuard(ISnesAddressSpace source, HashSet<int> words) =>
+        new CartridgeReadGuard(source).Forbid(address => words.Contains(address) || words.Contains(address - 1),
+            address => new InvalidDataException($"Projectile instruction still reads mechanics ROM ${address:X6}."));
 }

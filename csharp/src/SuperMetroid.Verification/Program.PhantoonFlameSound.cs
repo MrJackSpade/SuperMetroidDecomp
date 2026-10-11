@@ -6,7 +6,7 @@ internal static partial class Program
     private static void VerifyPhantoonFlameSound()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var enemies = CreatePhantoonInstructionSystem(new SlopeHeightNoReadBus());
+        var enemies = CreatePhantoonInstructionSystem(NewSlopeHeightNoReadBus());
         var callback = typeof(RoomEnemySystem).GetMethod("ProcessPhantoonInstructionFunction", flags)!
             .CreateDelegate<Func<RoomEnemySlot, ushort, bool>>(enemies);
         var begin = typeof(RoomEnemySystem).GetMethod("BeginEnemySoundRequestFrame", flags)!

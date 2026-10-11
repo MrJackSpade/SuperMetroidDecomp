@@ -408,7 +408,7 @@ internal static partial class Program
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "full-body cycle edit changes installed-content identity");
 
-        var guard = new FullBodyColorReadGuard(rom);
+        var guard = NewFullBodyColorReadGuard(rom);
         ushort[] equipment = [0, (ushort)SamusEquipmentFlags.VariaSuit,
             (ushort)SamusEquipmentFlags.GravitySuit];
         foreach (ushort items in equipment)
@@ -540,57 +540,22 @@ internal static partial class Program
         }
     }
 
-    private sealed class FullBodyColorReadGuard : ISnesMemoryBus, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewFullBodyColorReadGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> forbidden = new();
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public FullBodyColorReadGuard(ISnesAddressSpace source)
+        var forbidden = new HashSet<int>();
+        foreach (SamusFullBodyCycleFamily family in Enum.GetValues<SamusFullBodyCycleFamily>())
+        for (int suit = 0; suit < SamusFullBodyCycleColorFormat.SuitCount; suit++)
+        for (int shade = 0; shade < SamusFullBodyCycleColorFormat.ShadesPerSuit; shade++)
         {
-            this.source = source;
-            foreach (SamusFullBodyCycleFamily family in Enum.GetValues<SamusFullBodyCycleFamily>())
-            for (int suit = 0; suit < SamusFullBodyCycleColorFormat.SuitCount; suit++)
-            for (int shade = 0; shade < SamusFullBodyCycleColorFormat.ShadesPerSuit; shade++)
-            {
-                int address = SamusPaletteRomData.Banks.Palette |
-                    SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
-                for (int offset = 0;
-                     offset < SamusFullBodyCycleColorFormat.ColorsPerPalette * sizeof(ushort);
-                     offset++)
-                    forbidden.Add(address + offset);
-            }
+            int address = SamusPaletteRomData.Banks.Palette |
+                SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
+            for (int offset = 0;
+                 offset < SamusFullBodyCycleColorFormat.ColorsPerPalette * sizeof(ushort);
+                 offset++)
+                forbidden.Add(address + offset);
         }
-
-        private void RejectColorSource(int address)
-        {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException($"Production reread full-body color ${address:X6}.");
-            }
-        }
-
-        public byte ReadByte(int address)
-        {
-            RejectColorSource(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectColorSource(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Full-body color guard source does not expose WRAM.")).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Full-body color guard source does not expose SRAM.")).ReadSaveRamByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(forbidden.Contains, address => $"Production reread full-body color ${address:X6}.");
+        return guard;
     }
 }

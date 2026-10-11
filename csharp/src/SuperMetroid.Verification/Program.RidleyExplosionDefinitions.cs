@@ -128,7 +128,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies,
-                new RidleyExplosionDefinitionReadGuard(rom));
+                NewRidleyExplosionDefinitionReadGuard(rom));
             var spawn = typeof(RoomEnemySystem)
                 .GetMethod("SpawnSmallExplosionNearNorfairRidley", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
@@ -172,7 +172,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new RidleyExplosionDefinitionReadGuard(rom));
+            NewRidleyExplosionDefinitionReadGuard(rom));
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
             enemies,
             (Func<ushort>)(() => 0x8130));
@@ -270,24 +270,15 @@ internal static partial class Program
     private static ushort ReadRidleyExplosionWord(SuperMetroidAddressSpace source, int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
-    private sealed class RidleyExplosionDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is
-            >= 0xa6c6ce and < 0xa6c6fe or
-            >= 0xa6c66e and < 0xa6c696 or
-            >= 0xa6c7ba and < 0xa6c7da or
-            >= 0xa6c804 and < 0xa6c80c or
-            >= 0xa6c836 and < 0xa6c83e or
-            >= 0xa6c868 and < 0xa6c870 or
-            >= 0xa6c89a and < 0xa6c8a2 or
-            >= 0xa6c8cc and < 0xa6c8d4
-                ? throw new InvalidOperationException(
-                    $"Ridley breakup attempted migrated definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewRidleyExplosionDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is
+                >= 0xa6c6ce and < 0xa6c6fe or
+                >= 0xa6c66e and < 0xa6c696 or
+                >= 0xa6c7ba and < 0xa6c7da or
+                >= 0xa6c804 and < 0xa6c80c or
+                >= 0xa6c836 and < 0xa6c83e or
+                >= 0xa6c868 and < 0xa6c870 or
+                >= 0xa6c89a and < 0xa6c8a2 or
+                >= 0xa6c8cc and < 0xa6c8d4,
+            address => $"Ridley breakup attempted migrated definition read ${address:X6}.");
 }

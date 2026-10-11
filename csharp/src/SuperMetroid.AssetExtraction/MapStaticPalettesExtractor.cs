@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Resolves native palette-copy programs at import time into named world-selection palettes.</summary>
+[CpuBusBoundary("codec: ROM map palette-copy programs and colors → map world-selection palettes")]
 internal static class MapStaticPalettesExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)

@@ -92,7 +92,7 @@ internal static partial class Program
         Suite(nameof(VerifyBoyonPresentationAddresses), () => VerifyBoyonPresentationAddresses());
         Suite(nameof(VerifyBoyonVisualSelectors), () => VerifyBoyonVisualSelectors(rom));
 
-        var guard = new BoyonInstructionProgramReadGuard(rom);
+        var guard = NewBoyonInstructionProgramReadGuard(rom);
         RoomEnemySystem idleSystem = CreateBoyonProgramSystem(guard, out RoomEnemySlot idle);
         AssertEqual(BoyonInstructionProgramDefinitions.Idle, idle.CurrentInstruction,
             "Boyon initializer selects idle program");
@@ -138,7 +138,7 @@ internal static partial class Program
             "visual selectors pass with source bytes forbidden.");
 
         static RoomEnemySystem CreateBoyonProgramSystem(
-            BoyonInstructionProgramReadGuard guard,
+            CartridgeReadGuard guard,
             out RoomEnemySlot slot)
         {
             var enemies = new RoomEnemySystem();
@@ -182,48 +182,11 @@ internal static partial class Program
     private static ushort ReadBoyonInstructionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class BoyonInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewBoyonInstructionProgramReadGuard(ISnesAddressSpace source)
     {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (BoyonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                IsCompiledPresentationByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Boyon instruction byte ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        private static bool IsCompiledPresentationByte(int address)
-        {
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < BoyonInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        static string Message(int address) => $"Production read compiled Boyon instruction byte ${address:X6}.";
+        return new CartridgeReadGuard(source)
+            .Forbid(BoyonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, Message)
+            .ForbidWords(0xa20000, BoyonInstructionProgramDefinitionsTooling.PresentationWordCount, BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress, Message);
     }
 }

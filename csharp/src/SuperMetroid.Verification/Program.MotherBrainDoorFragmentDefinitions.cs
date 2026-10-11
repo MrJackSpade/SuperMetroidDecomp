@@ -26,7 +26,7 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField(
             "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var guarded = new MotherBrainDoorFragmentReadGuard(rom);
+        var guarded = NewMotherBrainDoorFragmentReadGuard(rom);
         for (ushort parameter = 0; parameter < 8; parameter++)
         {
             var enemies = new RoomEnemySystem();
@@ -61,17 +61,8 @@ internal static partial class Program
     private static ushort ReadMotherBrainFragmentWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class MotherBrainDoorFragmentReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x86c992 and < 0x86c9d2
-                ? throw new InvalidOperationException(
-                    $"Mother Brain door fragment attempted migrated table read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMotherBrainDoorFragmentReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x86c992 and < 0x86c9d2,
+                address => $"Mother Brain door fragment attempted migrated table read ${address:X6}.");
 }

@@ -19,7 +19,7 @@ internal static partial class Program
         Suite(nameof(VerifyGlassProjectileControls), () => VerifyGlassProjectileControls(rom));
         Suite(nameof(VerifyGlassProjectileLoopTargets), () => VerifyGlassProjectileLoopTargets(rom));
 
-        var guard = new MotherBrainGlassInstructionReadGuard(rom);
+        var guard = NewMotherBrainGlassInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         MethodInfo spawnSparkle = typeof(RoomEnemySystem).GetMethod(
@@ -112,7 +112,7 @@ internal static partial class Program
             MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount,
             "Mother Brain glass catalog retains all presentation operands");
         AssertEqual(0,
-            guard.ObservedPresentationWords.Count,
+            guard.ObservedWords.Count,
             "Mother Brain glass artwork operands no longer read the cartridge");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared Mother Brain glass mechanics bytes");
@@ -165,48 +165,10 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class MotherBrainGlassInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if (MotherBrainGlassInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Mother Brain glass mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = MotherBrainGlassInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMotherBrainGlassInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => MotherBrainGlassInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Mother Brain glass mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount, MotherBrainGlassInstructionProgramDefinitions.PresentationWordAddress);
 }

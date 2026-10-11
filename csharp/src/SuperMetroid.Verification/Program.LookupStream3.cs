@@ -3314,6 +3314,7 @@ internal static partial class Program
             AssertEqual(identity, catalog.ContentIdentity, "Baby initial canonical content identity preserved");
         }
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the initial narration tilemap and opening font")]
     private static void VerifyStream3InitialNarrationMap()
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "initial-narration-" + Guid.NewGuid().ToString("N")));
@@ -3456,6 +3457,7 @@ internal static partial class Program
                 "actual helmet draw preserves native and independent edited ordered OAM");
         }
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the opening font")]
     private static void VerifyStream3IntroFont()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3505,6 +3507,7 @@ internal static partial class Program
         Console.WriteLine("Intro font: 144 native tiles/2304 bytes, 2304 independent edits, four outline additions/91 removals, exact period alias and no stock output storage pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro background page tilemaps")]
     private static void VerifyStream3BackgroundMaps()
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "background-maps-" + Guid.NewGuid().ToString("N")));
@@ -3654,6 +3657,7 @@ internal static partial class Program
         Console.WriteLine("Nintendo fade entries: both native definition/slot/fallthrough-or-branch contracts, order and bounds pass; timing/colors unchanged.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro Samus head tilemap")]
     private static void VerifyStream3PortraitMap()
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "portrait-map-" + Guid.NewGuid().ToString("N")));

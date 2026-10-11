@@ -105,7 +105,7 @@ internal static partial class Program
         var plms = new RoomPlmSystem { CrocomireVisuals = visuals };
         AssertTrue(plms.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire visual header ${(int)header:X4} allocates");
-        var guard = new CrocomireSourceGuard(new TestAddressSpace());
+        var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         plms.Step(guard, level, level.CreateBackgroundStreamer(), new(0, 0), 0);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physicalWord,

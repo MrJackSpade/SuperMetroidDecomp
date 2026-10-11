@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports fixed Ceres warning tile words without exposing DMA control metadata.</summary>
+[CpuBusBoundary("codec: ROM Ceres escape warning tilemap words → Ceres escape overlay tilemap files")]
 internal static class CeresEscapeOverlayTilemapFiles
 {
     internal static byte[] Extract(ISnesAddressSpace bus)

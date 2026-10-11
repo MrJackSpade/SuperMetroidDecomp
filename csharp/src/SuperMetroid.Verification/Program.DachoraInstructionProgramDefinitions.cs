@@ -32,7 +32,7 @@ internal static partial class Program
         }
 
         var executedOperands = new HashSet<ushort>();
-        var guard = new DachoraInstructionReadGuard(rom);
+        var guard = NewDachoraInstructionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeDachora", flags)!;
         (ushort Parameter, ushort Expected)[] initializerCases =
         [
@@ -103,7 +103,7 @@ internal static partial class Program
             AssertTrue(executedOperands.Contains(address),
                 $"production execution covers Dachora presentation word $A7:{address:X4}");
         }
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Dachora mechanics byte");
@@ -168,42 +168,10 @@ internal static partial class Program
             source.ReadByte(0xa70000 | address) |
             source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class DachoraInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (DachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Dachora mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa70000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < DachoraInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        DachoraInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDachoraInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(DachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Dachora mechanics byte ${address:X6}.")
+            .ObserveWords(0xa70000, DachoraInstructionProgramDefinitions.PresentationWordCount,
+                DachoraInstructionProgramDefinitions.PresentationWordAddress);
 }

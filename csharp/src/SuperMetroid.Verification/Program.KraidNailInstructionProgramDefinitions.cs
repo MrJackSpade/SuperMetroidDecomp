@@ -41,7 +41,8 @@ internal static partial class Program
         Suite(nameof(VerifyKraidNailMechanicsMapping), () => VerifyKraidNailMechanicsMapping(rom));
         Suite(nameof(VerifyKraidNailPresentationMapping), () => VerifyKraidNailPresentationMapping());
 
-        var guard = new KraidNailInstructionReadGuard(rom);
+        int forbiddenPresentationReadAttempts = 0;
+        var guard = NewKraidNailInstructionGuard(rom, () => forbiddenPresentationReadAttempts++);
         foreach (EnemyDefinitionId definitionPointer in new EnemyDefinitionId[]
                  {
                      EnemyDefinitionId.KraidNail,
@@ -74,7 +75,7 @@ internal static partial class Program
         }
 
         Suite(nameof(VerifyKraidNailVisualSelectors), () => VerifyKraidNailVisualSelectors(rom));
-        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+        AssertEqual(0, forbiddenPresentationReadAttempts,
             "Kraid fingernail programs never read installed visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid fingernail production execution avoids compiled mechanics bytes");
@@ -120,7 +121,7 @@ internal static partial class Program
                 slot.SpritemapPointer,
                 $"Kraid fingernail slot {slotIndex} installs the compiled initial frame");
         }
-        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+        AssertEqual(0, forbiddenPresentationReadAttempts,
             "Kraid fingernail initialization never reads the initial frame from ROM");
 
         _ = ProbeKraidNailInstructionAllocation();
@@ -156,46 +157,26 @@ internal static partial class Program
             source.ReadByte(0xa70000 | address) |
             source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class KraidNailInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
+    private static CartridgeReadGuard NewKraidNailInstructionGuard(ISnesAddressSpace source, Action presentationRead) =>
+        new CartridgeReadGuard(source)
+            .Forbid(KraidNailInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Kraid fingernail mechanics byte ${address:X6}.")
+            .Observe(IsKraidNailSelectorByte, _ => presentationRead())
+            .ForbidWords(0xa70000, KraidNailInstructionProgramDefinitions.PresentationWordCount,
+                KraidNailInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read installed Kraid nail selector ${address:X6}.");
+
+    private static bool IsKraidNailSelectorByte(int address)
     {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        internal int ForbiddenPresentationReadAttempts { get; private set; }
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        if ((address & 0xff0000) != 0xa70000)
+            return false;
+        ushort bankAddress = unchecked((ushort)address);
+        for (int index = 0; index < KraidNailInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            if (KraidNailInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Kraid fingernail mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa70000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < KraidNailInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        KraidNailInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenPresentationReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read installed Kraid nail selector ${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
+            ushort presentation = KraidNailInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
+            if (bankAddress == presentation || bankAddress == unchecked((ushort)(presentation + 1)))
+                return true;
         }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        return false;
     }
 }

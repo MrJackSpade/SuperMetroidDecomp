@@ -164,7 +164,7 @@ internal static partial class Program
         {
             (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms,
                 int blockIndex) = CreateSpeedBoosterBlockFixture(bts, area);
-            var guarded = new SpeedBoosterPlmReadGuard(bus);
+            var guarded = NewSpeedBoosterPlmReadGuard(bus);
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
             BlockMoveResult contact = SamusBlockCollision.MoveVertical(
                 guarded, level, samus.Kinematics, 4 << 16,
@@ -188,7 +188,7 @@ internal static partial class Program
             RoomPlmSystem bombPlms, int bombBlock) =
             CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x82),
                 AreaId.Brinstar);
-        var bombGuard = new SpeedBoosterPlmReadGuard(bombBus);
+        var bombGuard = NewSpeedBoosterPlmReadGuard(bombBus);
         AssertTrue(bombPlms.TrySpawnBombedSpecialBlock(bombLevel, bombBlock,
                 new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
             "normal bomb allocates the Speed Booster reveal PLM");
@@ -208,33 +208,16 @@ internal static partial class Program
             "Speed-block PLMs: 74 words/five sound bytes and one physical reveal match ROM; all five boosted contacts and bomb reveal execute with source reads forbidden.");
     }
 
-    private sealed class SpeedBoosterPlmReadGuard(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int pointer = address & 0xffff;
-            if ((address >> 16) == 0x84 &&
-                ((pointer >= 0xc928 && pointer < 0xc92e) ||
-                 (pointer >= 0xc951 && pointer < 0xc9ba) ||
-                 (pointer >= 0xc9cf && pointer < 0xc9f9) ||
-                 (pointer >= 0xa4f3 && pointer < 0xa4f9) ||
-                 (pointer >= 0xa345 && pointer < 0xa35d)))
+    private static CartridgeReadGuard NewSpeedBoosterPlmReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Speed-block PLM reread compiled source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                int pointer = address & 0xffff;
+                return (address >> 16) == 0x84 &&
+                    ((pointer >= 0xc928 && pointer < 0xc92e) ||
+                     (pointer >= 0xc951 && pointer < 0xc9ba) ||
+                     (pointer >= 0xc9cf && pointer < 0xc9f9) ||
+                     (pointer >= 0xa4f3 && pointer < 0xa4f9) ||
+                     (pointer >= 0xa345 && pointer < 0xa35d));
+            },
+            address => $"Speed-block PLM reread compiled source ${address:X6}.");
 }

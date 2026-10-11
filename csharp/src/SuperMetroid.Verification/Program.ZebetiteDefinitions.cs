@@ -79,7 +79,7 @@ internal static partial class Program
             }
         }
 
-        var guarded = new ZebetiteDefinitionReadGuard(rom);
+        var guarded = NewZebetiteDefinitionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeZebetite",
             instanceFlags)!;
@@ -159,20 +159,10 @@ internal static partial class Program
         return enemies;
     }
 
-    private sealed class ZebetiteDefinitionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa6fc03 and < 0xa6fc33 or
+    private static CartridgeReadGuard NewZebetiteDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6fc03 and < 0xa6fc33 or
                 >= 0xa6fce1 and < 0xa6fcf1 or
                 >= 0xa6fcf9 and < 0xa6fd09 or
-                >= 0xa6fd4a and < 0xa6fd5e
-                ? throw new InvalidOperationException(
-                    $"Zebetite attempted migrated definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                >= 0xa6fd4a and < 0xa6fd5e,
+            address => $"Zebetite attempted migrated definition read ${address:X6}.");
 }

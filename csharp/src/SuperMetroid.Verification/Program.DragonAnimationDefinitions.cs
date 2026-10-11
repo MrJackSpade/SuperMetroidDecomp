@@ -66,7 +66,7 @@ internal static partial class Program
     {
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(enemies, new DragonAnimationReadGuard(rom));
+            .SetValue(enemies, NewDragonAnimationReadGuard(rom));
         RoomEnemySlot body = enemies.Slots[0];
         RoomEnemySlot wing = enemies.Slots[1];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
@@ -162,16 +162,8 @@ internal static partial class Program
     private static ushort ReadDragonAnimationWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class DragonAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa2e5ef and < 0xa2e5fb
-                ? throw new InvalidOperationException(
-                    $"Dragon attempted migrated animation-selector read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDragonAnimationReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa2e5ef and < 0xa2e5fb,
+                address => $"Dragon attempted migrated animation-selector read ${address:X6}.");
 }

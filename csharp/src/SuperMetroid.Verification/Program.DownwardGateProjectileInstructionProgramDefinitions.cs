@@ -32,7 +32,7 @@ internal static partial class Program
         var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
-        var guard = new DownwardGateProjectileInstructionReadGuard(rom);
+        var guard = NewDownwardGateProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         MethodInfo move = typeof(RoomEnemySystem).GetMethod(
@@ -108,7 +108,7 @@ internal static partial class Program
         AssertTrue(!shot.IsActive,
             "downward-gate shot reaction reaches shared compiled deletion");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Projectile presentation performs zero live cartridge reads");
         AssertEqual(DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "Every native visual operand executes");
@@ -199,48 +199,13 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class DownwardGateProjectileInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (DownwardGateProjectileInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled downward-gate mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < DownwardGateProjectileInstructionProgramDefinitions
-                         .PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = DownwardGateProjectileInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDownwardGateProjectileInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                    DownwardGateProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled downward-gate mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount,
+                DownwardGateProjectileInstructionProgramDefinitions.PresentationWordAddress);
 }

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple flare placement offsets")]
     private static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);
@@ -50,8 +51,8 @@ internal static partial class Program
         {
             SamusPoseId pose = authored.Pose;
             byte direction = authored.Direction;
-            var nativeBus = new GrappleFiringReadGuard(rom) { SourcePose = pose, Direction = direction };
-            var guarded = new GrappleFlareReadGuard(nativeBus);
+            var nativeBus = NewGrappleFiringReadGuard(rom, () => pose);
+            var guarded = NewGrappleFlareReadGuard(nativeBus);
             var native = Seed(stock);
             var selected = Seed(RepositoryInstallation.Projectiles.GrappleTiles.FlarePlacement);
             var changed = Seed(edited);
@@ -124,17 +125,8 @@ internal static partial class Program
         AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");
     }
-    private sealed class GrappleFlareReadGuard(ISnesAddressSpace bus) : ISnesAddressSpace,
-        IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2)
-                throw new InvalidOperationException("Grapple still reads visual flare origins from ROM.");
-            return bus.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => bus.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewGrappleFlareReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2,
+                _ => "Grapple still reads visual flare origins from ROM.");
 }

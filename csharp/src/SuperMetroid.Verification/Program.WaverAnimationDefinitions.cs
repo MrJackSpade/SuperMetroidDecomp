@@ -49,7 +49,7 @@ internal static partial class Program
             "InitializeWaver", BindingFlags.Instance | BindingFlags.NonPublic)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField(
             "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var guarded = new WaverAnimationReadGuard(rom);
+        var guarded = NewWaverAnimationReadGuard(rom);
         for (ushort parameter = 0; parameter < 2; parameter++)
         {
             var enemies = new RoomEnemySystem();
@@ -76,16 +76,7 @@ internal static partial class Program
     private static ushort ReadWaverAnimationWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class WaverAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa386db and < 0xa386e3
-                ? throw new InvalidOperationException(
-                    $"Waver attempted migrated animation-selector read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewWaverAnimationReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa386db and < 0xa386e3,
+            address => $"Waver attempted migrated animation-selector read ${address:X6}.");
 }

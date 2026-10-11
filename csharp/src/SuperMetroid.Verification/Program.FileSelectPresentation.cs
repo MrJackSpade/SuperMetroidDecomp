@@ -34,7 +34,7 @@ internal static partial class Program
         var installedAudio = new CartridgeAudioState();
         var native = new FileSelectMenuState(bus, nativeAudio, original);
         var installed = new FileSelectMenuState(
-            new FileSelectPresentationGuard(bus), installedAudio, original);
+            NewFileSelectPresentationGuard(bus), installedAudio, original);
         int comparedFrames = 0;
         Until(FileSelectPhase.Main);
         for (int row = 0; row < 3; row++) Press(SnesButton.Down);
@@ -93,9 +93,9 @@ internal static partial class Program
             "file-select override changes selected catalog identity");
 
         var stockMenu = new FileSelectMenuState(
-            new FileSelectPresentationGuard(bus), mapPresentation: original);
+            NewFileSelectPresentationGuard(bus), mapPresentation: original);
         var editedMenu = new FileSelectMenuState(
-            new FileSelectPresentationGuard(bus), mapPresentation: edited);
+            NewFileSelectPresentationGuard(bus), mapPresentation: edited);
         for (int frame = 0; frame < 16; frame++)
         {
             stockMenu.Step(0);
@@ -179,46 +179,29 @@ internal static partial class Program
         }
     }
 
-    private sealed class FileSelectPresentationGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewFileSelectPresentationGuard(ISnesAddressSpace source)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (IsPresentationAddress(address))
-                throw new InvalidOperationException(
-                    $"Installed file select read presentation ROM at ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "File-select presentation audit source must expose WRAM."))
-                .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "File-select presentation audit source must expose SRAM."))
-                .ReadSaveRamByte(address);
-
-        private static bool IsPresentationAddress(int address) =>
-            In(address, FileSelectMapRomData.InitialMenuBackground,
-                FileSelectMapRomData.TilemapBytes) ||
-            In(address, FileSelectMapRomData.EntryPalette, SnesCgram.ByteCount) ||
-            In(address, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount) ||
-            In(address, WorldMapArtworkFormat.ForegroundSource,
-                WorldMapArtworkFormat.ForegroundBytes) ||
-            In(address, WorldMapArtworkFormat.BackgroundSource,
-                WorldMapArtworkFormat.BackgroundBytes) ||
-            In(address, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount) ||
-            address is >= 0x81b40a and < 0x81b800 ||
-            In(address,
-                MenuPpuState.SpritemapPointerTableAddress + 0x2c * sizeof(ushort),
-                (0x4d - 0x2c + 1) * sizeof(ushort));
-
-        private static bool In(int address, int start, int count) =>
-            address >= start && address < start + count;
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(IsFileSelectPresentationAddress,
+            address => $"Installed file select read presentation ROM at ${address:X6}.");
+        return guard;
     }
+
+    private static bool IsFileSelectPresentationAddress(int address) =>
+        InFileSelectRange(address, FileSelectMapRomData.InitialMenuBackground,
+            FileSelectMapRomData.TilemapBytes) ||
+        InFileSelectRange(address, FileSelectMapRomData.EntryPalette, SnesCgram.ByteCount) ||
+        InFileSelectRange(address, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount) ||
+        InFileSelectRange(address, WorldMapArtworkFormat.ForegroundSource,
+            WorldMapArtworkFormat.ForegroundBytes) ||
+        InFileSelectRange(address, WorldMapArtworkFormat.BackgroundSource,
+            WorldMapArtworkFormat.BackgroundBytes) ||
+        InFileSelectRange(address, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount) ||
+        address is >= 0x81b40a and < 0x81b800 ||
+        InFileSelectRange(address,
+            MenuPpuState.SpritemapPointerTableAddress + 0x2c * sizeof(ushort),
+            (0x4d - 0x2c + 1) * sizeof(ushort));
+
+    private static bool InFileSelectRange(int address, int start, int count) =>
+        address >= start && address < start + count;
 }

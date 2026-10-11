@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Installs named, editable station visual block references. Native draw geometry and
 /// complete physical level words are checked against the compiled cartridge catalog.
 /// </summary>
+[CpuBusBoundary("codec: ROM bank-$84 station PLM draw lists → station visual files")]
 public static class RoomPlmStationVisualFiles
 {
     /// <summary>Family-relative stock/override JSON filename for twenty map, refill, save, and station-access draw layouts.</summary>
@@ -118,8 +119,8 @@ public static class RoomPlmStationVisualFiles
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
-                if (bus.ReadCartridgeByte(0x840000 | cursor) != unchecked((byte)run.Next.X) ||
-                    bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(cursor + 1))) !=
+                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor)) != unchecked((byte)run.Next.X) ||
+                    bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(cursor + 1)))) !=
                         unchecked((byte)run.Next.Y))
                     throw new InvalidDataException(
                         $"Station draw list ${list.Pointer:X4} differs in next-record offset.");
@@ -180,8 +181,8 @@ public static class RoomPlmStationVisualFiles
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
-            bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) |
+            bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 1)))) << 8));
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

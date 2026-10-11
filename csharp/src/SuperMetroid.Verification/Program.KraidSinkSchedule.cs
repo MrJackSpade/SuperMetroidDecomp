@@ -52,7 +52,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new KraidSinkReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewKraidSinkGuard(rom));
         typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
         var step = typeof(RoomEnemySystem).GetMethod("ProcessKraidSinkTable", flags)!
             .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
@@ -99,7 +99,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new KraidSinkReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewKraidSinkGuard(rom));
         typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
         var step = typeof(RoomEnemySystem).GetMethod("ProcessKraidSinkTable", flags)!
             .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
@@ -124,15 +124,8 @@ internal static partial class Program
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");
     }
 
-    private sealed class KraidSinkReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa7c5e7 and <= 0xa7c690
-            ? throw new InvalidOperationException("Unexpected migrated Kraid sink schedule read.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected sink bus write.");
-    }
+    private static CartridgeReadGuard NewKraidSinkGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa7c5e7 and <= 0xa7c690, _ => "Unexpected migrated Kraid sink schedule read.")
+            .RejectWrites(_ => "Unexpected sink bus write.");
 }

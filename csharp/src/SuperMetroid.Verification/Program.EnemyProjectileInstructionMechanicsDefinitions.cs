@@ -65,7 +65,8 @@ internal static partial class Program
                 $"Mother Brain hand-beam callback at ${instruction:X4}");
         }
 
-        var guarded = new EnemyProjectileMechanicsReadGuard(rom);
+        var presentationReadBytes = new HashSet<int>();
+        var guarded = NewEnemyProjectileMechanicsReadGuard(rom, presentationReadBytes);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x4000, 0x4000)) };
 
         Suite(nameof(VerifyCompiledRoomSharedPrograms), () => VerifyCompiledRoomSharedPrograms(guarded, samus, rom));
@@ -109,7 +110,7 @@ internal static partial class Program
             "warmed projectile mechanics lookups allocate no per-frame storage");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "all production programs avoid compiled mechanics source bytes");
-        AssertEqual(0, guarded.PresentationReadBytes,
+        AssertEqual(0, presentationReadBytes.Count,
             "all projectile programs select installed frames without live presentation reads");
 
         Console.WriteLine(
@@ -434,8 +435,13 @@ internal static partial class Program
                 "real projectile interpreter selects an installed-art identity");
             AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, projectile.SpritemapPointer,
                 "real projectile interpreter leaves spritemap resolution to installed content");
-            if (bus is EnemyProjectileMechanicsReadGuard guard)
-                guard.VerifySelectedDuration(operand, projectile.InstructionTimer);
+            if (bus is CartridgeReadGuard)
+            {
+                int durationAddress = 0x860000 | unchecked((ushort)(operand - 2));
+                ushort native = (ushort)(nativeReference.ReadByte(durationAddress) |
+                    nativeReference.ReadByte(durationAddress + 1) << 8);
+                AssertEqual(native, projectile.InstructionTimer, "real projectile frame retains exact native duration");
+            }
         }
         RoomEnemySystem CreateRoomEnemySystem()
         {
@@ -523,52 +529,17 @@ internal static partial class Program
         int address) =>
         unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
-    private sealed class EnemyProjectileMechanicsReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        private readonly HashSet<int> _presentationReadBytes = [];
-
-        public int ForbiddenReadAttempts { get; private set; }
-        public int PresentationReadBytes => _presentationReadBytes.Count;
-
-        public byte ReadByte(int address)
-        {
-            RejectCompiledMechanicsRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectCompiledMechanicsRead(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        private void RejectCompiledMechanicsRead(int address)
-        {
-            if (EnemyProjectileInstructionMechanicsDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                MotherBrainHandBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled enemy-projectile mechanics byte ${address:X6}.");
-            }
-
-            if (MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(address) ||
-                (address & 0xff0000) == 0x860000 &&
-                (EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand((ushort)address) ||
-                 EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(unchecked((ushort)(address - 1)))))
-                _presentationReadBytes.Add(address);
-        }
-
-        internal void VerifySelectedDuration(ushort operand, ushort duration)
-        {
-            int address = 0x860000 | unchecked((ushort)(operand - 2));
-            ushort native = (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
-            AssertEqual(native, duration, "real projectile frame retains exact native duration");
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEnemyProjectileMechanicsReadGuard(ISnesAddressSpace source,
+        HashSet<int> presentationReadBytes) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                    EnemyProjectileInstructionMechanicsDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                    MotherBrainHandBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled enemy-projectile mechanics byte ${address:X6}.")
+            .Observe(address =>
+                    MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(address) ||
+                    (address & 0xff0000) == 0x860000 &&
+                    (EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand((ushort)address) ||
+                     EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(unchecked((ushort)(address - 1)))),
+                address => presentationReadBytes.Add(address));
 }

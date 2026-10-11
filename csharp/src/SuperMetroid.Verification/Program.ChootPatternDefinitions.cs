@@ -47,7 +47,7 @@ internal static partial class Program
             {
                 var enemies = new RoomEnemySystem();
                 typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                    enemies, new ChootPatternReadGuard(rom));
+                    enemies, NewChootPatternReadGuard(rom));
                 var initialize = initializeMethod.CreateDelegate<Action<RoomEnemySlot>>(enemies);
                 RoomEnemySlot slot = enemies.Slots[0];
                 slot.Position = slot.Position.WithWhole(new(0x3456, 0x789a));
@@ -70,7 +70,7 @@ internal static partial class Program
 
             var fallEnemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                fallEnemies, new ChootPatternReadGuard(rom));
+                fallEnemies, NewChootPatternReadGuard(rom));
             var initializeFall = initializeMethod.CreateDelegate<Action<RoomEnemySlot>>(fallEnemies);
             RoomEnemySlot fallSlot = fallEnemies.Slots[0];
             fallSlot.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
@@ -136,16 +136,8 @@ internal static partial class Program
     private static ushort ReadChootPatternWord(SuperMetroidAddressSpace source, int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
-    private sealed class ChootPatternReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa2d84c and < 0xa2df74
-                ? throw new InvalidOperationException(
-                    $"Choot attempted migrated pattern-definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewChootPatternReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa2d84c and < 0xa2df74,
+                address => $"Choot attempted migrated pattern-definition read ${address:X6}.");
 }

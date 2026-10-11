@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifySharedEmptyExtendedFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        var blockedRom = new FrontendCartridgeReadGuard(rom);
+        var blockedRom = NewFrontendCartridgeReadGuard(rom);
         foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks)
         {
             int emptyOam = (bank << 16) |
@@ -21,7 +21,7 @@ internal static partial class Program
             var ordinaryEnemies = new RoomEnemySystem { TileArtwork = stock };
             typeof(RoomEnemySystem).GetField("_bus",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(
-                    ordinaryEnemies, new FrontendCartridgeReadGuard(rom));
+                    ordinaryEnemies, NewFrontendCartridgeReadGuard(rom));
             var emptyDraw = new OamBuffer();
             typeof(RoomEnemySystem).GetMethod("DrawEnemySpritemap",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(
@@ -58,8 +58,8 @@ internal static partial class Program
                 ReadWord(hitbox + 12),
                 $"bank ${bank:X2} shared shot callback");
 
-            var visualGuard = new ExtendedVisualReadGuard(rom);
-            visualGuard.BlockFrame(bank,
+            var visualGuard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> visualGuardBlockFrame);
+            visualGuardBlockFrame(bank,
                 CommonEnemyEmptyExtendedFrameDefinitions.Frame);
             OamBuffer native = DrawReferenceExtendedFrame(rom, bank,
                 CommonEnemyEmptyExtendedFrameDefinitions.Frame, new(0x0080, 0x0080));

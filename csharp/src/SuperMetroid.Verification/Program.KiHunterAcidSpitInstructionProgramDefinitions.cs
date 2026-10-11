@@ -31,7 +31,7 @@ internal static partial class Program
         var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("KiHunter fixture requires installed projectile sprites.");
         var executedOperands = new HashSet<ushort>();
-        var guard = new KiHunterAcidSpitInstructionReadGuard(rom);
+        var guard = NewKiHunterAcidSpitInstructionGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -88,7 +88,7 @@ internal static partial class Program
         AssertEqual(KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "both introductions and impact execute every native visual operand");
         AssertEqual(0,
-            guard.ObservedPresentationWords.Count,
+            guard.ObservedWords.Count,
             "KiHunter acid-spit execution performs no live spritemap operand reads");
         for (int index = 0;
              index < KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount;
@@ -195,45 +195,11 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class KiHunterAcidSpitInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (KiHunterAcidSpitInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled KiHunter acid mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = KiHunterAcidSpitInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewKiHunterAcidSpitInstructionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                KiHunterAcidSpitInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled KiHunter acid mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount, KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordAddress);
 }

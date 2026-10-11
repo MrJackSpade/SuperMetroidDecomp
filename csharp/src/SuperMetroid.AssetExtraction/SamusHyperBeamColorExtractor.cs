@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports the ten authored Hyper Beam palettes without exposing phase logic.</summary>
+[CpuBusBoundary("codec: ROM Hyper Beam Samus palettes → Hyper Beam colors")]
 public static class SamusHyperBeamColorExtractor
 {
     /// <summary>Exports the ten full-body Hyper Beam palette images in the compiled frame-selection order.</summary>

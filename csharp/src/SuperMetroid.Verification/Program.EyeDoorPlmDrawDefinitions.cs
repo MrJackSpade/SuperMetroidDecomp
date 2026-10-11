@@ -86,7 +86,7 @@ internal static partial class Program
             new ushort[width * width], blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { EyeDoorVisuals = visuals };
-        var guarded = new EyeDoorDrawReadGuard(bus, lists);
+        var guarded = NewEyeDoorDrawGuard(bus, lists);
         AssertEqual(3, plms.LoadRoomPopulation(guarded, level, streamer,
                 new SnesVram(), RoomPlmPopulationImporter.Read(guarded, 0x9000), new Bank80SystemState(), AreaId.Brinstar,
                 () => new SamusState(), () => false,
@@ -161,7 +161,7 @@ internal static partial class Program
         var requests = new List<EyeDoorProjectileRequest>();
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();
-        var guarded = new EyeDoorDrawReadGuard(bus, lists);
+        var guarded = NewEyeDoorDrawGuard(bus, lists);
         AssertEqual(3, plms.LoadRoomPopulation(guarded, level, streamer,
                 new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system, AreaId.Brinstar,
                 () => samus, () => false, spawnEyeDoorProjectile: requests.Add),
@@ -274,41 +274,19 @@ internal static partial class Program
         }
     }
 
-    private sealed class EyeDoorDrawReadGuard(
-        ISnesAddressSpace source,
-        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesMemoryBus, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewEyeDoorDrawGuard(
+        ISnesAddressSpace source, RoomPlmShotBlockDrawDefinitions.DrawList[] lists)
     {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        // The fixture's constructed eye-door programs run from low work RAM.
-        public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) => ((ISnesMutableMemory)source).ReadSaveRamByte(address);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x84d81e and <= 0x84da8b)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Eye door reread compiled instruction ${address:X6}.");
-            }
-            foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-            {
-                int first = 0x840000 | list.Pointer;
-                int length = 4 + list.Runs.Span[0].LevelWords.Length * 2;
-                if (address >= first && address < first + length)
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is >= 0x84d81e and <= 0x84da8b,
+                address => $"Eye door reread compiled instruction ${address:X6}.")
+            .Forbid(address => lists.Any(list =>
                 {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Eye door reread compiled draw payload ${address:X6}.");
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+                    int first = 0x840000 | list.Pointer;
+                    int length = 4 + list.Runs.Span[0].LevelWords.Length * 2;
+                    return address >= first && address < first + length;
+                }),
+                address => $"Eye door reread compiled draw payload ${address:X6}.");
+        return guard;
     }
 }

@@ -153,7 +153,7 @@ internal static partial class Program
             }
             return (GC.GetAllocatedBytesForCurrentThread() - before, checksum);
         }
-        var guard = new SpacePirateCollisionReadGuard(rom, nativeRanges);
+        var guard = NewSpacePirateCollisionReadGuard(rom, nativeRanges);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
@@ -217,7 +217,7 @@ internal static partial class Program
         }
         AssertEqual(237 * 3 * 6 * 6 * 2, probes,
             "Space Pirate exhaustive authored-rectangle boundary probes");
-        AssertEqual(0, guard.BlockedReadAttempts,
+        AssertEqual(0, guard.ForbiddenReadAttempts,
             "compiled Space Pirate collision does not read native component or hitbox bytes");
         Console.WriteLine($"Space Pirate collision: 132 frames, 229 components, " +
             $"147 lists, 155 rectangles and {probes} native/compiled touch-shot " +
@@ -270,27 +270,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class SpacePirateCollisionReadGuard(
-        ISnesAddressSpace source, HashSet<int> blocked) : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        internal int BlockedReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (blocked.Contains(address))
-            {
-                BlockedReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Compiled Space Pirate collision read native byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewSpacePirateCollisionReadGuard(ISnesAddressSpace source, HashSet<int> blocked) =>
+        new CartridgeReadGuard(source).Forbid(blocked.Contains,
+            address => $"Compiled Space Pirate collision read native byte ${address:X6}.");
 }

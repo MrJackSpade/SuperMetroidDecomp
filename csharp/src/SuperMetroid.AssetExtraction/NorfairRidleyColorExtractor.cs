@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Copies Ridley's authored RGB5 images while retaining the native reveal pointer order.</summary>
+[CpuBusBoundary("codec: ROM bank-$A6 Norfair Ridley initial and reveal colors → NorfairRidleyColorCatalog")]
 public static class NorfairRidleyColorExtractor
 {
     /// <summary>Reads Ridley's initial palette and zero-terminated native reveal-pointer sequence, preserving authored row order and rejecting invalid pointers or high-bit colors.</summary>
@@ -21,7 +22,7 @@ public static class NorfairRidleyColorExtractor
                 NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort));
             if (pointer < 0x8000)
                 throw new InvalidDataException($"Norfair Ridley reveal row {row} has invalid source ${pointer:X4}.");
-            reveal[row] = ReadColors(bus, 0xa60000 | pointer,
+            reveal[row] = ReadColors(bus, CartridgeBankWindow.At(EnemyCartridgeTables.RidleyBank, pointer),
                 NorfairRidleyPaletteRomData.RevealColorCount);
         }
         ushort terminator = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

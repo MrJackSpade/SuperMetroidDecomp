@@ -30,7 +30,7 @@ internal static partial class Program
         Compare(0x8bab35, 5, IntroEggMotionDefinitions.SlimeX);
         Compare(0x8bab49, 62, frame => IntroEggMotionDefinitions.SlimeY(frame, true));
         Compare(0x8bac41, 69, frame => IntroEggMotionDefinitions.SlimeY(frame, false));
-        var guarded = new EggMotionReadGuard(rom);
+        var guarded = NewEggMotionGuard(rom);
         uint Move(uint position, int address) => unchecked(position + ((uint)Word(address) << 16) + Word(address + 2));
         int checkedFrames = 0;
         foreach (ushort fraction in new ushort[] { 0, 1, 0x7fff, 0xffff })
@@ -75,21 +75,10 @@ internal static partial class Program
         Console.WriteLine($"Egg motion definitions: twelve position words, 366 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");
     }
 
-    private sealed class EggMotionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x8ba97c and < 0x8ba994 or
+    private static CartridgeReadGuard NewEggMotionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => address is >= 0x8ba97c and < 0x8ba994 or
                 >= 0x8ba9ea and < 0x8baaa6 or
-                >= 0x8bab35 and < 0x8bad55)
-            {
-                throw new InvalidOperationException(
-                    $"Runtime read compiled egg physical definition at {address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                >= 0x8bab35 and < 0x8bad55,
+            address => $"Runtime read compiled egg physical definition at {address:X6}.");
 }

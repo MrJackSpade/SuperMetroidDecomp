@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain escape-text characters and transfer records")]
     private static void VerifyInstalledMotherBrainEscapeTextArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
@@ -20,7 +21,7 @@ internal static partial class Program
             "installed Mother Brain escape-text PNG preserves native characters");
 
         SnesVram installedVram = TransferMotherBrainEscapeTextPages(stock,
-            new MotherBrainEscapeTextReadGuard(
+            NewMotherBrainEscapeTextReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
         // The oracle owns cartridge bytes; production has no uninstalled-ROM fallback.
         var cartridgeVram = new SnesVram();
@@ -62,7 +63,7 @@ internal static partial class Program
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited,
-            new MotherBrainEscapeTextReadGuard(
+            NewMotherBrainEscapeTextReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
         int firstDestination = MotherBrainEscapeTextArtworkDefinitions.PageDestination(0) * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
@@ -108,22 +109,8 @@ internal static partial class Program
         return vram;
     }
 
-    private sealed class MotherBrainEscapeTextReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= MotherBrainEscapeTextArtworkDefinitions.SourceAddress and
-                < MotherBrainEscapeTextArtworkDefinitions.SourceAddress +
-                    MotherBrainEscapeTextArtworkDefinitions.ByteCount
-                ? throw new InvalidOperationException(
-                    $"Mother Brain escape text attempted a visual ROM read at ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMotherBrainEscapeTextReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).ForbidRange(MotherBrainEscapeTextArtworkDefinitions.SourceAddress,
+            MotherBrainEscapeTextArtworkDefinitions.ByteCount,
+            address => $"Mother Brain escape text attempted a visual ROM read at ${address:X6}.");
 }

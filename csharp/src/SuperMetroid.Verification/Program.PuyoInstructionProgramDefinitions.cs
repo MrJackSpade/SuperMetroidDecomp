@@ -41,7 +41,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new PuyoInstructionReadGuard(rom, forbidPresentation: true);
+        var guard = NewPuyoInstructionReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -77,7 +77,7 @@ internal static partial class Program
                 $"Puyo airborne pose $A2:{program:X4} reaches terminal sleep");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "all Puyo spritemap operands select compiled presentation frames");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Puyo mechanics byte");
@@ -137,47 +137,18 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class PuyoInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewPuyoInstructionReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (PuyoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Puyo mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < PuyoInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                            throw new InvalidOperationException(
-                                $"Installed Puyo read cartridge visual selector $A2:{presentation:X4}.");
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        static ushort SelectorWord(int address) => Enumerable.Range(0, PuyoInstructionProgramDefinitionsTooling.PresentationWordCount)
+            .Select(PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress)
+            .First(word => unchecked((ushort)address) == word || unchecked((ushort)address) == unchecked((ushort)(word + 1)));
+        CartridgeReadGuard guard = new CartridgeReadGuard(source)
+            .Forbid(PuyoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Puyo mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.ForbidWords(0xa20000, PuyoInstructionProgramDefinitionsTooling.PresentationWordCount, PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Installed Puyo read cartridge visual selector $A2:{SelectorWord(address):X4}.")
+            : guard.ObserveWords(0xa20000, PuyoInstructionProgramDefinitionsTooling.PresentationWordCount, PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 }

@@ -11,7 +11,7 @@ internal static partial class Program
         Suite(nameof(VerifyRoomShakeProjectileAlgorithm), () => VerifyRoomShakeProjectileAlgorithm(rom));
         const ushort renderedTypeCount = 36;
 
-        var guarded = new RoomShakeReadGuard(rom);
+        var guarded = NewRoomShakeReadGuard(rom);
         var enemies = new RoomEnemySystem();
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
@@ -103,17 +103,8 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => select(RoomShakeDefinitions.ForType(ushort.MaxValue)), $"Shake {label} invalid maximum");
     }
 
-    private sealed class RoomShakeReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa0872d and < 0xa0884d or
-                >= 0x86846b and < 0x8684fb
-                ? throw new InvalidOperationException(
-                    $"Room shaking attempted migrated displacement read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewRoomShakeReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa0872d and < 0xa0884d or
+                >= 0x86846b and < 0x8684fb,
+            address => $"Room shaking attempted migrated displacement read ${address:X6}.");
 }

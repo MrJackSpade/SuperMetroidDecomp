@@ -10,6 +10,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Dachora colors and selector pointers")]
     private static void VerifyInstalledDachoraColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -60,7 +61,17 @@ internal static partial class Program
                 .DachoraColors!.Resolve(DachoraPalettePhase.Shine, 3, 5),
             "Dachora color override survives catalog reload");
 
-        var guard = new DachoraPaletteReadGuard(rom);
+        CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
+            address => address is >= DachoraColorRomData.DefaultSource and
+                    < (DachoraColorRomData.ShineSource +
+                        DachoraColorRomData.AnimatedFrameCount * DachoraColorRomData.FrameByteCount) ||
+                address >= DachoraColorRomData.SpeedPointerTable &&
+                address < DachoraColorRomData.SpeedPointerTable +
+                    DachoraColorRomData.AnimatedFrameCount * sizeof(ushort) ||
+                address >= DachoraColorRomData.ShinePointerTable &&
+                address < DachoraColorRomData.ShinePointerTable +
+                    DachoraColorRomData.AnimatedFrameCount * sizeof(ushort),
+            address => $"Live Dachora read migrated color/selector ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -151,35 +162,5 @@ internal static partial class Program
         {
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
-    }
-
-    private sealed class DachoraPaletteReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            bool colors = address is >= DachoraColorRomData.DefaultSource and
-                < (DachoraColorRomData.ShineSource +
-                    DachoraColorRomData.AnimatedFrameCount * DachoraColorRomData.FrameByteCount);
-            bool speedSelectors = address >= DachoraColorRomData.SpeedPointerTable &&
-                address < DachoraColorRomData.SpeedPointerTable +
-                    DachoraColorRomData.AnimatedFrameCount * sizeof(ushort);
-            bool shineSelectors = address >= DachoraColorRomData.ShinePointerTable &&
-                address < DachoraColorRomData.ShinePointerTable +
-                    DachoraColorRomData.AnimatedFrameCount * sizeof(ushort);
-            if (colors || speedSelectors || shineSelectors)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Live Dachora read migrated color/selector ROM ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

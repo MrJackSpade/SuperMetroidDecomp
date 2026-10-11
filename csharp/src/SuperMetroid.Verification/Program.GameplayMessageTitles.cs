@@ -18,7 +18,7 @@ internal static partial class Program
         {
             var installed = new GameplayMessageBoxState();
             installed.BindPresentation(stock);
-            installed.Begin(new ForbiddenGameplayMessageBus(), id, 0);
+            installed.Begin(NewForbiddenGameplayMessageBus(), id, 0);
             // The title's content row is the cartridge's one-row tilemap named by the
             // message definition table; read it directly as the independent reference.
             int definition = GameplayMessageRomData.Assets.DefinitionTable +
@@ -42,7 +42,7 @@ internal static partial class Program
 
         var active = new GameplayMessageBoxState();
         active.BindPresentation(stock);
-        active.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.EnergyTank, 0);
+        active.Begin(NewForbiddenGameplayMessageBus(), GameplayMessageId.EnergyTank, 0);
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
         int radius = active.RadiusPixels;
@@ -69,14 +69,8 @@ internal static partial class Program
             $"Gameplay-message titles: {GameplayMessageTitleDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; live edit/rebind and invalid glyph rejection pass.");
     }
 
-    private sealed class ForbiddenGameplayMessageBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public static byte ReadByte(int address) => throw new InvalidOperationException(
-            $"Installed gameplay-message title read cartridge address ${address:X6}.");
-
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            $"Installed gameplay-message title wrote cartridge address ${address:X6}.");
-    }
+    private static CartridgeReadGuard NewForbiddenGameplayMessageBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Installed gameplay-message title read cartridge address ${address:X6}.")
+            .RejectWrites(address => $"Installed gameplay-message title wrote cartridge address ${address:X6}.");
 }

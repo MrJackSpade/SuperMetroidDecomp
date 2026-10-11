@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts pause inventory label artwork and its visual destinations.</summary>
+[CpuBusBoundary("codec: ROM bank-$82 pause inventory label tilemaps → pause equipment labels")]
 public static class PauseEquipmentLabelExtractor
 {
     /// <summary>Resolves native equipment-label destinations and tilemap pointers, verifies the Hyper Beam pointer layout, and serializes editable label cells.</summary>
@@ -65,6 +66,6 @@ public static class PauseEquipmentLabelExtractor
     private static PauseBackdropCell[] ReadCells(ISnesAddressSpace bus, ushort source, int count, string name) =>
         Enumerable.Range(0, count)
             .Select(index => PauseTileGrid.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                0x820000 | unchecked((ushort)(source + index * 2))), $"{name}.{index}"))
+                CartridgeBankWindow.At(PauseMenuCartridgeTables.MenuBank, unchecked((ushort)(source + index * 2)))), $"{name}.{index}"))
             .ToArray();
 }

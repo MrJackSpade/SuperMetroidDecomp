@@ -68,7 +68,7 @@ internal static partial class Program
             AssertTrue(plms.TrySpawnBlueDoorOpening(level, origin, behavior,
                 new SamusProjectileTypeWord(0)),
                 $"{orientation} blue door allocates its native opening actor");
-            var guarded = new BlueDoorDrawReadGuard(rom, lists);
+            var guarded = NewBlueDoorDrawReadGuard(rom, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             plms.Step(guarded, level, streamer, new(0, 0), 0);
             int stride = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right
@@ -204,35 +204,14 @@ internal static partial class Program
         }
     }
 
-    private sealed class BlueDoorDrawReadGuard(
+    private static CartridgeReadGuard NewBlueDoorDrawReadGuard(
         ISnesAddressSpace source,
-        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x84c489 and <= 0x84c54c)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production blue-door instruction reread bank-$84 byte ${address:X6}.");
-            }
-            foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-            {
-                if (address >= (0x840000 | list.Pointer) &&
-                    address < (0x840000 | list.Pointer) + BlueDoorPlmDrawDefinitions.DrawListBytes)
-                {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Production blue-door draw reread bank-$84 payload ${address:X6}.");
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x84c489 and <= 0x84c54c,
+                address => $"Production blue-door instruction reread bank-$84 byte ${address:X6}.")
+            .Forbid(address => lists.Any(list =>
+                    address >= (0x840000 | list.Pointer) &&
+                    address < (0x840000 | list.Pointer) + BlueDoorPlmDrawDefinitions.DrawListBytes),
+                address => $"Production blue-door draw reread bank-$84 payload ${address:X6}.");
 }

@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void VerifyMapArrows(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
-        var guard = new MapArrowReadGuard(bus);
+        var guard = NewMapArrowGuard(bus);
         var native = new FileSelectMapAnimations(bus, original.Arrows);
         var installed = new FileSelectMapAnimations(guard, original.Arrows);
         for (int tick = 0; tick < 600; tick++)
@@ -99,49 +99,27 @@ internal static partial class Program
         }
     }
 
-    private sealed class MapArrowReadGuard : ISnesMemoryBus, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: retail ROM oracle walking the native map-arrow records, animation tables and sprite programs to forbid them")]
+    private static MutableCartridgeReadGuard NewMapArrowGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> forbidden = new();
-        public MapArrowReadGuard(ISnesAddressSpace source)
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
+        var forbidden = new HashSet<int>();
+        for (int index = 0; index < MapArrowDefinitions.Count; index++)
         {
-            this.source = source;
-            for (int index = 0; index < MapArrowDefinitions.Count; index++)
-            {
-                int record = FileSelectMapRomData.ScrollArrows + index * 10;
-                Add(record, 10);
-                int animation = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), record + 4);
-                int pointer = MapAnimationRomData.SpritePrograms + (animation - 1) * 2;
-                int bases = MapAnimationRomData.SpriteBases + (animation - 1) * 2;
-                Add(pointer, 2); Add(bases, 2);
-                Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), bases), 2);
-                int program = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer);
-                while (source.ReadByte(program) != byte.MaxValue) { Add(program, 3); program += 3; }
-                Add(program, 1);
-            }
-            void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
+            int record = FileSelectMapRomData.ScrollArrows + index * 10;
+            Add(record, 10);
+            int animation = RomDataReader.ReadWordFixedBank(cartridge, record + 4);
+            int pointer = MapAnimationRomData.SpritePrograms + (animation - 1) * 2;
+            int bases = MapAnimationRomData.SpriteBases + (animation - 1) * 2;
+            Add(pointer, 2); Add(bases, 2);
+            Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, bases), 2);
+            int program = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, pointer);
+            while (source.ReadByte(program) != byte.MaxValue) { Add(program, 3); program += 3; }
+            Add(program, 1);
         }
-        private void RejectArrowSource(int address)
-        {
-            if (forbidden.Contains(address))
-                throw new InvalidOperationException($"Installed arrows read visual metadata from ROM at {address:X6}.");
-        }
-        public byte ReadByte(int address)
-        {
-            RejectArrowSource(address);
-            return source.ReadByte(address);
-        }
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectArrowSource(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Map-arrow guard source does not expose WRAM.")).ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Map-arrow guard source does not expose SRAM.")).ReadSaveRamByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(forbidden.Contains, address => $"Installed arrows read visual metadata from ROM at {address:X6}.");
+        return guard;
     }
 }

@@ -52,7 +52,7 @@ internal static partial class Program
                 [EnemyDefinitionId.PirateGoldWall] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = colors }))),
             });
-        var guard = new NinjaSpacePirateInstructionReadGuard(rom);
+        var guard = NewNinjaSpacePirateInstructionReadGuard(rom);
         ushort[] programs =
         [
             NinjaSpacePirateInstructionProgramDefinitions.ClawAttackLeft,
@@ -212,43 +212,12 @@ internal static partial class Program
     private static ushort ReadNinjaPirateWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class NinjaSpacePirateInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (NinjaSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled ninja Pirate mechanics ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xb20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read compiled ninja Pirate frame selector " +
-                            $"${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewNinjaSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(NinjaSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled ninja Pirate mechanics ${address:X6}.")
+            .ForbidWords(0xb20000, NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount,
+                NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress,
+                address => $"Production read compiled ninja Pirate frame selector " +
+                    $"${address:X6}.");
 }

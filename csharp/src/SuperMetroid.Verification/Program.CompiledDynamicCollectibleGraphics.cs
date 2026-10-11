@@ -16,7 +16,7 @@ internal static partial class Program
         // Retail population $8F:83FE contains a Chozo-orb Bombs item. Ban every
         // compiled graphics payload and every retail item-list upload from the bus,
         // then exercise the real sequential room loader and assert its resulting VRAM.
-        var guarded = new RetailCollectibleGraphicsReadGuard(rom);
+        var guarded = NewRetailCollectibleGraphicsReadGuard(rom);
         const int width = 64;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64),
             new ushort[width * 64], new byte[width * 64],
@@ -46,45 +46,23 @@ internal static partial class Program
         bus.ReadByte(0x840000 | address) |
         bus.ReadByte(0x840000 | (address + 1)) << 8));
 
-    private sealed class RetailCollectibleGraphicsReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            foreach (RoomPlmDynamicCollectibleGraphic graphic in
-                     RoomPlmDynamicCollectibleGraphicsDefinitions.All)
-            {
-                int first = 0x890000 | graphic.GraphicsPointer;
-                if (address >= first && address < first + graphic.Tiles.Length)
-                    return Reject(address);
-                int kind = (int)graphic.Kind;
-                foreach (ushort baseHeader in new ushort[]
-                         { (ushort)PlmHeaderId.ExposedEnergyTank,
-                           (ushort)PlmHeaderId.ChozoEnergyTank,
-                           (ushort)PlmHeaderId.ShotBlockEnergyTank })
+    private static CartridgeReadGuard NewRetailCollectibleGraphicsReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => RoomPlmDynamicCollectibleGraphicsDefinitions.All.Any(graphic =>
                 {
-                    ushort header = checked((ushort)(baseHeader + kind * 4));
-                    ushort instruction = ReadCollectibleGraphicsWord(source, header + 2);
-                    int instructionAddress = 0x840000 | instruction;
-                    if (address >= instructionAddress &&
-                        address < instructionAddress + 12)
-                        return Reject(address);
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        private byte Reject(int address)
-        {
-            ForbiddenReadAttempts++;
-            throw new InvalidOperationException(
-                $"Retail collectible reread compiled graphics byte ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                    int first = 0x890000 | graphic.GraphicsPointer;
+                    if (address >= first && address < first + graphic.Tiles.Length)
+                        return true;
+                    int kind = (int)graphic.Kind;
+                    return new ushort[]
+                        { (ushort)PlmHeaderId.ExposedEnergyTank,
+                          (ushort)PlmHeaderId.ChozoEnergyTank,
+                          (ushort)PlmHeaderId.ShotBlockEnergyTank }.Any(baseHeader =>
+                    {
+                        ushort header = checked((ushort)(baseHeader + kind * 4));
+                        int instructionAddress = 0x840000 | ReadCollectibleGraphicsWord(source, header + 2);
+                        return address >= instructionAddress && address < instructionAddress + 12;
+                    });
+                }),
+                address => $"Retail collectible reread compiled graphics byte ${address:X6}.");
 }

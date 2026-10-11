@@ -12,7 +12,7 @@ internal static partial class Program
     private static void VerifyMamaTurtleEnemyDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var guard = new MamaTurtleDefinitionReadGuard(rom);
+        var guard = NewMamaTurtleDefinitionGuard(rom);
         foreach (EnemyDefinitionId pointer in new EnemyDefinitionId[]
                  {
                      EnemyDefinitionId.MamaTurtle,
@@ -76,24 +76,8 @@ internal static partial class Program
         return new RoomEnemyDefinition(Word(0), Word(2), Word(4), Word(6), new(Word(8), Word(10)), bus.ReadByte(address + 12), bus.ReadByte(address + 13), Word(14), Word(16), Word(18), Word(20), Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36), Word(38), Word(40), Word(42), Word(44), Word(46), Word(48), Word(50), Word(52), Long(54), bus.ReadByte(address + 57), Word(58), Word(60), Word(62));
     }
 
-    private sealed class MamaTurtleDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress and
-                < MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress +
-                    MamaTurtleEnemyDefinitionCatalogConstants.SourceByteLength)
-            {
-                throw new InvalidOperationException(
-                    $"Mama Turtle family still reads compiled header byte ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMamaTurtleDefinitionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).ForbidRange(MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress,
+            MamaTurtleEnemyDefinitionCatalogConstants.SourceByteLength,
+            address => $"Mama Turtle family still reads compiled header byte ${address:X6}.");
 }

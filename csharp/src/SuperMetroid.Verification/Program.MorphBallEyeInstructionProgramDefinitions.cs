@@ -83,7 +83,7 @@ internal static partial class Program
                 $"Morph Ball eye mechanics word $A8:{definition.Address:X4}");
         }
 
-        var guard = new MorphBallEyeInstructionReadGuard(rom);
+        var guard = NewMorphBallEyeInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         {
             var enemies = NewMorphBallEyeInstructionSystem(guard, flags);
@@ -122,7 +122,7 @@ internal static partial class Program
 
         Suite(nameof(VerifyMorphBallEyeInitializerSelections), () => VerifyMorphBallEyeInitializerSelections(guard, flags));
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Morph Ball eye programs use compiled spritemap selectors");
         for (int index = 0;
              index < MorphBallEyeInstructionProgramDefinitions.PresentationWordCount;
@@ -130,7 +130,7 @@ internal static partial class Program
         {
             ushort address =
                 MorphBallEyeInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(!guard.ObservedPresentationWords.Contains(address),
+            AssertTrue(!guard.ObservedWords.Contains(address),
                 $"production execution avoids eye presentation word $A8:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -241,42 +241,9 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class MorphBallEyeInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (MorphBallEyeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Morph Ball eye mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < MorphBallEyeInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = MorphBallEyeInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMorphBallEyeInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => MorphBallEyeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Morph Ball eye mechanics byte ${address:X6}.")
+            .ObserveWords(0xa80000, MorphBallEyeInstructionProgramDefinitions.PresentationWordCount, MorphBallEyeInstructionProgramDefinitions.PresentationWordAddress);
 }

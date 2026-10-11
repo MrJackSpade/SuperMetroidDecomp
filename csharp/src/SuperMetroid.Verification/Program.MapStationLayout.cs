@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void VerifyMapStationLayout(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
-        var guard = new StationLayoutReadGuard(bus);
+        var guard = NewStationLayoutGuard(bus);
         int combinations = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
@@ -99,48 +99,27 @@ internal static partial class Program
         }
     }
 
-    private sealed class StationLayoutReadGuard : ISnesAddressSpace, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: retail ROM oracle walking the native missile, energy and map-station coordinate lists to forbid them")]
+    private static CartridgeReadGuard NewStationLayoutGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> blocked = new();
-        public StationLayoutReadGuard(ISnesAddressSpace source)
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
+        var blocked = new HashSet<int>();
+        foreach (int table in new[] { FileSelectMapIconRomData.MissileLists, FileSelectMapIconRomData.EnergyLists, FileSelectMapIconRomData.MapStationLists })
+        for (int area = 0; area < AreaIds.RetailCount; area++)
         {
-            this.source = source;
-            foreach (int table in new[] { FileSelectMapIconRomData.MissileLists, FileSelectMapIconRomData.EnergyLists, FileSelectMapIconRomData.MapStationLists })
-            for (int area = 0; area < AreaIds.RetailCount; area++)
+            int entry = table + area * 2;
+            blocked.Add(entry); blocked.Add(entry + 1);
+            int list = RomDataReader.ReadWordFixedBank(cartridge, entry);
+            if (list == 0) continue;
+            for (int record = 0; ; record++)
             {
-                int entry = table + area * 2;
-                blocked.Add(entry); blocked.Add(entry + 1);
-                int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), entry);
-                if (list == 0) continue;
-                for (int record = 0; ; record++)
-                {
-                    int address = FileSelectMapRomData.MenuObjectBank | (list + record * 4);
-                    blocked.Add(address); blocked.Add(address + 1);
-                    if ((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address) < 0) break;
-                    blocked.Add(address + 2); blocked.Add(address + 3);
-                }
+                int address = FileSelectMapRomData.MenuObjectBank | (list + record * 4);
+                blocked.Add(address); blocked.Add(address + 1);
+                if ((short)RomDataReader.ReadWordFixedBank(cartridge, address) < 0) break;
+                blocked.Add(address + 2); blocked.Add(address + 3);
             }
         }
-        private void RejectStationSource(int address)
-        {
-            if (blocked.Contains(address))
-                throw new InvalidOperationException(
-                    "Installed station drawing read ROM coordinates/discovery tables.");
-        }
-
-        public byte ReadByte(int address)
-        {
-            RejectStationSource(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectStationSource(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        return new CartridgeReadGuard(source).Forbid(blocked.Contains,
+            _ => "Installed station drawing read ROM coordinates/discovery tables.");
     }
 }

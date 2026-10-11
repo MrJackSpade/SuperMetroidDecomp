@@ -39,12 +39,7 @@ internal static partial class Program
 
         using var timerPng = new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom),
             writable: false);
-        RoomCharacterAtlas[] escapePages =
-            CeresEscapeTileArtworkDefinitions.All.ToArray().Select(page =>
-                RoomCharacterAtlas.Load(new MemoryStream(
-                    IndexedTilePageExtractor.Extract(rom, page.SourceAddress,
-                        page.ByteCount, page.FileName), writable: false),
-                    page.ByteCount)).ToArray();
+        RoomCharacterAtlas[] escapePages = ImportCeresEscapeTilePages(rom);
         CeresEscapeOverlayTilemapCatalog overlay =
             CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
@@ -59,7 +54,7 @@ internal static partial class Program
         };
         typeof(RoomEnemySystem).GetField("_bus",
             BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(system,
-            new CeresEscapeTransferReadGuard(rom));
+            NewCeresEscapeTransferReadGuard(rom));
         MethodInfo next = typeof(RoomEnemySystem).GetMethod("QueueNextCeresEscapeTransfer",
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (ushort start in new[]
@@ -144,17 +139,16 @@ internal static partial class Program
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
-    private sealed class CeresEscapeTransferReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+    private static CartridgeReadGuard NewCeresEscapeTransferReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address),
+                address => $"Installed Ceres transfer read native descriptor ${address:X6}.");
 
-        public byte ReadByte(int address) =>
-            CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address)
-                ? throw new InvalidOperationException(
-                    $"Installed Ceres transfer read native descriptor ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    [CpuBusBoundary("exact bus test: imports the Ceres escape tile pages from their retail ROM source addresses")]
+    private static RoomCharacterAtlas[] ImportCeresEscapeTilePages(ISnesAddressSpace rom) =>
+        CeresEscapeTileArtworkDefinitions.All.ToArray().Select(page =>
+            RoomCharacterAtlas.Load(new MemoryStream(
+                IndexedTilePageExtractor.Extract(rom, page.SourceAddress,
+                    page.ByteCount, page.FileName), writable: false),
+                page.ByteCount)).ToArray();
 }

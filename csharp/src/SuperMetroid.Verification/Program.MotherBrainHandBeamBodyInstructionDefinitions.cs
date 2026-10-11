@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain hand-beam body instruction list")]
     private static void VerifyMotherBrainHandBeamBodyInstructionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -15,7 +16,7 @@ internal static partial class Program
             "ReadEnemyVisualSelector", BindingFlags.NonPublic | BindingFlags.Static)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
         var enemies = new RoomEnemySystem();
-        busField.SetValue(enemies, new MotherBrainHandBeamListReadGuard(rom));
+        busField.SetValue(enemies, NewMotherBrainHandBeamListReadGuard(rom));
         var body = new RoomEnemySlot(0)
         {
             EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody,
@@ -69,20 +70,8 @@ internal static partial class Program
             $"{visualWords} visual-selector words match the pinned ROM without list reads.");
     }
 
-    private sealed class MotherBrainHandBeamListReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa99a42 and <= 0xa99ac7
-                ? throw new InvalidOperationException(
-                    $"Mother Brain reread compiled hand-beam list ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMotherBrainHandBeamListReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa99a42 and <= 0xa99ac7,
+                address => $"Mother Brain reread compiled hand-beam list ${address:X6}.");
 }

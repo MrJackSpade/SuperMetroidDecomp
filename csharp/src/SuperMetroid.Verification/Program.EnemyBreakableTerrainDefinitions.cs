@@ -23,7 +23,7 @@ internal static partial class Program
             "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         FieldInfo plmField = typeof(RoomEnemySystem).GetField(
             "_collisionPlms", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var guarded = new EnemyTerrainReactionReadGuard(rom);
+        var guarded = NewEnemyTerrainReactionReadGuard(rom);
         for (int highBit = 0; highBit <= 0x80; highBit += 0x80)
         for (int index = 0; index < 16; index++)
         {
@@ -70,17 +70,8 @@ internal static partial class Program
     private static ushort ReadEnemyTerrainWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class EnemyTerrainReactionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa0c2da and < 0xa0c2fa
-                ? throw new InvalidOperationException(
-                    $"Enemy terrain reaction attempted migrated table read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEnemyTerrainReactionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa0c2da and < 0xa0c2fa,
+                address => $"Enemy terrain reaction attempted migrated table read ${address:X6}.");
 }

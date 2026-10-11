@@ -69,7 +69,7 @@ internal static partial class Program
         ]);
         // The production control list is compiled and immutable. Draw each layout through the
         // production timed-frame draw instead of mutating a cartridge operand execution no longer reads.
-        var guarded = new MotherBrainGlassDrawReadGuard(bus, lists);
+        var guarded = NewMotherBrainGlassDrawReadGuard(bus, lists);
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x57 * 8] = 0x57;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
@@ -186,31 +186,14 @@ internal static partial class Program
         }
     }
 
-    private sealed class MotherBrainGlassDrawReadGuard(
-        ISnesAddressSpace source,
-        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
+    private static CartridgeReadGuard NewMotherBrainGlassDrawReadGuard(
+        ISnesAddressSpace source, RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
+        new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>
             {
                 int first = 0x840000 | list.Pointer;
                 int length = list.Runs.Span.ToArray().Sum(run =>
                     4 + run.LevelWords.Length * 2);
-                if (address >= first && address < first + length)
-                {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Mother Brain glass reread draw payload ${address:X6}.");
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                return address >= first && address < first + length;
+            }),
+            address => $"Mother Brain glass reread draw payload ${address:X6}.");
 }

@@ -9,7 +9,7 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var denied = new RidleyCollisionNoReadBus();
+        var denied = NewRidleyCollisionNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
@@ -158,7 +158,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => RidleyCollisionDefinitions.HitboxesAt(0x8000),
             "unknown Ridley hitbox list fails loudly");
-        AssertEqual(0, denied.ReadAttempts,
+        AssertEqual(0, denied.ForbiddenReadAttempts,
             "both installed Ridley collision walkers never read cartridge bytes");
         Console.WriteLine($"Ridley collision: 11 body frames, {componentsChecked} " +
             $"components, 17 lists, {boxesChecked} boxes and {probes} touch/shot " +
@@ -237,20 +237,8 @@ internal static partial class Program
         }
     }
 
-    private sealed class RidleyCollisionNoReadBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            ReadAttempts++;
-            throw new InvalidOperationException(
-                $"Installed Ridley collision read cartridge byte ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            $"Installed Ridley collision wrote cartridge byte ${address:X6}.");
-    }
+    private static CartridgeReadGuard NewRidleyCollisionNoReadBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Installed Ridley collision read cartridge byte ${address:X6}.")
+            .RejectWrites(address => $"Installed Ridley collision wrote cartridge byte ${address:X6}.");
 }

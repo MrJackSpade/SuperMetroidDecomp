@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Shitroid colors")]
     private static void VerifyInstalledShitroidColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -60,7 +61,15 @@ internal static partial class Program
                 .ShitroidColors!.NormalColor(7, 2),
             "Shitroid color override survives catalog reload");
 
-        var guard = new ShitroidPaletteReadGuard(rom);
+        CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
+            address => address is >= ShitroidColorRomData.NormalCycle and
+                    < (ShitroidColorRomData.NormalCycle +
+                        ShitroidColorRomData.NormalFrameCount *
+                        ShitroidColorRomData.NormalColorsPerFrame * sizeof(ushort))
+                    or >= ShitroidColorRomData.DeadSidehopperTarget and
+                    < (ShitroidColorRomData.ShitroidTarget +
+                        ShitroidColorRomData.TargetColorCount * sizeof(ushort)),
+            address => $"Live Shitroid read migrated color ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -133,36 +142,5 @@ internal static partial class Program
         {
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
-    }
-
-    private sealed class ShitroidPaletteReadGuard(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            bool normal = address is >= ShitroidColorRomData.NormalCycle and
-                < (ShitroidColorRomData.NormalCycle +
-                    ShitroidColorRomData.NormalFrameCount *
-                    ShitroidColorRomData.NormalColorsPerFrame * sizeof(ushort));
-            bool targets = address is >= ShitroidColorRomData.DeadSidehopperTarget and
-                < (ShitroidColorRomData.ShitroidTarget +
-                    ShitroidColorRomData.TargetColorCount * sizeof(ushort));
-            if (normal || targets)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Live Shitroid read migrated color ROM ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

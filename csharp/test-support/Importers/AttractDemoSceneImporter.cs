@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Reads native title-demo scene records for import and reference diagnostics.</summary>
+[CpuBusBoundary("codec: ROM attract-demo room, equipment and Samus-setup set tables → AttractDemoScene")]
 internal static class AttractDemoSceneImporter
 {
     public static AttractDemoScene? Read(ISnesAddressSpace bus, int set, int scene)

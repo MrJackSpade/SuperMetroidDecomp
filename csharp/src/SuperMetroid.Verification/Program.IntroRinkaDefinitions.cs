@@ -43,7 +43,7 @@ internal static partial class Program
             () => IntroRinkaDefinitions.Rinka(IntroRinkaDefinitions.RinkaCount),
             "intro Rinka definition boundary");
 
-        var guarded = new IntroRinkaDefinitionReadGuard(retail);
+        var guarded = NewIntroRinkaDefinitionGuard(retail);
         var system = new IntroRinkaSystem();
         var samus = new SamusState
         {
@@ -91,29 +91,11 @@ internal static partial class Program
     private static ushort ReadIntroRinkaWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
-    private sealed class IntroRinkaDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            bool forbidden =
-                address is >= 0x8bcf21 and < 0x8bcf2d or
+    private static CartridgeReadGuard NewIntroRinkaDefinitionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => address is >= 0x8bcf21 and < 0x8bcf2d or
                 >= 0x8bcdeb and < 0x8bce1b or
                 >= 0x8bb8b5 and < 0x8bb8c5 or
-                >= 0x8bb985 and < 0x8bb98d;
-            if (forbidden)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Intro Rinka reread compiled byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                >= 0x8bb985 and < 0x8bb98d,
+            address => $"Intro Rinka reread compiled byte ${address:X6}.");
 }

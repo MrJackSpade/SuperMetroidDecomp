@@ -30,7 +30,7 @@ internal static partial class Program
                 $"Botwoon projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new BotwoonProjectileInstructionReadGuard(rom);
+        var guard = NewBotwoonProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -85,7 +85,7 @@ internal static partial class Program
         AssertEqual((ushort)0x0003, spit.InstructionTimer,
             "Botwoon spit loop retains its three-frame cadence");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Botwoon body, tail, hidden, and spit selectors use installed definitions");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Botwoon projectile mechanics byte");
@@ -229,42 +229,9 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class BotwoonProjectileInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (BotwoonProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Botwoon projectile mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = BotwoonProjectileInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBotwoonProjectileInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(BotwoonProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Botwoon projectile mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount, BotwoonProjectileInstructionProgramDefinitions.PresentationWordAddress);
 }

@@ -32,7 +32,7 @@ internal static partial class Program
         ];
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new DeadTourianCorpseInstructionReadGuard(rom);
+        var guard = NewDeadTourianCorpseInstructionReadGuard(rom);
         int programIndex = 0;
         foreach (var family in families)
         {
@@ -78,7 +78,7 @@ internal static partial class Program
         AssertEqual(DeadTourianCorpseInstructionProgramDefinitions.ProgramCount,
             programIndex,
             "every Dead Tourian corpse program executes");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Dead Tourian corpse execution uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Dead Tourian corpse mechanics byte");
@@ -125,47 +125,10 @@ internal static partial class Program
             source.ReadByte(0xa90000 | address) |
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class DeadTourianCorpseInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if (DeadTourianCorpseInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Dead Tourian corpse mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa90000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < DeadTourianCorpseInstructionProgramDefinitions.ProgramCount;
-                     index++)
-                {
-                    ushort presentation =
-                        DeadTourianCorpseInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDeadTourianCorpseInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(DeadTourianCorpseInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Dead Tourian corpse mechanics byte ${address:X6}.")
+            .ObserveWords(0xa90000, DeadTourianCorpseInstructionProgramDefinitions.ProgramCount,
+                DeadTourianCorpseInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

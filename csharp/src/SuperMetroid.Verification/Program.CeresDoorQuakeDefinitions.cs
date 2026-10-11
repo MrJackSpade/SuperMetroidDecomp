@@ -26,7 +26,7 @@ internal static partial class Program
                 $"Ceres private door quake timer ${timer:X4}");
         }
 
-        var guarded = new CeresDoorQuakeReadGuard(rom);
+        var guarded = NewCeresDoorQuakeReadGuard(rom);
         var enemies = new RoomEnemySystem
         {
             CeresStatus = 1,
@@ -64,7 +64,7 @@ internal static partial class Program
         }
 
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            new CeresDoorQuakeReadGuard(rom, blockOverlay: true));
+            NewCeresDoorQuakeReadGuard(rom, blockOverlay: true));
         enemies.EarthquakeTimer = 0;
         var nativeOverlay = new OamBuffer();
         nativeOverlay.BeginFrame();
@@ -108,19 +108,10 @@ internal static partial class Program
             "Ceres door quake definitions: all four native bytes, 65,536 timer aliases, four real OAM phases, and editable private-overlay art pass with source reads forbidden.");
     }
 
-    private sealed class CeresDoorQuakeReadGuard(
-        ISnesAddressSpace source, bool blockOverlay = false)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa6a321 and < 0xa6a325 ||
-            (blockOverlay && address is >= 0xa6a329 and < 0xa6a353)
-                ? throw new InvalidOperationException(
-                    $"Ceres private door draw attempted migrated source read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCeresDoorQuakeReadGuard(
+        ISnesAddressSpace source, bool blockOverlay = false) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa6a321 and < 0xa6a325 ||
+                    (blockOverlay && address is >= 0xa6a329 and < 0xa6a353),
+                address => $"Ceres private door draw attempted migrated source read ${address:X6}.");
 }

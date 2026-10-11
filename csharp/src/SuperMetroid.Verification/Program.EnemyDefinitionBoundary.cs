@@ -191,6 +191,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(EnemyAuxiliaryPalette.FaceBlock, 8, 0), "palette frame bounded");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy definition boundary words")]
     private static ushort NativeWord(ISnesAddressSpace source, int address) =>
         (ushort)(source.ReadCartridgeByte(address) |
             source.ReadCartridgeByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);

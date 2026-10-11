@@ -77,7 +77,7 @@ internal static partial class Program
             AssertEqual((ushort)(bus.ReadByte(bottomAddress) | bus.ReadByte(bottomAddress + 1) << 8),
                 sprites.BottomBase((SamusPoseId)pose), $"Samus pose {pose:X2} bottom OAM base");
         }
-        var spritemapGuard = new FrontendCartridgeReadGuard(bus);
+        var spritemapGuard = NewFrontendCartridgeReadGuard(bus);
         int nonzeroSpritemaps = 0;
         for (int index = 0; index < SamusSpritemapArtworkCatalog.PointerCount; index++)
         {
@@ -144,7 +144,7 @@ internal static partial class Program
         // The installed selector and both VRAM halves must take the production path
         // without even reading one cartridge byte. This covers every authored pose's
         // initial frame, including all flashback/normal-gameplay pose identities.
-        var guardedBus = new FrontendCartridgeReadGuard(bus);
+        var guardedBus = NewFrontendCartridgeReadGuard(bus);
         // These two production owners call the same indexed bank-$92 OAM routine as
         // Samus's body, but do not call Samus.Draw. Exercise both rather than inferring
         // their binding from the generic catalog's all-index byte-parity test.
@@ -724,7 +724,7 @@ internal static partial class Program
         {
             SamusArmCannonUpdateResult native = nativeSamus.ArmCannon.Update(bus, nativeSamus);
             SamusArmCannonUpdateResult installed = installedSamus.ArmCannon.Update(
-                new FrontendCartridgeReadGuard(bus), installedSamus);
+                NewFrontendCartridgeReadGuard(bus), installedSamus);
             AssertEqual(native, installed, $"installed arm-cannon update frame {frame}");
         }
         var nativeOam = new OamBuffer();
@@ -736,7 +736,7 @@ internal static partial class Program
         nativeSamus.ArmCannon.Draw(bus,
             nativeOam, nativeWrites, nativeSamus, Position16<RoomPixels>.Zero, 0);
         installedSamus.ArmCannon.Draw(
-            new FrontendCartridgeReadGuard(bus), installedOam, installedWrites,
+            NewFrontendCartridgeReadGuard(bus), installedOam, installedWrites,
             installedSamus, Position16<RoomPixels>.Zero, 0);
         AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable),
             "installed arm-cannon cover writes identical visible OAM");

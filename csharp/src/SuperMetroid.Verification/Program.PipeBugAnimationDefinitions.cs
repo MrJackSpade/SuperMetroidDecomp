@@ -14,7 +14,7 @@ internal static partial class Program
         MethodInfo select = typeof(RoomEnemySystem).GetMethod(
             "SelectBrinstarPipeBugAnimation",
             BindingFlags.Static | BindingFlags.NonPublic)!;
-        var guarded = new PipeBugAnimationReadGuard(rom);
+        var guarded = NewPipeBugAnimationReadGuard(rom);
 
         foreach (bool strong in new[] { false, true })
         {
@@ -87,17 +87,7 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class PipeBugAnimationReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xb3882b and < 0xb3883b
-                ? throw new InvalidOperationException(
-                    $"Pipe Bug attempted migrated animation read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewPipeBugAnimationReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xb3882b and < 0xb3883b,
+            address => $"Pipe Bug attempted migrated animation read ${address:X6}.");
 }

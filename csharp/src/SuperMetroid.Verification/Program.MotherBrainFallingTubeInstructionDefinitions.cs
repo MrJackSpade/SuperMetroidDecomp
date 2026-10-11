@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain falling-tube instruction words")]
     private static void VerifyMotherBrainFallingTubeInstructionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -32,7 +33,7 @@ internal static partial class Program
                 $"Mother Brain falling tube {index} terminal opcode");
 
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, new MotherBrainFallingTubeReadGuard(rom));
+            busField.SetValue(enemies, NewMotherBrainFallingTubeReadGuard(rom));
             var tube = new RoomEnemySlot(0)
             {
                 EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainTubes,
@@ -69,20 +70,8 @@ internal static partial class Program
             "and guarded ordinary-enemy execution pass.");
     }
 
-    private sealed class MotherBrainFallingTubeReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa98c69 and <= 0xa98c86
-                ? throw new InvalidOperationException(
-                    $"Mother Brain tube reread compiled source ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMotherBrainFallingTubeReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa98c69 and <= 0xa98c86,
+                address => $"Mother Brain tube reread compiled source ${address:X6}.");
 }

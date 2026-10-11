@@ -21,7 +21,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .SetValue(enemies, new PhantoonFlameSpawnReadGuard(rom));
+                .SetValue(enemies, NewPhantoonFlameSpawnReadGuard(rom));
             var spawn = typeof(RoomEnemySystem).GetMethod("SpawnPhantoonDestroyableFlame", BindingFlags.NonPublic | BindingFlags.Instance)!
                 .CreateDelegate<Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool>>(enemies);
             var body = enemies.Slots[0];
@@ -63,16 +63,9 @@ internal static partial class Program
         Console.WriteLine("Phantoon flame spawns: 33 native bytes and 507 real initializers reject migrated table reads.");
     }
 
-    private sealed class PhantoonFlameSpawnReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x8698b4 and < 0x8698c4 or >= 0x8698f7 and < 0x869900 or >= 0x869979 and < 0x869981)
-                throw new InvalidOperationException($"Migrated Phantoon spawn table read at {address:X6}.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected flame initialization bus write.");
-    }
+    private static CartridgeReadGuard NewPhantoonFlameSpawnReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x8698b4 and < 0x8698c4 or >= 0x8698f7 and < 0x869900 or >= 0x869979 and < 0x869981,
+                address => $"Migrated Phantoon spawn table read at {address:X6}.")
+            .RejectWrites(_ => "Unexpected flame initialization bus write.");
 }

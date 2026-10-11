@@ -18,7 +18,7 @@ internal static partial class Program
         // Guard every compiled retail program range during the actual room PLM
         // load/touch/handler path. Constructed-room programs are exercised by
         // VerifyRoomScrollPlms and supply decoded pairs before the handler runs.
-        var guarded = new RetailScrollProgramReadGuard(rom);
+        var guarded = NewRetailScrollProgramReadGuard(rom);
         const int width = 64;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64),
             new ushort[width * 64], new byte[width * 64],
@@ -45,34 +45,11 @@ internal static partial class Program
             "retail scroll PLM did not read any compiled program from the ROM bus");
     }
 
-    private sealed class RetailScrollProgramReadGuard(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            foreach (ushort pointer in RoomPlmScrollProgramDefinitions.Pointers)
-            {
-                int first = 0x8f0000 | pointer;
-                if (address >= first &&
-                    address < first + RoomPlmScrollProgramDefinitions.Get(pointer).Length)
-                {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Retail scroll PLM reread compiled program byte ${address:X6}.");
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        // Room scroll storage keeps WRAM bytes across rooms; WRAM is not guarded cartridge data.
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-    }
+    // Room scroll storage keeps WRAM bytes across rooms; the guard serves WRAM, guarding only cartridge data.
+    private static CartridgeReadGuard NewRetailScrollProgramReadGuard(ISnesAddressSpace source) =>
+        new MutableCartridgeReadGuard(source)
+            .Forbid(address => RoomPlmScrollProgramDefinitions.Pointers.Any(pointer =>
+                    address >= (0x8f0000 | pointer) &&
+                    address < (0x8f0000 | pointer) + RoomPlmScrollProgramDefinitions.Get(pointer).Length),
+                address => $"Retail scroll PLM reread compiled program byte ${address:X6}.");
 }

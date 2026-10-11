@@ -9,7 +9,9 @@ internal static partial class Program
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new FallingSparkLaunchReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CartridgeReadGuard(rom)
+            .Forbid(address => address is >= 0x86f3d4 and < 0x86f3f4, _ => "Unexpected migrated falling-spark launch read.")
+            .RejectWrites(_ => "Unexpected falling-spark bus write."));
         ushort random = 0;
         int advances = 0;
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => { advances++; return random; }));
@@ -54,17 +56,5 @@ internal static partial class Program
         AssertEqual(0, advances, "Full projectile pool does not consume spark RNG");
         AssertEqual(previousX, projectile.Position.X.Whole, "Failed allocation preserves occupied projectile");
         Console.WriteLine("Falling sparks: 16 native words including overread, all 65536 RNG selections, real spawns and horizontal motion pass with launch-table reads forbidden.");
-    }
-
-    private sealed class FallingSparkLaunchReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0x86f3d4 and < 0x86f3f4
-            ? throw new InvalidOperationException("Unexpected migrated falling-spark launch read.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected falling-spark bus write.");
     }
 }

@@ -22,7 +22,7 @@ internal static partial class Program
         Suite(nameof(VerifyBotwoonHeadSpitSelection), () => VerifyBotwoonHeadSpitSelection(rom));
         Suite(nameof(VerifyBotwoonBodyTailSelection), () => VerifyBotwoonBodyTailSelection(rom));
 
-        var guarded = new BotwoonInstructionReadGuard(rom);
+        var guarded = NewBotwoonInstructionReadGuard(rom);
         var animateHead = typeof(RoomEnemySystem).GetMethod(
             "AnimateBotwoonHeadFromMovement", flags)!
             .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
@@ -141,7 +141,7 @@ internal static partial class Program
         Suite(nameof(VerifyBotwoonControlMapping), () => VerifyBotwoonControlMapping(rom));
         Suite(nameof(VerifyBotwoonOperandMapping), () => VerifyBotwoonOperandMapping());
         Suite(nameof(VerifyBotwoonVisualMapping), () => VerifyBotwoonVisualMapping(rom));
-        var guard = new BotwoonInstructionReadGuard(rom);
+        var guard = NewBotwoonInstructionReadGuard(rom);
         ushort[] movementPrograms =
             [.. Enum.GetValues<BotwoonMovementProgram>().Select(program => (ushort)program)];
         ushort[] spitPrograms =
@@ -198,7 +198,7 @@ internal static partial class Program
                 $"Botwoon spit program ${program:X4} reaches sleep");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "all live Botwoon head spritemap selectors use compiled presentation words");
         for (int index = 0;
              index < BotwoonInstructionProgramDefinitions.PresentationWordCount;
@@ -245,7 +245,7 @@ internal static partial class Program
 
         static (RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State)
             CreateBotwoonProgramSystem(
-                BotwoonInstructionReadGuard guard,
+                CartridgeReadGuard guard,
                 ushort program)
         {
             var enemies = new RoomEnemySystem();
@@ -291,47 +291,25 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class BotwoonInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewBotwoonInstructionReadGuard(ISnesAddressSpace source)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        var guard = new CartridgeReadGuard(source)
+            .Forbid(BotwoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Botwoon mechanics byte ${address:X6}.")
+            .Forbid(address => address is >= 0xb3946b and < 0xb3949b or >= 0x86e9f1 and < 0x86ea31,
+                address => $"Botwoon attempted migrated instruction-table read ${address:X6}.");
+        // Every presentation word whose low or high byte is read is recorded, not just the first.
+        guard.Observe(address => (address & 0xff0000) == 0xb30000, address =>
         {
-            if (BotwoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0; index < BotwoonInstructionProgramDefinitions.PresentationWordCount; index++)
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Botwoon mechanics byte ${address:X6}.");
+                ushort presentation = BotwoonInstructionProgramDefinitions.PresentationWordAddress(index);
+                if (bankAddress == presentation || bankAddress == unchecked((ushort)(presentation + 1)))
+                    guard.ObservedWords.Add(presentation);
             }
-            if (address is >= 0xb3946b and < 0xb3949b or >= 0x86e9f1 and < 0x86ea31)
-            {
-                throw new InvalidOperationException(
-                    $"Botwoon attempted migrated instruction-table read ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xb30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < BotwoonInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        BotwoonInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        });
+        return guard;
     }
     private static void VerifyBotwoonControlMapping(SuperMetroidAddressSpace rom)
     {

@@ -23,7 +23,7 @@ internal static partial class Program
                 AssertEqual(native.ReadByte(StandardObjectArtworkAddresses.Source + offset),
                     baseline.Transfer.Span[offset], $"standard OBJ native byte {offset:X4}");
 
-            var guard = new FrontendCartridgeReadGuard(
+            var guard = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
             var runtime = new SuperMetroidRuntime(guard, initialPaletteArt: palettes)
                 { StandardObjectArt = baseline };

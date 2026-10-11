@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crystal Flash body and bubble colors")]
     private static void VerifyCrystalFlashColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
@@ -54,7 +55,7 @@ internal static partial class Program
         SamusState samus = StartCrystalFlash();
         SamusState nativeSamus = StartCrystalFlash();
 
-        var guard = new CrystalFlashColorReadGuard(rom);
+        var guard = NewCrystalFlashColorReadGuard(rom);
         var cgram = new SnesCgram();
         var nativeCgram = new SnesCgram();
         int duration = CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
@@ -150,50 +151,32 @@ internal static partial class Program
         }
     }
 
-    private sealed class CrystalFlashColorReadGuard : ISnesAddressSpace, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Crystal Flash palette pointers and colors the installed cycle must not reread")]
+    private static CartridgeReadGuard NewCrystalFlashColorReadGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> forbidden = new();
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public CrystalFlashColorReadGuard(ISnesAddressSpace source)
+        var forbidden = new HashSet<int>();
+        for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
-            this.source = source;
-            for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
-            {
-                int address = SamusPaletteRomData.CrystalFlash.BodyRecords +
-                    frame * SamusPaletteRomData.CrystalFlash.BodyRecordByteCount;
-                ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
-                forbidden.Add(address);
-                forbidden.Add(address + 1);
-                BlockColors(pointer, CrystalFlashColorFormat.BodyColorCount);
-            }
-            for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
-            {
-                int address = SamusPaletteRomData.CrystalFlash.BubblePointers +
-                    frame * sizeof(ushort);
-                ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
-                forbidden.Add(address);
-                forbidden.Add(address + 1);
-                BlockColors(pointer, CrystalFlashColorFormat.BubbleColorCount);
-            }
+            int address = SamusPaletteRomData.CrystalFlash.BodyRecords +
+                frame * SamusPaletteRomData.CrystalFlash.BodyRecordByteCount;
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
+            forbidden.Add(address);
+            forbidden.Add(address + 1);
+            BlockColors(pointer, CrystalFlashColorFormat.BodyColorCount);
         }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException($"Crystal Flash reread palette data ${address:X6}.");
-            }
-            return source.ReadByte(address);
+            int address = SamusPaletteRomData.CrystalFlash.BubblePointers +
+                frame * sizeof(ushort);
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
+            forbidden.Add(address);
+            forbidden.Add(address + 1);
+            BlockColors(pointer, CrystalFlashColorFormat.BubbleColorCount);
         }
+        return new CartridgeReadGuard(source).Forbid(forbidden.Contains,
+            address => $"Crystal Flash reread palette data ${address:X6}.");
 
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private void BlockColors(ushort pointer, int count)
+        void BlockColors(ushort pointer, int count)
         {
             int address = SamusPaletteRomData.Banks.Palette | pointer;
             for (int offset = 0; offset < count * sizeof(ushort); offset++)

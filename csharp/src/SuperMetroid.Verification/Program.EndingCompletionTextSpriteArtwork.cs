@@ -42,7 +42,7 @@ internal static partial class Program
     }
 
     private static void VerifyEndingCompletionTextVisualOverride(GameInstallation installation,
-        EndingObjectArtworkCatalog stock, EndingObjectSourceReadGuard guard)
+        EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
     {
         string name = EndingCompletionTextSpriteFormat.FileName;
         string stockPath = Path.Combine(installation.EndingObjectDirectory, name);

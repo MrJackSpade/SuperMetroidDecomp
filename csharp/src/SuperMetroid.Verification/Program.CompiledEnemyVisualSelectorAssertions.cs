@@ -9,6 +9,7 @@ internal static partial class Program
     /// The caller separately guards live execution so this reference read cannot
     /// conceal a production fallback to ROM.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's compiled visual selector word")]
     private static void AssertCompiledEnemyVisualSelector(
         SuperMetroidAddressSpace rom,
         EnemyDefinitionId enemyDefinition,
@@ -26,6 +27,7 @@ internal static partial class Program
     }
 
     /// <summary>Checks a bank-wide selector shared by more than one enemy definition.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for a bank-wide compiled visual selector word")]
     private static void AssertCompiledEnemyVisualSelector(
         SuperMetroidAddressSpace rom,
         byte bank,

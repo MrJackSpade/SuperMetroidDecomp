@@ -27,7 +27,7 @@ internal static partial class Program
                 $"gunship mechanics word $A2:{definition.Address:X4}");
         }
 
-        var guard = new GunshipInstructionReadGuard(rom);
+        var guard = NewGunshipInstructionGuard(rom);
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.EntrancePadOpening,
             EnemyDefinitionId.ShipBottomEntrance,
@@ -71,7 +71,7 @@ internal static partial class Program
 
         Suite(nameof(VerifyInitializers), () => VerifyInitializers());
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled gunship visuals require no cartridge reads");
+        AssertEqual(0, guard.ObservedWords.Count, "compiled gunship visuals require no cartridge reads");
         for (int index = 0;
              index < GunshipInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -185,43 +185,9 @@ internal static partial class Program
     private static ushort ReadGunshipWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class GunshipInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (GunshipInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled gunship mechanics ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < GunshipInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        GunshipInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewGunshipInstructionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(GunshipInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled gunship mechanics ${address:X6}.")
+            .ObserveWords(0xa20000, GunshipInstructionProgramDefinitions.PresentationWordCount, GunshipInstructionProgramDefinitions.PresentationWordAddress);
 }

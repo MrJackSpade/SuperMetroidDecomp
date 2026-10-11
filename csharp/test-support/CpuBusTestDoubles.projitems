@@ -1,0 +1,7 @@
+<Project>
+  <!-- Shared exact CPU-bus test doubles (#629). CartridgeReadGuard serves reads through ReferenceBusReadExtensions. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CpuBusTestDoubles/CartridgeReadGuard.cs" Link="TestSupport/CpuBusTestDoubles/CartridgeReadGuard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CpuBusTestDoubles/SyntheticCartridge.cs" Link="TestSupport/CpuBusTestDoubles/SyntheticCartridge.cs" />
+  </ItemGroup>
+</Project>

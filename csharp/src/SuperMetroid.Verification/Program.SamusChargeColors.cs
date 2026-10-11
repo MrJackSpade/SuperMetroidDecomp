@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge palette color words")]
     private static void VerifySamusChargeColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
@@ -42,7 +43,7 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "charge colors change installed content identity");
-        var guarded = new ChargeColorReadGuard(rom, forbidden);
+        var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -554,7 +555,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(false, invalid, 0, 0), "Invalid suit rejected");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
-        var guarded = new ChargeColorReadGuard(rom, forbidden);
+        var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = (ushort)SamusBeamFlags.Charge, ChargeColors = catalog };
         var projectiles = new SamusProjectileSystem();
@@ -588,21 +589,7 @@ internal static partial class Program
             return ReadVerificationWord(rom, address);
         }
     }
-    private sealed class ChargeColorReadGuard(ISnesAddressSpace inner, HashSet<int> forbidden)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException($"Charge palette reread ${address:X6}.");
-            }
-            return inner.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewChargeColorReadGuard(ISnesAddressSpace inner, HashSet<int> forbidden) =>
+        new CartridgeReadGuard(inner).Forbid(forbidden.Contains,
+            address => $"Charge palette reread ${address:X6}.");
 }

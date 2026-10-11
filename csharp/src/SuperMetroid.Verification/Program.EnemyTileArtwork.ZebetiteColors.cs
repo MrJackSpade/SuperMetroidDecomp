@@ -14,7 +14,12 @@ internal static partial class Program
             throw new InvalidDataException("Installed enemy artwork lacks Zebetite pulse colors.");
         SnesCgram nativeCgram = SeedColors();
         ushort nativeCounter = 0;
-        var guard = new ZebetiteColorReadGuard(bus);
+        CartridgeReadGuard guard = new CartridgeReadGuard(bus).Forbid(
+            address => address is >= ZebetiteDefinitions.PaletteSource and
+                < (ZebetiteDefinitions.PaletteSource +
+                    ZebetiteColorFormat.FrameCount * ZebetiteColorFormat.ColorsPerFrame *
+                    sizeof(ushort)),
+            address => $"Installed Zebetite pulse read migrated ROM color ${address:X6}.");
         (RoomEnemySystem installed, SnesCgram installedCgram) = Create(guard, stock);
         for (int call = 0; call < ZebetiteColorFormat.FrameCount * 2; call++)
         {
@@ -138,28 +143,5 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetMethod("CycleZebetitePalette", flags)!
                 .Invoke(enemies, [enemies.Slots[0]]);
         }
-    }
-
-    private sealed class ZebetiteColorReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= ZebetiteDefinitions.PaletteSource and
-                < (ZebetiteDefinitions.PaletteSource +
-                    ZebetiteColorFormat.FrameCount * ZebetiteColorFormat.ColorsPerFrame *
-                    sizeof(ushort)))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Installed Zebetite pulse read migrated ROM color ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

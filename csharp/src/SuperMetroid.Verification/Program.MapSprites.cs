@@ -8,6 +8,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the native map OBJ characters")]
     private static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var native = new OamBuffer();
@@ -31,7 +32,7 @@ internal static partial class Program
         var vram = new SnesVram(); original.Sprites.LoadArtworkTo(vram, MapSpriteFormat.FileSelectDestination);
         AssertTrue(vram.Bytes.Slice(MapSpriteFormat.FileSelectDestination, MapSpriteFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, new MapSpriteReadGuard(bus), original, original));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, NewMapSpriteGuard(bus), original, original));
 
         Directory.CreateDirectory(overrides);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -89,7 +90,7 @@ internal static partial class Program
 
         void VerifyRenderedEdit(AreaMapPresentationCatalog replacement)
         {
-            var guard = new MapSpriteReadGuard(bus);
+            var guard = NewMapSpriteGuard(bus);
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(AreaId.WreckedShip);
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
             var marker = new FileSelectStationMarker(bus, AreaId.WreckedShip, 0,
@@ -127,44 +128,22 @@ internal static partial class Program
             CartridgeImportSource.Require(bus), oam, address, origin,
             paletteBits, originIsOnScreen);
 
-    private sealed class MapSpriteReadGuard : ISnesMemoryBus, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: retail ROM oracle reading the native map spritemap pointers to forbid every migrated sprite source")]
+    private static MutableCartridgeReadGuard NewMapSpriteGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> forbidden = new();
-        public MapSpriteReadGuard(ISnesAddressSpace source)
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
+        var forbidden = new HashSet<int>();
+        Add(MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount);
+        Add(FileSelectMapRomData.LabelSpritemapBase, 2);
+        foreach (var frame in MapSpriteDefinitions.Frames)
         {
-            this.source = source;
-            Add(MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount);
-            Add(FileSelectMapRomData.LabelSpritemapBase, 2);
-            foreach (var frame in MapSpriteDefinitions.Frames)
-            {
-                int entry = MenuPpuState.SpritemapPointerTableAddress + (int)frame.NativeId * 2;
-                int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), entry);
-                Add(entry, 2); Add(pointer, 2 + 5 * RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer));
-            }
-            void Add(int start, int count) { for (int index = 0; index < count; index++) forbidden.Add(start + index); }
+            int entry = MenuPpuState.SpritemapPointerTableAddress + (int)frame.NativeId * 2;
+            int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, entry);
+            Add(entry, 2); Add(pointer, 2 + 5 * RomDataReader.ReadWordFixedBank(cartridge, pointer));
         }
-        private void RejectSpriteSource(int address)
-        {
-            if (forbidden.Contains(address))
-                throw new InvalidOperationException($"Installed map read migrated sprite data at {address:X6}.");
-        }
-        public byte ReadByte(int address)
-        {
-            RejectSpriteSource(address);
-            return source.ReadByte(address);
-        }
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectSpriteSource(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Map-sprite guard source does not expose WRAM.")).ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Map-sprite guard source does not expose SRAM.")).ReadSaveRamByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        void Add(int start, int count) { for (int index = 0; index < count; index++) forbidden.Add(start + index); }
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(forbidden.Contains, address => $"Installed map read migrated sprite data at {address:X6}.");
+        return guard;
     }
 }

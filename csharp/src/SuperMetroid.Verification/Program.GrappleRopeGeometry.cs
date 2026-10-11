@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple rope angle tables")]
     private static void VerifyGrappleRopeGeometry(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleEndpointGeometry), () => VerifyGrappleEndpointGeometry(bus));

@@ -52,7 +52,7 @@ internal static partial class Program
         AssertEqual((ushort)0x8123,
             level.GetCollisionBlockByIndex(5 * width + 5).LevelWord,
             $"Kraid mutation ${(int)header:X4} setup preserves tile priority");
-        var guard = new KraidRoomSourceGuard(new TestAddressSpace());
+        var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         for (int frame = 0; frame <= expectedDeletionFrame + 1 &&
@@ -89,31 +89,14 @@ internal static partial class Program
             $"Kraid mutation ${(int)header:X4} reads no migrated source bytes");
     }
 
-    private sealed class KraidRoomSourceGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int pointer = address & 0xffff;
-            if ((address >> 16) == 0x84 &&
-                ((pointer >= KraidRoomPlmProgramDefinitions.CrumbleCeilingBackground1 &&
-                  pointer < KraidRoomPlmProgramDefinitions.MoveRightCallback) ||
-                 (pointer >= KraidRoomPlmProgramDefinitions.ClearSpikes &&
-                  pointer < KraidRoomPlmProgramDefinitions.EndExclusive) ||
-                 (pointer >= (ushort)KraidRoomDraw.CrumbleFirst &&
-                  pointer < KraidRoomPlmDrawDefinitions.EndExclusive)))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Kraid mutation reread migrated source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewKraidRoomSourceGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => (address >> 16) == 0x84 &&
+                (((address & 0xffff) >= KraidRoomPlmProgramDefinitions.CrumbleCeilingBackground1 &&
+                  (address & 0xffff) < KraidRoomPlmProgramDefinitions.MoveRightCallback) ||
+                 ((address & 0xffff) >= KraidRoomPlmProgramDefinitions.ClearSpikes &&
+                  (address & 0xffff) < KraidRoomPlmProgramDefinitions.EndExclusive) ||
+                 ((address & 0xffff) >= (ushort)KraidRoomDraw.CrumbleFirst &&
+                  (address & 0xffff) < KraidRoomPlmDrawDefinitions.EndExclusive)),
+            address => $"Kraid mutation reread migrated source ${address:X6}.");
 }

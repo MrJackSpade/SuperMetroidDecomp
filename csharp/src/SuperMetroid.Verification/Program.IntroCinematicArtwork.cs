@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro cinematic characters, tilemaps and palette")]
     private static void VerifyIntroCinematicArtwork(string sourceRom, bool samusBodyOnly = false, bool presentationOnly = false)
     {
         // Edits, corruption and repairs run on a private copy of the repository installation;
@@ -102,7 +103,7 @@ internal static partial class Program
 
             var native = CreateRetailIntroFixture(bus);
             var completeInstalled = CreateRetailIntroFixture(
-                new FrontendCartridgeReadGuard(bus),
+                NewFrontendCartridgeReadGuard(bus),
                 introFont: installation.LoadMaps().IntroFont,
                 characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
@@ -111,7 +112,7 @@ internal static partial class Program
             AssertTrue(completeInstalledMemory.Vram.SequenceEqual(completeNativeMemory.Vram) &&
                 completeInstalledMemory.Cgram.SequenceEqual(completeNativeMemory.Cgram),
                 "fully installed opening upload preserves every native VRAM and CGRAM word without a cartridge read");
-            var guarded = new IntroArtworkSourceReadGuard(bus);
+            var guarded = NewIntroArtworkSourceReadGuard(bus);
             var installed = CreateRetailIntroFixture(guarded, characterArtwork: stock);
             byte[] nativeVram = native.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
             AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(nativeVram),
@@ -588,7 +589,7 @@ internal static partial class Program
     private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
-        var guarded = new IntroArtworkSourceReadGuard(bus);
+        var guarded = NewIntroArtworkSourceReadGuard(bus);
         var nativeVram = new SnesVram();
         var installedVram = new SnesVram();
         var native = new IntroCinematicObjectSystem(bus, nativeVram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
@@ -741,7 +742,7 @@ internal static partial class Program
                 changed.HighTable.SequenceEqual(original.HighTable),
             "caret JSON tile edit changes OAM art without changing sprite placement");
 
-        var guarded = new IntroArtworkSourceReadGuard(bus);
+        var guarded = NewIntroArtworkSourceReadGuard(bus);
         var nativeState = CreateRetailIntroFixture(bus);
         var installedState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -785,7 +786,7 @@ internal static partial class Program
         IntroCinematicArtworkCatalog stock)
     {
         byte[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
-        var guarded = new IntroArtworkSourceReadGuard(bus);
+        var guarded = NewIntroArtworkSourceReadGuard(bus);
         var state = CreateRetailIntroFixture(guarded, characterArtwork: stock);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
@@ -866,7 +867,7 @@ internal static partial class Program
                     .SequenceEqual(stockOam.LowTable.Slice(part * 4, 2)),
                 $"intro Mother Brain palette edit preserves part {part} screen position");
 
-        var guarded = new IntroArtworkSourceReadGuard(bus);
+        var guarded = NewIntroArtworkSourceReadGuard(bus);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
         var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
@@ -932,7 +933,7 @@ internal static partial class Program
             IntroMotherBrainExplosionSpritePresentation.Write(output, document);
         IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
 
-        var guarded = new IntroArtworkSourceReadGuard(bus,
+        var guarded = NewIntroArtworkSourceReadGuard(bus,
             blockIntroMotherBrainExplosions: true);
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
@@ -989,256 +990,212 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
-    private sealed class IntroArtworkSourceReadGuard(ISnesAddressSpace source,
+    private static MutableCartridgeReadGuard NewIntroArtworkSourceReadGuard(ISnesAddressSpace source,
         bool blockIntroMotherBrainExplosions = false,
         bool blockIntroRinkas = false,
         bool blockIntroEggEffects = false,
         bool blockIntroDiscoveryActors = false,
         bool blockIntroScientistSprites = false,
         bool blockCeresFlightSprites = false,
-        bool blockCeresDestructionSprites = false) : ISnesMemoryBus, IImportCartridgeSource
+        bool blockCeresDestructionSprites = false)
     {
-        public int ForbiddenReadAttempts { get; private set; }
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => IntroArtworkForbiddenRead(address, blockIntroMotherBrainExplosions, blockIntroRinkas, blockIntroEggEffects, blockIntroDiscoveryActors, blockIntroScientistSprites, blockCeresFlightSprites, blockCeresDestructionSprites) is not null,
+            address => IntroArtworkForbiddenRead(address, blockIntroMotherBrainExplosions, blockIntroRinkas, blockIntroEggEffects, blockIntroDiscoveryActors, blockIntroScientistSprites, blockCeresFlightSprites, blockCeresDestructionSprites)!);
+        return guard;
+    }
 
-        public byte ReadByte(int address)
+    /// <summary>The failure message for a cinematic read of migrated artwork, or null when the read is allowed.</summary>
+    private static string? IntroArtworkForbiddenRead(int address,
+        bool blockIntroMotherBrainExplosions,
+        bool blockIntroRinkas,
+        bool blockIntroEggEffects,
+        bool blockIntroDiscoveryActors,
+        bool blockIntroScientistSprites,
+        bool blockCeresFlightSprites,
+        bool blockCeresDestructionSprites)
+    {
+        if (blockCeresFlightSprites)
         {
-            if (blockCeresFlightSprites)
+            foreach (CeresFlightSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
             {
-                foreach (CeresFlightSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
+                int start = (int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                if (address >= start && address < start + 2 + frame.StockPartCount * 5)
                 {
-                    int start = (int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
-                    if (address >= start && address < start + 2 + frame.StockPartCount * 5)
-                    {
-                        ForbiddenReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Ceres flight reread installed spritemap ${address:X6}.");
-                    }
+                    return $"Ceres flight reread installed spritemap ${address:X6}.";
                 }
             }
-            if (blockCeresDestructionSprites)
-            {
-                foreach (CeresDestructionSpriteFrameDefinition frame in
-                    CeresDestructionSpriteDefinitions.Frames)
-                {
-                    int start = (int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
-                    if (address >= start && address < start + 2 + frame.StockPartCount * 5)
-                    {
-                        ForbiddenReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Ceres destruction reread installed spritemap ${address:X6}.");
-                    }
-                }
-            }
-            if (address is IntroCinematicRomData.Assets.BackgroundCharacters or
-                IntroCinematicRomData.Assets.BackgroundPageTilemaps or
-                IntroCinematicRomData.Assets.SamusHeadTilemap or
-                IntroCinematicRomData.Assets.FirstNarrationTilemap or
-                IntroCinematicRomData.Assets.IntroObjectCharacters or
-                IntroCinematicRomData.Assets.ObjectCharacters or
-                CeresFlightRomData.Assets.Mode7Characters or
-                CeresFlightRomData.Assets.Mode7Maps or
-                CeresFlightRomData.Assets.ObjectCharacters or
-                CeresDestructionRomData.Assets.ZebesTilemap or
-                CeresDestructionRomData.Assets.ZebesCharacters or
-                CeresDestructionRomDataAssetsConstants.SharedObjectCharacters)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread character source ${address:X6}.");
-            }
-            if (address is >= CeresFlightRomData.Assets.Palette and
-                < (CeresFlightRomData.Assets.Palette + SnesCgram.ByteCount))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread Ceres flight palette ${address:X6}.");
-            }
-            if (address is >= IntroCinematicRomData.Assets.Palette and
-                < (IntroCinematicRomData.Assets.Palette + SnesCgram.ByteCount))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread opening palette ${address:X6}.");
-            }
-            if (address is >= IntroCinematicRomData.Assets.FinalTextLine and
-                < (IntroCinematicRomData.Assets.FinalTextLine +
-                    IntroFinalLineTilemapFormat.CellCount * sizeof(ushort)))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread opening divider ${address:X6}.");
-            }
-            if (address >= IntroCinematicRomData.Assets.MotherBrainLevelData &&
-                address < IntroCinematicRomData.Assets.MotherBrainLevelData +
-                    IntroCinematicRomData.Flashback.MotherBrainLevelByteCount)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread Mother Brain collision source ${address:X6}.");
-            }
-            int eyeScriptStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                IntroEyeAnimationDefinitions.StartPointer);
-            int caretScriptStart = (int)new SnesAddress(
-                IntroCinematicRomDataBanksConstants.CinematicCode >> 16,
-                IntroCaretInstructionDefinitions.StartPointer);
-            if (address >= caretScriptStart &&
-                address < caretScriptStart + IntroCaretInstructionDefinitions.EndPointer -
-                    IntroCaretInstructionDefinitions.StartPointer)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread caret instruction ${address:X6}.");
-            }
-            int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                IntroEyeAnimationDefinitions.FrameStartPointer);
-            foreach (IntroCaretFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)
-            {
-                int sourceAddress = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, caret.Pointer);
-                int byteCount = 2 + caret.StockPartCount * 5;
-                if (address >= sourceAddress && address < sourceAddress + byteCount)
-                {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Cinematic reread caret composition ${address:X6}.");
-                }
-            }
-            int motherBrainSpriteStart = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps,
-                IntroMotherBrainSpriteDefinitions.FrameZero);
-            int motherBrainSpriteEnd = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps,
-                (ushort)(IntroMotherBrainSpriteDefinitions.FrameTwo +
-                    2 + IntroMotherBrainSpriteDefinitions.StockPartCount * 5));
-            if (address >= motherBrainSpriteStart && address < motherBrainSpriteEnd)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread intro Mother Brain sprite ${address:X6}.");
-            }
-            int explosionSpriteStart = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps,
-                IntroMotherBrainExplosionSpriteDefinitions.SmallStart);
-            int explosionSpriteEnd = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps,
-                IntroMotherBrainExplosionSpriteDefinitions.End);
-            if (blockIntroMotherBrainExplosions &&
-                address >= explosionSpriteStart && address < explosionSpriteEnd)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread intro Mother Brain explosion sprite ${address:X6}.");
-            }
-            int rinkaSpriteStart = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps, IntroRinkaSpriteDefinitions.First);
-            int rinkaSpriteEnd = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps, IntroRinkaSpriteDefinitions.End);
-            if (blockIntroRinkas &&
-                address >= rinkaSpriteStart && address < rinkaSpriteEnd)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread intro Rinka sprite ${address:X6}.");
-            }
-            int eggEffectSpriteStart = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps,
-                IntroEggEffectSpriteDefinitions.Start);
-            int eggEffectSpriteEnd = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps,
-                IntroEggEffectSpriteDefinitions.End);
-            if (blockIntroEggEffects &&
-                address >= eggEffectSpriteStart && address < eggEffectSpriteEnd)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread intro egg effect sprite ${address:X6}.");
-            }
-            if (blockIntroDiscoveryActors)
-            {
-                int eggStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    IntroDiscoveryActorSpriteDefinitions.EggStart);
-                int eggEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    IntroDiscoveryActorSpriteDefinitions.EggEnd);
-                int babyStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    IntroDiscoveryActorSpriteDefinitions.BabyStart);
-                int babySmallEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    IntroDiscoveryActorSpriteDefinitions.BabySmallEnd);
-                int babyLarge = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    IntroDiscoveryActorSpriteDefinitions.BabyLarge);
-                int babyEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    IntroDiscoveryActorSpriteDefinitions.BabyEnd);
-                if (address >= eggStart && address < eggEnd ||
-                    address >= babyStart && address < babySmallEnd ||
-                    address >= babyLarge && address < babyEnd)
-                {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Cinematic reread intro discovery actor sprite ${address:X6}.");
-                }
-            }
-            int scientistSpriteStart = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps,
-                IntroScientistSpriteDefinitions.Start);
-            int scientistSpriteEnd = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps,
-                IntroScientistSpriteDefinitions.End);
-            if (blockIntroScientistSprites &&
-                address >= scientistSpriteStart && address < scientistSpriteEnd)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread intro scientist sprite ${address:X6}.");
-            }
-            int motherBrainDemoListStart = DemoInputRomData.BankBase |
-                IntroMotherBrainInputDefinitions.ListStart;
-            int motherBrainDemoListEnd = DemoInputRomData.BankBase |
-                IntroMotherBrainInputDefinitions.ListEnd;
-            int motherBrainDemoHeaderStart = DemoInputRomData.BankBase |
-                IntroMotherBrainInputDefinitions.HeaderStart;
-            int motherBrainDemoHeaderEnd = DemoInputRomData.BankBase |
-                IntroMotherBrainInputDefinitions.HeaderEnd;
-            if (address >= motherBrainDemoListStart && address < motherBrainDemoListEnd ||
-                address >= motherBrainDemoHeaderStart && address < motherBrainDemoHeaderEnd)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Cinematic reread intro Mother Brain demo program ${address:X6}.");
-            }
-            if ((address >= eyeScriptStart &&
-                    address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -
-                        IntroEyeAnimationDefinitions.StartPointer) ||
-                (address >= eyeFrameStart &&
-                    address < eyeFrameStart + IntroEyeAnimationDefinitions.FrameCount *
-                        IntroEyeAnimationDefinitions.FrameStride))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException($"Cinematic reread opening eye source ${address:X6}.");
-            }
-            return source.ReadByte(address);
         }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        public byte ReadCartridgeByte(int address)
+        if (blockCeresDestructionSprites)
         {
-            // Reuse the existing forbidden-range check so typed DMA imports cannot
-            // bypass this audit's cartridge-read guard.
-            _ = ReadByte(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Intro artwork guard requires a cartridge import source."))
-                .ReadCartridgeByte(address);
+            foreach (CeresDestructionSpriteFrameDefinition frame in
+                CeresDestructionSpriteDefinitions.Frames)
+            {
+                int start = (int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+                {
+                    return $"Ceres destruction reread installed spritemap ${address:X6}.";
+                }
+            }
         }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Intro artwork guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Intro artwork guard requires SRAM."))
-            .ReadSaveRamByte(address);
+        if (address is IntroCinematicRomData.Assets.BackgroundCharacters or
+            IntroCinematicRomData.Assets.BackgroundPageTilemaps or
+            IntroCinematicRomData.Assets.SamusHeadTilemap or
+            IntroCinematicRomData.Assets.FirstNarrationTilemap or
+            IntroCinematicRomData.Assets.IntroObjectCharacters or
+            IntroCinematicRomData.Assets.ObjectCharacters or
+            CeresFlightRomData.Assets.Mode7Characters or
+            CeresFlightRomData.Assets.Mode7Maps or
+            CeresFlightRomData.Assets.ObjectCharacters or
+            CeresDestructionRomData.Assets.ZebesTilemap or
+            CeresDestructionRomData.Assets.ZebesCharacters or
+            CeresDestructionRomDataAssetsConstants.SharedObjectCharacters)
+        {
+            return $"Cinematic reread character source ${address:X6}.";
+        }
+        if (address is >= CeresFlightRomData.Assets.Palette and
+            < (CeresFlightRomData.Assets.Palette + SnesCgram.ByteCount))
+        {
+            return $"Cinematic reread Ceres flight palette ${address:X6}.";
+        }
+        if (address is >= IntroCinematicRomData.Assets.Palette and
+            < (IntroCinematicRomData.Assets.Palette + SnesCgram.ByteCount))
+        {
+            return $"Cinematic reread opening palette ${address:X6}.";
+        }
+        if (address is >= IntroCinematicRomData.Assets.FinalTextLine and
+            < (IntroCinematicRomData.Assets.FinalTextLine +
+                IntroFinalLineTilemapFormat.CellCount * sizeof(ushort)))
+        {
+            return $"Cinematic reread opening divider ${address:X6}.";
+        }
+        if (address >= IntroCinematicRomData.Assets.MotherBrainLevelData &&
+            address < IntroCinematicRomData.Assets.MotherBrainLevelData +
+                IntroCinematicRomData.Flashback.MotherBrainLevelByteCount)
+        {
+            return $"Cinematic reread Mother Brain collision source ${address:X6}.";
+        }
+        int eyeScriptStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+            IntroEyeAnimationDefinitions.StartPointer);
+        int caretScriptStart = (int)new SnesAddress(
+            IntroCinematicRomDataBanksConstants.CinematicCode >> 16,
+            IntroCaretInstructionDefinitions.StartPointer);
+        if (address >= caretScriptStart &&
+            address < caretScriptStart + IntroCaretInstructionDefinitions.EndPointer -
+                IntroCaretInstructionDefinitions.StartPointer)
+        {
+            return $"Cinematic reread caret instruction ${address:X6}.";
+        }
+        int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+            IntroEyeAnimationDefinitions.FrameStartPointer);
+        foreach (IntroCaretFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)
+        {
+            int sourceAddress = (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps, caret.Pointer);
+            int byteCount = 2 + caret.StockPartCount * 5;
+            if (address >= sourceAddress && address < sourceAddress + byteCount)
+            {
+                return $"Cinematic reread caret composition ${address:X6}.";
+            }
+        }
+        int motherBrainSpriteStart = (int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps,
+            IntroMotherBrainSpriteDefinitions.FrameZero);
+        int motherBrainSpriteEnd = (int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps,
+            (ushort)(IntroMotherBrainSpriteDefinitions.FrameTwo +
+                2 + IntroMotherBrainSpriteDefinitions.StockPartCount * 5));
+        if (address >= motherBrainSpriteStart && address < motherBrainSpriteEnd)
+        {
+            return $"Cinematic reread intro Mother Brain sprite ${address:X6}.";
+        }
+        int explosionSpriteStart = (int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps,
+            IntroMotherBrainExplosionSpriteDefinitions.SmallStart);
+        int explosionSpriteEnd = (int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps,
+            IntroMotherBrainExplosionSpriteDefinitions.End);
+        if (blockIntroMotherBrainExplosions &&
+            address >= explosionSpriteStart && address < explosionSpriteEnd)
+        {
+            return $"Cinematic reread intro Mother Brain explosion sprite ${address:X6}.";
+        }
+        int rinkaSpriteStart = (int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps, IntroRinkaSpriteDefinitions.First);
+        int rinkaSpriteEnd = (int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps, IntroRinkaSpriteDefinitions.End);
+        if (blockIntroRinkas &&
+            address >= rinkaSpriteStart && address < rinkaSpriteEnd)
+        {
+            return $"Cinematic reread intro Rinka sprite ${address:X6}.";
+        }
+        int eggEffectSpriteStart = (int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps,
+            IntroEggEffectSpriteDefinitions.Start);
+        int eggEffectSpriteEnd = (int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps,
+            IntroEggEffectSpriteDefinitions.End);
+        if (blockIntroEggEffects &&
+            address >= eggEffectSpriteStart && address < eggEffectSpriteEnd)
+        {
+            return $"Cinematic reread intro egg effect sprite ${address:X6}.";
+        }
+        if (blockIntroDiscoveryActors)
+        {
+            int eggStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                IntroDiscoveryActorSpriteDefinitions.EggStart);
+            int eggEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                IntroDiscoveryActorSpriteDefinitions.EggEnd);
+            int babyStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                IntroDiscoveryActorSpriteDefinitions.BabyStart);
+            int babySmallEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                IntroDiscoveryActorSpriteDefinitions.BabySmallEnd);
+            int babyLarge = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                IntroDiscoveryActorSpriteDefinitions.BabyLarge);
+            int babyEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                IntroDiscoveryActorSpriteDefinitions.BabyEnd);
+            if (address >= eggStart && address < eggEnd ||
+                address >= babyStart && address < babySmallEnd ||
+                address >= babyLarge && address < babyEnd)
+            {
+                return $"Cinematic reread intro discovery actor sprite ${address:X6}.";
+            }
+        }
+        int scientistSpriteStart = (int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps,
+            IntroScientistSpriteDefinitions.Start);
+        int scientistSpriteEnd = (int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps,
+            IntroScientistSpriteDefinitions.End);
+        if (blockIntroScientistSprites &&
+            address >= scientistSpriteStart && address < scientistSpriteEnd)
+        {
+            return $"Cinematic reread intro scientist sprite ${address:X6}.";
+        }
+        int motherBrainDemoListStart = DemoInputRomData.BankBase |
+            IntroMotherBrainInputDefinitions.ListStart;
+        int motherBrainDemoListEnd = DemoInputRomData.BankBase |
+            IntroMotherBrainInputDefinitions.ListEnd;
+        int motherBrainDemoHeaderStart = DemoInputRomData.BankBase |
+            IntroMotherBrainInputDefinitions.HeaderStart;
+        int motherBrainDemoHeaderEnd = DemoInputRomData.BankBase |
+            IntroMotherBrainInputDefinitions.HeaderEnd;
+        if (address >= motherBrainDemoListStart && address < motherBrainDemoListEnd ||
+            address >= motherBrainDemoHeaderStart && address < motherBrainDemoHeaderEnd)
+        {
+            return $"Cinematic reread intro Mother Brain demo program ${address:X6}.";
+        }
+        if ((address >= eyeScriptStart &&
+                address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -
+                    IntroEyeAnimationDefinitions.StartPointer) ||
+            (address >= eyeFrameStart &&
+                address < eyeFrameStart + IntroEyeAnimationDefinitions.FrameCount *
+                    IntroEyeAnimationDefinitions.FrameStride))
+        {
+            return $"Cinematic reread opening eye source ${address:X6}.";
+        }
+        return null;
     }
 }

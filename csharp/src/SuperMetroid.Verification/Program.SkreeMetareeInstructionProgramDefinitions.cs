@@ -29,11 +29,11 @@ internal static partial class Program
             }
         }
 
-        var guard = new SkreeMetareeInstructionProgramReadGuard(rom);
+        var guard = NewSkreeMetareeInstructionProgramReadGuard(rom);
         Suite(nameof(VerifySpecies), () => VerifySpecies(metaree: true));
         Suite(nameof(VerifySpecies), () => VerifySpecies(metaree: false));
 
-        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+        AssertEqual(0, guard.ForbiddenReadAttempts,
             "Skree/Metaree programs never read installed visual selectors");
         for (int species = 0; species < 2; species++)
         {
@@ -185,48 +185,14 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class SkreeMetareeInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenPresentationReadAttempts { get; private set; }
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (SkreeMetareeInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Skree/Metaree mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int species = 0; species < 2; species++)
-                {
-                    bool metaree = species == 0;
-                    for (int index = 0;
-                         index < SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount();
-                         index++)
-                    {
-                        ushort presentation =
-                            SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(
-                                metaree, index);
-                        if (bankAddress == presentation ||
-                            bankAddress == unchecked((ushort)(presentation + 1)))
-                        {
-                            ForbiddenPresentationReadAttempts++;
-                            throw new InvalidOperationException(
-                                $"Production read installed Skree/Metaree selector ${address:X6}.");
-                        }
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewSkreeMetareeInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(SkreeMetareeInstructionProgramDefinitions.IsCompiledMechanicsByte,
+                address => $"Production read compiled Skree/Metaree mechanics byte ${address:X6}.")
+            .ForbidWords(0xa30000, SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(),
+                index => SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(true, index),
+                address => $"Production read installed Skree/Metaree selector ${address:X6}.")
+            .ForbidWords(0xa30000, SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(),
+                index => SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(false, index),
+                address => $"Production read installed Skree/Metaree selector ${address:X6}.");
 }

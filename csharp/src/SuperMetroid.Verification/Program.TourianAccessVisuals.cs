@@ -162,7 +162,7 @@ internal static partial class Program
         var plms = new RoomPlmSystem { TourianAccessVisuals = edited };
         AssertTrue(plms.TrySpawnTourianAccess(level, clear),
             $"Tourian {(clear ? "clear" : "crumble")} real PLM allocates");
-        var bus = new TourianAccessSourceGuard(rom);
+        var bus = NewTourianAccessSourceGuard(rom);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         // The edited bottom clear row must be inside the camera to assert its
         // immediate VRAM update; the physical level mutation is world-relative.

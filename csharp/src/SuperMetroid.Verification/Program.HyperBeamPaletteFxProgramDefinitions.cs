@@ -79,62 +79,35 @@ internal static partial class Program
         int address) =>
         unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
 
-    private sealed class HyperBeamPaletteFxControlReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewHyperBeamPaletteFxControlGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(IsHyperBeamPaletteFxControlByte,
+            address => $"Hyper Beam palette-FX attempted control read ${address:X6}.");
+
+    private static bool IsHyperBeamPaletteFxControlByte(int address)
     {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
+        if (address >= HyperBeamPaletteFxProgramDefinitions.NativeEntryControlAddress &&
+            address < HyperBeamPaletteFxProgramDefinitions.NativeEntryControlAddress + 4)
         {
-            RejectControlRead(address);
-            return source.ReadByte(address);
+            return true;
         }
 
-        public byte ReadCartridgeByte(int address)
+        if (address >= HyperBeamPaletteFxProgramDefinitions.NativeLoopControlAddress &&
+            address < HyperBeamPaletteFxProgramDefinitions.NativeLoopControlAddress + 4)
         {
-            RejectControlRead(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Hyper Beam test source requires cartridge data.")).ReadCartridgeByte(address);
+            return true;
         }
 
-        private void RejectControlRead(int address)
+        int relative = address -
+            HyperBeamPaletteFxProgramDefinitions.NativeFirstFrameTimerAddress;
+        if (relative is < 0 or
+            >= (HyperBeamPaletteFxProgramDefinitions.FrameCount *
+                HyperBeamPaletteFxProgramDefinitions.FrameByteCount))
         {
-            if (IsControlByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Hyper Beam palette-FX attempted control read ${address:X6}.");
-            }
+            return false;
         }
 
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private static bool IsControlByte(int address)
-        {
-            if (address >= HyperBeamPaletteFxProgramDefinitions.NativeEntryControlAddress &&
-                address < HyperBeamPaletteFxProgramDefinitions.NativeEntryControlAddress + 4)
-            {
-                return true;
-            }
-
-            if (address >= HyperBeamPaletteFxProgramDefinitions.NativeLoopControlAddress &&
-                address < HyperBeamPaletteFxProgramDefinitions.NativeLoopControlAddress + 4)
-            {
-                return true;
-            }
-
-            int relative = address -
-                HyperBeamPaletteFxProgramDefinitions.NativeFirstFrameTimerAddress;
-            if (relative is < 0 or
-                >= (HyperBeamPaletteFxProgramDefinitions.FrameCount *
-                    HyperBeamPaletteFxProgramDefinitions.FrameByteCount))
-            {
-                return false;
-            }
-
-            int inFrame = relative % HyperBeamPaletteFxProgramDefinitions.FrameByteCount;
-            return inFrame is < sizeof(ushort) or
-                >= (HyperBeamPaletteFxProgramDefinitions.FrameByteCount - sizeof(ushort));
-        }
+        int inFrame = relative % HyperBeamPaletteFxProgramDefinitions.FrameByteCount;
+        return inFrame is < sizeof(ushort) or
+            >= (HyperBeamPaletteFxProgramDefinitions.FrameByteCount - sizeof(ushort));
     }
 }

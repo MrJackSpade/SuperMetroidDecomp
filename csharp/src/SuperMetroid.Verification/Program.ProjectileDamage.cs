@@ -14,7 +14,7 @@ internal static partial class Program
             0x938641, 0x938657, 0x93866d, 0x938671, 0x938675, 0x938679, 0x93867d, 0x938681,
             0x938685, 0x938689, 0x93868d, 0x938691, 0x938695, 0x9386ab, 0x9386c1, 0x9386d7,
         }).ToArray();
-        var bus = new ProjectileDamageReadGuard(rom);
+        var bus = NewProjectileDamageReadGuard(rom);
         foreach (int address in headers)
             AssertEqual(Word(address), SamusProjectileDamageDefinitions.Read(address), "Compiled native damage header");
         for (int address = 0x9383c1; address < 0x9386db; address += 2)
@@ -167,7 +167,7 @@ internal static partial class Program
     private static void VerifyComboMotionAndActivation(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyComboSineOffsetAlias), () => VerifyComboSineOffsetAlias(rom));
-        var guarded = new ComboMechanicsReadGuard(rom);
+        var guarded = NewComboMechanicsReadGuard(rom);
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
             var projectiles = new SamusProjectileSystem();
@@ -215,45 +215,21 @@ internal static partial class Program
             "  Special beam mechanics: twelve costs, four origin angles and 65,536 sine offsets match cartridge data; all four producers avoid those ROM tables.");
     }
 
-    private sealed class ProjectileDamageReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewProjectileDamageReadGuard(ISnesAddressSpace source)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadWorkRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x9383c1 and < 0x9386db)
-                throw new InvalidDataException($"Projectile damage still reads compiled ROM header ${address:X6}.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is >= 0x9383c1 and < 0x9386db,
+            address => new InvalidDataException($"Projectile damage still reads compiled ROM header ${address:X6}."));
+        return guard;
     }
 
-    private sealed class ComboMechanicsReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewComboMechanicsReadGuard(ISnesAddressSpace source)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadWorkRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= SamusComboRomData.Costs and < SamusComboRomData.Costs + 24 or
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is >= SamusComboRomData.Costs and < SamusComboRomData.Costs + 24 or
                 >= SamusComboRomDataConstants.OriginAngles and < SamusComboRomDataConstants.OriginAngles + 8 or
-                >= SamusComboRomDataConstants.PositiveSine and < SamusComboRomDataConstants.PositiveSine + 512)
-                throw new InvalidOperationException(
-                    $"Special beam mechanics still read compiled ROM byte ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+                >= SamusComboRomDataConstants.PositiveSine and < SamusComboRomDataConstants.PositiveSine + 512,
+            address => $"Special beam mechanics still read compiled ROM byte ${address:X6}.");
+        return guard;
     }
 }

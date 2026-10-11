@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Reads the four bank-$AD pointer-selected damage palette pairs once at installation.</summary>
+[CpuBusBoundary("codec: ROM bank-$AD damage palette pointer pairs → Mother Brain health palettes")]
 internal static class MotherBrainHealthPaletteExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Mother Brain death colors and selectors")]
     private static void VerifyInstalledMotherBrainDeathColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -90,7 +91,19 @@ internal static partial class Program
                 .MotherBrainDeathColors!.CorpseColor(7, 5),
             "Mother Brain death color override survives catalog reload");
 
-        var guard = new MotherBrainDeathColorReadGuard(rom);
+        CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
+            address => address >= MotherBrainDeathRomData.BodyFadeTable &&
+                    address < MotherBrainDeathRomData.BodyFadeSource(
+                        MotherBrainDeathRomData.BodyFadeFrameCount - 1) +
+                        MotherBrainDeathRomData.BodyColorCount * 2 * sizeof(ushort) ||
+                address >= MotherBrainDeathRomData.CorpseFadeTable &&
+                    address < MotherBrainDeathRomData.CorpseFadeSource(
+                        MotherBrainDeathRomData.CorpseFadeFrameCount - 1) +
+                        MotherBrainDeathRomData.CorpseColorCount * sizeof(ushort) ||
+                address is >= MotherBrainDeathRomData.DoorPalette and
+                    < (MotherBrainDeathRomData.DoorPalette +
+                        MotherBrainDeathRomData.BodyColorCount * sizeof(ushort)),
+            address => $"Live Mother Brain death read migrated ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -164,40 +177,5 @@ internal static partial class Program
         {
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
-    }
-
-    private sealed class MotherBrainDeathColorReadGuard(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            bool body = address >= MotherBrainDeathRomData.BodyFadeTable &&
-                address < MotherBrainDeathRomData.BodyFadeSource(
-                    MotherBrainDeathRomData.BodyFadeFrameCount - 1) +
-                    MotherBrainDeathRomData.BodyColorCount * 2 * sizeof(ushort);
-            bool corpse = address >= MotherBrainDeathRomData.CorpseFadeTable &&
-                address < MotherBrainDeathRomData.CorpseFadeSource(
-                    MotherBrainDeathRomData.CorpseFadeFrameCount - 1) +
-                    MotherBrainDeathRomData.CorpseColorCount * sizeof(ushort);
-            bool door = address is >= MotherBrainDeathRomData.DoorPalette and
-                < (MotherBrainDeathRomData.DoorPalette +
-                    MotherBrainDeathRomData.BodyColorCount * sizeof(ushort));
-            if (body || corpse || door)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Live Mother Brain death read migrated ROM ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

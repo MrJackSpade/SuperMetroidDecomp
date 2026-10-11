@@ -9,6 +9,7 @@ internal static partial class Program
     /// Compares the live Baby animation against the original bank-$82 stream,
     /// then reaches the live menu to cover its fixed text and selection layout.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the game-over Baby animation stream")]
     static void VerifyGameOverRomData()
     {
         AssertEqual(GameOverRomData.TilemapWidth * sizeof(ushort),

@@ -35,7 +35,7 @@ internal static partial class Program
         }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort randomNumber = 0;
-        var guard = new ShitroidInstructionReadGuard(rom);
+        var guard = NewShitroidInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         Type type = typeof(RoomEnemySystem);
@@ -117,7 +117,7 @@ internal static partial class Program
         AssertEqual((ushort?)0x0052, enemies.LastShitroidSoundEffectLibrary2,
             "set-high-bit remorse branch publishes native Shitroid cry");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Shitroid sprite selection performs zero live cartridge reads");
         AssertEqual(ShitroidInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "all Shitroid visual operands execute");
@@ -194,47 +194,9 @@ internal static partial class Program
             source.ReadByte(0xa90000 | address) |
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class ShitroidInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (ShitroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Shitroid mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa90000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < ShitroidInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        ShitroidInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewShitroidInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(ShitroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Shitroid mechanics byte ${address:X6}.")
+            .ObserveWords(0xa90000, ShitroidInstructionProgramDefinitions.PresentationWordCount, ShitroidInstructionProgramDefinitions.PresentationWordAddress);
 }

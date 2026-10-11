@@ -89,7 +89,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new DraygonIntroDefinitionReadGuard(rom));
+            NewDraygonIntroDefinitionReadGuard(rom));
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
             enemies,
             (Func<ushort>)(() => 0));
@@ -176,7 +176,7 @@ internal static partial class Program
         var malformedEnemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             malformedEnemies,
-            new DraygonIntroDefinitionReadGuard(rom));
+            NewDraygonIntroDefinitionReadGuard(rom));
         var malformedRun = typeof(RoomEnemySystem).GetMethod(
             "RunDraygonIntroDance",
             flags)!.CreateDelegate<Action<DraygonEnemyState, SamusState?, byte>>(malformedEnemies);
@@ -193,27 +193,12 @@ internal static partial class Program
             "Production Draygon intro rejects malformed restored movement without a ROM fallback");
     }
 
-    private sealed class DraygonIntroDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            bool migratedLatency = address is >= 0xa5a19f and < 0xa5a1a7;
-            bool migratedMovement = address >=
-                    DraygonIntroDanceDefinitions.NativeMovementStreamAddress &&
-                address <= DraygonIntroDanceDefinitions.NativeMovementStreamAddress +
-                    DraygonIntroDanceDefinitions.LastMovementStreamOffset + 1;
-            return migratedLatency || migratedMovement
-                ? throw new InvalidOperationException(
-                    $"Draygon intro attempted migrated definition read ${address:X6}.")
-                : source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDraygonIntroDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                    address is >= 0xa5a19f and < 0xa5a1a7 ||
+                    address >= DraygonIntroDanceDefinitions.NativeMovementStreamAddress &&
+                    address <= DraygonIntroDanceDefinitions.NativeMovementStreamAddress +
+                        DraygonIntroDanceDefinitions.LastMovementStreamOffset + 1,
+                address => $"Draygon intro attempted migrated definition read ${address:X6}.");
 }

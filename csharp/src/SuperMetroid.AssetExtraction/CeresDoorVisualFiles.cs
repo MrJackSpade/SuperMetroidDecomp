@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports the Ceres-door actor's direct tile DMA and authored RGB5 rows.</summary>
+[CpuBusBoundary("codec: ROM Ceres-door tile DMA and RGB5 rows → Ceres door visual files")]
 public static class CeresDoorVisualFiles
 {
     /// <summary>Exports the Ceres door tile DMA as indexed PNG and its normal, escape, animated, and Mode 7 appearances as JSON, verifying the tile round-trip.</summary>

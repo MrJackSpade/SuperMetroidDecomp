@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple tile transfers and segment tile pointers")]
     private static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleSpriteArtwork), () => VerifyGrappleSpriteArtwork(bus));
@@ -19,7 +20,11 @@ internal static partial class Program
         var edited = GrappleTileAtlas.Load(new MemoryStream(changedPng.ToArray()));
         foreach (var transfer in GrappleTileDefinitions.Transfers)
             AssertTrue(stock.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
-        var guard = new GrappleTileReadGuard(bus);
+        var guard = new CartridgeReadGuard(bus)
+            .ForbidRange(0x9bc342, 0x9bc3c6 - 0x9bc342, _ => "Grapple still reads tile pointer ROM.")
+            .Forbid(address => GrappleTileDefinitions.Transfers.Any(transfer =>
+                    address >= transfer.SourceAddress && address < transfer.SourceAddress + transfer.ByteCount),
+                _ => "Grapple still reads tile pixel ROM.");
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusGrappleRomData.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
@@ -80,21 +85,5 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(new MemoryStream(new byte[8])), "Malformed Grapple PNG rejected");
         AssertThrows<InvalidDataException>(() => stock.Resolve(VramAssetId.StandardHudTiles), "Grapple provider rejects unrelated identity");
         Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production uploads preserve native OAM, full state and full VRAM; all sixteen edited tiles map exactly.");
-    }
-
-    private sealed class GrappleTileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace,
-        IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x9bc342 and < 0x9bc3c6) throw new InvalidOperationException("Grapple still reads tile pointer ROM.");
-            foreach (var transfer in GrappleTileDefinitions.Transfers)
-                if (address >= transfer.SourceAddress && address < transfer.SourceAddress + transfer.ByteCount)
-                    throw new InvalidOperationException("Grapple still reads tile pixel ROM.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

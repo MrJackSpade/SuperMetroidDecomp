@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports the three ordinary suit palettes; selection and palette timing stay compiled.</summary>
+[CpuBusBoundary("codec: ROM ordinary suit palettes → Samus suit colors")]
 public static class SamusSuitColorExtractor
 {
     /// <summary>Exports the ordinary Power, Varia, and Gravity suit OBJ palette rows, not suit-up effects or transient palette cycles.</summary>

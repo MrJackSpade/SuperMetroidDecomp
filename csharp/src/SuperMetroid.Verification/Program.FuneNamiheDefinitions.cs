@@ -15,7 +15,9 @@ internal static partial class Program
             bool right = (variant & 1) != 0;
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, new FuneNamiheReadGuard(new TestAddressSpace()));
+                enemies, new CartridgeReadGuard(new TestAddressSpace()).Forbid(
+                    address => address is >= 0xa896d3 and < 0xa896e3,
+                    address => $"Fune/Namihe attempted migrated selector read ${address:X6}."));
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeFuneNamihe", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             var runMain = typeof(RoomEnemySystem).GetMethod("RunFuneNamiheMain", flags)!
@@ -61,15 +63,5 @@ internal static partial class Program
         foreach (ushort cursor in new ushort[] { 0, 1, 0x16d3, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList(cursor),
                 "Fune/Namihe selection rejects distant and wrapped cursors");
-    }
-    private sealed class FuneNamiheReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa896d3 and < 0xa896e3
-            ? throw new InvalidOperationException(
-                $"Fune/Namihe attempted migrated selector read ${address:X6}.")
-            : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

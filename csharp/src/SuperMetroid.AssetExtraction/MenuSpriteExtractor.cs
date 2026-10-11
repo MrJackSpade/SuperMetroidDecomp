@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Decodes ordered bank-$82 menu parts, preserving native caller-palette inheritance.</summary>
+[CpuBusBoundary("codec: ROM bank-$82 menu spritemap parts → menu sprites")]
 internal static class MenuSpriteExtractor
 {
     public static SpriteVisualPart[] Read(ISnesAddressSpace bus, ushort id)

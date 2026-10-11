@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Hardware;
 /// <summary>
 /// Import-only cartridge access for extractors that also pass a mutable address space.
 /// </summary>
+[CpuBusAccess]
 public static class SnesCartridgeImportExtensions
 {
     /// <summary>Reads one cartridge byte through an address space's import-only capability.</summary>

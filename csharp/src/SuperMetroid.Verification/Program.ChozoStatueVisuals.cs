@@ -59,7 +59,7 @@ internal static partial class Program
             var blockDefinitions = new byte[0x400 * 8];
             blockDefinitions[0x53 * 8] = 0x53;
             blockDefinitions[0x54 * 8] = 0x54;
-            var guarded = new ChozoProgramAndDrawReadGuard(rom);
+            var guarded = NewChozoProgramAndDrawReadGuard(rom);
             foreach ((PlmHeaderId header, ushort physical, ushort visual) in new[]
             {
                 (PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, (ushort)0x012b, (ushort)0x0053),
@@ -150,47 +150,25 @@ internal static partial class Program
         }
     }
 
-    private sealed class ChozoProgramAndDrawReadGuard(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
-    {
-        private ISnesMutableMemory WorkMemory => source as ISnesMutableMemory ??
-            throw new InvalidOperationException("Chozo read guard source has no live WRAM.");
-
-        public byte ReadWorkRamByte(int cpuAddress) => WorkMemory.ReadWorkRamByte(cpuAddress);
-
-        public byte ReadSaveRamByte(int cpuAddress) => WorkMemory.ReadSaveRamByte(cpuAddress);
-
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if ((address >= (0x840000 | ChozoStatuePlmProgramDefinitions.CrumblePlugStart) &&
-                 address <= (0x840000 | ChozoStatuePlmProgramDefinitions.CrumblePlugEnd)) ||
-                (address >= (0x840000 | ChozoStatuePlmProgramDefinitions.LowerNorfairHandStart) &&
-                 address <= (0x840000 | ChozoStatuePlmProgramDefinitions.LowerNorfairHandEnd)) ||
-                (address >= (0x840000 | ChozoStatuePlmProgramDefinitions.ClearSlopeStart) &&
-                 address <= (0x840000 | ChozoStatuePlmProgramDefinitions.ClearSlopeEnd)) ||
-                (address >= (0x840000 | ChozoStatuePlmProgramDefinitions.BlockSlopeStart) &&
-                 address <= (0x840000 | ChozoStatuePlmProgramDefinitions.BlockSlopeEnd)) ||
-                (address >= (0x840000 | RoomPlmSharedDeleteProgramDefinitions.Start) &&
-                 address <= (0x840000 | RoomPlmSharedDeleteProgramDefinitions.End)) ||
-                ChozoStatuePlmDrawDefinitions.All.Any(draw =>
-            {
-                int first = 0x840000 | draw.Pointer;
-                int length = draw.Runs.Span.ToArray().Sum(run =>
-                    4 + run.LevelWords.Length * 2);
-                return address >= first && address < first + length;
-            }))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Chozo PLM reread compiled program or draw byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewChozoProgramAndDrawReadGuard(ISnesAddressSpace source) =>
+        new MutableCartridgeReadGuard(source)
+            .Forbid(address =>
+                    (address >= (0x840000 | ChozoStatuePlmProgramDefinitions.CrumblePlugStart) &&
+                     address <= (0x840000 | ChozoStatuePlmProgramDefinitions.CrumblePlugEnd)) ||
+                    (address >= (0x840000 | ChozoStatuePlmProgramDefinitions.LowerNorfairHandStart) &&
+                     address <= (0x840000 | ChozoStatuePlmProgramDefinitions.LowerNorfairHandEnd)) ||
+                    (address >= (0x840000 | ChozoStatuePlmProgramDefinitions.ClearSlopeStart) &&
+                     address <= (0x840000 | ChozoStatuePlmProgramDefinitions.ClearSlopeEnd)) ||
+                    (address >= (0x840000 | ChozoStatuePlmProgramDefinitions.BlockSlopeStart) &&
+                     address <= (0x840000 | ChozoStatuePlmProgramDefinitions.BlockSlopeEnd)) ||
+                    (address >= (0x840000 | RoomPlmSharedDeleteProgramDefinitions.Start) &&
+                     address <= (0x840000 | RoomPlmSharedDeleteProgramDefinitions.End)) ||
+                    ChozoStatuePlmDrawDefinitions.All.Any(draw =>
+                    {
+                        int first = 0x840000 | draw.Pointer;
+                        int length = draw.Runs.Span.ToArray().Sum(run =>
+                            4 + run.LevelWords.Length * 2);
+                        return address >= first && address < first + length;
+                    }),
+                address => $"Chozo PLM reread compiled program or draw byte ${address:X6}.");
 }

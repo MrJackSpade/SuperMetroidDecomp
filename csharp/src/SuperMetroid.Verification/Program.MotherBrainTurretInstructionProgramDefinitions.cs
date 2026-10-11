@@ -30,7 +30,7 @@ internal static partial class Program
                 $"Mother Brain turret mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new MotherBrainTurretInstructionReadGuard(rom);
+        var guard = NewMotherBrainTurretInstructionReadGuard(rom);
         MethodInfo spawnTurret = typeof(RoomEnemySystem).GetMethod(
             "SpawnMotherBrainTurret", flags)!;
         MethodInfo spawnBullet = typeof(RoomEnemySystem).GetMethod(
@@ -143,7 +143,7 @@ internal static partial class Program
         AssertEqual(21,
             MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount,
             "Mother Brain turret catalog retains all presentation operands");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Mother Brain turret visual operands require no runtime cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared Mother Brain turret mechanics bytes");
@@ -204,48 +204,10 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class MotherBrainTurretInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (MotherBrainTurretInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Mother Brain turret mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = MotherBrainTurretInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMotherBrainTurretInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => MotherBrainTurretInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Mother Brain turret mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount, MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress);
 }

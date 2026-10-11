@@ -7,6 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Separates selector artwork/timing/positions from the fixed low-byte category dispatcher.</summary>
+[CpuBusBoundary("codec: ROM pause selector artwork, timing and position tables → pause selectors")]
 public static class PauseSelectorExtractor
 {
     /// <summary>Validates native selector category bindings, resolves anchors and sprite frames, and serializes its bounded animation phases and palette.</summary>

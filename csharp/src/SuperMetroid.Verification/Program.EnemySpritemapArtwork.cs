@@ -119,7 +119,7 @@ internal static partial class Program
             () => EnemySpritemapDefinitions.BullFrameAt(0xd871),
             "Bull rejects adjacent shot-angle data as presentation");
 
-        var guard = new BullInstructionProgramReadGuard(rom, forbidPresentation: true);
+        var guard = NewBullInstructionProgramReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -148,7 +148,7 @@ internal static partial class Program
             "installed Bull immune-shot program returns to the normal loop");
         AssertEqual((ushort)0, bull.Timer,
             "installed Bull immune-shot loop exhausts its native repeat timer");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "installed Bull programs read no cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed Bull programs retain compiled timing and control words");
@@ -174,7 +174,7 @@ internal static partial class Program
                 PuyoInstructionProgramDefinitions.FirstAdjacentDefinition),
             "Puyo rejects adjacent hop definitions as presentation operands");
 
-        var guard = new PuyoInstructionReadGuard(rom, forbidPresentation: true);
+        var guard = NewPuyoInstructionReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         RoomEnemySlot puyo = enemies.Slots[0];
@@ -197,7 +197,7 @@ internal static partial class Program
             puyo.CurrentInstruction = program;
             ExecutePuyoInstructionCalls(enemies, process, arguments, puyo, 2);
         }
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "installed Puyo programs read no cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed Puyo programs retain compiled timing and control words");
@@ -547,7 +547,7 @@ internal static partial class Program
             () => EnemySpritemapDefinitions.RioFrameAt(
                 RioInstructionProgramDefinitions.FirstAdjacentMechanicsData),
             "Rio rejects adjacent data as a presentation operand");
-        var rioGuard = new RioInstructionReadGuard(rom, forbidPresentation: true);
+        var rioGuard = NewRioInstructionReadGuard(rom, forbidPresentation: true);
         var installedRio = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installedRio, rioGuard);
         RoomEnemySlot rioSlot = installedRio.Slots[0];
@@ -568,7 +568,7 @@ internal static partial class Program
             RioInstructionProgramDefinitions.SwoopingPart2, callCount: 3);
         ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
             RioInstructionProgramDefinitions.SwoopCooldown, callCount: 6);
-        AssertEqual(0, rioGuard.ObservedPresentationWords.Count,
+        AssertEqual(0, rioGuard.ObservedWords.Count,
             "installed Rio programs never read ROM visual selectors");
         for (int index = 0;
              index < LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -586,7 +586,7 @@ internal static partial class Program
             () => EnemySpritemapDefinitions.LowerNorfairRioFrameAt(
                 LowerNorfairRioInstructionProgramDefinitions.AdjacentMovementDefinitions),
             "Lower Norfair Rio rejects adjacent movement data as presentation");
-        var lowerRioGuard = new LowerNorfairRioInstructionReadGuard(
+        var lowerRioGuard = NewLowerNorfairRioInstructionReadGuard(
             rom, forbidPresentation: true);
         MethodInfo lowerRioProcess = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;
@@ -608,7 +608,7 @@ internal static partial class Program
             RunLowerNorfairRioInstructionFrames(
                 lowerRioProcess, enemies, arguments, slot, calls);
         }
-        AssertEqual(0, lowerRioGuard.ObservedPresentationWords.Count,
+        AssertEqual(0, lowerRioGuard.ObservedWords.Count,
             "installed Lower Norfair Rio programs never read ROM visual selectors");
         for (int index = 0;
              index < NorfairRioInstructionProgramDefinitions.PresentationWordCount;
@@ -626,7 +626,7 @@ internal static partial class Program
             () => EnemySpritemapDefinitions.NorfairRioFrameAt(
                 NorfairRioInstructionProgramDefinitions.AdjacentMovementDefinitions),
             "Norfair Rio rejects adjacent movement data as presentation");
-        var norfairRioGuard = new NorfairRioInstructionReadGuard(
+        var norfairRioGuard = NewNorfairRioInstructionReadGuard(
             rom, forbidPresentation: true);
         MethodInfo norfairRioProcess = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;
@@ -648,7 +648,7 @@ internal static partial class Program
             RunNorfairRioInstructionFrames(
                 norfairRioProcess, enemies, arguments, slot, calls);
         }
-        AssertEqual(0, norfairRioGuard.ObservedPresentationWords.Count,
+        AssertEqual(0, norfairRioGuard.ObservedWords.Count,
             "installed Norfair Rio programs never read ROM visual selectors");
         Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(rom, stock, flags));
         Suite(nameof(VerifyInstalledBullInstructionFrames), () => VerifyInstalledBullInstructionFrames(rom, stock, flags));
@@ -1063,7 +1063,7 @@ internal static partial class Program
                 continue;
             if (frame.Name.StartsWith("ridley_supplement_", StringComparison.Ordinal))
                 continue;
-            var room = DrawEnemy(stock, new FrameReadGuard(rom, frame.Name), frame.Pointer,
+            var room = DrawEnemy(stock, NewFrameReadGuard(rom, frame.Name), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
                     ? EnemyDefinitionId.Boyon
                     : frame.Name.StartsWith("mochtroid_", StringComparison.Ordinal)
@@ -1828,77 +1828,77 @@ internal static partial class Program
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        OamBuffer stockDragon = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockDragon = DrawEnemy(stock, NewFrameReadGuard(rom),
             DragonVisualDefinitions.FrameAt(
                 DragonInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Dragon);
-        OamBuffer editedDragon = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedDragon = DrawEnemy(edited, NewFrameReadGuard(rom),
             DragonVisualDefinitions.FrameAt(
                 DragonInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Dragon);
         AssertEqual(unchecked((byte)(stockDragon.LowTable[0] + 1)),
             editedDragon.LowTable[0],
             "Dragon authored body offset changes installed room OAM");
-        OamBuffer stockMultiviola = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockMultiviola = DrawEnemy(stock, NewFrameReadGuard(rom),
             MultiviolaVisualDefinitions.FrameAt(
                 MultiviolaInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Multiviola);
-        OamBuffer editedMultiviola = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedMultiviola = DrawEnemy(edited, NewFrameReadGuard(rom),
             MultiviolaVisualDefinitions.FrameAt(
                 MultiviolaInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Multiviola);
         AssertEqual(unchecked((byte)(stockMultiviola.LowTable[0] + 1)),
             editedMultiviola.LowTable[0],
             "Multiviola authored body offset changes installed room OAM");
-        OamBuffer stockLavaJumper = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockLavaJumper = DrawEnemy(stock, NewFrameReadGuard(rom),
             NorfairLavaJumperVisualDefinitions.FrameAt(
                 NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Squeept);
-        OamBuffer editedLavaJumper = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedLavaJumper = DrawEnemy(edited, NewFrameReadGuard(rom),
             NorfairLavaJumperVisualDefinitions.FrameAt(
                 NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Squeept);
         AssertEqual(unchecked((byte)(stockLavaJumper.LowTable[0] + 1)),
             editedLavaJumper.LowTable[0],
             "lava-jumper authored OAM offset changes installed room presentation");
-        OamBuffer stockChozo = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockChozo = DrawEnemy(stock, NewFrameReadGuard(rom),
             ChozoStatueVisualDefinitions.FrameAt(
                 ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Chozo);
-        OamBuffer editedChozo = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedChozo = DrawEnemy(edited, NewFrameReadGuard(rom),
             ChozoStatueVisualDefinitions.FrameAt(
                 ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Chozo);
         AssertEqual(unchecked((byte)(stockChozo.LowTable[0] + 1)),
             editedChozo.LowTable[0],
             "Chozo authored body offset changes installed room OAM");
-        OamBuffer stockViola = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockViola = DrawEnemy(stock, NewFrameReadGuard(rom),
             ViolaVisualDefinitions.FrameAt(
                 ViolaInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Viola);
-        OamBuffer editedViola = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedViola = DrawEnemy(edited, NewFrameReadGuard(rom),
             ViolaVisualDefinitions.FrameAt(
                 ViolaInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Viola);
         AssertEqual(unchecked((byte)(stockViola.LowTable[0] + 1)),
             editedViola.LowTable[0],
             "Viola authored body offset changes installed room OAM");
-        OamBuffer stockRinka = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockRinka = DrawEnemy(stock, NewFrameReadGuard(rom),
             RinkaVisualDefinitions.FrameAt(
                 RinkaInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Rinka);
-        OamBuffer editedRinka = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedRinka = DrawEnemy(edited, NewFrameReadGuard(rom),
             RinkaVisualDefinitions.FrameAt(
                 RinkaInstructionProgramDefinitions.PresentationWordAddress(0)),
             EnemyDefinitionId.Rinka);
         AssertEqual(unchecked((byte)(stockRinka.LowTable[0] + 1)),
             editedRinka.LowTable[0],
             "Rinka authored body offset changes installed room OAM");
-        OamBuffer stockSciser = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockSciser = DrawEnemy(stock, NewFrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
                 SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(12)),
             EnemyDefinitionId.Sciser);
-        OamBuffer editedSciser = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedSciser = DrawEnemy(edited, NewFrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
                 SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(12)),
             EnemyDefinitionId.Sciser);
@@ -1909,21 +1909,21 @@ internal static partial class Program
                  { EnemyDefinitionId.Mellow, EnemyDefinitionId.Mella,
                    EnemyDefinitionId.Menu })
         {
-            OamBuffer stockFly = DrawEnemy(stock, new FrameReadGuard(rom),
+            OamBuffer stockFly = DrawEnemy(stock, NewFrameReadGuard(rom),
                 FlyVisualDefinitions.FrameAt(
                     FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(0)), definition);
-            OamBuffer editedFly = DrawEnemy(edited, new FrameReadGuard(rom),
+            OamBuffer editedFly = DrawEnemy(edited, NewFrameReadGuard(rom),
                 FlyVisualDefinitions.FrameAt(
                     FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(0)), definition);
             AssertEqual(unchecked((byte)(stockFly.LowTable[0] + 1)),
                 editedFly.LowTable[0],
                 $"fly ${(int)definition:X4} uses edited shared presentation");
         }
-        OamBuffer stockKago = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockKago = DrawEnemy(stock, NewFrameReadGuard(rom),
             KagoVisualDefinitions.FrameAt(
                 KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             EnemyDefinitionId.Kago);
-        OamBuffer editedKago = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedKago = DrawEnemy(edited, NewFrameReadGuard(rom),
             KagoVisualDefinitions.FrameAt(
                 KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
             EnemyDefinitionId.Kago);
@@ -1932,18 +1932,18 @@ internal static partial class Program
             "Kago authored offset changes installed presentation");
         ushort faceBlockPointer = BlueBrinstarFaceBlockVisualDefinitions.FrameAt(
             BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(6));
-        OamBuffer stockFaceBlock = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockFaceBlock = DrawEnemy(stock, NewFrameReadGuard(rom),
             faceBlockPointer, EnemyDefinitionId.FaceBlock);
-        OamBuffer editedFaceBlock = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedFaceBlock = DrawEnemy(edited, NewFrameReadGuard(rom),
             faceBlockPointer, EnemyDefinitionId.FaceBlock);
         AssertEqual(unchecked((byte)(stockFaceBlock.LowTable[0] + 1)),
             editedFaceBlock.LowTable[0],
             "face-block authored offset changes installed presentation");
         ushort morphEyePointer = MorphBallEyeVisualDefinitions.FrameAt(
             MorphBallEyeInstructionProgramDefinitions.PresentationWordAddress(34));
-        OamBuffer stockMorphEye = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockMorphEye = DrawEnemy(stock, NewFrameReadGuard(rom),
             morphEyePointer, EnemyDefinitionId.Eye);
-        OamBuffer editedMorphEye = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedMorphEye = DrawEnemy(edited, NewFrameReadGuard(rom),
             morphEyePointer, EnemyDefinitionId.Eye);
         AssertEqual(unchecked((byte)(stockMorphEye.LowTable[0] + 1)),
             editedMorphEye.LowTable[0],
@@ -1956,9 +1956,9 @@ internal static partial class Program
                    EnemyDefinitionId.ShutterShootable,
                    EnemyDefinitionId.ShutterDestroyable })
         {
-            OamBuffer stockShutter = DrawEnemy(stock, new FrameReadGuard(rom),
+            OamBuffer stockShutter = DrawEnemy(stock, NewFrameReadGuard(rom),
                 shutterPointer, definition);
-            OamBuffer editedShutter = DrawEnemy(edited, new FrameReadGuard(rom),
+            OamBuffer editedShutter = DrawEnemy(edited, NewFrameReadGuard(rom),
                 shutterPointer, definition);
             AssertEqual(unchecked((byte)(stockShutter.LowTable[0] + 1)),
                 editedShutter.LowTable[0],
@@ -1968,9 +1968,9 @@ internal static partial class Program
         }
         ushort metroidPointer = MetroidVisualDefinitions.FrameAt(
             MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
-        OamBuffer stockMetroid = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockMetroid = DrawEnemy(stock, NewFrameReadGuard(rom),
             metroidPointer, EnemyDefinitionId.Metroid);
-        OamBuffer editedMetroid = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedMetroid = DrawEnemy(edited, NewFrameReadGuard(rom),
             metroidPointer, EnemyDefinitionId.Metroid);
         AssertEqual(unchecked((byte)(stockMetroid.LowTable[0] + 1)),
             editedMetroid.LowTable[0],
@@ -2002,63 +2002,63 @@ internal static partial class Program
             "Ridley wing artwork edit changes live OAM X without ROM reads");
         AssertEqual(stockRidleyWing.LowTable[1], editedRidleyWing.LowTable[1],
             "Ridley wing artwork edit leaves physical Y placement unchanged");
-        OamBuffer stockMaw = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockMaw = DrawEnemy(stock, NewFrameReadGuard(rom),
             mawIdlePointer, EnemyDefinitionId.YappingMaw);
-        OamBuffer editedMaw = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedMaw = DrawEnemy(edited, NewFrameReadGuard(rom),
             mawIdlePointer, EnemyDefinitionId.YappingMaw);
         AssertEqual(unchecked((byte)(stockMaw.LowTable[1] + 1)),
             editedMaw.LowTable[1],
             "editable Yapping Maw OAM offset changes its displayed frame");
         AssertEqual(stockMaw.LowTable[0], editedMaw.LowTable[0],
             "Yapping Maw visual edit leaves physical X placement unchanged");
-        OamBuffer stockHunter = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockHunter = DrawEnemy(stock, NewFrameReadGuard(rom),
             hunterIdlePointer, EnemyDefinitionId.KihunterGreen);
-        OamBuffer editedHunter = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedHunter = DrawEnemy(edited, NewFrameReadGuard(rom),
             hunterIdlePointer, EnemyDefinitionId.KihunterGreen);
         AssertEqual(unchecked((byte)(stockHunter.LowTable[1] + 1)),
             editedHunter.LowTable[1],
             "editable KiHunter OAM offset changes its displayed frame");
         AssertEqual(stockHunter.LowTable[0], editedHunter.LowTable[0],
             "KiHunter visual edit leaves physical X placement unchanged");
-        OamBuffer stockIntroEvir = DrawRoomSpriteObject(stock, new BankB4ReadGuard(rom),
+        OamBuffer stockIntroEvir = DrawRoomSpriteObject(stock, NewBankB4ReadGuard(rom),
             RoomSpriteObjectKind.DraygonIntroEvir);
-        OamBuffer editedIntroEvir = DrawRoomSpriteObject(edited, new BankB4ReadGuard(rom),
+        OamBuffer editedIntroEvir = DrawRoomSpriteObject(edited, NewBankB4ReadGuard(rom),
             RoomSpriteObjectKind.DraygonIntroEvir);
         AssertEqual(unchecked((byte)(stockIntroEvir.LowTable[0] + 1)),
             editedIntroEvir.LowTable[0],
             "editable Draygon intro Evir offset changes live room sprite-object OAM");
         AssertEqual(stockIntroEvir.LowTable[1], editedIntroEvir.LowTable[1],
             "Draygon intro Evir edit leaves vertical placement unchanged");
-        OamBuffer stockDeathEvir = DrawRoomSpriteObject(stock, new BankB4ReadGuard(rom),
+        OamBuffer stockDeathEvir = DrawRoomSpriteObject(stock, NewBankB4ReadGuard(rom),
             RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
-        OamBuffer editedDeathEvir = DrawRoomSpriteObject(edited, new BankB4ReadGuard(rom),
+        OamBuffer editedDeathEvir = DrawRoomSpriteObject(edited, NewBankB4ReadGuard(rom),
             RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
         AssertEqual(unchecked((byte)(stockDeathEvir.LowTable[1] + 1)),
             editedDeathEvir.LowTable[1],
             "address-named shared sprite-object edit changes live room OAM");
         AssertEqual(stockDeathEvir.LowTable[0], editedDeathEvir.LowTable[0],
             "shared sprite-object edit leaves physical X placement unchanged");
-        OamBuffer stockFune = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockFune = DrawEnemy(stock, NewFrameReadGuard(rom),
             0x94cb, EnemyDefinitionId.Fune);
-        OamBuffer editedFune = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedFune = DrawEnemy(edited, NewFrameReadGuard(rom),
             0x94cb, EnemyDefinitionId.Fune);
         AssertEqual(unchecked((byte)(stockFune.LowTable[1] + 1)),
             editedFune.LowTable[1],
             "editable Fune idle OAM offset changes the displayed enemy frame");
         AssertEqual(stockFune.LowTable[0], editedFune.LowTable[0],
             "Fune visual edit does not change physical X position");
-        OamBuffer stockKamer = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockKamer = DrawEnemy(stock, NewFrameReadGuard(rom),
             0xf468, EnemyDefinitionId.Kamer);
-        OamBuffer editedKamer = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedKamer = DrawEnemy(edited, NewFrameReadGuard(rom),
             0xf468, EnemyDefinitionId.Kamer);
         AssertEqual(unchecked((byte)(stockKamer.LowTable[1] + 1)),
             editedKamer.LowTable[1],
             "editable Kamer platform OAM offset changes its displayed frame");
         AssertEqual(stockKamer.LowTable[0], editedKamer.LowTable[0],
             "Kamer visual edit leaves its physical X position unchanged");
-        OamBuffer stockElevator = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockElevator = DrawEnemy(stock, NewFrameReadGuard(rom),
             0x962f, EnemyDefinitionId.Elevator);
-        OamBuffer editedElevator = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedElevator = DrawEnemy(edited, NewFrameReadGuard(rom),
             0x962f, EnemyDefinitionId.Elevator);
         AssertEqual(unchecked((byte)(stockElevator.LowTable[1] + 1)),
             editedElevator.LowTable[1],
@@ -2066,9 +2066,9 @@ internal static partial class Program
         AssertEqual(stockElevator.LowTable[0], editedElevator.LowTable[0],
             "elevator visual edit leaves its physical X position unchanged");
         ushort framePointer = EnemySpritemapDefinitions.BoyonFrameAt(0x86ad);
-        var stockOam = DrawEnemy(stock, new FrameReadGuard(rom), framePointer,
+        var stockOam = DrawEnemy(stock, NewFrameReadGuard(rom), framePointer,
             EnemyDefinitionId.Boyon);
-        var editedOam = DrawEnemy(edited, new FrameReadGuard(rom), framePointer,
+        var editedOam = DrawEnemy(edited, NewFrameReadGuard(rom), framePointer,
             EnemyDefinitionId.Boyon);
         AssertEqual(unchecked((byte)(stockOam.LowTable[0] + 1)),
             editedOam.LowTable[0], "authored Boyon X offset changes live room OAM");
@@ -2076,9 +2076,9 @@ internal static partial class Program
             editedOam.LowTable[2], "authored Boyon tile changes live room OAM");
         AssertEqual(stockOam.LowTable[1], editedOam.LowTable[1],
             "visual override leaves Boyon Y unchanged");
-        OamBuffer stockCeresDoor = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockCeresDoor = DrawEnemy(stock, NewFrameReadGuard(rom),
             0xfa13, EnemyDefinitionId.CeresDoor);
-        OamBuffer editedCeresDoor = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedCeresDoor = DrawEnemy(edited, NewFrameReadGuard(rom),
             0xfa13, EnemyDefinitionId.CeresDoor,
             slot =>
             {
@@ -2092,19 +2092,19 @@ internal static partial class Program
             "authored Ceres door Y offset changes live room OAM");
         AssertEqual(stockCeresDoor.LowTable[0], editedCeresDoor.LowTable[0],
             "Ceres door visual edit leaves physical X unchanged");
-        OamBuffer stockCeresBaby = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockCeresBaby = DrawEnemy(stock, NewFrameReadGuard(rom),
             CeresBabyInstructionProgramDefinitions.RoundFrame,
             EnemyDefinitionId.CeresDoor);
-        OamBuffer editedCeresBaby = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedCeresBaby = DrawEnemy(edited, NewFrameReadGuard(rom),
             CeresBabyInstructionProgramDefinitions.RoundFrame,
             EnemyDefinitionId.CeresDoor);
         AssertEqual(unchecked((byte)(stockCeresBaby.LowTable[1] + 1)),
             editedCeresBaby.LowTable[1],
             "authored Ceres Baby Y offset changes installed OAM");
         ushort cacatacPointer = EnemySpritemapDefinitions.CacatacFrameAt(0x9e8e);
-        var stockCacatac = DrawEnemy(stock, new FrameReadGuard(rom),
+        var stockCacatac = DrawEnemy(stock, NewFrameReadGuard(rom),
             cacatacPointer, EnemyDefinitionId.Cacatac);
-        var editedCacatac = DrawEnemy(edited, new FrameReadGuard(rom),
+        var editedCacatac = DrawEnemy(edited, NewFrameReadGuard(rom),
             cacatacPointer, EnemyDefinitionId.Cacatac);
         AssertEqual(unchecked((byte)(stockCacatac.LowTable[1] + 1)),
             editedCacatac.LowTable[1],
@@ -2112,9 +2112,9 @@ internal static partial class Program
         AssertEqual(stockCacatac.LowTable[0], editedCacatac.LowTable[0],
             "Cacatac visual override leaves X unchanged");
         ushort boulderPointer = EnemySpritemapDefinitions.BoulderFrameAt(0x86a9);
-        var stockBoulder = DrawEnemy(stock, new FrameReadGuard(rom),
+        var stockBoulder = DrawEnemy(stock, NewFrameReadGuard(rom),
             boulderPointer, EnemyDefinitionId.Boulder);
-        var editedBoulder = DrawEnemy(edited, new FrameReadGuard(rom),
+        var editedBoulder = DrawEnemy(edited, NewFrameReadGuard(rom),
             boulderPointer, EnemyDefinitionId.Boulder);
         AssertEqual(unchecked((byte)(stockBoulder.LowTable[1] + 1)),
             editedBoulder.LowTable[1],
@@ -2122,9 +2122,9 @@ internal static partial class Program
         AssertEqual(stockBoulder.LowTable[0], editedBoulder.LowTable[0],
             "Boulder visual override leaves X unchanged");
         ushort atomicPointer = EnemySpritemapDefinitions.AtomicFrameAt(0xe312);
-        var stockAtomic = DrawEnemy(stock, new FrameReadGuard(rom),
+        var stockAtomic = DrawEnemy(stock, NewFrameReadGuard(rom),
             atomicPointer, EnemyDefinitionId.Atomic);
-        var editedAtomic = DrawEnemy(edited, new FrameReadGuard(rom),
+        var editedAtomic = DrawEnemy(edited, NewFrameReadGuard(rom),
             atomicPointer, EnemyDefinitionId.Atomic);
         AssertEqual(unchecked((byte)(stockAtomic.LowTable[1] + 1)),
             editedAtomic.LowTable[1],
@@ -2132,9 +2132,9 @@ internal static partial class Program
         AssertEqual(stockAtomic.LowTable[0], editedAtomic.LowTable[0],
             "Atomic visual override leaves X unchanged");
         ushort skulteraPointer = EnemySpritemapDefinitions.SkulteraFrameAt(0x902e);
-        var stockSkultera = DrawEnemy(stock, new FrameReadGuard(rom),
+        var stockSkultera = DrawEnemy(stock, NewFrameReadGuard(rom),
             skulteraPointer, EnemyDefinitionId.Skultera);
-        var editedSkultera = DrawEnemy(edited, new FrameReadGuard(rom),
+        var editedSkultera = DrawEnemy(edited, NewFrameReadGuard(rom),
             skulteraPointer, EnemyDefinitionId.Skultera);
         AssertEqual(unchecked((byte)(stockSkultera.LowTable[1] + 1)),
             editedSkultera.LowTable[1],
@@ -2142,9 +2142,9 @@ internal static partial class Program
         AssertEqual(stockSkultera.LowTable[0], editedSkultera.LowTable[0],
             "Skultera visual override leaves X unchanged");
         ushort waverPointer = EnemySpritemapDefinitions.WaverFrameAt(0x86a9);
-        var stockWaver = DrawEnemy(stock, new FrameReadGuard(rom),
+        var stockWaver = DrawEnemy(stock, NewFrameReadGuard(rom),
             waverPointer, EnemyDefinitionId.Waver);
-        var editedWaver = DrawEnemy(edited, new FrameReadGuard(rom),
+        var editedWaver = DrawEnemy(edited, NewFrameReadGuard(rom),
             waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(unchecked((byte)(stockWaver.LowTable[1] + 1)),
             editedWaver.LowTable[1],
@@ -2161,9 +2161,9 @@ internal static partial class Program
                          EnemyDefinitionId.Skree, "Skree"),
                  })
         {
-            OamBuffer nativeFrame = DrawEnemy(stock, new FrameReadGuard(rom),
+            OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
-            OamBuffer editedFrame = DrawEnemy(edited, new FrameReadGuard(rom),
+            OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),
                 pointer, definition);
             AssertEqual(unchecked((byte)(nativeFrame.LowTable[1] + 1)),
                 editedFrame.LowTable[1],
@@ -2184,9 +2184,9 @@ internal static partial class Program
                  })
         {
             ushort pointer = PipeBugVisualDefinitions.FrameAt(definition, operand);
-            OamBuffer nativeFrame = DrawEnemy(stock, new FrameReadGuard(rom),
+            OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
-            OamBuffer editedFrame = DrawEnemy(edited, new FrameReadGuard(rom),
+            OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),
                 pointer, definition);
             AssertEqual(unchecked((byte)(nativeFrame.LowTable[1] + 1)),
                 editedFrame.LowTable[1],
@@ -2202,9 +2202,9 @@ internal static partial class Program
                  })
         {
             ushort pointer = KraidVisualDefinitions.FrameAt(definition, operand);
-            OamBuffer nativeFrame = DrawEnemy(stock, new FrameReadGuard(rom),
+            OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
-            OamBuffer editedFrame = DrawEnemy(edited, new FrameReadGuard(rom),
+            OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),
                 pointer, definition);
             AssertEqual(unchecked((byte)(nativeFrame.LowTable[1] + 1)),
                 editedFrame.LowTable[1],
@@ -2219,9 +2219,9 @@ internal static partial class Program
                  })
         {
             ushort pointer = OwtchStokeVisualDefinitions.FrameAt(definition, operand);
-            OamBuffer nativeFrame = DrawEnemy(stock, new FrameReadGuard(rom),
+            OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
-            OamBuffer editedFrame = DrawEnemy(edited, new FrameReadGuard(rom),
+            OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),
                 pointer, definition);
             AssertEqual(unchecked((byte)(nativeFrame.LowTable[1] + 1)),
                 editedFrame.LowTable[1],
@@ -2237,9 +2237,9 @@ internal static partial class Program
                  })
         {
             ushort pointer = RipperVisualDefinitions.FrameAt(definition, operand);
-            OamBuffer nativeFrame = DrawEnemy(stock, new FrameReadGuard(rom),
+            OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
-            OamBuffer editedFrame = DrawEnemy(edited, new FrameReadGuard(rom),
+            OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),
                 pointer, definition);
             AssertEqual(unchecked((byte)(nativeFrame.LowTable[1] + 1)),
                 editedFrame.LowTable[1],
@@ -2247,19 +2247,19 @@ internal static partial class Program
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
-        OamBuffer stockFrozen = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockFrozen = DrawEnemy(stock, NewFrameReadGuard(rom),
             RipperInstructionProgramDefinitions.FrozenFacingLeftSpritemap,
             EnemyDefinitionId.GRipper);
-        OamBuffer editedFrozen = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedFrozen = DrawEnemy(edited, NewFrameReadGuard(rom),
             RipperInstructionProgramDefinitions.FrozenFacingLeftSpritemap,
             EnemyDefinitionId.GRipper);
         AssertEqual(unchecked((byte)(stockFrozen.LowTable[1] + 1)),
             editedFrozen.LowTable[1], "authored frozen GRipper Y offset changes live room OAM");
         ushort firefleaPointer = EnemySpritemapDefinitions.FirefleaFrameAt(
             FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
-        OamBuffer stockFireflea = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockFireflea = DrawEnemy(stock, NewFrameReadGuard(rom),
             firefleaPointer, EnemyDefinitionId.Fireflea);
-        OamBuffer editedFireflea = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedFireflea = DrawEnemy(edited, NewFrameReadGuard(rom),
             firefleaPointer, EnemyDefinitionId.Fireflea);
         AssertEqual(unchecked((byte)(stockFireflea.LowTable[1] + 1)),
             editedFireflea.LowTable[1],
@@ -2268,9 +2268,9 @@ internal static partial class Program
             "Fireflea visual edit leaves X position unchanged");
         ushort magdollitePointer = EnemySpritemapDefinitions.MagdolliteFrameAt(
             MagdolliteInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
-        OamBuffer stockMagdollite = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockMagdollite = DrawEnemy(stock, NewFrameReadGuard(rom),
             magdollitePointer, EnemyDefinitionId.Magdollite);
-        OamBuffer editedMagdollite = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedMagdollite = DrawEnemy(edited, NewFrameReadGuard(rom),
             magdollitePointer, EnemyDefinitionId.Magdollite);
         AssertEqual(unchecked((byte)(stockMagdollite.LowTable[1] + 1)),
             editedMagdollite.LowTable[1],
@@ -2279,9 +2279,9 @@ internal static partial class Program
             "Magdollite visual edit leaves X position unchanged");
         ushort rioPointer = EnemySpritemapDefinitions.RioFrameAt(
             RioInstructionProgramDefinitions.PresentationWordAddress(0));
-        OamBuffer stockRio = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockRio = DrawEnemy(stock, NewFrameReadGuard(rom),
             rioPointer, EnemyDefinitionId.Rio);
-        OamBuffer editedRio = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedRio = DrawEnemy(edited, NewFrameReadGuard(rom),
             rioPointer, EnemyDefinitionId.Rio);
         AssertEqual(unchecked((byte)(stockRio.LowTable[1] + 1)),
             editedRio.LowTable[1],
@@ -2290,9 +2290,9 @@ internal static partial class Program
             "Rio visual edit leaves physical X unchanged");
         ushort lowerRioPointer = EnemySpritemapDefinitions.LowerNorfairRioFrameAt(
             LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
-        OamBuffer stockLowerRio = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockLowerRio = DrawEnemy(stock, NewFrameReadGuard(rom),
             lowerRioPointer, EnemyDefinitionId.Holtz);
-        OamBuffer editedLowerRio = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedLowerRio = DrawEnemy(edited, NewFrameReadGuard(rom),
             lowerRioPointer, EnemyDefinitionId.Holtz);
         AssertEqual(unchecked((byte)(stockLowerRio.LowTable[1] + 1)),
             editedLowerRio.LowTable[1],
@@ -2301,9 +2301,9 @@ internal static partial class Program
             "Lower Norfair Rio visual edit leaves physical X unchanged");
         ushort norfairRioPointer = EnemySpritemapDefinitions.NorfairRioFrameAt(
             NorfairRioInstructionProgramDefinitions.PresentationWordAddress(0));
-        OamBuffer stockNorfairRio = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockNorfairRio = DrawEnemy(stock, NewFrameReadGuard(rom),
             norfairRioPointer, EnemyDefinitionId.Geruta);
-        OamBuffer editedNorfairRio = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedNorfairRio = DrawEnemy(edited, NewFrameReadGuard(rom),
             norfairRioPointer, EnemyDefinitionId.Geruta);
         AssertEqual(unchecked((byte)(stockNorfairRio.LowTable[1] + 1)),
             editedNorfairRio.LowTable[1],
@@ -2312,9 +2312,9 @@ internal static partial class Program
             "Norfair Rio visual edit leaves physical X unchanged");
         ushort puyoPointer = EnemySpritemapDefinitions.PuyoFrameAt(
             PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
-        OamBuffer stockPuyo = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockPuyo = DrawEnemy(stock, NewFrameReadGuard(rom),
             puyoPointer, EnemyDefinitionId.Puyo);
-        OamBuffer editedPuyo = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedPuyo = DrawEnemy(edited, NewFrameReadGuard(rom),
             puyoPointer, EnemyDefinitionId.Puyo);
         AssertEqual(unchecked((byte)(stockPuyo.LowTable[1] + 1)),
             editedPuyo.LowTable[1],
@@ -2323,9 +2323,9 @@ internal static partial class Program
             "Puyo visual edit leaves physical X unchanged");
         ushort bullPointer = EnemySpritemapDefinitions.BullFrameAt(
             BullInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
-        OamBuffer stockBull = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockBull = DrawEnemy(stock, NewFrameReadGuard(rom),
             bullPointer, EnemyDefinitionId.Bull);
-        OamBuffer editedBull = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedBull = DrawEnemy(edited, NewFrameReadGuard(rom),
             bullPointer, EnemyDefinitionId.Bull);
         AssertEqual(unchecked((byte)(stockBull.LowTable[1] + 1)),
             editedBull.LowTable[1],
@@ -2334,9 +2334,9 @@ internal static partial class Program
             "Bull visual edit leaves physical X unchanged");
         ushort alcoonPointer = EnemySpritemapDefinitions.AlcoonFrameAt(
             AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
-        OamBuffer stockAlcoon = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockAlcoon = DrawEnemy(stock, NewFrameReadGuard(rom),
             alcoonPointer, EnemyDefinitionId.Alcoon);
-        OamBuffer editedAlcoon = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedAlcoon = DrawEnemy(edited, NewFrameReadGuard(rom),
             alcoonPointer, EnemyDefinitionId.Alcoon);
         AssertEqual(unchecked((byte)(stockAlcoon.LowTable[1] + 1)),
             editedAlcoon.LowTable[1],
@@ -2345,9 +2345,9 @@ internal static partial class Program
             "Alcoon visual edit leaves physical X unchanged");
         ushort beetomPointer = EnemySpritemapDefinitions.BeetomFrameAt(
             BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
-        OamBuffer stockBeetom = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockBeetom = DrawEnemy(stock, NewFrameReadGuard(rom),
             beetomPointer, EnemyDefinitionId.Beetom);
-        OamBuffer editedBeetom = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedBeetom = DrawEnemy(edited, NewFrameReadGuard(rom),
             beetomPointer, EnemyDefinitionId.Beetom);
         AssertEqual(unchecked((byte)(stockBeetom.LowTable[1] + 1)),
             editedBeetom.LowTable[1],
@@ -2356,9 +2356,9 @@ internal static partial class Program
             "Beetom visual edit leaves physical X unchanged");
         ushort hopperPointer = EnemySpritemapDefinitions.HopperFrameAt(
             HopperInstructionProgramDefinitions.PresentationWordAddress(0));
-        OamBuffer stockHopper = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockHopper = DrawEnemy(stock, NewFrameReadGuard(rom),
             hopperPointer, EnemyDefinitionId.Sidehopper);
-        OamBuffer editedHopper = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedHopper = DrawEnemy(edited, NewFrameReadGuard(rom),
             hopperPointer, EnemyDefinitionId.Sidehopper);
         AssertEqual(unchecked((byte)(stockHopper.LowTable[1] + 1)),
             editedHopper.LowTable[1],
@@ -2367,9 +2367,9 @@ internal static partial class Program
             "Sidehopper visual edit leaves physical X unchanged");
         ushort chootPointer = EnemySpritemapDefinitions.ChootFrameAt(
             ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
-        OamBuffer stockChoot = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockChoot = DrawEnemy(stock, NewFrameReadGuard(rom),
             chootPointer, EnemyDefinitionId.Choot);
-        OamBuffer editedChoot = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedChoot = DrawEnemy(edited, NewFrameReadGuard(rom),
             chootPointer, EnemyDefinitionId.Choot);
         AssertEqual(unchecked((byte)(stockChoot.LowTable[1] + 1)),
             editedChoot.LowTable[1],
@@ -2378,9 +2378,9 @@ internal static partial class Program
             "Choot visual edit leaves physical X unchanged");
         ushort hzoomerPointer = EnemySpritemapDefinitions.HZoomerFrameAt(
             HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
-        OamBuffer stockHZoomer = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockHZoomer = DrawEnemy(stock, NewFrameReadGuard(rom),
             hzoomerPointer, EnemyDefinitionId.HZoomer);
-        OamBuffer editedHZoomer = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedHZoomer = DrawEnemy(edited, NewFrameReadGuard(rom),
             hzoomerPointer, EnemyDefinitionId.HZoomer);
         AssertEqual(unchecked((byte)(stockHZoomer.LowTable[1] + 1)),
             editedHZoomer.LowTable[1],
@@ -2392,9 +2392,9 @@ internal static partial class Program
         foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
                  { EnemyDefinitionId.Sbug, EnemyDefinitionId.Sbug2 })
         {
-            OamBuffer stockSbug = DrawEnemy(stock, new FrameReadGuard(rom),
+            OamBuffer stockSbug = DrawEnemy(stock, NewFrameReadGuard(rom),
                 sbugPointer, definition);
-            OamBuffer editedSbug = DrawEnemy(edited, new FrameReadGuard(rom),
+            OamBuffer editedSbug = DrawEnemy(edited, NewFrameReadGuard(rom),
                 sbugPointer, definition);
             AssertEqual(unchecked((byte)(stockSbug.LowTable[1] + 1)),
                 editedSbug.LowTable[1],
@@ -2411,9 +2411,9 @@ internal static partial class Program
                      EnemyDefinitionId.MZoomer,
                  })
         {
-            OamBuffer stockCrawler = DrawEnemy(stock, new FrameReadGuard(rom),
+            OamBuffer stockCrawler = DrawEnemy(stock, NewFrameReadGuard(rom),
                 hzoomerPointer, definition);
-            OamBuffer editedCrawler = DrawEnemy(edited, new FrameReadGuard(rom),
+            OamBuffer editedCrawler = DrawEnemy(edited, NewFrameReadGuard(rom),
                 hzoomerPointer, definition);
             AssertEqual(unchecked((byte)(stockCrawler.LowTable[1] + 1)),
                 editedCrawler.LowTable[1],
@@ -2826,9 +2826,9 @@ internal static partial class Program
                 DisplayFrames = preElevatorBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preElevatorUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
-        AssertTrue(DrawEnemy(preElevatorUpgraded, new FrameReadGuard(rom), 0x962f,
+        AssertTrue(DrawEnemy(preElevatorUpgraded, NewFrameReadGuard(rom), 0x962f,
                 EnemyDefinitionId.Elevator).LowTable
-            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x962f,
+            .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0x962f,
                 EnemyDefinitionId.Elevator).LowTable),
             "version-twenty-nine override inherits stock elevator OAM without ROM reads");
         var preKamerFrames = preDraygonFrames
@@ -2848,9 +2848,9 @@ internal static partial class Program
                 DisplayFrames = preKamerBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preKamerUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
-        AssertTrue(DrawEnemy(preKamerUpgraded, new FrameReadGuard(rom), 0xf468,
+        AssertTrue(DrawEnemy(preKamerUpgraded, NewFrameReadGuard(rom), 0xf468,
                 EnemyDefinitionId.Kamer).LowTable
-            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0xf468,
+            .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0xf468,
                 EnemyDefinitionId.Kamer).LowTable),
             "version-twenty-eight override inherits stock Kamer OAM without ROM reads");
         var preFuneFrames = preDraygonFrames
@@ -2873,13 +2873,13 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preFuneUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer inheritedFune = DrawEnemy(preFuneUpgraded,
-            new FrameReadGuard(rom), 0x94cb,
+            NewFrameReadGuard(rom), 0x94cb,
             EnemyDefinitionId.Fune);
         AssertTrue(inheritedFune.LowTable.SequenceEqual(stockFune.LowTable),
             "version-twenty-seven override inherits stock Fune OAM without ROM reads");
-        AssertTrue(DrawEnemy(preFuneUpgraded, new FrameReadGuard(rom), 0x88da,
+        AssertTrue(DrawEnemy(preFuneUpgraded, NewFrameReadGuard(rom), 0x88da,
                 EnemyDefinitionId.Boyon).LowTable
-            .SequenceEqual(DrawEnemy(edited, new FrameReadGuard(rom), 0x88da,
+            .SequenceEqual(DrawEnemy(edited, NewFrameReadGuard(rom), 0x88da,
                 EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-seven override retains existing Boyon edits");
         var preSbugFrames = preDraygonFrames
@@ -2906,9 +2906,9 @@ internal static partial class Program
         AssertTrue(preSbugUpgraded.Spritemaps!.TryGet(
                 EnemySpritemapDefinitions.SbugBank, sbugPointer, out _),
             "version-twenty-six override inherits stock Sbug artwork");
-        AssertTrue(DrawEnemy(preSbugUpgraded, new FrameReadGuard(rom),
+        AssertTrue(DrawEnemy(preSbugUpgraded, NewFrameReadGuard(rom),
                 0x88da, EnemyDefinitionId.Boyon).LowTable
-            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom),
+            .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom),
                 0x88e1, EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-six override retains edited display binding");
         var preHZoomerFrames = preDraygonFrames
@@ -2934,12 +2934,12 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preHZoomerUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreHZoomerEdit = DrawEnemy(preHZoomerUpgraded,
-            new FrameReadGuard(rom), chootPointer, EnemyDefinitionId.Choot);
+            NewFrameReadGuard(rom), chootPointer, EnemyDefinitionId.Choot);
         AssertEqual(editedChoot.LowTable[1], retainedPreHZoomerEdit.LowTable[1],
             "version-twenty-five override retains edited Choot artwork");
-        AssertTrue(DrawEnemy(preHZoomerUpgraded, new FrameReadGuard(rom), 0x88da,
+        AssertTrue(DrawEnemy(preHZoomerUpgraded, NewFrameReadGuard(rom), 0x88da,
                 EnemyDefinitionId.Boyon).LowTable
-            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
+            .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
                 EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-five override retains edited display binding");
         AssertTrue(preHZoomerUpgraded.Spritemaps!.TryGet(
@@ -2963,12 +2963,12 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preChootUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreChootEdit = DrawEnemy(preChootUpgraded,
-            new FrameReadGuard(rom), hopperPointer, EnemyDefinitionId.Sidehopper);
+            NewFrameReadGuard(rom), hopperPointer, EnemyDefinitionId.Sidehopper);
         AssertEqual(editedHopper.LowTable[1], retainedPreChootEdit.LowTable[1],
             "version-twenty-four override retains edited Sidehopper artwork");
-        AssertTrue(DrawEnemy(preChootUpgraded, new FrameReadGuard(rom), 0x88da,
+        AssertTrue(DrawEnemy(preChootUpgraded, NewFrameReadGuard(rom), 0x88da,
                 EnemyDefinitionId.Boyon).LowTable
-            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
+            .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
                 EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-four override retains edited display binding");
         AssertTrue(preChootUpgraded.Spritemaps!.TryGet(
@@ -2995,12 +2995,12 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preHopperUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreHopperEdit = DrawEnemy(preHopperUpgraded,
-            new FrameReadGuard(rom), beetomPointer, EnemyDefinitionId.Beetom);
+            NewFrameReadGuard(rom), beetomPointer, EnemyDefinitionId.Beetom);
         AssertEqual(editedBeetom.LowTable[1], retainedPreHopperEdit.LowTable[1],
             "version-twenty-three override retains edited Beetom artwork");
-        AssertTrue(DrawEnemy(preHopperUpgraded, new FrameReadGuard(rom), 0x88da,
+        AssertTrue(DrawEnemy(preHopperUpgraded, NewFrameReadGuard(rom), 0x88da,
                 EnemyDefinitionId.Boyon).LowTable
-            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
+            .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
                 EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-three override retains edited display binding");
         AssertTrue(preHopperUpgraded.Spritemaps!.TryGet(
@@ -3024,12 +3024,12 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preBeetomUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreBeetomEdit = DrawEnemy(preBeetomUpgraded,
-            new FrameReadGuard(rom), alcoonPointer, EnemyDefinitionId.Alcoon);
+            NewFrameReadGuard(rom), alcoonPointer, EnemyDefinitionId.Alcoon);
         AssertEqual(editedAlcoon.LowTable[1], retainedPreBeetomEdit.LowTable[1],
             "version-twenty-two override retains an edited Alcoon frame");
-        AssertTrue(DrawEnemy(preBeetomUpgraded, new FrameReadGuard(rom), 0x88da,
+        AssertTrue(DrawEnemy(preBeetomUpgraded, NewFrameReadGuard(rom), 0x88da,
                 EnemyDefinitionId.Boyon).LowTable
-            .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
+            .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
                 EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-two override retains its edited display binding");
         AssertTrue(preBeetomUpgraded.Spritemaps!.TryGet(
@@ -3052,7 +3052,7 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preAlcoonUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreAlcoonEdit = DrawEnemy(preAlcoonUpgraded,
-            new FrameReadGuard(rom), bullPointer, EnemyDefinitionId.Bull);
+            NewFrameReadGuard(rom), bullPointer, EnemyDefinitionId.Bull);
         AssertEqual(editedBull.LowTable[1], retainedPreAlcoonEdit.LowTable[1],
             "version-twenty-one override retains an edited Bull frame");
         AssertTrue(preAlcoonUpgraded.Spritemaps!.TryGet(
@@ -3075,7 +3075,7 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preBullUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreBullEdit = DrawEnemy(preBullUpgraded,
-            new FrameReadGuard(rom), puyoPointer, EnemyDefinitionId.Puyo);
+            NewFrameReadGuard(rom), puyoPointer, EnemyDefinitionId.Puyo);
         AssertEqual(editedPuyo.LowTable[1], retainedPreBullEdit.LowTable[1],
             "version-twenty override retains an edited Puyo frame");
         AssertTrue(preBullUpgraded.Spritemaps!.TryGet(
@@ -3098,7 +3098,7 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog prePuyoUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPrePuyoEdit = DrawEnemy(prePuyoUpgraded,
-            new FrameReadGuard(rom), framePointer, EnemyDefinitionId.Boyon);
+            NewFrameReadGuard(rom), framePointer, EnemyDefinitionId.Boyon);
         AssertEqual(editedOam.LowTable[1], retainedPrePuyoEdit.LowTable[1],
             "version-nineteen override retains an edited older enemy frame");
         AssertTrue(prePuyoUpgraded.Spritemaps!.TryGet(
@@ -3122,9 +3122,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preNorfairRioUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorNorfairRioEraRemap = DrawEnemy(preNorfairRioUpgraded,
-            new FrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
+            NewFrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorNorfairRioEraSelected = DrawEnemy(stock,
-            new FrameReadGuard(rom), 0x88e1, EnemyDefinitionId.Boyon);
+            NewFrameReadGuard(rom), 0x88e1, EnemyDefinitionId.Boyon);
         AssertTrue(priorNorfairRioEraSelected.LowTable.SequenceEqual(
                 priorNorfairRioEraRemap.LowTable),
             "version-eighteen override retains its display binding");
@@ -3151,9 +3151,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preLowerRioUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorLowerRioEraRemap = DrawEnemy(preLowerRioUpgraded,
-            new FrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
+            NewFrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorLowerRioEraSelected = DrawEnemy(stock,
-            new FrameReadGuard(rom), 0x88e1, EnemyDefinitionId.Boyon);
+            NewFrameReadGuard(rom), 0x88e1, EnemyDefinitionId.Boyon);
         AssertTrue(priorLowerRioEraSelected.LowTable.SequenceEqual(
                 priorLowerRioEraRemap.LowTable),
             "version-seventeen override retains its display binding");
@@ -3182,9 +3182,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preRioUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorRioEraRemap = DrawEnemy(preRioUpgraded,
-            new FrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
+            NewFrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorRioEraSelected = DrawEnemy(stock,
-            new FrameReadGuard(rom), 0x88e1, EnemyDefinitionId.Boyon);
+            NewFrameReadGuard(rom), 0x88e1, EnemyDefinitionId.Boyon);
         AssertTrue(priorRioEraSelected.LowTable.SequenceEqual(priorRioEraRemap.LowTable),
             "version-sixteen override retains its display binding");
         AssertTrue(preRioUpgraded.Spritemaps!.TryGet(
@@ -3215,9 +3215,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preCeresBabyUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorCeresRemap = DrawEnemy(preCeresBabyUpgraded,
-            new FrameReadGuard(rom), 0xfa13,
+            NewFrameReadGuard(rom), 0xfa13,
             EnemyDefinitionId.CeresDoor);
-        OamBuffer priorCeresSelected = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer priorCeresSelected = DrawEnemy(stock, NewFrameReadGuard(rom),
             0xfa3d, EnemyDefinitionId.CeresDoor);
         AssertTrue(priorCeresSelected.LowTable.SequenceEqual(priorCeresRemap.LowTable),
             "version-fifteen override retains its Ceres door display binding");
@@ -3243,14 +3243,14 @@ internal static partial class Program
                 DisplayFrames = preCeresDoorBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preCeresDoorUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
-        OamBuffer priorRemap = DrawEnemy(preCeresDoorUpgraded, new FrameReadGuard(rom),
+        OamBuffer priorRemap = DrawEnemy(preCeresDoorUpgraded, NewFrameReadGuard(rom),
             0x88da, EnemyDefinitionId.Boyon);
-        OamBuffer priorSelected = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer priorSelected = DrawEnemy(stock, NewFrameReadGuard(rom),
             0x88e1, EnemyDefinitionId.Boyon);
         AssertTrue(priorSelected.LowTable.SequenceEqual(priorRemap.LowTable),
             "version-fourteen override retains its edited display binding");
         OamBuffer priorEditedCacatac = DrawEnemy(preCeresDoorUpgraded,
-            new FrameReadGuard(rom), cacatacPointer, EnemyDefinitionId.Cacatac);
+            NewFrameReadGuard(rom), cacatacPointer, EnemyDefinitionId.Cacatac);
         AssertTrue(editedCacatac.LowTable.SequenceEqual(priorEditedCacatac.LowTable),
             "version-fourteen override also retains its edited frame parts");
         AssertTrue(preCeresDoorUpgraded.Spritemaps!.TryGet(
@@ -3281,12 +3281,12 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preMagdolliteUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer upgradedMagdollite = DrawEnemy(preMagdolliteUpgraded,
-            new FrameReadGuard(rom), magdollitePointer,
+            NewFrameReadGuard(rom), magdollitePointer,
             EnemyDefinitionId.Magdollite);
         AssertTrue(stockMagdollite.LowTable.SequenceEqual(upgradedMagdollite.LowTable),
             "version-twelve override gains stock Magdollite composition");
         OamBuffer retainedFireflea = DrawEnemy(preMagdolliteUpgraded,
-            new FrameReadGuard(rom), firefleaPointer,
+            NewFrameReadGuard(rom), firefleaPointer,
             EnemyDefinitionId.Fireflea);
         AssertEqual(editedFireflea.LowTable[1], retainedFireflea.LowTable[1],
             "version-twelve override retains edited Fireflea composition");
@@ -3303,13 +3303,13 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preFirefleaUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer upgradedFireflea = DrawEnemy(preFirefleaUpgraded,
-            new FrameReadGuard(rom), firefleaPointer, EnemyDefinitionId.Fireflea);
+            NewFrameReadGuard(rom), firefleaPointer, EnemyDefinitionId.Fireflea);
         AssertTrue(stockFireflea.LowTable.SequenceEqual(upgradedFireflea.LowTable),
             "version-eleven override gains stock Fireflea composition");
         OamBuffer retainedRipper = DrawEnemy(preFirefleaUpgraded,
-            new FrameReadGuard(rom), 0xe54b, EnemyDefinitionId.Ripper);
+            NewFrameReadGuard(rom), 0xe54b, EnemyDefinitionId.Ripper);
         OamBuffer editedRipper = DrawEnemy(edited,
-            new FrameReadGuard(rom), 0xe54b, EnemyDefinitionId.Ripper);
+            NewFrameReadGuard(rom), 0xe54b, EnemyDefinitionId.Ripper);
         AssertEqual(editedRipper.LowTable[1], retainedRipper.LowTable[1],
             "version-eleven override retains edited Ripper composition");
         var preRipperFrames = preFirefleaFrames
@@ -3324,15 +3324,15 @@ internal static partial class Program
                 Frames = preRipperFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preRipperUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
-        OamBuffer upgradedRipper = DrawEnemy(preRipperUpgraded, new FrameReadGuard(rom),
+        OamBuffer upgradedRipper = DrawEnemy(preRipperUpgraded, NewFrameReadGuard(rom),
             0xe54b, EnemyDefinitionId.Ripper);
-        OamBuffer stockRipper = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockRipper = DrawEnemy(stock, NewFrameReadGuard(rom),
             0xe54b, EnemyDefinitionId.Ripper);
         AssertTrue(stockRipper.LowTable.SequenceEqual(upgradedRipper.LowTable),
             "version-ten override gains stock Ripper composition");
         OamBuffer retainedStoke = DrawEnemy(preRipperUpgraded,
-            new FrameReadGuard(rom), 0x8aca, EnemyDefinitionId.Stoke);
-        OamBuffer editedStoke = DrawEnemy(edited, new FrameReadGuard(rom),
+            NewFrameReadGuard(rom), 0x8aca, EnemyDefinitionId.Stoke);
+        OamBuffer editedStoke = DrawEnemy(edited, NewFrameReadGuard(rom),
             0x8aca, EnemyDefinitionId.Stoke);
         AssertEqual(editedStoke.LowTable[1], retainedStoke.LowTable[1],
             "version-ten override retains edited Stoke composition");
@@ -3351,10 +3351,10 @@ internal static partial class Program
         EnemyTileArtworkCatalog preOwtchStokeUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         ushort owtchPointer = OwtchStokeVisualDefinitions.FrameAt(
             EnemyDefinitionId.Owtch, 0xa3af);
-        OamBuffer stockOwtch = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockOwtch = DrawEnemy(stock, NewFrameReadGuard(rom),
             owtchPointer, EnemyDefinitionId.Owtch);
         OamBuffer upgradedOwtch = DrawEnemy(preOwtchStokeUpgraded,
-            new FrameReadGuard(rom), owtchPointer, EnemyDefinitionId.Owtch);
+            NewFrameReadGuard(rom), owtchPointer, EnemyDefinitionId.Owtch);
         AssertTrue(stockOwtch.LowTable.SequenceEqual(upgradedOwtch.LowTable),
             "version-nine override gains stock Owtch composition");
         var previousFrames = preOwtchStokeFrames
@@ -3371,21 +3371,21 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         ushort nailPointer = KraidVisualDefinitions.InitialNailFrame;
-        OamBuffer stockNail = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockNail = DrawEnemy(stock, NewFrameReadGuard(rom),
             nailPointer, EnemyDefinitionId.KraidNail);
-        OamBuffer upgradedNail = DrawEnemy(upgraded, new FrameReadGuard(rom),
+        OamBuffer upgradedNail = DrawEnemy(upgraded, NewFrameReadGuard(rom),
             nailPointer, EnemyDefinitionId.KraidNail);
         AssertTrue(stockNail.LowTable.SequenceEqual(upgradedNail.LowTable),
             "previous-version override gains stock Kraid fingernail composition");
-        OamBuffer retainedWaver = DrawEnemy(upgraded, new FrameReadGuard(rom),
+        OamBuffer retainedWaver = DrawEnemy(upgraded, NewFrameReadGuard(rom),
             waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(editedWaver.LowTable[1], retainedWaver.LowTable[1],
             "previous-version override retains edited Waver composition");
         ushort retainedPipePointer = PipeBugVisualDefinitions.FrameAt(
             EnemyDefinitionId.Gamet, 0x8ae3);
-        OamBuffer editedPipe = DrawEnemy(edited, new FrameReadGuard(rom),
+        OamBuffer editedPipe = DrawEnemy(edited, NewFrameReadGuard(rom),
             retainedPipePointer, EnemyDefinitionId.Gamet);
-        OamBuffer retainedPipe = DrawEnemy(upgraded, new FrameReadGuard(rom),
+        OamBuffer retainedPipe = DrawEnemy(upgraded, NewFrameReadGuard(rom),
             retainedPipePointer, EnemyDefinitionId.Gamet);
         AssertEqual(editedPipe.LowTable[1], retainedPipe.LowTable[1],
             "previous-version override retains edited Pipe Bug composition");
@@ -3403,9 +3403,9 @@ internal static partial class Program
         EnemyTileArtworkCatalog priorUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         ushort pipePointer = PipeBugVisualDefinitions.FrameAt(
             EnemyDefinitionId.Gamet, 0x8ae3);
-        OamBuffer stockPipe = DrawEnemy(stock, new FrameReadGuard(rom),
+        OamBuffer stockPipe = DrawEnemy(stock, NewFrameReadGuard(rom),
             pipePointer, EnemyDefinitionId.Gamet);
-        OamBuffer upgradedPipe = DrawEnemy(priorUpgraded, new FrameReadGuard(rom),
+        OamBuffer upgradedPipe = DrawEnemy(priorUpgraded, NewFrameReadGuard(rom),
             pipePointer, EnemyDefinitionId.Gamet);
         AssertTrue(stockPipe.LowTable.SequenceEqual(upgradedPipe.LowTable),
             "prior-version override gains stock Pipe Bug composition");
@@ -3423,22 +3423,22 @@ internal static partial class Program
                 Frames = earlierFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog earlierUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
-        var upgradedBoyon = DrawEnemy(earlierUpgraded, new FrameReadGuard(rom),
+        var upgradedBoyon = DrawEnemy(earlierUpgraded, NewFrameReadGuard(rom),
             framePointer, EnemyDefinitionId.Boyon);
-        var upgradedSkultera = DrawEnemy(earlierUpgraded, new FrameReadGuard(rom),
+        var upgradedSkultera = DrawEnemy(earlierUpgraded, NewFrameReadGuard(rom),
             skulteraPointer, EnemyDefinitionId.Skultera);
         AssertEqual(editedOam.LowTable[0], upgradedBoyon.LowTable[0],
             "previous-version override retains edited Boyon composition");
         AssertEqual(editedSkultera.LowTable[1], upgradedSkultera.LowTable[1],
             "previous-version override retains edited Skultera composition");
-        var upgradedWaver = DrawEnemy(earlierUpgraded, new FrameReadGuard(rom),
+        var upgradedWaver = DrawEnemy(earlierUpgraded, NewFrameReadGuard(rom),
             waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(editedWaver.LowTable[1], upgradedWaver.LowTable[1],
             "previous-version override retains edited Waver composition");
         ushort zoaPointer = EnemySpritemapDefinitions.ZoaFrameAt(0xb3c5);
-        var stockZoa = DrawEnemy(stock, new FrameReadGuard(rom),
+        var stockZoa = DrawEnemy(stock, NewFrameReadGuard(rom),
             zoaPointer, EnemyDefinitionId.Zoa);
-        var upgradedZoa = DrawEnemy(earlierUpgraded, new FrameReadGuard(rom),
+        var upgradedZoa = DrawEnemy(earlierUpgraded, NewFrameReadGuard(rom),
             zoaPointer, EnemyDefinitionId.Zoa);
         AssertTrue(stockZoa.LowTable.SequenceEqual(upgradedZoa.LowTable),
             "previous-version override gains stock Zoa composition");
@@ -3454,9 +3454,9 @@ internal static partial class Program
                 Frames = intermediateFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog intermediateUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
-        var intermediateBoyon = DrawEnemy(intermediateUpgraded, new FrameReadGuard(rom),
+        var intermediateBoyon = DrawEnemy(intermediateUpgraded, NewFrameReadGuard(rom),
             framePointer, EnemyDefinitionId.Boyon);
-        var intermediateWaver = DrawEnemy(intermediateUpgraded, new FrameReadGuard(rom),
+        var intermediateWaver = DrawEnemy(intermediateUpgraded, NewFrameReadGuard(rom),
             waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(editedOam.LowTable[0], intermediateBoyon.LowTable[0],
             "intermediate override retains edited Boyon composition");
@@ -3474,9 +3474,9 @@ internal static partial class Program
                 Frames = legacyFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog legacyUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
-        var legacyBoyon = DrawEnemy(legacyUpgraded, new FrameReadGuard(rom),
+        var legacyBoyon = DrawEnemy(legacyUpgraded, NewFrameReadGuard(rom),
             framePointer, EnemyDefinitionId.Boyon);
-        var legacySkultera = DrawEnemy(legacyUpgraded, new FrameReadGuard(rom),
+        var legacySkultera = DrawEnemy(legacyUpgraded, NewFrameReadGuard(rom),
             skulteraPointer, EnemyDefinitionId.Skultera);
         AssertEqual(editedOam.LowTable[0], legacyBoyon.LowTable[0],
             "legacy override retains edited Boyon composition");
@@ -3492,7 +3492,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedBindings = stock.WithSpritemaps(LoadSpritemapOverride());
         AssertEqual(editedOam.LowTable[0],
-            DrawEnemy(upgradedBindings, new FrameReadGuard(rom), framePointer,
+            DrawEnemy(upgradedBindings, NewFrameReadGuard(rom), framePointer,
                 EnemyDefinitionId.Boyon).LowTable[0],
             "version-thirteen art override retains edits with stock display bindings");
 
@@ -3505,11 +3505,11 @@ internal static partial class Program
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog swappedArt = stock.WithSpritemaps(LoadSpritemapOverride());
-        OamBuffer nativeFirst = DrawEnemy(stock, new FrameReadGuard(rom), 0x88da,
+        OamBuffer nativeFirst = DrawEnemy(stock, NewFrameReadGuard(rom), 0x88da,
             EnemyDefinitionId.Boyon);
-        OamBuffer nativeSecond = DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
+        OamBuffer nativeSecond = DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
             EnemyDefinitionId.Boyon);
-        OamBuffer displayedSecond = DrawEnemy(swappedArt, new FrameReadGuard(rom),
+        OamBuffer displayedSecond = DrawEnemy(swappedArt, NewFrameReadGuard(rom),
             0x88da, EnemyDefinitionId.Boyon, slot =>
             {
                 AssertEqual((ushort)0x88da, slot.SpritemapPointer,
@@ -3708,7 +3708,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
         typeof(RoomEnemySystem).GetField("_bus", flags)!
-            .SetValue(enemies, new MotherBrainFrameReadGuard(rom));
+            .SetValue(enemies, NewMotherBrainFrameReadGuard(rom));
         var oam = new OamBuffer();
         typeof(RoomEnemySystem).GetMethod("DrawMotherBrainWorldSpritemap", flags)!
             .Invoke(enemies,
@@ -3735,91 +3735,56 @@ internal static partial class Program
         return oam;
     }
 
-    private sealed class BankB4ReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+    private static CartridgeReadGuard NewBankB4ReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => (address >> 16) == 0xb4,
+                address => $"Installed room sprite object reread bank-$B4 byte ${address:X6}.");
 
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+    private static CartridgeReadGuard NewMotherBrainFrameReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa9a586 and < 0xa9a7c2 or
+                >= 0xa9ad3e and < 0xa9aee4,
+                address => $"Mother Brain draw reread native artwork byte ${address:X6}.");
 
-        public byte ReadByte(int address) => (address >> 16) == 0xb4
-            ? throw new InvalidOperationException(
-                $"Installed room sprite object reread bank-$B4 byte ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
-
-    private sealed class MotherBrainFrameReadGuard(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa9a586 and < 0xa9a7c2 or
-                >= 0xa9ad3e and < 0xa9aee4
-                ? throw new InvalidOperationException(
-                    $"Mother Brain draw reread native artwork byte ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
-
-    private sealed class FrameReadGuard(ISnesAddressSpace source,
-        string? frameName = null) : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0xa288da and < 0xa2890b or
-                >= 0xa2a0bb and < 0xa2a377 or
-                >= 0xa68a59 and < 0xa68b09 or
-                >= 0xa8e489 and < 0xa8e587 or
-                >= 0xa3881e and < 0xa388f0 or
-                >= 0xa38b65 and < 0xa38c0f or
-                >= 0xa3b55f and < 0xa3b5b3 or
-                >= 0xa3c842 and < 0xa3c8a6 or
-                >= 0xa3928a and < 0xa394aa or
-                >= 0xb389b7 and < 0xb389fd or
-                >= 0xb38a6d and < 0xb38ac1 or
-                >= 0xb38e96 and < 0xb38edc or
-                >= 0xb392ad and < 0xb39301 or
-                >= 0xa69c64 and < 0xa6a0e0 or
-                >= 0xa7a617 and < 0xa7a69f or
-                >= 0xa2a589 and < 0xa2a59e or
-                >= 0xa28aca and < 0xa28b60 or
-                >= 0xa2e3c5 and < 0xa2e457 or
-                >= 0xa2e527 and < 0xa2e56f or
-                >= 0xa38ea5 and < 0xa3900a or
-                >= 0xa8b448 and < 0xa8b65e or
-                >= 0xa6f921 and < 0xa6fb72 or
-                >= 0xa6a329 and < 0xa6a353 or
-                >= 0xa6bffd and < 0xa6c04e or
-                >= 0xa29df6 and < 0xa29e80 or
-                >= 0xa8db76 and < 0xa8dbb8 or
-                >= 0xa8dfa2 and < 0xa8e214 or
-                >= 0xa8bed3 and < 0xa8c143 or
-                >= 0xa3aee3 and < 0xa3b390 or
-                >= 0xa2e146 and < 0xa2e180 or
-                >= 0xa3e2e8 and < 0xa3e580 or
-                >= 0xa893f9 and < 0xa8959d or
-                >= 0xa897b4 and < 0xa899ac or
-                >= 0xaadf5c and < 0xaae03d or
-                >= 0xa39f29 and < 0xa3a051 or
-                >= 0xa2f468 and < 0xa2f498 or
-                >= 0xa3962f and < 0xa3965b)
-                throw new InvalidOperationException(
-                    $"Installed enemy draw for {frameName ?? "an unnamed frame"} read native visual byte ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewFrameReadGuard(ISnesAddressSpace source,
+        string? frameName = null) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa288da and < 0xa2890b or
+                    >= 0xa2a0bb and < 0xa2a377 or
+                    >= 0xa68a59 and < 0xa68b09 or
+                    >= 0xa8e489 and < 0xa8e587 or
+                    >= 0xa3881e and < 0xa388f0 or
+                    >= 0xa38b65 and < 0xa38c0f or
+                    >= 0xa3b55f and < 0xa3b5b3 or
+                    >= 0xa3c842 and < 0xa3c8a6 or
+                    >= 0xa3928a and < 0xa394aa or
+                    >= 0xb389b7 and < 0xb389fd or
+                    >= 0xb38a6d and < 0xb38ac1 or
+                    >= 0xb38e96 and < 0xb38edc or
+                    >= 0xb392ad and < 0xb39301 or
+                    >= 0xa69c64 and < 0xa6a0e0 or
+                    >= 0xa7a617 and < 0xa7a69f or
+                    >= 0xa2a589 and < 0xa2a59e or
+                    >= 0xa28aca and < 0xa28b60 or
+                    >= 0xa2e3c5 and < 0xa2e457 or
+                    >= 0xa2e527 and < 0xa2e56f or
+                    >= 0xa38ea5 and < 0xa3900a or
+                    >= 0xa8b448 and < 0xa8b65e or
+                    >= 0xa6f921 and < 0xa6fb72 or
+                    >= 0xa6a329 and < 0xa6a353 or
+                    >= 0xa6bffd and < 0xa6c04e or
+                    >= 0xa29df6 and < 0xa29e80 or
+                    >= 0xa8db76 and < 0xa8dbb8 or
+                    >= 0xa8dfa2 and < 0xa8e214 or
+                    >= 0xa8bed3 and < 0xa8c143 or
+                    >= 0xa3aee3 and < 0xa3b390 or
+                    >= 0xa2e146 and < 0xa2e180 or
+                    >= 0xa3e2e8 and < 0xa3e580 or
+                    >= 0xa893f9 and < 0xa8959d or
+                    >= 0xa897b4 and < 0xa899ac or
+                    >= 0xaadf5c and < 0xaae03d or
+                    >= 0xa39f29 and < 0xa3a051 or
+                    >= 0xa2f468 and < 0xa2f498 or
+                    >= 0xa3962f and < 0xa3965b,
+                address => $"Installed enemy draw for {frameName ?? "an unnamed frame"} read native visual byte ${address:X6}.");
 }

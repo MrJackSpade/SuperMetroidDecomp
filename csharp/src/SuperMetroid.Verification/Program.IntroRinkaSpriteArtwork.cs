@@ -63,7 +63,7 @@ internal static partial class Program
             IntroRinkaSpritePresentation.Write(output, document);
         IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
 
-        var guarded = new IntroArtworkSourceReadGuard(bus, blockIntroRinkas: true);
+        var guarded = NewIntroArtworkSourceReadGuard(bus, blockIntroRinkas: true);
         var rinkas = new IntroRinkaSystem();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)) };
         for (int frame = 0; frame <= 75; frame++)

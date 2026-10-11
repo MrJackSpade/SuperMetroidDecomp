@@ -14,11 +14,11 @@ internal static partial class Program
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)
     {
-        var guard = new GrappleFlarePresentationGuard(new ChargeFlareCompositionGuard(bus));
+        var guard = NewGrappleFlarePresentationGuard(NewChargeFlareCompositionGuard(bus));
         var flarePlacement = ChargeFlarePlacementCatalog.Load(new MemoryStream(
             GrappleFlarePlacementExtractor.Extract(bus)));
         foreach (int address in new[] { SamusGrappleRomData.Firing.RightFlareSpritemapOffsets, SamusGrappleRomData.Firing.LeftFlareSpritemapOffsets })
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ChargeFlareSpriteDefinitions.MainFlareSelectorOffset, "Both native Grapple-facing rows select the same main flare");
+            AssertEqual(ReadNativeGrappleFlareSpritemapOffset(bus, address), ChargeFlareSpriteDefinitions.MainFlareSelectorOffset, "Both native Grapple-facing rows select the same main flare");
         int cases = 0;
         foreach (GrapplePhase phase in Enum.GetValues<GrapplePhase>())
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose, SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
@@ -169,12 +169,12 @@ internal static partial class Program
         }
     }
 
-    private sealed class GrappleFlarePresentationGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+    private static CartridgeReadGuard NewGrappleFlarePresentationGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x90c481 and < 0x90c4b5 or >= 0x93a225 and < 0x93a231,
+                address => $"Grapple flare still reads compiled cadence/selector at {address:X6}.");
 
-        public byte ReadByte(int address) => address is >= 0x90c481 and < 0x90c4b5 or >= 0x93a225 and < 0x93a231
-            ? throw new InvalidOperationException($"Grapple flare still reads compiled cadence/selector at {address:X6}.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the native Grapple flare spritemap-offset rows")]
+    private static ushort ReadNativeGrappleFlareSpritemapOffset(ISnesAddressSpace bus, int address) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

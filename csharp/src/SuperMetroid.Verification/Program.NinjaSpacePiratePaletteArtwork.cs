@@ -32,7 +32,7 @@ internal static partial class Program
         const ushort nativeX = 0x0102;
         const ushort nativeInstruction = 0xf2da;
         (RoomEnemySlot stockSlot, SnesCgram stockColors) = Initialize(
-            new NinjaPaletteReadGuard(bus), stock);
+            NewNinjaPaletteReadGuard(bus), stock);
         AssertTrue(nativeColors.Colors.SequenceEqual(stockColors.Colors),
             "Installed ninja target palette preserves full native CGRAM including neighbors");
         AssertEqual(nativeX, stockSlot.Position.X.Whole,
@@ -51,7 +51,7 @@ internal static partial class Program
         File.WriteAllText(overridePath, edit.ToJsonString());
         var selected = EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory);
         (RoomEnemySlot editedSlot, SnesCgram editedColors) = Initialize(
-            new NinjaPaletteReadGuard(bus), selected);
+            NewNinjaPaletteReadGuard(bus), selected);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             AssertEqual((ushort)(nativeColors.Colors[color].ToWord() ^
                 (color == NinjaSpacePiratePaletteDefinitions.TargetColor + 4 ? 1 : 0)),
@@ -65,7 +65,7 @@ internal static partial class Program
         AssertTrue(savedOverride.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Enemy stock re-extraction preserves the shared ninja color override");
         (RoomEnemySlot restoredSlot, SnesCgram restoredColors) = Initialize(
-            new NinjaPaletteReadGuard(bus),
+            NewNinjaPaletteReadGuard(bus),
             EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory));
         AssertTrue(restoredColors.Colors.SequenceEqual(editedColors.Colors),
             "Reload after stock repair retains the selected ninja target colors");
@@ -94,20 +94,10 @@ internal static partial class Program
         }
     }
 
-    private sealed class NinjaPaletteReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address >= NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource &&
-                address < NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource +
-                EnemyPaletteSheet.ColorCount * sizeof(ushort))
-                throw new InvalidOperationException("Installed ninja palette read its migrated ROM source.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) =>
-            throw new InvalidOperationException("Ninja palette initialization wrote the bus.");
-    }
+    private static CartridgeReadGuard NewNinjaPaletteReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .ForbidRange(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
+                EnemyPaletteSheet.ColorCount * sizeof(ushort),
+                _ => "Installed ninja palette read its migrated ROM source.")
+            .RejectWrites(_ => "Ninja palette initialization wrote the bus.");
 }

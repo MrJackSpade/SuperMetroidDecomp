@@ -7,6 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports the remaining Ceres map slices and Zebes reveal transfers.</summary>
+[CpuBusBoundary("codec: ROM Ceres map slices and Zebes reveal transfers → Ceres destruction artwork")]
 internal static class CeresDestructionArtworkExtractor
 {
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)

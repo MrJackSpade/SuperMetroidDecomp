@@ -20,7 +20,9 @@ internal static partial class Program
             () => FakeKraidProjectileDefinitions.SpitLaunch(true, 2),
             "Fake Kraid spit index past direction set");
 
-        var guarded = new FakeKraidProjectileReadGuard(rom);
+        var guarded = new CartridgeReadGuard(rom).Forbid(
+            address => address is >= 0xa69a48 and < 0xa69a58 or >= 0x869e7d and < 0x869e83,
+            address => $"Fake Kraid attempted migrated projectile-definition read ${address:X6}.");
         MethodInfo spawnSpitPair = typeof(RoomEnemySystem).GetMethod(
             "SpawnFakeKraidSpitPair",
             instanceFlags)!;
@@ -120,22 +122,5 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, bus);
         return enemies;
-    }
-
-    private sealed class FakeKraidProjectileReadGuard(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa69a48 and < 0xa69a58 or >= 0x869e7d and < 0x869e83
-                ? throw new InvalidOperationException(
-                    $"Fake Kraid attempted migrated projectile-definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

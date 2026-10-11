@@ -57,7 +57,7 @@ internal static partial class Program
 
         // Both physical draw payloads are compiled. They deliberately remain absent
         // from the synthetic bus so a fallback to the old decoder cannot pass.
-        var guarded = new BombTorizoHandProgramReadGuard(bus);
+        var guarded = NewBombTorizoHandProgramReadGuard(bus);
 
         var blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x53 * 8] = 0x53;
@@ -224,25 +224,8 @@ internal static partial class Program
         Suite(nameof(VerifyHandProgramTransferDestination), () => VerifyHandProgramTransferDestination(rom));
     }
 
-    private sealed class BombTorizoHandProgramReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x84d368 and <= 0x84d3c6 or
-                >= 0x849877 and <= 0x8498d0)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Bomb Torizo hand reread compiled program byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBombTorizoHandProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
+                address is >= 0x84d368 and <= 0x84d3c6 or >= 0x849877 and <= 0x8498d0,
+            address => $"Bomb Torizo hand reread compiled program byte ${address:X6}.");
 }

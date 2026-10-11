@@ -17,17 +17,12 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SpacetimeBeamCopyDefinitions.LastSourceAddress - SpacetimeBeamCopyDefinitions.FirstSourceAddress + 1,
-            SpacetimeBeamCopyDefinitions.SourceBytes.Length, "bounded native copy definition size");
-        for (int offset = 0; offset < SpacetimeBeamCopyDefinitions.SourceBytes.Length; offset++)
-            AssertEqual(bus.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
-                SpacetimeBeamCopyDefinitions.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
-                "SpaceTime copy source agrees with supported cartridge");
+        VerifySpacetimeCopySourceAgainstRetailRom(bus);
         AssertThrows<InvalidOperationException>(() => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(0x009130),
             "adjacent instruction before bounded source is not admitted");
         AssertThrows<InvalidOperationException>(() => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(0x010000),
             "word carry must return to the mutable-memory owner");
-        var gameplayBus = new SpacetimeMutableOnlyBus(bus);
+        var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
         var level = new RoomLevelData(
             new Extent16<RoomBlocks>(16, 16),
             new ushort[256],
@@ -189,6 +184,18 @@ internal static partial class Program
             "equipment retention and SRAM persistence match the retail probe.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the bounded SpaceTime copy-source definition")]
+    private static void VerifySpacetimeCopySourceAgainstRetailRom(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
+    {
+        AssertEqual(SpacetimeBeamCopyDefinitions.LastSourceAddress - SpacetimeBeamCopyDefinitions.FirstSourceAddress + 1,
+            SpacetimeBeamCopyDefinitions.SourceBytes.Length, "bounded native copy definition size");
+        for (int offset = 0; offset < SpacetimeBeamCopyDefinitions.SourceBytes.Length; offset++)
+            AssertEqual(bus.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
+                SpacetimeBeamCopyDefinitions.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
+                "SpaceTime copy source agrees with supported cartridge");
+    }
+
     private static uint HashWram(SuperMetroidAddressSpace bus)
     {
         uint hash = 2166136261;
@@ -310,14 +317,9 @@ internal static partial class Program
     private static void VerifySpacetimeBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var gameplayBus = new SpacetimeMutableOnlyBus(bus);
+        var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
         var artwork = RepositoryInstallation.Projectiles.BeamTiles;
-        AssertEqual(SpacetimeBeamGraphicsDefinitions.TileSource & 0xffff,
-            bus.ReadCartridgeByte(0x90c3cd) | bus.ReadCartridgeByte(0x90c3ce) << 8,
-            "SpaceTime tile pointer comes from adjacent native palette table");
-        AssertEqual(SpacetimeBeamGraphicsDefinitions.PalettePointer,
-            bus.ReadCartridgeByte(0x90c3e5) | bus.ReadCartridgeByte(0x90c3e6) << 8,
-            "SpaceTime palette pointer comes from the native color word");
+        byte[] nativeTiles = ReadRetailSpacetimeGraphicsOracle(bus);
         AssertTrue(artwork.TryResolve(SpacetimeBeamGraphicsDefinitions.TileSource, 256, out _),
             "legacy SpaceTime graphics queue resolves through installed artwork");
         foreach (bool queued in new[] { false, true })
@@ -333,19 +335,36 @@ internal static partial class Program
                 writes.DrainTo(vram, gameplayBus, artwork);
             }
             else SamusProjectileSystem.LoadBeamTilesAndPalette(gameplayBus, vram, cgram, 0x100e, artwork);
-            for (int i = 0; i < 256; i++) AssertEqual(bus.ReadCartridgeByte(0x9ac401 + i),
+            for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i],
                 vram.ReadByte(0xc600 + i), "SpaceTime native tile bytes");
             for (int i = 0; i < 16; i++) AssertEqual((bus.ReadByte(0x7e19ff + i * 2) |
                 bus.ReadByte(0x7e1a00 + i * 2) << 8) & 0x7fff, cgram.Colors[0xe0 + i],
                 "SpaceTime colors retain current mutable memory rather than a frozen palette");
         }
     }
-    // No import/cartridge capability is available while the production projectile path executes.
-    private sealed class SpacetimeMutableOnlyBus(SuperMetroidAddressSpace source) : ISnesMemoryBus, ISnesCpuPeripheralSource
+
+    /// <summary>Checks the SpaceTime graphics pointers against their native table words and returns the native tiles.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the SpaceTime adjacent-table graphics pointers and tiles")]
+    private static byte[] ReadRetailSpacetimeGraphicsOracle(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
-        public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) => ((ISnesMutableMemory)source).ReadSaveRamByte(address);
-        public byte ReadPeripheralByte(int address) => ((ISnesCpuPeripheralSource)source).ReadPeripheralByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        AssertEqual(SpacetimeBeamGraphicsDefinitions.TileSource & 0xffff,
+            bus.ReadCartridgeByte(0x90c3cd) | bus.ReadCartridgeByte(0x90c3ce) << 8,
+            "SpaceTime tile pointer comes from adjacent native palette table");
+        AssertEqual(SpacetimeBeamGraphicsDefinitions.PalettePointer,
+            bus.ReadCartridgeByte(0x90c3e5) | bus.ReadCartridgeByte(0x90c3e6) << 8,
+            "SpaceTime palette pointer comes from the native color word");
+        var tiles = new byte[256];
+        for (int i = 0; i < tiles.Length; i++)
+            tiles[i] = bus.ReadCartridgeByte(0x9ac401 + i);
+        return tiles;
+    }
+
+    // No cartridge byte is readable while the production projectile path executes.
+    private static MutableCartridgeReadGuard NewSpacetimeMutableOnlyBus(SuperMetroidAddressSpace source)
+    {
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) == SnesDmaSourceKind.Cartridge,
+            address => $"SpaceTime gameplay read cartridge byte ${address:X6}.");
+        return guard;
     }
 }

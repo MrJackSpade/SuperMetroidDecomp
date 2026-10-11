@@ -63,7 +63,7 @@ internal static partial class Program
         var installed = new SamusVisorPaletteState { PresentationColors = catalog };
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
-        var guarded = new ForbiddenVisorColorBus(rom);
+        var guarded = NewForbiddenVisorColorBus(rom);
         for (int frame = 0; frame < 32; frame++)
         {
             byte sourceOffset = native.PaletteByteOffset;
@@ -84,7 +84,7 @@ internal static partial class Program
             AssertEqual(nativeCgram.Colors[196], installedCgram.Colors[196],
                 $"room visor frame {frame} CGRAM");
         }
-        AssertEqual(0, guarded.ForbiddenReads, "installed room cycle does not read visor ROM table");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "installed room cycle does not read visor ROM table");
     }
 
     private static void VerifyInstalledXrayVisorCycle(ISnesAddressSpace rom,
@@ -96,7 +96,7 @@ internal static partial class Program
         installed.Xray.PresentationColors = catalog;
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
-        var guarded = new ForbiddenVisorColorBus(rom);
+        var guarded = NewForbiddenVisorColorBus(rom);
 
         void Compare(int call)
         {
@@ -124,7 +124,7 @@ internal static partial class Program
         AssertEqual(XrayBeamPhase.Full, native.Xray.BeamPhase,
             "X-ray reaches full-beam palette cycle after native setup and widening");
         for (int call = 11; call < 31; call++) Compare(call); // Full-beam colors 6, 8, 10.
-        AssertEqual(0, guarded.ForbiddenReads, "installed X-ray cycle does not read visor ROM table");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "installed X-ray cycle does not read visor ROM table");
     }
 
     private static ushort ReadVisorFixtureColor(ISnesAddressSpace rom, int offset) =>
@@ -178,20 +178,20 @@ internal static partial class Program
             "new Samus binds installed visor colors for both room and X-ray cycles");
         var visor = new SamusVisorPaletteState { PresentationColors = edited.SamusVisorColors };
         var cgram = new SnesCgram();
-        var guarded = new ForbiddenVisorColorBus(new TestAddressSpace());
+        var guarded = NewForbiddenVisorColorBus(new TestAddressSpace());
         _ = visor.Update(guarded, cgram, 0, LayerBlendingConfiguration.VisorBackdrop28);
         AssertEqual(edited.SamusVisorColors.Resolve(3), cgram.Colors[196],
             "edited visor color reaches room-cycle CGRAM");
-        AssertEqual(0, guarded.ForbiddenReads, "edited visor color avoids native table");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "edited visor color avoids native table");
         SamusState xraySamus = CreateXraySamus(rom);
         xraySamus.Xray.PresentationColors = edited.SamusVisorColors;
         var xrayCgram = new SnesCgram();
-        var guardedXray = new ForbiddenVisorColorBus(rom);
+        var guardedXray = NewForbiddenVisorColorBus(rom);
         AssertTrue(xraySamus.Xray.UpdatePalette(guardedXray, xrayCgram, xraySamus.EquippedItems),
             "edited X-ray widening cycle writes CGRAM");
         AssertEqual(edited.SamusVisorColors.Resolve(0), xrayCgram.Colors[196],
             "edited visor color reaches X-ray CGRAM");
-        AssertEqual(0, guardedXray.ForbiddenReads, "edited X-ray color avoids native table");
+        AssertEqual(0, guardedXray.ForbiddenReadAttempts, "edited X-ray color avoids native table");
         AssertThrows<InvalidDataException>(() => SamusVisorColorCatalog.Write(document with
         {
             Colors = [.. document.Colors.Take(3), original with { Red = 32 }, .. document.Colors.Skip(4)],
@@ -203,23 +203,9 @@ internal static partial class Program
         Console.WriteLine("Samus visor override: edited room/X-ray colors reach CGRAM and stock restores.");
     }
 
-    private sealed class ForbiddenVisorColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReads { get; private set; }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= SamusVisorColorFormat.SourceAddress and
+    private static CartridgeReadGuard NewForbiddenVisorColorBus(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= SamusVisorColorFormat.SourceAddress and
                 < (SamusVisorColorFormat.SourceAddress +
-                    SamusVisorColorFormat.ColorCount * sizeof(ushort)))
-            {
-                ForbiddenReads++;
-                throw new InvalidOperationException($"Installed visor read native color ${address:X6}.");
-            }
-            return inner.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
-    }
+                    SamusVisorColorFormat.ColorCount * sizeof(ushort)),
+            address => $"Installed visor read native color ${address:X6}.");
 }

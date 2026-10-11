@@ -26,7 +26,7 @@ internal static partial class Program
                 $"Dragon-fireball mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new DragonFireballInstructionReadGuard(rom);
+        var guard = NewDragonFireballInstructionReadGuard(rom);
         var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
@@ -105,7 +105,7 @@ internal static partial class Program
             DragonFireballInstructionProgramDefinitions.PresentationWordCount,
             selectedPresentation.Count,
             "all Dragon-fireball installed presentation operands are selected");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Dragon-fireball installed presentation requires zero cartridge reads");
         for (int index = 0;
              index < DragonFireballInstructionProgramDefinitions.PresentationWordCount;
@@ -179,45 +179,13 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class DragonFireballInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (DragonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Dragon/shared mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < DragonFireballInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = DragonFireballInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDragonFireballInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                    DragonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Dragon/shared mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                DragonFireballInstructionProgramDefinitions.PresentationWordCount,
+                DragonFireballInstructionProgramDefinitions.PresentationWordAddress);
 }

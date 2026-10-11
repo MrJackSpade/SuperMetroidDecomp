@@ -21,6 +21,7 @@ internal static partial class Program
             MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeEnd),
     ];
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain head instruction words")]
     private static void VerifyMotherBrainHeadInstructionProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -80,7 +81,7 @@ internal static partial class Program
         (RoomEnemySystem Enemies, MotherBrainEnemyState State) CreateBrain(ushort start)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, new MotherBrainHeadInstructionReadGuard(rom));
+            busField.SetValue(enemies, NewMotherBrainHeadInstructionReadGuard(rom));
             var head = new RoomEnemySlot(1)
             {
                 EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead,
@@ -142,25 +143,10 @@ internal static partial class Program
             "nine ordinary-enemy entry frames and a branch loop pass.");
     }
 
-    private sealed class MotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            IsCompiledHeadByte(address)
-                ? throw new InvalidOperationException(
-                    $"Mother Brain reread compiled head instruction at ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private static bool IsCompiledHeadByte(int address) =>
-            (address >> 16) == 0xa9 && MotherBrainHeadRegions.Any(region =>
+    private static CartridgeReadGuard NewMotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => (address >> 16) == 0xa9 && MotherBrainHeadRegions.Any(region =>
                 (address & 0xffff) >= region.Start &&
-                (address & 0xffff) <= region.End + 1);
-    }
+                (address & 0xffff) <= region.End + 1),
+                address => $"Mother Brain reread compiled head instruction at ${address:X6}.");
 }

@@ -29,7 +29,7 @@ internal static partial class Program
                 $"Waver instruction mechanics word $A3:{definition.Address:X4}");
         }
 
-        var guard = new WaverInstructionProgramReadGuard(rom);
+        var guard = NewWaverInstructionProgramReadGuard(rom);
         (WaverAnimationSelector Selector, ushort Terminal, int Frames)[] programs =
         [
             (WaverAnimationSelector.None, 0x86ab, 2),
@@ -53,7 +53,7 @@ internal static partial class Program
                 state.SpinFinished, $"Waver {selector} spin-completion callback");
         }
 
-        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+        AssertEqual(0, guard.ForbiddenReadAttempts,
             "Waver production programs never read installed visual selectors");
         for (int index = 0;
              index < WaverInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -91,7 +91,7 @@ internal static partial class Program
             "ten visual-selector and mechanics source words forbidden.");
 
         static RoomEnemySystem CreateWaverProgramSystem(
-            WaverInstructionProgramReadGuard guard,
+            CartridgeReadGuard guard,
             WaverAnimationSelector selector,
             out RoomEnemySlot slot)
         {
@@ -140,45 +140,10 @@ internal static partial class Program
     private static ushort ReadWaverInstructionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class WaverInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenPresentationReadAttempts { get; private set; }
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (WaverInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Waver mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < WaverInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        WaverInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenPresentationReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read installed Waver selector ${address:X6}.");
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewWaverInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(WaverInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Waver mechanics byte ${address:X6}.")
+            .ForbidWords(0xa30000, WaverInstructionProgramDefinitionsTooling.PresentationWordCount, WaverInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read installed Waver selector ${address:X6}.");
 }

@@ -103,7 +103,11 @@ internal static class EndingShootingStarsTests
         Require(final.Memory.ModeledSpriteCount > 0 && final.Layers.ToArray().OfType<ObjRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
         Console.WriteLine($"{device.Kind}: 40 native star definitions, delay/trajectory/animation/reset, visible ending stars, phase masks and late-scene ownership passed.");
 
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+        ushort Word(int address) => NativeStarWord(rom, address);
         static void Require(bool value, string message) { if (!value) throw new InvalidDataException(message); }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending shooting-star definition table")]
+    private static ushort NativeStarWord(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, int address) =>
+        (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 }

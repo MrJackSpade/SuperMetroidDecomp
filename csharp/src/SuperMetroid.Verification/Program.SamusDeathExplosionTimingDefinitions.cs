@@ -29,38 +29,15 @@ internal static partial class Program
             "compiled sequence and invalid restored indexes fail loudly.");
     }
 
-    private sealed class SamusDeathExplosionTimingReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            RejectTimerRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectTimerRead(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        private void RejectTimerRead(int address)
-        {
-            int relative = address -
-                SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress;
-            if (relative >= 0 &&
-                relative < SamusDeathExplosionTimingDefinitions.RecordCount *
-                    SamusDeathExplosionTimingDefinitions.RecordByteCount &&
-                relative % SamusDeathExplosionTimingDefinitions.RecordByteCount == 0)
+    private static CartridgeReadGuard NewSamusDeathExplosionTimingReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Samus death sequence attempted timer read ${address:X6}.");
-            }
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                int relative = address -
+                    SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress;
+                return relative >= 0 &&
+                    relative < SamusDeathExplosionTimingDefinitions.RecordCount *
+                        SamusDeathExplosionTimingDefinitions.RecordByteCount &&
+                    relative % SamusDeathExplosionTimingDefinitions.RecordByteCount == 0;
+            },
+            address => $"Samus death sequence attempted timer read ${address:X6}.");
 }

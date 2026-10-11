@@ -11,6 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Installs stock room-character PNGs separately from persistent user overrides.
 /// The manifest records native transfer lengths; it does not expose room mechanics.
 /// </summary>
+[CpuBusBoundary("codec: ROM compressed room character graphics → room character artwork files")]
 public static class RoomCharacterArtworkFiles
 {
     /// <summary>Stock character manifest filename recording cartridge provenance, PNG hashes, and required native planar transfer lengths.</summary>

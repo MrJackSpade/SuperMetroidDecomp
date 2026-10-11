@@ -16,7 +16,7 @@ internal static partial class Program
             "SpawnMotherBrainTurretBullet", instance)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
         FieldInfo randomField = typeof(RoomEnemySystem).GetField("_nextRandom", instance)!;
-        var guarded = new MotherBrainTurretReadGuard(rom);
+        var guarded = NewMotherBrainTurretReadGuard(rom);
 
         for (ushort parameter = 0; parameter < 12; parameter++)
         {
@@ -158,22 +158,10 @@ internal static partial class Program
     private static ushort ReadMotherBrainTurretWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class MotherBrainTurretReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x86be89 and < 0x86bf59 or
+    private static CartridgeReadGuard NewMotherBrainTurretReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x86be89 and < 0x86bf59 or
             >= 0x86bf9f and < 0x86bfdf or
-            >= 0x86c040 and < 0x86c050
-                ? throw new InvalidOperationException(
-                    $"Mother Brain turret attempted migrated table read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+            >= 0x86c040 and < 0x86c050,
+                address => $"Mother Brain turret attempted migrated table read ${address:X6}.");
 }

@@ -25,27 +25,10 @@ internal static partial class Program
             "Suit-pickup beam curve: all 128 native offsets match and invalid indexes fail loudly.");
     }
 
-    private sealed class SuitPickupBeamCurveReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address >= SuitPickupBeamCurveDefinitions.NativeCurveAddress &&
+    private static CartridgeReadGuard NewSuitPickupBeamCurveReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address >= SuitPickupBeamCurveDefinitions.NativeCurveAddress &&
                 address < SuitPickupBeamCurveDefinitions.NativeCurveAddress +
-                    SuitPickupBeamCurveDefinitions.OffsetCount)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Suit-pickup transformation attempted curve read ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                    SuitPickupBeamCurveDefinitions.OffsetCount,
+                address => $"Suit-pickup transformation attempted curve read ${address:X6}.");
 }

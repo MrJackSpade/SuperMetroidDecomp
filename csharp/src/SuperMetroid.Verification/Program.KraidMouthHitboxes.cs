@@ -25,7 +25,7 @@ internal static partial class Program
         }
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guarded = new KraidMouthLowHalfReadGuard(rom);
+        var guarded = NewKraidMouthLowHalfGuard(rom);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
         Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> overlaps = enemies.KraidMouthHitboxOverlapsShot;
         var body = enemies.Slots[0];
@@ -109,29 +109,17 @@ internal static partial class Program
         Console.WriteLine("Kraid mouth geometry: all head-program pointers, 32 native rectangle words, seven low-half boundary bytes, 32768 live address-space starts and 1572864 authored collision probes match; unrelated cartridge pointers reject.");
     }
 
-    private sealed class KraidMouthLowHalfReadGuard(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewKraidMouthLowHalfGuard(ISnesAddressSpace source)
     {
-        public byte ReadWorkRamByte(int address) => ReadByte(address);
-        public byte ReadSaveRamByte(int address) => ReadByte(address);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
-            if (sourceAddress.Bank == 0xa7 && sourceAddress.IsUpperLoRomWindow)
-            {
-                throw new InvalidOperationException(
-                    $"Kraid mouth geometry attempted upper-ROM read {sourceAddress}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => SnesAddress.FromBusAddress(address) is { Bank: 0xa7, IsUpperLoRomWindow: true },
+            address => $"Kraid mouth geometry attempted upper-ROM read {SnesAddress.FromBusAddress(address)}.");
+        return guard;
     }
 
-    private sealed class KraidMouthBoundaryReadBus : ISnesMemoryBus, IImportCartridgeSource, ISnesCpuPeripheralSource
+    [CpuBusBoundary("exact bus test: synthetic bank-$A7 low-window WRAM/SRAM/peripheral responder witnessing which bus source each Kraid mouth and head boundary-crossing operand byte selects")]
+    private sealed class KraidMouthBoundaryReadBus : ISnesAddressSpace, IImportCartridgeSource,
+        ISnesMutableMemory, ISnesCpuPeripheralSource
     {
         public byte ReadWorkRamByte(int address) => ReadByte(address);
         public byte ReadSaveRamByte(int address) => ReadByte(address);

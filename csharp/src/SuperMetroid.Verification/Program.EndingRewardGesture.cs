@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon graphics and upload tables")]
     private static void VerifyEndingRewardGesture()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -13,7 +14,7 @@ internal static partial class Program
         Suite(nameof(VerifyEndingPostShot), () => VerifyEndingPostShot(bus));
         Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));
         Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
-        var uploadBus = new EndingRewardUploadDefinitionReadGuard(bus);
+        var uploadBus = NewEndingRewardUploadDefinitionReadGuard(bus);
         var graphicsUpload = new EndingRewardGraphicsUpload(uploadBus,
             RepositoryInstallation.Installation.LoadEndingMode7Art().RewardIcon);
         var graphicsVram = new SnesVram();
@@ -46,7 +47,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(
             () => EndingRewardGraphicsUploadDefinitions.DestinationWord(-1),
             "reward icon destination rejects a negative transfer");
-        var rewardBus = new EndingRewardDefinitionReadGuard(bus);
+        var rewardBus = NewEndingRewardDefinitionReadGuard(bus);
         EndingRewardSpritePresentation rewardSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites;
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
@@ -96,28 +97,12 @@ internal static partial class Program
             "ending reward actors never reread compiled definition records");
     }
 
-    private sealed class EndingRewardUploadDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
-                address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
-                EndingRewardJumpDefinitions.UploadCount * sizeof(ushort))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Reward icon upload reread address-table byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEndingRewardUploadDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
+                    address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
+                    EndingRewardJumpDefinitions.UploadCount * sizeof(ushort),
+                address => $"Reward icon upload reread address-table byte ${address:X6}.");
 
     /// <summary>The ten reward gesture and jump actors, in native spawn order.</summary>
     private static readonly ushort[] RewardActorPointers =
@@ -173,38 +158,16 @@ internal static partial class Program
             "  Reward definitions: ten spawn pointers, thirty record words and twelve initialization operands match.");
     }
 
-    private sealed class EndingRewardDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewEndingRewardDefinitionReadGuard(ISnesAddressSpace source)
     {
-        private static readonly HashSet<int> Forbidden = CreateForbidden();
-
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        var forbidden = new HashSet<int>();
+        foreach (ushort pointer in RewardActorPointers)
         {
-            if (Forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending reward actor reread definition byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
+            int address = EndingRewardActorDefinitions.NativeDefinitionBank | pointer;
+            for (int offset = 0; offset < 3 * sizeof(ushort); offset++)
+                forbidden.Add(address + offset);
         }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private static HashSet<int> CreateForbidden()
-        {
-            var result = new HashSet<int>();
-            foreach (ushort pointer in RewardActorPointers)
-            {
-                int address = EndingRewardActorDefinitions.NativeDefinitionBank | pointer;
-                for (int offset = 0; offset < 3 * sizeof(ushort); offset++)
-                    result.Add(address + offset);
-            }
-            return result;
-        }
+        return new CartridgeReadGuard(source).Forbid(forbidden.Contains,
+            address => $"Ending reward actor reread definition byte ${address:X6}.");
     }
 }

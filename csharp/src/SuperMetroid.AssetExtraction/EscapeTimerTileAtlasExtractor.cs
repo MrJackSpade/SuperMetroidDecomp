@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports the timer's contiguous twenty-five 4-bpp OBJ characters as indexed PNG.</summary>
+[CpuBusBoundary("codec: ROM escape-timer 4-bpp OBJ characters → indexed timer tile atlas PNG")]
 public static class EscapeTimerTileAtlasExtractor
 {
     /// <summary>Converts the escape timer's 25 contiguous four-bit planar OBJ characters into an indexed atlas.</summary>

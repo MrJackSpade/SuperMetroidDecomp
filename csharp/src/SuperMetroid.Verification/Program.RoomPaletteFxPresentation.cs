@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room palette-FX color words")]
     private static void VerifyExtractedRoomPaletteFxPresentation(
         SuperMetroidAddressSpace bus)
     {
@@ -43,7 +44,7 @@ internal static partial class Program
         AssertEqual(640, colorAddresses.Count,
             "Norfair presentation owns all 320 BGR555 source words");
 
-        var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
+        var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var native = new RoomPaletteFxSystem();
         var installed = new RoomPaletteFxSystem();
         foreach (NorfairEnvironmentalPaletteFxProgramDefinition definition in
@@ -344,6 +345,7 @@ internal static partial class Program
             "fifty-five installed programs match native execution without color-source reads.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending gunship palette-FX color words")]
     private static void VerifyExtractedEndingGunshipPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -423,6 +425,7 @@ internal static partial class Program
             "gunship does not invent missing interpolation inputs");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for logo glare palette-FX color words")]
     private static void VerifyExtractedLogoGlarePaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -648,6 +651,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus heat palette-FX color words")]
     private static void VerifyExtractedSamusHeatPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -859,7 +863,7 @@ internal static partial class Program
                 PaletteFxHeatProgramDefinition.ColorsPerFrame * sizeof(ushort),
                 forbidden.Count, $"{definition.Suit} heat colors have distinct source bytes");
 
-            var guard = new TitlePresentationReadBus(bus, forbidden, forbidReads: true);
+            var guard = NewTitlePresentationReadBus(bus, forbidden, forbidReads: true);
             var native = new RoomPaletteFxSystem();
             var installed = new RoomPaletteFxSystem();
             ushort equipment = definition.Suit switch
@@ -887,6 +891,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for an installed palette-FX family's native color words")]
     private static void VerifyInstalledPaletteFxFamily(
         ISnesAddressSpace bus,
         RoomPaletteFxPresentation presentation,
@@ -919,7 +924,7 @@ internal static partial class Program
 
         foreach (ushort definition in definitions)
         {
-            var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
+            var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var native = new RoomPaletteFxSystem();
             var installed = new RoomPaletteFxSystem();
             native.SpawnDefinition(bus, definition, equippedItems: 0);
@@ -942,6 +947,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Wrecked Ship palette-FX color words")]
     private static void VerifyExtractedWreckedShipPaletteFxPresentation(
         ISnesAddressSpace bus,
         RoomPaletteFxPresentation presentation)
@@ -977,7 +983,7 @@ internal static partial class Program
                      WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.PoweredDefinitionAlternate,
                  })
         {
-            var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
+            var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var native = new RoomPaletteFxSystem();
             var installed = new RoomPaletteFxSystem();
             native.SpawnDefinition(bus, definition, equippedItems: 0);
@@ -998,6 +1004,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia palette-FX color words")]
     private static void VerifyExtractedMaridiaPaletteFxPresentation(
         ISnesAddressSpace bus,
         RoomPaletteFxPresentation presentation)
@@ -1025,7 +1032,7 @@ internal static partial class Program
         AssertEqual(224, colorAddresses.Count,
             "Maridia presentation owns all 112 BGR555 source words");
 
-        var guarded = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
+        var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var native = new RoomPaletteFxSystem();
         var installed = new RoomPaletteFxSystem();
         foreach (MaridiaEnvironmentalPaletteFxProgramDefinition definition in

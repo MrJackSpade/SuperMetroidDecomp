@@ -27,7 +27,7 @@ internal static partial class Program
                 $"wall Pirate mechanics word $B2:{definition.Address:X4}");
         }
 
-        var guard = new WallSpacePirateInstructionReadGuard(rom);
+        var guard = NewWallSpacePirateInstructionReadGuard(rom);
         RoomLevelData level = CreateOpenWallPirateRoom();
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: false));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: true));
@@ -248,44 +248,10 @@ internal static partial class Program
     private static ushort ReadWallPirateWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class WallSpacePirateInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (WallSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled wall Pirate mechanics ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xb20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < WallSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        WallSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read compiled wall Pirate frame selector " +
-                            $"${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewWallSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(WallSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled wall Pirate mechanics ${address:X6}.")
+            .ForbidWords(0xb20000, WallSpacePirateInstructionProgramDefinitions.PresentationWordCount, WallSpacePirateInstructionProgramDefinitions.PresentationWordAddress,
+                address => $"Production read compiled wall Pirate frame selector ${address:X6}.");
 }

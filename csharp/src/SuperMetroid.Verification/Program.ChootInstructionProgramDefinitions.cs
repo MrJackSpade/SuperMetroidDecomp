@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Choot instruction mechanics word $A2:{definition.Address:X4}");
         }
 
-        var guard = new ChootInstructionProgramReadGuard(rom, forbidPresentation: true);
+        var guard = NewChootInstructionProgramReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         Type enemySystemType = typeof(RoomEnemySystem);
         enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -86,7 +86,7 @@ internal static partial class Program
             ChootInstructionProgramDefinitions.Falling,
             timedFrameCount: 2);
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Choot production programs avoid cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Choot mechanics bytes");
@@ -152,49 +152,17 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class ChootInstructionProgramReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewChootInstructionProgramReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (ChootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Choot mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < ChootInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                        {
-                            ForbiddenReadAttempts++;
-                            throw new InvalidOperationException(
-                                $"Choot read visual-selector byte ${address:X6}.");
-                        }
-                        ObservedPresentationWords.Add(presentation);
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        CartridgeReadGuard guard = new CartridgeReadGuard(source)
+            .Forbid(ChootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Choot mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.ForbidWords(0xa20000, ChootInstructionProgramDefinitionsTooling.PresentationWordCount,
+                ChootInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Choot read visual-selector byte ${address:X6}.")
+            : guard.ObserveWords(0xa20000, ChootInstructionProgramDefinitionsTooling.PresentationWordCount,
+                ChootInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 }

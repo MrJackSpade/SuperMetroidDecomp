@@ -56,7 +56,9 @@ internal static partial class Program
             () => ExploredMapPackingDefinitions.Area(SaveRamLayout.PackedMapAreaCount, RetailPresentationFixture()),
             "packed map excludes native Ceres list");
 
-        var guard = new ExploredMapPackingReadGuard(retail);
+        var guard = new MutableCartridgeReadGuard(retail);
+        guard.Forbid(IsCompiledMapPackingByte,
+            address => $"Save-map codec reread compiled byte ${address:X6}.");
         var saveRam = new SuperMetroidSaveRam(guard, RetailPresentationFixture());
         var explored = new byte[
             Bank80SystemState.ExploredMapAreaCount *
@@ -164,57 +166,22 @@ internal static partial class Program
             Directory.Delete(resolved, recursive: true);
         }
     }
-    private sealed class ExploredMapPackingReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
+
+    private static bool IsCompiledMapPackingByte(int address)
     {
-        public int ForbiddenReadAttempts { get; private set; }
+        if (address is >= 0x818131 and < 0x818146 or
+            >= 0x8182d6 and < 0x8182e4)
+            return true;
 
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
         {
-            if (IsForbidden(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Save-map codec reread compiled byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "The guarded source must expose WRAM.")).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address)
-        {
-            if (IsForbidden(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Save-map codec reread compiled byte ${address:X6}.");
-            }
-            return (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "The guarded source must expose SRAM.")).ReadSaveRamByte(address);
-        }
-
-        private static bool IsForbidden(int address)
-        {
-            if (address is >= 0x818131 and < 0x818146 or
-                >= 0x8182d6 and < 0x8182e4)
+            ExploredMapPackingDefinition definition =
+                ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture());
+            int start = 0x810000 | ExploredMapNativeSourcePointers[area];
+            if (address >= start &&
+                address < start + definition.AreaByteIndexes.Count)
                 return true;
-
-            for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
-            {
-                ExploredMapPackingDefinition definition =
-                    ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture());
-                int start = 0x810000 | ExploredMapNativeSourcePointers[area];
-                if (address >= start &&
-                    address < start + definition.AreaByteIndexes.Count)
-                    return true;
-            }
-            return false;
         }
+        return false;
     }
 }

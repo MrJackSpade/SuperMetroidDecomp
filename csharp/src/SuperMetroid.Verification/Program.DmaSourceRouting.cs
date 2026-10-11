@@ -6,6 +6,7 @@ internal static partial class Program
     /// Checks the actual PPU transfer paths, including a fixed-bank DMA wrap that changes
     /// mapped source type between consecutive bytes. A generic bus read throws here.
     /// </summary>
+    [CpuBusBoundary("exact bus test: PPU DMA and import palette source routing across cartridge, WRAM and SRAM")]
     private static void VerifyDmaSourceRouting()
     {
         var source = new DmaReadRoutingBus();
@@ -47,7 +48,9 @@ internal static partial class Program
         Console.WriteLine("  PPU DMA sources: runtime rejects ROM, importer resolves ROM/WRAM wrap, and SRAM uses typed routes.");
     }
 
-    private sealed class DmaReadRoutingBus : ISnesMemoryBus, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: sparse per-region store whose read counters witness PPU DMA source routing")]
+    private sealed class DmaReadRoutingBus : ISnesMemoryBus,
+        IImportCartridgeSource
     {
         private readonly Dictionary<int, byte> cartridge = [];
         private readonly Dictionary<int, byte> workRam = [];

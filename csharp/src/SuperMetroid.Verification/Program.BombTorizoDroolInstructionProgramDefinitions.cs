@@ -112,7 +112,7 @@ internal static partial class Program
                 $"Bomb Torizo drool mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new BombTorizoDroolInstructionReadGuard(rom);
+        var guard = NewBombTorizoDroolInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         BombTorizoDroolProgram[] expectedPrograms =
@@ -229,7 +229,7 @@ internal static partial class Program
             "drool floor impact deletes on the tick after three eight-frame poses");
 
         AssertEqual(0,
-            guard.ObservedPresentationWords.Count,
+            guard.ObservedWords.Count,
             "Bomb Torizo drool uses installed presentation operands without ROM reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Bomb Torizo drool mechanics byte");
@@ -278,42 +278,11 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class BombTorizoDroolInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (BombTorizoDroolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Bomb Torizo drool byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = BombTorizoDroolInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBombTorizoDroolInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(BombTorizoDroolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Bomb Torizo drool byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount,
+                BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress);
 }

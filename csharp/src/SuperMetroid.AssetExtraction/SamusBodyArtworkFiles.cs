@@ -14,6 +14,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Unused tiles are zero. Native transfer sizes and pose/frame choices live in JSON;
 /// no game mechanics or animation delay bytes are represented here.
 /// </remarks>
+[CpuBusBoundary("codec: ROM bank-$92 Samus body DMA definitions and graphics → Samus body atlases and selectors")]
 public static class SamusBodyArtworkFiles
 {
     /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, vertical offsets, and stock PNG provenance hashes.</summary>
@@ -175,7 +176,7 @@ public static class SamusBodyArtworkFiles
             sets[set] = new DefinitionEntry[count];
             for (int position = 0; position < count; position++)
             {
-                int definitionAddress = 0x920000 | (start + position * 7);
+                int definitionAddress = CartridgeBankWindow.At(SamusCartridgeTables.AnimationBank, start + position * 7);
                 ushort sourceOffset = ReadWord(bus, definitionAddress);
                 byte sourceBank = bus.ReadCartridgeByte(definitionAddress + 2);
                 ushort firstSize = ReadWord(bus, definitionAddress + 3);
@@ -299,7 +300,7 @@ public static class SamusBodyArtworkFiles
 
     private static SamusSpritemapDefinition ReadSpritemap(ISnesAddressSpace bus, ushort pointer)
     {
-        int address = 0x920000 | pointer;
+        int address = CartridgeBankWindow.At(SamusCartridgeTables.AnimationBank, pointer);
         ushort count = ReadWord(bus, address);
         if (pointer < 0x90ED || count > 128 || pointer + 2 + count * 5 > 0x10000)
             throw new InvalidDataException($"Invalid Samus spritemap at $92:{pointer:X4}.");

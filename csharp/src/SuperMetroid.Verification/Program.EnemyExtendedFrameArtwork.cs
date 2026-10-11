@@ -13,15 +13,15 @@ internal static partial class Program
     {
         AssertTrue(stock.ExtendedFrames is not null,
             "installed enemy catalog contains extended visual compositions");
-        var guard = new ExtendedVisualReadGuard(rom);
+        var guard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> guardBlockFrame);
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
-            guard.BlockFrame(frame.Bank, frame.Pointer);
+            guardBlockFrame(frame.Bank, frame.Pointer);
             AssertTrue(stock.ExtendedFrames!.TryGet(frame.Bank, frame.Pointer, out _),
                 $"installed extended frame {frame.Name} exists");
         }
         ushort emptyPointer = EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap;
-        guard.BlockFrame(EnemyExtendedFrameDefinitions.Bank, emptyPointer);
+        guardBlockFrame(EnemyExtendedFrameDefinitions.Bank, emptyPointer);
         AssertTrue(stock.ExtendedFrames!.TryGet(EnemyExtendedFrameDefinitions.Bank,
                 emptyPointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> empty) &&
                    empty.IsEmpty,
@@ -1500,80 +1500,69 @@ internal static partial class Program
             $"Extended Space Pirate frame $B2:{pointer:X4} is not installed.");
     }
 
-    private sealed class ExtendedVisualReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
+    private static CartridgeReadGuard NewExtendedVisualReadGuard(
+        ISnesAddressSpace source, out Action<byte, ushort> blockFrame)
     {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+        var blocked = new HashSet<int>();
+        blockFrame = (bank, pointer) => BlockExtendedVisualFrame(blocked, source, bank, pointer);
+        return new CartridgeReadGuard(source).Forbid(blocked.Contains,
+            address => $"Installed extended enemy draw read visual ROM byte ${address:X6}.");
+    }
 
-        private readonly HashSet<int> blocked = [];
-
-        internal void BlockFrame(byte bank, ushort pointer)
+    private static void BlockExtendedVisualFrame(
+        HashSet<int> blocked, ISnesAddressSpace source, byte bank, ushort pointer)
+    {
+        int root = (bank << 16) | pointer;
+        int count = source.ReadByte(root);
+        Block(bank, pointer, 2 + count * 8);
+        for (int index = 0; index < count; index++)
         {
-            int root = (bank << 16) | pointer;
-            int count = source.ReadByte(root);
-            Block(bank, pointer, 2 + count * 8);
-            for (int index = 0; index < count; index++)
+            ushort component = unchecked((ushort)(pointer + 2 + index * 8));
+            ushort sprite = (ushort)(source.ReadByte((bank << 16) |
+                    unchecked((ushort)(component + 4))) |
+                source.ReadByte((bank << 16) |
+                    unchecked((ushort)(component + 5))) << 8);
+            int spriteAddress = (bank << 16) | sprite;
+            int parts = source.ReadByte(spriteAddress) |
+                source.ReadByte((bank << 16) |
+                    unchecked((ushort)(sprite + 1))) << 8;
+            if (parts == EnemyBg2FrameLayout.StreamMarker)
             {
-                ushort component = unchecked((ushort)(pointer + 2 + index * 8));
-                ushort sprite = (ushort)(source.ReadByte((bank << 16) |
-                        unchecked((ushort)(component + 4))) |
-                    source.ReadByte((bank << 16) |
-                        unchecked((ushort)(component + 5))) << 8);
-                int spriteAddress = (bank << 16) | sprite;
-                int parts = source.ReadByte(spriteAddress) |
-                    source.ReadByte((bank << 16) |
-                        unchecked((ushort)(sprite + 1))) << 8;
-                if (parts == EnemyBg2FrameLayout.StreamMarker)
+                Block(bank, sprite, 2);
+                ushort cursor = unchecked((ushort)(sprite + 2));
+                bool terminated = false;
+                for (int command = 0;
+                     command < EnemyBg2FrameLayout.MaximumCommandsPerStream;
+                     command++)
                 {
-                    Block(bank, sprite, 2);
-                    ushort cursor = unchecked((ushort)(sprite + 2));
-                    bool terminated = false;
-                    for (int command = 0;
-                         command < EnemyBg2FrameLayout.MaximumCommandsPerStream;
-                         command++)
+                    ushort destination = ReadSourceWord(cursor);
+                    if (destination == 0xffff)
                     {
-                        ushort destination = ReadSourceWord(cursor);
-                        if (destination == 0xffff)
-                        {
-                            Block(bank, cursor, 2);
-                            terminated = true;
-                            break;
-                        }
-                        ushort wordCount = ReadSourceWord(unchecked((ushort)(cursor + 2)));
-                        int length = 4 + wordCount * 2;
-                        Block(bank, cursor, length);
-                        cursor = unchecked((ushort)(cursor + length));
+                        Block(bank, cursor, 2);
+                        terminated = true;
+                        break;
                     }
-                    if (!terminated)
-                        throw new InvalidDataException(
-                            $"Extended BG2 stream ${bank:X2}:{sprite:X4} has no terminator.");
-                    continue;
+                    ushort wordCount = ReadSourceWord(unchecked((ushort)(cursor + 2)));
+                    int length = 4 + wordCount * 2;
+                    Block(bank, cursor, length);
+                    cursor = unchecked((ushort)(cursor + length));
                 }
-                Block(bank, sprite, 2 + parts * 5);
+                if (!terminated)
+                    throw new InvalidDataException(
+                        $"Extended BG2 stream ${bank:X2}:{sprite:X4} has no terminator.");
+                continue;
             }
-
-            ushort ReadSourceWord(ushort address) => unchecked((ushort)(
-                source.ReadByte((bank << 16) | address) |
-                source.ReadByte((bank << 16) | unchecked((ushort)(address + 1))) << 8));
+            Block(bank, sprite, 2 + parts * 5);
         }
 
-        private void Block(byte bank, ushort pointer, int length)
+        ushort ReadSourceWord(ushort address) => unchecked((ushort)(
+            source.ReadByte((bank << 16) | address) |
+            source.ReadByte((bank << 16) | unchecked((ushort)(address + 1))) << 8));
+
+        void Block(byte blockBank, ushort blockPointer, int length)
         {
             for (int index = 0; index < length; index++)
-                blocked.Add((bank << 16) | unchecked((ushort)(pointer + index)));
+                blocked.Add((blockBank << 16) | unchecked((ushort)(blockPointer + index)));
         }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (blocked.Contains(address))
-                throw new InvalidOperationException(
-                    $"Installed extended enemy draw read visual ROM byte ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -48,14 +48,14 @@ internal static partial class Program
             var hud = new HudState();
             hud.BindPresentation(hudArt);
             hud.Initialize(new TestAddressSpace(), HudSnapshot.CeresDebug);
-            hud.UpdateMinimap(new ForbiddenMapBus(), system, AreaId.Crateria, new(5, 5), new(16, 16), new(128, 128), 8,
+            hud.UpdateMinimap(NewForbiddenMapBus(), system, AreaId.Crateria, new(5, 5), new(16, 16), new(128, 128), 8,
                 MapRevealMode.Secret, map);
             AssertEqual(map.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "live minimap consumes edited cells without cartridge reads");
             AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new(5, 5)), "art replacement preserves slope corner exploration");
 
             var edited = document with { Cells = document.Cells.Select(c => c with { TileColumn = 19 }).ToArray() };
             var reloaded = Load(Json(edited));
-            hud.UpdateMinimap(new ForbiddenMapBus(), system, AreaId.Crateria, new(5, 5), new(16, 16), new(128, 128), 8,
+            hud.UpdateMinimap(NewForbiddenMapBus(), system, AreaId.Crateria, new(5, 5), new(16, 16), new(128, 128), 8,
                 MapRevealMode.Secret, reloaded);
             AssertEqual(reloaded.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "reloaded edit changes live minimap without ROM patch");
         }
@@ -96,12 +96,6 @@ internal static partial class Program
         public bool IsDiscoverable(Position16<MapTiles> cell) => cell.X == 5 && cell.Y is 5 or 6;
         public bool IsRevealedByMapStation(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
         public bool RevealsCellAbove(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
-    }
-
-    private sealed class ForbiddenMapBus : ISnesAddressSpace
-    {
-        public static byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected map ROM read {address:X6}.");
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected map bus write.");
     }
 
     /// <summary>
@@ -272,7 +266,7 @@ internal static partial class Program
         Suite(nameof(VerifyStaffCreditsAssets), () => VerifyStaffCreditsAssets(stock, Path.Combine(root, "staff-credits-overrides"), original));
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, new ForbiddenMapBus(), original, original, verifyCapturedRendering: true));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, NewForbiddenMapBus(), original, original, verifyCapturedRendering: true));
         Suite(nameof(VerifyMapLoadAnchors), () => VerifyMapLoadAnchors(bus, original));
         Suite(nameof(VerifyCompiledMapScrollControls), () => VerifyCompiledMapScrollControls(bus, original));
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
@@ -285,24 +279,7 @@ internal static partial class Program
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
 
-    private sealed class PaletteReadForbiddenBus : ISnesMemoryBus
-    {
-        public Dictionary<int, byte> Writes { get; } = new();
-        public static byte ReadByte(int address) => throw new InvalidOperationException(
-            $"Installed Mother Brain palette unexpectedly read cartridge address ${address:X6}.");
-        public byte ReadWorkRamByte(int cpuAddress) => throw new InvalidOperationException(
-            $"Installed Mother Brain palette unexpectedly read WRAM address ${cpuAddress:X6}.");
-        public byte ReadSaveRamByte(int cpuAddress) => throw new InvalidOperationException(
-            $"Installed Mother Brain palette unexpectedly read SRAM address ${cpuAddress:X6}.");
-        public void WriteByte(int address, byte value)
-        {
-            if (address is not (MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram or
-                MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram + 1))
-                throw new InvalidOperationException($"Unexpected Mother Brain palette write ${address:X6}.");
-            Writes[address] = value;
-        }
-    }
-
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain rainbow, grey and beam palettes")]
     private static void VerifyMotherBrainRainbowPaletteOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -361,7 +338,7 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
                 MotherBrainDrainedPaletteRomData.BackLegCount,
                 MotherBrainDrainedPaletteRomData.BackLegColor);
-            var guard = new PaletteReadForbiddenBus();
+            var guard = NewPaletteReadForbiddenBus();
             if (draining) original.MotherBrainRainbowPalette.ApplyToGrey(guard, installed, frame);
             else original.MotherBrainRainbowPalette.ApplyFromGrey(guard, installed, frame);
             AssertTrue(native.Colors.SequenceEqual(installed.Colors),
@@ -409,7 +386,7 @@ internal static partial class Program
         {
             PresentationColors = original.MotherBrainRainbowPalette,
         };
-        var installedBeamReadGuard = new PaletteReadForbiddenBus();
+        var installedBeamReadGuard = NewPaletteReadForbiddenBus();
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 3; frame++)
         {
             nativeBeamSequence.Step(bus, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
@@ -479,8 +456,8 @@ internal static partial class Program
             "installed rainbow override reaches the room-enemy binding");
         stockOutput.Clear();
         editedOutput.Clear();
-        var stockTailBus = new PaletteReadForbiddenBus();
-        var editedTailBus = new PaletteReadForbiddenBus();
+        var stockTailBus = NewPaletteReadForbiddenBus();
+        var editedTailBus = NewPaletteReadForbiddenBus();
         original.MotherBrainRainbowPalette.ApplyToGrey(stockTailBus, stockOutput, 0);
         runtime.Enemies.MotherBrainRainbowColors.ApplyToGrey(editedTailBus, editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
@@ -493,8 +470,8 @@ internal static partial class Program
             "drain trailing-color override reaches native WRAM publication");
         stockOutput.Clear();
         editedOutput.Clear();
-        original.MotherBrainRainbowPalette.ApplyFromGrey(new PaletteReadForbiddenBus(), stockOutput, 0);
-        runtime.Enemies.MotherBrainRainbowColors.ApplyFromGrey(new PaletteReadForbiddenBus(), editedOutput, 0);
+        original.MotherBrainRainbowPalette.ApplyFromGrey(NewPaletteReadForbiddenBus(), stockOutput, 0);
+        runtime.Enemies.MotherBrainRainbowColors.ApplyFromGrey(NewPaletteReadForbiddenBus(), editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor] !=
             editedOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor],
             "revival override reaches the native rear-leg destination");
@@ -528,7 +505,7 @@ internal static partial class Program
         {
             PresentationColors = runtime.Enemies.MotherBrainRainbowColors,
         };
-        var beamReadGuard = new PaletteReadForbiddenBus();
+        var beamReadGuard = NewPaletteReadForbiddenBus();
         stockBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
         editedBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
         AssertTrue(stockBeam.Color != editedBeam.Color &&
@@ -1248,6 +1225,7 @@ internal static partial class Program
         Console.WriteLine("Title graphics override: content identity and production title output change immediately, then restore exactly.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the native title year sprite pointer")]
     private static void VerifyTitleSpriteCompositionOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1313,7 +1291,7 @@ internal static partial class Program
         restored.BindMapPresentation(edited);
         AssertEqual(edited.ContentIdentity, restored.MapPresentationIdentity, "state rebind uses current override identity");
 
-        var guard = new MapDataGuard(bus, rules);
+        var guard = NewMapDataGuard(bus, rules);
         var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard,
             initialPaletteArt: initialPalettes) { MapPresentation = edited };
         fixtureAssets.Bind(runtime);
@@ -1362,50 +1340,43 @@ internal static partial class Program
         Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
     }
 
-    private sealed class MapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps) : ISnesMemoryBus, IImportCartridgeSource
+    private static CartridgeReadGuard NewForbiddenMapBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Unexpected map ROM read {address:X6}.")
+            .RejectWrites(_ => "Unexpected map bus write.");
+
+    private static CartridgeReadGuard NewPaletteReadForbiddenBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address =>
+                $"Installed Mother Brain palette unexpectedly read cartridge address ${address:X6}.")
+            .RejectWrites(address => address is not (MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram or
+                    MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram + 1),
+                address => new InvalidOperationException($"Unexpected Mother Brain palette write ${address:X6}."));
+
+    private static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps)
     {
-        private void RejectMapSource(int address)
-        {
-            if ((address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + SnesCgram.ByteCount) ||
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address =>
+                (address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + SnesCgram.ByteCount) ||
                 (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette + SnesCgram.ByteCount) ||
-                (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.PaletteColors && address < MapStaticPalettesRomData.WorldPaletteDataEnd))
-                throw new InvalidOperationException($"Live presentation read static map palette ROM at {address:X6}.");
-            if ((address >= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTiming &&
-                address <= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTiming + SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteFrameCount * SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTimingStride) ||
+                (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.PaletteColors && address < MapStaticPalettesRomData.WorldPaletteDataEnd),
+            address => $"Live presentation read static map palette ROM at {address:X6}.");
+        guard.Forbid(address =>
+                (address >= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTiming &&
+                    address <= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTiming + SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteFrameCount * SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTimingStride) ||
                 (address >= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteColors &&
-                address < SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteColors + SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2))
-                throw new InvalidOperationException($"Live presentation read map palette-cycle ROM at {address:X6}.");
-            if (address is >= HudTileAtlasFormat.SourceAddress and < (HudTileAtlasFormat.SourceAddress + HudTileAtlasFormat.TransferByteCount))
-                throw new InvalidOperationException($"Live presentation read HUD atlas ROM at {address:X6}.");
-            if (address is >= MapTileAtlasFormat.SourceAddress and < (MapTileAtlasFormat.SourceAddress + MapTileAtlasFormat.ByteCount))
-                throw new InvalidOperationException($"Live presentation read map atlas ROM at {address:X6}.");
-            if ((address >= AreaMapRomData.TilemapPointerTable && address < AreaMapRomData.TilemapPointerTable + AreaIds.RetailCount * 3) ||
+                    address < SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteColors + SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
+            address => $"Live presentation read map palette-cycle ROM at {address:X6}.");
+        guard.Forbid(address => address is >= HudTileAtlasFormat.SourceAddress and < (HudTileAtlasFormat.SourceAddress + HudTileAtlasFormat.TransferByteCount),
+            address => $"Live presentation read HUD atlas ROM at {address:X6}.");
+        guard.Forbid(address => address is >= MapTileAtlasFormat.SourceAddress and < (MapTileAtlasFormat.SourceAddress + MapTileAtlasFormat.ByteCount),
+            address => $"Live presentation read map atlas ROM at {address:X6}.");
+        guard.Forbid(address =>
+                (address >= AreaMapRomData.TilemapPointerTable && address < AreaMapRomData.TilemapPointerTable + AreaIds.RetailCount * 3) ||
                 (address >= AreaMapRomData.StationRevealMaskPointerTable && address < AreaMapRomData.StationRevealMaskPointerTable + AreaIds.RetailCount * 2) ||
                 maps.Any(map => (address >= map.TilemapAddress && address < map.TilemapAddress + AreaMapRomData.TilemapByteCount) ||
-                    (address >= map.StationRevealMaskAddress && address < map.StationRevealMaskAddress + AreaMapRomData.StationRevealMaskByteCount)))
-                throw new InvalidOperationException($"Live presentation read map ROM at {address:X6}.");
-        }
-
-        public byte ReadByte(int address)
-        {
-            RejectMapSource(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectMapSource(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Map-data guard source does not expose WRAM.")).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Map-data guard source does not expose SRAM.")).ReadSaveRamByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+                    (address >= map.StationRevealMaskAddress && address < map.StationRevealMaskAddress + AreaMapRomData.StationRevealMaskByteCount)),
+            address => $"Live presentation read map ROM at {address:X6}.");
+        return guard;
     }
 }

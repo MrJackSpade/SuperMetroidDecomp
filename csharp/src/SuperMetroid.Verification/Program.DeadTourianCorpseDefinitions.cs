@@ -92,7 +92,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new DeadTourianCorpseDefinitionReadGuard(rom));
+            NewDeadTourianCorpseDefinitionReadGuard(rom));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadTourianCorpse", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];
@@ -137,28 +137,15 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class DeadTourianCorpseDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => IsMigratedAddress(address)
-            ? throw new InvalidOperationException(
-                $"Dead Tourian corpse attempted migrated metadata read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private static bool IsMigratedAddress(int address) =>
-            address is >= 0xa9d86a and < 0xa9d876 or
-            >= 0xa9d897 and < 0xa9d89f or
-            >= 0xa9d8c0 and < 0xa9d8cc or
-            >= 0xa9dd88 and < 0xa9de08 or
-            >= 0xa9e24e and < 0xa9e250 or
-            >= 0xa9e254 and < 0xa9e256 or
-            >= 0xa9e25a and < 0xa9e25c;
-    }
+    private static CartridgeReadGuard NewDeadTourianCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                    address is >= 0xa9d86a and < 0xa9d876 or
+                    >= 0xa9d897 and < 0xa9d89f or
+                    >= 0xa9d8c0 and < 0xa9d8cc or
+                    >= 0xa9dd88 and < 0xa9de08 or
+                    >= 0xa9e24e and < 0xa9e250 or
+                    >= 0xa9e254 and < 0xa9e256 or
+                    >= 0xa9e25a and < 0xa9e25c,
+                address => $"Dead Tourian corpse attempted migrated metadata read ${address:X6}.");
 }

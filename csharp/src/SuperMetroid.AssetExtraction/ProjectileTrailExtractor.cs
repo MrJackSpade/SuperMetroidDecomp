@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts trail OBJ appearance without exposing native timing or movement commands.</summary>
+[CpuBusBoundary("codec: ROM projectile trail OBJ records → projectile trail appearance")]
 public static class ProjectileTrailExtractor
 {
     /// <summary>Imports OBJ appearance words from the catalogued bank-$90 projectile-trail frame records.</summary>

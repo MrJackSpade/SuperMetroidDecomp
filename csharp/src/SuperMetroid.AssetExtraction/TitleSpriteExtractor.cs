@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Decodes the ordered bank-$8C parts selected by the four native title text lists.</summary>
+[CpuBusBoundary("codec: ROM bank-$8C title spritemap parts → title sprites")]
 internal static class TitleSpriteExtractor
 {
     public static TitleSpriteFrame[] Extract(ISnesAddressSpace bus)

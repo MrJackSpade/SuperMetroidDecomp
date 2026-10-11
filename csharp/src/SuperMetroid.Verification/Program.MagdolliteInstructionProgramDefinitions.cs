@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Magdollite instruction mechanics word $A8:{definition.Address:X4}");
         }
 
-        var guard = new MagdolliteInstructionProgramReadGuard(rom);
+        var guard = NewMagdolliteInstructionProgramGuard(rom);
         Suite(nameof(VerifyIdle), () => VerifyIdle(MagdolliteInstructionProgramDefinitions.LeftIdle, "left"));
         Suite(nameof(VerifyIdle), () => VerifyIdle(MagdolliteInstructionProgramDefinitions.RightIdle, "right"));
         Suite(nameof(VerifyThrow), () => VerifyThrow(MagdolliteInstructionProgramDefinitions.LeftThrow, "left"));
@@ -215,32 +215,11 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class MagdolliteInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (MagdolliteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                IsPresentationByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Magdollite instruction byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        private static bool IsPresentationByte(int address) =>
-            (address & 0xff0000) == 0xa80000 &&
-            (MagdolliteInstructionProgramDefinitions.IsPresentationWord(
-                unchecked((ushort)address)) ||
-             MagdolliteInstructionProgramDefinitions.IsPresentationWord(
-                unchecked((ushort)(address - 1))));
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMagdolliteInstructionProgramGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => MagdolliteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                (address & 0xff0000) == 0xa80000 &&
+                (MagdolliteInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)address)) ||
+                 MagdolliteInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)(address - 1)))),
+            address => $"Production read compiled Magdollite instruction byte ${address:X6}.");
 }

@@ -27,7 +27,17 @@ internal static partial class Program
                 $"Norfair Pipe Bug instruction mechanics word $B3:{definition.Address:X4}");
         }
 
-        var guard = new NorfairPipeBugInstructionProgramReadGuard(rom);
+        int forbiddenPresentationReadAttempts = 0;
+        var guard = new CartridgeReadGuard(rom)
+            .Forbid(NorfairPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Norfair Pipe Bug mechanics ${address:X6}.")
+            .ForbidWords(0xb30000, NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount,
+                NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address =>
+                {
+                    forbiddenPresentationReadAttempts++;
+                    return $"Production read installed Norfair Pipe Bug selector ${address:X6}.";
+                });
         (ushort Program, ushort Cursor, int Frames)[] programs =
         [
             (NorfairPipeBugInstructionProgramDefinitions.RisingLeft, 0x8ae5, 17),
@@ -43,7 +53,7 @@ internal static partial class Program
                 $"Norfair Pipe Bug program $B3:{program:X4} loops");
         }
 
-        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+        AssertEqual(0, forbiddenPresentationReadAttempts,
             "Norfair Pipe Bug programs never read installed visual selectors");
         for (int index = 0;
              index < NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -60,7 +70,7 @@ internal static partial class Program
             () => PipeBugVisualDefinitions.FrameAt(
                 EnemyDefinitionId.Gamet, 0x8b61),
             "unlisted Norfair Pipe Bug visual operand fails loudly");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
+        AssertEqual(0, guard.ForbiddenReadAttempts - forbiddenPresentationReadAttempts,
             "production execution avoids compiled Norfair Pipe Bug mechanics bytes");
         AssertThrows<InvalidDataException>(
             () => NorfairPipeBugInstructionProgramDefinitions.ReadMechanicsWord(0x8ae3),
@@ -122,42 +132,4 @@ internal static partial class Program
     private static ushort ReadNorfairPipeBugInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-
-    private sealed class NorfairPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenPresentationReadAttempts { get; private set; }
-        internal int ForbiddenReadAttempts { get; private set; }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (NorfairPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Norfair Pipe Bug mechanics ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xb30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenPresentationReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read installed Norfair Pipe Bug selector ${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

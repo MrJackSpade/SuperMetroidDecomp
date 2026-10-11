@@ -188,7 +188,7 @@ internal static partial class Program
                         ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frame, color)), "Three sweeps select identical RGB stages despite distinct cadence");
             }
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
-            var guarded = new PaletteFxMechanicsForbiddenBus(rom);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actual = new RoomPaletteFxSystem();
             actual.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
@@ -1438,6 +1438,7 @@ internal static partial class Program
         Suite(nameof(VerifyLookupStream2TrailPrograms), () => VerifyLookupStream2TrailPrograms(rom));
         Console.WriteLine("Trail appearance:42 native words,252 independent field edits and existing real OAM/lifetime/freeze proof pass; ice phase boundaries remain pending.");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program words")]
     private static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
     {
         byte[] json = ProjectileTrailExtractor.Extract(bus);
@@ -1466,7 +1467,7 @@ internal static partial class Program
                 bool frozenFrame = frame % 5 == 0;
                 StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Left, nativeOam, frozenFrame);
                 StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Right, nativeOam, frozenFrame);
-                authoredSystem.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authoredOam, Position16<RoomPixels>.Zero, frozenFrame, catalog);
+                authoredSystem.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), authoredOam, Position16<RoomPixels>.Zero, frozenFrame, catalog);
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
                 foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
@@ -1524,6 +1525,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail selector words")]
     private static void VerifyLookupStream2TrailSelectors(ISnesAddressSpace bus)
     {
 
@@ -1544,7 +1546,7 @@ internal static partial class Program
                 InstructionPointer = 0x86e3,
                 Position = new(new(100, 0), new(200, 0)),
             };
-            spawn.Invoke(projectiles, [new TrailSelectorGuard(start, end), projectile]);
+            spawn.Invoke(projectiles, [NewTrailSelectorGuard(start, end), projectile]);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Trails.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");

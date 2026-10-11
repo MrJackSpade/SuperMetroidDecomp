@@ -28,7 +28,7 @@ internal static partial class Program
                 $"Chozo/Tourian dust mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new ChozoTourianDustInstructionReadGuard(rom);
+        var guard = NewChozoTourianDustInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_nextRandom", instanceFlags)!.SetValue(
@@ -112,7 +112,7 @@ internal static partial class Program
         AssertTrue(!dust.IsActive,
             "Tourian dust deletes on the tick after its 256th display frame");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Chozo/Tourian dust selectors require no runtime cartridge reads");
         for (int index = 0; index < ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount; index++)
         {
@@ -166,42 +166,9 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class ChozoTourianDustInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (ChozoTourianDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Chozo/Tourian dust mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = ChozoTourianDustInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewChozoTourianDustInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(ChozoTourianDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Chozo/Tourian dust mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount, ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress);
 }

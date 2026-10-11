@@ -12,7 +12,9 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new FirefleaRadiusReadGuard(new TestAddressSpace()));
+            new CartridgeReadGuard(new TestAddressSpace()).Forbid(
+                address => address is >= 0xa38d1d and < 0xa38d2d,
+                address => $"Fireflea initializer attempted migrated radius read ${address:X6}."));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeFireflea", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];
@@ -40,17 +42,5 @@ internal static partial class Program
 
         Console.WriteLine(
             "Fireflea movement radii: all eight native words and production initializers pass with table reads forbidden.");
-    }
-
-    private sealed class FirefleaRadiusReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa38d1d and < 0xa38d2d
-            ? throw new InvalidOperationException(
-                $"Fireflea initializer attempted migrated radius read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

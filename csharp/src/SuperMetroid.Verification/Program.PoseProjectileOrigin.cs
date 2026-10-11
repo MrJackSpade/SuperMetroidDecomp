@@ -12,7 +12,12 @@ internal static partial class Program
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusProjectileSlot>>();
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
-        var bus = new PoseOriginPresentationBus(rom);
+        SamusPoseId guardedPose = default;
+        var bus = new CartridgeReadGuard(rom)
+            .Forbid(address => address == 0x91b629 + (int)guardedPose * 8 + 3,
+                _ => "Compiled pose aim read artwork metadata.")
+            .Forbid(address => address == 0x91b629 + (int)guardedPose * 8 + 4,
+                _ => "Installed graphics offset read ROM.");
         var samus = PrepareRetailSamusFixture(new SamusState());
         var slot = new SamusProjectileSlot(0);
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
@@ -38,7 +43,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         for (int artIndex = 0; artIndex < artwork.Length; artIndex++)
         {
-            bus.Pose = samus.Pose = (SamusPoseId)pose;
+            guardedPose = samus.Pose = (SamusPoseId)pose;
             int art = SignedByteClasses[artIndex];
             samus.TileTransfers.BindArtwork(artwork[artIndex]);
             samus.Position = samus.Position.WithWholeX(unchecked((ushort)(pose * 251 + art)));
@@ -77,19 +82,5 @@ internal static partial class Program
             AssertEqual(endpoint, g.Anchor.Y, "Late draw does not move collision endpoint");
         }
         Console.WriteLine("Pose projectile origins: every pose and direction with each signed graphics-Y class, and authored Grapple launch/cancellation checks, preserve physics while replacing the graphics-Y byte.");
-    }
-
-    private sealed class PoseOriginPresentationBus(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public SamusPoseId Pose;
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address == 0x91b629 + (int)Pose * 8 + 3) throw new InvalidOperationException("Compiled pose aim read artwork metadata.");
-            if (address == 0x91b629 + (int)Pose * 8 + 4) throw new InvalidOperationException("Installed graphics offset read ROM.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

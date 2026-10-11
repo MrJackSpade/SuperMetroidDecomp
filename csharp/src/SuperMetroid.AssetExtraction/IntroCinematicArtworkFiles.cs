@@ -10,6 +10,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Installs opening-scene PNGs and tilemap JSON separately from player overrides.</summary>
+[CpuBusBoundary("codec: ROM opening-scene graphics, tilemaps and palettes → intro cinematic artwork files")]
 public static class IntroCinematicArtworkFiles
 {
     private const int FormatVersion = 20;

@@ -10,8 +10,8 @@ internal static partial class Program
 {
     private static void VerifyMapLandmarks(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
-        var guard = new LandmarkReadGuard(bus);
-        var iconGuard = new LandmarkReadGuard(bus, blockGunship: true);
+        var guard = NewLandmarkGuard(bus);
+        var iconGuard = NewLandmarkGuard(bus, blockGunship: true);
         int cases = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         foreach (bool downloaded in new[] { false, true })
@@ -105,63 +105,41 @@ internal static partial class Program
         }
     }
 
-    private sealed class LandmarkReadGuard : ISnesMemoryBus, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: retail ROM oracle walking the native boss, elevator and gunship landmark lists to forbid them")]
+    private static MutableCartridgeReadGuard NewLandmarkGuard(ISnesAddressSpace source, bool blockGunship = false)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> blocked = new();
-        public LandmarkReadGuard(ISnesAddressSpace source, bool blockGunship = false)
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
+        var blocked = new HashSet<int>();
+        foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            this.source = source;
-            foreach (AreaId area in Enum.GetValues<AreaId>())
-            {
-                AddList(FileSelectMapIconRomData.BossLists, area, 4);
-                if (area != AreaId.Ceres) AddList(FileSelectMapIconRomData.ElevatorLists, area, 6);
-            }
-            // Full room rendering still reads selected-save coordinates. The direct
-            // icon comparison can additionally block the shared gunship coordinate.
-            if (blockGunship)
-            {
-                int table = FileSelectMapRomData.SavePointMapPointers;
-                int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), table);
-                blocked.Add(table); blocked.Add(table + 1);
-                for (int i = 0; i < 4; i++) blocked.Add(FileSelectMapRomData.MenuObjectBank | (pointer + i));
-            }
+            AddList(FileSelectMapIconRomData.BossLists, area, 4);
+            if (area != AreaId.Ceres) AddList(FileSelectMapIconRomData.ElevatorLists, area, 6);
         }
-        private void AddList(int table, AreaId area, int stride)
+        // Full room rendering still reads selected-save coordinates. The direct
+        // icon comparison can additionally block the shared gunship coordinate.
+        if (blockGunship)
+        {
+            int table = FileSelectMapRomData.SavePointMapPointers;
+            int pointer = RomDataReader.ReadWordFixedBank(cartridge, table);
+            blocked.Add(table); blocked.Add(table + 1);
+            for (int i = 0; i < 4; i++) blocked.Add(FileSelectMapRomData.MenuObjectBank | (pointer + i));
+        }
+        void AddList(int table, AreaId area, int stride)
         {
             int entry = table + AreaIds.ToIndex(area) * 2;
             blocked.Add(entry); blocked.Add(entry + 1);
-            int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), entry);
+            int list = RomDataReader.ReadWordFixedBank(cartridge, entry);
             if (list == 0) return;
             for (int record = 0; ; record++)
             {
                 int address = FileSelectMapRomData.MenuObjectBank | (list + record * stride);
                 blocked.Add(address); blocked.Add(address + 1);
-                if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address) == ushort.MaxValue) break;
+                if (RomDataReader.ReadWordFixedBank(cartridge, address) == ushort.MaxValue) break;
                 for (int i = 2; i < stride; i++) blocked.Add(address + i);
             }
         }
-        private void RejectLandmarkSource(int address)
-        {
-            if (blocked.Contains(address))
-                throw new InvalidOperationException("Installed landmarks read boss/elevator ROM definitions.");
-        }
-        public byte ReadByte(int address)
-        {
-            RejectLandmarkSource(address);
-            return source.ReadByte(address);
-        }
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectLandmarkSource(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Landmark guard source does not expose WRAM.")).ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Landmark guard source does not expose SRAM.")).ReadSaveRamByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(blocked.Contains, _ => "Installed landmarks read boss/elevator ROM definitions.");
+        return guard;
     }
 }

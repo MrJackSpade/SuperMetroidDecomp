@@ -64,7 +64,7 @@ internal static partial class Program
             }
 
             RoomScrollGrid compiled = RoomScrollDefinitions.CreateGrid(
-                new RoomScrollNoReadAddressSpace(bus),
+                NewRoomScrollNoReadAddressSpace(bus),
                 scrollPointer,
                 header.Size);
             AssertTrue(expected.AsSpan().SequenceEqual(compiled.Storage),
@@ -89,7 +89,7 @@ internal static partial class Program
         ushort ceresPointer = LoadStationDefinitions.Get(AreaId.Ceres, 0).RoomPointer;
         CartridgeRoomHeader ceres = CartridgeRoomHeader.LoadUsingCompiledSelection(
             ceresPointer);
-        var guardedCeres = CreateRetailRuntimeFixture(new RoomScrollSourceReadGuard(
+        var guardedCeres = CreateRetailRuntimeFixture(NewRoomScrollSourceReadGuard(
             bus, ceres.State.ScrollPointer));
         var ceresResidue = new byte[RoomScrollGrid.StorageByteCount];
         for (int index = 0; index < ceresResidue.Length; index++)
@@ -116,47 +116,22 @@ internal static partial class Program
             "allocations and Ceres match without native scroll reads.");
     }
 
-    private sealed class RoomScrollNoReadAddressSpace(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
+    // The scroll buffer itself is WRAM the previous room left; implicit grids keep it.
+    private static MutableCartridgeReadGuard NewRoomScrollNoReadAddressSpace(ISnesAddressSpace source)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-        // The scroll buffer itself is WRAM the previous room left; implicit grids keep it.
-        public byte ReadWorkRamByte(int address) =>
-            address is >= RoomScrollGridConstants.WorkRamAddress and
-            < (RoomScrollGridConstants.WorkRamAddress + RoomScrollGrid.StorageByteCount)
-                ? ((ISnesMutableMemory)source).ReadWorkRamByte(address)
-                : ReadByte(address);
-        public byte ReadSaveRamByte(int address) => ReadByte(address);
-
-        public static byte ReadByte(int address) => throw new InvalidOperationException(
-            $"Compiled room-scroll construction read address ${address:X6}.");
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is not (>= RoomScrollGridConstants.WorkRamAddress and
+                < RoomScrollGridConstants.WorkRamAddress + RoomScrollGrid.StorageByteCount),
+            address => $"Compiled room-scroll construction read address ${address:X6}.");
+        return guard;
     }
 
-    private sealed class RoomScrollSourceReadGuard(
-        ISnesAddressSpace source,
-        ushort scrollPointer) : ISnesMemoryBus, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewRoomScrollSourceReadGuard(ISnesAddressSpace source, ushort scrollPointer)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-        public byte ReadWorkRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
-
-        private readonly int _start = RoomAssetRomData.Tilesets.DefinitionBank | scrollPointer;
-
-        public byte ReadByte(int address)
-        {
-            if (address >= _start && address < _start + RoomScrollGrid.StorageByteCount)
-            {
-                throw new InvalidOperationException(
-                    $"Production runtime read native room-scroll data at ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        int start = RoomAssetRomData.Tilesets.DefinitionBank | scrollPointer;
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address >= start && address < start + RoomScrollGrid.StorageByteCount,
+            address => $"Production runtime read native room-scroll data at ${address:X6}.");
+        return guard;
     }
 }

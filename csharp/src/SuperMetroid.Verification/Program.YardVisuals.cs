@@ -9,7 +9,7 @@ internal static partial class Program
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         var selectedFrames = new HashSet<ushort>();
-        var guard = new YardInstructionReadGuard(rom, forbidPresentation: true);
+        var guard = NewYardInstructionReadGuard(rom, forbidPresentation: true);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (int index = 0;
@@ -55,7 +55,7 @@ internal static partial class Program
         }
         AssertEqual(YardVisualDefinitions.FrameCount, selectedFrames.Count,
             "112 Yard selectors choose 104 distinct editable frames");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "all installed Yard programs avoid cartridge presentation words");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "all installed Yard programs retain compiled control words");

@@ -40,7 +40,7 @@ internal static partial class Program
             () => OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Owtch, 0xa3ad),
             "Owtch timing word is not a visual selector");
 
-        var guard = new OwtchInstructionProgramReadGuard(rom);
+        var guard = NewOwtchInstructionProgramReadGuard(rom);
         HashSet<ushort> observedFrames = [];
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             initialState: OwtchBehaviorState.MovingRight,
@@ -143,43 +143,11 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class OwtchInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (OwtchInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                IsPresentationByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Owtch instruction byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        private static bool IsPresentationByte(int address)
-        {
-            if ((address & 0xff0000) != 0xa20000)
-                return false;
-            ushort bankAddress = unchecked((ushort)address);
-            for (int index = 0;
-                 index < OwtchInstructionProgramDefinitionsTooling.PresentationWordCount;
-                 index++)
-            {
-                ushort presentation =
-                    OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                if (bankAddress == presentation ||
-                    bankAddress == unchecked((ushort)(presentation + 1)))
-                    return true;
-            }
-            return false;
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewOwtchInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(OwtchInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Owtch instruction byte ${address:X6}.")
+            .ForbidWords(0xa20000, OwtchInstructionProgramDefinitionsTooling.PresentationWordCount,
+                OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read compiled Owtch instruction byte ${address:X6}.");
 }

@@ -138,7 +138,7 @@ internal static partial class Program
         }
         foreach (int program in new[] { 0, 1, 2 })
         {
-            var guard = new EscapeDachoraInstructionReadGuard(rom);
+            var guard = NewEscapeDachoraInstructionReadGuard(rom);
             var enemies = CreateEscapeDachoraProgramSystem(guard, flags);
             var slot = enemies.Slots[0];
             slot.CurrentInstruction = program == 0 ? (ushort)0xe964 : program == 1 ? (ushort)0xe9d0 : (ushort)0xea34;
@@ -190,7 +190,7 @@ internal static partial class Program
         foreach (ushort root in new ushort[] { 0xc163, 0xc173, 0xc183, 0xc191 })
         {
             bool isBody = root < 0xc183;
-            var guard = new PowampInstructionReadGuard(rom);
+            var guard = NewPowampInstructionReadGuard(rom);
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializePowamp", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies);
@@ -258,7 +258,7 @@ internal static partial class Program
         {
             ushort root = chasing ? (ushort)0xe9cf : (ushort)0xea25;
             int records = chasing ? 20 : 5, randomCalls = 0, calls = 0;
-            var guard = new MetroidInstructionReadGuard(rom);
+            var guard = NewMetroidInstructionReadGuard(rom);
             var (enemies, slot) = NewMetroidInstructionSystem(guard, flags, root, () => { randomCalls++; return 5; });
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int record = 0; record < records; record++)
@@ -308,7 +308,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameCount(invalid), "Inactive/out-of-domain atmospheric type rejects");
             AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer(invalid, 0), "Invalid atmospheric type fails before frame selection");
         }
-        Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence(new SamusAtmosphericAnimationReadGuard(rom)));
+        Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence(NewSamusAtmosphericAnimationReadGuard(rom)));
     }
     private static void VerifyLookupStream1TimerCadence(ISnesAddressSpace rom)
     {
@@ -1868,8 +1868,8 @@ internal static partial class Program
             short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
             var expected = new OamBuffer(); var actual = new OamBuffer(); var edited = new OamBuffer();
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose))))));
-            draw(new LookupFlareForbiddenBus(), actual, samus, Position16<RoomPixels>.Zero, 0, null, stock, compositions);
-            draw(new LookupFlareForbiddenBus(), edited, samus, Position16<RoomPixels>.Zero, 0, null, shifted, compositions);
+            draw(NewLookupFlareForbiddenBus(), actual, samus, Position16<RoomPixels>.Zero, 0, null, stock, compositions);
+            draw(NewLookupFlareForbiddenBus(), edited, samus, Position16<RoomPixels>.Zero, 0, null, shifted, compositions);
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), "Actual flare OAM matches independently positioned native sprite");
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Native flare OAM admission");
             AssertTrue(actual.NextByteOffset > 0, "Focused flare placement fixture emits its native sprite");
@@ -1881,10 +1881,8 @@ internal static partial class Program
         }
         Console.WriteLine("Beam/Grapple flare origins:128 direct native words, zero stock overrides,128 independent edits, bounded aliases and four actual OAM fixtures pass.");
     }
-    private sealed class LookupFlareForbiddenBus : ISnesAddressSpace
-    {
-        void ISnesAddressSpace.WriteByte(int address, byte value) => throw new InvalidOperationException($"Unexpected flare write {address:X6}");
-    }
+    private static CartridgeReadGuard NewLookupFlareForbiddenBus() =>
+        CartridgeReadGuard.Unbacked().RejectWrites(address => $"Unexpected flare write {address:X6}");
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
         for (int pose = 0; pose <= byte.MaxValue; pose++)
@@ -3150,7 +3148,7 @@ internal static partial class Program
             Frames = expected.ToDictionary(pointer => ProjectileFrameBindingFormat.FrameName(pointer),
                 pointer => $"sprite_{Word(0x930000 | (pointer + 2)):X4}"),
         };
-        var guard = new LookupFlareForbiddenBus();
+        var guard = NewLookupFlareForbiddenBus();
         var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         int interpreted = 0, bombInterpreted = 0;
@@ -3247,7 +3245,7 @@ internal static partial class Program
                 pointer => $"sprite_{Word(0x930000 | (pointer + 2)):X4}"),
         };
         var bindings = ProjectileFrameBindingCatalog.Load(new MemoryStream(ProjectileFrameBindingCatalog.Write(document)));
-        var guard = new LookupFlareForbiddenBus();
+        var guard = NewLookupFlareForbiddenBus();
         var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         var readTrail = typeof(SamusProjectileSystem).GetMethod("GetTrailAnimationFrame",
@@ -3652,7 +3650,7 @@ internal static partial class Program
             AssertEqual(shorterTop[0][position].SecondSize, shorter.TopSet(0)[position].SecondSize, "Exact edited payload remainder");
         }
         // These exact native selectors include the known physical cross-group windows.
-        var guard = new FrontendCartridgeReadGuard(rom);
+        var guard = NewFrontendCartridgeReadGuard(rom);
         int transfers = 0;
         foreach (var selected in new (SamusPoseId Pose, ushort Phase)[] { (SamusPoseId.FacingRightNormalPose, 0), (SamusPoseId.UnusedPose65, 6), (SamusPoseId.UnusedPose65, 7), (SamusPoseId.UnusedPose66, 8), (SamusPoseId.DeathSequenceLeftPose, 0) })
         {

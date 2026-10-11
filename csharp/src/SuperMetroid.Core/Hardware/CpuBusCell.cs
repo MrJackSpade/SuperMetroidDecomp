@@ -49,8 +49,12 @@ public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, i
     public static CpuBusCell SramBytes(string name, int address, int length, string encoding = "u8[]", CpuBusCell? aliasOf = null) =>
         new(name, CpuBusRegion.SaveRam, address, length, encoding, aliasOf);
 
+    /// <summary>A bounded cartridge range read by the asset importer.</summary>
+    public static CpuBusCell CartridgeBytes(string name, int address, int length, string encoding, CpuBusCell? aliasOf = null) =>
+        new(name, CpuBusRegion.Cartridge, address, length, encoding, aliasOf);
+
     /// <summary>The 24-bit CPU address of the first byte.</summary>
-    public int Address { get; } = Address is >= 0 and <= SnesCpuAddressLayout.AddressMask
+    public int Address { get; } = ((uint)Address & ~(uint)SnesCpuAddressLayout.AddressMask) == 0
         ? Address
         : throw new ArgumentOutOfRangeException(nameof(Address), Address, "SNES CPU address must fit in 24 bits.");
 

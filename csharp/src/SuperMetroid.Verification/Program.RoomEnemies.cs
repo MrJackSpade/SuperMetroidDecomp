@@ -229,7 +229,10 @@ static void VerifyRoomEnemyLoading()
         "boss state, placeholders, and empty-room behavior agree.");
 }
 
-private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) : ISnesMemoryBus, IRoomEnemyFixtureSource, IImportCartridgeSource
+[CpuBusBoundary("exact bus test: enemy fixture source that forwards fixture tables and forbids the native enemy tile-upload ROM ranges")]
+private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
+    ISnesAddressSpace, IRoomEnemyFixtureSource, IImportCartridgeSource,
+    ISnesMutableMemory
 {
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         source.ReadEnemyDefinition(pointer);
@@ -1209,7 +1212,7 @@ static void VerifyCeresRidleyRoomEntry()
     typeof(RoomEnemySystem).GetField(
         "_bus",
         System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-        .SetValue(enemies, new CeresDoorQuakeReadGuard(bus));
+        .SetValue(enemies, NewCeresDoorQuakeReadGuard(bus));
     short[] expectedDoorOffsets = [0, 0, -4, -1];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {

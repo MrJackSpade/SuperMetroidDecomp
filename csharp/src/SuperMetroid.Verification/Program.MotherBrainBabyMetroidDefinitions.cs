@@ -35,7 +35,7 @@ internal static partial class Program
             population.DefinitionPointer,
             "Mother Brain Baby population definition");
 
-        var guarded = new MotherBrainBabyPopulationReadGuard(rom);
+        var guarded = NewMotherBrainBabyPopulationReadGuard(rom);
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guarded);
         typeof(RoomEnemySystem).GetField("_cgram", instanceFlags)!
@@ -87,20 +87,8 @@ internal static partial class Program
             "Mother Brain Baby definition: all eight population words and the real allocation, initialization AI, palette load, spawn snapshot and duplicate guard pass with the embedded record forbidden.");
     }
 
-    private sealed class MotherBrainBabyPopulationReadGuard(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa9be28 and < 0xa9be38
-                ? throw new InvalidOperationException(
-                    $"Mother Brain Baby attempted migrated population read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMotherBrainBabyPopulationReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa9be28 and < 0xa9be38,
+                address => $"Mother Brain Baby attempted migrated population read ${address:X6}.");
 }

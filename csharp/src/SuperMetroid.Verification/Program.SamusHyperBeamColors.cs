@@ -343,7 +343,7 @@ internal static partial class Program
         var shotSamus = new SamusState { HyperBeam = 0x8000, ChargeColors = shot };
         var projectiles = new SamusProjectileSystem();
         typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ChargedShotGlowTimer))!.SetValue(projectiles, (ushort)0x8014);
-        var shotGuard = new ForbiddenHyperBeamColorBus(rom);
+        var shotGuard = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 20; call++)
         {
             var step = projectiles.UpdateBeamChargePalette(shotGuard, shotCgram, shotSamus);
@@ -354,12 +354,12 @@ internal static partial class Program
                 AssertEqual(ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), shotCgram.Colors[192 + color],
                     "Guarded Hyper-shot cycle preserves original applied colors and held rows");
         }
-        AssertEqual(0, shotGuard.ForbiddenReads, "Hyper-shot calculated colors avoid original palette and pointer reads");
+        AssertEqual(0, shotGuard.ForbiddenReadAttempts, "Hyper-shot calculated colors avoid original palette and pointer reads");
         var installedSamus = new SamusState();
         installedSamus.Drained.EnableRainbow(installedSamus);
         installedSamus.Drained.PresentationColors = catalog;
         var installedCgram = new SnesCgram();
-        var guarded = new ForbiddenHyperBeamColorBus(rom);
+        var guarded = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 22; call++)
         {
             AssertTrue(installedSamus.Drained.UpdatePalette(guarded, installedCgram, 0),
@@ -375,7 +375,7 @@ internal static partial class Program
                 AssertEqual((ushort)(ReadVerificationWord(rom, 0x9b0000 | (originalPointer + 2 * color)) & 0x7fff),
                     installedCgram.Colors[192 + color], $"Hyper Beam call {call} original CGRAM color {color}");
         }
-        AssertEqual(0, guarded.ForbiddenReads,
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed Hyper Beam cycle does not read pointer or palette ROM tables");
         AssertThrows<InvalidDataException>(() => SamusHyperBeamColorCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
@@ -418,13 +418,13 @@ internal static partial class Program
             "new Samus binds installed Hyper Beam colors");
         samus.Drained.EnableRainbow(samus);
         var cgram = new SnesCgram();
-        var guarded = new ForbiddenHyperBeamColorBus(rom);
+        var guarded = NewForbiddenHyperBeamColorBus(rom);
         for (int frame = 0; frame <= 4; frame++)
             AssertTrue(samus.Drained.UpdatePalette(guarded, cgram, samus.EquippedItems),
                 $"edited Hyper Beam frame {frame} writes colors");
         AssertEqual(edited.SamusHyperBeamColors.Resolve(4, 7), cgram.Colors[199],
             "edited Hyper Beam color reaches CGRAM on its selected frame");
-        AssertEqual(0, guarded.ForbiddenReads,
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
             "edited Hyper Beam colors avoid pointer and palette ROM tables");
         AssertThrows<InvalidDataException>(() => SamusHyperBeamColorCatalog.Write(document with
         {
@@ -439,28 +439,17 @@ internal static partial class Program
         Console.WriteLine("Hyper Beam override: edited frame reaches CGRAM and stock restores.");
     }
 
-    private sealed class ForbiddenHyperBeamColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReads { get; private set; }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int pointerStart = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers;
-            int paletteStart = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(9);
-            int paletteEnd = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(0) +
-                SamusHyperBeamColorFormat.ColorsPerFrame * sizeof(ushort);
-            if ((address >= 0x91d829 && address < 0x91d83f) ||
-                (address >= pointerStart && address < pointerStart +
-                    SamusHyperBeamColorFormat.FrameCount * sizeof(ushort)) ||
-                (address >= paletteStart && address < paletteEnd))
+    private static CartridgeReadGuard NewForbiddenHyperBeamColorBus(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
             {
-                ForbiddenReads++;
-                throw new InvalidOperationException($"Installed Hyper Beam read native artwork ${address:X6}.");
-            }
-            return inner.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
-    }
+                int pointerStart = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers;
+                int paletteStart = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(9);
+                int paletteEnd = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(0) +
+                    SamusHyperBeamColorFormat.ColorsPerFrame * sizeof(ushort);
+                return (address >= 0x91d829 && address < 0x91d83f) ||
+                    (address >= pointerStart && address < pointerStart +
+                        SamusHyperBeamColorFormat.FrameCount * sizeof(ushort)) ||
+                    (address >= paletteStart && address < paletteEnd);
+            },
+            address => $"Installed Hyper Beam read native artwork ${address:X6}.");
 }

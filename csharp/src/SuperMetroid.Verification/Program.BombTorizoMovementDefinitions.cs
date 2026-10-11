@@ -83,7 +83,7 @@ internal static partial class Program
                 $"Bomb Torizo posture Y ${tableOffset:X2} subtract {subtract}");
         }
 
-        var guarded = new BombTorizoMovementReadGuard(rom);
+        var guarded = NewBombTorizoMovementReadGuard(rom);
         var enemies = new RoomEnemySystem();
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guarded);
@@ -121,20 +121,11 @@ internal static partial class Program
             "Bomb Torizo movement definitions: all 88 native words, 32 real posture applications and 20 real walk consumers pass with all six source tables forbidden.");
     }
 
-    private sealed class BombTorizoMovementReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xaac3ee and < 0xaac41e or
-                >= 0xaac440 and < 0xaac470 or
-                >= 0xaac4bd and < 0xaac4e5 or
-                >= 0xaac532 and < 0xaac55a
-                ? throw new InvalidOperationException(
-                    $"Bomb Torizo movement attempted migrated table read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBombTorizoMovementReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
+                address is >= 0xaac3ee and < 0xaac41e or
+                    >= 0xaac440 and < 0xaac470 or
+                    >= 0xaac4bd and < 0xaac4e5 or
+                    >= 0xaac532 and < 0xaac55a,
+            address => $"Bomb Torizo movement attempted migrated table read ${address:X6}.");
 }

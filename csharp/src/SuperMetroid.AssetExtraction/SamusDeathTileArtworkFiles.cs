@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports the five native death graphics transfers into one indexed PNG.</summary>
+[CpuBusBoundary("codec: ROM Samus death graphics transfers → death tile PNG")]
 public static class SamusDeathTileArtworkFiles
 {
     private const int FormatVersion = 1;

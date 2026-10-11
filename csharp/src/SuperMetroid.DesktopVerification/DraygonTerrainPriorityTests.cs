@@ -25,8 +25,7 @@ internal static partial class Program
         int bank = body.Definition.Bank << 16;
         // Installed gameplay has no cartridge; the reference words come from a separate import.
         var rom = draygonReferenceRom.Value;
-        int Word(int pointer) => rom.ReadCartridgeByte(bank | (pointer & 65535)) |
-            rom.ReadCartridgeByte(bank | ((pointer + 1) & 65535)) << 8;
+        int Word(int pointer) => NativeDraygonMapWord(rom, bank, pointer);
         int components = Word(body.SpritemapPointer);
         if (components > 32) throw new InvalidOperationException("Unexpected Draygon extended map size.");
         int checkedWords = 0;
@@ -123,6 +122,10 @@ internal static partial class Program
             color |= ((memory.Vram[(start + plane / 2 * 16 + plane % 2) & 65535] >> (7 - px)) & 1) << plane;
         return (color != 0, (entry & 0x2000) != 0, (entry >> 10 & 7) * 16 + color);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon extended spritemap BG2 tilemap streams")]
+    private static int NativeDraygonMapWord(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, int bank, int pointer) =>
+        rom.ReadCartridgeByte(bank | (pointer & 65535)) | rom.ReadCartridgeByte(bank | ((pointer + 1) & 65535)) << 8;
 }
 
 internal static class DraygonTilemapAuditDefinitions

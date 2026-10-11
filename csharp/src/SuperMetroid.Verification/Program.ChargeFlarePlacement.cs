@@ -107,6 +107,7 @@ internal static partial class Program
         ChargeFlarePlacementCatalog? placement, ChargeFlareSpriteCatalog? sprites,
         byte direction, bool running, byte poseYOffset, bool facingLeft);
 
+    [CpuBusBoundary("exact bus test: pose-table overlay that substitutes one synthetic pose row and direction byte while forbidding the flare-origin table")]
     private sealed class FlarePlacementGuard(ISnesAddressSpace source, SamusPoseId pose, byte direction, bool forbid) : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);

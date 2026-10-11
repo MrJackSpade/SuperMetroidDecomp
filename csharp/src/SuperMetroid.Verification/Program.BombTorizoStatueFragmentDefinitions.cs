@@ -18,7 +18,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueFragmentDefinitions.ForParameter(parameter), "statue rejects every odd parameter in the native range");
         foreach (ushort parameter in new ushort[] {32,33,0x100,0x101,0x7ffe,0x8000,0xfffe,0xffff})
             AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueFragmentDefinitions.ForParameter(parameter), "statue rejects parameters beyond the sixteen fragments");
-        var guarded = new BombTorizoStatueFragmentReadGuard(rom);
+        var guarded = NewBombTorizoStatueFragmentReadGuard(rom);
         for (ushort index = 0; index < 16; index++)
         {
             ushort parameter = unchecked((ushort)(index * 2));
@@ -90,17 +90,7 @@ internal static partial class Program
             AssertEqual(ReadStatueFragmentOracleWord(rom, 0x86a80b + (parameter & 15)),
                 BombTorizoStatueFragmentDefinitions.ForParameter(parameter).Acceleration, "statue native constant acceleration field");
     }
-    private sealed class BombTorizoStatueFragmentReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x86a7ab and < 0x86a81b
-                ? throw new InvalidOperationException(
-                    $"Bomb Torizo statue fragment attempted migrated table read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBombTorizoStatueFragmentReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0x86a7ab and < 0x86a81b,
+            address => $"Bomb Torizo statue fragment attempted migrated table read ${address:X6}.");
 }

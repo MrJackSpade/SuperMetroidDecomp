@@ -29,9 +29,9 @@ internal static partial class Program
             }
             AssertTrue(particle is not null, "retail eye instruction spawned a particle");
             int angle = unchecked((byte)(random - 32));
-            ushort nativeX = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + (angle + 64) * 2);
+            ushort nativeX = ReadNativeStatueParticleWord(bus, angle + 64);
             AssertEqual(nativeX, particle!.Velocity.X.RawValue, $"native launch velocity for random {random}");
-            ushort nativeY = unchecked((ushort)(4 * RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + angle * 2) + 16));
+            ushort nativeY = unchecked((ushort)(4 * ReadNativeStatueParticleWord(bus, angle) + 16));
             AssertEqual(nativeY, particle.Velocity.Y.RawValue, $"native launch gravity for random {random}");
             // Children run later in the same descending pool pass, so seed the
             // subsequent integration from the already-advanced production position.
@@ -85,4 +85,8 @@ internal static partial class Program
         }
         Console.WriteLine($"Statue particles: all 64 launch angles and {splashes} splash crossings passed.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the $A0:B3C3 statue-particle launch table")]
+    private static ushort ReadNativeStatueParticleWord(ISnesAddressSpace bus, int index) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + index * 2);
 }

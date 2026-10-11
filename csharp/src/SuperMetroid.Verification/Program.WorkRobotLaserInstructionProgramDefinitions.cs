@@ -26,7 +26,7 @@ internal static partial class Program
         }
 
         var observedInstalledOperands = new HashSet<ushort>();
-        var guard = new WorkRobotLaserInstructionReadGuard(rom);
+        var guard = NewWorkRobotLaserInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -85,7 +85,7 @@ internal static partial class Program
         AssertEqual(WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount,
             observedInstalledOperands.Count,
             "all Work Robot laser presentation operands select installed artwork");
-        AssertEqual(0, guard.ObservedPresentationWords.Count, "Work Robot laser presentation requires no runtime cartridge reads");
+        AssertEqual(0, guard.ObservedWords.Count, "Work Robot laser presentation requires no runtime cartridge reads");
         for (int index = 0;
              index < WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -164,45 +164,10 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class WorkRobotLaserInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (WorkRobotLaserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Work Robot laser mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = WorkRobotLaserInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewWorkRobotLaserInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => WorkRobotLaserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Work Robot laser mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount, WorkRobotLaserInstructionProgramDefinitions.PresentationWordAddress);
 }

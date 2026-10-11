@@ -12,7 +12,7 @@ internal static partial class Program
         string romPath = Path.GetFullPath("Super Metroid.smc");
         SuperMetroidAddressSpace oracleBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         HashSet<int> forbidden = BuildCompiledRoomDefinitionAddressSet(oracleBus);
-        var guard = new CompiledRoomDefinitionReadGuard(
+        var guard = NewCompiledRoomDefinitionReadGuard(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden);
 
         var expected = CreateRetailRuntimeFixture(
@@ -126,7 +126,7 @@ internal static partial class Program
             .Order()
             .ToArray();
         var statePointers = new HashSet<ushort>();
-        var tracingBus = new DefinitionAddressCollectingBus(source, forbidden);
+        var tracingBus = NewDefinitionAddressCollectingBus(source, forbidden);
         foreach (ushort roomPointer in roomPointers)
         {
             foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
@@ -177,65 +177,14 @@ internal static partial class Program
             addresses.Add(start + offset);
     }
 
-    private sealed class DefinitionAddressCollectingBus(
-        ISnesAddressSpace source,
-        HashSet<int> addresses) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewDefinitionAddressCollectingBus(ISnesAddressSpace source, HashSet<int> addresses) =>
+        new CartridgeReadGuard(source).Observe(_ => true, address => addresses.Add(address));
+
+    private static MutableCartridgeReadGuard NewCompiledRoomDefinitionReadGuard(ISnesAddressSpace source, HashSet<int> forbidden)
     {
-        public byte ReadByte(int address)
-        {
-            addresses.Add(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            addresses.Add(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Definition collection requires a cartridge import source."))
-                .ReadCartridgeByte(address);
-        }
-
-        public void WriteByte(int address, byte value) =>
-            source.WriteByte(address, value);
-    }
-
-    private sealed class CompiledRoomDefinitionReadGuard(
-        ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production runtime read compiled room-definition byte ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) =>
-            source.WriteByte(address, value);
-
-        public byte ReadCartridgeByte(int address)
-        {
-            _ = ReadByte(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Room-definition guard requires a cartridge import source."))
-                .ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Room-definition guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Room-definition guard requires SRAM."))
-            .ReadSaveRamByte(address);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(forbidden.Contains,
+            address => $"Production runtime read compiled room-definition byte ${address:X6}.");
+        return guard;
     }
 }

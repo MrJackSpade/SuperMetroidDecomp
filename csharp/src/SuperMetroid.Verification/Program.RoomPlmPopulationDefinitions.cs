@@ -23,8 +23,9 @@ internal static partial class Program
     {
         const ushort populatedPointer = 0x8000;
         int sourceLength = RoomPlmPopulationDefinition.FromCompiled(populatedPointer).Placements.Length * 6 + 2;
-        var guarded = new RoomPlmPopulationReadGuard(rom, populatedPointer,
-            sourceLength, forbidHeaders: true);
+        int forbiddenHeaderReadAttempts = 0;
+        var guarded = NewRoomPlmPopulationReadGuard(rom, populatedPointer,
+            sourceLength, headerRead: () => forbiddenHeaderReadAttempts++);
         (int compiledCount, RoomPlmSlotSnapshot[] compiledSlots) = Load(guarded,
             populatedPointer, useCompiled: true);
         (int nativeCount, RoomPlmSlotSnapshot[] nativeSlots) = Load(rom,
@@ -35,11 +36,11 @@ internal static partial class Program
             "compiled retail PLM load preserves native slots and setup results");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "compiled retail PLM loader never reads bank-$8F population bytes");
-        AssertEqual(0, guarded.ForbiddenHeaderReadAttempts,
+        AssertEqual(0, forbiddenHeaderReadAttempts,
             "compiled retail PLM loader never reads bank-$84 header metadata");
 
         (int emptyCount, RoomPlmSlotSnapshot[] emptySlots) = Load(
-            new RoomPlmPopulationReadGuard(rom, 0x8058, 2),
+            NewRoomPlmPopulationReadGuard(rom, 0x8058, 2),
             0x8058, useCompiled: true);
         AssertEqual(0, emptyCount, "compiled empty PLM population terminates");
         AssertEqual(0, emptySlots.Length, "compiled empty PLM population leaves no slots");
@@ -64,40 +65,17 @@ internal static partial class Program
         return (count, plms.PopulationSlots.ToArray());
     }
 
-    private sealed class RoomPlmPopulationReadGuard(
-        ISnesAddressSpace source, ushort pointer, int length,
-        bool forbidHeaders = false) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewRoomPlmPopulationReadGuard(
+        ISnesAddressSpace source, ushort pointer, int length, Action? headerRead = null)
     {
-        internal int ForbiddenReadAttempts { get; private set; }
-        internal int ForbiddenHeaderReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int first = 0x8f0000 | pointer;
-            if (address >= first && address < first + length)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Retail PLM population was reread at ${address:X6}.");
-            }
-            if (forbidHeaders)
-            {
-                foreach (RoomPlmHeaderDefinition header in RoomPlmHeaderDefinitionsTooling.All)
-                {
-                    int headerAddress = 0x840000 | (ushort)header.Header;
-                    if (address >= headerAddress && address < headerAddress + 4)
-                    {
-                        ForbiddenHeaderReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Retail PLM header was reread at ${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        int first = 0x8f0000 | pointer;
+        var guard = new CartridgeReadGuard(source).Forbid(address => address >= first && address < first + length,
+            address => $"Retail PLM population was reread at ${address:X6}.");
+        if (headerRead is null)
+            return guard;
+        bool IsHeader(int address) => RoomPlmHeaderDefinitionsTooling.All.Any(header =>
+            address >= (0x840000 | (ushort)header.Header) && address < (0x840000 | (ushort)header.Header) + 4);
+        return guard.Observe(IsHeader, _ => headerRead())
+            .Forbid(IsHeader, address => $"Retail PLM header was reread at ${address:X6}.");
     }
 }

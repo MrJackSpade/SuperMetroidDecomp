@@ -29,7 +29,7 @@ internal static partial class Program
                 "unsupported marker delay phase");
 
         using var json = new MemoryStream(MapSaveMarkerExtractor.Extract(rom), writable: false);
-        var marker = new FileSelectStationMarker(new ForbiddenMapBus(), AreaId.Crateria, 0,
+        var marker = new FileSelectStationMarker(NewForbiddenMapBus(), AreaId.Crateria, 0,
             MapSaveMarkerLayout.Load(json));
         int nativeOffset = 0, nativeTimer = 0, loops = 0;
         AssertEqual(ReadVerificationWord(rom, 0x82ba2d), (ushort)marker.SpritemapId, "marker initial phase before first tick");

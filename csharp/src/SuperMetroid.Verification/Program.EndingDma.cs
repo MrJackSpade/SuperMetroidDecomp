@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending escape and reward VRAM DMA")]
     private static void VerifyEndingDma()
     {
         Suite(nameof(VerifyObjSubscreenAddition), () => VerifyObjSubscreenAddition());

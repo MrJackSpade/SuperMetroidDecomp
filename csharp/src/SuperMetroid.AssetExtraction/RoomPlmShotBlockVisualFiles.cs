@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Extracts the visual block references of ordinary shot-block PLM draw lists.
 /// The native draw shapes and complete collision-changing level words stay compiled.
 /// </summary>
+[CpuBusBoundary("codec: ROM bank-$84 shot-block PLM draw lists → shot-block visual files")]
 public static class RoomPlmShotBlockVisualFiles
 {
     /// <summary>Family-relative stock/override JSON filename for all nineteen ordinary shot-block breakup and restoration draws.</summary>
@@ -121,8 +122,8 @@ public static class RoomPlmShotBlockVisualFiles
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
-                if (bus.ReadCartridgeByte(0x840000 | cursor) != unchecked((byte)run.Next.X) ||
-                    bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(cursor + 1))) !=
+                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor)) != unchecked((byte)run.Next.X) ||
+                    bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(cursor + 1)))) !=
                         unchecked((byte)run.Next.Y))
                     throw new InvalidDataException(
                         $"Shot-block draw list ${list.Pointer:X4} has a different next-record offset.");
@@ -187,8 +188,8 @@ public static class RoomPlmShotBlockVisualFiles
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
-            (bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8)));
+        unchecked((ushort)(bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) |
+            (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 1)))) << 8)));
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

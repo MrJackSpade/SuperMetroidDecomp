@@ -8,6 +8,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for file-select room-map labels and frames")]
     private static void VerifyFileSelectRoomMapGraphics()
     {
         Suite(nameof(VerifyFileSelectStationMarker), () => VerifyFileSelectStationMarker());

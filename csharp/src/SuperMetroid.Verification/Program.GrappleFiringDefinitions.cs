@@ -15,7 +15,8 @@ internal static partial class Program
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
-        var bus = new GrappleFiringReadGuard(rom);
+        SamusPoseId sourcePose = SamusPoseId.FacingRightNormalPose;
+        var bus = NewGrappleFiringReadGuard(rom, () => sourcePose);
         var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
         var grapple = samus.Grapple;
         var stockFlare = grapple.FlarePlacement;
@@ -47,16 +48,14 @@ internal static partial class Program
             ushort angle = unchecked((ushort)Word(0x9bc104 + offset));
             foreach (byte graphicsY in SignedByteClasses)
             {
-            bus.GraphicsY = graphicsY;
             samus.TileTransfers.BindArtwork(SamusGraphicsOffsetFixture(unchecked((sbyte)graphicsY)));
             foreach (SamusPoseId pose in aimingPoses)
             foreach (ushort raw in positions)
             {
                 // Every authored aim/movement pose for the direction, each signed graphics-Y
                 // class and the X/Y position wrap boundaries.
-                samus.Pose = bus.SourcePose = pose;
+                samus.Pose = sourcePose = pose;
                 byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + (int)samus.Pose * 8 + 1);
-                bus.Direction = direction;
                 bool running = movement == 1;
                 short x = Word((running ? 0x9bc172 : 0x9bc122) + offset);
                 short y = Word((running ? 0x9bc186 : 0x9bc136) + offset);
@@ -86,7 +85,7 @@ internal static partial class Program
                 short flareX = Word((running ? 0x9bc19a : 0x9bc14a) + offset);
                 short flareY = Word((running ? 0x9bc1ae : 0x9bc15e) + offset);
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + flareX)), grapple.BeamStart.X, "Flare X remains separate");
-                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)bus.GraphicsY))), grapple.BeamStart.Y, "Flare Y remains separate");
+                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)graphicsY))), grapple.BeamStart.Y, "Flare Y remains separate");
             }
             }
         }
@@ -97,10 +96,9 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             grapple.FlarePlacement = replaceFlare ? editedFlare : stockFlare;
-            samus.Pose = bus.SourcePose = (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
+            samus.Pose = sourcePose = (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
                 rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
                 rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) != 1);
-            bus.GraphicsY = 0; bus.Direction = direction;
             samus.TileTransfers.BindArtwork(SamusGraphicsOffsetFixture(0));
             samus.Position = samus.Position.WithWhole(new(512, 512));
             grapple.Phase = GrapplePhase.Inactive;
@@ -160,8 +158,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         foreach (ushort coordinate in new ushort[] { 0, 512, ushort.MaxValue })
         {
-            samus.Pose = bus.SourcePose = movementPoses[movement];
-            bus.Direction = direction; bus.GraphicsY = 127;
+            samus.Pose = sourcePose = movementPoses[movement];
             samus.TileTransfers.BindArtwork(SamusGraphicsOffsetFixture(127));
             samus.Position = samus.Position.WithWhole(new(coordinate, coordinate));
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
@@ -237,31 +234,20 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => select(10), $"Grapple {label} upper bound");
         AssertThrows<IndexOutOfRangeException>(() => select(byte.MaxValue), $"Grapple {label} invalid maximum");
     }
-    private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
+    /// <summary>Forbids the selected source pose's compiled movement and graphics-offset bytes and every migrated Grapple firing table.</summary>
+    private static MutableCartridgeReadGuard NewGrappleFiringReadGuard(ISnesAddressSpace source,
+        Func<SamusPoseId> sourcePose)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadWorkRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
-
-        public byte GraphicsY, Direction;
-        public SamusPoseId SourcePose = SamusPoseId.FacingRightNormalPose;
-        public byte ReadByte(int address)
-        {
-            int pose = SamusMovementRomData.Poses.Definitions + (int)SourcePose * 8;
-            if (address == pose + 1) throw new InvalidOperationException("Compiled pose movement read ROM.");
-            if (address == pose + 3) return Direction;
-            if (address == pose + 4) throw new InvalidOperationException("Installed graphics offset read ROM.");
-            if (address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2)
-                throw new InvalidOperationException("Installed Grapple flare read ROM.");
-            if (address is >= 0x9bc0db and < 0x9bc103 or >= 0x9bc104 and < 0x9bc118 or
-                >= 0x9bc122 and < 0x9bc14a or >= 0x9bc172 and < 0x9bc19a)
-                throw new InvalidOperationException($"Compiled Grapple mechanics read ROM ${address:X6}.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected Grapple definition write.");
+        int PoseRecord() => SamusMovementRomData.Poses.Definitions + (int)sourcePose() * 8;
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address == PoseRecord() + 1, _ => "Compiled pose movement read ROM.")
+            .Forbid(address => address == PoseRecord() + 4, _ => "Installed graphics offset read ROM.")
+            .Forbid(address => address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2,
+                _ => "Installed Grapple flare read ROM.")
+            .Forbid(address => address is >= 0x9bc0db and < 0x9bc103 or >= 0x9bc104 and < 0x9bc118 or
+                    >= 0x9bc122 and < 0x9bc14a or >= 0x9bc172 and < 0x9bc19a,
+                address => $"Compiled Grapple mechanics read ROM ${address:X6}.")
+            .RejectWrites(_ => "Unexpected Grapple definition write.");
+        return guard;
     }
 }

@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledSlopeSpeeds(SuperMetroidAddressSpace rom)
     {
-        var bus = new SlopeHeightNoReadBus();
+        var bus = NewSlopeHeightNoReadBus();
         var multipliers = new ushort[32];
         for (int shape = 0; shape < multipliers.Length; shape++)
         {

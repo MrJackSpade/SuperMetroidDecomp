@@ -26,7 +26,8 @@ internal static partial class Program
         var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         AssertEqual(false, installedMemory.GetType().GetProperty("Rom") is not null,
             "installed frontend starts with no cartridge allocation");
-        var guardedBus = new FrontendCartridgeReadGuard(installedMemory, nativeBus);
+        var blockedBg2Bytes = new HashSet<int>();
+        var guardedBus = NewFrontendCartridgeReadGuard(installedMemory, blockedBg2Bytes);
         AssertThrows<InvalidOperationException>(
             () => guardedBus.ReadByte(TitleSequenceRomData.Assets.Mode7CharactersAddress),
             "startup ROM guard rejects an otherwise valid title graphics source");
@@ -75,7 +76,7 @@ internal static partial class Program
                     visited.Contains(SuperMetroidGameState.FileSelectMenus),
                     "ROM-free startup traverses title, file select and options");
                 Console.WriteLine($"Frontend ROM-free startup: {frame + 1} native-parity frames through options, all cartridge reads guarded.");
-                VerifyFrontendRomFreeIntro(native, installed, guardedBus, bindInstalled, roomCensus);
+                VerifyFrontendRomFreeIntro(native, installed, blockedBg2Bytes, nativeBus, bindInstalled, roomCensus);
                 return;
             }
         }
@@ -196,7 +197,7 @@ internal static partial class Program
     /// real transition and during the projectile/hurt animation, not just at startup.
     /// </summary>
     private static void VerifyFrontendRomFreeIntro(SuperMetroidGame native,
-        SuperMetroidGame installed, FrontendCartridgeReadGuard guardedBus,
+        SuperMetroidGame installed, HashSet<int> blockedBg2Bytes, ISnesAddressSpace nativeBus,
         Action<SuperMetroidGame, bool> bindInstalled, bool roomCensus)
     {
         bool startSent = false;
@@ -297,7 +298,7 @@ internal static partial class Program
                     frameCount: 90);
                 // The long neutral Draygon fight can fatally damage Samus;
                 // all shorter room checks must execute while gameplay is live.
-                guardedBus.BlockExtendedBg2Streams(
+                BlockFrontendExtendedBg2Streams(blockedBg2Bytes, nativeBus,
                     DraygonBg2FrameDefinitions.Bank,
                     DraygonBg2FrameDefinitions.Frames);
                 VerifyFrontendRomFreeRoom(native, installed,
@@ -840,79 +841,57 @@ internal static partial class Program
             "operand-free Torizo return executes without reading $AA:F002");
     }
 
-    private sealed class FrontendCartridgeReadGuard(
-        ISnesAddressSpace source, ISnesAddressSpace? lookupSource = null) : ISnesMemoryBus, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewFrontendCartridgeReadGuard(
+        ISnesAddressSpace source, HashSet<int>? blockedPresentationBytes = null)
     {
-        private readonly HashSet<int> blockedPresentationBytes = [];
+        HashSet<int> blocked = blockedPresentationBytes ?? new();
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(blocked.Contains,
+                address => $"Installed frontend reread BG2 visual stream byte ${address:X6}.")
+            .Forbid(address => address >> 16 is not (0x7e or 0x7f) && (address & 0x8000) != 0,
+                address => $"Installed frontend reread cartridge byte ${address:X6}.");
+        return guard;
+    }
 
-        internal void BlockExtendedBg2Streams(byte bank,
-            EnemyBg2FrameDefinitionSequence frames)
+    private static void BlockFrontendExtendedBg2Streams(HashSet<int> blockedPresentationBytes,
+        ISnesAddressSpace catalogueSource, byte bank, EnemyBg2FrameDefinitionSequence frames)
+    {
+        foreach (EnemyBg2FrameDefinition frame in frames)
         {
-            ISnesAddressSpace catalogueSource = lookupSource ?? source;
-            foreach (EnemyBg2FrameDefinition frame in frames)
+            int root = (bank << 16) | frame.Pointer;
+            int components = catalogueSource.ReadByte(root);
+            for (int component = 0; component < components; component++)
             {
-                int root = (bank << 16) | frame.Pointer;
-                int components = catalogueSource.ReadByte(root);
-                for (int component = 0; component < components; component++)
+                int record = root + 2 + component * 8;
+                ushort stream = (ushort)(catalogueSource.ReadByte(record + 4) |
+                    catalogueSource.ReadByte(record + 5) << 8);
+                ushort cursor = stream;
+                for (int command = 0;
+                     command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
                 {
-                    int record = root + 2 + component * 8;
-                    ushort stream = (ushort)(catalogueSource.ReadByte(record + 4) |
-                        catalogueSource.ReadByte(record + 5) << 8);
-                    ushort cursor = stream;
-                    for (int command = 0;
-                         command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
+                    int address = (bank << 16) | cursor;
+                    ushort first = (ushort)(catalogueSource.ReadByte(address) |
+                        catalogueSource.ReadByte(address + 1) << 8);
+                    if (command == 0)
                     {
-                        int address = (bank << 16) | cursor;
-                        ushort first = (ushort)(catalogueSource.ReadByte(address) |
-                            catalogueSource.ReadByte(address + 1) << 8);
-                        if (command == 0)
-                        {
-                            AssertEqual(EnemyBg2FrameLayout.StreamMarker, first,
-                                $"{frame.Name} has a native BG2 stream");
-                            blockedPresentationBytes.Add(address);
-                            blockedPresentationBytes.Add(address + 1);
-                            cursor = unchecked((ushort)(cursor + 2));
-                            continue;
-                        }
+                        AssertEqual(EnemyBg2FrameLayout.StreamMarker, first,
+                            $"{frame.Name} has a native BG2 stream");
                         blockedPresentationBytes.Add(address);
                         blockedPresentationBytes.Add(address + 1);
-                        if (first == 0xffff)
-                            break;
-                        int count = catalogueSource.ReadByte(address + 2) |
-                            catalogueSource.ReadByte(address + 3) << 8;
-                        for (int offset = 2; offset < 4 + count * 2; offset++)
-                            blockedPresentationBytes.Add(address + offset);
-                        cursor = unchecked((ushort)(cursor + 4 + count * 2));
+                        cursor = unchecked((ushort)(cursor + 2));
+                        continue;
                     }
+                    blockedPresentationBytes.Add(address);
+                    blockedPresentationBytes.Add(address + 1);
+                    if (first == 0xffff)
+                        break;
+                    int count = catalogueSource.ReadByte(address + 2) |
+                        catalogueSource.ReadByte(address + 3) << 8;
+                    for (int offset = 2; offset < 4 + count * 2; offset++)
+                        blockedPresentationBytes.Add(address + offset);
+                    cursor = unchecked((ushort)(cursor + 4 + count * 2));
                 }
             }
         }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (blockedPresentationBytes.Contains(address))
-                throw new InvalidOperationException(
-                    $"Installed frontend reread BG2 visual stream byte ${address:X6}.");
-            int bank = address >> 16;
-            if (bank is not (0x7e or 0x7f) &&
-                (address & 0x8000) != 0)
-                throw new InvalidOperationException(
-                    $"Installed frontend reread cartridge byte ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Installed frontend guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Installed frontend guard requires SRAM."))
-            .ReadSaveRamByte(address);
     }
 }

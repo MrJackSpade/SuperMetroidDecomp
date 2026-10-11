@@ -28,7 +28,7 @@ internal static partial class Program
                 $"HZoomer mechanics word $A3:{definition.Address:X4}");
         }
 
-        var guard = new HZoomerInstructionReadGuard(rom, forbidPresentation: true);
+        var guard = NewHZoomerInstructionGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeHZoomer", flags)!;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         (CrawlerSurfaceOrientation Orientation, CrawlerEnemyFunction Function)[] cases =
@@ -65,7 +65,7 @@ internal static partial class Program
                 $"HZoomer {orientation} completes and loops all five frames");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "HZoomer production loops avoid cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled HZoomer mechanics byte");
@@ -128,49 +128,11 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class HZoomerInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (HZoomerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled HZoomer mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < HZoomerInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                        {
-                            ForbiddenReadAttempts++;
-                            throw new InvalidOperationException(
-                                $"HZoomer read visual-selector byte ${address:X6}.");
-                        }
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewHZoomerInstructionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(HZoomerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled HZoomer mechanics byte ${address:X6}.")
+            .ForbidWords(0xa30000, HZoomerInstructionProgramDefinitionsTooling.PresentationWordCount,
+                HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"HZoomer read visual-selector byte ${address:X6}.");
 }

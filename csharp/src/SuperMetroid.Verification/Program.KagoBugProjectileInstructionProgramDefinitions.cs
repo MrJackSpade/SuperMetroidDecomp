@@ -26,7 +26,7 @@ internal static partial class Program
                 $"Kago-bug projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new KagoBugProjectileInstructionReadGuard(rom);
+        var guard = NewKagoBugProjectileInstructionGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(
@@ -103,7 +103,7 @@ internal static partial class Program
         AssertTrue(enemies.LastKagoBugDropRequest is not null,
             "Kago shot program emits its production drop request before deletion");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled Kago bug visuals require no cartridge reads");
+        AssertEqual(0, guard.ObservedWords.Count, "compiled Kago bug visuals require no cartridge reads");
         for (int index = 0;
              index < KagoBugProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -169,49 +169,12 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class KagoBugProjectileInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
-    {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (KagoBugProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+    private static CartridgeReadGuard NewKagoBugProjectileInstructionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                KagoBugProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 KraidRockProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Kago-bug projectile mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < KagoBugProjectileInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = KagoBugProjectileInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Kago-bug projectile mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, KagoBugProjectileInstructionProgramDefinitions.PresentationWordCount, KagoBugProjectileInstructionProgramDefinitions.PresentationWordAddress);
 }

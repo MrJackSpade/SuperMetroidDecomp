@@ -58,7 +58,7 @@ internal static partial class Program
         for (int offset = 0; offset < 256; offset += 8)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new BotwoonNavigationReadGuard(rom));
+            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewBotwoonNavigationReadGuard(rom));
             RoomEnemySlot head = enemies.Slots[0];
             var state = new BotwoonEnemyState(head) { MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
                 PathChoiceOffset = (ushort)offset, Speed = 0 };
@@ -144,7 +144,7 @@ internal static partial class Program
 
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, new BotwoonNavigationReadGuard(rom));
+                enemies, NewBotwoonNavigationReadGuard(rom));
             RoomEnemySlot head = enemies.Slots[0];
             var state = new BotwoonEnemyState(head)
             {
@@ -168,7 +168,7 @@ internal static partial class Program
 
         var movementEnemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            movementEnemies, new BotwoonNavigationReadGuard(rom));
+            movementEnemies, NewBotwoonNavigationReadGuard(rom));
         RoomEnemySlot movementHead = movementEnemies.Slots[0];
         int movementSampleCount = 0;
         for (int pointer = BotwoonNavigationDefinitions.MovementDataStart;
@@ -255,7 +255,7 @@ internal static partial class Program
             BotwoonHoleDefinition hole = holes[byteOffset >> 3];
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, new BotwoonNavigationReadGuard(rom));
+                enemies, NewBotwoonNavigationReadGuard(rom));
             RoomEnemySlot head = enemies.Slots[0];
             head.Position = head.Position.WithWhole(hole.Target);
             var state = new BotwoonEnemyState(head)
@@ -325,18 +325,10 @@ internal static partial class Program
             "targets and rectangle boundaries pass with fixed definition reads forbidden.");
     }
 
-    private sealed class BotwoonNavigationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xb3949b and < 0xb394bb or
-                >= 0xb3a058 and < 0xb3e150 or
-                >= 0xb3e150 and < 0xb3e250
-                ? throw new InvalidOperationException(
-                    $"Botwoon attempted migrated navigation-definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBotwoonNavigationReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
+                address is >= 0xb3949b and < 0xb394bb or
+                    >= 0xb3a058 and < 0xb3e150 or
+                    >= 0xb3e150 and < 0xb3e250,
+            address => $"Botwoon attempted migrated navigation-definition read ${address:X6}.");
 }

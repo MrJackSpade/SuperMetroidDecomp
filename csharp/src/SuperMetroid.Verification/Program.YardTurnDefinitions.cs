@@ -101,7 +101,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies,
-                new YardTurnReadGuard(rom));
+                NewYardTurnReadGuard(rom));
             var run = typeof(RoomEnemySystem)
                 .GetMethod("RunYardCrawlingMovement", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, YardEnemyState, RoomLevelData>>(enemies);
@@ -127,15 +127,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class YardTurnReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa3cce2 and < 0xa3cd42
-            ? throw new InvalidOperationException(
-                $"Yard attempted migrated turn-definition read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewYardTurnReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3cce2 and < 0xa3cd42,
+            address => $"Yard attempted migrated turn-definition read ${address:X6}.");
 }

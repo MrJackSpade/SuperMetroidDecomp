@@ -109,7 +109,7 @@ internal static partial class Program
                 clear ? PlmHeaderId.ClearBotwoonWall :
                     PlmHeaderId.CrumbleBotwoonWall),
             $"Botwoon {(clear ? "clear" : "crumble")} PLM allocates");
-        var guarded = new BotwoonWallSourceGuard(new TestAddressSpace());
+        var guarded = NewBotwoonWallSourceGuard(new TestAddressSpace());
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
             guarded, new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
@@ -163,38 +163,20 @@ internal static partial class Program
             "Botwoon wall reads no migrated program or draw bytes");
     }
 
-    private sealed class BotwoonWallSourceGuard(ISnesAddressSpace source)
-        : ISnesMemoryBus, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int pointer = address & 0xffff;
-            if ((address >> 16) == 0x84 &&
-                ((pointer >= BotwoonWallPlmProgramDefinitions.Crumble &&
-                  pointer < BotwoonWallPlmProgramDefinitions.CrumbleEndExclusive) ||
-                 (pointer >= BotwoonWallPlmProgramDefinitions.Clear &&
-                  pointer < BotwoonWallPlmProgramDefinitions.ClearEndExclusive) ||
-                 (pointer >= BotwoonWallPlmDrawDefinitions.ClearPointer &&
-                  pointer < BotwoonWallPlmDrawDefinitions.EndExclusive) ||
-                 (pointer >= RoomPlmShotBlockDrawDefinitions.SingleFrame0 &&
-                  pointer < RoomPlmShotBlockDrawDefinitions.HorizontalFrame0)))
+    // Room scroll storage keeps WRAM bytes across rooms; the guard serves WRAM, guarding only cartridge data.
+    private static CartridgeReadGuard NewBotwoonWallSourceGuard(ISnesAddressSpace source) =>
+        new MutableCartridgeReadGuard(source)
+            .Forbid(address =>
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Botwoon wall reread migrated source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        // Room scroll storage keeps WRAM bytes across rooms; WRAM is not guarded cartridge data.
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-    }
+                int pointer = address & 0xffff;
+                return (address >> 16) == 0x84 &&
+                    ((pointer >= BotwoonWallPlmProgramDefinitions.Crumble &&
+                      pointer < BotwoonWallPlmProgramDefinitions.CrumbleEndExclusive) ||
+                     (pointer >= BotwoonWallPlmProgramDefinitions.Clear &&
+                      pointer < BotwoonWallPlmProgramDefinitions.ClearEndExclusive) ||
+                     (pointer >= BotwoonWallPlmDrawDefinitions.ClearPointer &&
+                      pointer < BotwoonWallPlmDrawDefinitions.EndExclusive) ||
+                     (pointer >= RoomPlmShotBlockDrawDefinitions.SingleFrame0 &&
+                      pointer < RoomPlmShotBlockDrawDefinitions.HorizontalFrame0));
+            }, address => $"Botwoon wall reread migrated source ${address:X6}.");
 }

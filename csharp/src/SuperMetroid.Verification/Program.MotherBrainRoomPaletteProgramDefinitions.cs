@@ -22,7 +22,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new MotherBrainRoomPaletteReadGuard(rom);
+        var guard = NewMotherBrainRoomPaletteReadGuard(rom);
         var enemies = new RoomEnemySystem
         {
             MotherBrainRoomColors = MotherBrainRoomColorPresentation.Load(new MemoryStream(
@@ -72,11 +72,11 @@ internal static partial class Program
 
         AssertTrue(state.RoomPaletteInstructionPointer is >= 0xd046 and <= 0xd07e,
             "Mother Brain room-palette program loops within its authored control range");
-        AssertEqual(0, guard.ForbiddenMechanicsReadAttempts,
+        AssertEqual(0, guard.ForbiddenReadAttempts,
             "Mother Brain room-palette execution avoids compiled mechanics bytes");
         AssertEqual(
             0,
-            guard.ObservedPresentationWords.Count,
+            guard.ObservedWords.Count,
             "room flash uses installed colors without runtime presentation reads");
 
         AssertThrows<InvalidDataException>(
@@ -117,33 +117,17 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class MotherBrainRoomPaletteReadGuard(ISnesAddressSpace source) :
-        ISnesMemoryBus, IImportCartridgeSource
+    private static CartridgeReadGuard NewMotherBrainRoomPaletteReadGuard(ISnesAddressSpace source)
     {
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenMechanicsReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if (MotherBrainRoomPaletteProgramDefinitions.IsCompiledMechanicsByte(address))
+        var guard = new CartridgeReadGuard(source)
+            .Forbid(MotherBrainRoomPaletteProgramDefinitions.IsCompiledMechanicsByte,
+                address => $"Mother Brain room palette read compiled mechanics ${address:X6}.");
+        return guard.Observe(
+            address => MotherBrainRoomPaletteProgramDefinitions.TryGetPresentationWord(address, out _),
+            address =>
             {
-                ForbiddenMechanicsReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Mother Brain room palette read compiled mechanics ${address:X6}.");
-            }
-            if (MotherBrainRoomPaletteProgramDefinitions.TryGetPresentationWord(
-                    address, out ushort presentation))
-            {
-                ObservedPresentationWords.Add(presentation);
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+                MotherBrainRoomPaletteProgramDefinitions.TryGetPresentationWord(address, out ushort presentation);
+                guard.ObservedWords.Add(presentation);
+            });
     }
 }

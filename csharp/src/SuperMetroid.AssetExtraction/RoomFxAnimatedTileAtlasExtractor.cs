@@ -7,6 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports bank-$87 room-FX, Wrecked Ship treadmill, and Tourian statue characters.</summary>
+[CpuBusBoundary("codec: ROM bank-$87 animated room-FX tiles → animated tile atlas")]
 public static class RoomFxAnimatedTileAtlasExtractor
 {
     /// <summary>Concatenates the defined room-FX, treadmill, statue, spore, and spike character segments into their stable atlas order.</summary>

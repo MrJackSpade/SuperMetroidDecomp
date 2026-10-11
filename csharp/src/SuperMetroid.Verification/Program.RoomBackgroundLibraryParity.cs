@@ -40,7 +40,7 @@ internal static partial class Program
                         nativeBus, nativeVram, program.Pointer, door);
 
                 SuperMetroidAddressSpace selectedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-                var guarded = new LibraryBackgroundVisualReadGuard(selectedBus, sources);
+                var guarded = NewLibraryBackgroundVisualReadGuard(selectedBus, sources);
                 var selectedVram = new SnesVram();
                 LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.Execute(
                     guarded, selectedVram, program.Pointer, door,
@@ -74,7 +74,7 @@ internal static partial class Program
 
         AssertTrue(cases > LibraryBackgroundProgramDefinitions.RetailProgramCount,
             "library background parity included door-selected variants");
-        var unknownListBus = new LibraryBackgroundUnknownListReadGuard(inventoryBus);
+        var unknownListBus = NewLibraryBackgroundUnknownListReadGuard(inventoryBus);
         try
         {
             LibraryBackgroundLoader.Execute(unknownListBus, new SnesVram(), 0xf000, 0,
@@ -161,77 +161,31 @@ internal static partial class Program
             "installed-art binding retains WRAM background transfer high byte");
     }
 
-    private sealed class LibraryBackgroundUnknownListReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace
-    {
-        public int ForbiddenReadAttempts { get; private set; }
+    private static CartridgeReadGuard NewLibraryBackgroundUnknownListReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0x8ff000 and <= 0x8fffff,
+            address => $"Installed background interpreted unknown list at ${address:X6}.");
 
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x8ff000 and <= 0x8fffff)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Installed background interpreted unknown list at ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
-
-    private sealed class LibraryBackgroundVisualReadGuard(
+    private static MutableCartridgeReadGuard NewLibraryBackgroundVisualReadGuard(
         ISnesAddressSpace source, IReadOnlyList<LibraryBackgroundSource> entries)
-        : ISnesMemoryBus, IImportCartridgeSource
     {
-        public byte ReadByte(int address)
-        {
-            CheckVisualRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            CheckVisualRead(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Library-background source requires WRAM.")).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Library-background source requires SRAM.")).ReadSaveRamByte(address);
-
-        private void CheckVisualRead(int address)
-        {
-            foreach (LibraryBackgroundProgram program in LibraryBackgroundProgramDefinitions.All)
-            {
-                int start = RoomAssetRomData.LibraryBackground.CommandBank | program.Pointer;
-                if (address >= start && address - start < program.NativeByteCount)
-                    throw new InvalidOperationException(
-                        $"Installed background reread compiled command list $8F:{program.Pointer:X4}.");
-            }
-            foreach (LibraryBackgroundSource entry in entries)
-            {
-                if (entry.Command == LibraryBackgroundCommand.DecompressToWorkRam)
-                {
-                    // Only the first compressed byte is needed to detect an accidental
-                    // fallback into RomDataReader.Decompress.
-                    if (address == entry.SourceAddress)
-                        throw new InvalidOperationException(
-                            $"Installed background reread compressed source ${address:X6}.");
-                }
-                else if (entry.SourceAddress >=
-                    RoomAssetRomData.LibraryBackground.RomSourceAddressFloor &&
-                    address >= entry.SourceAddress &&
-                    address - entry.SourceAddress < entry.TransferByteCount!.Value)
-                    throw new InvalidOperationException(
-                        $"Installed background reread direct visual source ${address:X6}.");
-            }
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        LibraryBackgroundProgram? CommandList(int address) => LibraryBackgroundProgramDefinitions.All
+            .FirstOrDefault(program => address >= (RoomAssetRomData.LibraryBackground.CommandBank | program.Pointer) &&
+                address - (RoomAssetRomData.LibraryBackground.CommandBank | program.Pointer) < program.NativeByteCount);
+        LibraryBackgroundSource? Visual(int address) => entries.FirstOrDefault(entry =>
+            entry.Command == LibraryBackgroundCommand.DecompressToWorkRam
+                // Only the first compressed byte is needed to detect an accidental
+                // fallback into RomDataReader.Decompress.
+                ? address == entry.SourceAddress
+                : entry.SourceAddress >= RoomAssetRomData.LibraryBackground.RomSourceAddressFloor &&
+                  address >= entry.SourceAddress &&
+                  address - entry.SourceAddress < entry.TransferByteCount!.Value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => CommandList(address) is not null,
+            address => $"Installed background reread compiled command list $8F:{CommandList(address)!.Pointer:X4}.");
+        guard.Forbid(address => Visual(address) is not null,
+            address => Visual(address)!.Command == LibraryBackgroundCommand.DecompressToWorkRam
+                ? $"Installed background reread compressed source ${address:X6}."
+                : $"Installed background reread direct visual source ${address:X6}.");
+        return guard;
     }
 }

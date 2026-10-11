@@ -11,6 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// blocks are stored in native run order, while the compiled definitions retain
 /// run directions, signed offsets and physical level words.
 /// </summary>
+[CpuBusBoundary("codec: ROM bank-$84 PLM block-draw lists → installed PLM door visual files")]
 internal static class RoomPlmDoorVisualFileCodec
 {
     internal const string ManifestFileName = "manifest.json";
@@ -189,8 +190,8 @@ internal static class RoomPlmDoorVisualFileCodec
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        (ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
-            bus.ReadCartridgeByte(0x840000 | checked((ushort)(pointer + 1))) << 8);
+        (ushort)(bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) |
+            bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, checked((ushort)(pointer + 1)))) << 8);
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

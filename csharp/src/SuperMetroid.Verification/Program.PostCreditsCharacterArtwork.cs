@@ -19,7 +19,7 @@ internal static partial class Program
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
             var nativeBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-            var guardedBus = new EndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+            var guardedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
             var nativeAudio = new CartridgeAudioState();
             var installedAudio = new CartridgeAudioState();
             var native = CreateRetailEndingFixture(nativeBus, nativeAudio, hours, 0);
@@ -185,8 +185,8 @@ internal static partial class Program
                         image.Palette);
                 }
                 EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
-                var stockBus = new EndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-                var editedBus = new EndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+                var stockBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+                var editedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
                 var stockAudio = new CartridgeAudioState();
                 var editedAudio = new CartridgeAudioState();
                 var stockState = CreateRetailEndingFixture(stockBus, stockAudio, hours, 0);

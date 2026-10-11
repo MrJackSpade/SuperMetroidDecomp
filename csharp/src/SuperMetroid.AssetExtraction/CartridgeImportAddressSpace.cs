@@ -6,6 +6,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Import-time cartridge image and mutable memory. Gameplay code cannot reference this
 /// project, so owning the image here prevents a runtime address space from reading ROM.
 /// </summary>
+[CpuBusBoundary("CPU-bus implementation: import-time LoROM cartridge image mapping over the WRAM/SRAM address space")]
 public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     IImportCartridgeSource, IRestoredSharedContent
 {

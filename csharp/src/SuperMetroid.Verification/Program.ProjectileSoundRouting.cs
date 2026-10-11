@@ -38,25 +38,11 @@ internal static partial class Program
             "  Projectile sound routing: 24 authored and 8 bounded adjacent-table observations agree.");
     }
 
-    private sealed class ProjectileSoundRoutingForbiddenBus(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewProjectileSoundRoutingForbiddenBus(ISnesAddressSpace source)
     {
-        private readonly ISnesMutableMemory memory = ReferenceMutableMemory.From(source);
-
-        public byte ReadWorkRamByte(int address) => memory.ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) => memory.ReadSaveRamByte(address);
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x90c28f and <= 0x90c2c6)
-            {
-                throw new InvalidOperationException(
-                    $"Production reread compiled projectile sound-routing byte ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is >= 0x90c28f and <= 0x90c2c6,
+            address => $"Production reread compiled projectile sound-routing byte ${address:X6}.");
+        return guard;
     }
 }

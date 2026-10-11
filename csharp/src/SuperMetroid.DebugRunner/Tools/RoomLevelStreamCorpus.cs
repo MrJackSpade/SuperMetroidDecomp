@@ -10,6 +10,7 @@ internal static partial class AssetTools
     /// The shipped resource is immutable engine baseline data, not an editable
     /// replacement for the separately installed room-layout artwork.
     /// </summary>
+    [CpuBusBoundary("codec: ROM compressed room visual-layout streams → decoded level-stream corpus file")]
     private static void GenerateRoomLevelStreamCorpus()
     {
         var bus = LoadRepositoryRom();

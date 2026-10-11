@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Resolves reserve visual data once, validating the compiled native fill-to-shape mapping.</summary>
+[CpuBusBoundary("codec: ROM pause reserve-tank fill shapes → reserve tank visuals")]
 public static class PauseReserveTankExtractor
 {
     /// <summary>Validates the native reserve fill-to-shape bindings, resolves tank anchors and palette, and serializes every referenced sprite frame.</summary>

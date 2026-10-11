@@ -54,7 +54,7 @@ internal static partial class Program
             var plms = new RoomPlmSystem { MaridiaElevatubeVisuals = edited };
             AssertTrue(plms.TrySpawnMaridiaElevatube(level),
                 "production door setup spawns the elevatube PLM");
-            var guard = new MaridiaElevatubeSourceGuard(new TestAddressSpace());
+            var guard = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             int blockIndex = level.GetBlockIndex(
                 new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));

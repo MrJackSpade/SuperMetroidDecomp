@@ -75,7 +75,7 @@ internal static partial class Program
         runtime.MapPresentation = original;
         AssertTrue(ReferenceEquals(original.CeresRidleyColors, runtime.Enemies.CeresRidleyColors),
             "runtime rebind drops previous Ceres Ridley colors");
-        var guarded = new CeresRidleyColorReadGuard(rom, forbidden);
+        var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
         var enemies = new RoomEnemySystem
         {
             CeresRidleyColors = edited.CeresRidleyColors,
@@ -358,7 +358,7 @@ internal static partial class Program
                 int address = source + color * sizeof(ushort);
                 forbidden.Add(address);
                 forbidden.Add(address + 1);
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address), resolve(color),
+                AssertEqual(ReadNativeCeresRidleyColor(rom, address), resolve(color),
                     $"Ceres Ridley source ${source:X6} color {color}");
             }
         }
@@ -375,40 +375,11 @@ internal static partial class Program
         }
     }
 
-    private sealed class CeresRidleyColorReadGuard(ISnesAddressSpace inner,
-        HashSet<int> forbidden) : ISnesMemoryBus, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
+    private static CartridgeReadGuard NewCeresRidleyColorReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
+        new MutableCartridgeReadGuard(source)
+            .Forbid(forbidden.Contains, address => $"Ceres Ridley color reread ${address:X6}.");
 
-        private void RejectColorSource(int address)
-        {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException($"Ceres Ridley color reread ${address:X6}.");
-            }
-        }
-
-        public byte ReadByte(int address)
-        {
-            RejectColorSource(address);
-            return inner.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectColorSource(address);
-            return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Ceres Ridley color guard source does not expose WRAM.")).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Ceres Ridley color guard source does not expose SRAM.")).ReadSaveRamByte(address);
-
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
-    }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley's native palette rows")]
+    private static ushort ReadNativeCeresRidleyColor(ISnesAddressSpace rom, int address) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
 }

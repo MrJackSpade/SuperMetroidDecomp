@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled charge-flare cadence words and the native cadence reference")]
     private static void VerifyChargeFlareDefinitions(SuperMetroidAddressSpace bus)
     {
         for (int address = 0x90c481; address < 0x90c4b5; address++)

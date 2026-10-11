@@ -223,8 +223,10 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         private readonly Dictionary<(ISymbol Subject, INamedTypeSymbol Catalog), (HashSet<string> Names, Location First)> _comparisons =
             new(new SubjectCatalogComparer());
         // Every write to a symbol: the enum it narrows (null for any other value) and where.
-        private readonly Dictionary<ISymbol, List<(ITypeSymbol? Domain, Location Site)>> _writes = new(SymbolEqualityComparer.Default);
+        private readonly Dictionary<ISymbol, List<(ITypeSymbol? Domain, Location Site, bool Stepped)>> _writes = new(SymbolEqualityComparer.Default);
         private readonly Dictionary<ISymbol, string> _domainUses = new(SymbolEqualityComparer.Default);
+        // Symbols ordered with < <= > >=: quantities, which an identity domain never is.
+        private readonly HashSet<ISymbol> _ordered = new(SymbolEqualityComparer.Default);
 
         internal void Register(CompilationStartAnalysisContext context)
         {
@@ -239,9 +241,19 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         private void Comparison(OperationAnalysisContext context)
         {
             var binary = (IBinaryOperation)context.Operation;
+            IOperation left = Unwrap(binary.LeftOperand), right = Unwrap(binary.RightOperand);
+            if (binary.OperatorKind is BinaryOperatorKind.LessThan or BinaryOperatorKind.LessThanOrEqual or
+                BinaryOperatorKind.GreaterThan or BinaryOperatorKind.GreaterThanOrEqual)
+            {
+                lock (_gate)
+                {
+                    if (Subject(left) is { } l) _ordered.Add(l);
+                    if (Subject(right) is { } r) _ordered.Add(r);
+                }
+                return;
+            }
             if (binary.OperatorKind is not (BinaryOperatorKind.Equals or BinaryOperatorKind.NotEquals))
                 return;
-            IOperation left = Unwrap(binary.LeftOperand), right = Unwrap(binary.RightOperand);
             Record(left, right);
             Record(right, left);
             MarkDomainUse(left, "compared");
@@ -270,7 +282,10 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
 
         private void Record(IOperation subject, IOperation constant)
         {
-            if (!IsIntegral(subject.Type) || Subject(subject) is not { } symbol)
+            // Only repository-declared storage can be retyped; a library member such as Length
+            // pools unrelated arrays and is never one domain.
+            if (!IsIntegral(subject.Type) || Subject(subject) is not { } symbol ||
+                !symbol.Locations.Any(location => location.IsInSource))
                 return;
             if (constant is not IFieldReferenceOperation { Field: { IsConst: true } field } ||
                 !IsOwned(field.ContainingType) || field.ContainingType.TypeKind == TypeKind.Enum)
@@ -305,9 +320,13 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             {
                 if (!_writes.TryGetValue(target, out var writes))
                     _writes[target] = writes = [];
-                writes.Add((domain, site));
+                writes.Add((domain, site, context.Operation is ICompoundAssignmentOperation or IIncrementOrDecrementOperation));
             }
         }
+
+        // A counter or accumulator is stepped by ++, -- or compound assignment; identities never are.
+        private bool IsStepped(ISymbol symbol) =>
+            _writes.TryGetValue(symbol, out var writes) && writes.Any(write => write.Domain is null && write.Stepped);
 
         private void MarkDomainUse(IOperation operation, string how)
         {
@@ -322,7 +341,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             {
                 foreach (var entry in _comparisons)
                 {
-                    if (entry.Value.Names.Count < 2)
+                    if (entry.Value.Names.Count < 2 || _ordered.Contains(entry.Key.Subject) || IsStepped(entry.Key.Subject))
                         continue;
                     context.ReportDiagnostic(Diagnostic.Create(CatalogComparisonRule, entry.Value.First,
                         entry.Key.Subject.Name, TypeOf(entry.Key.Subject)!.ToDisplayString(), entry.Value.Names.Count,

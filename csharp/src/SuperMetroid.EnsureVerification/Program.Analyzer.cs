@@ -132,6 +132,10 @@ internal static partial class Program
             PrimitiveDomainAnalyzer.CatalogComparisonId, "2 named constants of Stage");
         Expect(catalog + " class C { byte s; bool A() => s == Stage.Read; bool B() => s is Stage.Build; }",
             PrimitiveDomainAnalyzer.CatalogComparisonId, "named constants of Stage");
+        // An ordered quantity, a stepped counter and a library member are not domains.
+        Expect(catalog + " class C { bool M(byte distance) => distance == Stage.Read || distance == Stage.Build || distance <= 1; }");
+        Expect(catalog + " class C { int M() { int n = 0; for (byte i = 0; i < 8; i++) { if (i == Stage.Read || i == Stage.Build) n++; } return n; } }");
+        Expect(catalog + " class C { bool M(byte[] a, byte[] b) => a.Length == Stage.Read && b.Length == Stage.Build; }");
         // One named bound, or an open quantity compared with literals, is not a domain.
         Expect(catalog + " class C { bool M(byte stage) => stage == Stage.Read; }");
         Expect("class C { bool M(int count) => count == 0 || count == 1; }");

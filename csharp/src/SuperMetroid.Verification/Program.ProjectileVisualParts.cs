@@ -18,7 +18,7 @@ internal static partial class Program
             ushort attribute = unchecked((ushort)~rawX);
             int index = count % OamBuffer.SpriteCount;
             WriteTestWord(bus, 0x93f702, (ushort)rawX);
-            bus.WriteByte(0x93f704, yOffset);
+            bus.WriteBytes(0x93f704, [yOffset]);
             WriteTestWord(bus, 0x93f705, attribute);
             parts.AddProjectileSpritePart(new((ushort)rawX), yOffset, new(attribute), new Position16<OamPixels>(origin, origin));
             DrawImportedProjectileSpritemap(bus, packed, 0xf700, new(origin, origin));

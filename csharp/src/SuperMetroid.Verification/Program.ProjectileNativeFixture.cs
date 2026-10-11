@@ -2,9 +2,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile lifetime")]
     private static int NativeProjectileLifetime(SuperMetroidAddressSpace rom, int selector)
     {
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        ushort Word(int a) => (ushort)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte(a + 1) << 8);
         int pointer = Word(selector), ticks = 0;
         var seen = new HashSet<int>();
         while (seen.Add(pointer))
@@ -22,10 +23,11 @@ internal static partial class Program
 
     // Keep synthetic artwork and terrain, but use the cartridge-selected programs.
     // Only sprite-reference fields are replaced; timing/damage/collision stay native.
+    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile fixture")]
     private static SuperMetroid.AssetExtraction.CartridgeImportAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        ushort Word(int a) => (ushort)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte(a + 1) << 8);
         void Art(int entry, ushort map)
         {
             var seen = new HashSet<int>();

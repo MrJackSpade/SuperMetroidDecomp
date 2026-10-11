@@ -138,12 +138,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Powamp instruction words")]
     private static ushort ReadPowampInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa80000 | address) |
-            source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa80000 | address) |
+            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewPowampInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

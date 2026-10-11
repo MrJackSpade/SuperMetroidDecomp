@@ -38,13 +38,7 @@ internal static partial class Program
             typeof(PaletteFxInstructionListPointers),
         ];
         foreach (Type catalog in catalogs)
-        {
-            foreach (FieldInfo field in GetUshortConstants(catalog))
-            {
-                ushort pointer = (ushort)field.GetRawConstantValue()!;
-                _ = bus.ReadByte(0x8d0000 | pointer);
-            }
-        }
+            ReadPaletteFxCatalogPointerTargets(bus, catalog);
 
         Suite(nameof(VerifyBeaconSoundInstruction), () => VerifyBeaconSoundInstruction(bus));
         Suite(nameof(VerifyPaletteFxDeleteProgramMechanicsDefinitions), () => VerifyPaletteFxDeleteProgramMechanicsDefinitions(bus));
@@ -94,6 +88,17 @@ internal static partial class Program
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
             "plus 1717 control words and 33 byte operands are compiled; all four audio opcodes " +
             "and retail $F781's byte/cursor handoff agree.");
+    }
+
+    /// <summary>Reads each pointer's first byte so an unmapped bank-$8D cartridge target fails loudly.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM mapping probe for palette-FX catalog pointer targets in bank $8D")]
+    private static void ReadPaletteFxCatalogPointerTargets(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace cartridge, Type catalog)
+    {
+        foreach (FieldInfo field in GetUshortConstants(catalog))
+        {
+            ushort pointer = (ushort)field.GetRawConstantValue()!;
+            _ = cartridge.ReadCartridgeByte(0x8d0000 | pointer);
+        }
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled standalone palette-FX delete instruction words")]
@@ -511,7 +516,7 @@ internal static partial class Program
             for (int group = 0; group < 4; group++)
             {
                 AssertEqual((ushort)0xc648, Word(), "Native timer command starts each counted group");
-                originalBytes.Add((ushort)cursor, bus.ReadByte(0x8d0000 | cursor));
+                originalBytes.Add((ushort)cursor, bus.ReadCartridgeByte(0x8d0000 | cursor));
                 AssertEqual((ushort)cursor, definition.GroupTimerBytePointer(group), "Calculated timer byte pointer");
                 cursor++;
                 int groupStart = cursor;
@@ -573,7 +578,7 @@ internal static partial class Program
                 AssertEqual(value, compiled,
                     $"{definition.Owner} loading compiled timer byte $8D:{pointer:X4}");
                 AssertEqual(value,
-                    bus.ReadByte(RoomFxRomData.Banks.PaletteFx | pointer),
+                    bus.ReadCartridgeByte(RoomFxRomData.Banks.PaletteFx | pointer),
                     $"{definition.Owner} loading cartridge timer byte $8D:{pointer:X4}");
                 mechanicsBytes++;
             }
@@ -1885,7 +1890,7 @@ internal static partial class Program
                     AssertEqual((byte)frame, compiledByte,
                         $"{definition.Owner} compiled phase byte {frame}");
                     AssertEqual((byte)frame,
-                        bus.ReadByte(RoomFxRomData.Banks.PaletteFx | bytePointer),
+                        bus.ReadCartridgeByte(RoomFxRomData.Banks.PaletteFx | bytePointer),
                         $"{definition.Owner} cartridge phase byte {frame}");
                     mechanicsBytes++;
                 }
@@ -1964,7 +1969,7 @@ internal static partial class Program
             "beacon sound ID is compiled");
         AssertEqual(BeaconPaletteFxProgramMechanicsDefinitions.SoundId, soundId,
             "beacon compiled sound ID");
-        AssertEqual(bus.ReadByte(RoomFxRomData.Banks.PaletteFx |
+        AssertEqual(bus.ReadCartridgeByte(RoomFxRomData.Banks.PaletteFx |
                 BeaconPaletteFxProgramMechanicsDefinitions.SoundOperandPointer),
             soundId,
             "beacon sound ID matches cartridge");
@@ -2258,7 +2263,7 @@ internal static partial class Program
                 AssertEqual(item.Value, compiled,
                     $"{definition.Owner} compiled byte $8D:{item.Pointer:X4}");
                 AssertEqual(item.Value,
-                    bus.ReadByte(RoomFxRomData.Banks.PaletteFx | item.Pointer),
+                    bus.ReadCartridgeByte(RoomFxRomData.Banks.PaletteFx | item.Pointer),
                     $"{definition.Owner} cartridge byte $8D:{item.Pointer:X4}");
                 mechanicsBytes++;
             }

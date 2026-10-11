@@ -47,18 +47,19 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause selector native durations")]
     private static void VerifyPauseSelectorNativeDurations(ISnesAddressSpace rom, PauseSelectorPresentation selector)
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);
         int phases = 0;
-        while (rom.ReadByte(program + phases * 3) != 255)
+        while (rom.ReadCartridgeByte(program + phases * 3) != 255)
         {
-            AssertEqual((int)rom.ReadByte(program + phases * 3), selector.Duration(phases), "original selector duration");
+            AssertEqual((int)rom.ReadCartridgeByte(program + phases * 3), selector.Duration(phases), "original selector duration");
             phases++;
             AssertTrue(phases <= 14, "original bounded selector program");
         }
         AssertEqual(phases, selector.PhaseCount, "selector native terminator");
-        AssertEqual((int)rom.ReadByte(0x82c10c), selector.InitialDurationTicks, "separate native initial delay");
-        AssertEqual((int)rom.ReadByte(program), selector.Duration(phases), "selector wraps before timing rule");
+        AssertEqual((int)rom.ReadCartridgeByte(0x82c10c), selector.InitialDurationTicks, "separate native initial delay");
+        AssertEqual((int)rom.ReadCartridgeByte(program), selector.Duration(phases), "selector wraps before timing rule");
     }
 }

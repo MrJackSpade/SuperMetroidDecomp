@@ -21,7 +21,7 @@ internal static partial class Program
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        saveRam.CopyTo(bus.SaveRam);
+        SaveRamImage.Load(bus, saveRam);
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -85,8 +85,9 @@ internal static partial class Program
         byte[] initialScrolls = (byte[])typeof(RoomScrollGrid)
             .GetField("_cells", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Camera.Scrolls)!;
         memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount).CopyTo(initialScrolls);
+        WorkRamByteTable scrollZones = new RoomScrollMemory(bus).Zones;
         for (int index = 0; index < initialScrolls.Length; index++)
-            bus.WriteByte(RoomScrollGrid.WorkRamAddress + index, initialScrolls[index]);
+            scrollZones[index] = initialScrolls[index];
         typeof(HudState).GetProperty(nameof(HudState.MinimapDisabled))!
             .SetValue(runtime.Hud, W(NativeSnapshotMemory.MinimapDisabled) != 0);
         byte[] initialMaps = memory.AsSpan(NativeSnapshotMemory.SavedExploredMaps,
@@ -117,9 +118,8 @@ internal static partial class Program
             .SetValue(samus.ArmCannon, memory[NativeSnapshotMemory.CannonFlags]);
         typeof(SamusArmCannonState).GetProperty(nameof(SamusArmCannonState.CloseFlag))!
             .SetValue(samus.ArmCannon, memory[NativeSnapshotMemory.CannonFlags + 1]);
-        for (int address = NativeSnapshotMemory.ProjectileInheritancePrefix;
-             address < NativeSnapshotMemory.SamusSlopeAdjusted; address++)
-            bus.WriteByte(address, memory[address]);
+        new ProjectileInheritanceRecordsAccess(bus).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
+            NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
         samus.Kinematics.PositionAdjustedBySlope = W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0;
         for (int direction = 0; direction < 4; direction++)
             samus.Kinematics.RecordSolidEnemyCollision((SamusCollisionDirection)direction,

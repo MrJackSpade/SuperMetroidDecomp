@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Oum visual selectors")]
     private static void VerifyInstalledOumVisualSelectors(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -25,8 +26,8 @@ internal static partial class Program
         {
             ushort operand = MaridiaLargeSnailInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            ushort native = (ushort)(rom.ReadByte(0xa20000 | operand) |
-                rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(0xa20000 | operand) |
+                rom.ReadCartridgeByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8);
             ushort selected = (ushort)selector.Invoke(enemies, [slot, operand])!;
             AssertEqual(native, selected,
                 $"Oum visual selector $A2:{operand:X4} matches native");
@@ -43,6 +44,7 @@ internal static partial class Program
             "frames with no ROM reads.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia large snail collision definitions")]
     private static void VerifyMaridiaLargeSnailCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -147,7 +149,7 @@ internal static partial class Program
             "native-equivalent touch/shot boundary probes with no ROM reads.");
 
         ushort ReadWord(int address) => (ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         static ushort[] BoundaryPoints(ushort origin, short low, short high) =>
         [

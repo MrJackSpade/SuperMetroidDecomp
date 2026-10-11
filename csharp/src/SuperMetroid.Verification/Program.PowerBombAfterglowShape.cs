@@ -1,10 +1,12 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb afterglow shape")]
     private static void VerifyPowerBombAfterglowShape()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -29,7 +31,7 @@ internal static partial class Program
             for (int y = 32; y < 224; y++)
             {
                 int row = Math.Abs(y - 208);
-                int halfWidth = row < 192 ? rom.ReadByte(0x880000 | (finalShape + row)) : 0;
+                int halfWidth = row < 192 ? rom.ReadCartridgeByte(0x880000 | (finalShape + row)) : 0;
                 var expected = halfWidth == 0 ? ColorAddWindow.Empty : new ColorAddWindow(
                     (byte)Math.Max(0, 32 - halfWidth), (byte)Math.Min(255, 32 + halfWidth), 0, 0, 0);
                 AssertEqual(expected.Left, actual.Windows[y].Left, "afterglow retains native oval left edge");

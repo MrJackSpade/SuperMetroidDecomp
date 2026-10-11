@@ -222,6 +222,7 @@ internal static partial class Program
         return enemies;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon instruction program")]
     private static void RunPhantoonInstructionProgram(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         MethodInfo process,
@@ -239,8 +240,8 @@ internal static partial class Program
                 enemies,
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
             ushort record = unchecked((ushort)(slot.CurrentInstruction - 4));
-            ushort nativeWord = (ushort)(rom.ReadByte(0xa70000 | record) |
-                rom.ReadByte(0xa70000 | unchecked((ushort)(record + 1))) << 8);
+            ushort nativeWord = (ushort)(rom.ReadCartridgeByte(0xa70000 | record) |
+                rom.ReadCartridgeByte(0xa70000 | unchecked((ushort)(record + 1))) << 8);
             if ((nativeWord & 0x8000) == 0)
                 VerifyExecutedEnemySelector(rom, slot, executedOperands);
             else
@@ -263,12 +264,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon instruction words")]
     private static ushort ReadPhantoonInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa70000 | address) |
-            source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa70000 | address) |
+            source.ReadCartridgeByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewPhantoonInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

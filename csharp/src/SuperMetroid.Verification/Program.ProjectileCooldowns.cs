@@ -6,14 +6,15 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile cooldowns")]
     private static void VerifyProjectileCooldowns()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var bus = NewProjectileCooldownReadGuard(retail);
         for (int address = 0x90c254; address < 0x90c28f; address++)
-            AssertEqual(retail.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(address),
+            AssertEqual(retail.ReadCartridgeByte(address), SamusProjectileCooldownDefinitions.ReadByte(address),
                 "Compiled cooldown byte matches native address identity");
-        AssertEqual(retail.ReadByte(SamusProjectileCooldownDefinitions.SpacetimeBeamCooldownAddress),
+        AssertEqual(retail.ReadCartridgeByte(SamusProjectileCooldownDefinitions.SpacetimeBeamCooldownAddress),
             SamusProjectileCooldownDefinitions.ReadByte(
                 SamusProjectileCooldownDefinitions.SpacetimeBeamCooldownAddress),
             "bounded SpaceTime setup retains its exact adjacent native cooldown observation");
@@ -34,7 +35,7 @@ internal static partial class Program
                 new object?[] { bus, room, samus, edge, shared, null, charged })!;
             AssertEqual((int?)0, result.Slot, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
-            AssertEqual((ushort)retail.ReadByte(address), shared.CooldownTimer,
+            AssertEqual((ushort)retail.ReadCartridgeByte(address), shared.CooldownTimer,
                 "Native charged/fresh/held selection installs exact shared delay");
         }
         // Original source 2778 releases an uncharged shot via the pose handoff,
@@ -81,7 +82,7 @@ internal static partial class Program
                 EquippedBeams = beam, SelectedHudItem = 3, PowerBombs = 10 };
             AssertTrue(projectiles.TryActivateCombo(bus, samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
-            AssertEqual((ushort)retail.ReadByte(0x90c254 + (projectiles.Slots[0].Type & 0x3f)),
+            AssertEqual((ushort)retail.ReadCartridgeByte(0x90c254 + (projectiles.Slots[0].Type & 0x3f)),
                 shared.CooldownTimer, "Combo retains six-bit index into padding/non-beam neighbors");
         }
         Console.WriteLine("Projectile cooldowns: 59 native bytes, bounded SpaceTime observation, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");

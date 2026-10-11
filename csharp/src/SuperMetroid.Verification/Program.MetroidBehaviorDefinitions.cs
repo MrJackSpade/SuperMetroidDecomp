@@ -118,8 +118,9 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Metroid behavior words")]
     private static ushort ReadMetroidBehaviorWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMetroidBehaviorReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

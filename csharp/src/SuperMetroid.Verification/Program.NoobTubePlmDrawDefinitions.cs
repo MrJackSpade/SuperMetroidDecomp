@@ -8,6 +8,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Noob Tube PLM draw definitions")]
     private static void VerifyNoobTubePlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyTubeGeometry), () => VerifyTubeGeometry(rom));
@@ -38,7 +39,7 @@ internal static partial class Program
             "n00b-tube program selects seven distinct physical draw lists");
         var bank84 = new byte[0x8000];
         for (int index = 0; index < bank84.Length; index++)
-            bank84[index] = rom.ReadByte(0x848000 + index);
+            bank84[index] = rom.ReadCartridgeByte(0x848000 + index);
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             VerifyNoobTubeNativeDrawPath(bank84, lists, list,
                 list.Pointer == 0x98e3 ? edited : null);

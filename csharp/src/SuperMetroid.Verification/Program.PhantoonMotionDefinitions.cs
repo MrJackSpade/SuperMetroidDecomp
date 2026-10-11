@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon motion")]
     private static void VerifyCompiledPhantoonMotion(SuperMetroidAddressSpace rom)
     {
         ushort[] definitions = [PhantoonMotionDefinitions.SlowFraction, PhantoonMotionDefinitions.SlowWhole,
@@ -17,7 +18,7 @@ internal static partial class Program
         for (int i = 0; i < native.Length; i++)
         {
             int address = 0xa7cd73 + i * 2;
-            native[i] = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            native[i] = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native[i], definitions[i], "Phantoon compiled motion native word");
         }
         var forward = typeof(RoomEnemySystem).GetMethod("AdjustPhantoonForwardFigureEightSpeed", BindingFlags.Static | BindingFlags.NonPublic)!

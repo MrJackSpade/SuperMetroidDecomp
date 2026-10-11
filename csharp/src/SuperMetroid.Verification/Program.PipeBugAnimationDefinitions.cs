@@ -82,10 +82,11 @@ internal static partial class Program
             "Pipe Bug animation definitions: eight native selectors and all eight production handoffs pass with both pointer tables forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Pipe Bug animation words")]
     private static ushort ReadPipeBugAnimationWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewPipeBugAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xb3882b and < 0xb3883b,

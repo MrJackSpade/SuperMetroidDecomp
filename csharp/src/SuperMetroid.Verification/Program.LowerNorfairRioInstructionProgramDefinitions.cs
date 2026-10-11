@@ -209,12 +209,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Lower Norfair Rio instruction words")]
     private static ushort ReadLowerNorfairRioInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa20000 | address) |
-            source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa20000 | address) |
+            source.ReadCartridgeByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewLowerNorfairRioInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)

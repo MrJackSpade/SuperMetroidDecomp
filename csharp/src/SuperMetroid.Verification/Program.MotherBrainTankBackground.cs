@@ -113,7 +113,6 @@ internal static partial class Program
             "The later crouched body upload contains exactly its authored BG2 words");
         Console.WriteLine("Mother Brain tank background: real room pipes retained, native staging clear and later body upload passed.");
         return 0;
-        ushort ReadStaged(int index) => (ushort)(bus.ReadByte(0x7e2000 + index * 2) |
-            bus.ReadByte(0x7e2001 + index * 2) << 8);
+        ushort ReadStaged(int index) => new EnemyScratchMemory(bus).EnemyBg2Tilemap[index];
     }
 }

@@ -155,12 +155,8 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     // in the complete source window a deterministic, nonzero-heavy identity pattern so the
     // shared graphics initializer must select the six exact right-frame slices; sparse zero
     // memory would let a wrong source, length, or destination pass accidentally.
-    for (int byteOffset = 0; byteOffset < 0x0c00; byteOffset++)
-    {
-        bus.WriteByte(
-            0xb7ce00 + byteOffset,
-            unchecked((byte)(byteOffset * 37 + 0x5a)));
-    }
+    bus.WriteBytes(0xb7ce00, Enumerable.Range(0, 0x0c00)
+        .Select(byteOffset => unchecked((byte)(byteOffset * 37 + 0x5a))).ToArray());
 
     // The active chain needs only command-five/$18's forced `$54` pose and controller-zero's
     // later `$E9` pose. These bytes are the retail direction/type/radius metadata and minimal

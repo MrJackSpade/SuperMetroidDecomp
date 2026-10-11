@@ -3,9 +3,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Polyp launch definitions")]
     private static void VerifyCompiledPolypLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int random = 0; random <= ushort.MaxValue; random++)
         {
             AssertEqual(Word(0xa2b520 + (random & 0x0e)), PolypLaunchDefinitions.Cooldown((ushort)random), "Polyp native cooldown selection");

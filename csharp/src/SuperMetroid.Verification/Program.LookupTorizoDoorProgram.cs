@@ -11,6 +11,7 @@ internal static partial class Program
 
     private static void VerifyTorizoDoorCallback(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 5);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo door field")]
     private static void VerifyTorizoDoorField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand locations, not outputs of the proposed decoder.
@@ -33,7 +34,7 @@ internal static partial class Program
             else if (FieldAt(raw) == field)
             {
                 checkedBytes++;
-                byte expected = rom.ReadByte(0x840000 | raw);
+                byte expected = rom.ReadCartridgeByte(0x840000 | raw);
                 AssertEqual(expected, b, "Torizo door original field byte");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "Torizo door shared byte reader");
                 AssertEqual(expected, shared, "Torizo door composed original field");

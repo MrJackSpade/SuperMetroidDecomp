@@ -48,6 +48,7 @@ internal static partial class Program
             "Owtch movement definitions: fourteen native words and 144 wrapped production initializers pass with table reads forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Owtch travel distance algorithm")]
     private static void VerifyOwtchTravelDistanceAlgorithm(SuperMetroidAddressSpace rom)
     {
         AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.TravelDistance(8), "Owtch distance upper bound");
@@ -55,12 +56,13 @@ internal static partial class Program
         for (byte index = 0; index < 8; index++)
         {
             int address = OwtchMovementDefinitions.DistanceReferenceAddress + index * 2;
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, OwtchMovementDefinitions.TravelDistance(index),
                 $"compiled Owtch travel distance {index}");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Owtch underground timer algorithm")]
     private static void VerifyOwtchUndergroundTimerAlgorithm(SuperMetroidAddressSpace rom)
     {
         AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.UndergroundTimer(6), "Owtch timer upper bound");
@@ -68,7 +70,7 @@ internal static partial class Program
         for (byte index = 0; index < 6; index++)
         {
             int address = OwtchMovementDefinitions.TimerReferenceAddress + index * 2;
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, OwtchMovementDefinitions.UndergroundTimer(index),
                 $"compiled Owtch underground timer {index}");
         }

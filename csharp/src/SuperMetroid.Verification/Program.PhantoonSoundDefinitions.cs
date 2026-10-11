@@ -4,14 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon sound definitions")]
     private static void VerifyPhantoonSoundDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa7cded;
         for (ushort index = 0; index < 3; index++)
         {
             ushort expected = (ushort)(
-                rom.ReadByte(sourceAddress + index * 2) |
-                rom.ReadByte(sourceAddress + index * 2 + 1) << 8);
+                rom.ReadCartridgeByte(sourceAddress + index * 2) |
+                rom.ReadCartridgeByte(sourceAddress + index * 2 + 1) << 8);
             AssertEqual(expected, PhantoonSoundDefinitions.MaterializationSound(index),
                 $"Phantoon materialization sound {index}");
         }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for map arrow durations")]
     private static void VerifyMapArrowDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
@@ -19,9 +20,9 @@ internal static partial class Program
             int program = 0x820000 | ReadVerificationWord(rom, 0x82c0e8 + 2 * (animation - 1));
             var visual = stock.Get((MapScrollDirection)(index + 1));
             int count = 0;
-            while (rom.ReadByte(program + 3 * count) != 255)
+            while (rom.ReadCartridgeByte(program + 3 * count) != 255)
             {
-                AssertEqual(rom.ReadByte(program + 3 * count), visual.Duration(count), "original arrow duration");
+                AssertEqual(rom.ReadCartridgeByte(program + 3 * count), visual.Duration(count), "original arrow duration");
                 count++;
                 AssertTrue(count <= 14, "original bounded arrow program");
             }
@@ -65,6 +66,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for map arrow duration ticks")]
     private static void VerifyMapArrowDurationTicks(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
         var actual = new FileSelectMapAnimations(NewForbiddenMapBus(), presentation);
@@ -76,8 +78,8 @@ internal static partial class Program
             if (visible && --timer <= 0)
             {
                 offset += 3;
-                if (rom.ReadByte(0x82c137 + offset) == 255) offset = 0;
-                timer = rom.ReadByte(0x82c137 + offset);
+                if (rom.ReadCartridgeByte(0x82c137 + offset) == 255) offset = 0;
+                timer = rom.ReadCartridgeByte(0x82c137 + offset);
             }
             actual.StepArrows(_ => visible);
             foreach (object arrow in arrows)

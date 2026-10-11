@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause button span words")]
     private static void VerifyPauseButtonSpanWords(ISnesAddressSpace rom)
     {
         // Independent native LDA long,X sites, in the original six-span order.
@@ -12,8 +13,8 @@ internal static partial class Program
         for (int index = 0; index < sites.Length; index++)
         {
             int address = sites[index];
-            AssertEqual((byte)0xbf, rom.ReadByte(address), "native button LDA long,X");
-            AssertEqual((byte)0x7e, rom.ReadByte(address + 3), "native button WRAM bank");
+            AssertEqual((byte)0xbf, rom.ReadCartridgeByte(address), "native button LDA long,X");
+            AssertEqual((byte)0x7e, rom.ReadCartridgeByte(address + 3), "native button WRAM bank");
             int expected = (ReadVerificationWord(rom, address + 1) - 0x3000) / 2;
             AssertEqual(expected, spans[index].Word, "native button tilemap word in enumeration order");
             AssertEqual(expected, PauseMenuLayout.ButtonLabelSpan((PauseButtonLabel)(index / 2), index % 2).Word,
@@ -27,13 +28,14 @@ internal static partial class Program
                 "unsupported button row");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause button span counts")]
     private static void VerifyPauseButtonSpanCounts(ISnesAddressSpace rom)
     {
         int[] sites = [0x82a62d, 0x82a64b, 0x82a669, 0x82a687, 0x82a6a5, 0x82a6c3];
         var spans = PauseMenuLayout.ButtonLabelSpans.ToArray();
         for (int index = 0; index < sites.Length; index++)
         {
-            AssertEqual((byte)0xa0, rom.ReadByte(sites[index]), "native button LDY byte count");
+            AssertEqual((byte)0xa0, rom.ReadCartridgeByte(sites[index]), "native button LDY byte count");
             int expected = ReadVerificationWord(rom, sites[index] + 1) / 2;
             AssertEqual(expected, spans[index].Count, "native button recolor width");
             AssertEqual(expected, PauseMenuLayout.ButtonLabelSpan((PauseButtonLabel)(index / 2), index % 2).Count,

@@ -47,6 +47,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => stock.Draw(new OamBuffer(), 0, -1), "anchor error precedes unknown visual");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve stock parts")]
     private static void VerifyPauseReserveStockParts(ISnesAddressSpace rom, PauseReserveTankDocument document)
     {
         foreach (var frame in ReserveFrameOracle())
@@ -57,7 +58,7 @@ internal static partial class Program
             var attributes = new SnesObjAttributeWord(ReadVerificationWord(rom, pointer + 5));
             var stockPart = PauseReserveTankDefinitions.StockPart((PauseReserveTankVisual)frame.Id);
             AssertEqual(x.SignedOffset, stockPart.OffsetX, "native reserve X offset");
-            AssertEqual((int)unchecked((sbyte)rom.ReadByte(pointer + 4)), stockPart.OffsetY, "native reserve Y offset");
+            AssertEqual((int)unchecked((sbyte)rom.ReadCartridgeByte(pointer + 4)), stockPart.OffsetY, "native reserve Y offset");
             AssertEqual(x.IsLarge ? 16 : 8, stockPart.Size, "native reserve sprite size");
             AssertEqual(attributes.TileNumber, stockPart.TileRow * MapSpriteFormat.TileColumns + stockPart.TileColumn, "native reserve tile progression");
             AssertEqual(attributes.Priority, stockPart.Priority, "native reserve priority");
@@ -84,11 +85,13 @@ internal static partial class Program
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve native frames")]
     private static void VerifyPauseReserveNativeFrames(ISnesAddressSpace rom, PauseReserveTankPresentation presentation)
     {
         foreach (var (site, identity) in new[] { (0x82b305, 0x1b), (0x82b37d, 0x20), (0x82b396, 0x1f) })
         {
-            AssertEqual((byte)0xa9, rom.ReadByte(site), "native reserve role LDA");
+            AssertEqual((byte)0xa9, rom.ReadCartridgeByte(site), "native reserve role LDA");
             AssertEqual(identity, (int)ReadVerificationWord(rom, site + 1), "native reserve role identity");
         }
         for (int index = 0; index < 16; index++)

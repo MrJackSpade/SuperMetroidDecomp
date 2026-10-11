@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain turret definitions")]
     private static void VerifyMotherBrainTurretDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -36,7 +37,7 @@ internal static partial class Program
 
             for (byte direction = 0; direction < 8; direction++)
             {
-                bool nativeAllowed = rom.ReadByte(
+                bool nativeAllowed = rom.ReadCartridgeByte(
                     0x860000 | (definition.AllowedRotationPointer + direction)) != 0;
                 AssertEqual(nativeAllowed, MotherBrainTurretDefinitions.IsRotationAllowed(
                     definition.AllowedRotationPointer,
@@ -77,7 +78,7 @@ internal static partial class Program
                     Position = new(new(0, definition.AllowedRotationPointer), new(0, unchecked((ushort)(unchecked((byte)delta) << 8 | current)))),
                 };
                 byte candidate = unchecked((byte)((current + delta) & 7));
-                bool allowed = rom.ReadByte(
+                bool allowed = rom.ReadCartridgeByte(
                     0x860000 | (definition.AllowedRotationPointer + candidate)) != 0;
                 sbyte expectedDelta = allowed ? delta : unchecked((sbyte)-delta);
                 byte expectedDirection = allowed
@@ -155,8 +156,9 @@ internal static partial class Program
             "Mother Brain turret definitions: 12 placements, 96 rotation bytes, 16 instruction selectors, 32 bullet words, 384 rotations and all 20 real spawns pass with source tables forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain turret words")]
     private static ushort ReadMotherBrainTurretWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMotherBrainTurretReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

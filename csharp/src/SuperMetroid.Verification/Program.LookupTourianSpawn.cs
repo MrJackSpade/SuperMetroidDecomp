@@ -5,18 +5,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue spawn order")]
     private static void VerifyTourianStatueSpawnOrder(ISnesAddressSpace rom)
     {
         var expected = new List<ushort>();
         int cursor = 0x8f91d7;
-        while (rom.ReadByte(cursor) != 0x60)
+        while (rom.ReadCartridgeByte(cursor) != 0x60)
         {
             AssertTrue(expected.Count < 4, "Native statue setup has bounded spawn count");
-            AssertEqual((byte)0xa0, rom.ReadByte(cursor), "Original LDY immediate");
+            AssertEqual((byte)0xa0, rom.ReadCartridgeByte(cursor), "Original LDY immediate");
             expected.Add(ReadVerificationWord(rom, cursor + 1));
-            AssertEqual((byte)0x22, rom.ReadByte(cursor + 3), "Original JSL spawn");
+            AssertEqual((byte)0x22, rom.ReadCartridgeByte(cursor + 3), "Original JSL spawn");
             AssertEqual((ushort)0x8027, ReadVerificationWord(rom, cursor + 4), "Original animated spawn entry");
-            AssertEqual((byte)0x87, rom.ReadByte(cursor + 6), "Original animated spawn bank");
+            AssertEqual((byte)0x87, rom.ReadCartridgeByte(cursor + 6), "Original animated spawn bank");
             cursor += 7;
         }
         AssertEqual(4, expected.Count, "Four native calls before RTS");

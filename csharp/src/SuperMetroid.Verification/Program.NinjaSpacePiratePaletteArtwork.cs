@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ninja Space Pirate palette")]
     private static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -25,7 +26,7 @@ internal static partial class Program
         {
             int address = 0xb28727 + color * 2;
             nativeColors.SetColor(240 + color,
-                Bgr555.FromWord((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8)));
+                Bgr555.FromWord((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8)));
         }
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.

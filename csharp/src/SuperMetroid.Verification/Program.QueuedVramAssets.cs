@@ -11,7 +11,7 @@ internal static partial class Program
         {
             byte[] data = Enumerable.Range(0, length).Select(i => (byte)(i * 31 + 7)).ToArray();
             var bus = new TestAddressSpace();
-            for (int i = 0; i < data.Length; i++) bus.WriteByte(0x7e0000 + i, data[i]);
+            bus.WriteBytes(0x7e0000, data);
             var expected = new SnesVram();
             expected.ExecuteQueuedMemoryWrite(bus, 0x7e0000, (ushort)length, destination);
             var actual = new SnesVram();
@@ -28,7 +28,7 @@ internal static partial class Program
         mixed.EnqueueAsset(VramAssetId.StandardHudTiles, 3, 0);
         mixed.Enqueue(1, 0x7e0002, 1);
         var mixedBus = new TestAddressSpace();
-        mixedBus.WriteByte(0x7e0000, 1); mixedBus.WriteByte(0x7e0001, 2); mixedBus.WriteByte(0x7e0002, 3);
+        mixedBus.WriteBytes(0x7e0000, [1, 2, 3]);
         var mixedVram = new SnesVram();
         mixed.DrainTo(mixedVram, ReferenceMutableMemory.From(mixedBus), new TestVramAssets([7, 8, 9]));
         AssertEqual((byte)7, mixedVram.ReadByte(0), "asset follows earlier bus write");

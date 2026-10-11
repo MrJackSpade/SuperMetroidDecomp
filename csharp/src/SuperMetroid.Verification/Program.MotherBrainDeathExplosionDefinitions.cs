@@ -57,8 +57,9 @@ internal static partial class Program
             "Mother Brain death explosions: three native program selectors and all three real body-relative spawns pass with the selector table forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain explosion words")]
     private static ushort ReadMotherBrainExplosionWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMotherBrainDeathExplosionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -191,8 +191,7 @@ internal static partial class Program
             AssertTrue(native.Render().AsSpan().SequenceEqual(compiled.Render()), "every saved station has exact composed room-map position");
             AssertTrue(before.AsSpan().SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
-        byte[] ReadSram() => Enumerable.Range(0, SaveRamLayout.SramOffsetMask + 1)
-            .Select(offset => bus.ReadByte((SaveRamLayout.SramBank << 16) | offset)).ToArray();
+        byte[] ReadSram() => SaveRamImage.Capture(SnesMemoryBusRequirement.Require(bus, "Map load anchors compare the whole SRAM image before and after map entry."));
         static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => (FileSelectMapScroll)typeof(FileSelectMapMenuState)
             .GetField("scroll", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(menu)!;
         static (Position16<MapPixels>, Position16<MapPixels>, Position16<MapPixels>, MapScrollDirection) ScrollState(FileSelectMapScroll value) =>
@@ -207,10 +206,10 @@ internal static partial class Program
         int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x80c4b5 + (int)area * 2);
         int record = 0x800000 | (list + station * 14);
         int room = 0x8f0000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record);
-        AssertEqual((byte)area, bus.ReadByte(room + 1), "valid saved-map station remains in its requested area");
+        AssertEqual((byte)area, bus.ReadCartridgeByte(room + 1), "valid saved-map station remains in its requested area");
         int worldX = (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6) + 128 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 12)) & ushort.MaxValue;
         int worldY = (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8) + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 10)) & ushort.MaxValue;
-        return new((ushort)((bus.ReadByte(room + 2) + (worldX >> 8)) << 3),
-            (ushort)((bus.ReadByte(room + 3) + (worldY >> 8) + 1) << 3));
+        return new((ushort)((bus.ReadCartridgeByte(room + 2) + (worldX >> 8)) << 3),
+            (ushort)((bus.ReadCartridgeByte(room + 3) + (worldY >> 8) + 1) << 3));
     }
 }

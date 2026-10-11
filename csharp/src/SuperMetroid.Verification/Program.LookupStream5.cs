@@ -244,6 +244,8 @@ internal static partial class Program
         AssertEqual(2280, totalTicks, "Three native closed-eye durations in both directions");
         Console.WriteLine("Phantoon closed eye:60/360/720 native waits,2280 actual moving countdown calls,both directions/exact eye-open handoffs and48 real spiral spawns pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres platform")]
     private static void VerifyLookupStream5CeresPlatform(SuperMetroidAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument
@@ -253,10 +255,10 @@ internal static partial class Program
             Escape = Colors(CeresDoorVisualRomData.EscapeColors,15),
             Animation = Enumerable.Range(0,8).Select(row => Colors(CeresDoorVisualRomData.AnimationColors +16*row,6)).ToArray(),
             Mode7DoorFrames = Enumerable.Range(0,2).Select(frame => Enumerable.Range(0,4)
-                .Select(index => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource +4*frame+index)).ToArray()).ToArray(),
+                .Select(index => (int)rom.ReadCartridgeByte(CeresDoorVisualRomData.Mode7FirstFrameSource +4*frame+index)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0,CeresDoorVisualRomData.TileByteCount)
-            .Select(index => rom.ReadByte(CeresDoorVisualRomData.TileSource+index)).ToArray();
+            .Select(index => rom.ReadCartridgeByte(CeresDoorVisualRomData.TileSource+index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
@@ -313,7 +315,7 @@ internal static partial class Program
                 for (int cell = 0; cell < 4; cell++)
                 {
                     AssertEqual((ushort)(0xa700 | expected.Mode7DoorFrames[frame][cell]), vram.ReadWord(destination + cell), "Actual platform phase and character-byte preservation");
-                    AssertEqual(rom.ReadByte(0xa6f918 + frame * 4 + cell), CeresMode7TransferDefinitions.PlatformTile(frame, cell), "Canonical platform cap/atlas geometry matches native");
+                    AssertEqual(rom.ReadCartridgeByte(0xa6f918 + frame * 4 + cell), CeresMode7TransferDefinitions.PlatformTile(frame, cell), "Canonical platform cap/atlas geometry matches native");
                 }
                 AssertEqual((ushort)0xa75d, vram.ReadWord(destination - 1), "Platform preceding map/character unchanged");
                 AssertEqual((ushort)0xa75d, vram.ReadWord(destination + 4), "Platform following map/character unchanged");
@@ -838,6 +840,8 @@ internal static partial class Program
         public bool IsRevealedByMapStation(Position16<MapTiles> cell) => false;
         public bool RevealsCellAbove(Position16<MapTiles> cell) => false;
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Zebes star fields")]
     private static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
@@ -861,7 +865,7 @@ internal static partial class Program
                 int source = 0x8c0000 | definition.Pointer + 2 + index * 5;
                 CompiledSpritePart actual = calculated.Part(index);
                 AssertEqual(Word(source), actual.X.Raw, "Native star X/size");
-                AssertEqual(rom.ReadByte(source + 2), actual.Y, "Native star Y");
+                AssertEqual(rom.ReadCartridgeByte(source + 2), actual.Y, "Native star Y");
                 AssertEqual((ushort)(Word(source + 3) & ~0x0e00), actual.Attributes.Raw,
                     "Native star attributes excluding replaced source palette");
                 for (int field = 0; field < 9; field++)
@@ -890,7 +894,7 @@ internal static partial class Program
         }
         AssertEqual(29, total, "All four native star sheets checked");
         Console.WriteLine("Zebes stars:29 native parts,261 independent field edits, actual ordered OAM and full content identity pass; only decorative position/glyph triples are retained.");
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         static CeresDestructionSpritePresentation Load(CeresDestructionSpriteDocument value)
         {
             using var json = new MemoryStream();
@@ -998,6 +1002,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon markers")]
     private static void VerifyLookupStream5PhantoonMarkers(SuperMetroidAddressSpace rom)
     {
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -1023,7 +1028,7 @@ internal static partial class Program
             body.VariableF = (ushort)PhantoonAiFunction.EyeTracksSamus;
             body.VariableE = 60;
             state.Tentacles.VariableA = state.Tentacles.VariableB = 0;
-            byte expected = rom.ReadByte(0xa7cda5 + bucket);
+            byte expected = rom.ReadCartridgeByte(0xa7cda5 + bucket);
             AssertEqual(expected, PhantoonPatternDefinitions.ShotEyeMarkers[bucket], "Exact retained native RNG bucket");
             shot(body, state, 0x100, 1);
             AssertEqual((ushort)expected, state.Eye.VariableB, "Actual exposed eye marker");
@@ -1133,9 +1138,11 @@ internal static partial class Program
             return actual;
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Yapping Maw offsets")]
     private static void VerifyLookupStream5YappingMawOffsets(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
         var begin = typeof(RoomEnemySystem).GetMethod("BeginYappingMawExtension", flags)!
             .CreateDelegate<Action<RoomEnemySlot,YappingMawEnemyState>>();
@@ -1170,6 +1177,8 @@ internal static partial class Program
             AssertEqual(Word(0xa8a0a9 + direction * 4), unchecked((ushort)state.HeldSamusOffset.Y), context);
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Eye geometry")]
     private static void VerifyLookupStream5EyeGeometry(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -1207,12 +1216,12 @@ internal static partial class Program
             .CreateDelegate<Action>(owner);
         for (int phase = 0; phase < 16; phase++)
         {
-            var expected = (rom.ReadByte(0x88ea8b + phase * 4), rom.ReadByte(0x88ea8c + phase * 4));
+            var expected = (rom.ReadCartridgeByte(0x88ea8b + phase * 4), rom.ReadCartridgeByte(0x88ea8c + phase * 4));
             AssertEqual(expected, MorphBallEyeGeometryDefinitions.BeamColor(phase), "Native two-channel triangle");
             step();
             AssertEqual(expected.Item1, owner.MorphBallEyeBeam.Red, "Actual raw red COLDATA");
             AssertEqual(expected.Item2, owner.MorphBallEyeBeam.Green, "Actual raw green COLDATA");
-            AssertEqual(rom.ReadByte(0x88ea8d + phase * 4), owner.MorphBallEyeBeam.Blue, "Actual zero blue intensity");
+            AssertEqual(rom.ReadCartridgeByte(0x88ea8d + phase * 4), owner.MorphBallEyeBeam.Blue, "Actual zero blue intensity");
             AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBeam.ColorIndex, "Actual masked cycling and wrap");
         }
         AssertThrows<InvalidDataException>(() => MorphBallEyeGeometryDefinitions.Mount(4), "Unsupported mount direction");
@@ -1220,11 +1229,12 @@ internal static partial class Program
         Console.WriteLine("Morph Ball eye: four native mount tuples, eight actual wrapped initializers,16 native beam colors and actual full-beam cycle pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for map highlight")]
     private static void VerifyLookupStream5MapHighlight(SuperMetroidAddressSpace rom)
     {
         var frames = Enumerable.Range(0, 14).Select(frame => new MapPaletteCycleFrame
         {
-            DurationTicks = rom.ReadByte(MapAnimationRomData.PaletteTiming + frame * 3),
+            DurationTicks = rom.ReadCartridgeByte(MapAnimationRomData.PaletteTiming + frame * 3),
             Colors = Enumerable.Range(0, 16).Select(color =>
             {
                 ushort word = ReadVerificationWord(rom, MapAnimationRomData.PaletteColors + (frame * 16 + color) * 2);
@@ -1238,7 +1248,7 @@ internal static partial class Program
         AssertEqual(8, ((Bgr555[][])typeof(MapPaletteCycle).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Length, "Only independent color phases remain");
         for (int frame = 0; frame < 14; frame++)
         {
-            AssertEqual((byte)Math.Min(frame, 14 - frame), rom.ReadByte(MapAnimationRomData.PaletteTiming + frame * 3 + 1), "Native highlight phase traversal");
+            AssertEqual((byte)Math.Min(frame, 14 - frame), rom.ReadCartridgeByte(MapAnimationRomData.PaletteTiming + frame * 3 + 1), "Native highlight phase traversal");
             var durationEdit = (MapPaletteCycleFrame[])frames.Clone();
             durationEdit[frame] = frames[frame] with { DurationTicks = 254 };
             Check(original with { Frames = durationEdit });
@@ -1286,6 +1296,7 @@ internal static partial class Program
         {
             bool alternate = variant != 0;
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+            WorkRamByteTable corpseTiles = new EnemyScratchMemory(memory).CorpseTiles;
             var enemies = new RoomEnemySystem { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, memory);
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadSidehopperGraphics", flags)!
@@ -1299,11 +1310,11 @@ internal static partial class Program
                 int length = Word(native + 8) + 1;
                 AssertEqual((source, destination, length),
                     DeadMonsterRottingDefinitions.SidehopperInitialCopy(variant, row), "Native Sidehopper MVN geometry");
-                for (int i = 0; i < length; i++) expected[destination + i] = rom.ReadByte(0xb7c000 + source + i);
+                ReadSidehopperCorpseRomBytes(rom, 0xb7c000 + source, length).CopyTo(expected, destination);
             }
             initialize(variant);
             for (int i = 0; i < expected.Length; i++)
-                AssertEqual(expected[i], memory.ReadByte(0x7e2000 + i), "Actual installed Sidehopper graphics copy");
+                AssertEqual(expected[i], corpseTiles[i], "Actual installed Sidehopper graphics copy");
 
             // Native LDA abs,X operands and optional CMP #8 operands, independently read from each unrolled column.
             int[] sourceOperands = alternate
@@ -1327,7 +1338,7 @@ internal static partial class Program
                 for (int i = 0; i < expected.Length; i++)
                 {
                     expected[i] = (byte)(i * 37 + i / 256);
-                    memory.WriteByte(0x7e2000 + i, expected[i]);
+                    corpseTiles[i] = expected[i];
                 }
                 int sourceRow = Word(0xa9e240 + (y >> 3) * 2) + (y & 7) * 2;
                 int destinationRow = sourceRow + ((y & 7) >= 6 ? 148 : 0);
@@ -1350,7 +1361,7 @@ internal static partial class Program
                 }
                 copy(state, y, move);
                 for (int i = 0; i < expected.Length; i++)
-                    AssertEqual(expected[i], memory.ReadByte(0x7e2000 + i), "Actual Sidehopper pixel copy/move including clipping, wrap and terminal row");
+                    AssertEqual(expected[i], corpseTiles[i], "Actual Sidehopper pixel copy/move including clipping, wrap and terminal row");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SidehopperInitialCopy(0, -1), "Copy row lower bound");
@@ -1360,10 +1371,15 @@ internal static partial class Program
         Console.WriteLine("Sidehopper geometry: ten native MVN rows, ten column offsets/clips, installed artwork and actual copy/move boundary rows pass; nonzero variant semantics preserved.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Sidehopper corpse artwork rows")]
+    private static byte[] ReadSidehopperCorpseRomBytes(ISnesAddressSpace rom, int address, int count) =>
+        Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the dead Tourian corpse fixture artwork")]
     private static EnemyTileArtworkCatalog LookupStream5CorpseFixtureArtwork(SuperMetroidAddressSpace rom)
     {
         byte[] planar = Enumerable.Range(0,DeadTourianCorpseArtworkDefinitions.ByteCount)
-            .Select(index => rom.ReadByte(DeadTourianCorpseArtworkDefinitions.SourceAddress+index)).ToArray();
+            .Select(index => rom.ReadCartridgeByte(DeadTourianCorpseArtworkDefinitions.SourceAddress+index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
@@ -1382,9 +1398,11 @@ internal static partial class Program
             },
             dmaSources: new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseSidehopper] = DeadTourianCorpseArtworkDefinitions.SourceAddress });
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon rain")]
     private static void VerifyLookupStream5PhantoonRain(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int i = 0; i < 8; i++)
         {
             var placement = PhantoonPatternDefinitions.RainPlacement(i);
@@ -1392,7 +1410,7 @@ internal static partial class Program
             AssertEqual(Word(0xa7cdaf + i * 8), placement.X, "Native rain body X");
             AssertEqual(Word(0xa7cdb1 + i * 8), placement.Y, "Native rain body Y");
             AssertEqual((ushort)0, Word(0xa7cdb3 + i * 8), "Native unused rain record word");
-            AssertEqual(rom.ReadByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
+            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
         }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
@@ -1424,8 +1442,8 @@ internal static partial class Program
             AssertTrue(flames.All(flame => flame.Position.X.Whole != body.Position.X.Whole), "Calculated rain gap lies at the body X");
             for (int i = 0; i < 8; i++)
             {
-                int column = (rom.ReadByte(0xa7cfc2 + pattern) + i) % 9;
-                AssertEqual((ushort)rom.ReadByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
+                int column = (rom.ReadCartridgeByte(0xa7cfc2 + pattern) + i) % 9;
+                AssertEqual((ushort)rom.ReadCartridgeByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
                 AssertEqual((ushort)40, flames[i].Position.Y.Whole, "Actual rain ceiling Y");
                 AssertEqual((ushort)((i + 1) * 8), flames[i].Velocity.X.RawValue, "Actual staggered rain delay");
             }
@@ -1467,6 +1485,7 @@ internal static partial class Program
         Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers have a separately reviewed random-bucket exception.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door ramp")]
     private static void VerifyLookupStream5CeresDoorRamp(SuperMetroidAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument
@@ -1476,10 +1495,10 @@ internal static partial class Program
             Escape = Colors(CeresDoorVisualRomData.EscapeColors,15),
             Animation = Enumerable.Range(0,8).Select(row => Colors(CeresDoorVisualRomData.AnimationColors +16*row,6)).ToArray(),
             Mode7DoorFrames = Enumerable.Range(0,2).Select(frame => Enumerable.Range(0,4)
-                .Select(index => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource +4*frame+index)).ToArray()).ToArray(),
+                .Select(index => (int)rom.ReadCartridgeByte(CeresDoorVisualRomData.Mode7FirstFrameSource +4*frame+index)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0,CeresDoorVisualRomData.TileByteCount)
-            .Select(index => rom.ReadByte(CeresDoorVisualRomData.TileSource+index)).ToArray();
+            .Select(index => rom.ReadCartridgeByte(CeresDoorVisualRomData.TileSource+index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
@@ -1781,7 +1800,10 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = entries[-1]; }, "Palette entries lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = entries[expectedCount]; }, "Palette entries upper bound");
         }
-    }    private static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
+    }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres door earthquake offsets")]
+    private static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(rom));
         byte[] stockJson = SuperMetroid.AssetExtraction.EnemySpritemapFiles.Extract(rom);
@@ -1806,7 +1828,7 @@ internal static partial class Program
             door.Position = door.Position.WithWholeX(x); enemies.EarthquakeTimer = phase;
             var actual = new OamBuffer(); actual.BeginFrame();
             enemies.DrawCeresRidleyImmediateBabyAndDoor(actual, new(camera, 0)); actual.FinalizeFrame();
-            ushort native = (ushort)(rom.ReadByte(0xa6a321 + phase) | rom.ReadByte(0xa6a322 + phase) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(0xa6a321 + phase) | rom.ReadCartridgeByte(0xa6a322 + phase) << 8);
             AssertEqual(native & 0x1ff, CeresDoorQuakeDefinitions.XOffset(phase) & 0x1ff,
                 "Native overlapping high byte retains the same ninth coordinate bit");
             var expected = new OamBuffer(); expected.BeginFrame();
@@ -1819,6 +1841,8 @@ internal static partial class Program
         }
         Console.WriteLine("Ceres quake byte decoding:56 actual wrapped low/high OAM frames match full native overlapping-word reads.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight palette")]
     private static void VerifyLookupStream5CeresFlightPalette(SuperMetroidAddressSpace rom)
     {
         var colors = new PaletteRgb5[SnesCgram.ColorCount];
@@ -1854,7 +1878,7 @@ internal static partial class Program
             Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
             Open(CeresFlightPaletteFormat.FileName), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
         byte[] nativeBytes = new byte[SnesCgram.ByteCount];
-        for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadByte(CeresFlightRomData.Assets.Palette + index);
+        for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadCartridgeByte(CeresFlightRomData.Assets.Palette + index);
         string expectedHash = SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
         {
             content.Append("mode7-characters", catalog.Mode7Characters.Span);
@@ -1886,6 +1910,8 @@ internal static partial class Program
             return actual;
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres normal paint")]
     private static void VerifyLookupStream5CeresNormalPaint(SuperMetroidAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
@@ -1897,9 +1923,9 @@ internal static partial class Program
         {
             Version = 1, Normal = Colors(CeresDoorVisualRomData.NormalColors, 15), Escape = Colors(CeresDoorVisualRomData.EscapeColors, 15),
             Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresDoorVisualRomData.AnimationColors + 16 * row, 6)).ToArray(),
-            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
+            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadCartridgeByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
         };
-        byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
+        byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadCartridgeByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -1950,6 +1976,8 @@ internal static partial class Program
             return basis;
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape paint")]
     private static void VerifyLookupStream5CeresEscapePaint(SuperMetroidAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
@@ -1961,9 +1989,9 @@ internal static partial class Program
         {
             Version = 1, Normal = Colors(CeresDoorVisualRomData.NormalColors, 15), Escape = Colors(CeresDoorVisualRomData.EscapeColors, 15),
             Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresDoorVisualRomData.AnimationColors + 16 * row, 6)).ToArray(),
-            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
+            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadCartridgeByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
         };
-        byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
+        byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadCartridgeByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -2013,6 +2041,8 @@ internal static partial class Program
             return basis;
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres beacon paint")]
     private static void VerifyLookupStream5CeresBeaconPaint(SuperMetroidAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
@@ -2024,9 +2054,9 @@ internal static partial class Program
         {
             Version = 1, Normal = Colors(CeresDoorVisualRomData.NormalColors, 15), Escape = Colors(CeresDoorVisualRomData.EscapeColors, 15),
             Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresDoorVisualRomData.AnimationColors + 16 * row, 6)).ToArray(),
-            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
+            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadCartridgeByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
         };
-        byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
+        byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadCartridgeByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

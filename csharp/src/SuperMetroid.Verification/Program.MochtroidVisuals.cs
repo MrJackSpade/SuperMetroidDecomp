@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mochtroid visuals")]
     private static void VerifyInstalledMochtroidVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -16,7 +17,7 @@ internal static partial class Program
                 .PresentationWordAddress(index);
             int selectorAddress = (MochtroidVisualDefinitions.Bank << 16) | operand;
             ushort nativePointer = unchecked((ushort)(
-                rom.ReadByte(selectorAddress) | rom.ReadByte(selectorAddress + 1) << 8));
+                rom.ReadCartridgeByte(selectorAddress) | rom.ReadCartridgeByte(selectorAddress + 1) << 8));
             AssertEqual(nativePointer, MochtroidVisualDefinitions.FrameAt(operand),
                 $"Mochtroid visual selector {index} matches pinned cartridge");
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(

@@ -58,8 +58,9 @@ internal static partial class Program
             "Mother Brain door fragments: 32 native physical words and all eight real spawns pass with offset/velocity tables forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain fragment words")]
     private static ushort ReadMotherBrainFragmentWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMotherBrainDoorFragmentReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

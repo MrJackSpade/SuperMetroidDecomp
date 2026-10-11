@@ -5,9 +5,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pose projectile origin")]
     private static void VerifyPoseProjectileOrigin(SuperMetroidAddressSpace rom)
     {
-        short Word(int a) => unchecked((short)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8));
+        short Word(int a) => unchecked((short)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte(a + 1) << 8));
         var initialize = typeof(SamusProjectileSystem).GetMethod("InitializePosition", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusProjectileSlot>>();
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -35,7 +36,7 @@ internal static partial class Program
             template.PostureYOffsets.ToArray(), template.DrainedYOffsets.ToArray())).ToArray();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
-            byte expected = rom.ReadByte(0x91b629 + pose * 8 + 4);
+            byte expected = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
             AssertEqual(expected, SamusPoseProjectileOriginDefinitions.ReadYOffset((SamusPoseId)pose),
                 "Every byte-valued correction is compiled, including three adjacent-code indexes");
         }
@@ -48,8 +49,8 @@ internal static partial class Program
             samus.TileTransfers.BindArtwork(artwork[artIndex]);
             samus.Position = samus.Position.WithWholeX(unchecked((ushort)(pose * 251 + art)));
             samus.Position = samus.Position.WithWholeY(unchecked((ushort)~samus.Position.X.Whole));
-            byte physicalY = rom.ReadByte(0x91b629 + pose * 8 + 4);
-            bool running = rom.ReadByte(0x91b629 + pose * 8 + 1) == 1;
+            byte physicalY = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
+            bool running = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 1) == 1;
             bool beamRunning = running || pose is 0x75 or 0x76;
             slot.Direction = direction;
             initialize(bus, samus, slot);
@@ -62,7 +63,7 @@ internal static partial class Program
             samus.LiquidPhysics.BeginFrameSoundRequests();
             SamusGrappleMovement.BeginFiring(bus, samus);
             bool held = pose is (int)SamusPoseId.DraygonGrabbedMovingLeftPose or (int)SamusPoseId.DraygonGrabbedMovingRightPose;
-            int firingDirection = held ? (pose == (int)SamusPoseId.DraygonGrabbedMovingLeftPose ? 7 : 2) : rom.ReadByte(0x91b629 + pose * 8 + 3);
+            int firingDirection = held ? (pose == (int)SamusPoseId.DraygonGrabbedMovingLeftPose ? 7 : 2) : rom.ReadCartridgeByte(0x91b629 + pose * 8 + 3);
             if ((firingDirection & 0xf0) != 0)
             {
                 AssertEqual(GrapplePhase.CancelPending, g.Phase, "Artwork cannot enable Grapple in a restricted authored pose");

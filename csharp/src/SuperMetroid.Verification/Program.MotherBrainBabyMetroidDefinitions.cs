@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain Baby Metroid definitions")]
     private static void VerifyMotherBrainBabyMetroidDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -11,7 +12,7 @@ internal static partial class Program
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         RoomEnemyPopulationRecord population =
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;

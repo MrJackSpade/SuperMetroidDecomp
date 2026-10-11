@@ -117,11 +117,12 @@ internal static partial class Program
         static ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for trail frame")]
     private static void DrawNativeTrailFrame(ISnesAddressSpace rom,
         SamusProjectileTrailSlot pair, OamBuffer oam, bool frozen)
     {
-        ushort Word(ushort pointer) => (ushort)(rom.ReadByte(0x900000 | pointer) |
-            rom.ReadByte(0x900000 | unchecked((ushort)(pointer + 1))) << 8);
+        ushort Word(ushort pointer) => (ushort)(rom.ReadCartridgeByte(0x900000 | pointer) |
+            rom.ReadCartridgeByte(0x900000 | unchecked((ushort)(pointer + 1))) << 8);
         foreach (SamusProjectileTrailSide side in new[] { pair.Left, pair.Right })
         {
             if (side.InstructionTimer == 0) continue;

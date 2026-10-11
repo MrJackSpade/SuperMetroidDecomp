@@ -4,11 +4,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Lava jump definitions")]
     private static void VerifyNorfairLavaJumpDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort Word(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         for (ushort selector = 0; selector < 4; selector++)
         {

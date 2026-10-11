@@ -4,9 +4,10 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pose input definitions")]
     private static void VerifyPoseInputDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
         var forbidden = NewSlopeHeightNoReadBus();
         int comparisons = 0;
         var unique = new HashSet<ushort>();

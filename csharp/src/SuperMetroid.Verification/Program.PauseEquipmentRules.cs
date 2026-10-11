@@ -21,11 +21,12 @@ internal static partial class Program
     private static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Suits, PauseMaskTableAddress(PauseEquipmentCategory.Suits), 6);
     private static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Boots, PauseMaskTableAddress(PauseEquipmentCategory.Boots), 3);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause mask cases")]
     private static void VerifyPauseMaskCases(ISnesAddressSpace rom, PauseEquipmentCategory category, int address, int count)
     {
         for (int item = 0; item < count; item++)
         {
-            ushort expected = (ushort)(rom.ReadByte(address + item * 2) | rom.ReadByte(address + item * 2 + 1) << 8);
+            ushort expected = (ushort)(rom.ReadCartridgeByte(address + item * 2) | rom.ReadCartridgeByte(address + item * 2 + 1) << 8);
             AssertEqual(expected, PauseEquipmentRules.Mask(category, item), "original native upgrade flag case");
         }
         foreach (int item in new[] { int.MinValue, -1, count, 256, int.MaxValue }) CheckRejected(category, item, "item");
@@ -46,12 +47,13 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause wireframe selection")]
     private static void VerifyPauseWireframeSelection(ISnesAddressSpace rom)
     {
         static ushort Word(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
-        AssertEqual((byte)0x29, rom.ReadByte(0x82b212), "native AND immediate opcode");
-        AssertEqual((byte)0xdd, rom.ReadByte(0x82b218), "native CMP absolute-X opcode");
+            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
+        AssertEqual((byte)0x29, rom.ReadCartridgeByte(0x82b212), "native AND immediate opcode");
+        AssertEqual((byte)0xdd, rom.ReadCartridgeByte(0x82b218), "native CMP absolute-X opcode");
         AssertEqual((ushort)0xb257, Word(rom, 0x82b219), "native comparison table operand");
         ushort nativeMask = Word(rom, 0x82b213);
         ushort[] original = new ushort[4];

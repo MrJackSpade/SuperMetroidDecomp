@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve HUD")]
     private static void VerifyPauseReserveHud()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -74,6 +75,6 @@ internal static partial class Program
         Step();
         AssertEqual(ReadWord(0x809dbf + samus.Health % 10 * 2), displayed.ReadWord(HudState.VramDestination + 71), "first fade frame accepts final paused HUD write");
         Console.WriteLine("Pause reserve HUD: real frontend input, six AUTO cells and per-frame health DMA pass.");
-        ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        ushort ReadWord(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
     }
 }

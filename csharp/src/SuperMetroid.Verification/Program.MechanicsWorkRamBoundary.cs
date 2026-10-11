@@ -9,11 +9,6 @@ internal static partial class Program
     /// <summary>Checks the statically identified PLM/speed WRAM conversions, never searches gameplay for cartridge reads.</summary>
     private static void VerifyMechanicsWorkRamBoundary()
     {
-        static void WriteMemoryWord(ISnesAddressSpace writer, int address, ushort value)
-        {
-            writer.WriteByte(address, (byte)value);
-            writer.WriteByte(address + 1, (byte)(value >> 8));
-        }
         const BindingFlags privateStatic = BindingFlags.NonPublic | BindingFlags.Static;
         AssertTrue(typeof(RoomPlmSystem).GetMethod("ReadNativeBankByte", privateStatic) is null &&
             typeof(RoomPlmSystem).GetMethod("ReadBank84Word", privateStatic) is null,
@@ -34,8 +29,8 @@ internal static partial class Program
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer();
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, origin, 1), "allocate bounded mechanics fixture");
-            WriteMemoryWord(memory, 0x841100, (ushort)RoomPlmInstruction.DrawPlmBlockClone);
-            WriteMemoryWord(memory, 0x841102, (ushort)RoomPlmInstruction.Delete);
+            WriteMirroredWorkRamWord(memory, 0x841100, (ushort)RoomPlmInstruction.DrawPlmBlockClone);
+            WriteMirroredWorkRamWord(memory, 0x841102, (ushort)RoomPlmInstruction.Delete);
             plms.SetSoleInstructionPointerForVerification(0x1100);
             plms.Step(memory, level, streamer, new(0, 0), 0);
             AssertEqual(0xc456,
@@ -49,7 +44,7 @@ internal static partial class Program
             .GetMethod("ReadEntryAtAddress", privateStatic)!
             .CreateDelegate<Func<ISnesAddressSpace, int, SpeedTableEntry>>();
         for (int index = 0; index < 6; index++)
-            WriteMemoryWord(memory, 0x900100 + index * 2, (ushort)(0x1200 + index));
+            WriteMirroredWorkRamWord(memory, 0x900100 + index * 2, (ushort)(0x1200 + index));
         AssertEqual(new SpeedTableEntry(0x1200, 0x1201, 0x1202, 0x1203, 0x1204, 0x1205),
             readSpeed(memory, 0x900100), "wrapped speed reads consume all six live WRAM words");
         AssertThrows<ArgumentOutOfRangeException>(() => readSpeed(memory, 0x902000),
@@ -57,5 +52,13 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => readSpeed(memory, 0x90ffff),
             "an uncompiled cartridge offset is rejected without reading it");
         Console.WriteLine("Mechanics WRAM boundary: generic PLM/speed readers absent; RAM-only instruction/draw/slot timing and all six live speed words pass.");
+    }
+
+    /// <summary>Seeds a little-endian WRAM word through a system-bank low-window mirror address, low byte first.</summary>
+    [CpuBusBoundary("exact bus test: seeds PLM instructions and speed rows through system-bank low-window WRAM mirrors")]
+    private static void WriteMirroredWorkRamWord(SuperMetroidAddressSpace writer, int address, ushort value)
+    {
+        writer.WriteByte(address, (byte)value);
+        writer.WriteByte(address + 1, (byte)(value >> 8));
     }
 }

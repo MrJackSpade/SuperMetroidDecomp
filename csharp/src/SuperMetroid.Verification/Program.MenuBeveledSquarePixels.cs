@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for menu beveled square pixels")]
     private static void VerifyMenuBeveledSquarePixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x98, 0x99];
@@ -15,7 +16,7 @@ internal static partial class Program
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(3360, stock.StoredArtworkByteCount, "square planar tiles absent from retained atlas");
         var native = new byte[8192];
-        for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
+        for (int index = 0; index < native.Length; index++) native[index] = rom.ReadCartridgeByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })
         {
             var vram = new SnesVram(); stock.LoadArtworkTo(vram, destination);

@@ -5,9 +5,10 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile damage")]
     private static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
         Suite(nameof(VerifyComboMechanicsDefinitions), () => VerifyComboMechanicsDefinitions(rom, Word));
         int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(new[]
         {
@@ -37,8 +38,8 @@ internal static partial class Program
             int data = 0x930000 | Word(table + index * 2);
             AssertEqual(Word(data), slot.Damage, "Production initializer uses compiled damage");
             AssertEqual(Word(data + 2 + direction * 2), slot.InstructionPointer, "Animation list selection unchanged");
-            AssertEqual((ushort)rom.ReadByte(0x930000 | (slot.InstructionPointer + 4)), slot.Radius.X, "Physical X radius unchanged");
-            AssertEqual((ushort)rom.ReadByte(0x930000 | (slot.InstructionPointer + 5)), slot.Radius.Y, "Physical Y radius unchanged");
+            AssertEqual((ushort)rom.ReadCartridgeByte(0x930000 | (slot.InstructionPointer + 4)), slot.Radius.X, "Physical X radius unchanged");
+            AssertEqual((ushort)rom.ReadCartridgeByte(0x930000 | (slot.InstructionPointer + 5)), slot.Radius.Y, "Physical Y radius unchanged");
             AssertEqual((ushort)1, slot.InstructionTimer, "Initializer timer unchanged");
         }
         for (ushort beam = 0; beam < 12; beam++)
@@ -139,6 +140,7 @@ internal static partial class Program
         Console.WriteLine("Combo origin algorithm: all four original angle words and bounds match.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for combo sine offset alias")]
     private static void VerifyComboSineOffsetAlias(SuperMetroidAddressSpace rom)
     {
         (ushort X, ushort Y) NativeOffset(int angle, int amplitude)
@@ -148,8 +150,8 @@ internal static partial class Program
                 bool negative = phase >= 128;
                 int index = negative ? unchecked((byte)(phase + 128)) : phase;
                 int address = SamusComboRomData.PositiveSine + index * 2;
-                int magnitude = (rom.ReadByte(address) * (byte)amplitude >> 8) +
-                    rom.ReadByte(address + 1) * (byte)amplitude;
+                int magnitude = (rom.ReadCartridgeByte(address) * (byte)amplitude >> 8) +
+                    rom.ReadCartridgeByte(address + 1) * (byte)amplitude;
                 return unchecked((ushort)(negative ? -magnitude : magnitude));
             }
 

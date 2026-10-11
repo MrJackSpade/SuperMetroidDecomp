@@ -120,8 +120,9 @@ internal static partial class Program
             "Magdollite phase definitions: 27 native words and real initialization, rise, fall and overlay consumers pass with table reads forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Magdollite words")]
     private static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMagdollitePhaseGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0xa8af55, 0xa8af8b - 0xa8af55,

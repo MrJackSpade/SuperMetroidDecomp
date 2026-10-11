@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile instructions")]
     private static void VerifyProjectileInstructions(SuperMetroidAddressSpace rom)
     {
         ushort[] entries =
@@ -85,7 +86,7 @@ internal static partial class Program
             0xa103, 0xa10b, 0xa113, 0xa119, 0xa121, 0xa129, 0xa131, 0xa139, 0xa13d, 0xa145, 0xa14d, 0xa155,
             0xa159, 0xa161, 0xa169, 0xa16d, 0xa175, 0xa17d, 0xa185, 0xa18d, 0xa195, 0xa19d,
         ];
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte((a & 0xff0000) | ((a + 1) & 0xffff)) << 8);
+        ushort Word(int a) => (ushort)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte((a & 0xff0000) | ((a + 1) & 0xffff)) << 8);
         var words = new HashSet<int>();
         foreach (ushort entry in entries)
         {
@@ -147,7 +148,7 @@ internal static partial class Program
                         if (command == 0x822f) { deleted = true; break; }
                         if (command == 0x8239) { pointer = Word(a + 2); continue; }
                         AssertTrue(command is > 0 and < 0x8000, "Reference timed record valid");
-                        timer = command; sprite = Word(a + 2); x = rom.ReadByte(a + 4); y = rom.ReadByte(a + 5);
+                        timer = command; sprite = Word(a + 2); x = rom.ReadCartridgeByte(a + 4); y = rom.ReadCartridgeByte(a + 5);
                         trail = Word(a + 6); pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }

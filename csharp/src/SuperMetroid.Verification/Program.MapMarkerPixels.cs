@@ -8,6 +8,7 @@ internal static partial class Program
     private static void VerifyMapPulsePixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0xaf]);
     private static void VerifyDefeatedBossPixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0x9f]);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for map marker pixel family")]
     private static void VerifyMapMarkerPixelFamily(ISnesAddressSpace rom, int[] tiles)
     {
         var files = MapSpriteExtractor.Extract(rom);
@@ -18,7 +19,7 @@ internal static partial class Program
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(3360, stock.StoredArtworkByteCount, "marker planar tiles absent from retained atlas");
         var native = new byte[8192];
-        for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
+        for (int index = 0; index < native.Length; index++) native[index] = rom.ReadCartridgeByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })
         {
             var vram = new SnesVram(); stock.LoadArtworkTo(vram, destination);

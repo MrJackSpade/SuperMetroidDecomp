@@ -39,9 +39,9 @@ internal static partial class Program
             var actualPalette = new SnesCgram(); var expectedPalette = new SnesCgram();
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
-            SamusProjectileSystem.QueueBeamTilesAndLoadPalette(new BeamArtworkReadGuard(bus), queue, actualPalette, selection, catalog);
+            SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewBeamArtworkReadGuard(bus), queue, actualPalette, selection, catalog);
             var legacyVram = new SnesVram();
-            nativeQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(new ProjectileCompositionForbiddenBus()), catalog);
+            nativeQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
             AssertTrue(legacyVram.Bytes.SequenceEqual(native.Bytes), "Legacy beam source resolves exact native pixels without ROM DMA");
             // Recreate the consumed reference queue for the native record-layout assertions.
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
@@ -54,12 +54,12 @@ internal static partial class Program
             state.Position = 0;
             var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
             var stockVram = new SnesVram();
-            queue.DrainTo(stockVram, ReferenceMutableMemory.From(new ProjectileCompositionForbiddenBus()), catalog);
+            queue.DrainTo(stockVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
             AssertTrue(stockVram.Bytes.SequenceEqual(native.Bytes), "Queued PNG publishes native pixels only at drain");
             var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = editedPng.ToArray() };
             var editedCatalog = BeamTileCatalog.Load(replacements);
             var reboundVram = new SnesVram();
-            restored.DrainTo(reboundVram, ReferenceMutableMemory.From(new ProjectileCompositionForbiddenBus()), editedCatalog);
+            restored.DrainTo(reboundVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), editedCatalog);
             AssertTrue(reboundVram.Bytes.SequenceEqual(extracted.Bytes), "Restored pending transfer resolves current PNG, not serialized stock bytes");
             AssertEqual(0, restored.TailInBytes, "NMI clears restored asset queue");
         }
@@ -95,24 +95,13 @@ internal static partial class Program
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
             cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Bgr555.FromWord(checked((ushort)(Word(colors + i * 2)))));
     }
-    private sealed class BeamArtworkReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static MutableCartridgeReadGuard NewBeamArtworkReadGuard(ISnesAddressSpace source)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadWorkRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if ((address >> 16) == 0x9a || address is >= 0x90c3b1 and < 0x90c3c9)
-                throw new InvalidDataException("Authored beam queue still reads ROM graphics or selection pointers.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Artwork queue wrote the bus.");
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => (address >> 16) == 0x9a || address is >= 0x90c3b1 and < 0x90c3c9,
+                _ => new InvalidDataException("Authored beam queue still reads ROM graphics or selection pointers."))
+            .RejectWrites(_ => "Artwork queue wrote the bus.");
+        return guard;
     }
 
     private static void VerifyRuntimeBeamArtwork(ISnesAddressSpace bus, Dictionary<string, byte[]> files, BeamTileCatalog stock)

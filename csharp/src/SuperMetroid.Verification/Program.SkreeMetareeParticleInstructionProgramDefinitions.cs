@@ -26,7 +26,7 @@ internal static partial class Program
                 $"Skree/Metaree particle mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new SkreeMetareeParticleInstructionReadGuard(rom);
+        var guard = NewSkreeMetareeParticleInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -109,7 +109,7 @@ internal static partial class Program
                 $"production execution selects native particle composition from $86:{address:X4}");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "production particle frames do not read presentation operands from ROM");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled particle and shared-delete mechanics byte");
@@ -192,45 +192,13 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class SkreeMetareeParticleInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (SkreeMetareeParticleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled particle mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = SkreeMetareeParticleInstructionProgramDefinitionsTooling
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewSkreeMetareeParticleInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                    SkreeMetareeParticleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled particle mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordCount,
+                SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

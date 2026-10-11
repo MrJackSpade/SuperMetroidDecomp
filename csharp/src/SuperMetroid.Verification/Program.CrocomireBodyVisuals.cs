@@ -101,8 +101,8 @@ internal static partial class Program
             AssertTrue(stock.ExtendedFrames!.TryGetDisplay(
                     CrocomireBodyVisualDefinitions.Bank, pointer, out _),
                 $"Crocomire body OAM frame $A4:{pointer:X4} is installed");
-            var guard = new ExtendedVisualReadGuard(rom);
-            guard.BlockFrame(CrocomireBodyVisualDefinitions.Bank, pointer);
+            var guard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> guardBlockFrame);
+            guardBlockFrame(CrocomireBodyVisualDefinitions.Bank, pointer);
             foreach (bool newFrame in new[] { false, true })
             {
                 (OamBuffer nativeOam, byte[] nativeVram) = DrawNative(pointer,
@@ -185,8 +185,8 @@ internal static partial class Program
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        var editedGuard = new ExtendedVisualReadGuard(rom);
-        editedGuard.BlockFrame(CrocomireBodyVisualDefinitions.Bank, editedFrame.Pointer);
+        var editedGuard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> editedGuardBlockFrame);
+        editedGuardBlockFrame(CrocomireBodyVisualDefinitions.Bank, editedFrame.Pointer);
         (OamBuffer stockOam, byte[] stockVram) = Draw(stock, editedGuard,
             editedFrame.Pointer, true);
         (OamBuffer editedOam, byte[] editedVram) = Draw(edited, editedGuard,

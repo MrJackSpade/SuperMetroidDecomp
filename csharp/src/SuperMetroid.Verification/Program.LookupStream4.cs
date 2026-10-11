@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
@@ -37,7 +38,7 @@ internal static partial class Program
         }
         AssertEqual((ushort)PaletteFxInstruction.Delete, Word(0x8d0000 | cursor), "Native foreground delete");
         AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DeleteInstructionPointer, "Derived foreground terminal address");
-        var guarded = new PaletteFxMechanicsForbiddenBus(rom);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
         fx.SpawnDefinition(guarded, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer, 0);
@@ -143,7 +144,7 @@ internal static partial class Program
             AssertEqual((ushort)(nativeProgram + 4), Word(0x8d0000 | cursor + 2), "Native ambient loop target");
             AssertEqual(nativeRows.Count, definition.FrameCount, "Native ambient selected phase count");
             AssertEqual(cursor, (int)definition.LoopInstructionPointer, "Calculated terminal layout");
-            var guarded = new PaletteFxMechanicsForbiddenBus(rom);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             fx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
@@ -229,7 +230,7 @@ internal static partial class Program
             if (scenario == 1) document.Colors[42] = Edit(document.Colors[42], 1);
             if (scenario == 2) document.BabyMetroidTubeLight[2][0] = Edit(document.BabyMetroidTubeLight[2][0], 1);
             var selected = Load(document);
-            var guarded = new PaletteFxMechanicsForbiddenBus(rom);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             selected.Apply(cgram);
@@ -250,10 +251,11 @@ internal static partial class Program
                 AssertTrue(ToColors(expected).AsSpan().SequenceEqual(cgram.Colors), "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Installed title mechanics avoid live reads");
-            AssertEqual(0, guarded.PresentationReadCount, "Installed title colors avoid live reads");
+            AssertEqual(0, guardedPresentationReads.Value, "Installed title colors avoid live reads");
         }
         Console.WriteLine("Title ambient complete:36 native words/zero stock overrides,132 independent RGB edits,unchanged256 initial-paint owner,243 actual simultaneous-loop CGRAM states and no live reads pass.");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending font character data")]
     private static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
     {
         byte[] decoded = SuperMetroid.Core.Rom.RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom),
@@ -367,8 +369,8 @@ internal static partial class Program
         }
         foreach (var definition in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
         {
-            var nativeBus = new PaletteFxMechanicsForbiddenBus(rom);
-            var installedBus = new PaletteFxMechanicsForbiddenBus(rom);
+            var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
+            var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
             var native = new RoomPaletteFxSystem(); var installed = new RoomPaletteFxSystem();
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.SpawnDefinition(nativeBus, definition.DefinitionPointer, 0);
@@ -379,7 +381,7 @@ internal static partial class Program
                 installed.Step(installedBus, installedCgram, stock, 0, 0, false, false);
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors), "actual installed environmental cycle matches original colors each step");
             }
-            AssertEqual(0, installedBus.PresentationReadCount, "installed environmental cycle performs zero live color reads");
+            AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
             AssertTrue(installed.IsDefinitionActive(definition.DefinitionPointer), "environmental palette retains native loop behavior");
             foreach (ushort pointer in new[] { definition.ProgramStart, definition.FirstFramePointer, (ushort)(definition.FramePointer(0) + definition.FrameByteCount - 2), definition.LoopInstructionPointer })
                 AssertTrue(!MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out _), "color rotation excludes mechanics words");
@@ -440,8 +442,8 @@ internal static partial class Program
         }
         foreach (var definition in all)
         {
-            var nativeBus = new PaletteFxMechanicsForbiddenBus(rom);
-            var installedBus = new PaletteFxMechanicsForbiddenBus(rom);
+            var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
+            var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
             var native = new RoomPaletteFxSystem(); var installed = new RoomPaletteFxSystem();
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.SpawnDefinition(nativeBus, definition.DefinitionPointer, 0);
@@ -452,7 +454,7 @@ internal static partial class Program
                 installed.Step(installedBus, installedCgram, stock, 0, 0, false, false);
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors), "actual installed text fade matches native colors each step");
             }
-            AssertEqual(0, installedBus.PresentationReadCount, "installed text fade makes zero live color reads");
+            AssertEqual(0, installedBusPresentationReads.Value, "installed text fade makes zero live color reads");
             AssertTrue(!installed.IsDefinitionActive(definition.DefinitionPointer), "installed text fade deletes at original time");
         }
         foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
@@ -689,7 +691,7 @@ internal static partial class Program
         foreach (bool fast in new[] { true, false })
         {
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
-            var state = new EndingCreditsState(new FrontendCartridgeReadGuard(rom), new SuperMetroid.Core.Audio.CartridgeAudioState(), 0, 0);
+            var state = new EndingCreditsState(NewFrontendCartridgeReadGuard(rom), new SuperMetroid.Core.Audio.CartridgeAudioState(), 0, 0);
             var type = typeof(EndingCreditsState);
             void Set(string name, object value) => type.GetField(name, flags)!.SetValue(state, value);
             ushort Get(string name) => (ushort)type.GetField(name, flags)!.GetValue(state)!;
@@ -844,6 +846,7 @@ internal static partial class Program
             AssertEqual(identity, catalog.ContentIdentity, "Healthy-palette alias preserves canonical content hash for independent edits");
         }
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Spore Spawn level-fade palette")]
     private static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -915,6 +918,7 @@ internal static partial class Program
             AssertEqual(expectedIdentity, catalog.ContentIdentity, "Level calculation preserves canonical selected content identity");
         }
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Spore Spawn background-fade palette")]
     private static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1140,7 +1144,7 @@ internal static partial class Program
             AssertTrue(expected.AsSpan().SequenceEqual(copied.AsSpan(0, expected.Length)), "Subtitle direct copy preserves every cell");
             AssertEqual((ushort)0x5678, copied[^1], "Subtitle copy leaves the destination suffix untouched");
             ushort[] tilemap = Enumerable.Repeat((ushort)0x2222, EndingCreditsRomData.Rendering.TilemapWords).ToArray();
-            var state = new EndingBackgroundTextState(new FrontendCartridgeReadGuard(rom), tilemap,
+            var state = new EndingBackgroundTextState(NewFrontendCartridgeReadGuard(rom), tilemap,
                 EndingTextDefinitions.Native.ItemPercentage, default, japaneseText: true,
                 presentation: presentation, installedSequence: EndingTextSequence.ItemPercentage);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -1224,7 +1228,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new FrontendCartridgeReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewFrontendCartridgeReadGuard(rom));
         var tick = typeof(RoomEnemySystem).GetMethod("TickCeresRidleyMode7Getaway", flags)!
             .CreateDelegate<Action<RidleyEnemyState, SamusState?, ushort>>(enemies);
         var state = new RidleyEnemyState { Mode7TableByteIndex = 2 };
@@ -1303,7 +1307,7 @@ internal static partial class Program
             }
             if(edit is -1 or 0 or 131)
             {
-                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(new ProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug with{EquippedItems=(ushort)(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
+                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(NewProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug with{EquippedItems=(ushort)(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
                 for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.Tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
             }
             for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,item);
@@ -1363,7 +1367,7 @@ internal static partial class Program
             AssertTrue(selected.TopRowTransfer.Span.SequenceEqual(stock.TopRowTransfer.Span),"Template edits leave immutable top row independent");
             if(edit is -1 or 390 or 570)
             {
-                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(new ProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug);
+                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(NewProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug);
                 for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.Tiles[row*32+x],"Actual initializer preserves selected initial minimap and border");
                 for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.Tiles[64+x],"Actual initializer preserves selected ENERGY typography");
             }
@@ -1431,17 +1435,17 @@ internal static partial class Program
             var selected=GameplayHudPresentation.Load(new MemoryStream(bytes));
             AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"AUTO preserves document content hash");
             var hud=new HudState();hud.BindPresentation(selected);
-            hud.Initialize(new ProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug with{ReserveMode=1,ReserveHealth=1});
+            hud.Initialize(NewProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug with{ReserveMode=1,ReserveHealth=1});
             foreach(bool full in new[]{true,false})
             {
                 ushort[] tiles=Enumerable.Repeat((ushort)0x1234,96).ToArray();selected.ApplyAutoReserve(tiles,full);
                 var cells=full?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"All twelve independently edited AUTO cells");
                 for(int tile=0;tile<96;tile++)if(tile%32 is not(8 or 9))AssertEqual((ushort)0x1234,tiles[tile],"AUTO leaves other HUD cells unchanged");
-                hud.UpdateGameplayCounters(new ProjectileCompositionForbiddenBus(),new SamusState{Health=99,MaxHealth=99,ReserveTankMode=1,ReserveEnergy=(ushort)(full?1:0)});
+                hud.UpdateGameplayCounters(NewProjectileCompositionForbiddenBus(),new SamusState{Health=99,MaxHealth=99,ReserveTankMode=1,ReserveEnergy=(ushort)(full?1:0)});
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.Tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
             }
-            ushort[] before=hud.Tiles.ToArray();hud.UpdateGameplayCounters(new ProjectileCompositionForbiddenBus(),new SamusState{Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
+            ushort[] before=hud.Tiles.ToArray();hud.UpdateGameplayCounters(NewProjectileCompositionForbiddenBus(),new SamusState{Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
             for(int cell=0;cell<6;cell++)AssertEqual(before[GameplayHudDefinitions.AutoReserveCellIndex(cell)],hud.Tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Manual reserve does not select another AUTO state");
             hud.ClearAutoReserveIndicator();for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank,hud.Tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Explicit manual switch clears AUTO");
         }
@@ -1592,7 +1596,7 @@ internal static partial class Program
             ushort entry = Word(0xb4bda8 + 2 * objectNumber);
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = new RoomEnemySystem();
-            spriteBus.SetValue(enemies, new FrontendCartridgeReadGuard(rom));
+            spriteBus.SetValue(enemies, NewFrontendCartridgeReadGuard(rom));
             RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, 0x0600);
             AssertTrue(spawned is not null, "room sprite native case allocates real slot");
             AssertEqual(entry, spawned!.InstructionPointer, "room sprite actual initial program");
@@ -1665,7 +1669,7 @@ internal static partial class Program
                 if (edit is -1 or 0 or 575)
                 {
                     var queue = new VramWriteQueue();
-                    SamusProjectileSystem.QueueBeamTilesAndLoadPalette(new ProjectileCompositionForbiddenBus(), queue, actual,
+                    SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewProjectileCompositionForbiddenBus(), queue, actual,
                         (ushort)(selection | 0x1000), artwork, selected);
                     AssertEqual(7, queue.TailInBytes, "Actual beam palette producer preserves seven-byte tile queue");
                     AssertEqual(BeamTileAtlasDefinitions.ByteCount, (int)queue.Entries[0].SizeInBytes, "actual palette producer preserves tile extent");
@@ -1701,7 +1705,7 @@ internal static partial class Program
         }
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, new FrontendCartridgeReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, NewFrontendCartridgeReadGuard(rom));
         var canGrab = typeof(RoomEnemySystem).GetMethod("SamusMovementUsesRidleyGrab", instance)!
             .CreateDelegate<Func<SamusState?, bool>>(enemies);
         var release = typeof(RoomEnemySystem).GetMethod("ReleaseNorfairRidleyGrab", instance)!
@@ -1815,7 +1819,7 @@ internal static partial class Program
             AssertTrue(expected.SequenceEqual(stock.Build(id)), "Derived notice export reproduces every native border/content word");
             var state = new GameplayMessageBoxState();
             state.BindPresentation(null, null, stock);
-            state.Begin(new FrontendCartridgeReadGuard(rom), id, 0);
+            state.Begin(NewFrontendCartridgeReadGuard(rom), id, 0);
             if (GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
                 for (int column = 0; column < 32; column++) expected[128 + column] = Word(0x8595c1 + column * 2);
             AssertTrue(expected.AsSpan().SequenceEqual(state.Tilemap), "Actual notice initial tilemap preserves native YES row and all content");
@@ -1831,7 +1835,7 @@ internal static partial class Program
         var edited = GameplayMessageNoticePresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(editedJson.ToJsonString())));
         var active = new GameplayMessageBoxState();
         active.BindPresentation(null, null, stock);
-        active.Begin(new FrontendCartridgeReadGuard(rom), GameplayMessageId.MapDataAccessCompleted, 0);
+        active.Begin(NewFrontendCartridgeReadGuard(rom), GameplayMessageId.MapDataAccessCompleted, 0);
         active.Step(0);
         var phase = active.Phase; int radius = active.RadiusPixels;
         ushort[] original = active.Tilemap.ToArray();
@@ -2125,7 +2129,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var process = typeof(RoomEnemySystem).GetMethod("ProcessEnemyProjectileInstructions", flags)!;
 
-        var electricityGuard = new SaveStationElectricityInstructionReadGuard(rom);
+        var electricityGuard = NewSaveStationElectricityInstructionReadGuard(rom);
         var electricitySystem = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(electricitySystem, electricityGuard);
         electricitySystem.SpawnSaveStationElectricity(42, 16);
@@ -2145,7 +2149,7 @@ internal static partial class Program
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
         foreach (bool metaree in new[] { false, true })
         {
-            var guard = new SkreeMetareeParticleInstructionReadGuard(rom);
+            var guard = NewSkreeMetareeParticleInstructionReadGuard(rom);
             var system = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(system, guard);
             var spawn = typeof(RoomEnemySystem).GetMethod(metaree ? "SpawnMetareeParticleBurst" : "SpawnSkreeParticleBurst", flags)!.CreateDelegate<Action<RoomEnemySlot>>(system);
@@ -2434,7 +2438,7 @@ internal static partial class Program
         AssertEqual(250, DraygonInstructionProgramDefinitionsTooling.PresentationWordCount, "Native Draygon timed-record count");
         byte[] identities = new byte[500];
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
+        typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,NewProjectileCompositionForbiddenBus());
         var slot = new RoomEnemySlot(0) { EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody,
             Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 } };
         var read = typeof(RoomEnemySystem).GetMethod("ReadEnemyVisualSelector",BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<Func<RoomEnemySlot,ushort,ushort>>();
@@ -2502,7 +2506,7 @@ internal static partial class Program
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),draygonColors:selected);
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var actual=new SnesCgram(); var vram=new SnesVram();
                 typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,actual); typeof(RoomEnemySystem).GetField("_vram",flags)!.SetValue(enemies,vram);
-                typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
+                typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,NewProjectileCompositionForbiddenBus());
                 typeof(RoomEnemySystem).GetMethod("InitializeDraygonBody",flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(enemies.Slots[0]);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
                 AssertEqual(true,enemies.Draygon!.BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");
@@ -2569,7 +2573,7 @@ internal static partial class Program
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),draygonColors:selected);
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
-                typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,cgram); typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
+                typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,cgram); typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,NewProjectileCompositionForbiddenBus());
                 var body=enemies.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=10};
                 var hurt=typeof(RoomEnemySystem).GetMethod("ApplyDraygonHurt",flags)!.CreateDelegate<Action<RoomEnemySlot,DraygonEnemyState,SamusState?>>(enemies);
                 foreach(ushort timer in new ushort[]{2,0})
@@ -2632,7 +2636,7 @@ internal static partial class Program
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),draygonColors:selected);
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
                 typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,cgram);
-                typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
+                typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,NewProjectileCompositionForbiddenBus());
                 var body=enemies.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=6};
                 var hurt=typeof(RoomEnemySystem).GetMethod("ApplyDraygonHurt",flags)!.CreateDelegate<Action<RoomEnemySlot,DraygonEnemyState,SamusState?>>(enemies);
                 foreach(ushort timer in new ushort[]{2,0})
@@ -2686,7 +2690,7 @@ internal static partial class Program
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new ProjectileCompositionForbiddenBus());
+                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewProjectileCompositionForbiddenBus());
                 RoomEnemySlot body = enemies.Slots[0]; var state = new DraygonEnemyState(body);
                 var update = typeof(RoomEnemySystem).GetMethod("UpdateDraygonHealthPalette",flags)!.CreateDelegate<Action<DraygonEnemyState>>(enemies);
                 var hurt = typeof(RoomEnemySystem).GetMethod("ApplyDraygonHurt",flags)!.CreateDelegate<Action<RoomEnemySlot,DraygonEnemyState,SamusState?>>(enemies);
@@ -2767,6 +2771,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
         AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 1), "Draygon odd native health selector rejected");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Norfair reveal room palette")]
     private static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2823,7 +2828,7 @@ internal static partial class Program
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
-                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new ProjectileCompositionForbiddenBus());
+                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewProjectileCompositionForbiddenBus());
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
                 typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => false));
                 RoomEnemySlot slot = enemies.Slots[0]; slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
@@ -2918,7 +2923,7 @@ internal static partial class Program
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
                     new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), norfairRidleyColors: selected);
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
-                var guard = new ProjectileCompositionForbiddenBus();
+                var guard = NewProjectileCompositionForbiddenBus();
                 typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
                 typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => false));
@@ -3001,7 +3006,7 @@ internal static partial class Program
                     new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), botwoonColors: catalog);
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
-                var guard = new BotwoonColorReadGuard(rom);
+                var guard = NewBotwoonColorReadGuard(rom);
                 typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
                 var update = typeof(RoomEnemySystem).GetMethod("UpdateBotwoonHealthPalette", flags)!
@@ -3091,7 +3096,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             foreach (RoomEnemySlot slot in enemies.Slots) slot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
             for (int index = 1; index <= freeSlots; index++) enemies.Slots[index].Clear();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new FrontendCartridgeReadGuard(rom));
+            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewFrontendCartridgeReadGuard(rom));
             int randomCalls = 0;
             typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies,
                 (Func<ushort>)(() => (ushort)(0x100 + 0x10 * randomCalls++)));
@@ -3230,12 +3235,12 @@ internal static partial class Program
         {
             var queue = new VramWriteQueue();
             var cgram = new SnesCgram();
-            SamusProjectileSystem.QueueBeamTilesAndLoadPalette(new ProjectileCompositionForbiddenBus(), queue, cgram, (ushort)selection, selected);
+            SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewProjectileCompositionForbiddenBus(), queue, cgram, (ushort)selection, selected);
             AssertEqual(7, queue.TailInBytes, "Beam geometry retains native seven-byte queue record");
             AssertEqual((int)Word(0x90ac9f), (int)queue.Entries[0].SizeInBytes, "Actual beam DMA length matches native immediate0100");
             AssertEqual((int)Word(0x90acb6), (int)queue.Entries[0].EncodedVramDestination, "Actual beam DMA destination matches native immediate6300");
             var vram = new SnesVram();
-            queue.DrainTo(vram, ReferenceMutableMemory.From(new ProjectileCompositionForbiddenBus()), selected);
+            queue.DrainTo(vram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), selected);
             AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes.Slice(0x6300 * 2, 256)), "NMI resolves current calculated pixels without runtime cartridge reads");
             AssertEqual((byte)0, vram.ReadByte(0x6300 * 2 - 1), "Beam transfer preserves preceding VRAM byte");
             AssertEqual((byte)0, vram.ReadByte(0x6300 * 2 + 256), "Beam transfer preserves following VRAM byte");

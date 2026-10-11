@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: LDA [dp],Y operand reads of the glitched Chainsaw/SpaceTime palette pointers, open bus and compiled instruction bytes")]
     private static void VerifyInvalidBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -29,7 +30,7 @@ internal static partial class Program
             "restored native Chainsaw DMA resolves through installed artwork");
         AssertTrue(legacyTiles.Span.SequenceEqual(artwork.Resolve(VramAssetId.BeamChainsawTiles).Span),
             "native and typed Chainsaw transfers select the same installed sheet");
-        var gameplayBus = new ProjectileCompositionForbiddenBus();
+        var gameplayBus = NewProjectileCompositionForbiddenBus();
         for (ushort beam = 0; beam < 12; beam++)
         {
             var ordinary = new SnesCgram();

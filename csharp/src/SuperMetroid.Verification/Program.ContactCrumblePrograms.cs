@@ -160,7 +160,7 @@ internal static partial class Program
         {
             ContactCrumbleFixture native = NewContactCrumbleFixture(bts);
             ContactCrumbleFixture compiled = NewContactCrumbleFixture(bts);
-            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 100; frame++)
             {
                 native.Plms.Step(rom, native.Level, native.Streamer, new(0, 0), 0);
@@ -227,7 +227,7 @@ internal static partial class Program
                     new RoomBlockBehavior(0)),
                 "visual test installs the real contact-crumble PLM");
             var streamer = level.CreateBackgroundStreamer();
-            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 4; frame++)
                 plms.Step(guarded, level, streamer, new(0, 0), 0);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -269,7 +269,7 @@ internal static partial class Program
                     new RoomBlockBehavior(1)),
                 "restored-art test installs linked contact-crumble PLM");
             var streamer = level.CreateBackgroundStreamer();
-            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 100; frame++)
                 plms.Step(guarded, level, streamer, new(0, 0), 0);
             AssertEqual(0, guarded.ForbiddenReadAttempts,

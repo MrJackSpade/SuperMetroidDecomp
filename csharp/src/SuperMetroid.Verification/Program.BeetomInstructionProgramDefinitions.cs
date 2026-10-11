@@ -22,7 +22,7 @@ internal static partial class Program
         Suite(nameof(VerifyBeetomDistantActionMapping), () => VerifyBeetomDistantActionMapping(rom));
         Suite(nameof(VerifyBeetomDistantDirectionMapping), () => VerifyBeetomDistantDirectionMapping());
 
-        var guard = new BeetomInstructionReadGuard(rom, forbidPresentation: artwork is not null);
+        var guard = NewBeetomInstructionReadGuard(rom, forbidPresentation: artwork is not null);
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -118,7 +118,7 @@ internal static partial class Program
             BeetomInstructionProgramDefinitions.DrainingRightLoop,
             callsThroughGoto: 9);
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Beetom programs read no cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Beetom mechanics byte");
@@ -349,50 +349,17 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class BeetomInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewBeetomInstructionReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Beetom mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < BeetomInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                        {
-                            ForbiddenReadAttempts++;
-                            throw new InvalidOperationException(
-                                $"Installed Beetom read visual-selector byte ${address:X6}.");
-                        }
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new CartridgeReadGuard(source).Forbid(
+            BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            address => $"Production read compiled Beetom mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.ForbidWords(0xa80000, BeetomInstructionProgramDefinitionsTooling.PresentationWordCount,
+                BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Installed Beetom read visual-selector byte ${address:X6}.")
+            : guard.ObserveWords(0xa80000, BeetomInstructionProgramDefinitionsTooling.PresentationWordCount,
+                BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 }

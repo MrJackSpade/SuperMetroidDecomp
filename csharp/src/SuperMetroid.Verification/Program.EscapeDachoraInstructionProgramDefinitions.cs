@@ -26,7 +26,7 @@ internal static partial class Program
         }
 
         var executedOperands = new HashSet<ushort>();
-        var guard = new EscapeDachoraInstructionReadGuard(rom);
+        var guard = NewEscapeDachoraInstructionReadGuard(rom);
         RoomEnemySystem enemies = CreateEscapeDachoraProgramSystem(guard, flags);
         RoomEnemySlot dachora = enemies.Slots[0];
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
@@ -72,7 +72,7 @@ internal static partial class Program
                 () => EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"escape-Dachora spritemap $B3:{address:X4} is rejected as mechanics");
         }
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled escape-Dachora mechanics byte");
@@ -145,41 +145,22 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class EscapeDachoraInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewEscapeDachoraInstructionReadGuard(ISnesAddressSpace source)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        var guard = new CartridgeReadGuard(source).Forbid(
+            EscapeDachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            address => $"Production read compiled escape-Dachora mechanics byte ${address:X6}.");
+        // Every presentation word whose low or high byte is read is recorded, not just the first.
+        guard.Observe(address => (address & 0xff0000) == 0xb30000, address =>
         {
-            if (EscapeDachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0; index < EscapeDachoraInstructionProgramDefinitions.PresentationWordCount; index++)
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled escape-Dachora mechanics byte ${address:X6}.");
+                ushort presentation = EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress(index);
+                if (bankAddress == presentation || bankAddress == unchecked((ushort)(presentation + 1)))
+                    guard.ObservedWords.Add(presentation);
             }
-            if ((address & 0xff0000) == 0xb30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < EscapeDachoraInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = EscapeDachoraInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        });
+        return guard;
     }
 }

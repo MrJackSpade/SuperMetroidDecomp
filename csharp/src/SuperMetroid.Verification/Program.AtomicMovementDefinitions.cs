@@ -127,7 +127,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new AtomicInstructionReadGuard(new TestAddressSpace()));
+            NewAtomicInstructionReadGuard(new TestAddressSpace()));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeAtomic", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];
@@ -159,7 +159,7 @@ internal static partial class Program
                 $"Atomic negative fractional speed {selector}");
         }
 
-        var programGuard = new AtomicProgramReadGuard(rom);
+        var programGuard = NewAtomicProgramReadGuard(rom);
         ushort[] entries =
         [
             AtomicInstructionProgramDefinitions.UpRight,
@@ -218,59 +218,15 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class AtomicInstructionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+    private static CartridgeReadGuard NewAtomicInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa8e380 and < 0xa8e388,
+            address => $"Atomic initializer attempted migrated instruction read ${address:X6}.");
 
-        public byte ReadByte(int address) => address is >= 0xa8e380 and < 0xa8e388
-            ? throw new InvalidOperationException(
-                $"Atomic initializer attempted migrated instruction read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
-
-    private sealed class AtomicProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (AtomicInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                IsCompiledPresentationByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Atomic instruction byte ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        private static bool IsCompiledPresentationByte(int address)
-        {
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < AtomicInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        AtomicInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewAtomicProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(AtomicInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Atomic instruction byte ${address:X6}.")
+            .ForbidWords(0xa80000, AtomicInstructionProgramDefinitionsTooling.PresentationWordCount,
+                AtomicInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read compiled Atomic instruction byte ${address:X6}.");
 }

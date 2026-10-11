@@ -97,7 +97,7 @@ internal static partial class Program
         ushort firstPointer = PhantoonBg2FrameDefinitions.Frames[0].Pointer;
         byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitions.Bank, firstPointer,
             newInstructionFrame: true);
-        var noCartridge = new FrontendCartridgeReadGuard(rom);
+        var noCartridge = NewFrontendCartridgeReadGuard(rom);
         byte[] stockVram = DrawPhantoonBg2(stock, noCartridge,
             firstPointer, newInstructionFrame: true);
         byte[] editedVram = DrawPhantoonBg2(edited, noCartridge,

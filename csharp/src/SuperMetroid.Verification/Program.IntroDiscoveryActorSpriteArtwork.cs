@@ -54,7 +54,7 @@ internal static partial class Program
             IntroDiscoveryActorSpritePresentation.Write(output, document);
         IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
 
-        var guarded = new IntroArtworkSourceReadGuard(bus,
+        var guarded = NewIntroArtworkSourceReadGuard(bus,
             blockIntroDiscoveryActors: true);
         var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
         var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);

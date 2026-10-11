@@ -52,7 +52,7 @@ internal static partial class Program
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
         };
-        flashbackSamus.InitializeAnimation(new FrontendCartridgeReadGuard(mutableBus));
+        flashbackSamus.InitializeAnimation(NewFrontendCartridgeReadGuard(mutableBus));
         AssertEqual((int)(0x910000 |
             SamusAnimationDelayDefinitions.PointerForPose(SamusPoseId.FacingLeftNormalPose)),
             flashbackSamus.AnimationDelayListAddress,

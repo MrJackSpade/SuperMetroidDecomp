@@ -63,7 +63,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new BombTorizoDroolSineReadGuard(rom));
+            NewBombTorizoDroolSineReadGuard(rom));
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
             enemies,
             (Func<ushort>)(new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue));
@@ -102,17 +102,7 @@ internal static partial class Program
         return unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
     }
 
-    private sealed class BombTorizoDroolSineReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa0b3c3 and < 0xa0b643
-                ? throw new InvalidOperationException(
-                    $"Bomb Torizo drool attempted migrated sine or negative-cosine read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBombTorizoDroolSineReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa0b3c3 and < 0xa0b643,
+            address => $"Bomb Torizo drool attempted migrated sine or negative-cosine read ${address:X6}.");
 }

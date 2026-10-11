@@ -13,7 +13,7 @@ internal static partial class Program
     {
         AssertTrue(stock.DraygonBg2Frames is not null,
             "installed enemy art includes Draygon BG2 frames");
-        var noCartridge = new FrontendCartridgeReadGuard(rom);
+        var noCartridge = NewFrontendCartridgeReadGuard(rom);
         int writeCount = 0;
         foreach (EnemyBg2FrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
@@ -185,7 +185,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            new FrontendCartridgeReadGuard(rom));
+            NewFrontendCartridgeReadGuard(rom));
         var walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
         RoomEnemySlot slot = enemies.Slots[0];

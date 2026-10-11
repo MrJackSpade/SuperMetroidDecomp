@@ -137,12 +137,12 @@ public static class SuperMetroidRuntimeFrameRenderer
                     kraidOwnsBg2
                         ? AddShake(kraid!.Bg2Scroll.X, shake.Bg2.X)
                         : crocomireOwnsBg2
-                        ? AddShake(runtime.Enemies.CrocomireBg2HorizontalScroll, shake.Bg2.X)
+                        ? AddShake(runtime.Enemies.CrocomireBg2Scroll.X, shake.Bg2.X)
                         : bg2Scroll.X,
                     kraidOwnsBg2
                         ? AddShake(kraid!.Bg2Scroll.Y, shake.Bg2.Y)
                         : crocomireOwnsBg2
-                        ? AddShake(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2.Y)
+                        ? AddShake(runtime.Enemies.CrocomireBg2Scroll.Y, shake.Bg2.Y)
                         : scrollingSky is not null
                             ? AddShake(scrollingSky.VerticalScroll, shake.Bg2.Y)
                             : runtime.TourianStatues.Enabled

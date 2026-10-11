@@ -80,11 +80,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
     // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight
     // signed records here preserves the initial index-zero -> record-one behavior.
-    private static ReadOnlySpan<short> ExplosionXOffsets =>
-        [-8, 6, -4, 2, 3, -6, 8, 0];
-
-    private static ReadOnlySpan<short> ExplosionYOffsets =>
-        [-7, 2, 5, -4, 6, -2, -6, 7];
+    private static readonly Offset16<RoomPixels>[] ExplosionOffsets =
+        [new(-8, -7), new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7)];
 
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
     private readonly MotherBrainCorpseRottingState _corpseRotting = new();
@@ -104,11 +101,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public MotherBrainRainbowBeamAttackPhase Phase { get; private set; } =
         MotherBrainRainbowBeamAttackPhase.Inactive;
 
-    /// <summary>Mother Brain brain-slot X used by `$A9:BB82`'s aim vector.</summary>
-    public ushort BrainXPosition { get; set; }
-
-    /// <summary>Mother Brain brain-slot Y used by `$A9:BB8F`'s aim vector.</summary>
-    public ushort BrainYPosition { get; set; }
+    /// <summary>Mother Brain brain-slot room position used by `$A9:BB82/$BB8F`'s aim vector.</summary>
+    public Position16<RoomPixels> BrainPosition { get; set; }
 
     /// <summary>Current brain instruction list installed through `$A9:C447`.</summary>
     public ushort HeadInstructionList { get; private set; }
@@ -404,14 +398,12 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// one visible animation interpreter in a live room.
     /// </summary>
     internal void SynchronizeLiveActor(
-        ushort bodyX,
-        ushort bodyY,
+        Position16<RoomPixels> body,
         MotherBrainBodyPose bodyPose,
         ushort form,
         ushort bodyProperties,
         ushort bodyExtraProperties,
-        ushort brainX,
-        ushort brainY,
+        Position16<RoomPixels> brain,
         ushort brainHealth,
         ushort brainProperties,
         ushort brainExtraProperties,
@@ -423,14 +415,12 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ushort bombCounter,
         bool hitboxesEnabled)
     {
-        Body.XPosition = bodyX;
-        Body.YPosition = bodyY;
+        Body.Position = body;
         Body.Pose = bodyPose;
         Body.Form = form;
         BodyProperties = bodyProperties;
         BodyProperties2 = bodyExtraProperties;
-        BrainXPosition = brainX;
-        BrainYPosition = brainY;
+        BrainPosition = brain;
         BrainHealth = brainHealth;
         BrainProperties = brainProperties;
         BrainProperties2 = brainExtraProperties;
@@ -565,7 +555,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public bool RequestBabyStumbleBackward()
     {
-        ushort targetX = unchecked((ushort)(Body.XPosition - 1));
+        ushort targetX = unchecked((ushort)(Body.Position.X - 1));
         return MakeBodyWalkBackwards(targetX, BodyWalkingBackwardReallyFastInstructionList).Requested;
     }
 }

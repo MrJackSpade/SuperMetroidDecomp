@@ -1,8 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One frame-relative displacement used while Bomb Torizo changes posture.</summary>
-internal readonly record struct BombTorizoPostureDisplacement(short X, short Y);
-
 /// <summary>Fixed posture and walking movement definitions for Bomb Torizo.</summary>
 internal static class BombTorizoMovementDefinitions
 {
@@ -26,8 +23,8 @@ internal static class BombTorizoMovementDefinitions
     // Ten per-frame stride magnitudes authored to the walk animation; facing only changes sign.
     private static readonly short[] LeftWalkVelocities = [-5, 0, -5, -19, -16, -7, 0, -7, -17, -18];
 
-    /// <summary>Returns the posture displacement selected by an even byte offset.</summary>
-    internal static BombTorizoPostureDisplacement Posture(ushort tableOffset)
+    /// <summary>Returns the frame-relative posture displacement selected by an even byte offset.</summary>
+    internal static Offset16<RoomPixels> Posture(ushort tableOffset)
     {
         if ((tableOffset & 1) != 0 || tableOffset >= LeftPostureX.Length * 4)
         {
@@ -39,7 +36,7 @@ internal static class BombTorizoMovementDefinitions
         int xIndex = tableOffset >> 1;
         int yIndex = (tableOffset & 0x000f) >> 1;
         short horizontal = LeftPostureX[xIndex % LeftPostureX.Length];
-        return new BombTorizoPostureDisplacement(
+        return new Offset16<RoomPixels>(
             xIndex < LeftPostureX.Length ? horizontal : (short)-horizontal, PostureY[yIndex]);
     }
 

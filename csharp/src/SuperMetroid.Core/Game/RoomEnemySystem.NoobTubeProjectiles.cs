@@ -50,21 +50,19 @@ public sealed partial class RoomEnemySystem
             {
                 int index = ValidateEvenNoobTubeParameter(
                     request.Parameter,
-                    NoobTubeProjectileRomData.ShardXOffsets.Length,
+                    NoobTubeProjectileRomData.ShardOffsets.Length,
                     "shard");
                 projectile.Variable1 = unchecked((ushort)(
                     blockX * 16 + NoobTubeProjectileRomData.CrackXOffset +
-                    NoobTubeProjectileRomData.ShardXOffsets[index]));
+                    NoobTubeProjectileRomData.ShardOffsets[index].X));
                 projectile.Variable0 = 0;
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
                     blockY * 16 + NoobTubeProjectileRomData.CrackYOffset +
-                    NoobTubeProjectileRomData.ShardYOffsets[index])));
+                    NoobTubeProjectileRomData.ShardOffsets[index].Y)));
                 projectile.InstructionPointer =
                     NoobTubeProjectileRomData.ShardInstructionLists[index];
                 projectile.InstructionTimer = 1;
-                projectile.Velocity = new(new SnesSignedEightEight(unchecked((ushort)
-                    NoobTubeProjectileRomData.ShardXVelocities[index])), new SnesSignedEightEight(unchecked((ushort)
-                    NoobTubeProjectileRomData.ShardYVelocities[index])));
+                projectile.Velocity = NoobTubeProjectileRomData.ShardVelocities[index];
                 return;
             }
 
@@ -72,13 +70,13 @@ public sealed partial class RoomEnemySystem
             {
                 int index = ValidateEvenNoobTubeParameter(
                     request.Parameter,
-                    NoobTubeProjectileRomData.BubbleXOffsets.Length,
+                    NoobTubeProjectileRomData.BubbleOffsets.Length,
                     "released-air bubble");
                 projectile.Variable1 = unchecked((ushort)(
-                    blockX * 16 + NoobTubeProjectileRomData.BubbleXOffsets[index]));
+                    blockX * 16 + NoobTubeProjectileRomData.BubbleOffsets[index].X));
                 projectile.Variable0 = 0;
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-                    blockY * 16 + NoobTubeProjectileRomData.BubbleYOffsets[index])));
+                    blockY * 16 + NoobTubeProjectileRomData.BubbleOffsets[index].Y)));
                 projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(NoobTubeProjectileRomData.BubbleInitialYVelocity));
                 return;
             }

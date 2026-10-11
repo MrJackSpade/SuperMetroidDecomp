@@ -31,16 +31,16 @@ internal static class RetailElevatorCaptureTests
             var arrival = legacy.RuntimeForVerification?.CeresElevatorArrival;
             if (arrival is null) continue;
             var capturedArrival = captured.RuntimeForVerification?.CeresElevatorArrival;
-            if (capturedArrival is null || arrival.PadYPosition != capturedArrival.PadYPosition ||
-                arrival.PlatformYPosition != capturedArrival.PlatformYPosition || arrival.IsComplete != capturedArrival.IsComplete)
+            if (capturedArrival is null || arrival.PadPosition.Y != capturedArrival.PadPosition.Y ||
+                arrival.PlatformPosition.Y != capturedArrival.PlatformPosition.Y || arrival.IsComplete != capturedArrival.IsComplete)
                 throw new InvalidOperationException("Elevator publication changed arrival state.");
             fade |= expected.GameState == SuperMetroidGameState.MainGameplayFadeIn;
             arriving |= expected.GameState == SuperMetroidGameState.MainGameplay && !arrival.IsComplete;
             landed |= arrival.IsComplete;
-            padPositions.Add(arrival.PadYPosition);
+            padPositions.Add(arrival.PadPosition.Y);
             var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(actual.Snapshot!));
             PixelComparison.Verify(packet, expected.Pixels, renderer.RenderForReadback(packet),
-                $"{device.Kind}: Ceres elevator {tick}, pad Y={arrival.PadYPosition}, complete={arrival.IsComplete}");
+                $"{device.Kind}: Ceres elevator {tick}, pad Y={arrival.PadPosition.Y}, complete={arrival.IsComplete}");
             samples++;
             if (arrival.IsComplete && expected.GameState == SuperMetroidGameState.MainGameplay &&
                 legacy.RuntimeForVerification!.Samus is { InputLocked: false })

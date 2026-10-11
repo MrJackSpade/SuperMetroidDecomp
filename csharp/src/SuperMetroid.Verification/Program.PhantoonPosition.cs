@@ -52,15 +52,13 @@ internal static partial class Program
         for (int frame = 0; frame < 1400; frame++)
         {
             var phantoon = runtime.Enemies.Phantoon!;
-            ushort displayedX = phantoon.Bg2HorizontalScroll;
-            ushort displayedY = phantoon.Bg2VerticalScroll;
+            ushort displayedX = phantoon.Bg2Scroll.X;
+            ushort displayedY = phantoon.Bg2Scroll.Y;
             ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Camera!.PixelPosition.X);
             ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Camera.PixelPosition.Y);
             runtime.StepFrame(0);
-            AssertEqual(phantoon.Bg2HorizontalScroll, runtime.BackgroundScroll.Bg2Scroll.X,
-                $"Phantoon live BG2 horizontal handoff frame {frame}");
-            AssertEqual(phantoon.Bg2VerticalScroll, runtime.BackgroundScroll.Bg2Scroll.Y,
-                $"Phantoon live BG2 vertical handoff frame {frame}");
+            AssertEqual(phantoon.Bg2Scroll, runtime.BackgroundScroll.Bg2Scroll,
+                $"Phantoon live BG2 handoff frame {frame}");
             if (frame == 0) continue;
             var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
             AssertEqual(displayedX, layer.Registers.Bg2Scroll.X, "Phantoon captured horizontal register follows accepted NMI");

@@ -175,7 +175,7 @@ internal static partial class Program
         var nativeBaby = new OamBuffer();
         nativeBaby.BeginFrame();
         DrawImportedEnemySpritemap(rom, nativeBaby, CeresBabyInstructionProgramDefinitions.Bank,
-            CeresBabyInstructionProgramDefinitions.HorizontalFrame, 100, 80,
+            CeresBabyInstructionProgramDefinitions.HorizontalFrame, new(100, 80),
             paletteBits: 0, baseTileIndex: 0,
             clipVerticalWrap: true, originYIsOnScreen: true);
         nativeBaby.FinalizeFrame();

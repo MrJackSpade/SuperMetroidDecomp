@@ -86,7 +86,7 @@ internal static partial class Program
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            spawnCenter.Invoke(enemies, [centerKind, (ushort)120, (ushort)88, (ushort)3]);
+            spawnCenter.Invoke(enemies, [centerKind, new Position16<RoomPixels>(120, 88), (ushort)3]);
             RoomEnemyProjectileSlot center = enemies.EnemyProjectiles.Single(
                 projectile => projectile.Kind == centerKind);
             AssertEqual(program, center.InstructionPointer,
@@ -117,7 +117,7 @@ internal static partial class Program
             source.RemainingAfterburns = 1;
             spawnDirectional.Invoke(
                 enemies,
-                [source, kind, (ushort)0x0100, (ushort)0xff00]);
+                [source, kind, new EightEightVector<RoomPixels>(0x0100, -0x0100)]);
             RoomEnemyProjectileSlot afterburn = enemies.EnemyProjectiles.Single(
                 projectile => projectile.Kind == kind);
             AssertEqual(
@@ -140,8 +140,7 @@ internal static partial class Program
             finalSystem,
             [finalSource,
              RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight,
-             (ushort)0x0100,
-             (ushort)0]);
+             new EightEightVector<RoomPixels>(0x0100, 0)]);
         RoomEnemyProjectileSlot final = finalSystem.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight);
@@ -165,8 +164,7 @@ internal static partial class Program
             sharedDeleteSystem,
             [sharedDeleteSource,
              RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown,
-             (ushort)0,
-             (ushort)0x0100]);
+             new EightEightVector<RoomPixels>(0, 0x0100)]);
         RoomEnemyProjectileSlot sharedDelete = sharedDeleteSystem.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown);

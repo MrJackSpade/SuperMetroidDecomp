@@ -51,18 +51,18 @@ public sealed class NorfairLavaJumpingEnemyState
         internal set => _slot.VariableC = value;
     }
 
-    /// <summary>Parent variant's immutable population X coordinate.</summary>
-    public ushort SpawnX
+    /// <summary>
+    /// Parent variant's immutable population position (Y at the lava surface), stored in native
+    /// enemy variables D (X) and E (Y).
+    /// </summary>
+    public Position16<RoomPixels> SpawnPosition
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
-    }
-
-    /// <summary>Parent variant's immutable population Y coordinate at the lava surface.</summary>
-    public ushort SpawnY
-    {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => new(_slot.VariableD, _slot.VariableE);
+        internal set
+        {
+            _slot.VariableD = value.X;
+            _slot.VariableE = value.Y;
+        }
     }
 
     /// <summary>Same-bank dispatch word in common variable F: parent slots traverse the four jump phases, while parameter-one bit 15 selects the persistent follower function; every main call advances RNG before dispatch.</summary>
@@ -122,8 +122,7 @@ public sealed partial class RoomEnemySystem
 
         // The jumping parent returns to exactly these population coordinates after every
         // arc. Subpositions are deliberately not saved or cleared by the retail routine.
-        state.SpawnX = slot.Position.X.Whole;
-        state.SpawnY = slot.Position.Y.Whole;
+        state.SpawnPosition = slot.Position.Whole;
         slot.CurrentInstruction = NorfairLavaJumperInstructionProgramDefinitions.Hidden;
         state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
     }
@@ -186,7 +185,7 @@ public sealed partial class RoomEnemySystem
                 // the hidden list, and sleeps off-screen until the next jump begins.
                 if ((slot.Position.Y.Whole & 0x00f0) == 0x00f0)
                 {
-                    slot.Position = slot.Position.WithWhole(new(state.SpawnX, state.SpawnY));
+                    slot.Position = slot.Position.WithWhole(state.SpawnPosition);
                     InstallNorfairLavaJumpingEnemyInstructionList(
                         slot,
                         state,

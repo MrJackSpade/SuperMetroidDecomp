@@ -81,8 +81,7 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, ushort parameter)
     {
-        BombTorizoSwipeDefinition definition =
-            BombTorizoAttackDefinitions.Swipe(parameter);
+        Offset16<RoomPixels> placement = BombTorizoAttackDefinitions.Swipe(parameter);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -92,15 +91,14 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
             graphicsIndex: 0);
 
-        projectile.Position = projectile.Position.WithWhole(new((torizo.Parameter1 & 0x8000) != 0
-            ? unchecked((ushort)(torizo.Position.X.Whole - definition.XOffset))
-            : unchecked((ushort)(torizo.Position.X.Whole + definition.XOffset)), unchecked((ushort)(
-            torizo.Position.Y.Whole + definition.YOffset))));
+        // A right-facing Torizo mirrors the left-facing hand placement horizontally.
+        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole +
+            ((torizo.Parameter1 & 0x8000) != 0 ? placement.MirroredX() : placement));
     }
 
     private void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, ushort parameter)
     {
-        BombTorizoExplosionDefinition definition =
+        Offset16<RoomPixels> placement =
             BombTorizoAttackDefinitions.LowHealthExplosion(
                 parameter,
                 facingRight: (torizo.Parameter1 & 0x8000) != 0);
@@ -112,9 +110,7 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
             graphicsIndex: 0);
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
-            torizo.Position.X.Whole + definition.XOffset)), unchecked((ushort)(
-            torizo.Position.Y.Whole + definition.YOffset))));
+        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + placement);
         projectile.Variable0 = projectile.Position.X.Whole;
         projectile.Variable1 = projectile.Position.Y.Whole;
     }
@@ -283,16 +279,13 @@ public sealed partial class RoomEnemySystem
         TorizoRandomizedProjectileDefinition definition)
     {
         projectile.InstructionPointer = definition.InstructionList;
-        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(torizo.Position.X.Whole +
-            definition.XOffset)));
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(
-            definition.BaseXVelocity +
-            unchecked((byte)_nextRandom!()) - 128))));
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(torizo.Position.Y.Whole +
-            definition.YOffset)));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
-            definition.BaseYVelocity +
-            unchecked((byte)_nextRandom!()) - 128))));
+        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + definition.Offset);
+        // The native initializer draws the X jitter before the Y jitter.
+        short xVelocity = unchecked((short)(
+            definition.BaseVelocity.X.SignedRawValue + unchecked((byte)_nextRandom!()) - 128));
+        short yVelocity = unchecked((short)(
+            definition.BaseVelocity.Y.SignedRawValue + unchecked((byte)_nextRandom!()) - 128));
+        projectile.Velocity = new EightEightVector<RoomPixels>(xVelocity, yVelocity);
     }
 
     private void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, bool rightFoot)

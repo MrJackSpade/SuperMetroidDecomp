@@ -64,7 +64,7 @@ static void VerifyBreakableGrapplePlms()
         var bts = new byte[foreground.Length];
         foreground[blockIndex] = 0xe123;
         bts[blockIndex] = behavior;
-        return CreateRoom(width, height, foreground, bts, blockDefinitions: blockDefinitions);
+        return CreateRoom(new(width, height), foreground, bts, blockDefinitions: blockDefinitions);
     }
 
     static void StepMany(
@@ -227,7 +227,7 @@ static void VerifyBreakableGrapplePlms()
         var bts = new byte[foreground.Length];
         foreground[blockIndex] = 0xf321;
         bts[blockIndex] = behavior;
-        return CreateRoom(width, height, foreground, bts, blockDefinitions: blockDefinitions);
+        return CreateRoom(new(width, height), foreground, bts, blockDefinitions: blockDefinitions);
     }
 
     RoomLevelData respawning2x2 = CreateBombLevel(3, definitions);
@@ -441,8 +441,7 @@ static void VerifySamusPostureMovement()
     var floor = new ushort[width * height];
     for (int x = 0; x < width; x++)
         floor[4 * width + x] = 0x8000;
-    RoomLevelData level = CreateRoom(
-        width, height, floor, new byte[floor.Length]);
+    RoomLevelData level = CreateRoom(new(width, height), floor, new byte[floor.Length]);
 
     var samus = new SamusState
     {
@@ -674,8 +673,7 @@ static void VerifySamusPostureMovement()
     var tunnelBlocks = (ushort[])floor.Clone();
     for (int x = 0; x < width; x++)
         tunnelBlocks[1 * width + x] = 0x8000;
-    RoomLevelData tunnel = CreateRoom(
-        width, height, tunnelBlocks, new byte[tunnelBlocks.Length]);
+    RoomLevelData tunnel = CreateRoom(new(width, height), tunnelBlocks, new byte[tunnelBlocks.Length]);
     var tunnelSamus = new SamusState
     {
         Pose = SamusPoseId.CrouchingRightPose,

@@ -28,6 +28,15 @@ public enum PlatformVerticalMovement : ushort
 }
 
 /// <summary>
+/// One platform's two native dispatcher indexes: the patrol direction
+/// (<c>Platform.XMovementFunctionIndex</c>, <c>$7E:7804,x</c>) and the rider-selected vertical
+/// movement (<c>Platform.YMovementFunctionIndex</c>, <c>$7E:7800,x</c>).
+/// </summary>
+public readonly record struct PlatformMovementFunctions(
+    PlatformHorizontalMovement Horizontal,
+    PlatformVerticalMovement Vertical);
+
+/// <summary>
 /// Typed view of the six common enemy-slot words and eight extra-WRAM words shared by
 /// Tripper <c>$D7FF</c> and Kamer <c>$D83F</c>.
 /// </summary>
@@ -40,9 +49,8 @@ public enum PlatformVerticalMovement : ushort
 public sealed class PlatformEnemyState
 {
     private readonly RoomEnemySlot _slot;
-    private readonly ushort[] _yMovementFunctions;
+    private readonly PlatformMovementFunctions[] _movementFunctions;
     private readonly ushort[] _previousPositions;
-    private readonly ushort[] _xMovementFunctions;
     private readonly ushort[] _verticallyMovingFlags;
     private readonly ushort[] _verticallyStillFlags;
     private readonly ushort[] _maximumYSpeedTableIndexes;
@@ -51,9 +59,8 @@ public sealed class PlatformEnemyState
 
     internal PlatformEnemyState(
         RoomEnemySlot slot,
-        ushort[] yMovementFunctions,
+        PlatformMovementFunctions[] movementFunctions,
         ushort[] previousPositions,
-        ushort[] xMovementFunctions,
         ushort[] verticallyMovingFlags,
         ushort[] verticallyStillFlags,
         ushort[] maximumYSpeedTableIndexes,
@@ -61,9 +68,8 @@ public sealed class PlatformEnemyState
         ushort[] suspensorPlatformFlags)
     {
         _slot = slot;
-        _yMovementFunctions = yMovementFunctions;
+        _movementFunctions = movementFunctions;
         _previousPositions = previousPositions;
-        _xMovementFunctions = xMovementFunctions;
         _verticallyMovingFlags = verticallyMovingFlags;
         _verticallyStillFlags = verticallyStillFlags;
         _maximumYSpeedTableIndexes = maximumYSpeedTableIndexes;
@@ -116,8 +122,8 @@ public sealed class PlatformEnemyState
     /// <summary>Current rider-selected vertical dispatcher index, native <c>Platform.YMovementFunctionIndex</c> at <c>$7E:7800,x</c>; recomputed each actor update before horizontal then vertical motion.</summary>
     public PlatformVerticalMovement YMovement
     {
-        get => (PlatformVerticalMovement)_yMovementFunctions[_slot.SlotIndex];
-        internal set => _yMovementFunctions[_slot.SlotIndex] = (ushort)value;
+        get => _movementFunctions[_slot.SlotIndex].Vertical;
+        internal set => _movementFunctions[_slot.SlotIndex] = _movementFunctions[_slot.SlotIndex] with { Vertical = value };
     }
 
     /// <summary>Pre-horizontal X, then pre-vertical Y, exactly as described above.</summary>
@@ -130,8 +136,8 @@ public sealed class PlatformEnemyState
     /// <summary>Current horizontal dispatcher index, native <c>Platform.XMovementFunctionIndex</c> at <c>$7E:7804,x</c>; initialized from population parameter 1 and changed by wall collisions or animation commands.</summary>
     public PlatformHorizontalMovement XMovement
     {
-        get => (PlatformHorizontalMovement)_xMovementFunctions[_slot.SlotIndex];
-        internal set => _xMovementFunctions[_slot.SlotIndex] = (ushort)value;
+        get => _movementFunctions[_slot.SlotIndex].Horizontal;
+        internal set => _movementFunctions[_slot.SlotIndex] = _movementFunctions[_slot.SlotIndex] with { Horizontal = value };
     }
 
     /// <summary>Nonzero after moving art has been installed for the current phase.</summary>
@@ -215,9 +221,8 @@ public sealed partial class RoomEnemySystem
 
 
 
-    private readonly ushort[] _platformYMovementFunctions = new ushort[MaximumEnemyCount];
+    private readonly PlatformMovementFunctions[] _platformMovementFunctions = new PlatformMovementFunctions[MaximumEnemyCount];
     private readonly ushort[] _platformPreviousPositions = new ushort[MaximumEnemyCount];
-    private readonly ushort[] _platformXMovementFunctions = new ushort[MaximumEnemyCount];
     private readonly ushort[] _platformVerticallyMovingFlags = new ushort[MaximumEnemyCount];
     private readonly ushort[] _platformVerticallyStillFlags = new ushort[MaximumEnemyCount];
     private readonly ushort[] _platformMaximumYSpeedTableIndexes = new ushort[MaximumEnemyCount];
@@ -235,9 +240,8 @@ public sealed partial class RoomEnemySystem
         bool isKamer = slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2;
         var state = new PlatformEnemyState(
             slot,
-            _platformYMovementFunctions,
+            _platformMovementFunctions,
             _platformPreviousPositions,
-            _platformXMovementFunctions,
             _platformVerticallyMovingFlags,
             _platformVerticallyStillFlags,
             _platformMaximumYSpeedTableIndexes,

@@ -29,7 +29,7 @@ internal static partial class Program
                 "Unknown selector address fails instead of reading arbitrary cartridge data");
         }
 
-        var room = CreateRoom(32, 16, new ushort[512], new byte[512]);
+        var room = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
         MethodInfo Method(string name) => typeof(SamusProjectileSystem).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!;
         SamusState Samus() => new() { Pose = SamusPoseId.FacingRightNormalPose, Position = new(new(128, 0), new(128, 0)), Missiles = 10, SuperMissiles = 10 };
         void Check(SamusProjectileSlot slot, int table, int index, int direction)

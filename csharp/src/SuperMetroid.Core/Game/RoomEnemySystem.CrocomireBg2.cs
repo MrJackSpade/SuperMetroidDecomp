@@ -37,7 +37,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void ClearCrocomireBg2SinkRow()
     {
-        int byteOffset = 8 * ((CrocomireBg2VerticalScroll + 288) & 0xfff8);
+        int byteOffset = 8 * ((CrocomireBg2Scroll.Y + 288) & 0xfff8);
         int firstWord = byteOffset >> 1;
         Span<ushort> tilemap = RequireCrocomireDeath().MutableBg2WorkingTilemap;
         if (firstWord < 0 || firstWord + 32 > tilemap.Length)
@@ -56,8 +56,8 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot body = state.Body;
         if (includeVerticalPosition)
-            CrocomireBg2VerticalScroll = CrocomireBg2ScrollDefinitions.VerticalScroll(
-                body.Position.Y.Whole, body.SpritemapPointer);
+            CrocomireBg2Scroll = CrocomireBg2Scroll.WithY(CrocomireBg2ScrollDefinitions.VerticalScroll(
+                body.Position.Y.Whole, body.SpritemapPointer));
 
         // The tongue is a normal second enemy actor whose var A is the body-relative X
         // offset. $8BA4 updates it even while the body's bulk is represented by BG2.
@@ -81,7 +81,7 @@ public sealed partial class RoomEnemySystem
                 ? (ushort)256
                 : CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole);
         }
-        CrocomireBg2HorizontalScroll = horizontal;
+        CrocomireBg2Scroll = CrocomireBg2Scroll.WithX(horizontal);
     }
 
     private ushort CalculateOnScreenCrocomireBg2Horizontal(ushort bodyX)

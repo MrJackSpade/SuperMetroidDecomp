@@ -34,7 +34,7 @@ public sealed partial class RoomEnemySystem
     {
         MoveNorfairRidleyToward(body, state, new Position16<RoomPixels>(128, 328),
             RidleyInertiaDefinitions.DeathDivisorIndex, RidleyInertiaDefinitions.DeathReversalBoost);
-        if (IsWithinRidleyRectangle(body, 128, 328, 4, 4))
+        if (IsWithinRidleyRectangle(body, new(128, 328), new(4, 4)))
             BeginNorfairRidleyDeathRoar(body, state);
     }
 
@@ -163,11 +163,9 @@ public sealed partial class RoomEnemySystem
         if (state.DeathExplosionCount >= 10)
             state.DeathExplosionCount = 0;
 
-        RidleyDeathExplosionPlacement placement =
-            RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount);
-        ushort x = unchecked((ushort)(body.Position.X.Whole + placement.XOffset));
-        ushort y = unchecked((ushort)(body.Position.Y.Whole + placement.YOffset));
-        SpawnRidleyDust(x, y, variant: 3);
+        SpawnRidleyDust(
+            body.Position.Whole + RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount),
+            variant: 3);
         state.LastDeathSoundEffect = 0x0024;
     }
 }

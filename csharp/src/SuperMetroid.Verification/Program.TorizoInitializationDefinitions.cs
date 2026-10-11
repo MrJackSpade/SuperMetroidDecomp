@@ -50,8 +50,8 @@ internal static partial class Program
                 AssertEqual((ushort)0, actor.Timer, "Initial actor timer");
                 AssertEqual((ushort)0, actor.PaletteIndex, "Initial palette index");
                 var state = variant == 0 ? enemies.BombTorizo! : enemies.GoldenTorizo!;
-                AssertEqual((ushort)0, state.HorizontalVelocity, "Initial horizontal velocity");
-                AssertEqual((ushort)0x100, state.VerticalVelocity, "Initial falling velocity");
+                AssertEqual((ushort)0, state.Velocity.X.RawValue, "Initial horizontal velocity");
+                AssertEqual((ushort)0x100, state.Velocity.Y.RawValue, "Initial falling velocity");
             }
             defeated = true;
             actor.Properties = 0x1234;

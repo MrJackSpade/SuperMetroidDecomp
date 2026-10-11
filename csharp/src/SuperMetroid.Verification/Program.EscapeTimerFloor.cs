@@ -29,8 +29,7 @@ internal static partial class Program
                 retail.Process(frame);
                 AssertTrue(!expired, "guarded escape never publishes expiration");
                 AssertEqual(retail.RawStatus, guarded.RawStatus, "escape state unchanged by floor");
-                AssertEqual(retail.XPositionFixed, guarded.XPositionFixed, "timer X animation unchanged");
-                AssertEqual(retail.YPositionFixed, guarded.YPositionFixed, "timer Y animation unchanged");
+                AssertEqual(retail.Position, guarded.Position, "timer animation unchanged");
                 if (guarded.MinutesBcd == 0 && guarded.SecondsBcd == 1 && guarded.CentisecondsBcd == 0)
                     reachedFloor = true;
                 if (reachedFloor)

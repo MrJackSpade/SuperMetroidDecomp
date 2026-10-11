@@ -15,7 +15,7 @@ public static class RoomGridConversions
 
     /// <summary>
     /// The room-pixel top-left corner of a block: each axis shifted left four bits, wrapping at
-    /// sixteen bits, as native code scales PLM block coordinates by sixteen.
+    /// sixteen bits, as the native <c>ASL ×4</c> block-to-pixel paths do.
     /// </summary>
     public static Position16<RoomPixels> ToRoomPixels(this Position16<RoomBlocks> block) =>
         new(unchecked((ushort)(block.X << 4)), unchecked((ushort)(block.Y << 4)));

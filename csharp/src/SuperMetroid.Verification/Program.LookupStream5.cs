@@ -1812,7 +1812,7 @@ internal static partial class Program
             var expected = new OamBuffer(); expected.BeginFrame();
             DrawImportedEnemySpritemap(rom, expected, CeresDoorInstructionProgramDefinitions.Bank,
                 CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap,
-                unchecked((ushort)(x - camera + native)), 80, EnemyPaletteBits.Palette2, 0);
+                new(unchecked((ushort)(x - camera + native)), 80), EnemyPaletteBits.Palette2, 0);
             expected.FinalizeFrame();
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                 "Byte-decoded quake preserves actual low/high OAM through coordinate wrap");

@@ -38,7 +38,7 @@ internal static partial class Program
                 if (((cx + 128) & 0xfe00) != 0 || ((cy + 128) & 0xfe00) != 0)
                     continue;
                 DrawImportedEnemySpritemap(source, expected, TorizoInstructionProgramDefinitions.Bank,
-                    NativeWord(source, component + 4), cx, cy, 0, 0,
+                    NativeWord(source, component + 4), new(cx, cy), 0, 0,
                     clipVerticalWrap: true, originYIsOnScreen: (cy >> 8) == 0);
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
@@ -91,8 +91,8 @@ internal static partial class Program
             for (int i = 0; i < components.Length; i++)
             {
                 int address = 0xaa0000 | (frame + 2 + i * 8);
-                AssertEqual(unchecked((short)NativeWord(source, address)), components[i].X, "Torizo physical X");
-                AssertEqual(unchecked((short)NativeWord(source, address + 2)), components[i].Y, "Torizo physical Y");
+                AssertEqual(unchecked((short)NativeWord(source, address)), components[i].Offset.X, "Torizo physical X");
+                AssertEqual(unchecked((short)NativeWord(source, address + 2)), components[i].Offset.Y, "Torizo physical Y");
                 AssertEqual(NativeWord(source, address + 6), components[i].HitboxList, "Torizo hitbox identity");
             }
         }

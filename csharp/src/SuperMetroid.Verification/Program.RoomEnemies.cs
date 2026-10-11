@@ -1508,8 +1508,8 @@ static void VerifyCeresRidleyRoomEntry()
         if (curveOffset != 0)
             GetawayFrame();
         var curve = CeresRidleyGetawayDefinitions.FromByteIndex(curveOffset);
-        expectedX = unchecked((ushort)(expectedX - curve.XVelocity));
-        expectedY = unchecked((ushort)(expectedY + curve.YVelocity));
+        expectedX = unchecked((ushort)(expectedX - curve.Velocity.X));
+        expectedY = unchecked((ushort)(expectedY + curve.Velocity.Y));
         AssertEqual(curve.Zoom, state.Mode7Zoom, "Ceres real getaway zoom publication");
         AssertEqual(unchecked((short)expectedX), state.Mode7Offset.X, "Ceres real getaway horizontal integration");
         AssertEqual(unchecked((short)expectedY), state.Mode7Offset.Y, "Ceres real getaway vertical integration");

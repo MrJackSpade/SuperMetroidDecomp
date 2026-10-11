@@ -20,7 +20,7 @@ internal static partial class Program
             samus.RefreshCollisionRadii(fixture.Bus);
             ushort[] blocks = new ushort[32 * 8];
             for (int x = 0; x < 32; x++) blocks[4 * 32 + x] = 0x8000;
-            var floor = CreateRoom(32, 8, blocks, new byte[blocks.Length]);
+            var floor = CreateRoom(new(32, 8), blocks, new byte[blocks.Length]);
             var speed = samus.HorizontalSpeed;
             speed.HasRunningMomentum = true;
             speed.ExtraRunSpeed = 7;

@@ -22,11 +22,8 @@ namespace SuperMetroid.Core.Game;
 public sealed class MotherBrainBodyAnimationState
 {
 
-    /// <summary>Mother Brain body enemy-slot X position.</summary>
-    public ushort XPosition { get; set; }
-
-    /// <summary>Mother Brain body enemy-slot Y position.</summary>
-    public ushort YPosition { get; set; }
+    /// <summary>Mother Brain body enemy-slot whole-pixel room position.</summary>
+    public Position16<RoomPixels> Position { get; set; }
 
     /// <summary>
     /// Native body pose word. The admitted programs publish standing, walking, the

@@ -42,18 +42,15 @@ public sealed class LowerNorfairRioEnemyState
     /// </summary>
     public bool FollowerVisible { get; internal set; }
 
-    /// <summary>Signed 8.8 vertical velocity stored in common variable C.</summary>
-    public ushort YVelocity
+    /// <summary>Signed 8.8 velocity: X stored in common variable D, Y in common variable C.</summary>
+    public EightEightVector<RoomPixels> Velocity
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Signed 8.8 horizontal velocity stored in common variable D.</summary>
-    public ushort XVelocity
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => new(new SnesSignedEightEight(_slot.VariableD), new SnesSignedEightEight(_slot.VariableC));
+        internal set
+        {
+            _slot.VariableC = value.Y.RawValue;
+            _slot.VariableD = value.X.RawValue;
+        }
     }
 
     /// <summary>Current indirect bank-$A2 AI address backed by the owning slot's variable F at native <c>$0FB2,x</c>; parent and flame follower dispatch through this same word.</summary>
@@ -148,10 +145,11 @@ public sealed partial class RoomEnemySystem
                     return;
                 }
 
-                state.YVelocity = RioLaunchDefinitions.LowerNorfairYVelocity;
-                state.XVelocity = RioLaunchDefinitions.LowerNorfairXVelocity;
+                state.Velocity = new(
+                    new SnesSignedEightEight(RioLaunchDefinitions.LowerNorfairXVelocity),
+                    new SnesSignedEightEight(RioLaunchDefinitions.LowerNorfairYVelocity));
                 if (unchecked((short)(samus!.Position.X.Whole - slot.Position.X.Whole)) < 0)
-                    state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
+                    NegateLowerNorfairRioXVelocity(state);
                 InstallLowerNorfairRioInstructionList(
                     slot,
                     state,
@@ -176,14 +174,14 @@ public sealed partial class RoomEnemySystem
                 if (MoveEnemyVertically(
                         level!,
                         slot,
-                        ToEightBitVelocityDisplacement(state.YVelocity)))
+                        ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
                 {
                     BeginLowerNorfairRioReturn(slot, state);
                     return;
                 }
 
-                state.YVelocity = unchecked((ushort)(state.YVelocity - LowerNorfairRioGravity));
-                if (unchecked((short)state.YVelocity) < 0)
+                ApplyLowerNorfairRioGravity(state);
+                if (state.Velocity.Y.SignedRawValue < 0)
                     BeginLowerNorfairRioReturn(slot, state);
                 return;
 
@@ -193,7 +191,7 @@ public sealed partial class RoomEnemySystem
                 if (MoveEnemyVertically(
                         level!,
                         slot,
-                        ToEightBitVelocityDisplacement(state.YVelocity)))
+                        ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
                 {
                     InstallLowerNorfairRioInstructionList(
                         slot,
@@ -203,7 +201,7 @@ public sealed partial class RoomEnemySystem
                     return;
                 }
 
-                state.YVelocity = unchecked((ushort)(state.YVelocity - LowerNorfairRioGravity));
+                ApplyLowerNorfairRioGravity(state);
                 if (state.AnimationSignal)
                 {
                     state.AnimationSignal = false;
@@ -291,7 +289,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state)
     {
-        state.YVelocity = 0xffff;
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0xffff));
         InstallLowerNorfairRioInstructionList(
             slot,
             state,
@@ -308,11 +306,18 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                ToEightBitVelocityDisplacement(state.XVelocity)))
+                ToEightBitVelocityDisplacement(state.Velocity.X.RawValue)))
         {
-            state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
+            NegateLowerNorfairRioXVelocity(state);
         }
     }
+
+    private static void NegateLowerNorfairRioXVelocity(LowerNorfairRioEnemyState state) =>
+        state.Velocity = state.Velocity.ReversedX();
+
+    private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(
+            unchecked((ushort)(state.Velocity.Y.RawValue - LowerNorfairRioGravity))));
 
     /// <summary>The bank-$A2 address at which <paramref name="program"/> begins, loaded into the enemy's instruction cursor.</summary>
     private static ushort ListStart(LowerNorfairRioProgram program) => (ushort)program;

@@ -12,9 +12,9 @@ internal static partial class Program
         var font = new MenuSmallFontArtwork(image);
         AssertEqual(328, font.StoredFaceByteCount, "one-bit authored silhouettes only");
         AssertEqual(3, font.StoredEditCount, "three independently reviewed B/K drawing choices");
-        AssertTrue(font.HasPixelOverride(0x6b, 1, 7), "B's selected lower-left bevel");
-        AssertTrue(font.HasPixelOverride(0x74, 6, 2), "first K arm trim");
-        AssertTrue(font.HasPixelOverride(0x74, 5, 3), "second K arm trim");
+        AssertTrue(font.HasPixelOverride(0x6b, new(1, 7)), "B's selected lower-left bevel");
+        AssertTrue(font.HasPixelOverride(0x74, new(6, 2)), "first K arm trim");
+        AssertTrue(font.HasPixelOverride(0x74, new(5, 3)), "second K arm trim");
         AssertMenuInkRegionEqual(image, 0x6b, new(0, 4), 0x6d, new(0, 4), new(8, 4), "B/D lower contour");
         AssertMenuInkRegionEqual(image, 0x74, new(5, 1), 0x83, new(5, 2), new(3, 3), "K/Z first diagonal neighborhood");
         AssertMenuInkRegionEqual(image, 0x74, new(4, 2), 0x83, new(4, 3), new(3, 2), "K/Z second diagonal source/current rows");

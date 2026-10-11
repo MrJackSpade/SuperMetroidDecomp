@@ -69,14 +69,10 @@ public sealed class NuclearWaffleEnemyState
     public ushort AngularSpeedFraction { get; internal set; }
     /// <summary>Native $7E:800A angleDelta: signed whole-angle-unit high word added to the current angle with fractional carry; one unit is 1/256 turn.</summary>
     public short AngularSpeedWhole { get; internal set; }
-    /// <summary>Native $7E:800C arcOriginXPosition: initial population X in whole room pixels, retained as the fixed orbit center.</summary>
-    public ushort OriginX { get; internal set; }
-    /// <summary>Native $7E:800E arcOriginYPosition: initial population Y in whole room pixels, retained as the fixed orbit center.</summary>
-    public ushort OriginY { get; internal set; }
-    /// <summary>Native $7E:8010 bodyPartSpawnXPosition: head X after applying the initial angle and radius, used as the whole-pixel spawn X for the four projectile links.</summary>
-    public ushort InitialHeadX { get; internal set; }
-    /// <summary>Native $7E:8012 bodyPartSpawnYPosition: head Y after applying the initial angle and radius, used as the whole-pixel spawn Y for the four projectile links.</summary>
-    public ushort InitialHeadY { get; internal set; }
+    /// <summary>Native $7E:800C/$800E arcOriginX/YPosition: initial population position in whole room pixels, retained as the fixed orbit center.</summary>
+    public Position16<RoomPixels> Origin { get; internal set; }
+    /// <summary>Native $7E:8010/$8012 bodyPartSpawnX/YPosition: head position after applying the initial angle and radius, used as the whole-pixel spawn position for the four projectile links.</summary>
+    public Position16<RoomPixels> InitialHead { get; internal set; }
     /// <summary>Native $7E:8016 angleBetweenBodyPartsTimes2: signed same-pool link pitch, -24 for direction 0 or +24 for direction 1, subtracted successively from each link angle.</summary>
     public short SegmentSpacing { get; internal set; }
     /// <summary>Native $7E:8018 angleBetweenBodyParts: signed half-pitch, -12 or +12 angle units, added before the projectile-link loop to stagger it against the sprite-object links.</summary>
@@ -151,11 +147,9 @@ public sealed partial class RoomEnemySystem
         state.AngularSpeedWhole = speedWhole;
         state.AngularSpeedFraction = speedFraction;
 
-        state.OriginX = slot.Position.X.Whole;
-        state.OriginY = slot.Position.Y.Whole;
+        state.Origin = slot.Position.Whole;
         PositionNuclearWaffleHead(slot, state, state.SweepStartAngle);
-        state.InitialHeadX = slot.Position.X.Whole;
-        state.InitialHeadY = slot.Position.Y.Whole;
+        state.InitialHead = slot.Position.Whole;
         state.GraphicsIndex = unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex));
 
         SpawnNuclearWaffleProjectileSegments(slot, state);
@@ -209,8 +203,7 @@ public sealed partial class RoomEnemySystem
         if (headOrientation.State != state.HeadOrientationState)
         {
             SpawnNuclearWaffleTurnObjects(
-                slot.Position.X.Whole,
-                slot.Position.Y.Whole,
+                slot.Position.Whole,
                 state.GraphicsIndex,
                 headOrientation);
             state.HeadOrientationState = headOrientation.State;
@@ -250,7 +243,7 @@ public sealed partial class RoomEnemySystem
                 segment,
                 RoomEnemyProjectileKind.NuclearWaffleBody,
                 state.GraphicsIndex);
-            segment.Position = new(new(state.InitialHeadX, owner.Position.X.Fraction), new(state.InitialHeadY, owner.Position.Y.Fraction));
+            segment.Position = owner.Position.WithWhole(state.InitialHead);
             // Initializer $BB92 writes collision option one for these four links. Property
             // $8000 admits the beam overlap; this independent flag selects the persistent
             // dud response rather than the definition's delete-on-shot instruction list.
@@ -290,18 +283,14 @@ public sealed partial class RoomEnemySystem
             if (orientation.State != state.ProjectileOrientationStates[index])
             {
                 SpawnNuclearWaffleTurnObjects(
-                    segment.Position.X.Whole,
-                    segment.Position.Y.Whole,
+                    segment.Position.Whole,
                     state.GraphicsIndex,
                     orientation);
                 state.ProjectileOrientationStates[index] = orientation.State;
             }
 
             (ushort clampedAngle, bool linkFinished) = ClampNuclearWaffleAngle(state, angle);
-            segment.Position = segment.Position.WithWholeX(unchecked((ushort)(
-                state.OriginX + ReadEightBitCosineProduct(clampedAngle, state.OrbitRadius))));
-            segment.Position = segment.Position.WithWholeY(unchecked((ushort)(
-                state.OriginY + ReadEightBitNegativeSineProduct(clampedAngle, state.OrbitRadius))));
+            segment.Position = segment.Position.WithWhole(NuclearWaffleOrbitPoint(state, clampedAngle));
             // `$A6:97C8` tests the flag left by the final link's second clamp call. It is
             // deliberately not an OR across the chain: the head and leading links can sit
             // at the endpoint while the final projectile link is still unfurling.
@@ -324,18 +313,14 @@ public sealed partial class RoomEnemySystem
             if (orientation.State != state.SpriteOrientationStates[index])
             {
                 SpawnNuclearWaffleTurnObjects(
-                    segment.Position.X.Whole,
-                    segment.Position.Y.Whole,
+                    segment.Position.Whole,
                     state.GraphicsIndex,
                     orientation);
                 state.SpriteOrientationStates[index] = orientation.State;
             }
 
             (ushort clampedAngle, _) = ClampNuclearWaffleAngle(state, angle);
-            segment.Position = segment.Position.WithWholeX(unchecked((ushort)(
-                state.OriginX + ReadEightBitCosineProduct(clampedAngle, state.OrbitRadius))));
-            segment.Position = segment.Position.WithWholeY(unchecked((ushort)(
-                state.OriginY + ReadEightBitNegativeSineProduct(clampedAngle, state.OrbitRadius))));
+            segment.Position = segment.Position.WithWhole(NuclearWaffleOrbitPoint(state, clampedAngle));
         }
     }
 
@@ -384,17 +369,16 @@ public sealed partial class RoomEnemySystem
     }
 
     private void SpawnNuclearWaffleTurnObjects(
-        ushort x,
-        ushort y,
+        Position16<RoomPixels> position,
         ushort graphicsIndex,
         NuclearWaffleOrientation orientation)
     {
         _ = SpawnRoomSpriteObject(
-            new(x, y),
+            position,
             RoomSpriteObjectKind.NuclearWaffleTurnOverlay,
             graphicsIndex);
         _ = SpawnRoomSpriteObject(
-            new(x, y),
+            position,
             orientation.TurnSpriteVariant == 0
                 ? RoomSpriteObjectKind.NuclearWaffleTurnClockwise
                 : RoomSpriteObjectKind.NuclearWaffleTurnCounterClockwise,
@@ -410,11 +394,14 @@ public sealed partial class RoomEnemySystem
         NuclearWaffleEnemyState state,
         ushort angle)
     {
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-            state.OriginX + ReadEightBitCosineProduct(angle, state.OrbitRadius))));
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
-            state.OriginY + ReadEightBitNegativeSineProduct(angle, state.OrbitRadius))));
+        slot.Position = slot.Position.WithWhole(NuclearWaffleOrbitPoint(state, angle));
     }
+
+    /// <summary>The whole-pixel point on the orbit at <paramref name="angle"/>, wrapping at sixteen bits.</summary>
+    private static Position16<RoomPixels> NuclearWaffleOrbitPoint(NuclearWaffleEnemyState state, ushort angle) =>
+        state.Origin + new Offset16<RoomPixels>(
+            unchecked((short)ReadEightBitCosineProduct(angle, state.OrbitRadius)),
+            unchecked((short)ReadEightBitNegativeSineProduct(angle, state.OrbitRadius)));
 
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state)
     {

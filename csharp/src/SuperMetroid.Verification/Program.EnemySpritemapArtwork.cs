@@ -1046,7 +1046,7 @@ internal static partial class Program
                 var native = new OamBuffer();
                 var installed = new OamBuffer();
                 DrawImportedEnemySpritemap(rom, native, frame.Bank, frame.Pointer,
-                    x, y, palette, baseTile);
+                    new(x, y), palette, baseTile);
                 installed.AddEnemySpritemap(parts, new Position16<OamPixels>(x, y), palette, baseTile);
                 AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) &&
                            native.HighTable.SequenceEqual(installed.HighTable) &&
@@ -1196,7 +1196,7 @@ internal static partial class Program
                                 : EnemyDefinitionId.Atomic, spritemapBank: frame.Bank);
             var nativeRoom = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeRoom, frame.Bank, frame.Pointer,
-                0x0040, 0x0080, 0, 0);
+                new(0x0040, 0x0080), 0, 0);
             AssertTrue(room.LowTable.SequenceEqual(nativeRoom.LowTable) &&
                        room.HighTable.SequenceEqual(nativeRoom.HighTable),
                 $"production room draws installed {frame.Name} without visual ROM reads");
@@ -1978,9 +1978,9 @@ internal static partial class Program
         AssertEqual(stockMetroid.LowTable[1], editedMetroid.LowTable[1],
             "ordinary-Metroid body art edit leaves physical Y unchanged");
         OamBuffer stockBrain = DrawInstalledMotherBrainFrame(
-            stock, rom, 0xa586, 0x0140, 0x00a0);
+            stock, rom, 0xa586, new(0x0140, 0x00a0));
         OamBuffer editedBrain = DrawInstalledMotherBrainFrame(
-            edited, rom, 0xa586, 0x0140, 0x00a0);
+            edited, rom, 0xa586, new(0x0140, 0x00a0));
         AssertEqual(unchecked((byte)(stockBrain.LowTable[0] + 1)),
             editedBrain.LowTable[0],
             "Mother Brain head artwork edit changes live OAM X without ROM reads");
@@ -3685,10 +3685,10 @@ internal static partial class Program
         foreach (EnemySpritemapDefinition frame in MotherBrainVisualDefinitions.Frames())
         {
             OamBuffer actual = DrawInstalledMotherBrainFrame(
-                stock, rom, frame.Pointer, 0x0140, 0x00a0);
+                stock, rom, frame.Pointer, new(0x0140, 0x00a0));
             var expected = new OamBuffer();
             DrawImportedEnemySpritemap(rom, expected, frame.Bank, frame.Pointer,
-                0x0040, 0x0090, 0x0400, 0x0010);
+                new(0x0040, 0x0090), 0x0400, 0x0010);
             AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) &&
                        actual.HighTable.SequenceEqual(expected.HighTable) &&
                        actual.NextByteOffset == expected.NextByteOffset,
@@ -3696,14 +3696,14 @@ internal static partial class Program
         }
 
         OamBuffer aboveScreen = DrawInstalledMotherBrainFrame(
-            stock, rom, 0xa586, 0x0140, 0x000f);
+            stock, rom, 0xa586, new(0x0140, 0x000f));
         AssertEqual(0, aboveScreen.NextByteOffset,
             "Mother Brain private draw still culls a head above the viewport");
     }
 
     private static OamBuffer DrawInstalledMotherBrainFrame(
         EnemyTileArtworkCatalog art, ISnesAddressSpace rom, ushort pointer,
-        ushort worldX, ushort worldY)
+        Position16<RoomPixels> world)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
@@ -3712,7 +3712,7 @@ internal static partial class Program
         var oam = new OamBuffer();
         typeof(RoomEnemySystem).GetMethod("DrawMotherBrainWorldSpritemap", flags)!
             .Invoke(enemies,
-                [oam, pointer, new Position16<RoomPixels>(worldX, worldY), (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010)]);
+                [oam, pointer, world, (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010)]);
         return oam;
     }
 

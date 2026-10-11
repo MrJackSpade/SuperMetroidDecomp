@@ -53,11 +53,11 @@ public sealed class TorizoEnemyState
     /// <summary>Native <c>toriz_var_07</c>: consecutive frames Samus has space-jumped.</summary>
     public ushort SamusSpaceJumpFrames { get; internal set; }
 
-    /// <summary>Signed 8.8 jump velocity or signed whole-pixel walk delta, by caller.</summary>
-    public ushort HorizontalVelocity { get; internal set; }
-
-    /// <summary>Signed 8.8 vertical velocity.</summary>
-    public ushort VerticalVelocity { get; internal set; }
+    /// <summary>
+    /// Signed 8.8 jump velocity words. The walking instructions reuse the native X word for a
+    /// signed whole-pixel walk delta, which they read as whole pixels.
+    /// </summary>
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Signed 8.8 vertical acceleration.</summary>
     public ushort VerticalAcceleration { get; internal set; }
@@ -232,8 +232,7 @@ public sealed partial class RoomEnemySystem
 
         state.Function = TorizoFunction.Falling;
         state.PreInstruction = TorizoPreInstruction.Idle;
-        state.HorizontalVelocity = 0;
-        state.VerticalVelocity = 0x0100;
+        state.Velocity = new EightEightVector<RoomPixels>(0, 0x0100);
 
         // Init writes two shared target rows and then selects the encounter-specific body
         // pair. This runtime exposes live CGRAM rather than separate current/target buffers,
@@ -487,20 +486,20 @@ public sealed partial class RoomEnemySystem
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        int displacement = unchecked((short)state.VerticalVelocity) << 8;
+        int displacement = state.Velocity.Y.SignedRawValue << 8;
         if (MoveEnemyVertically(level, torizo, displacement))
         {
-            short velocity = unchecked((short)state.VerticalVelocity);
+            short velocity = state.Velocity.Y.SignedRawValue;
             if (velocity is >= 0 and not 0x0100)
             {
                 EarthquakeType = 4;
                 EarthquakeTimer = 32;
-                state.VerticalVelocity = 0x0100;
+                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0100));
             }
             return;
         }
 
-        state.VerticalVelocity = unchecked((ushort)(state.VerticalVelocity + 40));
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 40))));
     }
 
     private void RunBombTorizoJump(
@@ -511,24 +510,24 @@ public sealed partial class RoomEnemySystem
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             torizo,
-            unchecked((short)state.HorizontalVelocity) << 8);
+            state.Velocity.X.SignedRawValue << 8);
         AlignEnemyYWithNonSquareSlope(level, torizo);
 
         if (MoveEnemyVertically(
                 level,
                 torizo,
-                unchecked((short)state.VerticalVelocity) << 8))
+                state.Velocity.Y.SignedRawValue << 8))
         {
             torizo.CurrentInstruction = state.ReturnInstruction;
             torizo.InstructionTimer = 1;
-            state.VerticalVelocity = 0x0100;
+            state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0100));
             EarthquakeType = 4;
             EarthquakeTimer = 32;
             return;
         }
 
-        state.VerticalVelocity = unchecked((ushort)(
-            state.VerticalVelocity + state.VerticalAcceleration));
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+            state.Velocity.Y.RawValue + state.VerticalAcceleration))));
     }
 
     private void RunBombTorizoAirTransition(
@@ -554,7 +553,7 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        int fallingSpeed = Math.Min(Math.Abs(unchecked((short)state.HorizontalVelocity)) + 1, 15);
+        int fallingSpeed = Math.Min(Math.Abs(state.Velocity.X.SignedRawValue) + 1, 15);
         if (!MoveEnemyVertically(level, torizo, fallingSpeed << 16))
         {
             // $AA:C752 swaps to the authored in-air list while the downward probe remains
@@ -563,8 +562,7 @@ public sealed partial class RoomEnemySystem
                 ? TorizoInstructionLists.AirborneFacingRight
                 : TorizoInstructionLists.AirborneFacingLeft;
             torizo.InstructionTimer = 1;
-            state.VerticalVelocity = 0x0100;
-            state.HorizontalVelocity = 0;
+            state.Velocity = new EightEightVector<RoomPixels>(0, 0x0100);
         }
     }
 
@@ -589,7 +587,7 @@ public sealed partial class RoomEnemySystem
         }
 
         int fallingSpeed = Math.Min(
-            Math.Abs(unchecked((short)state.HorizontalVelocity)) + 1,
+            Math.Abs(state.Velocity.X.SignedRawValue) + 1,
             15);
         if (!MoveEnemyVertically(level, torizo, fallingSpeed << 16))
         {
@@ -597,8 +595,7 @@ public sealed partial class RoomEnemySystem
                 ? TorizoInstructionLists.AirborneFacingRight
                 : TorizoInstructionLists.AirborneFacingLeft;
             torizo.InstructionTimer = 1;
-            state.VerticalVelocity = 0x0100;
-            state.HorizontalVelocity = 0;
+            state.Velocity = new EightEightVector<RoomPixels>(0, 0x0100);
         }
     }
 

@@ -177,7 +177,7 @@ internal static partial class Program
             }
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
-                (unchecked((short)state.XVelocity) < 0 ? -32 : 32))), state.LandingYPosition));
+                (state.Velocity.X.WholePixels < 0 ? -32 : 32))), state.LandingYPosition));
             foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles.Where(
                          projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball))
             {

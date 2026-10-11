@@ -46,7 +46,7 @@ internal static partial class Program
             Invoke(title, "PrepareRenderOam");
             expected.BeginFrame();
             DrawImportedSpritemap(reference, expected,
-                (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, checked((ushort)frame.Pointer)), x, y, palette);
+                (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, checked((ushort)frame.Pointer)), new(x, y), palette);
             expected.FinalizeFrame();
             EqualOam(expected, Field<OamBuffer>(title, "oam"), "title composition/coordinate/palette parity");
             titleCases++;
@@ -58,7 +58,7 @@ internal static partial class Program
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank,
                 TitleSequenceRomData.Sprites.NintendoCopyright),
-            TitleSequenceRomData.Sprites.CopyrightOrigin.X, TitleSequenceRomData.Sprites.CopyrightOrigin.Y,
+            new(TitleSequenceRomData.Sprites.CopyrightOrigin.X, TitleSequenceRomData.Sprites.CopyrightOrigin.Y),
             TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         expected.FinalizeFrame();
         EqualOam(expected, Field<OamBuffer>(title, "oam"), "title copyright owner parity");
@@ -80,7 +80,7 @@ internal static partial class Program
         expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, caret.SpriteMapPointer),
-            caret.Caret.X, caret.Caret.Y, IntroCinematicRomData.Objects.ScientistPalette.Raw);
+            new(caret.Caret.X, caret.Caret.Y), IntroCinematicRomData.Objects.ScientistPalette.Raw);
         expected.FinalizeFrame();
         EqualOam(expected, actual, "illustrated-page caret owner parity");
 
@@ -93,7 +93,7 @@ internal static partial class Program
         Field<SamusState>(intro, "flashbackSamus").Draw(memory, expected, new(0, 0), 0);
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, motherBrain.SpriteMapPointer),
-            IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y,
+            new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
             IntroMotherBrainSpriteState.PaletteBits);
         expected.FinalizeFrame();
         EqualOam(expected, actual, "Mother Brain owner preserves actor order and exact OAM");
@@ -112,7 +112,7 @@ internal static partial class Program
             if (!Property<bool>(actor, "IsActive") || pointer == 0) continue;
             DrawImportedSpritemap(reference, expected,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer),
-                Property<ushort>(actor, "XPosition"), Property<ushort>(actor, "YPosition"),
+                new(Property<ushort>(actor, "XPosition"), Property<ushort>(actor, "YPosition")),
                 IntroCinematicRomData.Objects.ExplosionPalette.Raw);
         }
         expected.FinalizeFrame();

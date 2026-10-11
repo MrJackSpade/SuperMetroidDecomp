@@ -85,9 +85,7 @@ internal static partial class Program
                 LevelBlockFlipFlags.None,
                 RoomCollisionType.SolidBlock).Raw;
         }
-        RoomLevelData wallRoom = CreateRoom(
-            32,
-            32,
+        RoomLevelData wallRoom = CreateRoom(new(32, 32),
             wallWords,
             new byte[wallWords.Length]);
         RoomEnemySystem wallEnemies = CreateSystem(
@@ -123,9 +121,7 @@ internal static partial class Program
                 LevelBlockFlipFlags.None,
                 RoomCollisionType.SolidBlock).Raw;
         }
-        RoomLevelData floorRoom = CreateRoom(
-            32,
-            32,
+        RoomLevelData floorRoom = CreateRoom(new(32, 32),
             floorWords,
             new byte[floorWords.Length]);
 

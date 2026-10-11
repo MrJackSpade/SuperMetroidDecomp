@@ -161,7 +161,7 @@ internal static partial class Program
 
         RoomEnemyProjectileSlot SpawnStatue(RoomEnemyProjectileKind kind)
         {
-            spawnStatue.Invoke(enemies, [kind, (ushort)128, (ushort)128]);
+            spawnStatue.Invoke(enemies, [kind, new Position16<RoomPixels>(128, 128)]);
             return enemies.EnemyProjectiles.First(projectile => projectile.Kind == kind);
         }
 

@@ -14,20 +14,24 @@ internal enum MotherBrainTurretDirection : byte
 }
 
 /// <summary>Fixed placement and rotation policy for one of the twelve room turrets.</summary>
+/// <param name="Position">The turret's fixed room-pixel position.</param>
+/// <param name="AllowedRotationPointer">The bank-$86 allowed-direction row.</param>
+/// <param name="InitialDirection">The direction the turret starts in.</param>
+/// <param name="AllowedDirectionMask">The directions the turret may rotate to, one bit each.</param>
 internal readonly record struct MotherBrainTurretDefinition(
-    ushort X,
-    ushort Y,
+    Position16<RoomPixels> Position,
     ushort AllowedRotationPointer,
     MotherBrainTurretDirection InitialDirection,
     byte AllowedDirectionMask);
 
 /// <summary>Animation selector and physical bullet launch for one turret direction.</summary>
+/// <param name="InstructionPointer">The turret pose's instruction list.</param>
+/// <param name="BulletOffset">The bullet's spawn offset from the turret, in room pixels.</param>
+/// <param name="BulletVelocity">The bullet's signed 8.8 launch velocity.</param>
 internal readonly record struct MotherBrainTurretDirectionDefinition(
     ushort InstructionPointer,
-    short BulletXOffset,
-    short BulletYOffset,
-    short BulletXVelocity,
-    short BulletYVelocity);
+    Offset16<RoomPixels> BulletOffset,
+    EightEightVector<RoomPixels> BulletVelocity);
 
 /// <summary>Compiled placement, rotation, animation-selector, and bullet-physics definitions.</summary>
 internal static class MotherBrainTurretDefinitions
@@ -86,7 +90,7 @@ internal static class MotherBrainTurretDefinitions
             _ => Sector(MotherBrainTurretDirection.Left,
                 wideSector ? MotherBrainTurretDirection.DownRight : MotherBrainTurretDirection.Down),
         };
-        return new((ushort)(FirstBayX - bay * BaySpacing - xInset), (ushort)(column == 0 ? 48 : 64),
+        return new(new((ushort)(FirstBayX - bay * BaySpacing - xInset), (ushort)(column == 0 ? 48 : 64)),
             (ushort)(RotationPolicyStart + parameter * DirectionCount), initial, allowed);
     }
 
@@ -112,8 +116,8 @@ internal static class MotherBrainTurretDefinitions
             _ => throw new ArgumentOutOfRangeException(nameof(direction)),
         };
         return new((ushort)(MotherBrainTurretInstructionProgramDefinitions.TurretLeft + index * PoseBytes),
-            (short)Math.Round(-MuzzleRadius * Math.Cos(angle)), muzzleY,
-            (short)Math.Round(-BulletSpeed * Math.Cos(angle)), (short)Math.Round(BulletSpeed * Math.Sin(angle)));
+            new((short)Math.Round(-MuzzleRadius * Math.Cos(angle)), muzzleY),
+            new((short)Math.Round(-BulletSpeed * Math.Cos(angle)), (short)Math.Round(BulletSpeed * Math.Sin(angle))));
     }
 
     /// <summary>

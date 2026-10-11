@@ -98,6 +98,25 @@ internal static partial class Program
             SpatialClumpAnalyzer.ParameterClumpId, "'x' and 'y'");
         Expect(attribute + " class C { [SpatialComponents(\"hardware\")] void Write(ushort x, ushort y) { } }");
         Expect("class C { void M(int x, int count, int y) { } }");
+
+        // SME6282: parallel X/Y collections indexed by the same element.
+        Expect("class Segments { public ushort[] SegmentXOffsets = []; public ushort[] SegmentYOffsets = []; }",
+            SpatialClumpAnalyzer.CollectionClumpId, "'SegmentXOffsets' and 'SegmentYOffsets'");
+        Expect("using System.Collections.Generic; class Path { public List<short> X = new(); public List<short> Y = new(); }",
+            SpatialClumpAnalyzer.CollectionClumpId, "X/Y components");
+        // A collection of spatial values, or an encapsulated data-oriented layout, passes.
+        Expect(attribute + " [SpatialComponents(\"measured layout\")] class Soa { public float[] X = []; public float[] Y = []; }");
+
+        // SME6283: a spatial value rebuilt from per-axis sums of two spatial values.
+        const string point = attribute + " [SpatialComponents(\"value\")] readonly struct P { public P(int x, int y) { X = x; Y = y; } public int X { get; } public int Y { get; } public static P operator +(P a, P b) => new(a.X + b.X, a.Y + b.Y); }";
+        Expect(point + " class C { P M(P a, P b) => new P(a.X + b.X, a.Y + b.Y); }",
+            SpatialClumpAnalyzer.ComponentArithmeticId, "use the whole-value operator");
+        // Mixed receivers or mixed operators are component-level work, not a duplicated operator.
+        Expect(point + " class C { P M(P a, P b) => new P(a.X + b.X, a.Y - b.Y); }");
+        Expect(point + " class C { P M(P a, P b, P c) => new P(a.X + b.X, a.Y + c.Y); }");
+        // Building one type from another (a named space conversion) is not a duplicated operator.
+        Expect("[SpatialComponents(\"value\")] readonly struct Q { public Q(int x, int y) { X = x; Y = y; } public int X { get; } public int Y { get; } } " +
+            point + " class C { P M(Q room, Q camera) => new P(room.X - camera.X, room.Y - camera.Y); }");
     }
 
     /// <summary>#627 primitive-domain rules: positive and negative cases for each diagnostic.</summary>

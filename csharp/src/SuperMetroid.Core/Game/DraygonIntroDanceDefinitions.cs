@@ -87,15 +87,14 @@ internal static class DraygonIntroDanceDefinitions
         }
 
         if (streamOffset is FirstDeleteOffset or FirstDeleteOffset + StreamIndexAdvance)
-            return new DraygonIntroMovement(0, 0, DeletesSprite: true);
+            return new DraygonIntroMovement(Offset16<RoomPixels>.Zero, DeletesSprite: true);
 
         int index = streamOffset / StreamIndexAdvance;
         if (streamOffset > FirstDeleteOffset) index -= 2;
         byte packed = PackedMovement[index];
 
         return new DraygonIntroMovement(
-            unchecked((sbyte)((packed >> 4) - 8)),
-            unchecked((sbyte)((packed & 0x0f) - 8)),
+            new((short)((packed >> 4) - 8), (short)((packed & 0x0f) - 8)),
             DeletesSprite: false);
     }
 }
@@ -104,7 +103,8 @@ internal static class DraygonIntroDanceDefinitions
 /// One decoded Evir movement record from Draygon's fixed opening dance stream.
 /// The delete sentinel is kept distinct from the otherwise valid zero-delta record.
 /// </summary>
+/// <param name="Delta">The signed per-frame room-pixel step, each axis one decoded nibble.</param>
+/// <param name="DeletesSprite">True for the delete sentinel.</param>
 internal readonly record struct DraygonIntroMovement(
-    sbyte XDelta,
-    sbyte YDelta,
+    Offset16<RoomPixels> Delta,
     bool DeletesSprite);

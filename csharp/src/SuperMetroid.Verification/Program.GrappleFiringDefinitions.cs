@@ -92,7 +92,7 @@ internal static partial class Program
         }
         // Run the real four-substep extension path in empty terrain, not just its setup.
         // Presentation overrides must change Flare without changing trajectory or Start.
-        var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
+        var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
         foreach (bool replaceFlare in new[] { false, true })
         for (byte direction = 0; direction < 10; direction++)
         {

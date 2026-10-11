@@ -12,7 +12,7 @@ internal static partial class Program
     private static void VerifySuperMissileEnemyHitQuake()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = CreateRoom(64, 16, new ushort[64 * 16], new byte[64 * 16]);
+        var room = CreateRoom(new(64, 16), new ushort[64 * 16], new byte[64 * 16]);
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),

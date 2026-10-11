@@ -107,8 +107,7 @@ internal static partial class Program
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, MagdolliteEnemyState state) =
                 CreateSystem(MagdollitePart.TrackingOverlay);
-            state.ThrowOriginX = slot.Position.X.Whole;
-            state.ThrowOriginY = slot.Position.Y.Whole;
+            state.ThrowOrigin = slot.Position.Whole;
             Install(slot, program);
             RunFrames(enemies, slot, 80);
             AssertEqual((ushort)0x0061, enemies.LastMagdolliteSoundEffect!.Value,

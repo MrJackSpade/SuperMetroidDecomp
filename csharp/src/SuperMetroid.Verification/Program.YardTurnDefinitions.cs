@@ -31,9 +31,9 @@ internal static partial class Program
         {
             YardTurnDefinition definition =
                 YardTurnDefinitions.ForMovement(movement, disabled);
-            AssertEqual(unchecked((short)Word(rom, address)), definition.LookaheadX,
+            AssertEqual(unchecked((short)Word(rom, address)), definition.Lookahead.X,
                 $"Yard turn {movement}/{disabled} lookahead X");
-            AssertEqual(unchecked((short)Word(rom, address + 2)), definition.LookaheadY,
+            AssertEqual(unchecked((short)Word(rom, address + 2)), definition.Lookahead.Y,
                 $"Yard turn {movement}/{disabled} lookahead Y");
             AssertEqual(Word(rom, address + 4), definition.OutsideTurnInstructionList,
                 $"Yard turn {movement}/{disabled} outside list");

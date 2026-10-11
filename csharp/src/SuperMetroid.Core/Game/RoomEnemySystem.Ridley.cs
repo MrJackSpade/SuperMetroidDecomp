@@ -329,7 +329,7 @@ public sealed partial class RoomEnemySystem
 
             case RidleyAiFunction.NorfairEnterArena:
                 MoveNorfairRidleyToward(slot, state, new Position16<RoomPixels>(64, 256), divisorIndex: 14);
-                if (IsWithinRidleyRectangle(slot, 64, 256, 8, 8))
+                if (IsWithinRidleyRectangle(slot, new(64, 256), new(8, 8)))
                 {
                     state.FightMode = RidleyFightMode.Fighting;
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
@@ -633,7 +633,7 @@ public sealed partial class RoomEnemySystem
             state,
             new Position16<RoomPixels>(targetX, 256),
             ReadRidleyHealthMovementDivisorIndex(state));
-        if (IsWithinRidleyRectangle(slot, targetX, 256, 8, 8))
+        if (IsWithinRidleyRectangle(slot, new(targetX, 256), new(8, 8)))
             state.Function = RidleyAiFunction.NorfairSelectAttack;
     }
 
@@ -641,7 +641,7 @@ public sealed partial class RoomEnemySystem
     {
         ushort targetX = state.FacingDirection != RidleyFacing.Left ? (ushort)64 : (ushort)192;
         MoveNorfairRidleyToward(slot, state, new Position16<RoomPixels>(targetX, 128), divisorIndex: 1);
-        if (!IsWithinRidleyRectangle(slot, targetX, 128, 8, 8))
+        if (!IsWithinRidleyRectangle(slot, new(targetX, 128), new(8, 8)))
             return;
 
         state.Function = RidleyAiFunction.NorfairSwoopAimDown;
@@ -778,7 +778,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         RidleyTailSegment tip = state.TailSegments[6];
-        SpawnRidleyDust(tip.Position.X, unchecked((ushort)(tip.Position.Y + 12)), variant: 9);
+        SpawnRidleyDust(tip.Position + new Offset16<RoomPixels>(0, 12), variant: 9);
         QueueEnemySound(SoundEffectLibrary2Sounds.RidleyTailTerrainImpact, maximumQueued: 6);
         EarthquakeType = 13;
         EarthquakeTimer = 4;

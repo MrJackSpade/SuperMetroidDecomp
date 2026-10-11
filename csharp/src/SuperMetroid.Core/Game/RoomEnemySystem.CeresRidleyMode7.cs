@@ -95,8 +95,8 @@ public sealed partial class RoomEnemySystem
         // The getaway frame's velocity is added to the vertical word and subtracted from the
         // horizontal word.
         state.Mode7Offset = new Offset16<Mode7Pixels>(
-            unchecked((short)(state.Mode7Offset.X - frame.XVelocity)),
-            unchecked((short)(state.Mode7Offset.Y + frame.YVelocity)));
+            unchecked((short)(state.Mode7Offset.X - frame.Velocity.X)),
+            unchecked((short)(state.Mode7Offset.Y + frame.Velocity.Y)));
 
         UpdateCeresRidleyMode7Palette(zoom);
         state.Mode7Angle = state.Mode7Angle.AddRaw(0x0030);

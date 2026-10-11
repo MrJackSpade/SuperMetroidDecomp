@@ -9,7 +9,7 @@ using SuperMetroid.Core.Spatial;
 internal static class ImportedSpritemapOracle
 {
     public static void DrawGeneric(IImportCartridgeSource source, OamBuffer oam,
-        int address, ushort originX, ushort originY, ushort paletteBits,
+        int address, Position16<OamPixels> origin, ushort paletteBits,
         bool originIsOnScreen = true)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -30,24 +30,24 @@ internal static class ImportedSpritemapOracle
             byte y = Byte(offset + 2);
             var attributes = new SnesObjAttributeWord(Word(offset + 3)).WithPaletteBits(paletteBits);
             if (originIsOnScreen)
-                oam.AddOnScreenSpritePart(x, y, attributes, new Position16<OamPixels>(originX, originY));
+                oam.AddOnScreenSpritePart(x, y, attributes, origin);
             else
-                oam.AddOffScreenSpritePart(x, y, attributes, new Position16<OamPixels>(originX, originY));
+                oam.AddOffScreenSpritePart(x, y, attributes, origin);
         }
     }
 
     /// <summary>Decodes only the reference artwork; production accepts typed visual parts.</summary>
     public static void DrawEnemy(IImportCartridgeSource source, OamBuffer oam,
-        byte bank, ushort spritemapPointer, ushort originX, ushort originY,
+        byte bank, ushort spritemapPointer, Position16<OamPixels> origin,
         ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap = false, bool originYIsOnScreen = true) =>
-        oam.AddEnemySpritemap(ReadEnemyParts(source, bank, spritemapPointer), new Position16<OamPixels>(originX, originY),
+        oam.AddEnemySpritemap(ReadEnemyParts(source, bank, spritemapPointer), origin,
             paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
 
     public static void DrawEnemyProjectile(IImportCartridgeSource source, OamBuffer oam,
-        ushort bank8dSpritemapPointer, ushort originX, ushort originY,
+        ushort bank8dSpritemapPointer, Position16<OamPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
-        DrawEnemy(source, oam, 0x8d, bank8dSpritemapPointer, originX, originY,
+        DrawEnemy(source, oam, 0x8d, bank8dSpritemapPointer, origin,
             new SnesObjAttributeWord(graphicsIndex).PaletteBits, unchecked((byte)graphicsIndex),
             clipVerticalWrap: true, originYIsOnScreen);
 

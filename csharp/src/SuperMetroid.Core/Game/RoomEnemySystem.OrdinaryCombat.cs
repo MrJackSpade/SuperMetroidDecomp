@@ -498,7 +498,7 @@ public sealed partial class RoomEnemySystem
             {
                 // $F09D does not enter common contact damage. Body overlap is itself the
                 // trigger, and $F0B6 decides whether this population mode may start moving.
-                ReactVerticalShutter(slot, new(_shutterCameraX, _shutterCameraY));
+                ReactVerticalShutter(slot, _shutterCamera);
             }
             else if (isHorizontalShutter)
             {
@@ -1222,7 +1222,7 @@ public sealed partial class RoomEnemySystem
                         projectile.SlotIndex,
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
-                    ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
+                    ReactVerticalShutter(enemy, _shutterCamera);
                     hitCount++;
                     break;
                 }
@@ -1513,7 +1513,7 @@ public sealed partial class RoomEnemySystem
                     if (isShaktool)
                         ResolveShaktoolShotAfterCommon(enemy);
                     if (isDestroyableVerticalShutter)
-                        ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
+                        ReactVerticalShutter(enemy, _shutterCamera);
                     if (isHorizontalShutter)
                         ReactHorizontalShutter(enemy);
                     if (isDraygonBody)
@@ -1637,7 +1637,7 @@ public sealed partial class RoomEnemySystem
                 }
                 if (isFakeKraid && enemy.EnemyDefinitionPointer != 0 &&
                     enemyHealthBefore != 0 && enemy.Health == 0)
-                    SpawnFakeKraidDeathDrops(enemy.Position.X.Whole, enemy.Position.Y.Whole);
+                    SpawnFakeKraidDeathDrops(enemy.Position.Whole);
                 if (isBabyTurtle)
                     ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
                 if (isKago)
@@ -1675,7 +1675,7 @@ public sealed partial class RoomEnemySystem
                 if (isShaktool)
                     ResolveShaktoolShotAfterCommon(enemy);
                 if (isDestroyableVerticalShutter)
-                    ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
+                    ReactVerticalShutter(enemy, _shutterCamera);
                 if (isHorizontalShutter)
                     ReactHorizontalShutter(enemy);
                 if (isDraygonBody)
@@ -1864,7 +1864,7 @@ public sealed partial class RoomEnemySystem
                     // `$A2:F0A2` never calls common shot AI. Bomb collision has already
                     // marked the physical bomb, then the callback only advances the shutter
                     // state machine exactly as a beam, missile, touch, or power bomb would.
-                    ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
+                    ReactVerticalShutter(enemy, _shutterCamera);
                 }
                 else if (isMetroid)
                 {
@@ -2121,7 +2121,7 @@ public sealed partial class RoomEnemySystem
                             if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
                                 selectedShotAi == EnemyInteractionCallback.DestroyableVerticalShutterShot)
                             {
-                                ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
+                                ReactVerticalShutter(enemy, _shutterCamera);
                             }
 
                             // Bank-$A8 callbacks below reuse the same translated post-common
@@ -2456,7 +2456,7 @@ public sealed partial class RoomEnemySystem
             if (isLiteralNoOpReaction || isVerticalShutterReaction || isHorizontalShutterReaction)
             {
                 if (isVerticalShutterReaction)
-                    ReactVerticalShutter(enemy, new(_shutterCameraX, _shutterCameraY));
+                    ReactVerticalShutter(enemy, _shutterCamera);
                 if (isHorizontalShutterReaction)
                     ReactHorizontalShutter(enemy);
                 enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
@@ -2780,8 +2780,9 @@ public sealed partial class RoomEnemySystem
                      SporeSpawnCollisionDefinitions.ComponentsAt(
                          enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+                ushort componentX = componentOrigin.X;
+                ushort componentY = componentOrigin.Y;
                 foreach (SporeSpawnCollisionHitbox hitbox in
                          SporeSpawnCollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
@@ -2840,8 +2841,9 @@ public sealed partial class RoomEnemySystem
             foreach (RidleyCollisionComponent component in
                      RidleyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+                ushort componentX = componentOrigin.X;
+                ushort componentY = componentOrigin.Y;
                 foreach (RidleyCollisionHitbox hitbox in
                          RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
@@ -2967,8 +2969,9 @@ public sealed partial class RoomEnemySystem
             foreach (GoldenTorizoCollisionComponent component in
                      TorizoCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+                ushort componentX = componentOrigin.X;
+                ushort componentY = componentOrigin.Y;
                 foreach (GoldenTorizoCollisionHitbox hitbox in
                          TorizoCollisionDefinitions.HitboxesAt(component.HitboxList))
                 {
@@ -3025,8 +3028,9 @@ public sealed partial class RoomEnemySystem
             // Read that stream from the immutable cartridge definition catalog.
             foreach (KraidArmCollisionComponent component in kraidComponents)
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+                ushort componentX = componentOrigin.X;
+                ushort componentY = componentOrigin.Y;
                 foreach (KraidArmCollisionHitbox hitbox in
                          KraidArmCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
@@ -3053,8 +3057,9 @@ public sealed partial class RoomEnemySystem
             foreach (MotherBrainCollisionComponent component in
                      MotherBrainCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+                ushort componentX = componentOrigin.X;
+                ushort componentY = componentOrigin.Y;
                 foreach (MotherBrainCollisionHitbox hitbox in
                          MotherBrainCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {

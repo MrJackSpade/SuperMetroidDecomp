@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -13,17 +14,15 @@ internal static partial class Program
         var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
         var motherBrain = new MotherBrainRainbowBeamAttackSequence();
         var baby = new BabyMetroidCutsceneState();
-        baby.Initialize(inheritedXSubposition: 0x1400, inheritedYSubposition: 0x3100);
+        baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.FromWords(0, 0x1400, 0, 0x3100));
         void Set(string name, object value) => typeof(BabyMetroidCutsceneState).GetProperty(name)!.SetValue(baby, value);
         Set(nameof(baby.Phase), BabyMetroidCutscenePhase.MoveToFinalChargeStart);
-        Set(nameof(baby.XPosition), (ushort)0x0133);
-        Set(nameof(baby.YPosition), (ushort)0x004d);
-        Set(nameof(baby.XVelocity), (ushort)0x015f);
-        Set(nameof(baby.YVelocity), (ushort)0x012b);
+        Set(nameof(baby.Position), FixedPosition<RoomPixels>.FromWhole(new(0x0133, 0x004d)).WithFractionsOf(baby.Position));
+        Set(nameof(baby.Velocity), new EightEightVector<RoomPixels>(new SnesSignedEightEight(0x015f), new SnesSignedEightEight(0x012b)));
 
         // Layer-1 X zero puts X $133 beyond the $120-wide vaguely-on-screen band.
-        baby.Step(bus, samus, motherBrain, HeadOf(motherBrain), layer1X: 0, layer1Y: 0);
-        AssertEqual((ushort)0x0145, baby.XVelocity,
+        baby.Step(bus, samus, motherBrain, HeadOf(motherBrain), layer1: Position16<RoomPixels>.Zero);
+        AssertEqual((ushort)0x0145, baby.Velocity.X.RawValue,
             "the wrong-way off-screen reversal subtracts the $10 extra, $8 and two $1 steps");
         Console.WriteLine("Baby Metroid wrong-way speed: $A9:F466 legs apply the $10 off-screen extra.");
     }

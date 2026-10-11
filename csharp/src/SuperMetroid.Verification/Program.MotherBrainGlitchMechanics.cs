@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -42,17 +43,15 @@ internal static partial class Program
             var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x00a0)), InvincibilityTimer = invincibility };
             samus.RefreshCollisionRadii(bus);
             var baby = new BabyMetroidCutsceneState();
-            baby.Initialize(inheritedXSubposition: 0, inheritedYSubposition: 0);
+            baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
             void Set(string name, object value) => typeof(BabyMetroidCutsceneState).GetProperty(name)!.SetValue(baby, value);
             Set(nameof(baby.Phase), BabyMetroidCutscenePhase.LatchOntoSamus);
-            Set(nameof(baby.XPosition), (ushort)(0x0080 + startDx));
-            Set(nameof(baby.YPosition), (ushort)0x008c);
+            Set(nameof(baby.Position), FixedPosition<RoomPixels>.FromWhole(new((ushort)(0x0080 + startDx), 0x008c)).WithFractionsOf(baby.Position));
             // Moving left a whole pixel per frame: after this frame's mover the gap shrinks by one.
-            Set(nameof(baby.XVelocity), (ushort)0xff00);
-            Set(nameof(baby.YVelocity), (ushort)0);
+            Set(nameof(baby.Velocity), new EightEightVector<RoomPixels>(new SnesSignedEightEight(0xff00), new SnesSignedEightEight(0)));
             var motherBrain = new MotherBrainRainbowBeamAttackSequence();
-            baby.Step(bus, samus, motherBrain, HeadOf(motherBrain), layer1X: 0, layer1Y: 0);
-            return baby.XVelocity;
+            baby.Step(bus, samus, motherBrain, HeadOf(motherBrain), layer1: Position16<RoomPixels>.Zero);
+            return baby.Velocity.X.RawValue;
         }
         // Samus's X radius is five for every humanoid pose.
         int touchingDx = 5 + BabyMetroidCutsceneState.XHitboxRadius - 1;

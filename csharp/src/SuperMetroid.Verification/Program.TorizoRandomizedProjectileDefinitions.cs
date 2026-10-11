@@ -32,13 +32,13 @@ internal static partial class Program
         {
             AssertEqual(ReadWord(rom, address), definition.InstructionList,
                 $"{name} instruction");
-            AssertEqual(unchecked((short)ReadWord(rom, address + 2)), definition.XOffset,
+            AssertEqual(unchecked((short)ReadWord(rom, address + 2)), definition.Offset.X,
                 $"{name} X offset");
-            AssertEqual(unchecked((short)ReadWord(rom, address + 4)), definition.BaseXVelocity,
+            AssertEqual(unchecked((short)ReadWord(rom, address + 4)), definition.BaseVelocity.X.SignedRawValue,
                 $"{name} base X velocity");
-            AssertEqual(unchecked((short)ReadWord(rom, address + 6)), definition.YOffset,
+            AssertEqual(unchecked((short)ReadWord(rom, address + 6)), definition.Offset.Y,
                 $"{name} Y offset");
-            AssertEqual(unchecked((short)ReadWord(rom, address + 8)), definition.BaseYVelocity,
+            AssertEqual(unchecked((short)ReadWord(rom, address + 8)), definition.BaseVelocity.Y.SignedRawValue,
                 $"{name} base Y velocity");
 
             var enemies = new RoomEnemySystem();
@@ -54,13 +54,13 @@ internal static partial class Program
 
             AssertEqual(definition.InstructionList, projectile.InstructionPointer,
                 $"{name} production instruction");
-            AssertEqual(unchecked((ushort)(1000 + definition.XOffset)), projectile.Position.X.Whole,
+            AssertEqual(unchecked((ushort)(1000 + definition.Offset.X)), projectile.Position.X.Whole,
                 $"{name} production X");
-            AssertEqual(unchecked((ushort)(definition.BaseXVelocity - 128)), projectile.Velocity.X.RawValue,
+            AssertEqual(unchecked((ushort)(definition.BaseVelocity.X.SignedRawValue - 128)), projectile.Velocity.X.RawValue,
                 $"{name} production X jitter");
-            AssertEqual(unchecked((ushort)(500 + definition.YOffset)), projectile.Position.Y.Whole,
+            AssertEqual(unchecked((ushort)(500 + definition.Offset.Y)), projectile.Position.Y.Whole,
                 $"{name} production Y");
-            AssertEqual(unchecked((ushort)(definition.BaseYVelocity + 127)), projectile.Velocity.Y.RawValue,
+            AssertEqual(unchecked((ushort)(definition.BaseVelocity.Y.SignedRawValue + 127)), projectile.Velocity.Y.RawValue,
                 $"{name} production Y jitter");
             AssertEqual(2, randomCall, $"{name} independent RNG calls");
         }
@@ -124,15 +124,15 @@ internal static partial class Program
         AssertTrue(projectile.IsActive, $"{methodName} facing {facingRight} allocation");
         AssertEqual(expected.InstructionList, projectile.InstructionPointer,
             $"{methodName} facing {facingRight} instruction");
-        AssertEqual(unchecked((ushort)(1000 + expected.XOffset)), projectile.Position.X.Whole,
+        AssertEqual(unchecked((ushort)(1000 + expected.Offset.X)), projectile.Position.X.Whole,
             $"{methodName} facing {facingRight} X");
-        AssertEqual(unchecked((ushort)(500 + expected.YOffset)), projectile.Position.Y.Whole,
+        AssertEqual(unchecked((ushort)(500 + expected.Offset.Y)), projectile.Position.Y.Whole,
             $"{methodName} facing {facingRight} Y");
         if (!velocityIsReplaced)
         {
-            AssertEqual(unchecked((ushort)(expected.BaseXVelocity - 128)), projectile.Velocity.X.RawValue,
+            AssertEqual(unchecked((ushort)(expected.BaseVelocity.X.SignedRawValue - 128)), projectile.Velocity.X.RawValue,
                 $"{methodName} facing {facingRight} X jitter");
-            AssertEqual(unchecked((ushort)(expected.BaseYVelocity - 128)), projectile.Velocity.Y.RawValue,
+            AssertEqual(unchecked((ushort)(expected.BaseVelocity.Y.SignedRawValue - 128)), projectile.Velocity.Y.RawValue,
                 $"{methodName} facing {facingRight} Y jitter");
         }
     }

@@ -65,7 +65,7 @@ internal static partial class Program
                     Function = TorizoFunction.GoldenPreInstruction,
                     PreInstruction = TorizoPreInstruction.Idle,
                     ReturnInstruction = GoldenTorizoRightOrbInstructionProgramDefinitions.Start,
-                    VerticalVelocity = 256,
+                    Velocity = new EightEightVector<RoomPixels>(0, 256),
                 });
             }
             else

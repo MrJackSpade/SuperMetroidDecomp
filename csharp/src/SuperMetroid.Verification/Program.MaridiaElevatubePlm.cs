@@ -16,7 +16,7 @@ internal static partial class Program
         Suite(nameof(VerifyElevatubeProgramDraw), () => VerifyElevatubeProgramDraw(rom));
         Suite(nameof(VerifyElevatubeProgramSound), () => VerifyElevatubeProgramSound(rom));
 
-        RoomLevelData level = CreateRoom(4, 4, new ushort[16], new byte[16],
+        RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnMaridiaElevatube(level),

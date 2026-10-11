@@ -105,10 +105,9 @@ public sealed partial class RoomEnemySystem
             movementAngle,
             1,
             angleOffset: 0x80));
-        state.UnusedDeathXSpeed = unchecked((ushort)(xMagnitude >> 16));
-        state.UnusedDeathXSubspeed = unchecked((ushort)xMagnitude);
-        state.UnusedDeathYSpeed = unchecked((ushort)(yMagnitude >> 16));
-        state.UnusedDeathYSubspeed = unchecked((ushort)yMagnitude);
+        state.UnusedDeathVelocity = new FixedVector<RoomPixels>(
+            SnesSignedSixteenSixteen.FromRaw(unchecked((int)xMagnitude)),
+            SnesSignedSixteenSixteen.FromRaw(unchecked((int)yMagnitude)));
     }
 
     private void UpdateDraygonHealthPalette(DraygonEnemyState state)

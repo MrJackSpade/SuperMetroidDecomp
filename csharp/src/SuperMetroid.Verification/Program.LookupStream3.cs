@@ -1309,8 +1309,7 @@ internal static partial class Program
         foreach (bool mixed in new[] { false, true })
         {
             var scatter = new MotherBrainRainbowBeamAttackSequence();
-            scatter.Body.XPosition = 320;
-            scatter.Body.YPosition = 192;
+            scatter.Body.Position = new(320, 192);
             for (int burst = 0; burst < 8; burst++)
             {
                 typeof(MotherBrainRainbowBeamAttackSequence).GetProperty("DeathExplosionIntervalTimer")!.SetValue(scatter, (ushort)0);
@@ -1326,9 +1325,9 @@ internal static partial class Program
                     short x = (short)Read(0xa9b099 + 16 * group + 4 * item);
                     short y = (short)Read(0xa9b09b + 16 * group + 4 * item);
                     AssertEqual((ushort)group, scatter.DeathAndEscapeExplosionIndex, "stream 3 death scatter reverse group order");
-                    AssertEqual((x, y), (requests[item].XOffset, requests[item].YOffset), "stream 3 selected death scatter anchors");
-                    AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.Body.XPosition + requests[item].XOffset)), "stream 3 death scatter body-relative X");
-                    AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.Body.YPosition + requests[item].YOffset)), "stream 3 death scatter body-relative Y");
+                    AssertEqual((x, y), (requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
+                    AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.Body.Position.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
+                    AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.Body.Position.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
                     AssertEqual(mixed ? (ushort)2 : (ushort)1, requests[item].ProjectileParameter, "stream 3 independent death type case");
                 }
             }
@@ -1369,7 +1368,7 @@ internal static partial class Program
         foreach (ushort stage in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
         {
             var sequence = new MotherBrainRainbowBeamAttackSequence();
-            sequence.Body.XPosition = 0;
+            sequence.Body.Position = sequence.Body.Position.WithX(0);
             typeof(MotherBrainRainbowBeamAttackSequence).GetProperty("PainfulWalkingStage")!.SetValue(sequence, stage);
             step.Invoke(sequence, null);
             AssertEqual(Read(0xa9c049 + 2 * Math.Min(stage, (ushort)7)), sequence.PainfulWalkingFunctionTimer,
@@ -2935,7 +2934,7 @@ internal static partial class Program
                 "stream 3 Baby shares nine upper-body halves and stores independent lower halves");
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeOam, frame.Bank, frame.Pointer, 128, 128, 0, 0);
+            DrawImportedEnemySpritemap(rom, nativeOam, frame.Bank, frame.Pointer, new(128, 128), 0, 0);
             calculatedOam.AddEnemySpritemap(parts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(calculatedOam.LowTable) && nativeOam.HighTable.SequenceEqual(calculatedOam.HighTable),
                 "stream 3 calculated Baby view matches native OAM drawing");

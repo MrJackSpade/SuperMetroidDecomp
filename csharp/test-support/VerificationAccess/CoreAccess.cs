@@ -66,10 +66,10 @@ internal static partial class CoreAccess
         internal bool PageTransitionActive => PrivateState.Field<PauseMenuTransition>(pause, "transition") != PauseMenuTransition.None;
         internal Position16<MapPixels> MapScroll => PrivateState.Field<Position16<MapPixels>>(pause, "mapScrollPosition");
 
-        internal MapTileWord ReadDisplayedMapTile(int mapX, int mapY)
+        internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell)
         {
             var vram = PrivateState.Field<SnesVram>(pause, "vram");
-            int byteAddress = (PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)mapX), checked((ushort)mapY)))) * 2;
+            int byteAddress = (PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(cell)) * 2;
             return new MapTileWord(unchecked((ushort)(vram.ReadByte(byteAddress) | (vram.ReadByte(byteAddress + 1) << 8))));
         }
     }
@@ -185,14 +185,13 @@ internal static partial class CoreAccess
 
     extension(CeresElevatorArrivalState arrival)
     {
-        internal ushort PadYPosition => PrivateState.Property<ushort>(PrivateState.Field<object>(arrival, "pad"), "YPosition");
-        internal ushort PlatformYPosition => PrivateState.Property<ushort>(PrivateState.Field<object>(arrival, "platform"), "YPosition");
+        /// <summary>Whole room position of the moving pad; its X is the X word both projectiles copy from Samus at $86:A313.</summary>
+        internal Position16<RoomPixels> PadPosition => PrivateState.Property<Position16<RoomPixels>>(PrivateState.Field<object>(arrival, "pad"), "Position");
+        internal Position16<RoomPixels> PlatformPosition => PrivateState.Property<Position16<RoomPixels>>(PrivateState.Field<object>(arrival, "platform"), "Position");
         /// <summary>True while the moving pad occupies native enemy-projectile slot $22.</summary>
         internal bool PadActive => PrivateState.Property<bool>(PrivateState.Field<object>(arrival, "pad"), "Active");
         /// <summary>True while the level-data concealer occupies native enemy-projectile slot $20.</summary>
         internal bool PlatformActive => PrivateState.Property<bool>(PrivateState.Field<object>(arrival, "platform"), "Active");
-        /// <summary>Shared X word of both projectiles, copied from Samus by $86:A313.</summary>
-        internal ushort XPosition => PrivateState.Property<ushort>(PrivateState.Field<object>(arrival, "pad"), "XPosition");
     }
 
     extension(SuperMetroidRuntime runtime)

@@ -37,10 +37,8 @@ public sealed partial class RoomEnemySystem
             if (!projectile.HasEnemyCollisionPayload ||
                 !ExtendedSpritemapOverlapsRectangle(
                     slot,
-                    projectile.Position.X.Whole,
-                    projectile.Position.Y.Whole,
-                    projectile.Radius.X,
-                    projectile.Radius.Y))
+                    projectile.Position.Whole,
+                    projectile.Radius))
             {
                 continue;
             }
@@ -511,8 +509,8 @@ public sealed partial class RoomEnemySystem
 
         // A6:A763 is the shared cooldown/return-to-hover movement: accelerate toward
         // ($00C0,$0064) using divisor table entry zero.
-        AccelerateRidleyToward(slot, state, targetX: 192, targetY: 100, divisorIndex: 0);
-        if (!IsWithinRidleyRectangle(slot, 192, 100, 8, 8))
+        AccelerateRidleyToward(slot, state, target: new(192, 100), divisorIndex: 0);
+        if (!IsWithinRidleyRectangle(slot, new(192, 100), new(8, 8)))
         {
             // Shitroid_Func_2 returns zero on rectangle overlap. $A6:A6E8 therefore waits
             // only while Ridley is still outside the hover box, with $7C as the authentic
@@ -533,7 +531,7 @@ public sealed partial class RoomEnemySystem
         int verticalVelocity = state.Velocity.Y.SignedRawValue;
         int magnitude = Math.Max(128, Math.Abs(verticalVelocity));
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(verticalVelocity < 0 ? -magnitude : magnitude))));
-        AccelerateRidleyToward(slot, state, slot.Position.X.Whole, 88, 0);
+        AccelerateRidleyToward(slot, state, new(slot.Position.X.Whole, 88), 0);
 
         if (unchecked((short)(slot.Position.Y.Whole - 80)) < 0)
         {
@@ -569,8 +567,7 @@ public sealed partial class RoomEnemySystem
         AccelerateRidleyToward(
             slot,
             state,
-            unchecked((ushort)xSum),
-            unchecked((ushort)(state.FireballBasePosition.Y + jitter + carry)),
+            new(unchecked((ushort)xSum), unchecked((ushort)(state.FireballBasePosition.Y + jitter + carry))),
             0);
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
         if ((short)state.FunctionTimer < 0)
@@ -591,8 +588,8 @@ public sealed partial class RoomEnemySystem
         ushort targetY = unchecked((short)(samus.Position.Y.Whole - 132)) < 0
             ? (ushort)64
             : unchecked((ushort)(samus.Position.Y.Whole - 68));
-        AccelerateRidleyToward(slot, state, samus.Position.X.Whole, targetY, 13);
-        bool reached = IsWithinRidleyRectangle(slot, samus.Position.X.Whole, targetY, 2, 2);
+        AccelerateRidleyToward(slot, state, new(samus.Position.X.Whole, targetY), 13);
+        bool reached = IsWithinRidleyRectangle(slot, new(samus.Position.X.Whole, targetY), new(2, 2));
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
         if (reached || (short)state.FunctionTimer < 0)
         {
@@ -605,7 +602,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {
-        AccelerateRidleyToward(slot, state, 192, 80, 1);
+        AccelerateRidleyToward(slot, state, new(192, 80), 1);
         if (unchecked((short)(slot.Position.Y.Whole - 96)) < 0)
         {
             state.Function = RidleyAiFunction.CeresSwoopDescendingAimingDown;
@@ -668,7 +665,7 @@ public sealed partial class RoomEnemySystem
     {
         // Shared Ridley function $BD9A steers toward ($C0,$80). Ceres uses this only for
         // the 100-shot "fake retreat"; the low-energy branch bypasses the Baby retrieval.
-        AccelerateRidleyToward(slot, state, 192, 128, 1);
+        AccelerateRidleyToward(slot, state, new(192, 128), 1);
         if (unchecked((short)(slot.Position.X.Whole - 192)) >= 0)
             state.Function = RidleyAiFunction.CeresFakeRetreatRising;
     }
@@ -681,7 +678,7 @@ public sealed partial class RoomEnemySystem
         // anchor. Crossing that line starts the Baby's independent falling function and a
         // 21-underflow wait before Ridley changes to the retrieval pose.
         state.MovementMinimum = state.MovementMinimum.WithY(unchecked((ushort)-192));
-        AccelerateRidleyToward(slot, state, 192, unchecked((ushort)-128), 1);
+        AccelerateRidleyToward(slot, state, new(192, unchecked((ushort)-128)), 1);
         if (unchecked((short)(slot.Position.Y.Whole - 32)) < 0)
         {
             state.BabyFunction = CeresBabyFunction.Drop;
@@ -694,8 +691,7 @@ public sealed partial class RoomEnemySystem
     {
         // $BE03 flies Ridley's hand toward the falling Baby. The native collision compares
         // two radius-four rectangles centered on the hand and Baby points.
-        Position16<RoomPixels> handTarget = state.BabyPosition - CeresRidleyHandToBaby;
-        AccelerateRidleyToward(slot, state, handTarget.X, handTarget.Y, 12);
+        AccelerateRidleyToward(slot, state, state.BabyPosition - CeresRidleyHandToBaby, 12);
 
         Offset16<RoomPixels> fromHand = state.BabyPosition - (slot.Position.Whole + CeresBabyFeetAnchor);
         if (Math.Abs(fromHand.X) >= 8 || Math.Abs(fromHand.Y) >= 8)
@@ -761,7 +757,7 @@ public sealed partial class RoomEnemySystem
         // $A6:A971 accelerates toward the off-screen point ($00C0,$FF80). The signed test
         // is performed before the common movement pass; once the origin is above Y=-128
         // the 64-frame delay is installed and $A6:A99D falls through into its first tick.
-        AccelerateRidleyToward(slot, state, 192, unchecked((ushort)-128), 1);
+        AccelerateRidleyToward(slot, state, new(192, unchecked((ushort)-128)), 1);
         if (unchecked((short)(slot.Position.Y.Whole + 128)) < 0)
         {
             state.Function = RidleyAiFunction.CeresRetreatDelay;
@@ -804,18 +800,16 @@ public sealed partial class RoomEnemySystem
     private static void AccelerateRidleyToward(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        ushort targetX,
-        ushort targetY,
+        Position16<RoomPixels> target,
         int divisorIndex)
     {
         // Division truncates like the SNES hardware quotient and a zero quotient is promoted
         // to one, ensuring that even a one-pixel error continues to change velocity.
         ushort divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
 
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(AccelerateAxis(
-            state.Velocity.X.RawValue, slot.Position.X.Whole, targetX, divisor)));
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(AccelerateAxis(
-            state.Velocity.Y.RawValue, slot.Position.Y.Whole, targetY, divisor)));
+        state.Velocity = new EightEightVector<RoomPixels>(
+            new SnesSignedEightEight(AccelerateAxis(state.Velocity.X.RawValue, slot.Position.X.Whole, target.X, divisor)),
+            new SnesSignedEightEight(AccelerateAxis(state.Velocity.Y.RawValue, slot.Position.Y.Whole, target.Y, divisor)));
     }
 
     /// <summary>
@@ -946,14 +940,12 @@ public sealed partial class RoomEnemySystem
 
     private static bool IsWithinRidleyRectangle(
         RoomEnemySlot slot,
-        ushort centerX,
-        ushort centerY,
-        ushort radiusX,
-        ushort radiusY) =>
+        Position16<RoomPixels> center,
+        Extent16<RoomPixels> radius) =>
         // $A9:EF06 tests overlap with the actor's rectangle, including its boundary.
         // A center-only test delays flight and attack handoffs until Ridley gets too close.
-        Math.Abs(unchecked((short)(slot.Position.X.Whole - centerX))) < unchecked((ushort)(slot.Radius.X + radiusX + 1)) &&
-            Math.Abs(unchecked((short)(slot.Position.Y.Whole - centerY))) < unchecked((ushort)(slot.Radius.Y + radiusY + 1));
+        Math.Abs(unchecked((short)(slot.Position.X.Whole - center.X))) < unchecked((ushort)(slot.Radius.X + radius.X + 1)) &&
+            Math.Abs(unchecked((short)(slot.Position.Y.Whole - center.Y))) < unchecked((ushort)(slot.Radius.Y + radius.Y + 1));
 
     private static RidleyTailSegment[] CreateInitialRidleyTailSegments()
     {

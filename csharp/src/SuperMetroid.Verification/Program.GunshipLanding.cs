@@ -73,9 +73,10 @@ internal static partial class Program
 
         WriteWord(bus, 0xb40000 | tilesetPointer, 0xffff);
         int population = 0xa10000 | populationPointer;
-        WriteGunshipPopulationRecord(bus, population, topDefinition, 0x0480, 0x0200, parameter2: 0);
-        WriteGunshipPopulationRecord(bus, population + 16, bottomDefinition, 0x0480, 0x0200, parameter2: 0);
-        WriteGunshipPopulationRecord(bus, population + 32, bottomDefinition, 0x0480, 0x0200, parameter2: 1);
+        var gunship = new Position16<RoomPixels>(0x0480, 0x0200);
+        WriteGunshipPopulationRecord(bus, population, topDefinition, gunship, parameter2: 0);
+        WriteGunshipPopulationRecord(bus, population + 16, bottomDefinition, gunship, parameter2: 0);
+        WriteGunshipPopulationRecord(bus, population + 32, bottomDefinition, gunship, parameter2: 1);
         WriteWord(bus, population + 48, 0xffff);
         bus.WriteByte(population + 50, 0);
 
@@ -282,13 +283,12 @@ internal static partial class Program
         TestAddressSpace bus,
         int address,
         EnemyDefinitionId definition,
-        ushort x,
-        ushort y,
+        Position16<RoomPixels> position,
         ushort parameter2)
     {
         WriteWord(bus, address, (ushort)definition);
-        WriteWord(bus, address + 2, x);
-        WriteWord(bus, address + 4, y);
+        WriteWord(bus, address + 2, position.X);
+        WriteWord(bus, address + 4, position.Y);
         WriteWord(bus, address + 6, 0);
         WriteWord(bus, address + 8, 0);
         WriteWord(bus, address + 10, 0);

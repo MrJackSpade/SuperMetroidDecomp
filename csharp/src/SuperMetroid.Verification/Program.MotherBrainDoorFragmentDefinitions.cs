@@ -12,13 +12,13 @@ internal static partial class Program
             MotherBrainDoorFragmentDefinition definition =
                 MotherBrainDoorFragmentDefinitions.ForParameter(parameter);
             AssertEqual(unchecked((short)ReadMotherBrainFragmentWord(rom, 0x86c992 + byteOffset)),
-                definition.XOffset, $"Mother Brain door fragment X offset {parameter}");
+                definition.Offset.X, $"Mother Brain door fragment X offset {parameter}");
             AssertEqual(unchecked((short)ReadMotherBrainFragmentWord(rom, 0x86c994 + byteOffset)),
-                definition.YOffset, $"Mother Brain door fragment Y offset {parameter}");
+                definition.Offset.Y, $"Mother Brain door fragment Y offset {parameter}");
             AssertEqual(unchecked((short)ReadMotherBrainFragmentWord(rom, 0x86c9b2 + byteOffset)),
-                definition.XVelocity, $"Mother Brain door fragment X velocity {parameter}");
+                definition.Velocity.X.SignedRawValue, $"Mother Brain door fragment X velocity {parameter}");
             AssertEqual(unchecked((short)ReadMotherBrainFragmentWord(rom, 0x86c9b4 + byteOffset)),
-                definition.YVelocity, $"Mother Brain door fragment Y velocity {parameter}");
+                definition.Velocity.Y.SignedRawValue, $"Mother Brain door fragment Y velocity {parameter}");
         }
 
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
@@ -39,13 +39,13 @@ internal static partial class Program
                 enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, fragment.Kind,
                 $"production Mother Brain door fragment kind {parameter}");
-            AssertEqual(unchecked((ushort)(MotherBrainDeathRomData.DoorX + definition.XOffset)),
+            AssertEqual(unchecked((ushort)(MotherBrainDeathRomData.DoorX + definition.Offset.X)),
                 fragment.Position.X.Whole, $"production Mother Brain door fragment X {parameter}");
-            AssertEqual(unchecked((ushort)(MotherBrainDeathRomData.DoorY + definition.YOffset)),
+            AssertEqual(unchecked((ushort)(MotherBrainDeathRomData.DoorY + definition.Offset.Y)),
                 fragment.Position.Y.Whole, $"production Mother Brain door fragment Y {parameter}");
-            AssertEqual(unchecked((ushort)definition.XVelocity), fragment.Velocity.X.RawValue,
+            AssertEqual(definition.Velocity.X, fragment.Velocity.X,
                 $"production Mother Brain door fragment X velocity {parameter}");
-            AssertEqual(unchecked((ushort)definition.YVelocity), fragment.Velocity.Y.RawValue,
+            AssertEqual(definition.Velocity.Y, fragment.Velocity.Y,
                 $"production Mother Brain door fragment Y velocity {parameter}");
             AssertEqual(MotherBrainDeathRomData.DoorFragmentLifetime, fragment.Variable0,
                 $"production Mother Brain door fragment lifetime {parameter}");

@@ -90,9 +90,7 @@ internal static partial class Program
                 LevelBlockFlipFlags.None,
                 RoomCollisionType.SolidBlock).Raw;
         }
-        RoomLevelData wallRoom = CreateRoom(
-            32,
-            32,
+        RoomLevelData wallRoom = CreateRoom(new(32, 32),
             wallWords,
             new byte[wallWords.Length]);
         var impactRandom = new Queue<ushort>(

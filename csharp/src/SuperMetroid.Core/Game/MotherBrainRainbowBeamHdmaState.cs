@@ -29,11 +29,10 @@ public sealed class MotherBrainRainbowBeamHdmaState
     /// <summary>One emulated HDMA call, after the head's position and beam aim have been resolved.</summary>
     /// <param name="bus">Required address-space context; geometry uses compiled tangent samples and the color cycle uses installed presentation colors, not live cartridge reads.</param>
     /// <param name="active">Enemy-owned enable state; false disables drawing without advancing color or rebuilding windows, and a later activation restarts the color cycle.</param>
-    /// <param name="headX">Head enemy's whole-pixel room X position, not camera-relative; adding fourteen and retaining the low byte gives the screen-window mouth X.</param>
-    /// <param name="headY">Head enemy's whole-pixel room Y position; the mouth is five pixels lower and must lie strictly between native work-area scanlines 32 and 232.</param>
+    /// <param name="head">Head enemy's whole-pixel room position, not camera-relative. Adding fourteen to X and retaining the low byte gives the screen-window mouth X; the mouth is five pixels below Y and must lie strictly between native work-area scanlines 32 and 232.</param>
     /// <param name="angle">Beam center aim; only its 256-unit-turn table index is used when computing the two wrapping edge angles.</param>
     /// <param name="angularWidth">Native 8.8 angular-width word; its high byte is halved with integer truncation to obtain each edge's displacement in 256-unit-turn table units.</param>
-    public void Step(ISnesAddressSpace bus, bool active, ushort headX, ushort headY,
+    public void Step(ISnesAddressSpace bus, bool active, Position16<RoomPixels> head,
         SnesAngle angle, ushort angularWidth)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -60,10 +59,10 @@ public sealed class MotherBrainRainbowBeamHdmaState
             else ColorCursor += MotherBrainBeamRomData.ColorStride;
             Color = color;
         }
-        BuildWindows(headX, headY, angle, angularWidth);
+        BuildWindows(head, angle, angularWidth);
     }
 
-    private void BuildWindows(ushort headX, ushort headY,
+    private void BuildWindows(Position16<RoomPixels> head,
         SnesAngle angle, ushort angularWidth)
     {
         int halfWidth = (angularWidth >> 8) / 2;
@@ -79,12 +78,12 @@ public sealed class MotherBrainRainbowBeamHdmaState
         if (!right && !up && !down)
             throw new InvalidDataException($"Mother Brain beam quadrant pair {quadrant} selects a null native dispatcher.");
 
-        int originY = headY + MotherBrainBeamRomData.MouthYOffset;
+        int originY = head.Y + MotherBrainBeamRomData.MouthYOffset;
         if (originY is <= MotherBrainBeamRomData.FirstLine or >= MotherBrainBeamRomData.EndLine)
             throw new InvalidDataException($"Mother Brain beam mouth Y={originY} is outside its native scanline work area.");
         // DE20 reads XPosition-1, then masks after adding: this is the low X byte,
         // not a camera-relative coordinate or the enemy header pointer in the C decompile.
-        int origin = unchecked((byte)(headX + MotherBrainBeamRomData.MouthXOffset)) << 8;
+        int origin = unchecked((byte)(head.X + MotherBrainBeamRomData.MouthXOffset)) << 8;
         var data = new ushort[MotherBrainBeamRomData.EndLine];
         Array.Fill(data, MotherBrainBeamRomData.EmptyWindow);
         int count = originY - MotherBrainBeamRomData.FirstLine;

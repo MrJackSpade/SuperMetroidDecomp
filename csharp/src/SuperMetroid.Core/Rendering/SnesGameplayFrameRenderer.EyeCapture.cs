@@ -12,7 +12,7 @@ public static partial class SnesGameplayFrameRenderer
         ArgumentNullException.ThrowIfNull(bus);
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
             return null;
-        Offset16<ScreenPixels> origin = new Position16<RoomPixels>(beam.WorldX, beam.WorldY).RelativeToCamera(layer1);
+        Offset16<ScreenPixels> origin = beam.WorldPosition.RelativeToCamera(layer1);
         int angle = beam.Angle.TableIndex;
         int angularWidth = unchecked((byte)beam.AngularWidth);
         ushort[] nativeWindows = EyeBeamWindowBuilder.Build(origin, angle, angularWidth);

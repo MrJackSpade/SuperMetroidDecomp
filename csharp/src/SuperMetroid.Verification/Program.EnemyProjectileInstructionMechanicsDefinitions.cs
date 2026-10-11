@@ -240,11 +240,8 @@ internal static partial class Program
         spawnRainbowExplosionMethod.Invoke(
             explosionEnemies,
             [
-                (ushort)0x0100,
-                (ushort)0x0080,
-                new MotherBrainRainbowExplosionRequest(
-                    XOffset: -9,
-                    YOffset: 7),
+                new Position16<RoomPixels>(0x0100, 0x0080),
+                new MotherBrainRainbowExplosionRequest(Offset: new(-9, 7)),
             ]);
         RoomEnemyProjectileSlot explosion = explosionEnemies.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
@@ -278,8 +275,7 @@ internal static partial class Program
                 deathExplosionEnemies,
                 [
                     new MotherBrainDeathExplosionRequest(
-                        XOffset: -5,
-                        YOffset: 9,
+                        Offset: new(-5, 9),
                         ProjectileParameter: parameter,
                         SoundEffect: 0),
                 ]);

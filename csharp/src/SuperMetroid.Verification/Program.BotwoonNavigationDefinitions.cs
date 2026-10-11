@@ -11,7 +11,7 @@ internal static partial class Program
         for (int offset = 0; offset < 32; offset += 8)
         {
             ushort native = ReadBotwoonInstructionWord(rom, 0xb3949d + offset);
-            AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).Right, "Botwoon native right boundary");
+            AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).BottomRight.X, "Botwoon native right boundary");
             var head = new RoomEnemySystem().Slots[0];
             head.Position = head.Position.WithWholeY(ReadBotwoonInstructionWord(rom, 0xb3949f + offset));
             foreach (int x in new[] {native - 1, native})
@@ -34,7 +34,7 @@ internal static partial class Program
         for (int offset = 0; offset < 32; offset += 8)
         {
             ushort native = ReadBotwoonInstructionWord(rom, 0xb394a1 + offset);
-            AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).Bottom, "Botwoon native bottom boundary");
+            AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).BottomRight.Y, "Botwoon native bottom boundary");
             var head = new RoomEnemySystem().Slots[0];
             head.Position = head.Position.WithWholeX(ReadBotwoonInstructionWord(rom, 0xb3949b + offset));
             foreach (int y in new[] {native - 1, native})
@@ -84,7 +84,7 @@ internal static partial class Program
         foreach (ushort pointer in boundaries)
         {
             AssertEqual((ushort)0x0080, ReadBotwoonInstructionWord(rom, 0xb30000 | pointer), "Botwoon native stream separator");
-            AssertEqual(new BotwoonMovementSample(sbyte.MinValue, 0), BotwoonNavigationDefinitions.MovementSampleForPointer(pointer), "Botwoon compiled stream separator");
+            AssertEqual(new Offset16<RoomPixels>(sbyte.MinValue, 0), BotwoonNavigationDefinitions.MovementSampleForPointer(pointer), "Botwoon compiled stream separator");
         }
         AssertEqual((ushort)0xf080, ReadBotwoonInstructionWord(rom, 0xb3a6b4), "Botwoon early terminal is distinct from stream separator");
         for (int offset = 0; offset < 256; offset += 8)
@@ -122,8 +122,8 @@ internal static partial class Program
             BotwoonHoleDefinition hole =
                 BotwoonNavigationDefinitions.HoleForByteOffset(byteOffset);
             holes[byteOffset >> 3] = hole;
-            AssertEqual(Word(address), hole.Left, $"Botwoon hole {byteOffset:X2} left");
-            AssertEqual(Word(address + 4), hole.Top, $"Botwoon hole {byteOffset:X2} top");
+            AssertEqual(Word(address), hole.TopLeft.X, $"Botwoon hole {byteOffset:X2} left");
+            AssertEqual(Word(address + 4), hole.TopLeft.Y, $"Botwoon hole {byteOffset:X2} top");
         }
 
         var runMovement = typeof(RoomEnemySystem).GetMethod("RunBotwoonMovement", flags)!
@@ -177,7 +177,7 @@ internal static partial class Program
         {
             sbyte expectedX = unchecked((sbyte)rom.ReadByte(0xb30000 | pointer));
             sbyte expectedY = unchecked((sbyte)rom.ReadByte(0xb30000 | pointer + 1));
-            BotwoonMovementSample compiled =
+            Offset16<RoomPixels> compiled =
                 BotwoonNavigationDefinitions.MovementSampleForPointer((ushort)pointer);
             AssertEqual(expectedX, compiled.X, $"Botwoon movement ${pointer:X4} X");
             AssertEqual(expectedY, compiled.Y, $"Botwoon movement ${pointer:X4} Y");
@@ -230,7 +230,7 @@ internal static partial class Program
             BotwoonHoleDefinition hole = holes[byteOffset >> 3];
             var head = new RoomEnemySystem().Slots[0];
             var state = new BotwoonEnemyState(head) { RingByteOffset = 0x0234 };
-            head.Position = head.Position.WithWhole(new(hole.Left, hole.Top));
+            head.Position = head.Position.WithWhole(hole.TopLeft);
             detectHole(head, state);
             AssertTrue(state.InsideHole, $"Botwoon hole {byteOffset:X2} includes left/top");
             AssertTrue(state.HoleLatch, $"Botwoon hole {byteOffset:X2} latches");
@@ -239,12 +239,12 @@ internal static partial class Program
 
             state.HoleLatch = false;
             state.InsideHole = false;
-            head.Position = head.Position.WithWholeX(hole.Right);
+            head.Position = head.Position.WithWholeX(hole.BottomRight.X);
             detectHole(head, state);
             AssertTrue(!state.InsideHole,
                 $"Botwoon hole {byteOffset:X2} excludes right boundary");
             state.HoleLatch = false;
-            head.Position = head.Position.WithWhole(new(hole.Left, hole.Bottom));
+            head.Position = head.Position.WithWhole(hole.TopLeft.WithY(hole.BottomRight.Y));
             detectHole(head, state);
             AssertTrue(!state.InsideHole,
                 $"Botwoon hole {byteOffset:X2} excludes bottom boundary");
@@ -257,7 +257,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies, new BotwoonNavigationReadGuard(rom));
             RoomEnemySlot head = enemies.Slots[0];
-            head.Position = head.Position.WithWhole(new(hole.TargetX, hole.TargetY));
+            head.Position = head.Position.WithWhole(hole.Target);
             var state = new BotwoonEnemyState(head)
             {
                 MovementFunction = BotwoonMovementFunction.MoveTowardHole,
@@ -269,9 +269,9 @@ internal static partial class Program
                 $"Botwoon hole {byteOffset:X2} exact-target cartridge angle");
             AssertEqual((byte)191, state.MovementAngle,
                 $"Botwoon hole {byteOffset:X2} exact-target movement angle");
-            AssertEqual(hole.TargetX, head.Position.X.Whole,
+            AssertEqual(hole.Target.X, head.Position.X.Whole,
                 $"Botwoon hole {byteOffset:X2} exact-target X");
-            AssertEqual(hole.TargetY, head.Position.Y.Whole,
+            AssertEqual(hole.Target.Y, head.Position.Y.Whole,
                 $"Botwoon hole {byteOffset:X2} exact-target Y");
         }
 

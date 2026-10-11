@@ -1420,7 +1420,7 @@ static void VerifySamusPowerBeamProjectiles()
         int muzzleBlock = 6 * width + 4;
         words[muzzleBlock] = 0x1000;
         behaviors[muzzleBlock] = behavior;
-        return CreateRoom(width, height, words, behaviors);
+        return CreateRoom(new(width, height), words, behaviors);
     }
 
     // True when the fresh missile's first alpha pass collided and became an explosion.
@@ -1475,7 +1475,7 @@ static void VerifySamusPowerBeamProjectiles()
         int muzzleBlock = 6 * width + 4;
         words[muzzleBlock] = levelWord;
         behaviors[muzzleBlock] = behavior;
-        return CreateRoom(width, height, words, behaviors);
+        return CreateRoom(new(width, height), words, behaviors);
     }
 
     AssertTrue(!FirePointMissile(BuildPointBlockRoom(0x7000), 96),
@@ -2069,7 +2069,7 @@ static void VerifySamusPowerBeamProjectiles()
     // impact position and deletion on a second collision (not an explosion restart).
     var pillarWords = new ushort[64 * 16];
     pillarWords[851] = 0x8119;
-    var pillarRoom = CreateRoom(64, 16, pillarWords, new byte[pillarWords.Length]);
+    var pillarRoom = CreateRoom(new(64, 16), pillarWords, new byte[pillarWords.Length]);
     var pillarSamus = new SamusState
     {
         Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
@@ -2097,7 +2097,7 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x14b, pillarLink.Position.X.Whole,
         "original ROM repositions an exploded helper over air");
     pillarWords[853] = 0x8119;
-    var secondPillarRoom = CreateRoom(64, 16, pillarWords, new byte[pillarWords.Length]);
+    var secondPillarRoom = CreateRoom(new(64, 16), pillarWords, new byte[pillarWords.Length]);
     pillarProjectiles.StepFrame(bus, secondPillarRoom, pillarSamus, 0, 0, new(0x100, 0), pillarBombs);
     AssertTrue(!pillarLink.IsActive,
         "native second collision deletes the explosion instead of restarting it");

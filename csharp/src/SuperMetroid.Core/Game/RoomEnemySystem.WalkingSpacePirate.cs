@@ -415,10 +415,11 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemyProjectileSlot? projectile = SpawnPirateMotherBrainLaser(
             source,
-            unchecked((ushort)(
-                source.Position.X.Whole +
-                (movingRight ? WalkingPirateLaserMuzzleXOffset : -WalkingPirateLaserMuzzleXOffset))),
-            unchecked((ushort)(source.Position.Y.Whole - yOffset)),
+            new(
+                unchecked((ushort)(
+                    source.Position.X.Whole +
+                    (movingRight ? WalkingPirateLaserMuzzleXOffset : -WalkingPirateLaserMuzzleXOffset))),
+                unchecked((ushort)(source.Position.Y.Whole - yOffset))),
             movingRight);
         if (projectile is null)
             return false;
@@ -435,8 +436,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private RoomEnemyProjectileSlot? SpawnPirateMotherBrainLaser(
         RoomEnemySlot source,
-        ushort xPosition,
-        ushort yPosition,
+        Position16<RoomPixels> muzzle,
         bool movingRight)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -448,7 +448,7 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.PirateMotherBrainLaser,
             graphicsIndex: 0);
 
-        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, yPosition));
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
         projectile.InstructionPointer = movingRight
             ? SpacePirateProjectileInstructionProgramDefinitions.LaserRight
             : SpacePirateProjectileInstructionProgramDefinitions.LaserLeft;

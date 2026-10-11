@@ -126,8 +126,7 @@ static void VerifySamusDrainedController()
     var foreground = new ushort[width * height];
     for (int x = 0; x < width; x++)
         foreground[6 * width + x] = 0x8000; // Solid floor begins at whole Y 96.
-    RoomLevelData level = CreateRoom(
-        width, height, foreground, new byte[foreground.Length]);
+    RoomLevelData level = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
 
     VerifyDrainedPoseHistory(bus);
     var right = new SamusState
@@ -582,7 +581,7 @@ static void VerifySamusSolidEnemyCollision()
     // room blocks only on a miss, then position addition. An all-air room isolates that seam.
     const int roomWidth = 8;
     const int roomHeight = 8;
-    RoomLevelData airRoom = CreateEmptyRoom(roomWidth, roomHeight);
+    RoomLevelData airRoom = CreateEmptyRoom(new(roomWidth, roomHeight));
     var integrated = new SamusKinematicsState
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),

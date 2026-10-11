@@ -73,11 +73,12 @@ public sealed partial class SuperMetroidRuntime
         if (!TimeIsFrozen && (NmiFrameCounter & (nonblank ? 1 : 3)) == 0)
         {
             ushort random = System.NextRandom();
-            ushort x = unchecked((ushort)(Camera.PixelPosition.X + (byte)random));
-            ushort y = unchecked((ushort)(Camera.PixelPosition.Y + (random >> 8)));
-            int blockIndex = (y >> 4) * LevelData.Size.X + (x >> 4);
+            Position16<RoomPixels> explosion = new(
+                unchecked((ushort)(Camera.PixelPosition.X + (byte)random)),
+                unchecked((ushort)(Camera.PixelPosition.Y + (random >> 8))));
+            int blockIndex = LevelData.Size.RowMajorIndex(explosion.ToRoomBlock());
             if (!nonblank || new RoomLevelWord(LevelData.GetPlmCollisionBlockByIndex(blockIndex).LevelWord).VisualBlockIndex != ZebesEscapeRomData.BlankTile)
-                Enemies.SpawnEscapeExplosion(x, y, System.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);
+                Enemies.SpawnEscapeExplosion(explosion, System.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);
         }
         if (nonblank) Enemies.EarthquakeTimer |= ZebesEscapeRomData.ContinuousTimerBit;
     }

@@ -153,14 +153,13 @@ internal static partial class Program
     /// collision input would make physics fixtures ambiguous.
     /// </summary>
     static RoomLevelData CreateRoom(
-        int widthInBlocks,
-        int heightInBlocks,
+        Extent16<RoomBlocks> size,
         ReadOnlySpan<ushort> foreground,
         ReadOnlySpan<byte> behavior,
         ReadOnlySpan<ushort> background = default,
         ReadOnlySpan<byte> blockDefinitions = default)
     {
-        int blockCount = checked(widthInBlocks * heightInBlocks);
+        int blockCount = checked(size.X * size.Y);
         ushort[] clearedBackground = background.IsEmpty
             ? new ushort[blockCount]
             : background.ToArray();
@@ -172,7 +171,7 @@ internal static partial class Program
             : blockDefinitions.ToArray();
 
         return new RoomLevelData(
-            new Extent16<RoomBlocks>(checked((ushort)widthInBlocks), checked((ushort)heightInBlocks)),
+            size,
             foreground,
             behavior,
             clearedBackground,
@@ -183,12 +182,11 @@ internal static partial class Program
     /// Creates a completely empty collision room. Dimensions stay explicit at the call site
     /// because room boundaries are frequently part of the behavior under test.
     /// </summary>
-    static RoomLevelData CreateEmptyRoom(int widthInBlocks, int heightInBlocks)
+    static RoomLevelData CreateEmptyRoom(Extent16<RoomBlocks> size)
     {
-        int blockCount = checked(widthInBlocks * heightInBlocks);
+        int blockCount = checked(size.X * size.Y);
         return CreateRoom(
-            widthInBlocks,
-            heightInBlocks,
+            size,
             new ushort[blockCount],
             new byte[blockCount]);
     }

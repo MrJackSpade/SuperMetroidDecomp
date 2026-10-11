@@ -45,7 +45,7 @@ internal static partial class Program
             {
                 int sprite = Read(entry + 4);
                 DrawImportedSpritemap(bus, native, 0x820000 | Read(0x82c569 + sprite * 2),
-                    unchecked((ushort)(Read(entry) - x)), unchecked((ushort)(Read(entry + 2) - y)), 0);
+                    new(unchecked((ushort)(Read(entry) - x)), unchecked((ushort)(Read(entry + 2) - y))), 0);
             }
             int labelBytes = native.NextByteOffset;
             native.FinalizeFrame();

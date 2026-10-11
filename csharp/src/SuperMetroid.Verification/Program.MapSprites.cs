@@ -122,9 +122,9 @@ internal static partial class Program
     /// OAM cannot read immutable cartridge sprites after installation.
     /// </summary>
     private static void DrawImportedSpritemap(ISnesAddressSpace bus, OamBuffer oam,
-        int address, ushort originX, ushort originY, ushort paletteBits,
+        int address, Position16<OamPixels> origin, ushort paletteBits,
         bool originIsOnScreen = true) => ImportedSpritemapOracle.DrawGeneric(
-            CartridgeImportSource.Require(bus), oam, address, originX, originY,
+            CartridgeImportSource.Require(bus), oam, address, origin,
             paletteBits, originIsOnScreen);
 
     private sealed class MapSpriteReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory

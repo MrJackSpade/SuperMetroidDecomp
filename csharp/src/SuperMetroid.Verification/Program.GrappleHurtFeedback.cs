@@ -75,7 +75,7 @@ internal static partial class Program
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.ParlorAndAlcatraz);
         foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
-        var level = CreateRoom(32, 16, new ushort[512], new byte[512]);
+        var level = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
         typeof(SuperMetroidRuntime).GetProperty(nameof(SuperMetroidRuntime.LevelData))!.SetValue(runtime, level);
         var samus = runtime.Samus!;
         samus.InputLocked = false;

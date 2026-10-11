@@ -100,10 +100,7 @@ public sealed partial class RoomEnemySystem
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;
                 state.FunctionTimer = 0;
                 state.GrayFadeIndex = 0;
-                state.RequestPlm(
-                    blockX: 14,
-                    blockY: 2,
-                    header: PlmHeaderId.ClearMotherBrainCeilingBlock);
+                state.RequestPlm(new(14, 2), PlmHeaderId.ClearMotherBrainCeilingBlock);
                 return;
 
             case MotherBrainBodyFunction.FakeDeathDescentFadeToGray:
@@ -330,29 +327,29 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case MotherBrainTubeCollapseFunction.ClearBottomLeftTube:
-                RequestMotherBrainTubePlm(state, 5, 9,
+                RequestMotherBrainTubePlm(state, new(5, 9),
                     PlmHeaderId.ClearMotherBrainBottomLeftTube,
                     MotherBrainTubeCollapseFunction.SpawnTopRightTube, 32);
                 return;
             case MotherBrainTubeCollapseFunction.SpawnTopRightTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, 152, 47);
+                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, new(152, 47));
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn9;
                 return;
             case MotherBrainTubeCollapseFunction.ClearCeilingColumn9:
-                RequestMotherBrainTubePlm(state, 9, 2,
+                RequestMotherBrainTubePlm(state, new(9, 2),
                     PlmHeaderId.ClearMotherBrainCeilingBlock,
                     MotherBrainTubeCollapseFunction.SpawnTopLeftTube, 32);
                 return;
             case MotherBrainTubeCollapseFunction.SpawnTopLeftTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopLeftTube, 104, 47);
+                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopLeftTube, new(104, 47));
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn6;
                 return;
             case MotherBrainTubeCollapseFunction.ClearCeilingColumn6:
-                RequestMotherBrainTubePlm(state, 6, 2,
+                RequestMotherBrainTubePlm(state, new(6, 2),
                     PlmHeaderId.ClearMotherBrainCeilingBlock,
                     MotherBrainTubeCollapseFunction.SpawnBottomRightTube, 32);
                 return;
@@ -363,7 +360,7 @@ public sealed partial class RoomEnemySystem
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomRightTube;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomRightTube:
-                RequestMotherBrainTubePlm(state, 10, 9,
+                RequestMotherBrainTubePlm(state, new(10, 9),
                     PlmHeaderId.ClearMotherBrainBottomRightTube,
                     MotherBrainTubeCollapseFunction.SpawnBottomMiddleLeftTube, 32);
                 return;
@@ -374,29 +371,29 @@ public sealed partial class RoomEnemySystem
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleLeftTube;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomMiddleLeftTube:
-                RequestMotherBrainTubePlm(state, 6, 10,
+                RequestMotherBrainTubePlm(state, new(6, 10),
                     PlmHeaderId.ClearMotherBrainBottomMiddleSideTube,
                     MotherBrainTubeCollapseFunction.SpawnTopMiddleLeftTube, 32);
                 return;
             case MotherBrainTubeCollapseFunction.SpawnTopMiddleLeftTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube, 120, 59);
+                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube, new(120, 59));
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn7;
                 return;
             case MotherBrainTubeCollapseFunction.ClearCeilingColumn7:
-                RequestMotherBrainTubePlm(state, 7, 2,
+                RequestMotherBrainTubePlm(state, new(7, 2),
                     PlmHeaderId.ClearMotherBrainCeilingTube,
                     MotherBrainTubeCollapseFunction.SpawnTopMiddleRightTube, 32);
                 return;
             case MotherBrainTubeCollapseFunction.SpawnTopMiddleRightTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube, 136, 59);
+                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube, new(136, 59));
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn8;
                 return;
             case MotherBrainTubeCollapseFunction.ClearCeilingColumn8:
-                RequestMotherBrainTubePlm(state, 8, 2,
+                RequestMotherBrainTubePlm(state, new(8, 2),
                     PlmHeaderId.ClearMotherBrainCeilingTube,
                     MotherBrainTubeCollapseFunction.SpawnBottomMiddleRightTube, 32);
                 return;
@@ -407,7 +404,7 @@ public sealed partial class RoomEnemySystem
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleRightTube;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomMiddleRightTube:
-                RequestMotherBrainTubePlm(state, 9, 10,
+                RequestMotherBrainTubePlm(state, new(9, 10),
                     PlmHeaderId.ClearMotherBrainBottomMiddleSideTube,
                     MotherBrainTubeCollapseFunction.SpawnMainTube, 2);
                 return;
@@ -418,7 +415,7 @@ public sealed partial class RoomEnemySystem
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleTubes;
                 return;
             case MotherBrainTubeCollapseFunction.ClearBottomMiddleTubes:
-                RequestMotherBrainTubePlm(state, 7, 7,
+                RequestMotherBrainTubePlm(state, new(7, 7),
                     PlmHeaderId.ClearMotherBrainBottomMiddleTubes,
                     MotherBrainTubeCollapseFunction.Finished, 0);
                 return;
@@ -439,28 +436,26 @@ public sealed partial class RoomEnemySystem
 
     private static void RequestMotherBrainTubePlm(
         MotherBrainEnemyState state,
-        byte blockX,
-        byte blockY,
+        Position16<RoomBlocks> block,
         PlmHeaderId header,
         MotherBrainTubeCollapseFunction next,
         ushort timer)
     {
-        state.RequestPlm(blockX, blockY, header);
+        state.RequestPlm(block, header);
         state.TubeCollapseFunction = next;
         state.TubeCollapseTimer = timer;
     }
 
     private void SpawnMotherBrainTopTube(
         RoomEnemyProjectileKind kind,
-        ushort xPosition,
-        ushort yPosition)
+        Position16<RoomPixels> position)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
         InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
-        projectile.Position = projectile.Position.WithWhole(new(xPosition, yPosition));
+        projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         projectile.Variable0 = 0xcbea;
     }
@@ -651,8 +646,8 @@ public sealed partial class RoomEnemySystem
             MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD => 12,
             _ => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
         };
-        state.RequestPlm(blockX: 2, blockY: firstRow, header: firstHeader);
-        state.RequestPlm(blockX: 2, blockY: unchecked((byte)(firstRow + 1)), header: secondHeader);
+        state.RequestPlm(new(2, firstRow), firstHeader);
+        state.RequestPlm(new(2, unchecked((byte)(firstRow + 1))), secondHeader);
         state.Function = next;
     }
 

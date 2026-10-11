@@ -25,10 +25,10 @@ internal static partial class Program
             AssertEqual(expected, BoulderBounceDefinitions.SpeedIndex(counter), "Boulder native leading-zero/bounce word");
             actor.Position = actor.Position.WithY(new(55, 0));
             state.BounceCounter = counter;
-            state.VerticalSpeedAccumulator = 0x2000;
+            state.BounceSpeedAccumulator = 0x2000;
             state.Function = BoulderAiFunction.Falling;
             fall(actor, state, level);
-            AssertEqual(expected, state.VerticalSpeedAccumulator, "Boulder real collision installs compiled sample without bus");
+            AssertEqual(expected, state.BounceSpeedAccumulator, "Boulder real collision installs compiled sample without bus");
             AssertEqual(unchecked((ushort)(counter - 1)), state.BounceCounter, "Boulder native bounce underflow");
             AssertEqual(counter == 0 ? BoulderAiFunction.Rolling : BoulderAiFunction.Rebound,
                 state.Function, "Boulder last collision enters rolling");

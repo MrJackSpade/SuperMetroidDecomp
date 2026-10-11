@@ -40,7 +40,7 @@ internal static partial class Program
                 definitions[0x085 * 8 + tile * 2] = 0x15;
                 definitions[0x053 * 8 + tile * 2] = 0x53;
             }
-            RoomLevelData level = CreateRoom(32, 16, new ushort[32 * 16],
+            RoomLevelData level = CreateRoom(new(32, 16), new ushort[32 * 16],
                 new byte[32 * 16], blockDefinitions: definitions);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem { ElevatorPlatformVisuals = visuals };

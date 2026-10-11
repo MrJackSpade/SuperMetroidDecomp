@@ -104,8 +104,7 @@ public sealed partial class RoomEnemySystem
             DeadSidehopperCorpseDefinitions.InitiallyAlive);
         state.Function = DeadSidehopperAiFunction.AliveWaitForCamera;
         state.PaletteStage = 0;
-        state.HorizontalVelocity = 96;
-        state.VerticalVelocity = 256;
+        state.Velocity = new EightEightVector<RoomPixels>(96, 256);
     }
 
     /// <summary>Ports the already-dead Tourian layout at <c>$A9:D825</c>.</summary>
@@ -222,8 +221,7 @@ public sealed partial class RoomEnemySystem
                 SetDeadSidehopperInstruction(
                     slot,
                     DeadSidehopperInstructionProgramDefinitions.AliveIdle);
-                state.VerticalVelocity = DeadSidehopperLaunchDefinitions.Vertical[state.JumpPhase];
-                state.HorizontalVelocity = DeadSidehopperLaunchDefinitions.Horizontal[state.JumpPhase];
+                state.Velocity = DeadSidehopperLaunchDefinitions.Velocity(state.JumpPhase);
                 return;
 
             case DeadSidehopperAiFunction.TransformPalette:
@@ -266,13 +264,13 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level)
     {
         bool beforeTerrainBoundary = unchecked((short)(slot.Position.X.Whole - 544)) < 0;
-        int horizontalDisplacement = unchecked((short)state.HorizontalVelocity) << 8;
+        int horizontalDisplacement = state.Velocity.X.SignedRawValue << 8;
         if (beforeTerrainBoundary)
         {
             MoveDeadSidehopperAxisDirect(
                 slot,
                 horizontal: true,
-                state.HorizontalVelocity);
+                state.Velocity.X.RawValue);
         }
         else
         {
@@ -284,20 +282,21 @@ public sealed partial class RoomEnemySystem
 
         // Upward motion accelerates by $20 in signed 8.8; falling motion accelerates by
         // $80. The sign test is performed before the addition in the cartridge.
-        ushort acceleration = (state.VerticalVelocity & 0x8000) != 0
+        ushort acceleration = state.Velocity.Y.SignedRawValue < 0
             ? (ushort)32
             : (ushort)128;
-        state.VerticalVelocity = unchecked((ushort)(state.VerticalVelocity + acceleration));
+        state.Velocity = state.Velocity.WithY(
+            new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + acceleration))));
         if (beforeTerrainBoundary)
         {
             MoveDeadSidehopperAxisDirect(
                 slot,
                 horizontal: false,
-                state.VerticalVelocity);
+                state.Velocity.Y.RawValue);
             return unchecked((short)(slot.Position.Y.Whole - 184)) >= 0;
         }
 
-        int verticalDisplacement = unchecked((short)state.VerticalVelocity) << 8;
+        int verticalDisplacement = state.Velocity.Y.SignedRawValue << 8;
         return MoveEnemyVertically(
             RequireDeadSidehopperLevel(level),
             slot,
@@ -670,11 +669,8 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>Native extended word 08, written to one by Shitroid after feeding.</summary>
     public ushort PaletteStage { get; internal set; }
 
-    /// <summary>Native signed 8.8 horizontal velocity word 0A.</summary>
-    public ushort HorizontalVelocity { get; internal set; }
-
-    /// <summary>Native signed 8.8 vertical velocity word 0B.</summary>
-    public ushort VerticalVelocity { get; internal set; }
+    /// <summary>Native signed 8.8 velocity: horizontal word 0A and vertical word 0B.</summary>
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Native AI variable B, deliberately retained across repeated corpse contacts.</summary>
     public ushort PreRotDelayCounter

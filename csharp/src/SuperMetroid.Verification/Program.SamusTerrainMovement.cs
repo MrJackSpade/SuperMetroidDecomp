@@ -46,9 +46,7 @@ static void VerifySamusSlopePhysics()
     // A type-1/BTS-$12 block occupies (0,1). At center Y=21 with radius 5, Samus's bottom
     // is Y=25 (low nibble 9). Height 8 yields correction 8-9-1 = -2, so $94:87F4 moves
     // her center upward to 19 and marks slope adjustment for the later grounding branch.
-    RoomLevelData level = CreateRoom(
-        2,
-        2,
+    RoomLevelData level = CreateRoom(new(2, 2),
         [0x0000, 0x0000, 0x1000, 0x0000],
         [0x00, 0x00, 0x12, 0x00]);
     SlopeAlignmentResult aligned = SamusSlopePhysics.AlignYPosition(
@@ -89,7 +87,7 @@ static void VerifySamusBlockCollision()
     foreground[1 * width + 1] = 0x1000;
     behavior[1 * width + 1] = 0x12;
     foreground[1 * width + 2] = 0x8000;
-    RoomLevelData level = CreateRoom(width, height, foreground, behavior);
+    RoomLevelData level = CreateRoom(new(width, height), foreground, behavior);
 
     // At Y=21/radius5 the body penetrates shape-$12's height-8 sample by two pixels.
     // Horizontal type-1 processing first scales 1.0 to 0.C000, then $94:87F4 raises Y.
@@ -172,8 +170,7 @@ static void VerifySamusBlockCollision()
     squareBehavior[1 * width + 2] = 0x04;
     squareForeground[2 * width + 1] = 0x1000;
     squareBehavior[2 * width + 1] = 0x04;
-    RoomLevelData squareLevel = CreateRoom(
-        width, height, squareForeground, squareBehavior);
+    RoomLevelData squareLevel = CreateRoom(new(width, height), squareForeground, squareBehavior);
 
     var squareWallBody = new SamusKinematicsState
     {
@@ -335,9 +332,7 @@ static void VerifySamusBlockCollision()
     {
         var dispatcherWords = new ushort[width * height];
         dispatcherWords[1 * width + 2] = collisionWord;
-        RoomLevelData dispatcherLevel = CreateRoom(
-            width,
-            height,
+        RoomLevelData dispatcherLevel = CreateRoom(new(width, height),
             dispatcherWords,
             new byte[dispatcherWords.Length]);
         var dispatcherBody = new SamusKinematicsState
@@ -382,7 +377,7 @@ static void VerifySamusBlockCollision()
         var spikeBehaviors = new byte[spikeWords.Length];
         spikeWords[2 * width + 1] = 0xa000;
         spikeBehaviors[2 * width + 1] = spikeBehavior;
-        RoomLevelData spikeLevel = CreateRoom(width, height, spikeWords, spikeBehaviors);
+        RoomLevelData spikeLevel = CreateRoom(new(width, height), spikeWords, spikeBehaviors);
         var spikeSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -428,7 +423,7 @@ static void VerifySamusBlockCollision()
         var spikeBehaviors = new byte[spikeWords.Length];
         spikeWords[2 * width + 1] = 0xa000;
         spikeBehaviors[2 * width + 1] = (byte)SpikeBlockBehavior.Heavy;
-        RoomLevelData wreckedShipSpikes = CreateRoom(width, height, spikeWords, spikeBehaviors);
+        RoomLevelData wreckedShipSpikes = CreateRoom(new(width, height), spikeWords, spikeBehaviors);
         var spikeSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -460,9 +455,7 @@ static void VerifySamusBlockCollision()
         spikeAirWords[spikeRow * width + 1] = 0x2000;
         spikeAirBehaviors[spikeRow * width + 1] =
             SamusTerrainHazardRomData.DamagingSpikeAirBehavior;
-        RoomLevelData spikeAirLevel = CreateRoom(
-            width,
-            height,
+        RoomLevelData spikeAirLevel = CreateRoom(new(width, height),
             spikeAirWords,
             spikeAirBehaviors);
         var spikeAirSamus = new SamusState
@@ -490,9 +483,7 @@ static void VerifySamusBlockCollision()
     contactSafeWords[1 * width + 1] = 0x2000;
     contactSafeBehaviors[1 * width + 1] =
         SamusTerrainHazardRomData.DamagingSpikeAirBehavior;
-    RoomLevelData contactSafeSpikeAir = CreateRoom(
-        width,
-        height,
+    RoomLevelData contactSafeSpikeAir = CreateRoom(new(width, height),
         contactSafeWords,
         contactSafeBehaviors);
     var contactSafeSamus = new SamusState
@@ -534,9 +525,7 @@ static void VerifySamusGroundedMovement()
     // Shape $12 scales grounded horizontal displacement by $00C0/256 = 3/4 and exposes an
     // eight-pixel surface at X nibble eight. Row one is an uninterrupted two-block floor so
     // the radius scan can visit either column without introducing another dispatcher type.
-    RoomLevelData level = CreateRoom(
-        2,
-        3,
+    RoomLevelData level = CreateRoom(new(2, 3),
         [0, 0, 0x1000, 0x1000, 0, 0],
         [0, 0, 0x12, 0x12, 0, 0]);
 
@@ -629,7 +618,7 @@ static void VerifySamusGroundedMovement()
     // Put a valid solid-enemy candidate exactly one pixel below an all-air room body: the
     // ordinary MoveVertical wrapper would stop on it, whereas `$94:9763` must deliberately
     // ignore it and accept the complete 1.0000 downward displacement.
-    RoomLevelData elevatorLevel = CreateEmptyRoom(8, 8);
+    RoomLevelData elevatorLevel = CreateEmptyRoom(new(8, 8));
     forward.Position = forward.Position.WithWhole(new(100, 100));
     forward.Kinematics.Position = forward.Kinematics.Position.WithFractionX(0x1234).WithFractionY(0x5678);
     forward.Kinematics.Radius = new(5, 10);
@@ -703,8 +692,7 @@ static void VerifySamusGroundedReversal()
     var foreground = new ushort[width * 3];
     for (int x = 0; x < width; x++)
         foreground[width + x] = 0x8000;
-    RoomLevelData level = CreateRoom(
-        width, 3, foreground, new byte[foreground.Length]);
+    RoomLevelData level = CreateRoom(new(width, 3), foreground, new byte[foreground.Length]);
 
     var movingLeft = new SamusState { Pose = SamusPoseId.MovingLeftNormalPose };
     movingLeft.Kinematics.Position = movingLeft.Kinematics.Position.WithWhole(new(64, 11));
@@ -931,8 +919,7 @@ static void VerifySamusGroundedReversal()
     var aimedForeground = new ushort[width * 5];
     for (int x = 0; x < width; x++)
         aimedForeground[width * 3 + x] = 0x8000;
-    RoomLevelData aimedLevel = CreateRoom(
-        width, 5, aimedForeground, new byte[aimedForeground.Length]);
+    RoomLevelData aimedLevel = CreateRoom(new(width, 5), aimedForeground, new byte[aimedForeground.Length]);
 
     for (int caseIndex = 0; caseIndex < aimedTurnCases.Length; caseIndex++)
     {
@@ -1280,8 +1267,7 @@ static void VerifySamusMoonwalking()
     var foreground = new ushort[width * 3];
     for (int x = 0; x < width; x++)
         foreground[width + x] = 0x8000;
-    RoomLevelData floor = CreateRoom(
-        width, 3, foreground, new byte[foreground.Length]);
+    RoomLevelData floor = CreateRoom(new(width, 3), foreground, new byte[foreground.Length]);
     foreach ((SamusPoseId pose, _, _, int direction) in stable)
     {
         var walker = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(80, 11)) };
@@ -1480,8 +1466,7 @@ static void VerifySamusRanIntoWall()
     var openForeground = new ushort[width * 4];
     for (int x = 0; x < width; x++)
         openForeground[width * 2 + x] = 0x8000;
-    RoomLevelData openFloor = CreateRoom(
-        width, 4, openForeground, new byte[openForeground.Length]);
+    RoomLevelData openFloor = CreateRoom(new(width, 4), openForeground, new byte[openForeground.Length]);
 
     // A clear prospective run really moves one pixel; it is not merely a collision query.
     var armPump = new SamusState
@@ -1505,8 +1490,7 @@ static void VerifySamusRanIntoWall()
     var blockedForeground = (ushort[])openForeground.Clone();
     blockedForeground[6] = 0x8000;
     blockedForeground[width + 6] = 0x8000;
-    RoomLevelData blockedFloor = CreateRoom(
-        width, 4, blockedForeground, new byte[blockedForeground.Length]);
+    RoomLevelData blockedFloor = CreateRoom(new(width, 4), blockedForeground, new byte[blockedForeground.Length]);
     var blocked = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,

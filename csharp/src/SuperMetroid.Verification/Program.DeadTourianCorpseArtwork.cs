@@ -123,7 +123,7 @@ internal static partial class Program
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
-                nativePointer, 128, 128, 0, 0);
+                nativePointer, new(128, 128), 0, 0);
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
@@ -157,7 +157,7 @@ internal static partial class Program
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
-                nativePointer, 128, 128, 0, 0);
+                nativePointer, new(128, 128), 0, 0);
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Engine-owned offset and hitbox-list identity of one Ridley body component.</summary>
-internal readonly record struct RidleyCollisionComponent(short X, short Y, ushort HitboxPointer);
+internal readonly record struct RidleyCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
 
 /// <summary>Engine-owned rectangle and callbacks; never derived from editable OAM.</summary>
 internal readonly record struct RidleyCollisionHitbox(
@@ -20,13 +20,17 @@ internal static class RidleyCollisionDefinitions
     private const ushort Touch = EnemyAiCodePointers.BankA6.RidleyExtendedTouch;
     private const ushort Shot = EnemyAiCodePointers.BankA6.RidleyShot;
 
+    /// <summary>The 32-pixel margin $A6:DE7A adds on each axis before the camera-relative test.</summary>
+    private static readonly Offset16<RoomPixels> InteractionWindowMargin = new(32, 32);
+
     /// <summary>$A6:DE7A, CheckIfRidleyIsOffScreen: signed world coordinates and the
     /// camera-relative origin plus 32 must be inside 320 by 288 pixels.</summary>
-    internal static bool IsOutsideInteractionWindow(ushort x, ushort y, ushort cameraX, ushort cameraY)
+    internal static bool IsOutsideInteractionWindow(Position16<RoomPixels> position, Position16<RoomPixels> camera)
     {
-        short relativeX = unchecked((short)(x + 32 - cameraX));
-        short relativeY = unchecked((short)(y + 32 - cameraY));
-        return unchecked((short)x) < 0 || unchecked((short)y) < 0 ||
+        Offset16<ScreenPixels> relative = (position + InteractionWindowMargin).RelativeToCamera(camera);
+        short relativeX = relative.X;
+        short relativeY = relative.Y;
+        return unchecked((short)position.X) < 0 || unchecked((short)position.Y) < 0 ||
             relativeX < 0 || relativeY < 0 ||
             unchecked((short)(relativeX - 320)) >= 0 ||
             unchecked((short)(relativeY - 288)) >= 0;
@@ -74,10 +78,9 @@ internal static class RidleyCollisionDefinitions
     /// <summary>$A6:EADB, the forward frame's single component Y offset, authored for its drawing.</summary>
     private const short ForwardYOffset = -6;
 
-    private readonly record struct ComponentOffset(short X, short Y);
     // The four left-facing component origins (legs, hand, torso, head) are authored placements
     // for the drawing; right-facing frames negate X.
-    private static readonly ComponentOffset[] LeftBase =
+    private static readonly Offset16<RoomPixels>[] LeftBase =
         [new(15, 22), new(-8, 7), new(16, 0), new(-3, -24)];
 
     internal readonly record struct ComponentSequence(ushort Frame)
@@ -97,7 +100,7 @@ internal static class RidleyCollisionDefinitions
 
     private static RidleyCollisionComponent ComponentAt(BodyFrame frame, int component)
     {
-        if (frame == BodyFrame.Forward) return new(0, ForwardYOffset, ForwardHitbox);
+        if (frame == BodyFrame.Forward) return new(new(0, ForwardYOffset), ForwardHitbox);
         bool right = frame is BodyFrame.Right or BodyFrame.RightMouthHalfOpen or BodyFrame.RightMouthOpen
             or BodyFrame.RightLegsHalfExtended or BodyFrame.RightLegsExtended;
         ushort hitbox = component switch
@@ -122,8 +125,8 @@ internal static class RidleyCollisionDefinitions
                 _ => throw new InvalidOperationException($"Undefined BodyFrame {frame}."),
             }) * (2 + 2 * 12)),
         };
-        ComponentOffset origin = LeftBase[component];
-        return new((short)(right ? -origin.X : origin.X), origin.Y,
+        Offset16<RoomPixels> origin = LeftBase[component];
+        return new(right ? origin.MirroredX() : origin,
             (ushort)(hitbox + (right ? RightHitboxDisplacement : 0)));
     }
 

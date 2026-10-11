@@ -796,7 +796,7 @@ public static partial class SamusGrappleMovement
             };
 
             samus.Pose = special.Pose;
-            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(grapple.Anchor.X + special.X)), unchecked((ushort)(grapple.Anchor.Y + special.Y))));
+            samus.Position = samus.Position.WithWhole(grapple.Anchor + special.SamusOffset);
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus, initialFrame: 0);
             grapple.Phase = phase;

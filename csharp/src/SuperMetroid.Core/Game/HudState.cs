@@ -36,8 +36,10 @@ public sealed class HudState
         MinimapDisabled = true;
         for (int y = 0; y < 3; y++)
         for (int x = 0; x < 5; x++)
-            _tiles[presentation?.MinimapCellIndex(new(unchecked((ushort)x), unchecked((ushort)y))) ?? NativeMinimapCellIndex(x, y)] =
-                (ushort)MapTileWords.HudBlank;
+        {
+            var cell = new Position16<TilemapCells>((ushort)x, (ushort)y);
+            _tiles[presentation?.MinimapCellIndex(cell) ?? NativeMinimapCellIndex(cell)] = (ushort)MapTileWords.HudBlank;
+        }
     }
 
     /// <summary>$82:E1B7 restores minimap updates when leaving the room.</summary>
@@ -66,11 +68,8 @@ public sealed class HudState
     /// </summary>
     public bool SelectionSoundSuppressedThisFrame { get; private set; }
 
-    /// <summary>Absolute 0-63 area-map X tile selected by the latest minimap update.</summary>
-    public byte MinimapCenterX { get; private set; }
-
-    /// <summary>Absolute 0-31 area-map Y tile selected by the latest minimap update.</summary>
-    public byte MinimapCenterY { get; private set; }
+    /// <summary>Absolute area-map tile (X 0-63, Y 0-31) selected by the latest minimap update.</summary>
+    public Position16<MapTiles> MinimapCenter { get; private set; }
 
     /// <summary>
     /// Binds current host-owned HUD presentation. Rebinding changed content rebuilds only
@@ -87,7 +86,10 @@ public sealed class HudState
         var minimap = new ushort[15];
         for (int y = 0; y < 3; y++)
         for (int x = 0; x < 5; x++)
-            minimap[y * 5 + x] = _tiles[previous?.MinimapCellIndex(new(unchecked((ushort)x), unchecked((ushort)y))) ?? NativeMinimapCellIndex(x, y)];
+        {
+            var cell = new Position16<TilemapCells>((ushort)x, (ushort)y);
+            minimap[y * 5 + x] = _tiles[previous?.MinimapCellIndex(cell) ?? NativeMinimapCellIndex(cell)];
+        }
 
         value.ApplyTemplate(_tiles);
         ApplyCurrentPresentationState(samus);
@@ -212,12 +214,9 @@ public sealed class HudState
         ISnesAddressSpace bus,
         Bank80SystemState system,
         AreaId areaIndex,
-        byte roomMapX,
-        byte roomMapY,
-        int roomWidthInBlocks,
-        int roomHeightInBlocks,
-        ushort samusX,
-        ushort samusY,
+        Position16<MapTiles> roomMap,
+        Extent16<RoomBlocks> roomSize,
+        Position16<RoomPixels> samus,
         byte nmiFrameCounter,
         MapRevealMode mapRevealMode = MapRevealMode.None,
         IAreaMapView? presentationMap = null)
@@ -230,23 +229,25 @@ public sealed class HudState
             throw new InvalidOperationException("Minimap updates require an installed area-map definition.");
         if (presentationMap.Area != areaIndex)
             throw new ArgumentException("Map presentation belongs to a different area.", nameof(presentationMap));
-        if (roomWidthInBlocks <= 0 || roomHeightInBlocks <= 0)
-            throw new ArgumentOutOfRangeException(nameof(roomWidthInBlocks));
+        if (roomSize.X == 0 || roomSize.Y == 0)
+            throw new ArgumentOutOfRangeException(nameof(roomSize));
+        // The room header stores its map coordinates as bytes.
+        if (roomMap.X > byte.MaxValue || roomMap.Y > byte.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(roomMap));
 
         // $90:A91B returns rather than indexing unrelated map memory if Samus is outside
         // the active room. The 16-pixel comparison consumes the same positions as collision.
-        if (MinimapDisabled || (samusX >> 4) >= roomWidthInBlocks || (samusY >> 4) >= roomHeightInBlocks)
+        if (MinimapDisabled || !roomSize.Contains(samus.ToRoomBlock()))
             return;
 
         // One area-map tile represents one 256x256 room screen. The native Y formula has
         // an intentional +1 because the HUD map convention places the room header's Y one
         // row above the screen containing Samus.
-        int centerX = (roomMapX + (samusX >> 8)) & 0x3f;
-        int centerY = roomMapY + (samusY >> 8) + 1;
+        int centerX = (roomMap.X + (samus.X >> 8)) & 0x3f;
+        int centerY = roomMap.Y + (samus.Y >> 8) + 1;
         if ((uint)centerY >= 32)
             return;
-        MinimapCenterX = (byte)centerX;
-        MinimapCenterY = (byte)centerY;
+        MinimapCenter = new((ushort)centerX, (ushort)centerY);
 
         // Exploration is persistent game state, not HUD-local rendering state. Earlier
         // builds kept this bit in HudState, which made the minimap look correct until a
@@ -259,8 +260,8 @@ public sealed class HudState
             int mapY = centerY + outputY - 1;
             for (int outputX = 0; outputX < 5; outputX++)
             {
-                int destination = presentation?.MinimapCellIndex(new(unchecked((ushort)outputX), unchecked((ushort)outputY))) ??
-                    NativeMinimapCellIndex(outputX, outputY);
+                var output = new Position16<TilemapCells>((ushort)outputX, (ushort)outputY);
+                int destination = presentation?.MinimapCellIndex(output) ?? NativeMinimapCellIndex(output);
                 int mapX = (centerX + outputX - 2) & 0x3f;
                 if ((uint)mapY >= 32)
                 {
@@ -301,7 +302,8 @@ public sealed class HudState
         // familiar blinking Samus location without a separate sprite.
         if ((nmiFrameCounter & 8) == 0)
         {
-            int center = presentation?.MinimapCellIndex(new(2, 1)) ?? NativeMinimapCellIndex(2, 1);
+            var centerCell = new Position16<TilemapCells>(2, 1);
+            int center = presentation?.MinimapCellIndex(centerCell) ?? NativeMinimapCellIndex(centerCell);
             _tiles[center] = (ushort)new MapTileWord(_tiles[center]).WithLocationBlink();
         }
     }
@@ -389,8 +391,8 @@ public sealed class HudState
         presentation.ToggleItemHighlight(_tiles, samus.SelectedHudItem, presentation.SelectedPalette);
     }
 
-    private static int NativeMinimapCellIndex(int outputX, int outputY) =>
-        26 + outputY * WidthInTiles + outputX;
+    private static int NativeMinimapCellIndex(Position16<TilemapCells> output) =>
+        26 + output.Y * WidthInTiles + output.X;
 
 }
 

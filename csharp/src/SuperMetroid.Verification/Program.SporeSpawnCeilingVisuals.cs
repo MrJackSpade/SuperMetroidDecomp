@@ -157,7 +157,7 @@ internal static partial class Program
         for (int y = 30; y <= 31; y++)
         for (int x = 7; x <= 8; x++)
             words[y * width + x] = 0x0123;
-        RoomLevelData level = CreateRoom(width, height, words,
+        RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
         level.SetBlockDefinitionWord(0x0059 * 4, 0x0059);

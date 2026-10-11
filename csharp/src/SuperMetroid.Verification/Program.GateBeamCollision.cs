@@ -50,7 +50,7 @@ internal static partial class Program
             int second = horizontal ? 49 : 19;
             words[first] = words[second] = 0xc000;
             bts[first] = bts[second] = 0x10;
-            var level = CreateRoom(16, 16, words, bts);
+            var level = CreateRoom(new(16, 16), words, bts);
             var plms = new RoomPlmSystem();
             if (full)
                 for (int i = 0; i < 40; i++)

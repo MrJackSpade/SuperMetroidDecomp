@@ -73,11 +73,11 @@ internal static partial class Program
                     facingRight: facingIndex != 0);
             AssertEqual(
                 unchecked((short)Word(rom, xTables[partIndex] + facingIndex * 2)),
-                definition.XOffset,
+                definition.Offset.X,
                 $"Ridley body fragment {partIndex} facing {facingIndex} X offset");
             AssertEqual(
                 unchecked((short)Word(rom, yOperands[partIndex])),
-                definition.YOffset,
+                definition.Offset.Y,
                 $"Ridley body fragment {partIndex} Y offset");
             AssertEqual(
                 Word(rom, instructionTables[partIndex] + facingIndex * 2),
@@ -87,15 +87,15 @@ internal static partial class Program
 
         for (int index = 0; index < 10; index++)
         {
-            RidleyDeathExplosionPlacement placement =
+            Offset16<RoomPixels> placement =
                 RidleyExplosionDefinitions.DeathExplosionPlacement(index);
             AssertEqual(
                 unchecked((short)Word(rom, 0xa6c66e + index * 4)),
-                placement.XOffset,
+                placement.X,
                 $"Ridley death explosion {index} X offset");
             AssertEqual(
                 unchecked((short)Word(rom, 0xa6c670 + index * 4)),
-                placement.YOffset,
+                placement.Y,
                 $"Ridley death explosion {index} Y offset");
             // The Baby Metroid death stores the identical scatter at $A9:CDFC.
             AssertEqual(Word(rom, 0xa6c66e + index * 4), Word(rom, 0xa9cdfc + index * 4),

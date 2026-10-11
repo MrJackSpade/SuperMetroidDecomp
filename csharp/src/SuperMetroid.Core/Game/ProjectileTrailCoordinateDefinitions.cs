@@ -321,12 +321,16 @@ internal static class ProjectileTrailCoordinateDefinitions
         return bytes.ToFrozenDictionary();
     }
 
-    private readonly record struct Offset(sbyte LeftX, sbyte LeftY, sbyte RightX, sbyte RightY);
+    /// <summary>
+    /// One record's left and right sparkle offsets from the projectile. The native record stores
+    /// each axis as one signed byte; <see cref="TryReadByte"/> emits the low byte of each word.
+    /// </summary>
+    private readonly record struct TrailFrame(Offset16<RoomPixels> Left, Offset16<RoomPixels> Right);
 
     /// <summary>How a block's right sparkle reflects its left sparkle across the travel axis.</summary>
     private enum Reflection { AcrossVertical, AcrossHorizontal, AcrossDiagonalDownRight, AcrossDiagonalUpRight, ThroughOrigin }
 
-    private readonly record struct StoredFrame(sbyte LeftX, sbyte LeftY, Reflection Reflection);
+    private readonly record struct StoredFrame(Offset16<RoomPixels> Left, Reflection Reflection);
 
     private static readonly FrozenDictionary<int, StoredFrame> Frames = CreateFrames();
 
@@ -491,7 +495,7 @@ internal static class ProjectileTrailCoordinateDefinitions
     /// about each peak. Cardinal ramps start at eight then advance four pixels;
     /// diagonal ramps advance four pixels twice, then two pixels twice.
     /// </summary>
-    private static bool TryCalculatedFrame(int address, out Offset value)
+    private static bool TryCalculatedFrame(int address, out TrailFrame value)
     {
         value = default;
         if (SequenceFrame(address, UnchargedBeamTrails_Default_0, 8, out _) ||
@@ -505,10 +509,10 @@ internal static class ProjectileTrailCoordinateDefinitions
             int signed = wave % 16 < 8 ? magnitude : -magnitude;
             value = axis switch
             {
-                0 => Coordinates(signed, 0, 0, 0),
-                1 => Coordinates(0, -signed, 0, 0),
-                2 => Coordinates(-signed, -signed, 0, 0),
-                _ => Coordinates(signed, -signed, 0, 0),
+                0 => Frame(new((short)signed, 0), new(0, 0)),
+                1 => Frame(new(0, (short)(-signed)), new(0, 0)),
+                2 => Frame(new((short)(-signed), (short)(-signed)), new(0, 0)),
+                _ => Frame(new((short)signed, (short)(-signed)), new(0, 0)),
             };
             return true;
         }
@@ -517,7 +521,7 @@ internal static class ProjectileTrailCoordinateDefinitions
             int phase = chargedWave % 16 / 2;
             int ramp = Math.Min(phase, 8 - phase);
             int spread = ramp == 0 ? 0 : Math.Min(4 * (ramp + 1), 16);
-            value = chargedWave < 16 ? Coordinates(-spread, 0, spread, 0) : Coordinates(0, -spread, 0, spread);
+            value = chargedWave < 16 ? Frame(new((short)(-spread), 0), new((short)spread, 0)) : Frame(new(0, (short)(-spread)), new(0, (short)spread));
             return true;
         }
         if (SequenceFrame(address, UnchargedBeamTrails_IceSpazer_0, 8 * 3, out int iceSpazer))
@@ -528,13 +532,13 @@ internal static class ProjectileTrailCoordinateDefinitions
             if (direction is 0 or 1)
             {
                 int behind = phase == 0 ? 0 : direction == 0 ? 8 : -8;
-                value = Coordinates(-spread, behind, spread, behind);
+                value = Frame(new((short)(-spread), (short)behind), new((short)spread, (short)behind));
                 return true;
             }
             if (direction is 3 or 6)
             {
                 int side = direction == 3 ? -1 : 1;
-                value = Coordinates(side * 8, side * spread, side * 8, -side * spread);
+                value = Frame(new((short)(side * 8), (short)(side * spread)), new((short)(side * 8), (short)(-side * spread)));
                 return true;
             }
         }
@@ -547,10 +551,10 @@ internal static class ProjectileTrailCoordinateDefinitions
             int behind = phase == 0 ? 0 : 8;
             value = direction switch
             {
-                0 => Coordinates(-spread, behind, spread, behind),
-                2 => Coordinates(-behind, -spread, -behind, spread),
-                4 => Coordinates(-spread, -behind, spread, -behind),
-                _ => Coordinates(behind, -spread, behind, spread),
+                0 => Frame(new((short)(-spread), (short)behind), new((short)spread, (short)behind)),
+                2 => Frame(new((short)(-behind), (short)(-spread)), new((short)(-behind), (short)spread)),
+                4 => Frame(new((short)(-spread), (short)(-behind)), new((short)spread, (short)(-behind))),
+                _ => Frame(new((short)behind, (short)(-spread)), new((short)behind, (short)spread)),
             };
             return true;
         }
@@ -559,7 +563,7 @@ internal static class ProjectileTrailCoordinateDefinitions
             int phase = sba % 3;
             int spread = phase * 8;
             int behind = phase == 0 ? 0 : sba < 3 ? 8 : -8;
-            value = Coordinates(-spread, behind, spread, behind);
+            value = Frame(new((short)(-spread), (short)behind), new((short)spread, (short)behind));
             return true;
         }
         return false;
@@ -573,8 +577,7 @@ internal static class ProjectileTrailCoordinateDefinitions
         return offset >= 0 && offset < count * 4 && offset % 4 == 0;
     }
 
-    private static Offset Coordinates(int leftX, int leftY, int rightX, int rightY) =>
-        new((sbyte)leftX, (sbyte)leftY, (sbyte)rightX, (sbyte)rightY);
+    private static TrailFrame Frame(Offset16<RoomPixels> left, Offset16<RoomPixels> right) => new(left, right);
     /// <summary>
     /// Trail sparkle placements by native record address. Each record pairs a left and a right
     /// sparkle; the right one is the left reflected across the beam's travel axis (the reflection is
@@ -585,7 +588,7 @@ internal static class ProjectileTrailCoordinateDefinitions
     {
         var result = new Dictionary<int, StoredFrame>();
         void Add(int address, Reflection reflection, ReadOnlySpan<(sbyte X, sbyte Y)> left)
-        { for (int i = 0; i < left.Length; i++) result.Add(address + i * 4, new(left[i].X, left[i].Y, reflection)); }
+        { for (int i = 0; i < left.Length; i++) result.Add(address + i * 4, new(new(left[i].X, left[i].Y), reflection)); }
         Add(UnchargedBeamTrails_IceSpazer_2, Reflection.AcrossDiagonalUpRight, [(-8, 8), (-14, 2), (-20, -4)]);
         Add(UnchargedBeamTrails_IceSpazer_4, Reflection.AcrossDiagonalDownRight, [(-8, -8), (-2, -16), (4, -20)]);
         Add(UnchargedBeamTrails_IceSpazer_5, Reflection.AcrossDiagonalUpRight, [(8, -8), (14, -2), (20, 4)]);
@@ -652,63 +655,63 @@ internal static class ProjectileTrailCoordinateDefinitions
     }
 
     /// <summary>The right sparkles drawn off the reflection rule, by native record address.</summary>
-    private static readonly FrozenDictionary<int, (sbyte X, sbyte Y)> DrawnRightOffsets =
-        new Dictionary<int, (sbyte X, sbyte Y)>
+    private static readonly FrozenDictionary<int, Offset16<RoomPixels>> DrawnRightOffsets =
+        new Dictionary<int, Offset16<RoomPixels>>
         {
-            [UnchargedBeamTrails_IceSpazer_2 + 2 * 4] = (2, 20),
-            [UnchargedBeamTrails_IceSpazer_5 + 2 * 4] = (-2, -20),
-            [UnchargedBeamTrails_WaveIceSpazer_1 + 5 * 4] = (2, 20),
-            [UnchargedBeamTrails_WaveIceSpazer_5 + 4 * 4] = (20, 4),
-            [UnchargedBeamTrails_WaveIceSpazer_5 + 5 * 4] = (20, 4),
-            [UnchargedBeamTrails_WaveIceSpazer_5 + 6 * 4] = (20, 4),
-            [UnchargedBeamTrails_WaveIcePlasma_1 + 2 * 4] = (-8, 18),
-            [UnchargedBeamTrails_WaveIcePlasma_1 + 3 * 4] = (-2, 20),
-            [UnchargedBeamTrails_WaveIcePlasma_1 + 7 * 4] = (-2, 20),
-            [UnchargedBeamTrails_WaveIcePlasma_1 + 8 * 4] = (-8, 18),
-            [UnchargedBeamTrails_WaveIcePlasma_5 + 2 * 4] = (8, -18),
-            [UnchargedBeamTrails_WaveIcePlasma_5 + 3 * 4] = (2, -20),
-            [UnchargedBeamTrails_WaveIcePlasma_5 + 7 * 4] = (2, -20),
-            [UnchargedBeamTrails_WaveIcePlasma_5 + 8 * 4] = (8, -18),
-            [ChargedBeamTrails_IceSpazer_2 + 2 * 4] = (-8, 8),
-            [ChargedBeamTrails_IceSpazer_2 + 3 * 4] = (-8, 8),
-            [ChargedBeamTrails_WaveIcePlasma_1 + 8 * 4] = (-16, 24),
-            [ChargedBeamTrails_WaveIcePlasma_1 + 9 * 4] = (-16, 24),
-            [ChargedBeamTrails_WaveIcePlasma_1 + 10 * 4] = (-12, 28),
-            [ChargedBeamTrails_WaveIcePlasma_1 + 11 * 4] = (-12, 28),
-            [ChargedBeamTrails_WaveIcePlasma_1 + 18 * 4] = (-12, 28),
-            [ChargedBeamTrails_WaveIcePlasma_1 + 19 * 4] = (-12, 28),
-            [ChargedBeamTrails_WaveIcePlasma_1 + 20 * 4] = (-16, 24),
-            [ChargedBeamTrails_WaveIcePlasma_1 + 21 * 4] = (-16, 24),
-            [ChargedBeamTrails_WaveIcePlasma_5 + 8 * 4] = (16, -24),
-            [ChargedBeamTrails_WaveIcePlasma_5 + 9 * 4] = (16, -24),
-            [ChargedBeamTrails_WaveIcePlasma_5 + 10 * 4] = (12, -28),
-            [ChargedBeamTrails_WaveIcePlasma_5 + 11 * 4] = (12, -28),
-            [ChargedBeamTrails_WaveIcePlasma_5 + 18 * 4] = (12, -28),
-            [ChargedBeamTrails_WaveIcePlasma_5 + 19 * 4] = (12, -28),
-            [ChargedBeamTrails_WaveIcePlasma_5 + 20 * 4] = (16, -24),
-            [ChargedBeamTrails_WaveIcePlasma_5 + 21 * 4] = (16, -24),
+            [UnchargedBeamTrails_IceSpazer_2 + 2 * 4] = new(2, 20),
+            [UnchargedBeamTrails_IceSpazer_5 + 2 * 4] = new(-2, -20),
+            [UnchargedBeamTrails_WaveIceSpazer_1 + 5 * 4] = new(2, 20),
+            [UnchargedBeamTrails_WaveIceSpazer_5 + 4 * 4] = new(20, 4),
+            [UnchargedBeamTrails_WaveIceSpazer_5 + 5 * 4] = new(20, 4),
+            [UnchargedBeamTrails_WaveIceSpazer_5 + 6 * 4] = new(20, 4),
+            [UnchargedBeamTrails_WaveIcePlasma_1 + 2 * 4] = new(-8, 18),
+            [UnchargedBeamTrails_WaveIcePlasma_1 + 3 * 4] = new(-2, 20),
+            [UnchargedBeamTrails_WaveIcePlasma_1 + 7 * 4] = new(-2, 20),
+            [UnchargedBeamTrails_WaveIcePlasma_1 + 8 * 4] = new(-8, 18),
+            [UnchargedBeamTrails_WaveIcePlasma_5 + 2 * 4] = new(8, -18),
+            [UnchargedBeamTrails_WaveIcePlasma_5 + 3 * 4] = new(2, -20),
+            [UnchargedBeamTrails_WaveIcePlasma_5 + 7 * 4] = new(2, -20),
+            [UnchargedBeamTrails_WaveIcePlasma_5 + 8 * 4] = new(8, -18),
+            [ChargedBeamTrails_IceSpazer_2 + 2 * 4] = new(-8, 8),
+            [ChargedBeamTrails_IceSpazer_2 + 3 * 4] = new(-8, 8),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 8 * 4] = new(-16, 24),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 9 * 4] = new(-16, 24),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 10 * 4] = new(-12, 28),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 11 * 4] = new(-12, 28),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 18 * 4] = new(-12, 28),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 19 * 4] = new(-12, 28),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 20 * 4] = new(-16, 24),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 21 * 4] = new(-16, 24),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 8 * 4] = new(16, -24),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 9 * 4] = new(16, -24),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 10 * 4] = new(12, -28),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 11 * 4] = new(12, -28),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 18 * 4] = new(12, -28),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 19 * 4] = new(12, -28),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 20 * 4] = new(16, -24),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 21 * 4] = new(16, -24),
         }.ToFrozenDictionary();
 
-    private static bool TryStoredFrame(int address, out Offset frame)
+    private static bool TryStoredFrame(int address, out TrailFrame frame)
     {
         if (!Frames.TryGetValue(address, out StoredFrame stored))
         {
             frame = default;
             return false;
         }
-        (sbyte rightX, sbyte rightY) = DrawnRightOffsets.TryGetValue(address, out var drawn)
-            ? drawn : Reflect(stored.Reflection, stored.LeftX, stored.LeftY);
-        frame = new(stored.LeftX, stored.LeftY, rightX, rightY);
+        Offset16<RoomPixels> right = DrawnRightOffsets.TryGetValue(address, out Offset16<RoomPixels> drawn)
+            ? drawn : Reflect(stored.Reflection, stored.Left);
+        frame = new(stored.Left, right);
         return true;
     }
 
-    private static (sbyte X, sbyte Y) Reflect(Reflection reflection, sbyte x, sbyte y) => reflection switch
+    private static Offset16<RoomPixels> Reflect(Reflection reflection, Offset16<RoomPixels> left) => reflection switch
     {
-        Reflection.AcrossVertical => ((sbyte)-x, y),
-        Reflection.AcrossHorizontal => (x, (sbyte)-y),
-        Reflection.AcrossDiagonalDownRight => (y, x),
-        Reflection.AcrossDiagonalUpRight => ((sbyte)-y, (sbyte)-x),
-        Reflection.ThroughOrigin => ((sbyte)-x, (sbyte)-y),
+        Reflection.AcrossVertical => left.MirroredX(),
+        Reflection.AcrossHorizontal => new(left.X, unchecked((short)-left.Y)),
+        Reflection.AcrossDiagonalDownRight => new(left.Y, left.X),
+        Reflection.AcrossDiagonalUpRight => new(unchecked((short)-left.Y), unchecked((short)-left.X)),
+        Reflection.ThroughOrigin => -left,
         _ => throw new ArgumentOutOfRangeException(nameof(reflection)),
     };
 
@@ -734,14 +737,14 @@ internal static class ProjectileTrailCoordinateDefinitions
         { value = (byte)(pointer >> ((address - pointerAddress) * 8)); return true; }
         int offsetInRecord = (address - UnchargedBeamTrails_Default_0) & 3;
         int recordAddress = address - offsetInRecord;
-        if (TryCalculatedFrame(recordAddress, out Offset frame) || TryStoredFrame(recordAddress, out frame))
+        if (TryCalculatedFrame(recordAddress, out TrailFrame frame) || TryStoredFrame(recordAddress, out frame))
         {
             value = unchecked((byte)((RecordField)offsetInRecord switch
             {
-                RecordField.LeftX => frame.LeftX,
-                RecordField.LeftY => frame.LeftY,
-                RecordField.RightX => frame.RightX,
-                RecordField.RightY => frame.RightY,
+                RecordField.LeftX => frame.Left.X,
+                RecordField.LeftY => frame.Left.Y,
+                RecordField.RightX => frame.Right.X,
+                RecordField.RightY => frame.Right.Y,
                 var field => throw new InvalidOperationException($"Undefined trail record field {field}."),
             }));
             return true;

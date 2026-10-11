@@ -18,8 +18,7 @@ public sealed partial class RoomEnemySystem
                 state,
                 samus,
                 MotherBrainContactPart.Body,
-                state.Body.Position.X.Whole,
-                state.Body.Position.Y.Whole))
+                state.Body.Position.Whole))
         {
             return true;
         }
@@ -30,8 +29,7 @@ public sealed partial class RoomEnemySystem
                 state,
                 samus,
                 MotherBrainContactPart.Brain,
-                head.Position.X.Whole,
-                head.Position.Y.Whole))
+                head.Position.Whole))
         {
             return true;
         }
@@ -41,16 +39,15 @@ public sealed partial class RoomEnemySystem
         {
             // Native tests only middle joints one, two, and three. Joint zero is buried in
             // the body and joint four is already covered by the separate brain rectangles.
-            MotherBrainNeckPoint[] collisionSegments =
+            Position16<RoomPixels>[] collisionSegments =
                 [state.NeckSegment1, state.NeckSegment2, state.NeckSegment3];
-            foreach (MotherBrainNeckPoint segment in collisionSegments)
+            foreach (Position16<RoomPixels> segment in collisionSegments)
             {
                 if (ResolveMotherBrainSamusCollisionPart(
                         state,
                         samus,
                         MotherBrainContactPart.Neck,
-                        segment.X,
-                        segment.Y))
+                        segment))
                 {
                     return true;
                 }
@@ -63,21 +60,21 @@ public sealed partial class RoomEnemySystem
         MotherBrainEnemyState state,
         SamusState samus,
         MotherBrainContactPart contactPart,
-        ushort originX,
-        ushort originY)
+        Position16<RoomPixels> origin)
     {
+        Offset16<RoomPixels> fromOrigin = samus.Position.Whole - origin;
         foreach (MotherBrainContactHitbox hitbox in
             MotherBrainContactHitboxDefinitions.Get(contactPart))
         {
-            bool belowOrigin = unchecked((short)(samus.Position.Y.Whole - originY)) >= 0;
-            int yDistance = Math.Abs(unchecked((short)(samus.Position.Y.Whole - originY)));
+            bool belowOrigin = fromOrigin.Y >= 0;
+            int yDistance = Math.Abs(fromOrigin.Y);
             short yExtent = belowOrigin ? hitbox.Bottom : hitbox.Top;
             int yOverlap = samus.Kinematics.Radius.Y + Math.Abs((int)yExtent) - yDistance;
             if (yOverlap < 0)
                 continue;
 
-            bool rightOfOrigin = unchecked((short)(samus.Position.X.Whole - originX)) >= 0;
-            int xDistance = Math.Abs(unchecked((short)(samus.Position.X.Whole - originX)));
+            bool rightOfOrigin = fromOrigin.X >= 0;
+            int xDistance = Math.Abs(fromOrigin.X);
             short xExtent = rightOfOrigin ? hitbox.Right : hitbox.Left;
             int xOverlap = samus.Kinematics.Radius.X + Math.Abs((int)xExtent) - xDistance;
             if (xOverlap < 0)

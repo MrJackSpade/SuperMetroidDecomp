@@ -7,11 +7,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private static ReadOnlySpan<short> MotherBrainDroolXOffsets =>
-        [6, 14, 8, 10, 11, 12];
-
-    private static ReadOnlySpan<short> MotherBrainDroolYOffsets =>
-        [20, 18, 23, 19, 25, 18];
+    // The six authored drool spawn offsets from the brain's centre.
+    private static readonly Offset16<RoomPixels>[] MotherBrainDroolOffsets =
+        [new(6, 20), new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18)];
 
     /// <summary>
     /// Ports head opcode <c>$A9:9E29</c> and initializer <c>$86:C2F3</c>. The shared
@@ -118,9 +116,7 @@ public sealed partial class RoomEnemySystem
                 $"Mother Brain drool offset parameter {parameter} is outside 0..5.");
         }
 
-        drool.Position = drool.Position.WithWhole(new(unchecked((ushort)(
-            head.Position.X.Whole + MotherBrainDroolXOffsets[parameter])), unchecked((ushort)(
-            head.Position.Y.Whole + MotherBrainDroolYOffsets[parameter]))));
+        drool.Position = drool.Position.WithWhole(head.Position.Whole + MotherBrainDroolOffsets[parameter]);
         drool.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
     }
 
@@ -182,9 +178,7 @@ public sealed partial class RoomEnemySystem
                 RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
                     "A Mother Brain onion ring hit the Baby without its physical slot.");
                 babySlot.Health = baby.Health;
-                ushort ringX = ring.Position.X.Whole;
-                ushort ringY = ring.Position.Y.Whole;
-                ExplodeMotherBrainOnionRing(ring, state, ringX, ringY);
+                ExplodeMotherBrainOnionRing(ring, state, ring.Position.Whole);
                 return;
             }
         }
@@ -193,8 +187,7 @@ public sealed partial class RoomEnemySystem
         // timer. It writes a fresh $60 only after applying suit-divided damage.
         if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
         {
-            ushort ringX = ring.Position.X.Whole;
-            ushort ringY = ring.Position.Y.Whole;
+            Position16<RoomPixels> ringPosition = ring.Position.Whole;
             ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? (ushort)(0x0050 >> 2)
                 : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
@@ -205,10 +198,10 @@ public sealed partial class RoomEnemySystem
                 : unchecked((ushort)(samus.Health - damage));
             samus.InvincibilityTimer = 0x0060;
             samus.KnockbackTimer = 5;
-            samus.KnockbackXDirection = unchecked((short)(samus.Position.X.Whole - ringX)) >= 0
+            samus.KnockbackXDirection = unchecked((short)(samus.Position.X.Whole - ringPosition.X)) >= 0
                 ? (ushort)1
                 : (ushort)0;
-            ExplodeMotherBrainOnionRing(ring, state, ringX, ringY);
+            ExplodeMotherBrainOnionRing(ring, state, ringPosition);
             return;
         }
 
@@ -220,11 +213,7 @@ public sealed partial class RoomEnemySystem
         {
             EarthquakeTimer = 10;
             EarthquakeType = 5;
-            ExplodeMotherBrainOnionRing(
-                ring,
-                state,
-                ring.Position.X.Whole,
-                ring.Position.Y.Whole);
+            ExplodeMotherBrainOnionRing(ring, state, ring.Position.Whole);
         }
     }
 
@@ -248,22 +237,21 @@ public sealed partial class RoomEnemySystem
     private static bool MotherBrainOnionRingOverlapsBaby(
         RoomEnemyProjectileSlot ring,
         BabyMetroidCutsceneState baby) =>
-        WrappedMagnitude(unchecked((ushort)(ring.Position.X.Whole - baby.XPosition))) <
+        WrappedMagnitude(unchecked((ushort)(ring.Position.X.Whole - baby.Position.X.Whole))) <
             ring.Radius.X + BabyMetroidCutsceneState.XHitboxRadius &&
-        WrappedMagnitude(unchecked((ushort)(ring.Position.Y.Whole - baby.YPosition))) <
+        WrappedMagnitude(unchecked((ushort)(ring.Position.Y.Whole - baby.Position.Y.Whole))) <
             ring.Radius.Y + BabyMetroidCutsceneState.YHitboxRadius;
 
     private void ExplodeMotherBrainOnionRing(
         RoomEnemyProjectileSlot ring,
         MotherBrainEnemyState state,
-        ushort x,
-        ushort y)
+        Position16<RoomPixels> position)
     {
         // `$C410` clears the source before allocating parameter-three room dust. If the
         // allocator reuses this physical slot, the outer projectile scheduler will advance
         // the newborn dust list during the same pass, matching EprojRunOne's original X.
         ring.Clear();
-        SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 3);
+        SpawnRoomGraphicsDustExplosion(position, animationIndex: 3);
         state.LastSoundEffectLibrary3 = 0x0013;
     }
 }

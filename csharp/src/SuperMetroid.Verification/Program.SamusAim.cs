@@ -58,8 +58,7 @@ static void VerifySamusStandingAimMovement()
     var blocks = new ushort[width * height];
     for (int x = 0; x < width; x++)
         blocks[4 * width + x] = 0x8000;
-    RoomLevelData level = CreateRoom(
-        width, height, blocks, new byte[blocks.Length]);
+    RoomLevelData level = CreateRoom(new(width, height), blocks, new byte[blocks.Length]);
 
     var samus = new SamusState
     {
@@ -240,9 +239,7 @@ static void VerifySamusAimedAerialMovement()
     var blocks = new ushort[width * height];
     for (int x = 0; x < width; x++)
         blocks[12 * width + x] = 0x8000;
-    RoomLevelData level = CreateRoom(
-        width,
-        height,
+    RoomLevelData level = CreateRoom(new(width, height),
         blocks,
         new byte[blocks.Length],
         // Visual block definitions are ROM-native eight-byte records. The collision
@@ -379,9 +376,7 @@ static void VerifySamusAimedAerialMovement()
     halfPlatformWords[12 * width + 3] = 0x1000;
     halfPlatformBts[12 * width + 2] = 0x02;
     halfPlatformBts[12 * width + 3] = 0x00;
-    RoomLevelData halfPlatform = CreateRoom(
-        width,
-        height,
+    RoomLevelData halfPlatform = CreateRoom(new(width, height),
         halfPlatformWords,
         halfPlatformBts,
         blockDefinitions: new byte[24]);
@@ -457,9 +452,7 @@ static void VerifySamusAimedAerialMovement()
     var boxedBlocks = (ushort[])blocks.Clone();
     for (int x = 0; x < width; x++)
         boxedBlocks[9 * width + x] = 0x8000;
-    RoomLevelData boxedLevel = CreateRoom(
-        width,
-        height,
+    RoomLevelData boxedLevel = CreateRoom(new(width, height),
         boxedBlocks,
         new byte[boxedBlocks.Length],
         blockDefinitions: new byte[24]);

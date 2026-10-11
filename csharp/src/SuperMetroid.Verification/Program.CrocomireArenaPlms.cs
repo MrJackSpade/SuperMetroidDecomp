@@ -16,40 +16,40 @@ internal static partial class Program
         Suite(nameof(VerifyCrocomirePhysicalDrawMapping), () => VerifyCrocomirePhysicalDrawMapping(rom));
 
         Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.ClearCrocomireBridge,
-            (x, y) => y == 0 && x < 10 ? (ushort)0x0080 : (ushort)0x8123));
+            cell => cell.Y == 0 && cell.X < 10 ? (ushort)0x0080 : (ushort)0x8123));
         Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.CrumbleCrocomireBridgeBlock,
-            (x, y) => x == 0 && y == 0 ? (ushort)0x810b : (ushort)0x8123));
+            cell => cell == Position16<RoomBlocks>.Zero ? (ushort)0x810b : (ushort)0x8123));
         Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.ClearCrocomireBridgeBlock,
-            (x, y) => x == 0 && y == 0 ? (ushort)0x0080 : (ushort)0x8123));
+            cell => cell == Position16<RoomBlocks>.Zero ? (ushort)0x0080 : (ushort)0x8123));
         Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.ClearCrocomireInvisibleWall,
-            (x, y) => x < 3 && y < 8 ? WallWord(x, y, false) : (ushort)0x8123));
+            cell => cell.X < 3 && cell.Y < 8 ? WallWord(cell, false) : (ushort)0x8123));
         Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(PlmHeaderId.CreateCrocomireInvisibleWall,
-            (x, y) => x < 3 && y < 8 ? WallWord(x, y, true) : (ushort)0x8123));
+            cell => cell.X < 3 && cell.Y < 8 ? WallWord(cell, true) : (ushort)0x8123));
         Console.WriteLine("Crocomire PLMs: five programs and physical draws match ROM; all mutations execute without source reads.");
 
     }
 
-    private static ushort WallWord(int x, int y, bool solid)
+    private static ushort WallWord(Position16<RoomBlocks> cell, bool solid)
     {
-        ushort value = y switch
+        ushort value = cell.Y switch
         {
             0 or 6 or 7 => 0x0080,
-            1 or 3 => checked((ushort)(0x0107 + x)),
-            2 or 4 => checked((ushort)(0x0127 + x)),
-            5 => checked((ushort)(0x0147 + x)),
-            _ => throw new ArgumentOutOfRangeException(nameof(y)),
+            1 or 3 => checked((ushort)(0x0107 + cell.X)),
+            2 or 4 => checked((ushort)(0x0127 + cell.X)),
+            5 => checked((ushort)(0x0147 + cell.X)),
+            _ => throw new ArgumentOutOfRangeException(nameof(cell)),
         };
         return solid ? (ushort)(value | 0x8000) : value;
     }
 
     private static void VerifyCrocomireMutation(PlmHeaderId header,
-        Func<int, int, ushort> expectedWord)
+        Func<Position16<RoomBlocks>, ushort> expectedWord)
     {
         const int width = 32;
         const int height = 16;
         ushort[] sourceWords = Enumerable.Repeat((ushort)0x8123,
             width * height).ToArray();
-        RoomLevelData level = CreateRoom(width, height, sourceWords,
+        RoomLevelData level = CreateRoom(new(width, height), sourceWords,
             new byte[sourceWords.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
@@ -61,7 +61,7 @@ internal static partial class Program
             $"Crocomire header ${(int)header:X4} persists for native draw frame");
         for (int y = 0; y < 9; y++)
         for (int x = 0; x < 11; x++)
-            AssertEqual(expectedWord(x, y),
+            AssertEqual(expectedWord(new((ushort)x, (ushort)y)),
                 level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).LevelWord,
                 $"Crocomire header ${(int)header:X4} physical block ({x},{y})");
         plms.Step(guard, level, streamer, new(0, 0), 0);

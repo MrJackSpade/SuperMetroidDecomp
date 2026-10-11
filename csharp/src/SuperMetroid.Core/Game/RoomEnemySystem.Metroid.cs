@@ -282,9 +282,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>Metroid_Func_4</c>, including post-decrement timer semantics.</summary>
     private static void RunMetroidPowerBombEscape(RoomEnemySlot slot, MetroidEnemyState state)
     {
-        MetroidEscapeDisplacement displacement =
-            MetroidBehaviorDefinitions.EscapeDisplacement(state.EscapeTimer);
-        slot.Position += new Offset16<RoomPixels>(unchecked((short)(displacement.X)), unchecked((short)(displacement.Y)));
+        slot.Position += MetroidBehaviorDefinitions.EscapeDisplacement(state.EscapeTimer);
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
 

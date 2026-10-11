@@ -95,7 +95,7 @@ public sealed partial class RoomEnemySystem
             RidleyExplosionDefinitions.SelectBodyPart(
                 part,
                 facingRight: state.FacingDirection != RidleyFacing.Left);
-        fragment.Position = fragment.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + bodyPart.XOffset)), unchecked((ushort)(body.Position.Y.Whole + bodyPart.YOffset))));
+        fragment.Position = fragment.Position.WithWhole(body.Position.Whole + bodyPart.Offset);
         fragment.CurrentInstruction = bodyPart.InstructionList;
     }
 

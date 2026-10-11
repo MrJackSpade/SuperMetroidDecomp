@@ -56,7 +56,7 @@ internal static partial class Program
                 if (frame.NativeId != changed.NativeId)
                 {
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.NativeId * 2);
-                    DrawImportedSpritemap(rom, expected, pointer, 100, 100, 0x600);
+                    DrawImportedSpritemap(rom, expected, pointer, new(100, 100), 0x600);
                 }
                 edited.Draw((MapSpriteId)frame.NativeId, actual, new(100, 100), 0x600);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
@@ -94,7 +94,7 @@ internal static partial class Program
                     native.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56);
                     installed.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56);
                 }
-                DrawImportedSpritemap(bus, native, pointer, x, y, (ushort)(palette << 9));
+                DrawImportedSpritemap(bus, native, pointer, new(x, y), (ushort)(palette << 9));
                 catalog.Draw((MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9));
                 AssertEqual(native.NextByteOffset, installed.NextByteOffset, "map sprite count/capacity matches native");
                 native.FinalizeFrame(); installed.FinalizeFrame();

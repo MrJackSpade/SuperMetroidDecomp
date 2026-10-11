@@ -73,7 +73,7 @@ public sealed partial class RoomEnemySystem
         }
 
         var baby = new BabyMetroidCutsceneState();
-        baby.Initialize(slot.Position.X.Fraction, slot.Position.Y.Fraction, slot.Properties);
+        baby.Initialize(slot.Position, slot.Properties);
         state.BabyMetroidSlot = slot;
         state.BabyMetroid = baby;
         state.BabyAppliedInstructionList = baby.InstructionList;
@@ -133,9 +133,8 @@ public sealed partial class RoomEnemySystem
             _bus!,
             target,
             sequence,
-            new MotherBrainHeadPosition(state.Head!.Position.X.Whole, state.Head.Position.Y.Whole),
-            layer1X: camera.X,
-            layer1Y: camera.Y,
+            state.Head!.Position.Whole,
+            layer1: camera,
             enemyFrameCounter: slot.FrameCounter,
             randomNumber: RequireRandomNumber());
         state.LastBabyMetroidStep = step;
@@ -178,7 +177,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         BabyMetroidCutsceneState baby)
     {
-        slot.Position = new(new(baby.XPosition, baby.XSubposition), new(baby.YPosition, baby.YSubposition));
+        slot.Position = baby.Position;
         slot.Properties = baby.Properties;
         slot.PaletteIndex = baby.Palette;
         slot.VramTilesIndex = baby.GraphicsOffset;
@@ -208,13 +207,11 @@ public sealed partial class RoomEnemySystem
             state.LastSoundEffect = 0x0052;
 
         foreach (BabyMetroidReleaseDustRequest dust in step.ReleaseDustClouds)
-            SpawnRoomGraphicsDustExplosion(new(dust.XPosition, dust.YPosition), dust.ProjectileParameter);
+            SpawnRoomGraphicsDustExplosion(dust.Position, dust.ProjectileParameter);
 
         if (step.DeathExplosion is { } explosion)
         {
-            SpawnRoomGraphicsDustExplosion(
-                new(explosion.XPosition, explosion.YPosition),
-                explosion.ProjectileParameter);
+            SpawnRoomGraphicsDustExplosion(explosion.Position, explosion.ProjectileParameter);
             // $A9:CDF4 queues the explosion through QueueSound_Lib3_Max3.
             state.LastSoundEffectLibrary3 = explosion.SoundEffect;
         }

@@ -16,7 +16,7 @@ internal static partial class Program
             int target = inside ? (y >> 4) * 16 + 4 : 4;
             words[target] = (ushort)((int)RoomCollisionType.ShootableBlock << 12);
             behaviors[target] = (left ? RoomBlockBehaviorValues.BlueDoorFacingRight : RoomBlockBehaviorValues.BlueDoorFacingLeft).Value;
-            var level = CreateRoom(16, 32, words, behaviors);
+            var level = CreateRoom(new(16, 32), words, behaviors);
             var plms = new RoomPlmSystem();
             var shot = new SamusProjectileSlot(0)
             {
@@ -29,7 +29,7 @@ internal static partial class Program
             {
                 words[target - 16] = words[target];
                 behaviors[target - 16] = behaviors[target];
-                level = CreateRoom(16, 32, words, behaviors);
+                level = CreateRoom(new(16, 32), words, behaviors);
             }
             typeof(SamusProjectileSystem).GetMethod("ScanHorizontalWaveShotReactions", BindingFlags.Static | BindingFlags.NonPublic)!
                 .Invoke(null, [level, shot, plms]);

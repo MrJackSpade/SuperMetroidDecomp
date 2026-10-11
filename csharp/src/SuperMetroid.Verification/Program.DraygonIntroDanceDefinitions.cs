@@ -51,9 +51,9 @@ internal static partial class Program
                 DraygonIntroDanceDefinitions.ResolveMovement(offset);
 
             bool expectedDelete = nativeX == 0x80 && nativeY == 0x80;
-            AssertEqual(expectedDelete ? (sbyte)0 : unchecked((sbyte)nativeX), actual.XDelta,
+            AssertEqual(expectedDelete ? (short)0 : unchecked((sbyte)nativeX), actual.Delta.X,
                 $"Draygon intro movement ${offset:X4} X delta");
-            AssertEqual(expectedDelete ? (sbyte)0 : unchecked((sbyte)nativeY), actual.YDelta,
+            AssertEqual(expectedDelete ? (short)0 : unchecked((sbyte)nativeY), actual.Delta.Y,
                 $"Draygon intro movement ${offset:X4} Y delta");
         }
 

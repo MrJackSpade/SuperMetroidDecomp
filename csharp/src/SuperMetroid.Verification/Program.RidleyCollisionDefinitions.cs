@@ -49,9 +49,9 @@ internal static partial class Program
             {
                 RidleyCollisionComponent component = components[componentIndex];
                 int record = 0xa60000 | unchecked((ushort)(frame + 2 + componentIndex * 8));
-                AssertEqual(unchecked((short)ReadWord(record)), component.X,
+                AssertEqual(unchecked((short)ReadWord(record)), component.Offset.X,
                     "Ridley native component X");
-                AssertEqual(unchecked((short)ReadWord(record + 2)), component.Y,
+                AssertEqual(unchecked((short)ReadWord(record + 2)), component.Offset.Y,
                     "Ridley native component Y");
                 AssertEqual(ReadWord(record + 6), component.HitboxPointer,
                     "Ridley native component hitbox list");
@@ -71,8 +71,8 @@ internal static partial class Program
                 foreach (RidleyCollisionHitbox hitbox in
                          RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
-                    ushort componentX = unchecked((ushort)(originX + component.X));
-                    ushort componentY = unchecked((ushort)(originY + component.Y));
+                    ushort componentX = unchecked((ushort)(originX + component.Offset.X));
+                    ushort componentY = unchecked((ushort)(originY + component.Offset.Y));
                     ushort left = unchecked((ushort)(componentX + hitbox.Left));
                     ushort right = unchecked((ushort)(componentX + hitbox.Right));
                     ushort top = unchecked((ushort)(componentY + hitbox.Top));
@@ -114,7 +114,7 @@ internal static partial class Program
                             bool expectedCeres = NativeCeresOverlap(frame, originX,
                                 originY, xs[xi], ys[yi], radiusX, radiusY);
                             object?[] ceresArguments =
-                                [compiledSlot, xs[xi], ys[yi], radiusX, radiusY];
+                                [compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY)];
                             bool actualCeres = (bool)ceresWalker.Invoke(
                                 null, ceresArguments)!;
                             AssertEqual(expectedCeres, actualCeres,

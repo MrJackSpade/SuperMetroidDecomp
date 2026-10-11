@@ -37,7 +37,7 @@ internal static partial class Program
             "RunGoldenTorizoEggPreInstruction", BindingFlags.NonPublic | BindingFlags.Static)!;
         MethodInfo runFall = typeof(RoomEnemySystem).GetMethod(
             "RunGoldenTorizoEggFall", BindingFlags.NonPublic | BindingFlags.Static)!;
-        RoomLevelData emptyRoom = CreateEmptyRoom(32, 32);
+        RoomLevelData emptyRoom = CreateEmptyRoom(new(32, 32));
         ushort[] floorWords = new ushort[32 * 32];
         for (int column = 0; column < 32; column++)
         {
@@ -46,9 +46,7 @@ internal static partial class Program
                 LevelBlockFlipFlags.None,
                 RoomCollisionType.SolidBlock).Raw;
         }
-        RoomLevelData floorRoom = CreateRoom(
-            32,
-            32,
+        RoomLevelData floorRoom = CreateRoom(new(32, 32),
             floorWords,
             new byte[floorWords.Length]);
 

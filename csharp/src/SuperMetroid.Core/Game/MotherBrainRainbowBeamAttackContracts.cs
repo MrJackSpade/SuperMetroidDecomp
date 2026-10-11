@@ -208,20 +208,17 @@ public readonly record struct MotherBrainSpriteTileTransferRequest(
 
 /// <summary>One requested beam explosion projectile and its native sound number.</summary>
 public readonly record struct MotherBrainRainbowExplosionRequest(
-    short XOffset,
-    short YOffset);
+    Offset16<RoomPixels> Offset);
 
 /// <summary>One projectile in a simultaneous `$A9:B03E` death-explosion batch.</summary>
 public readonly record struct MotherBrainDeathExplosionRequest(
-    short XOffset,
-    short YOffset,
+    Offset16<RoomPixels> Offset,
     ushort ProjectileParameter,
     ushort SoundEffect);
 
 /// <summary>One periodic misc-dust projectile emitted around the escape door by `$A9:B346`.</summary>
 public readonly record struct MotherBrainEscapeDoorExplosionRequest(
-    ushort XPosition,
-    ushort YPosition,
+    Position16<RoomPixels> Position,
     ushort ProjectileParameter,
     ushort SoundEffect);
 
@@ -230,8 +227,7 @@ public readonly record struct MotherBrainEscapeDoorParticleSpawnRequest(ushort P
 
 /// <summary>The hardcoded room-object request made after the escape door fragments spawn.</summary>
 public readonly record struct MotherBrainEscapeDoorPlmRequest(
-    byte BlockX,
-    byte BlockY,
+    Position16<RoomBlocks> Block,
     PlmHeaderId PlmEntry);
 
 /// <summary>Debugger witness for one Mother Brain active-rainbow body-function call.</summary>

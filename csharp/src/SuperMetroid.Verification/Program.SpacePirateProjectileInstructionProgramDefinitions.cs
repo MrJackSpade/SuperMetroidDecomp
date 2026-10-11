@@ -59,7 +59,7 @@ internal static partial class Program
             source.Parameter1 = 0;
             RoomEnemyProjectileSlot laser = (RoomEnemyProjectileSlot)spawnLaser.Invoke(
                 enemies,
-                [source, (ushort)128, (ushort)96, movingRight])!;
+                [source, new Position16<RoomPixels>(128, 96), movingRight])!;
             AssertEqual(program, laser.InstructionPointer,
                 "real Pirate/Mother Brain laser producer selects its facing program");
             AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_86A05B, laser.PreInstruction,

@@ -23,9 +23,7 @@ internal static partial class Program
     {
         var bus = new TestAddressSpace();
         bus.WriteBytes(0xa19600, [0xff, 0xff]);
-        RoomLevelData level = CreateRoom(
-            16,
-            16,
+        RoomLevelData level = CreateRoom(new(16, 16),
             new ushort[16 * 16],
             new byte[16 * 16],
             blockDefinitions: new byte[0x400 * 8]);
@@ -121,9 +119,7 @@ internal static partial class Program
 
         var bus = new TestAddressSpace();
         SeedEyeDoorFixtureRom(bus, orientation);
-        RoomLevelData level = CreateRoom(
-            roomWidth,
-            roomHeight,
+        RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             new ushort[roomWidth * roomHeight],
             new byte[roomWidth * roomHeight],
             blockDefinitions: new byte[0x400 * 8]);

@@ -96,10 +96,11 @@ public sealed class PhantoonEnemyState
     /// <summary>Native enemy-BG2 tilemap byte count at WRAM <c>$7E:19F6</c>.</summary>
     public ushort Bg2TilemapSize { get; internal set; }
 
-    /// <summary>Modeled BG2 scroll registers written after the body has moved.</summary>
-    public ushort Bg2HorizontalScroll { get; internal set; }
-    /// <summary>Gets the native BG2 vertical scroll word, calculated as camera Y minus body Y plus forty whole pixels when ordinary synchronization runs.</summary>
-    public ushort Bg2VerticalScroll { get; internal set; }
+    /// <summary>
+    /// Modeled BG2 scroll registers written after the body has moved: camera minus body plus
+    /// forty whole pixels on each axis when ordinary synchronization runs.
+    /// </summary>
+    public Position16<Bg2Pixels> Bg2Scroll { get; internal set; }
 
     /// <summary>
     /// Layer-blending bit <c>$4000</c>. Native HDMA consumes it to choose Phantoon's

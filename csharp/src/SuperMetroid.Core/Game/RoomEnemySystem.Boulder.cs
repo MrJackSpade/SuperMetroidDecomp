@@ -37,15 +37,23 @@ public sealed class BoulderEnemyState
         internal set => _slot.VariableA = (ushort)value;
     }
 
-    /// <summary>Variable B, advanced in $20/$40 steps and indexed by its high byte.</summary>
-    public ushort HorizontalSpeedAccumulator
+    /// <summary>
+    /// Variable B, the travel acceleration clock: advanced in $20/$40 steps and indexed by
+    /// its high byte into the quadratic speed table. It drives horizontal travel while
+    /// bouncing and rolling, and also the ground-following fall while rolling, so it is an
+    /// independent clock rather than one axis of a velocity.
+    /// </summary>
+    public ushort TravelSpeedAccumulator
     {
         get => _slot.VariableB;
         internal set => _slot.VariableB = value;
     }
 
-    /// <summary>Variable C, the corresponding vertical quadratic-table accumulator.</summary>
-    public ushort VerticalSpeedAccumulator
+    /// <summary>
+    /// Variable C, the bounce acceleration clock: the quadratic-table accumulator for the
+    /// initial fall and the rebound arcs, with its own steps, caps and resets.
+    /// </summary>
+    public ushort BounceSpeedAccumulator
     {
         get => _slot.VariableC;
         internal set => _slot.VariableC = value;
@@ -73,10 +81,13 @@ public sealed class BoulderEnemyState
     public ushort PreviousYSubposition { get; internal set; }
     /// <summary>Saved room Y coordinate in pixels for the rolling stability check; captured at initialization and on the final bounce, then refreshed during rolling. Native <c>previousEnemyYPosition</c> at $7E:7806,x.</summary>
     public ushort PreviousYPosition { get; internal set; }
-    /// <summary>Original population X coordinate in room pixels, retained as native <c>spawnXPosition</c> at $7E:7808,x; the translated movement does not subsequently consume it.</summary>
-    public ushort InitialXPosition { get; internal set; }
-    /// <summary>Original population Y coordinate in room pixels, before the initial upward offset; the first fall snaps to this target before rebounding. Native <c>fallingTargetYPosition</c> at $7E:780A,x.</summary>
-    public ushort InitialYPosition { get; internal set; }
+    /// <summary>
+    /// Original population position in room pixels: X retained as native <c>spawnXPosition</c>
+    /// at $7E:7808,x (the translated movement does not subsequently consume it), and Y before
+    /// the initial upward offset, which the first fall snaps to before rebounding (native
+    /// <c>fallingTargetYPosition</c> at $7E:780A,x).
+    /// </summary>
+    public Position16<RoomPixels> InitialPosition { get; internal set; }
     /// <summary>Exclusive upper pixel threshold for Samus's nonnegative Y displacement, taken from the population initialization instruction word's low byte. Native <c>YProximity</c> at $7E:780C,x.</summary>
     public byte VerticalTriggerLimit { get; internal set; }
     /// <summary>True when parameter two's high byte is zero: initialization substitutes a one-pixel upward offset and activation bypasses the falling and bounce sequence. Native <c>type</c> at $7E:780E,x.</summary>
@@ -108,12 +119,11 @@ public sealed partial class RoomEnemySystem
         var state = new BoulderEnemyState(slot);
         _boulderStates[slot.SlotIndex] = state;
 
-        state.VerticalSpeedAccumulator = 0;
-        state.HorizontalSpeedAccumulator = 0;
+        state.BounceSpeedAccumulator = 0;
+        state.TravelSpeedAccumulator = 0;
         state.BounceCounter = 2;
         state.Function = BoulderAiFunction.WaitingForSamus;
-        state.InitialXPosition = slot.Position.X.Whole;
-        state.InitialYPosition = slot.Position.Y.Whole;
+        state.InitialPosition = slot.Position.Whole;
         state.PreviousYPosition = slot.Position.Y.Whole;
         state.PreviousYSubposition = slot.Position.Y.Fraction;
 
@@ -125,7 +135,7 @@ public sealed partial class RoomEnemySystem
             initialYOffset = 1;
             state.StartsRollingWithoutBounce = true;
         }
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.InitialYPosition - initialYOffset)));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.InitialPosition.Y - initialYOffset)));
 
         state.HorizontalTriggerLimit = unchecked((short)-(byte)slot.Parameter2);
 
@@ -200,35 +210,35 @@ public sealed partial class RoomEnemySystem
 
     private static void RunBoulderInitialFall(RoomEnemySlot slot, BoulderEnemyState state)
     {
-        AddBoulderVerticalVelocity(slot, state.VerticalSpeedAccumulator, negative: false);
-        if (unchecked((short)(slot.Position.Y.Whole - state.InitialYPosition)) < 0)
+        AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, negative: false);
+        if (unchecked((short)(slot.Position.Y.Whole - state.InitialPosition.Y)) < 0)
         {
-            state.VerticalSpeedAccumulator = AddAndCapUnsigned(
-                state.VerticalSpeedAccumulator,
+            state.BounceSpeedAccumulator = AddAndCapUnsigned(
+                state.BounceSpeedAccumulator,
                 0x0100,
                 0x5000);
             return;
         }
 
-        slot.Position = slot.Position.WithWholeY(state.InitialYPosition);
+        slot.Position = slot.Position.WithWholeY(state.InitialPosition.Y);
         state.Function = BoulderAiFunction.Rebound;
-        state.VerticalSpeedAccumulator = 0x2000;
+        state.BounceSpeedAccumulator = 0x2000;
     }
 
     private static void RunBoulderRebound(RoomEnemySlot slot, BoulderEnemyState state)
     {
-        AddBoulderVerticalVelocity(slot, state.VerticalSpeedAccumulator, negative: true);
-        state.VerticalSpeedAccumulator = unchecked((ushort)(state.VerticalSpeedAccumulator - 0x0100));
-        if (unchecked((short)state.VerticalSpeedAccumulator) < 0)
+        AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, negative: true);
+        state.BounceSpeedAccumulator = unchecked((ushort)(state.BounceSpeedAccumulator - 0x0100));
+        if (unchecked((short)state.BounceSpeedAccumulator) < 0)
         {
-            state.VerticalSpeedAccumulator = 0;
+            state.BounceSpeedAccumulator = 0;
             state.Function = BoulderAiFunction.Falling;
             return;
         }
 
         AddBoulderHorizontalVelocity(slot, state);
-        state.HorizontalSpeedAccumulator = AddAndCapUnsigned(
-            state.HorizontalSpeedAccumulator,
+        state.TravelSpeedAccumulator = AddAndCapUnsigned(
+            state.TravelSpeedAccumulator,
             0x0020,
             0x5000);
     }
@@ -236,7 +246,7 @@ public sealed partial class RoomEnemySystem
     private void RunBoulderFalling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         int verticalDisplacement = ReadQuadraticEnemySpeed(
-            unchecked((byte)(state.VerticalSpeedAccumulator >> 8)),
+            unchecked((byte)(state.BounceSpeedAccumulator >> 8)),
             negative: false);
         if (MoveEnemyVertically(level, slot, verticalDisplacement))
         {
@@ -255,7 +265,7 @@ public sealed partial class RoomEnemySystem
 
             // The third impact still installs the leading zero sample before the counter
             // underflows. Preserve that write even though this impact enters rolling.
-            state.VerticalSpeedAccumulator = BoulderBounceDefinitions.SpeedIndex(state.BounceCounter);
+            state.BounceSpeedAccumulator = BoulderBounceDefinitions.SpeedIndex(state.BounceCounter);
             state.BounceCounter = unchecked((ushort)(state.BounceCounter - 1));
             if ((state.BounceCounter & 0x8000) != 0)
             {
@@ -266,11 +276,11 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        state.VerticalSpeedAccumulator = unchecked((ushort)(
-            state.VerticalSpeedAccumulator + 0x0100));
+        state.BounceSpeedAccumulator = unchecked((ushort)(
+            state.BounceSpeedAccumulator + 0x0100));
         AddBoulderHorizontalVelocity(slot, state);
-        state.HorizontalSpeedAccumulator = AddAndCapUnsigned(
-            state.HorizontalSpeedAccumulator,
+        state.TravelSpeedAccumulator = AddAndCapUnsigned(
+            state.TravelSpeedAccumulator,
             0x0020,
             0x5000);
     }
@@ -279,7 +289,7 @@ public sealed partial class RoomEnemySystem
     {
         int verticalDisplacement = unchecked(
             ReadQuadraticEnemySpeed(
-                unchecked((byte)(state.HorizontalSpeedAccumulator >> 8)),
+                unchecked((byte)(state.TravelSpeedAccumulator >> 8)),
                 negative: false) +
             (state.VerticalCompensation << 16));
         MoveEnemyVertically(level, slot, verticalDisplacement);
@@ -301,8 +311,8 @@ public sealed partial class RoomEnemySystem
         }
         else
         {
-            state.HorizontalSpeedAccumulator = AddAndCapUnsigned(
-                state.HorizontalSpeedAccumulator,
+            state.TravelSpeedAccumulator = AddAndCapUnsigned(
+                state.TravelSpeedAccumulator,
                 0x0040,
                 0x4000);
             if (slot.Position.Y.Whole == state.PreviousYPosition &&
@@ -326,7 +336,7 @@ public sealed partial class RoomEnemySystem
 
     private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
         ReadQuadraticEnemySpeed(
-            unchecked((byte)(state.HorizontalSpeedAccumulator >> 8)),
+            unchecked((byte)(state.TravelSpeedAccumulator >> 8)),
             negative: state.DirectionSelector != 0);
 
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, ushort accumulator, bool negative)

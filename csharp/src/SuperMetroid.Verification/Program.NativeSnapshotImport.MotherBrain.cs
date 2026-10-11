@@ -40,7 +40,7 @@ internal static partial class Program
         state.NeckSegment2Distance = W(MotherBrainMemory.NeckSegments + 16);
         state.NeckSegment3Distance = W(MotherBrainMemory.NeckSegments + 22);
         state.NeckSegment4Distance = W(MotherBrainMemory.NeckSegments + 28);
-        MotherBrainNeckPoint Segment(int index) => new(
+        Position16<RoomPixels> Segment(int index) => new(
             W(MotherBrainMemory.NeckSegments + index * 6), W(MotherBrainMemory.NeckSegments + index * 6 + 2));
         state.NeckSegment0 = Segment(0);
         state.NeckSegment1 = Segment(1);
@@ -68,12 +68,12 @@ internal static partial class Program
         state.BombCounter = W(MotherBrainMemory.BombCounter);
         state.BodyTargetXPosition = W(MotherBrainMemory.BodyFunctionTimer);
         state.HandBeamPhase = (MotherBrainHandBeamPhase)W(MotherBrainMemory.DeathBeamAttackPhase);
-        state.HandBeamNextXSubposition = W(MotherBrainMemory.DeathBeamNext);
-        state.HandBeamNextXPosition = W(MotherBrainMemory.DeathBeamNext + 2);
-        state.HandBeamNextYSubposition = W(MotherBrainMemory.DeathBeamNext + 4);
-        state.HandBeamNextYPosition = W(MotherBrainMemory.DeathBeamNext + 6);
-        state.HandBeamNextXVelocity = W(MotherBrainMemory.DeathBeamNext + 8);
-        state.HandBeamNextYVelocity = W(MotherBrainMemory.DeathBeamNext + 10);
+        state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWords(
+            W(MotherBrainMemory.DeathBeamNext + 2), W(MotherBrainMemory.DeathBeamNext),
+            W(MotherBrainMemory.DeathBeamNext + 6), W(MotherBrainMemory.DeathBeamNext + 4));
+        state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
+            new SnesSignedEightEight(W(MotherBrainMemory.DeathBeamNext + 8)),
+            new SnesSignedEightEight(W(MotherBrainMemory.DeathBeamNext + 10)));
         state.HandBeamNextAngle = W(MotherBrainMemory.DeathBeamNext + 12);
         state.OnionRingsTargetAngle = W(MotherBrainMemory.OnionRingsTargetAngle);
         state.RainbowBeamAngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);

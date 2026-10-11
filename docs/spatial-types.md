@@ -13,6 +13,7 @@ different types; moving between spaces is always a named conversion.
 |---|---|
 | `RoomPixels` | Room-relative pixels: Samus, enemies, projectiles, PLM blocks, the camera's top-left corner (BG1 scroll). |
 | `ScreenPixels` | Viewport-relative pixels: a room position minus the camera position, and the on-screen positions of cinematic and menu objects. |
+| `ScreenSubpixels` | Viewport positions in 1/256 pixels: unsigned 8.8 words whose high byte is the screen pixel (the escape timer). |
 | `OamPixels` | OAM sprite coordinates (nine-bit signed X, eight-bit Y): every spritemap draw origin and every authored sprite anchor. |
 | `Bg2Pixels`, `Bg3Pixels` | BG2/BG3 scroll-register pixels, which follow their own parallax/FX rules. |
 | `Bg3Subpixels` | BG3 room-FX texture drift in 1/256 pixels (the 8.8 rain, fog and spores accumulators). |
@@ -76,16 +77,19 @@ the wrapped value (collision and PLM grid probes).
   one word: `SnesFixedPosition.WithWhole/WithFraction`, `SnesSignedSixteenSixteen.WithWholePixels/WithFraction`,
   `FixedPosition.WithWhole/WithFractionsOf/WithWholeX/WithWholeY/WithFractionX/WithFractionY` and
   `FixedVector.WithWhole/WithWholeX/WithWholeY/WithFractionY`.
+- Reflection and reversal: `Offset16.MirroredX` (X negated, wrapping; Y kept) for facing-mirrored
+  part offsets; `EightEightVector.ReversedX/ReversedY` negate one raw 8.8 word, as crawlers turn.
   Operations exist only where production code uses them; add one with its first consumer.
 - Conversions between spaces are named methods/extensions in `SuperMetroid.Core.Spatial` next to
   the spaces they join:
   - `ScreenConversions.RelativeToCamera`: room position minus camera, as a signed screen offset;
     `ScreenConversions.ToScreen`: the same subtraction kept as the wrapped screen position words
     native code stores (Samus's death-sequence screen position);
-    `ScreenConversions.ToOam`: an on-screen position as the OAM draw origin.
+    `ScreenConversions.ToOam`: an on-screen position as the OAM draw origin;
+    `ScreenConversions.WholePixels`: an unsigned 8.8 screen position's high bytes as screen pixels.
   - `RoomGridConversions.ToRoomBlock`: a room pixel to its block (`LSR ×4`);
-    `ToRoomPixels`: a block or a scroll-zone screen to its top-left room pixel; `ToRoomBlocks`: a
-    room size in screens as blocks.
+    `ToRoomPixels`: a scroll-zone screen, or a block (`ASL ×4`), to its top-left room pixel;
+    `ToRoomBlocks`: a room size in screens as blocks.
   - `BackgroundBlockConversions.ToTilemapBlocks` / `ToSourceBlocks`: layer pixels to the wrapping
     tilemap block and to the room source block (sign-extended), as the bank-$80 streamer does.
   - `BgPlaneConversions.AsBgPlaneScroll`: a BG1, BG2 or area-map scroll as the generic plane's scroll words.
@@ -109,6 +113,10 @@ the wrapped value (collision and PLM grid probes).
   hardware registers, rendering-backend and P/Invoke adapters, and external file formats (the
   JSON document record itself) — through one named codec operation, and those declarations carry
   `[SpatialComponents("reason")]`.
+- Enemy family states that view the common slot's multipurpose variable words (or the native
+  extra-WRAM arrays) expose one typed property whose getter and setter compose and split those
+  native words; the words themselves stay native storage. Per-slot extra-WRAM arrays that hold
+  both axes store the typed value (one array, shared by the enemy system and the family view).
 - Debugger/save-state compatibility is preserved by the debugger state field migrations, never by
   keeping primitive pairs in owned logic. Every field rebuilt from stored components is registered
   once in `DebuggerSpatialFieldMigrations` (legacy component names, their payload types and the

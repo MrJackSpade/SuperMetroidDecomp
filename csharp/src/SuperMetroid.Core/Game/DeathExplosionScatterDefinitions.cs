@@ -10,10 +10,13 @@ internal static class DeathExplosionScatterDefinitions
 {
     internal const int Count = 10;
 
-    private static ReadOnlySpan<short> XOffsets => [-24, -20, 16, 30, 14, -2, -2, -31, -4, 19];
-    private static ReadOnlySpan<short> YOffsets => [-24, 20, -30, -3, -13, 18, -32, 8, -10, 19];
+    private static readonly Offset16<RoomPixels>[] Offsets =
+    [
+        new(-24, -24), new(-20, 20), new(16, -30), new(30, -3), new(14, -13),
+        new(-2, 18), new(-2, -32), new(-31, 8), new(-4, -10), new(19, 19),
+    ];
 
-    internal static (short X, short Y) Offset(int index) => (uint)index < Count
-        ? (XOffsets[index], YOffsets[index])
+    internal static Offset16<RoomPixels> Offset(int index) => (uint)index < Count
+        ? Offsets[index]
         : throw new ArgumentOutOfRangeException(nameof(index));
 }

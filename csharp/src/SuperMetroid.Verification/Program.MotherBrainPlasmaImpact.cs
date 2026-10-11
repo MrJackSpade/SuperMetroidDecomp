@@ -35,7 +35,7 @@ internal static partial class Program
         AssertEqual((ushort)0xf00, state.WalkCounter, "Accepted beam preserves native recoil bookkeeping");
         AssertEqual(EnemyShotTiming.PlasmaInvincibilityFrames, head.InvincibilityTimer,
             "The no-death damage tail grants Plasma's hit immunity");
-        var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
+        var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         for (int frame = 0; frame < 3; frame++)
         {
             shots.StepFrame(bus, level, samus, 0, 0, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);

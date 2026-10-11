@@ -3743,12 +3743,9 @@ Landed: true, HitCeiling: false);
                     _addressSpace,
                     System,
                     roomGeometry.AreaIndex,
-                    checked((byte)roomGeometry.MapPosition.X),
-                    checked((byte)roomGeometry.MapPosition.Y),
-                    LevelData.Size.X,
-                    LevelData.Size.Y,
-                    Samus.Position.X.Whole,
-                    Samus.Position.Y.Whole,
+                    roomGeometry.MapPosition,
+                    LevelData.Size,
+                    Samus.Position.Whole,
                     NmiFrameCounter8,
                     MapRevealMode,
                     MapPresentation?.Get(roomGeometry.AreaIndex));
@@ -3946,8 +3943,7 @@ Landed: true, HitCeiling: false);
         GameplayWindowRegisters.LatchNmi(mainLoopRequestedNmi: true);
         DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
         var bg2Window = Enemies.Draygon is { } boss
-            ? DraygonMainScreenWindow.Select(boss.Body.Position.X.Whole, boss.Body.Position.Y.Whole,
-                BackgroundScroll.Layer1Position.X, BackgroundScroll.Layer1Position.Y,
+            ? DraygonMainScreenWindow.Select(boss.Body.Position.Whole, BackgroundScroll.Layer1Position,
                 boss.Body.Properties.HasAny(EnemyProperties.Deleted))
             : (First: 32, End: 224);
         DisplayedGameplayPpu = new GameplayPpuRenderSnapshot(
@@ -3994,8 +3990,7 @@ Landed: true, HitCeiling: false);
         RoomEnemySlot body = Enemies.Slots[bodyIndex];
         return new MorphBallEyeBeamRenderSnapshot(
             beam.Phase,
-            body.Position.X.Whole,
-            body.Position.Y.Whole,
+            body.Position.Whole,
             eyeState.Angle,
             beam.AngularWidth,
             beam.Red,

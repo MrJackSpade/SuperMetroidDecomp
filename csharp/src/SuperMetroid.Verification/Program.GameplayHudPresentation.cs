@@ -71,10 +71,10 @@ internal static partial class Program
         var installedSystem = new Bank80SystemState();
         nativeSystem.SetAreaMapAcquired(AreaId.Crateria);
         installedSystem.SetAreaMapAcquired(AreaId.Crateria);
-        native.UpdateMinimap(bus, nativeSystem, AreaId.Crateria, 23, 0, 144, 80,
-            0x0440, 0x04bb, 0, presentationMap: original.Get(AreaId.Crateria));
-        installed.UpdateMinimap(guard, installedSystem, AreaId.Crateria, 23, 0, 144, 80,
-            0x0440, 0x04bb, 0, presentationMap: original.Get(AreaId.Crateria));
+        native.UpdateMinimap(bus, nativeSystem, AreaId.Crateria, new(23, 0), new(144, 80),
+            new(0x0440, 0x04bb), 0, presentationMap: original.Get(AreaId.Crateria));
+        installed.UpdateMinimap(guard, installedSystem, AreaId.Crateria, new(23, 0), new(144, 80),
+            new(0x0440, 0x04bb), 0, presentationMap: original.Get(AreaId.Crateria));
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed minimap anchor matches native and needs no HUD visual ROM data");
 
@@ -128,8 +128,8 @@ internal static partial class Program
         rebind.Initialize(guard, snapshot);
         var rebindSystem = new Bank80SystemState();
         rebindSystem.SetAreaMapAcquired(AreaId.Crateria);
-        rebind.UpdateMinimap(guard, rebindSystem, AreaId.Crateria, 23, 0, 144, 80,
-            0x0440, 0x04bb, 8, presentationMap: original.Get(AreaId.Crateria));
+        rebind.UpdateMinimap(guard, rebindSystem, AreaId.Crateria, new(23, 0), new(144, 80),
+            new(0x0440, 0x04bb), 8, presentationMap: original.Get(AreaId.Crateria));
         ushort[] logicalMap = Enumerable.Range(0, 15)
             .Select(i => rebind.Tiles[(i / 5) * 32 + 26 + i % 5]).ToArray();
         rebind.BindPresentation(edited.GameplayHud, samus);

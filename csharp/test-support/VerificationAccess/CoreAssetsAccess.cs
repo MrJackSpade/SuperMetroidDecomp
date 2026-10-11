@@ -389,10 +389,10 @@ internal static class MenuCompactLetteringArtworkAccess
 
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
 
-        internal bool HasPixelOverride(int tile, int x, int y)
+        internal bool HasPixelOverride(int tile, Position16<CharacterPixels> pixel)
         {
-            if (!MenuCompactLetteringArtwork.Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-            return PrivateState.Field<Dictionary<int, byte>?>(self, "edits") is { } edits && edits.ContainsKey(tile * 64 + y * 8 + x);
+            if (!MenuCompactLetteringArtwork.Contains(tile) || pixel.X >= 8 || pixel.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+            return PrivateState.Field<Dictionary<int, byte>?>(self, "edits") is { } edits && edits.ContainsKey(tile * 64 + pixel.Y * 8 + pixel.X);
         }
     }
 }
@@ -406,10 +406,10 @@ internal static class MenuLargeFontArtworkAccess
 
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
 
-        internal bool HasPixelOverride(int tile, int x, int y)
+        internal bool HasPixelOverride(int tile, Position16<CharacterPixels> pixel)
         {
-            if (!MenuLargeFontArtwork.Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-            return PrivateState.Field<Dictionary<int, byte>?>(self, "edits") is { } edits && edits.ContainsKey(tile * 64 + y * 8 + x);
+            if (!MenuLargeFontArtwork.Contains(tile) || pixel.X >= 8 || pixel.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+            return PrivateState.Field<Dictionary<int, byte>?>(self, "edits") is { } edits && edits.ContainsKey(tile * 64 + pixel.Y * 8 + pixel.X);
         }
     }
 }
@@ -450,10 +450,10 @@ internal static class MenuSmallFontArtworkAccess
 
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
 
-        internal bool HasPixelOverride(int tile, int x, int y)
+        internal bool HasPixelOverride(int tile, Position16<CharacterPixels> pixel)
         {
-            if (!MenuSmallFontArtwork.Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-            return PrivateState.Field<Dictionary<int, byte>?>(self, "edits") is { } edits && edits.ContainsKey((tile - MenuSmallFontArtwork.FirstTile) * 64 + y * 8 + x);
+            if (!MenuSmallFontArtwork.Contains(tile) || pixel.X >= 8 || pixel.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+            return PrivateState.Field<Dictionary<int, byte>?>(self, "edits") is { } edits && edits.ContainsKey((tile - MenuSmallFontArtwork.FirstTile) * 64 + pixel.Y * 8 + pixel.X);
         }
     }
 }

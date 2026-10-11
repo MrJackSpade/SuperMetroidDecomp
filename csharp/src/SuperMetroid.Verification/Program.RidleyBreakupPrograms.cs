@@ -82,7 +82,7 @@ internal static partial class Program
             var actual = new OamBuffer();
             draw.Invoke(enemies, [actual, (byte)0xa6, expectedPointer, new Position16<OamPixels>((ushort)128, (ushort)112), (ushort)0x0e00, (ushort)0, false, true]);
             var expected = new OamBuffer();
-            ImportedSpritemapOracle.DrawEnemy(rom, expected, 0xa6, expectedPointer, 128, 112, 0x0e00, 0);
+            ImportedSpritemapOracle.DrawEnemy(rom, expected, 0xa6, expectedPointer, new(128, 112), 0x0e00, 0);
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "breakup OAM count");
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable), "breakup exact OAM bytes");
             AssertTrue(expected.HighTable.SequenceEqual(actual.HighTable), "breakup exact OAM size/X bits");

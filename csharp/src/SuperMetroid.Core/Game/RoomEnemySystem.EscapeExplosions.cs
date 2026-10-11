@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     /// <summary>Native $8F:C1A9 sprite/sound publication through the shared object pool.</summary>
-    public void SpawnEscapeExplosion(ushort x, ushort y, ushort random, ushort inheritedX)
+    public void SpawnEscapeExplosion(Position16<RoomPixels> position, ushort random, ushort inheritedX)
     {
         int choice = random & 15;
         // The cartridge leaves X unchanged when the random nibble is 8..15. The
@@ -18,6 +18,6 @@ public sealed partial class RoomEnemySystem
         }
         RoomSpriteObjectKind kind =
             ZebesEscapeExplosionDefinitions.ForIndex(inheritedX & 7).SpriteKind;
-        SpawnRoomSpriteObject(new(x, y), kind, 0);
+        SpawnRoomSpriteObject(position, kind, 0);
     }
 }

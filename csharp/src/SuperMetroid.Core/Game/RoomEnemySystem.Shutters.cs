@@ -257,8 +257,7 @@ public sealed partial class RoomEnemySystem
     private readonly GrowingShutterEnemyState?[] _growingShutterStates = new GrowingShutterEnemyState?[MaximumEnemyCount];
     internal readonly VerticalShutterEnemyState?[] _verticalShutterStates = new VerticalShutterEnemyState?[MaximumEnemyCount];
     private readonly HorizontalShutterEnemyState?[] _horizontalShutterStates = new HorizontalShutterEnemyState?[MaximumEnemyCount];
-    private ushort _shutterCameraX;
-    private ushort _shutterCameraY;
+    private Position16<RoomPixels> _shutterCamera;
 
     /// <summary>Last library-two shutter sound queued during the current enemy frame.</summary>
     public ushort? LastShutterSoundEffect { get; private set; }
@@ -268,15 +267,13 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_growingShutterStates);
         Array.Clear(_verticalShutterStates);
         Array.Clear(_horizontalShutterStates);
-        _shutterCameraX = camera.X;
-        _shutterCameraY = camera.Y;
+        _shutterCamera = camera;
         LastShutterSoundEffect = null;
     }
 
     private void BeginShutterFrame(Position16<RoomPixels> camera)
     {
-        _shutterCameraX = camera.X;
-        _shutterCameraY = camera.Y;
+        _shutterCamera = camera;
         LastShutterSoundEffect = null;
     }
 

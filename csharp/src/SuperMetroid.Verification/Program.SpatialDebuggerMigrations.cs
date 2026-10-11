@@ -136,6 +136,7 @@ internal static partial class Program
                 roundTrip.PreviousLayer1Block, roundTrip.PreviousLayer2Block),
             "background-scroll typed values round-trip through the debugger codec");
         VerifyRenderAndFxSpatialDebuggerMigrations();
+        VerifyMotherBrainNeckPointMigration();
         Console.WriteLine("  Spatial debugger migrations: camera, scroll, door, FX and display-packet legacy words restore exactly; current layouts round-trip.");
     }
 
@@ -231,8 +232,52 @@ internal static partial class Program
         AssertTrue(roundTrip.Scrolls.SequenceEqual(lines), "typed line registers round-trip through the debugger codec");
     }
 
+    /// <summary>
+    /// Mother Brain's five neck joints were stored as the retired <c>MotherBrainNeckPoint</c> pair;
+    /// an older capture's joints restore into the typed room positions word for word.
+    /// </summary>
+    private static void VerifyMotherBrainNeckPointMigration()
+    {
+        var state = new MotherBrainEnemyState(new RoomEnemySlot(0));
+        // Restoration validates closed domains (#627); give the fresh encounter's enum fields a
+        // defined member, as a live capture always has.
+        for (Type? owner = state.GetType(); owner is not null; owner = owner.BaseType)
+            foreach (FieldInfo member in owner.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                if (member.FieldType.IsEnum && !Enum.IsDefined(member.FieldType, member.GetValue(state)!))
+                    member.SetValue(state, Enum.GetValues(member.FieldType).GetValue(0));
+        string[] joints = Enumerable.Range(0, 5).Select(index => $"<NeckSegment{index}>k__BackingField").ToArray();
+        Position16<RoomPixels>[] expected = Enumerable.Range(0, 5)
+            .Select(index => new Position16<RoomPixels>(unchecked((ushort)(0xfff0 + index)), (ushort)(0x0100 * index + 7))).ToArray();
+        var restored = (MotherBrainEnemyState)RestoreSpatialLegacy(state, joints,
+            joints.Zip(expected, (joint, point) => (joint, (object)new RetiredNeckPoint(point))).ToArray());
+        Position16<RoomPixels>[] actual =
+            [restored.NeckSegment0, restored.NeckSegment1, restored.NeckSegment2, restored.NeckSegment3, restored.NeckSegment4];
+        AssertTrue(expected.SequenceEqual(actual), "retired MotherBrainNeckPoint joints restore as typed room positions");
+    }
+
+    /// <summary>A legacy field payload: one retired <c>MotherBrainNeckPoint</c>, written in its historical shape.</summary>
+    private sealed record RetiredNeckPoint(Position16<RoomPixels> Point);
+
     /// <summary>A legacy field payload: an array of the retired per-line scroll pair, written in its historical shape.</summary>
     private sealed record RetiredLineScrolls(Position16<BgPlanePixels>[] Lines);
+
+    private static void WriteRetiredNeckPoint(BinaryWriter writer, Stream data, Position16<RoomPixels> point)
+    {
+        const byte newObjectMarker = 2, fieldPayloadKind = 5;
+        const string retired = "SuperMetroid.Core.Game.MotherBrainNeckPoint, SuperMetroid.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+        writer.Write(newObjectMarker);
+        writer.Write(0);
+        writer.Write(retired);
+        writer.Write(fieldPayloadKind);
+        writer.Write(2);
+        foreach ((string name, ushort value) in new[] { ("<X>k__BackingField", point.X), ("<Y>k__BackingField", point.Y) })
+        {
+            writer.Write(retired);
+            writer.Write(name);
+            writer.Flush();
+            DebuggerObjectGraphSerializer.Serialize(data, value);
+        }
+    }
 
     private static void WriteRetiredLineScrolls(BinaryWriter writer, Stream data, Position16<BgPlanePixels>[] lines)
     {
@@ -300,6 +345,8 @@ internal static partial class Program
                 writer.Flush();
                 if (value is RetiredLineScrolls retiredLines)
                     WriteRetiredLineScrolls(writer, data, retiredLines.Lines);
+                else if (value is RetiredNeckPoint retiredNeck)
+                    WriteRetiredNeckPoint(writer, data, retiredNeck.Point);
                 else
                     Value(value);
             }

@@ -10,7 +10,7 @@ internal static partial class Program
         {
             var entries = new ushort[16 * 32];
             if (ceiling) entries[6 * 16 + (left ? 7 : 8)] = 0x8000;
-            var room = CreateRoom(16, 32, entries, new byte[entries.Length]);
+            var room = CreateRoom(new(16, 32), entries, new byte[entries.Length]);
             var samus = new SamusState
             {
                 Pose = left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose,

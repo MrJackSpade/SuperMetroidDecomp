@@ -11,7 +11,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         typeof(RoomEnemySystem).GetField("_setMotherBrainBg2Scroll", flags)!
-            .SetValue(enemies, (Action<ushort, ushort>)((_, _) => { }));
+            .SetValue(enemies, (Action<Position16<Bg2Pixels>>)(_ => { }));
         var body = enemies.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
         body.Definition = RoomEnemyDefinitionCatalog.Get(body.EnemyDefinitionPointer);

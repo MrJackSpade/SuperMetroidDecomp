@@ -41,7 +41,7 @@ public sealed partial class RoomEnemySystem
         MotherBrainTurretDirectionDefinition directionDefinition =
             MotherBrainTurretDefinitions.ForDirection(direction);
         turret.DirectionParameter = parameter;
-        turret.Position = turret.Position.WithWhole(new(definition.X, definition.Y));
+        turret.Position = turret.Position.WithWhole(definition.Position);
 
         // The turret is stationary, so the initializer intentionally repurposes both
         // subposition words. X-subposition is a bank-$86 pointer to this turret's allowed
@@ -176,10 +176,8 @@ public sealed partial class RoomEnemySystem
         bullet.DirectionParameter = (byte)direction;
         bullet.Variable0 = unchecked((ushort)((byte)direction * 2));
         bullet.Variable1 = 0;
-        bullet.Velocity = new(new SnesSignedEightEight(unchecked((ushort)definition.BulletXVelocity)), new SnesSignedEightEight(unchecked((ushort)definition.BulletYVelocity)));
-        bullet.Position = bullet.Position.WithWhole(new(unchecked((ushort)(turret.Position.X.Whole +
-            definition.BulletXOffset)), unchecked((ushort)(turret.Position.Y.Whole +
-            definition.BulletYOffset))));
+        bullet.Velocity = definition.BulletVelocity;
+        bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
     }
 
     /// <summary>Ports the bullet property flicker, 8.8 movement, and point collision.</summary>

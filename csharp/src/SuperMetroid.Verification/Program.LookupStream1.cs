@@ -1781,7 +1781,7 @@ internal static partial class Program
                     result.AddOnScreenSpritePart(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), unchecked((byte)(sbyte)part.OffsetY),
                         SnesObjAttributeWord.Create(part.TileNumber, part.Palette ?? selected.Palette, part.Priority,
                             (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (part.FlipY ? SnesTileFlipFlags.Vertical : 0)),
-                        new Position16<OamPixels>(unchecked((ushort)(timer.XPixel + anchor.X)), unchecked((ushort)(timer.YPixel + anchor.Y))));
+                        timer.PixelPosition.ToOam() + anchor);
             }
         }
     }
@@ -1867,8 +1867,7 @@ internal static partial class Program
             short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
             short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
             var expected = new OamBuffer(); var actual = new OamBuffer(); var edited = new OamBuffer();
-            DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, (ushort)(100 + x),
-                unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose)))));
+            DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose))))));
             draw(new LookupFlareForbiddenBus(), actual, samus, Position16<RoomPixels>.Zero, 0, null, stock, compositions);
             draw(new LookupFlareForbiddenBus(), edited, samus, Position16<RoomPixels>.Zero, 0, null, shifted, compositions);
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), "Actual flare OAM matches independently positioned native sprite");
@@ -2372,7 +2371,7 @@ internal static partial class Program
             if (!nativePointers.Contains(pointer)) nativePointers.Add(pointer);
             var expected = new OamBuffer();
             var actual = new OamBuffer();
-            DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, selector, 100, 100);
+            DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, selector, new(100, 100));
             stock.Draw(selector, actual, new(100, 100));
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                 "calculated flare selector draws exact native composition");

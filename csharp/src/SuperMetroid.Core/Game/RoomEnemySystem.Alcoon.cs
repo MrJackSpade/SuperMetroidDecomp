@@ -58,25 +58,25 @@ public sealed class AlcoonEnemyState
         internal set => _slot.VariableA = (ushort)value;
     }
 
-    /// <summary>Signed two's-complement whole-pixel vertical velocity per motion step, paired with <see cref="YSubvelocity"/> as signed 16.16; emergence starts at -12 and retreat at -4. Native $0FAA,x.</summary>
-    public ushort YVelocity
+    /// <summary>
+    /// Motion per step. Y is the signed 16.16 vertical velocity in native $0FAA,x (whole) and
+    /// $0FAC,x (fraction): emergence starts at -12 and retreat at -4, and acceleration carries
+    /// from the fraction into the whole word. X is the signed whole-pixel horizontal velocity in
+    /// common variable D (retail uses -2, 0 or +2); Alcoon has no horizontal fraction word, so
+    /// a velocity with a nonzero X fraction is rejected.
+    /// </summary>
+    public FixedVector<RoomPixels> Velocity
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
-
-    /// <summary>Unsigned fractional vertical velocity in 1/65536 pixel per motion step; acceleration carries from this word into <see cref="YVelocity"/>. Native $0FAC,x.</summary>
-    public ushort YSubvelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Signed whole-pixel horizontal velocity; retail Alcoon uses -2, 0, or +2.</summary>
-    public ushort XVelocity
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => FixedVector<RoomPixels>.FromWords(_slot.VariableD, 0, _slot.VariableB, _slot.VariableC);
+        internal set
+        {
+            if (value.X.Fraction != 0)
+                throw new InvalidOperationException(
+                    $"Alcoon has no horizontal subvelocity word; X fraction ${value.X.Fraction:X4} cannot be stored.");
+            _slot.VariableB = value.Y.WholeWord;
+            _slot.VariableC = value.Y.Fraction;
+            _slot.VariableD = value.X.WholeWord;
+        }
     }
 
     /// <summary>
@@ -90,11 +90,20 @@ public sealed class AlcoonEnemyState
         internal set => _slot.VariableE = value;
     }
 
-    /// <summary>Original population Y coordinate in room pixels, restored after the initialization floor search and after retreat; restoring this whole word intentionally leaves the live Y subposition unchanged. Native $0FB2,x.</summary>
-    public ushort SpawnYPosition
+    /// <summary>
+    /// Original population whole-pixel position. Y (native $0FB2,x, common variable F) is
+    /// restored after the initialization floor search and after retreat, leaving the live Y
+    /// subposition unchanged; X (native $7E:7804,x) enforces the 112-pixel walking range and is
+    /// restored when hiding completes.
+    /// </summary>
+    public Position16<RoomPixels> SpawnPosition
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => new(_spawnXPositions[_slot.SlotIndex], _slot.VariableF);
+        internal set
+        {
+            _spawnXPositions[_slot.SlotIndex] = value.X;
+            _slot.VariableF = value.Y;
+        }
     }
 
     /// <summary>Whole-pixel component of the vertical velocity increment per acceleration step, paired with <see cref="YSubacceleration"/>; jump setup writes zero. Native $7E:7800,x.</summary>
@@ -109,13 +118,6 @@ public sealed class AlcoonEnemyState
     {
         get => _ySubaccelerations[_slot.SlotIndex];
         internal set => _ySubaccelerations[_slot.SlotIndex] = value;
-    }
-
-    /// <summary>Original population X coordinate in room pixels, used to enforce the 112-pixel walking range and restore the whole X coordinate when hiding completes. Native $7E:7804,x.</summary>
-    public ushort SpawnXPosition
-    {
-        get => _spawnXPositions[_slot.SlotIndex];
-        internal set => _spawnXPositions[_slot.SlotIndex] = value;
     }
 
     /// <summary>Floor-aligned center Y discovered by the complete initialization jump.</summary>
@@ -219,8 +221,7 @@ public sealed partial class RoomEnemySystem
         _alcoonStates[slot.SlotIndex] = state;
 
         state.StepCounter = 0;
-        state.SpawnYPosition = slot.Position.Y.Whole;
-        state.SpawnXPosition = slot.Position.X.Whole;
+        state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.CurrentInstruction = AlcoonInstructionProgramDefinitions.WalkingLeft;
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
@@ -236,11 +237,11 @@ public sealed partial class RoomEnemySystem
             AccelerateAlcoonY(state);
             GuardAlcoonJumpSimulation(++iterations, slot);
         }
-        while (unchecked((short)state.YVelocity) < 0);
+        while (state.Velocity.Y.WholePixels < 0);
 
         while (true)
         {
-            int displacement = ComposeSignedFixed(state.YVelocity, state.YSubvelocity);
+            int displacement = state.Velocity.Y.RawValue;
             if (MoveEnemyVertically(level, slot, displacement))
                 break;
             AccelerateAlcoonY(state);
@@ -248,7 +249,7 @@ public sealed partial class RoomEnemySystem
         }
 
         state.LandingYPosition = slot.Position.Y.Whole;
-        slot.Position = slot.Position.WithWholeY(state.SpawnYPosition);
+        slot.Position = slot.Position.WithWholeY(state.SpawnPosition.Y);
     }
 
     /// <summary>Ports <c>MainAI_Alcoon</c> and all seven indirect targets.</summary>
@@ -304,12 +305,12 @@ public sealed partial class RoomEnemySystem
         SetupAlcoonJumpMovement(state);
         if (unchecked((short)signedXDistance) < 0)
         {
-            state.XVelocity = unchecked((ushort)-2);
+            state.Velocity = state.Velocity.WithWholeX(-2);
             InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.AirborneLeftLookingUp);
         }
         else
         {
-            state.XVelocity = 2;
+            state.Velocity = state.Velocity.WithWholeX(2);
             InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.AirborneRightLookingUp);
         }
         state.Function = AlcoonEnemyFunction.EmergingRising;
@@ -320,13 +321,13 @@ public sealed partial class RoomEnemySystem
     {
         AddAlcoonYVelocity(slot, state);
         AccelerateAlcoonY(state);
-        if (unchecked((short)state.YVelocity) < 0)
+        if (state.Velocity.Y.WholePixels < 0)
             return;
 
         state.Function = AlcoonEnemyFunction.EmergingFalling;
         InstallAlcoonInstruction(
             slot,
-            unchecked((short)state.XVelocity) < 0
+            state.Velocity.X.WholePixels < 0
                 ? AlcoonInstructionProgramDefinitions.AirborneLeftLookingForward
                 : AlcoonInstructionProgramDefinitions.AirborneRightLookingForward);
     }
@@ -342,7 +343,7 @@ public sealed partial class RoomEnemySystem
         if (level is null)
             throw new InvalidOperationException("Alcoon falling AI requires room collision data.");
 
-        int displacement = ComposeSignedFixed(state.YVelocity, state.YSubvelocity);
+        int displacement = state.Velocity.Y.RawValue;
         if (!MoveEnemyVertically(level, slot, displacement))
         {
             AccelerateAlcoonY(state);
@@ -352,12 +353,12 @@ public sealed partial class RoomEnemySystem
         ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (unchecked((short)signedXDistance) < 0)
         {
-            state.XVelocity = unchecked((ushort)-2);
+            state.Velocity = state.Velocity.WithWholeX(-2);
             InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.WalkingLeft);
         }
         else
         {
-            state.XVelocity = 2;
+            state.Velocity = state.Velocity.WithWholeX(2);
             InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.WalkingRight);
         }
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
@@ -380,15 +381,14 @@ public sealed partial class RoomEnemySystem
         // walking actor fall by the same amount before the remainder of main AI runs.
         MoveEnemyVertically(level, slot, 2 << 16);
 
-        ushort spawnDistance = unchecked((ushort)(state.SpawnXPosition - slot.Position.X.Whole));
+        ushort spawnDistance = unchecked((ushort)(state.SpawnPosition.X - slot.Position.X.Whole));
         if (WrappedMagnitude(spawnDistance) >= AlcoonHideXDistance)
         {
             state.Function = AlcoonEnemyFunction.HidingRising;
-            state.YVelocity = unchecked((ushort)-4);
-            state.YSubvelocity = 0;
+            state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(-4, 0));
             InstallAlcoonInstruction(
                 slot,
-                unchecked((short)state.XVelocity) < 0
+                state.Velocity.X.WholePixels < 0
                     ? AlcoonInstructionProgramDefinitions.AirborneLeftLookingForward
                     : AlcoonInstructionProgramDefinitions.AirborneRightLookingForward);
             return;
@@ -398,7 +398,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
-        bool movingLeft = unchecked((short)state.XVelocity) < 0;
+        bool movingLeft = state.Velocity.X.WholePixels < 0;
         if (samusIsLeft != movingLeft)
             return;
 
@@ -414,14 +414,14 @@ public sealed partial class RoomEnemySystem
     {
         AddAlcoonYVelocity(slot, state);
         AccelerateAlcoonY(state);
-        if (unchecked((short)state.YVelocity) >= 0)
+        if (state.Velocity.Y.WholePixels >= 0)
             state.Function = AlcoonEnemyFunction.HidingFalling;
     }
 
     private static void RunAlcoonHidingFall(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(slot, state);
-        if (unchecked((short)(slot.Position.Y.Whole - state.SpawnYPosition)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - state.SpawnPosition.Y)) < 0)
         {
             AccelerateAlcoonY(state);
             return;
@@ -429,15 +429,14 @@ public sealed partial class RoomEnemySystem
 
         // Like the original, the reset snaps only whole coordinates. Both subpositions and
         // the last animation map remain live while the actor waits underground.
-        slot.Position = slot.Position.WithWhole(new(state.SpawnXPosition, state.SpawnYPosition));
+        slot.Position = slot.Position.WithWhole(state.SpawnPosition);
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
     }
 
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
-        state.YVelocity = unchecked((ushort)-12);
-        state.YSubvelocity = 0;
-        state.XVelocity = 0;
+        state.Velocity = new FixedVector<RoomPixels>(
+            SnesSignedSixteenSixteen.Zero, SnesSignedSixteenSixteen.FromParts(-12, 0));
         state.ClearedVariable = 0;
         state.YAcceleration = 0;
         state.YSubacceleration = 0x8000;
@@ -445,19 +444,14 @@ public sealed partial class RoomEnemySystem
 
     private static void AccelerateAlcoonY(AlcoonEnemyState state)
     {
-        uint fractionalSum = (uint)state.YSubvelocity + state.YSubacceleration;
-        state.YSubvelocity = unchecked((ushort)fractionalSum);
-        state.YVelocity = unchecked((ushort)(
-            state.YVelocity + state.YAcceleration + (fractionalSum >> 16)));
+        SnesSignedSixteenSixteen acceleration = SnesSignedSixteenSixteen.FromParts(
+            unchecked((short)state.YAcceleration), state.YSubacceleration);
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + acceleration);
     }
 
     private static void AddAlcoonYVelocity(RoomEnemySlot slot, AlcoonEnemyState state)
     {
-        uint fixedY = slot.Position.Y.RawValue;
-        fixedY = unchecked(fixedY + (uint)ComposeSignedFixed(
-            state.YVelocity,
-            state.YSubvelocity));
-        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedY)));
+        slot.Position = slot.Position.AdvanceY(state.Velocity.Y);
     }
 
     private static void GuardAlcoonJumpSimulation(int iterations, RoomEnemySlot slot)
@@ -485,7 +479,7 @@ public sealed partial class RoomEnemySystem
                 "Alcoon instruction $A8:DF3F requires a non-advancing random-seed reader.");
         ushort count = unchecked((ushort)(readRandomNumber() & 3));
         state.StepCounter = count == 0 ? (ushort)2 : count;
-        return unchecked((short)state.XVelocity) < 0
+        return state.Velocity.X.WholePixels < 0
             ? AlcoonInstructionProgramDefinitions.WalkingLeft
             : AlcoonInstructionProgramDefinitions.WalkingRight;
     }
@@ -507,16 +501,16 @@ public sealed partial class RoomEnemySystem
         if (decrementStepCounter && state.StepCounter != 0)
             state.StepCounter = unchecked((ushort)(state.StepCounter - 1));
 
-        int displacement = unchecked((short)state.XVelocity) << 16;
+        int displacement = state.Velocity.X.RawValue;
         if (!MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
             AlignEnemyYWithNonSquareSlope(level, slot);
             return nextCursor;
         }
 
-        ushort oldVelocity = state.XVelocity;
-        state.XVelocity = unchecked((ushort)-oldVelocity);
-        return unchecked((short)oldVelocity) >= 0
+        short oldVelocity = state.Velocity.X.WholePixels;
+        state.Velocity = state.Velocity.WithWholeX(unchecked((short)-oldVelocity));
+        return oldVelocity >= 0
             ? AlcoonInstructionProgramDefinitions.WalkingLeftFirstFrame
             : AlcoonInstructionProgramDefinitions.WalkingRightFirstFrame;
     }

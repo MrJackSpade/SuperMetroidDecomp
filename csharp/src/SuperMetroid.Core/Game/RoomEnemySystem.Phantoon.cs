@@ -237,8 +237,9 @@ public sealed partial class RoomEnemySystem
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
         if (state.Eye.Parameter1 == 0)
         {
-            state.Bg2HorizontalScroll = unchecked((ushort)(camera.X - body.Position.X.Whole + 40));
-            state.Bg2VerticalScroll = unchecked((ushort)(camera.Y - body.Position.Y.Whole + 40));
+            state.Bg2Scroll = new(
+                unchecked((ushort)(camera.X - body.Position.X.Whole + 40)),
+                unchecked((ushort)(camera.Y - body.Position.Y.Whole + 40)));
         }
     }
 

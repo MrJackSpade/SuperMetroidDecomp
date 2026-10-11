@@ -38,9 +38,7 @@ internal static partial class Program
                 "RunEyeDoorProjectilePreInstruction",
                 instanceFlags)!
             .CreateDelegate<Action<RoomEnemyProjectileSlot, RoomLevelData>>(enemies);
-        RoomLevelData level = CreateRoom(
-            16,
-            16,
+        RoomLevelData level = CreateRoom(new(16, 16),
             new ushort[16 * 16],
             new byte[16 * 16],
             blockDefinitions: new byte[0x400 * 8]);

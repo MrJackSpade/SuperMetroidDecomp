@@ -3,7 +3,9 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One hardcoded bank-$84 PLM request issued by Kraid's bank-$A7 AI.</summary>
-public readonly record struct KraidPlmRequest(byte BlockX, byte BlockY, PlmHeaderId Header);
+/// <param name="Block">The room block the PLM is spawned at (native inline byte arguments).</param>
+/// <param name="Header">The bank-$84 PLM header.</param>
+public readonly record struct KraidPlmRequest(Position16<RoomBlocks> Block, PlmHeaderId Header);
 
 /// <summary>
 /// Literal hardcoded PLM arguments embedded in Kraid's growth and sinking callbacks.
@@ -16,13 +18,13 @@ public static class KraidPlmDefinitions
     /// <c>$A7:C3F0</c>, the final SpawnHardcodedPLM call in KraidDeath_Initialisation:
     /// start the animated spike sweep at (5,27), independently of defeated-room clearing.
     /// </summary>
-    public static readonly KraidPlmRequest LiveDeathSpikes = new(0x05, 0x1b, PlmHeaderId.CrumbleKraidSpikes);
+    public static readonly KraidPlmRequest LiveDeathSpikes = new(new(0x05, 0x1b), PlmHeaderId.CrumbleKraidSpikes);
 
     /// <summary>$A7:C168 SpawnPLMToClearTheCeiling: clear ceiling blocks from (2,18).</summary>
-    private static KraidPlmRequest ClearCeiling => new(0x02, 0x12, PlmHeaderId.ClearKraidCeiling);
+    private static KraidPlmRequest ClearCeiling => new(new(0x02, 0x12), PlmHeaderId.ClearKraidCeiling);
 
     /// <summary>$A7:C171 SpawnPLMToClearTheSpikes: clear spike blocks from (5,27).</summary>
-    private static KraidPlmRequest ClearSpikes => new(0x05, 0x1b, PlmHeaderId.ClearKraidSpikes);
+    private static KraidPlmRequest ClearSpikes => new(new(0x05, 0x1b), PlmHeaderId.ClearKraidSpikes);
 
     /// <summary>The nine calls in <c>$A7:AC4D</c>, indexed by Kraid variable F / 2.</summary>
     public static IReadOnlyList<KraidPlmRequest> GrowthCeiling { get; } = new GrowthCeilingSequence();
@@ -67,7 +69,7 @@ public static class KraidPlmDefinitions
                 PlmHeaderId header = column == 2 ? PlmHeaderId.CrumbleKraidCeilingIntoBackground1
                     : (column & 1) == 0 ? PlmHeaderId.CrumbleKraidCeilingIntoBackground3
                     : PlmHeaderId.CrumbleKraidCeilingIntoBackground2;
-                return new(column, 0x12, header);
+                return new(new(column, 0x12), header);
             }
         }
         public IEnumerator<KraidPlmRequest> GetEnumerator()
@@ -93,7 +95,7 @@ public static class KraidPlmDefinitions
         }
         // The surviving platforms share the ceiling row and alternate background
         // blocks by column parity, as in the native C691..C714 inline arguments.
-        return new(column, 0x12, (column & 1) != 0
+        return new(new(column, 0x12), (column & 1) != 0
             ? PlmHeaderId.CrumbleKraidPlatformVariant1
             : PlmHeaderId.CrumbleKraidPlatformVariant2);
     }

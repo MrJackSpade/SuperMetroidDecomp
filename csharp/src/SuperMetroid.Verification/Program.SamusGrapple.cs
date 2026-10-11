@@ -136,8 +136,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // first substep reaches X=48 and must center the accepted endpoint at (56,56).
     var firingBlocks = new ushort[8 * 8];
     firingBlocks[3 * 8 + 3] = 0xe000;
-    RoomLevelData firingLevel = CreateRoom(
-        8, 8, firingBlocks, new byte[firingBlocks.Length]);
+    RoomLevelData firingLevel = CreateRoom(new(8, 8), firingBlocks, new byte[firingBlocks.Length]);
 
     // Samus at Y=56 puts the corrected firing endpoint at Y=50 inside the target.
     // Samus minus its centered anchor is (-24,0), exactly angle $C0.
@@ -253,8 +252,7 @@ static void VerifySamusGrappleSwingAndRelease()
     var breakableFiringBts = new byte[breakableFiringBlocks.Length];
     breakableFiringBlocks[3 * 8 + 3] = 0xe000;
     breakableFiringBts[3 * 8 + 3] = 1;
-    RoomLevelData breakableFiringLevel = CreateRoom(
-        8, 8, breakableFiringBlocks, breakableFiringBts);
+    RoomLevelData breakableFiringLevel = CreateRoom(new(8, 8), breakableFiringBlocks, breakableFiringBts);
     SamusState breakableFiringSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     breakableFiringSamus.Kinematics.YSpeed = 1;
     var breakableFiringPlms = new RoomPlmSystem();
@@ -289,8 +287,7 @@ static void VerifySamusGrappleSwingAndRelease()
     horizontalExtensionBlocks[3 * 8 + 3] = 0x5000;
     horizontalExtensionBts[3 * 8 + 3] = 1;
     horizontalExtensionBlocks[3 * 8 + 4] = 0xe000;
-    RoomLevelData horizontalExtensionLevel = CreateRoom(
-        8, 8, horizontalExtensionBlocks, horizontalExtensionBts);
+    RoomLevelData horizontalExtensionLevel = CreateRoom(new(8, 8), horizontalExtensionBlocks, horizontalExtensionBts);
     SamusState horizontalExtensionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     horizontalExtensionSamus.Kinematics.YSpeed = 1;
     SamusGrappleMovement.BeginFiring(bus, horizontalExtensionSamus);
@@ -312,8 +309,7 @@ static void VerifySamusGrappleSwingAndRelease()
     verticalExtensionBlocks[3 * 8 + 3] = 0xd000;
     verticalExtensionBts[3 * 8 + 3] = 1;
     verticalExtensionBlocks[4 * 8 + 3] = 0xe000;
-    RoomLevelData verticalExtensionLevel = CreateRoom(
-        8, 8, verticalExtensionBlocks, verticalExtensionBts);
+    RoomLevelData verticalExtensionLevel = CreateRoom(new(8, 8), verticalExtensionBlocks, verticalExtensionBts);
     SamusState verticalExtensionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     verticalExtensionSamus.Kinematics.YSpeed = 1;
     SamusGrappleMovement.BeginFiring(bus, verticalExtensionSamus);
@@ -330,8 +326,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // connection: firing moves to the one-call cancellation function, matching $94:A8E5.
     var solidBlocks = new ushort[8 * 8];
     solidBlocks[3 * 8 + 3] = 0x8000;
-    RoomLevelData solidLevel = CreateRoom(
-        8, 8, solidBlocks, new byte[solidBlocks.Length]);
+    RoomLevelData solidLevel = CreateRoom(new(8, 8), solidBlocks, new byte[solidBlocks.Length]);
     SamusState solidCollisionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     SamusGrappleMovement.BeginFiring(bus, solidCollisionSamus);
     SamusGrappleMovement.StepFiring(
@@ -356,7 +351,7 @@ static void VerifySamusGrappleSwingAndRelease()
         var spikeBts = new byte[spikeBlocks.Length];
         spikeBlocks[3 * 8 + 3] = 0xa000;
         spikeBts[3 * 8 + 3] = behavior;
-        RoomLevelData spikeLevel = CreateRoom(8, 8, spikeBlocks, spikeBts);
+        RoomLevelData spikeLevel = CreateRoom(new(8, 8), spikeBlocks, spikeBts);
         SamusState spikeSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
         spikeSamus.Kinematics.YSpeed = 1;
         SamusGrappleMovement.BeginFiring(bus, spikeSamus);
@@ -393,7 +388,7 @@ static void VerifySamusGrappleSwingAndRelease()
         var endpointBts = new byte[endpointBlocks.Length];
         endpointBlocks[3 * 8 + 3] = collisionWord;
         endpointBts[3 * 8 + 3] = 0x0c;
-        RoomLevelData endpointLevel = CreateRoom(8, 8, endpointBlocks, endpointBts);
+        RoomLevelData endpointLevel = CreateRoom(new(8, 8), endpointBlocks, endpointBts);
         var endpointPlms = new RoomPlmSystem();
         SamusState endpointSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
         SamusGrappleMovement.BeginFiring(bus, endpointSamus);
@@ -413,8 +408,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // Length grows before collision checks. Values 12..120 receive their four probes, but
     // the next addition produces 132 and queues cancellation without moving the endpoint.
     var emptyWideBlocks = new ushort[16 * 8];
-    RoomLevelData emptyWideLevel = CreateRoom(
-        16, 8, emptyWideBlocks, new byte[emptyWideBlocks.Length]);
+    RoomLevelData emptyWideLevel = CreateRoom(new(16, 8), emptyWideBlocks, new byte[emptyWideBlocks.Length]);
     SamusState rangeLimitedSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     SamusGrappleMovement.BeginFiring(bus, rangeLimitedSamus);
     for (int firingFrame = 0; firingFrame < 10; firingFrame++)
@@ -456,8 +450,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // endpoint connect on its first substep, while each authored direction still
     // selects its own four-byte {function, handler} record and pose.
     var connectionBlocks = Enumerable.Repeat((ushort)0xe000, 8 * 8).ToArray();
-    RoomLevelData connectionLevel = CreateRoom(
-        8, 8, connectionBlocks, new byte[connectionBlocks.Length]);
+    RoomLevelData connectionLevel = CreateRoom(new(8, 8), connectionBlocks, new byte[connectionBlocks.Length]);
     byte[][] expectedConnectionPoses =
     [
         // Default stationary table `$C3C6`.
@@ -602,8 +595,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // six-point sweep must stay in bounds while proving that no invented terrain response
     // disturbs the pre-existing unobstructed numbers.
     var swingBlocks = new ushort[32 * 16];
-    RoomLevelData swingLevel = CreateRoom(
-        32, 16, swingBlocks, new byte[swingBlocks.Length]);
+    RoomLevelData swingLevel = CreateRoom(new(32, 16), swingBlocks, new byte[swingBlocks.Length]);
 
     var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(10, 20)) };
 
@@ -806,8 +798,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // transform velocity $118 into -($118 >> 1) = -$8C while opening a 16-frame kick gate.
     var angularCollisionBlocks = new ushort[16 * 16];
     angularCollisionBlocks[8 * 16 + 10] = 0x8000;
-    RoomLevelData angularCollisionLevel = CreateRoom(
-        16, 16, angularCollisionBlocks, new byte[angularCollisionBlocks.Length]);
+    RoomLevelData angularCollisionLevel = CreateRoom(new(16, 16), angularCollisionBlocks, new byte[angularCollisionBlocks.Length]);
     var angularCollisionSamus = new SamusState();
     BindGrapplePresentation(angularCollisionSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
@@ -850,8 +841,7 @@ static void VerifySamusGrappleSwingAndRelease()
         var spikeBlockBts = new byte[spikeBlockWords.Length];
         spikeBlockWords[8 * 16 + 10] = 0xa000;
         spikeBlockBts[8 * 16 + 10] = behavior;
-        RoomLevelData spikeBlockLevel = CreateRoom(
-            16, 16, spikeBlockWords, spikeBlockBts);
+        RoomLevelData spikeBlockLevel = CreateRoom(new(16, 16), spikeBlockWords, spikeBlockBts);
         var spikeBlockSamus = new SamusState();
         BindGrapplePresentation(spikeBlockSamus);
         SamusGrappleMovement.ConnectUnobstructedSwing(
@@ -895,7 +885,7 @@ static void VerifySamusGrappleSwingAndRelease()
         var spikeAirBts = new byte[spikeAirWords.Length];
         spikeAirWords[8 * 16 + 11] = 0x2000;
         spikeAirBts[8 * 16 + 11] = behavior;
-        RoomLevelData spikeAirLevel = CreateRoom(16, 16, spikeAirWords, spikeAirBts);
+        RoomLevelData spikeAirLevel = CreateRoom(new(16, 16), spikeAirWords, spikeAirBts);
         var spikeAirSamus = new SamusState();
         BindGrapplePresentation(spikeAirSamus);
         SamusGrappleMovement.ConnectUnobstructedSwing(
@@ -964,8 +954,7 @@ static void VerifySamusGrappleSwingAndRelease()
     ropeCollisionBlocks[8 * 16 + 14] = 0x5000;
     ropeCollisionBts[8 * 16 + 14] = 1;
     ropeCollisionBlocks[8 * 16 + 15] = 0x8000;
-    RoomLevelData ropeCollisionLevel = CreateRoom(
-        16, 16, ropeCollisionBlocks, ropeCollisionBts);
+    RoomLevelData ropeCollisionLevel = CreateRoom(new(16, 16), ropeCollisionBlocks, ropeCollisionBts);
     var ropeCollisionSamus = new SamusState();
     BindGrapplePresentation(ropeCollisionSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
@@ -1006,7 +995,7 @@ static void VerifySamusGrappleSwingAndRelease()
     disconnectedAnchorSamus.Grapple.ValidateAnchorBlock = true;
     GrappleMovementResult disconnectedAnchor = SamusGrappleMovement.Step(
         bus,
-        CreateEmptyRoom(16, 16),
+        CreateEmptyRoom(new(16, 16)),
         disconnectedAnchorSamus,
         (ushort)SnesButton.X,
         newlyPressedInput: 0);
@@ -1025,8 +1014,7 @@ static void VerifySamusGrappleSwingAndRelease()
     specialBlocks[8 * 16 + 8] = 0x8000; // `$B9`'s later 16-pixel left wall probe
     specialBlocks[9 * 16 + 8] = 0x8000; // candidate `$6B`, nearest radial probe
     specialBlocks[10 * 16 + 8] = 0x8000;
-    RoomLevelData specialLevel = CreateRoom(
-        16, 16, specialBlocks, new byte[specialBlocks.Length]);
+    RoomLevelData specialLevel = CreateRoom(new(16, 16), specialBlocks, new byte[specialBlocks.Length]);
     var wallGrabSamus = new SamusState();
     BindGrapplePresentation(wallGrabSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
@@ -1167,7 +1155,7 @@ static void VerifySamusGrappleSwingAndRelease()
     bus.WriteByte(0x9bc1c2 + 0xd6, 0);
     var lockedBlocks = new ushort[16 * 16];
     lockedBlocks[7 * 16 + 7] = 0x8000;
-    RoomLevelData lockedLevel = CreateRoom(16, 16, lockedBlocks, new byte[lockedBlocks.Length]);
+    RoomLevelData lockedLevel = CreateRoom(new(16, 16), lockedBlocks, new byte[lockedBlocks.Length]);
     var lockedSamus = new SamusState();
     BindGrapplePresentation(lockedSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(

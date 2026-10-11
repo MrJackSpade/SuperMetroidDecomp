@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>Fixed offset and bank-$A5 hitbox-list identity for Spore Spawn.</summary>
 internal readonly record struct SporeSpawnCollisionComponent(
-    short X, short Y, ushort HitboxPointer);
+    Offset16<RoomPixels> Offset, ushort HitboxPointer);
 
 /// <summary>Cartridge rectangle and touch/shot callbacks, independent of OAM artwork.</summary>
 internal readonly record struct SporeSpawnCollisionHitbox(
@@ -67,7 +67,7 @@ internal static class SporeSpawnCollisionDefinitions
     {
         internal int Length => InnerPoint == 0 ? 1 : 2;
         internal SporeSpawnCollisionComponent this[int index] => (uint)index < Length
-            ? new(0, 0, index == 0 ? Head : InnerPoint)
+            ? new(Offset16<RoomPixels>.Zero, index == 0 ? Head : InnerPoint)
             : throw new IndexOutOfRangeException();
         public Enumerator GetEnumerator() => new(this);
         internal struct Enumerator(ComponentSequence sequence)

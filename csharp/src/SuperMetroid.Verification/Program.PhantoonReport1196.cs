@@ -45,7 +45,7 @@ internal static partial class Program
     {
         var enemies = CreatePhantoonInstructionSystem(new SlopeHeightNoReadBus());
         var boss = enemies.Phantoon!;
-        boss.Bg2HorizontalScroll = 9;
+        boss.Bg2Scroll = boss.Bg2Scroll.WithX(9);
         boss.Mouth!.VariableD = 3072;
         boss.Mouth.VariableF = 8;
         var wave = boss.Wave;
@@ -55,7 +55,7 @@ internal static partial class Program
         AssertTrue(wave.ScrollCycle.ToArray().Distinct().Count() > 1, "fixture retains a used introductory wave");
         boss.Eye!.Parameter1 = 0;
         wave.Step(boss);
-        boss.Bg2HorizontalScroll = 13;
+        boss.Bg2Scroll = boss.Bg2Scroll.WithX(13);
         boss.Body.Health = 0;
         typeof(RoomEnemySystem).GetMethod("ResolvePhantoonShotReaction", BindingFlags.Instance | BindingFlags.NonPublic)!
             .Invoke(enemies, [boss.Body, boss, (ushort)0x0100, (ushort)100]);

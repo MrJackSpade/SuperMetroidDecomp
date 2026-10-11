@@ -672,7 +672,7 @@ internal static partial class Program
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    definition.Pointer), originX, originY, paletteBits);
+                    definition.Pointer), new(originX, originY), paletteBits);
             native.FinalizeFrame();
             var installed = new OamBuffer();
             installed.BeginFrame();
@@ -820,8 +820,7 @@ internal static partial class Program
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                     definition.Pointer),
-                IntroMotherBrainSpriteState.Position.X,
-                IntroMotherBrainSpriteState.Position.Y,
+                new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
                 IntroMotherBrainSpriteState.PaletteBits);
             native.FinalizeFrame();
             var installed = new OamBuffer();
@@ -907,7 +906,7 @@ internal static partial class Program
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    definition.Pointer), x, y, palette);
+                    definition.Pointer), new(x, y), palette);
             native.FinalizeFrame();
             var installed = new OamBuffer();
             installed.BeginFrame();

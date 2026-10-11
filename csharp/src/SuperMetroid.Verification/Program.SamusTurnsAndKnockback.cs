@@ -61,8 +61,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         foreground[6 * width + x] = 0x8000;
     for (int y = 1; y < 6; y++)
         foreground[y * width + 4] = 0x8000; // vertical wall begins at world X=64
-    RoomLevelData level = CreateRoom(
-        width, height, foreground, new byte[foreground.Length]);
+    RoomLevelData level = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
 
     // Native $94:967F observes integer position but its solid-block dispatcher
     // still writes the live fractional X word. Verify both directions and air.
@@ -527,8 +526,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     const int width = 16;
     const int height = 16;
     var foreground = new ushort[width * height];
-    RoomLevelData empty = CreateRoom(
-        width, height, foreground, new byte[foreground.Length]);
+    RoomLevelData empty = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
 
     var samus = new SamusState
     {
@@ -627,8 +625,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     var downForeground = new ushort[width * height];
     for (int x = 0; x < width; x++)
         downForeground[6 * width + x] = 0x8000;
-    RoomLevelData floorLevel = CreateRoom(
-        width, height, downForeground, new byte[downForeground.Length]);
+    RoomLevelData floorLevel = CreateRoom(new(width, height), downForeground, new byte[downForeground.Length]);
     var downKnockback = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,

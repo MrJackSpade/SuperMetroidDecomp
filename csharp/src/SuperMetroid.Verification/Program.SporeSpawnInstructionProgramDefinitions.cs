@@ -145,8 +145,7 @@ internal static partial class Program
         var state = new SporeSpawnEnemyState(body)
         {
             Function = SporeSpawnFunction.Idle,
-            MovementCenterX = body.Position.X.Whole,
-            MovementCenterY = body.Position.Y.Whole,
+            MovementCenter = body.Position.Whole,
             MaximumXRadius = 48,
             AngleDelta = 1,
         };

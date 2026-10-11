@@ -6,7 +6,7 @@ internal static partial class Program
     private static void VerifyKnockbackHorizontalStop()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
+        var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         foreach (bool right in new[] { false, true })
         {
             var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };

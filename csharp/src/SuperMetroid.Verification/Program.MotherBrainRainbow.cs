@@ -243,11 +243,9 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     };
     var attack = new MotherBrainRainbowBeamAttackSequence
     {
-        BrainXPosition = 64,
-        BrainYPosition = 96,
+        BrainPosition = new(64, 96),
     };
-    attack.Body.XPosition = 64;
-    attack.Body.YPosition = 100;
+    attack.Body.Position = new(64, 100);
 
     attack.StartActiveBeam(bus, samus);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall, attack.Phase,
@@ -268,7 +266,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertTrue(wall.SoundQueued && wall.PaletteRequested,
         "wall function runs sound and bit-one palette cadence");
     AssertEqual(0x0380, attack.AngularWidth, "wall function widens before aiming");
-    AssertTrue(wall.Explosion is { XOffset: 6, YOffset: 2 },
+    AssertTrue(wall.Explosion is { Offset: { X: 6, Y: 2 } },
         "zero explosion timer increments to literal offset record one");
 
     MotherBrainRainbowBeamAttackStepResult delay = attack.Step(

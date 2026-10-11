@@ -9,11 +9,11 @@ internal static partial class Program
     // These adapters require an import source at the diagnostic boundary. Core has no
     // address-based artwork loader, including when tests use constructed cartridge data.
     private static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam,
-        byte bank, ushort spritemapPointer, ushort originX, ushort originY,
+        byte bank, ushort spritemapPointer, Position16<OamPixels> origin,
         ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap = false, bool originYIsOnScreen = true) =>
         ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), oam, bank,
-            spritemapPointer, originX, originY, paletteBits, baseTileIndex,
+            spritemapPointer, origin, paletteBits, baseTileIndex,
             clipVerticalWrap, originYIsOnScreen);
 
     /// <summary>
@@ -28,10 +28,10 @@ internal static partial class Program
             : projectile.SpritemapPointer;
 
     private static void DrawImportedEnemyProjectileSpritemap(ISnesAddressSpace bus, OamBuffer oam,
-        ushort bank8dSpritemapPointer, ushort originX, ushort originY,
+        ushort bank8dSpritemapPointer, Position16<OamPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
         ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), oam,
-            bank8dSpritemapPointer, originX, originY, graphicsIndex, originYIsOnScreen);
+            bank8dSpritemapPointer, origin, graphicsIndex, originYIsOnScreen);
 
     /// <summary>Imports only the sprite records authored in a sparse projectile fixture.</summary>
     private static EnemyProjectileSpritemapCatalog ImportFixtureProjectileSprites(TestAddressSpace bus)
@@ -95,7 +95,7 @@ internal static partial class Program
         var actual = new OamBuffer();
         expected.BeginFrame();
         actual.BeginFrame();
-        DrawImportedEnemyProjectileSpritemap(rom, expected, nativePointer, 128, 112, 0, true);
+        DrawImportedEnemyProjectileSpritemap(rom, expected, nativePointer, new(128, 112), 0, true);
         actual.AddEnemySpritemap(parts.Span, new Position16<OamPixels>(128, 112), 0, 0,
             clipVerticalWrap: true, originYIsOnScreen: true);
         AssertEqual(expected.NextByteOffset, actual.NextByteOffset,

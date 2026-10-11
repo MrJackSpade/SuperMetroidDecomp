@@ -177,9 +177,7 @@ internal static partial class Program
         int blockIndex = blockY * width + blockX;
         words[blockIndex] = 0xb123;
         behaviors[blockIndex] = bts.Value;
-        RoomLevelData level = CreateRoom(
-            width,
-            height,
+        RoomLevelData level = CreateRoom(new(width, height),
             words,
             behaviors,
             blockDefinitions: new byte[0x400 * 8]);

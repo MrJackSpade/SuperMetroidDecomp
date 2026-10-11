@@ -114,10 +114,11 @@ public sealed class DraygonEnemyState
     /// <summary>Native <c>$7E:808C</c> byte index into the intro dance stream.</summary>
     public ushort FightIntroDanceIndex { get; internal set; }
 
-    /// <summary>Native long WRAM offsets applied by the tail-whip instruction stream.</summary>
-    public ushort BodyGraphicsXDisplacement { get; internal set; }
-    /// <summary>Signed pixel offset encoded as a native word, written by $A5:9E0A and added to body graphics Y without moving the enemy records.</summary>
-    public ushort BodyGraphicsYDisplacement { get; internal set; }
+    /// <summary>
+    /// Signed pixel offset written by the tail-whip instruction $A5:9E0A and added to the body's
+    /// BG2 scroll words, displacing the body graphics without moving the enemy records.
+    /// </summary>
+    public Offset16<Bg2Pixels> BodyGraphicsDisplacement { get; internal set; }
 
     /// <summary>
     /// The native table at $7E:9002 is written every four bytes and addressed by a byte
@@ -154,16 +155,13 @@ public sealed class DraygonEnemyState
     /// <summary>Native $7E:780E fractional low word paired with <see cref="SpiralXRadius"/>; each $2000 increment accumulates one eighth of a pixel.</summary>
     public ushort SpiralXSubradius { get; internal set; }
 
-    /// <summary>Native center point <c>$7E:7810/$7812</c> used by the carry spiral.</summary>
-    public ushort SpiralCenterX { get; internal set; }
-    /// <summary>Native $7E:7812 whole-pixel room Y of the carry orbit's center; initialized to $180 and lifted through its fractional companion.</summary>
-    public ushort SpiralCenterY { get; internal set; }
-
     /// <summary>
-    /// Fractional low word paired with <see cref="SpiralCenterY"/>. Retail subtracts
-    /// <c>$0000.4000</c> each spiral frame, lifting the center by one pixel every four.
+    /// Native center point <c>$7E:7810/$7812</c> of the carry spiral, initialized to ($100, $180).
+    /// The Y axis carries its fractional companion word: retail subtracts <c>$0000.4000</c> each
+    /// spiral frame, lifting the center by one pixel every four. X has no fractional word and
+    /// stays whole.
     /// </summary>
-    public ushort SpiralCenterYSubposition { get; internal set; }
+    public FixedPosition<RoomPixels> SpiralCenter { get; internal set; }
 
     /// <summary>Low-byte polar angle and 8.8 angular delta at <c>$7E:7814/$7816</c>.</summary>
     public ushort SpiralAngle { get; internal set; }
@@ -195,14 +193,11 @@ public sealed class DraygonEnemyState
     /// death frame; retaining them documents and exposes that observable WRAM side effect.
     /// </summary>
     public ushort DeathMovementAngle { get; internal set; }
-    /// <summary>Whole-pixel X magnitude of the 16.16 death velocity calculated on the fatal reaction; retained for WRAM parity but not used by drift movement.</summary>
-    public ushort UnusedDeathXSpeed { get; internal set; }
-    /// <summary>Fractional X magnitude paired with <see cref="UnusedDeathXSpeed"/>; the fatal reaction writes it, but death frames recalculate their own vector.</summary>
-    public ushort UnusedDeathXSubspeed { get; internal set; }
-    /// <summary>Whole-pixel Y magnitude of the 16.16 death velocity calculated on the fatal reaction; retained for WRAM parity but not used by drift movement.</summary>
-    public ushort UnusedDeathYSpeed { get; internal set; }
-    /// <summary>Fractional Y magnitude paired with <see cref="UnusedDeathYSpeed"/>; the fatal reaction writes it, but death frames recalculate their own vector.</summary>
-    public ushort UnusedDeathYSubspeed { get; internal set; }
+    /// <summary>
+    /// The 16.16 death-velocity magnitudes calculated on the fatal reaction; retained for WRAM
+    /// parity but not used by drift movement, since death frames recalculate their own vector.
+    /// </summary>
+    public FixedVector<RoomPixels> UnusedDeathVelocity { get; internal set; }
 
     /// <summary>Number of random body-list explosions admitted during the fatal animation.</summary>
     public int DeathAnimationObjectsSpawned { get; internal set; }

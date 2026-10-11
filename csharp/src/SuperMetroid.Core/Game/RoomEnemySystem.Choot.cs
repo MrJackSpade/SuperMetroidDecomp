@@ -21,33 +21,24 @@ public enum ChootEnemyFunction : ushort
 public sealed class ChootEnemyState
 {
     private readonly RoomEnemySlot _slot;
-    private readonly ushort[] _spawnXPositions;
-    private readonly ushort[] _spawnYPositions;
-    private readonly ushort[] _initialFallingXPositions;
-    private readonly ushort[] _initialFallingYPositions;
-    private readonly ushort[] _fallingXOrigins;
-    private readonly ushort[] _fallingYOrigins;
+    private readonly Position16<RoomPixels>[] _spawnPositions;
+    private readonly Position16<RoomPixels>[] _initialFallingPositions;
+    private readonly Position16<RoomPixels>[] _fallingOrigins;
     private readonly ushort[] _initialYSpeedTableIndexes;
     private readonly ushort[] _jumpDelayTimers;
 
     internal ChootEnemyState(
         RoomEnemySlot slot,
-        ushort[] spawnXPositions,
-        ushort[] spawnYPositions,
-        ushort[] initialFallingXPositions,
-        ushort[] initialFallingYPositions,
-        ushort[] fallingXOrigins,
-        ushort[] fallingYOrigins,
+        Position16<RoomPixels>[] spawnPositions,
+        Position16<RoomPixels>[] initialFallingPositions,
+        Position16<RoomPixels>[] fallingOrigins,
         ushort[] initialYSpeedTableIndexes,
         ushort[] jumpDelayTimers)
     {
         _slot = slot;
-        _spawnXPositions = spawnXPositions;
-        _spawnYPositions = spawnYPositions;
-        _initialFallingXPositions = initialFallingXPositions;
-        _initialFallingYPositions = initialFallingYPositions;
-        _fallingXOrigins = fallingXOrigins;
-        _fallingYOrigins = fallingYOrigins;
+        _spawnPositions = spawnPositions;
+        _initialFallingPositions = initialFallingPositions;
+        _fallingOrigins = fallingOrigins;
         _initialYSpeedTableIndexes = initialYSpeedTableIndexes;
         _jumpDelayTimers = jumpDelayTimers;
     }
@@ -97,46 +88,25 @@ public sealed class ChootEnemyState
         internal set => _slot.VariableF = value;
     }
 
-    /// <summary>Native <c>spawnXPosition</c> at <c>$7E:7800 + enemy index</c>: the initial room X coordinate in whole pixels, restored after the last falling-pattern loop.</summary>
-    public ushort SpawnXPosition
+    /// <summary>Native <c>spawnXPosition</c>/<c>spawnYPosition</c> at <c>$7E:7800</c>/<c>$7E:7802 + enemy index</c>: the initial room position in whole pixels, restored after the last falling-pattern loop.</summary>
+    public Position16<RoomPixels> SpawnPosition
     {
-        get => _spawnXPositions[_slot.SlotIndex];
-        internal set => _spawnXPositions[_slot.SlotIndex] = value;
+        get => _spawnPositions[_slot.SlotIndex];
+        internal set => _spawnPositions[_slot.SlotIndex] = value;
     }
 
-    /// <summary>Native <c>spawnYPosition</c> at <c>$7E:7802 + enemy index</c>: the initial room Y coordinate in whole pixels, restored after the last falling-pattern loop.</summary>
-    public ushort SpawnYPosition
+    /// <summary>Native <c>initialFallingXPosition</c>/<c>initialFallingYPosition</c> at <c>$7E:7804</c>/<c>$7E:7806 + enemy index</c>: spawn X and the wrapped whole-pixel spawn Y minus the computed jump height, installed as the position and falling origin at the apex transition.</summary>
+    public Position16<RoomPixels> InitialFallingPosition
     {
-        get => _spawnYPositions[_slot.SlotIndex];
-        internal set => _spawnYPositions[_slot.SlotIndex] = value;
+        get => _initialFallingPositions[_slot.SlotIndex];
+        internal set => _initialFallingPositions[_slot.SlotIndex] = value;
     }
 
-    /// <summary>Native <c>initialFallingXPosition</c> at <c>$7E:7804 + enemy index</c>: the whole-pixel X coordinate saved from spawn and installed as the position and falling X origin at the apex transition.</summary>
-    public ushort InitialFallingXPosition
+    /// <summary>Native <c>fallingXOrigin</c>/<c>fallingYOrigin</c> at <c>$7E:7808</c>/<c>$7E:780A + enemy index</c>: the whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by <see cref="FallingPatternYDistance"/> at every stream terminator.</summary>
+    public Position16<RoomPixels> FallingOrigin
     {
-        get => _initialFallingXPositions[_slot.SlotIndex];
-        internal set => _initialFallingXPositions[_slot.SlotIndex] = value;
-    }
-
-    /// <summary>Native <c>initialFallingYPosition</c> at <c>$7E:7806 + enemy index</c>: the wrapped whole-pixel spawn Y minus the computed jump height, installed as the position and falling Y origin at the apex transition.</summary>
-    public ushort InitialFallingYPosition
-    {
-        get => _initialFallingYPositions[_slot.SlotIndex];
-        internal set => _initialFallingYPositions[_slot.SlotIndex] = value;
-    }
-
-    /// <summary>Native <c>fallingXOrigin</c> at <c>$7E:7808 + enemy index</c>: the whole-pixel X base added to each signed falling-pattern offset; initialized at the apex and retained across pattern loops.</summary>
-    public ushort FallingXOrigin
-    {
-        get => _fallingXOrigins[_slot.SlotIndex];
-        internal set => _fallingXOrigins[_slot.SlotIndex] = value;
-    }
-
-    /// <summary>Native <c>fallingYOrigin</c> at <c>$7E:780A + enemy index</c>: the whole-pixel Y base added to each signed falling-pattern offset and advanced by <see cref="FallingPatternYDistance"/> at every stream terminator.</summary>
-    public ushort FallingYOrigin
-    {
-        get => _fallingYOrigins[_slot.SlotIndex];
-        internal set => _fallingYOrigins[_slot.SlotIndex] = value;
+        get => _fallingOrigins[_slot.SlotIndex];
+        internal set => _fallingOrigins[_slot.SlotIndex] = value;
     }
 
     /// <summary>Native <c>initialYSpeedTableIndex</c> at <c>$7E:780C + enemy index</c>: the saved encoded ascent cursor calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedTableIndex"/> when the jump cycle finishes.</summary>
@@ -163,12 +133,9 @@ public sealed partial class RoomEnemySystem
 
     private const ushort ChootActivationDistance = 0x0050;
 
-    private readonly ushort[] _chootSpawnXPositions = new ushort[MaximumEnemyCount];
-    private readonly ushort[] _chootSpawnYPositions = new ushort[MaximumEnemyCount];
-    private readonly ushort[] _chootInitialFallingXPositions = new ushort[MaximumEnemyCount];
-    private readonly ushort[] _chootInitialFallingYPositions = new ushort[MaximumEnemyCount];
-    private readonly ushort[] _chootFallingXOrigins = new ushort[MaximumEnemyCount];
-    private readonly ushort[] _chootFallingYOrigins = new ushort[MaximumEnemyCount];
+    private readonly Position16<RoomPixels>[] _chootSpawnPositions = new Position16<RoomPixels>[MaximumEnemyCount];
+    private readonly Position16<RoomPixels>[] _chootInitialFallingPositions = new Position16<RoomPixels>[MaximumEnemyCount];
+    private readonly Position16<RoomPixels>[] _chootFallingOrigins = new Position16<RoomPixels>[MaximumEnemyCount];
     private readonly ushort[] _chootInitialYSpeedTableIndexes = new ushort[MaximumEnemyCount];
     private readonly ushort[] _chootJumpDelayTimers = new ushort[MaximumEnemyCount];
     private readonly ChootEnemyState?[] _chootStates =
@@ -179,20 +146,16 @@ public sealed partial class RoomEnemySystem
     {
         var state = new ChootEnemyState(
             slot,
-            _chootSpawnXPositions,
-            _chootSpawnYPositions,
-            _chootInitialFallingXPositions,
-            _chootInitialFallingYPositions,
-            _chootFallingXOrigins,
-            _chootFallingYOrigins,
+            _chootSpawnPositions,
+            _chootInitialFallingPositions,
+            _chootFallingOrigins,
             _chootInitialYSpeedTableIndexes,
             _chootJumpDelayTimers);
         _chootStates[slot.SlotIndex] = state;
 
         SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Idle);
         state.Function = ChootEnemyFunction.WaitingForSamus;
-        state.SpawnXPosition = slot.Position.X.Whole;
-        state.SpawnYPosition = slot.Position.Y.Whole;
+        state.SpawnPosition = slot.Position.Whole;
 
         // Parameter one's high byte selects one of five genuine pattern streams. The sixth
         // ROM table word points back into the pointer table and is documented garbage; no
@@ -207,9 +170,8 @@ public sealed partial class RoomEnemySystem
         ushort jumpHeight = unchecked((ushort)(
             (slot.Parameter1 & 0x00ff) * (state.FallingPatternYDistance & 0x00ff)));
         state.InitialYSpeedTableIndex = CalculateInitialChootYSpeedTableIndex(jumpHeight);
-        state.InitialFallingXPosition = state.SpawnXPosition;
-        state.InitialFallingYPosition = unchecked((ushort)(
-            state.SpawnYPosition - jumpHeight));
+        state.InitialFallingPosition = state.SpawnPosition.WithY(unchecked((ushort)(
+            state.SpawnPosition.Y - jumpHeight)));
         state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
     }
 
@@ -288,10 +250,8 @@ public sealed partial class RoomEnemySystem
 
         // The apex transition snaps only the whole positions to precalculated origins;
         // subpositions deliberately survive until the final spawn reset, just as in WRAM.
-        slot.Position = slot.Position.WithWholeX(state.InitialFallingXPosition);
-        state.FallingXOrigin = state.InitialFallingXPosition;
-        slot.Position = slot.Position.WithWholeY(state.InitialFallingYPosition);
-        state.FallingYOrigin = state.InitialFallingYPosition;
+        slot.Position = slot.Position.WithWhole(state.InitialFallingPosition);
+        state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternIndex = 0;
         state.FallingPatternLoopCounter = unchecked((ushort)(
             (slot.Parameter1 & 0x00ff) - 1));
@@ -307,8 +267,8 @@ public sealed partial class RoomEnemySystem
             frameIndex);
         if (point.IsTerminator)
         {
-            state.FallingYOrigin = unchecked((ushort)(
-                state.FallingYOrigin + state.FallingPatternYDistance));
+            state.FallingOrigin = state.FallingOrigin.WithY(unchecked((ushort)(
+                state.FallingOrigin.Y + state.FallingPatternYDistance)));
             state.FallingPatternIndex = 0;
             state.FallingPatternLoopCounter = unchecked((ushort)(
                 state.FallingPatternLoopCounter - 1));
@@ -318,15 +278,13 @@ public sealed partial class RoomEnemySystem
             // The last terminator restores exact spawn coordinates/subpositions, reinstalls
             // idle bytecode, and rearms the same calculated ascent for the next activation.
             state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
-            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(state.SpawnXPosition, state.SpawnYPosition));
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
             SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Idle);
             state.Function = ChootEnemyFunction.WaitingForSamus;
             return;
         }
 
-        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(
-            state.FallingXOrigin + unchecked((short)point.XOffset))), unchecked((ushort)(
-            state.FallingYOrigin + unchecked((short)point.YOffset)))));
+        slot.Position = slot.Position.WithWhole(state.FallingOrigin + point.Offset);
         state.FallingPatternIndex = unchecked((ushort)(
             state.FallingPatternIndex + 0x0100));
     }

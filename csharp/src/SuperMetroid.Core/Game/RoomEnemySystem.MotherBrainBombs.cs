@@ -93,14 +93,10 @@ public sealed partial class RoomEnemySystem
             if (samusBomb.PackedType.Family != SamusProjectileFamily.Bomb ||
                 samusBomb.BombTimer != 0 ||
                 !MotherBrainBombStrictOverlap(
-                    bomb.Position.X.Whole,
-                    bomb.Position.Y.Whole,
-                    bomb.Radius.X,
-                    bomb.Radius.Y,
-                    samusBomb.Position.X.Whole,
-                    samusBomb.Position.Y.Whole,
-                    samusBomb.Radius.X,
-                    samusBomb.Radius.Y))
+                    bomb.Position.Whole,
+                    bomb.Radius,
+                    samusBomb.Position.Whole,
+                    samusBomb.Radius))
             {
                 continue;
             }
@@ -144,8 +140,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state)
     {
-        ushort x = bomb.Position.X.Whole;
-        ushort y = bomb.Position.Y.Whole;
+        Position16<RoomPixels> impact = bomb.Position.Whole;
         byte afterburnCount = unchecked((byte)bomb.Position.X.Fraction);
         DeleteMotherBrainBomb(bomb, state);
 
@@ -154,10 +149,9 @@ public sealed partial class RoomEnemySystem
         // replacement that the outer scheduler will continue processing on this pass.
         SpawnAfterburnCenter(
             RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter,
-            x,
-            y,
+            impact,
             afterburnCount);
-        SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 3);
+        SpawnRoomGraphicsDustExplosion(impact, animationIndex: 3);
         state.LastSoundEffectLibrary3 = 0x0013;
     }
 
@@ -171,16 +165,12 @@ public sealed partial class RoomEnemySystem
     }
 
     private static bool MotherBrainBombStrictOverlap(
-        ushort firstX,
-        ushort firstY,
-        ushort firstXRadius,
-        ushort firstYRadius,
-        ushort secondX,
-        ushort secondY,
-        ushort secondXRadius,
-        ushort secondYRadius) =>
-        WrappedMagnitude(unchecked((ushort)(firstX - secondX))) <
-            firstXRadius + secondXRadius &&
-        WrappedMagnitude(unchecked((ushort)(firstY - secondY))) <
-            firstYRadius + secondYRadius;
+        Position16<RoomPixels> first,
+        Extent16<RoomPixels> firstRadius,
+        Position16<RoomPixels> second,
+        Extent16<RoomPixels> secondRadius) =>
+        WrappedMagnitude(unchecked((ushort)(first.X - second.X))) <
+            firstRadius.X + secondRadius.X &&
+        WrappedMagnitude(unchecked((ushort)(first.Y - second.Y))) <
+            firstRadius.Y + secondRadius.Y;
 }

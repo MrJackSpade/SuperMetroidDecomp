@@ -59,7 +59,9 @@ public enum ShitroidAiFunction : ushort
 }
 
 /// <summary>One hardcoded bank-$84 wall mutation emitted by Shitroid's room script.</summary>
-public readonly record struct ShitroidPlmRequest(byte BlockX, byte BlockY, PlmHeaderId Header);
+/// <param name="Block">The room block the PLM is spawned at (native inline byte arguments).</param>
+/// <param name="Header">The bank-$84 PLM header.</param>
+public readonly record struct ShitroidPlmRequest(Position16<RoomBlocks> Block, PlmHeaderId Header);
 
 /// <summary>One delayed music command emitted by the Shitroid encounter.</summary>
 public readonly record struct ShitroidMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
@@ -81,18 +83,15 @@ public sealed class ShitroidEnemyState
         internal set => Slot.VariableA = (ushort)value;
     }
 
-    /// <summary>Signed 8.8 horizontal velocity in native enemy variable B.</summary>
-    public ushort XVelocity
+    /// <summary>Signed 8.8 velocity: X in native enemy variable B, Y in variable C.</summary>
+    public EightEightVector<RoomPixels> Velocity
     {
-        get => Slot.VariableB;
-        internal set => Slot.VariableB = value;
-    }
-
-    /// <summary>Signed 8.8 vertical velocity in native enemy variable C.</summary>
-    public ushort YVelocity
-    {
-        get => Slot.VariableC;
-        internal set => Slot.VariableC = value;
+        get => new(new SnesSignedEightEight(Slot.VariableB), new SnesSignedEightEight(Slot.VariableC));
+        internal set
+        {
+            Slot.VariableB = value.X.RawValue;
+            Slot.VariableC = value.Y.RawValue;
+        }
     }
 
     /// <summary>Low-byte palette phase and high-byte delay timer in variable D.</summary>
@@ -188,13 +187,13 @@ public sealed partial class RoomEnemySystem
     private const int ShitroidWorkBufferAddress = 0x7e2000;
     private const int ShitroidWorkBufferSize = 0x1000;
 
-    private static ReadOnlySpan<short> ShitroidShakeX => [0, -1, 0, 1];
-    private static ReadOnlySpan<short> ShitroidShakeY => [0, 1, -1, 1];
+    // `frameCounter & 6` selects one of these four authored jitter offsets.
+    private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =
+        [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
     private readonly List<ShitroidPlmRequest> _shitroidPlmRequests = [];
     private ShitroidEnemyState? _shitroid;
-    private ushort _shitroidCameraX;
-    private ushort _shitroidCameraY;
+    private Position16<RoomPixels> _shitroidCamera;
 
     /// <summary>Frame-local wall mutations requested by the current Shitroid state.</summary>
     public IReadOnlyList<ShitroidPlmRequest> ShitroidPlmRequests => _shitroidPlmRequests;
@@ -215,8 +214,7 @@ public sealed partial class RoomEnemySystem
         RequestedShitroidCameraX = null;
         LastShitroidSoundEffectLibrary2 = null;
         LastShitroidMusicRequest = null;
-        _shitroidCameraX = 0;
-        _shitroidCameraY = 0;
+        _shitroidCamera = Position16<RoomPixels>.Zero;
     }
 
     private void BeginShitroidFrame()
@@ -255,8 +253,7 @@ public sealed partial class RoomEnemySystem
         var state = new ShitroidEnemyState(slot)
         {
             Function = ShitroidAiFunction.WaitForCamera,
-            XVelocity = 0,
-            YVelocity = 0,
+            Velocity = default,
             PaletteDelay = 10,
         };
         if (unchecked((short)cameraX) < 0)
@@ -305,8 +302,7 @@ public sealed partial class RoomEnemySystem
         SamusBombProjectileSystem? sharedProjectiles)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
-        _shitroidCameraX = camera.X;
-        _shitroidCameraY = camera.Y;
+        _shitroidCamera = camera;
 
         // Shitroid's private shot handler applies recoil but no health loss. The main AI
         // redundantly restores $7FFF every processed frame, exactly as the cartridge does.
@@ -326,8 +322,7 @@ public sealed partial class RoomEnemySystem
         switch (state.Function)
         {
             case ShitroidAiFunction.Dormant:
-                state.XVelocity = 0;
-                state.YVelocity = 0;
+                state.Velocity = default;
                 return;
 
             case ShitroidAiFunction.WaitForCamera:
@@ -351,8 +346,8 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case ShitroidAiFunction.FlyToSidehopper:
-                GraduallyAccelerateShitroid(slot, state, 15, 584, 74, 0x0400);
-                if (ShitroidOverlapsRectangle(slot, 584, 74, 1, 1))
+                GraduallyAccelerateShitroid(slot, state, 15, new(584, 74), 0x0400);
+                if (ShitroidOverlapsRectangle(slot, new(584, 74), new(1, 1)))
                     state.Function = ShitroidAiFunction.ChaseSidehopper;
                 return;
 
@@ -363,8 +358,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     state,
                     15,
-                    victim.Position.X.Whole,
-                    unchecked((ushort)(victim.Position.Y.Whole - 32)),
+                    victim.Position.Whole + new Offset16<RoomPixels>(0, -32),
                     0x0400);
                 if (ShitroidActorsOverlap(slot, victim))
                     state.Function = ShitroidAiFunction.AttachToSidehopper;
@@ -386,7 +380,7 @@ public sealed partial class RoomEnemySystem
                 goto case ShitroidAiFunction.RiseAfterFeeding;
 
             case ShitroidAiFunction.RiseAfterFeeding:
-                GraduallyAccelerateShitroid(slot, state, 0, slot.Position.X.Whole, 104, 0x0400);
+                GraduallyAccelerateShitroid(slot, state, 0, new(slot.Position.X.Whole, 104), 0x0400);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.HoverNearSamus;
@@ -407,8 +401,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     state,
                     15,
-                    target.Position.X.Whole,
-                    unchecked((ushort)(target.Position.Y.Whole - 32)),
+                    target.Position.Whole + new Offset16<RoomPixels>(0, -32),
                     0x0400);
                 return;
             }
@@ -443,7 +436,7 @@ public sealed partial class RoomEnemySystem
             case ShitroidAiFunction.RiseAfterDrainingSamus:
             {
                 SamusState target = RequireShitroidSamus(samus);
-                GraduallyAccelerateShitroid(slot, state, 0, target.Position.X.Whole, 104, 0x0400);
+                GraduallyAccelerateShitroid(slot, state, 0, new(target.Position.X.Whole, 104), 0x0400);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     LastShitroidSoundEffectLibrary2 = 0x007d;
@@ -462,8 +455,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     state,
                     0,
-                    unchecked((ushort)(target.Position.X.Whole - 64)),
-                    100,
+                    new(unchecked((ushort)(target.Position.X.Whole - 64)), 100),
                     0x0400);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
@@ -481,8 +473,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     state,
                     0,
-                    unchecked((ushort)(target.Position.X.Whole + 96)),
-                    104,
+                    new(unchecked((ushort)(target.Position.X.Whole + 96)), 104),
                     0x0400);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
@@ -499,11 +490,10 @@ public sealed partial class RoomEnemySystem
                 goto case ShitroidAiFunction.Exit;
 
             case ShitroidAiFunction.Exit:
-                GraduallyAccelerateShitroid(slot, state, 0, 0xff80, 64, 0x0400);
-                if (ShitroidOverlapsRectangle(slot, 0xff80, 64, 8, 8))
+                GraduallyAccelerateShitroid(slot, state, 0, new(0xff80, 64), 0x0400);
+                if (ShitroidOverlapsRectangle(slot, new(0xff80, 64), new(8, 8)))
                 {
-                    state.XVelocity = 0;
-                    state.YVelocity = 0;
+                    state.Velocity = default;
                     // `$A9:F39A` clears instruction processing and invisibility as Shitroid
                     // reaches the off-screen destination, leaving a dormant non-drawn actor.
                     slot.Properties = slot.Properties.Without(
@@ -542,7 +532,7 @@ public sealed partial class RoomEnemySystem
 
     private void WaitForShitroidCamera(ShitroidEnemyState state)
     {
-        if (unchecked((short)(_shitroidCameraX - 513)) >= 0)
+        if (unchecked((short)(_shitroidCamera.X - 513)) >= 0)
             return;
 
         // Native writes layer1_x_pos directly and zero-extends scroll bytes zero and two
@@ -567,25 +557,19 @@ public sealed partial class RoomEnemySystem
 
     private void QueueShitroidWallPlms(PlmHeaderId header)
     {
-        _shitroidPlmRequests.Add(new ShitroidPlmRequest(0x30, 0x03, header));
-        _shitroidPlmRequests.Add(new ShitroidPlmRequest(0x1f, 0x03, header));
+        _shitroidPlmRequests.Add(new ShitroidPlmRequest(new(0x30, 0x03), header));
+        _shitroidPlmRequests.Add(new ShitroidPlmRequest(new(0x1f, 0x03), header));
     }
 
     private void AttachShitroidToSidehopper(RoomEnemySlot slot, ShitroidEnemyState state)
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
-        if (!AccelerateShitroidExactly(
-            state,
-            0x0200,
-            victim.Position.X.Whole,
-            unchecked((ushort)(victim.Position.Y.Whole - 32))))
-        {
+        Position16<RoomPixels> latch = victim.Position.Whole + new Offset16<RoomPixels>(0, -32);
+        if (!AccelerateShitroidExactly(state, 0x0200, latch))
             return;
-        }
 
-        state.XVelocity = 0;
-        state.YVelocity = 0;
-        slot.Position = slot.Position.WithWhole(new(victim.Position.X.Whole, unchecked((ushort)(victim.Position.Y.Whole - 32))));
+        state.Velocity = default;
+        slot.Position = slot.Position.WithWhole(latch);
         SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.LatchedOn);
         state.Function = ShitroidAiFunction.DrainSidehopper;
         state.PaletteDelay = 1;
@@ -597,8 +581,8 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
-        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(victim.Position.X.Whole + ShitroidShakeX[shakeIndex])), unchecked((ushort)(
-            victim.Position.Y.Whole + ShitroidShakeY[shakeIndex] - 32))));
+        slot.Position = slot.Position.WithWhole(
+            victim.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(0, -32));
         ushort oldTimer = state.StateTimer;
         state.StateTimer = unchecked((ushort)(oldTimer - 1));
         if (oldTimer == 1)
@@ -627,8 +611,7 @@ public sealed partial class RoomEnemySystem
             slot,
             state,
             10,
-            samus.Position.X.Whole,
-            targetY,
+            new(samus.Position.X.Whole, targetY),
             0x0400);
     }
 
@@ -655,8 +638,7 @@ public sealed partial class RoomEnemySystem
             samus.XSpeedDivisor = 0;
             sharedProjectiles?.SetSharedBombCounter(0);
             state.Function = ShitroidAiFunction.BeginPostDrainPause;
-            state.XVelocity = 0;
-            state.YVelocity = 0;
+            state.Velocity = default;
             SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.FinishDraining);
             state.PaletteDelay = 10;
             samus.SpecialSuperPaletteFlags = 0;
@@ -680,7 +662,8 @@ public sealed partial class RoomEnemySystem
             samus.Kinematics.YSpeed = 2;
 
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
-        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + ShitroidShakeX[shakeIndex] + xCarry)), unchecked((ushort)(samus.Position.Y.Whole + ShitroidShakeY[shakeIndex] - 20))));
+        slot.Position = slot.Position.WithWhole(
+            samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>((short)xCarry, -20));
 
         // `$A9:C560-$C57C` subtracts four without Varia and two with it. The native
         // expression is written as `health + (equipped & 1) + (-4 or -3)`, so reducing
@@ -705,8 +688,7 @@ public sealed partial class RoomEnemySystem
             slot,
             state,
             8,
-            samus.Position.X.Whole,
-            targetY,
+            new(samus.Position.X.Whole, targetY),
             0x0400);
         return state.HorizontalLockAccumulator >= 0x0400 ||
             unchecked((short)(samus.Position.X.Whole - 128)) < 0;
@@ -735,52 +717,50 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         ShitroidEnemyState state,
         int divisorTableIndex,
-        ushort targetX,
-        ushort targetY,
+        Position16<RoomPixels> target,
         ushort offscreenReversalKick)
     {
         if ((uint)divisorTableIndex >= 16)
             throw new ArgumentOutOfRangeException(nameof(divisorTableIndex));
         // GradualAccelerationDivisorTable ($A9:F56A) holds $10 down to $01.
         byte divisor = (byte)(16 - divisorTableIndex);
-        state.XVelocity = BabyMetroidGradualAcceleration.AccelerateHorizontally(
-            slot.Position.X.Whole, targetX, state.XVelocity, divisor, offscreenReversalKick,
-            () => ShitroidIsOffScreen(slot));
-        state.YVelocity = BabyMetroidGradualAcceleration.AccelerateVertically(
-            slot.Position.Y.Whole, targetY, state.YVelocity, divisor);
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(BabyMetroidGradualAcceleration.AccelerateHorizontally(
+            slot.Position.X.Whole, target.X, state.Velocity.X.RawValue, divisor, offscreenReversalKick,
+            () => ShitroidIsOffScreen(slot))));
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(BabyMetroidGradualAcceleration.AccelerateVertically(
+            slot.Position.Y.Whole, target.Y, state.Velocity.Y.RawValue, divisor)));
     }
 
     private bool ShitroidIsOffScreen(RoomEnemySlot slot)
     {
         if (unchecked((short)slot.Position.Y.Whole) < 0)
             return true;
-        int screenY = unchecked((short)(slot.Position.Y.Whole + 96 - _shitroidCameraY));
+        int screenY = unchecked((short)(slot.Position.Y.Whole + 96 - _shitroidCamera.Y));
         if (screenY is < 0 or >= 416)
             return true;
         if (unchecked((short)slot.Position.X.Whole) < 0)
             return true;
-        int screenX = unchecked((short)(slot.Position.X.Whole + 16 - _shitroidCameraX));
+        int screenX = unchecked((short)(slot.Position.X.Whole + 16 - _shitroidCamera.X));
         return screenX is < 0 or >= 288;
     }
 
     private static bool AccelerateShitroidExactly(
         ShitroidEnemyState state,
         ushort acceleration,
-        ushort targetX,
-        ushort targetY)
+        Position16<RoomPixels> target)
     {
         (bool xArrived, ushort xVelocity) = AccelerateShitroidAxis(
             state.Slot.Position.X.Whole,
-            targetX,
-            state.XVelocity,
+            target.X,
+            state.Velocity.X.RawValue,
             acceleration);
-        state.XVelocity = xVelocity;
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(xVelocity));
         (bool yArrived, ushort yVelocity) = AccelerateShitroidAxis(
             state.Slot.Position.Y.Whole,
-            targetY,
-            state.YVelocity,
+            target.Y,
+            state.Velocity.Y.RawValue,
             acceleration);
-        state.YVelocity = yVelocity;
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(yVelocity));
         return xArrived && yArrived;
     }
 
@@ -816,12 +796,10 @@ public sealed partial class RoomEnemySystem
 
     private static bool ShitroidOverlapsRectangle(
         RoomEnemySlot slot,
-        ushort x,
-        ushort y,
-        ushort xRadius,
-        ushort yRadius) =>
-        Math.Abs(unchecked((short)(x - slot.Position.X.Whole))) < slot.Radius.X + xRadius + 1 &&
-        Math.Abs(unchecked((short)(y - slot.Position.Y.Whole))) < slot.Radius.Y + yRadius + 1;
+        Position16<RoomPixels> center,
+        Extent16<RoomPixels> radius) =>
+        Math.Abs(unchecked((short)(center.X - slot.Position.X.Whole))) < slot.Radius.X + radius.X + 1 &&
+        Math.Abs(unchecked((short)(center.Y - slot.Position.Y.Whole))) < slot.Radius.Y + radius.Y + 1;
 
     /// <summary>Ports the private touch callback at <c>$A9:F789</c>.</summary>
     private void ResolveShitroidTouch(RoomEnemySlot slot, SamusState samus)
@@ -840,10 +818,9 @@ public sealed partial class RoomEnemySystem
                 unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)),
                 unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
             SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
-            state.XVelocity = unchecked((ushort)(
-                state.XVelocity + MultiplyCartridgeSinCos(0x0040, angle.TableIndex)));
-            state.YVelocity = unchecked((ushort)(
-                state.YVelocity + MultiplyCartridgeSinCos(
+            state.Velocity += new EightEightVector<RoomPixels>(
+                new SnesSignedEightEight(MultiplyCartridgeSinCos(0x0040, angle.TableIndex)),
+                new SnesSignedEightEight(MultiplyCartridgeSinCos(
                     0x0040,
                     angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)));
             return;
@@ -854,14 +831,12 @@ public sealed partial class RoomEnemySystem
             if (AccelerateShitroidExactly(
                 state,
                 0x0200,
-                samus.Position.X.Whole,
-                unchecked((ushort)(samus.Position.Y.Whole - 32))))
+                samus.Position.Whole + new Offset16<RoomPixels>(0, -32)))
             {
                 SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.LatchedOn);
                 state.PaletteDelay = 1;
                 slot.Parameter2 = 0;
-                state.XVelocity = 0;
-                state.YVelocity = 0;
+                state.Velocity = default;
                 state.Function = ShitroidAiFunction.BeginDrainingSamus;
             }
         }
@@ -889,10 +864,9 @@ public sealed partial class RoomEnemySystem
         ushort magnitude = unchecked((ushort)(8 * collisionDamage));
         if (magnitude >= 0x00f0)
             magnitude = 0x00f0;
-        state.XVelocity = unchecked((ushort)(
-            state.XVelocity + MultiplyCartridgeSinCos(magnitude, angle.TableIndex)));
-        state.YVelocity = unchecked((ushort)(
-            state.YVelocity + MultiplyCartridgeSinCos(
+        state.Velocity += new EightEightVector<RoomPixels>(
+            new SnesSignedEightEight(MultiplyCartridgeSinCos(magnitude, angle.TableIndex)),
+            new SnesSignedEightEight(MultiplyCartridgeSinCos(
                 magnitude,
                 angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)));
     }
@@ -906,7 +880,7 @@ public sealed partial class RoomEnemySystem
 
         // The private reaction tail-calls main AI. Preserve the extra state/movement/palette
         // tick rather than reducing the power bomb to a state flag.
-        RunShitroidMain(slot, samus, new(_shitroidCameraX, _shitroidCameraY), null);
+        RunShitroidMain(slot, samus, _shitroidCamera, null);
     }
 
     /// <summary>Function 26: shots/contact release function 25 into the exit sequence.</summary>

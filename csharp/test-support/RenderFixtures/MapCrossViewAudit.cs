@@ -82,12 +82,9 @@ internal static class MapCrossViewAudit
             bus,
             system,
             room.AreaIndex,
-            checked((byte)room.MapPosition.X),
-            checked((byte)room.MapPosition.Y),
-            room.Size.ToRoomBlocks().X,
-            room.Size.ToRoomBlocks().Y,
-            samus.Position.X.Whole,
-            samus.Position.Y.Whole,
+            room.MapPosition,
+            room.Size.ToRoomBlocks(),
+            samus.Position.Whole,
             nmiFrameCounter: 8);
 
         var pause = new PauseMenuState(
@@ -98,25 +95,25 @@ internal static class MapCrossViewAudit
             room.MapPosition);
         _ = pause.Render();
 
-        Position16<OamPixels> expectedMarker = new Position16<MapTiles>(hud.MinimapCenterX, hud.MinimapCenterY)
+        Position16<OamPixels> expectedMarker = hud.MinimapCenter
             .ToMapPixels().ToScreen(pause.MapScroll).ToOam();
         if (pause.LastIndicatorOrigin != expectedMarker)
         {
             throw new InvalidDataException(
                 $"Room {room.Identity} map marker mismatch: HUD center=" +
-                $"({hud.MinimapCenterX},{hud.MinimapCenterY}), pause origin=" +
+                $"({hud.MinimapCenter.X},{hud.MinimapCenter.Y}), pause origin=" +
                 $"{pause.LastIndicatorOrigin}, expected={expectedMarker}.");
         }
 
         int comparisons = 0;
         for (int outputY = 0; outputY < 3; outputY++)
         {
-            int mapY = hud.MinimapCenterY + outputY - 1;
+            int mapY = hud.MinimapCenter.Y + outputY - 1;
             for (int outputX = 0; outputX < 5; outputX++)
             {
-                int mapX = (hud.MinimapCenterX + outputX - 2) & 0x3f;
+                int mapX = (hud.MinimapCenter.X + outputX - 2) & 0x3f;
                 MapTileWord hudWord = new(hud.Tiles[26 + outputY * HudState.WidthInTiles + outputX]);
-                MapTileWord pauseWord = pause.ReadDisplayedMapTile(mapX, mapY);
+                MapTileWord pauseWord = pause.ReadDisplayedMapTile(new(checked((ushort)mapX), checked((ushort)mapY)));
                 if (hudWord.IsBlank != pauseWord.IsBlank ||
                     (!hudWord.IsBlank &&
                         (hudWord.CharacterIndex != pauseWord.CharacterIndex ||

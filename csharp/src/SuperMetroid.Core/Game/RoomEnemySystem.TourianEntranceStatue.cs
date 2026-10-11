@@ -52,16 +52,13 @@ public sealed partial class RoomEnemySystem
         {
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,
-                x: 120,
-                y: 184);
+                position: new(120, 184));
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueRidley,
-                x: 142,
-                y: 85);
+                position: new(142, 85));
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatuePhantoon,
-                x: 132,
-                y: 136);
+                position: new(132, 136));
         }
 
         // Statue init writes target palette rows $F and $A from $AA:D785/$D765.
@@ -73,17 +70,17 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnTourianEntranceStatueProjectile(
         RoomEnemyProjectileKind kind,
-        ushort x,
-        ushort y)
+        Position16<RoomPixels> position)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
         InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
-        projectile.Position = projectile.Position.WithWhole(new(x, y));
-        projectile.Variable0 = x;
-        projectile.Variable1 = y;
+        projectile.Position = projectile.Position.WithWhole(position);
+        // The projectile's two general words retain the authored spawn coordinates.
+        projectile.Variable0 = position.X;
+        projectile.Variable1 = position.Y;
     }
 
     private void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)

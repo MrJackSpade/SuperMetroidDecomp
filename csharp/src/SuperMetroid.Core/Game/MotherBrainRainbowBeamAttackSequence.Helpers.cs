@@ -85,7 +85,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 {
                     // Zero credit does not merely pause. `$C2A1` chooses a point fourteen
                     // pixels left, installs the quick-retreat function, and falls into it.
-                    Phase3TargetXPosition = unchecked((ushort)(Body.XPosition - 0x000e));
+                    Phase3TargetXPosition = unchecked((ushort)(Body.Position.X - 0x000e));
                     Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatQuickly;
                     goto case MotherBrainPhase3WalkingPhase.RetreatQuickly;
                 }
@@ -96,14 +96,14 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 if (Phase3WalkCounter < 0x0100)
                     return false;
 
-                Phase3TargetXPosition = unchecked((ushort)(Body.XPosition + 1));
+                Phase3TargetXPosition = unchecked((ushort)(Body.Position.X + 1));
                 ushort forwardDelay = unchecked((ushort)((randomNumberSeed & 2) + 4));
 
                 // MakeMotherBrainWalkForwards reports carry only for a strictly overshot
                 // target or the independent X `$80` limit. Equality still requests a walk.
                 bool reachedForwardTarget =
-                    unchecked((short)(Phase3TargetXPosition - Body.XPosition)) < 0 ||
-                    NativeAtLeast(Body.XPosition, 0x0080);
+                    unchecked((short)(Phase3TargetXPosition - Body.Position.X)) < 0 ||
+                    NativeAtLeast(Body.Position.X, 0x0080);
                 if (reachedForwardTarget)
                 {
                     Phase3WalkCounter = 0x0080;
@@ -121,7 +121,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // Reaching the first target chooses another point fourteen pixels left but
                 // does not fall through to the slow request. That request starts only on the
                 // next standing AI call.
-                Phase3TargetXPosition = unchecked((ushort)(Body.XPosition - 0x000e));
+                Phase3TargetXPosition = unchecked((ushort)(Body.Position.X - 0x000e));
                 Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatSlowly;
                 return false;
 
@@ -146,7 +146,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     {
         Phase3WalkCounter = counter;
         Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.TryToInchForward;
-        Phase3TargetXPosition = unchecked((ushort)(Body.XPosition + 1));
+        Phase3TargetXPosition = unchecked((ushort)(Body.Position.X + 1));
     }
 
     private void StepPhase3NeckHandler()
@@ -269,11 +269,11 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     private MotherBrainWalkResult MakeBodyWalkForwards(ushort targetX, ushort instructionList)
     {
-        if (unchecked((short)(targetX - Body.XPosition)) < 0)
+        if (unchecked((short)(targetX - Body.Position.X)) < 0)
             return MotherBrainWalkResult.Reached;
         if (Body.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
-        if (NativeAtLeast(Body.XPosition, 0x0080))
+        if (NativeAtLeast(Body.Position.X, 0x0080))
             return MotherBrainWalkResult.Reached;
         Body.SetInstructionList(instructionList);
         return MotherBrainWalkResult.WalkInstalled;
@@ -287,11 +287,11 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     private MotherBrainWalkResult MakeBodyWalkBackwards(ushort targetX, ushort instructionList)
     {
-        if (unchecked((short)(targetX - Body.XPosition)) >= 0)
+        if (unchecked((short)(targetX - Body.Position.X)) >= 0)
             return MotherBrainWalkResult.Reached;
         if (Body.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
-        if (unchecked((short)(Body.XPosition - 0x0030)) < 0)
+        if (unchecked((short)(Body.Position.X - 0x0030)) < 0)
             return MotherBrainWalkResult.Reached;
         Body.SetInstructionList(instructionList);
         return MotherBrainWalkResult.WalkInstalled;
@@ -445,8 +445,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 : (ushort)1;
             (short xOffset, short yOffset) = MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex);
             requests.Add(new MotherBrainDeathExplosionRequest(
-                XOffset: xOffset,
-                YOffset: yOffset,
+                Offset: new Offset16<RoomPixels>(xOffset, yOffset),
                 ProjectileParameter: parameter,
                 SoundEffect: 0x0013));
         }
@@ -469,12 +468,12 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // The table is stored as interleaved X/Y words and indexed by `index * 4` bytes.
         // Spell out the semantic pairs so neither host endianness nor array stride can alter
         // the native 3,2,1,0 repeating order.
-        (ushort x, ushort y) = DeathAndEscapeExplosionIndex switch
+        Position16<RoomPixels> position = DeathAndEscapeExplosionIndex switch
         {
-            0 => ((ushort)0x0008, (ushort)0x006c),
-            1 => ((ushort)0x0018, (ushort)0x0080),
-            2 => ((ushort)0x0009, (ushort)0x0090),
-            3 => ((ushort)0x0018, (ushort)0x0074),
+            0 => new(0x0008, 0x006c),
+            1 => new(0x0018, 0x0080),
+            2 => new(0x0009, 0x0090),
+            3 => new(0x0018, 0x0074),
             _ => throw new InvalidOperationException(
                 $"Escape-door explosion index ${DeathAndEscapeExplosionIndex:X4} escaped its native 0..3 range."),
         };
@@ -491,8 +490,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ushort random = nextRandomNumber();
         ushort projectileParameter = random < 0x4000 ? (ushort)0x000c : (ushort)0x0003;
         return new MotherBrainEscapeDoorExplosionRequest(
-            XPosition: x,
-            YPosition: y,
+            Position: position,
             ProjectileParameter: projectileParameter,
             SoundEffect: 0x0024);
     }
@@ -537,8 +535,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // `$A9:BB82` aims from brain position (+16,+4) to Samus. Bank `$A0:C0B1` consumes
         // signed 16-bit offsets; `$A9:BBA0-$BBA8` converts its clockwise-up angle to the
         // rainbow beam's anti-clockwise-down convention with `-$angle + $80`.
-        short deltaX = unchecked((short)(samus.Position.X.Whole - BrainXPosition - 0x0010));
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - BrainYPosition - 0x0004));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - BrainPosition.X - 0x0010));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - BrainPosition.Y - 0x0004));
         SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(deltaX, deltaY));
         _movement.RainbowBeamAngle = SnesAngle.HalfTurn.AddRaw(-sourceAngle.RawValue);
     }
@@ -553,8 +551,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ExplosionIndex++;
         int offsetIndex = ExplosionIndex & 7;
         return new MotherBrainRainbowExplosionRequest(
-            ExplosionXOffsets[offsetIndex],
-            ExplosionYOffsets[offsetIndex]);
+            ExplosionOffsets[offsetIndex]);
     }
 
     private static void DamageSamusDueToRainbowBeam(SamusState samus)

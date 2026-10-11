@@ -42,12 +42,11 @@ public sealed class YappingMawEnemyState
     public Position16<RoomPixels> Origin { get; internal set; }
 
     /// <summary>
-    /// Final signed word offsets for the four successive tongue points. Link zero is nearest
-    /// the root, link three is the mouth; the first three also position decorative eprojs.
+    /// Final signed offsets from the root for the four successive tongue points (Y words at
+    /// $7E:7802/$7806/$780A/$780E, positive downward). Link zero is nearest the root, link
+    /// three is the mouth; the first three also position decorative eprojs.
     /// </summary>
-    public ushort[] SegmentXOffsets { get; } = new ushort[4];
-    /// <summary>Four signed room-pixel Y offsets stored as two's-complement words, matching $7E:7802/$7806/$780A/$780E from nearest-root link to mouth; positive offsets point downward.</summary>
-    public ushort[] SegmentYOffsets { get; } = new ushort[4];
+    public Offset16<RoomPixels>[] SegmentOffsets { get; } = new Offset16<RoomPixels>[4];
 
     /// <summary>Approximate bank-$A0 distance used by the strict activation comparisons.</summary>
     public ushort DistanceToSamus { get; internal set; }
@@ -115,11 +114,9 @@ public sealed class YappingMawEnemyState
     /// <summary>The bank-$B4 root/base object selected by population parameter two.</summary>
     public RoomSpriteObjectSlot? RootSpriteObject { get; internal set; }
 
-    // Native variables 27..2E hold one correction pair per link. They are public through
-    // read-only list views because they are valuable breakpoint watches, but only bank-$A8
-    // calculations are allowed to mutate the backing arrays.
-    internal ushort[] CorrectionX { get; } = new ushort[4];
-    internal ushort[] CorrectionY { get; } = new ushort[4];
+    // Native variables 27..2E hold one correction offset per link; only bank-$A8
+    // calculations mutate them.
+    internal Offset16<RoomPixels>[] Corrections { get; } = new Offset16<RoomPixels>[4];
 }
 
 /// <summary>
@@ -384,10 +381,13 @@ public sealed partial class RoomEnemySystem
             ushort correctionY = unchecked((ushort)(
                 CalculateYappingMawY(state.CurlAngle, rawX) -
                 CalculateYappingMawY(0, rawX)));
-            state.CorrectionX[segment] = correctionX;
-            state.CorrectionY[segment] = correctionY;
-            state.SegmentXOffsets[segment] = AddWithCarry(rawX, correctionX, ref carry);
-            state.SegmentYOffsets[segment] = AddWithCarry(rawY, correctionY, ref carry);
+            state.Corrections[segment] = new Offset16<RoomPixels>(
+                unchecked((short)correctionX), unchecked((short)correctionY));
+            // X is added before Y so its carry feeds the Y addition.
+            ushort segmentX = AddWithCarry(rawX, correctionX, ref carry);
+            ushort segmentY = AddWithCarry(rawY, correctionY, ref carry);
+            state.SegmentOffsets[segment] = new Offset16<RoomPixels>(
+                unchecked((short)segmentX), unchecked((short)segmentY));
         }
 
         slot.Position = slot.Position.WithWhole(YappingMawLinkPosition(state, 3));
@@ -629,9 +629,7 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>The root plus one solved link's signed word offsets, wrapping at sixteen bits.</summary>
     private static Position16<RoomPixels> YappingMawLinkPosition(YappingMawEnemyState state, int segment) =>
-        state.Origin + new Offset16<RoomPixels>(
-            unchecked((short)state.SegmentXOffsets[segment]),
-            unchecked((short)state.SegmentYOffsets[segment]));
+        state.Origin + state.SegmentOffsets[segment];
 
     private static bool IsYappingMawPointOffScreen(
         RoomEnemySlot slot,

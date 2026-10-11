@@ -21,7 +21,7 @@ internal static partial class Program
         MotherBrainEnemyState state = runtime.Enemies.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot head = state.Head ?? throw new InvalidOperationException("Mother Brain has no head enemy.");
-        var sequence = new MotherBrainRainbowBeamAttackSequence { BrainXPosition = 0x007e, BrainYPosition = 0x005b };
+        var sequence = new MotherBrainRainbowBeamAttackSequence { BrainPosition = new(0x007e, 0x005b) };
         state.RainbowBeamSequence = sequence;
         typeof(RoomEnemySystem).GetMethod("SpawnMotherBrainBabyMetroid", flags)!.Invoke(runtime.Enemies, [state]);
         RoomEnemySlot slot = state.BabyMetroidSlot!;
@@ -30,8 +30,7 @@ internal static partial class Program
         head.Position = head.Position.WithWhole(new(0x007d, 0x005d));
         void Set(string name, object value) => typeof(BabyMetroidCutsceneState).GetProperty(name)!.SetValue(baby, value);
         Set(nameof(baby.Phase), BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody);
-        Set(nameof(baby.XPosition), (ushort)0x007d);
-        Set(nameof(baby.YPosition), (ushort)0x0045);
+        Set(nameof(baby.Position), FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position));
 
         typeof(RoomEnemySystem).GetMethod("RunMotherBrainBabyMetroidMain", flags)!
             .Invoke(runtime.Enemies, [slot, runtime.Samus, Position16<RoomPixels>.Zero]);

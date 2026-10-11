@@ -1067,7 +1067,7 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         /// </summary>
         internal void StartFinishOffSequence()
         {
-            PrivateState.Invoke(self, "RequestWalkForwardReallySlow", (ushort)(unchecked((ushort)(self.Body.XPosition + 0x0010))));
+            PrivateState.Invoke(self, "RequestWalkForwardReallySlow", (ushort)(unchecked((ushort)(self.Body.Position.X + 0x0010))));
             PrivateState.SetProperty(self, "BabyMetroidTileTransferIndex", 0);
             PrivateState.SetProperty(self, "BabyMetroidSpawned", false);
             PrivateState.SetProperty(self, "Phase", MotherBrainRainbowBeamAttackPhase.FinishSamusOff);
@@ -1110,7 +1110,7 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
                     ref lowerIndex,
                     ref upperIndex,
                     self.NeckAngleDelta,
-                    self.BrainYPosition,
+                    self.BrainPosition.Y,
                     samus.Position.Y.Whole);
                 PrivateState.SetProperty(self, "LowerNeckAngle", lowerAngle);
                 PrivateState.SetProperty(self, "UpperNeckAngle", upperAngle);
@@ -1119,12 +1119,10 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
             }
 
             MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
-                self.Body.XPosition,
-                self.Body.YPosition,
+                self.Body.Position,
                 self.LowerNeckAngle,
                 self.UpperNeckAngle);
-            self.BrainXPosition = geometry.Segment4.X;
-            self.BrainYPosition = geometry.Segment4.Y;
+            self.BrainPosition = geometry.Segment4;
         }
 
         /// <summary>

@@ -109,8 +109,7 @@ public readonly record struct BabyMetroidCutscenePoint();
 
 /// <summary>One `$86:E509` dust explosion requested during the Baby's death.</summary>
 public readonly record struct BabyMetroidDeathExplosionRequest(
-    ushort XPosition,
-    ushort YPosition,
+    Position16<RoomPixels> Position,
     ushort ProjectileParameter,
     ushort SoundEffect);
 
@@ -119,8 +118,7 @@ public readonly record struct BabyMetroidDeathExplosionRequest(
 /// <c>$A9:C98C-C9C2</c> when the Baby releases Mother Brain's head.
 /// </summary>
 public readonly record struct BabyMetroidReleaseDustRequest(
-    ushort XPosition,
-    ushort YPosition,
+    Position16<RoomPixels> Position,
     ushort ProjectileParameter);
 
 /// <summary>One fourteen-colour write from `$AD:E90C-$E998` to sprite palette seven.</summary>

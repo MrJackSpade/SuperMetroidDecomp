@@ -49,7 +49,7 @@ internal static partial class Program
                 "ResolveMotherBrainSamusCollisionPart",
                 BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<MotherBrainEnemyState, SamusState, MotherBrainContactPart,
-                ushort, ushort, bool>>();
+                Position16<RoomPixels>, bool>>();
 
         const ushort originX = 0x0200;
         const ushort originY = 0x0200;
@@ -70,7 +70,7 @@ internal static partial class Program
                     (bool expected, ushort expectedXDisplacement) =
                         ExpectedMotherBrainContact(part, new((short)xDelta, (short)yDelta), new(5, 19));
                     AssertEqual(expected,
-                        resolve(state, samus, part, originX, originY),
+                        resolve(state, samus, part, new(originX, originY)),
                         $"Mother Brain {part} contact at ({xDelta},{yDelta})");
                     AssertEqual(expectedXDisplacement, samus.Kinematics.ExtraDisplacement.X.WholePixels,
                         $"Mother Brain {part} X displacement at ({xDelta},{yDelta})");

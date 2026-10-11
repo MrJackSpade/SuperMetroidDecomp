@@ -87,14 +87,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot head = state.Head ?? throw new InvalidOperationException(
             "Mother Brain's rainbow beam requires the physical head slot.");
         sequence.SynchronizeLiveActor(
-            state.Body.Position.X.Whole,
-            state.Body.Position.Y.Whole,
+            state.Body.Position.Whole,
             state.Pose,
             state.Form,
             state.Body.Properties,
             state.Body.ExtraProperties,
-            head.Position.X.Whole,
-            head.Position.Y.Whole,
+            head.Position.Whole,
             head.Health,
             head.Properties,
             head.ExtraProperties,
@@ -264,9 +262,8 @@ public sealed partial class RoomEnemySystem
             // captures that pre-move point in its typed movement result, so use it for the
             // initializer and let `$C94C` attach to the current position on the later bank-
             // $86 pass. Finish-firing has no movement and therefore uses the unchanged actor.
-            ushort baseX = current.Movement?.Before.X.Whole ?? samus.Position.X.Whole;
-            ushort baseY = current.Movement?.Before.Y.Whole ?? samus.Position.Y.Whole;
-            SpawnMotherBrainRainbowExplosion(baseX, baseY, explosion);
+            Position16<RoomPixels> samusBeforeMovement = current.Movement?.Before.Whole ?? samus.Position.Whole;
+            SpawnMotherBrainRainbowExplosion(samusBeforeMovement, explosion);
         }
     }
 
@@ -297,8 +294,7 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Ports `$86:C92F-$C960`; the signed offsets remain in velocity words.</summary>
     private void SpawnMotherBrainRainbowExplosion(
-        ushort samusXBeforeMovement,
-        ushort samusYBeforeMovement,
+        Position16<RoomPixels> samusBeforeMovement,
         MotherBrainRainbowExplosionRequest request)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -309,9 +305,9 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion,
             graphicsIndex: 0);
-        projectile.Velocity = new(new SnesSignedEightEight(unchecked((ushort)request.XOffset)), new SnesSignedEightEight(unchecked((ushort)request.YOffset)));
+        projectile.Velocity = new EightEightVector<RoomPixels>(request.Offset.X, request.Offset.Y);
         projectile.GraphicsIndex = 0;
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(samusXBeforeMovement + request.XOffset)), unchecked((ushort)(samusYBeforeMovement + request.YOffset))));
+        projectile.Position = projectile.Position.WithWhole(samusBeforeMovement + request.Offset);
     }
 
     private static void RunMotherBrainRainbowExplosionPreInstruction(

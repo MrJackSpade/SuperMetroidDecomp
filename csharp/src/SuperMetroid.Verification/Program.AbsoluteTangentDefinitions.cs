@@ -53,7 +53,7 @@ internal static partial class Program
             PresentationColors = RetailPresentationFixture().MotherBrainRainbowPalette,
         };
         foreach (byte angle in new byte[] { 0, 32, 64, 96, 128, 160, 192, 224 })
-            beam.Step(guard, true, 100, 95, SnesAngle.FromTableIndex(angle), 512);
+            beam.Step(guard, true, new(100, 95), SnesAngle.FromTableIndex(angle), 512);
         AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(129), "Tangent beyond native endpoint rejected");
         Console.WriteLine("Absolute tangent: 129 native words, all direct caller endpoints, 768 X-ray directions and 520 window builds reject runtime tangent reads.");
     }

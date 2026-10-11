@@ -176,13 +176,11 @@ public sealed class BotwoonEnemyState
     /// </summary>
     internal bool[] SegmentInsideHole { get; } = new bool[13];
 
-    /// <summary>One kilobyte of native position history, represented as 256 X/Y pairs.</summary>
-    internal ushort[] HistoryX { get; } = new ushort[256];
-    internal ushort[] HistoryY { get; } = new ushort[256];
+    /// <summary>One kilobyte of native position history, represented as 256 whole-pixel positions.</summary>
+    internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[256];
 
     /// <summary>Four delayed head positions used to choose the visible head orientation.</summary>
-    internal ushort[] HeadHistoryX { get; } = new ushort[4];
-    internal ushort[] HeadHistoryY { get; } = new ushort[4];
+    internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[4];
 }
 
 /// <summary>Observable request emitted by Botwoon's specialized item-drop tail.</summary>
@@ -286,8 +284,7 @@ public sealed partial class RoomEnemySystem
 
         for (int history = 0; history < 4; history++)
         {
-            state.HeadHistoryX[history] = head.Position.X.Whole;
-            state.HeadHistoryY[history] = head.Position.Y.Whole;
+            state.HeadHistory[history] = head.Position.Whole;
         }
         // BotwoonPositionHistory ($7E:9000-$93FF) is never seeded by InitAI_Botwoon. It
         // lies inside the $7E:7000-$97FF range Initialise_Enemies ($A0:8AA9) zeroes on room
@@ -485,11 +482,9 @@ public sealed partial class RoomEnemySystem
     {
         BotwoonHoleDefinition hole =
             BotwoonNavigationDefinitions.HoleForByteOffset(state.TargetHoleOffset);
-        short dx = ClampBotwoonTargetDelta(
-            unchecked((short)(hole.TargetX - head.Position.X.Whole)));
-        short dy = ClampBotwoonTargetDelta(
-            unchecked((short)(hole.TargetY - head.Position.Y.Whole)));
-        byte angle = CalculateCartridgeAngle(new(dx, dy));
+        Offset16<RoomPixels> delta = hole.Target - head.Position.Whole;
+        byte angle = CalculateCartridgeAngle(new(
+            ClampBotwoonTargetDelta(delta.X), ClampBotwoonTargetDelta(delta.Y)));
         state.TargetAngle = angle;
         state.MovementAngle = unchecked((byte)(64 - angle));
 
@@ -548,12 +543,11 @@ public sealed partial class RoomEnemySystem
 
     private static void FollowBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        short totalX = 0;
-        short totalY = 0;
+        Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
         int step = state.PathDirection < 0 ? -2 : 2;
         for (int sample = 0; sample < state.Speed; sample++)
         {
-            BotwoonMovementSample movement =
+            Offset16<RoomPixels> movement =
                 BotwoonNavigationDefinitions.MovementSampleForPointer(state.PathPointer);
             if (movement.X == sbyte.MinValue)
             {
@@ -565,24 +559,17 @@ public sealed partial class RoomEnemySystem
                 state.PathComplete = true;
                 return;
             }
-            totalX = unchecked((short)(totalX + movement.X));
-            totalY = unchecked((short)(totalY + movement.Y));
+            total += movement;
             state.PathPointer = unchecked((ushort)(state.PathPointer + step));
         }
 
-        if (state.PathDirection < 0)
-        {
-            totalX = unchecked((short)-totalX);
-            totalY = unchecked((short)-totalY);
-        }
-        head.Position += new Offset16<RoomPixels>(totalX, totalY);
+        head.Position += state.PathDirection < 0 ? -total : total;
     }
 
     private static void RecordBotwoonHeadPosition(RoomEnemySlot head, BotwoonEnemyState state)
     {
         int ringIndex = state.RingByteOffset >> 2;
-        state.HistoryX[ringIndex] = head.Position.X.Whole;
-        state.HistoryY[ringIndex] = head.Position.Y.Whole;
+        state.History[ringIndex] = head.Position.Whole;
     }
 
     private static void PositionBotwoonBody(BotwoonEnemyState state)
@@ -598,7 +585,7 @@ public sealed partial class RoomEnemySystem
 
             ToggleBotwoonSegmentAtHole(state, segmentIndex, historyOffset);
             int historyIndex = historyOffset >> 2;
-            segment.Position = segment.Position.WithWhole(new(state.HistoryX[historyIndex], state.HistoryY[historyIndex]));
+            segment.Position = segment.Position.WithWhole(state.History[historyIndex]);
             historyOffset = unchecked((ushort)(
                 (historyOffset - state.SegmentSpacingBytes) & 0x03ff));
         }
@@ -663,10 +650,10 @@ public sealed partial class RoomEnemySystem
         {
             BotwoonHoleDefinition hole = BotwoonNavigationDefinitions.HoleForByteOffset(
                 unchecked((ushort)rectangleOffset));
-            if (unchecked((short)(head.Position.X.Whole - hole.Left)) >= 0 &&
-                unchecked((short)(head.Position.X.Whole - hole.Right)) < 0 &&
-                unchecked((short)(head.Position.Y.Whole - hole.Top)) >= 0 &&
-                unchecked((short)(head.Position.Y.Whole - hole.Bottom)) < 0)
+            Offset16<RoomPixels> fromTopLeft = head.Position.Whole - hole.TopLeft;
+            Offset16<RoomPixels> fromBottomRight = head.Position.Whole - hole.BottomRight;
+            if (fromTopLeft.X >= 0 && fromBottomRight.X < 0 &&
+                fromTopLeft.Y >= 0 && fromBottomRight.Y < 0)
             {
                 state.HoleLatch = true;
                 state.InsideHole = !state.InsideHole;
@@ -719,8 +706,9 @@ public sealed partial class RoomEnemySystem
 
     private static void AnimateBotwoonHeadFromMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        short dx = unchecked((short)(head.Position.X.Whole - state.HeadHistoryX[3]));
-        short dy = unchecked((short)(head.Position.Y.Whole - state.HeadHistoryY[3]));
+        Offset16<RoomPixels> moved = head.Position.Whole - state.HeadHistory[3];
+        short dx = moved.X;
+        short dy = moved.Y;
         if (dx != 0 || dy != 0)
         {
             ushort instruction;
@@ -744,11 +732,9 @@ public sealed partial class RoomEnemySystem
 
         for (int index = 3; index > 0; index--)
         {
-            state.HeadHistoryX[index] = state.HeadHistoryX[index - 1];
-            state.HeadHistoryY[index] = state.HeadHistoryY[index - 1];
+            state.HeadHistory[index] = state.HeadHistory[index - 1];
         }
-        state.HeadHistoryX[0] = head.Position.X.Whole;
-        state.HeadHistoryY[0] = head.Position.Y.Whole;
+        state.HeadHistory[0] = head.Position.Whole;
     }
 
     private void AimBotwoonAtSamus(

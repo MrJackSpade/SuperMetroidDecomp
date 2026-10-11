@@ -1847,7 +1847,7 @@ internal static partial class Program
     {
         const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnWreckedShipGhost", methods)!
-            .CreateDelegate<Action<RoomEnemySlot, WreckedShipGhostEnemyState, ushort, ushort>>();
+            .CreateDelegate<Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>>>();
         var flicker = typeof(RoomEnemySystem).GetMethod("AdvanceWreckedShipGhostFlicker", methods)!
             .CreateDelegate<Action<RoomEnemySlot, WreckedShipGhostEnemyState>>();
         var slot = new RoomEnemySystem().Slots[0];
@@ -1859,9 +1859,9 @@ internal static partial class Program
             var calculated = WreckedShipGhostAppearanceDefinitions.SpawnOffset(index);
             AssertEqual(originalX, calculated.X, "Ghost original horizontal spawn offset");
             AssertEqual(originalY, calculated.Y, "Ghost original vertical spawn offset");
-            state.HorizontalMovementClass = (ushort)(4 * (index % 3));
-            state.VerticalMovementClass = (ushort)(12 * (index / 3));
-            spawn(slot, state, 32, 65520);
+            state.SpawnColumnOffset = (ushort)(4 * (index % 3));
+            state.SpawnRowOffset = (ushort)(12 * (index / 3));
+            spawn(slot, state, new(32, 65520));
             AssertEqual(unchecked((ushort)(32 + originalX)), slot.Position.X.Whole, "Ghost actual wrapped spawn X");
             AssertEqual(unchecked((ushort)(65520 + originalY)), slot.Position.Y.Whole, "Ghost actual wrapped spawn Y");
             AssertEqual(WreckedShipGhostAiFunction.BrighteningAndFlickering, state.Function, "Ghost appearance phase");
@@ -1894,9 +1894,9 @@ internal static partial class Program
         state.PhaseTimer = 1;
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");
-        state.HorizontalMovementClass = 1;
-        state.VerticalMovementClass = 0;
-        AssertThrows<InvalidDataException>(() => spawn(slot, state, 0, 0), "Ghost unaligned spawn class remains rejected");
+        state.SpawnColumnOffset = 1;
+        state.SpawnRowOffset = 0;
+        AssertThrows<InvalidDataException>(() => spawn(slot, state, Position16<RoomPixels>.Zero), "Ghost unaligned spawn class remains rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(-1), "Ghost spawn lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(9), "Ghost spawn upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(-1), "Ghost flicker lower bound");

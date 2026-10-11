@@ -289,14 +289,8 @@ public sealed partial class RoomEnemySystem
                 // $84 allocator searches the same descending pool for each call.
                 SpawnRoomGraphicsDustExplosion(new(248, 72), animationIndex: 9);
                 SpawnRoomGraphicsDustExplosion(new(248, 152), animationIndex: 9);
-                state.RequestPlm(
-                    blockX: 15,
-                    blockY: 4,
-                    header: PlmHeaderId.FillMotherBrainsWall);
-                state.RequestPlm(
-                    blockX: 15,
-                    blockY: 9,
-                    header: PlmHeaderId.FillMotherBrainsWall);
+                state.RequestPlm(new(15, 4), PlmHeaderId.FillMotherBrainsWall);
+                state.RequestPlm(new(15, 9), PlmHeaderId.FillMotherBrainsWall);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
             }
         }
@@ -362,15 +356,15 @@ public sealed partial class RoomEnemySystem
         if (AdvanceMotherBrainBrainInstructions(state) is not ushort brainSpritemap)
             return;
 
-        (short brainShakeX, short brainShakeY) = GetMotherBrainBrainShake(state, head);
+        Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
         // The caller must cull before the nine-bit OAM coordinate loses world-space bits.
         // Otherwise a brain half a room to the left reappears in the approach hallway.
-        if (unchecked((short)(head.Position.X.Whole + brainShakeX +
+        if (unchecked((short)(head.Position.X.Whole + brainShake.X +
                 MotherBrainDrawData.BrainLeftCullMargin - camera.X)) >= 0)
         DrawMotherBrainWorldSpritemap(
             oam,
             brainSpritemap,
-            head.Position.Whole + new Offset16<RoomPixels>(brainShakeX, brainShakeY),
+            head.Position.Whole + brainShake,
             // The custom draw hook bypasses ordinary enemy palette selection. Retail
             // still selects the shared white hurt palette on odd flash-timer frames.
             (head.FlashTimer & 1) != 0 ? (ushort)0 : state.BrainPaletteIndex,
@@ -383,9 +377,8 @@ public sealed partial class RoomEnemySystem
         // `$A9:930C-$9354` emits the joint nearest the brain first and the body-side joint
         // last. Equal-priority overlap therefore follows the same low-OAM precedence.
         int shakeIndex = (head.FlashTimer & 6) >> 1;
-        short neckShakeX = MotherBrainShakeXOffsets[shakeIndex];
-        short neckShakeY = MotherBrainShakeYOffsets[shakeIndex];
-        MotherBrainNeckPoint[] segments =
+        Offset16<RoomPixels> neckShake = MotherBrainShakeOffsets[shakeIndex];
+        Position16<RoomPixels>[] segments =
         [
             state.NeckSegment0,
             state.NeckSegment1,
@@ -395,19 +388,20 @@ public sealed partial class RoomEnemySystem
         ];
         for (int index = segments.Length - 1; index >= 0; index--)
         {
-            MotherBrainNeckPoint segment = segments[index];
+            Position16<RoomPixels> segment = segments[index];
             DrawMotherBrainWorldSpritemap(
                 oam,
                 spritemapPointer: 0xa694,
-                new Position16<RoomPixels>(segment.X, segment.Y) + new Offset16<RoomPixels>(neckShakeX, neckShakeY),
+                segment + neckShake,
                 state.NeckPaletteIndex,
                 head.VramTilesIndex,
                 camera);
         }
     }
 
-    private static readonly short[] MotherBrainShakeXOffsets = [0, -1, 0, 1];
-    private static readonly short[] MotherBrainShakeYOffsets = [0, 1, -1, 1];
+    // `shake & 6` selects one of these four authored jitter offsets.
+    private static readonly Offset16<RoomPixels>[] MotherBrainShakeOffsets =
+        [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
     private void DrawMotherBrainWorldSpritemap(
         OamBuffer oam,
@@ -433,7 +427,7 @@ public sealed partial class RoomEnemySystem
             vramTilesIndex);
     }
 
-    private static (short X, short Y) GetMotherBrainBrainShake(
+    private static Offset16<RoomPixels> GetMotherBrainBrainShake(
         MotherBrainEnemyState state,
         RoomEnemySlot head)
     {
@@ -449,7 +443,7 @@ public sealed partial class RoomEnemySystem
         }
 
         int index = (shake & 6) >> 1;
-        return (MotherBrainShakeXOffsets[index], MotherBrainShakeYOffsets[index]);
+        return MotherBrainShakeOffsets[index];
     }
 
     private static void StepMotherBrainNeck(MotherBrainEnemyState state, SamusState samus)
@@ -475,8 +469,7 @@ public sealed partial class RoomEnemySystem
         }
 
         MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
-            state.Body.Position.X.Whole,
-            state.Body.Position.Y.Whole,
+            state.Body.Position.Whole,
             state.LowerNeckAngle,
             state.UpperNeckAngle,
             state.NeckSegment0Distance,
@@ -602,71 +595,71 @@ public sealed partial class RoomEnemySystem
             // motion and are occasionally opposite the literal signed Y operand. These
             // cases preserve the actual additions performed by `$9579`, not the labels.
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1:
-                MoveMotherBrainBody(1, -2);
+                MoveMotherBrainBody(new(1, -2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyRightBy2:
-                MoveMotherBrainBody(2, 0);
+                MoveMotherBrainBody(new(2, 0));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy1:
-                MoveMotherBrainBody(0, 1);
+                MoveMotherBrainBody(new(0, 1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep:
                 RunMotherBrainFootstep();
-                MoveMotherBrainBody(3, 1);
+                MoveMotherBrainBody(new(3, 1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy2_RightBy15:
-                MoveMotherBrainBody(15, -2);
+                MoveMotherBrainBody(new(15, -2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy4_RightBy6:
-                MoveMotherBrainBody(6, -4);
+                MoveMotherBrainBody(new(6, -4));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy4_LeftBy2:
-                MoveMotherBrainBody(-2, 4);
+                MoveMotherBrainBody(new(-2, 4));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep:
                 RunMotherBrainFootstep();
-                MoveMotherBrainBody(-1, 2);
+                MoveMotherBrainBody(new(-1, 2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d:
                 RunMotherBrainFootstep();
-                MoveMotherBrainBody(-1, 2);
+                MoveMotherBrainBody(new(-1, 2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyLeftBy2:
-                MoveMotherBrainBody(-2, 0);
+                MoveMotherBrainBody(new(-2, 0));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy1:
-                MoveMotherBrainBody(0, -1);
+                MoveMotherBrainBody(new(0, -1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy1_LeftBy3:
-                MoveMotherBrainBody(-3, -1);
+                MoveMotherBrainBody(new(-3, -1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep:
                 RunMotherBrainFootstep();
-                MoveMotherBrainBody(-15, 2);
+                MoveMotherBrainBody(new(-15, 2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyUpBy4_LeftBy6:
-                MoveMotherBrainBody(-6, 4);
+                MoveMotherBrainBody(new(-6, 4));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy4_RightBy2:
-                MoveMotherBrainBody(2, -4);
+                MoveMotherBrainBody(new(2, -4));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case MotherBrainInstruction.MotherBrainBody_MoveBodyDownBy2_RightBy1:
-                MoveMotherBrainBody(1, -2);
+                MoveMotherBrainBody(new(1, -2));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -800,7 +793,7 @@ public sealed partial class RoomEnemySystem
                 BabyMetroidCutsceneState baby = state.BabyMetroid ??
                     throw new InvalidOperationException(
                         "Mother Brain's Baby-targeting opcode ran without the Baby actor.");
-                AimMotherBrainOnionRingsAt(state, new Position16<RoomPixels>(baby.XPosition, baby.YPosition));
+                AimMotherBrainOnionRingsAt(state, baby.Position.Whole);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
@@ -860,8 +853,7 @@ public sealed partial class RoomEnemySystem
                 // her parameter-one speed flag without any encounter-specific substitute.
                 RoomEnemyProjectileSlot? laser = SpawnPirateMotherBrainLaser(
                     head,
-                    unchecked((ushort)(head.Position.X.Whole + 0x0010)),
-                    unchecked((ushort)(head.Position.Y.Whole + 0x0004)),
+                    head.Position.Whole + new Offset16<RoomPixels>(0x0010, 0x0004),
                     movingRight: true);
                 if (laser is not null)
                     state.LastSoundEffect = PirateMotherBrainLaserSound;

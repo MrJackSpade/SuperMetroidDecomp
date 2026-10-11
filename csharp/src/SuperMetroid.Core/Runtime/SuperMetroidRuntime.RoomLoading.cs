@@ -997,9 +997,7 @@ public sealed partial class SuperMetroidRuntime
             readRoomScrollState: Camera.Scrolls.ReadState,
             setMotherBrainLayerBlendingDefaultConfig:
                 value => LayerBlendingDefaultConfig = value,
-            setMotherBrainBg2Scroll:
-                (horizontal, vertical) =>
-                    BackgroundScroll.SetBg2ScrollRegisters(new Position16<Bg2Pixels>(horizontal, vertical)),
+            setMotherBrainBg2Scroll: BackgroundScroll.SetBg2ScrollRegisters,
             isRoomPlmPresent: Plms.HasActiveHeader,
             gunshipLoadScenario: gunshipLoadScenario,
             deferLoaderTimeCameraReads: viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor);
@@ -1151,11 +1149,11 @@ public sealed partial class SuperMetroidRuntime
             throw new InvalidOperationException(
                 "Spore Spawn published a ceiling PLM without active room level data.");
         }
-        if (request.BlockX != 7 || request.BlockY != 30)
+        if (request.Block != new Position16<RoomBlocks>(7, 30))
         {
             throw new InvalidDataException(
                 $"Spore Spawn published non-cartridge ceiling coordinates " +
-                $"({request.BlockX},{request.BlockY}).");
+                $"({request.Block.X},{request.Block.Y}).");
         }
 
         // SpawnHardcodedPLM silently drops the request if all forty native slots are full.
@@ -1195,7 +1193,7 @@ public sealed partial class SuperMetroidRuntime
             // occupied. TrySpawnCrocomireArenaMutation deliberately mirrors that result.
             Plms.TrySpawnCrocomireArenaMutation(
                 LevelData,
-                new(request.BlockX, request.BlockY),
+                request.Block,
                 request.Header);
         }
     }
@@ -1215,7 +1213,7 @@ public sealed partial class SuperMetroidRuntime
         {
             Plms.TrySpawnKraidRoomMutation(
                 LevelData,
-                new(request.BlockX, request.BlockY),
+                request.Block,
                 request.Header);
         }
     }
@@ -1263,7 +1261,7 @@ public sealed partial class SuperMetroidRuntime
         {
             Plms.TrySpawnMotherBrainMutation(
                 LevelData,
-                new(request.BlockX, request.BlockY),
+                request.Block,
                 request.Header);
         }
     }
@@ -1307,7 +1305,7 @@ public sealed partial class SuperMetroidRuntime
         {
             Plms.TrySpawnShitroidWallMutation(
                 LevelData,
-                new(request.BlockX, request.BlockY),
+                request.Block,
                 request.Header);
         }
     }
@@ -1426,12 +1424,9 @@ public sealed partial class SuperMetroidRuntime
             _addressSpace,
             System,
             roomGeometry.AreaIndex,
-            checked((byte)roomGeometry.MapPosition.X),
-            checked((byte)roomGeometry.MapPosition.Y),
-            LevelData?.Size.X ?? ActiveRoom.Size.ToRoomBlocks().X,
-            LevelData?.Size.Y ?? ActiveRoom.Size.ToRoomBlocks().Y,
-            Samus.Position.X.Whole,
-            Samus.Position.Y.Whole,
+            roomGeometry.MapPosition,
+            LevelData?.Size ?? ActiveRoom.Size.ToRoomBlocks(),
+            Samus.Position.Whole,
             NmiFrameCounter8,
             MapRevealMode,
             MapPresentation?.Get(roomGeometry.AreaIndex));

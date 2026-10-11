@@ -40,20 +40,21 @@ public sealed partial class RoomEnemySystem
         _eyeDoorProjectileSystem = system;
         InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
 
-        int blockX = request.PlmBlockIndex % roomWidthInBlocks;
-        int blockY = request.PlmBlockIndex / roomWidthInBlocks;
+        var block = new Position16<RoomBlocks>(
+            checked((ushort)(request.PlmBlockIndex % roomWidthInBlocks)),
+            checked((ushort)(request.PlmBlockIndex / roomWidthInBlocks)));
         switch (kind)
         {
             case RoomEnemyProjectileKind.EyeDoorProjectile:
-                InitializeEyeDoorProjectile(projectile, request, blockX, blockY);
+                InitializeEyeDoorProjectile(projectile, request, block);
                 return;
 
             case RoomEnemyProjectileKind.EyeDoorSweat:
-                InitializeEyeDoorSweat(projectile, request.Parameter, blockX, blockY);
+                InitializeEyeDoorSweat(projectile, request.Parameter, block);
                 return;
 
             case RoomEnemyProjectileKind.EyeDoorSmoke:
-                InitializeEyeDoorSmoke(projectile, request.Parameter, blockX, blockY);
+                InitializeEyeDoorSmoke(projectile, request.Parameter, block);
                 return;
 
             default:
@@ -65,8 +66,7 @@ public sealed partial class RoomEnemySystem
     private static void InitializeEyeDoorProjectile(
         RoomEnemyProjectileSlot projectile,
         EyeDoorProjectileRequest request,
-        int blockX,
-        int blockY)
+        Position16<RoomBlocks> block)
     {
         int offsetWord = request.Parameter >> 1;
         if ((request.Parameter & 1) != 0 || offsetWord + 1 >= EyeDoorEnemyProjectileRomData.ProjectileOriginWordCount)
@@ -77,19 +77,15 @@ public sealed partial class RoomEnemySystem
         }
 
         projectile.Variable1 = request.DoorBit;
-        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
-            blockX * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock + 8 +
-            EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord))));
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-            blockY * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock +
-            EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord + 1))));
+        projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
+            unchecked((short)(8 + EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord))),
+            EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord + 1)));
     }
 
     private static void InitializeEyeDoorSweat(
         RoomEnemyProjectileSlot projectile,
         ushort parameter,
-        int blockX,
-        int blockY)
+        Position16<RoomBlocks> block)
     {
         int velocityWord = parameter >> 1;
         if ((parameter & 1) != 0 || velocityWord + 1 >= EyeDoorEnemyProjectileRomData.SweatVelocityWordCount)
@@ -99,18 +95,18 @@ public sealed partial class RoomEnemySystem
                 "the cartridge velocity-pair table.");
         }
 
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
-            blockX * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock - 8)), unchecked((ushort)(
-            (blockY + 1) * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock))));
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord))));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord + 1))));
+        // The sweat starts eight pixels left of the eye block, at the top of the block below it.
+        projectile.Position = projectile.Position.WithWhole(
+            block.ToRoomPixels() + new Offset16<RoomPixels>(-8, EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock));
+        projectile.Velocity = new EightEightVector<RoomPixels>(
+            EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord),
+            EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord + 1));
     }
 
     private void InitializeEyeDoorSmoke(
         RoomEnemyProjectileSlot projectile,
         ushort parameter,
-        int blockX,
-        int blockY)
+        Position16<RoomBlocks> block)
     {
         byte listOffset = unchecked((byte)parameter);
         ushort instructionList = MiscDustProjectileDefinitions.InstructionList(listOffset);
@@ -121,11 +117,9 @@ public sealed partial class RoomEnemySystem
             "Eye-door smoke initialization requires the current cartridge RNG word."))();
         projectile.InstructionPointer = instructionList;
 
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
-            blockX * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock + 8 +
-            placement.Base.X + (random & placement.RandomMask.X))), unchecked((ushort)(
-            blockY * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock + 8 +
-            placement.Base.Y + ((random >> 8) & placement.RandomMask.Y)))));
+        projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
+            unchecked((short)(8 + placement.Base.X + (random & placement.RandomMask.X))),
+            unchecked((short)(8 + placement.Base.Y + ((random >> 8) & placement.RandomMask.Y)))));
 
         // $E4FA advances the global seed after sampling it for both coordinates.
         (_nextRandom ?? throw new InvalidOperationException(

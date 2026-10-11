@@ -148,8 +148,7 @@ public sealed partial class RoomEnemySystem
                 state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
             case CrocomireDeathPhase.PinDefeatedRoomBg2Scroll:
-                CrocomireBg2HorizontalScroll = 0;
-                CrocomireBg2VerticalScroll = 0;
+                CrocomireBg2Scroll = Position16<Bg2Pixels>.Zero;
                 return;
             case CrocomireDeathPhase.RiverSkeletonDetour:
                 RunCrocomireSkeletonRiver(state);
@@ -210,7 +209,7 @@ public sealed partial class RoomEnemySystem
     private void RunCrocomireSink(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        FillCrocomireBg2ScrollTable(CrocomireBg2VerticalScroll);
+        FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
         state.FightFlags &= 0xf7ff;
         UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
         RoomEnemySlot body = state.Body;
@@ -253,7 +252,7 @@ public sealed partial class RoomEnemySystem
     private void RunCrocomireRise(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        FillCrocomireBg2ScrollTable(CrocomireBg2VerticalScroll);
+        FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
         RoomEnemySlot body = state.Body;
         if (unchecked((short)(body.Position.Y.Whole - 218)) < 0)
         {

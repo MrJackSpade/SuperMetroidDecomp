@@ -1,7 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One authored Mode 7 getaway frame; velocities retain native signed-word encoding.</summary>
-public readonly record struct CeresRidleyGetawayFrame(ushort Zoom, ushort XVelocity, ushort YVelocity);
+/// <summary>
+/// One authored Mode 7 getaway frame. <paramref name="Velocity"/> holds the native signed words
+/// of the $A6:B00F X table (subtracted from the horizontal offset, so the image moves right) and
+/// the $A6:AF2F Y table (added to the vertical offset).
+/// </summary>
+public readonly record struct CeresRidleyGetawayFrame(ushort Zoom, Offset16<Mode7Pixels> Velocity);
 
 /// <summary>Immutable NTSC Ceres getaway zoom and translation curves.</summary>
 public static class CeresRidleyGetawayDefinitions
@@ -16,7 +20,7 @@ public static class CeresRidleyGetawayDefinitions
             throw new InvalidDataException($"Ceres Ridley getaway byte index ${byteIndex:X4} is outside its authored even entries.");
         int frame = byteIndex >> 1;
         if (frame == 112)
-            return new(Finished, 0, 0);
+            return new(Finished, Offset16<Mode7Pixels>.Zero);
         int zoom = frame switch
         {
             < 32 => 0x800,
@@ -41,6 +45,6 @@ public static class CeresRidleyGetawayDefinitions
             < 108 => 8 + (frame - 104) * 4,
             _ => 0x20,
         };
-        return new((ushort)zoom, unchecked((ushort)x), unchecked((ushort)y));
+        return new((ushort)zoom, new Offset16<Mode7Pixels>((short)x, (short)y));
     }
 }

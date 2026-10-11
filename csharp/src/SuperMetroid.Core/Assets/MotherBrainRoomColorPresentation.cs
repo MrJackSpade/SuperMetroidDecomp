@@ -145,10 +145,17 @@ public sealed class MotherBrainRoomColorPresentation
     {
         MotherBrainRoomColorDocument document = JsonAssetDocument.Read<MotherBrainRoomColorDocument>(
             json, MapPresentationFormat.JsonOptions, "Mother Brain room colors");
-        bool previousWithStock = currentStock is not null &&
-            document.Version is MotherBrainRoomColorFormat.PreRoomEntryVersion or
-                MotherBrainRoomColorFormat.PreRecoveryLightsVersion;
-        if ((document.Version != MotherBrainRoomColorFormat.Version && !previousWithStock) ||
+        if (!Enum.IsDefined((MotherBrainRoomColorRevision)document.Version))
+            throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
+        var revision = (MotherBrainRoomColorRevision)document.Version;
+        bool inheritsRoomEntry = revision == MotherBrainRoomColorRevision.PreRoomEntry;
+        bool inheritsRecoveryLights = revision switch
+        {
+            MotherBrainRoomColorRevision.PreRoomEntry or MotherBrainRoomColorRevision.PreRecoveryLights => true,
+            MotherBrainRoomColorRevision.Current => false,
+            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainRoomColorRevision)} {(int)revision}."),
+        };
+        if ((inheritsRecoveryLights && currentStock is null) ||
             document.Flash is null ||
             document.Flash.Length != MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
@@ -162,15 +169,15 @@ public sealed class MotherBrainRoomColorPresentation
                 "phase-two attack"),
             Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorRomData.PhaseTwoColors,
                 "phase-two rear leg"),
-            document.Version == MotherBrainRoomColorFormat.PreRoomEntryVersion
+            inheritsRoomEntry
                 ? currentStock!.initialGlassShard
                 : new GlassPalette(Compile(document.InitialGlassShard, MotherBrainRoomColorRomData.InitialColors,
                     "room-entry glass shard"), finalRoom),
-            document.Version == MotherBrainRoomColorFormat.PreRoomEntryVersion
+            inheritsRoomEntry
                 ? currentStock!.initialTubeProjectile
                 : new TubePalette(Compile(document.InitialTubeProjectile, MotherBrainRoomColorRomData.InitialColors,
                     "room-entry tube projectile"), finalRoom),
-            document.Version < MotherBrainRoomColorFormat.Version
+            inheritsRecoveryLights
                 ? currentStock!.recoveryLights
                 : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights), finalRoom));
     }
@@ -200,9 +207,8 @@ public sealed class MotherBrainRoomColorPresentation
                     MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor - 1,
                     MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor), color - MotherBrainRoomColorRomData.RoomShadowFirst,
                     MotherBrainRoomColorRomData.RoomShadowCount - 1, ceilingRed: MotherBrainFinalRoomPaintDefinitions.RecessedRedCeiling);
-            if (color < MotherBrainRoomColorRomData.RoomOutlineColor)
-                return color == MotherBrainRoomColorRomData.RoomAmberColor ? MotherBrainFinalRoomPaintDefinitions.Amber : Bgr555.Black;
-            if (color == MotherBrainRoomColorRomData.RoomOutlineColor) return MotherBrainFinalRoomPaintDefinitions.PanelField;
+            if (color <= MotherBrainRoomColorRomData.RoomOutlineColor)
+                return PanelColorAt(color);
             if (color < MotherBrainRoomColorRomData.RoomDarkGrayColor)
                 return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight, MotherBrainFinalRoomPaintDefinitions.MetalLow, color - MotherBrainRoomColorRomData.RoomGrayFirst,
                     MotherBrainRoomColorRomData.RoomGrayCount - 1);
@@ -220,6 +226,27 @@ public sealed class MotherBrainRoomColorPresentation
                 AccentColor.Glow => MotherBrainFinalRoomPaintDefinitions.WarmAccent,
                 _ => throw new InvalidOperationException($"Undefined {nameof(AccentColor)} {color}."),
             };
+        }
+
+        private static Bgr555 PanelColorAt(int color)
+        {
+            if (!Enum.IsDefined((PanelColor)color))
+                return Bgr555.Black;
+            return (PanelColor)color switch
+            {
+                PanelColor.Amber => MotherBrainFinalRoomPaintDefinitions.Amber,
+                PanelColor.Outline => MotherBrainFinalRoomPaintDefinitions.PanelField,
+                _ => throw new InvalidOperationException($"Undefined {nameof(PanelColor)} {color}."),
+            };
+        }
+
+        /// <summary>The final-room color indexes between the shadow ramp and the gray ramp that own individual paint; the rest are black.</summary>
+        private enum PanelColor
+        {
+            /// <summary>Amber panel light.</summary>
+            Amber = MotherBrainRoomColorRomData.RoomAmberColor,
+            /// <summary>Panel outline field.</summary>
+            Outline = MotherBrainRoomColorRomData.RoomOutlineColor,
         }
 
         /// <summary>The final-room color indexes past the gray ramp that own individual paint; the rest are stock white.</summary>
@@ -460,6 +487,17 @@ public sealed record MotherBrainRoomColorDocument
     public PaletteRgb5[]? InitialTubeProjectile { get; init; }
     /// <summary>Seven ordered 28-color images: fourteen for CGRAM 49..62 followed by fourteen for 81..94. Required in version 3; versions 1/2 inherit current-stock recovery artwork.</summary>
     public PaletteRgb5[][]? RecoveryLights { get; init; }
+}
+
+/// <summary>The supported schema revisions of the Mother Brain room-color document.</summary>
+internal enum MotherBrainRoomColorRevision
+{
+    /// <summary>Revision 1: room-entry and recovery-light artwork are inherited from current stock.</summary>
+    PreRoomEntry = MotherBrainRoomColorFormat.PreRoomEntryVersion,
+    /// <summary>Revision 2: recovery-light artwork is inherited from current stock.</summary>
+    PreRecoveryLights = MotherBrainRoomColorFormat.PreRecoveryLightsVersion,
+    /// <summary>Revision 3: every field is supplied by the document.</summary>
+    Current = MotherBrainRoomColorFormat.Version,
 }
 
 /// <summary>Installation filename and compatible schema revisions for Mother Brain's room and cutscene color artwork.</summary>

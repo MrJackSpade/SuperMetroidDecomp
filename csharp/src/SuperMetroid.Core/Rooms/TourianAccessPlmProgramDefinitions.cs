@@ -18,11 +18,42 @@ internal static class TourianAccessPlmProgramDefinitions
     /// <summary>Each of the four crumble frames holds for four PLM passes.</summary>
     internal const ushort CrumbleFrameDuration = 4;
 
+    /// <summary>The fixed control words of both streams outside the crumble frames, valued by address.</summary>
+    private enum ControlWord : ushort
+    {
+        /// <summary><c>$84:AAE5</c>: the crumble list's eight-bit timer instruction.</summary>
+        CrumbleSetTimer = Crumble,
+        /// <summary>The crumble loop's move-down instruction after the four frames.</summary>
+        CrumbleMoveDown = Crumble + 19,
+        /// <summary>The crumble loop's decrement-and-branch instruction.</summary>
+        CrumbleDecrementAndBranch = Crumble + 21,
+        /// <summary>The decrement-and-branch operand naming the first crumble frame.</summary>
+        CrumbleLoopTarget = Crumble + 23,
+        /// <summary>The crumble list's terminal delete.</summary>
+        CrumbleDelete = Crumble + 25,
+        /// <summary><c>$84:AB0C</c>: the clear list's one-pass duration.</summary>
+        ClearDuration = Clear,
+        /// <summary>The clear list's draw operand.</summary>
+        ClearDraw = Clear + 2,
+        /// <summary>The clear list's terminal delete.</summary>
+        ClearDelete = Clear + 4,
+    }
+
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        if (address == Crumble)
+        if (Enum.IsDefined((ControlWord)address))
         {
-            value = (ushort)RoomPlmInstruction.SetEightBitTimer;
+            value = (ControlWord)address switch
+            {
+                ControlWord.CrumbleSetTimer => (ushort)RoomPlmInstruction.SetEightBitTimer,
+                ControlWord.CrumbleMoveDown => (ushort)RoomPlmInstruction.MoveTourianAccessDown,
+                ControlWord.CrumbleDecrementAndBranch => (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
+                ControlWord.CrumbleLoopTarget => checked((ushort)(Crumble + 3)),
+                ControlWord.CrumbleDelete or ControlWord.ClearDelete => (ushort)RoomPlmInstruction.Delete,
+                ControlWord.ClearDuration => 1,
+                ControlWord.ClearDraw => (ushort)TourianAccessDraw.Clear,
+                _ => throw new InvalidOperationException($"Undefined {nameof(ControlWord)} {(int)(ControlWord)address}."),
+            };
             return true;
         }
         if (address is >= (Crumble + 3) and < (Crumble + 19))
@@ -39,19 +70,8 @@ internal static class TourianAccessPlmProgramDefinitions
                 return true;
             }
         }
-        value = address switch
-        {
-            Crumble + 19 => (ushort)RoomPlmInstruction.MoveTourianAccessDown,
-            Crumble + 21 => (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
-            Crumble + 23 => checked((ushort)(Crumble + 3)),
-            Crumble + 25 => (ushort)RoomPlmInstruction.Delete,
-            Clear => 1,
-            Clear + 2 => (ushort)TourianAccessDraw.Clear,
-            Clear + 4 => (ushort)RoomPlmInstruction.Delete,
-            _ => 0,
-        };
-        return address is Crumble + 19 or Crumble + 21 or Crumble + 23 or
-            Crumble + 25 or Clear or Clear + 2 or Clear + 4;
+        value = 0;
+        return false;
     }
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)

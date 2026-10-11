@@ -181,6 +181,15 @@ public sealed class DemoInputState
             throw UnsupportedRoutine("initializer", initializerPointer);
     }
 
+    /// <summary>The return-only pre-instructions a demo object without an owner callback may hold.</summary>
+    private enum ReturnOnlyPreInstruction : ushort
+    {
+        /// <summary>$91:83BF, installed by the demo object definition.</summary>
+        NoOp = DemoInputRomData.Routines.NoOp,
+        /// <summary>$91:8447, installed when the pre-instruction is cleared.</summary>
+        Cleared = DemoInputRomData.Routines.ClearedPreInstruction,
+    }
+
     /// <summary>
     /// Executes <c>$91:83C0/$83F2</c> once and publishes the resulting controller words.
     /// The owner supplies a bounded compiled list reader.
@@ -197,9 +206,7 @@ public sealed class DemoInputState
 
         if (preInstruction is not null)
             preInstruction(this, PreInstructionPointer);
-        else if (PreInstructionPointer is not (
-            DemoInputRomData.Routines.NoOp or
-            DemoInputRomData.Routines.ClearedPreInstruction))
+        else if (!Enum.IsDefined((ReturnOnlyPreInstruction)PreInstructionPointer))
             throw UnsupportedRoutine("pre-instruction", PreInstructionPointer);
 
         // DEC is a 16-bit 65C816 operation. In particular, a zero duration wraps and lasts

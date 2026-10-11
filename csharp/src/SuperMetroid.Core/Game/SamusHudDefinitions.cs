@@ -45,23 +45,23 @@ internal static class SamusHudDefinitions
     ];
 
     /// <summary>$90:DD05: movement-state HUD admission dispatch, preserving all 28 native handler identities.</summary>
-    internal static ushort MovementHandler(SamusMovementType movement)
+    internal static SamusHudHandler MovementHandler(SamusMovementType movement)
     {
         if ((byte)movement > (byte)SamusMovementType.Special) throw new IndexOutOfRangeException();
         return movement switch
         {
             SamusMovementType.SpinJumping or SamusMovementType.Knockback or SamusMovementType.Unused0D or
-            SamusMovementType.WallJumping or SamusMovementType.DamageBoost or SamusMovementType.Special => JumpHandler,
+            SamusMovementType.WallJumping or SamusMovementType.DamageBoost or SamusMovementType.Special => SamusHudHandler.Jump,
             SamusMovementType.MorphBallGround or SamusMovementType.UnusedGlitchBall or SamusMovementType.MorphBallFalling or
             SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.SpringBallGround or
-            SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling => MorphBallHandler,
-            SamusMovementType.Unused0B or SamusMovementType.Unused0C or SamusMovementType.Grappling => GrappleHandler,
-            SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => TurningHandler,
-            SamusMovementType.PostureTransition => TransitionHandler,
-            SamusMovementType.DraygonHeld => DraygonHeldHandler,
+            SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling => SamusHudHandler.MorphBall,
+            SamusMovementType.Unused0B or SamusMovementType.Unused0C or SamusMovementType.Grappling => SamusHudHandler.Grapple,
+            SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => SamusHudHandler.Turning,
+            SamusMovementType.PostureTransition => SamusHudHandler.Transition,
+            SamusMovementType.DraygonHeld => SamusHudHandler.DraygonHeld,
             SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping or
                 SamusMovementType.Crouching or SamusMovementType.Falling or SamusMovementType.Moonwalking or
-                SamusMovementType.RanIntoWall => StandardHandler,
+                SamusMovementType.RanIntoWall => SamusHudHandler.Standard,
             _ => throw new InvalidOperationException($"Undefined SamusMovementType {movement}."),
         };
     }

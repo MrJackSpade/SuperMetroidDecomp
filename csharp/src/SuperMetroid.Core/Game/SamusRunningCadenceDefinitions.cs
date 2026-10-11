@@ -91,12 +91,32 @@ internal static class SamusRunningCadenceDefinitions
             "or a mutable bank-$91 low-half alias.");
     }
 
+    /// <summary>The two compiled 16-bit words outside the cadence streams and reset table, valued by address.</summary>
+    private enum StandaloneWord
+    {
+        /// <summary>$91:B5D1, the ordinary cadence list pointer.</summary>
+        OrdinaryPointer = SamusRunningCadenceDefinitions.OrdinaryPointer,
+        /// <summary>$91:B629, the zero word read by the stage-five reset lookup.</summary>
+        SoundQueueStageFiveReset = SoundQueueStageFiveResetWord,
+    }
+
+    private static ushort StandaloneWordValue(StandaloneWord word) => word switch
+    {
+        StandaloneWord.OrdinaryPointer => unchecked((ushort)OrdinaryDelays),
+        StandaloneWord.SoundQueueStageFiveReset => 0,
+        _ => throw new InvalidOperationException($"Undefined {nameof(StandaloneWord)} {(int)word}."),
+    };
+
     private static bool TryReadCompiledByte(int address, out byte value)
     {
-        if (address is OrdinaryPointer or OrdinaryPointer + 1)
+        foreach (StandaloneWord word in Enum.GetValues<StandaloneWord>())
         {
-            value = unchecked((byte)((ushort)OrdinaryDelays >> ((address - OrdinaryPointer) * 8)));
-            return true;
+            int byteOffset = address - (int)word;
+            if (byteOffset is 0 or 1)
+            {
+                value = unchecked((byte)(StandaloneWordValue(word) >> (byteOffset * 8)));
+                return true;
+            }
         }
         if (address is >= OrdinaryDelays and < BoostPointers)
         {
@@ -132,12 +152,6 @@ internal static class SamusRunningCadenceDefinitions
             value = (index & 1) != 0 ? (byte)0 : index < 8 ? (byte)1 : (byte)2;
             return true;
         }
-        if (address is SoundQueueStageFiveResetWord or SoundQueueStageFiveResetWord + 1)
-        {
-            value = 0;
-            return true;
-        }
-
         value = 0;
         return false;
     }

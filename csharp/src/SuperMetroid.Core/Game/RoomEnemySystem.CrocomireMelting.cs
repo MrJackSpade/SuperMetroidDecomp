@@ -61,7 +61,7 @@ public sealed partial class RoomEnemySystem
         CrocomireDeathState death = RequireCrocomireDeath();
         death.PixelsToErasePerColumn = 48;
         death.TargetHeightOrSkeletonTileIndex = 48;
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         InstallCrocomireInstructionList(state.Body, bodyInstructionList);
     }
 
@@ -91,7 +91,7 @@ public sealed partial class RoomEnemySystem
         // new phase and distortion state; no cartridge reader is available as a fallback.
         artwork.CopyPassTo(pass.HeaderOffset, death.MutableMeltingGraphics);
         FillCrocomireBg2ScrollTable(CrocomireBg2VerticalScroll);
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.DistortionStep = 0x0100;
         death.MeltingColumnCursor = 0;
 
@@ -112,7 +112,7 @@ public sealed partial class RoomEnemySystem
         if (!CrocomireMeltingTransferDefinitions.TryUpload(
             recordOffset, out CrocomireMeltingUpload upload))
         {
-            state.DeathSequenceIndex += 2;
+            state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             death.MeltingTransferOffset = 0;
             return;
         }
@@ -150,7 +150,7 @@ public sealed partial class RoomEnemySystem
         if (lineCount < scrolls.Length)
             scrolls.Slice(lineCount).Fill(CrocomireBg2VerticalScroll);
 
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.BodyXBeforeMelting = state.Body.XPosition;
     }
 
@@ -278,7 +278,7 @@ public sealed partial class RoomEnemySystem
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         death.MeltingHdmaActive = false;
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
 
         death.MeltingTableOffset = CrocomireMeltingTransferDefinitions.Transfers(
             death.MeltingTableOffset).NextHeaderOffset;
@@ -292,6 +292,6 @@ public sealed partial class RoomEnemySystem
         state.StepCounter = 0x0800;
         ClearCrocomireBg2WorkingTilemap();
         TransferCrocomireBg2Words(0, 1024);
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 }

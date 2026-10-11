@@ -487,6 +487,14 @@ public sealed record SuperMetroidSaveSlot(
     ushort SaveStation,
     ushort Area)
 {
+    /// <summary>
+    /// The startup route $82:EEB4 selects for <see cref="LoadingGameState"/>; a word the
+    /// dispatcher does not name resumes the main game.
+    /// </summary>
+    public SaveLoadingGameState StartupRoute => Enum.IsDefined((SaveLoadingGameState)LoadingGameState)
+        ? (SaveLoadingGameState)LoadingGameState
+        : SaveLoadingGameState.MainGame;
+
     /// <summary>The checksum-backed seven-action controller permutation.</summary>
     public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
 

@@ -54,15 +54,15 @@ public sealed class ZebetiteColorCatalog
         {
             throw new InvalidDataException("Invalid Zebetite color JSON.", error);
         }
-        if (document.Version != ZebetiteColorFormat.Version || document.Frames is null ||
-            document.Frames.Length != ZebetiteColorFormat.FrameCount)
+        if (document.Version != ZebetiteColorFormat.Version ||
+            !ZebetiteColorFormat.Shape.HasRows(document.Frames))
             throw new InvalidDataException("Zebetite colors require all eight frames at the supported version.");
 
         var edits = new Dictionary<int, Bgr555>();
         for (int frame = 0; frame < document.Frames.Length; frame++)
         {
             PaletteRgb5[]? colors = document.Frames[frame];
-            if (colors is null || colors.Length != ZebetiteColorFormat.ColorsPerFrame)
+            if (!ZebetiteColorFormat.Shape.HasColumns(colors))
                 throw new InvalidDataException($"Zebetite frame {frame} requires two RGB5 colors.");
             for (int color = 0; color < colors.Length; color++)
             {
@@ -124,4 +124,6 @@ public static class ZebetiteColorFormat
     public const int FrameCount = 8;
     /// <summary>Two adjacent barrier-core colors copied per pulse step to OBJ palette 2 colors 12 and 13.</summary>
     public const int ColorsPerFrame = 2;
+    /// <summary>Required frame-by-color dimensions of the editable document.</summary>
+    internal static FixedGridShape Shape => new(FrameCount, ColorsPerFrame);
 }

@@ -164,8 +164,8 @@ public static class SamusPaletteRomData
             ushort suitByteOffset, ushort phaseByteOffset) =>
             (suitByteOffset, phaseByteOffset) switch
             {
-                (4, 8) => SpeedBoosterPaletteOverrunDefinitions.ExpansionPointer,
-                (4, 10) => SpeedBoosterPaletteOverrunDefinitions.GrappleCodePointer,
+                (4, 8) => (ushort)SpeedBoosterPaletteOverrun.Expansion,
+                (4, 10) => (ushort)SpeedBoosterPaletteOverrun.GrappleCode,
                 _ => ReadCompiledListWord(suitByteOffset, phaseByteOffset,
                     firstListAddress: SpeedBoosterFirstList, phaseCount: 4,
                     firstPalette: SpeedBoosterFirstPalette, pingPong: false),

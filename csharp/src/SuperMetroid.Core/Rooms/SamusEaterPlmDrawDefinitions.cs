@@ -83,12 +83,12 @@ internal static class SamusEaterPlmDrawDefinitions
 
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
-        var list = (SamusEaterDraw)pointer;
-        if (!Enum.IsDefined(list))
+        if (!Enum.IsDefined((SamusEaterDraw)pointer))
         {
             draw = default;
             return false;
         }
+        SamusEaterDraw list = (SamusEaterDraw)pointer;
         draw = list switch
         {
             SamusEaterDraw.FloorIdle => new(false, 0),

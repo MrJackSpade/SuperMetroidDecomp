@@ -89,8 +89,9 @@ public sealed partial class RoomEnemySystem
 
     private void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.PreInstruction ==
-                (ushort)EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess &&
+        if (ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(
+                projectile.PreInstruction, "enemy-projectile pre-instruction") ==
+                EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess &&
             TourianEntranceStatueAnimationState == 0)
         {
             TourianEntranceStatueFinished = true;

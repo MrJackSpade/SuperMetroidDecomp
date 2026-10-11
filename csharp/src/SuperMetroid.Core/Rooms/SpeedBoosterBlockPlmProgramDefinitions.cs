@@ -24,24 +24,45 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
 
     private const int ProgramCount = 5;
 
-    private static Program ProgramAt(int index)
+    /// <summary>The five reachable Speed Booster collision programs, in native table order.</summary>
+    private enum SpeedBlockProgram
     {
-        ushort start = index switch
-        {
-            0 => RoomPlmInstructionLists.SpeedBlockBrinstarSlowRespawning,
-            1 => RoomPlmInstructionLists.SpeedBlockRespawning,
-            2 => RoomPlmInstructionLists.SpeedBlockDachoraRespawning,
-            3 => RoomPlmInstructionLists.SpeedBlockBrinstarSlowPermanent,
-            4 => RoomPlmInstructionLists.SpeedBlockPermanent,
-            _ => throw new IndexOutOfRangeException(),
-        };
-        bool slow = start is RoomPlmInstructionLists.SpeedBlockBrinstarSlowRespawning
-            or RoomPlmInstructionLists.SpeedBlockBrinstarSlowPermanent;
-        bool respawns = start is not (RoomPlmInstructionLists.SpeedBlockBrinstarSlowPermanent
-            or RoomPlmInstructionLists.SpeedBlockPermanent);
-        return new(start, respawns, slow ? (ushort)2 : (ushort)1,
-            start == RoomPlmInstructionLists.SpeedBlockDachoraRespawning);
+        /// <summary>Slow-crumbling respawning Brinstar block.</summary>
+        BrinstarSlowRespawning,
+        /// <summary>Ordinary respawning block.</summary>
+        Respawning,
+        /// <summary>Dachora-room respawning block drawn through the block clone.</summary>
+        DachoraRespawning,
+        /// <summary>Slow-crumbling permanent Brinstar block.</summary>
+        BrinstarSlowPermanent,
+        /// <summary>Ordinary permanent block.</summary>
+        Permanent,
     }
+
+    private static Program ProgramAt(int index) => ProgramOf(index switch
+    {
+        0 => SpeedBlockProgram.BrinstarSlowRespawning,
+        1 => SpeedBlockProgram.Respawning,
+        2 => SpeedBlockProgram.DachoraRespawning,
+        3 => SpeedBlockProgram.BrinstarSlowPermanent,
+        4 => SpeedBlockProgram.Permanent,
+        _ => throw new IndexOutOfRangeException(),
+    });
+
+    private static Program ProgramOf(SpeedBlockProgram program) => program switch
+    {
+        SpeedBlockProgram.BrinstarSlowRespawning => new(RoomPlmInstructionLists.SpeedBlockBrinstarSlowRespawning,
+            Respawns: true, InitialCrumbleDelay: 2, UseDrawBlockClone: false),
+        SpeedBlockProgram.Respawning => new(RoomPlmInstructionLists.SpeedBlockRespawning,
+            Respawns: true, InitialCrumbleDelay: 1, UseDrawBlockClone: false),
+        SpeedBlockProgram.DachoraRespawning => new(RoomPlmInstructionLists.SpeedBlockDachoraRespawning,
+            Respawns: true, InitialCrumbleDelay: 1, UseDrawBlockClone: true),
+        SpeedBlockProgram.BrinstarSlowPermanent => new(RoomPlmInstructionLists.SpeedBlockBrinstarSlowPermanent,
+            Respawns: false, InitialCrumbleDelay: 2, UseDrawBlockClone: false),
+        SpeedBlockProgram.Permanent => new(RoomPlmInstructionLists.SpeedBlockPermanent,
+            Respawns: false, InitialCrumbleDelay: 1, UseDrawBlockClone: false),
+        _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBlockProgram)} {program}."),
+    };
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {

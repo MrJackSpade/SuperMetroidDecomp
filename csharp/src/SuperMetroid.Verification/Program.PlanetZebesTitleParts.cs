@@ -12,7 +12,7 @@ internal static partial class Program
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, definition.Pointer, definition.StockPartCount, definition.Name);
             CheckCeresBlastLoader(definition.Pointer, visual);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            SpriteComposition result = PlanetZebesTitleParts.CalculateIfMatching(definition.Pointer, source);
+            SpriteComposition result = PlanetZebesTitleParts.CalculateIfMatching(definition.Backdrop, source);
             AssertTrue(!ReferenceEquals(source, result), "original PlanetZebesTitle selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original PlanetZebesTitle compiled fields");
             for (int piece = 0; piece < visual.Length; piece++)
@@ -32,13 +32,13 @@ internal static partial class Program
                     edited[piece] = edit;
                     CheckCeresBlastLoader(definition.Pointer, edited);
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited PlanetZebesTitle");
-                    AssertTrue(ReferenceEquals(supplied, PlanetZebesTitleParts.CalculateIfMatching(definition.Pointer, supplied)),
+                    AssertTrue(ReferenceEquals(supplied, PlanetZebesTitleParts.CalculateIfMatching(definition.Backdrop, supplied)),
                         "independent PlanetZebesTitle field edit stays supplied");
                 }
             }
             CheckCeresBlastLoader(definition.Pointer, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
             var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom PlanetZebesTitle");
-            AssertTrue(ReferenceEquals(extra, PlanetZebesTitleParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
+            AssertTrue(ReferenceEquals(extra, PlanetZebesTitleParts.CalculateIfMatching(definition.Backdrop, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated PlanetZebesTitle part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })

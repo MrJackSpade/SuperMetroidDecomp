@@ -401,16 +401,16 @@ public sealed partial class SamusProjectileSystem
         // nothing: held/released Shoot must leave the charge word untouched.
         // Existing projectiles still advance below. Pose input can leave spin
         // first, making the normal producer eligible on the following alpha.
-        ushort hudHandler = SamusHudDefinitions.MovementHandler(samus.ReadMovementType(bus));
+        SamusHudHandler hudHandler = SamusHudDefinitions.MovementHandler(samus.ReadMovementType(bus));
         bool preservesJumpHandlerCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
-            hudHandler == SamusHudRomData.JumpHandler;
+            hudHandler == SamusHudHandler.Jump;
         // Turning HUD dispatch waits for an explicit pose-initializer muzzle handoff.
         // With no handoff it neither increments charge nor releases it on a Shoot edge.
-        bool preservesTurnCharge = hudHandler == SamusHudRomData.TurningHandler &&
+        bool preservesTurnCharge = hudHandler == SamusHudHandler.Turning &&
             samus.PoseTransitionShotDirection == 0;
         // Posture-transition dispatch preserves the carried charge during morph art;
         // ordinary crouch/stand transitions still run their native beam producer.
-        bool preservesPostureCharge = hudHandler == SamusHudRomData.TransitionHandler &&
+        bool preservesPostureCharge = hudHandler == SamusHudHandler.Transition &&
             !SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose,
                 grappleActive: samus.Grapple.Phase != GrapplePhase.Inactive);
         if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusState.IsForwardFacingPose(samus.Pose) &&

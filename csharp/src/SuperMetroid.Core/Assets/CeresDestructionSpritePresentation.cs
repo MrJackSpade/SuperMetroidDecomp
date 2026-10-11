@@ -73,9 +73,9 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
             compiled = IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = CeresStationBlastParts.CalculateIfMatching(definition.Pointer, compiled);
             compiled = CeresLargeBlastParts.CalculateIfMatching(definition.Pointer, compiled);
-            compiled = PlanetZebesTitleParts.CalculateIfMatching(definition.Pointer, compiled);
-            compiled = ZebesPlanetBandParts.CalculateIfMatching(definition.Pointer, compiled);
-            compiled = ZebesStarGridParts.CalculateIfMatching(definition.Pointer, compiled);
+            compiled = PlanetZebesTitleParts.CalculateIfMatching(definition.Backdrop, compiled);
+            compiled = ZebesPlanetBandParts.CalculateIfMatching(definition.Backdrop, compiled);
+            compiled = ZebesStarGridParts.CalculateIfMatching(definition.Backdrop, compiled);
             frames.Add(definition.Pointer, compiled);
         }
         return new CeresDestructionSpritePresentation(frames);
@@ -121,8 +121,9 @@ public sealed record CeresDestructionSpriteDocument
 /// <param name="Name">Stable JSON key for a backdrop or numbered blast frame.</param>
 /// <param name="Pointer">Bank-relative $8C spritemap pointer selected by the scene's compiled sprite instruction lists.</param>
 /// <param name="StockPartCount">Number of ordered five-byte OAM parts in the original record, excluding its two-byte count header.</param>
+/// <param name="Backdrop">The backdrop this frame draws, or <see langword="null"/> for a blast frame.</param>
 public readonly record struct CeresDestructionSpriteFrameDefinition(
-    string Name, ushort Pointer, int StockPartCount);
+    string Name, ushort Pointer, int StockPartCount, CeresDestructionBackdrop? Backdrop = null);
 
 /// <summary>Installed filename and supported schema revision for the selected Ceres-destruction and Zebes-reveal OAM compositions.</summary>
 public static class CeresDestructionSpriteFormat
@@ -152,12 +153,12 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
                 (sbyte)(unchecked((sbyte)part.Y) / 8), (ushort)part.Attributes.TileNumber);
         }
     }
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CeresDestructionBackdrop? backdrop, SpriteComposition supplied)
     {
-        if (pointer is not (CeresDestructionSpriteDefinitions.UpperLeftStars or
-            CeresDestructionSpriteDefinitions.UpperRightStars or
-            CeresDestructionSpriteDefinitions.LowerLeftStars or
-            CeresDestructionSpriteDefinitions.LowerRightStars)) return supplied;
+        if (backdrop is not (CeresDestructionBackdrop.UpperLeftStars or
+            CeresDestructionBackdrop.UpperRightStars or
+            CeresDestructionBackdrop.LowerLeftStars or
+            CeresDestructionBackdrop.LowerRightStars)) return supplied;
         // Full-field matching preserves off-grid and independently edited appearance.
         return supplied.CalculateIfMatching(new ZebesStarGridParts(supplied));
     }

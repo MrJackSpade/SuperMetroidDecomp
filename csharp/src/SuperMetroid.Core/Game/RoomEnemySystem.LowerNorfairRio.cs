@@ -31,7 +31,7 @@ public sealed class LowerNorfairRioEnemyState
     internal LowerNorfairRioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Last bank-$A2 instruction-list identity installed for this actor, native <c>Holtz.instList</c> at <c>$7E:7800,x</c>; distinct from the advancing cursor and prevents timer resets when the same list is requested again.</summary>
-    public ushort InstalledInstructionList { get; internal set; }
+    internal LowerNorfairRioProgram InstalledInstructionList { get; set; }
 
     /// <summary>Extra word $01, set by private animation instruction $C6D2.</summary>
     public bool AnimationSignal { get; internal set; }
@@ -100,14 +100,14 @@ public sealed partial class RoomEnemySystem
         if (state.IsFollower)
         {
             ValidateLowerNorfairRioParent(slot);
-            state.InstalledInstructionList = (ushort)LowerNorfairRioProgram.Flames;
-            slot.CurrentInstruction = (ushort)LowerNorfairRioProgram.Flames;
+            state.InstalledInstructionList = LowerNorfairRioProgram.Flames;
+            slot.CurrentInstruction = ListStart(LowerNorfairRioProgram.Flames);
             state.Function = LowerNorfairRioEnemyFunction.FollowParent;
             return;
         }
 
-        state.InstalledInstructionList = (ushort)LowerNorfairRioProgram.Idle;
-        slot.CurrentInstruction = (ushort)LowerNorfairRioProgram.Idle;
+        state.InstalledInstructionList = LowerNorfairRioProgram.Idle;
+        slot.CurrentInstruction = ListStart(LowerNorfairRioProgram.Idle);
         state.Function = LowerNorfairRioEnemyFunction.WaitForAttackOpportunity;
     }
 
@@ -144,7 +144,7 @@ public sealed partial class RoomEnemySystem
                     InstallLowerNorfairRioInstructionList(
                         slot,
                         state,
-                        (ushort)LowerNorfairRioProgram.Idle);
+                        LowerNorfairRioProgram.Idle);
                     return;
                 }
 
@@ -155,7 +155,7 @@ public sealed partial class RoomEnemySystem
                 InstallLowerNorfairRioInstructionList(
                     slot,
                     state,
-                    (ushort)LowerNorfairRioProgram.PrepareToSwoop);
+                    LowerNorfairRioProgram.PrepareToSwoop);
                 state.Function = LowerNorfairRioEnemyFunction.WaitForTakeoffAnimation;
                 return;
 
@@ -166,7 +166,7 @@ public sealed partial class RoomEnemySystem
                 InstallLowerNorfairRioInstructionList(
                     slot,
                     state,
-                    (ushort)LowerNorfairRioProgram.Descending);
+                    LowerNorfairRioProgram.Descending);
                 state.Function = LowerNorfairRioEnemyFunction.Dive;
                 return;
 
@@ -198,7 +198,7 @@ public sealed partial class RoomEnemySystem
                     InstallLowerNorfairRioInstructionList(
                         slot,
                         state,
-                        (ushort)LowerNorfairRioProgram.Cooldown);
+                        LowerNorfairRioProgram.Cooldown);
                     state.Function = LowerNorfairRioEnemyFunction.WaitForLandingAnimation;
                     return;
                 }
@@ -210,7 +210,7 @@ public sealed partial class RoomEnemySystem
                     InstallLowerNorfairRioInstructionList(
                         slot,
                         state,
-                        (ushort)LowerNorfairRioProgram.AscendingPart2);
+                        LowerNorfairRioProgram.AscendingPart2);
                 }
                 return;
 
@@ -221,7 +221,7 @@ public sealed partial class RoomEnemySystem
                 InstallLowerNorfairRioInstructionList(
                     slot,
                     state,
-                    (ushort)LowerNorfairRioProgram.Cooldown);
+                    LowerNorfairRioProgram.Cooldown);
                 state.Function = LowerNorfairRioEnemyFunction.WaitForAttackOpportunity;
                 return;
 
@@ -296,7 +296,7 @@ public sealed partial class RoomEnemySystem
         InstallLowerNorfairRioInstructionList(
             slot,
             state,
-            (ushort)LowerNorfairRioProgram.AscendingPart1);
+            LowerNorfairRioProgram.AscendingPart1);
         state.Function = LowerNorfairRioEnemyFunction.ReturnToPerch;
         LastLowerNorfairRioSoundEffect = LowerNorfairRioReturnSound;
     }
@@ -315,15 +315,18 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>The bank-$A2 address at which <paramref name="program"/> begins, loaded into the enemy's instruction cursor.</summary>
+    private static ushort ListStart(LowerNorfairRioProgram program) => (ushort)program;
+
     private static void InstallLowerNorfairRioInstructionList(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state,
-        ushort instructionList)
+        LowerNorfairRioProgram instructionList)
     {
         if (state.InstalledInstructionList == instructionList)
             return;
         state.InstalledInstructionList = instructionList;
-        slot.CurrentInstruction = instructionList;
+        slot.CurrentInstruction = ListStart(instructionList);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
     }

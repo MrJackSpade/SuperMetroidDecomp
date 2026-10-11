@@ -47,23 +47,52 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
         }
         throw new InvalidDataException($"Shaktool attack-circle mechanics pointer $86:{address:X4} is not compiled.");
     }
+    /// <summary>The three attack-circle programs, in address order.</summary>
+    private enum CircleProgram
+    {
+        /// <summary>Front attack circle.</summary>
+        Front,
+        /// <summary>Middle attack circle.</summary>
+        Middle,
+        /// <summary>Back attack circle.</summary>
+        Back,
+    }
+
+    private static ushort StartOf(CircleProgram program) => program switch
+    {
+        CircleProgram.Front => Front,
+        CircleProgram.Middle => Middle,
+        CircleProgram.Back => Back,
+        _ => throw new InvalidOperationException($"Undefined {nameof(CircleProgram)} {program}."),
+    };
+
     internal static int ProgramWord(ushort address)
     {
-        ushort start = address < Middle ? Front : address < Back ? Middle : Back;
+        CircleProgram program = address < Middle ? CircleProgram.Front
+            : address < Back ? CircleProgram.Middle : CircleProgram.Back;
+        ushort start = StartOf(program);
         var writer = new WordSelector(address, start);
-        if (start == Front)
+        switch (program)
         {
-            writer.Timed(GrowthTicks);
-            writer.Timed(GrowthTicks);
+            case CircleProgram.Front:
+                writer.Timed(GrowthTicks);
+                writer.Timed(GrowthTicks);
+                break;
+            case CircleProgram.Middle:
+                writer.Timed(MiddleLaunchTicks);
+                writer.Command((ushort)EnemyProjectileInstruction.PreInstructionInY);
+                writer.Command((ushort)EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving);
+                writer.Timed(GrowthTicks);
+                break;
+            case CircleProgram.Back:
+                writer.Timed(BackLaunchTicks);
+                writer.Command((ushort)EnemyProjectileInstruction.PreInstructionInY);
+                writer.Command((ushort)EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CircleProgram)} {program}.");
         }
-        else
-        {
-            writer.Timed(start == Middle ? MiddleLaunchTicks : BackLaunchTicks);
-            writer.Command((ushort)EnemyProjectileInstruction.PreInstructionInY);
-            writer.Command((ushort)EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving);
-            if (start == Middle) writer.Timed(GrowthTicks);
-        }
-        ushort heldPose = (ushort)(start + (start == Middle ? 12 : 8));
+        ushort heldPose = (ushort)(start + (program == CircleProgram.Middle ? 12 : 8));
         writer.Timed(HeldPoseTicks);
         writer.Command((ushort)EnemyProjectileInstruction.GotoY);
         writer.Command(heldPose);

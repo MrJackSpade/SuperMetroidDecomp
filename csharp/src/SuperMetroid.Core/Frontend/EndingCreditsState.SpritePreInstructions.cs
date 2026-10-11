@@ -26,23 +26,9 @@ internal sealed partial class EndingCreditsState
                 break;
             case EndingSpriteRole.ExplosionStarsRight:
             case EndingSpriteRole.ExplosionStarsLeft:
-                if (sprite.PreInstructionPointer == EndingSpritePreInstructions.WaitForFlyaway
-                    && Phase == EndingCreditsPhase.PlanetEscapeFast)
-                {
-                    sprite.PreInstructionPointerForDiscovery(EndingSpritePreInstructions.MoveFlyawayStars);
-                    sprite.YSubPosition = 0x4000;
-                    sprite.GeneralTimer = 0;
-                }
-                else if (sprite.PreInstructionPointer == EndingSpritePreInstructions.MoveFlyawayStars)
-                {
-                    int velocity = unchecked((int)(((uint)sprite.GeneralTimer << 16) | sprite.YSubPosition)) - 32;
-                    sprite.GeneralTimer = unchecked((ushort)(velocity >> 16));
-                    sprite.YSubPosition = unchecked((ushort)velocity);
-                    uint position = unchecked(((uint)sprite.XPosition << 16) | sprite.XSubPosition);
-                    position = unchecked(position + (uint)velocity);
-                    sprite.XPosition = (ushort)(position >> 16);
-                    sprite.XSubPosition = (ushort)position;
-                }
+                // The right starfield runs no flyaway pre-instruction until its list installs $F35A.
+                if (Enum.IsDefined((EndingSpritePreInstruction)sprite.PreInstructionPointer))
+                    StepFlyawayStars(sprite, (EndingSpritePreInstruction)sprite.PreInstructionPointer);
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
@@ -70,6 +56,33 @@ internal sealed partial class EndingCreditsState
                 break;
             default:
                 throw new InvalidOperationException($"Undefined ending sprite role {wrapper.Role}.");
+        }
+    }
+
+    private void StepFlyawayStars(IntroDiscoverySprite sprite, EndingSpritePreInstruction preInstruction)
+    {
+        switch (preInstruction)
+        {
+            case EndingSpritePreInstruction.WaitForFlyaway:
+                if (Phase == EndingCreditsPhase.PlanetEscapeFast)
+                {
+                    sprite.PreInstructionPointerForDiscovery((ushort)EndingSpritePreInstruction.MoveFlyawayStars);
+                    sprite.YSubPosition = 0x4000;
+                    sprite.GeneralTimer = 0;
+                }
+                break;
+            case EndingSpritePreInstruction.MoveFlyawayStars:
+                int velocity = unchecked((int)(((uint)sprite.GeneralTimer << 16) | sprite.YSubPosition)) - 32;
+                sprite.GeneralTimer = unchecked((ushort)(velocity >> 16));
+                sprite.YSubPosition = unchecked((ushort)velocity);
+                uint position = unchecked(((uint)sprite.XPosition << 16) | sprite.XSubPosition);
+                position = unchecked(position + (uint)velocity);
+                sprite.XPosition = (ushort)(position >> 16);
+                sprite.XSubPosition = (ushort)position;
+                break;
+            default:
+                throw new InvalidOperationException(
+                    $"Undefined {nameof(EndingSpritePreInstruction)} {(int)preInstruction}.");
         }
     }
 }

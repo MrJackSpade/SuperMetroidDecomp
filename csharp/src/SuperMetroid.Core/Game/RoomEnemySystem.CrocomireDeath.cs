@@ -89,7 +89,7 @@ public sealed partial class RoomEnemySystem
                 UploadNextCrocomireMeltingGraphicsSlice(state);
                 return;
             case CrocomireDeathPhase.ShippedSpacer:
-                state.DeathSequenceIndex += 2;
+                state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
             case CrocomireDeathPhase.SixthHopRise:
                 SelectCrocomireRisingInstruction(state.Body);
@@ -134,10 +134,10 @@ public sealed partial class RoomEnemySystem
                 if (unchecked((short)(
                         state.Body.CurrentInstruction -
                         CrocomireInstructionProgramDefinitions.SkeletonStable)) >= 0)
-                    state.DeathSequenceIndex += 2;
+                    state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
             case CrocomireDeathPhase.NativeOneFrameSpacer:
-                state.DeathSequenceIndex += 2;
+                state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
             case CrocomireDeathPhase.PublishDefeatAndRestoreMusic:
                 CompleteCrocomireBoss(state);
@@ -145,7 +145,7 @@ public sealed partial class RoomEnemySystem
             case CrocomireDeathPhase.InertCorpse:
                 return;
             case CrocomireDeathPhase.DefeatedRoomAdvance:
-                state.DeathSequenceIndex += 2;
+                state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
             case CrocomireDeathPhase.PinDefeatedRoomBg2Scroll:
                 CrocomireBg2HorizontalScroll = 0;
@@ -202,7 +202,7 @@ public sealed partial class RoomEnemySystem
             state.StepCounter--;
             return;
         }
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         state.ReactionTimer = 0x0300;
     }
 
@@ -217,7 +217,7 @@ public sealed partial class RoomEnemySystem
 
         if (unchecked((short)(body.YPosition - 280)) >= 0)
         {
-            state.DeathSequenceIndex += 2;
+            state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             state.StepCounter = 48;
             return;
         }
@@ -257,7 +257,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = state.Body;
         if (unchecked((short)(body.YPosition - 218)) < 0)
         {
-            state.DeathSequenceIndex += 2;
+            state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             return;
         }
 
@@ -385,7 +385,7 @@ public sealed partial class RoomEnemySystem
         death.RumbleDelta = 1;
         state.FightFlags = 0;
         body.YRadius = 56;
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
     private void RunCrocomireWallRumble(CrocomireEnemyState state)
@@ -400,7 +400,7 @@ public sealed partial class RoomEnemySystem
             state.StepCounter = 0x0080;
             (TileArtwork?.CrocomireColors ?? throw new InvalidOperationException(
                 "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_cgram!);
-            state.DeathSequenceIndex += 2;
+            state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             return;
         }
 
@@ -459,7 +459,7 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
         SpawnCrocomireSpikeWallPieces();
         LastCrocomireSoundEffect = 0x0030;
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
     private void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
@@ -488,7 +488,7 @@ public sealed partial class RoomEnemySystem
         InstallCrocomireInstructionList(
             state.Body,
             CrocomireInstructionProgramDefinitions.SkeletonFalling);
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
     private void RunCrocomireSkeletonArc(CrocomireEnemyState state)
@@ -517,7 +517,7 @@ public sealed partial class RoomEnemySystem
         InstallCrocomireInstructionList(
             state.Body,
             CrocomireInstructionProgramDefinitions.SkeletonFallsApart);
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
     private void RunCrocomireSkeletonCollapse(CrocomireEnemyState state)
@@ -555,7 +555,7 @@ public sealed partial class RoomEnemySystem
             yBase: 96,
             yMask: 0x3f00);
         RequireCrocomireDeath().ItemDropRequested = true;
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
     private void FinishCrocomireArenaScrolls(CrocomireEnemyState state)
@@ -563,7 +563,7 @@ public sealed partial class RoomEnemySystem
         for (int index = 0; index < 4; index++)
             RequireSetRoomScrollState(index, RoomScrollState.Blue);
         PublishCrocomirePlm(0x1e, 0x03, PlmHeaderId.ClearCrocomireInvisibleWall);
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
     private void CompleteCrocomireBoss(CrocomireEnemyState state)
@@ -576,7 +576,7 @@ public sealed partial class RoomEnemySystem
         RequireCrocomireDeath().BossBitSet = true;
         SpawnCrocomireDust(state, -16);
         SpawnCrocomireDust(state, 16);
-        state.DeathSequenceIndex += 2;
+        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
     private void UploadNextCrocomireSkeletonTileChunk(CrocomireDeathState death)

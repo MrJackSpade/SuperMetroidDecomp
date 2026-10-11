@@ -74,12 +74,10 @@ public sealed class SamusDeathPaletteArtworkCatalog
         ArgumentNullException.ThrowIfNull(suitless);
         ArgumentNullException.ThrowIfNull(whiteout);
         ArgumentNullException.ThrowIfNull(explosionPaletteIndices);
+        FixedGridShape paletteRows = new(SamusPaletteRomData.Death.PaletteCount, ColorCount);
         if (suited.Length != SuitCount ||
-            suited.Any(family => family is null ||
-                family.Length != SamusPaletteRomData.Death.PaletteCount ||
-                family.Any(row => row is null || row.Length != ColorCount)) ||
-            suitless.Length != SamusPaletteRomData.Death.PaletteCount ||
-            suitless.Any(row => row is null || row.Length != ColorCount) ||
+            suited.Any(family => !paletteRows.Fits(family)) ||
+            !paletteRows.Fits(suitless) ||
             whiteout.Length != SamusPaletteRomData.Death.WhiteoutShadeCount ||
             explosionPaletteIndices.Length != SamusDeathExplosionTimingDefinitions.RecordCount ||
             explosionPaletteIndices.Any(index => index >= SamusPaletteRomData.Death.PaletteCount))

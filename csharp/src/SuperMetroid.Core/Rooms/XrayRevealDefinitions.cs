@@ -80,18 +80,32 @@ internal static class XrayRevealDefinitions
     public static XrayRevealDefinition? Find(RoomCollisionType type, byte bts) => type switch
     {
         RoomCollisionType.Air => Air,
-        RoomCollisionType.SpecialAir when bts == SpecialAirRevealBts => Air,
+        RoomCollisionType.SpecialAir => FindSpecialAir(bts),
         RoomCollisionType.HorizontalExtension => HorizontalExtension,
-        RoomCollisionType.SpikeBlock when bts == SpikeRevealBts => One(0x005f),
+        RoomCollisionType.SpikeBlock => FindSpikeBlock(bts),
         RoomCollisionType.SpecialBlock => FindSpecialBlock(bts),
         RoomCollisionType.ShootableBlock => FindShootableBlock(bts),
         RoomCollisionType.VerticalExtension => VerticalExtension,
         RoomCollisionType.GrappleBlock => FindGrappleBlock(bts),
         RoomCollisionType.BombableBlock => FindBombableBlock(bts),
-        RoomCollisionType.Slope or RoomCollisionType.SpikeAir or RoomCollisionType.SpecialAir or
+        RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
             RoomCollisionType.ShootableAir or RoomCollisionType.UnusedAir or RoomCollisionType.BombableAir or
-            RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or RoomCollisionType.SpikeBlock => null,
+            RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock => null,
         _ => throw new InvalidOperationException($"Undefined RoomCollisionType {type}."),
+    };
+
+    /// <summary>Finds the special-air reveal for one unsigned BTS byte: the one-entry $91:D306 table.</summary>
+    private static XrayRevealDefinition? FindSpecialAir(byte bts) => bts switch
+    {
+        SpecialAirRevealBts => Air,
+        _ => null,
+    };
+
+    /// <summary>Finds the spike-block reveal for one unsigned BTS byte: the one-entry $91:D318 table.</summary>
+    private static XrayRevealDefinition? FindSpikeBlock(byte bts) => bts switch
+    {
+        SpikeRevealBts => One(0x005f),
+        _ => null,
     };
 
     /// <summary>Finds the authored special-block reveal for one unsigned BTS byte.</summary>

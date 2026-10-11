@@ -394,23 +394,22 @@ public static class RoomFxRomData
         /// <summary>Rooms whose special-FX initialization suppresses quake sounds.</summary>
         public static class SoundSuppressedRooms
         {
-            /// <summary>Bomb Torizo room header <c>$8F:9804</c>.</summary>
-            public const ushort BombTorizo = 0x9804;
-
-            /// <summary>Climb room header <c>$8F:96BA</c>.</summary>
-            public const ushort Climb = 0x96ba;
-
-            /// <summary>Ridley room header <c>$8F:B32E</c>.</summary>
-            public const ushort Ridley = 0xb32e;
-
-            /// <summary>Pillar room header <c>$8F:B457</c>.</summary>
-            public const ushort Pillar = 0xb457;
-
-            /// <summary>Mother Brain room header <c>$8F:DD58</c>.</summary>
-            public const ushort MotherBrain = 0xdd58;
-
-            /// <summary>Fourth Tourian escape room header <c>$8F:DEDE</c>.</summary>
-            public const ushort TourianEscape4 = 0xdede;
+            /// <summary>The six room headers, valued by their bank-$8F header address.</summary>
+            private enum Room : ushort
+            {
+                /// <summary>Bomb Torizo room header <c>$8F:9804</c>.</summary>
+                BombTorizo = 0x9804,
+                /// <summary>Climb room header <c>$8F:96BA</c>.</summary>
+                Climb = 0x96ba,
+                /// <summary>Ridley room header <c>$8F:B32E</c>.</summary>
+                Ridley = 0xb32e,
+                /// <summary>Pillar room header <c>$8F:B457</c>.</summary>
+                Pillar = 0xb457,
+                /// <summary>Mother Brain room header <c>$8F:DD58</c>.</summary>
+                MotherBrain = 0xdd58,
+                /// <summary>Fourth Tourian escape room header <c>$8F:DEDE</c>.</summary>
+                TourianEscape4 = 0xdede,
+            }
 
             /// <summary>Whether room initialization disables earthquake sounds for this identity.</summary>
             /// <remarks>Ports the six named comparisons at $88:82CD..82E9, whose shared
@@ -418,8 +417,7 @@ public static class RoomFxRomData
             /// including zero and unknown rooms, return false. Verified against original
             /// NTSC J/U v1.0 instruction operands and pinned bank_88.asm
             /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). No stored membership list remains.</remarks>
-            public static bool Contains(ushort room) => room is
-                BombTorizo or Climb or Ridley or Pillar or MotherBrain or TourianEscape4;
+            public static bool Contains(ushort room) => Enum.IsDefined((Room)room);
         }
     }
 

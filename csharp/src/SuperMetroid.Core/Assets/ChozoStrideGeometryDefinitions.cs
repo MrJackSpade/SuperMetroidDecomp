@@ -15,8 +15,17 @@ internal static class ChozoStrideGeometryDefinitions
     private const int FirstPartCount = 21;
     /// <summary>$AA:E9AE/EA1E/EA8E and EB69/EBD9/EC49: other stride poses have22parts.</summary>
     private const int OtherPartCount = 22;
-    /// <summary>$AA:E954/E959 and following poses: adjacent foot glyphs $170/$171.</summary>
-    private const int FootLeftTile = 0x170, FootRightTile = FootLeftTile + 1, TilePixels = 8;
+    /// <summary>Width of one OBJ glyph, the distance from the left foot to the adjacent right foot.</summary>
+    private const int TilePixels = 8;
+
+    /// <summary>$AA:E954/E959 and following poses: the adjacent support-foot glyphs.</summary>
+    private enum FootGlyph
+    {
+        /// <summary>OBJ tile $170, the left half of the support foot.</summary>
+        Left = 0x170,
+        /// <summary>OBJ tile $171, the right half of the support foot.</summary>
+        Right = 0x171,
+    }
     /// <summary>$AA:E959/E9C4/EA34/EAA4: chosen left-foot origins -31/-28/-14/-7.</summary>
     private const int TransferFootX = -31, EarlySupportFootX = -28,
         LateSupportFootX = -14, PushOffFootX = -7;
@@ -50,15 +59,21 @@ internal static class ChozoStrideGeometryDefinitions
         for (int index = 0; index < supplied.Count; index++)
         {
             EnemySpritemapPart part = supplied[index];
-            if (part.Attributes.TileNumber == FootLeftTile)
+            if (!Enum.IsDefined((FootGlyph)part.Attributes.TileNumber))
+                continue;
+            switch ((FootGlyph)part.Attributes.TileNumber)
             {
-                if (left >= 0 || part.X.SignedOffset != SupportFootX(phase)) return supplied;
-                left = index;
-            }
-            else if (part.Attributes.TileNumber == FootRightTile)
-            {
-                if (right >= 0 || part.X.SignedOffset != SupportFootX(phase) + TilePixels) return supplied;
-                right = index;
+                case FootGlyph.Left:
+                    if (left >= 0 || part.X.SignedOffset != SupportFootX(phase)) return supplied;
+                    left = index;
+                    break;
+                case FootGlyph.Right:
+                    if (right >= 0 || part.X.SignedOffset != SupportFootX(phase) + TilePixels) return supplied;
+                    right = index;
+                    break;
+                default:
+                    throw new InvalidOperationException(
+                        $"Undefined {nameof(FootGlyph)} {part.Attributes.TileNumber}.");
             }
         }
         if (left < 0 || right < 0) return supplied;

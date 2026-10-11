@@ -149,7 +149,7 @@ internal sealed partial class PauseMenuState
                 }
                 else if (up)
                 {
-                    if (selectedItem != PauseReserveTransferRomData.ModeItem)
+                    if (SelectedReserveItem != PauseReserveItem.Mode)
                     {
                         selectedItem--;
                         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
@@ -157,7 +157,7 @@ internal sealed partial class PauseMenuState
                 }
                 else if (down)
                 {
-                    if (selectedItem == PauseReserveTransferRomData.TransferItem ||
+                    if (SelectedReserveItem == PauseReserveItem.Transfer ||
                         samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode)
                         TrySelectEquipment(beams, 0, 1);
                     else

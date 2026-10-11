@@ -18,9 +18,9 @@ internal sealed partial class PauseMenuState
     private void UpdateReserveArrow(byte nmiFrameCounter8)
     {
         bool inTanks = selectedCategory == PauseEquipmentCategory.Reserves;
-        bool animated = inTanks && selectedItem == PauseReserveTransferRomData.ModeItem &&
+        bool animated = inTanks && SelectedReserveItem == PauseReserveItem.Mode &&
             samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode;
-        bool enabled = animated || inTanks && selectedItem == PauseReserveTransferRomData.TransferItem;
+        bool enabled = animated || inTanks && SelectedReserveItem == PauseReserveItem.Transfer;
         SetReserveArrow(enabled, animated, nmiFrameCounter8);
     }
 

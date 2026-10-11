@@ -220,7 +220,7 @@ public sealed partial class RoomPlmSystem
             orientation = default;
             return false;
         }
-        orientation = (ColoredDoorOrientation)(byteOffset / 6);
+        orientation = ColoredDoorOrientations.AtTableIndex(byteOffset / 6);
         return true;
     }
 
@@ -326,6 +326,20 @@ public enum ColoredDoorOrientation : byte
     Up,
     /// <summary>Downward-facing cap; orientation index 3 corresponds to blue-door BTS $43.</summary>
     Down,
+}
+
+/// <summary>Domain-owned transitions over <see cref="ColoredDoorOrientation"/>.</summary>
+public static class ColoredDoorOrientations
+{
+    /// <summary>The orientation at <paramref name="index"/> of a four-entry left/right/up/down door table.</summary>
+    public static ColoredDoorOrientation AtTableIndex(int index) => index switch
+    {
+        0 => ColoredDoorOrientation.Left,
+        1 => ColoredDoorOrientation.Right,
+        2 => ColoredDoorOrientation.Up,
+        3 => ColoredDoorOrientation.Down,
+        _ => throw new InvalidOperationException($"Door orientation table index {index} has no {nameof(ColoredDoorOrientation)}."),
+    };
 }
 
 /// <summary>Debugger-visible phase of one resident colored-door actor.</summary>

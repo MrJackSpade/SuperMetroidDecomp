@@ -187,12 +187,12 @@ public sealed record ControllerInputRecording
         ushort encodedEndingMinutes = BinaryPrimitives.ReadUInt16LittleEndian(header[21..]);
         if (encodedEndingMinutes > 6000)
             throw new InvalidDataException("Controller recording ending override exceeds 99:59.");
-        var mapReveal = (MapRevealMode)(
-            (optionFlags & ControllerInputRecordingFormat.MapRevealMask) >>
+        byte mapRevealBits = (byte)((optionFlags & ControllerInputRecordingFormat.MapRevealMask) >>
             ControllerInputRecordingFormat.MapRevealShift);
-        if (!Enum.IsDefined(mapReveal))
+        if (!Enum.IsDefined((MapRevealMode)mapRevealBits))
             throw new InvalidDataException(
-                $"Controller recording contains undefined map reveal mode {(byte)mapReveal}.");
+                $"Controller recording contains undefined map reveal mode {mapRevealBits}.");
+        var mapReveal = (MapRevealMode)mapRevealBits;
 
         int saveRamLength = BinaryPrimitives.ReadInt32LittleEndian(header[60..]);
         if (saveRamLength != Hardware.SuperMetroidAddressSpace.SaveRamByteCount)

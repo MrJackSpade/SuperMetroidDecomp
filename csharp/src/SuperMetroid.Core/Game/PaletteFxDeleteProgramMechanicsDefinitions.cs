@@ -20,10 +20,19 @@ public static class PaletteFxDeleteProgramMechanicsDefinitions
     /// <summary>Palette-FX definition $8D:F745, whose complete program is deletion.</summary>
     public const ushort EmptyRoomEffectDefinition = 0xf745;
 
+    /// <summary>The two standalone deletion lists, valued by their bank-$8D address.</summary>
+    private enum DeletionList : ushort
+    {
+        /// <summary><c>InstList_PaletteFXObject_Delete</c> at $8D:E192.</summary>
+        Cinematic = CinematicDelete,
+        /// <summary><c>InstList_PaletteFXObject_Nothing</c> at $8D:E220.</summary>
+        RoomEffect = PaletteFxDeleteProgramMechanicsDefinitions.EmptyRoomEffect,
+    }
+
     /// <summary>Resolves either standalone deletion list's sole mechanics word.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        if (pointer is CinematicDelete or EmptyRoomEffect)
+        if (Enum.IsDefined((DeletionList)pointer))
         {
             value = (ushort)PaletteFxInstruction.Delete;
             return true;

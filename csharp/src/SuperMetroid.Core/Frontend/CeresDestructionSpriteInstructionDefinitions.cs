@@ -59,7 +59,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
             1 => 0,
             2 => (ushort)ZebesTitleInstruction.FadeInText,
             3 => 32,
-            4 or 7 or 10 => CeresDestructionSpriteDefinitions.Title,
+            4 or 7 or 10 => (ushort)CeresDestructionBackdrop.Title,
             5 => (ushort)ZebesTitleInstruction.SpawnJapaneseTextIfNeeded,
             6 => 192,
             8 => (ushort)ZebesTitleInstruction.FadeOutText,
@@ -76,10 +76,10 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         int quadrant = offset / 8;
         ushort frame = quadrant switch
         {
-            0 => CeresDestructionSpriteDefinitions.UpperLeftStars,
-            1 => CeresDestructionSpriteDefinitions.UpperRightStars,
-            2 => CeresDestructionSpriteDefinitions.LowerLeftStars,
-            3 => CeresDestructionSpriteDefinitions.LowerRightStars,
+            0 => (ushort)CeresDestructionBackdrop.UpperLeftStars,
+            1 => (ushort)CeresDestructionBackdrop.UpperRightStars,
+            2 => (ushort)CeresDestructionBackdrop.LowerLeftStars,
+            3 => (ushort)CeresDestructionBackdrop.LowerRightStars,
             _ => throw new InvalidDataException("Zebes star-sheet quadrant is invalid."),
         };
         return LoopByte(offset % 8, (ushort)(StarSheetsStart + quadrant * 8), frame);
@@ -87,12 +87,12 @@ internal static class CeresDestructionSpriteInstructionDefinitions
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= LargeAsteroidStart and < LargeAsteroidEnd)
-            return LoopByte(pointer - LargeAsteroidStart, LargeAsteroidStart, CeresDestructionSpriteDefinitions.LargeAsteroids);
+            return LoopByte(pointer - LargeAsteroidStart, LargeAsteroidStart, (ushort)CeresDestructionBackdrop.LargeAsteroids);
         if (pointer is >= CeresFlightSpriteInstructionDefinitions.RearClusterStart and
             < CeresFlightSpriteInstructionDefinitions.RearClusterEnd)
             return CeresFlightSpriteInstructionDefinitions.ReadByte(pointer);
         if (pointer is >= PlanetStart and < PlanetEnd)
-            return LoopByte(pointer - PlanetStart, PlanetStart, CeresDestructionSpriteDefinitions.Planet);
+            return LoopByte(pointer - PlanetStart, PlanetStart, (ushort)CeresDestructionBackdrop.Planet);
         if (pointer is >= TitleStart and < TitleEnd)
             return TitleByte(pointer - TitleStart);
         if (pointer is >= ExplosionsStart and < ExplosionsEnd)

@@ -39,6 +39,14 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
          (heatInputs.TryGetValue(canonical, out color) ||
           HeatPaletteColorDefinitions.TryCalculatedColor(canonical, heatInputs, out color)));
 
+    private static bool InheritsHeatRows(RoomPaletteFxPresentationRevision revision) => revision switch
+    {
+        RoomPaletteFxPresentationRevision.Previous => true,
+        RoomPaletteFxPresentationRevision.Current => false,
+        _ => throw new InvalidOperationException(
+            $"Undefined {nameof(RoomPaletteFxPresentationRevision)} {(int)revision}."),
+    };
+
     /// <summary>Validates editable palette rows and compiles their RGB5 colors into the native bank-$8D color lookup.</summary>
     /// <param name="json">The UTF-8 JSON presentation stream with the required frame counts and RGB components from zero through thirty-one.</param>
     /// <param name="previousVersionFallback">Current stock colors used only to supply the missing Samus heat rows when loading the previous schema version.</param>
@@ -50,9 +58,9 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         RoomPaletteFxPresentationDocument document = JsonAssetDocument.Read<RoomPaletteFxPresentationDocument>(
             json, MapPresentationFormat.JsonOptions, "room palette-FX presentation");
 
-        if (document.Version != RoomPaletteFxPresentationFormat.Version &&
-            !(document.Version == RoomPaletteFxPresentationFormat.PreviousVersion &&
-              previousVersionFallback is not null))
+        bool supported = Enum.IsDefined((RoomPaletteFxPresentationRevision)document.Version);
+        bool inheritsHeatRows = supported && InheritsHeatRows((RoomPaletteFxPresentationRevision)document.Version);
+        if (!supported || (inheritsHeatRows && previousVersionFallback is null))
         {
             throw new InvalidDataException(
                 $"Room palette-FX presentation requires version " +
@@ -72,7 +80,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             };
             ushort ColorPointer(int frame, int index) => unchecked((ushort)(
                 definition.Frames[frame].FirstColorPointer + index * sizeof(ushort)));
-            if (document.Version == RoomPaletteFxPresentationFormat.PreviousVersion)
+            if (inheritsHeatRows)
             {
                 // A v17 player override predates these three color families. Keep
                 // all its existing edits and inherit only the newly extracted
@@ -737,6 +745,15 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] CrateriaEscapeCreBlockPixel { get; init; }
     /// <summary>Gets ten four-color beacon-flash records shared by Crateria and Brinstar, retaining the native sound instruction between record groups.</summary>
     public required PaletteRgb5[][] BeaconFlashing { get; init; }
+}
+
+/// <summary>The supported schema revisions of the room palette-FX presentation document.</summary>
+internal enum RoomPaletteFxPresentationRevision
+{
+    /// <summary>Revision 17: the Samus-in-heat rows are inherited from current stock.</summary>
+    Previous = RoomPaletteFxPresentationFormat.PreviousVersion,
+    /// <summary>Revision 18: every color family is supplied by the document.</summary>
+    Current = RoomPaletteFxPresentationFormat.Version,
 }
 
 /// <summary>File identity and schema versions for editable room/cinematic palette-FX color assets.</summary>

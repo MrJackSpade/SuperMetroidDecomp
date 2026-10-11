@@ -32,7 +32,7 @@ public sealed class FileSelectMapAnimations
             int phaseCount;
             MapArrowPresentation installed = content ?? throw new InvalidOperationException(
                 "Map arrows require installed animation definitions.");
-            var direction = (MapScrollDirection)(index + 1);
+            var direction = MapScrollControls.ArrowAt(index);
             MapArrowVisual visual = installed.Get(direction);
             replacement = new Arrow(visual.X, visual.Y, MapArrowDefinitions.SpriteBase(direction));
             phaseCount = visual.PhaseCount;
@@ -66,10 +66,10 @@ public sealed class FileSelectMapAnimations
         for (int index = 0; index < arrows.Length; index++)
         {
             Arrow arrow = arrows[index];
-            arrow.Visible = available((MapScrollDirection)(index + 1));
+            arrow.Visible = available(MapScrollControls.ArrowAt(index));
             if (!arrow.Visible) continue;
             MapArrowVisual visual = (presentation ?? throw new InvalidOperationException(
-                "Map arrows require installed animation definitions.")).Get((MapScrollDirection)(index + 1));
+                "Map arrows require installed animation definitions.")).Get(MapScrollControls.ArrowAt(index));
             if (--arrow.Timer <= 0)
             {
                 arrow.Frame++;

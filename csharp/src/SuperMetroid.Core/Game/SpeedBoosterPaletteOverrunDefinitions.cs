@@ -1,12 +1,17 @@
 namespace SuperMetroid.Core.Game;
 
+/// <summary>The two instruction words past the Gravity list that Speed Booster reads as bank-$9B palette pointers, valued by the word.</summary>
+internal enum SpeedBoosterPaletteOverrun : ushort
+{
+    /// <summary>$91:DAC7, the AD 68 prefix of LDA $0A68 immediately after the Gravity list; interpreted as a bank-$9B pointer.</summary>
+    Expansion = 0x68ad,
+    /// <summary>$91:DAC9, the 0A C9 instruction-boundary word following that prefix; interpreted as a bank-$9B pointer.</summary>
+    GrappleCode = 0xc90a,
+}
+
 /// <summary>Bounded instruction-data reads when Gravity Speed Booster inherits Screw Attack phases eight or ten.</summary>
 internal static class SpeedBoosterPaletteOverrunDefinitions
 {
-    /// <summary>$91:DAC7, the AD 68 prefix of LDA $0A68 immediately after the Gravity list; interpreted as a bank-$9B pointer.</summary>
-    internal const ushort ExpansionPointer = 0x68ad;
-    /// <summary>$91:DAC9, the 0A C9 instruction-boundary word following that prefix; interpreted as a bank-$9B pointer.</summary>
-    internal const ushort GrappleCodePointer = 0xc90a;
 
     /// <summary>$9B:C90A..C929, the exact bounded grapple-handler instruction slice read as sixteen colors by $91:DD5B.</summary>
     /// <remarks>This is executable-code identity, not an authored palette or a substitute normal shade.

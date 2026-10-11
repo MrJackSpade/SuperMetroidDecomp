@@ -35,8 +35,8 @@ internal static partial class Program
                     AssertEqual(2, draw.Runs.Length, "Mother Brain two boundary runs");
                     AssertEqual(direction, draw.Runs.Span[run].DirectionAndCount, "Mother Brain DTO direction/count");
                     AssertEqual(count, draw.Runs.Span[run].LevelWords.Length, "Mother Brain DTO run width");
-                    AssertEqual(x, draw.Runs.Span[run].NextX, "Mother Brain DTO X");
-                    AssertEqual(y, draw.Runs.Span[run].NextY, "Mother Brain DTO Y");
+                    AssertEqual(x, draw.Runs.Span[run].Next.X, "Mother Brain DTO X");
+                    AssertEqual(y, draw.Runs.Span[run].Next.Y, "Mother Brain DTO Y");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
                     AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(run,bad), "Mother Brain boundary cell bounds");

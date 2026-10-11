@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -44,8 +45,7 @@ internal static partial class Program
             for (int index = 0; index < tiles.Count; index++)
             {
                 ushort coordinates = NativeWord(XrayOverlayRomData.RoomBank | (pointer + index * 4));
-                AssertEqual(new XrayRoomOverlayVisual((byte)coordinates,
-                    (byte)(coordinates >> 8), NativeWord(XrayOverlayRomData.RoomBank |
+                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, (byte)(coordinates >> 8)), NativeWord(XrayOverlayRomData.RoomBank |
                         (pointer + index * 4 + 2))), tiles[index],
                     $"stock X-ray room overlay ${pointer:X4} record {index}");
                 specialRecords++;
@@ -93,15 +93,15 @@ internal static partial class Program
             definitions[i * 2] = (byte)i;
             definitions[i * 2 + 1] = (byte)(i >> 8);
         }
-        var level = new RoomLevelData(32, 32,
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
             Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024],
             new ushort[1024], definitions);
         level.SetPlmForegroundEntry(33, (ushort)((int)RoomCollisionType.ShootableBlock << 12));
         level.SetPlmBehavior(33, 2);
         RoomCollisionBlock before = level.GetPlmCollisionBlockByIndex(33);
-        ushort[] originalMap = XrayRevealTilemap.Build(level, vram, 0, 0, 16, 16,
+        ushort[] originalMap = XrayRevealTilemap.Build(level, vram, new(0, 0), new(16, 16),
             (byte)AreaId.Brinstar, stock);
-        ushort[] editedMap = XrayRevealTilemap.Build(level, vram, 0, 0, 16, 16,
+        ushort[] editedMap = XrayRevealTilemap.Build(level, vram, new(0, 0), new(16, 16),
             (byte)AreaId.Brinstar, edited);
         AssertEqual(originalTop * 4, originalMap[0], "stock tall reveal top-left metatile");
         AssertEqual((originalTop + 1) * 4, editedMap[0],
@@ -113,17 +113,17 @@ internal static partial class Program
 
         var item = new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 1,
             InWorldCollectibleKind.Bombs, 0);
-        var overlayLevel = new RoomLevelData(32, 32, new ushort[1024], new byte[1024],
+        var overlayLevel = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new ushort[1024], new byte[1024],
             new ushort[1024], definitions);
         var noRomVisualData = new TestAddressSpace();
         ushort[] itemMap = new ushort[XrayTilemapLayout.BufferWords];
         XrayRevealOverlays.Apply(overlayLevel, itemMap, [item],
-            new Bank80SystemState(), 0, 16, 16, edited);
+            new Bank80SystemState(), 0, new(16, 16), edited);
         AssertEqual(((editedItem & 0x03ff) * 4) + ((editedItem & 0x0800) != 0 ? 2 : 0),
             itemMap[0], "edited item art renders without a visual ROM read");
         ushort[] roomMap = new ushort[XrayTilemapLayout.BufferWords];
         XrayRevealOverlays.Apply(overlayLevel, roomMap, [],
-            new Bank80SystemState(), roomPointer, 16, 16, edited);
+            new Bank80SystemState(), roomPointer, new(16, 16), edited);
         AssertEqual(((editedRoomWord & 0x03ff) * 4) +
             ((editedRoomWord & 0x0800) != 0 ? 2 : 0), roomMap[0],
             "edited room overlay renders at its edited position without a ROM read");

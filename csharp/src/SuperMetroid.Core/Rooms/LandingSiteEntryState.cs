@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -9,8 +10,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed record LandingSiteEntryState(
     RoomIdentity RoomIdentity,
-    byte RoomMapX,
-    byte RoomMapY,
+    Position16<MapTiles> RoomMapPosition,
     byte UpScroller,
     byte DownScroller)
 {

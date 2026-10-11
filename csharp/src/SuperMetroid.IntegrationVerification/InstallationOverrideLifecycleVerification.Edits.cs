@@ -61,10 +61,10 @@ internal static partial class InstallationOverrideLifecycleVerification
     private static byte[] EditPng(string path, int width, int height, int bitsPerPixel)
     {
         IndexedPngImage image;
-        using (Stream input = File.OpenRead(path)) image = IndexedPng.Read(input, width, height);
+        using (Stream input = File.OpenRead(path)) image = IndexedPng.Read(input, new(checked((ushort)width), checked((ushort)height)));
         image.Pixels[0] = (byte)((image.Pixels[0] + 1) % (1 << bitsPerPixel));
-        using (Stream output = File.Create(path)) IndexedPng.Write(output, width, height, image.Pixels, image.Palette);
-        return SnesPlanarTileEncoder.Encode(image.Pixels, width, height, bitsPerPixel);
+        using (Stream output = File.Create(path)) IndexedPng.Write(output, new(checked((ushort)width), checked((ushort)height)), image.Pixels, image.Palette);
+        return SnesPlanarTileEncoder.Encode(image.Pixels, new(checked((ushort)width), checked((ushort)height)), bitsPerPixel);
     }
 
     private static void VerifySelected(GameInstallation installation, OverrideExpectations expected,

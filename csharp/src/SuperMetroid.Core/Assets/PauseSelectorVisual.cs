@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -55,14 +56,14 @@ internal sealed class PauseSelectorVisual
         return new(-1, MenuSpriteCompiler.Compile(parts, name));
     }
 
-    internal void DrawOnScreen(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    internal void DrawOnScreen(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
-        if (authored is not null) { authored.DrawOnScreen(oam, x, y, paletteBits); return; }
+        if (authored is not null) { authored.DrawOnScreen(oam, origin, paletteBits); return; }
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         for (int index = 0; index < Count(group); index++)
         {
             var part = Part(group, index);
-            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), new Position16<OamPixels>(x, y));
+            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), origin);
         }
     }
 }

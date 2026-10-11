@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -64,8 +65,7 @@ internal static partial class Program
             const int height = 16;
             int blockCount = width * height;
             var level = new RoomLevelData(
-                width,
-                height,
+                new Extent16<RoomBlocks>(width, height),
                 new ushort[blockCount],
                 new byte[blockCount],
                 new ushort[blockCount],
@@ -92,7 +92,7 @@ internal static partial class Program
 
             if (definition.HeaderPointer == PlmHeaderId.WreckedShipChozoHand)
             {
-                RoomCollisionBlock block = level.GetCollisionBlock(3, 4);
+                RoomCollisionBlock block = level.GetCollisionBlock(new(3, 4));
                 AssertEqual(
                     RoomCollisionType.SpecialBlock,
                     block.CollisionType,

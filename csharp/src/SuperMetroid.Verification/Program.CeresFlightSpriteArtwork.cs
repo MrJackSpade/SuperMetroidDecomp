@@ -29,7 +29,7 @@ internal static partial class Program
                 native.FinalizeFrame();
                 var installed = new OamBuffer();
                 installed.BeginFrame();
-                stock.Sprites.Draw(frame.Pointer, installed, 120, y, 0x0800, onScreen);
+                stock.Sprites.Draw(frame.Pointer, installed, new(120, y), 0x0800, onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
                         installed.HighTable.SequenceEqual(native.HighTable) &&

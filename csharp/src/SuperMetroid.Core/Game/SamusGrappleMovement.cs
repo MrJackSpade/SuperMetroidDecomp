@@ -256,7 +256,7 @@ public static partial class SamusGrappleMovement
             grapple.FlareAnimationFrame + Assets.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset));
         (compositions ?? throw new InvalidOperationException(
             "Grapple flare requires installed sprite compositions."))
-            .Draw(tableIndex, oam, screenX, screenY);
+            .Draw(tableIndex, oam, new(screenX, screenY));
         return true;
     }
 

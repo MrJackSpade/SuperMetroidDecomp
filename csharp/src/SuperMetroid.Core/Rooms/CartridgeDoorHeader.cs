@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -13,10 +14,8 @@ public sealed record CartridgeDoorHeader(
     ushort Pointer,
     ushort DestinationRoomPointer,
     CartridgeDoorOrientation Orientation,
-    byte PlmX,
-    byte PlmY,
-    byte DestinationScreenX,
-    byte DestinationScreenY,
+    Position16<RoomBlocks> PlmBlock,
+    Position16<RoomScreens> DestinationScreen,
     ushort SamusDistance,
     DoorSetupCode SetupCodePointer)
 {

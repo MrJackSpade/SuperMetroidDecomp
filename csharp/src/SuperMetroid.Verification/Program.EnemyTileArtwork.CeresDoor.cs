@@ -81,11 +81,11 @@ internal static partial class Program
         string pngPath = Path.Combine(directory, CeresDoorVisualFormat.TilesFileName);
         byte[] png = File.ReadAllBytes(pngPath);
         IndexedPngImage image = IndexedPng.Read(new MemoryStream(png),
-            RoomCharacterAtlasFormat.TileColumns * 8, 8);
+            new(RoomCharacterAtlasFormat.TileColumns * 8, 8));
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(overrides,
                    CeresDoorVisualFormat.TilesFileName)))
-            IndexedPng.Write(output, image.Width, image.Height, image.Pixels,
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels,
                 image.Palette);
         string colorsPath = Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName);
         CeresDoorVisualDocument document = JsonSerializer.Deserialize<CeresDoorVisualDocument>(

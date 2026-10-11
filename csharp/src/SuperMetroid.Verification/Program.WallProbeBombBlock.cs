@@ -34,7 +34,7 @@ internal static partial class Program
             AssertEqual(!breaks, result.Collided, $"{context} collision");
             AssertEqual(breaks ? fraction : (ushort)0xffff, state.XSubposition, $"{context} X fraction");
             AssertEqual((ushort)58, state.XPosition, $"{context} keeps whole-pixel X");
-            AssertEqual(breaks, level.GetCollisionBlock(4, 3).CollisionType != RoomCollisionType.BombableBlock,
+            AssertEqual(breaks, level.GetCollisionBlock(new(4, 3)).CollisionType != RoomCollisionType.BombableBlock,
                 $"{context} bomb-block break");
         }
         Console.WriteLine("Wall-probe bomb block: the wall-jump probe breaks bomb blocks for a screw attack, as movement does.");

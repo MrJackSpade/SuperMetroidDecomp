@@ -32,7 +32,7 @@ public sealed partial class RoomPlmSystem
         // native PLM index is a byte offset, so one room width here equals native +2*width.
         for (int row = 0; row < DownwardGatePlmRomData.GateHeightInBlocks; row++)
         {
-            int blockIndex = checked(slot.BlockIndex + row * level.WidthInBlocks);
+            int blockIndex = checked(slot.BlockIndex + row * level.Size.X);
             _ = level.GetCollisionBlockByIndex(blockIndex);
             level.SetBehavior(blockIndex, DownwardGatePlmRomData.ClosedGateBts);
         }

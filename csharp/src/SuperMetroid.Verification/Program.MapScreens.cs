@@ -34,7 +34,7 @@ internal static partial class Program
             AssertTrue(nativeRoom.Vram.Bytes.SequenceEqual(installedRoom.Vram.Bytes), "stock resolved frame/footer/area label matches full native VRAM");
             AssertTrue(nativeRoom.RenderFrameOnly().AsSpan().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
-                AssertTrue(nativeRoom.RenderBackgrounds(scroll, scroll).AsSpan().SequenceEqual(installedRoom.RenderBackgrounds(scroll, scroll)), "fixed room frame remains exact while map scrolls");
+                AssertTrue(nativeRoom.RenderBackgrounds(new(scroll, scroll)).AsSpan().SequenceEqual(installedRoom.RenderBackgrounds(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");
         }
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original, verifyCapturedRendering: true));
         Directory.CreateDirectory(overrides);
@@ -81,9 +81,9 @@ internal static partial class Program
         {
             string path = Path.Combine(overrides, atlas.Item1);
             IndexedPngImage image;
-            using (var input = File.OpenRead(Path.Combine(stock, atlas.Item1))) image = IndexedPng.Read(input, WorldMapArtworkFormat.Width, atlas.Item2);
+            using (var input = File.OpenRead(Path.Combine(stock, atlas.Item1))) image = IndexedPng.Read(input, new(WorldMapArtworkFormat.Width, checked((ushort)atlas.Item2)));
             for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % atlas.Item3);
-            using (var output = File.Create(path)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             var artEdit = AreaMapPresentationCatalog.Load(stock, overrides);
             AssertTrue(artEdit.ContentIdentity != original.ContentIdentity, "each world PNG affects identity independently");
             var changedWorld = World(guard, artEdit, (int)AreaId.Maridia);
@@ -92,10 +92,10 @@ internal static partial class Program
             AssertTrue(worldBefore.RenderBackgrounds().AsSpan().SequenceEqual(changedWorld.RenderBackgrounds()), "world artwork rebind restores exact stock pixels");
             File.WriteAllText(path, "invalid PNG");
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt world PNG override cannot silently select stock");
-            using (var output = File.Create(path)) IndexedPng.Write(output, 1, 1, [0], image.Palette);
+            using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Palette);
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "wrong world PNG dimensions rejected");
             image.Pixels[0] = (byte)atlas.Item3;
-            using (var output = File.Create(path)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, SnesGraphics.DiagnosticPalette(atlas.Item3 + 1));
+            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, SnesGraphics.DiagnosticPalette(atlas.Item3 + 1));
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "world PNG index outside native depth rejected");
             File.WriteAllBytes(path, File.ReadAllBytes(Path.Combine(stock, atlas.Item1)));
         }

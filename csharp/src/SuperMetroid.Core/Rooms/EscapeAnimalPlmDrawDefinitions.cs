@@ -34,7 +34,7 @@ internal static class EscapeAnimalPlmDrawDefinitions
         };
         draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
-            new(0x8003, new ushort[] { word, word, word }, 0, 0),
+            new(0x8003, new ushort[] { word, word, word }, new(0, 0)),
         });
         return true;
     }

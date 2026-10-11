@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -29,7 +30,7 @@ internal sealed class IntroRinkaSystem
     {
         // $8B:AEB8 spawns the invisible spawner while slots 1..14 are all free. Reusing the
         // focused ROM-list interpreter preserves its exact $4A then $80 frame waits.
-        spawner = new(0, 0, 0, IntroRinkaDefinitions.SpawnerActor.InstructionList);
+        spawner = new(new(0, 0), 0, IntroRinkaDefinitions.SpawnerActor.InstructionList);
         slots[SpawnerSlot] = spawner;
     }
 
@@ -140,8 +141,7 @@ internal sealed class IntroRinkaSystem
 
         IntroRinkaPhysicalDefinition definition = IntroRinkaDefinitions.Rinka(parameter);
         var rinka = new IntroDiscoverySprite(
-            definition.X,
-            definition.Y,
+            definition.Position,
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
             instructionPointer: IntroRinkaDefinitions.RinkaActor.InstructionList)
         {
@@ -170,7 +170,7 @@ internal sealed class IntroRinkaSystem
 
                 // $B90B compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding routine.
-                if (unchecked((short)(rinka.XPosition + 8)) <
+                if (unchecked((short)(rinka.WholePosition.X + 8)) <
                     unchecked((short)(samus.XPosition - 5)))
                 {
                     if (motherBrainExploding)
@@ -188,7 +188,7 @@ internal sealed class IntroRinkaSystem
                 MoveHalfPixelX(rinka,
                     IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
-                short y = unchecked((short)rinka.YPosition);
+                short y = unchecked((short)rinka.WholePosition.Y);
                 if (y < 0x0010 || y >= 0x00d0 || motherBrainExploding)
                     rinka.Delete();
                 return;
@@ -200,16 +200,18 @@ internal sealed class IntroRinkaSystem
 
     private static void MoveHalfPixelX(IntroDiscoverySprite rinka, int wholeDelta)
     {
-        uint subSum = (uint)rinka.XSubPosition + IntroRinkaDefinitions.HalfPixelFraction;
-        rinka.XSubPosition = unchecked((ushort)subSum);
+        SnesFixedPosition x = rinka.Position.X;
+        uint subSum = (uint)x.Fraction + IntroRinkaDefinitions.HalfPixelFraction;
         int carry = (int)(subSum >> 16);
-        rinka.XPosition = unchecked((ushort)(rinka.XPosition + wholeDelta + carry));
+        rinka.Position = rinka.Position.WithX(new(
+            unchecked((ushort)(x.Whole + wholeDelta + carry)), unchecked((ushort)subSum)));
     }
 
     private static void MoveHalfPixelY(IntroDiscoverySprite rinka)
     {
-        uint subSum = (uint)rinka.YSubPosition + IntroRinkaDefinitions.HalfPixelFraction;
-        rinka.YSubPosition = unchecked((ushort)subSum);
-        rinka.YPosition = unchecked((ushort)(rinka.YPosition + (subSum >> 16)));
+        SnesFixedPosition y = rinka.Position.Y;
+        uint subSum = (uint)y.Fraction + IntroRinkaDefinitions.HalfPixelFraction;
+        rinka.Position = rinka.Position.WithY(new(
+            unchecked((ushort)(y.Whole + (subSum >> 16))), unchecked((ushort)subSum)));
     }
 }

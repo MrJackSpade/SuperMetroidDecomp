@@ -72,9 +72,9 @@ internal static partial class Program
         var document = JsonSerializer.Deserialize<FileSelectPresentationDocument>(
             extracted, MapPresentationFormat.JsonOptions)!;
         document.MainCursorAnchors[0] = document.MainCursorAnchors[0] with
-            { X = document.MainCursorAnchors[0].X + 8 };
+            { X = (ushort)(document.MainCursorAnchors[0].X + 8) };
         document.HelmetAnchors[0] = document.HelmetAnchors[0] with
-            { X = document.HelmetAnchors[0].X + 8 };
+            { X = (ushort)(document.HelmetAnchors[0].X + 8) };
         MapPresentationCell pageCell = document.Pages[
             FileSelectPresentationDefinitions.MainWithDataPage][0x2b];
         document.Pages[FileSelectPresentationDefinitions.MainWithDataPage][0x2b] =

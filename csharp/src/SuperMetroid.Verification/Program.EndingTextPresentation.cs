@@ -99,10 +99,10 @@ internal static partial class Program
             "ending text rejects glyphs absent from its documented font mapping");
         IndexedPngImage editableFont = IndexedPng.Read(
             new MemoryStream(fontPng, writable: false),
-            EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height);
+            new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height));
         editableFont.Pixels[0] ^= 1;
         using var editedFontPng = new MemoryStream();
-        IndexedPng.Write(editedFontPng, editableFont.Width, editableFont.Height,
+        IndexedPng.Write(editedFontPng, new(editableFont.Size.X, editableFont.Size.Y),
             editableFont.Pixels, editableFont.Palette);
         editedFontPng.Position = 0;
         EndingFontAtlas editedFont = EndingFontAtlas.Load(editedFontPng);
@@ -162,12 +162,12 @@ internal static partial class Program
             Path.Combine(stockDirectory, EndingFontAtlasFormat.FileName))),
             "installed ending font is the deterministic cartridge extraction");
         IndexedPngImage image = IndexedPng.Read(new MemoryStream(deterministic, writable: false),
-            EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height);
+            new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height));
         image.Pixels[0] ^= 1;
         Directory.CreateDirectory(overrideDirectory);
         string replacement = Path.Combine(overrideDirectory, EndingFontAtlasFormat.FileName);
         using (var output = File.Create(replacement))
-            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(!edited.EndingFont.Transfer.Span.SequenceEqual(

@@ -32,7 +32,7 @@ internal static partial class Program
                     throw new InvalidOperationException("The saved entry no longer exercises the missing background statue artwork.");
                 Console.WriteLine($"Restored statue artwork differs at {restoredPixels} pixels in the reported region.");
                 Directory.CreateDirectory("csharp/test-temp/issue-481");
-                PngWriterTooling.WriteRgba("csharp/test-temp/issue-481/entry.png", 256, 224,
+                PngWriterTooling.WriteRgba("csharp/test-temp/issue-481/entry.png", new Extent16<ScreenPixels>(256, 224),
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             }
             if (frame % 120 == 0)
@@ -40,7 +40,7 @@ internal static partial class Program
         }
         if (!runtime.System.HasEvent(EventNumber.TourianUnlocked))
             throw new InvalidOperationException("The four defeated bosses never opened Tourian after the statue sequence.");
-        PngWriterTooling.WriteRgba("csharp/test-temp/issue-481/open.png", 256, 224,
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-481/open.png", new Extent16<ScreenPixels>(256, 224),
             SuperMetroidRuntimeFrameRenderer.Render(runtime));
         for (int frame = 0; frame < 240; frame++)
             loaded.Game.Step(frame < 18 ? (ushort)SnesButton.Left : (ushort)0);

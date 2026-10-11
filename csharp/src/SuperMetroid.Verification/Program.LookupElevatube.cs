@@ -17,8 +17,8 @@ internal static partial class Program
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x849367), run.DirectionAndCount, "Elevatube native run header");
             AssertEqual(1, run.LevelWords.Length, "Elevatube one word");
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), run.LevelWords.Span[0], "Elevatube DTO original word");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x84936b)), run.NextX, "Elevatube original X");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x84936c)), run.NextY, "Elevatube original Y");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x84936b)), run.Next.X, "Elevatube original X");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x84936c)), run.Next.Y, "Elevatube original Y");
         }
         foreach (string id in new[] {"", "ELEVATUBE-BLOCK", "elevatube-block "})
         {

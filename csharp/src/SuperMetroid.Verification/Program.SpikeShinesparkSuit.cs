@@ -152,7 +152,7 @@ internal static partial class Program
             enemy.Clear();
         foreach (RoomEnemyProjectileSlot projectile in runtime.Enemies.EnemyProjectiles)
             projectile.Clear();
-        for (int block = 0; block < level.WidthInBlocks * level.HeightInBlocks; block++)
+        for (int block = 0; block < level.Size.X * level.Size.Y; block++)
         {
             level.SetForegroundEntry(block, 0);
             level.SetBehavior(block, 0);
@@ -184,7 +184,7 @@ internal static partial class Program
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter),
             "spike-suit fixture accepts stored Shinespark");
 
-        int centerBlock = (samus.YPosition >> 4) * level.WidthInBlocks + (samus.XPosition >> 4);
+        int centerBlock = (samus.YPosition >> 4) * level.Size.X + (samus.XPosition >> 4);
         level.SetForegroundEntry(centerBlock, (ushort)((ushort)RoomCollisionType.SpikeAir << 12));
         level.SetBehavior(centerBlock, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
         if (underwater)
@@ -192,7 +192,7 @@ internal static partial class Program
             // The reserve technique requires persistent spike/electricity contact while
             // the hurt launch crosses block boundaries. A uniform synthetic field avoids
             // coupling this timing test to any one retail room's surrounding geometry.
-            for (int block = 0; block < level.WidthInBlocks * level.HeightInBlocks; block++)
+            for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             {
                 level.SetForegroundEntry(block, (ushort)((ushort)RoomCollisionType.SpikeAir << 12));
                 level.SetBehavior(block, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);

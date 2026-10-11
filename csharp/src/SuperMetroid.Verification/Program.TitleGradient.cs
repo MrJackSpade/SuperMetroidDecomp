@@ -134,7 +134,7 @@ internal static partial class Program
                     bus.ReadByte(record + 2), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
                     new Position16<OamPixels>(128, 112));
             }
-            presentation.DrawSprite(checked((ushort)frame.Pointer), installedOam, 128, 112, 0);
+            presentation.DrawSprite(checked((ushort)frame.Pointer), installedOam, new(128, 112), 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                 nativeOam.HighTable.SequenceEqual(installedOam.HighTable), "Title composition matches independent native OBJ records");
         }
@@ -191,10 +191,9 @@ internal static partial class Program
 
         IndexedPngImage mode7 = IndexedPng.Read(
             new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
-            TitleGraphicsFormat.Mode7Width,
-            TitleGraphicsFormat.Mode7Height);
+            new(TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height));
         using var wrong = new MemoryStream();
-        IndexedPng.Write(wrong, 8, 8, new byte[64], mode7.Palette);
+        IndexedPng.Write(wrong, new(8, 8), new byte[64], mode7.Palette);
         wrong.Position = 0;
         AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
             wrong,

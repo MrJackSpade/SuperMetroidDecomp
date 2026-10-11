@@ -76,7 +76,7 @@ internal static partial class Program
                 var edited = PauseReserveTankPresentation.Load(stream);
                 AssertEqual(1, edited.StoredFrameCount, "authored part difference remains compiled");
                 var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
-                MenuSpriteCompiler.Compile([part], frame.Name).DrawOnScreen(expected, 24, 95, 0x600);
+                MenuSpriteCompiler.Compile([part], frame.Name).DrawOnScreen(expected, new(24, 95), 0x600);
                 edited.Draw(actual, (PauseReserveTankVisual)frame.Id, 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),

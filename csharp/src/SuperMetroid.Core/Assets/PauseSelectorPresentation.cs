@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -21,11 +22,11 @@ public sealed class PauseSelectorPresentation
         Dictionary<int, int>? durationOverrides, int initialDuration, int palette)
     { this.anchorOverrides = anchorOverrides; this.reserve = reserve; this.beam = beam; this.equipment = equipment; PhaseCount = phaseCount; this.durationOverrides = durationOverrides; InitialDurationTicks = initialDuration; PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
     /// <summary>Gets the selected screen-pixel anchor for an equipment category and item.</summary>
-    public MapLabelPoint Anchor(PauseEquipmentCategory category, int item)
+    public Position16<OamPixels> Anchor(PauseEquipmentCategory category, int item)
     {
         string name = PauseSelectorDefinitions.Anchor(category, item);
         var basis = PauseSelectorDefinitions.StockAnchor(category, item);
-        return anchorOverrides.TryGetValue(name, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
+        return anchorOverrides.TryGetValue(name, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
     }
     /// <summary>Wraps a nonnegative animation phase into the authored phase count.</summary>
     public int NormalizePhase(int phase) => phase >= 0 ? phase % PhaseCount : throw new ArgumentOutOfRangeException(nameof(phase));
@@ -48,7 +49,7 @@ public sealed class PauseSelectorPresentation
             PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
             _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
         }).Get(normalized);
-        composition.DrawOnScreen(oam, (ushort)point.X, (ushort)point.Y, PaletteBits);
+        composition.DrawOnScreen(oam, point, PaletteBits);
     }
     /// <summary>Loads and validates equipment-selector anchors, frames, animation, palette, and timing.</summary>
     public static PauseSelectorPresentation Load(Stream json)
@@ -65,7 +66,7 @@ public sealed class PauseSelectorPresentation
         var anchorOverrides = new Dictionary<string, (int? X, int? Y)>();
         foreach (var definition in PauseSelectorDefinitions.Anchors())
         {
-            if (!document.Anchors.TryGetValue(definition.Name, out var point) || point is null || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
+            if (!document.Anchors.TryGetValue(definition.Name, out var point) || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
                 throw new InvalidDataException($"Pause selector {definition.Name} requires screen coordinates X=0..255/Y=0..223.");
             var basis = PauseSelectorDefinitions.StockAnchor(definition.Category, definition.Item);
             if (point.X != basis.X || point.Y != basis.Y)
@@ -130,7 +131,7 @@ public sealed record PauseSelectorDocument
     /// <summary>Gets the OBJ palette index from zero through seven.</summary>
     public required int Palette { get; init; }
     /// <summary>Gets all sixteen named selector anchors in screen pixels.</summary>
-    public required Dictionary<string, MapLabelPoint> Anchors { get; init; }
+    public required Dictionary<string, Position16<OamPixels>> Anchors { get; init; }
     /// <summary>Gets named selector frames as sprite-part compositions.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
     /// <summary>Gets the ordered cyclic animation phases.</summary>

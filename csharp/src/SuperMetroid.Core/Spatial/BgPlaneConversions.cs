@@ -11,4 +11,7 @@ public static class BgPlaneConversions
 
     /// <summary>The BG2HOFS/BG2VOFS words of a BG2 scroll.</summary>
     public static Position16<BgPlanePixels> AsBgPlaneScroll(this Position16<Bg2Pixels> scroll) => new(scroll.X, scroll.Y);
+
+    /// <summary>The BG1HOFS/BG1VOFS words of an area-map scroll (pause and file-select map views).</summary>
+    public static Position16<BgPlanePixels> AsBgPlaneScroll(this Position16<MapPixels> scroll) => new(scroll.X, scroll.Y);
 }

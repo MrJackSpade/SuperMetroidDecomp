@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -262,7 +263,7 @@ internal sealed class IntroBabyDiscoveryState
                 {
                     confusedBaby.PreInstructionPointerForDiscovery(
                         (ushort)ConfusedBabyPreInstruction.Hatched);
-                    BabyYVelocity = 0;
+                    BabyVelocity = BabyVelocity.WithY(default);
                 }
                 return;
 
@@ -277,7 +278,7 @@ internal sealed class IntroBabyDiscoveryState
                     confusedBaby.PreInstructionPointerForDiscovery(
                         (ushort)ConfusedBabyPreInstruction.Dancing);
                     BabyIdleTimer = 0;
-                    BabyYVelocity = 0;
+                    BabyVelocity = BabyVelocity.WithY(default);
                     confusedBaby.GeneralTimer = 0;
                 }
                 return;
@@ -291,9 +292,7 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
-    private ushort BabyXVelocity { get; set; }
-
-    private ushort BabyYVelocity { get; set; }
+    private EightEightVector<ScreenPixels> BabyVelocity { get; set; }
 
     private ushort BabyIdleTimer { get; set; }
 
@@ -301,14 +300,11 @@ internal sealed class IntroBabyDiscoveryState
     {
         // Equality is intentional: $BA76 uses BNE, and the actor's subpixel integration
         // reaches this scanline once. Four init parameters select four distinct arcs.
-        if (confusedBaby.YPosition == 0x0091 && slimeDrops.Count == 0)
+        if (confusedBaby.WholePosition.Y == 0x0091 && slimeDrops.Count == 0)
         {
             for (byte index = 0; index < IntroEggEffectDefinitions.SlimeDropCount; index++)
             {
-                slimeDrops.Add(new IntroEggSlimeDrop(
-                    confusedBaby.XPosition,
-                    confusedBaby.YPosition,
-                    index));
+                slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.WholePosition, index));
             }
             // `$8B:BA73` publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
@@ -319,17 +315,17 @@ internal sealed class IntroBabyDiscoveryState
 
         // $BA73 accelerates toward 32 pixels above Samus, clamping to +/-$220 in 8.8.
         ushort targetY = unchecked((ushort)(Samus.YPosition - 0x0020));
-        BabyYVelocity = AccelerateToward(
-            confusedBaby.YPosition,
+        BabyVelocity = BabyVelocity.WithY(AccelerateToward(
+            confusedBaby.WholePosition.Y,
             targetY,
-            BabyYVelocity,
+            BabyVelocity.Y,
             positiveLimit: 0x0220,
-            negativeLimit: unchecked((short)0xfde0));
-        AddEightEightVelocity(confusedBaby, horizontal: false, BabyYVelocity);
+            negativeLimit: unchecked((short)0xfde0)));
+        AddEightEightVelocity(confusedBaby, horizontal: false, BabyVelocity.Y);
 
         // The first non-negative velocity marks the top of the initial arc. Native code
         // then holds for $80 frames before enabling the two-axis dance around Samus.
-        if (unchecked((short)BabyYVelocity) >= 0)
+        if (unchecked((short)BabyVelocity.Y.RawValue) >= 0)
         {
             BabyIdleTimer = 0x0080;
             confusedBaby.PreInstructionPointerForDiscovery(
@@ -357,71 +353,57 @@ internal sealed class IntroBabyDiscoveryState
                     maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
         }
 
-        BabyXVelocity = AccelerateToward(
-            confusedBaby.XPosition,
+        BabyVelocity = BabyVelocity.WithX(AccelerateToward(
+            confusedBaby.WholePosition.X,
             Samus.XPosition,
-            BabyXVelocity,
+            BabyVelocity.X,
             positiveLimit: 0x0280,
-            negativeLimit: unchecked((short)0xfd80));
+            negativeLimit: unchecked((short)0xfd80)));
         // $8B:BB79-$BB9E: a baby moving left draws over Samus; otherwise Samus draws first.
-        SamusDisplay = unchecked((sbyte)(BabyXVelocity >> 8)) < 0
+        SamusDisplay = unchecked((sbyte)(BabyVelocity.X.RawValue >> 8)) < 0
             ? IntroSamusDisplay.ObjectsFirst
             : IntroSamusDisplay.SamusFirst;
-        AddEightEightVelocity(confusedBaby, horizontal: true, BabyXVelocity);
+        AddEightEightVelocity(confusedBaby, horizontal: true, BabyVelocity.X);
 
         ushort targetY = unchecked((ushort)(Samus.YPosition - 0x0008));
-        BabyYVelocity = AccelerateToward(
-            confusedBaby.YPosition,
+        BabyVelocity = BabyVelocity.WithY(AccelerateToward(
+            confusedBaby.WholePosition.Y,
             targetY,
-            BabyYVelocity,
+            BabyVelocity.Y,
             positiveLimit: 0x0220,
-            negativeLimit: unchecked((short)0xfde0));
-        AddEightEightVelocity(confusedBaby, horizontal: false, BabyYVelocity);
+            negativeLimit: unchecked((short)0xfde0)));
+        AddEightEightVelocity(confusedBaby, horizontal: false, BabyVelocity.Y);
     }
 
-    private static ushort AccelerateToward(
+    private static SnesSignedEightEight AccelerateToward(
         ushort position,
         ushort target,
-        ushort velocityWord,
+        SnesSignedEightEight current,
         short positiveLimit,
         short negativeLimit)
     {
-        int velocity = unchecked((short)velocityWord);
+        int velocity = unchecked((short)current.RawValue);
         if (unchecked((short)(target - position)) >= 0)
             velocity = Math.Min(positiveLimit, velocity + 0x20);
         else
             velocity = Math.Max(negativeLimit, velocity - 0x20);
-        return unchecked((ushort)velocity);
+        return new(unchecked((ushort)velocity));
     }
 
     private static void AddEightEightVelocity(
         IntroDiscoverySprite sprite,
         bool horizontal,
-        ushort velocity)
+        SnesSignedEightEight velocity)
     {
-        if (horizontal)
-        {
-            ushort whole = sprite.XPosition;
-            ushort fraction = sprite.XSubPosition;
-            IntroCinematicMotion.AddEightEight(ref whole, ref fraction, velocity);
-            sprite.XPosition = whole;
-            sprite.XSubPosition = fraction;
-        }
-        else
-        {
-            ushort whole = sprite.YPosition;
-            ushort fraction = sprite.YSubPosition;
-            IntroCinematicMotion.AddEightEight(ref whole, ref fraction, velocity);
-            sprite.YPosition = whole;
-            sprite.YSubPosition = fraction;
-        }
+        sprite.Position = horizontal
+            ? sprite.Position.WithX(IntroCinematicMotion.AddEightEight(sprite.Position.X, velocity))
+            : sprite.Position.WithY(IntroCinematicMotion.AddEightEight(sprite.Position.Y, velocity));
     }
 
     private static IntroDiscoverySprite CreateActor(IntroBabyActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(
-            definition.X,
-            definition.Y,
+            definition.Position,
             definition.PaletteBits,
             definition.InstructionList);
         actor.PreInstructionPointerForDiscovery(definition.PreInstruction);
@@ -434,8 +416,7 @@ internal sealed class IntroBabyDiscoveryState
         const int height = IntroBabyDiscoveryCollisionDefinitions.RoomRows;
         ushort[] foreground = IntroBabyDiscoveryCollisionDefinitions.CreateForeground();
         return new RoomLevelData(
-            width,
-            height,
+            new Extent16<RoomBlocks>(width, height),
             foreground,
             new byte[width * height],
             new ushort[width * height],

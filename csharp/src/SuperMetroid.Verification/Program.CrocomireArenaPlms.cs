@@ -52,11 +52,11 @@ internal static partial class Program
         RoomLevelData level = CreateRoom(width, height, sourceWords,
             new byte[sourceWords.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertTrue(plms.TrySpawnCrocomireArenaMutation(level, 5, 3, header),
+        AssertTrue(plms.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire header ${(int)header:X4} allocates");
         var guard = new CrocomireSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(guard, level, streamer, 0, 0, 0);
+        plms.Step(guard, level, streamer, new(0, 0), 0);
         AssertEqual(1, plms.ActiveCount,
             $"Crocomire header ${(int)header:X4} persists for native draw frame");
         for (int y = 0; y < 9; y++)
@@ -64,7 +64,7 @@ internal static partial class Program
             AssertEqual(expectedWord(x, y),
                 level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).LevelWord,
                 $"Crocomire header ${(int)header:X4} physical block ({x},{y})");
-        plms.Step(guard, level, streamer, 0, 0, 0);
+        plms.Step(guard, level, streamer, new(0, 0), 0);
         AssertEqual(0, plms.ActiveCount,
             $"Crocomire header ${(int)header:X4} deletes on next frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,

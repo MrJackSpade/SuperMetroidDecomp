@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -49,7 +50,7 @@ internal static partial class Program
     {
         const int width = 64;
         const int height = 64;
-        var level = new RoomLevelData(width, height,
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
             new ushort[width * height], new byte[width * height],
             new ushort[width * height], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();

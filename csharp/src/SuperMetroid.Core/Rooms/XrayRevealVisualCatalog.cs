@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -14,10 +15,9 @@ public readonly record struct XrayRevealVisualWords(
     ushort BottomRight);
 
 /// <summary>One authored room-specific X-ray overlay tile and its visual position.</summary>
-/// <param name="X">Horizontal room coordinate in 16-pixel blocks, before subtracting layer-one scroll.</param>
-/// <param name="Y">Vertical room coordinate in 16-pixel blocks, before subtracting layer-one scroll.</param>
+/// <param name="Block">Room position in 16-pixel blocks, before subtracting layer-one scroll.</param>
 /// <param name="Word">Twelve-bit visual metatile reference expanded into the X-ray BG tilemap, not a collision/BTS word.</param>
-public readonly record struct XrayRoomOverlayVisual(byte X, byte Y, ushort Word);
+public readonly record struct XrayRoomOverlayVisual(Position16<RoomBlocks> Block, ushort Word);
 
 /// <summary>Installed item and room-specific X-ray presentation, independent of PLM state.</summary>
 public sealed class XrayOverlayVisualCatalog
@@ -100,8 +100,9 @@ public sealed class XrayOverlayVisualCatalog
             content.Append("tiles", tiles.Length);
             foreach (XrayRoomOverlayVisual tile in tiles)
             {
-                content.Append("x", tile.X);
-                content.Append("y", tile.Y);
+                // Identity hashes the authored byte coordinates.
+                content.Append("x", checked((byte)tile.Block.X));
+                content.Append("y", checked((byte)tile.Block.Y));
                 content.Append("word", tile.Word);
             }
         }

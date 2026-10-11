@@ -84,8 +84,8 @@ internal static partial class Program
                     AssertEqual(y, shape.NextY(run), "Torizo hand native next Y");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
-                        AssertEqual(x, frame.Runs.Span[run].NextX, "Torizo hand DTO next X");
-                        AssertEqual(y, frame.Runs.Span[run].NextY, "Torizo hand DTO next Y");
+                        AssertEqual(x, frame.Runs.Span[run].Next.X, "Torizo hand DTO next X");
+                        AssertEqual(y, frame.Runs.Span[run].Next.Y, "Torizo hand DTO next Y");
                     }
                 }
                 run++;

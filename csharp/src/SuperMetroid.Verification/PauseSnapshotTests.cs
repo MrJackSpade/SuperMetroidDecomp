@@ -19,13 +19,13 @@ internal static partial class Program
         };
         var system = new Bank80SystemState();
         system.SetAreaMapAcquired((byte)AreaId.Maridia);
-        system.MarkExploredMapTile((byte)AreaId.Maridia, 30, 5);
+        system.MarkExploredMapTile((byte)AreaId.Maridia, new(30, 5));
         // Seed retained HUD words rather than testing only the cleared menu background.
         var gameplayVram = new SnesVram();
         ushort[] hud = new ushort[128];
         for (int i = 0; i < hud.Length; i++) hud[i] = (ushort)(0x2000 | (i % 64));
         gameplayVram.ExecuteWordTransfer(hud, SnesPpuLayout.GameplayHudTilemapWord, 1);
-        var pause = CreateRetailPauseFixture(bus, samus, system, AreaId.Maridia, 28, 1,
+        var pause = CreateRetailPauseFixture(bus, samus, system, AreaId.Maridia, new(28, 1),
             gameplayVram: gameplayVram);
         var pages = new HashSet<int>();
         var levels = new HashSet<byte>();

@@ -3,13 +3,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
     private static WorldMapLabelLayout CreateWindowLabelFixture(int x, int y)
     {
         var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Game.AreaId)area).ToString(),
-            _ => new MapLabelPoint(x, y));
+            _ => new Position16<OamPixels>(checked((ushort)x), checked((ushort)y)));
         using var stream = new MemoryStream();
         WorldMapLabelLayout.Write(stream, new() { Version = 1, Areas = points });
         stream.Position = 0;
@@ -148,11 +149,11 @@ internal static partial class Program
             AssertTrue(frame.All(pixel => pixel.A == 255), "area map backdrop is opaque");
             AssertTrue(frame.Distinct().Count() > 16, "area map renders tile graphics, not a flat background");
             Directory.CreateDirectory("csharp/test-temp/file-select-map");
-            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}.png", 256, 224, frame);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}.png", new Extent16<ScreenPixels>(256, 224), frame);
             ushort[] used = [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
             Rgba32[] labelled = graphics.Render(used).ToArray();
             AssertTrue(!labelled.SequenceEqual(graphics.Render(new ushort[6])), "visited-station masks control map labels");
-            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}-labels.png", 256, 224, labelled);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}-labels.png", new Extent16<ScreenPixels>(256, 224), labelled);
         }
     }
 }

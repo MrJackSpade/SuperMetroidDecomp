@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The three bank-$84 shot-block collision-parent restoration draw lists, valued by native address.</summary>
@@ -31,8 +33,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
     internal readonly record struct Run(
         ushort DirectionAndCount,
         ReadOnlyMemory<ushort> LevelWords,
-        sbyte NextX,
-        sbyte NextY);
+        Offset16<RoomBlocks> Next);
 
     internal readonly record struct DrawList(ushort Pointer, ReadOnlyMemory<Run> Runs);
 
@@ -139,7 +140,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
             var words = new ushort[draw.WordsPerRun];
             for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(run, block);
             runs[run] = new((ushort)((draw.Vertical ? 0x8000 : 0) | words.Length), words,
-                0, (sbyte)(run + 1 < runs.Length ? 1 : 0));
+                new(0, (sbyte)(run + 1 < runs.Length ? 1 : 0)));
         }
         return new(draw.Pointer, runs);
     }

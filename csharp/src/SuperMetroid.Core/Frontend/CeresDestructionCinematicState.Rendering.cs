@@ -34,10 +34,10 @@ internal sealed partial class CeresDestructionCinematicState
                 matrixB,
                 matrixC,
                 matrixD,
-                center: new Offset16<Mode7Pixels>(Phase <= CeresDestructionPhase.FadeOutCeres
-                    ? CeresDestructionRomData.Rendering.CeresCenterX : CeresDestructionRomData.Rendering.ZebesCenterX, Phase <= CeresDestructionPhase.FadeOutCeres
-                    ? CeresDestructionRomData.Rendering.CeresCenterY : CeresDestructionRomData.Rendering.ZebesCenterY),
-                scroll: new Offset16<Mode7Pixels>(unchecked((short)backgroundX), unchecked((short)backgroundY)));
+                center: Phase <= CeresDestructionPhase.FadeOutCeres
+                    ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
+                    : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY),
+                scroll: background.Whole.AsSignedRegister());
             CompositeObjPriority(pixels, oam, 1);
             CompositeObjPriority(pixels, oam, 2);
             CompositeObjPriority(pixels, oam, 3);
@@ -82,7 +82,7 @@ internal sealed partial class CeresDestructionCinematicState
                 Phase <= CeresDestructionPhase.FadeOutCeres
                     ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
                     : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY),
-                new Offset16<Mode7Pixels>(unchecked((short)backgroundX), unchecked((short)backgroundY)));
+                background.Whole.AsSignedRegister());
             layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
         }

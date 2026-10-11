@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -54,8 +55,7 @@ public sealed partial class RoomPlmSystem
         bool accepted,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -90,7 +90,7 @@ public sealed partial class RoomPlmSystem
         _soundRequests.Add(CreateSoundRequest(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6));
         _tilemapUpdates.Clear();
         DrawSaveStationFrame(bus, level, streamer, activation.BlockIndex, station,
-            layer1XPosition, layer1YPosition, bg1XOffset);
+            layer1Position, bg1XOffset);
         return new SaveStationConfirmationResult(true, _tilemapUpdates.ToArray());
     }
 
@@ -399,8 +399,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         PlmSlot slot,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset)
     {
         StationPlmState? station = slot.Station;
@@ -455,8 +454,7 @@ public sealed partial class RoomPlmSystem
                     streamer,
                     station,
                     extended: false,
-                    layer1XPosition,
-                    layer1YPosition,
+                    layer1Position,
                     bg1XOffset);
             }
         }
@@ -467,8 +465,7 @@ public sealed partial class RoomPlmSystem
                 streamer,
                 slot,
                 station,
-                layer1XPosition,
-                layer1YPosition,
+                layer1Position,
                 bg1XOffset))
         {
             return true;
@@ -489,8 +486,7 @@ public sealed partial class RoomPlmSystem
                             streamer,
                             station,
                             extended: true,
-                            layer1XPosition,
-                            layer1YPosition,
+                            layer1Position,
                             bg1XOffset);
                         station.OperationPhase = StationOperationPhase.Extended;
                         station.OperationTimer = StationAccessExtendedHoldFrames;
@@ -517,8 +513,7 @@ public sealed partial class RoomPlmSystem
                             streamer,
                             station,
                             extended: false,
-                            layer1XPosition,
-                            layer1YPosition,
+                            layer1Position,
                             bg1XOffset);
                         station.OperationPhase = StationOperationPhase.FinalRetractionHold;
                         station.OperationTimer = StationAccessMovementFrames;
@@ -565,8 +560,7 @@ public sealed partial class RoomPlmSystem
             streamer,
             slot.BlockIndex,
             draw,
-            layer1XPosition,
-            layer1YPosition,
+            layer1Position,
             bg1XOffset);
         station.AnimationTimer = timer;
         station.InitialDrawCompleted = true;
@@ -580,8 +574,7 @@ public sealed partial class RoomPlmSystem
         BackgroundTilemapStreamer streamer,
         PlmSlot slot,
         StationPlmState station,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset)
     {
         if (station.SavePhase is SaveStationPhase.Idle or
@@ -616,7 +609,7 @@ public sealed partial class RoomPlmSystem
             return true;
         }
         DrawSaveStationFrame(bus, level, streamer, slot.BlockIndex, station,
-            layer1XPosition, layer1YPosition, bg1XOffset);
+            layer1Position, bg1XOffset);
         return true;
     }
 
@@ -627,8 +620,7 @@ public sealed partial class RoomPlmSystem
         BackgroundTilemapStreamer streamer,
         int blockIndex,
         StationPlmState station,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset)
     {
         StationAnimationList list = station.AnimationFrame == 0
@@ -647,8 +639,7 @@ public sealed partial class RoomPlmSystem
             streamer,
             blockIndex,
             frame.DrawPointer,
-            layer1XPosition,
-            layer1YPosition,
+            layer1Position,
             bg1XOffset);
         station.AnimationTimer = frame.Duration;
         station.AnimationFrame ^= 1;
@@ -706,8 +697,7 @@ public sealed partial class RoomPlmSystem
         BackgroundTilemapStreamer streamer,
         StationPlmState station,
         bool extended,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset)
     {
         StationAccessBehavior accessBehavior = station.AccessBehavior
@@ -721,8 +711,7 @@ public sealed partial class RoomPlmSystem
             streamer,
             station.AccessBlockIndex,
             drawPointer,
-            layer1XPosition,
-            layer1YPosition,
+            layer1Position,
             bg1XOffset);
     }
 

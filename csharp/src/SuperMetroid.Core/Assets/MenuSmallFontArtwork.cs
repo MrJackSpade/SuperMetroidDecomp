@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -29,26 +31,26 @@ internal sealed class MenuSmallFontArtwork
         for (int x = 0; x < 8; x++)
         {
             byte pixel = Source(tile, x, y);
-            if (pixel != Basis(tile, x, y)) (edits ??= []).Add((tile - FirstTile) * 64 + y * 8 + x, pixel);
+            if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add((tile - FirstTile) * 64 + y * 8 + x, pixel);
         }
-        byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
+        byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
 
     internal static bool Contains(int tile) => tile is >= FirstTile and < (FirstTile + TileCount);
-    internal byte Pixel(int tile, int x, int y)
+    internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
-        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue((tile - FirstTile) * 64 + y * 8 + x, out byte pixel)
-            ? pixel : Basis(tile, x, y);
+        if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        return edits is not null && edits.TryGetValue((tile - FirstTile) * 64 + point.Y * 8 + point.X, out byte pixel)
+            ? pixel : Basis(tile, point);
     }
 
-    private byte Basis(int tile, int x, int y)
+    private byte Basis(int tile, Position16<CharacterPixels> point)
     {
-        int row = (tile - FirstTile) * 8 + y;
-        if ((faces[row] & (1 << x)) != 0) return 14;
-        if (Ink(x - 1, y - 1)) return 13;
-        if (Ink(x - 1, y) && (Ink(x, y - 1) ||
-            Ink(x + 1, y) && Ink(x, y + 1) && !Ink(x + 1, y - 1) && Ink(x - 2, y - 2))) return 13;
+        int row = (tile - FirstTile) * 8 + point.Y;
+        if ((faces[row] & (1 << point.X)) != 0) return 14;
+        if (Ink(point.X - 1, point.Y - 1)) return 13;
+        if (Ink(point.X - 1, point.Y) && (Ink(point.X, point.Y - 1) ||
+            Ink(point.X + 1, point.Y) && Ink(point.X, point.Y + 1) && !Ink(point.X + 1, point.Y - 1) && Ink(point.X - 2, point.Y - 2))) return 13;
         return 0;
 
         // The two-step ink source establishes an incoming diagonal shadow at the

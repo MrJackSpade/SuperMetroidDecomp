@@ -57,7 +57,7 @@ internal static partial class Program
                     if (visibleExplosion && visibleShake)
                     {
                         Directory.CreateDirectory("csharp/test-temp/escape-effects");
-                        PngWriterTooling.WriteRgba($"csharp/test-temp/escape-effects/{room:X4}.png", 256, 224, actual);
+                        PngWriterTooling.WriteRgba($"csharp/test-temp/escape-effects/{room:X4}.png", new Extent16<ScreenPixels>(256, 224), actual);
                     }
                 }
             }
@@ -68,8 +68,8 @@ internal static partial class Program
             if (room == 0x9804)
             {
                 var level = runtime.LevelData!;
-                int origin = level.GetBlockIndex(15, 10);
-                AssertEqual((byte)0x4f, level.GetCollisionBlock(15, 10).Behavior, "retail room loader installs rescue wall");
+                int origin = level.GetBlockIndex(new(15, 10));
+                AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Behavior, "retail room loader installs rescue wall");
                 runtime.Plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 1, true);
                 for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
                 AssertTrue(runtime.System.HasEvent(EventNumber.CrittersEscaped), "live rescue room publishes escaped event");

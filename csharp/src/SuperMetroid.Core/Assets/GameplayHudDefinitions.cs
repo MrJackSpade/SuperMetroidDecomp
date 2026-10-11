@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Stable resource names, extraction sources and native gameplay-HUD layout identities.</summary>
@@ -13,6 +15,8 @@ public static class GameplayHudDefinitions
     public const int Height = 3;
     /// <summary>Ninety-six native tilemap words in the three mutable rows; the separate static top row is excluded.</summary>
     public const int CellCount = Width * Height;
+    /// <summary>The mutable HUD tilemap's size in cells.</summary>
+    public static Extent16<TilemapCells> Size => new(Width, Height);
     /// <summary>Immutable top row copied directly to BG3 from $80:988B.</summary>
     public const int TopRowAddress = 0x80988b;
     /// <summary>Thirty-two tile cells in the static minimap-border row at $80:988B..98CA.</summary>

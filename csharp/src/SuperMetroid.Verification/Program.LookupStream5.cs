@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -256,9 +257,9 @@ internal static partial class Program
         };
         byte[] planar = Enumerable.Range(0,CeresDoorVisualRomData.TileByteCount)
             .Select(index => rom.ReadByte(CeresDoorVisualRomData.TileSource+index)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out int width,out int height);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png,width,height,pixels,SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
         CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualCatalog.Load(
             new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualCatalog.Write(value)));
@@ -557,7 +558,7 @@ internal static partial class Program
         AssertTrue(expectedIds.SequenceEqual(MapLandmarkDefinitions.AllIds()), "Original public identity and manifest order");
         using var editedBytes = new MemoryStream();
         MapLandmarkLayout.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
-            Markers = expectedIds.ToDictionary(id => id, id => layout.Get(id) with { X = layout.Get(id).X + 1, Y = layout.Get(id).Y + 1 }) });
+            Markers = expectedIds.ToDictionary(id => id, id => layout.Get(id) with { X = (ushort)(layout.Get(id).X + 1), Y = (ushort)(layout.Get(id).Y + 1) }) });
         editedBytes.Position = 0;
         MapLandmarkLayout editedLayout = MapLandmarkLayout.Load(editedBytes);
         int bossSlots = 0, elevatorSlots = 0;
@@ -612,7 +613,7 @@ internal static partial class Program
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(adjustment == 0 ? layout : editedLayout); icons.BindSprites(sprites);
             var actual = new OamBuffer(); var expected = new OamBuffer();
-            icons.DrawBossMarkers(actual, 7, 9);
+            icons.DrawBossMarkers(actual, new(7, 9));
             int pointer = Root(FileSelectMapIconRomData.BossLists, area), bits = defeated ? 1 : 0;
             if (pointer != 0)
                 for (int i = 0; Read(pointer + i * 4) != ushort.MaxValue; i++, bits >>= 1)
@@ -628,7 +629,7 @@ internal static partial class Program
                 }
             if (area != AreaId.Ceres)
             {
-                icons.DrawAfterMarker(actual, 7, 9);
+                icons.DrawAfterMarker(actual, new(7, 9));
                 if (area == AreaId.Crateria)
                 {
                     int ship = Root(FileSelectMapRomData.SavePointMapPointers, area);
@@ -644,7 +645,7 @@ internal static partial class Program
             AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) && actual.HighTable.SequenceEqual(expected.HighTable), "Actual native ordered landmark OAM");
             AssertEqual(defeated ? (byte)1 : (byte)0, system.GetBossBitsRaw(area), "Drawing preserves boss bits");
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
-            void Draw(MapSpriteId id, int x, int y, ushort palette) => sprites.Draw(id, expected, unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9)), palette);
+            void Draw(MapSpriteId id, int x, int y, ushort palette) => sprites.Draw(id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), palette);
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarkDefinitions.Bosses((AreaId)7), "Invalid boss area");
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarkDefinitions.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
@@ -807,23 +808,23 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor(MapScrollDirection.None), "No direction has no binding");
         AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)5), "Invalid direction");
         var state = new Bank80SystemState();
-        state.MarkExploredMapTile(AreaId.Crateria, 0, 0);
-        state.MarkExploredMapTile(AreaId.Crateria, 63, 31);
+        state.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
+        state.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
         var map = new LookupStream5ScrollMap();
         for (int selected = 0; selected < 4; selected++)
         {
-            var stock = new FileSelectMapScroll(rom, map, state, 240, 128);
-            ushort startX = stock.Horizontal, startY = stock.Vertical;
+            var stock = new FileSelectMapScroll(rom, map, state, new(240, 128));
+            ushort startX = stock.Scroll.X, startY = stock.Scroll.Y;
             for (int tick = 1; tick <= 8; tick++)
             {
                 AssertEqual(tick == 8, stock.Step(tick == 1 ? native[selected] : (ushort)0), "Stock sound boundary");
                 int delta = tick >= 4 ? 8 : 0;
-                AssertEqual(unchecked((ushort)(startX + (selected == 0 ? -delta : selected == 1 ? delta : 0))), stock.Horizontal, "Horizontal pulse");
-                AssertEqual(unchecked((ushort)(startY + (selected == 2 ? -delta : selected == 3 ? delta : 0))), stock.Vertical, "Vertical pulse");
+                AssertEqual(unchecked((ushort)(startX + (selected == 0 ? -delta : selected == 1 ? delta : 0))), stock.Scroll.X, "Horizontal pulse");
+                AssertEqual(unchecked((ushort)(startY + (selected == 2 ? -delta : selected == 3 ? delta : 0))), stock.Scroll.Y, "Vertical pulse");
                 AssertEqual(tick == 8 ? MapScrollDirection.None : (MapScrollDirection)(selected + 1), stock.Direction, "Accepted direction survives release");
             }
         }
-        var priority = new FileSelectMapScroll(rom, map, state, 240, 128);
+        var priority = new FileSelectMapScroll(rom, map, state, new(240, 128));
         _ = priority.Step((ushort)(native[0] | native[1] | native[2] | native[3]));
         AssertEqual(MapScrollDirection.Left, priority.Direction, "Left takes priority among simultaneous directions");
         Console.WriteLine("Map buttons: four native semantic cases, domain bounds, four-direction pulses, release and priority pass.");
@@ -832,10 +833,10 @@ internal static partial class Program
     private sealed class LookupStream5ScrollMap : IAreaMapView
     {
         public AreaId Area => AreaId.Crateria;
-        public MapTileWord GetTile(int x, int y) => default;
-        public bool IsDiscoverable(int x, int y) => true;
-        public bool IsRevealedByMapStation(int x, int y) => false;
-        public bool RevealsCellAbove(int x, int y) => false;
+        public MapTileWord GetTile(Position16<MapTiles> cell) => default;
+        public bool IsDiscoverable(Position16<MapTiles> cell) => true;
+        public bool IsRevealedByMapStation(Position16<MapTiles> cell) => false;
+        public bool RevealsCellAbove(Position16<MapTiles> cell) => false;
     }
     private static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
     {
@@ -909,8 +910,8 @@ internal static partial class Program
             var actualOam = new OamBuffer();
             var expectedOam = new OamBuffer();
             actualOam.BeginFrame(); expectedOam.BeginFrame();
-            catalog.Draw(pointer, actualOam, 128, 112, 0x0800, true);
-            expected.DrawOnScreen(expectedOam, 128, 112, 0x0800);
+            catalog.Draw(pointer, actualOam, new(128, 112), 0x0800, true);
+            expected.DrawOnScreen(expectedOam, new(128, 112), 0x0800);
             AssertEqual(expectedOam.NextByteOffset, actualOam.NextByteOffset, "Star OAM count/order");
             AssertTrue(expectedOam.LowTable.SequenceEqual(actualOam.LowTable), "Exact star low OAM");
             AssertTrue(expectedOam.HighTable.SequenceEqual(actualOam.HighTable), "Exact star high OAM");
@@ -1363,9 +1364,9 @@ internal static partial class Program
     {
         byte[] planar = Enumerable.Range(0,DeadTourianCorpseArtworkDefinitions.ByteCount)
             .Select(index => rom.ReadByte(DeadTourianCorpseArtworkDefinitions.SourceAddress+index)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out int width,out int height);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png,width,height,pixels,SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         png.Position=0;
         RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(png,planar.Length);
         return EnemyTileArtworkCatalog.FromArtworkForVerification(
@@ -1481,9 +1482,9 @@ internal static partial class Program
         };
         byte[] planar = Enumerable.Range(0,CeresDoorVisualRomData.TileByteCount)
             .Select(index => rom.ReadByte(CeresDoorVisualRomData.TileSource+index)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out int width,out int height);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png,width,height,pixels,SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
         CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualCatalog.Load(
             new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualCatalog.Write(value)));
@@ -1901,8 +1902,8 @@ internal static partial class Program
             Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
-        using var png = new MemoryStream(); IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
+        using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorNormalPaintDefinitions stock = Check();
         AssertEqual(13, ((Dictionary<int, int>)typeof(CeresDoorNormalPaintDefinitions).GetField("paint", flags)!.GetValue(stock)!).Count, "Thirteen local material seeds remain after shared warm extraction");
@@ -1965,8 +1966,8 @@ internal static partial class Program
             Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
-        using var png = new MemoryStream(); IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
+        using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorEscapePaintDefinitions stock = Check();
         // The highlight/edge/outline levels live in the surface paint the escape palette composes.
@@ -2028,8 +2029,8 @@ internal static partial class Program
             Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
-        using var png = new MemoryStream(); IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
+        using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorAnimationPaintDefinitions stock = Check(-1);
         AssertEqual(17, (int)typeof(CeresDoorAnimationPaintDefinitions).GetField("firstSeedBlue", flags)!.GetValue(stock)!, "Selected beacon blue");

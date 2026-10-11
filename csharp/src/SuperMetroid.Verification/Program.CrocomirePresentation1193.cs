@@ -198,14 +198,14 @@ internal static partial class Program
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         using var png = new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom));
-        var image = IndexedPng.Read(png, RoomFxAnimatedTileAtlasFormat.Width, 8);
+        var image = IndexedPng.Read(png, new(RoomFxAnimatedTileAtlasFormat.Width, 8));
         int oldWidth = RoomFxAnimatedTileAtlasFormat.PreSpikesWidth;
         var pixels = new byte[oldWidth * 8];
         for (int row = 0; row < 8; row++)
-            image.Pixels.AsSpan(row * image.Width, oldWidth).CopyTo(pixels.AsSpan(row * oldWidth));
+            image.Pixels.AsSpan(row * image.Size.X, oldWidth).CopyTo(pixels.AsSpan(row * oldWidth));
         pixels[0] ^= 1;
         using var legacyPng = new MemoryStream();
-        IndexedPng.Write(legacyPng, oldWidth, 8, pixels, SnesGraphics.DiagnosticPalette(4));
+        IndexedPng.Write(legacyPng, new(checked((ushort)oldWidth), 8), pixels, SnesGraphics.DiagnosticPalette(4));
         legacyPng.Position = 0;
         var migrated = RoomFxAnimatedTileAtlas.Load(legacyPng, stock);
         int oldSource = RoomFxAnimatedTileArtworkDefinitions.MaridiaSandCeilingFirstSource;

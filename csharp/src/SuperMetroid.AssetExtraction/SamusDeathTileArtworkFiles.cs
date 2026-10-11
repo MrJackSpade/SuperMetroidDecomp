@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -44,9 +45,9 @@ public static class SamusDeathTileArtworkFiles
                     bus.ReadCartridgeByte(segments[segment].SourceAddress + offset);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,
             SamusDeathTileAtlasFormat.BitsPerPixel, SamusDeathTileAtlasFormat.Width / 8,
-            out int width, out int height);
+            out Extent16<ImagePixels> size);
         using var output = new MemoryStream();
-        IndexedPng.Write(output, width, height, pixels,
+        IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(1 << SamusDeathTileAtlasFormat.BitsPerPixel));
         byte[] png = output.ToArray();
         File.WriteAllBytes(Path.Combine(directory, SamusDeathTileAtlasFormat.ArtworkFileName), png);

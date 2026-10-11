@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -46,9 +47,9 @@ internal static class CeresDestructionArtworkExtractor
         if (zebesCharacters.Length != CeresDestructionArtworkFormat.ZebesCharacterByteCount)
             throw new InvalidDataException("Zebes reveal character stream has the wrong transfer length.");
         byte[] pixels = SnesGraphics.DecodePlanarTiles(zebesCharacters, 4,
-            IntroCinematicArtworkFormat.TileColumns, out int width, out int height);
+            IntroCinematicArtworkFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] zebesPng = png.ToArray();
 
         var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
@@ -79,7 +80,7 @@ internal static class CeresDestructionArtworkExtractor
                 CeresDestructionActorDefinitions.NativeBank | source.YAddress);
             CeresDestructionActorDefinition translatedActor =
                 CeresDestructionActorDefinitions.ZebesActor(index);
-            if (x != translatedActor.X || y != translatedActor.Y)
+            if (x != translatedActor.Position.X || y != translatedActor.Position.Y)
                 throw new InvalidDataException(
                     $"Ceres reveal actor {source.Id} placement differs from pinned cartridge operands.");
             placements[index] = new CeresRevealActorPlacement
@@ -107,8 +108,8 @@ internal static class CeresDestructionArtworkExtractor
             destructionPlacements[index] = new CeresDestructionActorPlacement
             {
                 Id = CeresDestructionActorDefinitions.InitialPlacementId(index),
-                X = actor.X,
-                Y = actor.Y,
+                X = actor.Position.X,
+                Y = actor.Position.Y,
             };
         }
         using var destructionActorsJson = new MemoryStream();

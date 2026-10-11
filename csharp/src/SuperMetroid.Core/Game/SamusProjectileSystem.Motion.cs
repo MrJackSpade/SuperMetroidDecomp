@@ -461,7 +461,7 @@ public sealed partial class SamusProjectileSystem
         // `$94:A46F` tests the projectile center, not its radius-spanning leading edge. Room
         // width is stored in 256-pixel screens; coordinates in/past the first out-of-room
         // high byte skip reaction and are left for the later 64-pixel viewport deletion.
-        int roomWidthInScreens = (level.WidthInBlocks + 15) >> 4;
+        int roomWidthInScreens = (level.Size.X + 15) >> 4;
         if ((slot.XPosition >> 8) >= roomWidthInScreens)
             return false;
         return MissilePointReaction(
@@ -478,7 +478,7 @@ public sealed partial class SamusProjectileSystem
             slot.YSubposition,
             slot.YVelocity);
 
-        int roomHeightInScreens = (level.HeightInBlocks + 15) >> 4;
+        int roomHeightInScreens = (level.Size.Y + 15) >> 4;
         if ((slot.YPosition >> 8) >= roomHeightInScreens)
             return false;
         return MissilePointReaction(
@@ -493,13 +493,13 @@ public sealed partial class SamusProjectileSystem
     {
         int blockX = slot.XPosition >> 4;
         int blockY = slot.YPosition >> 4;
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
+        if ((uint)blockX >= (uint)level.Size.X ||
+            (uint)blockY >= (uint)level.Size.Y)
         {
             return false;
         }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+        RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
 
         // `$94:9D9F/$9DCA` return the dispatcher to its caller with N set, causing the same
         // point reaction to run again on the signed horizontal/vertical parent. A zero-BTS

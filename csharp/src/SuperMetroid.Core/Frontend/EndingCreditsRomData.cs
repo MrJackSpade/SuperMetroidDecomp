@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -365,64 +366,64 @@ public static class EndingCreditsRomData
         public static readonly SnesObjAttributeWord PlanetPalette = SnesObjPalettes.Index7;
         /// <summary>$8B:EEEB / F0F9, yellow-cloud right actor: origin (320,192) pixels, OBJ palette five, instruction list $8B:ED0D.</summary>
         public static readonly EndingSpriteDefinition EscapeACloudRightTop =
-            new(0x0140, 0x00c0, ScenePalette, 0xed0d);
+            new(new(0x0140, 0x00c0), ScenePalette, 0xed0d);
         /// <summary>$8B:EEF1, yellow-cloud left actor: origin (-64,64) pixels encoded with wrapped X, OBJ palette five, instruction list $8B:ED15.</summary>
         public static readonly EndingSpriteDefinition EscapeACloudLeftTop =
-            new(0xffc0, 0x0040, ScenePalette, 0xed15);
+            new(new(0xffc0, 0x0040), ScenePalette, 0xed15);
         /// <summary>$8B:EEEB / F0F9 with the alternate initialization parameter: right cloud at (320,448) pixels, palette five, list $8B:ED0D.</summary>
         public static readonly EndingSpriteDefinition EscapeACloudRightBottom =
-            new(0x0140, 0x01c0, ScenePalette, 0xed0d);
+            new(new(0x0140, 0x01c0), ScenePalette, 0xed0d);
         /// <summary>$8B:EEF1 with the alternate initialization parameter: left cloud at (-64,-192) pixels encoded as wrapped words, palette five, list $8B:ED15.</summary>
         public static readonly EndingSpriteDefinition EscapeACloudLeftBottom =
-            new(0xffc0, 0xff40, ScenePalette, 0xed15);
+            new(new(0xffc0, 0xff40), ScenePalette, 0xed15);
         /// <summary>$8B:EED3 / F0B2: first upper cloud, parameter zero, origin (128,-96), list ECED.</summary>
         public static readonly EndingSpriteDefinition EscapeBCloudTopA =
-            new(0x0080, 0xffa0, ScenePalette, 0xeced);
+            new(new(0x0080, 0xffa0), ScenePalette, 0xeced);
         /// <summary>$8B:EED9 / F0E1: second upper cloud, parameter zero, origin (128,-32), list ECF5.</summary>
         public static readonly EndingSpriteDefinition EscapeBCloudTopB =
-            new(0x0080, 0xffe0, ScenePalette, 0xecf5);
+            new(new(0x0080, 0xffe0), ScenePalette, 0xecf5);
         /// <summary>$8B:EEDF / F0E9: first lower cloud, parameter zero, origin (128,288), list ECFD.</summary>
         public static readonly EndingSpriteDefinition EscapeBCloudBottomA =
-            new(0x0080, 0x0120, ScenePalette, 0xecfd);
+            new(new(0x0080, 0x0120), ScenePalette, 0xecfd);
         /// <summary>$8B:EEE5 / F0F1: second lower cloud, parameter zero, origin (128,352), list ED05.</summary>
         public static readonly EndingSpriteDefinition EscapeBCloudBottomB =
-            new(0x0080, 0x0160, ScenePalette, 0xed05);
+            new(new(0x0080, 0x0160), ScenePalette, 0xed05);
         /// <summary>$8B:EE9D, CinematicSpriteObjectDefinitions_ExplodingZebes_Zebes: planet actor at (128,128) pixels, palette seven, list $8B:EB0F.</summary>
         public static readonly EndingSpriteDefinition ExplodingZebes =
-            new(0x0080, 0x0080, PlanetPalette, 0xeb0f);
+            new(new(0x0080, 0x0080), PlanetPalette, 0xeb0f);
         /// <summary>$8B:EEAF explosion palette-five actor: lava overlay at (128,128) pixels with instruction list $8B:EB59.</summary>
         public static readonly EndingSpriteDefinition ExplosionLava =
-            new(0x0080, 0x0080, ScenePalette, 0xeb59);
+            new(new(0x0080, 0x0080), ScenePalette, 0xeb59);
         /// <summary>$8B:EEA3 purple-glow actor: origin (128,128) pixels, palette seven, instruction list $8B:EB3D.</summary>
         public static readonly EndingSpriteDefinition ExplosionGlow =
-            new(0x0080, 0x0080, PlanetPalette, 0xeb3d);
+            new(new(0x0080, 0x0080), PlanetPalette, 0xeb3d);
         /// <summary>$8B:EEA9 explosion-stars actor: origin (128,128) pixels, palette seven, instruction list $8B:EB51.</summary>
         public static readonly EndingSpriteDefinition ExplosionStars =
-            new(0x0080, 0x0080, PlanetPalette, 0xeb51);
+            new(new(0x0080, 0x0080), PlanetPalette, 0xeb51);
         /// <summary>$8B:EEB5 palette-five explosion silhouette: origin (128,128) pixels with instruction list $8B:EB69.</summary>
         public static readonly EndingSpriteDefinition ExplosionSilhouette =
-            new(0x0080, 0x0080, ScenePalette, 0xeb69);
+            new(new(0x0080, 0x0080), ScenePalette, 0xeb69);
         /// <summary>$8B:EEBB right-hand explosion-stars actor: origin (128,128) pixels, palette seven, instruction list $8B:EB71.</summary>
         public static readonly EndingSpriteDefinition ExplosionStarsRight =
-            new(0x0080, 0x0080, PlanetPalette, 0xeb71);
+            new(new(0x0080, 0x0080), PlanetPalette, 0xeb71);
         /// <summary>$8B:EEF7 / EFFD left-hand explosion-stars actor: origin (-128,128) pixels with wrapped X, palette seven, list $8B:EB81.</summary>
         public static readonly EndingSpriteDefinition ExplosionStarsLeft =
-            new(0xff80, 0x0080, PlanetPalette, 0xeb81);
+            new(new(0xff80, 0x0080), PlanetPalette, 0xeb81);
         /// <summary>$8B:EEC1 / F018, Zebes afterglow: origin (128,128) pixels, palette six, instruction list $8B:EB89.</summary>
         public static readonly EndingSpriteDefinition ExplosionAfterglow =
-            new(0x0080, 0x0080, AlternatePalette, 0xeb89);
+            new(new(0x0080, 0x0080), AlternatePalette, 0xeb89);
         /// <summary>$8B:EEC7 / F02B, THE OPERATION WAS actor: origin (128,96) pixels, palette two, instruction list $8B:EB91.</summary>
         public static readonly EndingSpriteDefinition OperationWasText =
-            new(0x0080, 0x0060, TextPalette, 0xeb91);
+            new(new(0x0080, 0x0060), TextPalette, 0xeb91);
         /// <summary>$8B:EECD / F02B, COMPLETED SUCCESSFULLY actor: origin (128,96) pixels, palette two, instruction list $8B:EBD7.</summary>
         public static readonly EndingSpriteDefinition CompletedSuccessfullyText =
-            new(0x0080, 0x0060, TextPalette, 0xebd7);
+            new(new(0x0080, 0x0060), TextPalette, 0xebd7);
         /// <summary>$8B:EEFD / F03E, CinematicSpriteObjectDefinitions_ClearTime: label actor at (128,160) pixels, palette one, instruction list $8B:EC35.</summary>
         public static readonly EndingSpriteDefinition ClearTimeText =
-            new(0x0080, 0x00a0, TimeLabelPalette, 0xec35);
+            new(new(0x0080, 0x00a0), TimeLabelPalette, 0xec35);
         /// <summary>$8B:EF0F / F07C clear-time colon actor at (172,160) pixels with no palette override and instruction list $8B:ECD1; separate from the numeric digit lists.</summary>
         public static readonly EndingSpriteDefinition ClearTimeColon =
-            new(0x00ac, 0x00a0, new SnesObjAttributeWord(0), 0xecd1);
+            new(new(0x00ac, 0x00a0), new SnesObjAttributeWord(0), 0xecd1);
         /// <summary>Shared clear-time digit origin Y=160 screen pixels, aligned with the label and colon.</summary>
         public const ushort ClearTimeDigitY = 0x00a0;
         /// <summary>$8B:EC81, first clear-time digit instruction list, representing zero; digit selection adds the eight-byte list stride.</summary>
@@ -431,29 +432,27 @@ public static class EndingCreditsRomData
         public const int ClearTimeDigitInstructionStride = 8;
         /// <summary>$8B:EF27 suitless idle-body actor: origin (120,136) pixels, palette five, instruction list $8B:ED1D.</summary>
         public static readonly EndingSpriteDefinition SuitlessRewardBody =
-            new(0x0078, 0x0088, ScenePalette, 0xed1d);
+            new(new(0x0078, 0x0088), ScenePalette, 0xed1d);
         /// <summary>$8B:EF2D, CinematicSpriteObjectDefinitions_SuitlessSamus_Idle_Legs: lower suitless composition at the shared origin (120,136) pixels, palette five, list $8B:ED25; the legacy Head name does not match its native legs role.</summary>
         public static readonly EndingSpriteDefinition SuitlessRewardHead =
-            new(0x0078, 0x0088, ScenePalette, 0xed25);
+            new(new(0x0078, 0x0088), ScenePalette, 0xed25);
         /// <summary>$8B:EF45 / F156 suited idle-body actor: origin (120,152) pixels, palette six, instruction list $8B:EDB1.</summary>
         public static readonly EndingSpriteDefinition ArmoredRewardBody =
-            new(0x0078, 0x0098, AlternatePalette, 0xedb1);
+            new(new(0x0078, 0x0098), AlternatePalette, 0xedb1);
         /// <summary>$8B:EF51 / F17C helmetless suited-head actor: origin (121,107) pixels, palette five, instruction list $8B:EDC1.</summary>
         public static readonly EndingSpriteDefinition HelmetlessRewardHead =
-            new(0x0079, 0x006b, ScenePalette, 0xedc1);
+            new(new(0x0079, 0x006b), ScenePalette, 0xedc1);
         /// <summary>$8B:EF4B / F169 helmeted suited-head actor: origin (124,108) pixels, palette six, instruction list $8B:EDB9.</summary>
         public static readonly EndingSpriteDefinition ArmoredRewardHead =
-            new(0x007c, 0x006c, AlternatePalette, 0xedb9);
+            new(new(0x007c, 0x006c), AlternatePalette, 0xedb9);
     }
 }
 
 /// <summary>Immutable bank-$8B ending-sprite constructor data.</summary>
-/// <param name="X">Horizontal origin in pixels as a native sixteen-bit word; negative offscreen positions use two's-complement wrapping.</param>
-/// <param name="Y">Vertical origin in pixels as a native sixteen-bit word; negative offscreen positions use two's-complement wrapping.</param>
+/// <param name="Position">Origin in pixels as native sixteen-bit words; negative offscreen positions use two's-complement wrapping.</param>
 /// <param name="Attributes">OBJ attribute word providing the palette bits passed to the cinematic sprite constructor.</param>
 /// <param name="InstructionPointer">Bank-relative pointer into bank $8B's cinematic sprite instruction lists, rather than a spritemap address.</param>
 public readonly record struct EndingSpriteDefinition(
-    ushort X,
-    ushort Y,
+    Position16<ScreenPixels> Position,
     SnesObjAttributeWord Attributes,
     ushort InstructionPointer);

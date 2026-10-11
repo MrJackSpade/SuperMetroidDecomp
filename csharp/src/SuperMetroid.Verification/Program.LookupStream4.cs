@@ -7,6 +7,7 @@ using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -259,7 +260,7 @@ internal static partial class Program
             0x97E7DE, EndingCreditsRomData.Rendering.Mode7Bytes);
         byte[] native = decoded.AsSpan(0, 160 * 32).ToArray();
         byte[] png = EndingFontAtlasExtractor.Extract(rom);
-        var image = IndexedPng.Read(new MemoryStream(png), 128, 80);
+        var image = IndexedPng.Read(new MemoryStream(png), new(128, 80));
         var atlas = EndingFontAtlas.Load(new MemoryStream(png));
         var stored = (Dictionary<int, byte>)typeof(EndingFontAtlas).GetField("pixels", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(atlas)!;
         var footprint = (HashSet<int>)typeof(EndingFontAtlas).GetField("glyphFootprint", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(atlas)!;
@@ -307,7 +308,7 @@ internal static partial class Program
         {
             byte[] changedPixels = image.Pixels.ToArray(); changedPixels[pixel] ^= 1;
             using var changedPng = new MemoryStream();
-            IndexedPng.Write(changedPng, 128, 80, changedPixels, image.Palette); changedPng.Position = 0;
+            IndexedPng.Write(changedPng, new(128, 80), changedPixels, image.Palette); changedPng.Position = 0;
             var changed = EndingFontAtlas.Load(changedPng);
             int x = pixel % 128, y = pixel / 128, tile = y / 8 * 16 + x / 8;
             byte[] expected = native.ToArray();
@@ -1310,7 +1311,7 @@ internal static partial class Program
         }
         for(int item=0;item<5;item++)
         {
-            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;string name=GameplayHudDefinitions.IconName(item);var icon=document.Icons[name];document.Icons[name]=icon with{Anchor=icon.Anchor with{X=icon.Anchor.X+1}};
+            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;string name=GameplayHudDefinitions.IconName(item);var icon=document.Icons[name];document.Icons[name]=icon with{Anchor=icon.Anchor with{X=(ushort)(icon.Anchor.X+1)}};
             using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);var selected=GameplayHudPresentation.Load(new MemoryStream(output.ToArray()));ushort[] tiles=Enumerable.Repeat(selected.Blank,96).ToArray();selected.TryApplyIcon(tiles,item);int width=item==0?3:2;
             for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+1+cell%width],"Independent supplied icon anchor");
         }
@@ -1333,7 +1334,7 @@ internal static partial class Program
             startX+=(width+1)*8;
         }
         string directory=Path.GetFullPath("csharp/test-temp/hud-auto-source");Directory.CreateDirectory(directory);
-        using(var image=File.Create(Path.Combine(directory,"native-icons.png")))IndexedPng.Write(image,imageWidth,imageHeight,pixels,[new Rgba32(40,40,40,255),new Rgba32(255,255,255,255),new Rgba32(130,130,130,255),new Rgba32(0,0,0,255)]);
+        using(var image=File.Create(Path.Combine(directory,"native-icons.png")))IndexedPng.Write(image,new(imageWidth, imageHeight),pixels,[new Rgba32(40,40,40,255),new Rgba32(255,255,255,255),new Rgba32(130,130,130,255),new Rgba32(0,0,0,255)]);
         Console.WriteLine("HUD icons:22native/zero cell-anchor overrides,132independent edits/hash/guards,five shifted anchors,three actual inventory initializers/readguard/domains pass;source pictograms exported.");
     }
     private static void VerifyLookupStream4HudTemplate(ISnesAddressSpace rom)
@@ -1407,7 +1408,7 @@ internal static partial class Program
             for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[(y*scale+dy)*width+(cell*8+x)*scale+dx]=(byte)ink;
         }
         string directory=Path.GetFullPath("csharp/test-temp/hud-auto-source");Directory.CreateDirectory(directory);
-        using(var image=File.Create(Path.Combine(directory,"native-top-border.png")))IndexedPng.Write(image,width,height,pixels,[new Rgba32(20,20,20,255),new Rgba32(100,100,100,255),new Rgba32(180,180,180,255),new Rgba32(255,255,255,255)]);
+        using(var image=File.Create(Path.Combine(directory,"native-top-border.png")))IndexedPng.Write(image,new(width, height),pixels,[new Rgba32(20,20,20,255),new Rgba32(100,100,100,255),new Rgba32(180,180,180,255),new Rgba32(255,255,255,255)]);
         Console.WriteLine("HUD top row:32native words/zero overrides,192independent edits/hash/193DMA outputs/template independence/bounds pass; native border source exported.");
     }
     private static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)
@@ -1768,7 +1769,7 @@ internal static partial class Program
         {
             ushort[] blocks = new ushort[2];
             blocks[solidRow] = 0x8000;
-            var level = new RoomLevelData(1, 2, blocks, new byte[2], new ushort[2], []);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 2), blocks, new byte[2], new ushort[2], []);
             for (int segmentIndex = 0; segmentIndex < 7; segmentIndex++)
             foreach (ushort y in new ushort[] { 13, 14, 15, 0xfff0, 0xfff1 })
             {
@@ -3197,13 +3198,13 @@ internal static partial class Program
             atlas.LoadTo(directVram);
             AssertTrue(native.AsSpan().SequenceEqual(directVram.Bytes.Slice(0x6300 * 2, 256)), "Actual direct beam upload uses calculated native bytes");
             VerifyQueued(catalog, selection, native);
-            var image = IndexedPng.Read(new MemoryStream(png), 64, 8);
+            var image = IndexedPng.Read(new MemoryStream(png), new(64, 8));
             foreach (int editedPixel in new[] { 0, 7, 16, 24, 32, 40, 192, 193, 195, 256, 257, 320, 296, 303, 304, 311, 312, 511, 96, 127, 289, 295, 160, 164, 8, 9, 466, 467, 74, 139, 140, 399, 141, 204, 416, 224, 352 })
             {
                 byte[] pixels = image.Pixels.ToArray();
                 pixels[editedPixel] ^= 1;
                 using var changedPng = new MemoryStream();
-                IndexedPng.Write(changedPng, 64, 8, pixels, image.Palette);
+                IndexedPng.Write(changedPng, new(64, 8), pixels, image.Palette);
                 byte[] changed = changedPng.ToArray();
                 var edited = BeamTileAtlas.Load(new MemoryStream(changed), SamusBeamCombinations.FromTableIndex(selection));
                 byte[] expected = native.ToArray();

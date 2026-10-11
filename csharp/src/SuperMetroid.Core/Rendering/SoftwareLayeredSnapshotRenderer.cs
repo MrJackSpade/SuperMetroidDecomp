@@ -229,7 +229,7 @@ public static class SoftwareLayeredSnapshotRenderer
         if (layer.FourBpp)
             SnesBgTilemapRenderer.Composite4BppViewport(source, memory.Vram, memory.Cgram,
                 layer.TilemapWord, layer.CharacterWord, new Position16<BgPlanePixels>(0, perLine ? (ushort)0 : layer.VerticalScroll),
-                new Extent16<ScreenPixels>(256, perLine ? (ushort)256 : (ushort)224), new Extent16<TilemapCells>(32, 32), priority: priority);
+                new Extent16<ScreenPixels>(256, checked((ushort)(perLine ? 256 : 224))), new Extent16<TilemapCells>(32, 32), priority: priority);
         else
             SnesBgTilemapRenderer.Render2Bpp(source, memory.Vram, memory.Cgram,
                 layer.TilemapWord, layer.CharacterWord, rowCount: perLine ? 32 : 28,

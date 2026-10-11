@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -130,9 +131,9 @@ public sealed class CartridgeRoomAssets
         byte[] blockDefinitions,
         RoomVisualLayout? visualLayout)
     {
-        int widthInBlocks = checked(header.WidthInScreens * 16);
-        int visibleHeightInBlocks = checked(header.HeightInScreens * 16);
-        int visibleBlockCount = checked(widthInBlocks * visibleHeightInBlocks);
+        Extent16<RoomBlocks> visibleSize = header.Size.ToRoomBlocks();
+        int widthInBlocks = visibleSize.X;
+        int visibleBlockCount = visibleSize.Area;
         if (levelStream.Length < 2)
             throw new InvalidDataException("Compressed room level stream has no size word.");
 
@@ -153,8 +154,8 @@ public sealed class CartridgeRoomAssets
         {
             throw new InvalidDataException(
                 $"Room $8F:{header.Pointer:X4} declares ${declaredLayerBytes:X} BG1 bytes " +
-                $"({blockCount} blocks), which cannot contain its {header.WidthInScreens}x" +
-                $"{header.HeightInScreens} visible screens in complete {widthInBlocks}-block rows.");
+                $"({blockCount} blocks), which cannot contain its {header.Size.X}x" +
+                $"{header.Size.Y} visible screens in complete {widthInBlocks}-block rows.");
         }
         int allocationHeightInBlocks = blockCount / widthInBlocks;
         int layerByteCount = declaredLayerBytes;
@@ -207,8 +208,7 @@ public sealed class CartridgeRoomAssets
         Array.Fill(streamingBackground, RoomLevelMemoryLayout.PrefilledLevelWord);
         background.CopyTo(streamingBackground, 0);
         return new RoomLevelData(
-            widthInBlocks,
-            allocationHeightInBlocks,
+            new Extent16<RoomBlocks>(unchecked((ushort)widthInBlocks), unchecked((ushort)allocationHeightInBlocks)),
             foreground,
             behavior,
             background,
@@ -223,7 +223,7 @@ public sealed class CartridgeRoomAssets
         => RoomScrollDefinitions.CreateGrid(
             bus,
             header.State.ScrollPointer,
-            new Extent16<RoomScreens>(header.WidthInScreens, header.HeightInScreens));
+            header.Size);
 
     private static ushort[] ReadWords(ReadOnlySpan<byte> bytes)
     {

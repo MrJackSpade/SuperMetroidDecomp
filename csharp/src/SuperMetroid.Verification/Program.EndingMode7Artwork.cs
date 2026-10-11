@@ -166,11 +166,10 @@ internal static partial class Program
             string pngOverride = Path.Combine(installation.EndingMode7OverrideDirectory, pngName);
             IndexedPngImage image;
             using (var input = File.OpenRead(Path.Combine(installation.EndingMode7Directory, pngName)))
-                image = IndexedPng.Read(input, EndingMode7ArtworkFormat.CharacterWidth,
-                    EndingMode7ArtworkFormat.CharacterHeight);
+                image = IndexedPng.Read(input, new(EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(pngOverride))
-                IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EndingMode7ArtworkCatalog editedCharacters = installation.LoadEndingMode7Art();
             state.BindMode7Artwork(editedCharacters);
             LayeredRenderSnapshot characterSnapshot = state.CaptureRenderSnapshot();

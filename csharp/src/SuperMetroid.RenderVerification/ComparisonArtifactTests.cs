@@ -41,7 +41,7 @@ internal static class ComparisonArtifactTests
         foreach (var (name, pixels) in new[] { ("expected.png", expected), ("actual.png", actual), ("difference.png", difference) })
         {
             string check = Path.Combine(directory, "check.png");
-            PngWriterTooling.WriteRgba(check, packet.Size.X, packet.Size.Y, pixels);
+            PngWriterTooling.WriteRgba(check, packet.Size, pixels);
             if (!File.ReadAllBytes(check).AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(directory, name))))
                 throw new InvalidOperationException($"Mismatch artifact {name} contains the wrong image.");
         }

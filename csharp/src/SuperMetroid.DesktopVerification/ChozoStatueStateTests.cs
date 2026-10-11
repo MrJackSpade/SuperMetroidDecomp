@@ -14,7 +14,7 @@ internal static partial class Program
         loaded.Game.Step(0);
         var level = runtime.LevelData!;
         var samus = runtime.Samus!;
-        var hand = level.GetCollisionBlock(0x4a, 0x17);
+        var hand = level.GetCollisionBlock(new(0x4a, 0x17));
         Console.WriteLine($"Saved Chozo setup: room={runtime.ActiveRoom!.Pointer:X4} " +
             $"Samus={samus.XPosition:X4},{samus.YPosition:X4} pose={(int)samus.Pose:X2}; " +
             $"hand={hand.LevelWord:X4}/BTS={hand.Behavior:X2}; " +

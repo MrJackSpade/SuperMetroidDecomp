@@ -113,10 +113,10 @@ internal static partial class Program
                 foreach (ushort word in run.LevelWords.Span)
                     AssertTourianDrawWord(word);
                 AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextX),
+                    unchecked((byte)run.Next.X),
                     $"Tourian draw ${draw.Pointer:X4} run X offset matches ROM");
                 AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextY),
+                    unchecked((byte)run.Next.Y),
                     $"Tourian draw ${draw.Pointer:X4} run Y offset matches ROM");
             }
             AssertEqual(checked((ushort)(cursor - draw.Pointer)),
@@ -153,7 +153,7 @@ internal static partial class Program
         int deletionFrame = -1;
         for (int frame = 0; frame < 120 && plms.ActiveCount != 0; frame++)
         {
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(bus, level, streamer, new(0, 0), 0);
             if (frame == 0 && !clear)
                 AssertEqual((ushort)0x0053,
                     level.GetCollisionBlockByIndex(12 * width + 6).LevelWord,

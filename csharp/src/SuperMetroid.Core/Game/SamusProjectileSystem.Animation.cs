@@ -86,7 +86,7 @@ public sealed partial class SamusProjectileSystem
 
         (compositions ?? throw new InvalidOperationException(
             "Samus projectiles require installed sprite compositions."))
-            .Draw(slot.SpritemapPointer, oam, unchecked((ushort)screenX), screenY);
+            .Draw(slot.SpritemapPointer, oam, new(unchecked((ushort)screenX), screenY));
     }
 
     private void AdvanceFlareComponent(int component)
@@ -200,7 +200,7 @@ public sealed partial class SamusProjectileSystem
         // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
         if (!Assets.ChargeFlareSpriteCatalog.Contains(tableIndex))
             return;
-        catalog.Draw(tableIndex, oam, screenX, screenY);
+        catalog.Draw(tableIndex, oam, new(screenX, screenY));
     }
 
     private void ClearFlareAnimationState()

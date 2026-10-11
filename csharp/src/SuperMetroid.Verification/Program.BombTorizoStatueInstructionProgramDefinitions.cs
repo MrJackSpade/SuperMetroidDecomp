@@ -47,8 +47,7 @@ internal static partial class Program
                     new BombTorizoStatueProjectileRequest(
                         BombTorizoStatueFragmentDefinitions.ProjectileDefinition,
                         parameter,
-                        PlmBlockX: 10,
-                        PlmBlockY: 20)) ??
+                        PlmBlock: new(10, 20))) ??
                 throw new InvalidDataException(
                     $"Bomb Torizo statue fragment {index} failed to allocate.");
             ushort program = BombTorizoStatueInstructionProgramDefinitions.Program(index);

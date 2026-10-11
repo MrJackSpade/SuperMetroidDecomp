@@ -90,7 +90,7 @@ internal static class DownwardGatePlmDrawDefinitions
         {
             var words = new ushort[draw.WordCount(run)];
             for (int word = 0; word < words.Length; word++) words[word] = draw.WordAt(run, word);
-            runs[run] = new(draw.DirectionAndCount(run), words, draw.NextX(run), 0);
+            runs[run] = new(draw.DirectionAndCount(run), words, new(draw.NextX(run), 0));
         }
         list = new(pointer, runs);
         return true;

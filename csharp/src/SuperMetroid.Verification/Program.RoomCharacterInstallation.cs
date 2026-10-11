@@ -48,12 +48,12 @@ internal static partial class Program
             int rows = (tileCount + columns - 1) / columns;
             IndexedPngImage image;
             using (var stockFile = File.OpenRead(Path.Combine(installed.RoomCharacterDirectory, name)))
-                image = IndexedPng.Read(stockFile, columns * 8, rows * 8);
+                image = IndexedPng.Read(stockFile, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
             image.Pixels[0] ^= 1;
             Directory.CreateDirectory(installed.RoomCharacterOverrideDirectory);
             string overridePath = Path.Combine(installed.RoomCharacterOverrideDirectory, name);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             RoomCharacterAtlasCatalog edited = installed.LoadRoomCharacters();
             CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(bus, landing, edited);
             AssertTrue(!editedRoom.RoomCharacters.AsSpan().SequenceEqual(native.RoomCharacters),
@@ -87,11 +87,11 @@ internal static partial class Program
             int ghostRows = (ghostTileCount + ghostColumns - 1) / ghostColumns;
             IndexedPngImage ghostImage;
             using (var stockFile = File.OpenRead(ghostStockPath))
-                ghostImage = IndexedPng.Read(stockFile, ghostColumns * 8, ghostRows * 8);
+                ghostImage = IndexedPng.Read(stockFile, new(checked((ushort)(ghostColumns * 8)), checked((ushort)(ghostRows * 8))));
             ghostImage.Pixels[0] ^= 1;
             string ghostOverridePath = Path.Combine(installed.RoomCharacterOverrideDirectory, ghostName);
             using (var output = File.Create(ghostOverridePath))
-                IndexedPng.Write(output, ghostImage.Width, ghostImage.Height,
+                IndexedPng.Write(output, new(ghostImage.Size.X, ghostImage.Size.Y),
                     ghostImage.Pixels, ghostImage.Palette);
             RoomCharacterAtlasCatalog editedGhost = installed.LoadRoomCharacters();
             var editedGhostVram = new SnesVram();

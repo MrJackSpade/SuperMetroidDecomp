@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -14,7 +15,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         Console.WriteLine($"room={game.GameplayActiveRoomPointer:X4} pos={samus.XPosition},{samus.YPosition} pose={(int)samus.Pose:X2} grapple={samus.Grapple.Phase}");
         Directory.CreateDirectory("csharp/test-temp/issue-376-anchored-grapple");
-        PngWriterTooling.WriteRgba("csharp/test-temp/issue-376-anchored-grapple/start.png", 256, 224,
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-376-anchored-grapple/start.png", new Extent16<ScreenPixels>(256, 224),
             SuperMetroidRuntimeFrameRenderer.Render(runtime));
         int grabbedFrames = 0;
         for (int frame = 0; frame < 160; frame++)
@@ -40,7 +41,7 @@ internal static partial class Program
             if (frame is 43 or 50 || grabbedFrames == 1)
             {
                 Console.WriteLine($"GRAPHICS frame={frame} phase={samus.Grapple.Phase} pose={(int)samus.Pose:X2} anim={samus.AnimationFrame} top={samus.TopSpritemapIndex:X4} bottom={samus.BottomSpritemapIndex:X4} topDMA={samus.TileTransfers.TopDefinitionAddress:X6} bottomDMA={samus.TileTransfers.BottomDefinitionAddress:X6}");
-                PngWriterTooling.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/graphics-{frame}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/graphics-{frame}.png", new Extent16<ScreenPixels>(256, 224),
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             }
             if (grabbedFrames is >= 1 and <= 7)
@@ -74,7 +75,7 @@ internal static partial class Program
                     samus.Pose == SamusPoseId.WallJumpLeftPose && samus.Grapple.Phase == GrapplePhase.Inactive,
                     "Accepted grapple wall jump must detach and select the leftward wall-jump pose.");
             if (grabbedFrames is 1 or 8 or 21)
-                PngWriterTooling.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/grab-step-{grabbedFrames}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/grab-step-{grabbedFrames}.png", new Extent16<ScreenPixels>(256, 224),
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             if (grabbedFrames == 21)
             {

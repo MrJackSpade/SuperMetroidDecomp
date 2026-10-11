@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -23,7 +24,7 @@ internal static partial class Program
                 words[row * 12 + column] = (ushort)(v[0] << 12);
                 bts[row * 12 + column] = (byte)v[1];
             }
-            var level = new RoomLevelData(12, 8, words, bts, new ushort[words.Length], new byte[8]);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(12, 8), words, bts, new ushort[words.Length], new byte[8]);
             var body = new SamusKinematicsState { XPosition = (ushort)v[2], YPosition = (ushort)v[3], XRadius = 5, YRadius = (ushort)v[4] };
             SamusBlockCollision.EjectAfterGrapple(loaded.AddressSpace, level, body);
             if (body.YPosition != v[6])
@@ -46,20 +47,19 @@ internal static partial class Program
             Console.Write($"row {y}: ");
             for (int x = (samus.XPosition >> 4) - 2; x <= (samus.XPosition >> 4) + 2; x++)
             {
-                var block = runtime.LevelData!.GetCollisionBlock(x, y);
+                var block = runtime.LevelData!.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                 Console.Write($"{x}:{block.LevelWord:X4}/{block.Behavior:X2} ");
             }
             Console.WriteLine();
         }
         for (int frame = 0; frame <= 30; frame++)
         {
-            var feet = runtime.LevelData!.GetCollisionBlockAtPixel(samus.XPosition,
-                (ushort)(samus.YPosition + samus.Kinematics.YRadius - 1));
+            var feet = runtime.LevelData!.GetCollisionBlockAtPixel(new(samus.XPosition, (ushort)(samus.YPosition + samus.Kinematics.YRadius - 1)));
             Console.WriteLine($"f{frame}: ({samus.XPosition:X4},{samus.YPosition:X4}) radius={samus.Kinematics.YRadius} " +
                 $"pose={(int)samus.Pose:X2} grapple={samus.Grapple.Phase} feet={feet.LevelWord:X4} " +
                 $"Yspeed={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4}");
             if (frame is 0 or 3 or 12)
-                PngWriterTooling.WriteRgba($"csharp/test-temp/issue-350-release/frame-{frame}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"csharp/test-temp/issue-350-release/frame-{frame}.png", new Extent16<ScreenPixels>(256, 224),
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             if (frame >= 2 && samus.Grapple.Phase == GrapplePhase.Inactive)
             {
@@ -75,7 +75,7 @@ internal static partial class Program
                 for (int x = (body.XPosition - body.XRadius) >> 4;
                     x <= (body.XPosition + body.XRadius - 1) >> 4; x++)
                 {
-                    var block = runtime.LevelData!.GetCollisionBlock(x, y);
+                    var block = runtime.LevelData!.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                     if (block.CollisionType == RoomCollisionType.SolidBlock && body.YPosition + body.YRadius - y * 16 > 2)
                         overlaps.Add($"Released Samus overlaps solid ledge block ({x},{y}) at frame {frame}.");
                 }

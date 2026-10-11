@@ -40,11 +40,11 @@ internal static partial class Program
                 string actual = $"{left},{beam},{frame},{shot.XPosition:X4},{shot.XSubposition:X4},{shot.YPosition:X4},{shot.YSubposition:X4},{shot.Type:X4},{shot.InstructionPointer:X4},";
                 for (int row = 0; row < 128; row++)
                 {
-                    var block = level.GetCollisionBlock(left != 0 ? 63 : 0, row);
+                    var block = level.GetCollisionBlock(new(checked((ushort)(left != 0 ? 63 : 0)), checked((ushort)row)));
                     if (block.LevelWord != 0x4000) actual += $"{block.Index:X4}:{block.LevelWord:X4};";
                 }
                 int target = left != 0 ? 0x123f : 0x0280;
-                if (firstRemoteHit < 0 && level.GetCollisionBlock(target % 64, target / 64).LevelWord == 0x0052)
+                if (firstRemoteHit < 0 && level.GetCollisionBlock(new(checked((ushort)(target % 64)), checked((ushort)(target / 64)))).LevelWord == 0x0052)
                 {
                     firstRemoteHit = frame;
                     AssertTrue(shot.IsActive, "Remote reaction occurs while the real projectile is retained");

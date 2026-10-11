@@ -47,8 +47,8 @@ internal static partial class Program
                 DrawImportedSpritemap(rom, native, 0x8c0000 + definition.Pointer, 120, y, 0x0a00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
-                if (y == 72) result.DrawOnScreen(actual, 120, y, 0x0a00);
-                else result.DrawOffScreen(actual, 120, y, 0x0a00);
+                if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0a00);
+                else result.DrawOffScreen(actual, new(120, y), 0x0a00);
                 actual.FinalizeFrame();
                 AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable)
                     && native.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "native PlanetZebesTitle OAM at visible and wrapped origins");

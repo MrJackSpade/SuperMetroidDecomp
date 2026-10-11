@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -97,6 +98,7 @@ public sealed class KraidHeadTilemapAtlas
 }
 
 /// <summary>Editable JSON representation of a single ordered Kraid BG2 head frame; cells reference artwork rather than encoding animation or collision behavior.</summary>
+[SpatialComponents("External format: the Kraid head tilemap JSON stores its declared grid dimensions as width/height integers.")]
 public sealed record KraidHeadTilemapDocument
 {
     /// <summary>Schema revision required to equal <see cref="KraidHeadTilemapFormat.Version"/> during loading.</summary>

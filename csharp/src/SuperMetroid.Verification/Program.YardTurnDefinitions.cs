@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -87,7 +88,7 @@ internal static partial class Program
         }
 
         static RoomLevelData CreateYardTurnLevel(ushort[] words) =>
-            new(64, 64, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
+            new(new Extent16<RoomBlocks>(64, 64), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
 
         static void VerifyYardTurnProductionBranch(
             SuperMetroidAddressSpace rom,

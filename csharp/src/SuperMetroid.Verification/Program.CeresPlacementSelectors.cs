@@ -21,8 +21,8 @@ internal static partial class Program
             var actual = CeresFlightActorDefinitions.RearViewPlacementSource(i);
             AssertEqual(original[i], actual, "original rear placement selector");
             var actor = CeresFlightActorDefinitions.RearViewActor(i);
-            VerifyPlacementOperand(rom, actual.XAddress, actor.X);
-            VerifyPlacementOperand(rom, actual.YAddress, actor.Y);
+            VerifyPlacementOperand(rom, actual.XAddress, actor.Position.X);
+            VerifyPlacementOperand(rom, actual.YAddress, actor.Position.Y);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CeresFlightActorDefinitions.RearViewPlacementSource(i), "rear selector bounds");
@@ -45,8 +45,8 @@ internal static partial class Program
             var actual = CeresDestructionActorDefinitions.ZebesPlacementSource(i);
             AssertEqual(original[i], actual, "original reveal placement selector");
             var actor = CeresDestructionActorDefinitions.ZebesActor(i);
-            VerifyPlacementOperand(rom, actual.XAddress, actor.X);
-            VerifyPlacementOperand(rom, actual.YAddress, actor.Y);
+            VerifyPlacementOperand(rom, actual.XAddress, actor.Position.X);
+            VerifyPlacementOperand(rom, actual.YAddress, actor.Position.Y);
         }
         foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CeresDestructionActorDefinitions.ZebesPlacementSource(i), "reveal selector bounds");

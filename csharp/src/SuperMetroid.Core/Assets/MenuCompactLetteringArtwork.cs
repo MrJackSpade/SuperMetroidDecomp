@@ -1,4 +1,5 @@
 using System.Numerics;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -102,35 +103,35 @@ internal sealed class MenuCompactLetteringArtwork
             for (int x = 0; x < 8; x++)
             {
                 byte pixel = Source(tile, x, y);
-                if (pixel != Basis(tile, x, y)) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+                if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
             }
         }
-        byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
+        byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
 
-    internal byte Pixel(int tile, int x, int y)
+    internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
-        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
+        if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
-    private byte Basis(int tile, int x, int y)
+    private byte Basis(int tile, Position16<CharacterPixels> point)
     {
         var row = Layout(tile);
         int column = Column(tile, row.Start, row.Gap);
-        int position = column * 8 + x;
-        uint current = RowInk(y), bit = 1u << position;
+        int position = column * 8 + point.X;
+        uint current = RowInk(point.Y), bit = 1u << position;
         if ((current & bit) != 0) return row.Shadow ? (byte)14 : (byte)11;
         if (row.Shadow)
         {
-            uint painted = current | (RowInk(y - 1) << 1);
+            uint painted = current | (RowInk(point.Y - 1) << 1);
             if ((painted & bit) != 0) return 13;
-            uint above = RowInk(y - 1) | (RowInk(y - 2) << 1);
-            uint below = RowInk(y + 1) | (current << 1);
+            uint above = RowInk(point.Y - 1) | (RowInk(point.Y - 2) << 1);
+            uint below = RowInk(point.Y + 1) | (current << 1);
             uint enclosed = (painted << 1) & (painted >> 1) & above & below;
             return (enclosed & bit) != 0 && InsideGlyphColumn() ? (byte)13 : (byte)0;
         }
-        uint previous = RowInk(y - 1), next = RowInk(y + 1);
+        uint previous = RowInk(point.Y - 1), next = RowInk(point.Y + 1);
         uint neighboring = current | previous | next;
         if (((neighboring | (neighboring << 1) | (neighboring >> 1)) & bit) == 0) return 0;
 

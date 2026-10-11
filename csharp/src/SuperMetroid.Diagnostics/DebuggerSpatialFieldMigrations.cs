@@ -18,13 +18,17 @@ namespace SuperMetroid.Desktop;
 /// <param name="Field">The typed field that replaced <paramref name="LegacyFields"/>.</param>
 /// <param name="LegacyFields">The retired scalar fields, in the order <paramref name="Rebuild"/> reads them.</param>
 /// <param name="Rebuild">Builds the typed value from the restored instance and the legacy values.</param>
+/// <param name="LegacyTypes">The exact payload type an older layout wrote for each legacy field.</param>
 /// <param name="LegacyMayOmit">True when published layouts predate the legacy fields themselves.</param>
+/// <param name="OmittedWarning">Reported once when a capture predating the legacy fields keeps the default.</param>
 internal sealed record DebuggerSpatialFieldMigration(
     string TypeName,
     string Field,
     string[] LegacyFields,
+    Type[] LegacyTypes,
     Func<object, object?[], object> Rebuild,
-    bool LegacyMayOmit = false);
+    bool LegacyMayOmit = false,
+    string? OmittedWarning = null);
 
 /// <summary>Exact migrations from parallel scalar coordinate fields to typed spatial values (#628).</summary>
 internal static class DebuggerSpatialFieldMigrations
@@ -44,7 +48,7 @@ internal static class DebuggerSpatialFieldMigrations
             "<IdealXPosition>k__BackingField", "<IdealYPosition>k__BackingField"),
         new(typeof(ScrollBoundaryCamera).FullName!, "<Speed>k__BackingField",
             ["<CameraXSpeed>k__BackingField", "<CameraXSubspeed>k__BackingField",
-             "<CameraYSpeed>k__BackingField", "<CameraYSubspeed>k__BackingField"],
+             "<CameraYSpeed>k__BackingField", "<CameraYSubspeed>k__BackingField"], Types<ushort>(4),
             (_, v) => FixedVector<RoomPixels>.FromWords(Word(v[0]), Word(v[1]), Word(v[2]), Word(v[3]))),
 
         // Bank-$80 layer positions, offsets, PPU mirrors and streaming blocks.
@@ -53,7 +57,7 @@ internal static class DebuggerSpatialFieldMigrations
         Whole<Bg2Pixels>(typeof(BackgroundScrollState).FullName!, "<Layer2Position>k__BackingField",
             "<Layer2XPosition>k__BackingField", "<Layer2YPosition>k__BackingField"),
         new(typeof(BackgroundScrollState).FullName!, "<Layer2Scroll>k__BackingField",
-            ["<Layer2ScrollX>k__BackingField", "<Layer2ScrollY>k__BackingField"],
+            ["<Layer2ScrollX>k__BackingField", "<Layer2ScrollY>k__BackingField"], Types<byte>(2),
             (_, v) => new Layer2ScrollModes(Byte(v[0]), Byte(v[1]))),
         Offset<RoomPixels>(typeof(BackgroundScrollState).FullName!, "<Bg1Offset>k__BackingField",
             "<Bg1XOffset>k__BackingField", "<Bg1YOffset>k__BackingField"),
@@ -78,7 +82,7 @@ internal static class DebuggerSpatialFieldMigrations
 
         // The door-opening IRQ trajectory. The old magnitude-only step takes its direction from
         // the restored Direction field.
-        new(DoorOpeningScrollState, "<SamusIrqStep>k__BackingField", ["<SamusStep>k__BackingField"],
+        new(DoorOpeningScrollState, "<SamusIrqStep>k__BackingField", ["<SamusStep>k__BackingField"], Types<uint>(1),
             (state, v) => OrientedStep(state, Raw(v[0]))),
         Whole<RoomPixels>(DoorOpeningScrollState, "<CameraPosition>k__BackingField",
             "<CameraX>k__BackingField", "<CameraY>k__BackingField"),
@@ -152,6 +156,83 @@ internal static class DebuggerSpatialFieldMigrations
             "<Bg2X>k__BackingField", "<Bg2Y>k__BackingField"),
         Size<TilemapCells>(typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters).FullName!, "<Bg2MapSize>k__BackingField",
             "<Bg2WidthTiles>k__BackingField", "<Bg2HeightTiles>k__BackingField"),
+
+        // Room, door and load-station catalog records retained in captured room state.
+        BytePair<RoomBlocks>(typeof(CartridgeDoorHeader).FullName!, BackingField("PlmBlock"), BackingField("PlmX"), BackingField("PlmY")),
+        BytePair<RoomScreens>(typeof(CartridgeDoorHeader).FullName!, BackingField("DestinationScreen"),
+            BackingField("DestinationScreenX"), BackingField("DestinationScreenY")),
+        BytePair<MapTiles>(typeof(CartridgeRoomHeader).FullName!, BackingField("MapPosition"), BackingField("MapX"), BackingField("MapY")),
+        new(typeof(CartridgeRoomHeader).FullName!, BackingField("Size"),
+            [BackingField("WidthInScreens"), BackingField("HeightInScreens")], Types<byte>(2),
+            (_, v) => new Extent16<RoomScreens>(Byte(v[0]), Byte(v[1]))),
+        new(typeof(CartridgeRoomState).FullName!, BackingField("Layer2Scroll"),
+            [BackingField("Layer2ScrollX"), BackingField("Layer2ScrollY")], Types<byte>(2),
+            (_, v) => new Layer2ScrollModes(Byte(v[0]), Byte(v[1]))),
+        BytePair<MapTiles>(typeof(LandingSiteEntryState).FullName!, BackingField("RoomMapPosition"),
+            BackingField("RoomMapX"), BackingField("RoomMapY")),
+        Whole<RoomPixels>(typeof(LoadStationEntry).FullName!, BackingField("CameraPosition"), BackingField("CameraX"), BackingField("CameraY")),
+        // The native table stores both offsets as words; X is a two's-complement displacement.
+        Offset<RoomPixels>(typeof(LoadStationEntry).FullName!, BackingField("SamusOffset"),
+            BackingField("SamusXOffset"), BackingField("SamusYOffset")),
+        Whole<RoomPixels>(typeof(AttractDemoScene).FullName!, BackingField("CameraPosition"), BackingField("CameraX"), BackingField("CameraY")),
+        new(typeof(AttractDemoScene).FullName!, BackingField("SamusOffset"),
+            [BackingField("SamusXFromCenter"), BackingField("SamusYFromTop")], [typeof(short), typeof(ushort)],
+            (_, v) => new Offset16<RoomPixels>(Signed(v[0]), unchecked((short)Word(v[1])))),
+        Size<RoomBlocks>(typeof(RoomLevelData).FullName!, BackingField("Size"), BackingField("WidthInBlocks"), BackingField("HeightInBlocks")),
+        Size<RoomBlocks>(typeof(RoomVisualLayout).FullName!, BackingField("Size"), BackingField("WidthInBlocks"), BackingField("HeightInBlocks")),
+
+        // Area-map views.
+        Whole<MapPixels>(typeof(FileSelectMapScroll).FullName!, BackingField("Scroll"), BackingField("Horizontal"), BackingField("Vertical")),
+        Whole<MapPixels>(typeof(FileSelectMapScroll).FullName!, BackingField("Minimum"), BackingField("MinimumX"), BackingField("MinimumY")),
+        Whole<MapPixels>(typeof(FileSelectMapScroll).FullName!, BackingField("Maximum"), BackingField("MaximumX"), BackingField("MaximumY")),
+        Whole<MapPixels>(typeof(FileSelectStationMarker).FullName!, BackingField("MapPosition"), BackingField("MapX"), BackingField("MapY")),
+        BytePair<MapTiles>(PauseMenuState, "roomMapPosition", "roomMapX", "roomMapY"),
+        Whole<MapPixels>(PauseMenuState, "mapScrollPosition", "mapHorizontalScroll", "mapVerticalScroll"),
+        Whole<OamPixels>(PauseMenuState, "lastIndicatorOrigin", "lastIndicatorOriginX", "lastIndicatorOriginY"),
+        // Captured primary-constructor parameters serialize as their compiler-named fields.
+        Whole<MapPixels>(PauseMapScroll, "<minimum>P", "<minimumX>P", "<minimumY>P"),
+        Whole<MapPixels>(PauseMapScroll, "<maximum>P", "<maximumX>P", "<maximumY>P"),
+        Whole<OamPixels>(MapArrow, "Position", "X", "Y"),
+
+        // PLM blocks and projectile requests. 571b9a42 implemented Samus Eater capture; earlier
+        // builds did not execute it, and a fresh plant setup supplies the coordinates if caught.
+        Whole<RoomPixels>(PlmSlot, BackingField("PlantHeldPosition"), BackingField("PlantHeldX"), BackingField("PlantHeldY")) with
+        {
+            LegacyMayOmit = true,
+            OmittedWarning = "Legacy PLM slot lacks plant-held coordinates; restoring zero until a new capture setup.",
+        },
+        BytePair<RoomBlocks>(typeof(BombTorizoStatueProjectileRequest).FullName!, BackingField("PlmBlock"),
+            BackingField("PlmBlockX"), BackingField("PlmBlockY")),
+        BytePair<RoomBlocks>(typeof(MotherBrainGlassProjectileRequest).FullName!, BackingField("PlmBlock"),
+            BackingField("PlmBlockX"), BackingField("PlmBlockY")),
+
+        // Cinematic sprites and backgrounds: whole and subpixel words of both axes.
+        FixedWords<ScreenPixels>(Frontend + "IntroDiscoverySprite", BackingField("Position"),
+            BackingField("XPosition"), BackingField("XSubPosition"), BackingField("YPosition"), BackingField("YSubPosition")),
+        FixedWords<Mode7Pixels>(Frontend + "CeresDestructionCinematicState", "background",
+            "backgroundX", "backgroundXSubPosition", "backgroundY", "backgroundYSubPosition"),
+        FixedWords<Mode7Pixels>(Frontend + "IntroCeresFlightState", "background",
+            "backgroundX", "backgroundXSubPosition", "backgroundY", "backgroundYSubPosition"),
+        FixedWords<ScreenPixels>(Frontend + "EndingShootingStar", "Position", "X", "XSubposition", "Y", "YSubposition"),
+        // The ending's Mode 7 Y never had a subpixel word; its restored fraction is zero.
+        new(Frontend + "EndingCreditsState", "mode7", ["mode7X", "mode7XSubposition", "mode7Y"], Types<ushort>(3),
+            (_, v) => FixedPosition<Mode7Pixels>.FromWords(Word(v[0]), Word(v[1]), Word(v[2]), 0)),
+        // The title state kept sign-extended whole words and zero-extended fractions in ints.
+        new(Frontend + "TitleSequenceState", "mode7", ["mode7X", "mode7XSubposition", "mode7Y", "mode7YSubposition"], Types<int>(4),
+            (_, v) => FixedPosition<Mode7Pixels>.FromWords(
+                unchecked((ushort)Int(v[0])), checked((ushort)Int(v[1])), unchecked((ushort)Int(v[2])), checked((ushort)Int(v[3])))),
+        Whole<ScreenPixels>(Frontend + "TitleSequenceState", "activeOrigin", "activeOriginX", "activeOriginY"),
+        Whole<RoomPixels>(Frontend + "IntroScientistCutsceneState", BackingField("Background"), BackingField("BackgroundX"), BackingField("BackgroundY")),
+        Whole<ScreenPixels>(Frontend + "IntroCinematicObjectSystem", BackingField("Caret"), BackingField("CaretX"), BackingField("CaretY")),
+        Whole<ScreenPixels>(Frontend + "IntroMotherBrainExplosionSystem+ExplosionActor", BackingField("Position"),
+            BackingField("XPosition"), BackingField("YPosition")),
+        new(Frontend + "CinematicTextGlowSystem+GlowSlot", "Cell", ["X", "Y"], Types<int>(2),
+            (_, v) => new Position16<TilemapCells>(checked((ushort)Int(v[0])), checked((ushort)Int(v[1])))),
+        Size<TilemapCells>(Frontend + "CinematicTextGlowSystem+GlowSlot", "Size", "Width", "Height"),
+        // Native signed 8.8 velocity words, kept bit for bit.
+        new(Frontend + "IntroBabyDiscoveryState", BackingField("BabyVelocity"),
+            [BackingField("BabyXVelocity"), BackingField("BabyYVelocity")], Types<ushort>(2), (_, v) => EightEight(v)),
+        new(Frontend + "EndingShootingStar", "Velocity", ["XVelocity", "YVelocity"], Types<ushort>(2), (_, v) => EightEight(v)),
     ];
 
     private static readonly Dictionary<(string Type, string Field), DebuggerSpatialFieldMigration> ByLegacyField =
@@ -177,7 +258,11 @@ internal static class DebuggerSpatialFieldMigrations
                 present++;
         }
         if (present == 0 && migration.LegacyMayOmit)
+        {
+            if (migration.OmittedWarning is { } warning && ReportedWarnings.TryAdd(warning, true))
+                Console.Error.WriteLine($"WARNING: {warning}");
             return;
+        }
         if (present != values.Length)
             throw new InvalidDataException(
                 $"Legacy {migration.TypeName} names only {present} of the {values.Length} components of {migration.Field}.");
@@ -185,33 +270,63 @@ internal static class DebuggerSpatialFieldMigrations
         field.SetValue(instance, migration.Rebuild(instance, values));
     }
 
+    private const string PauseMenuState = "SuperMetroid.Core.Frontend.PauseMenuState";
+    private const string PauseMapScroll = "SuperMetroid.Core.Frontend.PauseMapScroll";
+    private const string MapArrow = "SuperMetroid.Core.Frontend.FileSelectMapAnimations+Arrow";
+    private const string PlmSlot = "SuperMetroid.Core.Rooms.RoomPlmSystem+PlmSlot";
+    private const string Frontend = "SuperMetroid.Core.Frontend.";
+
+    // Warnings for captures predating a field's legacy components, each reported once per process.
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, bool> ReportedWarnings = new();
+
+    // An automatic property's backing field carries the property's name.
+    private static string BackingField(string property) => $"<{property}>k__BackingField";
+
+    private static Type[] Types<T>(int count) => Enumerable.Repeat(typeof(T), count).ToArray();
+
     private static DebuggerSpatialFieldMigration Whole<TSpace>(string type, string field, string x, string y)
         where TSpace : ISpatialSpace =>
-        new(type, field, [x, y], (_, v) => new Position16<TSpace>(Word(v[0]), Word(v[1])));
+        new(type, field, [x, y], Types<ushort>(2), (_, v) => new Position16<TSpace>(Word(v[0]), Word(v[1])));
+
+    private static DebuggerSpatialFieldMigration BytePair<TSpace>(string type, string field, string x, string y)
+        where TSpace : ISpatialSpace =>
+        new(type, field, [x, y], Types<byte>(2), (_, v) => new Position16<TSpace>(Byte(v[0]), Byte(v[1])));
 
     private static DebuggerSpatialFieldMigration Offset<TSpace>(string type, string field, string x, string y)
         where TSpace : ISpatialSpace =>
-        new(type, field, [x, y], (_, v) => new Offset16<TSpace>(unchecked((short)Word(v[0])), unchecked((short)Word(v[1]))));
+        new(type, field, [x, y], Types<ushort>(2), (_, v) => new Offset16<TSpace>(unchecked((short)Word(v[0])), unchecked((short)Word(v[1]))));
 
     private static DebuggerSpatialFieldMigration Signed<TSpace>(string type, string field, string x, string y)
         where TSpace : ISpatialSpace =>
-        new(type, field, [x, y], (_, v) => new Offset16<TSpace>(Signed(v[0]), Signed(v[1])));
+        new(type, field, [x, y], Types<short>(2), (_, v) => new Offset16<TSpace>(Signed(v[0]), Signed(v[1])));
 
     private static DebuggerSpatialFieldMigration Size<TSpace>(string type, string field, string width, string height)
         where TSpace : ISpatialSpace =>
-        new(type, field, [width, height], (_, v) => new Extent16<TSpace>(Length(v[0]), Length(v[1])));
+        new(type, field, [width, height], Types<int>(2), (_, v) => new Extent16<TSpace>(Length(v[0]), Length(v[1])));
 
     private static DebuggerSpatialFieldMigration Fixed(string type, string field, string x, string xFraction, string y, string yFraction) =>
-        new(type, field, [x, xFraction, y, yFraction],
-            (_, v) => FixedPosition<RoomPixels>.FromWords(Word(v[0]), Word(v[1]), Word(v[2]), Word(v[3])));
+        FixedWords<RoomPixels>(type, field, x, xFraction, y, yFraction);
+
+    // Legacy layouts stored X whole, X subpixel, Y whole and Y subpixel words, in that order.
+    private static DebuggerSpatialFieldMigration FixedWords<TSpace>(string type, string field,
+        string x, string xFraction, string y, string yFraction)
+        where TSpace : ISpatialSpace =>
+        new(type, field, [x, xFraction, y, yFraction], Types<ushort>(4),
+            (_, v) => FixedPosition<TSpace>.FromWords(Word(v[0]), Word(v[1]), Word(v[2]), Word(v[3])));
 
     private static DebuggerSpatialFieldMigration RawFixed(string type, string field, string x, string y) =>
-        new(type, field, [x, y], (_, v) => new FixedPosition<RoomPixels>(
+        new(type, field, [x, y], Types<uint>(2), (_, v) => new FixedPosition<RoomPixels>(
             SnesFixedPosition.FromRaw(Raw(v[0])), SnesFixedPosition.FromRaw(Raw(v[1]))));
 
     private static DebuggerSpatialFieldMigration Fractions(string type, string field, string xFraction, string yFraction) =>
-        new(type, field, [xFraction, yFraction],
+        new(type, field, [xFraction, yFraction], Types<ushort>(2),
             (_, v) => FixedPosition<RoomPixels>.FromWords(0, Word(v[0]), 0, Word(v[1])), LegacyMayOmit: true);
+
+    private static EightEightVector<ScreenPixels> EightEight(object?[] v) =>
+        new(new SnesSignedEightEight(Word(v[0])), new SnesSignedEightEight(Word(v[1])));
+
+    private static int Int(object? value) => value as int? ??
+        throw new InvalidDataException($"Legacy spatial component {value?.GetType().Name ?? "null"} is not an int.");
 
     private static FixedVector<RoomPixels> OrientedStep(object state, uint magnitude)
     {

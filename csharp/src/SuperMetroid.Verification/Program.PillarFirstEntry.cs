@@ -26,10 +26,10 @@ internal static partial class Program
         var level = runtime.LevelData!;
         int doorX = -1, doorY = -1;
         byte behavior = 0;
-        for (int y = 0; y < level.HeightInBlocks && doorX < 0; y++)
-        for (int x = 0; x < level.WidthInBlocks; x++)
+        for (int y = 0; y < level.Size.Y && doorX < 0; y++)
+        for (int x = 0; x < level.Size.X; x++)
         {
-            var block = level.GetCollisionBlock(x, y);
+            var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
             if (door.Door?.DestinationRoomPointer != destination) continue;
@@ -103,7 +103,7 @@ internal static partial class Program
                 visibleFrames[actor]++;
                 visiblePositions[actor].Add((heads[actor].XPosition, heads[actor].YPosition));
             }
-            PngWriterTooling.WriteRgba(Path.Combine(output, $"frame-{frame:D3}.png"), 256, 224, pixels);
+            PngWriterTooling.WriteRgba(Path.Combine(output, $"frame-{frame:D3}.png"), new Extent16<ScreenPixels>(256, 224), pixels);
         }
         for (int actor = 0; actor < 2; actor++)
         {

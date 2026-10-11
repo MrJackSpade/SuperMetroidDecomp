@@ -17,7 +17,7 @@ internal static partial class Program
         {
             var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = 2,
                 CollectedBeams = (ushort)SamusBeamFlags.Charge };
-            var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+            var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0));
             EnterPauseEquipment(pause);
             foreach (ushort supply in new ushort[] { 0, 1, 13, 14, 15, 41, 42, 55, 56, 98, 99, 100, 101, 199, 200, 299, 300, 399, 400 }.Where(n => n <= capacity))
             foreach (byte phase in new byte[] { 0, 4 })
@@ -62,7 +62,7 @@ internal static partial class Program
                 if (capacity == 400 && supply == 199 && phase == 0)
                 {
                     Directory.CreateDirectory("csharp/test-temp/pause-reserve-tanks-527");
-                    PngWriterTooling.WriteRgba("csharp/test-temp/pause-reserve-tanks-527/fill-199.png", 256, 224, actual);
+                    PngWriterTooling.WriteRgba("csharp/test-temp/pause-reserve-tanks-527/fill-199.png", new Extent16<ScreenPixels>(256, 224), actual);
                     File.WriteAllBytes("csharp/test-temp/pause-reserve-tanks-527/fill-199.smframe",
                         RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 1), capture)));
                 }

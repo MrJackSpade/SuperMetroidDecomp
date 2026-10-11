@@ -43,8 +43,8 @@ internal static partial class Program
             AssertEqual(count & 0x7fff,run.LevelWords.Length,"bombed reveal native word count");
             AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2)),run.LevelWords.Span[0],
                 "bombed reveal native physical parent and visual tile");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 4))),run.NextX,"bombed reveal native terminal X");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 5))),run.NextY,"bombed reveal native terminal Y");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 4))),run.Next.X,"bombed reveal native terminal X");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 5))),run.Next.Y,"bombed reveal native terminal Y");
         }
     }
 

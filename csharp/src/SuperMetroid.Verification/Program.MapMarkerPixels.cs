@@ -12,7 +12,7 @@ internal static partial class Program
     {
         var files = MapSpriteExtractor.Extract(rom);
         byte[] json = files[MapSpriteFormat.JsonFile];
-        var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
+        var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), new(128, 128));
         var marker = new MapMarkerTileArtwork(image);
         AssertEqual(0, marker.StoredEditCount, "all stock marker pixels are calculated without retained exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
@@ -31,7 +31,7 @@ internal static partial class Program
             int expected = 0;
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            AssertEqual((byte)expected, marker.Pixel(tile, x, y), "original marker geometry and transparency");
+            AssertEqual((byte)expected, marker.Pixel(tile, new(checked((ushort)x), checked((ushort)y))), "original marker geometry and transparency");
             byte[] pixels = (byte[])image.Pixels.Clone();
             int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
             pixels[position] = (byte)((expected + 1) % 16);
@@ -55,18 +55,18 @@ internal static partial class Program
         }
         CheckEdited(all);
         foreach (int invalid in new[] { -1, 0x9c, 0xa0, 0xae, 0xb0, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => marker.Pixel(invalid, 0, 0), "invalid marker tile");
+            AssertThrows<ArgumentOutOfRangeException>(() => marker.Pixel(invalid, new(0, 0)), "invalid marker tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => marker.Pixel(tiles[0], invalid, 0), "invalid marker X");
-            AssertThrows<ArgumentOutOfRangeException>(() => marker.Pixel(tiles[0], 0, invalid), "invalid marker Y");
+            AssertThrows<ArgumentOutOfRangeException>(() => marker.Pixel(tiles[0], new(unchecked((ushort)invalid), 0)), "invalid marker X");
+            AssertThrows<ArgumentOutOfRangeException>(() => marker.Pixel(tiles[0], new(0, unchecked((ushort)invalid))), "invalid marker Y");
         }
         void CheckEdited(byte[] pixels)
         {
-            using var png = new MemoryStream(); IndexedPng.Write(png, 128, 128, pixels, image.Palette); png.Position = 0;
+            using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Palette); png.Position = 0;
             var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
             var vram = new SnesVram(); edited.LoadArtworkTo(vram, 0x4000);
-            byte[] expected = SnesPlanarTileEncoder.Encode(pixels, 128, 128, 4);
+            byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
             AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring borders or other artwork");
         }
     }

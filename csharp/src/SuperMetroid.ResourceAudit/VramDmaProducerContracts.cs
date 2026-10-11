@@ -33,8 +33,8 @@ internal static class VramDmaProducerContracts
             ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "A2AD8385A17B2882557B10624010100C822C3E1F6065403D06698A5C6B73C32B") => "sky",
             ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "91776F442E0E3B352859873875ED9CC1EEF2DE5B7AE0404EF11E0B7B3FA74322") => "statues",
             ("SuperMetroid.Core.Game.WreckedShipTreadmillAnimatedTilesState.Step", "3326DF0E41031BBC1A775D7CB9AE16CD0E0DEACDBFF496AD2482229F046152CE") => "treadmill",
-            // #628 reviewed: the camera and BG1 offset are read from their typed positions; PLM VRAM requests unchanged.
-            ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "B48B735E10F8568008135F8C35C652F1CC535D3273E8BCEEB2D5276584611FDE") => "plm",
+            // #628 reviewed: the camera and BG1 offset are read from their typed positions and the PLM step takes the camera as one Position16<RoomPixels>; PLM VRAM requests unchanged.
+            ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "0988026C82C1790773401B94A5DD8959CDB8CADEA1A3D69796C98D23C29BBDAE") => "plm",
             _ => null,
         };
         return family is not null;

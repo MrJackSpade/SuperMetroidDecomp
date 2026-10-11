@@ -9,8 +9,8 @@ internal static partial class InstalledSporesTests
         string nativeArtworkDirectory)
     {
         using var currentPng = File.OpenRead(Path.Combine(maps, RoomFxAnimatedTileAtlasFormat.FileName));
-        IndexedPngImage image = IndexedPng.Read(currentPng, RoomFxAnimatedTileAtlasFormat.Width, 8);
-        byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 2);
+        IndexedPngImage image = IndexedPng.Read(currentPng, new(RoomFxAnimatedTileAtlasFormat.Width, 8));
+        byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, new(image.Size.X, image.Size.Y), 2);
         // Appending spores must not shift any earlier strip: every segment of the installed sheet,
         // frames and shared treadmill/statue strips alike, equals its native cartridge bytes.
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -41,14 +41,14 @@ internal static partial class InstalledSporesTests
         {
             var pixels = new byte[width * 8];
             for (int y = 0; y < 8; y++)
-                image.Pixels.AsSpan(y * image.Width, width).CopyTo(pixels.AsSpan(y * width));
+                image.Pixels.AsSpan(y * image.Size.X, width).CopyTo(pixels.AsSpan(y * width));
             pixels[0] = (byte)((pixels[0] + 1) % 4);
             using var legacyPng = new MemoryStream();
-            IndexedPng.Write(legacyPng, width, 8, pixels, image.Palette);
+            IndexedPng.Write(legacyPng, new(checked((ushort)width), 8), pixels, image.Palette);
             legacyPng.Position = 0;
             RoomFxAnimatedTileAtlas legacy = RoomFxAnimatedTileAtlas.Load(legacyPng, stock);
             byte[] expected = (byte[])planar.Clone();
-            SnesPlanarTileEncoder.Encode(pixels, width, 8, 2).CopyTo(expected, 0);
+            SnesPlanarTileEncoder.Encode(pixels, new(checked((ushort)width), 8), 2).CopyTo(expected, 0);
             int offset = 0;
             foreach (var segment in RoomFxAnimatedTileAtlasFormat.Segments)
             {
@@ -79,12 +79,12 @@ internal static partial class InstalledSporesTests
     private static void WriteOverrides(string maps, string overrides)
     {
         using var input = File.OpenRead(Path.Combine(maps, RoomFxAnimatedTileAtlasFormat.FileName));
-        IndexedPngImage image = IndexedPng.Read(input, RoomFxAnimatedTileAtlasFormat.Width, 8);
+        IndexedPngImage image = IndexedPng.Read(input, new(RoomFxAnimatedTileAtlasFormat.Width, 8));
         for (int y = 0; y < 8; y++)
-        for (int x = RoomFxAnimatedTileAtlasFormat.PreSporesWidth; x < image.Width; x++)
-            image.Pixels[y * image.Width + x] = (byte)((x + y) % 3 + 1);
+        for (int x = RoomFxAnimatedTileAtlasFormat.PreSporesWidth; x < image.Size.X; x++)
+            image.Pixels[y * image.Size.X + x] = (byte)((x + y) % 3 + 1);
         using (var output = File.Create(Path.Combine(overrides, RoomFxAnimatedTileAtlasFormat.FileName)))
-            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
 
         JsonNode tilemaps = JsonNode.Parse(File.ReadAllBytes(Path.Combine(maps, RoomFxLayer3TilemapFormat.FileName)))!;
         foreach (JsonNode? cell in tilemaps["pages"]!["Spores"]!.AsArray())

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -33,7 +34,7 @@ public static class ChargeFlarePlacementDefinitions
     /// $90:C1A8..C203 named visual muzzle origins, including exact adjacent-row aliases
     /// for the renderer's full low-nibble domain. Physical origins remain separate.
     /// </summary>
-    internal static ChargeFlareOffset BeamOffset(bool running, int direction)
+    internal static Offset16<RoomPixels> BeamOffset(bool running, int direction)
     {
         if ((uint)direction >= DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
         if (running && direction >= SamusProjectileRomData.Origins.DirectionCount)
@@ -89,7 +90,7 @@ public static class ChargeFlarePlacementDefinitions
     /// $9B:C14A/C15E and C19A/C1AE: Grapple's ten visual origins equal the beam origins.
     /// Overread directions use adjacent physical-origin and swing-selector row owners.
     /// </summary>
-    internal static ChargeFlareOffset GrappleOffset(bool running, int direction)
+    internal static Offset16<RoomPixels> GrappleOffset(bool running, int direction)
     {
         if ((uint)direction >= DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
         if (direction < SamusGrappleRomData.Firing.DirectionCount) return BeamOffset(running, direction);

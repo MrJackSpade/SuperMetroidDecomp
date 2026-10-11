@@ -4,6 +4,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -32,11 +33,11 @@ internal static partial class Program
         WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputRomData.Attract.ShinesparkContinuation) + 2,
             (ushort)SnesButton.Right);
         var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-        var expected = new AttractDemoScene(0x91f8, 0x8000, 0x100, 0x200, 0x40, -46,
+        var expected = new AttractDemoScene(0x91f8, 0x8000, new(0x100, 0x200), new(-46, 0x40),
             0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, 0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000);
         if (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index.");
-        if (expected.SamusX != 338 || expected.SamusY != 576)
+        if (expected.SamusPosition != new Position16<RoomPixels>(338, 576))
             throw new InvalidDataException("Demo offsets lost their native X-center/Y-top interpretation.");
         if (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 1) is not null)
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");

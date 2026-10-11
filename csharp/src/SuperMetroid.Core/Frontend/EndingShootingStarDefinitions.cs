@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Native post-credits star motion and animation data.</summary>
@@ -15,18 +17,20 @@ internal static class EndingShootingStarDefinitions
     internal const ushort DoubleAccelerationFrame = 0x0400;
     /// <summary>$8B:E90B/$E91F center each small OBJ four pixels before its position.</summary>
     internal const ushort SpriteOffset = 4;
+    /// <summary>The <see cref="SpriteOffset"/> centering applied on both axes.</summary>
+    internal static Offset16<ScreenPixels> SpriteCenter => new((short)SpriteOffset, (short)SpriteOffset);
     /// <summary>$8B:E9CF / ShootingStar_Table: X/Y acceleration, animation period, initial delay.</summary>
     private static readonly EndingShootingStarDefinition[] records = [
-        new(16,-16,6,8), new(12,-1,6,0), new(13,-10,6,6), new(8,-16,6,0),
-        new(2,-14,6,8), new(16,-8,6,0), new(2,-1,0x0f00,0), new(1,-2,0x0f00,0),
-        new(0,-3,0x0f00,0), new(2,-5,32,4), new(15,16,6,8), new(2,9,8,0),
-        new(12,8,6,0), new(16,4,6,8), new(8,12,8,0), new(2,8,8,0),
-        new(2,4,0x0f00,0), new(2,1,0x0f00,0), new(-13,13,4,8), new(-14,8,4,0),
-        new(-7,14,6,0), new(-5,16,4,8), new(-4,5,32,0), new(-2,3,0x0f00,0),
-        new(-2,4,0x0f00,0), new(-3,1,0x0f00,0), new(-12,2,4,0), new(-6,5,32,0),
-        new(-3,8,32,0), new(-14,-9,4,8), new(-8,-12,4,0), new(-6,-14,6,0),
-        new(-12,-16,4,8), new(-8,-4,32,0), new(-3,-6,32,0), new(-7,-8,32,0),
-        new(-2,-3,0x0f00,0), new(-4,-4,0x0f00,0), new(-8,-2,0x0f00,0), new(-8,-4,0x0f00,0)
+        new(new(16, -16), 6, 8), new(new(12, -1), 6, 0), new(new(13, -10), 6, 6), new(new(8, -16), 6, 0),
+        new(new(2, -14), 6, 8), new(new(16, -8), 6, 0), new(new(2, -1), 0x0f00, 0), new(new(1, -2), 0x0f00, 0),
+        new(new(0, -3), 0x0f00, 0), new(new(2, -5), 32, 4), new(new(15, 16), 6, 8), new(new(2, 9), 8, 0),
+        new(new(12, 8), 6, 0), new(new(16, 4), 6, 8), new(new(8, 12), 8, 0), new(new(2, 8), 8, 0),
+        new(new(2, 4), 0x0f00, 0), new(new(2, 1), 0x0f00, 0), new(new(-13, 13), 4, 8), new(new(-14, 8), 4, 0),
+        new(new(-7, 14), 6, 0), new(new(-5, 16), 4, 8), new(new(-4, 5), 32, 0), new(new(-2, 3), 0x0f00, 0),
+        new(new(-2, 4), 0x0f00, 0), new(new(-3, 1), 0x0f00, 0), new(new(-12, 2), 4, 0), new(new(-6, 5), 32, 0),
+        new(new(-3, 8), 32, 0), new(new(-14, -9), 4, 8), new(new(-8, -12), 4, 0), new(new(-6, -14), 6, 0),
+        new(new(-12, -16), 4, 8), new(new(-8, -4), 32, 0), new(new(-3, -6), 32, 0), new(new(-7, -8), 32, 0),
+        new(new(-2, -3), 0x0f00, 0), new(new(-4, -4), 0x0f00, 0), new(new(-8, -2), 0x0f00, 0), new(new(-8, -4), 0x0f00, 0)
     ];
     internal static ReadOnlySpan<EndingShootingStarDefinition> Records => records;
     /// <summary>$8B:E9A7 / Handle_ShootingStars.tilemapValues: small OBJ tile/attribute words.</summary>
@@ -37,4 +41,9 @@ internal static class EndingShootingStarDefinitions
     ];
 }
 
-internal readonly record struct EndingShootingStarDefinition(short XAcceleration, short YAcceleration, ushort Period, ushort Delay);
+/// <summary>One shooting star's motion and animation record.</summary>
+/// <param name="Acceleration">Signed 8.8 velocity change per call on both axes.</param>
+/// <param name="Period">Animation frame duration.</param>
+/// <param name="Delay">Initial invisible delay; zero starts immediately.</param>
+internal readonly record struct EndingShootingStarDefinition(
+    EightEightVector<ScreenPixels> Acceleration, ushort Period, ushort Delay);

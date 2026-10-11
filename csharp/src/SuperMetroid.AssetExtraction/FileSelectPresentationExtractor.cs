@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -150,15 +151,15 @@ public static class FileSelectPresentationExtractor
             },
             MainCursorAnchors = Enumerable.Range(0, FileSelectLayout.MainSelectionCount)
                 .Select(FileSelectLayout.MainSelectionY)
-                .Select(y => new MapLabelPoint(14, y)).ToArray(),
+                .Select(y => new Position16<OamPixels>(14, y)).ToArray(),
             DataCursorAnchors = Enumerable.Range(0, FileSelectLayout.DataSelectionCount)
                 .Select(FileSelectLayout.DataSelectionY)
-                .Select(y => new MapLabelPoint(22, y)).ToArray(),
+                .Select(y => new Position16<OamPixels>(22, y)).ToArray(),
             ConfirmationCursorAnchors =
                 [new(94, 184), new(94, 208)],
             HelmetAnchors = Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
                 .Select(FileSelectLayout.HelmetY)
-                .Select(y => new MapLabelPoint(100, y)).ToArray(),
+                .Select(y => new Position16<OamPixels>(100, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)
             {
                 [FileSelectPresentationDefinitions.CopyDestinationSourceAnchor] =
@@ -235,17 +236,16 @@ public static class FileSelectPresentationExtractor
                 y++;
                 continue;
             }
-            cells.Add(new(x++, y, word));
+            cells.Add(new(new(checked((short)(x++)), checked((short)y)), word));
         }
     }
 
     private static void Apply(ushort[] page, RawPatch patch, int byteOffset)
     {
-        MapLabelPoint anchor = Point(byteOffset);
+        Position16<TilemapCells> anchor = Point(byteOffset);
         foreach (RawPatchCell cell in patch.Cells)
         {
-            int index = (anchor.Y + cell.Y) * FileSelectPresentationDefinitions.Width +
-                anchor.X + cell.X;
+            int index = FileSelectPresentationDefinitions.PageSize.RowMajorIndex(anchor + cell.Offset);
             if ((uint)index >= page.Length)
                 throw new InvalidDataException("Extracted file-select text escaped its page.");
             page[index] = cell.Word;
@@ -271,8 +271,8 @@ public static class FileSelectPresentationExtractor
     {
         Cells = patch.Cells.Select(cell => new FileSelectPatchCellDocument
         {
-            X = cell.X,
-            Y = cell.Y,
+            X = cell.Offset.X,
+            Y = cell.Offset.Y,
             Cell = Cell(cell.Word),
         }).ToArray(),
     };
@@ -309,13 +309,13 @@ public static class FileSelectPresentationExtractor
         };
     }
 
-    private static MapLabelPoint Point(int byteOffset)
+    private static Position16<TilemapCells> Point(int byteOffset)
     {
         int cell = byteOffset / sizeof(ushort);
-        return new(cell % FileSelectPresentationDefinitions.Width,
-            cell / FileSelectPresentationDefinitions.Width);
+        return new(checked((ushort)(cell % FileSelectPresentationDefinitions.Width)),
+            checked((ushort)(cell / FileSelectPresentationDefinitions.Width)));
     }
 
     private sealed record RawPatch(RawPatchCell[] Cells);
-    private readonly record struct RawPatchCell(int X, int Y, ushort Word);
+    private readonly record struct RawPatchCell(Offset16<TilemapCells> Offset, ushort Word);
 }

@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -19,7 +20,7 @@ internal static partial class Program
         // VerifyRoomScrollPlms and supply decoded pairs before the handler runs.
         var guarded = new RetailScrollProgramReadGuard(rom);
         const int width = 64;
-        var level = new RoomLevelData(width, 64,
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64),
             new ushort[width * 64], new byte[width * 64],
             new ushort[width * 64], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
@@ -32,13 +33,13 @@ internal static partial class Program
             size: new Extent16<RoomScreens>(4, 4),
             lastRowState: RoomScrollState.RedBoundary);
         scrolls.SetStorage(0, RoomScrollState.RedBoundary);
-        AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(8, 13)),
+        AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(new(8, 13))),
             "retail scroll trigger wakes at its authored coordinate");
         plms.Step(guarded, level, level.CreateBackgroundStreamer(),
-            0, 0, 0, scrolls);
+            new(0, 0), 0, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(0),
             "compiled retail scroll program mutates the intended cell");
-        AssertTrue(!plms.ScrollPlmTriggered(level.GetBlockIndex(8, 13)),
+        AssertTrue(!plms.ScrollPlmTriggered(level.GetBlockIndex(new(8, 13))),
             "retail scroll trigger returns to resident sleep");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail scroll PLM did not read any compiled program from the ROM bus");

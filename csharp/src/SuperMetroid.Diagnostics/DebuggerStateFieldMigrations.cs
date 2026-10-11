@@ -194,10 +194,8 @@ internal static class DebuggerStateFieldMigrations
             "Legacy projectile owner predates charge-combo state; restoring no combo pending."),
         new(typeof(SamusKinematicsState).FullName!, ["<ProbeContactDamageIndex>k__BackingField"],
             "Legacy kinematics lacks prospective-pose contact mode; retaining live owner lookup."),
-        // 571b9a42 implemented Samus Eater capture. Earlier builds did not execute that capture;
-        // fresh plant setup supplies the coordinates if the player is subsequently caught.
-        new("SuperMetroid.Core.Rooms.RoomPlmSystem+PlmSlot", ["<PlantHeldX>k__BackingField", "<PlantHeldY>k__BackingField"],
-            "Legacy PLM slot lacks plant-held coordinates; restoring zero until a new capture setup."),
+        // 571b9a42's Samus Eater capture coordinates are one spatial value (#628); DebuggerSpatialFieldMigrations
+        // restores both the pre-capture layout and the component layout.
         new("SuperMetroid.Core.Rooms.RoomPlmSystem", ["_pendingSpeedBoosterPickupContinuation"],
             "Legacy PLM system lacks a pending Speed Booster pickup continuation; restoring none pending."),
         // Before direct retail scroll dispatch, decoded pairs (when present) were authoritative.

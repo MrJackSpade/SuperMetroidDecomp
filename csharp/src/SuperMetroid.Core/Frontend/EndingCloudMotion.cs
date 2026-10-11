@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>F455–F4E0 cloud pre-instructions, including the one-call activation handoff.</summary>
@@ -23,10 +25,9 @@ internal static class EndingCloudMotion
         if (side)
         {
             int direction = wrapper.Role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB ? -1 : 1;
-            sprite.XPosition = unchecked((ushort)(sprite.XPosition + direction));
-            sprite.YPosition = unchecked((ushort)(sprite.YPosition + direction * 2));
+            sprite.WholePosition += new Offset16<ScreenPixels>((short)direction, (short)(direction * 2));
         }
         else
-            sprite.YPosition = unchecked((ushort)(sprite.YPosition + (top ? 1 : -1)));
+            sprite.WholePosition += new Offset16<ScreenPixels>(0, (short)(top ? 1 : -1));
     }
 }

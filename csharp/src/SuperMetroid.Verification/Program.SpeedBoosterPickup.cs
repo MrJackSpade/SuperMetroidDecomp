@@ -19,7 +19,7 @@ internal static partial class Program
             CollectibleFixture fixture = LoadCollectible(bus,
                 (ushort)(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster),
                 roomArgument: 8, precollected: false, roomFx: fx);
-            fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+            fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
             if (chozo)
             {
                 // The orb must be shot open before its item can be touched.
@@ -27,13 +27,13 @@ internal static partial class Program
                     "Speed Booster orb accepts a projectile");
                 StepUntil(
                     () => fixture.Plms.CollectiblePhases[0] == CollectiblePhase.Visible,
-                    _ => fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0),
+                    _ => fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(0, 0), 0),
                     maximumFrames: 20,
                     context: "Speed Booster orb burst");
             }
             AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 "Speed Booster pickup accepts contact");
-            fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+            fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertTrue(fixture.Samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
                 "Speed Booster acquired before message continuation");
             AssertEqual((ushort)0, fx.PackedYVelocity, "message has not yet armed lava");
@@ -42,7 +42,7 @@ internal static partial class Program
 
             // Runtime suspends gameplay while the message is active and invokes this
             // continuation when the routine returns, before the next FX pass.
-            fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+            fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.PackedYVelocity,
                 "only the Chozo instruction list writes the native upward velocity");
             fx.Step(cartridge, vram, Position16<RoomPixels>.Zero, timeIsFrozen: false, mainGameLoopCarry: true);
@@ -63,7 +63,7 @@ internal static partial class Program
                     fx.BaseYPosition, "lava rises at native subpixel speed after delay");
             }
             fx.ApplyCartridgeMotionWrites(packedYVelocity: 0);
-            fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+            fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertEqual((ushort)0, fx.PackedYVelocity, "message continuation is consumed once");
         }
         Console.WriteLine("Speed Booster pickup continuation, delay, rise and earthquake verified.");

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Pressed L/R buttons at82:C48F/C4A0 use left28, middle29/2E and right2A.
@@ -23,7 +25,7 @@ internal sealed class MenuShoulderButtonArtwork
             for (int x = 0; x < 8; x++)
             {
                 byte pixel = Source(tile, x, y);
-                if (pixel != Basis(tile, x, y)) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+                if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
             }
         }
         ushort ReadLetter(int tile)
@@ -34,28 +36,28 @@ internal sealed class MenuShoulderButtonArtwork
                 if (Source(tile, x, y) == 4) bits |= (ushort)(1 << ((y - 1) * 4 + x - 2));
             return bits;
         }
-        byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
+        byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
 
-    internal byte Pixel(int tile, int x, int y)
+    internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
-        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
+        if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
-    private byte Basis(int tile, int x, int y)
+    private byte Basis(int tile, Position16<CharacterPixels> point)
     {
-        if (y == 7) return 0;
-        if (tile is 0x29 or 0x2e && x is >= 2 and <= 5 && y is >= 1 and <= 4)
+        if (point.Y == 7) return 0;
+        if (tile is 0x29 or 0x2e && point.X is >= 2 and <= 5 && point.Y is >= 1 and <= 4)
         {
             ushort glyph = tile == 0x29 ? leftLetter : rightLetter;
-            if ((glyph & (1 << ((y - 1) * 4 + x - 2))) != 0) return 4;
+            if ((glyph & (1 << ((point.Y - 1) * 4 + point.X - 2))) != 0) return 4;
         }
-        int position = x + (tile == 0x28 ? 0 : tile == 0x2a ? 16 : 8);
-        int left = Inset(y), right = 23 - left;
-        if (y == 6) right = Math.Max(right, 23 - Inset(y - 1) - 1);
+        int position = point.X + (tile == 0x28 ? 0 : tile == 0x2a ? 16 : 8);
+        int left = Inset(point.Y), right = 23 - left;
+        if (point.Y == 6) right = Math.Max(right, 23 - Inset(point.Y - 1) - 1);
         if (position < left || position > right) return 0;
-        return y == 6 || y > 0 && position == right ? (byte)4 : (byte)3;
+        return point.Y == 6 || point.Y > 0 && position == right ? (byte)4 : (byte)3;
     }
 
     /// <summary>3-round(sqrt(9-(y-3)^2)), for rows0..6. Integer half-pixel

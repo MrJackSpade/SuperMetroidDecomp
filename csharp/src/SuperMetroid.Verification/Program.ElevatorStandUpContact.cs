@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -21,7 +22,7 @@ internal static partial class Program
             blocks[DoorRow * Width + x] = 0x9000;
             behaviors[DoorRow * Width + x] = 2;
         }
-        var level = new RoomLevelData(Width, Height, blocks, behaviors, new ushort[Width * Height], [],
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), blocks, behaviors, new ushort[Width * Height], [],
             doorListPointer: 0xdad5);
 
         var samus = new SamusState { Pose = SamusPoseId.CrouchingLeftPose, XPosition = 24 };

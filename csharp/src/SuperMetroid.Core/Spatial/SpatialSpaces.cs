@@ -30,6 +30,12 @@ public sealed class RoomScreens : ISpatialSpace;
 /// <summary>Area-map tile grid used by the pause, file-select and minimap views.</summary>
 public sealed class MapTiles : ISpatialSpace;
 
+/// <summary>
+/// Area-map plane pixels (eight per map tile): the pause and file-select map scroll offsets,
+/// scroll bounds and the marker/arrow positions drawn over the map.
+/// </summary>
+public sealed class MapPixels : ISpatialSpace;
+
 /// <summary>OAM sprite coordinates: nine-bit signed X, eight-bit Y, relative to the screen.</summary>
 public sealed class OamPixels : ISpatialSpace;
 
@@ -38,6 +44,18 @@ public sealed class Mode7Pixels : ISpatialSpace;
 
 /// <summary>VRAM tilemap cells (eight-pixel tiles within a 32x32 or 64x32 tilemap).</summary>
 public sealed class TilemapCells : ISpatialSpace;
+
+/// <summary>
+/// Host raster pixels: columns and rows of a decoded image, artwork atlas or rendered host image,
+/// measured from the image's own top-left corner rather than any screen or room.
+/// </summary>
+public sealed class ImagePixels : ISpatialSpace;
+
+/// <summary>
+/// Normalized analog-stick deflection of a host gamepad: signed sixteen-bit axes, X positive to the
+/// right and Y positive downwards, centred on zero.
+/// </summary>
+public sealed class GamepadStick : ISpatialSpace;
 
 /// <summary>
 /// Sixteen-pixel blocks of the circular BG1/BG2 VRAM tilemap: a PPU scroll register shifted

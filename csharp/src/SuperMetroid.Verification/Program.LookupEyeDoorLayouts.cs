@@ -59,8 +59,8 @@ internal static partial class Program
                 {
                     AssertEqual(header,run.DirectionAndCount,"Eye door DTO direction/count");
                     AssertEqual(count,run.LevelWords.Length,"Eye door DTO length");
-                    AssertEqual(0,(int)run.NextX,"Eye door terminal X");
-                    AssertEqual(0,(int)run.NextY,"Eye door terminal Y");
+                    AssertEqual(0,(int)run.Next.X,"Eye door terminal X");
+                    AssertEqual(0,(int)run.Next.Y,"Eye door terminal Y");
                 }
                 else
                     for (int cell = 0; cell < count; cell++)
@@ -84,7 +84,7 @@ internal static partial class Program
                 plms.DrawSolePlmFrameForVerification(bus, level, level.CreateBackgroundStreamer(), pointer);
                 for (int cell = 0; cell < count; cell++)
                     AssertEqual(ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + cell * 2)),
-                        level.GetCollisionBlock(3 + (vertical ? 0 : cell),4 + (vertical ? cell : 0)).LevelWord,
+                        level.GetCollisionBlock(new(checked((ushort)(3 + (vertical ? 0 : cell))), checked((ushort)(4 + (vertical ? cell : 0))))).LevelWord,
                         "Eye door production draw native word and position");
             }
             cells += count;

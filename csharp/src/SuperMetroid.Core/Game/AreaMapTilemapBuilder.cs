@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Game;
 
@@ -19,15 +20,16 @@ public static class AreaMapTilemapBuilder
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
-            MapTileWord word = map.GetTile(x, y);
-            bool explored = system.IsMapTileExplored(map.Area, x, y);
+            var cell = new Position16<MapTiles>(unchecked((ushort)x), unchecked((ushort)y));
+            MapTileWord word = map.GetTile(cell);
+            bool explored = system.IsMapTileExplored(map.Area, cell);
             if (explored)
                 word = word.AsExplored();
             else if (!AreaMapVisibility.IsVisible(explored, downloaded,
-                         map.IsRevealedByMapStation(x, y), map.IsDiscoverable(x, y), revealMode))
+                         map.IsRevealedByMapStation(cell), map.IsDiscoverable(cell), revealMode))
                 word = hiddenCell;
             BinaryPrimitives.WriteUInt16LittleEndian(
-                bytes.AsSpan(AreaMapLayout.GetTilemapWordIndex(x, y) * 2), word.Raw);
+                bytes.AsSpan(AreaMapLayout.GetTilemapWordIndex(cell) * 2), word.Raw);
         }
         return bytes;
     }

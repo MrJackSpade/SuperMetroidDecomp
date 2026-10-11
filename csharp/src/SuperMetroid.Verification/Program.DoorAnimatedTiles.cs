@@ -27,10 +27,10 @@ internal static partial class Program
         // Select the source room's door into the statue room.
         var level = runtime.LevelData!;
         CartridgeDoorHeader? entry = null;
-        for (int y = 0; y < level.HeightInBlocks && entry is null; y++)
-        for (int x = 0; x < level.WidthInBlocks && entry is null; x++)
+        for (int y = 0; y < level.Size.Y && entry is null; y++)
+        for (int x = 0; x < level.Size.X && entry is null; x++)
         {
-            var block = level.GetCollisionBlock(x, y);
+            var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             CartridgeDoorHeader? door = level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, false).Door;
             if (door?.DestinationRoomPointer == 0xa66a)

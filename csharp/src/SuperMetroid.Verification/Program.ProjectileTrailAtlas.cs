@@ -19,10 +19,10 @@ internal static partial class Program
         AssertTrue(native.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Stock trail PNG preserves complete VRAM after production room/NMI setup");
         for (int tile = 0; tile < 12; tile++)
         {
-            var image = IndexedPng.Read(new MemoryStream(png), ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
+            var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
             image.Pixels[tile * 8] ^= 1;
             using var changed = new MemoryStream();
-            IndexedPng.Write(changed, image.Width, image.Height, image.Pixels, image.Palette);
+            IndexedPng.Write(changed, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             changed.Position = 0;
             var edited = ProjectileTrailAtlas.Load(changed);
             var actual = new SnesVram(); actual.LoadBytes(0, native);
@@ -33,13 +33,13 @@ internal static partial class Program
                 AssertEqual((byte)(native[i] ^ (i == changedByte ? 0x80 : 0)), actual.Bytes[i], "Trail pixel edit changes exactly its mapped bit, preserving gap and neighboring characters");
         }
         using var wrong = new MemoryStream();
-        IndexedPng.Write(wrong, 8, 8, new byte[64], SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(wrong, new(8, 8), new byte[64], SnesGraphics.DiagnosticPalette(16));
         wrong.Position = 0;
         AssertThrows<InvalidDataException>(() => ProjectileTrailAtlas.Load(wrong), "Wrong trail PNG dimensions rejected");
         using var invalidIndex = new MemoryStream();
         var invalidPixels = new byte[ProjectileTrailAtlasDefinitions.Width * ProjectileTrailAtlasDefinitions.Height];
         invalidPixels[0] = 16;
-        IndexedPng.Write(invalidIndex, ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height,
+        IndexedPng.Write(invalidIndex, new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height),
             invalidPixels, SnesGraphics.DiagnosticPalette(32));
         invalidIndex.Position = 0;
         AssertThrows<InvalidDataException>(() => ProjectileTrailAtlas.Load(invalidIndex), "Trail PNG indices exceeding four bits rejected");
@@ -49,11 +49,11 @@ internal static partial class Program
 
     private static void VerifyTrailAtlasBinding(ISnesAddressSpace bus, byte[] png)
     {
-        var image = IndexedPng.Read(new MemoryStream(png), ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
+        var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
         image.Pixels[0] ^= 1;
         image.Pixels[64] ^= 1;
         using var stream = new MemoryStream();
-        IndexedPng.Write(stream, image.Width, image.Height, image.Pixels, image.Palette);
+        IndexedPng.Write(stream, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         stream.Position = 0;
         var atlas = ProjectileTrailAtlas.Load(stream);
         var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailExtractor.Extract(bus)), atlas);

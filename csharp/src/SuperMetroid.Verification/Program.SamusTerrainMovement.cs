@@ -7,6 +7,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -130,7 +131,7 @@ static void VerifySamusBlockCollision()
     AssertTrue(groundProbe.Collided, "vertical non-square grounding probe collides");
     AssertEqual(0, groundProbe.AcceptedDisplacement, "vertical non-square grounding probe clips to zero");
     AssertEqual(19, groundedBody.YPosition, "grounding collision preserves resting center Y");
-    AssertEqual(0x12, level.GetCollisionBlockAtPixel(24, 24).Behavior,
+    AssertEqual(0x12, level.GetCollisionBlockAtPixel(new(24, 24)).Behavior,
         "grounding collision probe's target block carries slope BTS");
 
     // Moving two pixels right from X=26 would enter the type-8 block at X=32. The solid
@@ -230,9 +231,8 @@ static void VerifySamusBlockCollision()
     var doorForeground = new ushort[width * height];
     var doorBehavior = new byte[doorForeground.Length];
     doorForeground[1 * width + 2] = 0x9000;
-    RoomLevelData doorLevel = new(
-        width,
-        height,
+    RoomLevelData doorLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         doorForeground,
         doorBehavior,
         new ushort[doorForeground.Length],
@@ -264,9 +264,8 @@ static void VerifySamusBlockCollision()
         "consumed door transition does not leak into later movement");
 
     doorBehavior[1 * width + 2] = 2;
-    RoomLevelData elevatorDoorLevel = new(
-        width,
-        height,
+    RoomLevelData elevatorDoorLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         doorForeground,
         doorBehavior,
         new ushort[doorForeground.Length],
@@ -304,7 +303,7 @@ static void VerifySamusBlockCollision()
     AssertTrue(rightEdgeMove.Collided, "prefilled right room edge is solid");
     AssertEqual(0x00010000, rightEdgeMove.AcceptedDisplacement,
         "prefilled right room edge clips at logical boundary");
-    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(4, 1).LevelWord,
+    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(new(4, 1)).LevelWord,
         "prefilled right room edge probe reads native $8000 word");
 
     var bottomEdgeBody = new SamusKinematicsState
@@ -323,14 +322,14 @@ static void VerifySamusBlockCollision()
     AssertTrue(bottomEdgeMove.Collided, "prefilled bottom room edge is solid");
     AssertEqual(0x00010000, bottomEdgeMove.AcceptedDisplacement,
         "prefilled bottom room edge clips at logical boundary");
-    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(3, 4).LevelWord,
+    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(new(3, 4)).LevelWord,
         "prefilled bottom room edge probe reads native $8000 word");
 
     // Grapple endpoint/body collision now consumes this same room-owned seam instead of
     // maintaining a second interpretation of the native prefill. Check coordinate and
     // already-linear forms because bank-$94 uses both during extension redispatch.
     RoomCollisionBlock coordinatePrefill =
-        level.GetCollisionBlockOrPrefilledSolid(level.WidthInBlocks, 0);
+        level.GetCollisionBlockOrPrefilledSolid(new(level.Size.X, 0));
     AssertEqual(-1, coordinatePrefill.Index,
         "coordinate prefill is outside the logical room plane");
     AssertEqual(0x8000, coordinatePrefill.LevelWord,

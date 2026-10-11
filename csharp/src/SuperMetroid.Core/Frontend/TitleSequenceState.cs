@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -40,13 +41,10 @@ public sealed class TitleSequenceState
     private int sequenceEntry;
     private int sequenceEntryTimer;
     private ushort activeSpritemap;
-    private ushort activeOriginX;
-    private ushort activeOriginY;
+    private Position16<ScreenPixels> activeOrigin;
     private ushort activeCharacterOffset;
-    private int mode7X;
-    private int mode7Y;
-    private int mode7XSubposition;
-    private int mode7YSubposition;
+    // Background position; the whole words are read as signed pixels.
+    private FixedPosition<Mode7Pixels> mode7;
     private int zoom;
     private int brightness;
     private int babyFrame;
@@ -198,29 +196,23 @@ public sealed class TitleSequenceState
                 break;
 
             case TitleSequencePhase.SceneZeroPan:
-                AddFixedPoint(
-                    ref mode7X,
-                    ref mode7XSubposition,
-                    -TitleSequenceRomData.Scenes.PanVelocity16Point16);
-                if (mode7X < TitleSequenceRomData.Scenes.SceneZeroEndX)
+                mode7 = mode7.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
+                    mode7.X, -TitleSequenceRomData.Scenes.PanVelocity16Point16));
+                if (unchecked((short)mode7.X.Whole) < TitleSequenceRomData.Scenes.SceneZeroEndX)
                     BeginTextSequence(TitleSequenceRomData.TextSequences.Nintendo);
                 break;
 
             case TitleSequencePhase.SceneOnePan:
-                AddFixedPoint(
-                    ref mode7X,
-                    ref mode7XSubposition,
-                    -TitleSequenceRomData.Scenes.PanVelocity16Point16);
-                if (mode7X < TitleSequenceRomData.Scenes.SceneOneEndX)
+                mode7 = mode7.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
+                    mode7.X, -TitleSequenceRomData.Scenes.PanVelocity16Point16));
+                if (unchecked((short)mode7.X.Whole) < TitleSequenceRomData.Scenes.SceneOneEndX)
                     BeginTextSequence(TitleSequenceRomData.TextSequences.Presents);
                 break;
 
             case TitleSequencePhase.SceneTwoPan:
-                AddFixedPoint(
-                    ref mode7Y,
-                    ref mode7YSubposition,
-                    TitleSequenceRomData.Scenes.PanVelocity16Point16);
-                if (mode7Y >= TitleSequenceRomData.Scenes.SceneTwoEndY)
+                mode7 = mode7.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(
+                    mode7.Y, TitleSequenceRomData.Scenes.PanVelocity16Point16));
+                if (unchecked((short)mode7.Y.Whole) >= TitleSequenceRomData.Scenes.SceneTwoEndY)
                     BeginTextSequence(TitleSequenceRomData.TextSequences.MetroidThree);
                 break;
 
@@ -231,8 +223,7 @@ public sealed class TitleSequenceState
                 if (zoom >= TitleSequenceRomData.Scenes.IdentityScale)
                 {
                     activeSpritemap = ReadWord(TitleSequenceRomData.Sprites.LogoPointerAddress);
-                    activeOriginX = TitleSequenceRomData.Sprites.LogoX;
-                    activeOriginY = TitleSequenceRomData.Sprites.LogoY;
+                    activeOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
                     activeCharacterOffset = TitleSequenceRomData.Sprites.TitleCharacterOffset.Raw;
                     Phase = TitleSequencePhase.TitleLogoFade;
                     phaseTimer = TitleSequenceRomData.Timing.LogoHoldFrames;
@@ -358,7 +349,7 @@ public sealed class TitleSequenceState
                 0,
                 matrixScale,
                 new Offset16<Mode7Pixels>(128, 128),
-                new Offset16<Mode7Pixels>(unchecked((short)mode7X), unchecked((short)mode7Y)));
+                mode7.Whole.AsSignedRegister());
         }
 
         PrepareRenderOam();
@@ -397,7 +388,7 @@ public sealed class TitleSequenceState
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam),
             mode7BackgroundEnabled
                 ? new Mode7RenderRegisters(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
-                    0, scale, new Offset16<Mode7Pixels>(128, 128), new Offset16<Mode7Pixels>(unchecked((short)mode7X), unchecked((short)mode7Y)))
+                    0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
                 : null,
             TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector,
             checked((byte)brightness), gradientEnabled ? ResolveTitleGradient() : default);
@@ -422,13 +413,13 @@ public sealed class TitleSequenceState
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             artwork.DrawSprite(activeSpritemap, oam,
-                activeOriginX, activeOriginY, activeCharacterOffset);
+                activeOrigin.ToOam(), activeCharacterOffset);
         }
 
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
             artwork.DrawSprite(TitleSequenceRomData.Sprites.NintendoCopyright, oam,
-                TitleSequenceRomData.Sprites.CopyrightX, TitleSequenceRomData.Sprites.CopyrightY,
+                TitleSequenceRomData.Sprites.CopyrightOrigin.ToOam(),
                 TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         }
 
@@ -502,11 +493,9 @@ public sealed class TitleSequenceState
         sequenceEntry = definition.InstructionAddress;
         sequenceEntryTimer = 1;
         activeSpritemap = TitleSequenceRomData.Sprites.Blank;
-        activeOriginX = definition.OriginX;
-        activeOriginY = definition.OriginY;
+        activeOrigin = definition.Origin;
         activeCharacterOffset = definition.CharacterOffset;
-        mode7XSubposition = 0;
-        mode7YSubposition = 0;
+        mode7 = new(mode7.X.WithFraction(0), mode7.Y.WithFraction(0));
 
         // Initial PPU setup and each of the first three completed pan functions select
         // TM=$10 before the next text actor becomes visible. Keeping an explicit register
@@ -527,12 +516,10 @@ public sealed class TitleSequenceState
             TitleSequenceRomData.Palette.CopyrightRedIndex,
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
         activeSpritemap = TitleSequenceRomData.Sprites.SuperMetroidLogo;
-        activeOriginX = TitleSequenceRomData.Sprites.LogoX;
-        activeOriginY = TitleSequenceRomData.Sprites.LogoY;
+        activeOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
         activeCharacterOffset = TitleSequenceRomData.Sprites.TitleCharacterOffset.Raw;
         mode7BackgroundEnabled = true;
-        mode7X = 0;
-        mode7Y = 0;
+        mode7 = new(mode7.X.WithWhole(0), mode7.Y.WithWhole(0));
         zoom = TitleSequenceRomData.Scenes.IdentityScale;
     }
 
@@ -600,21 +587,12 @@ public sealed class TitleSequenceState
     private static int AddWithinBank(int address, int bytes) =>
         (int)SnesAddress.FromBusAddress(address).AddWithinBank(bytes);
 
-    private static void AddFixedPoint(ref int integer, ref int fraction, int delta16Point16)
-    {
-        long combined = ((long)integer << 16) | (ushort)fraction;
-        combined += delta16Point16;
-        integer = unchecked((short)(combined >> 16));
-        fraction = (ushort)combined;
-    }
-
     private void ApplyScene(TitleMode7SceneDefinition definition)
     {
         Phase = definition.Phase;
         mode7BackgroundEnabled = true;
         zoom = definition.Scale;
-        mode7X = definition.HorizontalOffset;
-        mode7Y = definition.VerticalOffset;
+        mode7 = new(mode7.X.WithWhole(definition.Position.X), mode7.Y.WithWhole(definition.Position.Y));
         activeSpritemap = TitleSequenceRomData.Sprites.Blank;
     }
 

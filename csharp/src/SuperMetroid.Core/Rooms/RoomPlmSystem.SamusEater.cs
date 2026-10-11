@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -24,8 +25,7 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex = block.Index;
             slot.InstructionPointer = definition.InstructionListPointer;
             slot.InstructionTimer = 1;
-            slot.PlantHeldX = samus.XPosition;
-            slot.PlantHeldY = unchecked((ushort)(samus.YPosition + (definition.Ceiling ? 1 : -1)));
+            slot.PlantHeldPosition = new(samus.XPosition, unchecked((ushort)(samus.YPosition + (definition.Ceiling ? 1 : -1))));
             level.SetForegroundEntry(block.Index, (ushort)(block.LevelWord & SamusEaterPlmRomData.DeactivatedTriggerMask));
             return;
         }
@@ -39,8 +39,8 @@ public sealed partial class RoomPlmSystem
     {
         if (slot.PreInstruction != SamusEaterPlmRomData.HoldPreInstruction) return;
         var samus = RequirePlantSamus();
-        samus.XPosition = slot.PlantHeldX;
-        samus.YPosition = slot.PlantHeldY;
+        samus.XPosition = slot.PlantHeldPosition.X;
+        samus.YPosition = slot.PlantHeldPosition.Y;
         // Native TSB is bitwise OR, not a clamp or an input lock. Samus's normal
         // movement runs before this placement, preserving cartridge interactions.
         samus.InvincibilityTimer |= 0x10;

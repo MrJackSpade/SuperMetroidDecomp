@@ -32,10 +32,10 @@ internal static partial class Program
             IntroMotherBrainExplosionPlacement actual = IntroMotherBrainDefinitions.BigExplosion(index);
             AssertEqual(unchecked((short)ReadIntroMotherBrainWord(retail,
                     IntroMotherBrainDefinitions.BigXOffsetReferenceAddress + index * 2)),
-                actual.XOffset, $"intro Mother Brain big explosion {index} X offset");
+                actual.Offset.X, $"intro Mother Brain big explosion {index} X offset");
             AssertEqual(unchecked((short)ReadIntroMotherBrainWord(retail,
                     IntroMotherBrainDefinitions.BigYOffsetReferenceAddress + index * 2)),
-                actual.YOffset, $"intro Mother Brain big explosion {index} Y offset");
+                actual.Offset.Y, $"intro Mother Brain big explosion {index} Y offset");
             AssertEqual(ReadIntroMotherBrainWord(retail,
                     IntroMotherBrainDefinitions.BigTimerReferenceAddress + index * 2),
                 actual.StartTimer, $"intro Mother Brain big explosion {index} timer");
@@ -46,10 +46,10 @@ internal static partial class Program
             IntroMotherBrainExplosionPlacement actual = IntroMotherBrainDefinitions.SmallExplosion(index);
             AssertEqual(unchecked((short)ReadIntroMotherBrainWord(retail,
                     IntroMotherBrainDefinitions.SmallXOffsetReferenceAddress + index * 2)),
-                actual.XOffset, $"intro Mother Brain small explosion {index} X offset");
+                actual.Offset.X, $"intro Mother Brain small explosion {index} X offset");
             AssertEqual(unchecked((short)ReadIntroMotherBrainWord(retail,
                     IntroMotherBrainDefinitions.SmallYOffsetReferenceAddress + index * 2)),
-                actual.YOffset, $"intro Mother Brain small explosion {index} Y offset");
+                actual.Offset.Y, $"intro Mother Brain small explosion {index} Y offset");
             AssertEqual(ReadIntroMotherBrainWord(retail,
                     IntroMotherBrainDefinitions.SmallTimerReferenceAddress + index * 2),
                 actual.StartTimer, $"intro Mother Brain small explosion {index} timer");
@@ -67,9 +67,9 @@ internal static partial class Program
         var guarded = new IntroMotherBrainDefinitionReadGuard(retail);
         var motherBrain = new IntroMotherBrainSpriteState();
         AssertEqual(IntroMotherBrainDefinitions.MotherBrainOrigin.X,
-            IntroMotherBrainSpriteState.XPosition, "intro Mother Brain compiled X origin");
+            IntroMotherBrainSpriteState.Position.X, "intro Mother Brain compiled X origin");
         AssertEqual(IntroMotherBrainDefinitions.MotherBrainOrigin.Y,
-            IntroMotherBrainSpriteState.YPosition, "intro Mother Brain compiled Y origin");
+            IntroMotherBrainSpriteState.Position.Y, "intro Mother Brain compiled Y origin");
         for (int frame = 0; frame < 80; frame++)
         {
             motherBrain.Step(guarded);

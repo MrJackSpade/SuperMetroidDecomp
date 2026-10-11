@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -59,7 +60,7 @@ internal static partial class Program
             AssertEqual((byte)0xa9, rom.ReadByte(setup), "native heading X LDA");
             ushort x = ReadVerificationWord(rom, setup + 1);
             AssertEqual(x, GameOptionsRomData.Spritemaps.HeadingX((GameOptionsPage)page), "native heading X case");
-            MapLabelPoint actual = document.HeadingAnchors[OriginalHeadingName(page)];
+            Position16<OamPixels> actual = document.HeadingAnchors[OriginalHeadingName(page)];
             AssertEqual((int)x, actual.X, "imported heading X");
             AssertEqual((int)y, actual.Y, "imported heading Y");
         }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -36,11 +37,11 @@ public sealed class TitleGraphicsPresentation
     public ReadOnlySpan<byte> BabyCharacters => babyCharacters;
 
     /// <summary>Draws one ROM-selected title frame from installed composition data.</summary>
-    public void DrawSprite(ushort pointer, OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    public void DrawSprite(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (!sprites.TryGetValue(pointer, out SpriteComposition? composition))
             throw new InvalidDataException($"Title spritemap $8C:{pointer:X4} is missing from installed artwork.");
-        composition.DrawOnScreen(oam, x, y, paletteBits);
+        composition.DrawOnScreen(oam, origin, paletteBits);
     }
 
     /// <summary>Loads and validates the editable title graphics and map assets.</summary>
@@ -57,16 +58,13 @@ public sealed class TitleGraphicsPresentation
     {
         IndexedPngImage mode7 = IndexedPng.Read(
             mode7TilesPng,
-            TitleGraphicsFormat.Mode7Width,
-            TitleGraphicsFormat.Mode7Height);
+            new(TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height));
         IndexedPngImage objects = IndexedPng.Read(
             objectTilesPng,
-            TitleGraphicsFormat.ObjectWidth,
-            TitleGraphicsFormat.ObjectHeight);
+            new(TitleGraphicsFormat.ObjectWidth, TitleGraphicsFormat.ObjectHeight));
         IndexedPngImage baby = IndexedPng.Read(
             babyTilesPng,
-            TitleGraphicsFormat.BabyWidth,
-            TitleGraphicsFormat.BabyHeight);
+            new(TitleGraphicsFormat.BabyWidth, TitleGraphicsFormat.BabyHeight));
         if (mode7.Palette.Length != 256 || baby.Palette.Length != 256 || objects.Palette.Length != 16)
             throw new InvalidDataException("Title graphics require 256-color Mode 7/Baby PNGs and a 16-color OBJ PNG.");
 
@@ -97,10 +95,10 @@ public sealed class TitleGraphicsPresentation
         Dictionary<ushort, SpriteComposition> sprites = CompileSprites(map.Sprites);
 
         return new TitleGraphicsPresentation(
-            SnesMode7TileEncoder.Encode(mode7.Pixels, mode7.Width, mode7.Height),
+            SnesMode7TileEncoder.Encode(mode7.Pixels, mode7.Size),
             map.Tiles.Select(tile => checked((byte)tile)).ToArray(),
-            SnesPlanarTileEncoder.Encode(objects.Pixels, objects.Width, objects.Height, 4),
-            SnesMode7TileEncoder.Encode(baby.Pixels, baby.Width, baby.Height),
+            SnesPlanarTileEncoder.Encode(objects.Pixels, objects.Size, 4),
+            SnesMode7TileEncoder.Encode(baby.Pixels, baby.Size),
             sprites);
     }
 
@@ -175,6 +173,7 @@ public sealed class TitleGraphicsPresentation
 }
 
 /// <summary>Serializable title Mode 7 map and native-selected sprite compositions.</summary>
+[SpatialComponents("External format: the title Mode 7 map JSON stores its declared grid dimensions as width/height integers.")]
 public sealed record TitleMode7MapDocument
 {
     /// <summary>Gets the title-graphics document schema version.</summary>

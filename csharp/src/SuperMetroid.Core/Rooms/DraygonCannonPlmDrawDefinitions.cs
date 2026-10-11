@@ -125,7 +125,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         {
             var words = new ushort[draw.WordCount(run)];
             for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
-            runs[run] = new((ushort)words.Length, words, draw.NextX(run), draw.NextY(run));
+            runs[run] = new((ushort)words.Length, words, new(draw.NextX(run), draw.NextY(run)));
         }
         list = new(pointer, runs);
         return true;

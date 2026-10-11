@@ -1422,8 +1422,8 @@ public sealed partial class RoomEnemySystem
         out ushort? slopeAlignedPosition)
     {
         slopeAlignedPosition = null;
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
+        if ((uint)blockX >= (uint)level.Size.X ||
+            (uint)blockY >= (uint)level.Size.Y)
         {
             return true;
         }
@@ -1535,7 +1535,7 @@ public sealed partial class RoomEnemySystem
     /// read directly without following extensions.
     /// </summary>
     private static bool NonAirBlockAt(RoomLevelData level, ushort x, ushort y) =>
-        level.GetCollisionBlock(x >> 4, y >> 4).CollisionType != RoomCollisionType.Air;
+        level.GetCollisionBlock(new(unchecked((ushort)(x >> 4)), unchecked((ushort)(y >> 4)))).CollisionType != RoomCollisionType.Air;
 
     private static ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,

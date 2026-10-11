@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -110,7 +111,7 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>The room-pixel origin of the door's destination screen.</summary>
     internal static Position16<RoomPixels> GetDestination(CartridgeDoorHeader door) =>
-        new Position16<RoomScreens>(door.DestinationScreenX, door.DestinationScreenY).ToRoomPixels();
+        door.DestinationScreen.ToRoomPixels();
 
     /// <summary>Layer-one origin after the directional setup's initial call.</summary>
     internal static Position16<RoomPixels> GetSetupCamera(CartridgeDoorHeader door) =>

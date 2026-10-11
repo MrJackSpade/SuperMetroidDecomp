@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Lossless decoded view of one retail area map and station reveal plane.</summary>
@@ -37,29 +39,28 @@ public sealed class AreaMapCartridgeData : IAreaMapView
     public byte[] StationRevealMaskBytes { get; }
 
     /// <summary>Reads one decoded cartridge tilemap word in logical 64-by-32 coordinates.</summary>
-    public MapTileWord GetTile(int mapX, int mapY)
+    public MapTileWord GetTile(Position16<MapTiles> cell)
     {
-        _ = AreaMapLayout.GetTilemapWordIndex(mapX, mapY);
-        return tilemap[mapY * AreaMapLayout.WidthInTiles + mapX];
+        _ = AreaMapLayout.GetTilemapWordIndex(cell);
+        return tilemap[AreaMapLayout.Size.RowMajorIndex(cell)];
     }
 
     /// <summary>Whether the area's ordinary map station reveals this coordinate.</summary>
-    public bool IsRevealedByMapStation(int mapX, int mapY)
+    public bool IsRevealedByMapStation(Position16<MapTiles> cell)
     {
-        int byteIndex = AreaMapLayout.GetBitByteIndex(mapX, mapY);
-        return (StationRevealMaskBytes[byteIndex] & AreaMapLayout.GetBitMask(mapX)) != 0;
+        int byteIndex = AreaMapLayout.GetBitByteIndex(cell);
+        return (StationRevealMaskBytes[byteIndex] & AreaMapLayout.GetBitMask(cell.X)) != 0;
     }
 
     /// <summary>
     /// Whether the cartridge tilemap defines a discoverable cell, including secret cells
     /// deliberately absent from the map-station reveal plane.
     /// </summary>
-    public bool IsDiscoverable(int mapX, int mapY) => AreaMapExplorationRules.IsDiscoverable(GetTile(mapX, mapY));
+    public bool IsDiscoverable(Position16<MapTiles> cell) => AreaMapExplorationRules.IsDiscoverable(GetTile(cell));
 
     /// <summary>Returns whether discovering one map tile also reveals the logical cell immediately above it.</summary>
-    /// <param name="x">Logical map X coordinate from zero through 63.</param>
-    /// <param name="y">Logical map Y coordinate from zero through 31.</param>
+    /// <param name="cell">Logical map cell, X 0 through 63 and Y 0 through 31.</param>
     /// <returns>Whether the tile's native shape has the upward reveal behavior.</returns>
-    public bool RevealsCellAbove(int x, int y) =>
-        AreaMapExplorationRules.RevealsCellAbove(GetTile(x, y));
+    public bool RevealsCellAbove(Position16<MapTiles> cell) =>
+        AreaMapExplorationRules.RevealsCellAbove(GetTile(cell));
 }

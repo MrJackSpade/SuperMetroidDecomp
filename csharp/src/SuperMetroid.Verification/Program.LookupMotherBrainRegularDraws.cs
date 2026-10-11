@@ -55,10 +55,10 @@ internal static partial class Program
                 sbyte nextX = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
                 sbyte nextY = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
                 AssertEqual(nextX, shape.NextX(run), "Mother Brain regular native origin-relative X");
-                AssertEqual(nextX, dto.Runs.Span[run].NextX, "Mother Brain regular DTO X");
-                AssertEqual(nextY, dto.Runs.Span[run].NextY, "Mother Brain regular DTO Y");
-                AssertEqual(nextX, exported[index].Runs.Span[run].NextX, "Mother Brain regular export X");
-                AssertEqual(nextY, exported[index].Runs.Span[run].NextY, "Mother Brain regular export Y");
+                AssertEqual(nextX, dto.Runs.Span[run].Next.X, "Mother Brain regular DTO X");
+                AssertEqual(nextY, dto.Runs.Span[run].Next.Y, "Mother Brain regular DTO Y");
+                AssertEqual(nextX, exported[index].Runs.Span[run].Next.X, "Mother Brain regular export X");
+                AssertEqual(nextY, exported[index].Runs.Span[run].Next.Y, "Mother Brain regular export Y");
                 AssertEqual((sbyte)0, nextY, "Mother Brain regular runtime column origin Y");
                 foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
                     AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(run, invalid), "Mother Brain regular cell bounds");

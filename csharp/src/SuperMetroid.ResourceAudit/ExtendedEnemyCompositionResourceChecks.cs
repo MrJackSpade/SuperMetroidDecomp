@@ -30,7 +30,7 @@ internal static class ExtendedEnemyCompositionResourceChecks
         };
         EnemyExtendedFrameCatalog merged = Load(legacy, stock);
         Require(merged.TryGetDisplay(edited.Bank, edited.Pointer, out var old) &&
-            old.Span[0].OffsetX == -1 && merged.GetDisplayPointer(edited.Bank, edited.Pointer) == alternate.Pointer,
+            old.Span[0].Offset.X == -1 && merged.GetDisplayPointer(edited.Bank, edited.Pointer) == alternate.Pointer,
             "legacy component edits and display bindings must survive stock inheritance");
         foreach (var frame in selected) Confirm(merged, frame);
         bool rejected = false;
@@ -71,8 +71,8 @@ internal static class ExtendedEnemyCompositionResourceChecks
     {
         Require(catalog.TryGetDisplay(frame.Bank, frame.Pointer, out var components),
             $"extended sprite {frame.Bank:X2}:{frame.Pointer:X4} must have an installed display binding");
-        Require(components.Span.Length == 1 && components.Span[0].OffsetX == (frame.Pointer & 0x7f) &&
-            components.Span[0].OffsetY == -(frame.Pointer & 0x7f) && components.Span[0].Parts.Length == 1,
+        Require(components.Span.Length == 1 && components.Span[0].Offset.X == (frame.Pointer & 0x7f) &&
+            components.Span[0].Offset.Y == -(frame.Pointer & 0x7f) && components.Span[0].Parts.Length == 1,
             "the selected component offsets and OAM pieces must be preserved");
     }
 

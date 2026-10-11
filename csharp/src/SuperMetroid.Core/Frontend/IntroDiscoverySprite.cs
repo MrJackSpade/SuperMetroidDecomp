@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -16,26 +17,26 @@ internal sealed class IntroDiscoverySprite
     private ushort instructionTimer = 1;
 
     public IntroDiscoverySprite(
-        ushort xPosition,
-        ushort yPosition,
+        Position16<ScreenPixels> position,
         ushort paletteBits,
         ushort instructionPointer)
     {
-        XPosition = xPosition;
-        YPosition = yPosition;
+        Position = new(new(position.X, 0), new(position.Y, 0));
         PaletteBits = paletteBits;
         InstructionPointer = instructionPointer;
     }
 
     public bool IsActive { get; private set; } = true;
 
-    public ushort XPosition { get; set; }
+    /// <summary>The native whole and subpixel words of the sprite's position on both axes.</summary>
+    public FixedPosition<ScreenPixels> Position { get; set; }
 
-    public ushort XSubPosition { get; set; }
-
-    public ushort YPosition { get; set; }
-
-    public ushort YSubPosition { get; set; }
+    /// <summary>The whole-pixel words of <see cref="Position"/>; assigning replaces them and keeps both subpixel words.</summary>
+    public Position16<ScreenPixels> WholePosition
+    {
+        get => Position.Whole;
+        set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
+    }
 
     public ushort PaletteBits { get; private set; }
 
@@ -182,13 +183,14 @@ internal sealed class IntroDiscoverySprite
         }
     }
 
-    public void Draw(OamBuffer oam, ushort cameraX = 0,
-        ushort cameraY = 0, IIntroCinematicSpritePresentation? installedArt = null)
+    /// <summary>Draws the current frame at the whole position minus <paramref name="scroll"/>.</summary>
+    public void Draw(OamBuffer oam, Offset16<ScreenPixels> scroll = default,
+        IIntroCinematicSpritePresentation? installedArt = null)
     {
         if (!IsActive || SpriteMapPointer == 0)
             return;
-        ushort x = unchecked((ushort)(XPosition - cameraX));
-        ushort y = unchecked((ushort)(YPosition - cameraY));
+        Position16<ScreenPixels> origin = Position.Whole - scroll;
+        ushort y = origin.Y;
         if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >=
             CinematicSpriteDrawDefinitions.BiasedOriginYLimit)
             return;
@@ -198,7 +200,7 @@ internal sealed class IntroDiscoverySprite
             (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0;
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(SpriteMapPointer, oam, x, y, PaletteBits, originIsOnScreen);
+            .Draw(SpriteMapPointer, oam, origin.ToOam(), PaletteBits, originIsOnScreen);
     }
 
     private static ushort Add(ushort pointer, int bytes) =>

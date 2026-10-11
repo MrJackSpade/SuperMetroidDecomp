@@ -5,7 +5,7 @@ internal static partial class Program
     // Evidence assertions belong to the existing two font proofs, not a second
     // oracle or a separate test that searches for other artwork differences.
     private static byte MenuEvidencePixel(IndexedPngImage image, int tile, int x, int y) =>
-        image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
+        image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
 
     private static void AssertMenuInkRegionEqual(IndexedPngImage image,
         int firstTile, int firstX, int firstY, int secondTile, int secondX, int secondY,

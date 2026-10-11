@@ -3,13 +3,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
     private static void VerifyGroundedBombSpread()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = new RoomLevelData(128, 128, new ushort[16384], new byte[16384], new ushort[16384], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(128, 128), new ushort[16384], new byte[16384], new ushort[16384], new byte[8]);
         foreach (int hold in new[] { 0, 1, 63, 64, 127, 128, 191, 192 })
         foreach (bool keepDown in hold == 192 ? new[] { false, true } : new[] { false })
         {

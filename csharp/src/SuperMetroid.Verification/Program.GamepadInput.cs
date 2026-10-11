@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -24,8 +25,7 @@ static void VerifyGenericGamepadInput()
     AssertEqual(
         SnesButton.None,
         GenericGamepadInput.Map(new GenericGamepadSnapshot(
-            HorizontalAxis: 0,
-            VerticalAxis: 0,
+            Stick: new(0, 0),
             PointOfView: GenericGamepadInput.CenteredPointOfView,
             Buttons: 0)),
         "centered gamepad is neutral");
@@ -33,8 +33,7 @@ static void VerifyGenericGamepadInput()
     AssertEqual(
         SnesButton.Left | SnesButton.Down,
         GenericGamepadInput.Map(new GenericGamepadSnapshot(
-            HorizontalAxis: -20000,
-            VerticalAxis: 20000,
+            Stick: new(-20000, 20000),
             PointOfView: GenericGamepadInput.CenteredPointOfView,
             Buttons: 0)),
         "gamepad analogue axes cross the dead zone");
@@ -44,8 +43,7 @@ static void VerifyGenericGamepadInput()
     AssertEqual(
         SnesButton.Up | SnesButton.Right,
         GenericGamepadInput.Map(new GenericGamepadSnapshot(
-            HorizontalAxis: -20000,
-            VerticalAxis: 20000,
+            Stick: new(-20000, 20000),
             PointOfView: 4500,
             Buttons: 0)),
         "gamepad POV diagonal overrides analogue drift");
@@ -84,8 +82,7 @@ static void VerifyGenericGamepadInput()
     AssertEqual(
         SnesButton.Select | SnesButton.Start,
         GenericGamepadInput.Map(new GenericGamepadSnapshot(
-            HorizontalAxis: 0,
-            VerticalAxis: 0,
+            Stick: new(0, 0),
             PointOfView: GenericGamepadInput.CenteredPointOfView,
             Buttons: (1u << 8) | (1u << 9))),
         "ten-button generic pad Select and Start aliases");
@@ -104,8 +101,7 @@ static void VerifyGamepadButton(
         expected,
         GenericGamepadInput.Map(
             new GenericGamepadSnapshot(
-                HorizontalAxis: 0,
-                VerticalAxis: 0,
+                Stick: new(0, 0),
                 PointOfView: GenericGamepadInput.CenteredPointOfView,
                 Buttons: 1u << zeroBasedButtonIndex),
             faceButtonLayout: layout),

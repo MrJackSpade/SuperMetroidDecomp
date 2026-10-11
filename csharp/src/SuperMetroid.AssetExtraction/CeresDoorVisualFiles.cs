@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -21,9 +22,9 @@ public static class CeresDoorVisualFiles
         byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresDoorVisualRomData.TileSource, CeresDoorVisualRomData.TileByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
-            RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+            RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var image = new MemoryStream();
-        IndexedPng.Write(image, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(image, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] tilePng = image.ToArray();
         RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
             new MemoryStream(tilePng, writable: false), planar.Length);

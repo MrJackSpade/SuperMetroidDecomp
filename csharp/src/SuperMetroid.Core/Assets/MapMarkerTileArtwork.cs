@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Menu atlas9D/9E are transposed triangular arrow halves,9F is an
@@ -22,34 +24,34 @@ internal sealed class MapMarkerTileArtwork
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
-                byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
-                if (pixel != Basis(tile, x, y)) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+                byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
+                if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
             }
         }
     }
 
-    internal byte Pixel(int tile, int x, int y)
+    internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
-        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
+        if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
-    private static byte Basis(int tile, int x, int y)
+    private static byte Basis(int tile, Position16<CharacterPixels> point)
     {
         if (tile == 0xaf)
         {
             // Nested right angles: outer black, bright center, inner black.
-            int inset = Math.Min(x, y);
+            int inset = Math.Min(point.X, point.Y);
             return inset is 2 or 4 ? (byte)15 : inset == 3 ? (byte)14 : (byte)0;
         }
         if (tile == 0x9f)
         {
-            if (x == 0 || y == 0) return 15;
-            if (x == 1 || y == 1 || x == y || x == y - 1) return 10;
-            return x == 2 || y == 2 || x == y + 1 || x == y - 2 ? (byte)15 : (byte)0;
+            if (point.X == 0 || point.Y == 0) return 15;
+            if (point.X == 1 || point.Y == 1 || point.X == point.Y || point.X == point.Y - 1) return 10;
+            return point.X == 2 || point.Y == 2 || point.X == point.Y + 1 || point.X == point.Y - 2 ? (byte)15 : (byte)0;
         }
-        if (tile == 0x9d) (x, y) = (y, x);
-        if (x > y) return 0;
-        return x == 0 || x == y ? (byte)14 : (byte)11;
+        if (tile == 0x9d) point = new(point.Y, point.X);
+        if (point.X > point.Y) return 0;
+        return point.X == 0 || point.X == point.Y ? (byte)14 : (byte)11;
     }
 }

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -100,17 +101,16 @@ public sealed partial class FileSelectRoomMapGraphics
     }
 
     /// <summary>Draws the saved-station marker over the room map without advancing its animation.</summary>
-    /// <param name="horizontalScroll">BG1/map-icon horizontal scroll in whole pixels; the BG2 frame remains fixed.</param>
-    /// <param name="verticalScroll">BG1/map-icon vertical scroll in whole pixels; the BG2 frame remains fixed.</param>
+    /// <param name="scroll">BG1/map-icon scroll in whole pixels; the BG2 frame remains fixed.</param>
     /// <param name="marker">Required saved-station marker whose current animation state is read without stepping it.</param>
     /// <param name="animations">Optional current arrow-animation owner; drawing does not advance its state.</param>
     /// <returns>Owned 256-by-224 RGBA background buffer with icons composited in native OAM order; a subsequent background or combined render overwrites it.</returns>
-    public Rgba32[] Render(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker,
+    public Rgba32[] Render(Position16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations = null)
     {
         ArgumentNullException.ThrowIfNull(marker);
-        Rgba32[] pixels = RenderBackgrounds(horizontalScroll, verticalScroll);
-        OamBuffer oam = PrepareIcons(horizontalScroll, verticalScroll, marker, animations);
+        Rgba32[] pixels = RenderBackgrounds(scroll);
+        OamBuffer oam = PrepareIcons(scroll, marker, animations);
         Rgba32[] objects = objScratch ??= new Rgba32[256 * 224];
         SnesObjRenderer.Render(objects, oam, Vram, Cgram, obsel: 0x03);
         SnesLayerCompositor.Composite(pixels, objects);
@@ -123,24 +123,23 @@ public sealed partial class FileSelectRoomMapGraphics
     [NonSerialized] private Rgba32[]? frameOnlyBuffer;
     [NonSerialized] private Rgba32[]? backgroundsBuffer;
 
-    private OamBuffer PrepareIcons(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker,
+    private OamBuffer PrepareIcons(Position16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        icons.DrawBeforeMarker(oam, horizontalScroll, verticalScroll);
-        marker.Draw(oam, horizontalScroll, verticalScroll, sprites);
-        icons.DrawAfterMarker(oam, horizontalScroll, verticalScroll,
+        icons.DrawBeforeMarker(oam, scroll);
+        marker.Draw(oam, scroll, sprites);
+        icons.DrawAfterMarker(oam, scroll,
             animations is null ? null : () => animations.DrawArrows(oam, sprites));
         oam.FinalizeFrame();
         return oam;
     }
 
     /// <summary>Renders Mode-1 BG priorities with independent scrolling for map and fixed frame.</summary>
-    /// <param name="horizontalScroll">BG1 horizontal scroll-register value in pixels.</param>
-    /// <param name="verticalScroll">BG1 vertical scroll-register value in pixels.</param>
+    /// <param name="scroll">BG1 scroll-register value in pixels.</param>
     /// <returns>Owned 256-by-224 RGBA buffer, overwritten by the next background or combined render; within each low/high priority tier the fixed BG2 frame precedes BG1 map cells.</returns>
-    public Rgba32[] RenderBackgrounds(ushort horizontalScroll, ushort verticalScroll)
+    public Rgba32[] RenderBackgrounds(Position16<MapPixels> scroll)
     {
         Rgba32[] pixels = backgroundsBuffer ??= new Rgba32[256 * 224];
         Array.Fill(pixels, ppu.Cgram.GetRgba(0));
@@ -154,7 +153,7 @@ public sealed partial class FileSelectRoomMapGraphics
                 new Position16<BgPlanePixels>(0, 24), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32), priority: priority);
             SnesBgTilemapRenderer.Composite4BppViewport(pixels,
                 Vram, Cgram, MenuPpuState.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
-                new Position16<BgPlanePixels>(horizontalScroll, verticalScroll), SnesPpuLayout.ScreenSize, priority: priority);
+                scroll.AsBgPlaneScroll(), SnesPpuLayout.ScreenSize, priority: priority);
         }
         return pixels;
     }

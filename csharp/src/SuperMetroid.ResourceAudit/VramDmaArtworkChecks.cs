@@ -55,7 +55,7 @@ internal static class VramDmaArtworkChecks
     {
         using var png = new MemoryStream();
         var palette = Enumerable.Range(0, 16).Select(value => new Rgba32((byte)value, 0, 0, 255)).ToArray();
-        IndexedPng.Write(png, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height,
+        IndexedPng.Write(png, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height),
             Enumerable.Repeat(index, GrappleTileDefinitions.Width * GrappleTileDefinitions.Height).ToArray(), palette);
         png.Position = 0;
         return GrappleTileAtlas.Load(png);

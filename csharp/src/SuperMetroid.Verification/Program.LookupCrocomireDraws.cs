@@ -53,10 +53,10 @@ internal static partial class Program
                 sbyte nextX = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
                 sbyte nextY = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
                 AssertEqual(nextX, shape.NextX(run), "Crocomire native origin-relative X");
-                AssertEqual(nextX, dto.Runs.Span[run].NextX, "Crocomire DTO X");
-                AssertEqual(nextY, dto.Runs.Span[run].NextY, "Crocomire DTO Y");
-                AssertEqual(nextX, exported[index].Runs.Span[run].NextX, "Crocomire export X");
-                AssertEqual(nextY, exported[index].Runs.Span[run].NextY, "Crocomire export Y");
+                AssertEqual(nextX, dto.Runs.Span[run].Next.X, "Crocomire DTO X");
+                AssertEqual(nextY, dto.Runs.Span[run].Next.Y, "Crocomire DTO Y");
+                AssertEqual(nextX, exported[index].Runs.Span[run].Next.X, "Crocomire export X");
+                AssertEqual(nextY, exported[index].Runs.Span[run].Next.Y, "Crocomire export Y");
                 AssertEqual((sbyte)0, nextY, "Crocomire runtime column origin Y");
                 foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
                     AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(run, invalid), "Crocomire cell bounds");

@@ -77,7 +77,7 @@ internal static partial class Program
             extracted, MapPresentationFormat.JsonOptions)!;
         document = document with
         {
-            BabyAnchor = new(document.BabyAnchor.X + 8, document.BabyAnchor.Y),
+            BabyAnchor = new(checked((ushort)(document.BabyAnchor.X + 8)), document.BabyAnchor.Y),
             CursorX = document.CursorX + 8,
         };
         MapPresentationCell firstVisible = document.Tilemap.First(cell =>

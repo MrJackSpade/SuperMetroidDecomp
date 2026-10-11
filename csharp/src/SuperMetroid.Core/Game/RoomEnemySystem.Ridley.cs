@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Game;
 
@@ -864,9 +865,9 @@ public sealed partial class RoomEnemySystem
             RidleyTailSegment segment = state.TailSegments[index];
             ushort x = segment.XPosition;
             ushort y = unchecked((ushort)(segment.YPosition + (index == tipIndex ? 16 : 18)));
-            if ((x >> 4) >= level.WidthInBlocks || (y >> 4) >= level.HeightInBlocks)
+            if ((x >> 4) >= level.Size.X || (y >> 4) >= level.Size.Y)
                 continue;
-            if (level.GetCollisionBlockAtPixel(x, y).CollisionType != 0)
+            if (level.GetCollisionBlockAtPixel(new Position16<RoomPixels>(x, y)).CollisionType != 0)
                 return true;
         }
         return false;

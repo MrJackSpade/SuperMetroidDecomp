@@ -112,11 +112,10 @@ internal static partial class Program
                 IndexedPngImage image;
                 using (var input = File.OpenRead(stockPath))
                     image = IndexedPng.Read(input,
-                        mode7 ? CeresFlightArtworkFormat.Mode7Width : CeresFlightArtworkFormat.ObjectWidth,
-                        mode7 ? CeresFlightArtworkFormat.Mode7Height : CeresFlightArtworkFormat.ObjectHeight);
+                        new(checked((ushort)(mode7 ? CeresFlightArtworkFormat.Mode7Width : CeresFlightArtworkFormat.ObjectWidth)), checked((ushort)(mode7 ? CeresFlightArtworkFormat.Mode7Height : CeresFlightArtworkFormat.ObjectHeight))));
                 image.Pixels[0] = (byte)((image.Pixels[0] + 1) & (mode7 ? 255 : 15));
                 using var output = File.Create(overridePath);
-                IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             }
 
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
@@ -231,8 +230,8 @@ internal static partial class Program
             throw new InvalidOperationException("Stock Ceres rear-view actors did not spawn.");
         var editedActors = (IntroDiscoverySprite[]?)actorField.GetValue(changed) ??
             throw new InvalidOperationException("Edited Ceres rear-view actors did not spawn.");
-        AssertEqual(unchecked((ushort)(nativeActors[0].XPosition + 16)),
-            editedActors[0].XPosition,
+        AssertEqual(unchecked((ushort)(nativeActors[0].WholePosition.X + 16)),
+            editedActors[0].WholePosition.X,
             "editable layout moves the real rear-view asteroid actor by one tile");
         for (int frame = 0; frame < 20; frame++)
         {
@@ -344,11 +343,10 @@ internal static partial class Program
             IndexedPngImage image;
             using (var input = File.OpenRead(stockPath))
                 image = IndexedPng.Read(input,
-                    mode7 ? CeresFlightArtworkFormat.Mode7Width : CeresFlightArtworkFormat.ObjectWidth,
-                    mode7 ? CeresFlightArtworkFormat.Mode7Height : CeresFlightArtworkFormat.ObjectHeight);
+                    new(checked((ushort)(mode7 ? CeresFlightArtworkFormat.Mode7Width : CeresFlightArtworkFormat.ObjectWidth)), checked((ushort)(mode7 ? CeresFlightArtworkFormat.Mode7Height : CeresFlightArtworkFormat.ObjectHeight))));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
             var stockFlight = new IntroCeresFlightState(bus, new CartridgeAudioState(),
                 IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight);

@@ -24,8 +24,8 @@ internal static partial class Program
 
         var guard = new PauseEquipmentBaseReadGuard(bus);
         var native = new PauseMenuState(bus, Samus(), new Bank80SystemState(),
-            AreaId.Norfair, 0, 0, mapPresentation: original);
-        var installed = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, 0, 0,
+            AreaId.Norfair, new(0, 0), mapPresentation: original);
+        var installed = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, new(0, 0),
             mapPresentation: original);
         int toMap = PausePageTransitionNativeLength + 1;
         for (int frame = 0; frame < toMap + PausePageTransitionNativeLength + 2; frame++)
@@ -52,9 +52,9 @@ internal static partial class Program
         using (var output = File.Create(path)) PauseEquipmentBasePresentation.Write(output, document with { Cells = cells });
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "equipment base override changes content identity");
-        var stockPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, 0, 0,
+        var stockPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, new(0, 0),
             mapPresentation: original);
-        var editedPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, 0, 0,
+        var editedPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, new(0, 0),
             mapPresentation: edited);
         EnterEquipment(stockPause); EnterEquipment(editedPause);
         AssertTrue(!stockPause.Render().AsSpan().SequenceEqual(editedPause.Render()),

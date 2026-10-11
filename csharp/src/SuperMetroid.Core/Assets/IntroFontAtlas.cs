@@ -17,9 +17,9 @@ public sealed class IntroFontAtlas
     public static IntroFontAtlas Load(Stream png)
     {
         IndexedPngImage image = IndexedPng.Read(
-            png, IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height);
+            png, new(IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height));
         byte[] planar = SnesPlanarTileEncoder.Encode(
-            image.Pixels, image.Width, image.Height, IntroFontAtlasFormat.BitsPerPixel);
+            image.Pixels, image.Size, IntroFontAtlasFormat.BitsPerPixel);
         if (planar.Length != IntroFontAtlasFormat.ByteCount)
         {
             throw new InvalidDataException(

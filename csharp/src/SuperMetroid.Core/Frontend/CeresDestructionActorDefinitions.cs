@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed actor metadata and physical motion for Ceres destruction and Zebes reveal.</summary>
@@ -60,12 +62,12 @@ internal static class CeresDestructionActorDefinitions
         };
         return index switch
         {
-            0 => new(                flight.ActivePreInstruction, CeresDestructionSpriteInstructionDefinitions.LargeAsteroidStart, flight.X, flight.Y, flight.Attributes,
+            0 => new(                flight.ActivePreInstruction, CeresDestructionSpriteInstructionDefinitions.LargeAsteroidStart, flight.Position, flight.Attributes,
                 flight.HorizontalDelta, flight.WrapX, 0, 0, false),
-            1 => new(                flight.ActivePreInstruction, flight.InstructionList, flight.X, flight.Y,
+            1 => new(                flight.ActivePreInstruction, flight.InstructionList, flight.Position,
                 flight.Attributes, flight.HorizontalDelta, flight.WrapX, 0, 0, false),
             // Parameter zero makes BFA0 replace BFC6 with the BFD9 no-op and use X=$70.
-            2 => new(                StationaryVortexCallback, flight.InstructionList, 112, flight.Y, flight.Attributes,
+            2 => new(                StationaryVortexCallback, flight.InstructionList, flight.Position.WithX(112), flight.Attributes,
                 0, false, 0, 0, false),
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),
         };
@@ -98,14 +100,14 @@ internal static class CeresDestructionActorDefinitions
     /// C857 selects slide callback C85D, whose C862 operand accelerates by 64/256 pixels.</summary>
     private static CeresDestructionActorDefinition ZebesPlanet =>
         new(0xc84e, CeresDestructionSpriteInstructionDefinitions.PlanetStart,
-            136, 111, 0x0e00, 0, false, 64, 0xc85d, false);
+            new(136, 111), 0x0e00, 0, false, 64, 0xc85d, false);
 
     /// <summary>$8B:CEAF, CinematicSpriteObjectDefinitions_PlanetZebesText: initializer C992,
     /// no-op 93D9, list CCBB. Operands C993/C999/C99F center the title at (128,186), palette zero.
     /// Its program deletes before scene sliding, so it has no slide callback or acceleration.</summary>
     private static CeresDestructionActorDefinition ZebesTitle =>
         new(0x93d9, CeresDestructionSpriteInstructionDefinitions.TitleStart,
-            128, 186, 0, 0, false, 0, 0, false);
+            new(128, 186), 0, 0, false, 0, 0, false);
     /// <summary>$8B:C8F9, PreInstruction_CinematicSpriteObject_ZebesStars_2_3_4 waits for scene sliding.</summary>
     private const ushort StarWaitCallback = 0xc8f9;
     /// <summary>$8B:C8AA, PreInstruction_CinematicSpriteObject_ZebesStars5 waits for completion-owner sliding.</summary>
@@ -123,8 +125,7 @@ internal static class CeresDestructionActorDefinitions
         return new(
 wait,
             (ushort)(CeresDestructionSpriteInstructionDefinitions.StarSheetsStart + 8 * quadrant),
-            (ushort)(48 + 160 * (quadrant & 1)),
-            (ushort)(47 + 160 * (quadrant >> 1)),
+            new((ushort)(48 + 160 * (quadrant & 1)), (ushort)(47 + 160 * (quadrant >> 1))),
             0x0800, 0, false, 32,
             completesScene ? CompletionStarSlideCallback : StarSlideCallback,
             completesScene);
@@ -135,8 +136,7 @@ wait,
 internal readonly record struct CeresDestructionActorDefinition(
     ushort ActivePreInstruction,
     ushort InstructionList,
-    ushort X,
-    ushort Y,
+    Position16<ScreenPixels> Position,
     ushort Attributes,
     int HorizontalDelta,
     bool WrapX,

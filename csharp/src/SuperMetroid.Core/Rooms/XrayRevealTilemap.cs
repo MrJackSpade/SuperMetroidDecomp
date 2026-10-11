@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -11,7 +12,7 @@ public static class XrayRevealTilemap
     /// overlays are applied afterwards by their respective owners, as on the cartridge.
     /// </summary>
     public static ushort[] Build(RoomLevelData level, SnesVram vram,
-        ushort bg1HorizontalScroll, ushort bg1VerticalScroll, ushort layer1X, ushort layer1Y,
+        Position16<RoomPixels> bg1Scroll, Position16<RoomPixels> layer1Position,
         byte area, XrayRevealVisualCatalog? visuals = null)
     {
         ArgumentNullException.ThrowIfNull(level);
@@ -20,18 +21,18 @@ public static class XrayRevealTilemap
         for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
         for (int col = 0; col < XrayTilemapLayout.MetatileColumns; col++)
         {
-            int sourceX = ((bg1HorizontalScroll >> 4) + col) * 2;
-            int sourceY = ((bg1VerticalScroll >> 4) + row) * 2;
+            int sourceX = ((bg1Scroll.X >> 4) + col) * 2;
+            int sourceY = ((bg1Scroll.Y >> 4) + row) * 2;
             int destination = Destination(col, row);
             Write(destination, ReadBg1(sourceX, sourceY));
             Write(destination + 1, ReadBg1(sourceX + 1, sourceY));
             Write(destination + 32, ReadBg1(sourceX, sourceY + 1));
             Write(destination + 33, ReadBg1(sourceX + 1, sourceY + 1));
         }
-        int firstBlock = (byte)(layer1Y >> 4) * level.WidthInBlocks + (layer1X >> 4);
+        int firstBlock = (byte)(layer1Position.Y >> 4) * level.Size.X + (layer1Position.X >> 4);
         for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
         {
-            int first = firstBlock + row * level.WidthInBlocks;
+            int first = firstBlock + row * level.Size.X;
             // The prior column may own a 2-wide reveal crossing the left edge. Its
             // right half is copied before this row's own commands overwrite it.
             if (first != 0 && Lookup(first - 1) is { } predecessor)

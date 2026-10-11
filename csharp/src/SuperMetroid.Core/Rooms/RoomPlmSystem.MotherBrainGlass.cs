@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -35,11 +36,11 @@ public sealed partial class RoomPlmSystem
     {
         int physicalSlot = Array.IndexOf(_slots, slot);
         if (record.RecordIndex != 0 || physicalSlot != _slots.Length - 1 ||
-            record.BlockX != 9 || record.BlockY != 5 || record.RoomArgument != 0x8000)
+            record.Block != new Position16<RoomBlocks>(9, 5) || record.RoomArgument != 0x8000)
         {
             throw new InvalidDataException(
                 $"Mother Brain glass population diverged: record={record.RecordIndex}, " +
-                $"slot={physicalSlot}, block=({record.BlockX},{record.BlockY}), " +
+                $"slot={physicalSlot}, block=({record.Block.X},{record.Block.Y}), " +
                 $"argument=${record.RoomArgument:X4}.");
         }
 
@@ -52,7 +53,7 @@ public sealed partial class RoomPlmSystem
         streamer.SetLevelEntry(slot.BlockIndex, glassLevelWord);
 
         _motherBrainGlassSlotIndex = physicalSlot;
-        _motherBrainGlassRoomWidth = level.WidthInBlocks;
+        _motherBrainGlassRoomWidth = level.Size.X;
         _motherBrainGlassWasLoaded = true;
         _motherBrainGlassLastRoomArgument = 0;
     }
@@ -162,8 +163,9 @@ public sealed partial class RoomPlmSystem
 
             case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
                 _soundRequests.Add(CreateSoundRequest(RoomPlmSounds.MotherBrainGlassShattering, MaximumQueued: 15));
-                byte blockX = checked((byte)(slot.BlockIndex % _motherBrainGlassRoomWidth));
-                byte blockY = checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth));
+                // The native fragment spawn carries both block coordinates as bytes.
+                Position16<RoomBlocks> glassBlock = new(checked((byte)(slot.BlockIndex % _motherBrainGlassRoomWidth)),
+                    checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth)));
                 for (int shard = 0; shard < 4; shard++)
                 {
                     ushort parameter = ReadProgramWord(
@@ -172,8 +174,7 @@ public sealed partial class RoomPlmSystem
                     _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
                         MotherBrainGlassShardDefinition,
                         parameter,
-                        blockX,
-                        blockY));
+                        glassBlock));
                 }
                 slot.InstructionPointer = unchecked((ushort)(cursor + 10));
                 return true;
@@ -242,5 +243,4 @@ public sealed partial class RoomPlmSystem
 public readonly record struct MotherBrainGlassProjectileRequest(
     ushort DefinitionPointer,
     ushort Parameter,
-    byte PlmBlockX,
-    byte PlmBlockY);
+    Position16<RoomBlocks> PlmBlock);

@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -22,6 +23,7 @@ internal sealed record NativeDoorManifest(string Revision, string RomSha256,
 /// orientation; decoding happens only when the audit compares against compiled data.
 /// Byte 2 is not recorded: no gameplay reads it (#1273).
 /// </summary>
+[SpatialComponents("External format: native-door-catalog.json stores the PLM block and destination screen as x/y byte pairs.")]
 internal sealed record NativeDoorHeader(ushort Pointer, ushort DestinationRoomPointer,
     byte Orientation, byte PlmX, byte PlmY, byte DestinationScreenX, byte DestinationScreenY,
     ushort SamusDistance, ushort SetupCodePointer)
@@ -39,8 +41,8 @@ internal sealed record NativeDoorHeader(ushort Pointer, ushort DestinationRoomPo
 
     /// <summary>The compiled header these bytes decode to; pseudo-doors have none.</summary>
     internal CartridgeDoorHeader Decode() =>
-        new(Pointer, DestinationRoomPointer, CartridgeDoorOrientation.Decode(Orientation), PlmX, PlmY,
-            DestinationScreenX, DestinationScreenY, SamusDistance,
+        new(Pointer, DestinationRoomPointer, CartridgeDoorOrientation.Decode(Orientation), new Position16<RoomBlocks>(PlmX, PlmY),
+            new Position16<RoomScreens>(DestinationScreenX, DestinationScreenY), SamusDistance,
             ClosedNativeWords.Decode<DoorSetupCode>(SetupCodePointer, "door setup routine"));
 }
 

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -1156,8 +1157,7 @@ public sealed partial class IntroCinematicState
         // block-definition data are irrelevant to bank-$94 collision in this visual room;
         // their arrays exist only to satisfy the shared RoomLevelData ownership contract.
         return new RoomLevelData(
-            width,
-            height,
+            new Extent16<RoomBlocks>(width, height),
             foreground,
             new byte[width * height],
             new ushort[width * height],
@@ -1214,8 +1214,7 @@ public sealed partial class IntroCinematicState
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro Mother Brain sprites require installed character artwork.")).MotherBrainSprites.Draw(
                 flashbackMotherBrain.SpriteMapPointer, oam,
-                IntroMotherBrainSpriteState.XPosition,
-                IntroMotherBrainSpriteState.YPosition,
+                IntroMotherBrainSpriteState.Position.ToOam(),
                 IntroMotherBrainSpriteState.PaletteBits);
         }
         oam.FinalizeFrame();
@@ -1302,7 +1301,7 @@ public sealed partial class IntroCinematicState
             tilemapBaseWord: scientistCutscene?.TilemapBaseWord ??
                 IntroCinematicRomData.Layers.ScientistTilemapWord,
             characterBaseWord: 0,
-            scroll: new Position16<BgPlanePixels>(scientistCutscene?.BackgroundX ?? 0, scientistCutscene?.BackgroundY ?? 0),
+            scroll: scientistCutscene?.Background.AsBgPlaneScroll() ?? default,
             size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
             tilemapSize: new Extent16<TilemapCells>(32, 32),
             priority: priority);
@@ -1385,7 +1384,7 @@ public sealed partial class IntroCinematicState
             // the OBJ character base, matching the initial $9A:D200 -> VMADD $6000 DMA.
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro caret sprites require installed character artwork.")).CaretSprites.Draw(
-                objects.SpriteMapPointer, oam, objects.CaretX, objects.CaretY,
+                objects.SpriteMapPointer, oam, objects.Caret.ToOam(),
                 IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }
         oam.FinalizeFrame();

@@ -36,7 +36,7 @@ internal static partial class Program
             runtime.Hud.QueueUpload(bus, runtime.VramWrites);
             runtime.RunNmi(0, true);
             var pause = CreateRetailPauseFixture(bus, samus, runtime.System, AreaId.Crateria,
-                28, 1, gameplayVram: runtime.Vram);
+                new(28, 1), gameplayVram: runtime.Vram);
             var nativeVram = new SnesVram();
             nativeVram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(cart, 0x9ab200, 0x2000));
             nativeVram.LoadBytes(0xb000, runtime.Vram.Bytes.Slice(0xb000, 0x100));
@@ -64,7 +64,7 @@ internal static partial class Program
                 }
                 AssertTrue(opaque > 0, "current location test examines opaque native pixels");
                 if (frame == 0)
-                    PngWriterTooling.WriteRgba($"csharp/test-temp/issue-1253-hud/phase-{phase}.png", 256, 224, actual);
+                    PngWriterTooling.WriteRgba($"csharp/test-temp/issue-1253-hud/phase-{phase}.png", new Extent16<ScreenPixels>(256, 224), actual);
             }
             Console.WriteLine($"Pause HUD location: phase {phase}, tile ${center:X4}, native pixels retained through 24 paused HUD/NMI updates.");
         }

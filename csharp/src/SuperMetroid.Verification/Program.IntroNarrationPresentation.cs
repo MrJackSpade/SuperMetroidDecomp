@@ -97,7 +97,7 @@ internal static partial class Program
             "restored opening narration fails loudly until host content is rebound");
         restored.BindNarration(presentation);
         restored.Step(0);
-        AssertEqual((ushort)16, restored.CaretX,
+        AssertEqual((ushort)16, restored.Caret.X,
             "restored opening narration resumes at its saved character");
 
         editedDocument["pages"]![IntroNarrationPageId.Page6.ToString()]!["lines"]![0]!["text"] =
@@ -110,10 +110,10 @@ internal static partial class Program
 
         IndexedPngImage editableFont = IndexedPng.Read(
             new MemoryStream(fontPng, writable: false),
-            IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height);
+            new(IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height));
         editableFont.Pixels[0] ^= 1;
         using var editedFontPng = new MemoryStream();
-        IndexedPng.Write(editedFontPng, editableFont.Width, editableFont.Height,
+        IndexedPng.Write(editedFontPng, new(editableFont.Size.X, editableFont.Size.Y),
             editableFont.Pixels, editableFont.Palette);
         editedFontPng.Position = 0;
         IntroFontAtlas editedFont = IntroFontAtlas.Load(editedFontPng);
@@ -210,12 +210,12 @@ internal static partial class Program
             "installed opening font is the deterministic cartridge extraction");
         IndexedPngImage image = IndexedPng.Read(
             new MemoryStream(deterministic, writable: false),
-            IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height);
+            new(IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height));
         image.Pixels[0] ^= 1;
         Directory.CreateDirectory(overrideDirectory);
         string replacement = Path.Combine(overrideDirectory, IntroFontAtlasFormat.FileName);
         using (var output = File.Create(replacement))
-            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(!edited.IntroFont.Transfer.Span.SequenceEqual(

@@ -3,14 +3,15 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
     private static void VerifyGrappleSounds()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var air = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], new byte[8]);
-        var anchors = new RoomLevelData(16, 16,
+        var air = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new ushort[256], new byte[256], new ushort[256], new byte[8]);
+        var anchors = new RoomLevelData(new Extent16<RoomBlocks>(16, 16),
             Enumerable.Repeat((ushort)((int)RoomCollisionType.GrappleBlock << 12), 256).ToArray(),
             new byte[256], new ushort[256], new byte[8]);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128 };

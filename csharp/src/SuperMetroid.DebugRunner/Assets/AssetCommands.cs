@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Spatial;
 
 internal static class AssetCommands
 {
@@ -83,8 +84,8 @@ if (args.Length == 3 && args[0].Equals("room", StringComparison.OrdinalIgnoreCas
     string outputPath = ResolveWorkspacePath(args[2], mustAlreadyExist: false);
     RequireRawAssetDirectory(rawDirectory);
     RenderedRoom room = RoomRenderer.Render(rawDirectory, RoomRenderer.LandingSite);
-    PngWriterTooling.WriteRgba(outputPath, room.Width, room.Height, room.Pixels);
-    Console.WriteLine($"Rendered {RoomRenderer.LandingSite.Name} at {room.Width}x{room.Height} to {outputPath}");
+    PngWriterTooling.WriteRgba(outputPath, room.Size, room.Pixels);
+    Console.WriteLine($"Rendered {RoomRenderer.LandingSite.Name} at {room.Size.X}x{room.Size.Y} to {outputPath}");
     return 0;
 }
 
@@ -133,28 +134,29 @@ foreach (string path in Directory.EnumerateFiles(inputDirectory, "*.bin", Search
         int height = (colors.Count + width - 1) / width;
         Array.Resize(ref indexes, width * height);
         png = Path.Combine("palettes", name + ".png");
-        PngWriterTooling.WriteIndexedAsRgba(Path.Combine(outputDirectory, png), width, height, indexes, colors, scale: 8);
+        PngWriterTooling.WriteIndexedAsRgba(Path.Combine(outputDirectory, png), new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)height)), indexes, colors, scale: 8);
     }
     else if (format is not null)
     {
         // A raw graphics blob has no single "correct" color until a tilemap or spritemap
         // selects a sub-palette. These standalone sheets therefore visualize pixel indexes.
         byte[] indexes;
-        int width, height, colorCount;
+        Extent16<ImagePixels> size;
+        int colorCount;
         if (format == TileFormat.Mode7)
         {
-            indexes = SnesGraphics.DecodeMode7Tiles(decoded, 16, out width, out height);
+            indexes = SnesGraphics.DecodeMode7Tiles(decoded, 16, out size);
             colorCount = 256;
         }
         else
         {
             int bits = format == TileFormat.Planar2Bpp ? 2 : 4;
-            indexes = SnesGraphics.DecodePlanarTiles(decoded, bits, 16, out width, out height);
+            indexes = SnesGraphics.DecodePlanarTiles(decoded, bits, 16, out size);
             colorCount = 1 << bits;
         }
         png = Path.Combine("tiles", name + ".png");
         PngWriterTooling.WriteIndexedAsRgba(
-            Path.Combine(outputDirectory, png), width, height, indexes,
+            Path.Combine(outputDirectory, png), size, indexes,
             SnesGraphics.DiagnosticPalette(colorCount));
     }
 

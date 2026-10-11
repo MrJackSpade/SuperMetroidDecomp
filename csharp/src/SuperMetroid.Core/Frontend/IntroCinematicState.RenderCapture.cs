@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -32,7 +33,7 @@ public sealed partial class IntroCinematicState
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             oam = PrepareScientistOam();
-            room = Plane(scientistCutscene!.TilemapBaseWord, new(scientistCutscene.BackgroundX, scientistCutscene.BackgroundY));
+            room = Plane(scientistCutscene!.TilemapBaseWord, scientistCutscene.Background.AsBgPlaneScroll());
         }
         else if (objects is null)
         {

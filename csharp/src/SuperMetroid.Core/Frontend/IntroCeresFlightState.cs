@@ -3,6 +3,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -25,10 +26,7 @@ internal sealed class IntroCeresFlightState
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
 
-    private ushort backgroundX = 0xffb8;
-    private ushort backgroundXSubPosition;
-    private ushort backgroundY = 0xff98;
-    private ushort backgroundYSubPosition;
+    private FixedPosition<Mode7Pixels> background = new(new(0xffb8, 0), new(0xff98, 0));
     private ushort zoom = 0x0200;
     private SnesAngle angle = SnesAngle.FromTableIndex(0xe0);
     private byte brightness;
@@ -208,7 +206,7 @@ internal sealed class IntroCeresFlightState
                 matrixC,
                 matrixD,
                 center: new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
-                scroll: new Offset16<Mode7Pixels>(unchecked((short)backgroundX), unchecked((short)backgroundY)));
+                scroll: background.Whole.AsSignedRegister());
             CompositeObjPriority(pixels, oam, 1);
             CompositeObjPriority(pixels, oam, 2);
             CompositeObjPriority(pixels, oam, 3);
@@ -251,7 +249,7 @@ internal sealed class IntroCeresFlightState
             var (a, b, c, d) = CalculateMatrix();
             layers.Add(new Mode7RenderLayer(new(a, b, c, d,
                 new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
-                new Offset16<Mode7Pixels>(unchecked((short)backgroundX), unchecked((short)backgroundY)))));
+                background.Whole.AsSignedRegister())));
             layers.Add(new ObjPriorityRenderLayer(1));
         }
         layers.Add(new ObjPriorityRenderLayer(2));
@@ -282,10 +280,7 @@ internal sealed class IntroCeresFlightState
         // the surrounding tile-$8C star field remain resident.
         vram.LoadMode7MapBytes(tilemap.AsSpan(CeresFlightRomData.Vram.Mode7MapSliceByteCount,
             CeresFlightRomData.Vram.Mode7MapSliceByteCount));
-        backgroundX = 0xffe0;
-        backgroundXSubPosition = 0;
-        backgroundY = 0xff80;
-        backgroundYSubPosition = 0;
+        background = new(new(0xffe0, 0), new(0xff80, 0));
         angle = SnesAngle.FromTableIndex(0x20);
 
         // These five slots are the exact $BE3B-$BE5C spawn order. Their visual lists
@@ -299,11 +294,7 @@ internal sealed class IntroCeresFlightState
                 if (actorLayout is { } layout)
                 {
                     CeresFlightActorPlacement placement = layout[index];
-                    definition = definition with
-                    {
-                        X = checked((ushort)placement.X),
-                        Y = checked((ushort)placement.Y),
-                    };
+                    definition = definition with { Position = placement.Position };
                 }
                 return CreateActor(definition);
             })
@@ -320,8 +311,7 @@ internal sealed class IntroCeresFlightState
     private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(
-            definition.X,
-            definition.Y,
+            definition.Position,
             definition.Attributes,
             definition.InstructionList)
         {
@@ -341,7 +331,7 @@ internal sealed class IntroCeresFlightState
 
         // $BFDA drifts BG1 left by 0.2000 and grows the rear-of-gunship Mode 7 image in
         // two native bands: +$10 until $0C00, then +$20 until $2000.
-        AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition, unchecked((int)0xffff_e000));
+        background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, unchecked((int)0xffff_e000)));
         if (zoom < 0x0c00)
             zoom = unchecked((ushort)(zoom + 0x0010));
         else if (zoom < 0x2000)
@@ -480,27 +470,13 @@ internal sealed class IntroCeresFlightState
 
     private static void AddWrappedX(IntroDiscoverySprite actor, ushort fractionalDelta)
     {
-        ushort whole = actor.XPosition;
-        ushort sub = actor.XSubPosition;
-        IntroCinematicMotion.AddSixteenSixteen(ref whole, ref sub, 0, fractionalDelta);
-        actor.XPosition = (ushort)(whole & 0x01ff);
-        actor.XSubPosition = sub;
+        SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
+        actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole & 0x01ff)));
     }
 
     private static void AddSignedX(IntroDiscoverySprite actor, int fixedDelta)
     {
-        ushort whole = actor.XPosition;
-        ushort sub = actor.XSubPosition;
-        AddSignedSixteenSixteen(ref whole, ref sub, fixedDelta);
-        actor.XPosition = whole;
-        actor.XSubPosition = sub;
-    }
-
-    private static void AddSignedSixteenSixteen(ref ushort whole, ref ushort sub, int fixedDelta)
-    {
-        ushort deltaSub = unchecked((ushort)fixedDelta);
-        ushort deltaWhole = unchecked((ushort)(fixedDelta >> 16));
-        IntroCinematicMotion.AddSixteenSixteen(ref whole, ref sub, deltaWhole, deltaSub);
+        actor.Position = actor.Position.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(actor.Position.X, fixedDelta));
     }
 
     private void ApplyRearViewFixedColorMath(Span<Rgba32> pixels)
@@ -537,19 +513,13 @@ internal sealed class IntroCeresFlightState
         }
         stars.GeneralTimer = unchecked((ushort)(stars.GeneralTimer +
             CeresFlightActorDefinitions.FrontStarAcceleration));
-        ushort velocity = stars.GeneralTimer;
-        ushort starX = stars.XPosition;
-        ushort starXSub = stars.XSubPosition;
-        ushort starY = stars.YPosition;
-        ushort starYSub = stars.YSubPosition;
-        IntroCinematicMotion.AddEightEight(ref starX, ref starXSub, velocity);
-        IntroCinematicMotion.AddEightEight(ref starY, ref starYSub, velocity);
-        stars.XPosition = starX;
-        stars.XSubPosition = starXSub;
-        stars.YPosition = starY;
-        stars.YSubPosition = starYSub;
-        IntroCinematicMotion.AddEightEight(ref backgroundX, ref backgroundXSubPosition, velocity);
-        IntroCinematicMotion.AddEightEight(ref backgroundY, ref backgroundYSubPosition, velocity);
+        var velocity = new SnesSignedEightEight(stars.GeneralTimer);
+        stars.Position = new(
+            IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),
+            IntroCinematicMotion.AddEightEight(stars.Position.Y, velocity));
+        background = new(
+            IntroCinematicMotion.AddEightEight(background.X, velocity),
+            IntroCinematicMotion.AddEightEight(background.Y, velocity));
     }
 
     private (short A, short B, short C, short D) CalculateMatrix()

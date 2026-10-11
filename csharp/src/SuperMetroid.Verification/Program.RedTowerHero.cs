@@ -38,7 +38,7 @@ internal static partial class Program
             }
             runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 450));
             for (int frame = 0; frame < 120; frame++) runtime.StepFrame((ushort)SnesButton.Up);
-            AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlock(7, 10).CollisionType,
+            AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlock(new(7, 10)).CollisionType,
                 "Red Tower top target is still intact before firing");
             AssertEqual(587, samus.YPosition, "Retail platform supports the launch position");
             int impact = -1, deleted = -1;
@@ -70,7 +70,7 @@ internal static partial class Program
             }
             AssertEqual(99, samus.Health, "Enemy damage does not interrupt either controlled branch");
             AssertEqual(followShot ? RoomCollisionType.Air : RoomCollisionType.ShootableBlock,
-                level.GetCollisionBlock(7, 10).CollisionType,
+                level.GetCollisionBlock(new(7, 10)).CollisionType,
                 "Only the camera-retained shot actually clears the retail shootable block");
             if (followShot) AssertEqual(64, impact, "Retail target breaks on the captured impact frame");
             else

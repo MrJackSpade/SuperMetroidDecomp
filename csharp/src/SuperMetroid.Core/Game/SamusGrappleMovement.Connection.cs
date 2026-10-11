@@ -52,7 +52,7 @@ public static partial class SamusGrappleMovement
         int blockX = endpointX >> 4;
         int blockY = endpointY >> 4;
         RoomCollisionBlock initialBlock =
-            level.GetCollisionBlockOrPrefilledSolid(blockX, blockY);
+            level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
         if (initialBlock.Index < 0)
         {
             // The prefilled `$8000` word dispatches as an ordinary solid endpoint: carry
@@ -65,8 +65,8 @@ public static partial class SamusGrappleMovement
         {
             RoomCollisionBlock block =
                 level.GetCollisionBlockByIndexOrPrefilledSolid(index);
-            int resolvedX = block.Index < 0 ? -1 : block.Index % level.WidthInBlocks;
-            int resolvedY = block.Index < 0 ? -1 : block.Index / level.WidthInBlocks;
+            int resolvedX = block.Index < 0 ? -1 : block.Index % level.Size.X;
+            int resolvedY = block.Index < 0 ? -1 : block.Index / level.Size.X;
             switch (block.CollisionType)
             {
                 // These four dispatcher entries return clear carry: the beam remains live.
@@ -114,7 +114,7 @@ public static partial class SamusGrappleMovement
                     // Vertical extension uses the same signed BTS but scales by room width.
                     if (block.Bts == RoomBlockBehaviorValues.None)
                         return new GrappleBlockReaction(Carry: false, Overflow: false);
-                    index += block.Bts.ExtensionOffset * level.WidthInBlocks;
+                    index += block.Bts.ExtensionOffset * level.Size.X;
                     continue;
 
                 case RoomCollisionType.GrappleBlock:

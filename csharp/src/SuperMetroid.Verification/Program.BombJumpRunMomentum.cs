@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -15,7 +16,7 @@ internal static partial class Program
         var floorBlocks = new ushort[width * height];
         for (int x = 0; x < width; x++)
             floorBlocks[4 * width + x] = 0x8000;
-        var floor = new RoomLevelData(width, height, floorBlocks, new byte[floorBlocks.Length],
+        var floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), floorBlocks, new byte[floorBlocks.Length],
             new ushort[floorBlocks.Length], new byte[8]);
 
         var samus = new SamusState { Pose = SamusPoseId.MovingLeftNormalPose, XPosition = 48, YPosition = 43 };

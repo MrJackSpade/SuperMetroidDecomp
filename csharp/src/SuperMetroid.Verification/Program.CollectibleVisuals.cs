@@ -49,7 +49,7 @@ internal static partial class Program
             fixture.Streamer.SetBlockDefinitionWord(0x04a * 4, 0x0123);
             fixture.Streamer.SetBlockDefinitionWord(0x053 * 4, 0x0456);
             fixture.Plms.Step(new CollectibleDrawReadGuard(bus),
-                fixture.Level, fixture.Streamer, 0, 0, 0);
+                fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertTrue(fixture.Plms.TilemapUpdates.Count > 0,
                 "collectible frame publishes an immediate BG1 redraw");
             var result = (fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
@@ -58,7 +58,7 @@ internal static partial class Program
             AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 "edited item art leaves the native touch trigger active");
             fixture.Plms.Step(new CollectibleDrawReadGuard(bus),
-                fixture.Level, fixture.Streamer, 0, 0, 0);
+                fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertEqual(199, fixture.Samus.MaxHealth,
                 "edited energy-tank art leaves the pickup reward unchanged");
             AssertTrue(fixture.System.HasCollectedItemBit(0),
@@ -88,7 +88,7 @@ internal static partial class Program
                 checked((ushort)kind), precollected: false);
             fixture.Plms.CollectibleVisuals = stock;
             fixture.Plms.Step(new CollectibleDrawReadGuard(bus),
-                fixture.Level, fixture.Streamer, 0, 0, 0);
+                fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertEqual(1, fixture.Plms.Collectibles.Count,
                 $"item kind {kind} still owns its live pickup after ROM-free drawing");
         }
@@ -103,7 +103,7 @@ internal static partial class Program
                         fixture.BlockIndex, 0x0500),
                     "shot-block collectible accepts its native trigger");
             fixture.Plms.Step(new CollectibleDrawReadGuard(bus),
-                fixture.Level, fixture.Streamer, 0, 0, 0);
+                fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertEqual(1, fixture.Plms.Collectibles.Count,
                 $"collectible presentation ${header:X4} survives ROM-free drawing");
         }

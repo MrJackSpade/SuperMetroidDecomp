@@ -50,7 +50,7 @@ internal static partial class Program
         // these from the pristine room header would no longer represent this movie frame.
         RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load room collision data.");
-        for (int index = 0; index < level.WidthInBlocks * level.HeightInBlocks; index++)
+        for (int index = 0; index < level.Size.X * level.Size.Y; index++)
         {
             level.SetForegroundEntry(index, W(NativeSnapshotMemory.Level + index * sizeof(ushort)));
             level.SetBehavior(index, memory[NativeSnapshotMemory.Bts + index]);

@@ -85,7 +85,7 @@ internal static partial class Program
         samus.XPosition = 0x4a * 16 + 8;
         samus.YPosition = (ushort)(0x17 * 16 - samus.Kinematics.YRadius);
         var level = runtime.LevelData!;
-        var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(0x4a, 0x17));
+        var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(0x4a, 0x17)));
         AssertEqual(ChozoStatuePlmRomData.WreckedShipHandBts.Value, block.Bts.Value,
             "fixture uses the retail statue hand block");
         var expectedExplosion = new SamusPowerBombExplosionState

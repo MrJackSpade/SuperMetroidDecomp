@@ -14,7 +14,7 @@ internal static partial class Program
         {
             var navigationSamus = new SamusState { CollectedItems = ushort.MaxValue, CollectedBeams = 0x100f,
                 EquippedBeams = 4, EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots };
-            var navigation = CreateRetailPauseFixture(bus, navigationSamus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+            var navigation = CreateRetailPauseFixture(bus, navigationSamus, new Bank80SystemState(), AreaId.Crateria, new(0, 0));
             EnterPauseEquipment(navigation);
             SelectPauseBoots(navigation);
             for (int step = 0; step < boot; step++) navigation.Step(0, (ushort)SnesButton.Down);
@@ -28,7 +28,7 @@ internal static partial class Program
         // before the tested press; this isolates the Boots-handler Left+A ordering.
         var samus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300,
             CollectedBeams = 0x100f, EquippedBeams = 4 };
-        var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+        var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0));
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         AssertEqual(0, pause.SelectedItem, "fixture starts on Hi-Jump Boots");
@@ -75,7 +75,7 @@ internal static partial class Program
                     Console.WriteLine($"tile mismatch {offset:X4}: expected {Convert.ToHexString(expectedVram.AsSpan(offset, 2))}, actual {Convert.ToHexString(after.Memory.Vram.Slice(offset, 2))}");
         AssertTrue(expectedPixels.AsSpan().SequenceEqual(actualPixels), $"native rendered VAR/adjacent-frame label, scenario {scenario}");
         Directory.CreateDirectory("csharp/test-temp/issue-395-inventory");
-        SuperMetroid.Core.Assets.PngWriterTooling.WriteRgba($"csharp/test-temp/issue-395-inventory/scenario-{scenario}.png", 256, 224, actualPixels);
+        SuperMetroid.Core.Assets.PngWriterTooling.WriteRgba($"csharp/test-temp/issue-395-inventory/scenario-{scenario}.png", new Extent16<ScreenPixels>(256, 224), actualPixels);
         }
         Console.WriteLine("Inventory beam glitch: simultaneous/adjacent/left-only inputs match retail bits, tile footprint and rendered labels.");
     }

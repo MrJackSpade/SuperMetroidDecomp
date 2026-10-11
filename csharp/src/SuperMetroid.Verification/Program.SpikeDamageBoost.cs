@@ -15,10 +15,10 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(runtime.ActiveRoom!.Pointer, new Position16<RoomPixels>(0, 0));
         var level = runtime.LevelData!;
         for (int y = 0; y <= 16; y++)
-        for (int x = 0; x < level.WidthInBlocks; x++)
-            level.SetForegroundEntry(y * level.WidthInBlocks + x,
+        for (int x = 0; x < level.Size.X; x++)
+            level.SetForegroundEntry(y * level.Size.X + x,
                 y is 0 or 16 || x is 0 or 15 ? (ushort)0x8000 : (ushort)0);
-        int hazardBlock = 10 * level.WidthInBlocks + 8;
+        int hazardBlock = 10 * level.Size.X + 8;
         level.SetForegroundEntry(hazardBlock, 0x2000);
         level.SetBehavior(hazardBlock, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
         runtime.InitializeDebugGroundedSamus(128, 160, 16);

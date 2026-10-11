@@ -27,8 +27,8 @@ internal static partial class Program
         // a delayed first instruction independently of its repeat-count timer.
         foreach (ushort delay in new ushort[] { 1, 16 })
         {
-            var native = new IntroDiscoverySprite(0, 0, 0, start);
-            var compiled = new IntroDiscoverySprite(0, 0, 0, start);
+            var native = new IntroDiscoverySprite(new(0, 0), 0, start);
+            var compiled = new IntroDiscoverySprite(new(0, 0), 0, start);
             native.DelayFirstInstruction(delay);
             compiled.DelayFirstInstruction(delay);
             for (int frame = 0; frame < 256; frame++)

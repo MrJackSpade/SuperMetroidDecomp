@@ -49,9 +49,9 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
     public static SamusDeathTileAtlas Load(Stream png)
     {
         IndexedPngImage image = IndexedPng.Read(png,
-            SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height);
+            new(SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height));
         return new SamusDeathTileAtlas(SnesPlanarTileEncoder.Encode(image.Pixels,
-            image.Width, image.Height, SamusDeathTileAtlasFormat.BitsPerPixel));
+            image.Size, SamusDeathTileAtlasFormat.BitsPerPixel));
     }
 
     /// <summary>Finds one native $400-byte transfer without changing its queued destination.</summary>

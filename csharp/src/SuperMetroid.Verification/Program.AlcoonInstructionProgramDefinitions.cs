@@ -165,7 +165,7 @@ internal static partial class Program
              (installedArt is not null || selectedPresentationOperands.Count < 42 ||
               !sawLeftFireball || !sawRightFireball); frame++)
         {
-            int maximumX = Math.Max(0, room.WidthInScreens * 256 - 256);
+            int maximumX = Math.Max(0, room.Size.X * 256 - 256);
             ushort cameraX = unchecked((ushort)Math.Clamp(actor.XPosition - 128, 0, maximumX));
             enemies.StepFrame(cameraX, 0, false, samus, level: assets.LevelData);
             foreach (RoomEnemySlot slot in enemies.Slots)

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -73,7 +74,7 @@ internal static partial class Program
             byte[] blockDefinitions = new byte[0x400 * 8];
             blockDefinitions[originalVisual * 8] = 0x04;
             blockDefinitions[0x53 * 8] = 0x53;
-            var level = new RoomLevelData(width, width,
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], blockDefinitions);
             var plms = new RoomPlmSystem
@@ -93,7 +94,7 @@ internal static partial class Program
             ushort firstDraw = ReadWord(rom, 0x840000 | (initial + 14));
             AssertTrue(ColoredDoorPlmDrawDefinitions.TryGet(firstDraw, out var selected),
                 $"resident colored-door header ${(int)header:X4} selects compiled art");
-            plms.Step(guarded, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, new(0, 0), 0);
             bool vertical = (selected.Runs.Span[0].DirectionAndCount & 0x8000) != 0;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
@@ -115,17 +116,15 @@ internal static partial class Program
                 Pointer: 0,
                 DestinationRoomPointer: 0,
                 Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
-                PlmX: 4,
-                PlmY: 4,
-                DestinationScreenX: 0,
-                DestinationScreenY: 0,
+                PlmBlock: new(4, 4),
+                DestinationScreen: new(0, 0),
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
             AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor, system),
                 $"resident colored door ${(int)header:X4} selects its native closing list");
             for (int frame = 0; frame < 20 &&
                  plms.ColoredDoors.Single().Phase == ColoredDoorPhase.Closing; frame++)
-                plms.Step(guarded, level, streamer, 0, 0, 0);
+                plms.Step(guarded, level, streamer, new(0, 0), 0);
             AssertEqual(ColoredDoorPhase.Waiting, plms.ColoredDoors.Single().Phase,
                 $"resident colored door ${(int)header:X4} finishes closing and resumes its owner");
 
@@ -142,12 +141,12 @@ internal static partial class Program
             {
                 AssertTrue(plms.TryNotifyColoredDoorHit(origin, accepted),
                     $"resident colored door ${(int)header:X4} accepts hit {hit + 1}");
-                plms.Step(guarded, level, streamer, 0, 0, 0);
+                plms.Step(guarded, level, streamer, new(0, 0), 0);
             }
             AssertEqual(ColoredDoorPhase.Opening, plms.ColoredDoors.Single().Phase,
                 $"resident colored door ${(int)header:X4} reaches opening threshold");
             for (int frame = 0; frame < 128 && plms.ActiveCount != 0; frame++)
-                plms.Step(guarded, level, streamer, 0, 0, 0);
+                plms.Step(guarded, level, streamer, new(0, 0), 0);
             AssertEqual(0, plms.ActiveCount,
                 $"resident colored door ${(int)header:X4} completes opening and deletes");
             AssertTrue(system.HasOpenedDoorBit(0),
@@ -155,7 +154,7 @@ internal static partial class Program
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident colored door ${(int)header:X4} completes without program/draw ROM reads");
 
-            var reopenedLevel = new RoomLevelData(width, width,
+            var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], blockDefinitions);
             BackgroundTilemapStreamer reopenedStreamer = reopenedLevel.CreateBackgroundStreamer();
@@ -164,7 +163,7 @@ internal static partial class Program
                 reopenedStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system,
                 AreaId.Crateria, () => new SamusState(), () => false),
                 $"opened colored door ${(int)header:X4} reloads");
-            reopened.Step(guarded, reopenedLevel, reopenedStreamer, 0, 0, 0);
+            reopened.Step(guarded, reopenedLevel, reopenedStreamer, new(0, 0), 0);
             AssertEqual(0, reopened.ActiveCount,
                 $"opened colored door ${(int)header:X4} converts to a blue cap");
             AssertEqual(0, guarded.ForbiddenReadAttempts,

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -49,12 +50,12 @@ public static class EscapeTimerPresentationDefinitions
     private const int TimerPriority = 3;
 
     /// <summary>$80:9F7B/9F84/9F8D: three two-digit groups separated by one cell, centered across eight cells.</summary>
-    internal static MapLabelPoint DefaultAnchor(string name)
+    internal static Offset16<OamPixels> DefaultAnchor(string name)
     {
         if (name == "Label") return new(0, 0);
         int group = name switch { "Minutes" => 0, "Seconds" => 1, "Centiseconds" => 2,
             _ => throw new ArgumentOutOfRangeException(nameof(name)) };
-        return new((3 * group * 2 - 7) * GlyphWidth / 2, 0);
+        return new(checked((short)((3 * group * 2 - 7) * GlyphWidth / 2)), 0);
     }
 
     /// <summary>Exact ordered native digit/label geometry. Font ink pixels remain owned by EscapeTimerTileAtlas.</summary>

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed cinematic-object and physical launch definitions for the intro Rinkas.</summary>
@@ -83,10 +85,10 @@ internal static class IntroRinkaDefinitions
     /// </remarks>
     public static IntroRinkaPhysicalDefinition Rinka(int parameter) => parameter switch
     {
-        0 => new(0x0070, 0x0048, 0),
-        1 => new(0x00c0, 0x0038, -1),
-        2 => new(0x0080, 0x0030, 0),
-        3 => new(0x00e8, 0x0050, -1),
+        0 => new(new(0x0070, 0x0048), 0),
+        1 => new(new(0x00c0, 0x0038), -1),
+        2 => new(new(0x0080, 0x0030), 0),
+        3 => new(new(0x00e8, 0x0050), -1),
         _ => throw new ArgumentOutOfRangeException(nameof(parameter)),
     };
 
@@ -101,6 +103,5 @@ internal readonly record struct IntroRinkaActorDefinition(
 
 /// <summary>One intro Rinka's final origin and signed whole-pixel X velocity component.</summary>
 internal readonly record struct IntroRinkaPhysicalDefinition(
-    ushort X,
-    ushort Y,
+    Position16<ScreenPixels> Position,
     short XWholeVelocity);

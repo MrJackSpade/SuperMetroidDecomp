@@ -3763,10 +3763,10 @@ Landed: true, HitCeiling: false);
                     _addressSpace,
                     System,
                     roomGeometry.AreaIndex,
-                    (byte)roomGeometry.MapPosition.X,
-                    (byte)roomGeometry.MapPosition.Y,
-                    LevelData.WidthInBlocks,
-                    LevelData.HeightInBlocks,
+                    checked((byte)roomGeometry.MapPosition.X),
+                    checked((byte)roomGeometry.MapPosition.Y),
+                    LevelData.Size.X,
+                    LevelData.Size.Y,
                     Samus.XPosition,
                     Samus.YPosition,
                     NmiFrameCounter8,
@@ -4187,8 +4187,7 @@ Landed: true, HitCeiling: false);
                 accepted.Value,
                 level,
                 BackgroundStreamer,
-                Camera.PixelPosition.X,
-                Camera.PixelPosition.Y,
+                Camera.PixelPosition,
                 unchecked((ushort)BackgroundScroll.Bg1Offset.X));
             foreach (PlmTilemapUpdate update in confirmation.TilemapUpdates)
                 update.ExecuteTo(Vram);
@@ -4196,7 +4195,7 @@ Landed: true, HitCeiling: false);
             {
                 Enemies.SpawnSaveStationElectricity(
                     saveStation.BlockIndex,
-                    level.WidthInBlocks);
+                    level.Size.X);
                 System.MarkSaveStationUsed(
                     saveStation.AreaIndex,
                     saveStation.StationIndex & 7);
@@ -4216,7 +4215,7 @@ Landed: true, HitCeiling: false);
         if (LevelData is null || BackgroundStreamer is null || Camera is null)
             throw new InvalidOperationException("A message box returned without an active room.");
         foreach (PlmTilemapUpdate update in Plms.CompleteCollectibleMessage(
-                     _addressSpace, LevelData, BackgroundStreamer, Camera.PixelPosition.X, Camera.PixelPosition.Y,
+                     _addressSpace, LevelData, BackgroundStreamer, Camera.PixelPosition,
                      unchecked((ushort)BackgroundScroll.Bg1Offset.X)))
             update.ExecuteTo(Vram);
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A

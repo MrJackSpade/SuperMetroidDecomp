@@ -106,8 +106,8 @@ internal static partial class Program
             "logo instruction reader rejects an unaligned address");
         foreach (ushort start in new ushort[] { 0xee5d, 0xee65, 0xee6d, 0xee87 })
         {
-            var native = new IntroDiscoverySprite(0, 0, 0, start);
-            var generated = new IntroDiscoverySprite(0, 0, 0, start);
+            var native = new IntroDiscoverySprite(new(0, 0), 0, start);
+            var generated = new IntroDiscoverySprite(new(0, 0), 0, start);
             for (int frame = 0; frame < 200; frame++)
             {
                 ushort nativeCallback = 0, generatedCallback = 0;
@@ -168,8 +168,8 @@ internal static partial class Program
             var calculatedOam = new OamBuffer();
             originalOam.BeginFrame(); calculatedOam.BeginFrame();
             DrawImportedSpritemap(bus, originalOam, 0x8c0000 | definition.Pointer, 120, y, 0x0800, originIsOnScreen: y == 72);
-            if (y == 72) calculated.DrawOnScreen(calculatedOam, 120, y, 0x0800);
-            else calculated.DrawOffScreen(calculatedOam, 120, y, 0x0800);
+            if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
+            else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
             originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
             AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
                 "logo relationship preserves native OAM and clipping");

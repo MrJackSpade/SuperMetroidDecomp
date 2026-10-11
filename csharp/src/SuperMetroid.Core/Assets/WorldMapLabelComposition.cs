@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -65,9 +66,9 @@ internal sealed class WorldMapLabelComposition
         return new(id, parts[^1].OffsetX, twoLines ? parts[3].OffsetX : 0, advances, null);
     }
 
-    internal void Draw(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    internal void Draw(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
-        if (authored is not null) { authored.DrawOnScreen(oam, x, y, paletteBits); return; }
+        if (authored is not null) { authored.DrawOnScreen(oam, origin, paletteBits); return; }
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         string text = Text(identity);
         for (int index = 0; index < text.Length; index++)
@@ -75,7 +76,7 @@ internal sealed class WorldMapLabelComposition
             int tile = 0x6a + text[text.Length - 1 - index] - 'A';
             oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(HorizontalOffset(index, text.Length), false),
                 unchecked((byte)VerticalOffset(identity, index)),
-                SnesObjAttributeWord.Create(tile, 0, 3).WithPaletteBits(paletteBits), new Position16<OamPixels>(x, y));
+                SnesObjAttributeWord.Create(tile, 0, 3).WithPaletteBits(paletteBits), origin);
         }
     }
 

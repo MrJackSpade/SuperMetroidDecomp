@@ -44,16 +44,16 @@ internal static partial class Program
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         var room = new FileSelectRoomMapGraphics(guard, system, AreaId.Crateria, mapPresentation: original);
-        var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.Crateria, 0, 0, mapPresentation: original);
-        var roomBefore = room.RenderBackgrounds(0, 0).ToArray(); var pauseBefore = pause.Render();
+        var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.Crateria, new(0, 0), mapPresentation: original);
+        var roomBefore = room.RenderBackgrounds(new(0, 0)).ToArray(); var pauseBefore = pause.Render();
         room.BindMapPresentation(edited); pause.BindMapPresentation(edited);
-        AssertTrue(!roomBefore.AsSpan().SequenceEqual(room.RenderBackgrounds(0, 0)), "static palette edit reaches room-map pixels");
+        AssertTrue(!roomBefore.AsSpan().SequenceEqual(room.RenderBackgrounds(new(0, 0))), "static palette edit reaches room-map pixels");
         AssertTrue(!pauseBefore.AsSpan().SequenceEqual(pause.Render()), "static palette edit reaches pause-map pixels");
         using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, pause); state.Position = 0;
         pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state);
         pause.BindMapPresentation(original); room.BindMapPresentation(original); world.BindPalettes(original.Palettes);
         AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "restored pause accepts current static colors without stale edited state");
-        AssertTrue(roomBefore.AsSpan().SequenceEqual(room.RenderBackgrounds(0, 0)), "room map rebind restores original colors");
+        AssertTrue(roomBefore.AsSpan().SequenceEqual(room.RenderBackgrounds(new(0, 0))), "room map rebind restores original colors");
         AssertTrue(nativeWorld.Cgram.Colors.SequenceEqual(world.Cgram.Colors), "world rebind restores complete original colors");
 
         var entry = new FileSelectMapEntry(original.Palettes);

@@ -30,10 +30,10 @@ internal static partial class Program
             var level = runtime.LevelData!;
             int doorX = -1, doorY = -1;
             byte behavior = 0;
-            for (int y = 0; y < level.HeightInBlocks && doorX < 0; y++)
-            for (int x = 0; x < level.WidthInBlocks; x++)
+            for (int y = 0; y < level.Size.Y && doorX < 0; y++)
+            for (int x = 0; x < level.Size.X; x++)
             {
-                var block = level.GetCollisionBlock(x, y);
+                var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                 if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
                 var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
                 if (door.Door?.DestinationRoomPointer != 0x95ff) continue;
@@ -56,7 +56,7 @@ internal static partial class Program
                 byte[] gameplayBeforePause = runtime.Vram.Bytes.ToArray();
                 var room = runtime.ActiveRoom!;
                 var pause = CreateRetailPauseFixture(bus, samus, runtime.System, room.AreaIndex,
-                    room.MapX, room.MapY, gameplayVram: runtime.Vram);
+                    room.MapPosition, gameplayVram: runtime.Vram);
                 // Use the real menu owner, including a map -> equipment transition.
                 // This isolates VRAM ownership rather than claiming a complete host
                 // pause-state replay. Unpause's beam publication is applied below.
@@ -88,7 +88,7 @@ internal static partial class Program
                 else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[(source, frame)]),
                     $"pause/equipment history leaves identical transition pixels at {phase}, frame {frame}");
                 PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-transition-{frame:D3}-{phase}.png",
-                    256, 224, pixels);
+                    new Extent16<ScreenPixels>(256, 224), pixels);
                 transitionFrames++;
             }
             AssertTrue(!transition.IsActive, "staged first-entry door transition completes");
@@ -101,7 +101,7 @@ internal static partial class Program
                 if (!pauseBeforeEntry) unpausedFrames[(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedFrames[(source, frame)]),
                     "pause/equipment history leaves identical first-entry water and scene pixels");
-                PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-frame-{frame}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-frame-{frame}.png", new Extent16<ScreenPixels>(256, 224),
                     pixels);
             }
             Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.PixelPosition.X}/{runtime.Camera.PixelPosition.Y}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");

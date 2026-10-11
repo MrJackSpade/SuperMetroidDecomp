@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -60,9 +61,9 @@ public static class MapScreenExtractor
         byte[] Atlas(int address, int count, int bpp)
         {
             byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address, count), bpp,
-                WorldMapArtworkFormat.TileColumns, out int width, out int height);
+                WorldMapArtworkFormat.TileColumns, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(1 << bpp));
+            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(1 << bpp));
             return png.ToArray();
         }
     }

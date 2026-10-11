@@ -117,7 +117,7 @@ internal static partial class Program
         string file = Path.Combine(overrides, RoomFxAnimatedTileAtlasFormat.FileName);
         byte[] source = File.ReadAllBytes(Path.Combine(stock, RoomFxAnimatedTileAtlasFormat.FileName));
         IndexedPngImage image = IndexedPng.Read(new MemoryStream(source),
-            RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height);
+            new(RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height));
         byte[] editedPixels = image.Pixels.ToArray();
         editedPixels[0] = (byte)((editedPixels[0] + 1) % RoomFxAnimatedTileAtlasFormat.ColorCount);
         editedPixels[RoomFxAnimatedTileAtlasFormat.LegacyWidth] = (byte)(
@@ -127,7 +127,7 @@ internal static partial class Program
             (editedPixels[RoomFxAnimatedTileAtlasFormat.PreStatueWidth] + 1) %
             RoomFxAnimatedTileAtlasFormat.ColorCount);
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
-            IndexedPng.Write(output, image.Width, image.Height, editedPixels,
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), editedPixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
         AreaMapPresentationCatalog changed = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(changed.ContentIdentity != baseline.ContentIdentity,
@@ -202,8 +202,7 @@ internal static partial class Program
         preStatuePixels[0] = (byte)((preStatuePixels[0] + 1) %
             RoomFxAnimatedTileAtlasFormat.ColorCount);
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
-            IndexedPng.Write(output, RoomFxAnimatedTileAtlasFormat.PreStatueWidth,
-                RoomFxAnimatedTileAtlasFormat.Height, preStatuePixels,
+            IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFormat.PreStatueWidth, RoomFxAnimatedTileAtlasFormat.Height), preStatuePixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
         AreaMapPresentationCatalog migratedPreStatue =
             AreaMapPresentationCatalog.Load(stock, overrides);
@@ -229,8 +228,7 @@ internal static partial class Program
         legacyPixels[0] = (byte)((legacyPixels[0] + 1) %
             RoomFxAnimatedTileAtlasFormat.ColorCount);
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
-            IndexedPng.Write(output, RoomFxAnimatedTileAtlasFormat.LegacyWidth,
-                RoomFxAnimatedTileAtlasFormat.Height, legacyPixels,
+            IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFormat.LegacyWidth, RoomFxAnimatedTileAtlasFormat.Height), legacyPixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
         AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(migrated.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,

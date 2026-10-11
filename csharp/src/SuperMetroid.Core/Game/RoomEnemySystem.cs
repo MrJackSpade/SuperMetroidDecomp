@@ -1042,8 +1042,8 @@ public sealed partial class RoomEnemySystem
                     // extended hitbox records, never the editable JSON geometry.
                     foreach (EnemyExtendedDrawComponent component in installed.Span)
                     {
-                        ushort componentX = unchecked((ushort)(originX + component.OffsetX));
-                        ushort componentY = unchecked((ushort)(originY + component.OffsetY));
+                        ushort componentX = unchecked((ushort)(originX + component.Offset.X));
+                        ushort componentY = unchecked((ushort)(originY + component.Offset.Y));
                         if (((componentX + 128) & 0xfe00) != 0 ||
                             ((componentY + 128) & 0xfe00) != 0)
                             continue;

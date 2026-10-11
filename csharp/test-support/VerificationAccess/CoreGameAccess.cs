@@ -2243,7 +2243,7 @@ internal static class ScrollBoundaryCameraAccess
         /// </summary>
         private void ApplyDebugStimulusX(ushort pixelDistance, ushort target)
         {
-            PrivateState.SetProperty(self, "Speed", self.Speed.WithX(self.Speed.X.WithWholePixels(unchecked((short)pixelDistance))));
+            PrivateState.SetProperty(self, "Speed", self.Speed.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.X.Fraction)));
             PrivateState.SetProperty(self, "IdealPosition", self.IdealPosition.WithX(target));
             PrivateState.SetProperty(self, "Position", self.Position.WithX(self.Position.X.WithWhole(target)));
         }
@@ -2251,7 +2251,7 @@ internal static class ScrollBoundaryCameraAccess
         /// <summary>The vertical counterpart of <see cref="ApplyDebugStimulusX"/>.</summary>
         private void ApplyDebugStimulusY(ushort pixelDistance, ushort target)
         {
-            PrivateState.SetProperty(self, "Speed", self.Speed.WithY(self.Speed.Y.WithWholePixels(unchecked((short)pixelDistance))));
+            PrivateState.SetProperty(self, "Speed", self.Speed.WithY(SnesSignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.Y.Fraction)));
             PrivateState.SetProperty(self, "IdealPosition", self.IdealPosition.WithY(target));
             PrivateState.SetProperty(self, "Position", self.Position.WithY(self.Position.Y.WithWhole(target)));
         }

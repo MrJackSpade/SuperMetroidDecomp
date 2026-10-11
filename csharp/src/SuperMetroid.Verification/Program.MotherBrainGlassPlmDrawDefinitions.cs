@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -71,7 +72,7 @@ internal static partial class Program
         var guarded = new MotherBrainGlassDrawReadGuard(bus, lists);
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x57 * 8] = 0x57;
-        var level = new RoomLevelData(width, height,
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
             new ushort[width * height], new byte[width * height],
             new ushort[width * height], blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
@@ -99,8 +100,8 @@ internal static partial class Program
                 int y = entryY + (vertical ? block : 0);
                 expected.Add(y * width + x, run.LevelWords.Span[block]);
             }
-            entryX = originX + run.NextX;
-            entryY = originY + run.NextY;
+            entryX = originX + run.Next.X;
+            entryY = originY + run.Next.Y;
         }
         foreach ((int index, ushort word) in expected)
             AssertEqual(word, level.GetCollisionBlockByIndex(index).LevelWord,

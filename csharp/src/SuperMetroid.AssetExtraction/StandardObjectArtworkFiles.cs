@@ -3,6 +3,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -23,9 +24,9 @@ public static class StandardObjectArtworkFiles
         byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), StandardObjectArtworkAddresses.Source,
             StandardObjectArtworkFormat.TransferByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
-            RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+            RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] selected = png.ToArray();
         RoomCharacterAtlas loaded = RoomCharacterAtlas.Load(
             new MemoryStream(selected, writable: false), StandardObjectArtworkFormat.TransferByteCount);

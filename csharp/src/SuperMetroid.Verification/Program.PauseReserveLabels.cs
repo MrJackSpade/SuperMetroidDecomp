@@ -17,7 +17,7 @@ internal static partial class Program
         {
             var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = mode,
                 CollectedItems = (ushort)SamusEquipmentFlags.MorphBall };
-            var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0,
+            var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0),
                 mapPresentation: RetailPresentationFixture());
             EnterPauseEquipment(pause);
             AssertEqual(1, pause.ScreenMode, "reserve label test reached equipment page");
@@ -56,8 +56,8 @@ internal static partial class Program
                 snapshot.ObjectSelection, snapshot.Brightness));
             var actualPixels = pause.Render();
             Directory.CreateDirectory("csharp/test-temp/pause-reserve-372");
-            PngWriterTooling.WriteRgba($"csharp/test-temp/pause-reserve-372/actual-{capacity}-{mode}.png", 256, 224, actualPixels);
-            PngWriterTooling.WriteRgba($"csharp/test-temp/pause-reserve-372/native-{capacity}-{mode}.png", 256, 224, expectedPixels);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/pause-reserve-372/actual-{capacity}-{mode}.png", new Extent16<ScreenPixels>(256, 224), actualPixels);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/pause-reserve-372/native-{capacity}-{mode}.png", new Extent16<ScreenPixels>(256, 224), expectedPixels);
             AssertTrue(actualPixels.AsSpan().SequenceEqual(expectedPixels),
                 $"visible reserve labels match native ownership/mode ({capacity}/{mode})");
         }

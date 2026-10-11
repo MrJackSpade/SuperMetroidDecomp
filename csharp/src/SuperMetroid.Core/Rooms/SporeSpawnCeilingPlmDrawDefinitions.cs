@@ -113,8 +113,8 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         new RoomPlmShotBlockDrawDefinitions.Run[]
         {
             new RoomPlmShotBlockDrawDefinitions.Run(
-                2, new ushort[] { physicalWord, physicalWord }, 0, 1),
+                2, new ushort[] { physicalWord, physicalWord }, new(0, 1)),
             new RoomPlmShotBlockDrawDefinitions.Run(
-                2, new ushort[] { physicalWord, physicalWord }, 0, 0),
+                2, new ushort[] { physicalWord, physicalWord }, new(0, 0)),
         });
 }

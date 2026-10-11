@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -27,8 +28,7 @@ public sealed class RoomLevelData
     private readonly byte[] _plmBehaviorAllocation;
 
     /// <summary>Copies the logical BG1/BTS/BG2 planes and visual block definitions into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>
-    /// <param name="widthInBlocks">Row-major stride in 16-pixel room blocks, 1..255.</param>
-    /// <param name="heightInBlocks">Positive logical height in 16-pixel room blocks.</param>
+    /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride, 1..255, and the height is positive.</param>
     /// <param name="foregroundEntries">Exactly width times height complete native BG1 words, including collision nibble, block selector, and parent flips.</param>
     /// <param name="behaviorBytes">Exactly one native BTS byte per logical foreground block, in the same row-major order.</param>
     /// <param name="backgroundEntries">Exactly width times height native BG2 block words, independent of foreground collision.</param>
@@ -42,8 +42,7 @@ public sealed class RoomLevelData
     /// <exception cref="InvalidDataException">The selected visual layout does not match the room dimensions.</exception>
     /// <exception cref="OverflowException">The logical dimension product exceeds the signed 32-bit range.</exception>
     public RoomLevelData(
-        int widthInBlocks,
-        int heightInBlocks,
+        Extent16<RoomBlocks> size,
         ReadOnlySpan<ushort> foregroundEntries,
         ReadOnlySpan<byte> behaviorBytes,
         ReadOnlySpan<ushort> backgroundEntries,
@@ -53,11 +52,12 @@ public sealed class RoomLevelData
         ReadOnlySpan<ushort> streamingBackgroundAllocation = default,
         RoomVisualLayout? visualLayout = null)
     {
-        if (widthInBlocks is <= 0 or > 0xff)
-            throw new ArgumentOutOfRangeException(nameof(widthInBlocks));
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(heightInBlocks);
+        if (size.X is <= 0 or > 0xff)
+            throw new ArgumentOutOfRangeException(nameof(size), "Room width must be 1..255 blocks.");
+        if (size.Y <= 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Room height must be positive.");
 
-        int expectedBlocks = checked(widthInBlocks * heightInBlocks);
+        int expectedBlocks = size.Area;
         if (foregroundEntries.Length != expectedBlocks)
             throw new ArgumentException("BG1 must contain exactly one word per room block.", nameof(foregroundEntries));
         if (behaviorBytes.Length != expectedBlocks)
@@ -67,8 +67,7 @@ public sealed class RoomLevelData
         if ((blockDefinitions.Length & 7) != 0)
             throw new ArgumentException("Each visual block definition is exactly eight bytes.", nameof(blockDefinitions));
 
-        WidthInBlocks = widthInBlocks;
-        HeightInBlocks = heightInBlocks;
+        Size = size;
         DoorListPointer = doorListPointer;
         _foregroundEntries = foregroundEntries.ToArray();
         _behaviorBytes = behaviorBytes.ToArray();
@@ -130,8 +129,7 @@ public sealed class RoomLevelData
             : _streamingBackgroundAllocation.ToArray();
         if (visualLayout is not null)
         {
-            if (visualLayout.WidthInBlocks != widthInBlocks ||
-                visualLayout.HeightInBlocks != heightInBlocks)
+            if (visualLayout.Size != size)
                 throw new InvalidDataException("Installed room layout dimensions do not match the native allocation.");
             for (int index = 0; index < expectedBlocks; index++)
             {
@@ -145,11 +143,11 @@ public sealed class RoomLevelData
         }
     }
 
-    /// <summary>Native <c>room_width_in_blocks</c>, used as every row's index stride.</summary>
-    public int WidthInBlocks { get; }
-
-    /// <summary>Logical room height from the room header, measured in 16-pixel blocks.</summary>
-    public int HeightInBlocks { get; }
+    /// <summary>
+    /// Logical room size in 16-pixel blocks. The width is native <c>room_width_in_blocks</c>, used as
+    /// every row's index stride; the height comes from the room header.
+    /// </summary>
+    public Extent16<RoomBlocks> Size { get; }
 
     /// <summary>
     /// Bank-$8F pointer to this room's native door-pointer table. Synthetic collision
@@ -180,13 +178,13 @@ public sealed class RoomLevelData
     /// Converts a 16-pixel block coordinate using the same row-major multiplication as
     /// bank $94. Invalid coordinates fail loudly instead of wrapping into unrelated WRAM.
     /// </summary>
-    public int GetBlockIndex(int blockX, int blockY)
+    public int GetBlockIndex(Position16<RoomBlocks> block)
     {
-        if ((uint)blockX >= (uint)WidthInBlocks)
-            throw new ArgumentOutOfRangeException(nameof(blockX));
-        if ((uint)blockY >= (uint)HeightInBlocks)
-            throw new ArgumentOutOfRangeException(nameof(blockY));
-        return blockY * WidthInBlocks + blockX;
+        if ((uint)block.X >= (uint)Size.X)
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block X {block.X} lies outside the {Size.X}-block room width.");
+        if ((uint)block.Y >= (uint)Size.Y)
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block Y {block.Y} lies outside the {Size.Y}-block room height.");
+        return Size.RowMajorIndex(block);
     }
 
     /// <summary>
@@ -199,16 +197,16 @@ public sealed class RoomLevelData
     /// consumption point. Native-memory setup and draw operations may use the bounded PLM
     /// allocation, matching the two shipped off-room colored-door records safely.
     /// </remarks>
-    internal int GetPlmBlockIndex(int blockX, int blockY)
+    internal int GetPlmBlockIndex(Position16<RoomBlocks> block)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(blockX);
-        ArgumentOutOfRangeException.ThrowIfNegative(blockY);
-        int blockIndex = checked(blockY * WidthInBlocks + blockX);
+        if (block.X < 0 || block.Y < 0)
+            throw new ArgumentOutOfRangeException(nameof(block), $"PLM block {block} has a negative coordinate.");
+        int blockIndex = checked(block.Y * Size.X + block.X);
         if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(blockY),
-                $"PLM block ({blockX},{blockY}) resolves to native index {blockIndex}, " +
+                nameof(block),
+                $"PLM block ({block.X},{block.Y}) resolves to native index {blockIndex}, " +
                 $"outside the {_plmForegroundAllocation.Length}-word safe level allocation.");
         }
 
@@ -295,9 +293,9 @@ public sealed class RoomLevelData
         SetPlmBehavior(blockIndex, behavior.Value);
 
     /// <summary>Returns both collision inputs consumed for one block by bank $94.</summary>
-    public RoomCollisionBlock GetCollisionBlock(int blockX, int blockY)
+    public RoomCollisionBlock GetCollisionBlock(Position16<RoomBlocks> block)
     {
-        int index = GetBlockIndex(blockX, blockY);
+        int index = GetBlockIndex(block);
         return GetCollisionBlockByIndex(index);
     }
 
@@ -313,10 +311,9 @@ public sealed class RoomLevelData
     /// and streaming remain logical-sized; collision callers share this seam instead of
     /// independently fabricating wrapping or empty terrain.
     /// </remarks>
-    internal RoomCollisionBlock GetCollisionBlockOrPrefilledSolid(int blockX, int blockY)
+    internal RoomCollisionBlock GetCollisionBlockOrPrefilledSolid(Position16<RoomBlocks> block)
     {
-        if ((uint)blockX >= (uint)WidthInBlocks ||
-            (uint)blockY >= (uint)HeightInBlocks)
+        if (!Size.Contains(block))
         {
             return new RoomCollisionBlock(
                 Index: -1,
@@ -324,7 +321,7 @@ public sealed class RoomLevelData
                 Behavior: 0);
         }
 
-        return GetCollisionBlock(blockX, blockY);
+        return GetCollisionBlock(block);
     }
 
     /// <summary>
@@ -361,8 +358,8 @@ public sealed class RoomLevelData
     /// Converts unsigned room-world pixels to a block coordinate exactly as the native
     /// <c>LSR ×4</c>/<c>&gt;&gt; 4</c> collision paths do.
     /// </summary>
-    public RoomCollisionBlock GetCollisionBlockAtPixel(ushort xPosition, ushort yPosition) =>
-        GetCollisionBlock(xPosition >> 4, yPosition >> 4);
+    public RoomCollisionBlock GetCollisionBlockAtPixel(Position16<RoomPixels> position) =>
+        GetCollisionBlock(position.ToRoomBlock());
 
     /// <summary>
     /// Resolves a type-$9 BTS byte through the active room's door list exactly as bank $94
@@ -491,7 +488,7 @@ public sealed class RoomLevelData
     /// </summary>
     public BackgroundTilemapStreamer CreateBackgroundStreamer(ushort sizeOfBg2 = 0) =>
         new(
-            WidthInBlocks,
+            Size.X,
             _visualStreamingForegroundAllocation,
             _visualStreamingBackgroundAllocation,
             _blockDefinitions,

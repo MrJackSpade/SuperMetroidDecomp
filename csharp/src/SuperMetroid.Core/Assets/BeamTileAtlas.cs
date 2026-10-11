@@ -51,7 +51,7 @@ public sealed class BeamTileAtlas
     /// <summary>Materializes the selected eight-tile DMA payload; no expanded stock transfer is cached.</summary>
     public ReadOnlyMemory<byte> Transfer => SnesPlanarTileEncoder.Encode(
         Enumerable.Range(0, BeamTileAtlasDefinitions.Width * BeamTileAtlasDefinitions.Height)
-            .Select(Pixel).ToArray(), BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height, 4);
+            .Select(Pixel).ToArray(), new(BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height), 4);
 
     private byte Pixel(int pixel)
     {
@@ -73,9 +73,9 @@ public sealed class BeamTileAtlas
     public static BeamTileAtlas Load(Stream png, SamusBeamCombination selection)
     {
         _ = BeamTileAtlasDefinitions.ArtworkOrdinal(selection);
-        var image = IndexedPng.Read(png, BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height);
+        var image = IndexedPng.Read(png, new(BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height));
         // Retain the original encoder's exact four-bit input validation at import.
-        _ = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4);
+        _ = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4);
         return new(image.Pixels, selection);
     }
 }

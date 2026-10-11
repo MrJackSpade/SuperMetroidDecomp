@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -28,7 +29,7 @@ internal static partial class Program
             const int origin = 3 * 16 + 3;
             var words = new ushort[16 * 16];
             words[origin] = 0xc456;
-            var level = new RoomLevelData(16, 16, words, new byte[words.Length],
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), words, new byte[words.Length],
                 new ushort[words.Length], new byte[1024 * 8]);
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer();
@@ -36,11 +37,11 @@ internal static partial class Program
             WriteMemoryWord(memory, 0x841100, (ushort)RoomPlmInstruction.DrawPlmBlockClone);
             WriteMemoryWord(memory, 0x841102, (ushort)RoomPlmInstruction.Delete);
             plms.SetSoleInstructionPointerForVerification(0x1100);
-            plms.Step(memory, level, streamer, 0, 0, 0);
+            plms.Step(memory, level, streamer, new(0, 0), 0);
             AssertEqual(0xc456,
                 level.GetCollisionBlockByIndex(origin).LevelWord, "active WRAM drives the exact physical output");
             AssertEqual(1, plms.TilemapUpdates.Count, "WRAM-backed draw publishes its visible update");
-            plms.Step(memory, level, streamer, 0, 0, 0);
+            plms.Step(memory, level, streamer, new(0, 0), 0);
             AssertEqual(0, plms.ActiveCount, "WRAM-backed instruction resumes and deletes on the next pass");
         }
 

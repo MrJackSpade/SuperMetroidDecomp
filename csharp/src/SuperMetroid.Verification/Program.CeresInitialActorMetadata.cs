@@ -26,8 +26,8 @@ internal static partial class Program
             "destruction small asteroids"));
         CeresDestructionActorDefinition vortex =
             CeresDestructionActorDefinitions.InitialActor(2);
-        AssertEqual(ReadWord(retail, 0x8bbfa6), vortex.X, "destruction vortex X");
-        AssertEqual(ReadWord(retail, 0x8bbfba), vortex.Y, "destruction vortex Y");
+        AssertEqual(ReadWord(retail, 0x8bbfa6), vortex.Position.X, "destruction vortex X");
+        AssertEqual(ReadWord(retail, 0x8bbfba), vortex.Position.Y, "destruction vortex Y");
         AssertEqual(ReadWord(retail, 0x8bbfc0), vortex.Attributes,
             "destruction vortex attributes");
         AssertEqual(ReadWord(retail, 0x8bbfac), vortex.ActivePreInstruction,
@@ -69,8 +69,8 @@ internal static partial class Program
             int maskAddress,
             string name)
         {
-            AssertEqual(ReadWord(source, xAddress), actor.X, $"{name} X");
-            AssertEqual(ReadWord(source, yAddress), actor.Y, $"{name} Y");
+            AssertEqual(ReadWord(source, xAddress), actor.Position.X, $"{name} X");
+            AssertEqual(ReadWord(source, yAddress), actor.Position.Y, $"{name} Y");
             AssertEqual(ReadWord(source, attributeAddress), actor.Attributes,
                 $"{name} attributes");
             AssertEqual(ReadWord(source, deltaAddress), unchecked((ushort)actor.HorizontalDelta),

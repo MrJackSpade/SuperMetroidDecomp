@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -43,7 +44,7 @@ internal static partial class Program
                 definitions[0x053 * 8 + tile * 2] = 0x53;
             }
 
-            var level = new RoomLevelData(width, width,
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], definitions);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
@@ -51,7 +52,7 @@ internal static partial class Program
             plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(), RoomPlmPopulationImporter.Read(bus, population),
                 new Bank80SystemState(), AreaId.Crateria,
                 () => new SamusState(), () => false);
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(bus, level, streamer, new(0, 0), 0);
             AssertTrue(plms.TilemapUpdates.Count > 0,
                 "station frame publishes an immediate PLM redraw");
             return (level.GetCollisionBlockByIndex(block).LevelWord,

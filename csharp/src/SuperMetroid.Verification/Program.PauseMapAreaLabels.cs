@@ -8,6 +8,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -29,16 +30,16 @@ internal static partial class Program
             labels.BindLandmarks(presentation.Landmarks);
             labels.BindSprites(presentation.Sprites);
             var gated = new OamBuffer(); gated.BeginFrame();
-            labels.DrawElevatorLabels(gated, 0, 0);
+            labels.DrawElevatorLabels(gated, new(0, 0));
             AssertEqual(0, gated.NextByteOffset, "undownloaded area hides destination names");
             system.SetAreaMapAcquired(area == AreaId.Crateria ? AreaId.Brinstar : AreaId.Crateria);
-            labels.DrawElevatorLabels(gated, 0, 0);
+            labels.DrawElevatorLabels(gated, new(0, 0));
             AssertEqual(0, gated.NextByteOffset, "another area's map does not reveal these destinations");
             system.SetAreaMapAcquired(area);
-            var pause = CreateRetailPauseFixture(bus, new SamusState(), system, area, 0, 0);
+            var pause = CreateRetailPauseFixture(bus, new SamusState(), system, area, new(0, 0));
             int list = 0x820000 | Read(0x82c74d + (int)area * 2);
             ushort x = unchecked((ushort)(Read(list) - 128)), y = unchecked((ushort)(Read(list + 2) - 100));
-            Set("mapHorizontalScroll", x); Set("mapVerticalScroll", y);
+            Set("mapScrollPosition", new Position16<MapPixels>(x, y));
             var native = new OamBuffer(); native.BeginFrame();
             for (int entry = list; Read(entry) != 0xffff; entry += 6)
             {

@@ -9,8 +9,8 @@ internal static partial class Program
         ushort frontDefinition = ReadWord(retail, 0x8bbe57);
         Suite(nameof(VerifyActor), () => VerifyActor(retail, front, frontDefinition, "front stars"));
         AssertEqual(ReadWord(retail, 0x8bbe84), front.InitialTimer, "front stars initial timer");
-        AssertEqual(ReadWord(retail, 0x8bbe8a), front.X, "front stars X");
-        AssertEqual(ReadWord(retail, 0x8bbe90), front.Y, "front stars Y");
+        AssertEqual(ReadWord(retail, 0x8bbe8a), front.Position.X, "front stars X");
+        AssertEqual(ReadWord(retail, 0x8bbe90), front.Position.Y, "front stars Y");
         AssertEqual(ReadWord(retail, 0x8bbe96), front.Attributes, "front stars attributes");
         AssertEqual(ReadWord(retail, 0x8bbec3),
             CeresFlightActorDefinitions.FrontStarAcceleration,
@@ -42,8 +42,8 @@ internal static partial class Program
                         0x8bbf8e, 0x8bbf9a, "small asteroids");
                     break;
                 case 3:
-                    AssertEqual(ReadWord(retail, 0x8bbfb4), actor.X, "rear vortex X");
-                    AssertEqual(ReadWord(retail, 0x8bbfba), actor.Y, "rear vortex Y");
+                    AssertEqual(ReadWord(retail, 0x8bbfb4), actor.Position.X, "rear vortex X");
+                    AssertEqual(ReadWord(retail, 0x8bbfba), actor.Position.Y, "rear vortex Y");
                     AssertEqual(ReadWord(retail, 0x8bbfc0), actor.Attributes,
                         "rear vortex attributes");
                     AssertEqual(ReadWord(retail, 0x8bbfcb),
@@ -51,8 +51,8 @@ internal static partial class Program
                     AssertTrue(!actor.WrapX, "rear vortex uses signed non-wrapping motion");
                     break;
                 case 4:
-                    AssertEqual(ReadWord(retail, 0x8bbea3), actor.X, "rear stars X");
-                    AssertEqual(ReadWord(retail, 0x8bbea9), actor.Y, "rear stars Y");
+                    AssertEqual(ReadWord(retail, 0x8bbea3), actor.Position.X, "rear stars X");
+                    AssertEqual(ReadWord(retail, 0x8bbea9), actor.Position.Y, "rear stars Y");
                     AssertEqual(ReadWord(retail, 0x8bbeaf), actor.Attributes,
                         "rear stars attributes");
                     AssertEqual(ReadWord(retail, 0x8bbe9d), actor.ActivePreInstruction,
@@ -100,8 +100,8 @@ internal static partial class Program
             int maskAddress,
             string name)
         {
-            AssertEqual(ReadWord(source, xAddress), actor.X, $"{name} X");
-            AssertEqual(ReadWord(source, yAddress), actor.Y, $"{name} Y");
+            AssertEqual(ReadWord(source, xAddress), actor.Position.X, $"{name} X");
+            AssertEqual(ReadWord(source, yAddress), actor.Position.Y, $"{name} Y");
             AssertEqual(ReadWord(source, attributeAddress), actor.Attributes,
                 $"{name} attributes");
             AssertEqual(ReadWord(source, deltaAddress), unchecked((ushort)actor.HorizontalDelta),

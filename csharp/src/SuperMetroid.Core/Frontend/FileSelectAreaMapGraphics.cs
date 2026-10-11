@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -176,7 +177,7 @@ public sealed partial class FileSelectAreaMapGraphics
         oam.BeginFrame();
         if (labels is null || sprites is null)
             throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
-        Draw(MapSpriteId.WorldTitle, 128, 16, 0);
+        Draw(MapSpriteId.WorldTitle, new(128, 16), 0);
         for (int displayArea = 0; displayArea < FileSelectMapRomData.AreaCount; displayArea++)
         {
             ushort area = (ushort)FileSelectMapAreaOrder.Get(displayArea);
@@ -190,13 +191,13 @@ public sealed partial class FileSelectAreaMapGraphics
 
         void DrawArea(ushort area)
         {
-            Draw(MapSpriteDefinitions.WorldLabel((AreaId)area), (ushort)labels.Get(area).X,
-                (ushort)labels.Get(area).Y, area == SelectedArea ? (ushort)0 : (ushort)0x200);
+            Draw(MapSpriteDefinitions.WorldLabel((AreaId)area), labels.Get(area),
+                area == SelectedArea ? (ushort)0 : (ushort)0x200);
         }
 
-        void Draw(MapSpriteId id, ushort x, ushort y, ushort palette)
+        void Draw(MapSpriteId id, Position16<OamPixels> origin, ushort palette)
         {
-            sprites.Draw(id, oam, x, y, palette);
+            sprites.Draw(id, oam, origin, palette);
         }
     }
 }

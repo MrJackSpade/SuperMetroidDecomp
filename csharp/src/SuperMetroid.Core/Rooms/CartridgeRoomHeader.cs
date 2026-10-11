@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -17,10 +18,8 @@ public sealed record CartridgeRoomHeader(
     ushort Pointer,
     byte RoomIndex,
     AreaId AreaIndex,
-    byte MapX,
-    byte MapY,
-    byte WidthInScreens,
-    byte HeightInScreens,
+    Position16<MapTiles> MapPosition,
+    Extent16<RoomScreens> Size,
     byte UpScroller,
     byte DownScroller,
     byte CreBitset,
@@ -41,10 +40,8 @@ public sealed record CartridgeRoomHeader(
             header.Pointer,
             header.RoomIndex,
             header.AreaIndex,
-            header.MapX,
-            header.MapY,
-            header.WidthInScreens,
-            header.HeightInScreens,
+            header.MapPosition,
+            header.Size,
             header.UpScroller,
             header.DownScroller,
             header.CreBitset,
@@ -68,8 +65,7 @@ public sealed record CartridgeRoomState(
     ushort FxPointer,
     ushort EnemyPopulationPointer,
     ushort EnemyTilesetPointer,
-    byte Layer2ScrollX,
-    byte Layer2ScrollY,
+    SuperMetroid.Core.Game.Layer2ScrollModes Layer2Scroll,
     ushort ScrollPointer,
     ushort XrayPointer,
     ushort MainCodePointer,

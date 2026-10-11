@@ -103,10 +103,10 @@ internal static partial class Program
         level.SetBlockDefinitionWord(0x0059 * 4, 0x0059);
         level.SetBlockDefinitionWord(0x0080 * 4, 0x0080);
         var plms = new RoomPlmSystem { CrocomireVisuals = visuals };
-        AssertTrue(plms.TrySpawnCrocomireArenaMutation(level, 5, 3, header),
+        AssertTrue(plms.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire visual header ${(int)header:X4} allocates");
         var guard = new CrocomireSourceGuard(new TestAddressSpace());
-        plms.Step(guard, level, level.CreateBackgroundStreamer(), 0, 0, 0);
+        plms.Step(guard, level, level.CreateBackgroundStreamer(), new(0, 0), 0);
         int blockIndex = (3 + yOffset) * width + 5 + xOffset;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,

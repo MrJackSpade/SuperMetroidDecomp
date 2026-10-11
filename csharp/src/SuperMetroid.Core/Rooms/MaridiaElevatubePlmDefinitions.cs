@@ -21,7 +21,7 @@ internal static class MaridiaElevatubePlmDefinitions
         new(DrawPointer,
             new RoomPlmShotBlockDrawDefinitions.Run[]
             {
-                new(1, new ushort[] { PhysicalWord }, 0, 0),
+                new(1, new ushort[] { PhysicalWord }, new(0, 0)),
             });
 
     internal const string VisualId = "elevatube-block";

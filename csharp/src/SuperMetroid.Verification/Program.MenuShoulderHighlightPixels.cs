@@ -9,7 +9,7 @@ internal static partial class Program
         int[] tiles = [0x3c, 0x3d, 0x43, 0x51];
         var files = MapSpriteExtractor.Extract(rom);
         byte[] json = files[MapSpriteFormat.JsonFile];
-        var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
+        var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), new(128, 128));
         var highlight = new MenuShoulderHighlightArtwork(image);
         AssertEqual(0, highlight.StoredEditCount, "all stock highlight frame and quadratic cutout are calculated without retained pixel exceptions");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
@@ -28,7 +28,7 @@ internal static partial class Program
             int expected = 0;
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            AssertEqual((byte)expected, highlight.Pixel(tile, x, y), "original highlight frame, quadratic contour and transparency");
+            AssertEqual((byte)expected, highlight.Pixel(tile, new(checked((ushort)x), checked((ushort)y))), "original highlight frame, quadratic contour and transparency");
             byte[] pixels = (byte[])image.Pixels.Clone();
             int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
             pixels[position] = (byte)((expected + 1) % 16);
@@ -50,18 +50,18 @@ internal static partial class Program
         }
         CheckEdited(all);
         foreach (int invalid in new[] { -1, 0x3b, 0x3e, 0x42, 0x44, 0x50, 0x52, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(invalid, 0, 0), "invalid highlight tile");
+            AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(invalid, new(0, 0)), "invalid highlight tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(0x3c, invalid, 0), "invalid highlight X");
-            AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(0x3c, 0, invalid), "invalid highlight Y");
+            AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(0x3c, new(unchecked((ushort)invalid), 0)), "invalid highlight X");
+            AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(0x3c, new(0, unchecked((ushort)invalid))), "invalid highlight Y");
         }
         void CheckEdited(byte[] pixels)
         {
-            using var png = new MemoryStream(); IndexedPng.Write(png, 128, 128, pixels, image.Palette); png.Position = 0;
+            using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Palette); png.Position = 0;
             var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
             var vram = new SnesVram(); edited.LoadArtworkTo(vram, 0x4000);
-            byte[] expected = SnesPlanarTileEncoder.Encode(pixels, 128, 128, 4);
+            byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
             AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring borders or other artwork");
         }
     }

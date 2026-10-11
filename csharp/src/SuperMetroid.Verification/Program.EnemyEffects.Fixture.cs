@@ -3,6 +3,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -80,9 +81,9 @@ internal static partial class Program
         var bytes = new byte[byteCount];
         bytes.AsSpan(0, usedBytes).Fill(pattern);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(bytes, 4, RoomCharacterAtlasFormat.TileColumns,
-            out int width, out int height);
+            out Extent16<ImagePixels> size);
         var output = new MemoryStream();
-        IndexedPng.Write(output, width, height, pixels,
+        IndexedPng.Write(output, size, pixels,
             Enumerable.Range(0, 16).Select(index => new Rgba32((byte)(index * 16), 0, 0)).ToArray());
         output.Position = 0;
         return output;

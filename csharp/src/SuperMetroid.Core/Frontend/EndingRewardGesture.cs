@@ -69,8 +69,7 @@ internal sealed class EndingRewardGesture
         var (x, y, palette) =
             EndingRewardActorDefinitions.GetInitialization(record.Initialization);
         var actor = new IntroDiscoverySprite(
-            (ushort)x,
-            (ushort)y,
+            new((ushort)x, (ushort)y),
             (ushort)palette,
             record.InstructionList);
         actor.PreInstructionPointerForDiscovery(record.PreInstruction);

@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -10,15 +11,15 @@ internal static partial class Program
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => rom.ReadByte(address + i)).ToArray();
         byte[] front = Read(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
         byte[] back = Read(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes);
-        byte[] frontPixels = SnesGraphics.DecodePlanarTiles(front, 4, 16, out int width, out int frontHeight);
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(back, 2, 16, out _, out int backHeight);
+        byte[] frontPixels = SnesGraphics.DecodePlanarTiles(front, 4, 16, out Extent16<ImagePixels> size);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(back, 2, 16, out Extent16<ImagePixels> backSize);
         byte[] Png(byte[] selected, int height, int colors)
         {
-            using var png = new MemoryStream(); IndexedPng.Write(png, width, height, selected, SnesGraphics.DiagnosticPalette(colors));
+            using var png = new MemoryStream(); IndexedPng.Write(png, new(size.X, checked((ushort)height)), selected, SnesGraphics.DiagnosticPalette(colors));
             return png.ToArray();
         }
-        byte[] frontPng = Png(frontPixels, frontHeight, 16);
-        WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(frontPng), new MemoryStream(Png(selected, backHeight, 4)));
+        byte[] frontPng = Png(frontPixels, size.Y, 16);
+        WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(frontPng), new MemoryStream(Png(selected, backSize.Y, 4)));
         var field = typeof(WorldMapArtwork).GetField("background", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         var stock = Create(pixels);
         var stored = (Dictionary<int, byte>)field.GetValue(stock)!;
@@ -29,18 +30,18 @@ internal static partial class Program
         {
             ulong mask = 0;
             for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
-                if (pixels[(tile / 16 * 8 + y) * width + tile % 16 * 8 + x] == 2) mask |= 1UL << (y * 8 + x);
+                if (pixels[(tile / 16 * 8 + y) * size.X + tile % 16 * 8 + x] == 2) mask |= 1UL << (y * 8 + x);
             return mask;
         }
         foreach (var pair in masks) AssertEqual(NativeMask(pair.Key), pair.Value, "Exact native selected footprint bits");
         int calculated = 0;
         for (int index = 0; index < pixels.Length; index++)
         {
-            int x = index % width, y = index / width;
+            int x = index % size.X, y = index / size.X;
             int tile = y / 8 * 16 + x / 8;
             bool available = tile is >= 0x3c and <= 0x45
-                ? WorldMapTileDefinitions.TryOutlinedPixel(tile, x % 8, y % 8, NativeMask(tile), out byte value)
-                : WorldMapTileDefinitions.TryBackgroundPixel(tile, x % 8, y % 8, out value);
+                ? WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), NativeMask(tile), out byte value)
+                : WorldMapTileDefinitions.TryBackgroundPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out value);
             if (available) { AssertEqual(pixels[index], value, $"Native primitive tile{y / 8 * 16 + x / 8:X2} pixel{x % 8},{y % 8}"); calculated++; }
             AssertEqual(!available, stored.ContainsKey(index), "Exact font/icon basis, no stock primitive overrides");
         }
@@ -50,21 +51,21 @@ internal static partial class Program
             var vram = new SnesVram(); art.LoadTo(vram);
             AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.ForegroundDestination, front.Length).SequenceEqual(front), "Foreground obligation remains exact and separate");
             AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.BackgroundDestination, back.Length).SequenceEqual(
-                SnesPlanarTileEncoder.Encode(expected, width, backHeight, 2)), "Actual complete BG3 upload preserves independent pixels");
+                SnesPlanarTileEncoder.Encode(expected, new(size.X, backSize.Y), 2)), "Actual complete BG3 upload preserves independent pixels");
         }
         Check(stock, pixels);
         for (int tile = 0; tile < 96; tile++)
         {
             byte[] edited = (byte[])pixels.Clone();
-            int index = (tile / 16 * 8 + tile / 8 % 8) * width + tile % 16 * 8 + tile % 8;
+            int index = (tile / 16 * 8 + tile / 8 % 8) * size.X + tile % 16 * 8 + tile % 8;
             edited[index] ^= 3;
             Check(Create(edited), edited);
         }
         Check(Create(pixels.Select(p => (byte)(p ^ 3)).ToArray()), pixels.Select(p => (byte)(p ^ 3)).ToArray());
         byte[] invalid = (byte[])pixels.Clone(); invalid[0] = 4;
         AssertThrows<InvalidDataException>(() => WorldMapArtwork.Load(new MemoryStream(frontPng),
-            new MemoryStream(Png(invalid, backHeight, 16))), "Invalid BG3 pen rejected during import, before upload");
-        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.TryBackgroundPixel(96, 0, 0, out _), "Background tile bound");
+            new MemoryStream(Png(invalid, backSize.Y, 16))), "Invalid BG3 pen rejected during import, before upload");
+        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.TryBackgroundPixel(96, new(0, 0), out _), "Background tile bound");
         Console.WriteLine($"World BG3:6144 native pixels,{calculated} geometry/mask defaults,{stored.Count} exact source pixels/10footprints,96 independent tile edits/all-pixel inversion and actual full uploads pass.");
     }
 
@@ -76,9 +77,9 @@ internal static partial class Program
             .Select(index => rom.ReadByte(pages[index / pageBytes].SourceAddress + index % pageBytes)).ToArray();
         SamusDeathTileAtlas Create(byte[] planar)
         {
-            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 8, out int width, out int height);
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 8, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             png.Position = 0;
             return SamusDeathTileAtlas.Load(png);
         }
@@ -354,7 +355,7 @@ internal static partial class Program
     private static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
     {
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
-        var image = IndexedPng.Read(new MemoryStream(png), 200, 8);
+        var image = IndexedPng.Read(new MemoryStream(png), new(200, 8));
         byte[] native = Enumerable.Range(0, 800).Select(index => rom.ReadByte(0xb0c000 + index)).ToArray();
         var stock = EscapeTimerTileAtlas.Load(new MemoryStream(png));
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
@@ -450,7 +451,7 @@ internal static partial class Program
                 AssertEqual(image.Pixels[index], EscapeTimerGlyphDefinitions.Outline(index, pixel => image.Pixels[pixel] == Ink(pixel)), "Direct native calculated outline/transparency");
             byte[] editedPixels = (byte[])image.Pixels.Clone(); editedPixels[index] ^= 15;
             using var stream = new MemoryStream();
-            IndexedPng.Write(stream, 200, 8, editedPixels, image.Palette); stream.Position = 0;
+            IndexedPng.Write(stream, new(200, 8), editedPixels, image.Palette); stream.Position = 0;
             var edited = EscapeTimerTileAtlas.Load(stream);
             for (int other = 0; other < 1600; other++)
             {
@@ -1715,7 +1716,7 @@ internal static partial class Program
         }
         AssertEqual(25, parts, "All twenty-five native timer parts are calculated");
         foreach ((string name, int address) in new[] { ("Label", 0x809f73), ("Minutes", 0x809f7c), ("Seconds", 0x809f85), ("Centiseconds", 0x809f8e) })
-            AssertEqual(new MapLabelPoint(unchecked((short)Word(address)), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(name), "Timer centered anchor matches native renderer immediate");
+            AssertEqual(new Offset16<OamPixels>(unchecked((short)Word(address)), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(name), "Timer centered anchor matches native renderer immediate");
         var timer = new EscapeTimer(); timer.Clear();
         for (int digit = 0; digit < 10; digit++)
         {
@@ -1741,7 +1742,7 @@ internal static partial class Program
         }
         foreach (string anchor in document.Anchors.Keys)
         {
-            var edited = Read(); edited.Anchors[anchor] = edited.Anchors[anchor] with { X = edited.Anchors[anchor].X + 2, Y = 3 };
+            var edited = Read(); edited.Anchors[anchor] = edited.Anchors[anchor] with { X = (short)(edited.Anchors[anchor].X + 2), Y = 3 };
             edited = edited with { DigitSpacing = 10, Palette = 1 };
             var compiled = Load(edited);
             AssertEqual(1, Count(compiled, "anchors"), "One timer anchor edit stores exactly one independent anchor");
@@ -1772,9 +1773,9 @@ internal static partial class Program
             void Pair(byte bcd, string anchor)
             {
                 Draw($"Digit.{bcd >> 4}", selected.Anchors[anchor]);
-                Draw($"Digit.{bcd & 15}", selected.Anchors[anchor] with { X = selected.Anchors[anchor].X + selected.DigitSpacing });
+                Draw($"Digit.{bcd & 15}", selected.Anchors[anchor] with { X = (short)(selected.Anchors[anchor].X + selected.DigitSpacing) });
             }
-            void Draw(string frame, MapLabelPoint anchor)
+            void Draw(string frame, Offset16<OamPixels> anchor)
             {
                 foreach (var part in selected.Frames[frame])
                     result.AddOnScreenSpritePart(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), unchecked((byte)(sbyte)part.OffsetY),
@@ -1797,8 +1798,8 @@ internal static partial class Program
         {
             var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x90c1a8 : 0x90c1dc) + 2 * direction),
                 Y = Word((mode == 0 ? 0x90c1c2 : 0x90c1f0) + 2 * direction) };
-            AssertEqual(expected, ChargeFlarePlacementDefinitions.BeamOffset(mode != 0, direction), "Named flare default matches direct native coordinates and aliases");
-            AssertEqual(expected, stock.Resolve(mode != 0, direction), "Installed flare default matches native");
+            AssertEqual(expected.Offset, ChargeFlarePlacementDefinitions.BeamOffset(mode != 0, direction), "Named flare default matches direct native coordinates and aliases");
+            AssertEqual(expected.Offset, stock.Resolve(mode != 0, direction), "Installed flare default matches native");
             for (int axis = 0; axis < 2; axis++)
             {
                 var document = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
@@ -1809,7 +1810,7 @@ internal static partial class Program
                 AssertEqual(1, ((System.Collections.IDictionary)field.GetValue(edited)!).Count, "One independent origin edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
                 for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
-                    AssertEqual(document.Offsets[ChargeFlarePlacementDefinitions.Key(selectedMode != 0, selectedDirection)],
+                    AssertEqual(document.Offsets[ChargeFlarePlacementDefinitions.Key(selectedMode != 0, selectedDirection)].Offset,
                         edited.Resolve(selectedMode != 0, selectedDirection), "Editing a source origin does not edit an independently supplied adjacent alias");
             }
         }
@@ -1821,8 +1822,8 @@ internal static partial class Program
         {
             var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x9bc14a : 0x9bc19a) + direction * 2),
                 Y = Word((mode == 0 ? 0x9bc15e : 0x9bc1ae) + direction * 2) };
-            AssertEqual(expected, ChargeFlarePlacementDefinitions.GrappleOffset(mode != 0, direction), "Grapple direct defaults preserve all native words including packed adjacent bytes");
-            AssertEqual(expected, grapple.Resolve(mode != 0, direction), "Installed Grapple defaults match native");
+            AssertEqual(expected.Offset, ChargeFlarePlacementDefinitions.GrappleOffset(mode != 0, direction), "Grapple direct defaults preserve all native words including packed adjacent bytes");
+            AssertEqual(expected.Offset, grapple.Resolve(mode != 0, direction), "Installed Grapple defaults match native");
             for (int axis = 0; axis < 2; axis++)
             {
                 var document = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options)!;
@@ -1833,7 +1834,7 @@ internal static partial class Program
                 AssertEqual(1, ((System.Collections.IDictionary)field.GetValue(edited)!).Count, "Grapple independent edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
                 for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
-                    AssertEqual(document.Offsets[ChargeFlarePlacementDefinitions.Key(selectedMode != 0, selectedDirection)], edited.Resolve(selectedMode != 0, selectedDirection),
+                    AssertEqual(document.Offsets[ChargeFlarePlacementDefinitions.Key(selectedMode != 0, selectedDirection)].Offset, edited.Resolve(selectedMode != 0, selectedDirection),
                         "Grapple edits preserve every other independent origin and alias");
             }
         }
@@ -2372,7 +2373,7 @@ internal static partial class Program
             var expected = new OamBuffer();
             var actual = new OamBuffer();
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, selector, 100, 100);
-            stock.Draw(selector, actual, 100, 100);
+            stock.Draw(selector, actual, new(100, 100));
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                 "calculated flare selector draws exact native composition");
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "calculated flare native OAM cursor");
@@ -2633,11 +2634,11 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => stock.TileSource(0, invalid), "Cannon cover frame bounds remain exact");
         Verify(stock, false);
-        var image = IndexedPng.Read(new MemoryStream(png), sources.Length * 8, 8);
+        var image = IndexedPng.Read(new MemoryStream(png), new(checked((ushort)(sources.Length * 8)), 8));
         byte[] pixels = (byte[])image.Pixels.Clone();
         pixels[5 * 8] ^= 1;
         using var editedPng = new MemoryStream();
-        IndexedPng.Write(editedPng, image.Width, image.Height, pixels, image.Palette);
+        IndexedPng.Write(editedPng, new(image.Size.X, image.Size.Y), pixels, image.Palette);
         editedPng.Position = 0;
         var edited = SamusArmCannonArtworkCatalogTooling.Load(new MemoryStream(json), editedPng);
         Verify(edited, true);
@@ -3042,15 +3043,15 @@ internal static partial class Program
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => rom.ReadByte(address + i)).ToArray();
         byte[] front = Read(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
         byte[] back = Read(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes);
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(front, 4, 16, out int width, out int height);
-        byte[] backPixels = SnesGraphics.DecodePlanarTiles(back, 2, 16, out _, out int backHeight);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(front, 4, 16, out Extent16<ImagePixels> size);
+        byte[] backPixels = SnesGraphics.DecodePlanarTiles(back, 2, 16, out Extent16<ImagePixels> backSize);
         byte[] Png(byte[] selected, int selectedHeight, int colors)
         {
-            using var png = new MemoryStream(); IndexedPng.Write(png, width, selectedHeight, selected, SnesGraphics.DiagnosticPalette(colors));
+            using var png = new MemoryStream(); IndexedPng.Write(png, new(size.X, checked((ushort)selectedHeight)), selected, SnesGraphics.DiagnosticPalette(colors));
             return png.ToArray();
         }
-        byte[] backPng = Png(backPixels, backHeight, 4);
-        WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(Png(selected, height, 16)), new MemoryStream(backPng));
+        byte[] backPng = Png(backPixels, backSize.Y, 4);
+        WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(Png(selected, size.Y, 16)), new MemoryStream(backPng));
         var field = typeof(WorldMapArtwork).GetField("foreground", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         var stock = Create(pixels);
         var stored = (Dictionary<int, byte>)field.GetValue(stock)!;
@@ -3058,7 +3059,7 @@ internal static partial class Program
         {
             ulong mask = 0;
             for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
-                if (pixels[(tile / 16 * 8 + y) * width + tile % 16 * 8 + x] == 14) mask |= 1UL << (y * 8 + x);
+                if (pixels[(tile / 16 * 8 + y) * size.X + tile % 16 * 8 + x] == 14) mask |= 1UL << (y * 8 + x);
             return mask;
         }
         var masks = (Dictionary<int, ulong>)typeof(WorldMapArtwork).GetField("fontFill",
@@ -3087,12 +3088,12 @@ internal static partial class Program
         {
             var vram = new SnesVram(); art.LoadTo(vram);
             AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.ForegroundDestination, front.Length).SequenceEqual(
-                SnesPlanarTileEncoder.Encode(expected, width, height, 4)), "Complete independent foreground upload");
+                SnesPlanarTileEncoder.Encode(expected, size, 4)), "Complete independent foreground upload");
             AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.BackgroundDestination, back.Length).SequenceEqual(back), "Completed BG3 remains exact");
         }
         Check(stock, pixels);
         for (int tile = 0; tile < WorldMapArtworkFormat.ForegroundTileCount; tile++)
-            edits.Add(tile / 16 * 8 * width + tile % 16 * 8);
+            edits.Add(tile / 16 * 8 * size.X + tile % 16 * 8);
         foreach (int index in edits)
         {
             byte[] edited = (byte[])pixels.Clone();

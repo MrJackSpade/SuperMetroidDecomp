@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -594,7 +595,7 @@ internal static partial class Program
         AssertEqual(definition.TargetY, fx.TargetYPosition,
             $"room {definition.Room} target lava Y");
 
-        ushort cameraY = unchecked((ushort)(door.DestinationScreenY * 256));
+        ushort cameraY = door.DestinationScreen.ToRoomPixels().Y;
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         AssertTrue(fx.CaptureForDisplay()!.Value.WaterSurfaceScreenY >=
                 SnesGameplayFrameRenderer.Height,

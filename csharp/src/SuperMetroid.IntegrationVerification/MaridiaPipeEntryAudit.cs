@@ -72,7 +72,7 @@ internal static class MaridiaPipeEntryAudit
                 if (fromNorth) MaridiaPipeTerrainAudit.Observe(runtime, snapshot, frame,
                     requireAuthoredTerrain: incomingDoor && game.GameState == SuperMetroidGameState.MainGameplay);
                 SoftwareFrameSnapshotRenderer.Render(snapshot, pixels);
-                PngWriterTooling.WriteRgba($"{output}/frame-{frame:D3}.png", snapshot.Size.X, snapshot.Size.Y, pixels);
+                PngWriterTooling.WriteRgba($"{output}/frame-{frame:D3}.png", snapshot.Size, pixels);
             }
         }
         if (incomingDoor && (game.GameState != SuperMetroidGameState.MainGameplay ||

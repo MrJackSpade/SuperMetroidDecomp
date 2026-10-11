@@ -65,10 +65,10 @@ internal static partial class Program
             extracted, MapPresentationFormat.JsonOptions)!;
         document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu] =
             document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu] with
-            { X = document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu].X + 8 };
+            { X = (ushort)(document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu].X + 8) };
         document.CursorAnchors[GameOptionsPresentationDefinitions.PrimaryMenu][0] =
             document.CursorAnchors[GameOptionsPresentationDefinitions.PrimaryMenu][0] with
-            { X = document.CursorAnchors[GameOptionsPresentationDefinitions.PrimaryMenu][0].X + 8 };
+            { X = (ushort)(document.CursorAnchors[GameOptionsPresentationDefinitions.PrimaryMenu][0].X + 8) };
         MapPresentationCell pageCell = document.Pages[
             GameOptionsPresentationDefinitions.PrimaryPage][0x144];
         document.Pages[GameOptionsPresentationDefinitions.PrimaryPage][0x144] =

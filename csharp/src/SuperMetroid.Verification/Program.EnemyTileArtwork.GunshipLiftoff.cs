@@ -65,10 +65,10 @@ internal static partial class Program
         string overridePath = Path.Combine(overrides, fileName);
         using (var stream = new MemoryStream(original, writable: false))
         {
-            IndexedPngImage image = IndexedPng.Read(stream, 256, 8);
+            IndexedPngImage image = IndexedPng.Read(stream, new(256, 8));
             image.Pixels[0] ^= 1;
             using var output = File.Create(overridePath);
-            IndexedPng.Write(output, image.Width, image.Height,
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Palette);
         }
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);

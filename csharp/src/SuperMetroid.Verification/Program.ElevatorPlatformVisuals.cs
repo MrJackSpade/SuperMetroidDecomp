@@ -48,7 +48,7 @@ internal static partial class Program
                 new SnesVram(), RoomPlmPopulationImporter.Read(bus, population), new Bank80SystemState(), AreaId.Crateria,
                 getSamus: () => null, isAreaTorizoDefeated: () => false),
                 "elevator visual fixture loads one real PLM");
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(bus, level, streamer, new(0, 0), 0);
             int index = Enumerable.Range(0, 32 * 16).Single(block =>
                 level.GetCollisionBlockByIndex(block).LevelWord == 0x8085);
             return (level.GetCollisionBlockByIndex(index).LevelWord,

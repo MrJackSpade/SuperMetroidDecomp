@@ -27,11 +27,11 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(0xb1e5);
         runtime.StepFrame(0);
         var level = runtime.LevelData!;
-        var hand = level.GetCollisionBlock(4, 8);
+        var hand = level.GetCollisionBlock(new(4, 8));
         AssertTrue(runtime.Plms.TrySpawnProjectileShotBlock(level, hand.Index,
             hand.Bts, new SamusProjectileTypeWord(0x0300), true), "power bomb breaks the retail hand cover");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
-        hand = level.GetCollisionBlock(4, 8);
+        hand = level.GetCollisionBlock(new(4, 8));
         AssertEqual(RoomCollisionType.SpecialBlock, hand.CollisionType, "destroyed cover becomes solid hand");
         AssertEqual((byte)0x83, hand.Behavior, "Norfair hand activation BTS");
         var samus = runtime.Samus!;
@@ -59,8 +59,8 @@ internal static partial class Program
         // only candidate is the hand block at (4, 8).
         int leftColumn = (samus.Kinematics.XPosition - samus.Kinematics.XRadius) >> 4;
         int rightColumn = (samus.Kinematics.XPosition + samus.Kinematics.XRadius - 1) >> 4;
-        AssertTrue(collision.Collided && leftColumn == hand.Index % level.WidthInBlocks &&
-            rightColumn == hand.Index % level.WidthInBlocks,
+        AssertTrue(collision.Collided && leftColumn == hand.Index % level.Size.X &&
+            rightColumn == hand.Index % level.Size.X,
             "downward morph contact lands on the actual hand tile");
         AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
         AssertEqual((ushort)1, runtime.Enemies.Slots[0].Parameter1, "hand wakes statue");
@@ -107,13 +107,13 @@ internal static partial class Program
         AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseYPosition, "re-entry restores drained acid");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         AssertTrue(level != runtime.LevelData, "re-entry uses newly loaded room terrain");
-        AssertTrue(runtime.LevelData!.GetCollisionBlock(4, 8).CollisionType != RoomCollisionType.SpecialBlock,
+        AssertTrue(runtime.LevelData!.GetCollisionBlock(new(4, 8)).CollisionType != RoomCollisionType.SpecialBlock,
             "completed statue does not install another hand trigger");
         RoomLevelData reentered = runtime.LevelData!;
         reentered.SetBlockDefinitionWord(0x53 * 4, 0x0053);
         AssertEqual((ushort)0x0053,
             reentered.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                0x1d * reentered.WidthInBlocks + 0x0c, 0).TopRow[0],
+                0x1d * reentered.Size.X + 0x0c, 0).TopRow[0],
             "event-completed hand re-entry streams the installed visual override");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             "complete Lower Norfair hand sequence did not reread compiled PLM data");

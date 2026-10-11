@@ -19,8 +19,8 @@ public static class CartridgeDoorHeaderImporter
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         byte Byte(int offset) => cartridge.ReadCartridgeByte(address + offset);
         ushort Word(int offset) => RomDataReader.ReadWordFixedBank(cartridge, address + offset);
-        return new CartridgeDoorHeader(pointer, Word(0), CartridgeDoorOrientation.Decode(Byte(3)), Byte(4),
-            Byte(5), Byte(6), Byte(7), Word(8),
+        return new CartridgeDoorHeader(pointer, Word(0), CartridgeDoorOrientation.Decode(Byte(3)),
+            new(Byte(4), Byte(5)), new(Byte(6), Byte(7)), Word(8),
             ClosedNativeWords.Decode<DoorSetupCode>(Word(10), "door setup routine"));
     }
 }

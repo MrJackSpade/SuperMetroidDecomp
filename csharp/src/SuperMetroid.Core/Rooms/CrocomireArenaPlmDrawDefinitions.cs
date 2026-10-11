@@ -92,7 +92,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
         {
             var words = new ushort[shape.WordsPerRun];
             for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
-            runs[run] = new(shape.DirectionAndCount, words, shape.NextX(run), 0);
+            runs[run] = new(shape.DirectionAndCount, words, new(shape.NextX(run), 0));
         }
         draw = new(pointer, runs);
         return true;

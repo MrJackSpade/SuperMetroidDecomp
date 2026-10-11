@@ -50,7 +50,7 @@ internal static partial class Program
                 var installedOam = new OamBuffer();
                 installedOam.BeginFrame();
                 stock.CeresDestruction.Sprites.Draw(frame.Pointer, installedOam,
-                    120, y, 0x0800, onScreen);
+                    new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(installedOam.LowTable.SequenceEqual(nativeOam.LowTable) &&
                         installedOam.HighTable.SequenceEqual(nativeOam.HighTable) &&
@@ -137,7 +137,7 @@ internal static partial class Program
             throw new InvalidOperationException("Stock Zebes planet actor did not spawn.");
         var editedPlanet = (IntroDiscoverySprite?)planetField.GetValue(movedReveal) ??
             throw new InvalidOperationException("Edited Zebes planet actor did not spawn.");
-        AssertEqual(unchecked((ushort)(stockPlanet.XPosition + 16)), editedPlanet.XPosition,
+        AssertEqual(unchecked((ushort)(stockPlanet.WholePosition.X + 16)), editedPlanet.WholePosition.X,
             "edited scene position moves the actual planet actor by one tile");
         for (int frame = 0; frame < 20; frame++)
         {
@@ -178,9 +178,9 @@ internal static partial class Program
             AssertEqual(CeresDestructionActorDefinitions.InitialPlacementId(index),
                 destructionActorsDocument.Actors[index].Id,
                 $"Ceres destruction actor {index} retains its native role");
-            AssertEqual((int)definition.X, destructionActorsDocument.Actors[index].X,
+            AssertEqual((int)definition.Position.X, destructionActorsDocument.Actors[index].X,
                 $"Ceres destruction actor {index} X matches its verified initializer");
-            AssertEqual((int)definition.Y, destructionActorsDocument.Actors[index].Y,
+            AssertEqual((int)definition.Position.Y, destructionActorsDocument.Actors[index].Y,
                 $"Ceres destruction actor {index} Y matches its verified initializer");
         }
         int stockAsteroidX = destructionActorsDocument.Actors[0].X;
@@ -209,8 +209,8 @@ internal static partial class Program
         var movedDestructionActors =
             (List<IntroDiscoverySprite>?)destructionActorsField.GetValue(movedDestruction) ??
             throw new InvalidOperationException("Edited Ceres destruction actors did not spawn.");
-        AssertEqual(unchecked((ushort)(stockDestructionActors[0].XPosition + 16)),
-            movedDestructionActors[0].XPosition,
+        AssertEqual(unchecked((ushort)(stockDestructionActors[0].WholePosition.X + 16)),
+            movedDestructionActors[0].WholePosition.X,
             "edited destruction layout moves the actual asteroid actor by one tile");
         AssertTrue(!stockDestruction.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
                 movedDestruction.CaptureRenderSnapshot().Memory.Oam),
@@ -331,10 +331,10 @@ internal static partial class Program
             CeresDestructionArtworkFormat.ZebesCharacterFileName);
         IndexedPngImage zebesPng;
         using (var input = File.OpenRead(zebesPngPath))
-            zebesPng = IndexedPng.Read(input, 256, 128);
+            zebesPng = IndexedPng.Read(input, new(256, 128));
         zebesPng.Pixels[0] = (byte)((zebesPng.Pixels[0] + 1) & 15);
         using (var output = File.Create(zebesPngOverride))
-            IndexedPng.Write(output, zebesPng.Width, zebesPng.Height,
+            IndexedPng.Write(output, new(zebesPng.Size.X, zebesPng.Size.Y),
                 zebesPng.Pixels, zebesPng.Palette);
         IntroCinematicArtworkCatalog editedZebesPng = installation.LoadIntroCinematicArt();
         File.Delete(zebesPngOverride);

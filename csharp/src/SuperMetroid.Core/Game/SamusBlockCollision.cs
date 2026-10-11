@@ -314,7 +314,7 @@ public static partial class SamusBlockCollision
                                  state.CollisionPose,
                                  horizontal: true,
                                  movingPositive: acceptedDisplacement > 0,
-                                 roomWidthInBlocks: level.WidthInBlocks)))
+                                 roomWidthInBlocks: level.Size.X)))
                         {
                             throw new InvalidOperationException(
                                 $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
@@ -725,7 +725,7 @@ public static partial class SamusBlockCollision
                              state.CollisionPose,
                              horizontal: false,
                              movingPositive: acceptedDisplacement > 0,
-                             roomWidthInBlocks: level.WidthInBlocks)))
+                             roomWidthInBlocks: level.Size.X)))
                     {
                         throw new InvalidOperationException(
                             $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
@@ -1143,7 +1143,7 @@ public static partial class SamusBlockCollision
     }
 
     private static RoomCollisionBlock GetRequiredBlock(RoomLevelData level, int blockX, int blockY)
-        => level.GetCollisionBlockOrPrefilledSolid(blockX, blockY);
+        => level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
 
     /// <summary>
     /// Follows collision-extension blocks exactly like the `$94:9515/$9535` redispatch
@@ -1154,7 +1154,7 @@ public static partial class SamusBlockCollision
         RoomLevelData level,
         ref RoomCollisionBlock block)
     {
-        int blockCount = checked(level.WidthInBlocks * level.HeightInBlocks);
+        int blockCount = checked(level.Size.X * level.Size.Y);
         for (int hops = 0; hops < blockCount; hops++)
         {
             int delta = block.CollisionType switch
@@ -1163,7 +1163,7 @@ public static partial class SamusBlockCollision
                     block.Bts != RoomBlockBehaviorValues.None => block.Bts.ExtensionOffset,
                 RoomCollisionType.VerticalExtension when
                     block.Bts != RoomBlockBehaviorValues.None =>
-                    block.Bts.ExtensionOffset * level.WidthInBlocks,
+                    block.Bts.ExtensionOffset * level.Size.X,
                 RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => 0,
                 RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
                     RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or RoomCollisionType.UnusedAir or

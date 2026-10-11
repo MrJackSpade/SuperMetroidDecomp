@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -24,11 +25,9 @@ internal sealed class EndingLogo
         this.paletteArtwork = paletteArtwork;
         for (int i = 0; i < actors.Length; i++)
         {
-            var origin = EndingLogoDefinitions.Origin(i);
             EndingLogoActorDefinition definition = EndingLogoDefinitions.Actor(i);
             actors[i] = new IntroDiscoverySprite(
-                origin.X,
-                origin.Y,
+                EndingLogoDefinitions.Origin(i),
                 SnesObjPalettes.Index7.Raw,
                 definition.InstructionList);
             actors[i].PreInstructionPointerForDiscovery(definition.PreInstruction);
@@ -70,12 +69,13 @@ internal sealed class EndingLogo
     {
         var actor = actors[index];
         int direction = index == 0 ? -1 : 1;
-        actor.XPosition = unchecked((ushort)(actor.XPosition + direction * speeds[index]));
-        actor.YPosition = unchecked((ushort)(actor.YPosition - direction * speeds[index]));
+        Position16<ScreenPixels> moved = actor.WholePosition +
+            new Offset16<ScreenPixels>(unchecked((short)(direction * speeds[index])), unchecked((short)(-direction * speeds[index])));
+        actor.WholePosition = moved;
         var target = index == 0 ? EndingLogoDefinitions.TopLanding : EndingLogoDefinitions.BottomLanding;
-        if (index == 0 ? (short)(actor.XPosition - target.X - 1) < 0 : (short)(actor.XPosition - target.X) >= 0)
+        if (index == 0 ? (short)(moved.X - target.X - 1) < 0 : (short)(moved.X - target.X) >= 0)
         {
-            actor.XPosition = target.X; actor.YPosition = target.Y;
+            actor.WholePosition = target;
             settled[index] = true;
             if (index == 0) landed();
         }
@@ -96,8 +96,7 @@ internal sealed class EndingLogo
         if (destination is null) oam.BeginFrame();
         if (!Completed)
             foreach (var actor in actors)
-                actor.Draw(oam, EndingLogoDefinitions.Camera,
-                    EndingLogoDefinitions.Camera, installedArt);
+                actor.Draw(oam, EndingLogoDefinitions.Camera, installedArt);
         if (destination is null) oam.FinalizeFrame();
         return oam;
     }

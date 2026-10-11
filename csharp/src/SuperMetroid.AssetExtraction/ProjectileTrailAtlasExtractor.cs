@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -17,9 +18,9 @@ public static class ProjectileTrailAtlasExtractor
         byte[] first = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), ProjectileTrailAtlasDefinitions.IceWaveSource, ProjectileTrailAtlasDefinitions.IceWaveByteCount);
         byte[] second = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), ProjectileTrailAtlasDefinitions.MissileSource, ProjectileTrailAtlasDefinitions.MissileByteCount);
         byte[] planar = first.Concat(second).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, ProjectileTrailAtlasDefinitions.Width / 8, out int width, out int height);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, ProjectileTrailAtlasDefinitions.Width / 8, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] bytes = png.ToArray();
         var verified = ProjectileTrailAtlas.Load(new MemoryStream(bytes));
         if (!verified.IceAndWave.Span.SequenceEqual(first) || !verified.Missile.Span.SequenceEqual(second))

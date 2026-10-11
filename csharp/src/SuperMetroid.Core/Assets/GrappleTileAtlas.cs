@@ -48,8 +48,8 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     /// <returns>The immutable tile atlas and its associated optional visual assets.</returns>
     public static GrappleTileAtlas Load(Stream png, GrappleSpriteCatalog? sprites = null, ChargeFlarePlacementCatalog? flarePlacement = null, GrappleSwingFrameCatalog? swingFrames = null)
     {
-        var image = IndexedPng.Read(png, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
-        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4), sprites, flarePlacement, swingFrames);
+        var image = IndexedPng.Read(png, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
+        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4), sprites, flarePlacement, swingFrames);
     }
     /// <summary>Resolves one endpoint character or four-character rope-orientation transfer.</summary>
     /// <param name="asset">One of the seven Grapple-owned VRAM asset identities.</param>

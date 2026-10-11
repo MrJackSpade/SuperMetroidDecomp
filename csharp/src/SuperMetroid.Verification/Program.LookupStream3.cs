@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -227,7 +228,7 @@ internal static partial class Program
             presentation.DrawHeading(actualOam, page, 3);
             var point = original.HeadingAnchors[page];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
-                (ushort)point.X, unchecked((ushort)(point.Y - 3)), (ushort)(original.CursorPalette << 9));
+                new((ushort)point.X, unchecked((ushort)(point.Y - 3))), (ushort)(original.CursorPalette << 9));
             AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
                 "actual heading draw preserves exact native ordered OAM");
             ushort Word(int location) => (ushort)(rom.ReadByte(location) | rom.ReadByte(location + 1) << 8);
@@ -296,7 +297,7 @@ internal static partial class Program
             presentation.DrawBorder(actualOam, page);
             var anchor = original.BorderAnchors[page];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
-                (ushort)anchor.X, (ushort)anchor.Y, (ushort)(original.ObjectPalette << 9));
+                new((ushort)anchor.X, (ushort)anchor.Y), (ushort)(original.ObjectPalette << 9));
             AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
                 "actual file-select border draw preserves native OAM");
             ushort Word(int location) => (ushort)(rom.ReadByte(location) | rom.ReadByte(location + 1) << 8);
@@ -337,9 +338,9 @@ internal static partial class Program
             .Select(index => rom.ReadByte(transfer.SourceAddress + index))).ToArray();
         GrappleTileAtlas Load()
         {
-            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 16, out int width, out int height);
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 16, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             return GrappleTileAtlas.Load(new MemoryStream(png.ToArray()));
         }
         void Check(GrappleTileAtlas atlas)
@@ -506,7 +507,7 @@ internal static partial class Program
                 palette = name == GameOverPresentationDefinitions.EggFrame ? presentation.EggPaletteIndex : presentation.BabyPaletteIndex;
             }
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
-                (ushort)x, (ushort)y, (ushort)(palette << 9));
+                new((ushort)x, (ushort)y), (ushort)(palette << 9));
             AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
                 "actual game-over draw emits exact native ordered OAM " + name);
         }
@@ -635,7 +636,7 @@ internal static partial class Program
             for (int index = 0; index < count; index++)
             {
                 ushort word = (ushort)(rom.ReadByte(address + index * 2) | rom.ReadByte(address + index * 2 + 1) << 8);
-                AssertEqual(new FileSelectCompiledPatchCell(index, 0, word), FileSelectPresentationDefinitions.PatchCell(name, index),
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), word), FileSelectPresentationDefinitions.PatchCell(name, index),
                     "file-select calculated patch exact native cell");
                 foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
                 {
@@ -678,11 +679,11 @@ internal static partial class Program
                     ushort word = SnesBgTilemapWord.Create(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn,
                         cell.Palette, cell.Priority, (cell.FlipX ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
                         (cell.FlipY ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)).Raw;
-                    AssertEqual(new FileSelectCompiledPatchCell(source.X, source.Y, word), compiled.Cell(index),
+                    AssertEqual(new FileSelectCompiledPatchCell(source.Offset - Position16<TilemapCells>.Zero, word), compiled.Cell(index),
                         "file-select independent supplied order and coordinates");
                     expected[(3 + source.Y) * 32 + 4 + source.X] = word;
                 }
-                presentation.ApplyPatch(actual, name, new MapLabelPoint(4, 3));
+                presentation.ApplyPatch(actual, name, new Position16<TilemapCells>(4, 3));
                 AssertTrue(actual.SequenceEqual(expected), "file-select exact stock or independently edited patch placement");
             }
         }
@@ -737,7 +738,7 @@ internal static partial class Program
         for (int action = 0; action < 7; action++)
         {
             ushort offset = LookupWord(rom, 0x82f639 + action * 2);
-            AssertEqual(new MapLabelPoint(offset / 2 % 32, offset / 2 / 32),
+            AssertEqual(new Position16<TilemapCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
                 GameOptionsPresentationDefinitions.ControllerAnchor(action), "native options label anchor");
         }
         foreach ((string page, int address, int count) in new[]
@@ -747,7 +748,7 @@ internal static partial class Program
             (GameOptionsPresentationDefinitions.SpecialMenu, 0x82f33f, 3),
         })
             for (int row = 0; row < count; row++)
-                AssertEqual(new MapLabelPoint(LookupWord(rom, address + row * 4), LookupWord(rom, address + row * 4 + 2)),
+                AssertEqual(new Position16<OamPixels>(LookupWord(rom, address + row * 4), LookupWord(rom, address + row * 4 + 2)),
                     loaded.CursorPosition(page, row), "native options cursor anchor");
         var stockLabels = (Dictionary<string, ushort[]>)typeof(GameOptionsPresentation).GetField("controllerLabels",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(loaded)!;
@@ -761,8 +762,8 @@ internal static partial class Program
         var edited = ReadDocument();
         for (int action = 0; action < edited.ControllerLabelAnchors.Length; action++)
         {
-            MapLabelPoint old = edited.ControllerLabelAnchors[action];
-            edited.ControllerLabelAnchors[action] = new(old.X + 1, old.Y);
+            Position16<TilemapCells> old = edited.ControllerLabelAnchors[action];
+            edited.ControllerLabelAnchors[action] = new(checked((ushort)(old.X + 1)), old.Y);
         }
         foreach (MapPresentationCell[] label in edited.ControllerLabels.Values)
             for (int cell = 0; cell < label.Length; cell++)
@@ -771,12 +772,12 @@ internal static partial class Program
         edited.SpecialToggles[GameOptionsPresentationDefinitions.IconCancelToggle].EnabledCells[0] = 0;
         foreach (string page in edited.HeadingAnchors.Keys.ToArray())
         {
-            MapLabelPoint old = edited.HeadingAnchors[page];
-            edited.HeadingAnchors[page] = new(old.X + 1, old.Y);
+            Position16<OamPixels> old = edited.HeadingAnchors[page];
+            edited.HeadingAnchors[page] = new(checked((ushort)(old.X + 1)), old.Y);
             for (int row = 0; row < edited.CursorAnchors[page].Length; row++)
             {
                 old = edited.CursorAnchors[page][row];
-                edited.CursorAnchors[page][row] = new(old.X + 1, old.Y);
+                edited.CursorAnchors[page][row] = new(checked((ushort)(old.X + 1)), old.Y);
             }
         }
         Confirm(edited, Load(edited));
@@ -807,7 +808,7 @@ internal static partial class Program
             {
                 byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage);
                 byte[] expected = (byte[])actual.Clone();
-                MapLabelPoint point = document.ControllerLabelAnchors[action];
+                Position16<TilemapCells> point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)
                 {
                     MapPresentationCell source = document.ControllerLabels[GameOptionsPresentationDefinitions.ControllerLabelName(button)][cell];
@@ -828,7 +829,7 @@ internal static partial class Program
                 var expected = new OamBuffer();
                 presentation.DrawHeading(actual, pair.Key, 3);
                 MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingFrameName(pair.Key)], "heading oracle")
-                    .DrawOnScreen(expected, checked((ushort)pair.Value.X), unchecked((ushort)(pair.Value.Y - 3)),
+                    .DrawOnScreen(expected, new(checked((ushort)pair.Value.X), unchecked((ushort)(pair.Value.Y - 3))),
                         SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);
                 AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) && actual.HighTable.SequenceEqual(expected.HighTable),
                     "options stock/edited heading origin and scroll");
@@ -1209,7 +1210,7 @@ internal static partial class Program
             bool digit = glyph < 10;
             int index = digit ? glyph : glyph - 10;
             ushort expected = (ushort)(digit ? 0x2060 + index : 0x206a + index);
-            var anchor = new MapLabelPoint(4, 3);
+            var anchor = new Position16<TilemapCells>(4, 3);
             if (digit) fileSelect.WriteDigit(glyphTilemap, anchor, 2, index);
             else fileSelect.WriteSlotLetter(glyphTilemap, anchor, index);
             AssertEqual(expected, glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)], "stream 3 actual file-select calculated glyph write");
@@ -3451,7 +3452,7 @@ internal static partial class Program
             var expectedOam = new OamBuffer();
             actual.DrawHelmet(actualOam, frame, 0);
             var anchor = expected.HelmetAnchors[0];
-            expectedParts.DrawOnScreen(expectedOam, (ushort)anchor.X, (ushort)anchor.Y, (ushort)(expected.ObjectPalette << 9));
+            expectedParts.DrawOnScreen(expectedOam, new((ushort)anchor.X, (ushort)anchor.Y), (ushort)(expected.ObjectPalette << 9));
             AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
                 "actual helmet draw preserves native and independent edited ordered OAM");
         }

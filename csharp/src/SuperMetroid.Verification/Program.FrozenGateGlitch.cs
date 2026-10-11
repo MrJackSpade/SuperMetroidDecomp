@@ -76,8 +76,7 @@ internal static partial class Program
                 bus,
                 level,
                 runtime.BackgroundStreamer!,
-                FrozenGateCameraX,
-                FrozenGateCameraY,
+                new(FrozenGateCameraX, FrozenGateCameraY),
                 bg1XOffset: 0);
         }
         gate = plms.PopulationSlots.Single(slot =>
@@ -127,8 +126,7 @@ internal static partial class Program
             bus,
             level,
             runtime.BackgroundStreamer!,
-            FrozenGateCameraX,
-            FrozenGateCameraY,
+            new(FrozenGateCameraX, FrozenGateCameraY),
             bg1XOffset: 0);
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);

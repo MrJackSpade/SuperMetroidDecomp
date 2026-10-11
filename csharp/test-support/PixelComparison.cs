@@ -25,9 +25,9 @@ internal static class PixelComparison
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-comparison", Guid.NewGuid().ToString("N")));
         Directory.CreateDirectory(directory);
         File.WriteAllBytes(Path.Combine(directory, "frame.smframe"), RenderFrameSnapshotCodec.Serialize(packet));
-        PngWriterTooling.WriteRgba(Path.Combine(directory, "expected.png"), packet.Size.X, packet.Size.Y, expected);
-        PngWriterTooling.WriteRgba(Path.Combine(directory, "actual.png"), packet.Size.X, packet.Size.Y, actual);
-        PngWriterTooling.WriteRgba(Path.Combine(directory, "difference.png"), packet.Size.X, packet.Size.Y, difference);
+        PngWriterTooling.WriteRgba(Path.Combine(directory, "expected.png"), packet.Size, expected);
+        PngWriterTooling.WriteRgba(Path.Combine(directory, "actual.png"), packet.Size, actual);
+        PngWriterTooling.WriteRgba(Path.Combine(directory, "difference.png"), packet.Size, difference);
         File.WriteAllText(Path.Combine(directory, "comparison.json"), JsonSerializer.Serialize(new {
             Context = context, packet.Identity, MismatchedPixels = count,
             FirstX = first % packet.Size.X, FirstY = first / packet.Size.X,

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -24,13 +25,13 @@ public sealed class WorldMapArtwork
             if (!WorldMapTileDefinitions.IsForegroundFontTile(tile)) continue;
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
-                if (foreground[TilePixel(tile, x, y)] == WorldMapTileDefinitions.ForegroundFontFace)
+                if (foreground[TilePixel(tile, new(checked((ushort)x), checked((ushort)y)))] == WorldMapTileDefinitions.ForegroundFontFace)
                     masks[tile] |= 1UL << (y * 8 + x);
         }
         for (int tile = 0; tile < masks.Length; tile++)
         {
             if (!WorldMapTileDefinitions.IsForegroundFontTile(tile)) continue;
-            int source = WorldMapTileDefinitions.ForegroundSourcePixel(TilePixel(tile, 0, 0));
+            int source = WorldMapTileDefinitions.ForegroundSourcePixel(TilePixel(tile, new(0, 0)));
             int sourceTile = source < 0 ? tile : PixelTile(source);
             ulong expected = sourceTile == tile ? 0 : masks[sourceTile];
             if (masks[tile] != expected) fontFill.Add(tile, masks[tile]);
@@ -63,12 +64,12 @@ public sealed class WorldMapArtwork
     /// <exception cref="InvalidDataException">PNG structure, dimensions, or a pixel's bitplane index range is invalid.</exception>
     public static WorldMapArtwork Load(Stream foregroundPng, Stream backgroundPng)
     {
-        var front = IndexedPng.Read(foregroundPng, WorldMapArtworkFormat.Width, WorldMapArtworkFormat.ForegroundHeight);
-        var back = IndexedPng.Read(backgroundPng, WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight);
-        _ = SnesPlanarTileEncoder.Encode(front.Pixels, front.Width, front.Height, 4);
+        var front = IndexedPng.Read(foregroundPng, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.ForegroundHeight));
+        var back = IndexedPng.Read(backgroundPng, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight));
+        _ = SnesPlanarTileEncoder.Encode(front.Pixels, front.Size, 4);
         // Keep the original import-time range validation and diagnostic, while
         // retaining only the source pixels needed by the calculated character views.
-        _ = SnesPlanarTileEncoder.Encode(back.Pixels, back.Width, back.Height, 2);
+        _ = SnesPlanarTileEncoder.Encode(back.Pixels, back.Size, 2);
         return new(front.Pixels, back.Pixels);
     }
     /// <summary>Reconstructs both selected atlases, encodes their row-major 8x8 characters, and loads the foreground 4-bpp and background 2-bpp streams at their fixed VRAM byte offsets.</summary>
@@ -79,25 +80,25 @@ public sealed class WorldMapArtwork
         for (int index = 0; index < front.Length; index++)
             front[index] = ForegroundPixel(index);
         vram.LoadBytes(WorldMapArtworkFormat.ForegroundDestination,
-            SnesPlanarTileEncoder.Encode(front, WorldMapArtworkFormat.Width, WorldMapArtworkFormat.ForegroundHeight, 4));
+            SnesPlanarTileEncoder.Encode(front, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.ForegroundHeight), 4));
         var pixels = new byte[WorldMapArtworkFormat.Width * WorldMapArtworkFormat.BackgroundHeight];
         for (int index = 0; index < pixels.Length; index++)
             pixels[index] = background.TryGetValue(index, out byte value) ? value
                 : TryBackgroundDefault(index, out byte calculated) ? calculated
                 : throw new InvalidDataException("World background source pixel is unavailable.");
         vram.LoadBytes(WorldMapArtworkFormat.BackgroundDestination,
-            SnesPlanarTileEncoder.Encode(pixels, WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight, 2));
+            SnesPlanarTileEncoder.Encode(pixels, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight), 2));
     }
 
-    private static int TilePixel(int tile, int x, int y) =>
-        (tile / WorldMapArtworkFormat.TileColumns * 8 + y) * WorldMapArtworkFormat.Width +
-        tile % WorldMapArtworkFormat.TileColumns * 8 + x;
+    private static int TilePixel(int tile, Position16<CharacterPixels> point) =>
+        (tile / WorldMapArtworkFormat.TileColumns * 8 + point.Y) * WorldMapArtworkFormat.Width +
+        tile % WorldMapArtworkFormat.TileColumns * 8 + point.X;
     private static int PixelTile(int index) => index / WorldMapArtworkFormat.Width / 8 *
         WorldMapArtworkFormat.TileColumns + index % WorldMapArtworkFormat.Width / 8;
     private ulong FontMask(int tile)
     {
         if (fontFill.TryGetValue(tile, out ulong mask)) return mask;
-        int source = WorldMapTileDefinitions.ForegroundSourcePixel(TilePixel(tile, 0, 0));
+        int source = WorldMapTileDefinitions.ForegroundSourcePixel(TilePixel(tile, new(0, 0)));
         int sourceTile = source < 0 ? tile : PixelTile(source);
         return sourceTile == tile ? 0 : FontMask(sourceTile);
     }
@@ -116,8 +117,8 @@ public sealed class WorldMapArtwork
         int x = index % WorldMapArtworkFormat.Width, y = index / WorldMapArtworkFormat.Width;
         int tile = y / 8 * WorldMapArtworkFormat.TileColumns + x / 8;
         if (digitFill.TryGetValue(tile, out ulong footprint))
-            return WorldMapTileDefinitions.TryOutlinedPixel(tile, x % 8, y % 8, footprint, out value);
+            return WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), footprint, out value);
         return WorldMapTileDefinitions.TryBackgroundPixel(tile,
-            x % 8, y % 8, out value);
+            new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out value);
     }
 }

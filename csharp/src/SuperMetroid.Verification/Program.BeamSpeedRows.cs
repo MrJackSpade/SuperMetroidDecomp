@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -10,7 +11,7 @@ internal static partial class Program
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusPoseId AimPose(byte direction) => (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
             retail.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction);
-        var room = new RoomLevelData(16, 16, new ushort[256], new byte[256],
+        var room = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new ushort[256], new byte[256],
             new ushort[256], new byte[8]);
         for (ushort combination = 0; combination < 12; combination++)
         for (byte direction = 0; direction < 10; direction++)

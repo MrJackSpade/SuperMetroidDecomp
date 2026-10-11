@@ -24,7 +24,7 @@ internal static partial class Program
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 64; x++)
         {
-            int index = y * level.WidthInBlocks + x;
+            int index = y * level.Size.X + x;
             level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
                 y >= 32 || x == 44 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);

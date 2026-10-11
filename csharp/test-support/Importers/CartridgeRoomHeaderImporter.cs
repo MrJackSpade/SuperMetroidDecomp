@@ -69,7 +69,7 @@ public static class CartridgeRoomHeaderImporter
             CartridgeImportSource.Require(bus), address + 9);
         ushort statePointer = SelectImportedState(bus, unchecked((ushort)(roomPointer + 11)), selection);
         return new CartridgeRoomHeader(roomPointer, Byte(0), (AreaId)Byte(1),
-            Byte(2), Byte(3), Byte(4), Byte(5), Byte(6), Byte(7), Byte(8),
+            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7), Byte(8),
             doorList, CartridgeRoomStateImporter.Load(bus, statePointer));
     }
 }

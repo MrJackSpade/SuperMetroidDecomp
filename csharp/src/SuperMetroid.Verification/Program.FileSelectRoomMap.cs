@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -28,27 +29,27 @@ internal static partial class Program
             // station's mask: explored cells win, even for secret rooms.
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
-                if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, x, y);
+                if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
             var graphics = new FileSelectRoomMapGraphics(bus, system, area, mapPresentation: RetailPresentationFixture());
             byte[] pause = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank);
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
             {
-                int offset = AreaMapLayout.GetTilemapWordIndex(x, y) * 2;
+                int offset = AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2;
                 ushort raw = BinaryPrimitives.ReadUInt16LittleEndian(original.AsSpan(offset));
                 bool explored = (x + y) % 7 == 0;
                 // Independent transcription of $82:9517's two branches.
                 ushort expected = explored ? (ushort)(raw & 0xfbff)
-                    : downloaded && map.IsRevealedByMapStation(x, y) ? raw
+                    : downloaded && map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))) ? raw
                     : downloaded ? (ushort)31 : (ushort)15;
                 AssertEqual(expected, graphics.Vram.ReadWord((ushort)(0x5000 + offset / 2)),
                     $"room-select area {areaIndex} downloaded={downloaded} cell {x},{y}");
-                ushort pauseExpected = !explored && !(downloaded && map.IsRevealedByMapStation(x, y))
+                ushort pauseExpected = !explored && !(downloaded && map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))))
                     ? (ushort)31 : expected;
                 AssertEqual(pauseExpected, BinaryPrimitives.ReadUInt16LittleEndian(pause.AsSpan(offset)),
                     "shared builder retains pause map hidden character");
-                AssertEqual(explored, system.IsMapTileExplored(area, x, y), "map projection does not mark exploration");
+                AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
             }
             AssertTrue(original.SequenceEqual(map.RawTilemapBytes), "map projection preserves cartridge map");
             ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomLabelPointers + areaIndex * 2);
@@ -63,7 +64,7 @@ internal static partial class Program
                     expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
                 AssertEqual(expected, graphics.Vram.ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
             }
-            Rgba32[] pixels = graphics.RenderBackgrounds(0, unchecked((ushort)-40));
+            Rgba32[] pixels = graphics.RenderBackgrounds(new(0, unchecked((ushort)-40)));
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
             var retailIcons = new FileSelectMapIcons(system, area);
@@ -72,13 +73,13 @@ internal static partial class Program
             retailIcons.BindSprites(RetailPresentationFixture().Sprites);
             var retailOam = new OamBuffer();
             retailOam.BeginFrame();
-            retailIcons.DrawBeforeMarker(retailOam, 0, 0);
-            retailIcons.DrawAfterMarker(retailOam, 0, 0);
+            retailIcons.DrawBeforeMarker(retailOam, new(0, 0));
+            retailIcons.DrawAfterMarker(retailOam, new(0, 0));
             retailOam.FinalizeFrame();
             AssertTrue(retailOam.LastFinalizedSpriteCount < OamBuffer.SpriteCount,
                 $"area {areaIndex} retail map-icon lists fit OAM");
             if (downloaded)
-                PngWriterTooling.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), 256, 224, pixels);
+                PngWriterTooling.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), new Extent16<ScreenPixels>(256, 224), pixels);
         }
     }
 
@@ -213,7 +214,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var system = new Bank80SystemState();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
-        var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new MapLabelPoint(511, 255));
+        var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
         landmarks[MapLandmarkDefinitions.Bosses(AreaId.Brinstar).ToArray().First(id => id is not null)!] = new(32, 40);
         var destination = MapLandmarkDefinitions.Elevators(AreaId.Brinstar).ToArray().First(label =>
             label.Destination == AreaId.Crateria);
@@ -221,7 +222,7 @@ internal static partial class Program
         using var landmarkJson = new MemoryStream();
         MapLandmarkLayout.Write(landmarkJson, new() { Version = 1, Markers = landmarks });
         landmarkJson.Position = 0;
-        var stations = MapStationDiscoveryRules.All.ToArray().ToDictionary(rule => rule.Id, _ => new MapLabelPoint(511, 255));
+        var stations = MapStationDiscoveryRules.All.ToArray().ToDictionary(rule => rule.Id, _ => new Position16<MapPixels>(511, 255));
         var station = MapStationDiscoveryRules.Get(AreaId.Brinstar, MapStationKind.Missile).First();
         stations[station.Id] = new(64, 80);
         using var stationJson = new MemoryStream();
@@ -246,8 +247,8 @@ internal static partial class Program
         {
             var oam = new OamBuffer();
             oam.BeginFrame();
-            icons.DrawBeforeMarker(oam, 8, 16);
-            icons.DrawAfterMarker(oam, 8, 16);
+            icons.DrawBeforeMarker(oam, new(8, 16));
+            icons.DrawAfterMarker(oam, new(8, 16));
             oam.FinalizeFrame();
             return oam;
         }
@@ -260,7 +261,7 @@ internal static partial class Program
         AssertEqual(88, downloaded.LowTable[4], "destination subtracts map X scroll");
         AssertEqual(96, downloaded.LowTable[5], "destination subtracts map Y scroll");
         AssertEqual(0x30, downloaded.LowTable[7], "destination uses palette zero and retained priority");
-        system.MarkExploredMapTile(AreaId.Brinstar, station.CellX, station.CellY);
+        system.MarkExploredMapTile(AreaId.Brinstar, station.Cell);
         OamBuffer explored = Draw();
         AssertEqual(7, explored.LastFinalizedSpriteCount, "visited refill adds one icon to the boss and five destinations");
         AssertEqual(0x0b, explored.LowTable[6], "refill draws between boss and destination");
@@ -291,9 +292,8 @@ internal static partial class Program
         {
             var station = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
             var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
-            int x = room.MapX + (station.SamusX >> 8);
-            int y = room.MapY + (station.SamusY >> 8) + 1;
-            snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(x, y)] |= AreaMapLayout.GetBitMask(x);
+            var cell = room.MapPosition + new Offset16<MapTiles>(checked((short)(station.SamusPosition.X >> 8)), checked((short)((station.SamusPosition.Y >> 8) + 1)));
+            snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(cell)] |= AreaMapLayout.GetBitMask(cell.X);
         }
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);
@@ -340,7 +340,7 @@ internal static partial class Program
         frame = game.Step(0x1000);
         Until(() => frame.Phase == "Room", 80);
         for (int i = 0; i < 15; i++) frame = game.Step(0);
-        PngWriterTooling.WriteRgba(Path.GetFullPath("csharp/test-temp/file-select-map/live-maridia-room.png"), 256, 224, frame.Pixels);
+        PngWriterTooling.WriteRgba(Path.GetFullPath("csharp/test-temp/file-select-map/live-maridia-room.png"), new Extent16<ScreenPixels>(256, 224), frame.Pixels);
         AssertTrue(game.RuntimeForVerification is null, "room map does not implicitly load the save");
         frame = game.Step(0x8000);
         Until(() => frame.Phase == "Area", 80);
@@ -361,7 +361,7 @@ internal static partial class Program
             AssertTrue(predicate(), $"saved map frontend reached requested boundary; current {frame.GameState}/{frame.Phase}");
         }
         void Capture(string name) => PngWriterTooling.WriteRgba(
-            Path.GetFullPath($"csharp/test-temp/file-select-map/{name}.png"), 256, 224, frame.Pixels);
+            Path.GetFullPath($"csharp/test-temp/file-select-map/{name}.png"), new Extent16<ScreenPixels>(256, 224), frame.Pixels);
     }
 
     private static void VerifyFileSelectMapNavigation()
@@ -419,41 +419,41 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AreaMapCartridgeData map = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria);
         var system = new Bank80SystemState();
-        system.MarkExploredMapTile(AreaId.Crateria, 0, 0);
-        system.MarkExploredMapTile(AreaId.Crateria, 63, 31);
+        system.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
+        system.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
         ushort[] inputs = [0x0200, 0x0100, 0x0800, 0x0400];
         for (int direction = 1; direction <= 4; direction++)
         {
-            var scroll = new FileSelectMapScroll(bus, map, system, 240, 128);
-            AssertEqual(124, scroll.Horizontal, "room map centers native horizontal bounds");
-            AssertEqual(32, scroll.Vertical, "room map rounds the 112px center offset down to a tile boundary");
-            AssertEqual(24, scroll.MinimumY, "room-select upper arrow boundary gets delayed 24px adjustment");
+            var scroll = new FileSelectMapScroll(bus, map, system, new(240, 128));
+            AssertEqual(124, scroll.Scroll.X, "room map centers native horizontal bounds");
+            AssertEqual(32, scroll.Scroll.Y, "room map rounds the 112px center offset down to a tile boundary");
+            AssertEqual(24, scroll.Minimum.Y, "room-select upper arrow boundary gets delayed 24px adjustment");
             for (int frame = 1; frame <= 8; frame++)
             {
                 bool sound = scroll.Step(frame == 1 ? inputs[direction - 1] : (ushort)0);
                 int delta = frame >= 4 ? 8 : 0;
-                AssertEqual(124 + (direction == 1 ? -delta : direction == 2 ? delta : 0), scroll.Horizontal,
+                AssertEqual(124 + (direction == 1 ? -delta : direction == 2 ? delta : 0), scroll.Scroll.X,
                     "map scroll horizontal exact pulse frame");
-                AssertEqual(32 + (direction == 3 ? -delta : direction == 4 ? delta : 0), scroll.Vertical,
+                AssertEqual(32 + (direction == 3 ? -delta : direction == 4 ? delta : 0), scroll.Scroll.Y,
                     "map scroll vertical exact pulse frame");
                 AssertEqual(frame == 8, sound, "map scroll sound occurs at completion, not displacement");
             }
             AssertEqual(MapScrollDirection.None, scroll.Direction, "released direction completes its accepted step");
         }
-        var precedence = new FileSelectMapScroll(bus, map, system, 240, 128);
+        var precedence = new FileSelectMapScroll(bus, map, system, new(240, 128));
         precedence.Step(0x0f00);
         AssertEqual(MapScrollDirection.Left, precedence.Direction, "simultaneous map input uses native arrow order");
-        var empty = new FileSelectMapScroll(bus, map, new Bank80SystemState(), 216, 48);
-        AssertEqual(208, empty.MinimumX, "empty map uses retail left default");
-        AssertEqual(224, empty.MaximumX, "empty map uses retail right default");
-        AssertEqual(32, empty.MinimumY, "empty map uses top default then file-select adjustment");
-        AssertEqual(88, empty.MaximumY, "empty map uses retail bottom default");
+        var empty = new FileSelectMapScroll(bus, map, new Bank80SystemState(), new(216, 48));
+        AssertEqual(208, empty.Minimum.X, "empty map uses retail left default");
+        AssertEqual(224, empty.Maximum.X, "empty map uses retail right default");
+        AssertEqual(32, empty.Minimum.Y, "empty map uses top default then file-select adjustment");
+        AssertEqual(88, empty.Maximum.Y, "empty map uses retail bottom default");
         // Repeated stepping must stop at the native inequality, not run past the edge.
         for (int frame = 0; frame < 1000; frame++) precedence.Step(0x0200);
         AssertTrue(!precedence.CanScroll(MapScrollDirection.Left), "held left stops at map boundary");
-        ushort stoppedX = precedence.Horizontal;
+        ushort stoppedX = precedence.Scroll.X;
         for (int frame = 0; frame < 16; frame++) precedence.Step(0x0200);
-        AssertEqual(stoppedX, precedence.Horizontal, "held input cannot scroll beyond unavailable arrow");
+        AssertEqual(stoppedX, precedence.Scroll.X, "held input cannot scroll beyond unavailable arrow");
     }
 
     private static void VerifyFileSelectStationMarker()
@@ -491,7 +491,7 @@ internal static partial class Program
             AssertEqual(backing, marker.ShowBacking, "station marker alternates backing at loop boundary");
             var oam = new OamBuffer();
             oam.BeginFrame();
-            marker.Draw(oam, 24, 16, sprites);
+            marker.Draw(oam, new(24, 16), sprites);
             oam.FinalizeFrame();
             AssertEqual(backing ? 2 : 1, oam.LastFinalizedSpriteCount, "marker backing OAM emission");
             AssertEqual(74, oam.LowTable[0], "marker subtracts horizontal scroll and sprite offset");
@@ -499,7 +499,7 @@ internal static partial class Program
             AssertEqual(0x3e, oam.LowTable[3], "marker retains sprite priority with palette seven");
             byte[] first = oam.LowTable.ToArray();
             oam.BeginFrame();
-            marker.Draw(oam, 24, 16, sprites);
+            marker.Draw(oam, new(24, 16), sprites);
             oam.FinalizeFrame();
             AssertTrue(first.SequenceEqual(oam.LowTable.ToArray()), "repainting station marker does not advance animation");
         }

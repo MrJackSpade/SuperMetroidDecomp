@@ -466,8 +466,8 @@ public sealed partial class RoomEnemySystem
         {
             ushort lowerAngle = state.LowerNeckAngle;
             ushort upperAngle = state.UpperNeckAngle;
-            ushort lowerIndex = state.LowerNeckMovementIndex;
-            ushort upperIndex = state.UpperNeckMovementIndex;
+            MotherBrainNeckMovement lowerIndex = state.LowerNeckMovementIndex;
+            MotherBrainNeckMovement upperIndex = state.UpperNeckMovementIndex;
             MotherBrainNeckKinematics.StepAngles(
                 ref lowerAngle,
                 ref upperAngle,

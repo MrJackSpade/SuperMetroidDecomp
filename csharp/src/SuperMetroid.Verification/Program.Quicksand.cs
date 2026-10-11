@@ -12,7 +12,7 @@ internal static partial class Program
             new ushort[16], new byte[8]);
         var level = Room(0x80);
         for (int suit = 0; suit < 2; suit++)
-        for (ushort direction = 0; direction < 4; direction++)
+        foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
         {
             var samus = new SamusState { EquippedItems = suit == 0 ? (ushort)0 : (ushort)SamusEquipmentFlags.GravitySuit };
             var body = samus.Kinematics;
@@ -24,16 +24,16 @@ internal static partial class Program
             samus.HorizontalSpeed.BaseSubspeed = 0xffff;
             samus.HorizontalSpeed.HasRunningMomentum = true;
             SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
-            AssertEqual(direction is 0 or 3 ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
+            AssertEqual(direction == SamusVerticalDirection.None ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
                 body.ExtraYFixed, "quicksand per-direction/suit displacement");
-            AssertEqual(direction is 0 or 3 ? 0u : direction == 1 ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
+            AssertEqual(direction == SamusVerticalDirection.None ? 0u : direction == SamusVerticalDirection.Up ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
                 body.VerticalSpeedFixed, "quicksand speed cancellation and jump cap");
             AssertEqual((ushort)0x7fff, samus.HorizontalSpeed.BaseSubspeed, "quicksand retains low fractional X");
             AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, "quicksand clears whole base X");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "quicksand cancels running momentum");
             var move = SamusBlockCollision.MoveVertical(bus, level, body, 0x28000, true);
-            AssertEqual(direction is 0 or 3 ? 0x3000 : 0x28000, move.AcceptedDisplacement, "surface probe accepts native sinking distance");
-            AssertEqual(direction != 1, move.Collided, "surface publishes grounded contact separately from carry");
+            AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement, "surface probe accepts native sinking distance");
+            AssertEqual(direction != SamusVerticalDirection.Up, move.Collided, "surface publishes grounded contact separately from carry");
             body.YPosition = 24;
             var poseProbe = SamusBlockCollision.MoveVertical(bus, level, body, 0x28000, true, publishQuicksandGrounding: false);
             AssertEqual(false, poseProbe.Collided, "pose clearance does not treat sand contact as solid carry");
@@ -78,7 +78,7 @@ internal static partial class Program
             new ushort[16],
             new byte[8]);
         for (int suit = 0; suit < 2; suit++)
-        for (ushort direction = 0; direction < 4; direction++)
+        foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
         {
             var samus = new SamusState
             {
@@ -96,11 +96,11 @@ internal static partial class Program
             QuicksandSurfacePhysics physics =
                 QuicksandDefinitions.SurfacePhysics(suit != 0);
             AssertEqual(
-                direction is 0 or 3
+                direction == SamusVerticalDirection.None
                     ? physics.StationaryDisplacement << 8
                     : physics.MovingDisplacement << 8,
                 body.ExtraYFixed,
-                $"production quicksand suit {suit} direction {direction} displacement");
+                $"production quicksand suit {suit} direction {(int)direction} displacement");
         }
 
         for (byte index = 0; index < 16; index++)
@@ -108,7 +108,7 @@ internal static partial class Program
             var body = new SamusKinematicsState
             {
                 SandCollisionArea = AreaId.Maridia,
-                YDirection = 2,
+                YDirection = SamusVerticalDirection.Down,
                 YSpeed = 4,
                 YSubacceleration = 0x1c00,
             };

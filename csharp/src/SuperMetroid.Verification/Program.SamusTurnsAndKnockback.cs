@@ -150,7 +150,7 @@ static void VerifySamusAerialTurnsAndWallJump()
     turn.RefreshCollisionRadii(bus);
     turn.HorizontalSpeed.BaseSpeed = 1;
     turn.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
-    turn.Kinematics.YDirection = 1;
+    turn.Kinematics.YDirection = SamusVerticalDirection.Up;
     turn.Kinematics.YSpeed = 2;
     turn.Kinematics.YSubacceleration = 0x2800;
     AssertTrue(turn.TryApplyAerialTurn(bus, level, SamusPoseId.TurningRightToLeftJumpPose, 0), "diagonal-up aerial turn installs");
@@ -395,10 +395,10 @@ static void VerifySamusAerialTurnsAndWallJump()
         (ushort)(SnesButton.Right | SnesButton.A),
         1);
     AssertEqual((wallStartY - 5), eligible.YPosition, "wall launch moves by old 4.A000 speed");
-    AssertEqual(4, eligible.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual(SamusContactDamageIndex.PseudoScrew, eligible.HorizontalSpeed.ContactDamageIndex,
         "charged wall-jump frames three through 22 publish damage index four");
 
-    eligible.HorizontalSpeed.ContactDamageIndex = 0;
+    eligible.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
     eligible.AnimationFrame = 0x17;
     SamusAerialMovement.StepWallJump(
         bus,
@@ -406,7 +406,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         eligible,
         (ushort)(SnesButton.Right | SnesButton.A),
         2);
-    AssertEqual(3, eligible.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual(SamusContactDamageIndex.ScrewAttack, eligible.HorizontalSpeed.ContactDamageIndex,
         "wall-jump frame 23 publishes Screw-style damage index three");
 
     SamusState CreateSpinSamus(ushort animationFrame)
@@ -417,7 +417,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, 0);
         samus.AnimationFrame = animationFrame;
-        samus.Kinematics.YDirection = 1;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = 2;
         samus.Kinematics.YSubacceleration = 0x2800;
         return samus;
@@ -435,7 +435,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, 0);
         samus.AnimationFrame = animationFrame;
-        samus.Kinematics.YDirection = 1;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = 2;
         samus.Kinematics.YSubacceleration = 0x2800;
         return samus;
@@ -792,11 +792,11 @@ static void VerifySamusKnockbackAndDamageBoost()
             XPosition = 96,
             YPosition = 96,
             BombJumpDirection = 0x0802,
-            MorphBallBounceState = 0x0602,
+            MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound,
         };
         ball.RefreshCollisionRadii(bus);
         ball.InitializeAnimation(bus, initialFrame: 3);
-        ball.HorizontalSpeed.ContactDamageIndex = 3;
+        ball.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         ushort preservedFrame = ball.AnimationFrame;
         ushort preservedTimer = ball.AnimationFrameTimer;
 
@@ -817,9 +817,9 @@ static void VerifySamusKnockbackAndDamageBoost()
             $"morphed pose ${(int)pose:X2} retains rolling animation timer");
         AssertEqual(0, ball.BombJumpDirection,
             $"morphed pose ${(int)pose:X2} start clears pending bomb jump");
-        AssertEqual(0, ball.HorizontalSpeed.ContactDamageIndex,
+        AssertEqual(SamusContactDamageIndex.None, ball.HorizontalSpeed.ContactDamageIndex,
             $"morphed pose ${(int)pose:X2} start clears contact damage");
-        AssertEqual(0x0602, ball.MorphBallBounceState,
+        AssertEqual(SamusBallBounceState.SpringBallSecondRebound, ball.MorphBallBounceState,
             $"morphed pose ${(int)pose:X2} start leaves bounce state until completion");
 
         // Native ball rows accelerate at 0.C000, not the humanoid hurt row's 1.8000.
@@ -838,7 +838,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         Pose = SamusPoseId.MorphBallGroundRightPose,
         XPosition = 96,
         YPosition = 96,
-        MorphBallBounceState = 2,
+        MorphBallBounceState = SamusBallBounceState.SecondRebound,
     };
     ballExpires.RefreshCollisionRadii(bus);
     ballExpires.InitializeAnimation(bus, initialFrame: 3);
@@ -868,13 +868,13 @@ static void VerifySamusKnockbackAndDamageBoost()
         "expired morphed knockback retains rolling frame");
     AssertEqual(retainedBallTimer, ballExpires.AnimationFrameTimer,
         "expired morphed knockback retains rolling timer");
-    AssertEqual(0, ballExpires.MorphBallBounceState,
+    AssertEqual(SamusBallBounceState.None, ballExpires.MorphBallBounceState,
         "expired morphed knockback clears bounce state");
     AssertEqual(0, ballExpires.Kinematics.YSpeed,
         "expired morphed knockback clears whole Y speed");
     AssertEqual(0, ballExpires.Kinematics.YSubspeed,
         "expired morphed knockback clears fractional Y speed");
-    AssertEqual(2, ballExpires.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.Down, ballExpires.Kinematics.YDirection,
         "expired morphed knockback resumes with direction two");
 
     // Command one skips the proposed pose, so its same-pose bottom alignment is zero.
@@ -882,7 +882,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         "expired humanoid knockback clears whole Y speed");
     AssertEqual(0, expires.Kinematics.YSubspeed,
         "expired humanoid knockback clears fractional Y speed");
-    AssertEqual(2, expires.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.Down, expires.Kinematics.YDirection,
         "expired humanoid knockback publishes falling direction two");
     AssertEqual(humanoidYAfterFinalMove, expires.YPosition,
         "expired humanoid command retains current pose radius and position");
@@ -909,7 +909,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     floorClipOverlap.Kinematics.YSubposition = 0xffff;
     floorClipOverlap.Kinematics.YSpeed = 0xffff;
     floorClipOverlap.Kinematics.YSubspeed = 0xac00;
-    floorClipOverlap.Kinematics.YDirection = 0;
+    floorClipOverlap.Kinematics.YDirection = SamusVerticalDirection.None;
     floorClipOverlap.PoseHistory.PreviousPose =
         SamusPoseId.TurningLeftToRightJumpAimDownPose;
     floorClipOverlap.RefreshCollisionRadii(bus);
@@ -926,7 +926,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         "floor-clip command clears whole hurt Y speed after alignment");
     AssertEqual(0, floorClipOverlap.Kinematics.YSubspeed,
         "floor-clip command clears fractional hurt Y speed after alignment");
-    AssertEqual(2, floorClipOverlap.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.Down, floorClipOverlap.Kinematics.YDirection,
         "floor-clip command resumes downward direction");
 
     // Neighboring control: the same timer expiry without the larger turn pose must not

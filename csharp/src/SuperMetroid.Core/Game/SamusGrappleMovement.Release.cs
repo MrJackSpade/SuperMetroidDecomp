@@ -68,7 +68,7 @@ public static partial class SamusGrappleMovement
         // $9B:CA65 selects Y direction from both angular-velocity sign and cosine sign.
         // Keeping that branch literal avoids deriving a screen-coordinate convention.
         bool movingDown = grapple.AngularVelocity >= 0 ? cosine >= 0 : cosine < 0;
-        samus.Kinematics.YDirection = movingDown ? (ushort)2 : (ushort)1;
+        samus.Kinematics.YDirection = movingDown ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
 
         samus.HorizontalSpeed.AccelerationMode = 2;
         int phaseOffset = 64 - 3 * (doubledVelocity >> 9);

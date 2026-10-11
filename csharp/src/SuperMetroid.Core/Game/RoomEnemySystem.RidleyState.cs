@@ -186,7 +186,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the live bank-$A6 AI function identity, shared by reveal logic and encounter-specific attack or escape phases.</summary>
     public RidleyAiFunction Function { get; internal set; }
     /// <summary>Gets the native encounter-mode word: zero during reveal, positive during combat, and $FFFF during Lower Norfair death.</summary>
-    public ushort FightMode { get; internal set; }
+    public RidleyFightMode FightMode { get; internal set; }
     /// <summary>Gets the wrapped count of Ceres hits used for health-palette progression and the hundred-hit fake-retreat trigger.</summary>
     public ushort HitCounter { get; internal set; }
     /// <summary>Gets the native OBJ palette bits used when drawing Ridley's composed body parts.</summary>
@@ -196,7 +196,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the native nonzero enable word for shared body motion and wing/tail updates, cleared when the intact death body is hidden.</summary>
     public ushort MovementAnimationEnabled { get; internal set; }
     /// <summary>Gets the native facing-table index: zero for left, one for front-facing transition art, and two for right.</summary>
-    public ushort FacingDirection { get; internal set; }
+    public RidleyFacing FacingDirection { get; internal set; }
     /// <summary>Gets the nonzero enable word for random or proximity-triggered neutral tail whips.</summary>
     public ushort IdleTailWhipEnabled { get; internal set; }
     /// <summary>Gets the shared tail-contact damage value before Samus's suit reduction.</summary>

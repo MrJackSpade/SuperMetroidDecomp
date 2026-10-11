@@ -75,7 +75,7 @@ internal static partial class Program
             if (intercept) next = (ushort)((next & 0xff00) | Word(0x91b61f + selection * 2));
             int calls = 0;
             speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = (ushort)raw;
-            speed.EchoSoundRequested = false; speed.ContactDamageIndex = 0;
+            speed.EchoSoundRequested = false; speed.ContactDamageIndex = SamusContactDamageIndex.None;
             ushort frame = 7;
             bool actual = speed.TryAdvanceSpeedBoosterAnimationStage(bus,
                 running ? SamusMovementType.Running : SamusMovementType.Standing,
@@ -87,7 +87,7 @@ internal static partial class Program
             AssertEqual(expectedTimer, timer, "Selected first-frame delay and wrapping frame buffer");
             AssertEqual(sound ? 1 : 0, calls, "Echo call only on bit-two stage entry");
             AssertTrue(!speed.EchoSoundRequested, "Synchronous queue path does not also defer sound");
-            AssertEqual(0, speed.ContactDamageIndex, "Animation cannot publish movement-owned boost contact damage");
+            AssertEqual(SamusContactDamageIndex.None, speed.ContactDamageIndex, "Animation cannot publish movement-owned boost contact damage");
         }
 
         // The queue's returned accumulator, not the already-published stage word, owns both

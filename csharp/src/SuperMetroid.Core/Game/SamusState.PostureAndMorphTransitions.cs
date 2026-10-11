@@ -384,12 +384,12 @@ public sealed partial class SamusState
     /// <summary>Shared bounce cancellation in native prospective command seven.</summary>
     private void CancelBounceForPostureTransition()
     {
-        if (MorphBallBounceState == 0)
+        if (MorphBallBounceState == SamusBallBounceState.None)
             return;
-        MorphBallBounceState = 0;
+        MorphBallBounceState = SamusBallBounceState.None;
         Kinematics.YSubspeed = 0;
         Kinematics.YSpeed = 0;
-        Kinematics.YDirection = 0;
+        Kinematics.YDirection = SamusVerticalDirection.None;
     }
 
     /// <summary>
@@ -517,7 +517,7 @@ public sealed partial class SamusState
     {
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
-        Kinematics.YDirection = 2;
+        Kinematics.YDirection = SamusVerticalDirection.Down;
     }
 
     /// <summary>
@@ -533,27 +533,27 @@ public sealed partial class SamusState
 
         // The cartridge tests the sign of a word subtraction, not an unsigned
         // magnitude. Moonfall's negative velocity therefore lands without a rebound.
-        if (MorphBallBounceState == 0 &&
+        if (MorphBallBounceState == SamusBallBounceState.None &&
             unchecked((short)(Kinematics.YSpeed - SamusMovementRomData.FirstBallBounceMinimumSpeed)) >= 0)
         {
-            MorphBallBounceState = 1;
-            Kinematics.YDirection = 1;
+            MorphBallBounceState = SamusBallBounceState.FirstRebound;
+            Kinematics.YDirection = SamusVerticalDirection.Up;
             Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed;
             Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
             return false;
         }
 
-        if (MorphBallBounceState == 1)
+        if (MorphBallBounceState == SamusBallBounceState.FirstRebound)
         {
-            MorphBallBounceState = 2;
-            Kinematics.YDirection = 1;
+            MorphBallBounceState = SamusBallBounceState.SecondRebound;
+            Kinematics.YDirection = SamusVerticalDirection.Up;
             Kinematics.YSpeed = unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed - 1));
             Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
             return false;
         }
 
-        MorphBallBounceState = 0;
-        Kinematics.YDirection = 0;
+        MorphBallBounceState = SamusBallBounceState.None;
+        Kinematics.YDirection = SamusVerticalDirection.None;
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
         SamusPoseId groundedPose = IsFacingLeft(bus)
@@ -582,7 +582,7 @@ public sealed partial class SamusState
 
         if ((controllerInput & (ushort)SnesButton.A) != 0)
         {
-            MorphBallBounceState = 0;
+            MorphBallBounceState = SamusBallBounceState.None;
             SamusAerialMovement.InitializeJump(bus, this);
             // Native landing relaunch only initializes velocity. It retains the
             // current airborne pose/animation, unlike a fresh grounded Jump input.
@@ -590,28 +590,29 @@ public sealed partial class SamusState
             return false;
         }
 
-        byte bounce = unchecked((byte)MorphBallBounceState);
-        if (bounce == 0 &&
+        // $91:F26E dispatches on the low (rebound) byte only, so an ordinary-ball
+        // rebound left over from a Spring Ball toggle selects the same rebound step.
+        if (MorphBallBounceState == SamusBallBounceState.None &&
             unchecked((short)(Kinematics.YSpeed - SamusMovementRomData.FirstBallBounceMinimumSpeed)) >= 0)
         {
-            MorphBallBounceState = 0x0601;
-            Kinematics.YDirection = 1;
+            MorphBallBounceState = SamusBallBounceState.SpringBallFirstRebound;
+            Kinematics.YDirection = SamusVerticalDirection.Up;
             Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed;
             Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
             return false;
         }
 
-        if (bounce == 1)
+        if (MorphBallBounceState is SamusBallBounceState.FirstRebound or SamusBallBounceState.SpringBallFirstRebound)
         {
-            MorphBallBounceState = 0x0602;
-            Kinematics.YDirection = 1;
+            MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound;
+            Kinematics.YDirection = SamusVerticalDirection.Up;
             Kinematics.YSpeed = unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed - 1));
             Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
             return false;
         }
 
-        MorphBallBounceState = 0;
-        Kinematics.YDirection = 0;
+        MorphBallBounceState = SamusBallBounceState.None;
+        Kinematics.YDirection = SamusVerticalDirection.None;
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
         SamusPoseId groundPose = IsFacingLeft(bus)
@@ -640,7 +641,7 @@ public sealed partial class SamusState
                 $"Spring-Ball jump ${(int)Pose:X2} -> ${(int)targetPose:X2} is outside the grounded-to-airborne Spring-Ball route.");
 
         ApplyMorphBallPoseChange(bus, targetPose);
-        MorphBallBounceState = 0;
+        MorphBallBounceState = SamusBallBounceState.None;
         SamusAerialMovement.InitializeJump(bus, this);
     }
 
@@ -680,7 +681,7 @@ public sealed partial class SamusState
             : springBall ? SamusPoseId.SpringBallFallingRightPose : SamusPoseId.MorphBallFallingRightPose;
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
-        Kinematics.YDirection = 2;
+        Kinematics.YDirection = SamusVerticalDirection.Down;
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, this);
         ApplyMorphBallPoseChange(bus, fallingPose);
     }
@@ -731,12 +732,12 @@ public sealed partial class SamusState
         // Command five's no-floor branch ($91:EFEF) preserves an ascending
         // velocity, even if a special handler left it on a standing pose. Crystal
         // Flash can do exactly that; unconditional reset shortens its return arc.
-        if (Kinematics.YDirection != 1)
+        if (Kinematics.YDirection != SamusVerticalDirection.Up)
         {
-            MorphBallBounceState = 0;
+            MorphBallBounceState = SamusBallBounceState.None;
             Kinematics.YSpeed = 0;
             Kinematics.YSubspeed = 0;
-            Kinematics.YDirection = 2;
+            Kinematics.YDirection = SamusVerticalDirection.Down;
         }
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, this);
         Pose = targetPose;
@@ -917,7 +918,7 @@ public sealed partial class SamusState
         // at the later `$91:D6F7` phase, so publish that same deferred work here.
         if (leavingScrewAttack)
             HorizontalSpeed.RequestNormalSuitPaletteRestore();
-        Kinematics.YDirection = 0;
+        Kinematics.YDirection = SamusVerticalDirection.None;
     }
 
     /// <summary>
@@ -1135,7 +1136,7 @@ public sealed partial class SamusState
         // Super-special command three does not run FBBB/FC99. An input-table
         // transition out of the same turn art DOES initialize jump velocity; keeping
         // those two routes distinct preserves both ordinary jumping and Moonfall.
-        MorphBallBounceState = 0;
+        MorphBallBounceState = SamusBallBounceState.None;
         AnimationFrameTimer = unchecked((ushort)(AnimationFrameTimer + commandAnimationBuffer));
         return true;
     }

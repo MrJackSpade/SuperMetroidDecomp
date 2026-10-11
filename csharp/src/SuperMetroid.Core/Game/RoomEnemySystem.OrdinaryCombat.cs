@@ -41,8 +41,8 @@ public sealed partial class RoomEnemySystem
     {
         ArgumentNullException.ThrowIfNull(samus);
         EnsureLoaded();
-        ushort contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
-        if (contactDamageIndex == 0 && samus.InvincibilityTimer != 0)
+        SamusContactDamageIndex contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
+        if (contactDamageIndex == SamusContactDamageIndex.None && samus.InvincibilityTimer != 0)
             return false;
 
         foreach (ushort nativeIndex in _interactiveEnemyIndexes)
@@ -62,7 +62,7 @@ public sealed partial class RoomEnemySystem
             if (usesExtendedHitboxes && TouchAi(slot) is
                 EnemyInteractionCallback.NoOp or EnemyInteractionCallback.NoOpShortReturn)
                 continue;
-            if (contactDamageIndex != 0)
+            if (contactDamageIndex != SamusContactDamageIndex.None)
                 samus.InvincibilityTimer = 0;
             bool isFireflea = slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                 TouchAi(slot) == EnemyInteractionCallback.FirefleaTouch;
@@ -513,7 +513,7 @@ public sealed partial class RoomEnemySystem
                 // The main AI's subsequent nonzero contact-damage-index check reuses the
                 // shot reaction, allowing Screw/Speed contact to trigger modes three/four.
                 TouchHorizontalShutter(slot, samus, controllerInput);
-                if (contactDamageIndex != 0)
+                if (contactDamageIndex != SamusContactDamageIndex.None)
                     ReactHorizontalShutter(slot);
             }
             else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid)
@@ -3281,8 +3281,8 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         bool skipDeathAnimation = false)
     {
-        ushort contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
-        if (contactDamageIndex == 0)
+        SamusContactDamageIndex contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
+        if (contactDamageIndex == SamusContactDamageIndex.None)
         {
             ApplyNormalEnemyTouchDamage(
                 samus,
@@ -3293,7 +3293,7 @@ public sealed partial class RoomEnemySystem
 
         // The cartridge consumes charge before checking vulnerability. Even immune
         // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
-        if (contactDamageIndex == 4)
+        if (contactDamageIndex == SamusContactDamageIndex.PseudoScrew)
         {
             SamusProjectileSystem projectiles = _samusProjectilesForEnemyFrame
                 ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
@@ -3302,17 +3302,21 @@ public sealed partial class RoomEnemySystem
 
         ushort baseDamage = contactDamageIndex switch
         {
-            1 => 500,  // Speed Booster
-            2 => 300,  // Shinespark
-            3 => 2000, // Screw Attack
-            _ => 200,  // Pseudo-Screw and the native fallback
+            SamusContactDamageIndex.SpeedBooster => 500,
+            SamusContactDamageIndex.Shinespark => 300,
+            SamusContactDamageIndex.ScrewAttack => 2000,
+            SamusContactDamageIndex.PseudoScrew => 200,
+            _ => throw new InvalidOperationException(
+                $"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}."),
         };
         int vulnerabilityOffset = contactDamageIndex switch
         {
-            1 => EnemyVulnerabilityDefinitions.SpeedBoosterOffset,
-            2 => EnemyVulnerabilityDefinitions.ShinesparkOffset,
-            3 => EnemyVulnerabilityDefinitions.ScrewAttackOffset,
-            _ => EnemyVulnerabilityDefinitions.PseudoScrewOffset,
+            SamusContactDamageIndex.SpeedBooster => EnemyVulnerabilityDefinitions.SpeedBoosterOffset,
+            SamusContactDamageIndex.Shinespark => EnemyVulnerabilityDefinitions.ShinesparkOffset,
+            SamusContactDamageIndex.ScrewAttack => EnemyVulnerabilityDefinitions.ScrewAttackOffset,
+            SamusContactDamageIndex.PseudoScrew => EnemyVulnerabilityDefinitions.PseudoScrewOffset,
+            _ => throw new InvalidOperationException(
+                $"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}."),
         };
         ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer

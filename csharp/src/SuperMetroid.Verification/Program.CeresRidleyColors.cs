@@ -133,7 +133,7 @@ internal static partial class Program
                 color => edited.CeresRidleyColors.ResolveBodyFade(row, color),
                 $"Ceres Ridley body OBJ fade row {row}");
         }
-        state.FightMode = 1;
+        state.FightMode = RidleyFightMode.Fighting;
         foreach (ushort count in new ushort[] { 50, 69, 70, 99 })
         {
             state.HitCounter = count;

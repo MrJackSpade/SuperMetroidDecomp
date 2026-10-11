@@ -201,8 +201,8 @@ public sealed class SamusDraygonGrabbedState
         samus.HorizontalSpeed.BaseSubspeed = 0;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
-        samus.Kinematics.YDirection = 0;
-        samus.MorphBallBounceState = 0;
+        samus.Kinematics.YDirection = SamusVerticalDirection.None;
+        samus.MorphBallBounceState = SamusBallBounceState.None;
         samus.HorizontalSpeed.AccelerationMode = 0;
 
         IsActive = false;

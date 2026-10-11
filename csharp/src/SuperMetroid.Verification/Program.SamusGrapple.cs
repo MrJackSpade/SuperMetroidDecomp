@@ -784,7 +784,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(GrapplePhase.ReleaseFromSwing, samus.Grapple.Phase, "release function pointer phase");
     AssertEqual(0, samus.Kinematics.YSpeed, "grapple release whole Y speed");
     AssertEqual(0x0c90, samus.Kinematics.YSubspeed, "grapple release fractional Y speed");
-    AssertEqual(1, samus.Kinematics.YDirection, "positive swing with negative cosine launches up");
+    AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.YDirection, "positive swing with negative cosine launches up");
     AssertEqual(2, samus.HorizontalSpeed.BaseSpeed, "grapple release whole X speed");
     AssertEqual(0x13d0, samus.HorizontalSpeed.BaseSubspeed, "grapple release fractional X speed");
     AssertEqual(2, samus.HorizontalSpeed.AccelerationMode, "release selects deceleration mode");
@@ -1118,7 +1118,7 @@ static void VerifySamusGrappleSwingAndRelease()
         "grapple wall jump reads dry whole speed from ROM");
     AssertEqual(0xa000, wallGrabSamus.Kinematics.YSubspeed,
         "grapple wall jump reads dry fractional speed from ROM");
-    AssertEqual(1, wallGrabSamus.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.Up, wallGrabSamus.Kinematics.YDirection,
         "grapple wall jump launches upward");
     AssertEqual(1, wallGrabSamus.HorizontalSpeed.ExtraRunSpeed,
         "grapple wall jump preserves Dash whole speed");

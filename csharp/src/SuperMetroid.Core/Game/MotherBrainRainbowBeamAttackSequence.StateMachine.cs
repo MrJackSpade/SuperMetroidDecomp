@@ -109,8 +109,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.ExtendNeckDown:
                 SamusProjectileCooldownTimer = 8;
-                LowerNeckMovementIndex = 6;
-                UpperNeckMovementIndex = 6;
+                LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
+                UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
                 NeckAngleDelta = 0x0500; // NTSC value of regional `$0500/$0700`.
                 Phase = MotherBrainRainbowBeamAttackPhase.StartFiring;
                 FunctionTimer = 0x0010; // NTSC value of regional `$0010/$000C`.
@@ -353,8 +353,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 {
                     RainbowBeamPaletteAnimationIndex = 0;
                     SetHeadInstructionList(HeadFiringRainbowInstructionList);
-                    LowerNeckMovementIndex = 6;
-                    UpperNeckMovementIndex = 6;
+                    LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
+                    UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
                     NeckAngleDelta = 0x0500;
                     finalBeamSoundQueued = true; // Sound library two, effect `$71`.
                     Phase = MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding;
@@ -372,8 +372,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // actor turn, changes form/neck geometry, seeds `$30`, and falls through so
                 // that this first regain-balance call immediately decrements it to `$2F`.
                 Body.Form = 3;
-                LowerNeckMovementIndex = 8;
-                UpperNeckMovementIndex = 8;
+                LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
+                UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
                 NeckAngleDelta = 0x0700;
                 Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance;
                 FunctionTimer = 0x0030;
@@ -391,8 +391,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     PainfulWalkingStage = 0;
                     PainfulWalkingAnimationDelay = 2;
                     PainfulWalkingFunctionTimer = 0;
-                    LowerNeckMovementIndex = 2;
-                    UpperNeckMovementIndex = 4;
+                    LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
+                    UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
                     Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam;
                 }
                 break;
@@ -429,8 +429,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 if (PainfulWalkingStage >= 8)
                 {
                     NeckAngleDelta = 0x0040;
-                    LowerNeckMovementIndex = 8;
-                    UpperNeckMovementIndex = 8;
+                    LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
+                    UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
                     SetHeadInstructionList(HeadDyingDroolInstructionList);
                     Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidMoveToBackOfRoom;
                     goto case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidMoveToBackOfRoom;
@@ -446,7 +446,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 if (moveToBack.ReachedTarget)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode;
-                    UpperNeckMovementIndex = 0;
+                    UpperNeckMovementIndex = MotherBrainNeckMovement.None;
                     goto case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode;
                 }
                 break;
@@ -454,7 +454,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode:
                 // The brain slot independently advances the one-way neck raises. The body
                 // clears drool once both indices reach zero, before waiting for its pose.
-                if ((LowerNeckMovementIndex | UpperNeckMovementIndex) == 0)
+                if (LowerNeckMovementIndex == MotherBrainNeckMovement.None &&
+                    UpperNeckMovementIndex == MotherBrainNeckMovement.None)
                 {
                     DroolGenerationEnabled = false;
                     if (Body.Pose != MotherBrainBodyPose.Standing)
@@ -551,8 +552,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // instruction stage to publish standing before setting the neck/timer words.
                 if (MakeBodyStandUp(out bodyPostureRequested))
                 {
-                    LowerNeckMovementIndex = 6;
-                    UpperNeckMovementIndex = 6;
+                    LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
+                    UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
                     NeckAngleDelta = 0x0500;
                     NeckMovementEnabled = 1;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUpStretch;
@@ -595,8 +596,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // The separate body instruction stage may still be finishing the last walk.
                 BabyMetroidAttackCounter = 0;
                 NeckMovementEnabled = 1;
-                LowerNeckMovementIndex = 2;
-                UpperNeckMovementIndex = 4;
+                LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
+                UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
                 NeckAngleDelta = 0x0040;
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfFinishPreparingForBabyMetroidDeath;
                 goto case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfFinishPreparingForBabyMetroidDeath;
@@ -754,8 +755,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 if (dyingAdvance.ReachedTarget)
                 {
                     SetHeadInstructionList(HeadDyingDroolInstructionList);
-                    LowerNeckMovementIndex = 6;
-                    UpperNeckMovementIndex = 6;
+                    LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
+                    UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
                     NeckAngleDelta = 0x0500;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects;
                     FunctionTimer = 0x0020;
@@ -771,8 +772,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     // `$AF5C-$AF94` removes the neck/breath/palette producers, copies sprite
                     // palette 1 into palette 7, performs one health-palette refresh, and then
                     // deliberately falls through with the already-negative timer.
-                    LowerNeckMovementIndex = 0;
-                    UpperNeckMovementIndex = 0;
+                    LowerNeckMovementIndex = MotherBrainNeckMovement.None;
+                    UpperNeckMovementIndex = MotherBrainNeckMovement.None;
                     DroolGenerationEnabled = false;
                     WriteSmallPurpleBreathGeneration(false);
                     BrainPaletteHandlingEnabled = false;

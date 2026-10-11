@@ -212,7 +212,7 @@ public static class SamusKnockbackMovement
         // does not replace its independently locked pose-input pointer yet.
         samus.BombJumpStarting = false;
         samus.BombJumpActive = false;
-        samus.HorizontalSpeed.ContactDamageIndex = 0;
+        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
 
         // `$91:ED63-$91:ED66` writes one to the shared hurt-flash counter after cancelling
         // bomb-jump/contact damage. This is an independent 60-call palette/audio lifetime,
@@ -222,7 +222,7 @@ public static class SamusKnockbackMovement
         // Hurt launch retains the native bottom-edge and Gravity-Suit selection.
         (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
             SamusVerticalMotionDefinitions.Knockback(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        samus.Kinematics.YDirection = 1;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, samus);
         if (humanoid)
             samus.InitializeAnimation(bus, initialFrame: 0);
@@ -288,7 +288,7 @@ public static class SamusKnockbackMovement
             speed.BaseSubspeed = 0;
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
-            samus.Kinematics.YDirection = 0;
+            samus.Kinematics.YDirection = SamusVerticalDirection.None;
         }
 
         return new KnockbackMovementResult(
@@ -436,10 +436,10 @@ public static class SamusKnockbackMovement
         // publication and is consumed by every translated normal/ball dispatcher.
         samus.KnockbackDirection = 0;
         samus.KnockbackActive = false;
-        samus.MorphBallBounceState = 0;
+        samus.MorphBallBounceState = SamusBallBounceState.None;
         samus.Kinematics.YSubspeed = 0;
         samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YDirection = 2;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         return new KnockbackMovementResult();
     }
 

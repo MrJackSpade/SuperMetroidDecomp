@@ -86,7 +86,7 @@ public static class SamusTerrainHazardCollision
         // while the common invincibility timer is nonzero. It also restores the normal-air
         // horizontal table before returning, independently of whether damage was admitted.
         samus.HorizontalSpeed.SelectNormalAirSpeedTable();
-        if (samus.HorizontalSpeed.ContactDamageIndex != 0 || samus.InvincibilityTimer != 0)
+        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None || samus.InvincibilityTimer != 0)
             return;
 
         PublishDamage(bus, samus, SamusTerrainHazardRomData.LightSpikeDamage);

@@ -206,7 +206,7 @@ internal static partial class Program
             {
                 fragment.Clear();
                 fragment.Parameter1 = parameter;
-                state.FacingDirection = unchecked((ushort)facingIndex);
+                state.FacingDirection = facingIndex == 0 ? RidleyFacing.Left : RidleyFacing.Turning;
                 state.TailSegments[5].Angle = 0;
                 state.TailSegments[6].Angle = unchecked((ushort)(orientation << 4));
 

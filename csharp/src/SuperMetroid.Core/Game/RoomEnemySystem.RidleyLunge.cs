@@ -26,12 +26,12 @@ public sealed partial class RoomEnemySystem
     {
         if (_audioPowerBomb is not { Flag: not 0 } bomb)
         {
-            state.FightMode = 1;
+            state.FightMode = RidleyFightMode.Fighting;
             state.Function = state.GrabState == 0
                 ? RidleyAiFunction.NorfairSelectAttack : RidleyAiFunction.NorfairCarrySetup;
             return;
         }
-        state.FightMode = 2;
+        state.FightMode = RidleyFightMode.PowerBombDodge;
         ushort targetX = unchecked((short)(bomb.XPosition - RidleyLungeDefinitions.DodgeSplitX)) >= 0
             ? RidleyLungeDefinitions.DodgeLeftX : RidleyLungeDefinitions.DodgeRightX;
         ushort targetY = unchecked((short)(bomb.YPosition - RidleyLungeDefinitions.DodgeSplitY)) >= 0

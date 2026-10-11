@@ -265,7 +265,7 @@ public sealed class ScrollBoundaryCamera
         // Samus Y direction one means upward. The apparently reversed scroller choice is
         // literal $90:9666-$90:9681: upward motion subtracts down_scroller, all else
         // subtracts up_scroller.
-        ushort targetOffset = context.YDirection == 1 ? context.DownScroller : context.UpScroller;
+        ushort targetOffset = context.YDirection == SamusVerticalDirection.Up ? context.DownScroller : context.UpScroller;
         IdealYPosition = unchecked((ushort)(current.YPosition - targetOffset));
 
         if (IdealYPosition == YPosition)
@@ -638,6 +638,6 @@ public readonly record struct HorizontalCameraContext(
 
 /// <summary>Scroller distances used by vertical target selection at <c>$90:9666</c>.</summary>
 public readonly record struct VerticalCameraContext(
-    ushort YDirection,
+    SamusVerticalDirection YDirection,
     ushort UpScroller,
     ushort DownScroller);

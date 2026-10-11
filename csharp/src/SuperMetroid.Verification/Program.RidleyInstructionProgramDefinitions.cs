@@ -42,17 +42,17 @@ internal static partial class Program
         ];
         foreach (ushort program in programs)
         {
-            RunProgram(rom, executedOperands, guard, program, facingDirection: 0, ceresRidleyDefinition);
-            RunProgram(rom, executedOperands, guard, program, facingDirection: 2, ceresRidleyDefinition);
+            RunProgram(rom, executedOperands, guard, program, facingDirection: RidleyFacing.Left, ceresRidleyDefinition);
+            RunProgram(rom, executedOperands, guard, program, facingDirection: RidleyFacing.Right, ceresRidleyDefinition);
         }
 
         RunProgram(rom, executedOperands, guard,
             RidleyInstructionProgramDefinitions.TransitionToFlying,
-            facingDirection: 0,
+            facingDirection: RidleyFacing.Left,
             ceresRidleyDefinition);
         RunProgram(rom, executedOperands, guard,
             RidleyInstructionProgramDefinitions.TransitionToFlying,
-            facingDirection: 2,
+            facingDirection: RidleyFacing.Right,
             EnemyDefinitionId.Ridley);
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -103,7 +103,7 @@ internal static partial class Program
         HashSet<ushort> executedOperands,
         RidleyInstructionReadGuard guard,
         ushort program,
-        ushort facingDirection,
+        RidleyFacing facingDirection,
         EnemyDefinitionId enemyDefinition)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

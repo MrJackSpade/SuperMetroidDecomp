@@ -36,7 +36,7 @@ internal static partial class Program
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.ScrewAttack;
         samus.Pose = SamusPoseId.ScrewAttackRightPose;
         // EnemyMain reads the contact-damage index the previous frame's spin movement set.
-        samus.HorizontalSpeed.ContactDamageIndex = 3;
+        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         // Inside the upper body's touch boxes, in thin water with no floor below.
         samus.XPosition = unchecked((ushort)(draygon.Body.XPosition - 8));
         samus.YPosition = unchecked((ushort)(draygon.Body.YPosition - 64));

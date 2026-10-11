@@ -35,7 +35,7 @@ internal static partial class Program
         ridley.InvincibilityTimer = 0;
         ridley.InstructionTimer = 0x7fff;
         ridley.Health = 9340;
-        state.FightMode = 2;
+        state.FightMode = RidleyFightMode.PowerBombDodge;
         state.HealthStage = 0;
         runtime.Enemies.PrepareEnemyProcessingList(ridley.XPosition, ridley.YPosition);
         foreach (int index in new[] { 0, 1 })

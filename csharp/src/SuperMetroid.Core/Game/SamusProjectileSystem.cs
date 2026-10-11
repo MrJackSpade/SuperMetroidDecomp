@@ -239,7 +239,7 @@ public sealed partial class SamusProjectileSystem
                 unchecked((short)(FlareCounter - 0x003c)) >= 0;
             if (chargePaletteActive)
             {
-                bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == 4;
+                bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;
                 ushort suitOffset = GetSuitPaletteOffset(samus.EquippedItems);
 
                 // The installed path compiles the two pointer levels for bounded native

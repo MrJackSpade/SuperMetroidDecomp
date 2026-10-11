@@ -21,7 +21,7 @@ internal static partial class Program
         var state = new RidleyEnemyState
         {
             Function = RidleyAiFunction.NorfairGrabApproach,
-            FacingDirection = 0, FightMode = 1,
+            FacingDirection = RidleyFacing.Left, FightMode = RidleyFightMode.Fighting,
             MinimumX = 32, MaximumX = 224, MinimumY = 64, MaximumY = 416,
         };
         run(slot, state, samus, 0, null);
@@ -36,7 +36,7 @@ internal static partial class Program
         }
         AssertTrue(slot.YPosition < lowY, "missed lunge retreats upward instead of chasing Samus at floor level");
         AssertEqual((ushort)0, state.GrabState, "retreat never falsely grabs Samus");
-        void ResetLunge(ushort x, ushort y, ushort facing = 0)
+        void ResetLunge(ushort x, ushort y, RidleyFacing facing = RidleyFacing.Left)
         {
             slot.XPosition = x;
             slot.YPosition = y;
@@ -47,7 +47,7 @@ internal static partial class Program
             state.HorizontalVelocity = state.VerticalVelocity = 0;
             state.HitRoomBoundary = false;
             state.ZeroHealthLungeCount = 0;
-            state.FightMode = 1;
+            state.FightMode = RidleyFightMode.Fighting;
             state.TailWhipRequest = 0;
         }
         // The native Y comparison is >=, and applies even when the claw's X misses.
@@ -57,9 +57,9 @@ internal static partial class Program
         ResetLunge(160, 385);
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairHoverSetup, state.Function, "exact vertical cutoff abandons lunge");
-        foreach (ushort facing in new ushort[] { 0, 2 })
+        foreach (RidleyFacing facing in new[] { RidleyFacing.Left, RidleyFacing.Right })
         {
-            int direction = facing == 0 ? -1 : 1;
+            int direction = facing == RidleyFacing.Left ? -1 : 1;
             ResetLunge((ushort)(samus.XPosition + direction * 31), 300, facing);
             run(slot, state, samus, 0, null);
             AssertEqual(RidleyAiFunction.NorfairGrabApproach, state.Function, "31 pixels past Samus remains within native pass allowance");
@@ -87,7 +87,7 @@ internal static partial class Program
         state.ZeroHealthLungeCount = 10;
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairDeathExplosions, state.Function, "tenth miss immediately executes death-roar setup");
-        AssertEqual((ushort)0xffff, state.FightMode, "tenth miss enters death mode without requiring a grab");
+        AssertEqual(RidleyFightMode.Dying, state.FightMode, "tenth miss enters death mode without requiring a grab");
         AssertEqual((ushort)32, state.FunctionTimer, "native death-roar timer is armed");
 
         var bomb = new SamusPowerBombExplosionState();
@@ -97,13 +97,13 @@ internal static partial class Program
         ResetLunge(160, 400);
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairReturnToArena, state.Function, "bomb selects native dodge instead of ordinary retreat");
-        AssertEqual((ushort)2, state.FightMode, "dodge suppresses repeated combat interruption");
+        AssertEqual(RidleyFightMode.PowerBombDodge, state.FightMode, "dodge suppresses repeated combat interruption");
         AssertTrue((short)state.HorizontalVelocity < 0 && (short)state.VerticalVelocity < 0,
             "low right-side bomb immediately accelerates Ridley toward upper-left target");
         bomb.ReleaseFlag();
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairSelectAttack, state.Function, "ending bomb resumes attack selection");
-        AssertEqual((ushort)1, state.FightMode, "ending dodge restores ordinary fight mode");
+        AssertEqual(RidleyFightMode.Fighting, state.FightMode, "ending dodge restores ordinary fight mode");
         Console.WriteLine("Ridley missed low lunge: native exit, tail request and upward retreat confirmed.");
         Console.WriteLine("Native pass/height thresholds, movement boundary handoff, tenth death lunge and bomb recovery confirmed.");
     }

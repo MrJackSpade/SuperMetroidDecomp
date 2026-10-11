@@ -532,7 +532,7 @@ static void VerifySamusBlockCollision()
         YPosition = 24,
     };
     contactSafeSamus.Kinematics.YRadius = 5;
-    contactSafeSamus.HorizontalSpeed.ContactDamageIndex = 1;
+    contactSafeSamus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
     SamusTerrainHazardCollision.PrepareFrame(
         bus,
         contactSafeSpikeAir,
@@ -1150,7 +1150,7 @@ static void VerifySamusGroundedReversal()
             airborneCrouchedTurn.Kinematics.YPosition = 32;
             airborneCrouchedTurn.Kinematics.XRadius = 5;
             airborneCrouchedTurn.Kinematics.YRadius = 16;
-            airborneCrouchedTurn.Kinematics.YDirection = 1;
+            airborneCrouchedTurn.Kinematics.YDirection = SamusVerticalDirection.Up;
             airborneCrouchedTurn.Kinematics.YSpeed = 1;
             uint airborneYBefore = airborneCrouchedTurn.Kinematics.YFixed;
             AerialMovementResult airborneResult = SamusAerialMovement.StepTurningInAir(
@@ -1437,7 +1437,7 @@ static void VerifySamusMoonwalking()
         AssertEqual(target, turn.Pose, $"moonwalk ${(int)source:X2} selects exact turn ${(int)target:X2}");
         AssertEqual(1, turn.HorizontalSpeed.AccelerationMode,
             $"moonwalk turn ${(int)target:X2} preserves reversal mode");
-        AssertEqual(0, turn.Kinematics.YDirection,
+        AssertEqual(SamusVerticalDirection.None, turn.Kinematics.YDirection,
             $"moonwalk turn ${(int)target:X2} remains grounded before completion");
     }
 
@@ -1459,7 +1459,7 @@ static void VerifySamusMoonwalking()
         "moonwalk animation command bypasses jump-speed initialization");
     AssertEqual(0, animated.Kinematics.YSubspeed,
         "moonwalk animation command preserves vertical subspeed");
-    AssertEqual(0, animated.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.None, animated.Kinematics.YDirection,
         "moonwalk animation command preserves direction-none for Moonfall");
 
     Console.WriteLine("  Moonwalk: option gate, six stable routes, reversed X, fallback, and $BF-$C4 jump art agree.");

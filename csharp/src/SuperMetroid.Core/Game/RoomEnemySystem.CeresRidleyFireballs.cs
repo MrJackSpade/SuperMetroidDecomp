@@ -664,7 +664,7 @@ public sealed partial class RoomEnemySystem
         // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
         bool collisionPassEnabled = samus is not null &&
             samus.InvincibilityTimer == 0 &&
-            samus.HorizontalSpeed.ContactDamageIndex == 0;
+            samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None;
         if (!collisionPassEnabled)
             return;
 
@@ -772,14 +772,14 @@ public sealed partial class RoomEnemySystem
     private void CalculateRidleyFireballVelocity(RoomEnemySlot ridley, SamusState samus)
     {
         RidleyEnemyState state = RequireRidley(ridley);
-        int muzzleX = ridley.XPosition + (state.FacingDirection == 0 ? -25 : 25);
+        int muzzleX = ridley.XPosition + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
         int muzzleY = ridley.YPosition - 43;
         byte cartridgeAngle = CalculateCartridgeAngle(
             unchecked((short)(samus.XPosition - muzzleX)),
             unchecked((short)(samus.YPosition - muzzleY)));
         byte angle = unchecked((byte)-(cartridgeAngle + 0x80));
 
-        if (state.FacingDirection == 0)
+        if (state.FacingDirection == RidleyFacing.Left)
         {
             if (angle is < 0x40 or >= 0xeb)
                 angle = 0xeb;
@@ -825,7 +825,7 @@ public sealed partial class RoomEnemySystem
             FireballGraphicsIndex);
         ApplyRidleyProjectileAreaDamage(projectile);
         projectile.XPosition = unchecked((ushort)(ridley.XPosition +
-            (state.FacingDirection == 0 ? -25 : 25)));
+            (state.FacingDirection == RidleyFacing.Left ? -25 : 25)));
         projectile.YPosition = unchecked((ushort)(ridley.YPosition - 43));
         projectile.XVelocity = state.FireballXVelocity;
         projectile.YVelocity = state.FireballYVelocity;

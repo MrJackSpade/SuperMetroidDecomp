@@ -20,7 +20,7 @@ internal static partial class Program
             AssertEqual(native, RidleySupplementalVisualDefinitions.WingFrameAt(index),
                 $"Ridley wing animation table entry {index} matches the pinned ROM");
 
-            ushort facing = index < 10 ? (ushort)0 : (ushort)2;
+            RidleyFacing facing = index < 10 ? RidleyFacing.Left : RidleyFacing.Right;
             ushort wingFrame = (ushort)(index % 10);
             OamBuffer actual = DrawInstalledRidleySupplement(
                 stock, rom, facing, wingFrame, tailDirection: null);
@@ -41,7 +41,7 @@ internal static partial class Program
             AssertEqual(nativeTip, RidleySupplementalVisualDefinitions.TailTipFrameAt(direction),
                 $"Ridley tail-tip direction {direction} matches the pinned ROM");
             OamBuffer actual = DrawInstalledRidleySupplement(
-                stock, rom, facing: 1, wingFrame: 0, tailDirection: direction);
+                stock, rom, facing: RidleyFacing.Turning, wingFrame: 0, tailDirection: direction);
             var expected = new OamBuffer();
             DrawImportedEnemySpritemap(rom, expected, RidleySupplementalVisualDefinitions.Bank,
                 nativeTip, 140, 138, 0x0200, 0,
@@ -66,7 +66,7 @@ internal static partial class Program
 
     private static OamBuffer DrawInstalledRidleySupplement(
         EnemyTileArtworkCatalog artwork, ISnesAddressSpace rom,
-        ushort facing, ushort wingFrame, int? tailDirection)
+        RidleyFacing facing, ushort wingFrame, int? tailDirection)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };

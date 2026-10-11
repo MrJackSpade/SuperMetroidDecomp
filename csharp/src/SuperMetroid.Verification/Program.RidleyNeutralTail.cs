@@ -17,7 +17,7 @@ internal static partial class Program
         {
             var state = new RidleyEnemyState
             {
-                FightMode = 1, GrabState = 0,
+                FightMode = RidleyFightMode.Fighting, GrabState = 0,
                 TailFunctionIndex = RidleyTailFunction.Pogo, TailAngleDelta = (ushort)raw,
                 FeetDistanceIndex = (ushort)(ushort.MaxValue - raw),
             };
@@ -28,11 +28,11 @@ internal static partial class Program
             AssertEqual(RidleyAiFunction.NorfairGrabApproach, state.Function, "Power Bomb lunge handoff");
         }
         // $FFFF is the death mode: BMI rejects it before the flag is read.
-        foreach (ushort fight in new ushort[] { 0, 1, 2, 0xffff })
+        foreach (RidleyFightMode fight in Enum.GetValues<RidleyFightMode>())
         foreach (ushort grab in new ushort[] { 0, 1 })
         foreach (bool flag in new[] { false, true })
         {
-            if (fight == 1 && grab == 0 && flag) continue;
+            if (fight == RidleyFightMode.Fighting && grab == 0 && flag) continue;
             var state = new RidleyEnemyState
             {
                 FightMode = fight, GrabState = grab,

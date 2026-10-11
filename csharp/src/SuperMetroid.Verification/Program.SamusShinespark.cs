@@ -72,7 +72,7 @@ static void VerifySamusStoredShineAndShinespark()
     AssertTrue(shine.Shinespark.TryStoreFromSpeedBooster(0x0400),
         "stage four stores shine");
     AssertEqual(180, shine.Shinespark.ShineTimer, "stored shine begins at 180");
-    AssertEqual(1, shine.Shinespark.PaletteType, "stored shine installs palette handler one");
+    AssertEqual(SamusSpecialPaletteType.SpeedBoosterShine, shine.Shinespark.PaletteType, "stored shine installs palette handler one");
 
     var cgram = new SnesCgram();
     AssertTrue(shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0, suitColors, cycleColors),
@@ -312,7 +312,7 @@ static void VerifySamusStoredShineAndShinespark()
     AssertEqual(0x2800, horizontal.Kinematics.XSubposition,
         "first horizontal spark preserves 16.16 fraction");
     AssertEqual(29, horizontal.Health, "active spark drains one energy at threshold 30");
-    AssertEqual(2, horizontal.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual(SamusContactDamageIndex.Shinespark, horizontal.HorizontalSpeed.ContactDamageIndex,
         "active spark publishes contact damage two");
 
     uint lowEnergyXBefore = horizontal.Kinematics.XFixed;

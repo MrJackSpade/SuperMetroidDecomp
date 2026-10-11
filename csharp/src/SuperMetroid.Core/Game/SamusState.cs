@@ -310,10 +310,10 @@ public sealed partial class SamusState
 
     /// <summary>
     /// Morph-ball bounce state at WRAM <c>$0B20</c>: zero is not bouncing, one is the first
-    /// rebound, and two is the second rebound. Spring Ball also uses the high byte, but that
-    /// separate movement family is intentionally not folded into the ordinary-ball state.
+    /// rebound, and two is the second rebound. Spring Ball also stores high byte $06 as its
+    /// bounce family; see <see cref="SamusBallBounceState"/>.
     /// </summary>
-    public ushort MorphBallBounceState { get; set; }
+    public SamusBallBounceState MorphBallBounceState { get; set; }
 
     /// <summary>
     /// WRAM `$0A56`: low byte 1/2/3 is left/straight/right; bit `$0800` marks the bank-$91

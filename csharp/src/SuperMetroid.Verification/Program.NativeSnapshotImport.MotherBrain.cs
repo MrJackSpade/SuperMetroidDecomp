@@ -51,8 +51,10 @@ internal static partial class Program
         state.UpperNeckAngle = W(MotherBrainMemory.UpperNeckAngle);
         state.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
         state.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
-        state.LowerNeckMovementIndex = W(MotherBrainMemory.LowerNeckMovementIndex);
-        state.UpperNeckMovementIndex = W(MotherBrainMemory.UpperNeckMovementIndex);
+        state.LowerNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+            W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
+        state.UpperNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+            W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.SpriteTileTransferEntryPointer = W(MotherBrainMemory.SpriteTileTransferEntry);
         state.GrayTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         state.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
@@ -127,8 +129,10 @@ internal static partial class Program
         Set(nameof(sequence.UpperNeckAngle), W(MotherBrainMemory.UpperNeckAngle));
         Set(nameof(sequence.NeckAngleDelta), W(MotherBrainMemory.NeckAngleDelta));
         Set(nameof(sequence.NeckMovementEnabled), W(MotherBrainMemory.NeckMovementEnabled));
-        Set(nameof(sequence.LowerNeckMovementIndex), W(MotherBrainMemory.LowerNeckMovementIndex));
-        Set(nameof(sequence.UpperNeckMovementIndex), W(MotherBrainMemory.UpperNeckMovementIndex));
+        Set(nameof(sequence.LowerNeckMovementIndex), ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+            W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index"));
+        Set(nameof(sequence.UpperNeckMovementIndex), ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+            W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index"));
         state.RainbowBeamSequence = sequence;
     }
 }

@@ -14,10 +14,6 @@ public enum RidleyFacing : ushort
 /// <summary>Arena targets and health-dependent inertia selectors for Norfair Ridley.</summary>
 public static class RidleyMovementTargets
 {
-    /// <summary>Selects the target-table facing from Ridley's facing word; words past two select the right-facing entry.</summary>
-    public static RidleyFacing Facing(ushort facingWord) =>
-        ClosedNativeWords.Decode<RidleyFacing>(Math.Min(facingWord, (ushort)RidleyFacing.Right), "Ridley facing");
-
     /// <summary>$A6:B60D Ridley_Func_15: descending pogo uses quarter-arena points in reverse facing order.</summary>
     public static ushort DescendingPogoX(RidleyFacing facing) => (ushort)(256 - AscendingPogoX(facing));
 

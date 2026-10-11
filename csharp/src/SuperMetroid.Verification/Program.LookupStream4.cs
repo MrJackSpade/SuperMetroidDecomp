@@ -3586,10 +3586,10 @@ internal static partial class Program
                 int row = health >= 9000 ? -1 : health >= 5400 ? 0 : health >= 1800 ? 1 : 2;
                 AssertEqual((ushort)(row + 1), state.HealthStage, "Norfair health stage remains exact"); Check(row);
             }
-            foreach (ushort fight in new ushort[] { 0, 1 }) foreach (ushort hits in new ushort[] { 49, 50, 69, 70, 89, 90 })
+            foreach (RidleyFightMode fight in new[] { RidleyFightMode.NotFighting, RidleyFightMode.Fighting }) foreach (ushort hits in new ushort[] { 49, 50, 69, 70, 89, 90 })
             {
                 Fill(); ceres(new RidleyEnemyState { FightMode = fight, HitCounter = hits });
-                Check(fight == 0 || hits < 50 ? -1 : hits < 70 ? 0 : 2);
+                Check(fight == RidleyFightMode.NotFighting || hits < 50 ? -1 : hits < 70 ? 0 : 2);
             }
         }
         foreach (int row in new[] { -1, 3, int.MinValue, int.MaxValue })

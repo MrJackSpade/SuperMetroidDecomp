@@ -23,11 +23,11 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
         var tick = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyPogo", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        foreach (var sample in new[] { (0x7f, false, 2, false), (0x80, false, 2, true),
-            (0xff, true, 2, false), (0xff, false, 1, false), (0x180, false, 0, true) })
+        foreach (var sample in new[] { (0x7f, false, RidleyFacing.Right, false), (0x80, false, RidleyFacing.Right, true),
+            (0xff, true, RidleyFacing.Right, false), (0xff, false, RidleyFacing.Turning, false), (0x180, false, RidleyFacing.Left, true) })
         {
             runtime.System.SetRandomNumber((ushort)sample.Item1);
-            state.Roaring = sample.Item2; state.FacingDirection = (ushort)sample.Item3;
+            state.Roaring = sample.Item2; state.FacingDirection = sample.Item3;
             state.FunctionTimer = 20; samus.Pose = SamusPoseId.SpinJumpRightPose;
             body.CurrentInstruction = NativeSnapshotMemory.RidleyRightFlyingSleep;
             body.InstructionTimer = 9; body.Timer = 11;
@@ -52,7 +52,7 @@ internal static partial class Program
         var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
         body.XPosition = 139; body.YPosition = 282;
         body.SpritemapPointer = 0xe9e9; body.Properties = 0x3800;
-        state.FightMode = 1; state.MovementAnimationEnabled = 1; state.FacingDirection = 0;
+        state.FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = 1; state.FacingDirection = RidleyFacing.Left;
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = 10;
         state.HorizontalVelocity = 0xfc00; state.VerticalVelocity = 0x0300;
         state.TailFunctionIndex = RidleyTailFunction.None;
@@ -78,7 +78,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!;
         state.Function = RidleyAiFunction.NorfairSwoopSetup; state.FunctionTimer = 112;
-        body.XPosition = 212; body.YPosition = 200; state.FacingDirection = 2;
+        body.XPosition = 212; body.YPosition = 200; state.FacingDirection = RidleyFacing.Right;
         var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
         dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
         AssertEqual((ushort)112, state.FunctionTimer, "native swoop setup retains general AI timer");
@@ -125,7 +125,7 @@ internal static partial class Program
         var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
         body.XPosition = 211; body.YPosition = 346;
         state.HorizontalVelocity = 0xc0; state.VerticalVelocity = 0x400;
-        state.FacingDirection = 2; state.Function = RidleyAiFunction.NorfairFireballAttack;
+        state.FacingDirection = RidleyFacing.Right; state.Function = RidleyAiFunction.NorfairFireballAttack;
         state.GrabState = 0; state.FeetDistanceIndex = 0;
         samus.XPosition = 198; samus.YPosition = 402; samus.Pose = SamusPoseId.KnockbackLeftPose;
         samus.RefreshCollisionRadii(bus);
@@ -150,7 +150,7 @@ internal static partial class Program
         body.XPosition = 172; body.XSubposition = 0x6300;
         body.YPosition = 345; body.YSubposition = 0x0a00;
         state.HorizontalVelocity = 0x2b0; state.VerticalVelocity = 0x3cd;
-        state.FacingDirection = 2; state.HealthStage = 3; state.HitRoomBoundary = false;
+        state.FacingDirection = RidleyFacing.Right; state.HealthStage = 3; state.HitRoomBoundary = false;
         state.GrabState = 0; state.FeetDistanceIndex = 0;
         samus.XPosition = 156; samus.YPosition = 411; samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.RefreshCollisionRadii(bus);
@@ -164,7 +164,7 @@ internal static partial class Program
         body.XPosition = 134; body.XSubposition = 0x7d00;
         body.YPosition = 356; body.YSubposition = 0xec00; body.Health = 0;
         state.HorizontalVelocity = 0x1de; state.VerticalVelocity = 0x419;
-        state.FightMode = 1; state.GrabState = 0; state.FunctionTimer = 0x29;
+        state.FightMode = RidleyFightMode.Fighting; state.GrabState = 0; state.FunctionTimer = 0x29;
         samus.XPosition = 134; samus.YPosition = 411; samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         lunge.Invoke(runtime.Enemies, [body, state, samus]);
@@ -236,7 +236,7 @@ internal static partial class Program
                 XPosition = 128, YPosition = 128,
             };
             samus.RefreshCollisionRadii(bus);
-            samus.Kinematics.YDirection = 2;
+            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.HorizontalSpeed.CalculateTotalSpeed(0x00054321);
             samus.HorizontalSpeed.BaseSpeed = branch == 3 ? (ushort)0 : (ushort)5;
             if (branch == 0) SamusAerialMovement.StepNormalJump(bus, room, samus, 0, 0);
@@ -461,7 +461,7 @@ internal static partial class Program
     {
         var update = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyIntangibility", BindingFlags.Static | BindingFlags.NonPublic)!;
         var body = new RoomEnemySlot(0) { XPosition = 64, YPosition = 253 };
-        var state = new RidleyEnemyState { FightMode = 1, IntangibilityTimer = 3 };
+        var state = new RidleyEnemyState { FightMode = RidleyFightMode.Fighting, IntangibilityTimer = 3 };
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
         update.Invoke(null, [body, state, (ushort)0, (ushort)287]);
         AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native above-camera Ridley disables collision");
@@ -515,7 +515,7 @@ internal static partial class Program
         samus.KnockbackActive = true; samus.KnockbackDirection = 2;
         samus.KnockbackXDirection = 1; samus.KnockbackTimer = 4;
         samus.InvincibilityTimer = 95;
-        samus.Kinematics.YDirection = 1; samus.Kinematics.YSpeed = 5; samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Up; samus.Kinematics.YSpeed = 5; samus.Kinematics.YSubspeed = 0;
         runtime.StepFrame(0);
         AssertEqual(0x00cb4000u, samus.Kinematics.XFixed, "stationary spring hurt frame preserves native displacement");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "stationary spring fallback clears hurt mover base speed");
@@ -584,11 +584,11 @@ internal static partial class Program
     {
         var method = typeof(RoomEnemySystem).GetMethod("SelectNorfairRidleyFacingInstruction",
             BindingFlags.Static | BindingFlags.NonPublic)!;
-        (ushort X, ushort Facing, bool Turn)[] cases = [
-            (0x004a, 2, false), // Original movie frame 734: already facing inward.
-            (0x00c0, 2, true), (0x004a, 0, true), (0x00c0, 0, false),
-            (0x004a, 1, false), (0x007f, 2, false), (0x0080, 2, true),
-            (0x014a, 2, false), // Native tests the low position byte, not full X >= 128.
+        (ushort X, RidleyFacing Facing, bool Turn)[] cases = [
+            (0x004a, RidleyFacing.Right, false), // Original movie frame 734: already facing inward.
+            (0x00c0, RidleyFacing.Right, true), (0x004a, RidleyFacing.Left, true), (0x00c0, RidleyFacing.Left, false),
+            (0x004a, RidleyFacing.Turning, false), (0x007f, RidleyFacing.Right, false), (0x0080, RidleyFacing.Right, true),
+            (0x014a, RidleyFacing.Right, false), // Native tests the low position byte, not full X >= 128.
         ];
         foreach (var sample in cases)
         {
@@ -598,7 +598,7 @@ internal static partial class Program
             var state = new RidleyEnemyState { FacingDirection = sample.Facing };
             method.Invoke(null, [slot, state]);
             ushort expected = !sample.Turn ? NativeSnapshotMemory.RidleyRightFlyingSleep
-                : sample.Facing == 0 ? RidleyInstructionProgramDefinitions.TurnFromLeftToRight
+                : sample.Facing == RidleyFacing.Left ? RidleyInstructionProgramDefinitions.TurnFromLeftToRight
                 : RidleyInstructionProgramDefinitions.TurnFromRightToLeft;
             AssertEqual(expected, slot.CurrentInstruction, $"native center-facing instruction at {sample.X:X4}, facing {sample.Facing}");
             AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.InstructionTimer, "turn timer changes only when native condition is met");
@@ -1125,7 +1125,7 @@ internal static partial class Program
             Check("Samus extra fraction", samus.HorizontalSpeed.ExtraRunSubspeed, NativeSnapshotMemory.ExtraFraction);
             Check("Samus vertical speed", samus.Kinematics.YSpeed, NativeSnapshotMemory.VerticalSpeed);
             Check("Samus vertical fraction", samus.Kinematics.YSubspeed, NativeSnapshotMemory.VerticalFraction);
-            Check("Samus vertical direction", samus.Kinematics.YDirection, NativeSnapshotMemory.VerticalDirection);
+            Check("Samus vertical direction", (ushort)samus.Kinematics.YDirection, NativeSnapshotMemory.VerticalDirection);
             Check("Samus SamusXRadius", samus.Kinematics.XRadius, NativeSnapshotMemory.SamusXRadius);
             Check("Samus SamusYRadius", samus.Kinematics.YRadius, NativeSnapshotMemory.SamusYRadius);
             Check("Samus Gravity", samus.Kinematics.YAcceleration, NativeSnapshotMemory.Gravity);
@@ -1136,8 +1136,8 @@ internal static partial class Program
             Check("Samus ExtraYDisplacementFraction", samus.Kinematics.ExtraYSubdisplacement, NativeSnapshotMemory.ExtraYDisplacementFraction);
             Check("Samus SlopeCollisionEnable", samus.Kinematics.HorizontalSlopeCollisionEnable, NativeSnapshotMemory.SlopeCollisionEnable);
             Check("Samus SpeedDivisor", samus.HorizontalSpeed.SpeedDivisor, NativeSnapshotMemory.SpeedDivisor);
-            Check("Samus ContactDamageIndex", samus.HorizontalSpeed.ContactDamageIndex, NativeSnapshotMemory.ContactDamageIndex);
-            Check("Samus MorphBallBounceState", samus.MorphBallBounceState, NativeSnapshotMemory.MorphBallBounceState);
+            Check("Samus ContactDamageIndex", (ushort)samus.HorizontalSpeed.ContactDamageIndex, NativeSnapshotMemory.ContactDamageIndex);
+            Check("Samus MorphBallBounceState", (ushort)samus.MorphBallBounceState, NativeSnapshotMemory.MorphBallBounceState);
             Check("Samus BombJumpDirection", samus.BombJumpDirection, NativeSnapshotMemory.BombJumpDirection);
             Check("Samus running momentum", samus.HorizontalSpeed.HasRunningMomentum ? (ushort)1 : (ushort)0, NativeSnapshotMemory.Momentum);
             Check("Samus speed boost counter", samus.HorizontalSpeed.SpeedBoostCounter, NativeSnapshotMemory.BoostCounter);
@@ -1288,12 +1288,12 @@ internal static partial class Program
                 Check("Ridley IdealInterSegmentTailAngle", ridleyState.IdealInterSegmentTailAngle, NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);
                 Check("Ridley HorizontalVelocity", ridleyState.HorizontalVelocity, NativeSnapshotMemory.RidleyHorizontalVelocity);
                 Check("Ridley VerticalVelocity", ridleyState.VerticalVelocity, NativeSnapshotMemory.RidleyVerticalVelocity);
-                Check("Ridley FightMode", ridleyState.FightMode, NativeSnapshotMemory.RidleyFightMode);
+                Check("Ridley FightMode", (ushort)ridleyState.FightMode, NativeSnapshotMemory.RidleyFightMode);
                 Check("Ridley MovementAnimationEnabled", ridleyState.MovementAnimationEnabled, NativeSnapshotMemory.RidleyMovementAnimationEnabled);
                 Check("Ridley WingFrame", ridleyState.WingFrame, NativeSnapshotMemory.RidleyWingFrame);
                 Check("Ridley WingAnimationTimerDelta", ridleyState.WingAnimationTimerDelta, NativeSnapshotMemory.RidleyWingAnimationTimerDelta);
                 Check("Ridley WingAnimationTimer", ridleyState.WingAnimationTimer, NativeSnapshotMemory.RidleyWingAnimationTimer);
-                Check("Ridley FacingDirection", ridleyState.FacingDirection, NativeSnapshotMemory.RidleyFacingDirection);
+                Check("Ridley FacingDirection", (ushort)ridleyState.FacingDirection, NativeSnapshotMemory.RidleyFacingDirection);
                 Check("Ridley HealthStage", ridleyState.HealthStage, NativeSnapshotMemory.RidleyHealthStage);
                 Check("Ridley GrabXOffset", ridleyState.GrabXOffset, NativeSnapshotMemory.RidleyGrabXOffset);
                 Check("Ridley GrabYOffset", ridleyState.GrabYOffset, NativeSnapshotMemory.RidleyGrabYOffset);

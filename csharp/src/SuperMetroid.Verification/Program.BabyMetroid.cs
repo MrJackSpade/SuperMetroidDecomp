@@ -182,9 +182,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(0x002f, motherBrain.FunctionTimer,
         "Mother Brain first regain call decrements $30 to $2F");
     AssertEqual(3, motherBrain.Body.Form, "Baby drain changes Mother Brain form to three");
-    AssertEqual(8, motherBrain.LowerNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.LowerNeckMovementIndex,
         "Mother Brain taken-aback lower neck index");
-    AssertEqual(8, motherBrain.UpperNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.UpperNeckMovementIndex,
         "Mother Brain taken-aback upper neck index");
     AssertEqual(0x0700, motherBrain.NeckAngleDelta,
         "Mother Brain taken-aback neck delta");
@@ -199,9 +199,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam,
         motherBrain.Phase,
         "Mother Brain advances to painful firing function");
-    AssertEqual(2, motherBrain.LowerNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.BobDown, motherBrain.LowerNeckMovementIndex,
         "Mother Brain drained firing lower neck index");
-    AssertEqual(4, motherBrain.UpperNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.BobUp, motherBrain.UpperNeckMovementIndex,
         "Mother Brain drained firing upper neck index");
 
     Console.WriteLine(

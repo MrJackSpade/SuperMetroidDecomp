@@ -194,7 +194,7 @@ public sealed partial class SamusState
         // still rising. This is intentionally tested before DEC and applies only when the
         // timer is exactly one; release/apex changes YDirection to two and lets it expire.
         if (Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
-            Kinematics.YDirection != 2 &&
+            Kinematics.YDirection != SamusVerticalDirection.Down &&
             AnimationFrame == 1 &&
             AnimationFrameTimer == 1)
         {

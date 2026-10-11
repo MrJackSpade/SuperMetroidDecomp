@@ -20,7 +20,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xd0b9);
         SamusState samus = runtime.Samus!;
-        samus.HorizontalSpeed.ContactDamageIndex = 1;
+        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
         RoomEnemySlot sciser = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
         ushort healthBefore = sciser.Health;
 

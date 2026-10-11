@@ -39,7 +39,7 @@ internal static partial class Program
             {
                 Version = SamusSuitColorFormat.Version, Power = colors, Varia = colors, Gravity = colors,
             })));
-        samus.HorizontalSpeed.ContactDamageIndex = 4;
+        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.Slots[0];
         enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;

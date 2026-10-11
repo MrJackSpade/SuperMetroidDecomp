@@ -562,7 +562,7 @@ static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusVertically(
         previous,
         current,
-        new VerticalCameraContext(YDirection: 2, UpScroller: 100, DownScroller: 112));
+        new VerticalCameraContext(YDirection: SamusVerticalDirection.Down, UpScroller: 100, DownScroller: 112));
     AssertEqual(110, camera.IdealYPosition, "camera downward ideal Y");
     AssertEqual(3, camera.CameraYSpeed, "camera Y distance includes one pixel");
     AssertEqual(103, camera.YPosition, "camera Y follows by calculated speed");
@@ -617,7 +617,7 @@ static void VerifyMovedSamusCameraTracking()
     bottomEdgeCamera.TrackMovedSamusVertically(
         stationary,
         stationary,
-        new VerticalCameraContext(YDirection: 0, UpScroller: 0x70, DownScroller: 0xa0));
+        new VerticalCameraContext(YDirection: SamusVerticalDirection.None, UpScroller: 0x70, DownScroller: 0xa0));
     AssertEqual(0x0400, bottomEdgeCamera.YPosition, "$80:A731 index-$32 adjacent-WRAM bottom clamp");
 
     // Vertical autoscrolling uses the centered X cell and the same speed+2 drift. This
@@ -637,7 +637,7 @@ static void VerifyMovedSamusCameraTracking()
     verticalCamera.TrackMovedSamusVertically(
         stationary,
         stationary,
-        new VerticalCameraContext(YDirection: 0, UpScroller: 0, DownScroller: 0));
+        new VerticalCameraContext(YDirection: SamusVerticalDirection.None, UpScroller: 0, DownScroller: 0));
     AssertEqual(1, verticalCamera.CameraYSpeed, "stationary camera Y speed still includes one");
     AssertEqual(0x0023, verticalCamera.YPosition, "$80:A731 red-cell downward drift");
 

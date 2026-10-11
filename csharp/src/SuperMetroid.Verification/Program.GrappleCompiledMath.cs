@@ -58,7 +58,9 @@ internal static partial class Program
             uint expectedY = (uint)(Math.Abs(vertical) * doubled);
             int horizontalIndex = ((angle - 64 + 3 * (doubled / 512)) & 255) + 64;
             uint expectedX = (uint)(Math.Abs(native[horizontalIndex]) * doubled);
-            ushort direction = (ushort)(velocity < 0 ? (vertical < 0 ? 2 : 1) : (vertical >= 0 ? 2 : 1));
+            SamusVerticalDirection direction = velocity < 0
+                ? vertical < 0 ? SamusVerticalDirection.Down : SamusVerticalDirection.Up
+                : vertical >= 0 ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
             state.Grapple.Angle = SnesAngle.FromRaw((ushort)((angle << 8) | 0xff));
             state.Grapple.AngularVelocity = (short)velocity;
             release(state, state.Grapple);

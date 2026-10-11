@@ -130,7 +130,7 @@ public sealed class SamusCeresRidleyEjectionState
             PushDirection = 0;
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
-            samus.Kinematics.YDirection = 0;
+            samus.Kinematics.YDirection = SamusVerticalDirection.None;
             samus.AlignBottomAfterPoseChange(
                 SamusState.ReadPoseYRadius(samus.PoseHistory.PreviousPose),
                 SamusState.ReadPoseYRadius(samus.Pose));

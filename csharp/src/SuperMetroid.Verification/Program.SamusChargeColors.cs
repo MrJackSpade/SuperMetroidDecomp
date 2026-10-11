@@ -58,7 +58,7 @@ internal static partial class Program
         for (int suit = 0; suit < suits.Length; suit++)
         {
             samus.EquippedItems = suits[suit];
-            samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? (ushort)0 : (ushort)4;
+            samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? SamusContactDamageIndex.None : SamusContactDamageIndex.PseudoScrew;
             for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
             {
                 // The live charge-palette index holds twice the phase this call applies.
@@ -564,7 +564,7 @@ internal static partial class Program
         for (int suit = 0; suit < 3; suit++)
         {
             samus.EquippedItems = suits[suit];
-            samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? (ushort)0 : (ushort)4;
+            samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? SamusContactDamageIndex.None : SamusContactDamageIndex.PseudoScrew;
             for (int phase = 0; phase < 6; phase++)
             {
                 int appliedPhase = projectiles.SamusChargePaletteIndex / 2;

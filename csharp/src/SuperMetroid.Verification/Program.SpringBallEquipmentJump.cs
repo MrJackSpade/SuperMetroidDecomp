@@ -36,7 +36,7 @@ internal static partial class Program
             runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
             AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
             samus.InitializeAnimation(memory, 3);
-            samus.Kinematics.YDirection = 1;
+            samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = 1;
             samus.Kinematics.YSubspeed = 0x8000;
             for (int jump = 0; jump < 2; jump++)
@@ -65,7 +65,7 @@ internal static partial class Program
             void Resume(bool equipped)
             {
                 ushort y = samus.YPosition, speed = samus.Kinematics.YSpeed, sub = samus.Kinematics.YSubspeed;
-                ushort direction = samus.Kinematics.YDirection;
+                SamusVerticalDirection direction = samus.Kinematics.YDirection;
                 if (equipped) samus.EquippedItems |= (ushort)SamusEquipmentFlags.SpringBall;
                 else samus.EquippedItems &= unchecked((ushort)~(ushort)SamusEquipmentFlags.SpringBall);
                 // The equipment screen writes this live word. Exercise its real forced-blank

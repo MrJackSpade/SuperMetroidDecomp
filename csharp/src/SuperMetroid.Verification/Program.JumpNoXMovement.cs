@@ -26,7 +26,7 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         samus.Kinematics.XSubposition = 0;
         samus.Kinematics.YSubposition = 0;
-        samus.Kinematics.YDirection = 2;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
         samus.Kinematics.YSubacceleration = 0x1c00;

@@ -300,8 +300,8 @@ public sealed partial class RoomEnemySystem
         EarthquakeTimer = 0x0100;
         state.NeckAngleDelta = 0x0050;
         state.NeckMovementEnabled = true;
-        state.LowerNeckMovementIndex = 8;
-        state.UpperNeckMovementIndex = 6;
+        state.LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
+        state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain;
     }
 
@@ -372,8 +372,8 @@ public sealed partial class RoomEnemySystem
         state.BrainPaletteHandlingEnabled = true;
         state.Form = 2;
         state.DroolGenerationEnabled = true;
-        state.LowerNeckMovementIndex = 6;
-        state.UpperNeckMovementIndex = 6;
+        state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
+        state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
         state.NeckAngleDelta = 0x0500;
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingShakeHead;
         state.FunctionTimer = 0x0017;
@@ -398,8 +398,8 @@ public sealed partial class RoomEnemySystem
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
 
-        state.LowerNeckMovementIndex = 2;
-        state.UpperNeckMovementIndex = 4;
+        state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
+        state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingFinish;
         state.FunctionTimer = 0x0040;
         FinishMotherBrainStretching(state);
@@ -757,7 +757,9 @@ public sealed partial class RoomEnemySystem
         // coordinates cannot overflow signed range, but expressing the native flag test
         // explicitly keeps debugger-edited/wrapped coordinates cartridge-faithful too.
         ushort headMinusSamus = unchecked((ushort)(head.YPosition - samus.YPosition));
-        ushort targetIndex = (headMinusSamus & 0x8000) == 0 ? (ushort)8 : (ushort)6;
+        MotherBrainNeckMovement targetIndex = (headMinusSamus & 0x8000) == 0
+            ? MotherBrainNeckMovement.Raise
+            : MotherBrainNeckMovement.Lower;
         state.LowerNeckMovementIndex = targetIndex;
         state.UpperNeckMovementIndex = targetIndex;
         state.NeckAngleDelta = 0x0200;
@@ -796,8 +798,8 @@ public sealed partial class RoomEnemySystem
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
 
-        state.LowerNeckMovementIndex = 4;
-        state.UpperNeckMovementIndex = 4;
+        state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobUp;
+        state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
         state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
         RunMotherBrainSecondPhaseThinking(state, samus);
     }

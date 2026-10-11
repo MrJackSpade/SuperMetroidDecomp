@@ -264,7 +264,7 @@ public sealed partial class RoomEnemySystem
             slot, state, MochtroidInstructionProgramDefinitions.Attached);
         state.AttachmentDamageTimer = unchecked((ushort)(state.AttachmentDamageTimer + 1));
 
-        bool applyCommonTouch = samus.HorizontalSpeed.ContactDamageIndex != 0;
+        bool applyCommonTouch = samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
         if (!applyCommonTouch)
         {
             // Every overlapping actor invokes the queue routine independently. Using the
@@ -283,7 +283,7 @@ public sealed partial class RoomEnemySystem
         if (!applyCommonTouch)
             return;
 
-        if (samus.HorizontalSpeed.ContactDamageIndex == 0)
+        if (samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None)
         {
             // Common touch would publish 96/5 here, but $A3:A99E clears both words before
             // Samus's movement phase can consume them. Apply only the suit-divided health

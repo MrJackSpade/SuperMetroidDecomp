@@ -25,31 +25,31 @@ internal static class MotherBrainNeckKinematics
     internal static void StepAngles(
         ref ushort lowerAngle,
         ref ushort upperAngle,
-        ref ushort lowerMovementIndex,
-        ref ushort upperMovementIndex,
+        ref MotherBrainNeckMovement lowerMovementIndex,
+        ref MotherBrainNeckMovement upperMovementIndex,
         ushort angleDelta,
         ushort brainY,
         ushort samusY)
     {
         switch (lowerMovementIndex)
         {
-            case 0:
+            case MotherBrainNeckMovement.None:
                 break;
-            case 2: // Bob down to $2800, then reverse.
+            case MotherBrainNeckMovement.BobDown: // Bob down to $2800, then reverse.
             {
                 ushort candidate = unchecked((ushort)(lowerAngle - angleDelta));
                 if (candidate < 0x2800)
                 {
                     candidate = 0x2800;
-                    lowerMovementIndex = 4;
+                    lowerMovementIndex = MotherBrainNeckMovement.BobUp;
                 }
                 lowerAngle = candidate;
                 break;
             }
-            case 4: // Bob up to $9000 unless the brain is already above Y=$3C.
+            case MotherBrainNeckMovement.BobUp: // Bob up to $9000 unless the brain is already above Y=$3C.
                 if (unchecked((short)(brainY - 0x003c)) < 0)
                 {
-                    lowerMovementIndex = 2;
+                    lowerMovementIndex = MotherBrainNeckMovement.BobDown;
                 }
                 else
                 {
@@ -57,49 +57,49 @@ internal static class MotherBrainNeckKinematics
                     if (candidate >= 0x9000)
                     {
                         candidate = 0x9000;
-                        lowerMovementIndex = 2;
+                        lowerMovementIndex = MotherBrainNeckMovement.BobDown;
                     }
                     lowerAngle = candidate;
                 }
                 break;
-            case 6: // One-way lower used by beam setup and the resurrection stretch.
+            case MotherBrainNeckMovement.Lower: // One-way lower used by beam setup and the resurrection stretch.
             {
                 ushort candidate = unchecked((ushort)(lowerAngle - angleDelta));
                 if (candidate < 0x3000)
                 {
                     candidate = 0x3000;
-                    lowerMovementIndex = 0;
+                    lowerMovementIndex = MotherBrainNeckMovement.None;
                 }
                 lowerAngle = candidate;
                 break;
             }
-            case 8: // One-way raise used by fake-death ascent and Baby interruptions.
+            case MotherBrainNeckMovement.Raise: // One-way raise used by fake-death ascent and Baby interruptions.
             {
                 ushort candidate = unchecked((ushort)(lowerAngle + angleDelta));
                 if (candidate >= 0x9000)
                 {
                     candidate = 0x9000;
-                    lowerMovementIndex = 0;
+                    lowerMovementIndex = MotherBrainNeckMovement.None;
                 }
                 lowerAngle = candidate;
                 break;
             }
             default:
                 throw new InvalidOperationException(
-                    $"Unsupported lower-neck movement index ${lowerMovementIndex:X4}.");
+                    $"Unsupported lower-neck movement index ${(int)lowerMovementIndex:X4}.");
         }
 
         // Native runs the upper dispatcher after the lower dispatcher, so it observes the
         // lower angle and movement-index mutations made immediately above on this frame.
         switch (upperMovementIndex)
         {
-            case 0:
+            case MotherBrainNeckMovement.None:
                 break;
-            case 2: // Bob down; Samus below the brain forces both halves back upward.
+            case MotherBrainNeckMovement.BobDown: // Bob down; Samus below the brain forces both halves back upward.
                 if (unchecked((short)(brainY + 4 - samusY)) >= 0)
                 {
-                    lowerMovementIndex = 4;
-                    upperMovementIndex = 4;
+                    lowerMovementIndex = MotherBrainNeckMovement.BobUp;
+                    upperMovementIndex = MotherBrainNeckMovement.BobUp;
                 }
                 else
                 {
@@ -107,49 +107,49 @@ internal static class MotherBrainNeckKinematics
                     if (candidate < 0x2000)
                     {
                         candidate = 0x2000;
-                        upperMovementIndex = 4;
+                        upperMovementIndex = MotherBrainNeckMovement.BobUp;
                     }
                     upperAngle = candidate;
                 }
                 break;
-            case 4: // Follow eight angle units above the newly updated lower segment.
+            case MotherBrainNeckMovement.BobUp: // Follow eight angle units above the newly updated lower segment.
             {
                 ushort target = unchecked((ushort)(lowerAngle + 0x0800));
                 ushort candidate = unchecked((ushort)(upperAngle + angleDelta));
                 if (candidate >= target)
                 {
                     candidate = target;
-                    upperMovementIndex = 2;
+                    upperMovementIndex = MotherBrainNeckMovement.BobDown;
                 }
                 upperAngle = candidate;
                 break;
             }
-            case 6: // One-way lower to $2000.
+            case MotherBrainNeckMovement.Lower: // One-way lower to $2000.
             {
                 ushort candidate = unchecked((ushort)(upperAngle - angleDelta));
                 if (candidate < 0x2000)
                 {
                     candidate = 0x2000;
-                    upperMovementIndex = 0;
+                    upperMovementIndex = MotherBrainNeckMovement.None;
                 }
                 upperAngle = candidate;
                 break;
             }
-            case 8: // One-way raise to lower angle + $0800.
+            case MotherBrainNeckMovement.Raise: // One-way raise to lower angle + $0800.
             {
                 ushort target = unchecked((ushort)(lowerAngle + 0x0800));
                 ushort candidate = unchecked((ushort)(upperAngle + angleDelta));
                 if (candidate >= target)
                 {
                     candidate = target;
-                    upperMovementIndex = 0;
+                    upperMovementIndex = MotherBrainNeckMovement.None;
                 }
                 upperAngle = candidate;
                 break;
             }
             default:
                 throw new InvalidOperationException(
-                    $"Unsupported upper-neck movement index ${upperMovementIndex:X4}.");
+                    $"Unsupported upper-neck movement index ${(int)upperMovementIndex:X4}.");
         }
     }
 

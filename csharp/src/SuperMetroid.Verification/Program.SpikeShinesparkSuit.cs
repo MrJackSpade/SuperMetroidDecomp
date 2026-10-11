@@ -14,11 +14,11 @@ internal static partial class Program
         // frame early installs the real Shinespark mover; Jump one frame late misses
         // completely. The middle case keeps C7 art and palette six after command one
         // has restored the ordinary movement handler: that mismatch is the technique.
-        foreach ((int LaunchFrame, ShinesparkPhase Phase, SamusPoseId Pose, ushort Palette) expected in new[]
+        foreach ((int LaunchFrame, ShinesparkPhase Phase, SamusPoseId Pose, SamusSpecialPaletteType Palette) expected in new[]
         {
-            (8, ShinesparkPhase.Windup, SamusPoseId.ShinesparkWindupRightPose, (ushort)6),
-            (9, ShinesparkPhase.Inactive, SamusPoseId.ShinesparkWindupRightPose, (ushort)6),
-            (10, ShinesparkPhase.Stored, SamusPoseId.FallingRightPose, (ushort)1),
+            (8, ShinesparkPhase.Windup, SamusPoseId.ShinesparkWindupRightPose, SamusSpecialPaletteType.Shinesparking),
+            (9, ShinesparkPhase.Inactive, SamusPoseId.ShinesparkWindupRightPose, SamusSpecialPaletteType.Shinesparking),
+            (10, ShinesparkPhase.Stored, SamusPoseId.FallingRightPose, SamusSpecialPaletteType.SpeedBoosterShine),
         })
         {
             SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(bus, underwater: false);
@@ -57,7 +57,7 @@ internal static partial class Program
         ushort frozenAnimationFrame = frozenSamus.AnimationFrame;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer;
         ushort frozenShineTimer = frozenSamus.SharedShineTimer;
-        ushort frozenPalette = frozenSamus.Shinespark.PaletteType;
+        SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
         ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer;
         frozenRuntime.StepFrame(0, afterAcceptedNmi: () =>
             shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.NmiFrameCounter));
@@ -92,7 +92,7 @@ internal static partial class Program
             SamusState samus = RunReserveSpikeSuitCase(bus, expected.FreezeAfter, expected.LaunchAfter);
             bool retainedSuit = samus.Pose == SamusPoseId.ShinesparkWindupRightPose &&
                 samus.Shinespark.Phase == ShinesparkPhase.Inactive &&
-                samus.Shinespark.PaletteType == 6 &&
+                samus.Shinespark.PaletteType == SamusSpecialPaletteType.Shinesparking &&
                 samus.SharedShineTimer != 0;
             AssertEqual(expected.RetainsSuit, retainedSuit,
                 $"underwater Reserve suit freeze {expected.FreezeAfter}, launch {expected.LaunchAfter}");

@@ -84,7 +84,7 @@ public sealed partial class RoomEnemySystem
             case RidleyInstruction.GotoYIfNotFacingLeft:
             {
                 RidleyEnemyState ridley = RequireRidley(slot);
-                cursor = ridley.FacingDirection != 0
+                cursor = ridley.FacingDirection != RidleyFacing.Left
                     ? ReadEnemyInstructionMechanicsWord(
                         slot,
                         unchecked((ushort)(cursor + 2)))
@@ -106,16 +106,16 @@ public sealed partial class RoomEnemySystem
                 return true;
             case RidleyInstruction.FlipLeft:
                 MirrorRidleyTail(RequireRidley(slot));
-                RequireRidley(slot).FacingDirection = 0;
+                RequireRidley(slot).FacingDirection = RidleyFacing.Left;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case RidleyInstruction.FaceForward:
-                RequireRidley(slot).FacingDirection = 1;
+                RequireRidley(slot).FacingDirection = RidleyFacing.Turning;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case RidleyInstruction.FlipRight:
                 MirrorRidleyTail(RequireRidley(slot));
-                RequireRidley(slot).FacingDirection = 2;
+                RequireRidley(slot).FacingDirection = RidleyFacing.Right;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             case RidleyInstruction.CalculateFireballXYVelocities:
@@ -202,11 +202,11 @@ public sealed partial class RoomEnemySystem
         Ridley = new RidleyEnemyState
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
-            FightMode = 0,
+            FightMode = RidleyFightMode.NotFighting,
             SpritemapPaletteIndex = EnemyPaletteBits.Palette7,
             CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
             MovementAnimationEnabled = 1,
-            FacingDirection = 2,
+            FacingDirection = RidleyFacing.Right,
             IdleTailWhipEnabled = 0,
             TailDamage = 120,
             MinimumY = 64,
@@ -335,7 +335,7 @@ public sealed partial class RoomEnemySystem
                 MoveNorfairRidleyToward(slot, state, 64, 256, divisorIndex: 14);
                 if (IsWithinRidleyRectangle(slot, 64, 256, 8, 8))
                 {
-                    state.FightMode = 1;
+                    state.FightMode = RidleyFightMode.Fighting;
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
                     SelectNorfairRidleyAttack(slot, state, samus, controllerInput, level);
                 }
@@ -369,8 +369,8 @@ public sealed partial class RoomEnemySystem
             case RidleyAiFunction.NorfairSwoopAimDown:
                 TickNorfairRidleySwoopPhase(
                     state,
-                    state.FacingDirection != 0 ? 32 : -32,
-                    state.FacingDirection != 0 ? 512 : -512,
+                    state.FacingDirection != RidleyFacing.Left ? 32 : -32,
+                    state.FacingDirection != RidleyFacing.Left ? 512 : -512,
                     1152,
                     RidleyAiFunction.NorfairSwoopAimSideways,
                     20);
@@ -379,8 +379,8 @@ public sealed partial class RoomEnemySystem
             case RidleyAiFunction.NorfairSwoopAimSideways:
                 if (TickNorfairRidleySwoopPhase(
                         state,
-                        state.FacingDirection != 0 ? 320 : -320,
-                        state.FacingDirection != 0 ? 0x4000 : -0x4000,
+                        state.FacingDirection != RidleyFacing.Left ? 320 : -320,
+                        state.FacingDirection != RidleyFacing.Left ? 0x4000 : -0x4000,
                         1280,
                         RidleyAiFunction.NorfairSwoopAimUp,
                         16))
@@ -392,8 +392,8 @@ public sealed partial class RoomEnemySystem
             case RidleyAiFunction.NorfairSwoopAimUp:
                 TickNorfairRidleySwoopPhase(
                     state,
-                    state.FacingDirection != 0 ? 512 : -512,
-                    state.FacingDirection != 0 ? 0x7800 : -0x7800,
+                    state.FacingDirection != RidleyFacing.Left ? 512 : -512,
+                    state.FacingDirection != RidleyFacing.Left ? 0x7800 : -0x7800,
                     768,
                     RidleyAiFunction.NorfairSwoopClimb,
                     32);
@@ -402,8 +402,8 @@ public sealed partial class RoomEnemySystem
             case RidleyAiFunction.NorfairSwoopClimb:
                 if (TickNorfairRidleySwoopPhase(
                         state,
-                        state.FacingDirection != 0 ? 1024 : -1024,
-                        state.FacingDirection != 0 ? 0x7800 : -0x7800,
+                        state.FacingDirection != RidleyFacing.Left ? 1024 : -1024,
+                        state.FacingDirection != RidleyFacing.Left ? 0x7800 : -0x7800,
                         768,
                         RidleyAiFunction.NorfairSwoopRecover,
                         32))
@@ -503,7 +503,7 @@ public sealed partial class RoomEnemySystem
                 }
                 else
                 {
-                    ushort releaseX = RidleyMovementTargets.CarryReleaseX(RidleyMovementTargets.Facing(state.FacingDirection));
+                    ushort releaseX = RidleyMovementTargets.CarryReleaseX(state.FacingDirection);
                     MoveNorfairRidleyToward(slot, state, releaseX, 224, 0);
                 }
                 return;
@@ -631,7 +631,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        ushort targetX = state.FacingDirection != 0 ? (ushort)96 : (ushort)192;
+        ushort targetX = state.FacingDirection != RidleyFacing.Left ? (ushort)96 : (ushort)192;
         MoveNorfairRidleyToward(
             slot,
             state,
@@ -644,7 +644,7 @@ public sealed partial class RoomEnemySystem
 
     private static void TickNorfairRidleySwoopMoveToStart(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        ushort targetX = state.FacingDirection != 0 ? (ushort)64 : (ushort)192;
+        ushort targetX = state.FacingDirection != RidleyFacing.Left ? (ushort)64 : (ushort)192;
         MoveNorfairRidleyToward(slot, state, targetX, 128, divisorIndex: 1);
         if (!IsWithinRidleyRectangle(slot, targetX, 128, 8, 8))
             return;
@@ -684,7 +684,7 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         bool descending)
     {
-        RidleyFacing facing = RidleyMovementTargets.Facing(state.FacingDirection);
+        RidleyFacing facing = state.FacingDirection;
         ushort targetX = descending ? RidleyMovementTargets.DescendingPogoX(facing)
             : RidleyMovementTargets.AscendingPogoX(facing);
         ushort targetY = samus is null ? (ushort)352 : Math.Min(samus.YPosition, (ushort)352);
@@ -703,7 +703,7 @@ public sealed partial class RoomEnemySystem
         }
 
         // $A6:B669 uses the existing RNG byte; it does not advance the generator.
-        if ((RequireRandomNumber() & 0xff) >= 0x80 && !state.Roaring && state.FacingDirection != 1)
+        if ((RequireRandomNumber() & 0xff) >= 0x80 && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
             SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Fireballing);
 
         if (!TickRidleyFunctionTimer(state))
@@ -738,7 +738,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        ushort targetX = RidleyMovementTargets.GroundAttackX(RidleyMovementTargets.Facing(state.FacingDirection));
+        ushort targetX = RidleyMovementTargets.GroundAttackX(state.FacingDirection);
         MoveNorfairRidleyToward(slot, state, targetX, 288, divisorIndex: 0);
     }
 
@@ -800,7 +800,7 @@ public sealed partial class RoomEnemySystem
         if (state.PogoBounceCount >= 2)
         {
             state.PogoBounceCount = 0;
-            if (state.FacingDirection != 1)
+            if (state.FacingDirection != RidleyFacing.Turning)
                 SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Fireballing);
         }
         state.Function = RidleyAiFunction.NorfairFireballRecover;
@@ -886,7 +886,7 @@ public sealed partial class RoomEnemySystem
         // The native lunge is a passing attack, not indefinite pursuit. Test the
         // previous movement's boundary result before applying another acceleration.
         short deltaX = unchecked((short)(slot.XPosition - samus.XPosition));
-        bool passedSamus = state.FacingDirection == 2 ? deltaX >= 0 : deltaX < 0;
+        bool passedSamus = state.FacingDirection == RidleyFacing.Right ? deltaX >= 0 : deltaX < 0;
         if (state.HitRoomBoundary ||
             (passedSamus && unchecked((short)(Math.Abs((int)deltaX) - RidleyLungeDefinitions.PassDistance)) >= 0) ||
             unchecked((short)(slot.YPosition + RidleyLungeDefinitions.ClawHeight - samus.YPosition)) >= 0)
@@ -895,7 +895,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        int sideOffset = state.FacingDirection != 0 ? 16 : -16;
+        int sideOffset = state.FacingDirection != RidleyFacing.Left ? 16 : -16;
         ushort targetY = unchecked((ushort)(samus.YPosition - 4));
         int divisorIndex = RidleyMovementTargets.GrabDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
         MoveNorfairRidleyToward(
@@ -938,7 +938,7 @@ public sealed partial class RoomEnemySystem
 
     private static void BeginNorfairRidleyCarry(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        state.TargetX = RidleyMovementTargets.CarryAnchorX(RidleyMovementTargets.Facing(state.FacingDirection));
+        state.TargetX = RidleyMovementTargets.CarryAnchorX(state.FacingDirection);
         state.TargetY = unchecked((short)(slot.YPosition - 320)) < 0
             ? (ushort)256
             : unchecked((ushort)(slot.YPosition - 64));
@@ -955,7 +955,7 @@ public sealed partial class RoomEnemySystem
         state.TailWhipRequest = 1;
         state.TailFunctionIndex = RidleyTailFunction.Neutral;
         // $A6:BC8F-BC93 leaves the timer untouched once death owns the fight.
-        if (unchecked((short)state.FightMode) >= 0)
+        if (state.FightMode != RidleyFightMode.Dying)
         {
             SamusMovementType movement = samus?.ReadMovementType(_bus!) ?? SamusMovementType.Standing;
             state.IntangibilityTimer = RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement);
@@ -1010,17 +1010,17 @@ public sealed partial class RoomEnemySystem
 
     private static void SelectNorfairRidleyFacingInstruction(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        if (state.FacingDirection == 1)
+        if (state.FacingDirection == RidleyFacing.Turning)
             return;
         // D955 reads the word at Enemy.XPosition-1: its sign is bit 7 of
         // the low X byte, not the sign of the full coordinate. Keep an inward
         // facing actor's current animation and timer untouched.
         bool rightHalf = (slot.XPosition & 0x0080) != 0;
-        if (state.FacingDirection == 0 ? rightHalf : !rightHalf)
+        if (state.FacingDirection == RidleyFacing.Left ? rightHalf : !rightHalf)
             return;
         SetRidleyInstruction(
             slot,
-            state.FacingDirection == 0
+            state.FacingDirection == RidleyFacing.Left
                 ? RidleyInstructionProgramDefinitions.TurnFromLeftToRight
                 : RidleyInstructionProgramDefinitions.TurnFromRightToLeft);
         slot.InstructionTimer = 2;

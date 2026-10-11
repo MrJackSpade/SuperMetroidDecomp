@@ -123,12 +123,12 @@ public sealed partial class RoomEnemySystem
         Ridley = new RidleyEnemyState
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
-            FightMode = 0,
+            FightMode = RidleyFightMode.NotFighting,
             HitCounter = 0,
             SpritemapPaletteIndex = EnemyPaletteBits.Palette7,
             CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
             MovementAnimationEnabled = 0,
-            FacingDirection = 0,
+            FacingDirection = RidleyFacing.Left,
             IdleTailWhipEnabled = 1,
             TailDamage = 0x000f,
             HorizontalVelocity = 0,
@@ -464,7 +464,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void UpdateCeresRidleyHealthPalette(RidleyEnemyState state)
     {
-        if (state.FightMode == 0 || state.HitCounter < 50)
+        if (state.FightMode == RidleyFightMode.NotFighting || state.HitCounter < 50)
             return;
 
         int paletteIndex = state.HitCounter < 70
@@ -485,7 +485,7 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)(slot.YPosition - 80)) < 0)
         {
             state.Function = RidleyAiFunction.CeresHovering;
-            state.FightMode = 1;
+            state.FightMode = RidleyFightMode.Fighting;
         }
     }
 
@@ -498,7 +498,7 @@ public sealed partial class RoomEnemySystem
         // this separate counter and A6E8 treats 100 contacts as the scripted win condition.
         if (state.HitCounter >= 100)
         {
-            state.FightMode = 0;
+            state.FightMode = RidleyFightMode.NotFighting;
             state.Function = RidleyAiFunction.CeresFakeRetreatMoveToPosition;
             TickCeresRidleyFakeRetreatMoveToPosition(slot, state);
             return;
@@ -509,7 +509,7 @@ public sealed partial class RoomEnemySystem
         // $A6:A706 jumps into the real retreat, so its first acceleration runs this call.
         if (samus is not null && unchecked((short)(samus.Health - 30)) < 0)
         {
-            state.FightMode = 0;
+            state.FightMode = RidleyFightMode.NotFighting;
             BeginCeresRidleyRetreat(state);
             TickCeresRidleyRetreat(slot, state);
             return;

@@ -116,7 +116,7 @@ internal static partial class AssetTools
         ram[0xA1F] = runtime.AddressSpace.ReadByte(pose + 1);
         Word(0xA56, samus.BombJumpDirection); Word(0xA58, 0xE032); Word(0xA60, 0xE90E);
         Word(0xB2C, k.YSubspeed); Word(0xB2E, k.YSpeed);
-        Word(0xB32, k.YSubacceleration); Word(0xB34, k.YAcceleration); Word(0xB36, k.YDirection);
+        Word(0xB32, k.YSubacceleration); Word(0xB34, k.YAcceleration); Word(0xB36, (ushort)k.YDirection);
         Word(0xB42, speed.ExtraRunSpeed); Word(0xB44, speed.ExtraRunSubspeed);
         Word(0xB46, speed.BaseSpeed); Word(0xB48, speed.BaseSubspeed); Word(0xB4A, speed.AccelerationMode);
         Word(0x195E, 0xFFFF); Word(0x1962, 0xFFFF);

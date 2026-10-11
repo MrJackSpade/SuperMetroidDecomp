@@ -1301,7 +1301,7 @@ static void VerifyCeresRidleyRoomEntry()
     }
     AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
         "Ceres Ridley liftoff reaches hover dispatcher");
-    AssertEqual(1, state.FightMode, "Ceres Ridley liftoff enables battle mode");
+    AssertEqual(RidleyFightMode.Fighting, state.FightMode, "Ceres Ridley liftoff enables battle mode");
     AssertTrue(ridley.YPosition < 80,
         "Ceres Ridley crosses the cartridge's Y=$50 battle threshold");
     AssertTrue(observedRoarSound,
@@ -1477,7 +1477,7 @@ static void VerifyCeresRidleyRoomEntry()
     }
     AssertTrue(observedFakeRetreat,
         "Ceres Ridley returns from current attack through fake retreat/Baby retrieval");
-    AssertEqual(0, state.FightMode, "Ceres Ridley retreat disables battle mode");
+    AssertEqual(RidleyFightMode.NotFighting, state.FightMode, "Ceres Ridley retreat disables battle mode");
     AssertEqual(1, enemies.CeresStatus, "Ceres Ridley publishes escape handoff status");
     AssertEqual((ushort)RidleyAiFunction.CeresInactive, (ushort)state.Function,
         "Ceres Ridley installs null dispatcher after battle");

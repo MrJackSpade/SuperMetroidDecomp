@@ -70,8 +70,8 @@ internal static partial class Program
         AssertEqual((ushort)1, state.TailAngleDelta, "leaving pogo restores native delta");
         var aim = typeof(RoomEnemySystem).GetMethod("AimCeresRidleyTailWhip", flags)!
             .CreateDelegate<Action<RidleyEnemyState, SamusState?, byte>>(enemies);
-        state.FightMode = 1;
-        state.FacingDirection = 0;
+        state.FightMode = RidleyFightMode.Fighting;
+        state.FacingDirection = RidleyFacing.Left;
         state.TailSegments[0].XPosition = state.TailSegments[0].YPosition = 128;
         state.TailSegments[0].Angle = 0x4000;
         state.TailSegments[6].XPosition = state.TailSegments[6].YPosition = 128;

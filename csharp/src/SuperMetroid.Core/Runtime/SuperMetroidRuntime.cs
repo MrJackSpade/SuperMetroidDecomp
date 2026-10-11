@@ -1609,7 +1609,7 @@ public sealed partial class SuperMetroidRuntime
                 // EnemyMain consumes the preceding frame's contact-damage index.
                 // Only beta clears it, before movement republishes the current value.
                 if (!suitOwnsSamus)
-                    Samus.HorizontalSpeed.ContactDamageIndex = 0;
+                    Samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
 
                 // $90:E725 dispatches movement type before animation. Every admitted pose
                 // below has its own verified direction/mode path; a newly reachable pose
@@ -2033,7 +2033,7 @@ public sealed partial class SuperMetroidRuntime
                         SamusMovementType turnMovementType = Samus.ReadMovementKind(_addressSpace);
                         if (turnMovementType == SamusMovementType.TurningOnGround ||
                             (turnMovementType == SamusMovementType.TurningWhileJumping &&
-                             Samus.Kinematics.YDirection == 0))
+                             Samus.Kinematics.YDirection == SamusVerticalDirection.None))
                         {
                             LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
                                 _addressSpace,

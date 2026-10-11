@@ -20,7 +20,7 @@ internal static partial class Program
         };
         samus.Kinematics.XRadius = 5;
         samus.Kinematics.YRadius = 12;
-        samus.Kinematics.YDirection = 2;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = 2;
         samus.HorizontalSpeed.BaseSpeed = 1;
         samus.HorizontalSpeed.BaseSubspeed = 0x6000;

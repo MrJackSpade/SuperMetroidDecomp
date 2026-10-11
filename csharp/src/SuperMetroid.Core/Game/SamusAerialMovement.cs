@@ -36,7 +36,7 @@ public static class SamusAerialMovement
             SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: false);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(bus, samus);
-        samus.Kinematics.YDirection = 1;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ public static class SamusAerialMovement
             SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: true);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(bus, samus);
-        samus.Kinematics.YDirection = 1;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
     }
 
     /// <summary>
@@ -208,9 +208,9 @@ public static class SamusAerialMovement
         // outside full liquid physics. The common runtime clears the word before movement,
         // mirroring `$90:E725`, so neither stale damage mode can leak into another pose.
         if (!fullySubmergedWithoutGravity && SamusState.IsScrewAttackPose(samus.Pose))
-            samus.HorizontalSpeed.ContactDamageIndex = 3;
+            samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         else if (!fullySubmergedWithoutGravity && samus.ProjectileFlareCounter >= 0x003c)
-            samus.HorizontalSpeed.ContactDamageIndex = 4;
+            samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
 
         // Bomb-block breaking is independent of contact-damage publication above: liquid
         // suppresses Samus damage, but $84:CE83 still reads pose/boost through the shared
@@ -314,9 +314,9 @@ public static class SamusAerialMovement
         // Frames 3..22 use charge-beam index four only after the projectile flare counter
         // reaches 60. Frames 0..2 deliberately remain harmless even when fully charged.
         if (samus.AnimationFrame >= 0x17)
-            samus.HorizontalSpeed.ContactDamageIndex = 3;
+            samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         else if (samus.AnimationFrame >= 3 && samus.ProjectileFlareCounter >= 0x003c)
-            samus.HorizontalSpeed.ContactDamageIndex = 4;
+            samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: SamusMovementType.WallJumping,
@@ -421,18 +421,18 @@ public static class SamusAerialMovement
 
         // Simple_Samus_Y_Movement calls this before the shared gravity routine. A signed
         // underflow at the apex becomes a stationary downward state on this same frame.
-        if (samus.Kinematics.YDirection == 1 && unchecked((short)samus.Kinematics.YSpeed) < 0)
+        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && unchecked((short)samus.Kinematics.YSpeed) < 0)
         {
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
-            samus.Kinematics.YDirection = 2;
+            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         }
 
         // CheckAndMoveY selects the no-speed probe for direction zero even in
         // airborne turn art. Moonfall therefore pauses gravity during its turn;
         // this is the same branch used by grounded aimed crouching turns.
         AerialMovementResult result;
-        if (samus.Kinematics.YDirection == 0)
+        if (samus.Kinematics.YDirection == SamusVerticalDirection.None)
         {
             SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(bus, level, samus, nmiFrameCounter, plms);
             result = new AerialMovementResult(false, false);
@@ -485,12 +485,12 @@ public static class SamusAerialMovement
         // $90:90C4 converts an underflowed upward magnitude to a stationary downward state
         // before the common vertical routine can turn the negative word into moonfall-like
         // motion. An ordinary walk-off already enters with direction two.
-        if (samus.Kinematics.YDirection == 1 &&
+        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
             unchecked((short)samus.Kinematics.YSpeed) < 0)
         {
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
-            samus.Kinematics.YDirection = 2;
+            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         }
 
         AerialMovementResult result = FinishVerticalMovement(bus, level, samus, nmiFrameCounter, plms: plms);
@@ -536,11 +536,11 @@ public static class SamusAerialMovement
         // `$90:946E-$948A` treats a signed-negative upward whole speed as the apex-wrap
         // sentinel. It clears the complete magnitude, flips downward, and installs normal
         // movement, but deliberately continues the remainder of this final special frame.
-        if (state.YDirection == 1 && unchecked((short)state.YSpeed) < 0)
+        if (state.YDirection == SamusVerticalDirection.Up && unchecked((short)state.YSpeed) < 0)
         {
             state.YSpeed = 0;
             state.YSubspeed = 0;
-            state.YDirection = 2;
+            state.YDirection = SamusVerticalDirection.Down;
             restoreNormalHandler = true;
         }
 
@@ -691,7 +691,7 @@ public static class SamusAerialMovement
         // velocity. A newly initialized zero-speed fall therefore moves zero pixels on its
         // first handler call even though gravity has already accumulated for next frame.
         uint oldSpeed = state.VerticalSpeedFixed;
-        if (state.YDirection == 2)
+        if (state.YDirection == SamusVerticalDirection.Down)
         {
             // `$90:9112` tests equality with whole speed five. Values above five are not
             // clamped; preserving that oddity matters for externally scripted velocities.
@@ -709,7 +709,7 @@ public static class SamusAerialMovement
                 state.YSubacceleration)));
         }
 
-        int displacement = state.YDirection == 2
+        int displacement = state.YDirection == SamusVerticalDirection.Down
             ? unchecked((int)oldSpeed)
             : unchecked(-(int)oldSpeed);
         displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
@@ -748,7 +748,7 @@ public static class SamusAerialMovement
             // instead clears that pending result, so its caller defers these writes.
             state.YSpeed = 0;
             state.YSubspeed = 0;
-            state.YDirection = 2;
+            state.YDirection = SamusVerticalDirection.Down;
         }
 
         return vertical;
@@ -758,7 +758,7 @@ public static class SamusAerialMovement
         SamusKinematicsState state,
         ushort controllerInput)
     {
-        if (state.YDirection != 1)
+        if (state.YDirection != SamusVerticalDirection.Up)
             return;
 
         bool jumpHeld = (controllerInput & (ushort)SnesButton.A) != 0;
@@ -767,7 +767,7 @@ public static class SamusAerialMovement
         {
             state.YSpeed = 0;
             state.YSubspeed = 0;
-            state.YDirection = 2;
+            state.YDirection = SamusVerticalDirection.Down;
         }
     }
 
@@ -855,7 +855,7 @@ public static class SamusAerialMovement
         ushort controllerNewInput)
     {
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ||
-            samus.Kinematics.YDirection != 2)
+            samus.Kinematics.YDirection != SamusVerticalDirection.Down)
         {
             return false;
         }

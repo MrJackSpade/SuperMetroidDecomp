@@ -311,7 +311,7 @@ public sealed partial class RoomEnemySystem
         ushort combined = unchecked((ushort)(collisions[0] & collisions[1] & collisions[2] & collisions[3]));
         return combined != 0xffff &&
             combined == slot.NativeIndex &&
-            samus.HorizontalSpeed.ContactDamageIndex != 0;
+            samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
     }
 
     private static bool IsSamusWithinShutterHorizontalDistance(

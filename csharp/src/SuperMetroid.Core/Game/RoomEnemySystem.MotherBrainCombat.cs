@@ -93,7 +93,7 @@ public sealed partial class RoomEnemySystem
             samus.KnockbackTimer = 5;
             samus.KnockbackXDirection = 1;
             if (unchecked((short)(samus.YPosition - 192)) < 0)
-                samus.Kinematics.YDirection = 2;
+                samus.Kinematics.YDirection = SamusVerticalDirection.Down;
 
             // Only contact to the right of body X+24 calls MotherBrain_HurtSamus. Contact
             // elsewhere still installs the displacement and timers above without damage.

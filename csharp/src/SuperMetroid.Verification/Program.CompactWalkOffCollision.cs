@@ -35,7 +35,7 @@ internal static partial class Program
             AssertEqual(0x00edffffu, samus.Kinematics.YFixed, "radius publication does not repeat compact correction");
             AssertEqual(0, samus.Kinematics.YSpeed, "accepted falling command clears whole vertical speed");
             AssertEqual(0, samus.Kinematics.YSubspeed, "accepted falling command clears fractional vertical speed");
-            AssertEqual(2, samus.Kinematics.YDirection, "accepted falling command starts downward motion");
+            AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "accepted falling command starts downward motion");
         }
     }
 }

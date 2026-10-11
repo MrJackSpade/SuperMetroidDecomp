@@ -33,7 +33,7 @@ internal static partial class Program
         samus.YPosition = 400;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        samus.Kinematics.YDirection = 2;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         // The movie's state entering update 349335: base 1.4000, extra 1.E000, mode two.
         samus.HorizontalSpeed.BaseSpeed = 1;
         samus.HorizontalSpeed.BaseSubspeed = 0x4000;

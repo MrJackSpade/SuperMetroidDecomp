@@ -69,7 +69,7 @@ internal static partial class Program
         samus.YPosition = 232;
         samus.Kinematics.YSubposition = 0xe000;
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
-        samus.Kinematics.YDirection = 2;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.HorizontalSpeed.BaseSpeed = 5;
         samus.HorizontalSpeed.BaseSubspeed = 0;
         samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseFixed);
@@ -81,10 +81,10 @@ internal static partial class Program
         AssertEqual(0x00534000u, samus.Kinematics.XFixed, "expired hurt floor probe keeps X");
         AssertEqual(0x00ebffffu, samus.Kinematics.YFixed, "expired hurt floor alignment");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "landing clears residual hurt momentum");
-        AssertEqual(0, samus.Kinematics.YDirection, "landing clears vertical direction");
-        samus.Kinematics.YDirection = 2;
+        AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "landing clears vertical direction");
+        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         runtime.StepFrame(0x0180);
-        AssertEqual(2, samus.Kinematics.YDirection, "landing movement preserves post-landing hurt-expiry direction");
+        AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "landing movement preserves post-landing hurt-expiry direction");
 
         // Native carry trace contact=5, delay=2, immediately after the contact frame.
         // One neutral hurt frame must cancel momentum without clearing its numeric
@@ -138,7 +138,7 @@ internal static partial class Program
             samus.SetAnimationFrameFromSpecialHandler(0, 5);
             samus.YPosition = 200;
             samus.Kinematics.YSubposition = 0;
-            samus.Kinematics.YDirection = 2;
+            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.PoseHistory.PreviousPose = retainedPose;
             samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(
                 ((byte)samus.ReadMovementType(bus) << 8) | (samus.IsFacingLeft(bus) ? 4 : 8));
@@ -167,7 +167,7 @@ internal static partial class Program
         samus.Kinematics.YSubposition = 0xb800;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0x9800;
-        samus.Kinematics.YDirection = 2;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.HorizontalSpeed.BaseSpeed = 0;
         samus.HorizontalSpeed.BaseSubspeed = 0x9000;
         samus.HorizontalSpeed.AccelerationMode = 1;

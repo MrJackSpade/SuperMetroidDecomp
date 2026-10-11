@@ -37,8 +37,8 @@ public sealed class SamusShinesparkState
     public bool LaunchSoundSuppressed { get; private set; }
     /// <summary>Native queue guard shared by the two adjacent crash-entry sound calls.</summary>
     public bool CrashSoundSuppressed { get; private set; }
-    /// <summary>WRAM <c>$0A68</c>: zero, stored-shine handler one, or spark handler six.</summary>
-    public ushort PaletteType { get; private set; }
+    /// <summary>Special-palette handler (WRAM <c>$0ACC</c>) this owner installs: none, stored shine, or shinesparking.</summary>
+    public SamusSpecialPaletteType PaletteType { get; private set; }
 
     /// <summary>WRAM <c>$0A6A</c>: 180 stored, 60 windup, and 15 during active motion.</summary>
     public ushort ShineTimer { get; private set; }
@@ -97,7 +97,7 @@ public sealed class SamusShinesparkState
     {
         Phase = ShinesparkPhase.Inactive;
         ShineTimer = 0;
-        PaletteType = 0;
+        PaletteType = SamusSpecialPaletteType.None;
         PaletteFrameOffset = 0;
     }
 
@@ -204,7 +204,7 @@ public sealed class SamusShinesparkState
     internal void RelinquishPaletteToXray()
     {
         ShineTimer = 0;
-        PaletteType = 0;
+        PaletteType = SamusSpecialPaletteType.None;
         PaletteFrameOffset = 0;
         if (Phase == ShinesparkPhase.Stored)
             Phase = ShinesparkPhase.Inactive;
@@ -234,7 +234,7 @@ public sealed class SamusShinesparkState
             return false;
 
         ShineTimer = 180;
-        PaletteType = 1;
+        PaletteType = SamusSpecialPaletteType.SpeedBoosterShine;
         PaletteFrameOffset = 0;
         Phase = ShinesparkPhase.Stored;
         StoredShineWarningSoundRequested = false;
@@ -290,7 +290,7 @@ public sealed class SamusShinesparkState
 
         // These are literal native writes. Stage four remains published during windup even
         // though base speed is zero and the extra component becomes exactly 8.0000.
-        samus.Kinematics.YDirection = 1;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
         samus.KnockbackDirection = 0;
@@ -307,7 +307,7 @@ public sealed class SamusShinesparkState
         VerticalAccelerationSubspeed = 0;
         StartStopTimer = 30;
         ShineTimer = 60;
-        PaletteType = 6;
+        PaletteType = SamusSpecialPaletteType.Shinesparking;
         PaletteFrameOffset = 0;
         Phase = ShinesparkPhase.Windup;
         samus.HurtFlashCounter = 0;
@@ -426,7 +426,7 @@ timedOut,                 PendingLaunchPose: pendingLaunchPose);
 false);
         }
 
-        samus.HorizontalSpeed.ContactDamageIndex = 2;
+        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.Shinespark;
         samus.HurtFlashCounter = 8;
 
         // Each active handler samples echoes before motion. Runtime suppresses its ordinary
@@ -490,10 +490,10 @@ false);
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
-        if (PaletteType is not (1 or 6))
+        if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
             return false;
 
-        if (PaletteType == 1 && ShineTimer == 170)
+        if (PaletteType == SamusSpecialPaletteType.SpeedBoosterShine && ShineTimer == 170)
         {
             StoredShineWarningSoundRequested = true;
             StoredShineWarningSoundSuppressed = _audioPowerBomb?.IsActive == true;
@@ -504,7 +504,7 @@ false);
         bool expired = timer.IsZeroOrNegative;
         if (expired)
         {
-            PaletteType = 0;
+            PaletteType = SamusSpecialPaletteType.None;
             PaletteFrameOffset = 0;
             if (Phase == ShinesparkPhase.Stored)
                 Phase = ShinesparkPhase.Inactive;
@@ -513,18 +513,18 @@ false);
         }
 
         ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
-        bool catalogued = PaletteType == 1
+        bool catalogued = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine
             ? SamusPaletteRomData.FullBodyCycles.TryStoredShinePalettePointer(
                 suitOffset, PaletteFrameOffset, out ushort palettePointer)
             : SamusPaletteRomData.FullBodyCycles.TryActiveShinesparkPalettePointer(
                 suitOffset, PaletteFrameOffset, out palettePointer);
         if (!catalogued)
             throw new InvalidDataException(
-                $"Shinespark palette type {PaletteType} offset {PaletteFrameOffset} is not compiled.");
+                $"Shinespark palette type {(int)PaletteType} offset {PaletteFrameOffset} is not compiled.");
         (cycleColors ?? throw new InvalidOperationException(
             "Shinespark palette requires installed color assets.")).Apply(cgram, palettePointer);
 
-        ushort exclusiveLimit = PaletteType == 1 ? (ushort)12 : (ushort)8;
+        ushort exclusiveLimit = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine ? (ushort)12 : (ushort)8;
         PaletteFrameOffset = unchecked((ushort)(PaletteFrameOffset + 2));
         if (PaletteFrameOffset >= exclusiveLimit)
             PaletteFrameOffset = 0;
@@ -536,7 +536,7 @@ false);
         // `$90:D2BA-$D345` kills translational velocity before installing the crash handler.
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
-        samus.Kinematics.YDirection = 0;
+        samus.Kinematics.YDirection = SamusVerticalDirection.None;
         samus.HorizontalSpeed.ExtraRunSpeed = 0;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         samus.HorizontalSpeed.SpeedBoostCounter = 0;

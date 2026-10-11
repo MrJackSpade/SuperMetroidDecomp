@@ -54,7 +54,7 @@ internal static partial class Program
             samus.XPosition = x; samus.YPosition = y;
             samus.Health = 999; samus.EquippedItems = 0;
             samus.InvincibilityTimer = samus.KnockbackTimer = 0;
-            samus.HorizontalSpeed.ContactDamageIndex = 0;
+            samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
             samus.Kinematics.ExtraXDisplacement = samus.Kinematics.ExtraYDisplacement = 0;
             samus.Kinematics.XRadius = 8; samus.Kinematics.YRadius = 16;
         }

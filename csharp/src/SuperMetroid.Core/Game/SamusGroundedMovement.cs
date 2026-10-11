@@ -341,7 +341,7 @@ public static class SamusGroundedMovement
                 $"Grounded turn pose ${(int)samus.Pose:X2} has movement type ${(byte)movementType:X2}.");
         if (movementType == SamusMovementType.TurningWhileJumping && !SamusState.IsAimedCrouchingTurnPose(samus.Pose))
             throw new InvalidOperationException($"Grounded type-$17 admission requires an aimed crouched turn, not ${(int)samus.Pose:X2}.");
-        if (movementType == SamusMovementType.TurningWhileJumping && samus.Kinematics.YDirection != 0)
+        if (movementType == SamusMovementType.TurningWhileJumping && samus.Kinematics.YDirection != SamusVerticalDirection.None)
         {
             throw new InvalidOperationException(
                 $"Airborne type-$17 turn pose ${(int)samus.Pose:X2} must execute through SamusAerialMovement.StepTurningInAir.");

@@ -28,11 +28,11 @@ public sealed class SamusKinematicsState
     /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
     /// native collision input even when a probe deliberately cannot mutate the full owner.
     /// </summary>
-    internal ushort? ProbeContactDamageIndex { get; init; }
+    internal SamusContactDamageIndex? ProbeContactDamageIndex { get; init; }
 
     /// <summary>Live contact mode, or the captured mode while testing a prospective pose.</summary>
-    internal ushort CollisionContactDamageIndex =>
-        ProbeContactDamageIndex ?? SamusOwner?.HorizontalSpeed.ContactDamageIndex ?? 0;
+    internal SamusContactDamageIndex CollisionContactDamageIndex =>
+        ProbeContactDamageIndex ?? SamusOwner?.HorizontalSpeed.ContactDamageIndex ?? SamusContactDamageIndex.None;
 
     /// <summary>Constructs an ownerless kinematics fixture for block-only probes.</summary>
     public SamusKinematicsState()
@@ -153,7 +153,7 @@ public sealed class SamusKinematicsState
     /// treating upward velocity as a negative host number would lose the underflow quirks
     /// in <c>$90:90E2</c> and the jump-release test in <c>$90:8FB3</c>.
     /// </summary>
-    public ushort YDirection { get; set; }
+    public SamusVerticalDirection YDirection { get; set; }
 
     /// <summary>Area-table selector used by bank-$94 sand reactions; refreshed before movement.</summary>
     public AreaId SandCollisionArea { get; set; }

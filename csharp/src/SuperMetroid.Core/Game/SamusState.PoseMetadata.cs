@@ -252,8 +252,8 @@ public sealed partial class SamusState
         HorizontalSpeed.AccelerationMode = 0;
         Kinematics.YSubspeed = 0;
         Kinematics.YSpeed = 0;
-        Kinematics.YDirection = 0;
-        MorphBallBounceState = 0;
+        Kinematics.YDirection = SamusVerticalDirection.None;
+        MorphBallBounceState = SamusBallBounceState.None;
     }
 
     /// <summary>

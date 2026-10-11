@@ -178,7 +178,7 @@ public sealed partial class RoomEnemySystem
         DeleteEnemyProjectileIfPowerBombed(goop, samus);
         if (samus is null)
             return;
-        if (samus.HorizontalSpeed.ContactDamageIndex != 0)
+        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
         {
             RemoveAttachedDraygonGoop(goop, samus);
             return;

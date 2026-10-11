@@ -42,7 +42,7 @@ internal static partial class Program
                 AssertEqual(unchecked((ushort)(fraction + (boost ? raw : 0))), samus.Kinematics.YSubspeed, "Native fractional overflow does not carry");
                 AssertEqual(Word(0x909ea7 + medium * 2), samus.Kinematics.YAcceleration, "Native gravity whole word");
                 AssertEqual(Word(0x909ea1 + medium * 2), samus.Kinematics.YSubacceleration, "Native gravity fractional word");
-                AssertEqual((ushort)1, samus.Kinematics.YDirection, "Launch remains upward");
+                AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.YDirection, "Launch remains upward");
                 cases++;
             }
         }

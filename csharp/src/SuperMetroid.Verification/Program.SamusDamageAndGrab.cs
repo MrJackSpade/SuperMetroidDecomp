@@ -150,7 +150,7 @@ static void VerifySamusDrainedController()
         "drained controller preserves source bottom while radius grows 16 to 21");
     AssertEqual(2, right.AnimationFrame, "drained fall begins at byte index two");
     AssertEqual(0, right.Kinematics.YSpeed, "drained fall clears whole Y speed");
-    AssertEqual(2, right.Kinematics.YDirection, "drained fall selects down direction");
+    AssertEqual(SamusVerticalDirection.Down, right.Kinematics.YDirection, "drained fall selects down direction");
     AssertTrue(right.Drained.UpdatePalette(bus, drainedCgram, right.EquippedItems, suitColors),
         "drained controller zero restores selected suit palette");
     AssertEqual(0x300f, drainedCgram.Colors[207],
@@ -840,8 +840,8 @@ static void VerifySamusGrabbedByDraygon()
     samus.HorizontalSpeed.AccelerationMode = 2;
     samus.Kinematics.YSpeed = 4;
     samus.Kinematics.YSubspeed = 0xc000;
-    samus.Kinematics.YDirection = 2;
-    samus.MorphBallBounceState = 2;
+    samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+    samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
 
     DraygonEscapeResult release = repeatedUp;
     for (int inputNumber = 1; inputNumber < SamusDraygonGrabbedState.EscapeButtonCounterTarget; inputNumber++)
@@ -861,8 +861,8 @@ static void VerifySamusGrabbedByDraygon()
         "release intentionally preserves extra run subspeed");
     AssertEqual(0, samus.Kinematics.YSpeed, "release clears Y speed");
     AssertEqual(0, samus.Kinematics.YSubspeed, "release clears Y subspeed");
-    AssertEqual(0, samus.Kinematics.YDirection, "release clears Y direction");
-    AssertEqual(0, samus.MorphBallBounceState, "release clears bounce state");
+    AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "release clears Y direction");
+    AssertEqual(SamusBallBounceState.None, samus.MorphBallBounceState, "release clears bounce state");
     AssertEqual(0, samus.HorizontalSpeed.AccelerationMode,
         "release clears X acceleration mode");
     AssertTrue(samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(),

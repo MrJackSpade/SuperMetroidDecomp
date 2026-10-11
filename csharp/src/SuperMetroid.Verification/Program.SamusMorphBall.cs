@@ -200,7 +200,7 @@ static void VerifySamusMorphBallMovement()
     AssertTrue(!unsupported.Vertical.Collided, "grounded ball detects missing floor");
     samus.ApplyMorphBallWalkOff(bus);
     AssertEqual(SamusPoseId.MorphBallFallingLeftPose, samus.Pose, "left ball walk-off endpoint");
-    AssertEqual(2, samus.Kinematics.YDirection, "ball walk-off starts falling");
+    AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "ball walk-off starts falling");
 
     // None of the four native ball wrappers has a separate Speed-Booster branch. Their
     // horizontal helpers all end at `$90:E4E6`, which adds the inherited `$0B42.$0B44`
@@ -239,7 +239,7 @@ static void VerifySamusMorphBallMovement()
     boostedFall.RefreshCollisionRadii(bus);
     boostedFall.HorizontalSpeed.ExtraRunSpeed = 1;
     boostedFall.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
-    boostedFall.Kinematics.YDirection = 2;
+    boostedFall.Kinematics.YDirection = SamusVerticalDirection.Down;
     SamusMorphBallMovement.StepFalling(
         bus,
         empty,
@@ -262,7 +262,7 @@ static void VerifySamusMorphBallMovement()
     opposedDirectionFall.RefreshCollisionRadii(bus);
     opposedDirectionFall.HorizontalSpeed.ExtraRunSpeed = 1;
     opposedDirectionFall.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
-    opposedDirectionFall.Kinematics.YDirection = 2;
+    opposedDirectionFall.Kinematics.YDirection = SamusVerticalDirection.Down;
     SamusMorphBallMovement.StepFalling(
         bus,
         empty,
@@ -284,7 +284,7 @@ static void VerifySamusMorphBallMovement()
     boostedSpring.RefreshCollisionRadii(bus);
     boostedSpring.HorizontalSpeed.ExtraRunSpeed = 1;
     boostedSpring.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
-    boostedSpring.Kinematics.YDirection = 2;
+    boostedSpring.Kinematics.YDirection = SamusVerticalDirection.Down;
     SamusMorphBallMovement.StepSpringBallInAir(
         bus,
         empty,
@@ -388,7 +388,7 @@ static void VerifySamusMorphBallMovement()
     // magnitude. The collision launches bounce one with the two constants at `$90:9EB5`.
     samus.XPosition = 48;
     samus.YPosition = 55;
-    samus.Kinematics.YDirection = 2;
+    samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.Kinematics.YSpeed = 3;
     samus.Kinematics.YSubspeed = 0;
     samus.Kinematics.YAcceleration = 0;
@@ -401,29 +401,29 @@ static void VerifySamusMorphBallMovement()
     samus.HorizontalSpeed.AccelerationMode = 2;
     AssertTrue(!samus.ApplyMorphBallLanding(bus), "hard landing launches first rebound");
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "first rebound retains horizontal momentum");
-    AssertEqual(1, samus.MorphBallBounceState, "first rebound state");
+    AssertEqual(SamusBallBounceState.FirstRebound, samus.MorphBallBounceState, "first rebound state");
     AssertEqual(1, samus.Kinematics.YSpeed, "first rebound whole speed from ROM");
     AssertEqual(0, samus.Kinematics.YSubspeed, "first rebound subspeed matches pinned NTSC ROM");
-    AssertEqual(1, samus.Kinematics.YDirection, "first rebound moves upward");
+    AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.YDirection, "first rebound moves upward");
 
     // Isolate the two later collision handlers at the exact floor boundary. State one
     // launches the smaller second rebound; state two finally installs stable ground art.
     samus.YPosition = 57;
-    samus.Kinematics.YDirection = 2;
+    samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.Kinematics.YSpeed = 1;
     samus.Kinematics.YSubspeed = 0;
     AssertTrue(!samus.ApplyMorphBallLanding(bus), "first-bounce collision launches second rebound");
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "second rebound retains horizontal momentum");
-    AssertEqual(2, samus.MorphBallBounceState, "second rebound state");
+    AssertEqual(SamusBallBounceState.SecondRebound, samus.MorphBallBounceState, "second rebound state");
     AssertEqual(0, samus.Kinematics.YSpeed, "second rebound decrements whole constant");
 
-    samus.Kinematics.YDirection = 2;
+    samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.Kinematics.YSpeed = 1;
     AssertTrue(samus.ApplyMorphBallLanding(bus), "second-bounce collision grounds ball");
     AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "final ball landing clears both base-speed words");
     AssertEqual(0, samus.HorizontalSpeed.AccelerationMode, "final ball landing clears acceleration mode");
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, samus.Pose, "bounce recovery uses facing-left ground pose");
-    AssertEqual(0, samus.MorphBallBounceState, "grounding clears bounce state");
+    AssertEqual(SamusBallBounceState.None, samus.MorphBallBounceState, "grounding clears bounce state");
 
     // Unmorphing against only the floor succeeds and moves center up nine, preserving the
     // target body's bottom boundary. The live radius changes in the next alpha pass.
@@ -485,7 +485,7 @@ static void VerifySamusMorphBallMovement()
         fallingUnmorph.InitializeAnimation(bus);
         fallingUnmorph.HorizontalSpeed.BaseSpeed = 2;
         fallingUnmorph.HorizontalSpeed.BaseSubspeed = 0x3456;
-        fallingUnmorph.Kinematics.YDirection = 2;
+        fallingUnmorph.Kinematics.YDirection = SamusVerticalDirection.Down;
         fallingUnmorph.Kinematics.YSpeed = 2;
         fallingUnmorph.Kinematics.YSubspeed = 0x8000;
 
@@ -501,7 +501,7 @@ static void VerifySamusMorphBallMovement()
             $"unmorph ${(int)sourcePose:X2} preserves horizontal whole speed");
         AssertEqual(0x3456, fallingUnmorph.HorizontalSpeed.BaseSubspeed,
             $"unmorph ${(int)sourcePose:X2} preserves horizontal subspeed");
-        AssertEqual(2, fallingUnmorph.Kinematics.YDirection,
+        AssertEqual(SamusVerticalDirection.Down, fallingUnmorph.Kinematics.YDirection,
             $"unmorph ${(int)sourcePose:X2} preserves falling direction");
         AssertEqual(2, fallingUnmorph.Kinematics.YSpeed,
             $"unmorph ${(int)sourcePose:X2} preserves falling whole speed");
@@ -565,21 +565,21 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0xe000, spring.Kinematics.YSubspeed, "Spring Ball launch subspeed");
     SamusMorphBallMovement.StepSpringBallInAir(
         bus, empty, spring, controllerInput: 0, nmiFrameCounter: 0);
-    AssertEqual(2, spring.Kinematics.YDirection, "released Spring Ball jump cuts upward arc");
+    AssertEqual(SamusVerticalDirection.Down, spring.Kinematics.YDirection, "released Spring Ball jump cuts upward arc");
 
     // The no-Jump hard impact stores the distinctive `$0601` state. A held-Jump impact
     // instead clears that state and immediately relaunches through Make_Samus_Jump.
     spring.ApplyMorphBallPoseChange(bus, SamusPoseId.SpringBallFallingRightPose);
     spring.Kinematics.YSpeed = 3;
     spring.Kinematics.YSubspeed = 0;
-    spring.Kinematics.YDirection = 2;
+    spring.Kinematics.YDirection = SamusVerticalDirection.Down;
     AssertTrue(!spring.ApplySpringBallLanding(bus, controllerInput: 0),
         "Spring Ball hard impact rebounds");
-    AssertEqual(0x0601, spring.MorphBallBounceState, "Spring Ball first bounce state");
+    AssertEqual(SamusBallBounceState.SpringBallFirstRebound, spring.MorphBallBounceState, "Spring Ball first bounce state");
     var springLandingAnimation = (spring.AnimationFrame, spring.AnimationFrameTimer);
     AssertTrue(!spring.ApplySpringBallLanding(bus, (ushort)SnesButton.A),
         "held Jump immediately relaunches Spring Ball");
-    AssertEqual(0, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
+    AssertEqual(SamusBallBounceState.None, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusPoseId.SpringBallFallingRightPose, spring.Pose, "held-Jump landing retains its existing airborne pose");
     AssertEqual(springLandingAnimation, (spring.AnimationFrame, spring.AnimationFrameTimer),
         "held-Jump landing does not restart the rolling animation");
@@ -607,7 +607,9 @@ static void VerifySamusMorphBallMovement()
             ? impact.ApplySpringBallLanding(bus, controllerInput: 0)
             : impact.ApplyMorphBallLanding(bus);
         AssertEqual(!rebounds, grounded, $"ball landing signed threshold {impactSpeed:X4}, spring={springEquipped}");
-        AssertEqual(rebounds ? (springEquipped ? 0x0601 : 1) : 0, impact.MorphBallBounceState,
+        AssertEqual(rebounds
+            ? springEquipped ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound
+            : SamusBallBounceState.None, impact.MorphBallBounceState,
             "signed threshold preserves the selected bounce family");
         AssertEqual(rebounds ? 0x00018000u : 0u, impact.HorizontalSpeed.BaseFixed,
             "Only settled ball landing clears both base-speed words");
@@ -1993,7 +1995,7 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(startY, bombJump.YPosition, "bomb-jump start frame has no vertical displacement");
     AssertEqual(2, bombJump.Kinematics.YSpeed, "bomb-jump whole speed comes from $90:9EF5");
     AssertEqual(0xc000, bombJump.Kinematics.YSubspeed, "bomb-jump subspeed comes from $90:9EFB");
-    AssertEqual(1, bombJump.Kinematics.YDirection, "bomb jump starts upward");
+    AssertEqual(SamusVerticalDirection.Up, bombJump.Kinematics.YDirection, "bomb jump starts upward");
 
     // The first diagonal handler frame accelerates by the native 0.3000 record,
     // moves right fractionally, moves upward by the pre-gravity 2.C000 magnitude, then stores
@@ -2015,7 +2017,7 @@ static void VerifySamusMorphBallMovement()
         bus, empty, bombJump, nmiFrameCounter: 1, new RoomPlmSystem());
     AssertTrue(!bombJump.BombJumpActive, "signed bomb-jump apex ends special handler");
     AssertEqual(0, bombJump.BombJumpDirection, "bomb-jump apex clears command word");
-    AssertEqual(2, bombJump.Kinematics.YDirection, "bomb-jump apex hands off downward direction");
+    AssertEqual(SamusVerticalDirection.Down, bombJump.Kinematics.YDirection, "bomb-jump apex hands off downward direction");
     AssertEqual(2, bombJump.HorizontalSpeed.AccelerationMode, "diagonal apex selects mode two");
 
     // Direction two deliberately omits horizontal calculation. A ceiling collision ends
@@ -2058,7 +2060,7 @@ static void VerifySamusMorphBallMovement()
     // preserved it. Prove that its normal falling collision can enter the ordinary bounce
     // state instead of throwing solely because the art still names a grounded ball.
     straightBombJump.YPosition = 55;
-    straightBombJump.Kinematics.YDirection = 2;
+    straightBombJump.Kinematics.YDirection = SamusVerticalDirection.Down;
     straightBombJump.Kinematics.YSpeed = 3;
     straightBombJump.Kinematics.YSubspeed = 0;
     straightBombJump.Kinematics.YAcceleration = 0;
@@ -2067,7 +2069,7 @@ static void VerifySamusMorphBallMovement()
         bus, floor, straightBombJump, nmiFrameCounter: 0);
     AssertTrue(bombLanding.Landed, "post-bomb-jump grounded art collides with floor");
     AssertTrue(!straightBombJump.ApplyMorphBallLanding(bus), "post-bomb-jump landing launches bounce");
-    AssertEqual(1, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");
+    AssertEqual(SamusBallBounceState.FirstRebound, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");
 
     Console.WriteLine("  Morph Ball: entry, bomb spread, bomb jump, reaction PLMs, bounce, and tunnel collision agree.");
 }

@@ -63,7 +63,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Game/WreckedShipTreadmillMechanicsDefinitions.cs", "3FE0B99AD9E35E404BE0C86AED8C9AB28D49B20677FF0BD5F2FDDF092BEEFA61"),
         new("csharp/src/SuperMetroid.Core/Game/ScrollingSkyChunkPointerDefinitions.cs", "5225F172051E5794AAE99F0ACA578E9DD9FEE58F43F5EFD63D0767EB11341A56"),
         // #1275 re-pin: RetainSubpositions gained a word overload; no DMA source changed.
-        new("csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs", "729BEC534A07C2649F632BBCF04DC63E69C73A4909DA2FBB809697F080063273"),
+        new("csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs", "44F48B89D628CE6042CF645DC92A1229E3580EC161D5565DAFB998E40C0A78DB"),
         new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "969BF08E3363A47517C8143B4126E553974860B1D004DDFC14F687AA8F8EE8EC"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomHeaderDefinitions.cs", "CE8FD8936BC72CCEE400695CEAE8BD670D766371A3FB59BA9F13D36D68564F3B"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs", "93A78AC57BDA8AB714CA6D250C9A3CA7008EF1F254D2047BA4277ACB1A9AEFD6"),

@@ -94,7 +94,7 @@ internal static partial class Program
             "Reserve Mode non-CF route admits cartridge crouch storage");
         AssertEqual(ShinesparkPhase.Stored, knockbackVariant.Shinespark.Phase,
             "Reserve Mode crouch installs stored-shine owner");
-        AssertEqual((ushort)1, knockbackVariant.Shinespark.PaletteType,
+        AssertEqual(SamusSpecialPaletteType.SpeedBoosterShine, knockbackVariant.Shinespark.PaletteType,
             "Reserve Mode crouch installs stored-shine palette handler");
         AssertEqual(SamusSpecialPaletteType.None, knockbackVariant.Xray.SpecialPaletteKind,
             "stored shine replaces stranded X-Ray palette handler");

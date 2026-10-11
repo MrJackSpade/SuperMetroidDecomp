@@ -254,7 +254,7 @@ public sealed class SamusBombProjectileSystem
     public void ResolveSamusOverlap(SamusState samus, ushort projectileInvincibilityTimer)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        byte direction = projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == 0
+        byte direction = projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None
             ? PublishBombJumpOverlap(samus) : (byte)0;
         LastFrameResult = LastFrameResult with { PublishedBombJumpDirection = direction };
     }

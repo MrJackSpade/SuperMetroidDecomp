@@ -646,7 +646,7 @@ static void VerifySamusPostureMovement()
     AssertEqual(35, crouchJump.YPosition, "alpha does not repeat crouch jump center correction");
     AssertEqual(4, crouchJump.Kinematics.YSpeed, "ordinary crouch jump Y speed");
     AssertEqual(0xe000, crouchJump.Kinematics.YSubspeed, "ordinary crouch jump Y subspeed");
-    AssertEqual(1, crouchJump.Kinematics.YDirection, "ordinary crouch jump rises");
+    AssertEqual(SamusVerticalDirection.Up, crouchJump.Kinematics.YDirection, "ordinary crouch jump rises");
 
     var crouchJumpLeft = new SamusState
     {

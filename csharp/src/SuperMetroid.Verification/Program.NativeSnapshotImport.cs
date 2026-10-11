@@ -188,7 +188,8 @@ internal static partial class Program
         samus.HorizontalSpeed.SpeedBoostCounter = W(NativeSnapshotMemory.BoostCounter);
         samus.Kinematics.YSpeed = W(NativeSnapshotMemory.VerticalSpeed);
         samus.Kinematics.YSubspeed = W(NativeSnapshotMemory.VerticalFraction);
-        samus.Kinematics.YDirection = W(NativeSnapshotMemory.VerticalDirection);
+        samus.Kinematics.YDirection = ClosedNativeWords.Decode<SamusVerticalDirection>(
+            W(NativeSnapshotMemory.VerticalDirection), "Samus vertical direction");
         samus.Kinematics.XRadius = W(NativeSnapshotMemory.SamusXRadius);
         samus.Kinematics.YRadius = W(NativeSnapshotMemory.SamusYRadius);
         samus.Kinematics.YAcceleration = W(NativeSnapshotMemory.Gravity);
@@ -199,8 +200,10 @@ internal static partial class Program
         samus.Kinematics.ExtraYSubdisplacement = W(NativeSnapshotMemory.ExtraYDisplacementFraction);
         samus.Kinematics.HorizontalSlopeCollisionEnable = W(NativeSnapshotMemory.SlopeCollisionEnable);
         samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
-        samus.HorizontalSpeed.ContactDamageIndex = W(NativeSnapshotMemory.ContactDamageIndex);
-        samus.MorphBallBounceState = W(NativeSnapshotMemory.MorphBallBounceState);
+        samus.HorizontalSpeed.ContactDamageIndex = ClosedNativeWords.Decode<SamusContactDamageIndex>(
+            W(NativeSnapshotMemory.ContactDamageIndex), "Samus contact damage index");
+        samus.MorphBallBounceState = ClosedNativeWords.Decode<SamusBallBounceState>(
+            W(NativeSnapshotMemory.MorphBallBounceState), "Samus morph-ball bounce state");
         samus.BombJumpDirection = W(NativeSnapshotMemory.BombJumpDirection);
 
 

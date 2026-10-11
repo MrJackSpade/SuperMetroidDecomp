@@ -15,10 +15,10 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        if (body.Health != 0 || unchecked((short)state.FightMode) < 0)
+        if (body.Health != 0 || state.FightMode == RidleyFightMode.Dying)
             return;
 
-        state.FightMode = 0xffff;
+        state.FightMode = RidleyFightMode.Dying;
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
         state.Function = RidleyAiFunction.NorfairReleaseSamus;
     }

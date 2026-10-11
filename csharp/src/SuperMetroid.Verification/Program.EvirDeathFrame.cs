@@ -7,7 +7,7 @@ internal static partial class Program
     {
         var samus = CreateDropTestSamus();
         samus.XPosition = samus.YPosition = 128;
-        samus.HorizontalSpeed.ContactDamageIndex = 3;
+        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemies = fixture.System;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

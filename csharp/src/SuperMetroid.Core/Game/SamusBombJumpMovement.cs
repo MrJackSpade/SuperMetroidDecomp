@@ -29,7 +29,7 @@ public static class SamusBombJumpMovement
         // frame-handler alpha, so this routine replaces only the launch speed/direction.
         (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
             SamusVerticalMotionDefinitions.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        samus.Kinematics.YDirection = 1;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.BombJumpStarting = false;
         samus.BombJumpActive = true;
         return new BombJumpMovementResult(null);
@@ -90,16 +90,16 @@ public static class SamusBombJumpMovement
         // `$90:8F1B` changes signed underflow to the falling direction. A diagonal jump
         // additionally selects mode two so normal horizontal movement decelerates after
         // this special handler relinquishes control.
-        if (samus.Kinematics.YDirection == 1 &&
+        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
             unchecked((short)samus.Kinematics.YSpeed) < 0)
         {
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YSpeed = 0;
-            samus.Kinematics.YDirection = 2;
+            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             if (direction != 2)
                 samus.HorizontalSpeed.AccelerationMode = 2;
         }
-        else if (samus.Kinematics.YDirection == 1 && samus.Kinematics.YSpeed == 0)
+        else if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && samus.Kinematics.YSpeed == 0)
         {
             // The rising helper restores input while speed is still fractional and
             // positive, BEFORE the apex or a collision restores normal movement.
@@ -109,7 +109,7 @@ public static class SamusBombJumpMovement
 
         // Native ends immediately once direction becomes down; it does not spend one
         // special-handler frame moving by a zero/negative vertical magnitude.
-        if (samus.Kinematics.YDirection == 2)
+        if (samus.Kinematics.YDirection == SamusVerticalDirection.Down)
             return End(samus, null);
 
         (BlockMoveResult vertical, bool movedDown) = MoveUpWithGravity(
@@ -156,7 +156,7 @@ public static class SamusBombJumpMovement
         {
             state.YSpeed = 0;
             state.YSubspeed = 0;
-            state.YDirection = 2;
+            state.YDirection = SamusVerticalDirection.Down;
         }
         // $90:915C: a non-negative displacement, including the apex's zero, takes MoveSamus_Down.
         return (result, displacement >= 0);

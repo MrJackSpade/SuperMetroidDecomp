@@ -357,7 +357,7 @@ public sealed partial class RoomEnemySystem
     {
         MetroidEnemyState state = RequireMetroidState(slot);
         ushort targetY = unchecked((ushort)(samus.YPosition - 8));
-        if (samus.HorizontalSpeed.ContactDamageIndex != 0)
+        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
         {
             if (state.Function != MetroidAiFunction.AttachedToSamus)
             {

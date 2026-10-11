@@ -32,8 +32,8 @@ public sealed partial class RoomEnemySystem
         if (pointed)
         {
             state.TailAngleDelta = function == RidleyTailFunction.Stab ? (ushort)3 : (ushort)8;
-            state.TailWhipTargetClockwiseAngle = state.FacingDirection == 0 ? ushort.MaxValue : RidleyTailDefinitions.DownAngle;
-            state.TailWhipTargetCounterClockwiseAngle = state.FacingDirection == 0 ? RidleyTailDefinitions.DownAngle : ushort.MaxValue;
+            state.TailWhipTargetClockwiseAngle = state.FacingDirection == RidleyFacing.Left ? ushort.MaxValue : RidleyTailDefinitions.DownAngle;
+            state.TailWhipTargetCounterClockwiseAngle = state.FacingDirection == RidleyFacing.Left ? RidleyTailDefinitions.DownAngle : ushort.MaxValue;
         }
         HandleRidleyPogoTailControl(slot, state, samus, function == RidleyTailFunction.StabSetup);
         for (int index = 0; index < state.TailSegments.Length; index++)

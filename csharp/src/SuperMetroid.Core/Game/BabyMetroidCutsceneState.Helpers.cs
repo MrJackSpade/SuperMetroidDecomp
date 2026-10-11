@@ -192,7 +192,7 @@ public sealed partial class BabyMetroidCutsceneState
     /// </summary>
     private bool TouchesSamus(SamusState samus)
     {
-        if (samus.HorizontalSpeed.ContactDamageIndex != 0)
+        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
             samus.InvincibilityTimer = 0;
         else if (samus.InvincibilityTimer != 0)
             return false;

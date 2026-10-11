@@ -46,9 +46,9 @@ internal static partial class Program
         samus.Kinematics.ExtraYDisplacement = 0xFFFF;
         var hit = SamusMorphBallMovement.StepGrounded(bus, level, samus, 0, new RoomPlmSystem());
         AssertTrue(hit.Vertical.Collided && hit.HitCeiling, "upward platform carry publishes a ceiling collision, not a floor contact");
-        AssertEqual(0, samus.Kinematics.YDirection, "movement leaves ceiling response deferred until pose priority is resolved");
+        AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "movement leaves ceiling response deferred until pose priority is resolved");
         samus.ApplySolidCeilingCollision();
-        AssertEqual(2, samus.Kinematics.YDirection, "native ceiling pose command selects down even from grounded carry");
+        AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "native ceiling pose command selects down even from grounded carry");
         AssertEqual(71, samus.YPosition, "carried Morph Ball remains at the ceiling boundary");
         samus.Kinematics.ExtraYDisplacement = 0;
         samus.Kinematics.YSubacceleration = 0x1C00;

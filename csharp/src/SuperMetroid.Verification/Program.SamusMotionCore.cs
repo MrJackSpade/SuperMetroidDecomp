@@ -225,7 +225,7 @@ static void VerifySamusHorizontalSpeed()
         "frontend can consume the speed-echo publication exactly once");
     AssertTrue(!booster.ConsumeEchoSoundRequest(),
         "consumed speed-echo publication cannot replay on a later frame");
-    AssertEqual(0, booster.ContactDamageIndex, "stage four animation waits for movement to publish contact damage");
+    AssertEqual(SamusContactDamageIndex.None, booster.ContactDamageIndex, "stage four animation waits for movement to publish contact damage");
 
     // $90:9813 is a common epilogue, including the released/airborne/liquid
     // branches. Beta clears contact damage each frame; retained blue speed
@@ -239,10 +239,10 @@ static void VerifySamusHorizontalSpeed()
             HasRunningMomentum = true,
             ExtraRunSpeed = 7,
             SpeedBoostCounter = activeStage ? (ushort)0x0401 : (ushort)0x0301,
-            ContactDamageIndex = 0,
+            ContactDamageIndex = SamusContactDamageIndex.None,
         };
         retainedBoost.HandleExtraRunSpeed(movement, 0, true, liquidImpeded: liquid);
-        AssertEqual(activeStage ? 1 : 0, retainedBoost.ContactDamageIndex,
+        AssertEqual(activeStage ? SamusContactDamageIndex.SpeedBooster : SamusContactDamageIndex.None, retainedBoost.ContactDamageIndex,
             "retained boost publishes contact protection only in active stage");
         AssertEqual(7, retainedBoost.ExtraRunSpeed, "released boost retains numeric speed");
     }
@@ -605,7 +605,7 @@ static void VerifySamusExtraDisplacement()
     };
     rising.Kinematics.XRadius = 5;
     rising.Kinematics.YRadius = 19;
-    rising.Kinematics.YDirection = 1;
+    rising.Kinematics.YDirection = SamusVerticalDirection.Up;
     rising.Kinematics.YSpeed = 1;
     rising.Kinematics.YSubspeed = 0;
     rising.Kinematics.ExtraYDisplacement = 1;
@@ -619,7 +619,7 @@ static void VerifySamusExtraDisplacement()
         nmiFrameCounter: 0);
     AssertEqual(0x00008000, unchecked((int)(rising.Kinematics.YFixed - risingYBefore)),
         "gravity path adds external Y directly and may reverse actual direction");
-    AssertEqual(1, rising.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.YDirection,
         "external reversal does not rewrite native velocity-direction word");
 
     var bouncingBall = new SamusState
@@ -627,12 +627,12 @@ static void VerifySamusExtraDisplacement()
         Pose = SamusPoseId.MorphBallFallingRightPose,
         XPosition = 64,
         YPosition = 64,
-        MorphBallBounceState = 1,
+        MorphBallBounceState = SamusBallBounceState.FirstRebound,
         KnockbackDirection = 0,
     };
     bouncingBall.Kinematics.XRadius = 5;
     bouncingBall.Kinematics.YRadius = 7;
-    bouncingBall.Kinematics.YDirection = 1;
+    bouncingBall.Kinematics.YDirection = SamusVerticalDirection.Up;
     bouncingBall.Kinematics.YSpeed = 3;
     bouncingBall.Kinematics.YSubspeed = 0x4000;
     bouncingBall.Kinematics.ExtraYDisplacement = 0xffff;
@@ -649,7 +649,7 @@ static void VerifySamusExtraDisplacement()
         "external Morph Ball bounce override clears whole rebound speed");
     AssertEqual(0, bouncingBall.Kinematics.YSubspeed,
         "external Morph Ball bounce override clears fractional rebound speed");
-    AssertEqual(2, bouncingBall.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.Down, bouncingBall.Kinematics.YDirection,
         "external Morph Ball bounce override forces native direction word two");
     AssertTrue(!displacedBounce.HitCeiling && !displacedBounce.Landed,
         "unobstructed signed-negative Morph Ball producer moves without a false collision");

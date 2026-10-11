@@ -23,7 +23,7 @@ internal static partial class Program
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea);
         ushort x = fireflea.XPosition, y = fireflea.YPosition;
         // Screw attack contact ($0A6E = 3) kills through CommonA3_NormalEnemyTouchAI.
-        samus.HorizontalSpeed.ContactDamageIndex = 3;
+        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         samus.EquippedItems = (ushort)SamusEquipmentFlags.ScrewAttack;
         ushort killsBefore = runtime.Enemies.EnemiesKilled;
 

@@ -75,7 +75,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Contact-damage selector published when the counter reaches stage four.</summary>
-    public ushort ContactDamageIndex { get; set; }
+    public SamusContactDamageIndex ContactDamageIndex { get; set; }
 
     /// <summary>
     /// Host-side publication of the immediate suit-palette copy performed by
@@ -589,7 +589,7 @@ public sealed class SamusHorizontalSpeedState
     private void PublishBoostContactDamage()
     {
         if ((SpeedBoostCounter & 0xff00) == 0x0400)
-            ContactDamageIndex = 1;
+            ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
     }
 
     /// <summary>

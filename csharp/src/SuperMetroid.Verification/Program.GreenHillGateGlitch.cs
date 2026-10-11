@@ -97,7 +97,7 @@ internal static partial class Program
         samus.HorizontalSpeed.HasRunningMomentum = true;
         samus.HorizontalSpeed.SpeedBoostCounter =
             SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage;
-        samus.HorizontalSpeed.ContactDamageIndex = 1;
+        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 

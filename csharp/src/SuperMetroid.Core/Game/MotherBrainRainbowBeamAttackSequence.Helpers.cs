@@ -15,8 +15,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         SetHeadInstructionList(HeadNeutralPhase2InstructionList);
         NeckAngleDelta = 0x0040;
         NeckMovementEnabled = 1;
-        LowerNeckMovementIndex = 2;
-        UpperNeckMovementIndex = 4;
+        LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
+        UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
         Phase = MotherBrainRainbowBeamAttackPhase.StartCharging;
         FunctionTimer = 0x0100;
     }
@@ -36,8 +36,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // NTSC takes `$0050` from the regional `$0050/$0063` constant at `$A9:BB51`.
         NeckAngleDelta = 0x0050;
         NeckMovementEnabled = 1;
-        LowerNeckMovementIndex = 8;
-        UpperNeckMovementIndex = 6;
+        LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
+        UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
     }
 
     private bool StepPainfulWalking()
@@ -161,16 +161,16 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // two before any other code can observe the word. Preserve the observable
                 // result while documenting the retail no-op (`>_<` in the disassembly).
                 NeckAngleDelta = 0x0080;
-                LowerNeckMovementIndex = 2;
-                UpperNeckMovementIndex = 4;
+                LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
+                UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Inactive;
                 return;
 
             case MotherBrainPhase3NeckPhase.SetupRecoilRecovery:
                 NeckMovementEnabled = 1;
                 NeckAngleDelta = 0x0500;
-                LowerNeckMovementIndex = 6;
-                UpperNeckMovementIndex = 6;
+                LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
+                UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
                 Phase3NeckFunctionTimer = 0x0010;
 
@@ -198,8 +198,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 SetHeadInstructionList(HeadHyperBeamRecoilInstructionList);
                 BrainMainShakeTimer = 0x0032;
                 NeckAngleDelta = 0x0900;
-                LowerNeckMovementIndex = 8;
-                UpperNeckMovementIndex = 8;
+                LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
+                UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
                 Phase3NeckFunctionTimer = 0x000b;
 

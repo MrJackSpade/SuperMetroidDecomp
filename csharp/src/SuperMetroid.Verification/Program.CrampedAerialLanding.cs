@@ -59,7 +59,7 @@ internal static partial class Program
         samus.RefreshCollisionRadii(bus);
         samus.HorizontalSpeed.AccelerationMode = 2;
         samus.HorizontalSpeed.BaseSpeed = 3;
-        samus.Kinematics.YDirection = 2;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = 4;
 
         bool installedLanding = samus.TryApplyAerialLanding(
@@ -92,7 +92,7 @@ internal static partial class Program
             "cramped landing preserves horizontal speed");
         AssertEqual(4, samus.Kinematics.YSpeed,
             "cramped landing preserves vertical speed");
-        AssertEqual(2, samus.Kinematics.YDirection,
+        AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection,
             "cramped landing does not publish grounded direction");
 
         WritePoseDefinition(bus, (int)SamusPoseId.ScrewAttackRightPose,

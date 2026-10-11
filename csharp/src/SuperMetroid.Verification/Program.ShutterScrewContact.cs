@@ -11,11 +11,11 @@ internal static partial class Program
     // attack pressed against a Three Musketeers' shootable shutter starts it moving.
     private static void VerifyShutterScrewContact()
     {
-        Confirm(contactDamage: 3, reacts: true);
-        Confirm(contactDamage: 0, reacts: false);
+        Confirm(contactDamage: SamusContactDamageIndex.ScrewAttack, reacts: true);
+        Confirm(contactDamage: SamusContactDamageIndex.None, reacts: false);
         Console.WriteLine("Shutter screw contact: an idle shutter touched with contact damage reacts like a shot.");
 
-        static void Confirm(ushort contactDamage, bool reacts)
+        static void Confirm(SamusContactDamageIndex contactDamage, bool reacts)
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus);

@@ -95,7 +95,7 @@ public sealed partial class SuperMetroidRuntime
                     Samus.AnimationFrame,
                     Samus.EquippedItems,
                     suppressActiveSpeedBoosterPalette:
-                        Samus.Shinespark.PaletteType != 0 ||
+                        Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
                         Samus.CrystalFlash.SpecialPaletteKind ==
                             SamusSpecialPaletteType.CrystalFlash ||
                         Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray,

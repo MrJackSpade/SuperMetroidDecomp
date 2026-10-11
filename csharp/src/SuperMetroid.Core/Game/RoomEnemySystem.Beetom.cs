@@ -614,7 +614,7 @@ public sealed partial class RoomEnemySystem
             state.InitialAttachmentYOffset = unchecked((ushort)(samus.YPosition - slot.YPosition));
         }
 
-        if (samus.HorizontalSpeed.ContactDamageIndex != 0)
+        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
         {
             ResolveNormalEnemyTouch(slot, samus);
             samus.InvincibilityTimer = 0;

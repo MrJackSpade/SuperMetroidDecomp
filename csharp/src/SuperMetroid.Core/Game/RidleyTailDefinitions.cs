@@ -21,9 +21,9 @@ internal static class RidleyTailDefinitions
     /// <summary>$A6:B76E, bounce extension request.</summary>
     internal const ushort BounceDistance = 0x0c00;
     /// <summary>$A6:CC12, SetRidleyTailAngleExtrema_minClockwiseAngle for left/front/right facing.</summary>
-    internal static ushort MinimumClockwise(ushort facing) => facing == 2 ? (ushort)0x3fc0 : (ushort)0x3ff0;
+    internal static ushort MinimumClockwise(RidleyFacing facing) => facing == RidleyFacing.Right ? (ushort)0x3fc0 : (ushort)0x3ff0;
     /// <summary>$A6:CC18, SetRidleyTailAngleExtrema_maxCounterClockwiseAngle for left/front/right facing.</summary>
-    internal static ushort MaximumCounterClockwise(ushort facing) => facing == 2 ? (ushort)0x4010 : (ushort)0x4040;
+    internal static ushort MaximumCounterClockwise(RidleyFacing facing) => facing == RidleyFacing.Right ? (ushort)0x4010 : (ushort)0x4040;
 
     /// <summary>$A6:D38A begins InitializeTailParts.angles at $4000, one quarter of the 16-bit full turn.</summary>
     private const int InitialBaseAngle = 0x10000 / 4;

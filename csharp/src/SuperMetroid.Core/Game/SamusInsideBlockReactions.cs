@@ -77,14 +77,16 @@ public static class SamusInsideBlockReactions
                         QuicksandDefinitions.SurfacePhysics(
                             (samus.EquippedItems &
                                 (ushort)SamusEquipmentFlags.GravitySuit) != 0);
-                    switch (body.YDirection & 3)
+                    // $84:B433 indexes a four-entry table with the direction's low two bits;
+                    // its fourth entry repeats the grounded handler, but $0B36 only ever
+                    // holds the three defined directions.
+                    switch (body.YDirection)
                     {
-                        case 0:
-                        case 3:
+                        case SamusVerticalDirection.None:
                             body.YSpeed = body.YSubspeed = 0;
                             SetExtra(physics.StationaryDisplacement << 8);
                             break;
-                        case 1:
+                        case SamusVerticalDirection.Up:
                             ushort limit = physics.UpwardSpeedLimit;
                             // The original compares the middle word of the 16.16 speed.
                             if ((ushort)(body.VerticalSpeedFixed >> 8) > limit)
@@ -94,9 +96,12 @@ public static class SamusInsideBlockReactions
                             }
                             SetExtra(physics.MovingDisplacement << 8);
                             break;
-                        case 2:
+                        case SamusVerticalDirection.Down:
                             SetExtra(physics.MovingDisplacement << 8);
                             break;
+                        default:
+                            throw new InvalidOperationException(
+                                $"Undefined {nameof(SamusVerticalDirection)} {(int)body.YDirection}.");
                     }
                     break;
                 case SpecialAirReactionSetup.SubmergingQuicksand:
@@ -185,7 +190,6 @@ public static class SamusInsideBlockReactions
             return false;
         }
         if (setup != SpecialAirReactionSetup.QuicksandSurfaceCollision) return false;
-        int direction = body.YDirection & 3;
         SamusCollisionDirection reactionDirection = blockReactionDirection ??
             (vertical
                 ? displacement < 0 ? SamusCollisionDirection.Up : SamusCollisionDirection.Down
@@ -193,15 +197,28 @@ public static class SamusInsideBlockReactions
         // The native bit-one direction test accepts vertical scans AND direction $F.
         // Ordinary horizontal movement rejects the surface callback entirely.
         if (reactionDirection is SamusCollisionDirection.Left or SamusCollisionDirection.Right) return false;
-        // Stationary/unused vertical states require actual downward collision. Falling
-        // remains eligible even during direction-$F pose checks, exactly as B4C4 branches.
-        if (direction == 1 || (direction != 2 && reactionDirection != SamusCollisionDirection.Down)) return false;
-        if (body.CollisionContactDamageIndex == 1)
+        // $84:B4E4 dispatches on the direction (its fourth, grounded entry is never
+        // reached). Rising clears carry; stationary requires actual downward collision;
+        // falling remains eligible even during direction-$F pose checks.
+        switch (body.YDirection)
+        {
+            case SamusVerticalDirection.Up:
+                return false;
+            case SamusVerticalDirection.None:
+                if (reactionDirection != SamusCollisionDirection.Down) return false;
+                break;
+            case SamusVerticalDirection.Down:
+                break;
+            default:
+                throw new InvalidOperationException(
+                    $"Undefined {nameof(SamusVerticalDirection)} {(int)body.YDirection}.");
+        }
+        if (body.CollisionContactDamageIndex == SamusContactDamageIndex.SpeedBooster)
         {
             displacement = 0;
             return true;
         }
-        if (direction != 2 && (ushort)((uint)displacement >> 8) > (QuicksandRomData.SurfaceProbeLimit >> 8))
+        if (body.YDirection == SamusVerticalDirection.None && (ushort)((uint)displacement >> 8) > (QuicksandRomData.SurfaceProbeLimit >> 8))
             displacement = (displacement & unchecked((int)0xff0000ff)) | QuicksandRomData.SurfaceProbeLimit;
         surfaceContact = true;
         return false;

@@ -258,7 +258,7 @@ public sealed class SamusDrainedState
         // but movement remains the normal RTS type-$1B handler until command `$F7` appears.
         samus.InitializeAnimation(bus, initialFrame: 2);
         ClearBaseAndVerticalSpeed(samus);
-        samus.Kinematics.YDirection = 2;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         _suitPaletteRestoreRequested = true;
         Phase = DrainedSamusPhase.WaitingForFallingCommand;
         // Native controller commands 0/1/2/4 return carry set; their dispatcher
@@ -385,7 +385,7 @@ public sealed class SamusDrainedState
         // broad native behavior instead of rejecting a caller that the 65816 accepts.
         samus.RefreshCollisionRadii(bus);
         ClearBaseAndVerticalSpeed(samus);
-        samus.Kinematics.YDirection = 2;
+        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         Phase = DrainedSamusPhase.Releasing;
         samus.CommitPoseHistory(bus);
     }

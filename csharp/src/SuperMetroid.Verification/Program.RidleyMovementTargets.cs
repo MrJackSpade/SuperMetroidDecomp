@@ -65,7 +65,8 @@ internal static partial class Program
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            state.FacingDirection = state.HealthStage = (ushort)raw;
+            state.HealthStage = (ushort)raw;
+            state.FacingDirection = Enum.GetValues<RidleyFacing>()[Math.Min(raw, 2)];
             state.HorizontalVelocity = state.VerticalVelocity = 0;
             slot.XPosition = (ushort)(ushort.MaxValue - raw);
             slot.YPosition = (ushort)raw;
@@ -81,7 +82,7 @@ internal static partial class Program
             AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "Carry setup phase");
             AssertEqual((int)hover[Math.Min(raw, 3)], readDivisor(state), "Every health word preserves existing divisor clamp");
         }
-        foreach (ushort facing in new ushort[] { 0, 1, 2, 0xffff })
+        foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())
         foreach (ushort x in new ushort[] { 0, 128, 0xffff })
         for (ushort health = 0; health < 4; health++)
         {
@@ -93,17 +94,17 @@ internal static partial class Program
             {
                 state.HorizontalVelocity = state.VerticalVelocity = 0;
                 pogo(slot, state, null, down);
-                ushort target = (down ? descending : ascending)[Math.Min(facing, (ushort)2)];
+                ushort target = (down ? descending : ascending)[(int)facing];
                 AssertEqual(Expected(x, target, hover[health]), state.HorizontalVelocity, "Pogo side target and health divisor reach motion");
             }
             state.HorizontalVelocity = state.VerticalVelocity = 0;
             moveSide(slot, state, null);
-            AssertEqual(Expected(x, ground[Math.Min(facing, (ushort)2)], 0), state.HorizontalVelocity, "Ground side target reaches motion");
+            AssertEqual(Expected(x, ground[(int)facing], 0), state.HorizontalVelocity, "Ground side target reaches motion");
             state.HorizontalVelocity = state.VerticalVelocity = 0;
             state.Function = RidleyAiFunction.NorfairCarryRelease;
             state.FunctionTimer = 1;
             run(slot, state, null, 0, null);
-            AssertEqual(Expected(x, release[Math.Min(facing, (ushort)2)], 0), state.HorizontalVelocity, "Carry release target reaches motion");
+            AssertEqual(Expected(x, release[(int)facing], 0), state.HorizontalVelocity, "Carry release target reaches motion");
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
@@ -114,15 +115,15 @@ internal static partial class Program
         for (int health = 0; health <= ushort.MaxValue; health++)
         {
             state.HealthStage = (ushort)health;
-            state.FacingDirection = (ushort)(health % 3);
+            state.FacingDirection = Enum.GetValues<RidleyFacing>()[health % 3];
             state.HorizontalVelocity = state.VerticalVelocity = 0;
             // Start ahead of the lunge stopping boundary for each facing.
-            ushort startX = state.FacingDirection == 2 ? (ushort)128 : (ushort)384;
+            ushort startX = state.FacingDirection == RidleyFacing.Right ? (ushort)128 : (ushort)384;
             slot.XPosition = startX;
             slot.YPosition = 128;
             state.HitRoomBoundary = false;
             approach(slot, state, samus);
-            ushort targetX = (ushort)(state.FacingDirection == 0 ? 240 : 272);
+            ushort targetX = (ushort)(state.FacingDirection == RidleyFacing.Left ? 240 : 272);
             int divisor = grab[Math.Min(health, 3)];
             AssertEqual(Expected(startX, targetX, divisor), state.HorizontalVelocity, "Actual grab health divisor drives X acceleration");
             AssertEqual(Expected(128, 252, divisor), state.VerticalVelocity, "Actual grab health divisor drives Y acceleration");

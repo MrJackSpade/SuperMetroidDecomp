@@ -20,8 +20,12 @@ public static class RidleyClawOffsets
     private static ReadOnlySpan<short> ExistingOutOfRangeWindow =>
         [0x28af, 0x7e78, 0x1ff0, 0x1285, 0x0410, -183];
 
-    /// <summary>$A6:B9D5 HoldingSamusXDispacement: left/turning/right displacements decrease twelve pixels per facing; preserves the host clamp.</summary>
-    public static short ReadX(ushort facing) => (short)(12 - 12 * Math.Min(facing, (ushort)2));
+    /// <summary>$A6:B9D5 HoldingSamusXDispacement: left/turning/right displacements decrease twelve pixels per facing.</summary>
+    public static short ReadX(RidleyFacing facing) => facing switch
+    {
+        RidleyFacing.Left or RidleyFacing.Turning or RidleyFacing.Right => (short)(12 - 12 * (int)facing),
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {(int)facing}."),
+    };
 
     /// <summary>$A6:B9DB HoldingSamusYDispacement: three foot heights advance 10.5 pixels rounded upward; preserves word indexing and the adjacent host window.</summary>
     public static short ReadY(ushort feetDistanceIndex)

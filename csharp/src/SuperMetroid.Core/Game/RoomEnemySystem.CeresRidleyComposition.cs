@@ -75,11 +75,11 @@ public sealed partial class RoomEnemySystem
         first.YPosition = unchecked((ushort)(slot.YPosition + first.YOffset + 16));
         first.XPosition = state.FacingDirection switch
         {
-            0 => unchecked((ushort)(slot.XPosition + 0x0020 + first.XOffset)),
-            1 => slot.XPosition,
-            2 => unchecked((ushort)(slot.XPosition - 0x0020 + first.XOffset)),
-            _ => throw new InvalidDataException(
-                $"Ridley facing direction {state.FacingDirection} exceeds the native table."),
+            RidleyFacing.Left => unchecked((ushort)(slot.XPosition + 0x0020 + first.XOffset)),
+            RidleyFacing.Turning => slot.XPosition,
+            RidleyFacing.Right => unchecked((ushort)(slot.XPosition - 0x0020 + first.XOffset)),
+            _ => throw new InvalidOperationException(
+                $"Undefined {nameof(RidleyFacing)} {(int)state.FacingDirection}."),
         };
 
         for (int index = 1; index < state.TailSegments.Length; index++)
@@ -87,7 +87,7 @@ public sealed partial class RoomEnemySystem
             RidleyTailSegment previous = state.TailSegments[index - 1];
             RidleyTailSegment current = state.TailSegments[index];
             current.YPosition = unchecked((ushort)(previous.YPosition + current.YOffset));
-            current.XPosition = state.FacingDirection == 1
+            current.XPosition = state.FacingDirection == RidleyFacing.Turning
                 ? slot.XPosition
                 : unchecked((ushort)(previous.XPosition + current.XOffset));
         }
@@ -151,7 +151,7 @@ public sealed partial class RoomEnemySystem
         // Facing direction one is the front-facing transition art. `$A6:D1A4` returns
         // without installing a target in that state, and fight mode zero likewise blocks
         // the attack before liftoff.
-        if (samus is null || state.FacingDirection == 1 || state.FightMode == 0)
+        if (samus is null || state.FacingDirection == RidleyFacing.Turning || state.FightMode == RidleyFightMode.NotFighting)
             return;
 
         RidleyTailSegment root = state.TailSegments[0];
@@ -177,7 +177,7 @@ public sealed partial class RoomEnemySystem
         byte targetByte = unchecked((byte)-(cartridgeAngle - 0x80));
         ushort additional = unchecked((ushort)(additionalAngle << 8));
 
-        if (state.FacingDirection == 0)
+        if (state.FacingDirection == RidleyFacing.Left)
         {
             // Facing-left Ridley cannot aim through his own body. Angles inside the
             // forbidden forward interval clamp to $E8 before bank-$3F expansion.
@@ -392,9 +392,9 @@ public sealed partial class RoomEnemySystem
                     cameraY);
         }
 
-        if (state.FacingDirection == 1)
+        if (state.FacingDirection == RidleyFacing.Turning)
             return;
-        int wingPointerIndex = (state.FacingDirection == 0 ? 0 : 10) + state.WingFrame;
+        int wingPointerIndex = (state.FacingDirection == RidleyFacing.Left ? 0 : 10) + state.WingFrame;
         ushort wingSpritemap = RidleySupplementalVisualDefinitions.WingFrameAt(
             wingPointerIndex);
         DrawEnemySpritemap(

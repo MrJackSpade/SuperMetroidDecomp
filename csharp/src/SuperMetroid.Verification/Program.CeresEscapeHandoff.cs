@@ -168,7 +168,7 @@ internal static partial class Program
         AssertEqual(0, samus.Kinematics.YSpeed, "$90:DF85 clears Y speed");
         AssertEqual(0, samus.HorizontalSpeed.ExtraRunSubspeed,
             "Kill_SamusXSpeed_IfCollisionDetected clears extra-run speed at the wall");
-        AssertEqual(0, samus.Kinematics.YDirection, "$90:DF88 clears Y direction");
+        AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "$90:DF88 clears Y direction");
         AssertEqual(100, samus.Kinematics.YPosition,
             "bottom alignment against the previous hurt pose leaves Y unchanged");
 

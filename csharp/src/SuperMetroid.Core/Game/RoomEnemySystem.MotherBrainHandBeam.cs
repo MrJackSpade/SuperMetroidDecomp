@@ -18,8 +18,8 @@ public sealed partial class RoomEnemySystem
             case MotherBrainHandBeamPhase.BackUp:
                 if (!TryWalkMotherBrainBackwardsForHandBeam(state))
                     return;
-                state.LowerNeckMovementIndex = 8;
-                state.UpperNeckMovementIndex = 6;
+                state.LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
+                state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
                 state.HandBeamPhase = MotherBrainHandBeamPhase.WaitForBombs;
                 return;
 
@@ -43,8 +43,8 @@ public sealed partial class RoomEnemySystem
                 SetMotherBrainBrainInstructionList(
                     state,
                     MotherBrainNeutralPhaseTwoHeadInstruction);
-                state.LowerNeckMovementIndex = 2;
-                state.UpperNeckMovementIndex = 4;
+                state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
+                state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
                 state.HandBeamPhase = MotherBrainHandBeamPhase.BackUp;
                 state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
                 return;

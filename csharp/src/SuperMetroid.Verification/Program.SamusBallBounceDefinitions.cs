@@ -28,10 +28,15 @@ internal static partial class Program
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 samus.Pose = pose;
-                samus.MorphBallBounceState = (ushort)(phase | (spring ? 0x0600 : 0));
+                samus.MorphBallBounceState = phase switch
+                {
+                    0 => SamusBallBounceState.None,
+                    1 => spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound,
+                    _ => spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound,
+                };
                 samus.Kinematics.YSpeed = (ushort)raw;
                 samus.Kinematics.YSubspeed = ushort.MaxValue;
-                samus.Kinematics.YDirection = 2;
+                samus.Kinematics.YDirection = SamusVerticalDirection.Down;
                 samus.HorizontalSpeed.BaseSpeed = 2;
                 samus.HorizontalSpeed.BaseSubspeed = 0x8000;
                 samus.HorizontalSpeed.AccelerationMode = 2;
@@ -44,9 +49,12 @@ internal static partial class Program
                 AssertEqual(rebound ? (ushort)(first ? whole : whole - 1) : (ushort)0,
                     samus.Kinematics.YSpeed, "Native rebound whole decrement");
                 AssertEqual(rebound ? fraction : (ushort)0, samus.Kinematics.YSubspeed, "Native rebound fraction");
-                AssertEqual(rebound ? (ushort)1 : (ushort)0, samus.Kinematics.YDirection, "Native rebound direction");
-                AssertEqual(rebound ? (ushort)((first ? 1 : 2) | (spring ? 0x0600 : 0)) : (ushort)0,
-                    samus.MorphBallBounceState, "Native ball family/phase publication");
+                AssertEqual(rebound ? SamusVerticalDirection.Up : SamusVerticalDirection.None, samus.Kinematics.YDirection, "Native rebound direction");
+                SamusBallBounceState published = !rebound ? SamusBallBounceState.None
+                    : first
+                        ? spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound
+                        : spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound;
+                AssertEqual(published, samus.MorphBallBounceState, "Native ball family/phase publication");
                 AssertEqual(rebound ? pose : groundedPose, samus.Pose, "Rebound retains airborne pose until grounded");
                 AssertEqual(rebound ? 0x00028000u : 0u, samus.HorizontalSpeed.BaseFixed,
                     "Both ball families clear horizontal base momentum on final landing");

@@ -19,7 +19,7 @@ public sealed partial class RoomEnemySystem
         RidleyEnemyState state,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        if (unchecked((short)state.FightMode) <= 0 || state.FightMode == 2)
+        if (state.FightMode is RidleyFightMode.NotFighting or RidleyFightMode.Dying or RidleyFightMode.PowerBombDodge)
             return;
         if (sharedProjectiles.PowerBombExplosion.Flag == 0 || state.GrabState != 0)
             return;
@@ -84,9 +84,9 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        if (unchecked((short)state.FightMode) < 0)
+        if (state.FightMode == RidleyFightMode.Dying)
             return;
-        if (state.FightMode != 0)
+        if (state.FightMode != RidleyFightMode.NotFighting)
         {
             if (RidleyCollisionDefinitions.IsOutsideInteractionWindow(
                 body.XPosition, body.YPosition, cameraX, cameraY))

@@ -136,10 +136,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public ushort NeckMovementEnabled { get; private set; }
 
     /// <summary>Lower neck movement index selected by the current actor phase.</summary>
-    public ushort LowerNeckMovementIndex { get; private set; }
+    public MotherBrainNeckMovement LowerNeckMovementIndex { get; private set; }
 
     /// <summary>Upper neck movement index selected by the current actor phase.</summary>
-    public ushort UpperNeckMovementIndex { get; private set; }
+    public MotherBrainNeckMovement UpperNeckMovementIndex { get; private set; }
 
     /// <summary>Native body function timer at enemy word <c>$0FB0</c>.</summary>
     public ushort FunctionTimer { get; private set; }
@@ -418,8 +418,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ushort lowerNeckAngle,
         ushort upperNeckAngle,
         bool neckMovementEnabled,
-        ushort lowerNeckMovementIndex,
-        ushort upperNeckMovementIndex,
+        MotherBrainNeckMovement lowerNeckMovementIndex,
+        MotherBrainNeckMovement upperNeckMovementIndex,
         ushort bombCounter,
         bool hitboxesEnabled)
     {
@@ -470,8 +470,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         SamusProjectileCooldownTimer = 0;
         NeckAngleDelta = 0x0040;
         NeckMovementEnabled = 1;
-        LowerNeckMovementIndex = 2;
-        UpperNeckMovementIndex = 4;
+        LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
+        UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
 
         // `$A9:B9C5-$B9D3` selects command five at 700 energy or above and command `$18`
         // below it. CPY/BPL is a signed 16-bit branch, retained by NativeAtLeast.

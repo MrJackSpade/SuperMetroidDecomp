@@ -33,7 +33,7 @@ internal static partial class Program
             int medium = gravity == 0 && raw < bombBottom ? liquid : 0;
             AssertEqual(Word(0x909ef5 + medium * 2), bomb.Kinematics.YSpeed, "Bomb native whole launch");
             AssertEqual(Word(0x909efb + medium * 2), bomb.Kinematics.YSubspeed, "Bomb native fractional launch");
-            AssertEqual((ushort)1, bomb.Kinematics.YDirection, "Bomb upward launch");
+            AssertEqual(SamusVerticalDirection.Up, bomb.Kinematics.YDirection, "Bomb upward launch");
             AssertEqual((ushort)7, bomb.Kinematics.YAcceleration, "Bomb launch retains live whole gravity");
             AssertEqual((ushort)123, bomb.Kinematics.YSubacceleration, "Bomb launch retains live fractional gravity");
             AssertEqual((ushort)128, bomb.YPosition, "Bomb setup does not move Samus");
@@ -64,7 +64,7 @@ internal static partial class Program
             hurt.BombJumpActive = true;
             hurt.HorizontalSpeed.ExtraRunSpeed = ushort.MaxValue;
             hurt.HorizontalSpeed.ExtraRunSubspeed = ushort.MaxValue;
-            hurt.HorizontalSpeed.ContactDamageIndex = 1;
+            hurt.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
             AssertTrue(SamusKnockbackMovement.Start(poseOnly, hurt, input, side, knockbackTimer: 11), "Native hurt branch admitted");
             int medium = (equipment & 4) != 0 || environment == 3 ? 0 : environment;
             AssertEqual(Word(0x909ee9 + medium * 2), hurt.Kinematics.YSpeed, "Hurt native whole launch");
@@ -74,7 +74,7 @@ internal static partial class Program
             AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
             AssertEqual((ushort)0, hurt.BombJumpDirection, "Hurt clears bomb direction");
             AssertEqual((ushort)1, hurt.HurtFlashCounter, "Hurt starts flash");
-            AssertEqual((ushort)0, hurt.HorizontalSpeed.ContactDamageIndex, "Hurt cancels contact attack");
+            AssertEqual(SamusContactDamageIndex.None, hurt.HorizontalSpeed.ContactDamageIndex, "Hurt cancels contact attack");
             hurtCases++;
         }
         Console.WriteLine($"Samus impulse definitions: {bombCases} surface/equipment/direction bomb launches and {hurtCases} hurt transitions pass; physics ROM reads forbidden.");

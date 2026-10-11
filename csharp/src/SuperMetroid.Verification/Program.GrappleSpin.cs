@@ -25,7 +25,7 @@ internal static partial class Program
             samus.InitializeAnimation(bus);
             samus.SelectedHudItem = 4;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.GrappleBeam;
-            samus.Kinematics.YDirection = 2;
+            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             runtime.StepFrame((ushort)SnesButton.X);
             Console.WriteLine($"Spin fire first frame: pose={(int)samus.Pose:X2}, grapple={samus.Grapple.Phase}");
             AssertEqual(left ? SamusPoseId.NormalJumpGunExtendedLeftPose : SamusPoseId.NormalJumpGunExtendedRightPose,

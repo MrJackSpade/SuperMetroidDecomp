@@ -1103,8 +1103,8 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
             {
                 ushort lowerAngle = self.LowerNeckAngle;
                 ushort upperAngle = self.UpperNeckAngle;
-                ushort lowerIndex = self.LowerNeckMovementIndex;
-                ushort upperIndex = self.UpperNeckMovementIndex;
+                MotherBrainNeckMovement lowerIndex = self.LowerNeckMovementIndex;
+                MotherBrainNeckMovement upperIndex = self.UpperNeckMovementIndex;
                 MotherBrainNeckKinematics.StepAngles(
                     ref lowerAngle,
                     ref upperAngle,
@@ -1796,7 +1796,7 @@ internal static class SamusAerialMovementAccess
                 SamusVerticalMotionDefinitions.Launch(SamusLiquidMedium.Air, highJump: false, wallJump: false);
             SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(samus);
             SamusAerialMovement.ConfigureDryAirGravity(bus, samus);
-            samus.Kinematics.YDirection = 1;
+            samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         }
 
         /// <summary>

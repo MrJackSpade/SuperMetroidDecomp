@@ -53,7 +53,7 @@ internal static partial class Program
             fireballSystem,
             new RidleyEnemyState
             {
-                FacingDirection = 0,
+                FacingDirection = RidleyFacing.Left,
                 FireballXVelocity = 0xfe00,
                 FireballYVelocity = 0x0100,
             });

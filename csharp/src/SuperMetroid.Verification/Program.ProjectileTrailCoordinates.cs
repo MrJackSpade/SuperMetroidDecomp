@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
-        var guard = new TrailCoordinateGuard(bus);
+        var guard = NewTrailCoordinateGuard(bus);
         int bytes = 0;
         for (int address = 0x9b8000; address <= 0x9bffff; address++)
         {
@@ -16,7 +16,7 @@ internal static partial class Program
             int next = (address & 0xff0000) | ((address + 1) & 0xffff);
             if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out _) &&
                 ProjectileTrailCoordinateDefinitions.TryReadByte(next, out _))
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address), "Compiled trail pointer word preserves authored odd and wrapped words");
+                AssertEqual(ReadRetailTrailWord(bus, address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address), "Compiled trail pointer word preserves authored odd and wrapped words");
             else
             {
                 int rejectedAddress = address;
@@ -75,6 +75,7 @@ internal static partial class Program
         Console.WriteLine("Trail coordinates: 174 pointer words, 870 signed records, 29 bounded observations and 196608 CPU operands preserve compiled/live-memory behavior while rejecting unrelated upper ROM.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for trail family, direction and reflected list-start pointer tables")]
     private static void VerifyCoordinateSpawn(ISnesAddressSpace bus)
     {
         ReadOnlySpan<ushort> compiledFrameWordAddresses =
@@ -107,7 +108,7 @@ internal static partial class Program
                 InstructionPointer = unchecked((ushort)(compiledFrameWordAddresses[frame] + 2)),
                 Position = new(new(origin, 0), new(origin, 0)),
             };
-            spawn(new TrailCoordinateGuard(bus), shot);
+            spawn(NewTrailCoordinateGuard(bus), shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(expected, (actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y), "Real trail spawn matches four native signed positions at coordinate wrap boundaries");
             AssertEqual(1, actual.Left.InstructionTimer, "Compiled coordinates retain spawn timing");
@@ -140,12 +141,12 @@ internal static partial class Program
             catch (InvalidOperationException)
             {
                 // Hardware the native reference does not model must fail in production too.
-                AssertThrows<InvalidOperationException>(() => spawn(new TrailCoordinateGuard(bus), shot),
+                AssertThrows<InvalidOperationException>(() => spawn(NewTrailCoordinateGuard(bus), shot),
                     $"reflected type ${type:X4} direction {direction} trail fails on unmodeled hardware");
                 cases++;
                 continue;
             }
-            spawn(new TrailCoordinateGuard(bus), shot);
+            spawn(NewTrailCoordinateGuard(bus), shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(expected, (actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
                 $"reflected type ${type:X4} direction {direction} trail reads the word before its list start");
@@ -167,6 +168,21 @@ internal static partial class Program
         yield return (0x0200, 0x9383f1, 2);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled trail pointer and coordinate words")]
+    private static ushort ReadRetailTrailWord(ISnesAddressSpace bus, int address) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for a $9B trail operand byte the native CPU reads from the cartridge")]
+    private static byte ReadRetailTrailOperandByte(ISnesAddressSpace bus, int address) =>
+        CartridgeImportSource.Require(bus).ReadCartridgeByte(address);
+
+    [CpuBusBoundary("exact bus test: device-response oracle for a $9B trail operand outside memory and the cartridge")]
+    private static byte ReadNativeTrailOperandDeviceByte(ISnesAddressSpace bus, int address) =>
+        bus is ISnesCpuPeripheralSource peripheral
+            ? peripheral.ReadPeripheralByte(address)
+            : throw new InvalidOperationException(
+                $"Native trail operand ${address:X6} addresses unmodeled hardware.");
+
     // Import-only reference for the actual $9B absolute-indexed operand. The
     // production CPU reader intentionally rejects ROM, so native expectations
     // must resolve cartridge bytes through the asset-import boundary instead.
@@ -187,16 +203,12 @@ internal static partial class Program
 
             return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(source)) switch
             {
-                SnesDmaSourceKind.Cartridge =>
-                    CartridgeImportSource.Require(bus).ReadCartridgeByte(source),
+                SnesDmaSourceKind.Cartridge => ReadRetailTrailOperandByte(bus, source),
                 SnesDmaSourceKind.WorkRam =>
                     ((ISnesMutableMemory)bus).ReadWorkRamByte(source),
                 SnesDmaSourceKind.SaveRam =>
                     ((ISnesMutableMemory)bus).ReadSaveRamByte(source),
-                _ => bus is ISnesCpuPeripheralSource peripheral
-                    ? peripheral.ReadPeripheralByte(source)
-                    : throw new InvalidOperationException(
-                        $"Native trail operand ${source:X6} addresses unmodeled hardware."),
+                _ => ReadNativeTrailOperandDeviceByte(bus, source),
             };
         }
 
@@ -205,21 +217,11 @@ internal static partial class Program
         return (ushort)(low | high << 8);
     }
 
-    private sealed class TrailCoordinateGuard(ISnesAddressSpace source) : ISnesAddressSpace,
-        ISnesMutableMemory, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewTrailCoordinateGuard(ISnesAddressSpace source)
     {
-        public byte ReadWorkRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x9ba4b3 and <= 0x9bb3a6)
-                throw new InvalidDataException("Trail coordinate owner still reads authored ROM data.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is >= 0x9ba4b3 and <= 0x9bb3a6,
+            _ => new InvalidDataException("Trail coordinate owner still reads authored ROM data."));
+        return guard;
     }
 }

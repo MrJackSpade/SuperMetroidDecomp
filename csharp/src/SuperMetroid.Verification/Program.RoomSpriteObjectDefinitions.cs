@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyRoomSpriteObjectDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guarded = new RoomSpriteObjectDefinitionReadGuard(rom);
+        var guarded = NewRoomSpriteObjectDefinitionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", flags)!
             .CreateDelegate<Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind,
@@ -67,9 +67,9 @@ internal static partial class Program
                 $"room sprite object ${objectNumber:X2} terminates or reaches its authored loop");
         }
 
-        AssertEqual(0, guarded.ObservedPresentationWords.Count,
+        AssertEqual(0, guarded.ObservedWords.Count,
             "room sprite-object visuals require no runtime cartridge reads");
-        AssertEqual(0, guarded.ForbiddenMechanicsReadAttempts,
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
             "room sprite-object execution avoids compiled mechanics bytes");
         AssertEqual(
             RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount,
@@ -142,35 +142,18 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class RoomSpriteObjectDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewRoomSpriteObjectDefinitionReadGuard(ISnesAddressSpace source)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenMechanicsReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0xb4bda8 and < 0xb4be24)
+        var guard = new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xb4bda8 and < 0xb4be24,
+                address => $"Room sprite object attempted migrated selector read ${address:X6}.")
+            .Forbid(RoomSpriteObjectInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Room sprite object attempted compiled mechanics read ${address:X6}.");
+        return guard.Observe(address => RoomSpriteObjectInstructionProgramDefinitions.TryGetPresentationWord(address, out _),
+            address =>
             {
-                throw new InvalidOperationException(
-                    $"Room sprite object attempted migrated selector read ${address:X6}.");
-            }
-            if (RoomSpriteObjectInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenMechanicsReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Room sprite object attempted compiled mechanics read ${address:X6}.");
-            }
-            if (RoomSpriteObjectInstructionProgramDefinitions.TryGetPresentationWord(
-                    address, out ushort presentation))
-            {
-                ObservedPresentationWords.Add(presentation);
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+                RoomSpriteObjectInstructionProgramDefinitions.TryGetPresentationWord(address, out ushort presentation);
+                guard.ObservedWords.Add(presentation);
+            });
     }
 }

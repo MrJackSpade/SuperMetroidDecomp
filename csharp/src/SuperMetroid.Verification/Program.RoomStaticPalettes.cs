@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room base palettes")]
     private static void VerifyRoomStaticPaletteExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -44,7 +45,7 @@ internal static partial class Program
             int source = RoomTilesetDefinitions.Get(header.State.GraphicsSet).PaletteAddress;
             CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header);
             CartridgeRoomAssets installed = LoadFixtureRoomAssets(
-                new RoomBasePaletteReadGuard(bus, source), header, paletteArt: catalog);
+                NewRoomBasePaletteReadGuard(bus, source), header, paletteArt: catalog);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             native.LoadGraphics(new SnesVram(), nativeCgram);
@@ -73,7 +74,7 @@ internal static partial class Program
             "editing one RGB5 component changes only its selected runtime CGRAM color");
         compiled[selectedSource] = replacement;
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
-            new RoomBasePaletteReadGuard(bus, selectedSource), landing,
+            NewRoomBasePaletteReadGuard(bus, selectedSource), landing,
             paletteArt: new RoomStaticPaletteCatalog(compiled));
         var editedRoomCgram = new SnesCgram();
         editedRoom.LoadGraphics(new SnesVram(), editedRoomCgram);
@@ -90,19 +91,7 @@ internal static partial class Program
             "and RGB5 edits reach room CGRAM.");
     }
 
-    private sealed class RoomBasePaletteReadGuard(ISnesAddressSpace source, int paletteSource)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address == paletteSource)
-                throw new InvalidOperationException(
-                    $"Installed room loader reread base palette source ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewRoomBasePaletteReadGuard(ISnesAddressSpace source, int paletteSource) =>
+        new CartridgeReadGuard(source).Forbid(address => address == paletteSource,
+            address => $"Installed room loader reread base palette source ${address:X6}.");
 }

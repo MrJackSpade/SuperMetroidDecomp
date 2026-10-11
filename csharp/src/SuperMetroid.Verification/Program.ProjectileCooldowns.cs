@@ -9,7 +9,7 @@ internal static partial class Program
     private static void VerifyProjectileCooldowns()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var bus = new ProjectileCooldownReadGuard(retail);
+        var bus = NewProjectileCooldownReadGuard(retail);
         for (int address = 0x90c254; address < 0x90c28f; address++)
             AssertEqual(retail.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(address),
                 "Compiled cooldown byte matches native address identity");
@@ -87,18 +87,11 @@ internal static partial class Program
         Console.WriteLine("Projectile cooldowns: 59 native bytes, bounded SpaceTime observation, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
     }
 
-    private sealed class ProjectileCooldownReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static MutableCartridgeReadGuard NewProjectileCooldownReadGuard(ISnesAddressSpace source)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-        public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) => ((ISnesMutableMemory)source).ReadSaveRamByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x90c254 and < 0x90c28f)
-                throw new InvalidOperationException($"Compiled cooldown read ROM ${address:X6}.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is >= 0x90c254 and < 0x90c28f,
+            address => $"Compiled cooldown read ROM ${address:X6}.");
+        return guard;
     }
 }

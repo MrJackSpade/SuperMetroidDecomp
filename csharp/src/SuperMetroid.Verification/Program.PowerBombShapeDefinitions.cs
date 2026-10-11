@@ -55,7 +55,7 @@ internal static partial class Program
         void Set(string property, object value) => typeof(SamusPowerBombExplosionState).GetProperty(property)!.SetValue(explosion, value);
         var read = typeof(SnesGameplayFrameRenderer).GetMethod("ReadPowerBombHalfWidth", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<SamusPowerBombExplosionState, int, int>>();
-        var forbidden = new PowerBombShapeReadGuard();
+        var forbidden = NewPowerBombShapeReadGuard();
         foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })
         {
             Set(nameof(explosion.RenderedPhase), phase);
@@ -93,13 +93,10 @@ internal static partial class Program
         Console.WriteLine($"Power Bomb compiled shape: 64 native bytes, 197120 signed scanline cases and {frames} complete clipped/HUD-preserving frames match without a bus.");
     }
 
-    private sealed class PowerBombShapeReadGuard : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public static byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected shape ROM read: {address:X6}.");
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected shape bus write.");
-    }
+    private static CartridgeReadGuard NewPowerBombShapeReadGuard() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Unexpected shape ROM read: {address:X6}.")
+            .RejectWrites(_ => "Unexpected shape bus write.");
 }
 
 internal static class PowerBombShapeReferenceData

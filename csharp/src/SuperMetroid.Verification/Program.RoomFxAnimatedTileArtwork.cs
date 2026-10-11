@@ -8,6 +8,7 @@ using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
     /// <summary>Exercises every retail frame through both native transfer owners.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room-FX animated tile transfer frames")]
     private static void VerifyRoomFxAnimatedTileArtwork()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -19,7 +20,7 @@ internal static partial class Program
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] png = RoomFxAnimatedTileAtlasExtractor.Extract(rom);
         RoomFxAnimatedTileAtlas atlas = RoomFxAnimatedTileAtlas.Load(new MemoryStream(png));
-        var guarded = new RoomFxArtworkForbiddenBus(rom);
+        var guarded = NewRoomFxArtworkForbiddenBus(rom);
         var provider = new RoomFxArtworkTestProvider(atlas);
         int frameCount = 0;
         foreach (RoomFxAnimatedTileObjectDefinition definition in
@@ -101,7 +102,7 @@ internal static partial class Program
                         $"{direction} frame {frame} installed NMI pixel byte {index}");
             }
         }
-        AssertEqual(0, guarded.ForbiddenReads, "installed animations never read bank-$87 ROM data");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "installed animations never read bank-$87 ROM data");
         AssertThrows<InvalidDataException>(() => atlas.TryResolve(
             RoomFxAnimatedTileArtworkDefinitions.LavaFirstSource, 1, out _),
             "artwork cannot change the native transfer byte count");
@@ -141,12 +142,12 @@ internal static partial class Program
             "edited room-FX PNG changes the selected frame bytes");
         var state = new RoomFxAnimatedTilesState();
         var vram = new SnesVram();
-        var guarded = new RoomFxArtworkForbiddenBus(rom);
+        var guarded = NewRoomFxArtworkForbiddenBus(rom);
         state.LoadDefinition(guarded, AnimatedTileObject.MaridiaSandCeiling);
         state.Step(guarded, vram, artwork: changed.RoomFxAnimatedTiles);
         AssertEqual(edited.Span[0], vram.ReadByte(0x1000 * 2),
             "edited room-FX pixel reaches the active animation transfer");
-        AssertEqual(0, guarded.ForbiddenReads, "edited room-FX transfer remains ROM-free");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "edited room-FX transfer remains ROM-free");
         int treadmillSource = WreckedShipTreadmillRomData.Frame0Source;
         AssertTrue(changed.RoomFxAnimatedTiles.TryResolve(treadmillSource,
                 WreckedShipTreadmillRomData.TransferByteCount,
@@ -168,7 +169,7 @@ internal static partial class Program
         AssertEqual(editedTreadmill.Span[0], runtime.Vram.ReadByte(
                 WreckedShipTreadmillRomData.EncodedVramDestination * 2),
             "edited treadmill pixel reaches the production runtime NMI destination");
-        AssertEqual(0, guarded.ForbiddenReads,
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
             "edited treadmill animation and queued upload remain ROM-free");
         int statueSource = TourianStatueAnimatedTileArtworkDefinitions.FirstSource;
         AssertTrue(baseline.RoomFxAnimatedTiles.TryResolve(statueSource, 0x80,
@@ -244,39 +245,12 @@ internal static partial class Program
         Console.WriteLine("Room-FX animation override: edited simple/treadmill/statue pixels reach VRAM; both legacy sheet sizes retain edits.");
     }
 
-    private sealed class RoomFxArtworkForbiddenBus(ISnesAddressSpace inner)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static MutableCartridgeReadGuard NewRoomFxArtworkForbiddenBus(ISnesAddressSpace inner)
     {
-        public int ForbiddenReads { get; private set; }
-        public byte ReadByte(int address)
-        {
-            RejectArtworkRead(address);
-            return inner.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectArtworkRead(address);
-            return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Room-FX verification source requires WRAM.")).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Room-FX verification source requires SRAM.")).ReadSaveRamByte(address);
-
-        private void RejectArtworkRead(int address)
-        {
-            if ((address >> 16) == 0x87)
-            {
-                ForbiddenReads++;
-                throw new InvalidOperationException($"Installed room-FX artwork read ROM ${address:X6}.");
-            }
-        }
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(inner);
+        guard.Forbid(address => (address >> 16) == 0x87,
+            address => $"Installed room-FX artwork read ROM ${address:X6}.");
+        return guard;
     }
 
     private sealed class RoomFxArtworkTestProvider(RoomFxAnimatedTileAtlas atlas) :

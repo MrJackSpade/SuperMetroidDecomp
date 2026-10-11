@@ -26,7 +26,7 @@ internal static partial class Program
                 $"Polyp-rock mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new PolypRockInstructionReadGuard(rom);
+        var guard = NewPolypRockInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -128,31 +128,12 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class PolypRockInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (PolypRockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Polyp-rock mechanics byte ${address:X6}.");
-            }
-
-            int presentation = EnemyProjectileCodePointers.BankBase |
-                PolypRockInstructionProgramDefinitions.PresentationWord;
-            if (address == presentation || address == presentation + 1)
-                throw new InvalidOperationException("Production read the compiled Polyp-rock visual operand.");
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewPolypRockInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => PolypRockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Polyp-rock mechanics byte ${address:X6}.")
+            .Forbid(address => address - (EnemyProjectileCodePointers.BankBase |
+                    PolypRockInstructionProgramDefinitions.PresentationWord) is 0 or 1,
+                _ => "Production read the compiled Polyp-rock visual operand.");
 }

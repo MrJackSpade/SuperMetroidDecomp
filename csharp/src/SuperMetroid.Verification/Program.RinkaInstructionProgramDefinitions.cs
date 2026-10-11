@@ -32,7 +32,7 @@ internal static partial class Program
                 $"Rinka mechanics word $A2:{definition.Address:X4}");
         }
 
-        var guarded = new RinkaInstructionReadGuard(rom);
+        var guarded = NewRinkaInstructionReadGuard(rom);
         (RoomEnemySystem ordinarySystem, RoomEnemySlot ordinary) = RunRinkaProgram(
             guarded,
             RinkaInstructionProgramDefinitions.OrdinaryInitial,
@@ -55,7 +55,7 @@ internal static partial class Program
         AssertTrue(special.Properties.HasAny(EnemyProperties.ProcessOffScreen),
             "special Rinka setup retains off-screen processing after firing");
 
-        AssertEqual(0, guarded.ObservedPresentationWords.Count,
+        AssertEqual(0, guarded.ObservedWords.Count,
             "Rinka execution uses compiled spritemap selectors");
         for (int index = 0;
              index < RinkaInstructionProgramDefinitions.PresentationWordCount;
@@ -103,7 +103,7 @@ internal static partial class Program
     }
 
     private static (RoomEnemySystem System, RoomEnemySlot Rinka) RunRinkaProgram(
-        RinkaInstructionReadGuard bus,
+        CartridgeReadGuard bus,
         ushort initialPointer,
         bool special)
     {
@@ -144,44 +144,10 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class RinkaInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (RinkaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Rinka mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < RinkaInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        RinkaInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewRinkaInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(RinkaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Rinka mechanics byte ${address:X6}.")
+            .ObserveWords(0xa20000, RinkaInstructionProgramDefinitions.PresentationWordCount,
+                RinkaInstructionProgramDefinitions.PresentationWordAddress);
 }

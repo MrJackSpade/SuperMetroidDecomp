@@ -28,7 +28,7 @@ internal static partial class Program
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var actual = new RoomEnemySystem();
         var reference = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(actual, new RidleyAttackReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(actual, NewRidleyAttackReadGuard(rom));
         typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(reference, rom);
         var select = typeof(RoomEnemySystem).GetMethod("SelectNorfairRidleyAttack", instance)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(actual);
@@ -80,12 +80,7 @@ internal static partial class Program
         Console.WriteLine("Ridley choices: all 48 native pointers and 655360 actual selections pass with table reads forbidden, exact RNG and same-frame setup checks.");
     }
 
-    private sealed class RidleyAttackReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa6b38c and < 0xa6b3ec
-            ? throw new InvalidOperationException("Unexpected migrated Ridley attack-choice read.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewRidleyAttackReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6b38c and < 0xa6b3ec,
+            _ => "Unexpected migrated Ridley attack-choice read.");
 }

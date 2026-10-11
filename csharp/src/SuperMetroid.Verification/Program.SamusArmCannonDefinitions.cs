@@ -30,7 +30,7 @@ internal static partial class Program
             };
             PrepareRetailSamusFixture(samus);
             samus.ArmCannon.Artwork = artwork;
-            var guarded = new ArmCannonPolicyReadGuard(rom);
+            var guarded = NewArmCannonPolicyReadGuard(rom);
 
             // Starting a transition is the only path that rewrites the open flag; it also arms
             // the transition flag and advances the cover frame in the same call. Unchanged
@@ -62,31 +62,8 @@ internal static partial class Program
             "Arm-cannon policy: all six HUD selections match the cartridge and the real update path rejects runtime policy-table reads.");
     }
 
-    private sealed class ArmCannonPolicyReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadByte(int address)
-        {
-            RejectPolicyRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectPolicyRead(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        private static void RejectPolicyRead(int address)
-        {
-            if (address >= SamusArmCannonDefinitions.OpenFlagTable &&
-                address < SamusArmCannonDefinitions.OpenFlagTable +
-                    SamusArmCannonDefinitions.HudItemCount)
-            {
-                throw new InvalidOperationException(
-                    "Runtime arm-cannon HUD policy read from cartridge ROM.");
-            }
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewArmCannonPolicyReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address >= SamusArmCannonDefinitions.OpenFlagTable &&
+                address < SamusArmCannonDefinitions.OpenFlagTable + SamusArmCannonDefinitions.HudItemCount,
+            _ => "Runtime arm-cannon HUD policy read from cartridge ROM.");
 }

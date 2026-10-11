@@ -24,11 +24,11 @@ internal static partial class Program
         })
         {
             var system = new Bank80SystemState();
-            var samusCell = new Point32<MapTiles>(roomX + (samusX >> 8), roomY + (samusY >> 8) + 1);
+            var samusCell = new Position16<MapTiles>(checked((ushort)(roomX + (samusX >> 8))), checked((ushort)(roomY + (samusY >> 8) + 1)));
             system.MarkExploredMapTile(area, samusCell);
             var pause = CreateRetailPauseFixture(bus,
                 new SamusState { XPosition = (ushort)samusX, YPosition = (ushort)samusY },
-                system, area, new(roomX, roomY));
+                system, area, new(checked((ushort)roomX), checked((ushort)roomY)));
             int nativeFrame = 0, nativeTimer = 0;
             for (int frame = 0; frame < 48; frame++)
             {

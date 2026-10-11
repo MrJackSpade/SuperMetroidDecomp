@@ -18,7 +18,7 @@ internal static partial class Program
         // then exercise the real sequential room loader and assert its resulting VRAM.
         var guarded = new RetailCollectibleGraphicsReadGuard(rom);
         const int width = 64;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(width, 64),
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64),
             new ushort[width * 64], new byte[width * 64],
             new ushort[width * 64], new byte[0x400 * 8]);
         var vram = new SnesVram();

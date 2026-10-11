@@ -257,7 +257,7 @@ internal static partial class Program
         };
         byte[] planar = Enumerable.Range(0,CeresDoorVisualRomData.TileByteCount)
             .Select(index => rom.ReadByte(CeresDoorVisualRomData.TileSource+index)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Size32<ImagePixels> size);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
@@ -558,7 +558,7 @@ internal static partial class Program
         AssertTrue(expectedIds.SequenceEqual(MapLandmarkDefinitions.AllIds()), "Original public identity and manifest order");
         using var editedBytes = new MemoryStream();
         MapLandmarkLayout.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
-            Markers = expectedIds.ToDictionary(id => id, id => layout.Get(id) with { X = layout.Get(id).X + 1, Y = layout.Get(id).Y + 1 }) });
+            Markers = expectedIds.ToDictionary(id => id, id => layout.Get(id) with { X = (ushort)(layout.Get(id).X + 1), Y = (ushort)(layout.Get(id).Y + 1) }) });
         editedBytes.Position = 0;
         MapLandmarkLayout editedLayout = MapLandmarkLayout.Load(editedBytes);
         int bossSlots = 0, elevatorSlots = 0;
@@ -833,10 +833,10 @@ internal static partial class Program
     private sealed class LookupStream5ScrollMap : IAreaMapView
     {
         public AreaId Area => AreaId.Crateria;
-        public MapTileWord GetTile(Point32<MapTiles> cell) => default;
-        public bool IsDiscoverable(Point32<MapTiles> cell) => true;
-        public bool IsRevealedByMapStation(Point32<MapTiles> cell) => false;
-        public bool RevealsCellAbove(Point32<MapTiles> cell) => false;
+        public MapTileWord GetTile(Position16<MapTiles> cell) => default;
+        public bool IsDiscoverable(Position16<MapTiles> cell) => true;
+        public bool IsRevealedByMapStation(Position16<MapTiles> cell) => false;
+        public bool RevealsCellAbove(Position16<MapTiles> cell) => false;
     }
     private static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
     {
@@ -1364,7 +1364,7 @@ internal static partial class Program
     {
         byte[] planar = Enumerable.Range(0,DeadTourianCorpseArtworkDefinitions.ByteCount)
             .Select(index => rom.ReadByte(DeadTourianCorpseArtworkDefinitions.SourceAddress+index)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Size32<ImagePixels> size);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         png.Position=0;
@@ -1482,7 +1482,7 @@ internal static partial class Program
         };
         byte[] planar = Enumerable.Range(0,CeresDoorVisualRomData.TileByteCount)
             .Select(index => rom.ReadByte(CeresDoorVisualRomData.TileSource+index)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Size32<ImagePixels> size);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
@@ -1902,7 +1902,7 @@ internal static partial class Program
             Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorNormalPaintDefinitions stock = Check();
@@ -1966,7 +1966,7 @@ internal static partial class Program
             Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorEscapePaintDefinitions stock = Check();
@@ -2029,7 +2029,7 @@ internal static partial class Program
             Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
         };
         byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorAnimationPaintDefinitions stock = Check(-1);

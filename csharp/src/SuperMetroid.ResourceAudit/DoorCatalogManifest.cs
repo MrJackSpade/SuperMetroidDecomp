@@ -41,8 +41,8 @@ internal sealed record NativeDoorHeader(ushort Pointer, ushort DestinationRoomPo
 
     /// <summary>The compiled header these bytes decode to; pseudo-doors have none.</summary>
     internal CartridgeDoorHeader Decode() =>
-        new(Pointer, DestinationRoomPointer, CartridgeDoorOrientation.Decode(Orientation), new Point32<RoomBlocks>(PlmX, PlmY),
-            new Point32<RoomScreens>(DestinationScreenX, DestinationScreenY), SamusDistance,
+        new(Pointer, DestinationRoomPointer, CartridgeDoorOrientation.Decode(Orientation), new Position16<RoomBlocks>(PlmX, PlmY),
+            new Position16<RoomScreens>(DestinationScreenX, DestinationScreenY), SamusDistance,
             ClosedNativeWords.Decode<DoorSetupCode>(SetupCodePointer, "door setup routine"));
 }
 

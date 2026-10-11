@@ -26,10 +26,10 @@ internal static partial class Program
         var level = runtime.LevelData!;
         int doorX = -1, doorY = -1;
         byte behavior = 0;
-        for (int y = 0; y < level.Size.Height && doorX < 0; y++)
-        for (int x = 0; x < level.Size.Width; x++)
+        for (int y = 0; y < level.Size.Y && doorX < 0; y++)
+        for (int x = 0; x < level.Size.X; x++)
         {
-            var block = level.GetCollisionBlock(new(x, y));
+            var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
             if (door.Door?.DestinationRoomPointer != destination) continue;
@@ -38,7 +38,7 @@ internal static partial class Program
         }
         AssertTrue(doorX >= 0, "Pillar Room incoming retail door exists");
         runtime.LoadCartridgeRoomForDebug(source,
-            new((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
+            new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.EquippedItems = samus.CollectedItems = (ushort)(SamusEquipmentFlags.ScrewAttack |
@@ -72,7 +72,7 @@ internal static partial class Program
             runtime.StepFrame(input);
             var heads = runtime.Enemies.Slots.Take(2).ToArray();
             var states = runtime.Enemies.NuclearWaffleStates.Where(state => state is not null).ToArray();
-            trace.WriteLine($"{frame},{samus.XPosition},{samus.YPosition},{runtime.Camera!.XPosition},{runtime.Camera.YPosition},{heads[0].XPosition},{heads[0].YPosition},{states[0]!.CurrentAngle},{heads[1].XPosition},{heads[1].YPosition},{states[1]!.CurrentAngle},{(int)samus.Pose:X2}");
+            trace.WriteLine($"{frame},{samus.XPosition},{samus.YPosition},{runtime.Camera!.PixelPosition.X},{runtime.Camera.PixelPosition.Y},{heads[0].XPosition},{heads[0].YPosition},{states[0]!.CurrentAngle},{heads[1].XPosition},{heads[1].YPosition},{states[1]!.CurrentAngle},{(int)samus.Pose:X2}");
             if (frame % 8 != 0) continue;
             var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
             var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
@@ -87,8 +87,8 @@ internal static partial class Program
             var background = SoftwareLayeredSnapshotRenderer.Render(withoutObjects);
             for (int actor = 0; actor < 2; actor++)
             {
-                int x = heads[actor].XPosition - runtime.Camera.XPosition;
-                int y = heads[actor].YPosition - runtime.Camera.YPosition;
+                int x = heads[actor].XPosition - runtime.Camera.PixelPosition.X;
+                int y = heads[actor].YPosition - runtime.Camera.PixelPosition.Y;
                 if (x < 8 || x >= 248 || y < 40 || y >= 216) continue;
                 if (Math.Abs((int)samus.XPosition - heads[actor].XPosition) < 32 &&
                     Math.Abs((int)samus.YPosition - heads[actor].YPosition) < 40) continue;
@@ -103,7 +103,7 @@ internal static partial class Program
                 visibleFrames[actor]++;
                 visiblePositions[actor].Add((heads[actor].XPosition, heads[actor].YPosition));
             }
-            PngWriterTooling.WriteRgba(Path.Combine(output, $"frame-{frame:D3}.png"), new(256, 224), pixels);
+            PngWriterTooling.WriteRgba(Path.Combine(output, $"frame-{frame:D3}.png"), new Extent16<ScreenPixels>(256, 224), pixels);
         }
         for (int actor = 0; actor < 2; actor++)
         {

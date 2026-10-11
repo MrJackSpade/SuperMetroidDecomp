@@ -15,7 +15,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0x965b, camera: new(1280, 0));
+        runtime.LoadCartridgeRoomForDebug(0x965b, camera: new Position16<RoomPixels>(1280, 0));
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
@@ -30,7 +30,7 @@ internal static partial class Program
         var item = runtime.Plms.Collectibles.Single(i => i.Kind == InWorldCollectibleKind.EnergyTank);
         ushort visible = runtime.LevelData!.ForegroundEntries.Span[item.BlockIndex];
         var update = runtime.BackgroundStreamer!.BuildPlmLevelBlockUpdate(item.BlockIndex,
-            bg1XOffset: runtime.BackgroundScroll.Bg1XOffset);
+            bg1XOffset: unchecked((ushort)runtime.BackgroundScroll.Bg1Offset.X));
         ushort[] TileWords() => new[] { runtime.Vram.ReadWord(update.TopRowDestination),
             runtime.Vram.ReadWord((ushort)(update.TopRowDestination + 1)),
             runtime.Vram.ReadWord((ushort)(update.TopRowDestination + 32)),

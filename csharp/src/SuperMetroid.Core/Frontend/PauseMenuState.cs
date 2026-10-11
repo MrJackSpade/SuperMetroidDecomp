@@ -27,7 +27,7 @@ internal sealed partial class PauseMenuState
     private readonly SamusState samus;
     private readonly Bank80SystemState system;
     private readonly AreaId area;
-    private readonly Point32<MapTiles> roomMapPosition;
+    private readonly Position16<MapTiles> roomMapPosition;
     private readonly MapRevealMode mapRevealMode;
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
     private readonly SnesVram vram = new();
@@ -49,7 +49,7 @@ internal sealed partial class PauseMenuState
     private int itemSelectorAnimationFrame;
     private int itemSelectorAnimationTimer;
     private bool plasmaLabelOverrunActive;
-    private Position16<ScreenPixels> lastIndicatorOrigin;
+    private Position16<OamPixels> lastIndicatorOrigin;
     private ushort lastIndicatorSpritemapId;
 
     public PauseMenuState(
@@ -57,7 +57,7 @@ internal sealed partial class PauseMenuState
         SamusState samus,
         Bank80SystemState system,
         AreaId areaIndex,
-        Point32<MapTiles> roomMapPosition,
+        Position16<MapTiles> roomMapPosition,
         CartridgeAudioState? audio = null,
         SnesVram? gameplayVram = null,
         MapRevealMode mapRevealMode = MapRevealMode.None,
@@ -254,7 +254,7 @@ internal sealed partial class PauseMenuState
         objScratchPixels ??= new Rgba32[256 * 224];
         objScratchPriorities ??= new byte[256 * 224];
         SnesObjRenderer.RenderResolved(oam, vram, cgram, PauseMenuLayout.ObjectSelection,
-            objScratchPixels, objScratchPriorities, 256, 224);
+            objScratchPixels, objScratchPriorities);
         var objects = new ResolvedObjFrame(objScratchPixels, objScratchPriorities);
 
         // Back to front for BGMODE=$09:
@@ -287,8 +287,8 @@ internal sealed partial class PauseMenuState
         // BG fetches start on physical scanline one; OBJ coordinates already use
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
         ushort mapY = unchecked((ushort)((ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
-        var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, mapX, mapY, 64, 32, false);
-        var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, 0, SnesPpuLayout.FirstVisibleBackgroundScanline, 32, 32, false);
+        var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(mapX, mapY), new Extent16<TilemapCells>(64, 32), false);
+        var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), new Extent16<TilemapCells>(32, 32), false);
         var bg3 = new Bg2BppViewportRenderLayer(SnesPpuLayout.GameplayHudTilemapWord,
             SnesPpuLayout.GameplayHudCharacterBaseWord,
             SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
@@ -340,12 +340,9 @@ internal sealed partial class PauseMenuState
             cgram,
             tilemapBaseWord,
             characterBaseWord: 0,
-            horizontalScroll: isMapLayer && ScreenMode == 0 ? mapScrollPosition.X : (ushort)0,
-            verticalScroll: unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline)),
-            width: 256,
-            height: 224,
-            tilemapWidthInTiles: tilemapWidthInTiles,
-            tilemapHeightInTiles: 32,
+            scroll: new Position16<BgPlanePixels>(isMapLayer && ScreenMode == 0 ? mapScrollPosition.X : (ushort)0, unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline))),
+            size: SnesPpuLayout.ScreenSize,
+            tilemapSize: new Extent16<TilemapCells>(checked((ushort)tilemapWidthInTiles), 32),
             priority: priority);
     }
 
@@ -546,17 +543,17 @@ internal sealed partial class PauseMenuState
             "Pause map requires installed map presentation assets.")).Get(area);
         bool IsVisible(int x, int y)
         {
-            bool explored = system.IsMapTileExplored(areaIndex, new(x, y));
+            bool explored = system.IsMapTileExplored(areaIndex, new(checked((ushort)x), checked((ushort)y)));
             // Native scroll bounds select one bit plane, unlike tile rendering, which
             // also displays explored secrets. Unioning the planes moves the map's center
             // after a secret is explored even though the downloaded bounds are unchanged.
             if (mapRevealMode == MapRevealMode.None)
-                return hasAreaMap ? map.IsRevealedByMapStation(new(x, y)) : explored;
+                return hasAreaMap ? map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))) : explored;
             return AreaMapVisibility.IsVisible(
                 explored,
                 hasAreaMap,
-                map.IsRevealedByMapStation(new(x, y)),
-                map.IsDiscoverable(new(x, y)),
+                map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))),
+                map.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))),
                 mapRevealMode);
         }
 
@@ -637,12 +634,12 @@ internal sealed partial class PauseMenuState
         mapScrollPosition = new(horizontal, vertical);
     }
 
-    private Point32<MapTiles> SamusMapCell() =>
-        roomMapPosition + new Point32<MapTiles>(samus.XPosition >> 8, (samus.YPosition >> 8) + 1);
+    private Position16<MapTiles> SamusMapCell() =>
+        roomMapPosition + new Offset16<MapTiles>(checked((short)(samus.XPosition >> 8)), checked((short)((samus.YPosition >> 8) + 1)));
 
     private void DrawMapPositionIndicator()
     {
-        Position16<ScreenPixels> origin = SamusMapCell().ToMapPixels().ToScreen(mapScrollPosition);
+        Position16<OamPixels> origin = SamusMapCell().ToMapPixels().ToScreen(mapScrollPosition).ToOam();
         lastIndicatorOrigin = origin;
         MapSpriteId indicator = PauseMapIndicatorAnimation.SpritemapId(mapIndicatorAnimationFrame);
         lastIndicatorSpritemapId = (ushort)indicator;
@@ -698,7 +695,7 @@ internal sealed partial class PauseMenuState
         var selector = (mapPresentation ?? throw new InvalidOperationException(
             "Pause selector requires installed presentation assets.")).PauseSelectors;
         var point = selector.Anchor(selectedCategory, selectedItem);
-        lastIndicatorOrigin = point.ToPosition16();
+        lastIndicatorOrigin = point;
         // Diagnostic identity denotes the native category binding, not an
         // author-supplied ROM index. Custom phases may use different artwork.
         lastIndicatorSpritemapId = PauseSelectorDefinitions.NativeSpriteId(selectedCategory);
@@ -771,7 +768,7 @@ internal sealed partial class PauseMenuState
                 PauseMenuLayout.ButtonRowsByteCount));
     }
 
-    private void DrawMenuSpritemap(MapSpriteId id, Position16<ScreenPixels> origin, ushort paletteBits)
+    private void DrawMenuSpritemap(MapSpriteId id, Position16<OamPixels> origin, ushort paletteBits)
     {
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.

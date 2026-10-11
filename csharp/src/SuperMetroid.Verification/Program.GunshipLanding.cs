@@ -163,8 +163,8 @@ internal static partial class Program
             {
                 // $A2:A91E-$A925 place Samus beside the hatch in both X words, so the
                 // following MainScrollingRoutine measures no horizontal movement.
-                var checkpoint = new SamusCameraPoint(0x0480, 0x1234, samus.YPosition, 0);
-                AssertEqual(checkpoint with { XPosition = samus.XPosition },
+                var checkpoint = FixedPosition<RoomPixels>.FromWords(0x0480, 0x1234, samus.YPosition, 0);
+                AssertEqual(checkpoint.WithX(checkpoint.X.WithWhole(samus.XPosition)),
                     samus.ApplyPreviousPositionWrites(checkpoint),
                     "landing writes SamusPreviousXPosition with Samus X");
                 AssertTrue(enemies.SoundRequests.Contains(new EnemySoundRequest(

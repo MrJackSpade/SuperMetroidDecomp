@@ -32,7 +32,7 @@ public static class AreaMapImporter
         {
             for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
             {
-                int nativeWordIndex = AreaMapLayout.GetTilemapWordIndex(new(x, y));
+                int nativeWordIndex = AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y)));
                 tilemap[y * AreaMapLayout.WidthInTiles + x] = new MapTileWord(
                     BinaryPrimitives.ReadUInt16LittleEndian(
                         tilemapBytes.AsSpan(nativeWordIndex * sizeof(ushort), sizeof(ushort))));

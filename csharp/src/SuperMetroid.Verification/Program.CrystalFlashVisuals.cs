@@ -37,8 +37,8 @@ internal static partial class Program
         var mutedMemory = new PpuMemorySnapshot(packet.Memory.Vram, colors, packet.Memory.Oam, packet.Memory.ModeledSpriteCount);
         var mutedBody = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(mutedMemory,
             packet.Layers, packet.ObjectSelection, packet.Brightness));
-        int centerX = samus.XPosition - runtime.DisplayedGameplayPpu.Layer1XPosition;
-        int centerY = samus.YPosition - runtime.DisplayedGameplayPpu.Layer1YPosition;
+        int centerX = samus.XPosition - runtime.DisplayedGameplayPpu.Layer1Position.X;
+        int centerY = samus.YPosition - runtime.DisplayedGameplayPpu.Layer1Position.Y;
         AssertTrue(centerX is >= 32 and <= 223 && centerY is >= 64 and <= 191,
             "visual fixture keeps the entire Crystal Flash sprite in the viewport");
         bool bodyVisible = Enumerable.Range(centerY - 32, 64)

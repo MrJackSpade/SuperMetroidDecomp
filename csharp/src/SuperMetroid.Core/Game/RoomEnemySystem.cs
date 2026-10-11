@@ -601,7 +601,7 @@ public sealed partial class RoomEnemySystem
         RoomPlmSystem? collisionPlms = null,
         ushort? nmiFrameCounter = null,
         bool processingListPrepared = false,
-        SamusCameraPoint? samusPreviousPositionCheckpoint = null)
+        FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint = null)
     {
         using var terrainScope = new EnemyTerrainScope(this, collisionPlms);
         EnsureLoaded();
@@ -1047,8 +1047,7 @@ public sealed partial class RoomEnemySystem
                         if (((componentX + 128) & 0xfe00) != 0 ||
                             ((componentY + 128) & 0xfe00) != 0)
                             continue;
-                        oam.AddEnemySpritemap(component.Parts, componentX,
-                            componentY, drawPaletteIndex, slot.VramTilesIndex,
+                        oam.AddEnemySpritemap(component.Parts, new Position16<OamPixels>(componentX, componentY), drawPaletteIndex, slot.VramTilesIndex,
                             clipVerticalWrap: true,
                             originYIsOnScreen: (componentY >> 8) == 0);
                     }
@@ -2656,7 +2655,7 @@ public sealed partial class RoomEnemySystem
         if (TileArtwork?.Spritemaps?.TryGetDisplay(bank, pointer,
                 out EnemySpritemapParts installed) == true)
         {
-            oam.AddEnemySpritemap(installed, originX, originY,
+            oam.AddEnemySpritemap(installed, new Position16<OamPixels>(originX, originY),
                 paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
             return;
         }

@@ -100,7 +100,7 @@ public static class RoomVisualLayoutFiles
         {
             if (entry is null || name != SourceFileName(entry.SourceAddress) ||
                 !RetailSources.TryGetValue(entry.SourceAddress, out int width) ||
-                entry.Size.Width != width || entry.Size.Height <= 0)
+                entry.Size.X != width || entry.Size.Y <= 0)
                 throw new InvalidDataException(
                     $"Room-layout manifest {manifestPath} has an invalid source entry.");
             string stockPath = Path.Combine(stockDirectory, name);
@@ -148,7 +148,7 @@ public static class RoomVisualLayoutFiles
         var sources = new Dictionary<int, int>();
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
-            int width = header.Size.ToRoomBlocks().Width;
+            int width = header.Size.ToRoomBlocks().X;
             foreach (ushort pointer in RoomStateSelectionDefinitions.GetStatePointers(header.Pointer))
             {
                 int source = RoomStateDefinitions.Get(pointer).CompressedLevelDataAddress;
@@ -197,7 +197,7 @@ public static class RoomVisualLayoutFiles
         int HeightInBlocks, string Sha256)
     {
         [JsonIgnore]
-        public Size32<RoomBlocks> Size => new(WidthInBlocks, HeightInBlocks);
+        public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
     }
     private sealed record LayoutFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, LayoutFileEntry> Entries);
@@ -207,6 +207,6 @@ public static class RoomVisualLayoutFiles
         ushort[] BackgroundVisualWords)
     {
         [JsonIgnore]
-        public Size32<RoomBlocks> Size => new(WidthInBlocks, HeightInBlocks);
+        public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
     }
 }

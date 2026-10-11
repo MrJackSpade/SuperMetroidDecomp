@@ -33,7 +33,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 DestinationRoomPointer: roomPointer,
                 Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
                 PlmBlock: default,
-                DestinationScreen: new(camera.X >> 8, camera.Y >> 8),
+                DestinationScreen: new(unchecked((byte)(camera.X >> 8)), unchecked((byte)(camera.Y >> 8))),
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
 
@@ -42,8 +42,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             InitialViewportResult viewport = self.LoadCartridgeRoom(
                 door,
                 room,
-                camera.X,
-                camera.Y,
+                camera,
                 RoomViewportLoadMode.DisplayInitialViewport);
             self.Samus.LiquidPhysics.RoomIdentity = room.Identity;
             self.Samus.RefreshCollisionRadii(self._addressSpace);
@@ -67,8 +66,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             return self.LoadCartridgeRoom(
                 door,
                 room,
-                camera.X,
-                camera.Y,
+                camera,
                 RoomViewportLoadMode.DisplayInitialViewport,
                 runDoorClosingPlm: true);
         }

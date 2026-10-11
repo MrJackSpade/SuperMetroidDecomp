@@ -131,8 +131,8 @@ public sealed class CartridgeRoomAssets
         byte[] blockDefinitions,
         RoomVisualLayout? visualLayout)
     {
-        Size32<RoomBlocks> visibleSize = header.Size.ToRoomBlocks();
-        int widthInBlocks = visibleSize.Width;
+        Extent16<RoomBlocks> visibleSize = header.Size.ToRoomBlocks();
+        int widthInBlocks = visibleSize.X;
         int visibleBlockCount = visibleSize.Area;
         if (levelStream.Length < 2)
             throw new InvalidDataException("Compressed room level stream has no size word.");
@@ -154,8 +154,8 @@ public sealed class CartridgeRoomAssets
         {
             throw new InvalidDataException(
                 $"Room $8F:{header.Pointer:X4} declares ${declaredLayerBytes:X} BG1 bytes " +
-                $"({blockCount} blocks), which cannot contain its {header.Size.Width}x" +
-                $"{header.Size.Height} visible screens in complete {widthInBlocks}-block rows.");
+                $"({blockCount} blocks), which cannot contain its {header.Size.X}x" +
+                $"{header.Size.Y} visible screens in complete {widthInBlocks}-block rows.");
         }
         int allocationHeightInBlocks = blockCount / widthInBlocks;
         int layerByteCount = declaredLayerBytes;
@@ -208,7 +208,7 @@ public sealed class CartridgeRoomAssets
         Array.Fill(streamingBackground, RoomLevelMemoryLayout.PrefilledLevelWord);
         background.CopyTo(streamingBackground, 0);
         return new RoomLevelData(
-            new Size32<RoomBlocks>(widthInBlocks, allocationHeightInBlocks),
+            new Extent16<RoomBlocks>(unchecked((ushort)widthInBlocks), unchecked((ushort)allocationHeightInBlocks)),
             foreground,
             behavior,
             background,

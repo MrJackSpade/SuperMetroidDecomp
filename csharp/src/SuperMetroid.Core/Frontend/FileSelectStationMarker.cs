@@ -32,7 +32,7 @@ public sealed class FileSelectStationMarker
             throw new ArgumentOutOfRangeException(nameof(stationIndex));
         MapPosition = (layout ?? throw new InvalidOperationException(
             "Save marker requires installed station positions."))
-            .Get(area, stationIndex).ToPosition16();
+            .Get(area, stationIndex);
     }
 
     /// <summary>Station's area-map drawing anchor in whole pixels before scroll subtraction, independent of its compiled load coordinates.</summary>
@@ -70,7 +70,7 @@ public sealed class FileSelectStationMarker
         {
             (sprites ?? throw new InvalidOperationException(
                 "Save marker requires installed sprite artwork."))
-                .Draw(id, oam, origin, FileSelectMapRomData.StationMarkerPalette);
+                .Draw(id, oam, origin.ToOam(), FileSelectMapRomData.StationMarkerPalette);
         }
     }
 }

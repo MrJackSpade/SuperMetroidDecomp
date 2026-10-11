@@ -96,7 +96,7 @@ public sealed partial class FileSelectRoomMapGraphics
         // Composite directly: transparent cells leave the backdrop, as compositing a plane would.
         SnesBgTilemapRenderer.Composite4BppViewport(pixels,
             Vram, Cgram, MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
-            0, 24, FrontendFrame.Width, FrontendFrame.Height, 32, 32);
+            new Position16<BgPlanePixels>(0, 24), new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), new Extent16<TilemapCells>(32, 32));
         return pixels;
     }
 
@@ -150,10 +150,10 @@ public sealed partial class FileSelectRoomMapGraphics
             // Composited directly into the frame; transparent pixels leave it untouched.
             SnesBgTilemapRenderer.Composite4BppViewport(pixels,
                 Vram, Cgram, MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
-                0, 24, 256, 224, 32, 32, priority: priority);
+                new Position16<BgPlanePixels>(0, 24), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32), priority: priority);
             SnesBgTilemapRenderer.Composite4BppViewport(pixels,
                 Vram, Cgram, MenuPpuState.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
-                scroll.X, scroll.Y, 256, 224, priority: priority);
+                scroll.AsBgPlaneScroll(), SnesPpuLayout.ScreenSize, priority: priority);
         }
         return pixels;
     }

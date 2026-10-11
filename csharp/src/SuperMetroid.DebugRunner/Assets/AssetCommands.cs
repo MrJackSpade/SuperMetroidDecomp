@@ -85,7 +85,7 @@ if (args.Length == 3 && args[0].Equals("room", StringComparison.OrdinalIgnoreCas
     RequireRawAssetDirectory(rawDirectory);
     RenderedRoom room = RoomRenderer.Render(rawDirectory, RoomRenderer.LandingSite);
     PngWriterTooling.WriteRgba(outputPath, room.Size, room.Pixels);
-    Console.WriteLine($"Rendered {RoomRenderer.LandingSite.Name} at {room.Size.Width}x{room.Size.Height} to {outputPath}");
+    Console.WriteLine($"Rendered {RoomRenderer.LandingSite.Name} at {room.Size.X}x{room.Size.Y} to {outputPath}");
     return 0;
 }
 
@@ -134,14 +134,14 @@ foreach (string path in Directory.EnumerateFiles(inputDirectory, "*.bin", Search
         int height = (colors.Count + width - 1) / width;
         Array.Resize(ref indexes, width * height);
         png = Path.Combine("palettes", name + ".png");
-        PngWriterTooling.WriteIndexedAsRgba(Path.Combine(outputDirectory, png), new(width, height), indexes, colors, scale: 8);
+        PngWriterTooling.WriteIndexedAsRgba(Path.Combine(outputDirectory, png), new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)height)), indexes, colors, scale: 8);
     }
     else if (format is not null)
     {
         // A raw graphics blob has no single "correct" color until a tilemap or spritemap
         // selects a sub-palette. These standalone sheets therefore visualize pixel indexes.
         byte[] indexes;
-        Size32<ImagePixels> size;
+        Extent16<ImagePixels> size;
         int colorCount;
         if (format == TileFormat.Mode7)
         {

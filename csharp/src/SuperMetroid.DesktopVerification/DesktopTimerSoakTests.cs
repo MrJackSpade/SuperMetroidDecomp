@@ -8,6 +8,7 @@ using SuperMetroid.Desktop;
 using SuperMetroid.Game;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -44,8 +45,8 @@ internal static partial class Program
             {
                 // The bounded five-minute run fits completely in this history.
                 // Normal desktop workers retain their smaller rolling window.
-                await control.InitializeRendererAsync((window, width, height, generation) =>
-                    new D3D11RenderWorker(window, width, height, generation, D3D11DeviceKind.Hardware,
+                await control.InitializeRendererAsync((window, clientSize, generation) =>
+                    new D3D11RenderWorker(window, clientSize, generation, D3D11DeviceKind.Hardware,
                         RenderTelemetryLimits.MaximumHistoryCapacity));
                 var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
                 string adapter = await worker.Ready;
@@ -136,7 +137,7 @@ internal static partial class Program
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
         Check(game.GameState == SuperMetroidGameState.MainGameplay, "desktop soak seed startup failed");
-        game.RuntimeForVerification!.LoadCartridgeRoomForDebug(paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb, new(0, 0));
+        game.RuntimeForVerification!.LoadCartridgeRoomForDebug(paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         game.RuntimeForVerification!.RunNmi(0, true);
         Step(0);
         if (paused) Step((ushort)SnesButton.Start);

@@ -47,7 +47,7 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
                 png.Position = start;
                 try
                 {
-                    IndexedPngImage legacy = IndexedPng.Read(png, new(width, RoomFxAnimatedTileAtlasFormat.Height));
+                    IndexedPngImage legacy = IndexedPng.Read(png, new(checked((ushort)width), RoomFxAnimatedTileAtlasFormat.Height));
                     byte[] legacyPlanar = SnesPlanarTileEncoder.Encode(legacy.Pixels,
                         legacy.Size, RoomFxAnimatedTileAtlasFormat.BitsPerPixel);
                     var combined = new byte[RoomFxAnimatedTileAtlasFormat.TotalByteCount];

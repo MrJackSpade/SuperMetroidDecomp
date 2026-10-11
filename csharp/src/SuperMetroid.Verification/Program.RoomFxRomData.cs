@@ -219,7 +219,7 @@ internal static partial class Program
                     unchecked((ushort)(record + RoomFxRomDataRecordTooling.BaseYPositionOffset)),
                 surfaceY);
             LoadSyntheticRoomFx(state, bus, vram, cgram, record);
-            state.PrimeViewport(cameraX: 0x0100, cameraY: 0);
+            state.PrimeViewport(new Position16<RoomPixels>(0x0100, 0));
         }
         AssertEqual(type, state.Type, $"{type} layer-three type");
         AssertTrue(state.IsRenderable, $"{type} owns a translated layer-three plane");
@@ -238,7 +238,7 @@ internal static partial class Program
                 : RoomFxRomData.LavaAcid.VerticalBg2WaveOption;
             AssertEqual(expectedOptions, snapshot.LiquidOptions,
                 $"{type} render snapshot retains its wave options");
-            AssertEqual((ushort)0x009b, snapshot.VerticalScroll,
+            AssertEqual((ushort)0x009b, snapshot.Scroll.Y,
                 $"{type} anchors BG3 row zero immediately below surface Y 100");
 
             // Give the liquid page one opaque two-bit tile and a visible blue color. The
@@ -279,7 +279,7 @@ internal static partial class Program
             vram.LoadBytes((0x4000 + 2 * 8) * 2, blueEffectCharacter);
             cgram.SetColor(1, Bgr555.FromWord(0x001f));
             cgram.SetColor(2, Bgr555.FromWord(0x7c00));
-            snapshot = snapshot with { HorizontalScroll = 0, VerticalScroll = 0 };
+            snapshot = snapshot with { Scroll = Position16<Bg3Pixels>.Zero };
         }
 
         // The software compositor now consumes the same typed dispatcher identity as the
@@ -318,8 +318,7 @@ internal static partial class Program
             ushort[] bg2Scroll = type == RoomFxType.Water
                 ? SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(
                     snapshot,
-                    bg2HorizontalScroll: 0x0200,
-                    bg2VerticalScroll: 0) ?? throw new InvalidDataException(
+                    bg2Scroll: new Position16<Bg2Pixels>(0x0200, 0)) ?? throw new InvalidDataException(
                         "Wavy water did not publish a BG2 HDMA scroll table.")
                 : SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(
                     snapshot,
@@ -345,11 +344,11 @@ internal static partial class Program
                      frameNumber < RoomFxRomData.LavaAcid.VerticalWavePhaseDuration - 1;
                      frameNumber++)
                 {
-                    state.Step(bus, vram, cameraX: 0x0100, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
+                    state.Step(bus, vram, new Position16<RoomPixels>(0x0100, 0), timeIsFrozen: false, mainGameLoopCarry: true);
                     AssertEqual(0, state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase,
                         $"{type} heat wave retains phase before frame four");
                 }
-                state.Step(bus, vram, cameraX: 0x0100, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
+                state.Step(bus, vram, new Position16<RoomPixels>(0x0100, 0), timeIsFrozen: false, mainGameLoopCarry: true);
                 AssertEqual(15, state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase,
                     $"{type} heat wave rotates backward on frame four");
             }
@@ -366,7 +365,7 @@ internal static partial class Program
                 wrappedFrame,
                 vram,
                 cgram,
-                snapshot with { VerticalScroll = 0x0100 });
+                snapshot with { Scroll = snapshot.Scroll.WithY(0x0100) });
             Rgba32 wrappedEffectPixel = wrappedFrame[
                 SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width];
             AssertTrue(wrappedEffectPixel.B != 0 && wrappedEffectPixel.R == 0,

@@ -18,7 +18,8 @@ public sealed partial class IntroCinematicState
             IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
         {
             oam = PrepareMotherBrainOam();
-            room = Plane(IntroCinematicRomData.Layers.SceneBg1TilemapWord, new(0, flashbackMotherBrain?.BackgroundVerticalScroll ?? GameplayFlashbackBg1VerticalScroll));
+            room = Plane(IntroCinematicRomData.Layers.SceneBg1TilemapWord, new(0,
+                flashbackMotherBrain?.BackgroundVerticalScroll ?? GameplayFlashbackBg1VerticalScroll));
         }
         else if (Phase is IntroCinematicPhase.BabyDiscoveryCrossfade or
             IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
@@ -32,7 +33,7 @@ public sealed partial class IntroCinematicState
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             oam = PrepareScientistOam();
-            room = Plane(scientistCutscene!.TilemapBaseWord, scientistCutscene.Background);
+            room = Plane(scientistCutscene!.TilemapBaseWord, scientistCutscene.Background.AsBgPlaneScroll());
         }
         else if (objects is null)
         {
@@ -65,6 +66,6 @@ public sealed partial class IntroCinematicState
         }, MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(inidisp));
     }
 
-    private static Bg4BppRenderLayer Plane(ushort tilemap, Position16<RoomPixels> scroll) =>
-        new(tilemap, 0, scroll.X, scroll.Y, 32, 32, false);
+    private static Bg4BppRenderLayer Plane(ushort tilemap, Position16<BgPlanePixels> scroll) =>
+        new(tilemap, 0, scroll, new Extent16<TilemapCells>(32, 32), false);
 }

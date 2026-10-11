@@ -78,7 +78,7 @@ internal static partial class Program
         load.Invoke(enemies, [slot, DachoraPalettePhase.Default, 0]);
         CheckLive(DachoraPalettePhase.Default, 0);
 
-        var empty = new RoomLevelData(new Size32<RoomBlocks>(16, 16), new ushort[256], new byte[256],
+        var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new ushort[256], new byte[256],
             new ushort[256], new byte[8]);
         MethodInfo accelerate = type.GetMethod("AccelerateDachora", flags)!;
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)

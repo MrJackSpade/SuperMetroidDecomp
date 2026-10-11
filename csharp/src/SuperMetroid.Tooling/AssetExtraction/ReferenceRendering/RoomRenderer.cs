@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed record RoomRenderDefinition(
     string Name,
-    Size32<RoomScreens> Size,
+    Extent16<RoomScreens> Size,
     string LevelData,
     string AreaTiles,
     string AreaTileTable,
@@ -20,7 +20,7 @@ public sealed record RoomRenderDefinition(
     string CommonTileTable = "CRE_TileTable_Compressed.bin");
 
 /// <summary>A fully composed, top-left-origin room image in row-major RGBA order.</summary>
-public sealed record RenderedRoom(Size32<ImagePixels> Size, Rgba32[] Pixels);
+public sealed record RenderedRoom(Extent16<ImagePixels> Size, Rgba32[] Pixels);
 
 /// <summary>
 /// Import/reference-only renderer for named raw assets extracted from bank $82.
@@ -45,7 +45,7 @@ public static class RoomRenderer
     public static RenderedRoom Render(string rawAssetDirectory, RoomRenderDefinition room)
     {
         // One SNES room screen is 16x16 blocks, and one block is 16x16 pixels.
-        Size32<RoomBlocks> blocks = RoomGridConversions.ToRoomBlocks(room.Size);
+        Extent16<RoomBlocks> blocks = RoomGridConversions.ToRoomBlocks(room.Size);
         int expectedLayerBytes = checked(blocks.Area * 2);
 
         // Decompressed level streams have this exact layout:
@@ -94,17 +94,17 @@ public static class RoomRenderer
         if (palette.Count < 128)
             throw new InvalidDataException("Room palette must contain eight 16-color background palettes.");
 
-        var size = new Size32<ImagePixels>(
-            blocks.Width * 16, blocks.Height * 16);
+        var size = new Extent16<ImagePixels>(
+            checked((ushort)(blocks.X * 16)), checked((ushort)(blocks.Y * 16)));
         // CGRAM color 0 is the backdrop visible wherever every BG layer is transparent.
         var pixels = Enumerable.Repeat(palette[0], size.Area).ToArray();
 
         // The SNES draws BG2 behind BG1 for this room configuration. Drawing in that order
         // and skipping palette index zero reproduces the static transparency relationship.
         DrawLayer(levelStream.AsSpan(backgroundOffset, layerBytes), blocks,
-            blockDefinitions, vram, palette, pixels, size.Width);
+            blockDefinitions, vram, palette, pixels, size.X);
         DrawLayer(levelStream.AsSpan(foregroundOffset, layerBytes), blocks,
-            blockDefinitions, vram, palette, pixels, size.Width);
+            blockDefinitions, vram, palette, pixels, size.X);
 
         return new RenderedRoom(size, pixels);
     }
@@ -112,18 +112,18 @@ public static class RoomRenderer
     /// <summary>Expands a row-major layer of 16x16 level blocks into pixels.</summary>
     private static void DrawLayer(
         ReadOnlySpan<byte> blocks,
-        Size32<RoomBlocks> size,
+        Extent16<RoomBlocks> size,
         ReadOnlySpan<byte> blockDefinitions,
         ReadOnlySpan<byte> vram,
         IReadOnlyList<Rgba32> palette,
         Span<Rgba32> destination,
         int destinationWidth)
     {
-        for (int blockY = 0; blockY < size.Height; blockY++)
+        for (int blockY = 0; blockY < size.Y; blockY++)
         {
-            for (int blockX = 0; blockX < size.Width; blockX++)
+            for (int blockX = 0; blockX < size.X; blockX++)
             {
-                int levelOffset = size.RowMajorIndex(new(blockX, blockY)) * 2;
+                int levelOffset = size.RowMajorIndex(new(checked((ushort)blockX), checked((ushort)blockY))) * 2;
                 // Level entry layout:
                 //   bits  0-9  index into the combined 16x16 block-definition table
                 //   bit     10 horizontal block flip
@@ -146,7 +146,7 @@ public static class RoomRenderer
                             _ => expanded.BottomRight,
                         };
                         DrawTile(tileEntry, vram, palette, destination, destinationWidth,
-                            new(blockX * 16 + outputTileX * 8, blockY * 16 + outputTileY * 8));
+                            new(checked((ushort)(blockX * 16 + outputTileX * 8)), checked((ushort)(blockY * 16 + outputTileY * 8))));
                     }
                 }
             }
@@ -160,7 +160,7 @@ public static class RoomRenderer
         IReadOnlyList<Rgba32> palette,
         Span<Rgba32> destination,
         int destinationWidth,
-        Point32<ImagePixels> origin)
+        Position16<ImagePixels> origin)
     {
         // Standard SNES BG tilemap entry layout:
         //   bits  0-9  VRAM tile number
@@ -181,7 +181,7 @@ public static class RoomRenderer
             for (int x = 0; x < 8; x++)
             {
                 int sourceX = packedEntry.FlipHorizontally ? 7 - x : x;
-                int colorIndex = Read4BppPixel(vram[tileOffset..], new(sourceX, sourceY));
+                int colorIndex = Read4BppPixel(vram[tileOffset..], new(checked((ushort)sourceX), checked((ushort)sourceY)));
                 // Index zero is transparent for BG tiles. It reveals the lower BG or the
                 // backdrop; it is not necessarily the RGB value stored at paletteBase + 0.
                 if (colorIndex == 0)
@@ -192,7 +192,7 @@ public static class RoomRenderer
     }
 
     /// <summary>Reassembles one four-bit palette index from the tile's four bitplanes.</summary>
-    private static int Read4BppPixel(ReadOnlySpan<byte> tile, Point32<ImagePixels> pixel)
+    private static int Read4BppPixel(ReadOnlySpan<byte> tile, Position16<CharacterPixels> pixel)
     {
         int mask = 1 << (7 - pixel.X);
         int row = pixel.Y * 2;

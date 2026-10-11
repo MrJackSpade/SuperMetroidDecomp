@@ -36,7 +36,7 @@ internal static partial class Program
         // every possible station-discovery subset above compares the original drawing path.
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapStationLayoutDocument>(File.ReadAllBytes(Path.Combine(stock, MapStationLayoutFormat.FileName)), options)!;
-        var points = new Dictionary<string, Point32<MapPixels>>(document.Markers);
+        var points = new Dictionary<string, Position16<MapPixels>>(document.Markers);
         const string moved = "Brinstar.Missile.0";
         points[moved] = new(80, 64);
         Directory.CreateDirectory(overrides);

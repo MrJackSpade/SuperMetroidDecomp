@@ -22,7 +22,7 @@ internal static partial class Program
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 64; x++)
         {
-            int index = y * level.Size.Width + x;
+            int index = y * level.Size.X + x;
             RoomCollisionType type = y >= 33 ? RoomCollisionType.SolidBlock
                 : x == SpikeColumn && y == SpikeRow ? RoomCollisionType.SpikeAir
                 : RoomCollisionType.Air;
@@ -42,7 +42,7 @@ internal static partial class Program
         samus.Kinematics.XRadius = 5;
         samus.Kinematics.YRadius = 12;
         samus.InvincibilityTimer = 0;
-        runtime.Camera!.SetPosition(400, 350);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         ushort health = samus.Health;
 
         runtime.StepFrame(0);

@@ -63,7 +63,7 @@ public static class PauseSelectorDefinitions
     /// <summary>Projects the $82:C196..C1D5 selector lists from category columns and eight-pixel rows.</summary>
     /// <remarks>Suit/misc leaves two extra rows between Gravity and Morph Ball.
     /// Both native coordinates include the draw routine's one-pixel bias, removed here.</remarks>
-    public static Point32<ScreenPixels> StockAnchor(PauseEquipmentCategory category, int item)
+    public static Position16<OamPixels> StockAnchor(PauseEquipmentCategory category, int item)
     {
         _ = Anchor(category, item);
         (int x, int y) = category switch
@@ -74,7 +74,7 @@ public static class PauseSelectorDefinitions
             PauseEquipmentCategory.Boots => (0xcc, 0x9c),
             _ => throw new ArgumentOutOfRangeException(nameof(category)),
         };
-        return new(x - 1, y + item * 8 - 1);
+        return new(checked((ushort)(x - 1)), checked((ushort)(y + item * 8 - 1)));
     }
     /// <summary>$82:C202 bases: Reserve=$14, Beam=$15, Suit and Boots=$16. Retained as diagnostic identities.</summary>
     public static ushort NativeSpriteId(PauseEquipmentCategory category) => category switch

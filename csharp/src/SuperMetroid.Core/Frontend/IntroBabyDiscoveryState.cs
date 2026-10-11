@@ -416,7 +416,7 @@ internal sealed class IntroBabyDiscoveryState
         const int height = IntroBabyDiscoveryCollisionDefinitions.RoomRows;
         ushort[] foreground = IntroBabyDiscoveryCollisionDefinitions.CreateForeground();
         return new RoomLevelData(
-            new Size32<RoomBlocks>(width, height),
+            new Extent16<RoomBlocks>(width, height),
             foreground,
             new byte[width * height],
             new ushort[width * height],

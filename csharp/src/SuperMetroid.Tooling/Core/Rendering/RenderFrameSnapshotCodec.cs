@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -49,8 +50,8 @@ public static partial class RenderFrameSnapshotCodec
             if (mode7.Background is { } bg)
             {
                 writer.Write(bg.MatrixA); writer.Write(bg.MatrixB); writer.Write(bg.MatrixC); writer.Write(bg.MatrixD);
-                writer.Write(bg.CenterX); writer.Write(bg.CenterY);
-                writer.Write(bg.HorizontalOffset); writer.Write(bg.VerticalOffset);
+                WriteOffset(writer, bg.Center);
+                WriteOffset(writer, bg.Scroll);
                 writer.Write((byte)Mode7OverflowPolicy.FromRegisters(bg));
             }
             writer.Write(mode7.Gradient.Length != 0);
@@ -199,11 +200,42 @@ public static partial class RenderFrameSnapshotCodec
     private static Mode7RenderRegisters ReadMode7Registers(BinaryReader reader, ushort version)
     {
         short a = reader.ReadInt16(), b = reader.ReadInt16(), c = reader.ReadInt16(), d = reader.ReadInt16();
-        short x = reader.ReadInt16(), y = reader.ReadInt16(), h = reader.ReadInt16(), v = reader.ReadInt16();
+        Offset16<Mode7Pixels> center = ReadOffset<Mode7Pixels>(reader), scroll = ReadOffset<Mode7Pixels>(reader);
         var policy = (Mode7OverflowMode)reader.ReadByte();
         if (policy > Mode7OverflowMode.Wrap || (policy == Mode7OverflowMode.Wrap && version < RenderPacketFormat.Mode7WrapVersion))
             throw new InvalidDataException("Unsupported Mode 7 overflow operation in display fixture.");
         // The legacy boolean encoded exactly transparent=0 / character-zero=1.
-        return new(a, b, c, d, x, y, h, v, policy == Mode7OverflowMode.CharacterZero, policy == Mode7OverflowMode.Wrap);
+        return new(a, b, c, d, center, scroll, policy == Mode7OverflowMode.CharacterZero, policy == Mode7OverflowMode.Wrap);
     }
+
+    // The packet format stores each spatial value as its X then Y component at the original
+    // field widths: unsigned words for positions, signed words for Mode 7 offsets and 32-bit
+    // integers for tilemap sizes.
+    private static void WritePosition<TSpace>(BinaryWriter writer, Position16<TSpace> position)
+        where TSpace : ISpatialSpace
+    {
+        writer.Write(position.X);
+        writer.Write(position.Y);
+    }
+
+    private static Position16<TSpace> ReadPosition<TSpace>(BinaryReader reader) where TSpace : ISpatialSpace =>
+        new(reader.ReadUInt16(), reader.ReadUInt16());
+
+    private static void WriteOffset<TSpace>(BinaryWriter writer, Offset16<TSpace> offset) where TSpace : ISpatialSpace
+    {
+        writer.Write(offset.X);
+        writer.Write(offset.Y);
+    }
+
+    private static Offset16<TSpace> ReadOffset<TSpace>(BinaryReader reader) where TSpace : ISpatialSpace =>
+        new(reader.ReadInt16(), reader.ReadInt16());
+
+    private static void WriteMapSize(BinaryWriter writer, Extent16<TilemapCells> size)
+    {
+        writer.Write((int)size.X);
+        writer.Write((int)size.Y);
+    }
+
+    private static Extent16<TilemapCells> ReadMapSize(BinaryReader reader) =>
+        new(checked((ushort)reader.ReadInt32()), checked((ushort)reader.ReadInt32()));
 }

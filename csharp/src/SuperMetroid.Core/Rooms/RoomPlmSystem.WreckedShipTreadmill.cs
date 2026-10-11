@@ -150,13 +150,13 @@ public sealed partial class RoomPlmSystem
         int origin,
         int count)
     {
-        int originX = origin % level.Size.Width;
-        int originY = origin / level.Size.Width;
-        if (originX + count <= level.Size.Width)
+        int originX = origin % level.Size.X;
+        int originY = origin / level.Size.X;
+        if (originX + count <= level.Size.X)
             return;
         throw new InvalidDataException(
             $"Wrecked Ship treadmill row ({originX},{originY}).." +
-            $"({originX + count - 1},{originY}) exceeds a {level.Size.Width}-block room row.");
+            $"({originX + count - 1},{originY}) exceeds a {level.Size.X}-block room row.");
     }
 }
 

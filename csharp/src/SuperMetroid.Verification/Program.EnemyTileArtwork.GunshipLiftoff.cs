@@ -68,7 +68,7 @@ internal static partial class Program
             IndexedPngImage image = IndexedPng.Read(stream, new(256, 8));
             image.Pixels[0] ^= 1;
             using var output = File.Create(overridePath);
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height),
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Palette);
         }
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);

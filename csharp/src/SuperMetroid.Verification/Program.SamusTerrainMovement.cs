@@ -232,7 +232,7 @@ static void VerifySamusBlockCollision()
     var doorBehavior = new byte[doorForeground.Length];
     doorForeground[1 * width + 2] = 0x9000;
     RoomLevelData doorLevel = new RoomLevelData(
-        new Size32<RoomBlocks>(width, height),
+        new Extent16<RoomBlocks>(width, height),
         doorForeground,
         doorBehavior,
         new ushort[doorForeground.Length],
@@ -265,7 +265,7 @@ static void VerifySamusBlockCollision()
 
     doorBehavior[1 * width + 2] = 2;
     RoomLevelData elevatorDoorLevel = new RoomLevelData(
-        new Size32<RoomBlocks>(width, height),
+        new Extent16<RoomBlocks>(width, height),
         doorForeground,
         doorBehavior,
         new ushort[doorForeground.Length],
@@ -329,7 +329,7 @@ static void VerifySamusBlockCollision()
     // maintaining a second interpretation of the native prefill. Check coordinate and
     // already-linear forms because bank-$94 uses both during extension redispatch.
     RoomCollisionBlock coordinatePrefill =
-        level.GetCollisionBlockOrPrefilledSolid(new(level.Size.Width, 0));
+        level.GetCollisionBlockOrPrefilledSolid(new(level.Size.X, 0));
     AssertEqual(-1, coordinatePrefill.Index,
         "coordinate prefill is outside the logical room plane");
     AssertEqual(0x8000, coordinatePrefill.LevelWord,

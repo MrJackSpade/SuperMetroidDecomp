@@ -52,7 +52,7 @@ internal static partial class Program
             colors[0] = 3 << 10; colors[1] = 8 << 5; colors[129 + palette * 16] = 12;
             byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
-            var registers = new Mode7RenderRegisters(256, 0, 0, 256, 0, 0, 0, 0);
+            var registers = new Mode7RenderRegisters(256, 0, 0, 256, new Offset16<Mode7Pixels>(0, 0), new Offset16<Mode7Pixels>(0, 0));
             var memory = new PpuMemorySnapshot(vram, ToColors(colors), oam, 1);
             var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new Mode7RenderLayer(registers, AddBg1Subscreen: true) }, 3, 15));
@@ -82,7 +82,7 @@ internal static partial class Program
         oam[0] = 8; oam[1] = 8;
         var memory = new PpuMemorySnapshot(vram, ToColors(colors), oam, 1);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
-            new RenderLayer[] { new Mode7RenderLayer(new(256, 0, 0, 256, 0, 0, 0, 0), true) }, 3, 15));
+            new RenderLayer[] { new Mode7RenderLayer(new(256, 0, 0, 256, default, default), true) }, 3, 15));
         var restored = RoundTripRenderPacket(packet);
         var pixels = SoftwareFrameSnapshotRenderer.Render(restored);
         AssertEqual(new Rgba32(198, 99, 0), pixels[8 * 256 + 8], "Mode7 minus OBJ clamps each five-bit component without halving");
@@ -168,7 +168,7 @@ internal static partial class Program
             var masked = new RenderFrameSnapshot(new(3, 1, 0), new LayeredRenderSnapshot(
                 new PpuMemorySnapshot(vram, ToColors(colors), oam, 1),
                 new RenderLayer[] { new ObjRenderLayer(), new BgSubscreenAddRenderLayer(0x7000, 0,
-                    new Bg4BppRenderLayer(0x6800, 0, 0, 0, 32, 32, null), FourBpp: true, MainObjects: true) }, 3, 15));
+                    new Bg4BppRenderLayer(0x6800, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null), FourBpp: true, MainObjects: true) }, 3, 15));
             var decoded = RoundTripRenderPacket(masked);
             var pixels = SoftwareFrameSnapshotRenderer.Render(decoded);
             AssertEqual(new Rgba32(255, 0, 0), pixels[0], "masked subscreen does not add to backdrop");

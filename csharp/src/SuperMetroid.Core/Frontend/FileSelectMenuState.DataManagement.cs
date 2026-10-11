@@ -471,7 +471,7 @@ public sealed partial class FileSelectMenuState
             "Data-management screen requires at least one nonempty save slot.");
     }
 
-    private Position16<ScreenPixels> GetSelectionMissilePosition()
+    private Position16<OamPixels> GetSelectionMissilePosition()
     {
         if (mapPresentation is not null)
         {
@@ -480,9 +480,9 @@ public sealed partial class FileSelectMenuState
             int selected = IsMainScreenPhase
                 ? SelectedItem
                 : confirmation ? confirmationSelection : submenuSelection;
-            Point32<ScreenPixels> point = mapPresentation.FileSelect.CursorPosition(
+            Position16<OamPixels> point = mapPresentation.FileSelect.CursorPosition(
                 IsMainScreenPhase, confirmation, selected);
-            return point.ToExactPosition16();
+            return point;
         }
         if (!showDataManagementScreen)
             return new(14, FileSelectLayout.MainSelectionY(SelectedItem));

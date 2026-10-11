@@ -24,13 +24,13 @@ internal static class CeresFlightArtworkExtractor
         byte[] map = decompressedMap.AsSpan(0, CeresFlightRomData.Vram.Mode7MapByteCount).ToArray();
 
         byte[] mode7Pixels = SnesGraphics.DecodeMode7Tiles(characters, 16,
-            out Size32<ImagePixels> mode7Size);
+            out Extent16<ImagePixels> mode7Size);
         byte[] objPixels = SnesGraphics.DecodePlanarTiles(objectCharacters, 4, 32,
-            out Size32<ImagePixels> objectSize);
-        if (mode7Size.Width != CeresFlightArtworkFormat.Mode7Width ||
-            mode7Size.Height != CeresFlightArtworkFormat.Mode7Height ||
-            objectSize.Width != CeresFlightArtworkFormat.ObjectWidth ||
-            objectSize.Height != CeresFlightArtworkFormat.ObjectHeight)
+            out Extent16<ImagePixels> objectSize);
+        if (mode7Size.X != CeresFlightArtworkFormat.Mode7Width ||
+            mode7Size.Y != CeresFlightArtworkFormat.Mode7Height ||
+            objectSize.X != CeresFlightArtworkFormat.ObjectWidth ||
+            objectSize.Y != CeresFlightArtworkFormat.ObjectHeight)
             throw new InvalidDataException("Ceres flight character streams have unexpected dimensions.");
 
         byte[] mode7Png = Png(mode7Size, mode7Pixels, 256);
@@ -144,7 +144,7 @@ internal static class CeresFlightArtworkExtractor
             return decompressed;
         }
 
-        static byte[] Png(Size32<ImagePixels> size, byte[] pixels, int colors)
+        static byte[] Png(Extent16<ImagePixels> size, byte[] pixels, int colors)
         {
             using var output = new MemoryStream();
             IndexedPng.Write(output, size, pixels, SnesGraphics.DiagnosticPalette(colors));

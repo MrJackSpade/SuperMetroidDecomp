@@ -62,7 +62,7 @@ internal static partial class Program
         var blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x53 * 8] = 0x53;
         var level = new RoomLevelData(
-            new Size32<RoomBlocks>(width, height),
+            new Extent16<RoomBlocks>(width, height),
             new ushort[width * height],
             new byte[width * height],
             new ushort[width * height],

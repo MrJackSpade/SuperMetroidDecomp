@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Desktop;
 
@@ -334,7 +335,7 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException($"Replay did not produce capture '{fileName}'.");
         PngWriterTooling.WriteRgba(
             Path.Combine(directory, fileName),
-            new(FrontendFrame.Width, FrontendFrame.Height),
+            new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height),
             pixels);
     }
 }

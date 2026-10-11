@@ -394,7 +394,7 @@ public static partial class GameSaveJsonCodec
             {
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
-                    var cell = new Point32<MapTiles>(x, y);
+                    var cell = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
                     int byteIndex = areaIndex * Bank80SystemState.ExploredMapBytesPerArea +
                         AreaMapLayout.GetBitByteIndex(cell);
                     if ((bytes[byteIndex] & AreaMapLayout.GetBitMask(cell.X)) != 0)
@@ -429,7 +429,7 @@ public static partial class GameSaveJsonCodec
                 if (tile is null || !AreaMapLayout.Size.Contains(tile.Cell))
                     throw new InvalidDataException(
                         $"progression.exploredAreas[{areaIndex}] contains an invalid tile");
-                Point32<MapTiles> cell = tile.Cell;
+                Position16<MapTiles> cell = tile.Cell;
                 int logicalIndex = AreaMapLayout.Size.RowMajorIndex(cell);
                 if (logicalIndex <= previousIndex)
                     throw new InvalidDataException(

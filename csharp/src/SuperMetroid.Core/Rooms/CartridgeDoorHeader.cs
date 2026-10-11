@@ -14,8 +14,8 @@ public sealed record CartridgeDoorHeader(
     ushort Pointer,
     ushort DestinationRoomPointer,
     CartridgeDoorOrientation Orientation,
-    Point32<RoomBlocks> PlmBlock,
-    Point32<RoomScreens> DestinationScreen,
+    Position16<RoomBlocks> PlmBlock,
+    Position16<RoomScreens> DestinationScreen,
     ushort SamusDistance,
     DoorSetupCode SetupCodePointer)
 {

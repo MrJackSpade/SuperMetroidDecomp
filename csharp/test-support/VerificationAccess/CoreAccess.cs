@@ -61,7 +61,7 @@ internal static partial class CoreAccess
 
     extension(PauseMenuState pause)
     {
-        internal Position16<ScreenPixels> LastIndicatorOrigin => PrivateState.Field<Position16<ScreenPixels>>(pause, "lastIndicatorOrigin");
+        internal Position16<OamPixels> LastIndicatorOrigin => PrivateState.Field<Position16<OamPixels>>(pause, "lastIndicatorOrigin");
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
         internal bool PageTransitionActive => PrivateState.Field<PauseMenuTransition>(pause, "transition") != PauseMenuTransition.None;
         internal Position16<MapPixels> MapScroll => PrivateState.Field<Position16<MapPixels>>(pause, "mapScrollPosition");
@@ -69,7 +69,7 @@ internal static partial class CoreAccess
         internal MapTileWord ReadDisplayedMapTile(int mapX, int mapY)
         {
             var vram = PrivateState.Field<SnesVram>(pause, "vram");
-            int byteAddress = (PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(new(mapX, mapY))) * 2;
+            int byteAddress = (PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)mapX), checked((ushort)mapY)))) * 2;
             return new MapTileWord(unchecked((ushort)(vram.ReadByte(byteAddress) | (vram.ReadByte(byteAddress + 1) << 8))));
         }
     }

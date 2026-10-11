@@ -21,7 +21,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
     /// <param name="originIsOnScreen">Whether the anchor is already in screen space rather than the off-screen cinematic space.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))

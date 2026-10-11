@@ -85,7 +85,7 @@ internal static partial class Program
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(overrides,
                    CeresDoorVisualFormat.TilesFileName)))
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels,
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels,
                 image.Palette);
         string colorsPath = Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName);
         CeresDoorVisualDocument document = JsonSerializer.Deserialize<CeresDoorVisualDocument>(

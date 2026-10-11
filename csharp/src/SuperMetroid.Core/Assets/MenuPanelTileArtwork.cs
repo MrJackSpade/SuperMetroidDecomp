@@ -17,18 +17,18 @@ internal sealed class MenuPanelTileArtwork
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.Width + tile % 16 * 8 + x];
-            if (pixel != Basis(tile, new(x, y))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
+            if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
         }
     }
 
-    internal byte Pixel(int tile, Point32<ImagePixels> point)
+    internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
-    private static byte Basis(int tile, Point32<ImagePixels> point)
+    private static byte Basis(int tile, Position16<CharacterPixels> point)
     {
         int row = point.Y + (tile >= 0x59 ? 8 : 0);
         if (row is 0 or 15) return 0;

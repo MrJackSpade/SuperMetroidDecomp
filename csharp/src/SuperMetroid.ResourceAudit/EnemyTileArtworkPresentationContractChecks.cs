@@ -28,7 +28,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
             int tiles = RoomCharacterAtlasFormat.ValidateTileCount(bytes);
             int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles), rows = (tiles + columns - 1) / columns;
             using var png = new MemoryStream();
-            IndexedPng.Write(png, new(columns * 8, rows * 8), new byte[columns * rows * 64],
+            IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), new byte[columns * rows * 64],
                 Enumerable.Range(0, EnemyPaletteSheet.ColorCount).Select(index => new Rgba32((byte)index, 0, 0)).ToArray());
             png.Position = 0;
             RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(png, bytes);

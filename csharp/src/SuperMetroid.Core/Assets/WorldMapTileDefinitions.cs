@@ -63,7 +63,7 @@ internal static class WorldMapTileDefinitions
     /// <summary>Selected pen-two digit footprint, surrounded by a one-pixel eight-neighbor pen-one outline.</summary>
     /// <remarks>The ten selected typeface footprints and five original edge choices are narrowly retained font design;
     /// the surrounding outline calculates rather than storing another bitmap.</remarks>
-    internal static bool TryOutlinedPixel(int tile, Point32<ImagePixels> point, ulong footprint, out byte value)
+    internal static bool TryOutlinedPixel(int tile, Position16<CharacterPixels> point, ulong footprint, out byte value)
     {
         if (!IsOutlinedDigit(tile) || (uint)point.X >= Side || (uint)point.Y >= Side)
             throw new ArgumentOutOfRangeException(nameof(tile));
@@ -80,7 +80,7 @@ internal static class WorldMapTileDefinitions
     }
 
     /// <summary>Calculates the native solid, guide, room-edge, arrow, panel and binary wedge cells. Font/icon contours return false.</summary>
-    internal static bool TryBackgroundPixel(int tile, Point32<ImagePixels> point, out byte value)
+    internal static bool TryBackgroundPixel(int tile, Position16<CharacterPixels> point, out byte value)
     {
         if ((uint)tile >= WorldMapArtworkFormat.BackgroundTileCount || (uint)point.X >= Side || (uint)point.Y >= Side)
             throw new ArgumentOutOfRangeException(nameof(tile));
@@ -164,7 +164,7 @@ internal static class WorldMapTileDefinitions
     }
 
     /// <summary>$8E:D800..D87F: complete cell, horizontal/vertical corridor and named open-side variants.</summary>
-    private static byte RoomBorder(int tile, Point32<ImagePixels> point)
+    private static byte RoomBorder(int tile, Position16<CharacterPixels> point)
     {
         (bool top, bool bottom, bool left, bool right) = tile switch
         {
@@ -182,7 +182,7 @@ internal static class WorldMapTileDefinitions
     }
 
     /// <summary>$8E:D730..D7AF/D880..D8FF: half-cell slopes and their chosen wall/guide joins.</summary>
-    private static byte DiagonalRoom(int tile, Point32<ImagePixels> point)
+    private static byte DiagonalRoom(int tile, Position16<CharacterPixels> point)
     {
         (bool mirror, int offset, bool below, bool left, bool right, bool dashLeft, bool dashBottom) = tile switch
         {

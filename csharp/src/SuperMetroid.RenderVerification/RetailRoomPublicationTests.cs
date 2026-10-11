@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class RetailRoomPublicationTests
 {
@@ -30,7 +31,7 @@ internal static class RetailRoomPublicationTests
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
             // Room-local setup, explicitly not an incoming door/elevator transition.
-            runtime.LoadCartridgeRoomForDebug(room, new(0, 0));
+            runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
             runtime.RunNmi(0, true);
             switch (fx)
             {

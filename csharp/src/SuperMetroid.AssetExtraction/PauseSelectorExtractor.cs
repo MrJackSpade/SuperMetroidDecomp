@@ -20,7 +20,7 @@ public static class PauseSelectorExtractor
         foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
             if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), bases + (int)category * 2) != PauseSelectorDefinitions.NativeSpriteId(category))
                 throw new InvalidDataException("Unexpected native selector sprite binding.");
-        var anchors = new Dictionary<string, Point32<ScreenPixels>>();
+        var anchors = new Dictionary<string, Position16<OamPixels>>();
         foreach (var anchor in PauseSelectorDefinitions.Anchors())
         {
             int position = PauseSelectorDefinitions.Bank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.PositionPointers + (int)anchor.Category * 2);

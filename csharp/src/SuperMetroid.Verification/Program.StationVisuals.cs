@@ -44,7 +44,7 @@ internal static partial class Program
                 definitions[0x053 * 8 + tile * 2] = 0x53;
             }
 
-            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width),
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], definitions);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();

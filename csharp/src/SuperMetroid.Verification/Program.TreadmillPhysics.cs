@@ -11,7 +11,7 @@ internal static partial class Program
         byte[] bts = new byte[16];
         for (int i = 8; i < 12; i++) { words[i] = 0x30ff; bts[i] = 8; }
         for (int i = 12; i < 16; i++) words[i] = 0x8000;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(4, 4), words, bts, new ushort[16], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), words, bts, new ushort[16], new byte[8]);
         var samus = new SamusState { XPosition = 24, YPosition = 40 };
         samus.Kinematics.YRadius = 8;
         SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Crateria);

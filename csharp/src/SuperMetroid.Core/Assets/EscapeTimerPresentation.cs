@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Assets;
 public sealed class EscapeTimerPresentation
 {
     private readonly Dictionary<string, SpriteComposition> frames;
-    private readonly Dictionary<string, Point32<ScreenPixels>> anchors;
+    private readonly Dictionary<string, Offset16<OamPixels>> anchors;
 
     private EscapeTimerPresentation(Dictionary<string, SpriteComposition> frames,
-        Dictionary<string, Point32<ScreenPixels>> anchors, int digitSpacing, int palette)
+        Dictionary<string, Offset16<OamPixels>> anchors, int digitSpacing, int palette)
     {
         this.frames = frames;
         this.anchors = anchors;
@@ -41,7 +41,7 @@ public sealed class EscapeTimerPresentation
         DrawPair(timer.SecondsBcd, Anchor("Seconds"));
         DrawPair(timer.CentisecondsBcd, Anchor("Centiseconds"));
 
-        void DrawPair(byte packedBcd, Point32<ScreenPixels> anchor)
+        void DrawPair(byte packedBcd, Offset16<OamPixels> anchor)
         {
             int tens = packedBcd >> 4;
             int ones = packedBcd & 0x0f;
@@ -49,18 +49,18 @@ public sealed class EscapeTimerPresentation
                 throw new InvalidOperationException($"Cannot draw invalid packed-BCD timer byte ${packedBcd:X2}.");
             DrawFrame(EscapeTimerPresentationDefinitions.DigitFrame(tens), anchor);
             DrawFrame(EscapeTimerPresentationDefinitions.DigitFrame(ones),
-                anchor with { X = anchor.X + DigitSpacing });
+                anchor + new Offset16<OamPixels>(checked((short)DigitSpacing), 0));
         }
 
-        void DrawFrame(string name, Point32<ScreenPixels> anchor)
+        void DrawFrame(string name, Offset16<OamPixels> anchor)
         {
-            Position16<ScreenPixels> origin = (new Point32<ScreenPixels>(timer.XPixel, timer.YPixel) + anchor).ToPosition16();
+            Position16<OamPixels> origin = new Position16<OamPixels>(timer.XPixel, timer.YPixel) + anchor;
             (frames.TryGetValue(name, out var supplied) ? supplied : EscapeTimerPresentationDefinitions.DefaultFrame(name))
                 .DrawOnScreen(oam, origin, PaletteBits);
         }
     }
 
-    private Point32<ScreenPixels> Anchor(string name) => anchors.TryGetValue(name, out var supplied)
+    private Offset16<OamPixels> Anchor(string name) => anchors.TryGetValue(name, out var supplied)
         ? supplied : EscapeTimerPresentationDefinitions.DefaultAnchor(name);
 
     /// <summary>Validates an authored timer layout and compiles its ordered sprite parts and pixel anchors independently of the mutable document.</summary>
@@ -122,10 +122,10 @@ public sealed class EscapeTimerPresentation
                 frames.Add(name, new SpriteComposition(compiled));
         }
 
-        var anchors = new Dictionary<string, Point32<ScreenPixels>>(StringComparer.Ordinal);
+        var anchors = new Dictionary<string, Offset16<OamPixels>>(StringComparer.Ordinal);
         foreach (string name in EscapeTimerPresentationDefinitions.AnchorNames)
         {
-            Point32<ScreenPixels> point = document.Anchors[name];
+            Offset16<OamPixels> point = document.Anchors[name];
             if (point.X is < -256 or > 255 || point.Y is < -224 or > 223)
                 throw new InvalidDataException($"Escape timer anchor {name} is outside the supported screen-relative range.");
             if (point != EscapeTimerPresentationDefinitions.DefaultAnchor(name)) anchors.Add(name, point);
@@ -155,7 +155,7 @@ public sealed record EscapeTimerPresentationDocument
     /// <summary>Signed horizontal pixel displacement from tens to ones in every digit pair, from -256 through 255; stock value is 8.</summary>
     public required int DigitSpacing { get; init; }
     /// <summary>Exactly Label, Minutes, Seconds and Centiseconds pixel offsets relative to the live timer origin; X is -256..255 and Y is -224..223.</summary>
-    public required Dictionary<string, Point32<ScreenPixels>> Anchors { get; init; }
+    public required Dictionary<string, Offset16<OamPixels>> Anchors { get; init; }
     /// <summary>Exactly Label and Digit.0 through Digit.9; each nonnull array contains zero to 128 ordered, nonnull OAM parts. The stock Label also supplies both digit separators.</summary>
     public required Dictionary<string, EscapeTimerVisualPart[]> Frames { get; init; }
 }

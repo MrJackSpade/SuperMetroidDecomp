@@ -18,7 +18,7 @@ public enum MapStationKind
 /// <param name="Id">Stable area/family/ordinal key used to resolve the editable marker drawing position.</param>
 /// <param name="Area">Area whose saved exploration bits govern this marker's visibility.</param>
 /// <param name="Cell">Original exploration cell, obtained from the native map-pixel position divided by eight.</param>
-public readonly record struct MapStationDiscoveryRule(string Id, AreaId Area, Point32<MapTiles> Cell);
+public readonly record struct MapStationDiscoveryRule(string Id, AreaId Area, Position16<MapTiles> Cell);
 
 /// <summary>Application-owned discovery cells from the retail $82:C7DB/C7EB/C7FB station lists.</summary>
 public static class MapStationDiscoveryRules

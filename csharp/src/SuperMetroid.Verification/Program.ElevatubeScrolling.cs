@@ -20,7 +20,7 @@ internal static partial class Program
             // incoming tube callback; no Ceres carrier belongs in this room.
             runtime.LoadCartridgeRoomForDebug(door.DestinationRoomPointer);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door,
-                camera: new(0, fromNorth ? (ushort)0 : (ushort)2304));
+                camera: new Position16<RoomPixels>(0, fromNorth ? (ushort)0 : (ushort)2304));
             var samus = runtime.Samus!;
             var camera = runtime.Camera!;
             samus.XPosition = MaridiaElevatubeRomData.SamusCenterX;
@@ -37,24 +37,24 @@ internal static partial class Program
                 AssertEqual(expectedY, samus.Kinematics.YFixed,
                     "tube displacement contains only room-main velocity, not ordinary falling");
                 var checkpoint = camera.PreviousSamusPoint!.Value;
-                uint savedY = ((uint)checkpoint.YPosition << 16) | checkpoint.YSubposition;
+                uint savedY = checkpoint.Y.RawValue;
                 AssertEqual(beforeY, savedY, "scroll checkpoint precedes elevatube room-main movement");
                 AssertTrue(samus.Kinematics.YFixed != savedY,
                     "room-main displacement remains pending for next scrolling pass");
                 if (previousScrollY is { } previous)
                 {
                     uint distance = (beforeY >= previous ? beforeY - previous : previous - beforeY) + 65536;
-                    AssertEqual(distance, ((uint)camera.CameraYSpeed << 16) | camera.CameraYSubspeed,
+                    AssertEqual(distance, unchecked((uint)camera.Speed.Y.RawValue),
                         "native $90:96FF counts previous room-main displacement plus one");
                 }
                 if (frame >= 30)
-                    AssertTrue(unchecked((short)(samus.YPosition - camera.YPosition)) is >= 32 and < 224,
+                    AssertTrue(unchecked((short)(samus.YPosition - camera.PixelPosition.Y)) is >= 32 and < 224,
                         "tube carriage stays inside gameplay viewport in both directions");
                 previousScrollY = savedY;
             }
-            AssertTrue(fromNorth ? camera.YPosition > 1600 : camera.YPosition < 700,
+            AssertTrue(fromNorth ? camera.PixelPosition.Y > 1600 : camera.PixelPosition.Y < 700,
                 "camera traverses tube with Samus instead of remaining at entry");
-            Console.WriteLine($"Elevatube {(fromNorth ? "down" : "up")}: camera={camera.YPosition}, Samus={samus.YPosition}; 180 exact checkpoint/distance checks passed.");
+            Console.WriteLine($"Elevatube {(fromNorth ? "down" : "up")}: camera={camera.PixelPosition.Y}, Samus={samus.YPosition}; 180 exact checkpoint/distance checks passed.");
         }
     }
 }

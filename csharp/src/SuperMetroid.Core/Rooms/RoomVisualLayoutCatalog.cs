@@ -20,13 +20,13 @@ public sealed class RoomVisualLayout
     /// <param name="backgroundVisualWords">Row-major BG2 words with the same permitted bit fields; collision/type and BTS data are not supplied here.</param>
     /// <exception cref="ArgumentOutOfRangeException">The source is outside 24 bits or a dimension is nonpositive.</exception>
     /// <exception cref="InvalidDataException">A plane has the wrong word count or includes bits 12..15.</exception>
-    public RoomVisualLayout(int sourceAddress, Size32<RoomBlocks> size,
+    public RoomVisualLayout(int sourceAddress, Extent16<RoomBlocks> size,
         ReadOnlySpan<ushort> foregroundVisualWords,
         ReadOnlySpan<ushort> backgroundVisualWords)
     {
         if ((uint)sourceAddress > 0xffffff)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress));
-        if (size.Width <= 0 || size.Height <= 0)
+        if (size.X <= 0 || size.Y <= 0)
             throw new ArgumentOutOfRangeException(nameof(size), "Room layout dimensions must be positive.");
         int expected = size.Area;
         if (foregroundVisualWords.Length != expected || backgroundVisualWords.Length != expected)
@@ -48,7 +48,7 @@ public sealed class RoomVisualLayout
     /// Size of each visual plane in native 16-pixel blocks rather than 8-pixel SNES characters: the width
     /// is the row stride; the height does not resize the compiled collision allocation.
     /// </summary>
-    public Size32<RoomBlocks> Size { get; }
+    public Extent16<RoomBlocks> Size { get; }
     /// <summary>Copied initial BG1 block selectors and parent flips in row-major order, with collision/type bits excluded; runtime streaming combines them with the unmodified native type bits.</summary>
     public ReadOnlyMemory<ushort> ForegroundVisualWords => foreground;
     /// <summary>Copied initial BG2 block selectors and parent flips in row-major order, independent of native type bits, BTS, and subsequent scripted room changes.</summary>
@@ -97,8 +97,8 @@ public sealed class RoomVisualLayoutCatalog
         foreach ((int source, RoomVisualLayout layout) in this.layouts.OrderBy(pair => pair.Key))
         {
             content.Append("source", source);
-            content.Append("width", layout.Size.Width);
-            content.Append("height", layout.Size.Height);
+            content.Append("width", layout.Size.X);
+            content.Append("height", layout.Size.Y);
             content.AppendWords("foreground", layout.ForegroundVisualWords.Span);
             content.AppendWords("background", layout.BackgroundVisualWords.Span);
         }

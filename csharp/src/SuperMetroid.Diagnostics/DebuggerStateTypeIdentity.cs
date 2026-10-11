@@ -12,6 +12,8 @@ internal static class DebuggerStateTypeIdentity
     internal const string RoomLoadCallbacksIdentity = "SuperMetroid.DebugState.RoomLoadCallbacks.v1, SuperMetroid.Core";
     private const string LegacyRootName = "SuperMetroid.Desktop.DebuggerSaveStateStore+DebuggerSaveStateRoot";
     private const string LegacyAssemblyName = "SuperMetroid.Desktop";
+    private const string RetiredBackgroundLineScroll = "SuperMetroid.Core.Rendering.BackgroundLineScroll";
+    private const string RetiredBackgroundLineScrollArray = RetiredBackgroundLineScroll + "[]";
 
     public static Type? Resolve(string name)
     {
@@ -23,6 +25,23 @@ internal static class DebuggerStateTypeIdentity
             // envelope unchanged. Resolve both the object and its declaring-field
             // identity so historical graphs retain exact composition data.
             return typeof(SuperMetroid.Core.Rendering.GameplayColorMathRenderLayer);
+        }
+        if (identity.Length >= 2 && identity[1] == "SuperMetroid.Core" &&
+            identity[0] == LegacySamusCameraPoint.RetiredTypeName)
+        {
+            // #628 replaced this four-word checkpoint with a typed 16.16 position. Its saved
+            // fields restore into the codec layout and convert at the owning field.
+            return typeof(LegacySamusCameraPoint);
+        }
+        if (identity.Length >= 2 && identity[1] == "SuperMetroid.Core" &&
+            identity[0] is RetiredBackgroundLineScroll or RetiredBackgroundLineScrollArray)
+        {
+            // #628 replaced this per-line register pair with the typed BG-plane position. Both
+            // are a record struct of the same two ushort fields, X then Y, so the saved fields
+            // restore unchanged into the typed value and its arrays.
+            return identity[0] == RetiredBackgroundLineScroll
+                ? typeof(SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.BgPlanePixels>)
+                : typeof(SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.BgPlanePixels>[]);
         }
         if (identity.Length >= 2 && identity[0] == LegacyRootName && identity[1] == LegacyAssemblyName)
             return typeof(DebuggerSaveStateStore).Assembly.GetType(LegacyRootName, throwOnError: true);

@@ -28,7 +28,7 @@ public static class EndingFontAtlasExtractor
             decoded.AsSpan(0, EndingFontAtlasFormat.ByteCount),
             EndingFontAtlasFormat.BitsPerPixel,
             EndingFontAtlasFormat.TilesPerRow,
-            out Size32<ImagePixels> size);
+            out Extent16<ImagePixels> size);
         using var output = new MemoryStream();
         IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(EndingFontAtlasFormat.ColorCount));

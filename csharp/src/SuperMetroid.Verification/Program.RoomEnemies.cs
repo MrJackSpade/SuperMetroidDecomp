@@ -98,7 +98,7 @@ static void VerifyRoomEnemyLoading()
             .Select(index => bus.ReadByte(source + index)).ToArray();
         int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, tiles,
-            out Size32<ImagePixels> size);
+            out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         stockSheets.Add(pointer, RoomCharacterAtlas.Load(new MemoryStream(png.ToArray()), byteCount));
@@ -1127,7 +1127,7 @@ static void VerifyCeresRidleyRoomEntry()
     byte[] fixturePlanar = Enumerable.Range(0, 0x20)
         .Select(offset => bus.ReadByte(0xa69000 + offset)).ToArray();
     byte[] fixturePixels = SnesGraphics.DecodePlanarTiles(fixturePlanar, 4, 1,
-        out Size32<ImagePixels> fixtureSize);
+        out Extent16<ImagePixels> fixtureSize);
     using var fixtureTilePng = new MemoryStream();
     IndexedPng.Write(fixtureTilePng, fixtureSize, fixturePixels,
         SnesGraphics.DiagnosticPalette(16));

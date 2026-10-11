@@ -15,7 +15,7 @@ internal static class VramDmaPresentationContractDefinitions
         new("SuperMetroid.Core.Assets.GrappleTileAtlas", "native-GrappleTileAtlas-dma-aliases", ["TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs", "18A5E04D1B6251E37A73A0BB0EC348FFF3F2548B07CB2E70F2B84573572F7067"),
              new("csharp/src/SuperMetroid.Core/Assets/GrappleBeamTilePatterns.cs", "8DCEC2C354E6F989E7DF06938BEA0A58A8771282D418E4964935F77AD0CB47B5"),
-             new("csharp/src/SuperMetroid.Core/Assets/SnesPlanarTileEncoder.cs", "E8240B8FD425B6D2AEBF22ABA45FBD1970E0CBFCD5302B5EFC0A08E073D1BEEC"),
+             new("csharp/src/SuperMetroid.Core/Assets/SnesPlanarTileEncoder.cs", "37C2F538981CC2AC5F7975E23FB23CDA085FBE955455B093445CD429B9030F3D"),
              new("csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs", "9E3C7A3D71A2F861F3DA0F9C09DF2A8F9BAED7B5BFA6DAA0064F53C2624A4892")]),
     ];
 }

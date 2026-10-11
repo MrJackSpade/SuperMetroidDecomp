@@ -8,7 +8,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         KraidRoomPlmDrawDefinitions.Draw draw,
-        Point32<RoomBlocks> origin,
+        Position16<RoomBlocks> origin,
         Position16<RoomPixels> layer1Position, ushort bg1XOffset,
         RoomPlmKraidVisualCatalog? visuals)
     {
@@ -17,7 +17,7 @@ public sealed partial class RoomPlmSystem
             ushort physicalWord = draw.WordAt(block);
             ushort visualWord = visuals?.GetWord(draw.Pointer, 0, block)
                 ?? new RoomLevelWord(physicalWord).VisualWord;
-            DrawPlmWordAt(level, streamer, draw.Pointer, origin + new Point32<RoomBlocks>(block, 0),
+            DrawPlmWordAt(level, streamer, draw.Pointer, origin + new Offset16<RoomBlocks>(checked((short)block), 0),
                 physicalWord, layer1Position, bg1XOffset, visualWord);
         }
     }

@@ -29,12 +29,12 @@ internal static class TitleGraphicsExtractor
             TitleSequenceRomData.Vram.BabyCharacterByteCount,
             "Baby Metroid characters");
 
-        byte[] mode7Pixels = SnesGraphics.DecodeMode7Tiles(mode7, 16, out Size32<ImagePixels> mode7Size);
-        byte[] objectPixels = SnesGraphics.DecodePlanarTiles(objects, 4, 32, out Size32<ImagePixels> objectSize);
-        byte[] babyPixels = SnesGraphics.DecodeMode7Tiles(baby, 4, out Size32<ImagePixels> babySize);
-        if (mode7Size.Width != TitleGraphicsFormat.Mode7Width || mode7Size.Height != TitleGraphicsFormat.Mode7Height ||
-            objectSize.Width != TitleGraphicsFormat.ObjectWidth || objectSize.Height != TitleGraphicsFormat.ObjectHeight ||
-            babySize.Width != TitleGraphicsFormat.BabyWidth || babySize.Height != TitleGraphicsFormat.BabyHeight)
+        byte[] mode7Pixels = SnesGraphics.DecodeMode7Tiles(mode7, 16, out Extent16<ImagePixels> mode7Size);
+        byte[] objectPixels = SnesGraphics.DecodePlanarTiles(objects, 4, 32, out Extent16<ImagePixels> objectSize);
+        byte[] babyPixels = SnesGraphics.DecodeMode7Tiles(baby, 4, out Extent16<ImagePixels> babySize);
+        if (mode7Size.X != TitleGraphicsFormat.Mode7Width || mode7Size.Y != TitleGraphicsFormat.Mode7Height ||
+            objectSize.X != TitleGraphicsFormat.ObjectWidth || objectSize.Y != TitleGraphicsFormat.ObjectHeight ||
+            babySize.X != TitleGraphicsFormat.BabyWidth || babySize.Y != TitleGraphicsFormat.BabyHeight)
             throw new InvalidDataException("Title graphics decoded to unexpected atlas dimensions.");
 
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal)
@@ -63,7 +63,7 @@ internal static class TitleGraphicsExtractor
             return decompressed.AsSpan(0, count).ToArray();
         }
 
-        static byte[] Png(Size32<ImagePixels> size, byte[] pixels, int colors)
+        static byte[] Png(Extent16<ImagePixels> size, byte[] pixels, int colors)
         {
             using var output = new MemoryStream();
             IndexedPng.Write(output, size, pixels, SnesGraphics.DiagnosticPalette(colors));

@@ -102,7 +102,7 @@ public sealed partial class FileSelectMenuState
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 1, hours % 10);
         presentation.ApplyPatch(bg1Tilemap,
             FileSelectPresentationDefinitions.TimeColonPatch,
-            new(layout.TimeValueAnchor.X + 2, layout.TimeValueAnchor.Y));
+            new(checked((ushort)(layout.TimeValueAnchor.X + 2)), layout.TimeValueAnchor.Y));
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 3, minutes / 10);
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 4, minutes % 10);
     }

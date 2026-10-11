@@ -20,7 +20,7 @@ public sealed class IntroCaretSpritePresentation
     /// <param name="oam">Destination OAM buffer, preserving the authored order of sprite parts.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Encoded OBJ palette bits applied only to parts whose palette is inherited rather than explicitly authored.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin, ushort paletteBits)
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException($"Opening caret frame $8C:{pointer:X4} is not installed.");

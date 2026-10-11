@@ -15,13 +15,15 @@ internal static class PlmInterpreterSourceContract
         // #1269 adds the compiled escape-passage and shaft-wall clear draws; no program reads.
         // #142 reads the installed visuals through auto-properties; no program reads.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        ["DrawPlmInstruction/8"] = "4F2D88A249AD470383CADB738C44FD6B5AC3C45D8C467A0925C6B523F948C028",
+        ["DrawPlmInstruction/8"] = "40C69BE7CA55EF29DDF6C5BFA03E3DF9529FE5D4CCED96225164D204221037E5",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        ["ConvertEyeToBlueDoor/3"] = "CBAFD5F7484FA8FA379B53164C7D6DCEB17F1D45700378E88A036959DDC7F145",
+        ["ConvertEyeToBlueDoor/3"] = "669A07E21BD33D70023DD2498A86CD2739B4E9E21707EDBE4E8DD6A5F8ED8D31",
         // #1269 adds $84:BB25, a two-byte record with no operands (PlmInstructionFormats).
         // #627 decodes the word into RoomPlmInstruction once; handlers take the typed instruction. No program reads or operand widths change.
+        // #628 $84:AB51 names its two scroll cells as typed screen positions; same writes, no program reads.
+        // #628 $84:AB51 names its two scroll cells as typed screen positions; same writes, no program reads.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        ["ExecuteInstructionStream/8"] = "E3C9CAA89BC4200D3E53BEDE936E8691DB0B68BACD5419AD2CBE9073EE1D3182",
+        ["ExecuteInstructionStream/8"] = "5F7456EEC8DF24195E687186C6D5F4B2AE85204AD1CF9CD4E67AB6847324779C",
         // #1273 drops the verification-only instruction source; the remaining sources are unchanged.
         ["ReadProgramByte/2"] = "22D5078ACAA43B18D75BD7EF992352EB6F635BBC377C35E7EBDDBF42FCEB644E",
         ["ReadProgramWord/2"] = "C8D33F4B5EC309B3DBA0DC288A08F3DBF37522B91CDD00D3194ED7AE7BEF95C6",
@@ -47,9 +49,9 @@ internal static class PlmInterpreterSourceContract
         ["TryExecuteDraygonCannonInstruction/4"] = "260A37C2A8B309CE9DDDCF395BCE3A49B81DC158CBB6B1641ED9B06B757976D0",
         // #627 passes EyeDoorProjectileDefinition members of equal value; no program reads change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        ["TryExecuteEyeDoorInstruction/4"] = "A6DB1B4417364ABF328F79DDC34D6DE7BDF28BA01A42440A3009DB73EC7605CE",
+        ["TryExecuteEyeDoorInstruction/4"] = "50B4514AC60558A837E123190C6696C908A5DFC88904C9B11F66CB82C62A38B4",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        ["TryExecuteMotherBrainGlassInstruction/3"] = "E466C19D1E39415E1BF82DB0E34E5B9AB84A29D7B79BD0D6E6CBE9D1B6D9EF33",
+        ["TryExecuteMotherBrainGlassInstruction/3"] = "A308574D536256CAD930590385AB99D1555A83ABBD22E0DC09B6F8BA85C4B56F",
         // #627 re-pin: spawned projectile definitions became NoobTubeProjectileDefinition members of equal value; no program reads change.
         ["TryExecuteNoobTubeInstruction/3"] = "8D68636858EAF7CBD39F30AF108E157B9D3C6903EEF8B3DE012DECCC6F833986",
         // #142 drops the unused Samus accessor; no program reads or operand widths change.

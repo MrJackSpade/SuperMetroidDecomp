@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyXrayExtensions()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        RoomLevelData Create() => new RoomLevelData(new Size32<RoomBlocks>(8, 8), Enumerable.Repeat((ushort)0x8000, 64).ToArray(),
+        RoomLevelData Create() => new RoomLevelData(new Extent16<RoomBlocks>(8, 8), Enumerable.Repeat((ushort)0x8000, 64).ToArray(),
             new byte[64], new ushort[64], Array.Empty<byte>());
         void Set(RoomLevelData level, int index, RoomCollisionType type, byte bts)
         {

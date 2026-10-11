@@ -26,7 +26,7 @@ internal static partial class Program
                     ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension) << 12);
                 bts[origin + offset * stride] = unchecked((byte)-offset);
             }
-            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words, bts, new ushort[words.Length], new byte[8]);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), words, bts, new ushort[words.Length], new byte[8]);
             int hitBlock = origin + hitOffset * stride;
             var samus = new SamusState
             {

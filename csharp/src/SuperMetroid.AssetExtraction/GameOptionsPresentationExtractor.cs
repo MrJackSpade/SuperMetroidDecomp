@@ -43,7 +43,7 @@ public static class GameOptionsPresentationExtractor
                     GameOptionsPresentationDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        Point32<TilemapCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsRomData.Rows.ControllerActionCount)
+        Position16<TilemapCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsRomData.Rows.ControllerActionCount)
             .Select(GameOptionsRomData.ControllerLabels.Destination)
             .Select(ByteOffsetPoint)
             .ToArray();
@@ -77,7 +77,7 @@ public static class GameOptionsPresentationExtractor
                 MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
         }
 
-        var headings = new Dictionary<string, Point32<ScreenPixels>>(StringComparer.Ordinal)
+        var headings = new Dictionary<string, Position16<OamPixels>>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.PrimaryMenu] = new(
                 GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Primary),
@@ -89,7 +89,7 @@ public static class GameOptionsPresentationExtractor
                 GameOptionsRomData.Spritemaps.HeadingX(GameOptionsPage.Special),
                 GameOptionsRomData.Spritemaps.HeadingY),
         };
-        var cursors = new Dictionary<string, Point32<ScreenPixels>[]>(StringComparer.Ordinal)
+        var cursors = new Dictionary<string, Position16<OamPixels>[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.PrimaryMenu] = Points(
                 GameOptionsRomData.Cursors.PrimaryX, GameOptionsRomData.Rows.PrimaryCount, GameOptionsRomData.Cursors.PrimaryY),
@@ -155,19 +155,19 @@ public static class GameOptionsPresentationExtractor
         return cells;
     }
 
-    private static Point32<ScreenPixels>[] Points(ushort x, int count, Func<int, ushort> rowY)
+    private static Position16<OamPixels>[] Points(ushort x, int count, Func<int, ushort> rowY)
     {
-        var result = new Point32<ScreenPixels>[count];
+        var result = new Position16<OamPixels>[count];
         for (int index = 0; index < result.Length; index++)
             result[index] = new(x, rowY(index));
         return result;
     }
 
-    private static Point32<TilemapCells> ByteOffsetPoint(ushort byteOffset)
+    private static Position16<TilemapCells> ByteOffsetPoint(ushort byteOffset)
     {
         int cell = byteOffset / sizeof(ushort);
-        return new(cell % GameOptionsRomData.MenuTilemapWidth,
-            cell / GameOptionsRomData.MenuTilemapWidth);
+        return new(checked((ushort)(cell % GameOptionsRomData.MenuTilemapWidth)),
+            checked((ushort)(cell / GameOptionsRomData.MenuTilemapWidth)));
     }
 
     private static int[] CellRange(int byteOffset, int byteCount) =>

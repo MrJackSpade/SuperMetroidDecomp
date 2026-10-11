@@ -28,18 +28,18 @@ public static class XrayRevealOverlays
             if ((uint)graphics >= XrayOverlayRomData.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item ${(int)item.Header:X4} has invalid X-ray graphics slot {graphics}.");
             ushort word = overlays.ItemMetatile(graphics);
-            Write(level, tilemap, word, level.Size.PointAtRowMajorIndex(item.BlockIndex), layer1Position);
+            Write(level, tilemap, word, level.Size.CellAtRowMajorIndex(item.BlockIndex), layer1Position);
         }
         if (specialPointer == 0) return;
         foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(specialPointer))
             Write(level, tilemap, tile.Word, tile.Block, layer1Position);
     }
 
-    private static void Write(RoomLevelData level, Span<ushort> tilemap, ushort word, Point32<RoomBlocks> block,
+    private static void Write(RoomLevelData level, Span<ushort> tilemap, ushort word, Position16<RoomBlocks> block,
         Position16<RoomPixels> layer1Position)
     {
         // The overlay's metatile within the visible window, relative to the camera's block.
-        Point32<RoomBlocks> visible = block - layer1Position.ToRoomBlock();
+        Offset16<RoomBlocks> visible = block - layer1Position.ToRoomBlock();
         int x = visible.X, y = visible.Y;
         // $91:D04C admits only the first 16x16 metatiles, not the fine-scroll column.
         if ((uint)x >= XrayTilemapLayout.MetatileColumns - 1 || (uint)y >= XrayTilemapLayout.MetatileRows) return;

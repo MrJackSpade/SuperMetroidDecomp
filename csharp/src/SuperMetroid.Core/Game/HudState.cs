@@ -36,7 +36,7 @@ public sealed class HudState
         MinimapDisabled = true;
         for (int y = 0; y < 3; y++)
         for (int x = 0; x < 5; x++)
-            _tiles[presentation?.MinimapCellIndex(new(x, y)) ?? NativeMinimapCellIndex(x, y)] =
+            _tiles[presentation?.MinimapCellIndex(new(unchecked((ushort)x), unchecked((ushort)y))) ?? NativeMinimapCellIndex(x, y)] =
                 (ushort)MapTileWords.HudBlank;
     }
 
@@ -87,13 +87,13 @@ public sealed class HudState
         var minimap = new ushort[15];
         for (int y = 0; y < 3; y++)
         for (int x = 0; x < 5; x++)
-            minimap[y * 5 + x] = _tiles[previous?.MinimapCellIndex(new(x, y)) ?? NativeMinimapCellIndex(x, y)];
+            minimap[y * 5 + x] = _tiles[previous?.MinimapCellIndex(new(unchecked((ushort)x), unchecked((ushort)y))) ?? NativeMinimapCellIndex(x, y)];
 
         value.ApplyTemplate(_tiles);
         ApplyCurrentPresentationState(samus);
         for (int y = 0; y < 3; y++)
         for (int x = 0; x < 5; x++)
-            _tiles[value.MinimapCellIndex(new(x, y))] = minimap[y * 5 + x];
+            _tiles[value.MinimapCellIndex(new(unchecked((ushort)x), unchecked((ushort)y)))] = minimap[y * 5 + x];
     }
 
     /// <summary>
@@ -251,7 +251,7 @@ public sealed class HudState
         // Exploration is persistent game state, not HUD-local rendering state. Earlier
         // builds kept this bit in HudState, which made the minimap look correct until a
         // save/load or HUD reconstruction silently erased the visited route.
-        system.MarkExploredMapTile(areaIndex, new Point32<MapTiles>(centerX, centerY));
+        system.MarkExploredMapTile(areaIndex, new Position16<MapTiles>(unchecked((ushort)centerX), unchecked((ushort)centerY)));
         bool hasAreaMap = system.HasAreaMap(areaIndex);
 
         for (int outputY = 0; outputY < 3; outputY++)
@@ -259,7 +259,7 @@ public sealed class HudState
             int mapY = centerY + outputY - 1;
             for (int outputX = 0; outputX < 5; outputX++)
             {
-                int destination = presentation?.MinimapCellIndex(new(outputX, outputY)) ??
+                int destination = presentation?.MinimapCellIndex(new(unchecked((ushort)outputX), unchecked((ushort)outputY))) ??
                     NativeMinimapCellIndex(outputX, outputY);
                 int mapX = (centerX + outputX - 2) & 0x3f;
                 if ((uint)mapY >= 32)
@@ -268,7 +268,7 @@ public sealed class HudState
                     continue;
                 }
 
-                var cell = new Point32<MapTiles>(mapX, mapY);
+                var cell = new Position16<MapTiles>(unchecked((ushort)mapX), unchecked((ushort)mapY));
                 bool explored = system.IsMapTileExplored(areaIndex, cell);
                 bool stationVisible = presentationMap.IsRevealedByMapStation(cell);
 
@@ -292,7 +292,7 @@ public sealed class HudState
                 // cell acquires the explored palette on the next minimap update.
                 if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
                     presentationMap.RevealsCellAbove(cell))
-                    system.MarkExploredMapTile(areaIndex, new Point32<MapTiles>(centerX, centerY - 1));
+                    system.MarkExploredMapTile(areaIndex, new Position16<MapTiles>(unchecked((ushort)centerX), unchecked((ushort)(centerY - 1))));
             }
         }
 

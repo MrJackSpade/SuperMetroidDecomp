@@ -68,7 +68,7 @@ public sealed partial class RoomPlmSystem
         _writeNoobTubeEarthquakeType = setEarthquakeType;
         _spawnNoobTubeProjectile = spawnNoobTubeProjectile;
         _downwardGateSamus = getSamus;
-        _downwardGateRoomWidth = level.Size.Width;
+        _downwardGateRoomWidth = level.Size.X;
         _eyeDoorSystem = system;
         _eyeDoorSamus = getSamus;
         _spawnEyeDoorProjectile = spawnEyeDoorProjectile;
@@ -324,5 +324,5 @@ public readonly record struct RoomPlmPopulationRecord(
     int RecordIndex,
     ushort RecordPointer,
     PlmHeaderId HeaderPointer,
-    Point32<RoomBlocks> Block,
+    Position16<RoomBlocks> Block,
     ushort RoomArgument);

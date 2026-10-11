@@ -88,7 +88,7 @@ internal static partial class Program
         }
 
         static RoomLevelData CreateYardTurnLevel(ushort[] words) =>
-            new(new Size32<RoomBlocks>(64, 64), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
+            new(new Extent16<RoomBlocks>(64, 64), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
 
         static void VerifyYardTurnProductionBranch(
             SuperMetroidAddressSpace rom,

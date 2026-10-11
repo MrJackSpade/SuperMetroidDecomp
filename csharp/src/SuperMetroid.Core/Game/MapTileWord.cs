@@ -43,10 +43,10 @@ public static class AreaMapLayout
     public const int TilemapWordsPerPage = 0x400;
 
     /// <summary>The logical 64-by-32 area-map size.</summary>
-    public static Size32<MapTiles> Size => new(WidthInTiles, HeightInTiles);
+    public static Extent16<MapTiles> Size => new(WidthInTiles, HeightInTiles);
 
     /// <summary>Returns the native byte offset containing one map bit.</summary>
-    public static int GetBitByteIndex(Point32<MapTiles> cell)
+    public static int GetBitByteIndex(Position16<MapTiles> cell)
     {
         ValidateCoordinate(cell);
         int pageOffset = cell.X >= PageWidthInTiles ? BitPlaneBytesPerPage : 0;
@@ -55,7 +55,7 @@ public static class AreaMapLayout
     }
 
     /// <summary>Returns the native word offset containing one map tile.</summary>
-    public static int GetTilemapWordIndex(Point32<MapTiles> cell)
+    public static int GetTilemapWordIndex(Position16<MapTiles> cell)
     {
         ValidateCoordinate(cell);
         int pageOffset = cell.X >= PageWidthInTiles ? TilemapWordsPerPage : 0;
@@ -70,7 +70,7 @@ public static class AreaMapLayout
         return unchecked((byte)(0x80 >> (mapX & 7)));
     }
 
-    private static void ValidateCoordinate(Point32<MapTiles> cell)
+    private static void ValidateCoordinate(Position16<MapTiles> cell)
     {
         if ((uint)cell.X >= WidthInTiles)
             throw new ArgumentOutOfRangeException(nameof(cell), "Map X lies outside the 64-tile area map.");

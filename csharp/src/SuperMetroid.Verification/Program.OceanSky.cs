@@ -14,19 +14,19 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean, camera: new(128, 768));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean, camera: new Position16<RoomPixels>(128, 768));
         // Capture consumes the accepted NMI's register snapshot, not the room's
         // mutable scroll state. Draining only VRAM left the BG2 scanline window at
         // its zero-initialized 0..0 range, so both page layouts rendered no sky.
         runtime.RunNmi(0, mainLoopRequestedNmi: true);
         var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
         var ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-        Console.WriteLine($"Ocean room: main={runtime.ActiveRoom!.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2WidthTiles}x{ordinary.Registers.Bg2HeightTiles}, sky={runtime.ScrollingSky is not null}");
+        Console.WriteLine($"Ocean room: main={runtime.ActiveRoom!.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2MapSize.X}x{ordinary.Registers.Bg2MapSize.Y}, sky={runtime.ScrollingSky is not null}");
         Directory.CreateDirectory("csharp/test-temp/issue-349-ocean");
-        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/current.png", new(256, 224),
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/current.png", new Extent16<ScreenPixels>(256, 224),
             SoftwareLayeredSnapshotRenderer.Render(scene));
-        AssertEqual(32, ordinary.Registers.Bg2WidthTiles, "Ocean setup $88:A800 writes BG2SC=$4A: 32 tiles wide");
-        AssertEqual(64, ordinary.Registers.Bg2HeightTiles, "Ocean setup uses two vertically stacked BG2 pages");
+        AssertEqual(32, ordinary.Registers.Bg2MapSize.X, "Ocean setup $88:A800 writes BG2SC=$4A: 32 tiles wide");
+        AssertEqual(64, ordinary.Registers.Bg2MapSize.Y, "Ocean setup uses two vertically stacked BG2 pages");
         AssertTrue(runtime.ScrollingSky is not null, "Ocean main installs scrolling-sky row streaming");
         var writes = new VramWriteQueue();
         // Travel down in one-tile increments. After the first screen, every visible row
@@ -57,28 +57,28 @@ internal static partial class Program
             ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
         var background = SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { bgOnly }, scene.ObjectSelection, scene.Brightness));
         // Force the native BG2SC=$4A layout independently of the capture's selected dimensions.
-        var nativeLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2WidthTiles = 32, Bg2HeightTiles = 64 },
+        var nativeLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2MapSize = new Extent16<TilemapCells>(32, 64) },
             ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
         var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { nativeLayout }, scene.ObjectSelection, scene.Brightness));
         AssertTrue(background.SequenceEqual(expectedPixels), "ocean background has no horizontal insertion of the vertical page");
-        var wrongLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2WidthTiles = 64, Bg2HeightTiles = 32 },
+        var wrongLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2MapSize = new Extent16<TilemapCells>(64, 32) },
             ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
         var wrongPixels = SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { wrongLayout }, scene.ObjectSelection, scene.Brightness));
         AssertEqual(32, bgOnly.Registers.Bg2FirstScanline, "accepted ocean NMI exposes BG2 below the HUD");
         AssertEqual(224, bgOnly.Registers.Bg2EndScanline, "accepted ocean NMI exposes the full gameplay height");
         AssertTrue(!background.SequenceEqual(wrongPixels), "fixture exposes the old horizontal-page interpretation visibly");
-        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/wrong-layout.png", new(256, 224), wrongPixels);
-        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/background.png", new(256, 224), background);
-        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/after.png", new(256, 224), SoftwareLayeredSnapshotRenderer.Render(scene));
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/wrong-layout.png", new Extent16<ScreenPixels>(256, 224), wrongPixels);
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/background.png", new Extent16<ScreenPixels>(256, 224), background);
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/after.png", new Extent16<ScreenPixels>(256, 224), SoftwareLayeredSnapshotRenderer.Render(scene));
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = (ushort)(runtime.Camera!.XPosition + 128);
-        samus.YPosition = (ushort)(runtime.Camera.YPosition + 128);
+        samus.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 128);
+        samus.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 128);
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         runtime.StepFrame(0);
-        ushort upper = unchecked((ushort)((runtime.Camera.YPosition & 0x7F8) - 16));
+        ushort upper = unchecked((ushort)((runtime.Camera.PixelPosition.Y & 0x7F8) - 16));
         int sourcePointer = 0x88ADA6 + (upper >> 8) * 2;
         int sourceWord = bus.ReadByte(sourcePointer) | bus.ReadByte(sourcePointer + 1) << 8;
         int expectedSource = 0x8A0000 | ((sourceWord + (upper & 255) * 8) & 65535);

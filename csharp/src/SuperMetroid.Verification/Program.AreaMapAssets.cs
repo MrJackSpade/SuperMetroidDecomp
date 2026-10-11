@@ -60,8 +60,8 @@ internal static partial class Program
             {
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
-                    bool discoverable = map.IsDiscoverable(new(x, y));
-                    bool stationVisible = map.IsRevealedByMapStation(new(x, y));
+                    bool discoverable = map.IsDiscoverable(new(checked((ushort)x), checked((ushort)y)));
+                    bool stationVisible = map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y)));
                     AssertTrue(!stationVisible || discoverable,
                         $"{area} station mask cell ({x},{y}) exists in tilemap");
                     publicCount += stationVisible ? 1 : 0;

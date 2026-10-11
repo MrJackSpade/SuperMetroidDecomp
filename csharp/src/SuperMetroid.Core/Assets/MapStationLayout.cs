@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Drawing positions only: moving an icon never changes its compiled discovery cell.</summary>
 public sealed class MapStationLayout
 {
-    private readonly Dictionary<string, Point32<MapPixels>> points;
-    private MapStationLayout(Dictionary<string, Point32<MapPixels>> points) => this.points = points;
+    private readonly Dictionary<string, Position16<MapPixels>> points;
+    private MapStationLayout(Dictionary<string, Position16<MapPixels>> points) => this.points = points;
 
     /// <summary>Gets the screen-pixel drawing position for a named map-station marker.</summary>
     /// <param name="id">The stable marker identifier from the station discovery rules.</param>
     /// <returns>The marker's configured screen position.</returns>
     /// <exception cref="InvalidDataException">The marker identifier is unknown.</exception>
-    public Point32<MapPixels> Get(string id) => points.TryGetValue(id, out var point) ? point
+    public Position16<MapPixels> Get(string id) => points.TryGetValue(id, out var point) ? point
         : throw new InvalidDataException($"Unknown map station marker '{id}'.");
 
     /// <summary>Loads and validates the editable drawing layout for every known map-station marker.</summary>
@@ -54,7 +54,7 @@ public sealed record MapStationLayoutDocument
     public required int Version { get; init; }
 
     /// <summary>Gets one screen-pixel drawing position for every known station-marker identifier.</summary>
-    public required Dictionary<string, Point32<MapPixels>> Markers { get; init; }
+    public required Dictionary<string, Position16<MapPixels>> Markers { get; init; }
 }
 
 /// <summary>Names and versions the editable map-station layout asset.</summary>

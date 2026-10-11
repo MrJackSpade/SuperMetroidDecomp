@@ -21,7 +21,7 @@ public static class IndexedPng
     /// <exception cref="ArgumentNullException">The input stream is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">A required dimension is outside 1..2048.</exception>
     /// <exception cref="InvalidDataException">The PNG is malformed, truncated, oversized, has different dimensions, or uses unsupported truecolor, animation, or interlace.</exception>
-    public static IndexedPngImage Read(Stream input, Size32<ImagePixels> expectedSize)
+    public static IndexedPngImage Read(Stream input, Extent16<ImagePixels> expectedSize)
     {
         ArgumentNullException.ThrowIfNull(input);
         ValidateDimensions(expectedSize);
@@ -29,7 +29,7 @@ public static class IndexedPng
         catch (EndOfStreamException error) { throw new InvalidDataException("Indexed PNG is truncated.", error); }
     }
 
-    private static IndexedPngImage ReadCore(Stream input, Size32<ImagePixels> size)
+    private static IndexedPngImage ReadCore(Stream input, Extent16<ImagePixels> size)
     {
         Span<byte> signature = stackalloc byte[8];
         input.ReadExactly(signature);
@@ -69,9 +69,9 @@ public static class IndexedPng
                 case "IHDR":
                     if (headerSeen || payload.Length != IndexedPngFormat.HeaderLength)
                         throw new InvalidDataException("Invalid or repeated PNG header.");
-                    if (BinaryPrimitives.ReadUInt32BigEndian(payload) != size.Width ||
-                        BinaryPrimitives.ReadUInt32BigEndian(payload.AsSpan(4)) != size.Height)
-                        throw new InvalidDataException($"PNG must be exactly {size.Width} by {size.Height} pixels.");
+                    if (BinaryPrimitives.ReadUInt32BigEndian(payload) != size.X ||
+                        BinaryPrimitives.ReadUInt32BigEndian(payload.AsSpan(4)) != size.Y)
+                        throw new InvalidDataException($"PNG must be exactly {size.X} by {size.Y} pixels.");
                     depth = payload[8];
                     if (depth is not (1 or 2 or 4 or 8) || payload[9] != IndexedPngFormat.IndexedColorType ||
                         payload[10] != 0 || payload[11] != 0 || payload[12] != 0)
@@ -110,13 +110,13 @@ public static class IndexedPng
         }
     }
 
-    private static IndexedPngImage DecodeRows(MemoryStream compressed, Size32<ImagePixels> size, int depth, Rgba32[] palette)
+    private static IndexedPngImage DecodeRows(MemoryStream compressed, Extent16<ImagePixels> size, int depth, Rgba32[] palette)
     {
         compressed.Position = 0;
         using var zlib = new ZLibStream(compressed, CompressionMode.Decompress);
-        int stride = (size.Width * depth + 7) / 8;
+        int stride = (size.X * depth + 7) / 8;
         byte[] current = new byte[stride], previous = new byte[stride], pixels = new byte[size.Area];
-        for (int y = 0; y < size.Height; y++)
+        for (int y = 0; y < size.Y; y++)
         {
             int filter = zlib.ReadByte();
             if (filter < 0) throw new EndOfStreamException();
@@ -133,12 +133,12 @@ public static class IndexedPng
                 };
                 current[i] = unchecked((byte)(current[i] + prediction));
             }
-            for (int x = 0; x < size.Width; x++)
+            for (int x = 0; x < size.X; x++)
             {
                 int bit = x * depth;
                 byte index = (byte)((current[bit / 8] >> (8 - depth - bit % 8)) & ((1 << depth) - 1));
                 if (index >= palette.Length) throw new InvalidDataException("PNG pixel references a missing palette entry.");
-                pixels[size.RowMajorIndex(new(x, y))] = index;
+                pixels[size.RowMajorIndex(new(checked((ushort)x), checked((ushort)y)))] = index;
             }
             (previous, current) = (current, previous);
         }
@@ -154,7 +154,7 @@ public static class IndexedPng
     /// <exception cref="ArgumentNullException">The output stream or palette is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">A dimension is outside 1..2048.</exception>
     /// <exception cref="ArgumentException">Pixel count, palette count, or a pixel's palette index is invalid.</exception>
-    public static void Write(Stream output, Size32<ImagePixels> size, ReadOnlySpan<byte> pixels, IReadOnlyList<Rgba32> palette)
+    public static void Write(Stream output, Extent16<ImagePixels> size, ReadOnlySpan<byte> pixels, IReadOnlyList<Rgba32> palette)
     {
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(palette);
@@ -165,8 +165,8 @@ public static class IndexedPng
             if (index >= palette.Count) throw new ArgumentException("Indexed PNG pixel exceeds palette.");
         output.Write(IndexedPngFormat.Signature);
         byte[] header = new byte[IndexedPngFormat.HeaderLength];
-        BinaryPrimitives.WriteUInt32BigEndian(header, (uint)size.Width);
-        BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), (uint)size.Height);
+        BinaryPrimitives.WriteUInt32BigEndian(header, (uint)size.X);
+        BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), (uint)size.Y);
         header[8] = 8;
         header[9] = IndexedPngFormat.IndexedColorType;
         PngWriter.WriteChunk(output, "IHDR", header);
@@ -181,7 +181,7 @@ public static class IndexedPng
         using var compressed = new MemoryStream();
         using (var zlib = new ZLibStream(compressed, CompressionLevel.SmallestSize, leaveOpen: true))
         {
-            for (int y = 0; y < size.Height; y++) { zlib.WriteByte(0); zlib.Write(pixels.Slice(y * size.Width, size.Width)); }
+            for (int y = 0; y < size.Y; y++) { zlib.WriteByte(0); zlib.Write(pixels.Slice(y * size.X, size.X)); }
         }
         PngWriter.WriteChunk(output, "IDAT", compressed.ToArray());
         PngWriter.WriteChunk(output, "IEND", []);
@@ -193,10 +193,10 @@ public static class IndexedPng
         return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
     }
 
-    private static void ValidateDimensions(Size32<ImagePixels> size)
+    private static void ValidateDimensions(Extent16<ImagePixels> size)
     {
-        if (size.Width < 1 || size.Height < 1 ||
-            size.Width > IndexedPngFormat.MaximumDimension || size.Height > IndexedPngFormat.MaximumDimension)
+        if (size.X < 1 || size.Y < 1 ||
+            size.X > IndexedPngFormat.MaximumDimension || size.Y > IndexedPngFormat.MaximumDimension)
             throw new ArgumentOutOfRangeException(nameof(size), "Indexed PNG dimensions must be between 1 and 2048.");
     }
 }
@@ -205,4 +205,4 @@ public static class IndexedPng
 /// <param name="Size">Image width and height in pixels.</param>
 /// <param name="Pixels">Row-major unpacked palette indices, one byte per pixel; the array is exposed directly rather than copied by the record.</param>
 /// <param name="Palette">Ordered RGB/alpha entries addressed by the pixel indices; the array is exposed directly and is not itself a SNES CGRAM palette.</param>
-public sealed record IndexedPngImage(Size32<ImagePixels> Size, byte[] Pixels, Rgba32[] Palette);
+public sealed record IndexedPngImage(Extent16<ImagePixels> Size, byte[] Pixels, Rgba32[] Palette);

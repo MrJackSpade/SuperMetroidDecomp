@@ -30,7 +30,7 @@ internal static partial class Program
                 (byte)(operation * 0x55), (byte)operation);
             var admission = (SnesMainScreenLayers)((mask & 7) | ((mask & 8) << 1));
             Rgba32[] actual = Draw(layers, windows, admission);
-            var registers = new OrdinaryGameplayRegisters(3, 5, 7, 11, 64, 32,
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11), new Extent16<TilemapCells>(64, 32),
                 SnesPpuLayout.GameplayBg2TilemapWord, 0, 0, SnesPpuLayout.GameplayHudCharacterBaseWord,
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var packet = new RenderFrameSnapshot(new(1, 1, 1),
@@ -79,6 +79,6 @@ internal static partial class Program
         Rgba32[] Draw(SnesMainScreenLayers enabled, SnesWindowRegisters windows = default,
             SnesMainScreenLayers admission = SnesMainScreenLayers.None) =>
             SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(memory.Vram, memory.Cgram, memory.Oam,
-                3, 5, 7, 11, mainScreenLayers: enabled, windowRegisters: windows, mainScreenWindowMask: admission);
+                new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11), mainScreenLayers: enabled, windowRegisters: windows, mainScreenWindowMask: admission);
     }
 }

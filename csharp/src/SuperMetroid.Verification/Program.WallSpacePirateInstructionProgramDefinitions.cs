@@ -215,7 +215,7 @@ internal static partial class Program
         const int height = 32;
         int blockCount = width * height;
         return new RoomLevelData(
-            new Size32<RoomBlocks>(width, height),
+            new Extent16<RoomBlocks>(width, height),
             new ushort[blockCount],
             new byte[blockCount],
             new ushort[blockCount],
@@ -230,7 +230,7 @@ internal static partial class Program
         for (int column = 0; column < width; column++)
             foreground[17 * width + column] = 0x8000;
         return new RoomLevelData(
-            new Size32<RoomBlocks>(width, height),
+            new Extent16<RoomBlocks>(width, height),
             foreground,
             new byte[foreground.Length],
             new ushort[foreground.Length],

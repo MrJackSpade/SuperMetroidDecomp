@@ -192,7 +192,7 @@ public static class SamusBodyArtworkFiles
                 sets[set][position] = new DefinitionEntry(sourceAddress, firstSize, secondSize);
             }
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, TileWidth / 8,
-                out Size32<ImagePixels> size);
+                out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             string name = FileName(upperHalf, set);
@@ -251,8 +251,8 @@ public static class SamusBodyArtworkFiles
 
             SamusBodyTileDefinition[] DecodeSet(Stream stream)
             {
-                IndexedPngImage image = IndexedPng.Read(stream, new(TileWidth, height));
-                byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, new(TileWidth, height), 4);
+                IndexedPngImage image = IndexedPng.Read(stream, new(TileWidth, checked((ushort)height)));
+                byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, new(TileWidth, checked((ushort)height)), 4);
                 var definitions = new SamusBodyTileDefinition[metadata[set].Length];
                 for (int position = 0; position < definitions.Length; position++)
                 {

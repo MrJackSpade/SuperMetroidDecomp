@@ -50,14 +50,14 @@ internal static partial class Program
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(0x1800);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         int rows = (tileCount + columns - 1) / columns;
-        IndexedPngImage image = IndexedPng.Read(source, new(columns * 8, rows * 8));
+        IndexedPngImage image = IndexedPng.Read(source, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
         // Source offset $0120 is tile 9, first row, first pixel. It is copied
         // to $7E:2060, so flipping its low indexed bit flips that planar MSB.
         image.Pixels[9 * 8] ^= 1;
         string overrideDirectory = Path.Combine(directory, "dead-torizo-overrides");
         Directory.CreateDirectory(overrideDirectory);
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         var editedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InitializeDeadTorizoArtwork(editedBus, edited);
@@ -104,7 +104,7 @@ internal static partial class Program
         var installedOam = new OamBuffer();
         DrawImportedEnemySpritemap(rom, nativeOam, DeadTorizoArtworkDefinitions.SpritemapBank,
             nativePointer, 128, 128, 0, 0);
-        installedOam.AddEnemySpritemap(installedParts, 128, 128, 0, 0);
+        installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
         AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                    nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
                    nativeOam.NextByteOffset == installedOam.NextByteOffset,

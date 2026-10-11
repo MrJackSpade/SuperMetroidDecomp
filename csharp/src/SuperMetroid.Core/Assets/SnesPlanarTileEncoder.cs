@@ -13,9 +13,9 @@ public static class SnesPlanarTileEncoder
     /// <exception cref="ArgumentException">The bitplane count, complete-tile dimensions, or pixel count is invalid.</exception>
     /// <exception cref="InvalidDataException">A pixel index cannot be represented by the selected bitplane count.</exception>
     /// <exception cref="OverflowException">The dimension product exceeds the signed 32-bit range.</exception>
-    public static byte[] Encode(ReadOnlySpan<byte> pixels, Size32<ImagePixels> size, int bitsPerPixel)
+    public static byte[] Encode(ReadOnlySpan<byte> pixels, Extent16<ImagePixels> size, int bitsPerPixel)
     {
-        int width = size.Width, height = size.Height;
+        int width = size.X, height = size.Y;
         if (bitsPerPixel is not (2 or 4) || width <= 0 || height <= 0 || width % 8 != 0 || height % 8 != 0 ||
             pixels.Length != size.Area) throw new ArgumentException("Planar artwork requires complete 8x8 tiles at 2 or 4 bpp.");
         var bytes = new byte[pixels.Length * bitsPerPixel / 8];

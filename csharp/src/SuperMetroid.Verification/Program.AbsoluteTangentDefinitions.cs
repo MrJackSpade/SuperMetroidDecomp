@@ -38,15 +38,15 @@ internal static partial class Program
                 x = wrapped < 128 ? tangent : -tangent;
                 y = wrapped is < 64 or >= 192 ? -256 : 256;
             }
-            object actual = direction.Invoke(null, [angle])!;
-            AssertEqual(x, (int)actual.GetType().GetProperty("X")!.GetValue(actual)!, "X-ray wrapped/cardinal X direction");
-            AssertEqual(y, (int)actual.GetType().GetProperty("Y")!.GetValue(actual)!, "X-ray wrapped/cardinal Y direction");
+            var actual = (Offset16<ScreenPixels>)direction.Invoke(null, [angle])!;
+            AssertEqual(x, (int)actual.X, "X-ray wrapped/cardinal X direction");
+            AssertEqual(y, (int)actual.Y, "X-ray wrapped/cardinal Y direction");
         }
         // Production window builders must run without tangent-table reads, including inclusive angle 256.
         for (int angle = 0; angle < 256; angle++)
         {
-            _ = EyeBeamWindowBuilder.Build(100, 100, angle, 0);
-            _ = EyeBeamWindowBuilder.Build(-16, 100, angle, 1);
+            _ = EyeBeamWindowBuilder.Build(new Offset16<ScreenPixels>(100, 100), angle, 0);
+            _ = EyeBeamWindowBuilder.Build(new Offset16<ScreenPixels>(-16, 100), angle, 1);
         }
         var beam = new MotherBrainRainbowBeamHdmaState
         {

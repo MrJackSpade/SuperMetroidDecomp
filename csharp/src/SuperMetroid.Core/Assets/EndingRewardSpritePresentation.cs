@@ -21,7 +21,7 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Packed OBJ palette bits inherited by applicable parts.</param>
     /// <param name="originIsOnScreen">Whether the origin uses on-screen wrapping rules.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))

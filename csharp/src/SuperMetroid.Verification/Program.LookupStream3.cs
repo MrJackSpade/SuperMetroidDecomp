@@ -338,7 +338,7 @@ internal static partial class Program
             .Select(index => rom.ReadByte(transfer.SourceAddress + index))).ToArray();
         GrappleTileAtlas Load()
         {
-            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 16, out Size32<ImagePixels> size);
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 16, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             return GrappleTileAtlas.Load(new MemoryStream(png.ToArray()));
@@ -636,7 +636,7 @@ internal static partial class Program
             for (int index = 0; index < count; index++)
             {
                 ushort word = (ushort)(rom.ReadByte(address + index * 2) | rom.ReadByte(address + index * 2 + 1) << 8);
-                AssertEqual(new FileSelectCompiledPatchCell(new(index, 0), word), FileSelectPresentationDefinitions.PatchCell(name, index),
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), word), FileSelectPresentationDefinitions.PatchCell(name, index),
                     "file-select calculated patch exact native cell");
                 foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
                 {
@@ -679,11 +679,11 @@ internal static partial class Program
                     ushort word = SnesBgTilemapWord.Create(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn,
                         cell.Palette, cell.Priority, (cell.FlipX ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
                         (cell.FlipY ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)).Raw;
-                    AssertEqual(new FileSelectCompiledPatchCell(source.Offset, word), compiled.Cell(index),
+                    AssertEqual(new FileSelectCompiledPatchCell(source.Offset - Position16<TilemapCells>.Zero, word), compiled.Cell(index),
                         "file-select independent supplied order and coordinates");
                     expected[(3 + source.Y) * 32 + 4 + source.X] = word;
                 }
-                presentation.ApplyPatch(actual, name, new Point32<TilemapCells>(4, 3));
+                presentation.ApplyPatch(actual, name, new Position16<TilemapCells>(4, 3));
                 AssertTrue(actual.SequenceEqual(expected), "file-select exact stock or independently edited patch placement");
             }
         }
@@ -738,7 +738,7 @@ internal static partial class Program
         for (int action = 0; action < 7; action++)
         {
             ushort offset = LookupWord(rom, 0x82f639 + action * 2);
-            AssertEqual(new Point32<TilemapCells>(offset / 2 % 32, offset / 2 / 32),
+            AssertEqual(new Position16<TilemapCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
                 GameOptionsPresentationDefinitions.ControllerAnchor(action), "native options label anchor");
         }
         foreach ((string page, int address, int count) in new[]
@@ -748,7 +748,7 @@ internal static partial class Program
             (GameOptionsPresentationDefinitions.SpecialMenu, 0x82f33f, 3),
         })
             for (int row = 0; row < count; row++)
-                AssertEqual(new Point32<ScreenPixels>(LookupWord(rom, address + row * 4), LookupWord(rom, address + row * 4 + 2)),
+                AssertEqual(new Position16<OamPixels>(LookupWord(rom, address + row * 4), LookupWord(rom, address + row * 4 + 2)),
                     loaded.CursorPosition(page, row), "native options cursor anchor");
         var stockLabels = (Dictionary<string, ushort[]>)typeof(GameOptionsPresentation).GetField("controllerLabels",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(loaded)!;
@@ -762,8 +762,8 @@ internal static partial class Program
         var edited = ReadDocument();
         for (int action = 0; action < edited.ControllerLabelAnchors.Length; action++)
         {
-            Point32<TilemapCells> old = edited.ControllerLabelAnchors[action];
-            edited.ControllerLabelAnchors[action] = new(old.X + 1, old.Y);
+            Position16<TilemapCells> old = edited.ControllerLabelAnchors[action];
+            edited.ControllerLabelAnchors[action] = new(checked((ushort)(old.X + 1)), old.Y);
         }
         foreach (MapPresentationCell[] label in edited.ControllerLabels.Values)
             for (int cell = 0; cell < label.Length; cell++)
@@ -772,12 +772,12 @@ internal static partial class Program
         edited.SpecialToggles[GameOptionsPresentationDefinitions.IconCancelToggle].EnabledCells[0] = 0;
         foreach (string page in edited.HeadingAnchors.Keys.ToArray())
         {
-            Point32<ScreenPixels> old = edited.HeadingAnchors[page];
-            edited.HeadingAnchors[page] = new(old.X + 1, old.Y);
+            Position16<OamPixels> old = edited.HeadingAnchors[page];
+            edited.HeadingAnchors[page] = new(checked((ushort)(old.X + 1)), old.Y);
             for (int row = 0; row < edited.CursorAnchors[page].Length; row++)
             {
                 old = edited.CursorAnchors[page][row];
-                edited.CursorAnchors[page][row] = new(old.X + 1, old.Y);
+                edited.CursorAnchors[page][row] = new(checked((ushort)(old.X + 1)), old.Y);
             }
         }
         Confirm(edited, Load(edited));
@@ -808,7 +808,7 @@ internal static partial class Program
             {
                 byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage);
                 byte[] expected = (byte[])actual.Clone();
-                Point32<TilemapCells> point = document.ControllerLabelAnchors[action];
+                Position16<TilemapCells> point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)
                 {
                     MapPresentationCell source = document.ControllerLabels[GameOptionsPresentationDefinitions.ControllerLabelName(button)][cell];
@@ -941,12 +941,12 @@ internal static partial class Program
         foreach (DoorSetupCode pointer in expectedDoorCallbacks)
         {
             byte[] expected = Enumerable.Repeat((byte)0x7f, RoomScrollGrid.StorageByteCount).ToArray();
-            var actual = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), expected, 10, 5);
+            var actual = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), expected, new Extent16<RoomScreens>(10, 5));
             ExecuteStream3DoorScroll(rom, (ushort)pointer, expected);
             AssertTrue(SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
             AssertTrue(actual.Storage.SequenceEqual(expected), "stream 3 native ordered door writes and all untouched cells");
         }
-        var unchangedScroll = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), new byte[50], 10, 5);
+        var unchangedScroll = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), new byte[50], new Extent16<RoomScreens>(10, 5));
         AssertTrue(!SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
         AssertThrows<ArgumentNullException>(() => SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(DoorSetupCode.None, null!),
             "stream 3 door callback null argument remains rejected before dispatch");
@@ -1210,7 +1210,7 @@ internal static partial class Program
             bool digit = glyph < 10;
             int index = digit ? glyph : glyph - 10;
             ushort expected = (ushort)(digit ? 0x2060 + index : 0x206a + index);
-            var anchor = new Point32<TilemapCells>(4, 3);
+            var anchor = new Position16<TilemapCells>(4, 3);
             if (digit) fileSelect.WriteDigit(glyphTilemap, anchor, 2, index);
             else fileSelect.WriteSlotLetter(glyphTilemap, anchor, index);
             AssertEqual(expected, glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)], "stream 3 actual file-select calculated glyph write");
@@ -2936,7 +2936,7 @@ internal static partial class Program
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, frame.Bank, frame.Pointer, 128, 128, 0, 0);
-            calculatedOam.AddEnemySpritemap(parts, 128, 128, 0, 0);
+            calculatedOam.AddEnemySpritemap(parts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(calculatedOam.LowTable) && nativeOam.HighTable.SequenceEqual(calculatedOam.HighTable),
                 "stream 3 calculated Baby view matches native OAM drawing");
             SpriteVisualPart[] original = document.Frames[frame.Name];

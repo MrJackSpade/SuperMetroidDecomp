@@ -31,20 +31,20 @@ internal sealed class MenuSmallFontArtwork
         for (int x = 0; x < 8; x++)
         {
             byte pixel = Source(tile, x, y);
-            if (pixel != Basis(tile, new(x, y))) (edits ??= []).Add((tile - FirstTile) * 64 + y * 8 + x, pixel);
+            if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add((tile - FirstTile) * 64 + y * 8 + x, pixel);
         }
-        byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.Width + tile % 16 * 8 + x];
+        byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
 
     internal static bool Contains(int tile) => tile is >= FirstTile and < (FirstTile + TileCount);
-    internal byte Pixel(int tile, Point32<ImagePixels> point)
+    internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue((tile - FirstTile) * 64 + point.Y * 8 + point.X, out byte pixel)
             ? pixel : Basis(tile, point);
     }
 
-    private byte Basis(int tile, Point32<ImagePixels> point)
+    private byte Basis(int tile, Position16<CharacterPixels> point)
     {
         int row = (tile - FirstTile) * 8 + point.Y;
         if ((faces[row] & (1 << point.X)) != 0) return 14;

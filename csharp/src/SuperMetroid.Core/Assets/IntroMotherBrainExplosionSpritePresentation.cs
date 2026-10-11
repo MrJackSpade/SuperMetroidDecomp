@@ -20,7 +20,7 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
     /// <param name="oam">The OAM buffer receiving the ordered sprite parts.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin, ushort paletteBits)
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException(

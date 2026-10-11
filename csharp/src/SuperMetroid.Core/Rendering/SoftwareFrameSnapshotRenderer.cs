@@ -14,14 +14,14 @@ public static class SoftwareFrameSnapshotRenderer
     public static Rgba32[] Render(RenderFrameSnapshot frame, Rgba32[]? gameplayOutputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(frame);
-        if (gameplayOutputBuffer is not null && gameplayOutputBuffer.Length != frame.Width * frame.Height)
+        if (gameplayOutputBuffer is not null && gameplayOutputBuffer.Length != frame.Size.X * frame.Size.Y)
             throw new ArgumentException("Unexpected output buffer dimensions.", nameof(gameplayOutputBuffer));
         Rgba32[] pixels;
         if (frame.Layers is { } layers) pixels = SoftwareLayeredSnapshotRenderer.Render(layers, gameplayOutputBuffer);
         else if (frame.Mode7 is { } mode7) pixels = SoftwareMode7ObjSnapshotRenderer.Render(mode7, gameplayOutputBuffer);
         else if (frame.SolidColor is { } color)
         {
-            pixels = gameplayOutputBuffer ?? new Rgba32[frame.Width * frame.Height];
+            pixels = gameplayOutputBuffer ?? new Rgba32[frame.Size.X * frame.Size.Y];
             Array.Fill(pixels, color);
         }
         else throw new InvalidDataException("Render packet has no composition payload.");

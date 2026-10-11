@@ -22,7 +22,7 @@ public static class EscapeTimerTileAtlasExtractor
                 EscapeTimerTileAtlasFormat.TotalByteCount),
             EscapeTimerTileAtlasFormat.BitsPerPixel,
             EscapeTimerTileAtlasFormat.TileCount,
-            out Size32<ImagePixels> size);
+            out Extent16<ImagePixels> size);
         using var output = new MemoryStream();
         IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(EscapeTimerTileAtlasFormat.ColorCount));

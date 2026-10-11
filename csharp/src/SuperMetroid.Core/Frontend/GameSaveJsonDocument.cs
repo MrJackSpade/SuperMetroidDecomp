@@ -189,9 +189,9 @@ public sealed record ExploredAreaJsonDocument(
 public sealed record MapCoordinateJsonDocument(int X, int Y)
 {
     /// <summary>Encodes a map cell for the save document.</summary>
-    public static MapCoordinateJsonDocument FromCell(Point32<MapTiles> cell) => new(cell.X, cell.Y);
+    public static MapCoordinateJsonDocument FromCell(Position16<MapTiles> cell) => new(cell.X, cell.Y);
 
     /// <summary>The persisted map cell.</summary>
     [JsonIgnore]
-    public Point32<MapTiles> Cell => new(X, Y);
+    public Position16<MapTiles> Cell => new(checked((ushort)X), checked((ushort)Y));
 }

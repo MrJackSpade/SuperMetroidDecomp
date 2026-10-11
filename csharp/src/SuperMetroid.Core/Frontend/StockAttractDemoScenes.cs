@@ -584,7 +584,7 @@ public static class StockAttractDemoScenes
             : EquippedBeamsFor(demonstration);
 
     /// <summary>$82:86A9-86B8 camera origins use whole256-pixel room screens.</summary>
-    private static Position16<RoomPixels> CameraAtScreen(Point32<RoomScreens> screen) => screen.ToRoomPixels();
+    private static Position16<RoomPixels> CameraAtScreen(Position16<RoomScreens> screen) => screen.ToRoomPixels();
 
     /// <summary>$91:888D-89FC ammo fields express the number of native five-round upgrades.</summary>
     private static ushort AmmoForPacks(int packs) => (ushort)(packs * 5);

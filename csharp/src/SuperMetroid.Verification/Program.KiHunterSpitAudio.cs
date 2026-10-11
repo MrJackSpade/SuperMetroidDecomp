@@ -63,10 +63,10 @@ internal static partial class Program
         Console.WriteLine($"One KiHunter spit: {requests} requests, {writes} APU writes over 20 frames.");
         var level = runtime.LevelData!;
         bool selected = false;
-        for (int y = 0; y < level.Size.Height && !selected; y++)
-        for (int x = 0; x < level.Size.Width && !selected; x++)
+        for (int y = 0; y < level.Size.Y && !selected; y++)
+        for (int x = 0; x < level.Size.X && !selected; x++)
         {
-            var block = level.GetCollisionBlock(new(x, y));
+            var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
             selected = true;

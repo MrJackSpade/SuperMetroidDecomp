@@ -112,10 +112,10 @@ internal static partial class Program
                 IndexedPngImage image;
                 using (var input = File.OpenRead(stockPath))
                     image = IndexedPng.Read(input,
-                        new(mode7 ? CeresFlightArtworkFormat.Mode7Width : CeresFlightArtworkFormat.ObjectWidth, mode7 ? CeresFlightArtworkFormat.Mode7Height : CeresFlightArtworkFormat.ObjectHeight));
+                        new(checked((ushort)(mode7 ? CeresFlightArtworkFormat.Mode7Width : CeresFlightArtworkFormat.ObjectWidth)), checked((ushort)(mode7 ? CeresFlightArtworkFormat.Mode7Height : CeresFlightArtworkFormat.ObjectHeight))));
                 image.Pixels[0] = (byte)((image.Pixels[0] + 1) & (mode7 ? 255 : 15));
                 using var output = File.Create(overridePath);
-                IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             }
 
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
@@ -343,10 +343,10 @@ internal static partial class Program
             IndexedPngImage image;
             using (var input = File.OpenRead(stockPath))
                 image = IndexedPng.Read(input,
-                    new(mode7 ? CeresFlightArtworkFormat.Mode7Width : CeresFlightArtworkFormat.ObjectWidth, mode7 ? CeresFlightArtworkFormat.Mode7Height : CeresFlightArtworkFormat.ObjectHeight));
+                    new(checked((ushort)(mode7 ? CeresFlightArtworkFormat.Mode7Width : CeresFlightArtworkFormat.ObjectWidth)), checked((ushort)(mode7 ? CeresFlightArtworkFormat.Mode7Height : CeresFlightArtworkFormat.ObjectHeight))));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
             var stockFlight = new IntroCeresFlightState(bus, new CartridgeAudioState(),
                 IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight);

@@ -21,7 +21,7 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">SNES OAM attribute bits to combine with each part.</param>
     /// <param name="originIsOnScreen">Whether the origin is already in the visible coordinate range.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))

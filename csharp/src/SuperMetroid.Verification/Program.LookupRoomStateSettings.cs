@@ -90,8 +90,8 @@ internal static partial class Program
     private static void VerifyRoomStateFxPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.FxPointer, "FxPointer");
     private static void VerifyRoomStateEnemyPopulationPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.EnemyPopulationPointer, "EnemyPopulationPointer");
     private static void VerifyRoomStateEnemyTilesetPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.EnemyTilesetPointer, "EnemyTilesetPointer");
-    private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2Scroll.X, "Layer2ScrollX");
-    private static void VerifyRoomStateLayer2ScrollY(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2Scroll.Y, "Layer2ScrollY");
+    private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2Scroll.Horizontal, "Layer2ScrollX");
+    private static void VerifyRoomStateLayer2ScrollY(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2Scroll.Vertical, "Layer2ScrollY");
     private static void VerifyRoomStateScrollPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.ScrollPointer, "ScrollPointer");
     private static void VerifyRoomStateXrayPointer(SuperMetroidAddressSpace rom)
     {

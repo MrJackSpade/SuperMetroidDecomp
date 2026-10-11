@@ -42,7 +42,7 @@ internal static partial class Program
         using (var input = File.OpenRead(Path.Combine(stock, HudTileAtlasFormat.FileName)))
             image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         for (int i = 0; i < image.Pixels.Length; i++) image.Pixels[i] = (byte)((image.Pixels[i] + 1) % 4);
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         // Unlike the pending-upload case below, this snapshot already contains the
         // old HUD. The original transfer's clearing half now belongs to room data.

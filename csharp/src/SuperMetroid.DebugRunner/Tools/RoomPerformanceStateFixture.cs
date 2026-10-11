@@ -29,12 +29,12 @@ internal static class RoomPerformanceStateFixture
             // The actual map-room entrance runs its cartridge setup and door PLM;
             // this does not simulate an entire route merely to benchmark one room.
             var door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(data.Bus, RoomPerformanceFixtureDefinitions.CrateriaMapEntranceDoor);
-            runtime.LoadCartridgeRoomThroughDoorForVerification(door, new(camera, camera));
+            runtime.LoadCartridgeRoomThroughDoorForVerification(door, new Position16<RoomPixels>(camera, camera));
         }
         else
         {
             ushort room = surface ? RoomHeaderPointers.LandingSite : RoomHeaderPointersTooling.CrateriaSaveStation;
-            runtime.LoadCartridgeRoomForDebug(room, new(camera, camera));
+            runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(camera, camera));
         }
         runtime.Samus!.InputLocked = true;
         runtime.Samus.XPosition = (ushort)(camera + (surface ? 128 : 64));
@@ -64,7 +64,7 @@ internal static class RoomPerformanceStateFixture
         }
         if (data.Game.GameState != SuperMetroidGameState.MainGameplay)
             throw new InvalidDataException($"Performance fixture unexpectedly left gameplay: {data.Game.GameState}");
-        PngWriterTooling.WriteRgba(Path.Combine(root, "room.png"), new(FrontendFrame.Width, FrontendFrame.Height), pixels!);
+        PngWriterTooling.WriteRgba(Path.Combine(root, "room.png"), new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), pixels!);
         Console.WriteLine(data.SaveSlot(9));
         Console.WriteLine($"{scene}: room ${(byte?)data.Game.GameplayActiveAreaIndex:X2}/${data.Game.GameplayActiveRoomIndex:X2}; " +
             $"600 measured Windows frames: step={stepMs / 600:F3}ms render={renderMs / 600:F3}ms audio={audioMs / 600:F3}ms.");

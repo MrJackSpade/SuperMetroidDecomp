@@ -210,11 +210,11 @@ internal static partial class Program
         int landingRows = (landingTiles + landingColumns - 1) / landingColumns;
         IndexedPngImage landingImage = IndexedPng.Read(
             new MemoryStream(files[RoomCharacterAtlasFormat.SourceFileName(landingSource)]),
-            new(landingColumns * 8, landingRows * 8));
+            new(checked((ushort)(landingColumns * 8)), checked((ushort)(landingRows * 8))));
         byte[] painted = (byte[])landingImage.Pixels.Clone();
         painted[0] ^= 1;
         using var paintedPng = new MemoryStream();
-        IndexedPng.Write(paintedPng, new(landingImage.Size.Width, landingImage.Size.Height), painted,
+        IndexedPng.Write(paintedPng, new(landingImage.Size.X, landingImage.Size.Y), painted,
             landingImage.Palette);
         compiledBySource[landingSource] = RoomCharacterAtlas.Load(
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
@@ -235,23 +235,23 @@ internal static partial class Program
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         int rows = (tileCount + columns - 1) / columns;
         byte[] partialPixels = SnesGraphics.DecodePlanarTiles(partialNative, 4,
-            RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
+            RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var partialPng = new MemoryStream();
         IndexedPng.Write(partialPng, size, partialPixels, SnesGraphics.DiagnosticPalette(16));
         IndexedPngImage decoded = IndexedPng.Read(new MemoryStream(partialPng.ToArray()),
-            new(columns * 8, rows * 8));
+            new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
         byte[] edited = (byte[])decoded.Pixels.Clone();
         edited[0] ^= 1;
         using var changedPng = new MemoryStream();
-        IndexedPng.Write(changedPng, new(decoded.Size.Width, decoded.Size.Height), edited, decoded.Palette);
+        IndexedPng.Write(changedPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Palette);
         AssertTrue(!RoomCharacterAtlas.Load(new MemoryStream(changedPng.ToArray()), partialNative.Length)
                 .Transfer.Span.SequenceEqual(partialNative),
             "painting a room PNG changes the compiled runtime character bytes");
         int firstPaddingTile = tileCount;
         edited = (byte[])decoded.Pixels.Clone();
-        edited[(firstPaddingTile / columns * 8) * decoded.Size.Width + firstPaddingTile % columns * 8] = 1;
+        edited[(firstPaddingTile / columns * 8) * decoded.Size.X + firstPaddingTile % columns * 8] = 1;
         using var invalidPng = new MemoryStream();
-        IndexedPng.Write(invalidPng, new(decoded.Size.Width, decoded.Size.Height), edited, decoded.Palette);
+        IndexedPng.Write(invalidPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Palette);
         AssertThrows<InvalidDataException>(() => RoomCharacterAtlas.Load(
                 new MemoryStream(invalidPng.ToArray()), partialNative.Length),
             "room atlas rejects artwork in unused final-row cells");

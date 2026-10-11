@@ -65,7 +65,7 @@ internal static partial class Program
             const int height = 16;
             int blockCount = width * height;
             var level = new RoomLevelData(
-                new Size32<RoomBlocks>(width, height),
+                new Extent16<RoomBlocks>(width, height),
                 new ushort[blockCount],
                 new byte[blockCount],
                 new ushort[blockCount],

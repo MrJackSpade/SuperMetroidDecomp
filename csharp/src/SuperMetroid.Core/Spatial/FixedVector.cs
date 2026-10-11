@@ -12,9 +12,6 @@ namespace SuperMetroid.Core.Spatial;
 public readonly record struct FixedVector<TSpace>(SnesSignedSixteenSixteen X, SnesSignedSixteenSixteen Y)
     where TSpace : ISpatialSpace
 {
-    /// <summary>No displacement.</summary>
-    public static FixedVector<TSpace> Zero => default;
-
     /// <summary>Assembles both axes from the native whole and fraction words.</summary>
     [SpatialComponents("Native codec: the four WRAM words of one displacement.")]
     public static FixedVector<TSpace> FromWords(ushort xWhole, ushort xFraction, ushort yWhole, ushort yFraction) =>
@@ -26,14 +23,6 @@ public readonly record struct FixedVector<TSpace>(SnesSignedSixteenSixteen X, Sn
 
     /// <summary>Replaces the Y axis.</summary>
     public FixedVector<TSpace> WithY(SnesSignedSixteenSixteen y) => this with { Y = y };
-
-    /// <summary>Adds two displacements, carrying fractions and wrapping each axis at 32 bits.</summary>
-    public static FixedVector<TSpace> operator +(FixedVector<TSpace> left, FixedVector<TSpace> right) =>
-        new(left.X + right.X, left.Y + right.Y);
-
-    /// <summary>Subtracts two displacements, borrowing fractions and wrapping each axis at 32 bits.</summary>
-    public static FixedVector<TSpace> operator -(FixedVector<TSpace> left, FixedVector<TSpace> right) =>
-        new(left.X - right.X, left.Y - right.Y);
 }
 
 /// <summary>A two-dimensional unsigned native 16.16 position: a whole word and a subpixel word per axis.</summary>
@@ -47,6 +36,26 @@ public readonly record struct FixedPosition<TSpace>(SnesFixedPosition X, SnesFix
 
     /// <summary>The whole-pixel position, discarding the subpixel words.</summary>
     public Position16<TSpace> Whole => new(X.Whole, Y.Whole);
+
+    /// <summary>Assembles both axes from the native whole and subpixel words.</summary>
+    [SpatialComponents("Native codec: the four WRAM words of one 16.16 position.")]
+    public static FixedPosition<TSpace> FromWords(ushort xWhole, ushort xFraction, ushort yWhole, ushort yFraction) =>
+        new(new SnesFixedPosition(xWhole, xFraction), new SnesFixedPosition(yWhole, yFraction));
+
+    /// <summary>A whole-pixel position with both subpixel words zero.</summary>
+    public static FixedPosition<TSpace> FromWhole(Position16<TSpace> whole) =>
+        new(new SnesFixedPosition(whole.X, 0), new SnesFixedPosition(whole.Y, 0));
+
+    /// <summary>
+    /// Replaces both whole words and keeps both subpixel words, as cartridge routines that
+    /// store only the integer position words do.
+    /// </summary>
+    public FixedPosition<TSpace> WithWhole(Position16<TSpace> whole) =>
+        new(X.WithWhole(whole.X), Y.WithWhole(whole.Y));
+
+    /// <summary>Keeps both whole words and takes both subpixel words from <paramref name="source"/>.</summary>
+    public FixedPosition<TSpace> WithFractionsOf(FixedPosition<TSpace> source) =>
+        new(X.WithFraction(source.X.Fraction), Y.WithFraction(source.Y.Fraction));
 
     /// <summary>Replaces the X axis.</summary>
     public FixedPosition<TSpace> WithX(SnesFixedPosition x) => this with { X = x };

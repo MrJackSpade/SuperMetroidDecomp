@@ -26,7 +26,7 @@ internal static partial class Program
             int expected = 0;
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            AssertEqual((byte)expected, MapObjectTileArtwork.ReservePixel(tile, new(x, y)), "original reserve pixel geometry");
+            AssertEqual((byte)expected, MapObjectTileArtwork.ReservePixel(tile, new(checked((ushort)x), checked((ushort)y))), "original reserve pixel geometry");
             byte[] pixels = (byte[])image.Pixels.Clone();
             int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
             pixels[position] = (byte)((expected + 1) % 16);
@@ -53,8 +53,8 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => MapObjectTileArtwork.ReservePixel(invalid, new(0, 0)), "invalid reserve tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => MapObjectTileArtwork.ReservePixel(0x47, new(invalid, 0)), "invalid reserve pixel X");
-            AssertThrows<ArgumentOutOfRangeException>(() => MapObjectTileArtwork.ReservePixel(0x47, new(0, invalid)), "invalid reserve pixel Y");
+            AssertThrows<ArgumentOutOfRangeException>(() => MapObjectTileArtwork.ReservePixel(0x47, new(unchecked((ushort)invalid), 0)), "invalid reserve pixel X");
+            AssertThrows<ArgumentOutOfRangeException>(() => MapObjectTileArtwork.ReservePixel(0x47, new(0, unchecked((ushort)invalid))), "invalid reserve pixel Y");
         }
         var unchanged = new SnesVram();
         AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadArtworkTo(unchanged, 65536 - 8192 + 1), "invalid full transfer destination");

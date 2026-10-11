@@ -39,7 +39,7 @@ internal static partial class Program
                 FileSelectSlotFieldDocument exported = (dataPage ? document.DataSlots : document.MainSlots)[slot];
                 if (field is FileSelectSlotField.Energy or FileSelectSlotField.TimeValue)
                 {
-                    Point32<TilemapCells> point = field == FileSelectSlotField.Energy ? exported.EnergyAnchor : exported.TimeValueAnchor;
+                    Position16<TilemapCells> point = field == FileSelectSlotField.Energy ? exported.EnergyAnchor : exported.TimeValueAnchor;
                     AssertEqual(expected, (point.Y * 32 + point.X) * 2, "extracted slot field anchor");
                 }
                 else

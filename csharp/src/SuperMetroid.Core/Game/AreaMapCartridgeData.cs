@@ -39,14 +39,14 @@ public sealed class AreaMapCartridgeData : IAreaMapView
     public byte[] StationRevealMaskBytes { get; }
 
     /// <summary>Reads one decoded cartridge tilemap word in logical 64-by-32 coordinates.</summary>
-    public MapTileWord GetTile(Point32<MapTiles> cell)
+    public MapTileWord GetTile(Position16<MapTiles> cell)
     {
         _ = AreaMapLayout.GetTilemapWordIndex(cell);
         return tilemap[AreaMapLayout.Size.RowMajorIndex(cell)];
     }
 
     /// <summary>Whether the area's ordinary map station reveals this coordinate.</summary>
-    public bool IsRevealedByMapStation(Point32<MapTiles> cell)
+    public bool IsRevealedByMapStation(Position16<MapTiles> cell)
     {
         int byteIndex = AreaMapLayout.GetBitByteIndex(cell);
         return (StationRevealMaskBytes[byteIndex] & AreaMapLayout.GetBitMask(cell.X)) != 0;
@@ -56,11 +56,11 @@ public sealed class AreaMapCartridgeData : IAreaMapView
     /// Whether the cartridge tilemap defines a discoverable cell, including secret cells
     /// deliberately absent from the map-station reveal plane.
     /// </summary>
-    public bool IsDiscoverable(Point32<MapTiles> cell) => AreaMapExplorationRules.IsDiscoverable(GetTile(cell));
+    public bool IsDiscoverable(Position16<MapTiles> cell) => AreaMapExplorationRules.IsDiscoverable(GetTile(cell));
 
     /// <summary>Returns whether discovering one map tile also reveals the logical cell immediately above it.</summary>
     /// <param name="cell">Logical map cell, X 0 through 63 and Y 0 through 31.</param>
     /// <returns>Whether the tile's native shape has the upward reveal behavior.</returns>
-    public bool RevealsCellAbove(Point32<MapTiles> cell) =>
+    public bool RevealsCellAbove(Position16<MapTiles> cell) =>
         AreaMapExplorationRules.RevealsCellAbove(GetTile(cell));
 }

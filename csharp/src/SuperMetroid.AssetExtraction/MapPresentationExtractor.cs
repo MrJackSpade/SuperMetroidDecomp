@@ -29,7 +29,7 @@ public static class MapPresentationExtractor
             var map = AreaMapImporter.Load(bus, area);
             AreaMapPresentationAsset.Write(buffer, map);
             stationCells.Add(area.ToString(), Enumerable.Range(0, AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
-                .Where(i => map.IsRevealedByMapStation(new(i % AreaMapLayout.WidthInTiles, i / AreaMapLayout.WidthInTiles))).ToArray());
+                .Where(i => map.IsRevealedByMapStation(new(checked((ushort)(i % AreaMapLayout.WidthInTiles)), checked((ushort)(i / AreaMapLayout.WidthInTiles))))).ToArray());
             byte[] bytes = buffer.ToArray();
             string name = AreaMapCatalogFormat.FileName(area);
             // Exclusive creation prevents this stock importer from overwriting edited
@@ -44,7 +44,7 @@ public static class MapPresentationExtractor
         hashes.Add(AreaMapCatalogFormat.StationRevealFile, Convert.ToHexString(SHA256.HashData(revealBytes)));
         byte[] tilePixels = SnesGraphics.DecodePlanarTiles(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount),
-            4, MapTileAtlasFormat.TileColumns, out Size32<ImagePixels> atlasSize);
+            4, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> atlasSize);
         using var atlas = new MemoryStream();
         // Palette indexes are tile content; runtime CGRAM supplies the selected map
         // palette. This neutral preview palette is not an imported gameplay palette.
@@ -55,7 +55,7 @@ public static class MapPresentationExtractor
         hashes.Add(MapTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(atlasBytes)));
         byte[] pausePixels = SnesGraphics.DecodePlanarTiles(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount),
-            4, MapTileAtlasFormat.TileColumns, out Size32<ImagePixels> pauseSize);
+            4, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> pauseSize);
         using var pauseAtlas = new MemoryStream();
         IndexedPng.Write(pauseAtlas, pauseSize, pausePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
         byte[] pauseBytes = pauseAtlas.ToArray();
@@ -64,7 +64,7 @@ public static class MapPresentationExtractor
         hashes.Add(PauseTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(pauseBytes)));
         byte[] hudPixels = SnesGraphics.DecodePlanarTiles(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount),
-            2, MapTileAtlasFormat.TileColumns, out Size32<ImagePixels> hudSize);
+            2, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> hudSize);
         using var hudAtlas = new MemoryStream();
         IndexedPng.Write(hudAtlas, hudSize, hudPixels, SnesGraphics.DiagnosticPalette(4));
         byte[] hudBytes = hudAtlas.ToArray();
@@ -79,7 +79,7 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, MapStaticPalettesFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(paletteBytes);
         hashes.Add(MapStaticPalettesFormat.FileName, Convert.ToHexString(SHA256.HashData(paletteBytes)));
-        var labelPoints = new Dictionary<string, Point32<ScreenPixels>>();
+        var labelPoints = new Dictionary<string, Position16<OamPixels>>();
         for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelectMapRomData.AreaCount; area++)
         {
             int address = SuperMetroid.Core.Frontend.FileSelectMapRomData.LabelPositions + area * 4;

@@ -10,7 +10,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         ushort[] words = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
-        var level = new RoomLevelData(new Size32<RoomBlocks>(16, 16), words, new byte[256], new ushort[256], new byte[8192]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), words, new byte[256], new ushort[256], new byte[8192]);
         var streamer = new BackgroundTilemapStreamer(16, words, new ushort[256], new byte[8192]);
         var plms = new RoomPlmSystem();
         var system = new Bank80SystemState();
@@ -23,7 +23,7 @@ internal static partial class Program
         plms.SetupCrittersEscapeBlock(level, origin);
         AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Behavior, "rescue origin is shootable BTS 4F");
         for (int y = 11; y <= 12; y++)
-            AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(15, y)).LevelWord, "rescue extensions preserve visual tile");
+            AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(15, checked((ushort)y))).LevelWord, "rescue extensions preserve visual tile");
         for (int y = 10; y <= 12; y++)
         {
             var samus = new SamusState { XPosition = 248, YPosition = (ushort)(y * 16 + 8) };
@@ -44,7 +44,7 @@ internal static partial class Program
             plms.Step(bus, level, streamer, new(0, 0), 0);
         AssertTrue(system.HasEvent(EventNumber.CrittersEscaped), "native animation sets rescue event");
         for (int y = 10; y <= 12; y++)
-            AssertEqual((ushort)0x80ff, level.GetCollisionBlock(new(15, y)).LevelWord, "native rescue opening clears artwork but remains solid to Samus");
+            AssertEqual((ushort)0x80ff, level.GetCollisionBlock(new(15, checked((ushort)y))).LevelWord, "native rescue opening clears artwork but remains solid to Samus");
         Console.WriteLine("Animal rescue: native setup, ROM break animation, cleared wall and event verified.");
     }
 }

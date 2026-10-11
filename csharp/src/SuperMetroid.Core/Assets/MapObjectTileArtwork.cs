@@ -49,16 +49,16 @@ internal sealed class MapObjectTileArtwork
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.Width + tile % 16 * 8 + x];
-            if (pixel != ReservePixel(tile, new(x, y)))
+            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
+            if (pixel != ReservePixel(tile, new(checked((ushort)x), checked((ushort)y))))
                 (reserveEdits ??= new()).Add((tile - FirstReserveTile) * 64 + y * 8 + x, pixel);
         }
         for (int tile = FirstHighlightTile; tile < FirstHighlightTile + HighlightTileCount; tile++)
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.Width + tile % 16 * 8 + x];
-            if (pixel != HighlightPixel(tile, new(x, y)))
+            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
+            if (pixel != HighlightPixel(tile, new(checked((ushort)x), checked((ushort)y))))
                 (highlightEdits ??= new()).Add((tile - FirstHighlightTile) * 64 + y * 8 + x, pixel);
         }
     }
@@ -68,7 +68,7 @@ internal sealed class MapObjectTileArtwork
 
     /// <summary>Border index12; left corner reuses cursor46 shifted right with colors1/2 exchanged.
     /// Source cursor edits are compensated by independent corner-pixel edits captured at import.</summary>
-    internal byte HighlightPixel(int tile, Point32<ImagePixels> point)
+    internal byte HighlightPixel(int tile, Position16<CharacterPixels> point)
     {
         if (!IsHighlight(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         if (tile == FirstHighlightTile)
@@ -86,7 +86,7 @@ internal sealed class MapObjectTileArtwork
         return (point.Y == 0 && point.X < 2) || (tile == FirstHighlightTile + 2 && point.X == 1) ? (byte)12 : (byte)0;
     }
     /// <summary>Calculates the native border, fill and empty-interior indices of one reserve pixel.</summary>
-    internal static byte ReservePixel(int tile, Point32<ImagePixels> point)
+    internal static byte ReservePixel(int tile, Position16<CharacterPixels> point)
     {
         if ((uint)(tile - FirstReserveTile) >= ReserveTileCount || (uint)point.X >= 8 || (uint)point.Y >= 8)
             throw new ArgumentOutOfRangeException(nameof(tile));
@@ -129,8 +129,8 @@ internal sealed class MapObjectTileArtwork
                 for (int x = 0; x < 8; x++)
                 {
                     int key = (tile - first) * 64 + y * 8 + x;
-                    byte pixel = thin ? thinBorder.Pixel(tile, new(x, y)) : square ? squares.Pixel(tile, new(x, y)) : marker ? markers.Pixel(tile, new(x, y)) : shoulderFrame ? shoulderHighlight.Pixel(tile, new(x, y)) : shoulder ? shoulderButtons.Pixel(tile, new(x, y)) : panelTile ? panel.Pixel(tile, new(x, y)) : lettering ? elevatorLettering.Pixel(tile, new(x, y)) : title ? largeFont.Pixel(tile, new(x, y)) : font ? smallFont.Pixel(tile, new(x, y)) : edits is not null && edits.TryGetValue(key, out byte authored)
-                        ? authored : reserve ? ReservePixel(tile, new(x, y)) : HighlightPixel(tile, new(x, y));
+                    byte pixel = thin ? thinBorder.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : square ? squares.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : marker ? markers.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : shoulderFrame ? shoulderHighlight.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : shoulder ? shoulderButtons.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : panelTile ? panel.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : lettering ? elevatorLettering.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : title ? largeFont.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : font ? smallFont.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : edits is not null && edits.TryGetValue(key, out byte authored)
+                        ? authored : reserve ? ReservePixel(tile, new(checked((ushort)x), checked((ushort)y))) : HighlightPixel(tile, new(checked((ushort)x), checked((ushort)y)));
                     encoded |= (byte)(((pixel >> plane) & 1) << (7 - x));
                 }
                 transfer[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] = encoded;

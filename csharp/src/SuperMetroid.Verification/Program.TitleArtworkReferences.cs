@@ -80,7 +80,7 @@ internal static partial class Program
         static byte[] Png(int width, int height, int colors)
         {
             using var stream = new MemoryStream();
-            IndexedPng.Write(stream, new(width, height), new byte[width * height],
+            IndexedPng.Write(stream, new(checked((ushort)width), checked((ushort)height)), new byte[width * height],
                 SnesGraphics.DiagnosticPalette(colors));
             return stream.ToArray();
         }

@@ -50,7 +50,7 @@ public sealed class FileSelectMapScroll
         // Native selects one plane, not the union: a downloaded map uses its station
         // mask even if an explored secret cell lies outside that mask.
         bool Visible(int x, int y) => system.HasAreaMap(map.Area)
-            ? map.IsRevealedByMapStation(new(x, y)) : system.IsMapTileExplored(map.Area, new(x, y));
+            ? map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))) : system.IsMapTileExplored(map.Area, new(checked((ushort)x), checked((ushort)y)));
         int left = 26, right = 28, top = 1, bottom = 11;
         for (int x = 0; x < 64; x++)
             if (Enumerable.Range(0, 32).Any(y => Visible(x, y))) { left = x; break; }

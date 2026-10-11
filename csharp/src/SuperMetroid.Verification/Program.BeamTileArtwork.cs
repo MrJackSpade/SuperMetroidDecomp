@@ -26,7 +26,7 @@ internal static partial class Program
             var image = IndexedPng.Read(new MemoryStream(png), new(64, 8));
             image.Pixels[0] ^= 1;
             using var editedPng = new MemoryStream();
-            IndexedPng.Write(editedPng, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+            IndexedPng.Write(editedPng, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             editedPng.Position = 0;
             var edited = BeamTileAtlas.Load(editedPng, SamusBeamCombinations.FromTableIndex(selection));
             edited.LoadTo(extracted);

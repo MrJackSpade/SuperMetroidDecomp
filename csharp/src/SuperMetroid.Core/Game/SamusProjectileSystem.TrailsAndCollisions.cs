@@ -393,8 +393,7 @@ public sealed partial class SamusProjectileSystem
             return;
 
         oam.AddProjectileTrailSprite(
-            unchecked((byte)screenX),
-            unchecked((byte)screenY),
+            new Position16<OamPixels>(unchecked((byte)screenX), unchecked((byte)screenY)),
             artwork is null ? side.TileNumberAttributes : artwork.ResolveCurrent(side.InstructionPointer, side.TileNumberAttributes));
     }
 
@@ -515,9 +514,9 @@ public sealed partial class SamusProjectileSystem
             : unchecked((ushort)(slot.XPosition + slot.XRadius - 1));
         int blockX = targetX >> 4;
 
-        if ((uint)blockX >= (uint)level.Size.Width ||
-            (uint)topBlock >= (uint)level.Size.Height ||
-            (uint)bottomBlock >= (uint)level.Size.Height)
+        if ((uint)blockX >= (uint)level.Size.X ||
+            (uint)topBlock >= (uint)level.Size.Y ||
+            (uint)bottomBlock >= (uint)level.Size.Y)
         {
             return false;
         }
@@ -529,7 +528,7 @@ public sealed partial class SamusProjectileSystem
         int span = bottomBlock - topBlock;
         for (int blockY = topBlock; blockY <= bottomBlock; blockY++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
+            RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
             var context = new ShotSpan(span, bottomBlock - blockY, targetX);
             if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan))
                 everyBlockSolid = false;
@@ -550,9 +549,9 @@ public sealed partial class SamusProjectileSystem
             : unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
         int blockY = targetY >> 4;
 
-        if ((uint)blockY >= (uint)level.Size.Height ||
-            (uint)leftBlock >= (uint)level.Size.Width ||
-            (uint)rightBlock >= (uint)level.Size.Width)
+        if ((uint)blockY >= (uint)level.Size.Y ||
+            (uint)leftBlock >= (uint)level.Size.X ||
+            (uint)rightBlock >= (uint)level.Size.X)
         {
             return false;
         }
@@ -561,7 +560,7 @@ public sealed partial class SamusProjectileSystem
         int span = rightBlock - leftBlock;
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
+            RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
             var context = new ShotSpan(span, rightBlock - blockX, targetY);
             if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan, horizontalMovement: false))
                 everyBlockSolid = false;
@@ -651,7 +650,7 @@ public sealed partial class SamusProjectileSystem
             // $94:A147/A15E dispatch non-square slopes through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
             int centerBlock = horizontalMovement ? slot.YPosition >> 4 : slot.XPosition >> 4;
-            int slopeBlock = horizontalMovement ? block.Index / level.Size.Width : block.Index % level.Size.Width;
+            int slopeBlock = horizontalMovement ? block.Index / level.Size.X : block.Index % level.Size.X;
             if (centerBlock != slopeBlock) return false;
 
             int x = slot.XPosition & 15;
@@ -724,7 +723,7 @@ public sealed partial class SamusProjectileSystem
                 case RoomCollisionType.VerticalExtension:
                     if (offset == 0)
                         return null;
-                    targetIndex = block.Index + (offset * level.Size.Width);
+                    targetIndex = block.Index + (offset * level.Size.X);
                     break;
 
                 case RoomCollisionType.Air:

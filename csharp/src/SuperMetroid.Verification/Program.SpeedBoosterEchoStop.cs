@@ -30,7 +30,7 @@ internal static partial class Program
             0, ref animation, out _, () => queue.QueueSoundAndGetAccumulator(SoundEffectLibrary3Sounds.SpeedBoosterEcho, 6));
         var words = new ushort[256];
         for (int index = 160; index < 176; index++) words[index] = 0x8000;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(16, 16), words, new byte[256], new ushort[256], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), words, new byte[256], new ushort[256], new byte[8]);
         int starts = 0, stops = 0, stopRequests = 0, finalPeak = 0;
         for (int frame = 0; frame < 90; frame++)
         {
@@ -114,7 +114,7 @@ internal static partial class Program
         speed.EchoSoundFlag = 1;
         speed.EchoSoundRequested = true;
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        var sand = new RoomLevelData(new Size32<RoomBlocks>(4, 4), Enumerable.Repeat((ushort)0x3000, 16).ToArray(),
+        var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), Enumerable.Repeat((ushort)0x3000, 16).ToArray(),
             Enumerable.Repeat((byte)0x80, 16).ToArray(), new ushort[16], new byte[8]);
         SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
         AssertEqual((ushort)0, speed.EchoSoundFlag, "quicksand clears the native persistent flag");

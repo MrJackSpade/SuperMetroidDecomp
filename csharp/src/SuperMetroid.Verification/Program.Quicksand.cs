@@ -8,7 +8,7 @@ internal static partial class Program
     static void VerifyQuicksand()
     {
         var bus = new TestAddressSpace();
-        RoomLevelData Room(byte bts) => new RoomLevelData(new Size32<RoomBlocks>(4, 4),
+        RoomLevelData Room(byte bts) => new RoomLevelData(new Extent16<RoomBlocks>(4, 4),
             Enumerable.Repeat((ushort)0x3000, 16).ToArray(), Enumerable.Repeat(bts, 16).ToArray(),
             new ushort[16], new byte[8]);
         var level = Room(0x80);
@@ -72,7 +72,7 @@ internal static partial class Program
 
         var guarded = new QuicksandDefinitionReadGuard(rom);
         var level = new RoomLevelData(
-            new Size32<RoomBlocks>(4, 4),
+            new Extent16<RoomBlocks>(4, 4),
             Enumerable.Repeat((ushort)0x3000, 16).ToArray(),
             Enumerable.Repeat((byte)0x80, 16).ToArray(),
             new ushort[16],

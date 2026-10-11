@@ -111,7 +111,7 @@ internal static partial class Program
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)
         {
-            int index = y * level.Size.Width + x;
+            int index = y * level.Size.X + x;
             level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
@@ -124,7 +124,7 @@ internal static partial class Program
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.XPosition = 512;
         samus.YPosition = 490;
-        runtime.Camera!.SetPosition(400, 350);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         for (int frame = 0; frame < 20; frame++) runtime.StepFrame((ushort)SnesButton.Right);
@@ -146,7 +146,7 @@ internal static partial class Program
             "Next alpha fires using prior beta displacement before reset and this-frame movement");
         AssertEqual(expected, restored.Projectiles!.Slots.First(slot => slot.IsActive).XVelocity,
             "Debugger graph round trip retains native WRAM inheritance for resumed launch");
-        AssertEqual(runtime.Camera!.CameraYSubspeed, Word(0x0da8),
+        AssertEqual(runtime.Camera!.Speed.Y.Fraction, Word(0x0da8),
             "Runtime publishes camera Y subspeed into the native shared record");
         byte[] beforeFreeze = bus.WorkRam.Slice(0x0daa, 16).ToArray();
         runtime.GameplayTimeFrozen = true;

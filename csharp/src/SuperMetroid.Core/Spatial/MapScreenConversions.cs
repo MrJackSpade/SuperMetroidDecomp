@@ -7,7 +7,7 @@ public static class MapScreenConversions
     public const int PixelsPerTile = 8;
 
     /// <summary>The top-left map-plane pixel of a map tile (<c>tile × 8</c>), wrapping each axis at sixteen bits.</summary>
-    public static Position16<MapPixels> ToMapPixels(this Point32<MapTiles> tile) =>
+    public static Position16<MapPixels> ToMapPixels(this Position16<MapTiles> tile) =>
         new(unchecked((ushort)(tile.X * PixelsPerTile)), unchecked((ushort)(tile.Y * PixelsPerTile)));
 
     /// <summary>

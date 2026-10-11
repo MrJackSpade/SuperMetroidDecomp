@@ -69,9 +69,9 @@ static void VerifyKraidLibraryHudArtwork(
     byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress,
         HudTileAtlasFormat.CharacterByteCount);
     byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 2, MapTileAtlasFormat.TileColumns,
-        out Size32<ImagePixels> size);
-    AssertEqual(MapTileAtlasFormat.Width, size.Width, "Kraid HUD atlas width");
-    AssertEqual(MapTileAtlasFormat.Height, size.Height, "Kraid HUD atlas height");
+        out Extent16<ImagePixels> size);
+    AssertEqual(MapTileAtlasFormat.Width, size.X, "Kraid HUD atlas width");
+    AssertEqual(MapTileAtlasFormat.Height, size.Y, "Kraid HUD atlas height");
 
     HudTileAtlas Compile(ReadOnlySpan<byte> selectedPixels)
     {

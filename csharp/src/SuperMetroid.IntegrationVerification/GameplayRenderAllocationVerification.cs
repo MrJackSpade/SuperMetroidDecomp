@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 internal static class GameplayRenderAllocationVerification
 {
@@ -9,12 +10,12 @@ internal static class GameplayRenderAllocationVerification
         var cgram = new SnesCgram();
         var oam = new OamBuffer();
         cgram.SetColor(0, Bgr555.FromWord(0x1234));
-        var registers = new OrdinaryGameplayRegisters(0, 0, 0, 0, 64, 32, 0, 0, 0, 0,
+        var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32), 0, 0, 0, 0,
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
         var snapshot = new LayeredRenderSnapshot(PpuMemorySnapshot.Capture(vram, cgram, oam),
             [new OrdinaryGameplayRenderLayer(registers)], 3, 15);
-        var expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(vram, cgram, oam, 0, 0, 0, 0,
-            bg2TilemapWidthInTiles: 64, bg2TilemapHeightInTiles: 32, bg2TilemapBaseWord: 0,
+        var expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(vram, cgram, oam, new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
+            bg2TilemapSize: new Extent16<TilemapCells>(64, 32), bg2TilemapBaseWord: 0,
             bg1CharacterBaseWord: 0, bg2CharacterBaseWord: 0, bg3CharacterBaseWord: 0);
         for (int i = 0; i < 10; i++) SoftwareLayeredSnapshotRenderer.Render(snapshot);
         long before = GC.GetAllocatedBytesForCurrentThread();
@@ -54,7 +55,7 @@ internal static class GameplayRenderAllocationVerification
         if (xrayBytes >= 100000) throw new InvalidDataException("X-ray allocates redundant full-screen scratch or duplicate PPU memory.");
         var identity = new RenderFrameIdentity(1, 1, 0);
         RenderFrameSnapshot[] packets = [
-            new(identity, new Mode7ObjRenderSnapshot(memory, new Mode7RenderRegisters(256, 0, 0, 256, 0, 0, 0, 0), 3, 15)),
+            new(identity, new Mode7ObjRenderSnapshot(memory, new Mode7RenderRegisters(256, 0, 0, 256, new Offset16<Mode7Pixels>(0, 0), new Offset16<Mode7Pixels>(0, 0)), 3, 15)),
             new(identity, new Mode7ObjRenderSnapshot(memory, null, 3, 9,
                 Enumerable.Repeat(new SuperMetroid.Core.Frontend.TitleGradientLine(1, 2, 3, 0xa1), 224).ToArray()), new byte[] { 11 }),
             new(identity, new LayeredRenderSnapshot(memory, [], 3, 15)),

@@ -20,7 +20,7 @@ internal static class IntroFontGlyphDefinitions
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
-                int ink = Pixel(glyph, new(x, y + rowOffset));
+                int ink = Pixel(glyph, new(checked((ushort)x), checked((ushort)(y + rowOffset))));
                 int address = tile * 16 + y * 2;
                 output[address] |= (byte)((ink & 1) << (7 - x));
                 output[address + 1] |= (byte)((ink >> 1) << (7 - x));
@@ -29,9 +29,9 @@ internal static class IntroFontGlyphDefinitions
         return output;
     }
 
-    private static int Pixel(int glyph, Point32<ImagePixels> point)
+    private static int Pixel(int glyph, Position16<ImagePixels> point)
     {
-        if (glyph == Period + 2) return point.X == 0 ? 0 : Pixel(Period, new(point.X - 1, point.Y));
+        if (glyph == Period + 2) return point.X == 0 ? 0 : Pixel(Period, new(checked((ushort)(point.X - 1)), point.Y));
         int background = glyph is SubtitleBlank or >= 0x5a and <= 0x5f or >= 0x70 ? 2 : 0;
         UInt128 stroke = Stroke(glyph);
         int height = glyph < 48 ? 8 : 16;
@@ -142,7 +142,7 @@ internal static class IntroFontGlyphDefinitions
     };
 
     /// <summary>$95:D089: four authored contour extensions beyond dilation: small C bottom-left, large G's two bar joins, and Japanese $7E's lower diagonal join.</summary>
-    private static bool AddedContour(int glyph, Point32<ImagePixels> point) => glyph switch
+    private static bool AddedContour(int glyph, Position16<ImagePixels> point) => glyph switch
     {
         0x02 => point.X == 0 && point.Y == 7,
         0x36 => point.X == 4 && point.Y is 6 or 10,
@@ -151,7 +151,7 @@ internal static class IntroFontGlyphDefinitions
     };
 
     /// <summary>$95:D089: 91 omitted dilation pixels, four derived through the shifted period. Only chosen bevel/corner details remain, with repeated/symmetric coordinates shared; no whole contour plane is stored.</summary>
-    private static bool RemovedContour(int glyph, Point32<ImagePixels> point) => glyph switch
+    private static bool RemovedContour(int glyph, Position16<ImagePixels> point) => glyph switch
     {
         0x01 => point.X == 0 && point.Y == 0,
         0x05 => point.X is 0 or 3 && point.Y == 7,

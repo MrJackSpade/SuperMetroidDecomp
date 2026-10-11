@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class SwapchainTests
 {
@@ -16,16 +17,16 @@ internal static partial class SwapchainTests
         D3D11RenderWorker? worker = null;
         try
         {
-            worker = new(window, 640, 480, 1, kind);
+            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, kind);
             PumpUntil(() => worker.Ready.IsCompleted);
             worker.Ready.GetAwaiter().GetResult();
             long sequence = 1, generation = 1;
             worker.Publish(new(new(sequence, generation, 0), new Rgba32(23, 71, 127)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
 
-            foreach (var size in new[] { (0, 480), (640, 0), (0, 0) })
+            foreach (var size in new Extent16<DisplayPixels>[] { new(0, 480), new(640, 0), new(0, 0) })
             {
-                worker.Resize(size.Item1, size.Item2);
+                worker.Resize(size);
                 PumpUntil(() => { worker.ThrowIfFaulted(); return worker.IsSurfaceSuspended; });
                 long consumed = worker.LastConsumedSequence;
                 long submissions = worker.SubmittedUploadCalls;
@@ -47,16 +48,16 @@ internal static partial class SwapchainTests
                 if (MailboxCounters(worker).HasPendingFrame)
                     throw new InvalidOperationException("Generation change retained a queued pre-load frame while suspended.");
                 worker.Publish(new(new(++sequence, generation, 0), new Rgba32(43, 91, 173)));
-                worker.Resize(641, 481);
+                worker.Resize(new Extent16<DisplayPixels>(641, 481));
                 PumpUntil(() => { worker.ThrowIfFaulted(); return !worker.IsSurfaceSuspended &&
-                    worker.LastConsumedSequence == sequence && worker.LastDrawnSize == (641, 481); });
+                    worker.LastConsumedSequence == sequence && worker.LastDrawnSize == new Extent16<DisplayPixels>(641, 481); });
                 RenderMailboxCounterView metrics = MailboxCounters(worker);
                 if (metrics.HasPendingFrame || metrics.Generation != generation ||
                     metrics.Published != metrics.Taken + metrics.Replaced + metrics.Invalidated)
                     throw new InvalidOperationException("Surface restore lost latest generation/mailbox accounting.");
             }
 
-            worker.Resize(0, 0);
+            worker.Resize(new Extent16<DisplayPixels>(0, 0));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.IsSurfaceSuspended; });
             worker.Publish(new(new(++sequence, generation, 0), new Rgba32(1, 2, 3)));
             Task stop = worker.StopAsync();

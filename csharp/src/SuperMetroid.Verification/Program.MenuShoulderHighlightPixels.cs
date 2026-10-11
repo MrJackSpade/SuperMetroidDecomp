@@ -28,7 +28,7 @@ internal static partial class Program
             int expected = 0;
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            AssertEqual((byte)expected, highlight.Pixel(tile, new(x, y)), "original highlight frame, quadratic contour and transparency");
+            AssertEqual((byte)expected, highlight.Pixel(tile, new(checked((ushort)x), checked((ushort)y))), "original highlight frame, quadratic contour and transparency");
             byte[] pixels = (byte[])image.Pixels.Clone();
             int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
             pixels[position] = (byte)((expected + 1) % 16);
@@ -53,8 +53,8 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(invalid, new(0, 0)), "invalid highlight tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(0x3c, new(invalid, 0)), "invalid highlight X");
-            AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(0x3c, new(0, invalid)), "invalid highlight Y");
+            AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(0x3c, new(unchecked((ushort)invalid), 0)), "invalid highlight X");
+            AssertThrows<ArgumentOutOfRangeException>(() => highlight.Pixel(0x3c, new(0, unchecked((ushort)invalid))), "invalid highlight Y");
         }
         void CheckEdited(byte[] pixels)
         {

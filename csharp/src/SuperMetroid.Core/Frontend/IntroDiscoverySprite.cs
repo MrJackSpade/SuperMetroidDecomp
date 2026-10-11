@@ -200,7 +200,7 @@ internal sealed class IntroDiscoverySprite
             (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0;
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(SpriteMapPointer, oam, origin, PaletteBits, originIsOnScreen);
+            .Draw(SpriteMapPointer, oam, origin.ToOam(), PaletteBits, originIsOnScreen);
     }
 
     private static ushort Add(ushort pointer, int bytes) =>

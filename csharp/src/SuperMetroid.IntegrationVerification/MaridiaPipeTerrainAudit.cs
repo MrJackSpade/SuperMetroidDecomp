@@ -16,11 +16,12 @@ internal static class MaridiaPipeTerrainAudit
         var level = runtime.LevelData!;
         foreach (bool background in new[] { false, true })
         {
-            if (background && ((scroll.Layer2ScrollX | scroll.Layer2ScrollY) & 1) != 0) continue;
-            int offsetX = background ? scroll.Bg2XOffset : scroll.Bg1XOffset;
-            int offsetY = background ? scroll.Bg2YOffset : scroll.Bg1YOffset;
-            int registerX = background ? r.Bg2X : r.Bg1X;
-            int registerY = background ? r.Bg2Y : r.Bg1Y;
+            if (background && ((scroll.Layer2Scroll.Horizontal | scroll.Layer2Scroll.Vertical) & 1) != 0) continue;
+            // The audit compares wrapped register words, so take each offset as its native word.
+            int offsetX = unchecked((ushort)(background ? scroll.Bg2Offset.X : scroll.Bg1Offset.X));
+            int offsetY = unchecked((ushort)(background ? scroll.Bg2Offset.Y : scroll.Bg1Offset.Y));
+            int registerX = background ? r.Bg2Scroll.X : r.Bg1Scroll.X;
+            int registerY = background ? r.Bg2Scroll.Y : r.Bg1Scroll.Y;
             int tilemap = background ? r.Bg2TilemapWord : SnesPpuLayout.GameplayBg1TilemapWord;
             var source = background ? level.BackgroundEntries.Span : level.ForegroundEntries.Span;
             int differences = 0;
@@ -34,8 +35,8 @@ internal static class MaridiaPipeTerrainAudit
                 int worldX = unchecked((ushort)(registerX - offsetX + screenX));
                 int worldY = unchecked((ushort)(registerY - offsetY + screenY + 1));
                 int blockX = worldX / 16, blockY = worldY / 16;
-                if (blockX >= level.Size.Width || blockY >= level.Size.Height) continue;
-                var tiles = LevelBlockTilemapExpander.Expand(source[blockY * level.Size.Width + blockX], level.BlockDefinitions.Span);
+                if (blockX >= level.Size.X || blockY >= level.Size.Y) continue;
+                var tiles = LevelBlockTilemapExpander.Expand(source[blockY * level.Size.X + blockX], level.BlockDefinitions.Span);
                 ushort expected = (worldY & 8) == 0
                     ? (worldX & 8) == 0 ? tiles.TopLeft : tiles.TopRight
                     : (worldX & 8) == 0 ? tiles.BottomLeft : tiles.BottomRight;

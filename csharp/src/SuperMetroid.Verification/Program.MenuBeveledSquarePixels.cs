@@ -28,7 +28,7 @@ internal static partial class Program
             int expected = 0;
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            AssertEqual((byte)expected, square.Pixel(tile, new(x, y)), "original square face, bevel and transparency");
+            AssertEqual((byte)expected, square.Pixel(tile, new(checked((ushort)x), checked((ushort)y))), "original square face, bevel and transparency");
             byte[] pixels = (byte[])image.Pixels.Clone();
             int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
             pixels[position] = (byte)((expected + 1) % 16);
@@ -55,8 +55,8 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => square.Pixel(invalid, new(0, 0)), "invalid square tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => square.Pixel(0x98, new(invalid, 0)), "invalid square X");
-            AssertThrows<ArgumentOutOfRangeException>(() => square.Pixel(0x98, new(0, invalid)), "invalid square Y");
+            AssertThrows<ArgumentOutOfRangeException>(() => square.Pixel(0x98, new(unchecked((ushort)invalid), 0)), "invalid square X");
+            AssertThrows<ArgumentOutOfRangeException>(() => square.Pixel(0x98, new(0, unchecked((ushort)invalid))), "invalid square Y");
         }
         void CheckEdited(byte[] pixels)
         {

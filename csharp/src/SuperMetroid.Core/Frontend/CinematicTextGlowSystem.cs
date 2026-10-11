@@ -8,7 +8,7 @@ internal sealed class CinematicTextGlowSystem
     private readonly GlowSlot[] slots = new GlowSlot[CinematicTextGlowRomData.SlotCount];
 
     /// <summary>Starts a glow over the text-tilemap rectangle at <paramref name="cell"/>.</summary>
-    public void Spawn(Point32<TilemapCells> cell, Size32<TilemapCells> size)
+    public void Spawn(Position16<TilemapCells> cell, Extent16<TilemapCells> size)
     {
         for (int i = slots.Length - 1; i >= 0; i--)
         {
@@ -25,8 +25,8 @@ internal sealed class CinematicTextGlowSystem
         {
             ref GlowSlot slot = ref slots[i];
             if (!slot.Active || slot.Timer-- != 1) continue;
-            for (int row = 0; row < slot.Size.Height; row++)
-            for (int column = 0; column < slot.Size.Width; column++)
+            for (int row = 0; row < slot.Size.Y; row++)
+            for (int column = 0; column < slot.Size.X; column++)
             {
                 int index = (slot.Cell.Y + row) * CinematicTextGlowRomData.RowWidth + slot.Cell.X + column;
                 tilemap[index] = (ushort)((tilemap[index] & CinematicTextGlowRomData.PreserveTileBits) |
@@ -45,8 +45,8 @@ internal sealed class CinematicTextGlowSystem
     private struct GlowSlot
     {
         public bool Active;
-        public Point32<TilemapCells> Cell;
-        public Size32<TilemapCells> Size;
+        public Position16<TilemapCells> Cell;
+        public Extent16<TilemapCells> Size;
         public ushort Timer, Palette;
     }
 }

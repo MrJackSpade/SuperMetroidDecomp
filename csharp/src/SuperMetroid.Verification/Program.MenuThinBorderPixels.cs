@@ -28,7 +28,7 @@ internal static partial class Program
             int expected = 0;
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            AssertEqual((byte)expected, border.Pixel(tile, new(x, y)), "original border line and transparency");
+            AssertEqual((byte)expected, border.Pixel(tile, new(checked((ushort)x), checked((ushort)y))), "original border line and transparency");
             byte[] pixels = (byte[])image.Pixels.Clone();
             int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
             pixels[position] = (byte)((expected + 1) % 16);
@@ -55,8 +55,8 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => border.Pixel(invalid, new(0, 0)), "invalid border tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => border.Pixel(0xad, new(invalid, 0)), "invalid border X");
-            AssertThrows<ArgumentOutOfRangeException>(() => border.Pixel(0xad, new(0, invalid)), "invalid border Y");
+            AssertThrows<ArgumentOutOfRangeException>(() => border.Pixel(0xad, new(unchecked((ushort)invalid), 0)), "invalid border X");
+            AssertThrows<ArgumentOutOfRangeException>(() => border.Pixel(0xad, new(0, unchecked((ushort)invalid))), "invalid border Y");
         }
         void CheckEdited(byte[] pixels)
         {

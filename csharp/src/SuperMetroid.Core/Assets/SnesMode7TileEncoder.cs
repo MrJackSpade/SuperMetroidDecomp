@@ -11,9 +11,9 @@ public static class SnesMode7TileEncoder
     /// <returns>A newly allocated, equally sized character payload with 64 bytes per tile; contains neither tilemap indices nor the alternating VRAM byte-lane padding.</returns>
     /// <exception cref="ArgumentException">Dimensions are not positive complete-tile extents, or the pixel count differs from their product.</exception>
     /// <exception cref="OverflowException">The dimension product exceeds the signed 32-bit range.</exception>
-    public static byte[] Encode(ReadOnlySpan<byte> pixels, Size32<ImagePixels> size)
+    public static byte[] Encode(ReadOnlySpan<byte> pixels, Extent16<ImagePixels> size)
     {
-        int width = size.Width, height = size.Height;
+        int width = size.X, height = size.Y;
         if (width <= 0 || height <= 0 || width % 8 != 0 || height % 8 != 0 ||
             pixels.Length != size.Area)
         {

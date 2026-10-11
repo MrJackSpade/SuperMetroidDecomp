@@ -45,7 +45,7 @@ public static class SamusDeathTileArtworkFiles
                     bus.ReadCartridgeByte(segments[segment].SourceAddress + offset);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,
             SamusDeathTileAtlasFormat.BitsPerPixel, SamusDeathTileAtlasFormat.Width / 8,
-            out Size32<ImagePixels> size);
+            out Extent16<ImagePixels> size);
         using var output = new MemoryStream();
         IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(1 << SamusDeathTileAtlasFormat.BitsPerPixel));

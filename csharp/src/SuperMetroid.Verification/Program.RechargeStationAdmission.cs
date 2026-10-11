@@ -23,8 +23,8 @@ internal static partial class Program
                 RoomPlmPopulationImporter.Read(bus, 0x9000), new Bank80SystemState(),
                 areaIndex: AreaId.Crateria, getSamus: () => samus, isAreaTorizoDefeated: () => false);
             int accessX = right ? 9 : 7;
-            var behavior = new RoomBlockBehavior(level.GetCollisionBlock(new(accessX, 8)).Behavior);
-            bool Touch() => plms.TryNotifyStationCollision(level.GetBlockIndex(new(accessX, 8)), behavior,
+            var behavior = new RoomBlockBehavior(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Behavior);
+            bool Touch() => plms.TryNotifyStationCollision(level.GetBlockIndex(new(checked((ushort)accessX), 8)), behavior,
                 right ? SamusPoseId.RanIntoWallLeftPose : SamusPoseId.RanIntoWallRightPose,
                 horizontal: true, movingPositive: !right, roomWidthInBlocks: 32);
             AssertTrue(Touch(), "full recharge station remains solid");

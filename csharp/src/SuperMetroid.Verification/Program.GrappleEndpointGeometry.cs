@@ -61,13 +61,13 @@ internal static partial class Program
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose })
         {
             samus.Pose = pose;
-            samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-            samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+            samus.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100);
+            samus.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
             samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.RopeLength = 8;
             samus.Grapple.AnchorX = samus.XPosition;
-            samus.Grapple.AnchorY = unchecked((ushort)(runtime.Camera.YPosition - 1));
+            samus.Grapple.AnchorY = unchecked((ushort)(runtime.Camera.PixelPosition.Y - 1));
             samus.Grapple.BeamStartX = samus.XPosition;
             samus.Grapple.BeamStartY = samus.YPosition;
             samus.Grapple.SegmentAnimationTimers[15] = 1;

@@ -36,7 +36,7 @@ internal static partial class Program
         // palette application releases the slots, that same rectangle can allocate.
         glow = new CinematicTextGlowSystem();
         Array.Fill(map, (ushort)0);
-        for (int i = 0; i < 9; i++) glow.Spawn(new(i, 0), new(1, 1));
+        for (int i = 0; i < 9; i++) glow.Spawn(new(checked((ushort)i), 0), new(1, 1));
         for (int frame = 0; frame < 16; frame++) glow.Step(map);
         for (int i = 0; i < 8; i++) AssertEqual((ushort)0x0c00, map[i], "eight native glow slots mature");
         AssertEqual((ushort)0, map[8], "full pool declines ninth glow");

@@ -12,15 +12,15 @@ public sealed record BgSubscreenAddRenderLayer(ushort TilemapWord, ushort Charac
     Bg4BppRenderLayer? MainCoverage = null, bool FourBpp = false, bool IncludeObjects = false,
     bool MainObjects = false, ushort VerticalScroll = 0) : RenderLayer
 {
-    private BackgroundLineScroll[] scrolls = [];
+    private Position16<BgPlanePixels>[] scrolls = [];
     /// <summary>Owned physical-line registers; empty means the uniform scroll fields.</summary>
-    public ReadOnlySpan<BackgroundLineScroll> Scrolls => scrolls;
+    public ReadOnlySpan<Position16<BgPlanePixels>> Scrolls => scrolls;
 
     /// <summary>Returns a copied layer with independently owned per-line scroll registers, leaving this descriptor and the caller's input untouched; these registers replace uniform background scrolling, not OBJ positions.</summary>
-    /// <param name="value">Exactly 224 X/Y pixel-scroll pairs in visible output-row order; background source coordinates wrap within the 256-by-256 page.</param>
+    /// <param name="value">Exactly 224 scroll-register pairs in visible output-row order; background source coordinates wrap within the 256-by-256 page.</param>
     /// <returns>A record copy retaining the other layer settings and a new scroll array; its registers apply to either bit depth.</returns>
     /// <exception cref="ArgumentException">The register count differs from the visible screen height.</exception>
-    public BgSubscreenAddRenderLayer WithScrolls(ReadOnlySpan<BackgroundLineScroll> value)
+    public BgSubscreenAddRenderLayer WithScrolls(ReadOnlySpan<Position16<BgPlanePixels>> value)
     {
         Ensure.LengthEqual(value, Hardware.SnesPpuLayout.ScreenHeightPixels);
         var copy = this with { };

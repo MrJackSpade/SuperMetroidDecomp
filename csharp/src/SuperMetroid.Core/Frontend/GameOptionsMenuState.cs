@@ -237,21 +237,18 @@ public sealed class GameOptionsMenuState
         Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
         SnesBgTilemapRenderer.Composite4BppViewport(
             background,
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, 0, 0,
-            FrontendFrame.Width, FrontendFrame.Height,
-            GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight);
+            ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0),
+            new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height),
+            new Extent16<TilemapCells>(GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight));
         SnesBgTilemapRenderer.Composite4BppViewport(
             background,
             ppu.Vram,
             ppu.Cgram,
             MenuPpuState.Bg1TilemapWord,
             0,
-            0,
-            unchecked((ushort)bg1VerticalScroll),
-            FrontendFrame.Width,
-            FrontendFrame.Height,
-            GameOptionsRomData.MenuTilemapWidth,
-            GameOptionsRomData.MenuTilemapHeight);
+            new Position16<BgPlanePixels>(0, unchecked((ushort)bg1VerticalScroll)),
+            new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height),
+            new Extent16<TilemapCells>(GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight));
 
         PrepareRenderOam();
         Rgba32[] objectLayer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
@@ -518,12 +515,12 @@ public sealed class GameOptionsMenuState
         // Keep the cursor actor in OAM at the installed hidden anchor during transitions.
         if (cursorPage is null)
         {
-            Point32<ScreenPixels> hidden = (mapPresentation ?? throw new InvalidOperationException(
+            Position16<OamPixels> hidden = (mapPresentation ?? throw new InvalidOperationException(
                 "Options cursor requires installed presentation assets."))
                 .GameOptions.HiddenCursor;
             return (checked((ushort)hidden.X), checked((ushort)hidden.Y));
         }
-        Point32<ScreenPixels> point = (mapPresentation ?? throw new InvalidOperationException(
+        Position16<OamPixels> point = (mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets."))
             .GameOptions.CursorPosition(PresentationPageName(cursorPage.Value), SelectedItem);
         return (checked((ushort)point.X), checked((ushort)point.Y));

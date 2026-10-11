@@ -59,8 +59,8 @@ internal static partial class Program
         // only candidate is the hand block at (4, 8).
         int leftColumn = (samus.Kinematics.XPosition - samus.Kinematics.XRadius) >> 4;
         int rightColumn = (samus.Kinematics.XPosition + samus.Kinematics.XRadius - 1) >> 4;
-        AssertTrue(collision.Collided && leftColumn == hand.Index % level.Size.Width &&
-            rightColumn == hand.Index % level.Size.Width,
+        AssertTrue(collision.Collided && leftColumn == hand.Index % level.Size.X &&
+            rightColumn == hand.Index % level.Size.X,
             "downward morph contact lands on the actual hand tile");
         AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
         AssertEqual((ushort)1, runtime.Enemies.Slots[0].Parameter1, "hand wakes statue");
@@ -113,7 +113,7 @@ internal static partial class Program
         reentered.SetBlockDefinitionWord(0x53 * 4, 0x0053);
         AssertEqual((ushort)0x0053,
             reentered.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                0x1d * reentered.Size.Width + 0x0c, 0).TopRow[0],
+                0x1d * reentered.Size.X + 0x0c, 0).TopRow[0],
             "event-completed hand re-entry streams the installed visual override");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             "complete Lower Norfair hand sequence did not reread compiled PLM data");

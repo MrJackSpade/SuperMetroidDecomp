@@ -10,8 +10,8 @@ internal static class NativeMode7Probe
         var bg = snapshot.Background!.Value;
         int Sign13(int value) => (value << 19) >> 19;
         int Clip(int value) => (value & 0x2000) != 0 ? value | ~1023 : value & 1023;
-        int cx = Sign13(bg.CenterX), cy = Sign13(bg.CenterY);
-        int h = Clip(Sign13(bg.HorizontalOffset) - cx), v = Clip(Sign13(bg.VerticalOffset) - cy);
+        int cx = Sign13(bg.Center.X), cy = Sign13(bg.Center.Y);
+        int h = Clip(Sign13(bg.Scroll.X) - cx), v = Clip(Sign13(bg.Scroll.Y) - cy);
         var pixels = new Rgba32[256 * 224];
         var bytes = snapshot.Memory.Vram;
         var colors = snapshot.Memory.Cgram;

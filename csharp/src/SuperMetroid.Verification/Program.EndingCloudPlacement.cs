@@ -64,8 +64,8 @@ internal static partial class Program
             if (frame == 19 || !pixels.AsSpan().SequenceEqual(expected))
             {
                 Directory.CreateDirectory("csharp/test-temp/ending-505");
-                PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/actual.png", new(256, 224), pixels);
-                PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/native-placement.png", new(256, 224), expected);
+                PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/actual.png", new Extent16<ScreenPixels>(256, 224), pixels);
+                PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/native-placement.png", new Extent16<ScreenPixels>(256, 224), expected);
             }
             AssertTrue(pixels.AsSpan().SequenceEqual(expected), $"scene B cloud positions/motion frame {frame} ({ending.Phase})");
             checkedFrames++;
@@ -91,15 +91,15 @@ internal static partial class Program
         var registers = snapshot.Layers.ToArray().OfType<Mode7RenderLayer>().First().Registers;
         var background = SnesMode7Renderer.RenderViewport(memory.Vram, memory.Cgram,
             registers.MatrixA, registers.MatrixB, registers.MatrixC, registers.MatrixD,
-            registers.CenterX, registers.CenterY, registers.HorizontalOffset, registers.VerticalOffset,
+            new Offset16<Mode7Pixels>(registers.Center.X, registers.Center.Y), new Offset16<Mode7Pixels>(registers.Scroll.X, registers.Scroll.Y),
             wrapOutsideMap: registers.WrapOutsideMap);
         // SetupPpu_5_Mode7 ($8B:8293) writes M7SEL=0, not the $80
         // transparent-overflow mode. Keep this oracle independent of the renderer's
         // overflow policy: the native tile lookup masks BOTH coordinates to ten bits.
         var wrappedBackground = new Rgba32[background.Length];
-        int cx = (registers.CenterX << 19) >> 19, cy = (registers.CenterY << 19) >> 19;
-        int h = ((registers.HorizontalOffset << 19) >> 19) - cx;
-        int v = ((registers.VerticalOffset << 19) >> 19) - cy;
+        int cx = (registers.Center.X << 19) >> 19, cy = (registers.Center.Y << 19) >> 19;
+        int h = ((registers.Scroll.X << 19) >> 19) - cx;
+        int v = ((registers.Scroll.Y << 19) >> 19) - cy;
         h = (h & 8192) != 0 ? h | ~1023 : h & 1023;
         v = (v & 8192) != 0 ? v | ~1023 : v & 1023;
         for (int y = 0; y < 224; y++)
@@ -129,9 +129,9 @@ internal static partial class Program
         }
         var actual = ending.Render();
         Directory.CreateDirectory("csharp/test-temp/ending-505");
-        PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/takeoff-actual.png", new(256, 224), actual);
+        PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/takeoff-actual.png", new Extent16<ScreenPixels>(256, 224), actual);
         PngWriterTooling.WriteRgba(checkWrapping ? "csharp/test-temp/ending-505/takeoff-native-wrap-and-math.png"
-            : "csharp/test-temp/ending-505/takeoff-native-math.png", new(256, 224), expected);
+            : "csharp/test-temp/ending-505/takeoff-native-math.png", new Extent16<ScreenPixels>(256, 224), expected);
         if (checkWrapping)
         {
             // Isolate overflow from the independently missing main/subscreen math.

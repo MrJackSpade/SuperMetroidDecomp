@@ -17,8 +17,8 @@ public sealed partial class SuperMetroidRuntime
         // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
         if (!deathOwnsSamus)
         {
-            BombProjectiles.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition, ProjectileCompositions);
-            Projectiles.DrawExplosions(_addressSpace, Oam, Camera.XPosition, Camera.YPosition, ProjectileCompositions);
+            BombProjectiles.Draw(_addressSpace, Oam, Camera.PixelPosition.X, Camera.PixelPosition.Y, ProjectileCompositions);
+            Projectiles.DrawExplosions(_addressSpace, Oam, Camera.PixelPosition.X, Camera.PixelPosition.Y, ProjectileCompositions);
         }
 
         // `$A0:885D` calls `$86:8390` after bomb/projectile explosions and before the
@@ -30,13 +30,13 @@ public sealed partial class SuperMetroidRuntime
             // $1000 selected by Draw_HighPriority_EnemyProjectile at `$86:8390`.
             // That named pass occurs here, before enemy layers zero through two and
             // Samus; lower OAM indices retain their native same-priority overlap win.
-            CeresElevatorArrival?.Draw(Oam, Camera.XPosition, Camera.YPosition);
+            CeresElevatorArrival?.Draw(Oam, Camera.PixelPosition.X, Camera.PixelPosition.Y);
             if (Enemies.IsLoaded)
             {
                 Enemies.DrawHighPriorityEnemyProjectiles(
                     Oam,
-                    Camera.XPosition,
-                    Camera.YPosition,
+                    Camera.PixelPosition.X,
+                    Camera.PixelPosition.Y,
                     TimeIsFrozen);
             }
             drawHighPriorityEnemyProjectiles?.Invoke(Oam);
@@ -46,7 +46,7 @@ public sealed partial class SuperMetroidRuntime
         // call to DrawSamusAndProjectiles. Landing Site's gunship definition selects
         // layer two, so its hull correctly precedes (and can sit behind) Samus OAM.
         if (!deathOwnsSamus && Enemies.IsLoaded)
-            Enemies.DrawLayers(Oam, Camera.XPosition, Camera.YPosition, 0, 2);
+            Enemies.DrawLayers(Oam, Camera.PixelPosition.X, Camera.PixelPosition.Y, 0, 2);
 
         if (advanceSamusPalette)
         {
@@ -163,8 +163,8 @@ public sealed partial class SuperMetroidRuntime
                 LastSamusBodyDrawn = Samus.Draw(
                     _addressSpace,
                     Oam,
-                    Camera.XPosition,
-                    Camera.YPosition,
+                    Camera.PixelPosition.X,
+                    Camera.PixelPosition.Y,
                     mode7Transform: ActiveSamusMode7Transform);
             }
             else if (LastDeathSequenceStep is { DrawExplosion: true })
@@ -199,8 +199,8 @@ public sealed partial class SuperMetroidRuntime
                     LastSamusBodyDrawn = Samus.Draw(
                         _addressSpace,
                         Oam,
-                        Camera.XPosition,
-                        Camera.YPosition,
+                        Camera.PixelPosition.X,
+                        Camera.PixelPosition.Y,
                         mode7Transform: ActiveSamusMode7Transform);
                 }
             }
@@ -217,15 +217,15 @@ public sealed partial class SuperMetroidRuntime
                 LastSamusBodyDrawn = Samus.Draw(
                     _addressSpace,
                     Oam,
-                    Camera.XPosition,
-                    Camera.YPosition,
+                    Camera.PixelPosition.X,
+                    Camera.PixelPosition.Y,
                     NmiFrameCounter,
                     ActiveSamusMode7Transform);
                 Samus.DrawShinesparkCrashEchoes(
                     _addressSpace,
                     Oam,
-                    Camera.XPosition,
-                    Camera.YPosition,
+                    Camera.PixelPosition.X,
+                    Camera.PixelPosition.Y,
                     NmiFrameCounter);
             }
             else
@@ -246,8 +246,8 @@ public sealed partial class SuperMetroidRuntime
                         _addressSpace,
                         Samus,
                         Oam,
-                        Camera.XPosition,
-                        Camera.YPosition,
+                        Camera.PixelPosition.X,
+                        Camera.PixelPosition.Y,
                         ChargeFlareCompositions);
                 }
                 else if (!grappleHandlerInstalled)
@@ -259,8 +259,8 @@ public sealed partial class SuperMetroidRuntime
                         _addressSpace,
                         Oam,
                         Samus,
-                        Camera.XPosition,
-                        Camera.YPosition,
+                        Camera.PixelPosition.X,
+                        Camera.PixelPosition.Y,
                         ActiveSamusMode7Transform,
                         ChargeFlarePlacement,
                         ChargeFlareCompositions);
@@ -273,8 +273,8 @@ public sealed partial class SuperMetroidRuntime
                 Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
                     _addressSpace,
                     Oam,
-                    Camera.XPosition,
-                    Camera.YPosition,
+                    Camera.PixelPosition.X,
+                    Camera.PixelPosition.Y,
                     Samus.LiquidPhysics.FxYPosition,
                     SamusBodyArt?.Spritemaps,
                     SamusBodyArt?.Atmosphere);
@@ -290,15 +290,15 @@ public sealed partial class SuperMetroidRuntime
                         Oam,
                         VramWrites,
                         Samus,
-                        Camera.XPosition,
-                        Camera.YPosition,
+                        Camera.PixelPosition.X,
+                        Camera.PixelPosition.Y,
                         NmiFrameCounter);
                 }
                 LastSamusBodyDrawn = Samus.Draw(
                     _addressSpace,
                     Oam,
-                    Camera.XPosition,
-                    Camera.YPosition,
+                    Camera.PixelPosition.X,
+                    Camera.PixelPosition.Y,
                     NmiFrameCounter,
                     ActiveSamusMode7Transform);
                 if (Samus.ArmCannon.EffectiveDrawingMode == 2)
@@ -308,8 +308,8 @@ public sealed partial class SuperMetroidRuntime
                         Oam,
                         VramWrites,
                         Samus,
-                        Camera.XPosition,
-                        Camera.YPosition,
+                        Camera.PixelPosition.X,
+                        Camera.PixelPosition.Y,
                         NmiFrameCounter);
                 }
 
@@ -323,8 +323,8 @@ public sealed partial class SuperMetroidRuntime
                         Samus.Grapple,
                         Oam,
                         VramWrites,
-                        Camera.XPosition,
-                        Camera.YPosition,
+                        Camera.PixelPosition.X,
+                        Camera.PixelPosition.Y,
                         GrappleArtwork,
                         Samus.Pose);
                 }
@@ -336,13 +336,13 @@ public sealed partial class SuperMetroidRuntime
                     Samus.DrawSpeedBoosterEchoes(
                         _addressSpace,
                         Oam,
-                        Camera.XPosition,
-                        Camera.YPosition);
+                        Camera.PixelPosition.X,
+                        Camera.PixelPosition.Y);
                     Samus.DrawReleasedShinesparkCrashEchoes(
                         _addressSpace,
                         Oam,
-                        Camera.XPosition,
-                        Camera.YPosition,
+                        Camera.PixelPosition.X,
+                        Camera.PixelPosition.Y,
                         NmiFrameCounter);
                 }
             }
@@ -353,8 +353,8 @@ public sealed partial class SuperMetroidRuntime
             Projectiles.DrawLiveProjectiles(
                 _addressSpace,
                 Oam,
-                Camera.XPosition,
-                Camera.YPosition,
+                Camera.PixelPosition.X,
+                Camera.PixelPosition.Y,
                 NmiFrameCounter, ProjectileCompositions);
             // `$93:82F7` immediately follows the ordinary projectile draw with bank
             // `$90:B6A9`. Trails are detached world-space objects, so they must keep
@@ -362,8 +362,8 @@ public sealed partial class SuperMetroidRuntime
             Projectiles.HandleTrailsAndDraw(
                 _addressSpace,
                 Oam,
-                Camera.XPosition,
-                Camera.YPosition,
+                Camera.PixelPosition.X,
+                Camera.PixelPosition.Y,
                 TimeIsFrozen, TrailArtwork);
 
             // The native post-draw input snapshot survives the next alpha pass. In
@@ -388,7 +388,7 @@ public sealed partial class SuperMetroidRuntime
         {
             // At phase three Samus/projectiles are emitted before enemy layer three;
             // ordinary enemy layers four and five follow without another insertion.
-            Enemies.DrawLayers(Oam, Camera.XPosition, Camera.YPosition, 3, 5);
+            Enemies.DrawLayers(Oam, Camera.PixelPosition.X, Camera.PixelPosition.Y, 3, 5);
         }
 
         // Phase six inserts high-priority enemy projectiles before layer-six actors.
@@ -402,13 +402,13 @@ public sealed partial class SuperMetroidRuntime
         {
             Enemies.DrawLowPriorityEnemyProjectiles(
                 Oam,
-                Camera.XPosition,
-                Camera.YPosition,
+                Camera.PixelPosition.X,
+                Camera.PixelPosition.Y,
                 TimeIsFrozen);
         }
 
         if (!deathOwnsSamus && Enemies.IsLoaded)
-            Enemies.DrawLayers(Oam, Camera.XPosition, Camera.YPosition, 6, 7);
+            Enemies.DrawLayers(Oam, Camera.PixelPosition.X, Camera.PixelPosition.Y, 6, 7);
 
         if (!deathOwnsSamus && Enemies.IsLoaded && Enemies.Draygon is { } draygon)
         {
@@ -416,17 +416,17 @@ public sealed partial class SuperMetroidRuntime
             // run, so BG2 must use the same final camera as the appendage OAM above.
             // Publishing during enemy AI instead detaches the torso whenever scrolling
             // changes the camera between AI and drawing (especially during a grab).
-            BackgroundScroll.SetBg2ScrollRegisters(
-                unchecked((ushort)(draygon.BodyGraphicsXDisplacement + Camera.XPosition -
+            BackgroundScroll.SetBg2ScrollRegisters(new Position16<Bg2Pixels>(
+                unchecked((ushort)(draygon.BodyGraphicsXDisplacement + Camera.PixelPosition.X -
                     draygon.Body.XPosition - DraygonBackgroundData.HorizontalOrigin)),
-                unchecked((ushort)(draygon.BodyGraphicsYDisplacement + Camera.YPosition -
-                    draygon.Body.YPosition - DraygonBackgroundData.VerticalOrigin)));
+                unchecked((ushort)(draygon.BodyGraphicsYDisplacement + Camera.PixelPosition.Y -
+                    draygon.Body.YPosition - DraygonBackgroundData.VerticalOrigin))));
         }
 
         // Room scrolling must not replace the persistent body-owned register shadows.
         // Mother Brain moves BG2 inversely to her physical posture in bank $A9.
         if (!deathOwnsSamus && Enemies.MotherBrain is { HasBg2ScrollOverride: true } motherBrain)
-            BackgroundScroll.SetBg2ScrollRegisters(motherBrain.Bg2XScroll, motherBrain.Bg2YScroll);
+            BackgroundScroll.SetBg2ScrollRegisters(new Position16<Bg2Pixels>(motherBrain.Bg2XScroll, motherBrain.Bg2YScroll));
 
         if (!deathOwnsSamus && Enemies.IsLoaded)
         {
@@ -436,8 +436,8 @@ public sealed partial class SuperMetroidRuntime
             // preserves the hook's actual OAM position instead of inventing a Baby slot.
             Enemies.DrawCeresRidleyPostEnemyHook(
                 Oam,
-                Camera.XPosition,
-                Camera.YPosition);
+                Camera.PixelPosition.X,
+                Camera.PixelPosition.Y);
         }
     }
 }

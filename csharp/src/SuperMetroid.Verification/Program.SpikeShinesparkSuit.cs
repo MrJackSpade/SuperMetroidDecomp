@@ -145,14 +145,14 @@ internal static partial class Program
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(runtime.ActiveRoom!.Pointer, new(0, 0));
+        runtime.LoadCartridgeRoomForDebug(runtime.ActiveRoom!.Pointer, new Position16<RoomPixels>(0, 0));
         RoomLevelData level = runtime.LevelData!;
         runtime.InitializeDebugGroundedSamus(200, 166, 16);
         foreach (RoomEnemySlot enemy in runtime.Enemies.Slots)
             enemy.Clear();
         foreach (RoomEnemyProjectileSlot projectile in runtime.Enemies.EnemyProjectiles)
             projectile.Clear();
-        for (int block = 0; block < level.Size.Width * level.Size.Height; block++)
+        for (int block = 0; block < level.Size.X * level.Size.Y; block++)
         {
             level.SetForegroundEntry(block, 0);
             level.SetBehavior(block, 0);
@@ -184,7 +184,7 @@ internal static partial class Program
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter),
             "spike-suit fixture accepts stored Shinespark");
 
-        int centerBlock = (samus.YPosition >> 4) * level.Size.Width + (samus.XPosition >> 4);
+        int centerBlock = (samus.YPosition >> 4) * level.Size.X + (samus.XPosition >> 4);
         level.SetForegroundEntry(centerBlock, (ushort)((ushort)RoomCollisionType.SpikeAir << 12));
         level.SetBehavior(centerBlock, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
         if (underwater)
@@ -192,7 +192,7 @@ internal static partial class Program
             // The reserve technique requires persistent spike/electricity contact while
             // the hurt launch crosses block boundaries. A uniform synthetic field avoids
             // coupling this timing test to any one retail room's surrounding geometry.
-            for (int block = 0; block < level.Size.Width * level.Size.Height; block++)
+            for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             {
                 level.SetForegroundEntry(block, (ushort)((ushort)RoomCollisionType.SpikeAir << 12));
                 level.SetBehavior(block, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);

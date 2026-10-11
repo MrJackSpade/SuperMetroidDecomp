@@ -13,8 +13,8 @@ internal static partial class Program
 
     private static void VerifyDebuggerSpatialFieldMerges()
     {
-        Assembly core = typeof(SuperMetroid.Core.Spatial.Point32<>).Assembly;
-        foreach (DebuggerSpatialFieldMerge merge in DebuggerSpatialFieldMerges.Merges)
+        Assembly core = typeof(SuperMetroid.Core.Spatial.Position16<>).Assembly;
+        foreach (DebuggerSpatialFieldMigration merge in DebuggerSpatialFieldMigrations.All)
         {
             Type type = core.GetType(merge.TypeName, throwOnError: true)!;
             FieldInfo field = SpatialMergeField(type, merge.Field);
@@ -23,10 +23,7 @@ internal static partial class Program
                     throw new InvalidOperationException($"{merge.TypeName}.{legacy} still exists beside its merged {merge.Field}.");
 
             // Signed and high components prove exact word reinterpretation, not only small values.
-            object[] components = merge.LegacyType.Select((componentType, index) => SpatialMergeSample(componentType, index)).ToArray();
-            object expected = merge.Compose(components);
-            if (expected.GetType() != field.FieldType)
-                throw new InvalidOperationException($"{merge.TypeName}.{merge.Field} composes {expected.GetType()}, not {field.FieldType}.");
+            object[] components = merge.LegacyTypes.Select((componentType, index) => SpatialMergeSample(componentType, index)).ToArray();
 
             object instance = RuntimeHelpers.GetUninitializedObject(type);
             // Restoration validates closed domains (#627); give enum fields a defined member.
@@ -34,6 +31,9 @@ internal static partial class Program
                 foreach (FieldInfo member in owner.GetFields(SpatialMergeFields | BindingFlags.DeclaredOnly))
                     if (member.FieldType.IsEnum && !Enum.IsDefined(member.FieldType, member.GetValue(instance)!))
                         member.SetValue(instance, Enum.GetValues(member.FieldType).GetValue(0));
+            object expected = merge.Rebuild(instance, components);
+            if (expected.GetType() != field.FieldType)
+                throw new InvalidOperationException($"{merge.TypeName}.{merge.Field} rebuilds {expected.GetType()}, not {field.FieldType}.");
             field.SetValue(instance, expected);
             byte[] current = SpatialMergeSerialize(instance);
             byte[] legacyLayout = SpatialMergeLegacyLayout(current, field, expected, merge, components);
@@ -44,7 +44,7 @@ internal static partial class Program
             if (!SpatialMergeSerialize(restored).AsSpan().SequenceEqual(current))
                 throw new InvalidOperationException($"{merge.TypeName} legacy restore changed another field.");
         }
-        Console.WriteLine($"Debugger spatial merges: {DebuggerSpatialFieldMerges.Merges.Length} legacy component layouts restore their exact spatial values.");
+        Console.WriteLine($"Debugger spatial migrations: {DebuggerSpatialFieldMigrations.All.Length} legacy component layouts restore their exact spatial values.");
     }
 
     private static object SpatialMergeSample(Type componentType, int index) => componentType switch
@@ -53,6 +53,7 @@ internal static partial class Program
         _ when componentType == typeof(ushort) => (object)(ushort)(index == 0 ? 0xffe0 : 0x8123),
         _ when componentType == typeof(short) => (object)(short)(index == 0 ? -46 : 0x0123),
         _ when componentType == typeof(int) => (object)(index == 0 ? 0x1234 : 0x56),
+        _ when componentType == typeof(uint) => (object)(index == 0 ? 0xfffe_8000u : 0x0001_2345u),
         _ => throw new InvalidOperationException($"No sample for legacy component type {componentType}."),
     };
 
@@ -61,7 +62,7 @@ internal static partial class Program
     /// records. Every value type serializes the same as a root or a nested field.
     /// </summary>
     private static byte[] SpatialMergeLegacyLayout(byte[] serializedRoot, FieldInfo field, object value,
-        DebuggerSpatialFieldMerge merge, object[] components)
+        DebuggerSpatialFieldMigration merge, object[] components)
     {
         string declaring = DebuggerStateTypeIdentity.GetSerializedName(field.DeclaringType!);
         byte[] currentRecord = [.. SpatialMergeNames(declaring, field.Name), .. SpatialMergeSerialize(value)];

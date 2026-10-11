@@ -28,7 +28,7 @@ public static class FileCopyArrowDefinitions
     }
 
     internal static ReadOnlySpan<CompiledSpritePart> Parts(int shape) => Shapes[shape];
-    private static CompiledSpritePart Part(Point32<OamPixels> offset, int tile, bool flipY) => new(
+    private static CompiledSpritePart Part(Offset16<OamPixels> offset, int tile, bool flipY) => new(
         SnesSpritemapXWord.Create(offset.X, false), unchecked((byte)offset.Y),
         SnesObjAttributeWord.Create(tile, 1, 3, flipY ? SnesTileFlipFlags.Vertical : 0), true);
 

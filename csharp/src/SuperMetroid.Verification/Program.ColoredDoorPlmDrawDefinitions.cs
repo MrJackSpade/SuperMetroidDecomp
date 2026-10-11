@@ -74,7 +74,7 @@ internal static partial class Program
             byte[] blockDefinitions = new byte[0x400 * 8];
             blockDefinitions[originalVisual * 8] = 0x04;
             blockDefinitions[0x53 * 8] = 0x53;
-            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width),
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], blockDefinitions);
             var plms = new RoomPlmSystem
@@ -154,7 +154,7 @@ internal static partial class Program
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident colored door ${(int)header:X4} completes without program/draw ROM reads");
 
-            var reopenedLevel = new RoomLevelData(new Size32<RoomBlocks>(width, width),
+            var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], blockDefinitions);
             BackgroundTilemapStreamer reopenedStreamer = reopenedLevel.CreateBackgroundStreamer();

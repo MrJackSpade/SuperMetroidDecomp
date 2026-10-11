@@ -9,111 +9,68 @@ namespace SuperMetroid.Core.Game;
 /// This is a direct behavioral port of <c>$80:A2F9-$80:A527</c>. It deliberately stops
 /// at the four row/column update calls: each call is returned as a typed request so the
 /// following level-data-to-VRAM translation can be implemented and debugged independently.
-/// No desktop camera interpolation is hidden in this class.
+/// No desktop camera interpolation is hidden in this class. Every native routine below
+/// computes its two axes independently, so whole-value updates preserve its results.
 /// </remarks>
 public sealed class BackgroundScrollState
 {
-    /// <summary>World-space BG1/camera X word (<c>$0911</c>).</summary>
-    public ushort Layer1XPosition { get; set; }
+    /// <summary>World-space BG1/camera position (<c>$0911/$0915</c>).</summary>
+    public Position16<RoomPixels> Layer1Position { get; set; }
 
-    /// <summary>World-space BG1/camera Y word (<c>$0915</c>).</summary>
-    public ushort Layer1YPosition { get; set; }
-
-    /// <summary>Parallax-derived BG2 X word (<c>$0917</c>).</summary>
-    public ushort Layer2XPosition { get; set; }
-
-    /// <summary>Parallax-derived BG2 Y word (<c>$0919</c>).</summary>
-    public ushort Layer2YPosition { get; set; }
+    /// <summary>Parallax-derived BG2 position (<c>$0917/$0919</c>).</summary>
+    public Position16<Bg2Pixels> Layer2Position { get; set; }
 
     /// <summary>
-    /// Room header's layer-2 X mode. Zero copies BG1; one freezes the axis; every other
-    /// value uses its even portion as a fixed-point parallax multiplier over 128.
+    /// The room header's per-axis layer-2 scroll modes. Zero copies BG1; one freezes the axis;
+    /// every other value uses its even portion as a fixed-point parallax multiplier over 128.
     /// </summary>
-    public byte Layer2ScrollX { get; set; }
+    public Layer2ScrollModes Layer2Scroll { get; set; }
 
-    /// <summary>Vertical counterpart of <see cref="Layer2ScrollX"/>.</summary>
-    public byte Layer2ScrollY { get; set; }
+    // These offsets are separate native variables despite the confusing adjacency of the
+    // BG1 X offset and Layer2ScrollY in WRAM ($091F is addressed as Layer2ScrollY+1).
+    /// <summary>Wrapped delta added to <see cref="Layer1Position"/> to form BG1HOFS/BG1VOFS.</summary>
+    public Offset16<RoomPixels> Bg1Offset { get; set; }
 
-    // These four offsets are separate native variables despite the confusing adjacency
-    // of BG1 X offset and Layer2ScrollY in WRAM. Keeping descriptive names prevents a C#
-    // reader from needing to remember that $091F is addressed as Layer2ScrollY+1.
-    /// <summary>Wrapped horizontal delta added to <see cref="Layer1XPosition"/> to form BG1HOFS.</summary>
-    public ushort Bg1XOffset { get; set; }
+    /// <summary>Wrapped delta added to <see cref="Layer2Position"/> to form BG2HOFS/BG2VOFS.</summary>
+    public Offset16<Bg2Pixels> Bg2Offset { get; set; }
 
-    /// <summary>Wrapped vertical delta added to <see cref="Layer1YPosition"/> to form BG1VOFS.</summary>
-    public ushort Bg1YOffset { get; set; }
+    /// <summary>Modeled BG1HOFS/BG1VOFS mirrors in direct-page words <c>$00B1/$00B3</c>.</summary>
+    public Position16<RoomPixels> Bg1Scroll { get; private set; }
 
-    /// <summary>Wrapped horizontal delta added to <see cref="Layer2XPosition"/> to form BG2HOFS.</summary>
-    public ushort Bg2XOffset { get; set; }
-
-    /// <summary>Wrapped vertical delta added to <see cref="Layer2YPosition"/> to form BG2VOFS.</summary>
-    public ushort Bg2YOffset { get; set; }
-
-    /// <summary>Modeled BG1HOFS mirror in direct-page word <c>$00B1</c>.</summary>
-    public ushort Bg1HorizontalScroll { get; private set; }
-
-    /// <summary>Modeled BG1VOFS mirror in direct-page word <c>$00B3</c>.</summary>
-    public ushort Bg1VerticalScroll { get; private set; }
-
-    /// <summary>Modeled BG2HOFS mirror in direct-page word <c>$00B5</c>.</summary>
-    public ushort Bg2HorizontalScroll { get; private set; }
-
-    /// <summary>Modeled BG2VOFS mirror in direct-page word <c>$00B7</c>.</summary>
-    public ushort Bg2VerticalScroll { get; private set; }
+    /// <summary>Modeled BG2HOFS/BG2VOFS mirrors in direct-page words <c>$00B5/$00B7</c>.</summary>
+    public Position16<Bg2Pixels> Bg2Scroll { get; private set; }
 
     // "Block" means one 16x16 level block here, not one 256x256 room-scroll cell.
-    /// <summary>BG1HOFS converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
-    public ushort Bg1XBlock { get; private set; }
+    /// <summary>BG1 scroll converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
+    public Position16<TilemapBlocks> Bg1Block { get; private set; }
 
-    /// <summary>BG1VOFS converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
-    public ushort Bg1YBlock { get; private set; }
+    /// <summary>BG2 scroll converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
+    public Position16<TilemapBlocks> Bg2Block { get; private set; }
 
-    /// <summary>BG2HOFS converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
-    public ushort Bg2XBlock { get; private set; }
+    /// <summary>Layer-one world position converted to a 16-pixel source-data block coordinate.</summary>
+    public Position16<RoomBlocks> Layer1Block { get; private set; }
 
-    /// <summary>BG2VOFS converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
-    public ushort Bg2YBlock { get; private set; }
+    /// <summary>Layer-two world position converted to a 16-pixel source-data block coordinate.</summary>
+    public Position16<RoomBlocks> Layer2Block { get; private set; }
 
-    /// <summary>Layer-one world X converted to a 16-pixel source-data block coordinate.</summary>
-    public ushort Layer1XBlock { get; private set; }
+    /// <summary>Prior layer-one source block used to detect a newly exposed tilemap column or row.</summary>
+    public Position16<RoomBlocks> PreviousLayer1Block { get; private set; }
 
-    /// <summary>Layer-one world Y converted to a 16-pixel source-data block coordinate.</summary>
-    public ushort Layer1YBlock { get; private set; }
+    /// <summary>Prior layer-two source block used to detect a newly exposed background column or row.</summary>
+    public Position16<RoomBlocks> PreviousLayer2Block { get; private set; }
 
-    /// <summary>Layer-two world X converted to a 16-pixel source-data block coordinate.</summary>
-    public ushort Layer2XBlock { get; private set; }
-
-    /// <summary>Layer-two world Y converted to a 16-pixel source-data block coordinate.</summary>
-    public ushort Layer2YBlock { get; private set; }
-
-    /// <summary>Prior layer-one source X block used to detect a newly exposed tilemap column.</summary>
-    public ushort PreviousLayer1XBlock { get; private set; }
-
-    /// <summary>Stores $FFFF to <c>PreviousLayer1XBlock</c>, as Kraid's dead-room tail does.</summary>
-    internal void ResetPreviousLayer1XBlock() => PreviousLayer1XBlock = 0xffff;
-
-    /// <summary>Prior layer-one source Y block used to detect a newly exposed tilemap row.</summary>
-    public ushort PreviousLayer1YBlock { get; private set; }
-
-    /// <summary>Prior layer-two source X block used to detect a newly exposed background column.</summary>
-    public ushort PreviousLayer2XBlock { get; private set; }
-
-    /// <summary>Prior layer-two source Y block used to detect a newly exposed background row.</summary>
-    public ushort PreviousLayer2YBlock { get; private set; }
+    /// <summary>Stores $FFFF to the previous layer-one X block, as Kraid's dead-room tail does.</summary>
+    internal void ResetPreviousLayer1XBlock() => PreviousLayer1Block = PreviousLayer1Block.WithX(0xffff);
 
     /// <summary>
     /// Publishes a room actor's direct writes to the PPU BG2 scroll mirrors. Mother Brain
     /// uses fixed layer-two room modes, so the ordinary scrolling pass intentionally leaves
     /// these values untouched after the actor supplies them.
     /// </summary>
-    public void SetBg2ScrollRegisters(ushort horizontal, ushort vertical)
-    {
-        Bg2HorizontalScroll = horizontal;
-        Bg2VerticalScroll = vertical;
-    }
+    public void SetBg2ScrollRegisters(Position16<Bg2Pixels> scroll) => Bg2Scroll = scroll;
 
     /// <summary>Publishes a room-main write to the BG1VOFS mirror without moving the camera or streaming origin.</summary>
-    public void SetBg1VerticalScrollRegister(ushort vertical) => Bg1VerticalScroll = vertical;
+    public void SetBg1VerticalScrollRegister(ushort vertical) => Bg1Scroll = Bg1Scroll.WithY(vertical);
 
     /// <summary>
     /// Implements <c>$80:AE29</c> after a directional door setup has staged its off-screen
@@ -121,25 +78,22 @@ public sealed class BackgroundScrollState
     /// both BG2 registers; all four offsets then remain active throughout the opening IRQ.
     /// </summary>
     public void ConfigureDoorOpeningOffsets(
-        ushort retainedBg1Horizontal,
-        ushort retainedBg1Vertical,
-        ushort stagedLayer1X,
-        ushort stagedLayer1Y)
+        Position16<RoomPixels> retainedBg1Scroll,
+        Position16<RoomPixels> stagedLayer1)
     {
         // State $0B preserves BG1's source-room mirrors (with the down-door one-pixel
         // adjustment already supplied by the caller) and clears both BG2 mirrors before
         // `$80:AE29` derives the four offsets. Keeping the register writes here makes the
         // returned offset state and the block snapshot one indivisible cartridge action.
-        Bg1HorizontalScroll = retainedBg1Horizontal;
-        Bg1VerticalScroll = retainedBg1Vertical;
-        Bg2HorizontalScroll = 0;
-        Bg2VerticalScroll = 0;
-        Bg1XOffset = unchecked((ushort)(retainedBg1Horizontal - stagedLayer1X));
-        Bg1YOffset = unchecked((ushort)(retainedBg1Vertical - stagedLayer1Y));
-        // `$80:AE3B-$80:AE4A` deliberately subtracts layer 1 for both BG2 offsets.
-        // This is not a typo: layer 2's own position is combined with these words later.
-        Bg2XOffset = unchecked((ushort)(0 - stagedLayer1X));
-        Bg2YOffset = unchecked((ushort)(0 - stagedLayer1Y));
+        Bg1Scroll = retainedBg1Scroll;
+        Bg2Scroll = Position16<Bg2Pixels>.Zero;
+        Bg1Offset = retainedBg1Scroll - stagedLayer1;
+        // `$80:AE3B-$80:AE4A` deliberately subtracts layer 1 for both BG2 offsets: the
+        // BG2 offset words are the negated staged layer-one origin. This is not a typo:
+        // layer 2's own position is combined with these words later.
+        Bg2Offset = new Offset16<Bg2Pixels>(
+            unchecked((short)-stagedLayer1.X),
+            unchecked((short)-stagedLayer1.Y));
     }
 
     /// <summary>
@@ -147,14 +101,18 @@ public sealed class BackgroundScrollState
     /// setup after bank $82 installs the destination layer-one coordinates. Fixed mode one
     /// deliberately retains its old layer-two word, exactly like the native early return.
     /// </summary>
-    public void PrepareDoorOpeningDestination(ushort layer1X, ushort layer1Y)
+    /// <param name="destination">The layer-one destination published to <see cref="Layer1Position"/>.</param>
+    /// <param name="parallaxBasis">
+    /// The layer-one words the parallax calculation reads. An upward door calculates BG2 from
+    /// destination+$1F before the IRQ's layer-one endpoint becomes destination+$20.
+    /// </param>
+    public void PrepareDoorOpeningDestination(Position16<RoomPixels> destination, Position16<RoomPixels> parallaxBasis)
     {
-        Layer1XPosition = layer1X;
-        Layer1YPosition = layer1Y;
-        if (TryCalculateLayer2Position(layer1X, Layer2ScrollX, out ushort layer2X))
-            Layer2XPosition = layer2X;
-        if (TryCalculateLayer2Position(layer1Y, Layer2ScrollY, out ushort layer2Y))
-            Layer2YPosition = layer2Y;
+        if (TryCalculateLayer2Position(parallaxBasis.X, Layer2Scroll.Horizontal, out ushort layer2X))
+            Layer2Position = Layer2Position.WithX(layer2X);
+        if (TryCalculateLayer2Position(parallaxBasis.Y, Layer2Scroll.Vertical, out ushort layer2Y))
+            Layer2Position = Layer2Position.WithY(layer2Y);
+        Layer1Position = destination;
     }
 
     /// <summary>
@@ -176,15 +134,12 @@ public sealed class BackgroundScrollState
     /// </summary>
     public IReadOnlyList<BackgroundUpdateRequest> CalculateScrollsAndUpdates()
     {
-        Bg1HorizontalScroll = unchecked((ushort)(Layer1XPosition + Bg1XOffset));
-        Bg1VerticalScroll = unchecked((ushort)(Layer1YPosition + Bg1YOffset));
-        Bg2HorizontalScroll = unchecked((ushort)(Layer2XPosition + Bg2XOffset));
-        Bg2VerticalScroll = unchecked((ushort)(Layer2YPosition + Bg2YOffset));
+        CalculateScrollRegisters();
         return CalculateBlocksAndUpdates();
     }
 
     /// <summary>
-    /// Seeds the four "previous" words after room/door setup so the first stationary
+    /// Seeds the "previous" blocks after room/door setup so the first stationary
     /// gameplay frame does not request four phantom rows and columns.
     /// </summary>
     public void PrimePreviousBlocks()
@@ -194,10 +149,7 @@ public sealed class BackgroundScrollState
         // saved layer-2 blocks correspond to the parallax position, not constructor zeroes.
         CalculateGameplayScrolls();
         CalculateBlockCoordinates();
-        PreviousLayer1XBlock = Layer1XBlock;
-        PreviousLayer1YBlock = Layer1YBlock;
-        PreviousLayer2XBlock = Layer2XBlock;
-        PreviousLayer2YBlock = Layer2YBlock;
+        CopyCurrentBlocksToPrevious();
     }
 
     /// <summary>
@@ -217,20 +169,12 @@ public sealed class BackgroundScrollState
             throw new ArgumentOutOfRangeException(
                 nameof(direction), direction, "Horizontal door direction must be right or left.");
 
-        Bg1HorizontalScroll = unchecked((ushort)(Layer1XPosition + Bg1XOffset));
-        Bg1VerticalScroll = unchecked((ushort)(Layer1YPosition + Bg1YOffset));
-        Bg2HorizontalScroll = unchecked((ushort)(Layer2XPosition + Bg2XOffset));
-        Bg2VerticalScroll = unchecked((ushort)(Layer2YPosition + Bg2YOffset));
+        CalculateScrollRegisters();
         CalculateBlockCoordinates();
 
-        PreviousLayer1XBlock = direction == DoorDirection.Right
-            ? unchecked((ushort)(Layer1XBlock - 1))
-            : unchecked((ushort)(Layer1XBlock + 2));
-        PreviousLayer2XBlock = direction == DoorDirection.Right
-            ? unchecked((ushort)(Layer2XBlock - 1))
-            : unchecked((ushort)(Layer2XBlock + 2));
-        PreviousLayer1YBlock = Layer1YBlock;
-        PreviousLayer2YBlock = Layer2YBlock;
+        var bias = new Offset16<RoomBlocks>(direction == DoorDirection.Right ? (short)-1 : (short)2, 0);
+        PreviousLayer1Block = Layer1Block + bias;
+        PreviousLayer2Block = Layer2Block + bias;
     }
 
     /// <summary>
@@ -240,32 +184,27 @@ public sealed class BackgroundScrollState
     /// </summary>
     public IReadOnlyList<BackgroundUpdateRequest> FixDoorsMovingUp()
     {
-        ushort savedLayer1Y = Layer1YPosition;
-        ushort savedLayer2Y = Layer2YPosition;
-        ushort savedBg1Horizontal = Bg1HorizontalScroll;
-        ushort savedBg1Vertical = Bg1VerticalScroll;
-        ushort savedBg2Horizontal = Bg2HorizontalScroll;
-        ushort savedBg2Vertical = Bg2VerticalScroll;
+        Position16<RoomPixels> savedLayer1 = Layer1Position;
+        Position16<Bg2Pixels> savedLayer2 = Layer2Position;
+        Position16<RoomPixels> savedBg1Scroll = Bg1Scroll;
+        Position16<Bg2Pixels> savedBg2Scroll = Bg2Scroll;
 
-        Layer1YPosition = unchecked((ushort)(Layer1YPosition - 16));
-        Layer2YPosition = unchecked((ushort)(Layer2YPosition - 16));
+        Layer1Position = Layer1Position - new Offset16<RoomPixels>(0, 16);
+        Layer2Position = Layer2Position - new Offset16<Bg2Pixels>(0, 16);
         // `$80:AFAB` calls only CalculateBlocks before it copies the previous
         // coordinates. At this instant the BG block words still come from the displayed
         // PPU scroll registers, while the layer blocks come from this temporary probe.
         // CalculateBGPositionAndUpdates at $AFB7 recomputes the registers afterwards.
         CalculateBlockCoordinates();
         CopyCurrentBlocksToPrevious();
-        PreviousLayer1YBlock = unchecked((ushort)(PreviousLayer1YBlock + 1));
-        PreviousLayer2YBlock = unchecked((ushort)(PreviousLayer2YBlock + 1));
+        AdvancePreviousRows(1);
         CalculateScrollRegisters();
         IReadOnlyList<BackgroundUpdateRequest> requests = CalculateBlocksAndUpdates();
 
-        Layer1YPosition = savedLayer1Y;
-        Layer2YPosition = savedLayer2Y;
-        Bg1HorizontalScroll = savedBg1Horizontal;
-        Bg1VerticalScroll = savedBg1Vertical;
-        Bg2HorizontalScroll = savedBg2Horizontal;
-        Bg2VerticalScroll = savedBg2Vertical;
+        Layer1Position = savedLayer1;
+        Layer2Position = savedLayer2;
+        Bg1Scroll = savedBg1Scroll;
+        Bg2Scroll = savedBg2Scroll;
         return requests;
     }
 
@@ -283,10 +222,10 @@ public sealed class BackgroundScrollState
             throw new ArgumentOutOfRangeException(
                 nameof(direction), direction, "Vertical door direction must be down or up.");
 
-        ushort actualLayer1Y = Layer1YPosition;
-        ushort actualLayer2Y = Layer2YPosition;
-        Layer1YPosition = stagedLayer1Y;
-        Layer2YPosition = stagedLayer2Y;
+        Position16<RoomPixels> actualLayer1 = Layer1Position;
+        Position16<Bg2Pixels> actualLayer2 = Layer2Position;
+        Layer1Position = Layer1Position.WithY(stagedLayer1Y);
+        Layer2Position = Layer2Position.WithY(stagedLayer2Y);
         // Both `$80:AF24` (down) and `$80:AFAB` (up) calculate block coordinates before
         // their temporary layer position is reflected into the PPU scroll mirrors. This
         // mixed old-register/new-layer snapshot is intentional circular-buffer state.
@@ -295,34 +234,28 @@ public sealed class BackgroundScrollState
 
         if (direction == DoorDirection.Up)
         {
-            PreviousLayer1YBlock = unchecked((ushort)(PreviousLayer1YBlock + 1));
-            PreviousLayer2YBlock = unchecked((ushort)(PreviousLayer2YBlock + 1));
-            Layer1YPosition = actualLayer1Y;
-            Layer2YPosition = actualLayer2Y;
+            AdvancePreviousRows(1);
+            Layer1Position = actualLayer1;
+            Layer2Position = actualLayer2;
             CalculateScrollRegisters();
             return Array.Empty<BackgroundUpdateRequest>();
         }
 
         // DoorTransition_Down frame zero probes fifteen pixels above the staged viewport,
         // publishes its newly exposed bottom row, and then restores the visible registers.
-        ushort savedBg1Horizontal = Bg1HorizontalScroll;
-        ushort savedBg1Vertical = Bg1VerticalScroll;
-        ushort savedBg2Horizontal = Bg2HorizontalScroll;
-        ushort savedBg2Vertical = Bg2VerticalScroll;
-        Layer1YPosition = unchecked((ushort)(stagedLayer1Y - 15));
-        Layer2YPosition = unchecked((ushort)(stagedLayer2Y - 15));
+        Position16<RoomPixels> savedBg1Scroll = Bg1Scroll;
+        Position16<Bg2Pixels> savedBg2Scroll = Bg2Scroll;
+        Layer1Position = Layer1Position.WithY(unchecked((ushort)(stagedLayer1Y - 15)));
+        Layer2Position = Layer2Position.WithY(unchecked((ushort)(stagedLayer2Y - 15)));
         CalculateBlockCoordinates();
         CopyCurrentBlocksToPrevious();
-        PreviousLayer1YBlock = unchecked((ushort)(PreviousLayer1YBlock - 1));
-        PreviousLayer2YBlock = unchecked((ushort)(PreviousLayer2YBlock - 1));
+        AdvancePreviousRows(-1);
         CalculateScrollRegisters();
         IReadOnlyList<BackgroundUpdateRequest> requests = CalculateBlocksAndUpdates();
-        Layer1YPosition = actualLayer1Y;
-        Layer2YPosition = actualLayer2Y;
-        Bg1HorizontalScroll = savedBg1Horizontal;
-        Bg1VerticalScroll = savedBg1Vertical;
-        Bg2HorizontalScroll = savedBg2Horizontal;
-        Bg2VerticalScroll = savedBg2Vertical;
+        Layer1Position = actualLayer1;
+        Layer2Position = actualLayer2;
+        Bg1Scroll = savedBg1Scroll;
+        Bg2Scroll = savedBg2Scroll;
         return requests;
     }
 
@@ -333,8 +266,10 @@ public sealed class BackgroundScrollState
     {
         CalculateGameplayScrolls();
         CalculateBlockCoordinates();
-        bool streamsLayer2 = (Layer2ScrollX & 1) == 0;
+        bool streamsLayer2 = (Layer2Scroll.Horizontal & 1) == 0;
         var requests = new List<BackgroundUpdateRequest>(streamsLayer2 ? 34 : 17);
+        var nextColumn = new Offset16<RoomBlocks>(1, 0);
+        var nextTilemapColumn = new Offset16<TilemapBlocks>(1, 0);
 
         // The loop condition tests the old X value after pushing it, so values 0..16 run:
         // seventeen columns. Each column is staged and DMAed before these four block words
@@ -344,26 +279,22 @@ public sealed class BackgroundScrollState
             requests.Add(new BackgroundUpdateRequest(
                 BackgroundLayer.Level,
                 BackgroundUpdateAxis.Column,
-                Layer1XBlock,
-                Layer1YBlock,
-                Bg1XBlock,
-                Bg1YBlock));
+                Layer1Block,
+                Bg1Block));
 
             if (streamsLayer2)
             {
                 requests.Add(new BackgroundUpdateRequest(
                     BackgroundLayer.Background,
                     BackgroundUpdateAxis.Column,
-                    Layer2XBlock,
-                    Layer2YBlock,
-                    Bg2XBlock,
-                    Bg2YBlock));
+                    Layer2Block,
+                    Bg2Block));
             }
 
-            Layer1XBlock = unchecked((ushort)(Layer1XBlock + 1));
-            Bg1XBlock = unchecked((ushort)(Bg1XBlock + 1));
-            Layer2XBlock = unchecked((ushort)(Layer2XBlock + 1));
-            Bg2XBlock = unchecked((ushort)(Bg2XBlock + 1));
+            Layer1Block += nextColumn;
+            Bg1Block += nextTilemapColumn;
+            Layer2Block += nextColumn;
+            Bg2Block += nextTilemapColumn;
         }
 
         return requests;
@@ -371,38 +302,41 @@ public sealed class BackgroundScrollState
 
     private void CalculateGameplayScrolls()
     {
-        Bg1HorizontalScroll = unchecked((ushort)(Layer1XPosition + Bg1XOffset));
-        Bg1VerticalScroll = unchecked((ushort)(Layer1YPosition + Bg1YOffset));
+        Bg1Scroll = Layer1Position + Bg1Offset;
 
         // Mode one means "do not scroll BG2 on this axis". The 65C816 subroutine returns
         // carry set, so the caller skips both the layer-2 position write and PPU mirror.
-        if (TryCalculateLayer2Position(Layer1XPosition, Layer2ScrollX, out ushort layer2X))
+        if (TryCalculateLayer2Position(Layer1Position.X, Layer2Scroll.Horizontal, out ushort layer2X))
         {
-            Layer2XPosition = layer2X;
-            Bg2HorizontalScroll = unchecked((ushort)(Layer2XPosition + Bg2XOffset));
+            Layer2Position = Layer2Position.WithX(layer2X);
+            Bg2Scroll = Bg2Scroll.WithX(unchecked((ushort)(layer2X + Bg2Offset.X)));
         }
 
-        if (TryCalculateLayer2Position(Layer1YPosition, Layer2ScrollY, out ushort layer2Y))
+        if (TryCalculateLayer2Position(Layer1Position.Y, Layer2Scroll.Vertical, out ushort layer2Y))
         {
-            Layer2YPosition = layer2Y;
-            Bg2VerticalScroll = unchecked((ushort)(Layer2YPosition + Bg2YOffset));
+            Layer2Position = Layer2Position.WithY(layer2Y);
+            Bg2Scroll = Bg2Scroll.WithY(unchecked((ushort)(layer2Y + Bg2Offset.Y)));
         }
     }
 
     private void CalculateScrollRegisters()
     {
-        Bg1HorizontalScroll = unchecked((ushort)(Layer1XPosition + Bg1XOffset));
-        Bg1VerticalScroll = unchecked((ushort)(Layer1YPosition + Bg1YOffset));
-        Bg2HorizontalScroll = unchecked((ushort)(Layer2XPosition + Bg2XOffset));
-        Bg2VerticalScroll = unchecked((ushort)(Layer2YPosition + Bg2YOffset));
+        Bg1Scroll = Layer1Position + Bg1Offset;
+        Bg2Scroll = Layer2Position + Bg2Offset;
     }
 
     private void CopyCurrentBlocksToPrevious()
     {
-        PreviousLayer1XBlock = Layer1XBlock;
-        PreviousLayer1YBlock = Layer1YBlock;
-        PreviousLayer2XBlock = Layer2XBlock;
-        PreviousLayer2YBlock = Layer2YBlock;
+        PreviousLayer1Block = Layer1Block;
+        PreviousLayer2Block = Layer2Block;
+    }
+
+    /// <summary>Biases both previous row words, as the vertical door setups do.</summary>
+    private void AdvancePreviousRows(short rows)
+    {
+        var bias = new Offset16<RoomBlocks>(0, rows);
+        PreviousLayer1Block += bias;
+        PreviousLayer2Block += bias;
     }
 
     private List<BackgroundUpdateRequest> CalculateBlocksAndUpdates()
@@ -412,68 +346,52 @@ public sealed class BackgroundScrollState
 
         // $80:A3E4-$80:A413. Crossing right selects the column 16 blocks beyond the
         // viewport's left edge; crossing left selects the new leftmost column itself.
-        if (Layer1XBlock != PreviousLayer1XBlock)
+        if (Layer1Block.X != PreviousLayer1Block.X)
         {
-            ushort distance = SignedDifference(Layer1XBlock, PreviousLayer1XBlock) < 0
-                ? (ushort)0
-                : (ushort)16;
-            PreviousLayer1XBlock = Layer1XBlock;
+            short distance = SignedDifference(Layer1Block.X, PreviousLayer1Block.X) < 0 ? (short)0 : (short)16;
+            PreviousLayer1Block = PreviousLayer1Block.WithX(Layer1Block.X);
             requests.Add(new BackgroundUpdateRequest(
                 BackgroundLayer.Level,
                 BackgroundUpdateAxis.Column,
-                unchecked((ushort)(Layer1XBlock + distance)),
-                Layer1YBlock,
-                unchecked((ushort)(Bg1XBlock + distance)),
-                Bg1YBlock));
+                Layer1Block + new Offset16<RoomBlocks>(distance, 0),
+                Bg1Block + new Offset16<TilemapBlocks>(distance, 0)));
         }
 
         // Odd layer-2 scroll modes suppress dynamic tilemap updates on that axis. Mode one
         // is fixed; other odd values still calculate parallax with bit zero masked away.
-        if ((Layer2ScrollX & 1) == 0 && Layer2XBlock != PreviousLayer2XBlock)
+        if ((Layer2Scroll.Horizontal & 1) == 0 && Layer2Block.X != PreviousLayer2Block.X)
         {
-            ushort distance = SignedDifference(Layer2XBlock, PreviousLayer2XBlock) < 0
-                ? (ushort)0
-                : (ushort)16;
-            PreviousLayer2XBlock = Layer2XBlock;
+            short distance = SignedDifference(Layer2Block.X, PreviousLayer2Block.X) < 0 ? (short)0 : (short)16;
+            PreviousLayer2Block = PreviousLayer2Block.WithX(Layer2Block.X);
             requests.Add(new BackgroundUpdateRequest(
                 BackgroundLayer.Background,
                 BackgroundUpdateAxis.Column,
-                unchecked((ushort)(Layer2XBlock + distance)),
-                Layer2YBlock,
-                unchecked((ushort)(Bg2XBlock + distance)),
-                Bg2YBlock));
+                Layer2Block + new Offset16<RoomBlocks>(distance, 0),
+                Bg2Block + new Offset16<TilemapBlocks>(distance, 0)));
         }
 
         // The visible playfield is 15 blocks tall (240 pixels in the tilemap staging
         // scheme). Downward crossings upload row +15; upward crossings upload row +1.
-        if (Layer1YBlock != PreviousLayer1YBlock)
+        if (Layer1Block.Y != PreviousLayer1Block.Y)
         {
-            ushort distance = SignedDifference(Layer1YBlock, PreviousLayer1YBlock) < 0
-                ? (ushort)1
-                : (ushort)15;
-            PreviousLayer1YBlock = Layer1YBlock;
+            short distance = SignedDifference(Layer1Block.Y, PreviousLayer1Block.Y) < 0 ? (short)1 : (short)15;
+            PreviousLayer1Block = PreviousLayer1Block.WithY(Layer1Block.Y);
             requests.Add(new BackgroundUpdateRequest(
                 BackgroundLayer.Level,
                 BackgroundUpdateAxis.Row,
-                Layer1XBlock,
-                unchecked((ushort)(Layer1YBlock + distance)),
-                Bg1XBlock,
-                unchecked((ushort)(Bg1YBlock + distance))));
+                Layer1Block + new Offset16<RoomBlocks>(0, distance),
+                Bg1Block + new Offset16<TilemapBlocks>(0, distance)));
         }
 
-        if ((Layer2ScrollY & 1) == 0 && Layer2YBlock != PreviousLayer2YBlock)
+        if ((Layer2Scroll.Vertical & 1) == 0 && Layer2Block.Y != PreviousLayer2Block.Y)
         {
-            ushort distance = SignedDifference(Layer2YBlock, PreviousLayer2YBlock) < 0
-                ? (ushort)1
-                : (ushort)15;
-            PreviousLayer2YBlock = Layer2YBlock;
+            short distance = SignedDifference(Layer2Block.Y, PreviousLayer2Block.Y) < 0 ? (short)1 : (short)15;
+            PreviousLayer2Block = PreviousLayer2Block.WithY(Layer2Block.Y);
             requests.Add(new BackgroundUpdateRequest(
                 BackgroundLayer.Background,
                 BackgroundUpdateAxis.Row,
-                Layer2XBlock,
-                unchecked((ushort)(Layer2YBlock + distance)),
-                Bg2XBlock,
-                unchecked((ushort)(Bg2YBlock + distance))));
+                Layer2Block + new Offset16<RoomBlocks>(0, distance),
+                Bg2Block + new Offset16<TilemapBlocks>(0, distance)));
         }
 
         return requests;
@@ -482,19 +400,12 @@ public sealed class BackgroundScrollState
     /// <summary>Implements the eight four-LSR sequences at <c>$80:A4BB</c>.</summary>
     private void CalculateBlockCoordinates()
     {
-        // PPU scroll mirrors are treated as unsigned words by four logical shifts.
-        Bg1XBlock = (ushort)(Bg1HorizontalScroll >> 4);
-        Bg2XBlock = (ushort)(Bg2HorizontalScroll >> 4);
-        Bg1YBlock = (ushort)(Bg1VerticalScroll >> 4);
-        Bg2YBlock = (ushort)(Bg2VerticalScroll >> 4);
-
-        // World positions receive an explicit 12-to-16-bit sign extension after the same
-        // logical shifts. An arithmetic cast expresses the result, but the comments retain
-        // the ROM's actual LSR/BIT #$0800/ORA #$F000 mechanism.
-        Layer1XBlock = ArithmeticBlock(Layer1XPosition);
-        Layer2XBlock = ArithmeticBlock(Layer2XPosition);
-        Layer1YBlock = ArithmeticBlock(Layer1YPosition);
-        Layer2YBlock = ArithmeticBlock(Layer2YPosition);
+        // PPU scroll mirrors are treated as unsigned words by four logical shifts; world
+        // positions receive the ROM's explicit 12-to-16-bit sign extension.
+        Bg1Block = Bg1Scroll.ToTilemapBlocks();
+        Bg2Block = Bg2Scroll.ToTilemapBlocks();
+        Layer1Block = Layer1Position.ToSourceBlocks();
+        Layer2Block = Layer2Position.ToSourceBlocks();
     }
 
     private static bool TryCalculateLayer2Position(ushort layer1Position, byte scrollMode, out ushort result)
@@ -519,10 +430,18 @@ public sealed class BackgroundScrollState
         return true;
     }
 
-    private static ushort ArithmeticBlock(ushort position) => unchecked((ushort)((short)position >> 4));
-
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 }
+
+/// <summary>
+/// The room state header's per-axis layer-2 scroll modes: zero copies
+/// layer one, one fixes the axis, and other values are parallax multipliers over 128 whose
+/// odd bit suppresses dynamic background streaming on that axis.
+/// </summary>
+/// <param name="Horizontal">The horizontal-axis mode.</param>
+/// <param name="Vertical">The vertical-axis mode.</param>
+[SpatialComponents("Spatial value type: one layer-2 parallax mode per axis, as the room header stores them.")]
+public readonly record struct Layer2ScrollModes(byte Horizontal, byte Vertical);
 
 /// <summary>Which native tilemap producer must satisfy a streaming request.</summary>
 public enum BackgroundLayer
@@ -548,10 +467,12 @@ public enum BackgroundUpdateAxis
 /// The four coordinate words passed through WRAM <c>$16-$1C</c> immediately before one of
 /// the update-level/background-data row/column calls at <c>$80:A413-$80:A4B5</c>.
 /// </summary>
+/// <param name="Layer">The tilemap producer that must satisfy the request.</param>
+/// <param name="Axis">Whether a column or a row is transferred.</param>
+/// <param name="SourceBlock">The first source level/background-data block of the strip.</param>
+/// <param name="VramBlock">The circular-tilemap block the strip begins at.</param>
 public readonly record struct BackgroundUpdateRequest(
     BackgroundLayer Layer,
     BackgroundUpdateAxis Axis,
-    ushort SourceXBlock,
-    ushort SourceYBlock,
-    ushort VramXBlock,
-    ushort VramYBlock);
+    Position16<RoomBlocks> SourceBlock,
+    Position16<TilemapBlocks> VramBlock);

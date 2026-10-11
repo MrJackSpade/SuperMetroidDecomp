@@ -68,7 +68,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
                         $"Native item {graphic.Kind} tile {offset} differs from the compiled definition.");
             }
             byte[] pixels = SnesGraphics.DecodePlanarTiles(graphic.Tiles.Span,
-                4, Width / 8, out Size32<ImagePixels> size);
+                4, Width / 8, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels,
                 SnesGraphics.DiagnosticPalette(16));

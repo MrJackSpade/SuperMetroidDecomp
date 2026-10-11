@@ -27,7 +27,7 @@ public static class RoomFxAnimatedTileAtlasExtractor
                 $"Room-FX animation art has {planar.Length} bytes, expected {RoomFxAnimatedTileAtlasFormat.TotalByteCount}.");
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar.ToArray(),
             RoomFxAnimatedTileAtlasFormat.BitsPerPixel,
-            RoomFxAnimatedTileAtlasFormat.TileCount, out Size32<ImagePixels> size);
+            RoomFxAnimatedTileAtlasFormat.TileCount, out Extent16<ImagePixels> size);
         using var output = new MemoryStream();
         IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));

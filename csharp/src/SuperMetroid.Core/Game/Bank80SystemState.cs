@@ -627,7 +627,7 @@ public sealed class Bank80SystemState
     /// The 64-column map is stored as two 32-by-32 bit planes, each row occupying four
     /// bytes; it is not a conventional eight-byte-wide linear bitmap.
     /// </summary>
-    public void MarkExploredMapTile(int areaIndex, Point32<MapTiles> cell)
+    public void MarkExploredMapTile(int areaIndex, Position16<MapTiles> cell)
     {
         ValidateExploredMapCoordinate(areaIndex, cell);
         int byteIndex = ResolveExploredMapByteIndex(areaIndex, cell);
@@ -635,11 +635,11 @@ public sealed class Bank80SystemState
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
-    public void MarkExploredMapTile(AreaId areaIndex, Point32<MapTiles> cell) =>
+    public void MarkExploredMapTile(AreaId areaIndex, Position16<MapTiles> cell) =>
         MarkExploredMapTile(AreaIds.ToIndex(areaIndex), cell);
 
     /// <summary>Returns whether a 64-by-32 area-map cell has been visited.</summary>
-    public bool IsMapTileExplored(int areaIndex, Point32<MapTiles> cell)
+    public bool IsMapTileExplored(int areaIndex, Position16<MapTiles> cell)
     {
         ValidateExploredMapCoordinate(areaIndex, cell);
         int byteIndex = ResolveExploredMapByteIndex(areaIndex, cell);
@@ -647,7 +647,7 @@ public sealed class Bank80SystemState
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
-    public bool IsMapTileExplored(AreaId areaIndex, Point32<MapTiles> cell) =>
+    public bool IsMapTileExplored(AreaId areaIndex, Position16<MapTiles> cell) =>
         IsMapTileExplored(AreaIds.ToIndex(areaIndex), cell);
 
     /// <summary>Returns one byte from an area's native explored-map plane for SRAM packing.</summary>
@@ -798,13 +798,13 @@ public sealed class Bank80SystemState
             throw new ArgumentOutOfRangeException(nameof(areaIndex), areaIndex, "Area index must be in the allocated 0-7 range.");
     }
 
-    private static int ResolveExploredMapByteIndex(int areaIndex, Point32<MapTiles> cell)
+    private static int ResolveExploredMapByteIndex(int areaIndex, Position16<MapTiles> cell)
     {
         int areaOffset = areaIndex * ExploredMapBytesPerArea;
         return areaOffset + AreaMapLayout.GetBitByteIndex(cell);
     }
 
-    private static void ValidateExploredMapCoordinate(int areaIndex, Point32<MapTiles> cell)
+    private static void ValidateExploredMapCoordinate(int areaIndex, Position16<MapTiles> cell)
     {
         if ((uint)areaIndex >= ExploredMapAreaCount)
             throw new ArgumentOutOfRangeException(nameof(areaIndex));

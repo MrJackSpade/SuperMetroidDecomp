@@ -51,7 +51,7 @@ internal static partial class Program
             int target = horizontal ? 6 : 9;
             blocks[target] = 0x9000;
             behaviors[target] = bts;
-            var level = new RoomLevelData(new Size32<RoomBlocks>(4, 4), blocks, behaviors, new ushort[16], [], doorListPointer: list);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), blocks, behaviors, new ushort[16], [], doorListPointer: list);
             var state = new SamusKinematicsState
             {
                 XPosition = 24, YPosition = 24, XRadius = 7, YRadius = 7, CollisionPose = pose,

@@ -22,11 +22,11 @@ public sealed class PauseSelectorPresentation
         Dictionary<int, int>? durationOverrides, int initialDuration, int palette)
     { this.anchorOverrides = anchorOverrides; this.reserve = reserve; this.beam = beam; this.equipment = equipment; PhaseCount = phaseCount; this.durationOverrides = durationOverrides; InitialDurationTicks = initialDuration; PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
     /// <summary>Gets the selected screen-pixel anchor for an equipment category and item.</summary>
-    public Point32<ScreenPixels> Anchor(PauseEquipmentCategory category, int item)
+    public Position16<OamPixels> Anchor(PauseEquipmentCategory category, int item)
     {
         string name = PauseSelectorDefinitions.Anchor(category, item);
         var basis = PauseSelectorDefinitions.StockAnchor(category, item);
-        return anchorOverrides.TryGetValue(name, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
+        return anchorOverrides.TryGetValue(name, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
     }
     /// <summary>Wraps a nonnegative animation phase into the authored phase count.</summary>
     public int NormalizePhase(int phase) => phase >= 0 ? phase % PhaseCount : throw new ArgumentOutOfRangeException(nameof(phase));
@@ -49,7 +49,7 @@ public sealed class PauseSelectorPresentation
             PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
             _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
         }).Get(normalized);
-        composition.DrawOnScreen(oam, point.ToPosition16(), PaletteBits);
+        composition.DrawOnScreen(oam, point, PaletteBits);
     }
     /// <summary>Loads and validates equipment-selector anchors, frames, animation, palette, and timing.</summary>
     public static PauseSelectorPresentation Load(Stream json)
@@ -131,7 +131,7 @@ public sealed record PauseSelectorDocument
     /// <summary>Gets the OBJ palette index from zero through seven.</summary>
     public required int Palette { get; init; }
     /// <summary>Gets all sixteen named selector anchors in screen pixels.</summary>
-    public required Dictionary<string, Point32<ScreenPixels>> Anchors { get; init; }
+    public required Dictionary<string, Position16<OamPixels>> Anchors { get; init; }
     /// <summary>Gets named selector frames as sprite-part compositions.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
     /// <summary>Gets the ordered cyclic animation phases.</summary>

@@ -85,7 +85,7 @@ internal static partial class Program
                 ushort room = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(restored, (AreaId)area, 0).RoomPointer;
                 for (int entry = 0; entry < 2; entry++)
                 {
-                    runtime.LoadCartridgeRoomForDebug(room, new(0, 0));
+                    runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
                     AssertTrue(dead.SequenceEqual(CenteredPause(restored, runtime.System).Render()),
                         "ordinary room load/reload preserves defeated marker and acquired map");
                 }

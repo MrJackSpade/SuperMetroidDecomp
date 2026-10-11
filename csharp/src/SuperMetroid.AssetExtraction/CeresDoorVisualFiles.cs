@@ -22,7 +22,7 @@ public static class CeresDoorVisualFiles
         byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresDoorVisualRomData.TileSource, CeresDoorVisualRomData.TileByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
-            RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
+            RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var image = new MemoryStream();
         IndexedPng.Write(image, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] tilePng = image.ToArray();

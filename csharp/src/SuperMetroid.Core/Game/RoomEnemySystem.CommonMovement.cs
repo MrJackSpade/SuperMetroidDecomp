@@ -61,7 +61,7 @@ public sealed partial class RoomEnemySystem
         int spanMinusOne = unchecked((ushort)(bottomPixel - (topPixel & 0xfff0))) >> 4;
         // $A0:C6E2-$C716: the 8-bit multiplier forms (top row & $FF) * width, the target
         // column is added unbounded, and each scanned row adds the width again.
-        int firstIndex = ((topPixel >> 4) & 0xff) * level.Size.Width + (targetEdge >> 4);
+        int firstIndex = ((topPixel >> 4) & 0xff) * level.Size.X + (targetEdge >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
@@ -69,7 +69,7 @@ public sealed partial class RoomEnemySystem
             if (EnemyHorizontalProbeIsSolid(
                     level,
                     slot,
-                    EnemyMoverBlockIndex(firstIndex + scanIndex * level.Size.Width),
+                    EnemyMoverBlockIndex(firstIndex + scanIndex * level.Size.X),
                     targetEdge,
                     remaining,
                     spanMinusOne,
@@ -128,7 +128,7 @@ public sealed partial class RoomEnemySystem
         int spanMinusOne = unchecked((ushort)(rightPixel - (leftPixel & 0xfff0))) >> 4;
         // $A0:C7D0-$C7F0: (target row & $FF) * width plus the left column, then each
         // scanned column steps to the next native block index.
-        int firstIndex = ((targetEdge >> 4) & 0xff) * level.Size.Width + (leftPixel >> 4);
+        int firstIndex = ((targetEdge >> 4) & 0xff) * level.Size.X + (leftPixel >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
@@ -197,9 +197,9 @@ public sealed partial class RoomEnemySystem
         int lastColumn = unchecked((ushort)(slot.XPosition + slot.XRadius - 1)) >> 4;
         for (int column = firstColumn; column <= lastColumn; column++)
         {
-            if ((uint)column >= (uint)level.Size.Width ||
-                (uint)row >= (uint)level.Size.Height ||
-                new RoomLevelWord(level.GetCollisionBlock(new(column, row)).LevelWord).HasSolidProbeBit)
+            if ((uint)column >= (uint)level.Size.X ||
+                (uint)row >= (uint)level.Size.Y ||
+                new RoomLevelWord(level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).LevelWord).HasSolidProbeBit)
             {
                 return true;
             }
@@ -231,9 +231,9 @@ public sealed partial class RoomEnemySystem
         int column = targetEdge >> 4;
         for (int row = firstRow; row <= lastRow; row++)
         {
-            if ((uint)column >= (uint)level.Size.Width ||
-                (uint)row >= (uint)level.Size.Height ||
-                new RoomLevelWord(level.GetCollisionBlock(new(column, row)).LevelWord).HasSolidProbeBit)
+            if ((uint)column >= (uint)level.Size.X ||
+                (uint)row >= (uint)level.Size.Y ||
+                new RoomLevelWord(level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).LevelWord).HasSolidProbeBit)
             {
                 return true;
             }
@@ -256,11 +256,11 @@ public sealed partial class RoomEnemySystem
         int blockY = edge >> 4;
         int firstBlockX = unchecked((ushort)(slot.XPosition - slot.XRadius)) >> 4;
         int lastBlockX = unchecked((ushort)(slot.XPosition + slot.XRadius - 1)) >> 4;
-        if ((uint)blockY >= (uint)level.Size.Height) return true;
+        if ((uint)blockY >= (uint)level.Size.Y) return true;
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
-            if ((uint)blockX >= (uint)level.Size.Width ||
-                new RoomLevelWord(level.GetCollisionBlock(new(blockX, blockY)).LevelWord).HasSolidProbeBit)
+            if ((uint)blockX >= (uint)level.Size.X ||
+                new RoomLevelWord(level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY))).LevelWord).HasSolidProbeBit)
                 return true;
         }
         return false;
@@ -368,7 +368,7 @@ public sealed partial class RoomEnemySystem
     private static RoomCollisionBlock ResolveEnemyMoverBlock(RoomLevelData level, int nativeIndex)
     {
         int blockIndex = nativeIndex;
-        int maximumLinks = level.Size.Width * level.Size.Height;
+        int maximumLinks = level.Size.X * level.Size.Y;
         for (int link = 0; link <= maximumLinks; link++)
         {
             if (!level.IsLogicalBlockIndex(blockIndex))
@@ -380,7 +380,7 @@ public sealed partial class RoomEnemySystem
                     block.Bts != RoomBlockBehaviorValues.None => block.Bts.ExtensionOffset,
                 RoomCollisionType.VerticalExtension when
                     block.Bts != RoomBlockBehaviorValues.None =>
-                    block.Bts.ExtensionOffset * level.Size.Width,
+                    block.Bts.ExtensionOffset * level.Size.X,
                 RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
                     RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
                     RoomCollisionType.HorizontalExtension or RoomCollisionType.UnusedAir or
@@ -429,14 +429,14 @@ public sealed partial class RoomEnemySystem
         int blockX,
         int blockY)
     {
-        if ((uint)blockX >= (uint)level.Size.Width ||
-            (uint)blockY >= (uint)level.Size.Height)
+        if ((uint)blockX >= (uint)level.Size.X ||
+            (uint)blockY >= (uint)level.Size.Y)
         {
             return -1;
         }
 
-        int blockIndex = blockY * level.Size.Width + blockX;
-        int maximumLinks = level.Size.Width * level.Size.Height;
+        int blockIndex = blockY * level.Size.X + blockX;
+        int maximumLinks = level.Size.X * level.Size.Y;
         for (int link = 0; link <= maximumLinks; link++)
         {
             if ((uint)blockIndex >= (uint)maximumLinks)
@@ -448,7 +448,7 @@ public sealed partial class RoomEnemySystem
                     block.Bts != RoomBlockBehaviorValues.None => block.Bts.ExtensionOffset,
                 RoomCollisionType.VerticalExtension when
                     block.Bts != RoomBlockBehaviorValues.None =>
-                    block.Bts.ExtensionOffset * level.Size.Width,
+                    block.Bts.ExtensionOffset * level.Size.X,
                 RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
                     RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
                     RoomCollisionType.HorizontalExtension or RoomCollisionType.UnusedAir or
@@ -524,7 +524,7 @@ public sealed partial class RoomEnemySystem
         ushort targetCenter,
         bool movingUp)
     {
-        if (block.Index % level.Size.Width != slot.XPosition >> 4)
+        if (block.Index % level.Size.X != slot.XPosition >> 4)
             return false;
 
         RoomBlockBehavior bts = block.Bts;
@@ -593,13 +593,13 @@ public sealed partial class RoomEnemySystem
     {
         int blockX = x >> 4;
         int blockY = y >> 4;
-        if ((uint)blockX >= (uint)level.Size.Width ||
-            (uint)blockY >= (uint)level.Size.Height)
+        if ((uint)blockX >= (uint)level.Size.X ||
+            (uint)blockY >= (uint)level.Size.Y)
         {
             return false;
         }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
+        RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
         if (block.CollisionType != RoomCollisionType.Slope ||
             !block.Bts.IsNonSquareSlope)
             return false;

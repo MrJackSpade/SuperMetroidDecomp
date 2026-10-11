@@ -13,23 +13,26 @@ namespace SuperMetroid.Core.Game;
 /// Matrix D is absent because this particular cartridge routine uses A for both diagonal
 /// terms; B and C provide the two cross terms exactly as written by bank <c>$8B</c>.
 /// </remarks>
+/// <param name="MatrixA">M7A, also used for M7D.</param>
+/// <param name="MatrixB">M7B.</param>
+/// <param name="MatrixC">M7C.</param>
+/// <param name="Center">M7X/M7Y: the room point the shaft's layer-one Mode 7 plane rotates about.</param>
 public readonly record struct SamusMode7Transform(
     ushort MatrixA,
     ushort MatrixB,
     ushort MatrixC,
-    ushort CenterX,
-    ushort CenterY)
+    Position16<RoomPixels> Center)
 {
     /// <summary>
     /// Applies the cartridge's signed 8.8 matrix math, including every intermediate
     /// 16-bit truncation that can be observed near a coordinate or arithmetic wrap.
     /// </summary>
-    public SamusMode7Point Transform(ushort worldX, ushort worldY)
+    public Position16<RoomPixels> Transform(Position16<RoomPixels> world)
     {
         // `$8B:8A52` forms both distances with 16-bit subtraction before treating the
         // products as signed. In particular, vertical distance points upward: M7Y - Y.
-        ushort horizontalDistance = unchecked((ushort)(worldX - CenterX));
-        ushort verticalDistance = unchecked((ushort)(CenterY - worldY));
+        ushort horizontalDistance = unchecked((ushort)(world.X - Center.X));
+        ushort verticalDistance = unchecked((ushort)(Center.Y - world.Y));
 
         // The original helper multiplies two signed 16-bit values into a 32-bit result.
         // Each product is shifted independently, truncated to a word, and only then added
@@ -42,9 +45,9 @@ public readonly record struct SamusMode7Transform(
             MultiplySigned8Point8(MatrixC, horizontalDistance) +
             MultiplySigned8Point8(MatrixA, verticalDistance)));
 
-        return new SamusMode7Point(
-            unchecked((ushort)(CenterX + transformedHorizontalDistance)),
-            unchecked((ushort)(CenterY - transformedVerticalDistance)));
+        return new Position16<RoomPixels>(
+            unchecked((ushort)(Center.X + transformedHorizontalDistance)),
+            unchecked((ushort)(Center.Y - transformedVerticalDistance)));
     }
 
     private static ushort MultiplySigned8Point8(ushort left, ushort right)
@@ -53,6 +56,3 @@ public readonly record struct SamusMode7Transform(
         return unchecked((ushort)(product >> 8));
     }
 }
-
-/// <summary>A transformed temporary world point returned by <see cref="SamusMode7Transform"/>.</summary>
-public readonly record struct SamusMode7Point(ushort X, ushort Y);

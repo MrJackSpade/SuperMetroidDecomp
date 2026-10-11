@@ -93,7 +93,7 @@ public static class IntroCinematicArtworkFiles
                 throw new InvalidDataException(
                     $"Intro sheet {name} has {planar.Length} tile bytes, expected {expectedByteCount}.");
             byte[] indexes = SnesGraphics.DecodePlanarTiles(planar, 4,
-                IntroCinematicArtworkFormat.TileColumns, out Size32<ImagePixels> size);
+                IntroCinematicArtworkFormat.TileColumns, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();

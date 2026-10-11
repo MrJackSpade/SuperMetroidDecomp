@@ -23,7 +23,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
-            var cell = new Point32<MapTiles>(x, y);
+            var cell = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
             int i = Index(cell);
             discoverable[i] = rules.IsDiscoverable(cell);
             station[i] = rules.IsRevealedByMapStation(cell);
@@ -76,13 +76,13 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     }
 
     /// <summary>Gets the edited packed SNES BG word at logical map-tile coordinates X 0–63, Y 0–31; native two-page ordering is applied later when building a screen tilemap.</summary>
-    public MapTileWord GetTile(Point32<MapTiles> cell) => cells[Index(cell)];
+    public MapTileWord GetTile(Position16<MapTiles> cell) => cells[Index(cell)];
     /// <summary>Gets the supplied rule snapshot for whether logical cell (X 0–63, Y 0–31) can be discovered, independent of the edited character or blank artwork.</summary>
-    public bool IsDiscoverable(Point32<MapTiles> cell) => discoverable[Index(cell)];
+    public bool IsDiscoverable(Position16<MapTiles> cell) => discoverable[Index(cell)];
     /// <summary>Gets the supplied rule snapshot for whether downloading this area's map reveals logical cell (X 0–63, Y 0–31); no exploration or save bits are changed.</summary>
-    public bool IsRevealedByMapStation(Point32<MapTiles> cell) => station[Index(cell)];
+    public bool IsRevealedByMapStation(Position16<MapTiles> cell) => station[Index(cell)];
     /// <summary>Gets the supplied slope-rule snapshot for whether visiting logical cell (X 0–63, Y 0–31) also explores the cell above; replacing its artwork does not change this rule.</summary>
-    public bool RevealsCellAbove(Point32<MapTiles> cell) => revealsAbove[Index(cell)];
+    public bool RevealsCellAbove(Position16<MapTiles> cell) => revealsAbove[Index(cell)];
 
     /// <summary>Importer entrypoint: writes presentation only, never source addresses or gameplay rules.</summary>
     public static void Write(Stream json, IAreaMapView map)
@@ -93,7 +93,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
-            var cell = new Point32<MapTiles>(x, y);
+            var cell = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
             MapTileWord tile = map.GetTile(cell);
             cells[Index(cell)] = new()
             {
@@ -110,7 +110,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         }, MapPresentationFormat.JsonOptions);
     }
 
-    private static int Index(Point32<MapTiles> cell)
+    private static int Index(Position16<MapTiles> cell)
     {
         _ = AreaMapLayout.GetTilemapWordIndex(cell); // Shared coordinate validation; storage here is row-major.
         return AreaMapLayout.Size.RowMajorIndex(cell);

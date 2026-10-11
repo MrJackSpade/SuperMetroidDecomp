@@ -51,16 +51,16 @@ public sealed class MapArrowPresentation
 public sealed class MapArrowVisual
 {
     private readonly Dictionary<int, byte>? durationOverrides;
-    internal MapArrowVisual(Point32<ScreenPixels> position, int[] durations)
+    internal MapArrowVisual(Position16<OamPixels> position, int[] durations)
     {
-        Position = position.ToPosition16();
+        Position = position;
         PhaseCount = durations.Length;
         for (int phase = 0; phase < durations.Length; phase++)
             if (durations[phase] != MenuSelectorTiming.Duration(phase))
                 (durationOverrides ??= new()).Add(phase, (byte)durations[phase]);
     }
     /// <summary>Gets the arrow's screen-pixel anchor.</summary>
-    public Position16<ScreenPixels> Position { get; }
+    public Position16<OamPixels> Position { get; }
     /// <summary>Gets the number of authored animation phases.</summary>
     public int PhaseCount { get; }
 
@@ -89,7 +89,7 @@ public sealed record MapArrowEntry
 {
     /// <summary>The authored screen-pixel anchor.</summary>
     [System.Text.Json.Serialization.JsonIgnore]
-    public Point32<ScreenPixels> Position => new(X, Y);
+    public Position16<OamPixels> Position => new(checked((ushort)X), checked((ushort)Y));
     /// <summary>Gets the horizontal screen-pixel anchor from zero through 255.</summary>
     public required int X { get; init; }
     /// <summary>Gets the vertical screen-pixel anchor from zero through 223.</summary>

@@ -98,10 +98,10 @@ internal static partial class Program
             int tiles = (editedDefinition.TileDataSize & 0x7fff) / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(tiles, RoomCharacterAtlasFormat.TileColumns);
             using var input = File.OpenRead(Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(alias)));
-            IndexedPngImage image = IndexedPng.Read(input, new(columns * 8, (tiles + columns - 1) / columns * 8));
+            IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)((tiles + columns - 1) / columns * 8))));
             image.Pixels[0] ^= 1;
             using var output = File.Create(Path.Combine(overridePath, EnemyTileArtworkFormat.FileName(alias)));
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         }
         byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer)));
         string stockHash = Convert.ToHexString(SHA256.HashData(stockBytes));

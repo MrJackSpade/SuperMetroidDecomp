@@ -56,8 +56,8 @@ internal static partial class Program
                 snapshot.ObjectSelection, snapshot.Brightness));
             var actualPixels = pause.Render();
             Directory.CreateDirectory("csharp/test-temp/pause-reserve-372");
-            PngWriterTooling.WriteRgba($"csharp/test-temp/pause-reserve-372/actual-{capacity}-{mode}.png", new(256, 224), actualPixels);
-            PngWriterTooling.WriteRgba($"csharp/test-temp/pause-reserve-372/native-{capacity}-{mode}.png", new(256, 224), expectedPixels);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/pause-reserve-372/actual-{capacity}-{mode}.png", new Extent16<ScreenPixels>(256, 224), actualPixels);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/pause-reserve-372/native-{capacity}-{mode}.png", new Extent16<ScreenPixels>(256, 224), expectedPixels);
             AssertTrue(actualPixels.AsSpan().SequenceEqual(expectedPixels),
                 $"visible reserve labels match native ownership/mode ({capacity}/{mode})");
         }

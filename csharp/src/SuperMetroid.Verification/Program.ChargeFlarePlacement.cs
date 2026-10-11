@@ -32,7 +32,7 @@ internal static partial class Program
         })
         for (byte direction = 0; direction < 16; direction++)
         foreach (ushort coordinate in new ushort[] { 0, 100, 255, ushort.MaxValue })
-        foreach (SamusMode7Transform? transform in new SamusMode7Transform?[] { null, new(240, 16, 65520, 128, 112) })
+        foreach (SamusMode7Transform? transform in new SamusMode7Transform?[] { null, new(240, 16, 65520, new Position16<RoomPixels>(128, 112)) })
         for (int component = 0; component < 3; component++)
         {
             // Exercise all original low-nibble operands at the renderer's metadata
@@ -46,7 +46,8 @@ internal static partial class Program
             int xTable = running ? SamusProjectileRomData.Origins.FlareRunningX : SamusProjectileRomData.Origins.FlareDefaultX;
             int yTable = running ? SamusProjectileRomData.Origins.FlareRunningY : SamusProjectileRomData.Origins.FlareDefaultY;
             short Word(int address) => unchecked((short)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
-            var point = transform is { } selectedTransform ? selectedTransform.Transform(coordinate, coordinate) : new SamusMode7Point(coordinate, coordinate);
+            var world = new Position16<RoomPixels>(coordinate, coordinate);
+            var point = transform is { } selectedTransform ? selectedTransform.Transform(world) : world;
             ushort x = unchecked((ushort)(point.X + Word(xTable + direction * 2)));
             ushort y = unchecked((ushort)(point.Y + Word(yTable + direction * 2) - yOffset));
             ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));
@@ -129,8 +130,8 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
-        runtime.Samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-        runtime.Samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+        runtime.Samus.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100);
+        runtime.Samus.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
         runtime.Samus.InitializeAnimation(bus); runtime.Samus.PrimeGraphics(bus);
         typeof(SamusProjectileSystem).GetProperty("FlareCounter")!.SetValue(runtime.Projectiles, (ushort)30);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

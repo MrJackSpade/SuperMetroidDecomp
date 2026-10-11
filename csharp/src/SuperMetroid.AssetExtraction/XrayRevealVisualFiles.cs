@@ -333,6 +333,6 @@ public static class XrayRevealVisualFiles
     private sealed record XrayRoomOverlayTileDocument(byte X, byte Y, ushort Word)
     {
         [JsonIgnore]
-        public Point32<RoomBlocks> Block => new(X, Y);
+        public Position16<RoomBlocks> Block => new(X, Y);
     }
 }

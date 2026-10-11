@@ -35,7 +35,7 @@ internal static partial class Program
 
         var guard = new FakeKraidInstructionProgramReadGuard(rom);
         var level = new RoomLevelData(
-            new Size32<RoomBlocks>(32, 32),
+            new Extent16<RoomBlocks>(32, 32),
             new ushort[1024],
             new byte[1024],
             new ushort[1024],

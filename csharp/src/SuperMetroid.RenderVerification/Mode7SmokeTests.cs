@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class Mode7SmokeTests
 {
@@ -17,7 +18,7 @@ internal static class Mode7SmokeTests
         foreach (short offset in new short[] { -1024, -1, 0, 1023, short.MinValue, short.MaxValue })
         foreach (Mode7OverflowMode overflow in Enum.GetValues<Mode7OverflowMode>())
         {
-            var registers = new Mode7RenderRegisters(scale, 113, -113, scale, 128, 112, offset, offset,
+            var registers = new Mode7RenderRegisters(scale, 113, -113, scale, new Offset16<Mode7Pixels>(128, 112), new Offset16<Mode7Pixels>(offset, offset),
                 overflow == Mode7OverflowMode.CharacterZero, overflow == Mode7OverflowMode.Wrap);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0),
                 new Mode7ObjRenderSnapshot(memory, registers, 3, 13), new byte[] { 11 });
@@ -35,10 +36,10 @@ internal static class Mode7SmokeTests
         foreach (short scale in new short[] { 256, -113, 511, 0 })
         {
             var band = floorStart is { } start
-                ? new Mode1FloorBand(start, 0x4000, 0x6000, 17, 65535, 64, 32)
+                ? new Mode1FloorBand(start, 0x4000, 0x6000, new Position16<Bg2Pixels>(17, 65535), new Extent16<TilemapCells>(64, 32))
                 : (Mode1FloorBand?)null;
             var layer = new Mode7GameplayRenderLayer(
-                new(scale, 71, -71, scale, 128, 112, -17, 211, true),
+                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), true),
                 0x5800, 0x4000, hud, band);
             Check(new RenderFrameSnapshot(new(++count, 1, 0),
                 new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 13)));

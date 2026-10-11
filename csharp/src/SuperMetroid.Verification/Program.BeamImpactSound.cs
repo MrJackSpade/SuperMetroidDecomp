@@ -24,7 +24,7 @@ internal static partial class Program
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 64; x++)
         {
-            int index = y * level.Size.Width + x;
+            int index = y * level.Size.X + x;
             level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
                 y >= 32 || x == 44 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
@@ -36,7 +36,7 @@ internal static partial class Program
         samus.YPosition = 490;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        runtime.Camera!.SetPosition(400, 350);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
 

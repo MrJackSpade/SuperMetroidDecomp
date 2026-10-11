@@ -17,7 +17,7 @@ public static class SamusInsideBlockReactions
 
         void Visit(ushort y, bool bottomPoint, bool centerPoint)
         {
-            var block = level.GetCollisionBlockOrPrefilledSolid(new(body.XPosition >> 4, y >> 4));
+            var block = level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)(body.XPosition >> 4)), unchecked((ushort)(y >> 4))));
             if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;

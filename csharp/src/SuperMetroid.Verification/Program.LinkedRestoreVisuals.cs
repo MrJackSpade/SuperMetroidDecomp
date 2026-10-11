@@ -166,7 +166,7 @@ internal static partial class Program
         words[blockIndex] = bomb ? (ushort)0xf321 : (ushort)0xb321;
         var definitions = new byte[0x400 * 8];
         definitions[editedWord * 8] = (byte)editedWord;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words,
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), words,
             new byte[words.Length], new ushort[words.Length], definitions);
         var plms = new RoomPlmSystem { LinkedRestoreVisuals = visuals };
         bool spawned = bomb

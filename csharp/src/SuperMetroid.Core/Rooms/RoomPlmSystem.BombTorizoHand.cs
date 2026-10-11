@@ -58,7 +58,7 @@ public sealed partial class RoomPlmSystem
         }
 
         slot.InstructionPointer = RoomPlmInstructionLists.BombTorizoCrumblingChozo;
-        _bombTorizoHandRoomWidth = level.Size.Width;
+        _bombTorizoHandRoomWidth = level.Size.X;
     }
 
     private void BeginBombTorizoHandFrame()
@@ -183,7 +183,7 @@ public readonly record struct PlmVramWriteRequest(
 public readonly record struct BombTorizoStatueProjectileRequest(
     ushort DefinitionPointer,
     ushort Parameter,
-    Point32<RoomBlocks> PlmBlock);
+    Position16<RoomBlocks> PlmBlock);
 
 /// <summary>One delayed music request made by a room PLM instruction.</summary>
 public readonly record struct PlmMusicRequest(

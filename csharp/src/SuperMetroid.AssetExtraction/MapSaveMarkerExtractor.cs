@@ -18,7 +18,7 @@ public static class MapSaveMarkerExtractor
     /// <exception cref="InvalidDataException">A usable marker is missing or an unused slot differs from its expected sentinel.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        var points = new Dictionary<string, Point32<MapPixels>>();
+        var points = new Dictionary<string, Position16<MapPixels>>();
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             var typedArea = (AreaId)area;

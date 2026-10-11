@@ -25,7 +25,7 @@ public sealed class WorldMapArtwork
             if (!WorldMapTileDefinitions.IsForegroundFontTile(tile)) continue;
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
-                if (foreground[TilePixel(tile, new(x, y))] == WorldMapTileDefinitions.ForegroundFontFace)
+                if (foreground[TilePixel(tile, new(checked((ushort)x), checked((ushort)y)))] == WorldMapTileDefinitions.ForegroundFontFace)
                     masks[tile] |= 1UL << (y * 8 + x);
         }
         for (int tile = 0; tile < masks.Length; tile++)
@@ -90,7 +90,7 @@ public sealed class WorldMapArtwork
             SnesPlanarTileEncoder.Encode(pixels, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight), 2));
     }
 
-    private static int TilePixel(int tile, Point32<ImagePixels> point) =>
+    private static int TilePixel(int tile, Position16<CharacterPixels> point) =>
         (tile / WorldMapArtworkFormat.TileColumns * 8 + point.Y) * WorldMapArtworkFormat.Width +
         tile % WorldMapArtworkFormat.TileColumns * 8 + point.X;
     private static int PixelTile(int index) => index / WorldMapArtworkFormat.Width / 8 *
@@ -117,8 +117,8 @@ public sealed class WorldMapArtwork
         int x = index % WorldMapArtworkFormat.Width, y = index / WorldMapArtworkFormat.Width;
         int tile = y / 8 * WorldMapArtworkFormat.TileColumns + x / 8;
         if (digitFill.TryGetValue(tile, out ulong footprint))
-            return WorldMapTileDefinitions.TryOutlinedPixel(tile, new(x % 8, y % 8), footprint, out value);
+            return WorldMapTileDefinitions.TryOutlinedPixel(tile, new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), footprint, out value);
         return WorldMapTileDefinitions.TryBackgroundPixel(tile,
-            new(x % 8, y % 8), out value);
+            new(checked((ushort)(x % 8)), checked((ushort)(y % 8))), out value);
     }
 }

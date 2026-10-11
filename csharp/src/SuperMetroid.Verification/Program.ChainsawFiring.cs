@@ -14,7 +14,7 @@ internal static partial class Program
     private static void VerifyChainsawFiring()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = new RoomLevelData(new Size32<RoomBlocks>(16, 16), new ushort[256], new byte[256],
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new ushort[256], new byte[256],
             new ushort[256], new byte[8]);
         var samus = new SamusState
         {
@@ -60,7 +60,7 @@ internal static partial class Program
         // makes that otherwise invisible call fail loudly through the production path.
         ushort[] reactiveWords = new ushort[256];
         reactiveWords[0] = (ushort)((int)RoomCollisionType.BombableBlock << 12);
-        var reactiveLevel = new RoomLevelData(new Size32<RoomBlocks>(16, 16), reactiveWords, new byte[256],
+        var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), reactiveWords, new byte[256],
             new ushort[256], new byte[8]);
         var reactiveSamus = new SamusState
         {
@@ -94,7 +94,7 @@ internal static partial class Program
                 (ushort)((int)RoomCollisionType.VerticalExtension << 12);
             doorBts[doorOrigin + row * 16] = unchecked((byte)-row);
         }
-        var doorLevel = new RoomLevelData(new Size32<RoomBlocks>(16, 16), doorWords, doorBts,
+        var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), doorWords, doorBts,
             new ushort[256], new byte[8]);
         var doorSamus = new SamusState
         {
@@ -234,7 +234,7 @@ internal static partial class Program
         byte[] interferenceBts = new byte[25];
         interferenceWords[yellowDoorBlock] = 0x8000;
         var interferenceLevel = new RoomLevelData(
-            new Size32<RoomBlocks>(5, 5),
+            new Extent16<RoomBlocks>(5, 5),
             interferenceWords,
             interferenceBts,
             new ushort[25],
@@ -294,7 +294,7 @@ internal static partial class Program
         breakingWords[bombableBlock] =
             (ushort)((int)RoomCollisionType.BombableBlock << 12);
         var breakingLevel = new RoomLevelData(
-            new Size32<RoomBlocks>(5, 5),
+            new Extent16<RoomBlocks>(5, 5),
             breakingWords,
             new byte[25],
             new ushort[25],

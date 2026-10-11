@@ -216,15 +216,14 @@ public static class RoomScrollDefinitions
     public static RoomScrollGrid CreateGrid(
         ISnesAddressSpace bus,
         ushort scrollPointer,
-        Size32<RoomScreens> size)
+        Extent16<RoomScreens> size)
     {
         short signedPointer = unchecked((short)scrollPointer);
         return signedPointer < 0
             ? RoomScrollGrid.LoadCompiled(
-                bus, Get(scrollPointer).Storage.Span, size.Width, size.Height)
+                bus, Get(scrollPointer).Storage.Span, size)
             : RoomScrollGrid.CreateImplicit(
-                bus, size.Width, size.Height,
-                RoomScrollStates.FromCartridge(
+                bus, size, RoomScrollStates.FromCartridge(
                     unchecked((byte)(scrollPointer + 1)),
                     $"implicit scroll word ${scrollPointer:X4}"));
     }

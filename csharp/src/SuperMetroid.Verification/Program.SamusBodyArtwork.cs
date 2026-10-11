@@ -110,7 +110,7 @@ internal static partial class Program
             nativeOam.BeginFrame();
             installedOam.BeginFrame();
             DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, 127, 131);
-            installedOam.AddSamusSpritemap(spritemapGuard, (ushort)index, 127, 131, sprites);
+            installedOam.AddSamusSpritemap(spritemapGuard, (ushort)index, new Position16<OamPixels>(127, 131), sprites);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                 nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
                 nativeOam.NextByteOffset == installedOam.NextByteOffset,
@@ -125,7 +125,7 @@ internal static partial class Program
             mutableSpriteMemory.WriteByte(0x920000 + offset, mutableRecord[offset]);
         var mutableOam = new OamBuffer();
         mutableOam.BeginFrame();
-        mutableOam.AddSamusSpritemap(mutableSpriteMemory, (ushort)zeroIndex, 127, 131, sprites);
+        mutableOam.AddSamusSpritemap(mutableSpriteMemory, (ushort)zeroIndex, new Position16<OamPixels>(127, 131), sprites);
         AssertEqual(4, mutableOam.NextByteOffset, "zero Samus pointer emits its WRAM-authored part");
         AssertTrue(mutableOam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }),
             "zero Samus pointer reads mutable WRAM rather than cartridge art");
@@ -356,11 +356,11 @@ internal static partial class Program
         string stockPng = Path.Combine(installation.SamusBodyDirectory, "top-00.png");
         string overridePng = Path.Combine(installation.SamusBodyOverrideDirectory, "top-00.png");
         byte[] original = File.ReadAllBytes(stockPng);
-        IndexedPngImage image = IndexedPng.Read(new MemoryStream(original, false), new(64, stock.TopSet(0).Count * 16));
+        IndexedPngImage image = IndexedPng.Read(new MemoryStream(original, false), new(64, checked((ushort)(stock.TopSet(0).Count * 16))));
         byte[] pixels = (byte[])image.Pixels.Clone();
         pixels[0] = (byte)((pixels[0] + 1) & 15);
         using (var output = File.Create(overridePng))
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Palette);
         string selectedManifest = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusBodyArtworkFiles.ManifestFileName);
         JsonNode document = JsonNode.Parse(File.ReadAllText(Path.Combine(
@@ -411,7 +411,7 @@ internal static partial class Program
         byte[] editedDeathPixels = (byte[])deathTileImage.Pixels.Clone();
         editedDeathPixels[0] = (byte)((editedDeathPixels[0] + 1) & 15);
         using (var output = File.Create(deathTileOverride))
-            IndexedPng.Write(output, new(deathTileImage.Size.Width, deathTileImage.Size.Height),
+            IndexedPng.Write(output, new(deathTileImage.Size.X, deathTileImage.Size.Y),
                 editedDeathPixels, deathTileImage.Palette);
         string armJsonOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusArmCannonArtworkFormat.JsonFileName);
@@ -430,7 +430,7 @@ internal static partial class Program
         IndexedPngImage armImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(
             Path.Combine(installation.SamusBodyDirectory,
                 SamusArmCannonArtworkFormat.TileFileName)), writable: false),
-            new(SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8, 8));
+            new(checked((ushort)(SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8)), 8));
         ushort selectedArmTileSource = stock.ArmCannon.TileSource(armSelector & 0x7f, 3);
         int selectedArmTileIndex = SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(selectedArmTileSource);
         AssertTrue(selectedArmTileIndex >= 0,
@@ -439,7 +439,7 @@ internal static partial class Program
         int selectedArmPixel = selectedArmTileIndex * 8;
         armPixels[selectedArmPixel] = (byte)((armPixels[selectedArmPixel] + 1) & 15);
         using (var output = File.Create(armPngOverride))
-            IndexedPng.Write(output, new(armImage.Size.Width, armImage.Size.Height), armPixels,
+            IndexedPng.Write(output, new(armImage.Size.X, armImage.Size.Y), armPixels,
                 armImage.Palette);
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
         AssertTrue(stock.ArmCannon.ReadDrawingByte(armXAddress) !=
@@ -506,9 +506,9 @@ internal static partial class Program
         stockSpritemapOam.BeginFrame();
         editedSpritemapOam.BeginFrame();
         ushort poseOneIndex = stock.Spritemaps.TopBase(SamusPoseId.FacingRightNormalPose);
-        stockSpritemapOam.AddSamusSpritemap(guardedBus, poseOneIndex, 128, 128,
+        stockSpritemapOam.AddSamusSpritemap(guardedBus, poseOneIndex, new Position16<OamPixels>(128, 128),
             stock.Spritemaps);
-        editedSpritemapOam.AddSamusSpritemap(guardedBus, poseOneIndex, 128, 128,
+        editedSpritemapOam.AddSamusSpritemap(guardedBus, poseOneIndex, new Position16<OamPixels>(128, 128),
             replacement.Spritemaps);
         AssertEqual(unchecked((byte)(stockSpritemapOam.LowTable[0] + 1)),
             editedSpritemapOam.LowTable[0],
@@ -763,7 +763,7 @@ internal static partial class Program
         {
             oam.AddSamusSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3)), originX, originY);
+                ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3)), new Position16<OamPixels>(originX, originY));
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }

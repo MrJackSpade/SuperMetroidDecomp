@@ -104,8 +104,8 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapSaveMarkerDocument>(File.ReadAllBytes(Path.Combine(stock, MapSaveMarkerFormat.FileName)), options)!;
-        var points = new Dictionary<string, Point32<MapPixels>>(document.Markers);
-        points["Maridia.Save.0"] = points["Maridia.Save.0"] with { X = points["Maridia.Save.0"].X + 8 };
+        var points = new Dictionary<string, Position16<MapPixels>>(document.Markers);
+        points["Maridia.Save.0"] = points["Maridia.Save.0"] with { X = (ushort)(points["Maridia.Save.0"].X + 8) };
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapSaveMarkerFormat.FileName);
         using (var output = File.Create(path)) MapSaveMarkerLayout.Write(output, document with { Markers = points });
@@ -148,7 +148,7 @@ internal static partial class Program
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "save marker override survives stock replacement");
         AssertTrue(bytes.AsSpan().SequenceEqual(File.ReadAllBytes(path)), "save marker override bytes preserved");
         foreach (var bad in new[] { document with { Version = 2 }, document with { Markers = new() },
-            document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = -1 }) } })
+            document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
             AssertThrows<InvalidDataException>(() => MapSaveMarkerLayout.Write(new MemoryStream(), bad), "invalid save marker layout rejected");
         File.WriteAllText(path, "{bad save markers");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad save marker override cannot fall back");

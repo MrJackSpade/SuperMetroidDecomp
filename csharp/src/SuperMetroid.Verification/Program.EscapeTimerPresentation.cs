@@ -101,7 +101,7 @@ internal static partial class Program
             MapPresentationFormat.JsonOptions)!;
         document.Anchors["Minutes"] = document.Anchors["Minutes"] with
         {
-            X = document.Anchors["Minutes"].X + 1,
+            X = (short)(document.Anchors["Minutes"].X + 1),
         };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, EscapeTimerPresentationDefinitions.FileName);
@@ -146,7 +146,7 @@ internal static partial class Program
         image.Pixels[0] ^= 1;
         string tileReplacement = Path.Combine(overrides, EscapeTimerTileAtlasFormat.FileName);
         using (var output = File.Create(tileReplacement))
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         var editedArtwork = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(!original.EscapeTimerTiles.Resolve(VramAssetId.EscapeTimerFirstTiles).Span.SequenceEqual(
             editedArtwork.EscapeTimerTiles.Resolve(VramAssetId.EscapeTimerFirstTiles).Span),

@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Rendering;
+﻿using SuperMetroid.Core.Spatial;
+namespace SuperMetroid.Core.Rendering;
 
 public static partial class RenderFrameSnapshotCodec
 {
@@ -34,7 +35,7 @@ public static partial class RenderFrameSnapshotCodec
                 writer.Write(sub.MainObjects);
                 if (sub.VerticalScroll != 0) writer.Write(sub.VerticalScroll);
                 writer.Write(!sub.Scrolls.IsEmpty);
-                foreach (BackgroundLineScroll line in sub.Scrolls) { writer.Write(line.X); writer.Write(line.Y); }
+                foreach (Position16<BgPlanePixels> line in sub.Scrolls) WritePosition(writer, line);
                 break;
             case Mode7GameplayRenderLayer gameplay7:
                 writer.Write((byte)RenderPacketLayerKind.Mode7Gameplay);
@@ -44,7 +45,7 @@ public static partial class RenderFrameSnapshotCodec
                 writer.Write((byte)RenderPacketLayerKind.BgColorMath);
                 writer.Write(bgMath.TilemapWord); writer.Write(bgMath.CharacterWord);
                 writer.Write(bgMath.MapHeightTiles); writer.Write(bgMath.FirstScanline); writer.Write((byte)bgMath.Operation);
-                foreach (BackgroundLineScroll line in bgMath.Scrolls) { writer.Write(line.X); writer.Write(line.Y); }
+                foreach (Position16<BgPlanePixels> line in bgMath.Scrolls) WritePosition(writer, line);
                 break;
             case MessageBoxRenderLayer message:
                 writer.Write((byte)RenderPacketLayerKind.MessageBox);
@@ -79,8 +80,8 @@ public static partial class RenderFrameSnapshotCodec
                     : layer7.SubtractObjSubscreen ? RenderPacketLayerKind.Mode7ObjSubtract : RenderPacketLayerKind.Mode7));
                 Mode7RenderRegisters m = layer7.Registers;
                 writer.Write(m.MatrixA); writer.Write(m.MatrixB); writer.Write(m.MatrixC); writer.Write(m.MatrixD);
-                writer.Write(m.CenterX); writer.Write(m.CenterY);
-                writer.Write(m.HorizontalOffset); writer.Write(m.VerticalOffset);
+                WriteOffset(writer, m.Center);
+                WriteOffset(writer, m.Scroll);
                 writer.Write((byte)Mode7OverflowPolicy.FromRegisters(m));
                 break;
             case ObjRenderLayer objLayer:
@@ -103,8 +104,8 @@ public static partial class RenderFrameSnapshotCodec
             case Bg4BppRenderLayer bg:
                 writer.Write((byte)RenderPacketLayerKind.Bg4Bpp);
                 writer.Write(bg.TilemapWord); writer.Write(bg.CharacterWord);
-                writer.Write(bg.HorizontalScroll); writer.Write(bg.VerticalScroll);
-                writer.Write(bg.MapWidthTiles); writer.Write(bg.MapHeightTiles);
+                WritePosition(writer, bg.Scroll);
+                WriteMapSize(writer, bg.MapSize);
                 writer.Write((byte)(bg.Priority is null ? RenderPacketPriority.All
                     : bg.Priority.Value ? RenderPacketPriority.High : RenderPacketPriority.Low));
                 break;
@@ -147,7 +148,7 @@ public static partial class RenderFrameSnapshotCodec
         RenderPacketLayerKind.ObjSubscreenAdd when version >= RenderPacketFormat.ObjSubscreenAddVersion => ReadObjLayer(reader, version, true),
         RenderPacketLayerKind.ObjPriority => ReadObjPriorityLayer(reader, version),
         RenderPacketLayerKind.Bg4Bpp => new Bg4BppRenderLayer(reader.ReadUInt16(), reader.ReadUInt16(),
-            reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadInt32(), reader.ReadInt32(), ReadPriority(reader)),
+            ReadPosition<BgPlanePixels>(reader), ReadMapSize(reader), ReadPriority(reader)),
         RenderPacketLayerKind.Bg2Bpp => new Bg2BppRenderLayer(reader.ReadUInt16(), reader.ReadUInt16(),
             reader.ReadInt32(), ReadBoolean(reader)),
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
@@ -211,8 +212,8 @@ public static partial class RenderFrameSnapshotCodec
             // Require the fixed-size BG4 descriptor before parsing any recursive data.
             if ((RenderPacketLayerKind)reader.ReadByte() != RenderPacketLayerKind.Bg4Bpp)
                 throw new InvalidDataException("Subscreen coverage must be a BG4 descriptor.");
-            coverage = new(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(),
-                reader.ReadInt32(), reader.ReadInt32(), ReadPriority(reader));
+            coverage = new(reader.ReadUInt16(), reader.ReadUInt16(), ReadPosition<BgPlanePixels>(reader),
+                ReadMapSize(reader), ReadPriority(reader));
         }
         var layer = new BgSubscreenAddRenderLayer(map, characters, coverage, fourBpp,
             version >= RenderPacketFormat.SubscreenObjectsVersion && ReadBoolean(reader),
@@ -220,9 +221,9 @@ public static partial class RenderFrameSnapshotCodec
             scrolled ? reader.ReadUInt16() : (ushort)0);
         if (version >= RenderPacketFormat.SubscreenLineScrollVersion && ReadBoolean(reader))
         {
-            var scrolls = new BackgroundLineScroll[224];
+            var scrolls = new Position16<BgPlanePixels>[224];
             for (int line = 0; line < scrolls.Length; line++)
-                scrolls[line] = new(reader.ReadUInt16(), reader.ReadUInt16());
+                scrolls[line] = ReadPosition<BgPlanePixels>(reader);
             layer = layer.WithScrolls(scrolls);
         }
         return layer;
@@ -233,8 +234,8 @@ public static partial class RenderFrameSnapshotCodec
         ushort map = reader.ReadUInt16(), characters = reader.ReadUInt16();
         int height = reader.ReadInt32(), firstLine = reader.ReadInt32();
         var operation = (ExpandedColorMathOperation)reader.ReadByte();
-        var lines = new BackgroundLineScroll[Hardware.SnesPpuLayout.ScreenHeightPixels];
-        for (int y = 0; y < lines.Length; y++) lines[y] = new(reader.ReadUInt16(), reader.ReadUInt16());
+        var lines = new Position16<BgPlanePixels>[Hardware.SnesPpuLayout.ScreenHeightPixels];
+        for (int y = 0; y < lines.Length; y++) lines[y] = ReadPosition<BgPlanePixels>(reader);
         return new(map, characters, height, firstLine, operation, lines);
     }
 

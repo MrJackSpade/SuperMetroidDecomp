@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class NorfairGlowCaptureTests
 {
@@ -12,7 +13,7 @@ internal static class NorfairGlowCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(NorfairGlowFixture.Cathedral, new(0, 0));
+        runtime.LoadCartridgeRoomForDebug(NorfairGlowFixture.Cathedral, new Position16<RoomPixels>(0, 0));
         runtime.Samus!.InputLocked = true;
         LayeredRenderSnapshot? original = null;
         SuperMetroid.Core.Assets.Rgba32[]? initialPixels = null;

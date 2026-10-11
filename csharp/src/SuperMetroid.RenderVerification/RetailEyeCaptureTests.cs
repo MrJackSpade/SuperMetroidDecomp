@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class RetailEyeCaptureTests
 {
@@ -14,7 +15,7 @@ internal static class RetailEyeCaptureTests
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom,
-            new(EyeCaptureFixture.CameraX, EyeCaptureFixture.CameraY));
+            new Position16<RoomPixels>(EyeCaptureFixture.CameraX, EyeCaptureFixture.CameraY));
         var body = runtime.Enemies.Slots[1];
         var samus = runtime.Samus!;
         samus.CollectedItems = (ushort)SamusEquipmentFlags.MorphBall;

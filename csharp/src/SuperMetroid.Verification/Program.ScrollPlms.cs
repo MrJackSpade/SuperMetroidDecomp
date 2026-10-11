@@ -33,7 +33,7 @@ internal static partial class Program
         bus.WriteBytes(0x8f0000 | scrollProgram, [0x01, 0x01, 0x80]);
 
         var level = new RoomLevelData(
-            new Size32<RoomBlocks>(width, height),
+            new Extent16<RoomBlocks>(width, height),
             new ushort[width * height],
             new byte[width * height],
             new ushort[width * height],
@@ -76,7 +76,7 @@ internal static partial class Program
             "up extension points one row down");
 
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            bus, widthInScreens: 2, heightInScreens: 2,
+            bus, size: new Extent16<RoomScreens>(2, 2),
             lastRowState: RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
 

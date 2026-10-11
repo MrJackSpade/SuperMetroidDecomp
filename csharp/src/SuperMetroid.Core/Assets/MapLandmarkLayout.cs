@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Boss, elevator and gunship drawing anchors, independent of progression and destination rules.</summary>
 public sealed class MapLandmarkLayout
 {
-    private readonly Dictionary<string, Point32<MapPixels>> points;
-    private MapLandmarkLayout(Dictionary<string, Point32<MapPixels>> points) => this.points = points;
+    private readonly Dictionary<string, Position16<MapPixels>> points;
+    private MapLandmarkLayout(Dictionary<string, Position16<MapPixels>> points) => this.points = points;
     /// <summary>Gets a boss, elevator-label, or gunship drawing anchor in area-map pixels before the renderer subtracts map scrolling; does not determine whether the landmark is visible.</summary>
     /// <param name="id">Case-sensitive stable identity published by <see cref="MapLandmarkDefinitions.AllIds"/>.</param>
     /// <returns>The configured anchor with X in 0..511 and Y in 0..255.</returns>
     /// <exception cref="InvalidDataException">The landmark identity is not installed.</exception>
-    public Point32<MapPixels> Get(string id) => points.TryGetValue(id, out var point) ? point
+    public Position16<MapPixels> Get(string id) => points.TryGetValue(id, out var point) ? point
         : throw new InvalidDataException($"Unknown map landmark '{id}'.");
 
     /// <summary>Loads the supported JSON schema, requiring every known landmark exactly once and non-null area-map anchors bounded by X=0..511 and Y=0..255.</summary>
@@ -50,7 +50,7 @@ public sealed record MapLandmarkDocument
     /// <summary>Schema revision, which must equal <see cref="MapLandmarkFormat.Version"/>.</summary>
     public required int Version { get; init; }
     /// <summary>One non-null pixel anchor for every identity from <see cref="MapLandmarkDefinitions.AllIds"/>, keyed with exact casing; coordinates lie on the area-map canvas before scroll subtraction, with X=0..511 and Y=0..255.</summary>
-    public required Dictionary<string, Point32<MapPixels>> Markers { get; init; }
+    public required Dictionary<string, Position16<MapPixels>> Markers { get; init; }
 }
 /// <summary>Asset filename and supported JSON schema revision for editable area-map landmark anchors.</summary>
 public static class MapLandmarkFormat

@@ -64,7 +64,7 @@ internal sealed class EndingShootingStars
             if ((short)star.IndexAndFrame < 0 || (star.IndexAndFrame & 0xff00) == 0) continue;
             int frame = star.IndexAndFrame >> 9;
             Position16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
-            oam.AddRawSmallSprite(origin.X, origin.Y, EndingShootingStarDefinitions.Attributes[frame]);
+            oam.AddRawSmallSprite(origin.ToOam(), EndingShootingStarDefinitions.Attributes[frame]);
         }
     }
 

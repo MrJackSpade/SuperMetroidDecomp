@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed record LandingSiteEntryState(
     RoomIdentity RoomIdentity,
-    Point32<MapTiles> RoomMapPosition,
+    Position16<MapTiles> RoomMapPosition,
     byte UpScroller,
     byte DownScroller)
 {

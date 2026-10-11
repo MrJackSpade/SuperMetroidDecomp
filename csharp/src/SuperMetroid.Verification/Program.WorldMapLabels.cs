@@ -36,8 +36,8 @@ internal static partial class Program
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<WorldMapLabelDocument>(File.ReadAllBytes(Path.Combine(stock, WorldMapLabelFormat.FileName)), options)!;
-        var areas = new Dictionary<string, Point32<ScreenPixels>>(document.Areas);
-        areas["Crateria"] = areas["Crateria"] with { X = areas["Crateria"].X + 8 };
+        var areas = new Dictionary<string, Position16<OamPixels>>(document.Areas);
+        areas["Crateria"] = areas["Crateria"] with { X = (ushort)(areas["Crateria"].X + 8) };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, WorldMapLabelFormat.FileName);
         using (var stream = File.Create(replacement)) WorldMapLabelLayout.Write(stream, document with { Areas = areas });
@@ -60,7 +60,7 @@ internal static partial class Program
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "label override survives stock replacement");
         AssertTrue(bytes.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)), "label override bytes preserved");
         foreach (var invalid in new[] { document with { Version = 2 }, document with { Areas = new() },
-            document with { Areas = areas.ToDictionary(pair => pair.Key, pair => pair.Value with { X = -1 }) } })
+            document with { Areas = areas.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
             AssertThrows<System.IO.InvalidDataException>(() => WorldMapLabelLayout.Write(new MemoryStream(), invalid), "invalid label schema/area/coordinate rejected");
         File.WriteAllText(replacement, "{bad labels");
         AssertThrows<System.IO.InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad label override cannot silently fall back");

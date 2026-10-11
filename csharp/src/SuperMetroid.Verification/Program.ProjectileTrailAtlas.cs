@@ -22,7 +22,7 @@ internal static partial class Program
             var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
             image.Pixels[tile * 8] ^= 1;
             using var changed = new MemoryStream();
-            IndexedPng.Write(changed, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+            IndexedPng.Write(changed, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             changed.Position = 0;
             var edited = ProjectileTrailAtlas.Load(changed);
             var actual = new SnesVram(); actual.LoadBytes(0, native);
@@ -53,7 +53,7 @@ internal static partial class Program
         image.Pixels[0] ^= 1;
         image.Pixels[64] ^= 1;
         using var stream = new MemoryStream();
-        IndexedPng.Write(stream, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+        IndexedPng.Write(stream, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         stream.Position = 0;
         var atlas = ProjectileTrailAtlas.Load(stream);
         var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailExtractor.Extract(bus)), atlas);

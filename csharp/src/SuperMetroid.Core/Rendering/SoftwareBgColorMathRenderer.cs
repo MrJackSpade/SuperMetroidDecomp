@@ -16,7 +16,7 @@ internal static class SoftwareBgColorMathRenderer
         for (int i = 0; i < palette.Length; i++) palette[i] = cgram.GetRgba(i);
         for (int y = layer.FirstScanline; y < height; y++)
         {
-            BackgroundLineScroll scroll = layer.Scrolls[y];
+            Position16<BgPlanePixels> scroll = layer.Scrolls[y];
             int sy = (scroll.Y + y) & yMask;
             int previousTileX = -1, paletteOffset = 0;
             byte plane0 = 0, plane1 = 0;

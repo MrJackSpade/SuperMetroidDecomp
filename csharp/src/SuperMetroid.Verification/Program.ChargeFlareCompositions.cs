@@ -45,8 +45,8 @@ internal static partial class Program
                 var native = new OamBuffer(); var actual = new OamBuffer();
                 for (int i = 0; i < occupied; i++)
                 {
-                    native.AddProjectileSpritePart(default, 0, default, 10, 20);
-                    actual.AddProjectileSpritePart(default, 0, default, 10, 20);
+                    native.AddProjectileSpritePart(default, 0, default, new Position16<OamPixels>(10, 20));
+                    actual.AddProjectileSpritePart(default, 0, default, new Position16<OamPixels>(10, 20));
                 }
                 DrawImportedFlareSpritemap(bus, native, selector, x, y);
                 stock.Draw(selector, actual, new(x, y));
@@ -93,7 +93,7 @@ internal static partial class Program
             oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
                 new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
-                originX, originY);
+                new Position16<OamPixels>(originX, originY));
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }

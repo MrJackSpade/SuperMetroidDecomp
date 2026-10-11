@@ -618,7 +618,7 @@ public static class DoorDefinitions
     };
 
     private static CartridgeDoorHeader Door(ushort pointer, ushort destination, byte orientation,
-        Point32<RoomBlocks> plmBlock, Point32<RoomScreens> destinationScreen, ushort samusDistance, ushort setupCode) =>
+        Position16<RoomBlocks> plmBlock, Position16<RoomScreens> destinationScreen, ushort samusDistance, ushort setupCode) =>
         new(pointer, destination, CartridgeDoorOrientation.Decode(orientation),
             plmBlock, destinationScreen, samusDistance,
             ClosedNativeWords.Decode<DoorSetupCode>(setupCode, "door setup routine"));

@@ -44,7 +44,7 @@ internal static partial class Program
         var memory = new PpuMemorySnapshot(new byte[Hardware.SnesPpuLayout.VramByteCount],
             ToColors(new ushort[Hardware.SnesPpuLayout.CgramColorCount]), new byte[Hardware.SnesPpuLayout.OamUploadByteCount], 0);
         var registers = new Mode7RenderRegisters(short.MinValue, short.MaxValue, -1, 0,
-            -123, 456, -789, 1023, true);
+            new Offset16<Mode7Pixels>(-123, 456), new Offset16<Mode7Pixels>(-789, 1023), true);
         var mode7 = new RenderFrameSnapshot(new(1, 1, 0), new Mode7ObjRenderSnapshot(memory, registers, 3, 15));
         AssertEqual(registers, RoundTripRenderPacket(mode7).Mode7!.Background!.Value, "signed matrix and outside policy preserved");
         var wrapping = registers with { FillOutsideWithCharacterZero = false, WrapOutsideMap = true };

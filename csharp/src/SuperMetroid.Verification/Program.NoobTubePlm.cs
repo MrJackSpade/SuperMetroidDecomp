@@ -265,7 +265,7 @@ internal static partial class Program
             samus: new SamusState());
 
         foreach (NoobTubeProjectileRequest request in requests)
-            enemies.SpawnNoobTubeProjectile(request, level.Size.Width);
+            enemies.SpawnNoobTubeProjectile(request, level.Size.X);
         AssertEqual(17, enemies.ActiveEnemyProjectileCount,
             "complete n00b-tube burst fits the native eighteen-slot projectile pool");
 

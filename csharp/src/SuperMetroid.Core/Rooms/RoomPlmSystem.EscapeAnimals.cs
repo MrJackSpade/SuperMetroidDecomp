@@ -12,7 +12,7 @@ public sealed partial class RoomPlmSystem
             throw new InvalidOperationException("Animal rescue wall setup has no free PLM slot.");
         WritePlmCollisionTypeAndBts(level, blockIndex, EscapeAnimalPlmRomData.OriginCollision);
         for (int row = 1; row <= 2; row++)
-            WritePlmCollisionTypeAndBts(level, blockIndex + row * level.Size.Width,
+            WritePlmCollisionTypeAndBts(level, blockIndex + row * level.Size.X,
                 EscapeAnimalPlmRomData.ExtensionCollision);
     }
 

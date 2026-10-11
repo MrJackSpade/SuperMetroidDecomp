@@ -37,7 +37,7 @@ internal static partial class Program
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapLandmarkDocument>(File.ReadAllBytes(Path.Combine(stock, MapLandmarkFormat.FileName)), options)!;
-        var points = document.Markers.ToDictionary(pair => pair.Key, pair => pair.Value with { X = pair.Value.X + 8 });
+        var points = document.Markers.ToDictionary(pair => pair.Key, pair => pair.Value with { X = (ushort)(pair.Value.X + 8) });
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapLandmarkFormat.FileName);
         using (var stream = File.Create(path)) MapLandmarkLayout.Write(stream, document with { Markers = points });
@@ -85,7 +85,7 @@ internal static partial class Program
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "landmarks survive stock replacement");
         AssertTrue(bytes.AsSpan().SequenceEqual(File.ReadAllBytes(path)), "landmark override bytes preserved");
         foreach (var bad in new[] { document with { Version = 0 }, document with { Markers = new() },
-            document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { Y = -1 }) } })
+            document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { Y = ushort.MaxValue }) } })
             AssertThrows<InvalidDataException>(() => MapLandmarkLayout.Write(new MemoryStream(), bad), "invalid landmark schema/identity/position rejected");
         File.WriteAllText(path, "{bad landmarks");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad landmark override cannot fall back");

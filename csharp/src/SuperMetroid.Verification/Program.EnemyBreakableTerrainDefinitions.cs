@@ -33,7 +33,7 @@ internal static partial class Program
                 $"compiled enemy spike reaction ${behavior:X2}");
 
             var level = new RoomLevelData(
-                new Size32<RoomBlocks>(1, 1),
+                new Extent16<RoomBlocks>(1, 1),
                 [RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock).Raw],
                 [behavior],
                 [0],

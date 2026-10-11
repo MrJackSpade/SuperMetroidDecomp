@@ -21,7 +21,7 @@ internal static partial class Program
         IndexedPngImage image;
         using (var input = File.OpenRead(stockPath)) image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % 16);
-        using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+        using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "pause-only PNG edit changes content identity");
         var firstMap = new SnesVram(); var editedMap = new SnesVram();
@@ -63,7 +63,7 @@ internal static partial class Program
         using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Palette);
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "pause PNG dimensions enforced");
         image.Pixels[0] = 16;
-        using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, SnesGraphics.DiagnosticPalette(17));
+        using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, SnesGraphics.DiagnosticPalette(17));
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "pause PNG indexes limited to native 4bpp range");
         File.WriteAllBytes(path, stockBytes);
         // This is isolated generated fixture stock, never an installed player file.

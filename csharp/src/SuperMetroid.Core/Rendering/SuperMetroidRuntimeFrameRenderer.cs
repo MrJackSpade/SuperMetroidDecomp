@@ -29,18 +29,9 @@ public static class SuperMetroidRuntimeFrameRenderer
 
         GameplayPpuRenderSnapshot displayedPpu = runtime.DisplayedGameplayPpu;
         RoomShakeFrameResult shake = displayedPpu.RoomShake;
-        ushort bg1HorizontalScroll = AddShake(
-            displayedPpu.Bg1HorizontalScroll,
-            shake.Bg1X);
-        ushort bg1VerticalScroll = AddShake(
-            displayedPpu.Bg1VerticalScroll,
-            shake.Bg1Y);
-        ushort bg2HorizontalScroll = AddShake(
-            displayedPpu.Bg2HorizontalScroll,
-            shake.Bg2X);
-        ushort bg2VerticalScroll = AddShake(
-            displayedPpu.Bg2VerticalScroll,
-            shake.Bg2Y);
+        // Room shake is added to the latched BG1/BG2 scroll registers.
+        Position16<RoomPixels> bg1Scroll = displayedPpu.Bg1Scroll + shake.Bg1;
+        Position16<Bg2Pixels> bg2Scroll = displayedPpu.Bg2Scroll + shake.Bg2;
         RoomLayer3FxRenderSnapshot? displayedRoomFx = runtime.DisplayedRoomLayer3Fx;
 
         Rgba32[] frame;
@@ -57,12 +48,9 @@ public static class SuperMetroidRuntimeFrameRenderer
                 matrixB: unchecked((short)getaway.Mode7MatrixB),
                 matrixC: unchecked((short)getaway.Mode7MatrixC),
                 matrixD: unchecked((short)getaway.Mode7MatrixD),
-                centerX: unchecked((short)getaway.Mode7CenterX),
-                centerY: unchecked((short)getaway.Mode7CenterY),
-                horizontalOffset: unchecked((short)(getaway.Mode7HorizontalOffset + shake.Bg1X)),
-                verticalOffset: unchecked((short)(getaway.Mode7VerticalOffset + shake.Bg1Y)),
-                bg2HorizontalScroll: bg2HorizontalScroll,
-                bg2VerticalScroll: bg2VerticalScroll,
+                center: new Offset16<Mode7Pixels>(unchecked((short)getaway.Mode7CenterX), unchecked((short)getaway.Mode7CenterY)),
+                scroll: new Offset16<Mode7Pixels>(unchecked((short)(getaway.Mode7HorizontalOffset + shake.Bg1.X)), unchecked((short)(getaway.Mode7VerticalOffset + shake.Bg1.Y))),
+                bg2Scroll: bg2Scroll,
                 // Setup ASM $8F:C97B writes BG12NBA=$66; the floor slice returns to
                 // Mode 1 and therefore consumes the same $6000 character base as BG2 did
                 // before the getaway HDMA tables changed BGMODE.
@@ -88,15 +76,13 @@ public static class SuperMetroidRuntimeFrameRenderer
                 matrixB: unchecked((short)mode7.MatrixB),
                 matrixC: unchecked((short)mode7.MatrixC),
                 matrixD: unchecked((short)mode7.MatrixA),
-                centerX: unchecked((short)mode7.CenterX),
-                centerY: unchecked((short)mode7.CenterY),
+                center: mode7.Center.AsMode7Register(),
                 // Mode 7 reuses BG1HOFS/BG1VOFS as M7HOFS/M7VOFS. MainScrollingRoutine
                 // continues publishing those live camera words even though its ordinary
                 // tilemap row/column producers return early while `$0783` is nonzero.
                 // Leaving these at zero pins the shaft art to the window while Samus,
                 // enemies, and projectiles correctly move relative to the camera.
-                horizontalOffset: unchecked((short)bg1HorizontalScroll),
-                verticalOffset: unchecked((short)bg1VerticalScroll),
+                scroll: new Offset16<Mode7Pixels>(unchecked((short)bg1Scroll.X), unchecked((short)bg1Scroll.Y)),
                 outputBuffer: runtime.GameplayFrameBuffer);
         }
         else
@@ -117,67 +103,63 @@ public static class SuperMetroidRuntimeFrameRenderer
             bool kraidOwnsBg2 = kraid is { OwnsBg2Tilemap: true };
             ScrollingSkyState? scrollingSky = runtime.ScrollingSky;
             ushort[]? skyHorizontalScrolls = scrollingSky is { HorizontalHdmaConfigured: true } ? scrollingSky.BuildGameplayHorizontalScrolls(
-                runtime.Camera?.YPosition
+                runtime.Camera?.PixelPosition.Y
                     ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")) : null;
-            if (skyHorizontalScrolls is not null && shake.Bg2X != 0)
+            if (skyHorizontalScrolls is not null && shake.Bg2.X != 0)
             {
                 // Room shake is added to the live BG2HOFS register after HDMA supplies
                 // each band value. Apply it to every resolved scanline for the same final
                 // PPU coordinates instead of inventing a second sky-motion accumulator.
                 for (int line = 0; line < skyHorizontalScrolls.Length; line++)
-                    skyHorizontalScrolls[line] = AddShake(skyHorizontalScrolls[line], shake.Bg2X);
+                    skyHorizontalScrolls[line] = AddShake(skyHorizontalScrolls[line], shake.Bg2.X);
             }
             ushort[]? waterBg2HorizontalScrolls = displayedRoomFx is { } waterFx
                 ? SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(
                     waterFx,
-                    bg2HorizontalScroll,
-                    bg2VerticalScroll)
+                    bg2Scroll)
                 : null;
             ushort[]? lavaAcidBg2HorizontalScrolls = displayedRoomFx is { } horizontalFx
                 ? SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(
                     horizontalFx,
-                    bg2HorizontalScroll,
-                    bg2VerticalScroll)
+                    bg2Scroll)
                 : null;
             ushort[]? lavaAcidBg2VerticalScrolls = displayedRoomFx is { } verticalFx
                 ? SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(
                     verticalFx,
-                    bg2VerticalScroll)
+                    bg2Scroll.Y)
                 : null;
             frame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 runtime.Vram,
                 runtime.Cgram,
                 runtime.DisplayedOam,
-                bg1HorizontalScroll,
-                bg1VerticalScroll,
-                kraidOwnsBg2
-                    ? AddShake(kraid!.Bg2HorizontalScroll, shake.Bg2X)
-                    : crocomireOwnsBg2
-                    ? AddShake(runtime.Enemies.CrocomireBg2HorizontalScroll, shake.Bg2X)
-                    : bg2HorizontalScroll,
-                kraidOwnsBg2
-                    ? AddShake(kraid!.Bg2VerticalScroll, shake.Bg2Y)
-                    : crocomireOwnsBg2
-                    ? AddShake(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2Y)
-                    : scrollingSky is not null
-                        ? AddShake(scrollingSky.VerticalScroll, shake.Bg2Y)
-                        : runtime.TourianStatues.Enabled
-                            ? unchecked((ushort)(displayedPpu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset + shake.Bg2Y))
-                            : bg2VerticalScroll,
+                bg1Scroll,
+                new Position16<Bg2Pixels>(
+                    kraidOwnsBg2
+                        ? AddShake(kraid!.Bg2HorizontalScroll, shake.Bg2.X)
+                        : crocomireOwnsBg2
+                        ? AddShake(runtime.Enemies.CrocomireBg2HorizontalScroll, shake.Bg2.X)
+                        : bg2Scroll.X,
+                    kraidOwnsBg2
+                        ? AddShake(kraid!.Bg2VerticalScroll, shake.Bg2.Y)
+                        : crocomireOwnsBg2
+                        ? AddShake(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2.Y)
+                        : scrollingSky is not null
+                            ? AddShake(scrollingSky.VerticalScroll, shake.Bg2.Y)
+                            : runtime.TourianStatues.Enabled
+                                ? unchecked((ushort)(displayedPpu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset + shake.Bg2.Y))
+                                : bg2Scroll.Y),
                 bg2HorizontalScrollByLine:
                     runtime.Enemies.Phantoon?.Wave.DisplayedScrolls ?? lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls,
                 bg2VerticalScrollByLine: crocomireOwnsBg2
                     ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
                         ? melting.Bg2ScrollByScanline : null
                     : lavaAcidBg2VerticalScrolls,
-                bg2TilemapWidthInTiles: kraidOwnsBg2
-                    ? KraidBackgroundRomData.TilemapWidthInTiles
-                    : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32
-                    : scrollingSky?.HorizontalHdmaConfigured != true && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue ? 64 : 32,
-                bg2TilemapHeightInTiles: kraidOwnsBg2
-                    ? KraidBackgroundRomData.TilemapHeightInTiles
-                    : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32
-                    : scrollingSky?.HorizontalHdmaConfigured != true && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue ? 32 : 64,
+                bg2TilemapSize: kraidOwnsBg2
+                    ? new Extent16<TilemapCells>(KraidBackgroundRomData.TilemapWidthInTiles, KraidBackgroundRomData.TilemapHeightInTiles)
+                    : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? new Extent16<TilemapCells>(32, 32)
+                    : scrollingSky?.HorizontalHdmaConfigured != true && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue
+                        ? new Extent16<TilemapCells>(64, 32)
+                        : new Extent16<TilemapCells>(32, 64),
                 bg2TilemapBaseWord: kraidOwnsBg2
                     ? KraidBackgroundRomData.LiveBg2TilemapWord
                     : SnesPpuLayout.GameplayBg2TilemapWord,
@@ -215,8 +197,7 @@ public static class SuperMetroidRuntimeFrameRenderer
                 frame,
                 runtime.AddressSpace,
                 eyeBeam,
-                displayedPpu.Layer1XPosition,
-                displayedPpu.Layer1YPosition);
+                displayedPpu.Layer1Position);
         }
 
         // The bank-$88 Power Bomb objects own a final PPU color-math window, not OAM or
@@ -228,8 +209,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             frame,
             runtime.AddressSpace,
             runtime.BombProjectiles.PowerBombExplosion,
-            displayedPpu.Layer1XPosition,
-            displayedPpu.Layer1YPosition);
+            displayedPpu.Layer1Position);
 
         // Bank $85 temporarily owns BG3 and disables gameplay color math while an item
         // message is active. Its scanline-window result belongs above every room-specific

@@ -152,7 +152,7 @@ internal static partial class Program
         for (int x = 0; x < width; x++)
             words[20 * width + x] = 0x8000;
         return new RoomLevelData(
-            new Size32<RoomBlocks>(width, height), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
+            new Extent16<RoomBlocks>(width, height), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
     }
 
     private static int ProbeWorkRobotInstructionAllocation()

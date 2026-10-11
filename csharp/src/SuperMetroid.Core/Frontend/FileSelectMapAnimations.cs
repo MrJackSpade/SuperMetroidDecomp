@@ -98,14 +98,14 @@ public sealed class FileSelectMapAnimations
         foreach (Arrow arrow in arrows)
         {
             if (!arrow.Visible) continue;
-            installed.Draw(arrow.Base, oam, arrow.Position + new Offset16<ScreenPixels>(0, unchecked((short)verticalOffset)),
+            installed.Draw(arrow.Base, oam, arrow.Position + new Offset16<OamPixels>(0, unchecked((short)verticalOffset)),
                 SnesObjPalettes.Index3.PaletteBits);
         }
     }
 
-    private sealed class Arrow(Position16<ScreenPixels> position, MapSpriteId spriteBase)
+    private sealed class Arrow(Position16<OamPixels> position, MapSpriteId spriteBase)
     {
-        public readonly Position16<ScreenPixels> Position = position;
+        public readonly Position16<OamPixels> Position = position;
         public readonly MapSpriteId Base = spriteBase;
         public int Timer, Frame;
         public bool Visible;

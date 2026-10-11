@@ -31,12 +31,9 @@ internal sealed partial class EndingCreditsState
                 cgram,
                 tilemapBaseWord: EndingCreditsRomData.Rendering.CreditsTilemapWord,
                 characterBaseWord: EndingCreditsRomData.Rendering.CreditsCharacterWord,
-                horizontalScroll: 0,
-                verticalScroll: credits!.VerticalScroll,
-                width: 256,
-                height: 224,
-                tilemapWidthInTiles: 32,
-                tilemapHeightInTiles: 32);
+                scroll: new Position16<BgPlanePixels>(0, credits!.VerticalScroll),
+                size: SnesPpuLayout.ScreenSize,
+                tilemapSize: new Extent16<TilemapCells>(32, 32));
         }
         else if (Phase >= EndingCreditsPhase.PostCreditsBlank)
         {
@@ -70,10 +67,8 @@ internal sealed partial class EndingCreditsState
             matrixB,
             unchecked((short)-matrixB),
             matrixA,
-            centerX: CurrentMode7Center.X,
-            centerY: CurrentMode7Center.Y,
-            horizontalOffset: unchecked((short)mode7.X.Whole),
-            verticalOffset: unchecked((short)mode7.Y.Whole), wrapOutsideMap: AtmosphericMapWraps);
+            center: CurrentMode7Center,
+            scroll: mode7.Whole.AsSignedRegister(), wrapOutsideMap: AtmosphericMapWraps);
     }
 
     private byte CurrentEscapeObjectSelection => Phase < EndingCreditsPhase.FadeInZebesExplosion
@@ -108,12 +103,9 @@ internal sealed partial class EndingCreditsState
             cgram,
             tilemapBaseWord: CurrentPostCreditsTilemapWord,
             characterBaseWord: CurrentPostCreditsCharacterWord,
-            horizontalScroll: 0,
-            verticalScroll: postCreditsVerticalScroll,
-            width: 256,
-            height: 224,
-            tilemapWidthInTiles: 32,
-            tilemapHeightInTiles: postCreditsMapHeight);
+            scroll: new Position16<BgPlanePixels>(0, postCreditsVerticalScroll),
+            size: SnesPpuLayout.ScreenSize,
+            tilemapSize: new Extent16<TilemapCells>(32, checked((ushort)postCreditsMapHeight)));
     }
 
     private void RenderSprites(Span<Rgba32> pixels, byte obsel)

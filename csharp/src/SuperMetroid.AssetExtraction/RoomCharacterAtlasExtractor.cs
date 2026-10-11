@@ -41,7 +41,7 @@ public static class RoomCharacterAtlasExtractor
                     RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount);
             int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(planar.Length);
             byte[] indexes = SnesGraphics.DecodePlanarTiles(planar, 4,
-                RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
+                RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();

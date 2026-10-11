@@ -48,7 +48,7 @@ public sealed class GameOverPresentation
     /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
     public string ContentIdentity { get; }
     /// <summary>Shared drawing origin of the Baby and egg compositions in screen pixels, with both coordinates in 0-255.</summary>
-    public Point32<ScreenPixels> BabyAnchor { get; }
+    public Position16<OamPixels> BabyAnchor { get; }
     /// <summary>Missile-cursor horizontal screen coordinate in pixels, shared by both answers and bounded to 0-255.</summary>
     public int CursorX { get; }
     /// <summary>Missile-cursor vertical screen coordinate in pixels for the Yes answer, bounded to 0-255.</summary>
@@ -87,14 +87,14 @@ public sealed class GameOverPresentation
     /// <exception cref="ArgumentOutOfRangeException">The frame is not a supported Baby frame.</exception>
     public void DrawBaby(OamBuffer oam, GameOverBabyFrame frame) =>
         sprites[GameOverPresentationDefinitions.BabyFrameName(frame)].DrawOnScreen(
-            oam, BabyAnchor.ToExactPosition16(),
+            oam, BabyAnchor,
             PaletteBits(BabyPaletteIndex));
 
     /// <summary>Appends the egg composition at the shared Baby anchor using the installed egg palette selector.</summary>
     /// <param name="oam">Current frame's mutable object buffer; this call does not finalize it.</param>
     public void DrawEgg(OamBuffer oam) =>
         sprites[GameOverPresentationDefinitions.EggFrame].DrawOnScreen(
-            oam, BabyAnchor.ToExactPosition16(),
+            oam, BabyAnchor,
             PaletteBits(EggPaletteIndex));
 
     /// <summary>Appends one missile-cursor frame at the installed Yes or No answer position.</summary>
@@ -107,7 +107,7 @@ public sealed class GameOverPresentation
         if ((uint)frame >= GameOverPresentationDefinitions.CursorFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         sprites[GameOverPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
-            oam, new Position16<ScreenPixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))),
+            oam, new Position16<OamPixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))),
             PaletteBits(CursorPaletteIndex));
     }
 
@@ -228,7 +228,7 @@ public sealed class GameOverPresentation
     private static ushort PaletteBits(int index) =>
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 
-    private static void ValidatePoint(Point32<ScreenPixels> point, string name)
+    private static void ValidatePoint(Position16<OamPixels> point, string name)
     {
         ValidateCoordinate(point.X, $"{name} X");
         ValidateCoordinate(point.Y, $"{name} Y");
@@ -260,7 +260,7 @@ public sealed record GameOverPresentationDocument
     /// <summary>Four named palette phases, each holding sixteen packed SNES BGR555 words in the range $0000-$7FFF.</summary>
     public required Dictionary<string, ushort[]> BabyPalettes { get; init; }
     /// <summary>Shared Baby and egg drawing origin in screen pixels, X=0-255 and Y=0-255.</summary>
-    public required Point32<ScreenPixels> BabyAnchor { get; init; }
+    public required Position16<OamPixels> BabyAnchor { get; init; }
     /// <summary>Common horizontal missile-cursor position in screen pixels, 0-255.</summary>
     public required int CursorX { get; init; }
     /// <summary>Vertical missile-cursor position for the Yes answer in screen pixels, 0-255.</summary>

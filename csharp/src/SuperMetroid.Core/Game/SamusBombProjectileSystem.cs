@@ -760,13 +760,13 @@ public sealed class SamusBombProjectileSystem
     {
         int blockX = slot.XPosition >> 4;
         int blockY = slot.YPosition >> 4;
-        if ((uint)blockX >= (uint)level.Size.Width ||
-            (uint)blockY >= (uint)level.Size.Height)
+        if ((uint)blockX >= (uint)level.Size.X ||
+            (uint)blockY >= (uint)level.Size.Y)
         {
             return true;
         }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
+        RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
 
@@ -814,11 +814,11 @@ public sealed class SamusBombProjectileSystem
 
         int left = Math.Max(0, explosionX - horizontalRadius) >> 4;
         int right = Math.Min(
-            level.Size.Width - 1,
+            level.Size.X - 1,
             (explosionX + horizontalRadius) >> 4);
         int top = Math.Max(0, explosionY - verticalRadius) >> 4;
         int bottom = Math.Min(
-            level.Size.Height - 1,
+            level.Size.Y - 1,
             (explosionY + verticalRadius) >> 4);
 
         // $94:A0F4/$A11A visit all four inclusive edges in this exact order. Corners are
@@ -854,7 +854,7 @@ public sealed class SamusBombProjectileSystem
 
         foreach ((int x, int y) in cross)
         {
-            if ((uint)x >= (uint)level.Size.Width || (uint)y >= (uint)level.Size.Height)
+            if ((uint)x >= (uint)level.Size.X || (uint)y >= (uint)level.Size.Y)
             {
                 // $94:9CAC first admits the bomb centre through the room's scroll bounds,
                 // and valid rooms surround reachable bomb centres with an edge wall. An
@@ -884,7 +884,7 @@ public sealed class SamusBombProjectileSystem
         AreaId areaIndex,
         ushort projectileType)
     {
-        RoomCollisionBlock visitedBlock = level.GetCollisionBlock(new(x, y));
+        RoomCollisionBlock visitedBlock = level.GetCollisionBlock(new(unchecked((ushort)x), unchecked((ushort)y)));
         reactions.Add(new BombBlockReaction());
 
         // `$94:9411/$9447` do not react to an extension block directly. A nonzero signed

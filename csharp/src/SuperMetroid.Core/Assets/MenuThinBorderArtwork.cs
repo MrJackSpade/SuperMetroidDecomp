@@ -18,17 +18,17 @@ internal sealed class MenuThinBorderArtwork
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.Width + tile % 16 * 8 + x];
-            if (pixel != Basis(tile, new(x, y))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
+            if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
         }
     }
 
-    internal byte Pixel(int tile, Point32<ImagePixels> point)
+    internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
-    private static byte Basis(int tile, Point32<ImagePixels> point) =>
+    private static byte Basis(int tile, Position16<CharacterPixels> point) =>
         point.Y == 1 || tile == 0xae && point.X == 0 && point.Y > 1 ? (byte)6 : (byte)0;
 }

@@ -25,7 +25,7 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Encoded OBJ palette bits applied only to parts authored to inherit the drawing owner's palette.</param>
     /// <param name="originIsOnScreen">True for ordinary on-screen origin clipping; false for the native off-screen path with opposite Y-wrap clipping for negative origins.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))

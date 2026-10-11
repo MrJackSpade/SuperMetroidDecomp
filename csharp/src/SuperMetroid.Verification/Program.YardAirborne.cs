@@ -29,7 +29,7 @@ internal static partial class Program
     private static void VerifyYardAirborneTrajectories(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         var empty = new ushort[64 * 64];
-        var level = new RoomLevelData(new Size32<RoomBlocks>(64, 64), empty, new byte[empty.Length],
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), empty, new byte[empty.Length],
             new ushort[empty.Length], new byte[8]);
         // Signed whole/fraction boundary cases exercise native ADC carry, the
         // unusual suppressed zero-high-word write, and the vertical speed cap.

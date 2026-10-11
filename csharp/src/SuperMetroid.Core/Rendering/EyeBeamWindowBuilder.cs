@@ -11,8 +11,10 @@ internal static class EyeBeamWindowBuilder
     /// particular, a zero-width diagonal is a ray, not an infinite line, and the
     /// integer endpoints are accumulated before each row is written.
     /// </summary>
-    internal static ushort[] Build(int x, int y, int angle, int width)
+    internal static ushort[] Build(Offset16<ScreenPixels> apexOnScreen, int angle, int width)
     {
+        int x = apexOnScreen.X;
+        int y = apexOnScreen.Y;
         var rows = new ushort[EyeWindowRenderDefinitions.TableRows];
         Array.Fill(rows, EyeWindowRenderDefinitions.EmptyWindow);
         int quarter = SnesAngle.QuarterTurn.TableIndex;

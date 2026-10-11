@@ -27,7 +27,7 @@ internal static partial class Program
             {
                 var actual = edited.Get((MapScrollDirection)other);
                 var expected = entries[((MapScrollDirection)other).ToString()];
-                AssertEqual(expected.Position.ToPosition16(), actual.Position, "independent direction position edit");
+                AssertEqual(expected.Position, actual.Position, "independent direction position edit");
                 AssertEqual(expected.DurationTicks.Length, actual.PhaseCount, "selected direction phase count");
                 for (int phase = 0; phase < actual.PhaseCount; phase++)
                     AssertEqual((byte)expected.DurationTicks[phase], actual.Duration(phase), "selected direction durations");

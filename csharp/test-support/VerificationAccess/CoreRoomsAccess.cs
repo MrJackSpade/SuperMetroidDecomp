@@ -413,7 +413,7 @@ internal static class RoomLevelDataAccess
         internal void RestoreFrom(RoomLevelData source)
         {
             ArgumentNullException.ThrowIfNull(source);
-            if (source.Size.Width != self.Size.Width || source.Size.Height != self.Size.Height ||
+            if (source.Size.X != self.Size.X || source.Size.Y != self.Size.Y ||
                 source.DoorListPointer != self.DoorListPointer ||
                 PrivateState.Field<byte[]>(source, "_blockDefinitions").Length != PrivateState.Field<byte[]>(self, "_blockDefinitions").Length ||
                 PrivateState.Field<ushort[]>(source, "_streamingForegroundAllocation").Length != PrivateState.Field<ushort[]>(self, "_streamingForegroundAllocation").Length ||

@@ -56,8 +56,8 @@ public sealed class TourianStatueSequence
         }
         else
         {
-            runtime.Camera!.Scrolls.SetLogicalState(0, 0, RoomScrollState.Blue);
-            runtime.Camera.Scrolls.SetLogicalState(0, 1, RoomScrollState.RedBoundary);
+            runtime.Camera!.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
+            runtime.Camera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
         }
     }
 
@@ -215,8 +215,8 @@ public sealed class TourianStatueSequence
     private static void EnableScrolling(SuperMetroidRuntime runtime)
     {
         runtime.Enemies.TourianEntranceStatueFinished = true;
-        runtime.Camera!.Scrolls.SetLogicalState(0, 0, RoomScrollState.Green);
-        runtime.Camera.Scrolls.SetLogicalState(0, 1, RoomScrollState.Green);
+        runtime.Camera!.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
+        runtime.Camera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
     }
     private static ushort MechanicsWord(TileObject tile, int pointer)
     {

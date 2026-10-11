@@ -24,7 +24,7 @@ internal static partial class Program
         AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadNativeState(3), "the bottom row is blue");
         for (int index = grid.LogicalCellCount; index < RoomScrollGrid.StorageByteCount; index++)
             AssertEqual(before.ReadStorage(index), grid.ReadStorage(index), $"scroll byte {index} keeps the previous room's value");
-        AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadNativeState(3 + room.Size.Width),
+        AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadNativeState(3 + room.Size.X),
             "the cell below the bottom row is $A7DE's blue, not red");
         Console.WriteLine("  Implicit scroll residue: $A7B3 keeps $A7DE's bytes past its six cells.");
     }

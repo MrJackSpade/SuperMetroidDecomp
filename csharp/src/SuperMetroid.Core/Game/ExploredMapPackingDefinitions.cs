@@ -81,7 +81,7 @@ internal static class ExploredMapPackingDefinitions
             int x = nativeByte / pageBytes * AreaMapLayout.PageWidthInTiles + local % 4 * 8;
             int y = local / 4;
             for (int bit = 0; bit < 8; bit++)
-                if (stockRules.IsDiscoverable(new Point32<MapTiles>(x + bit, y))) return true;
+                if (stockRules.IsDiscoverable(new Position16<MapTiles>(unchecked((ushort)(x + bit)), unchecked((ushort)y)))) return true;
             return false;
         }
 

@@ -29,27 +29,27 @@ internal static partial class Program
             // station's mask: explored cells win, even for secret rooms.
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
-                if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(x, y));
+                if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
             var graphics = new FileSelectRoomMapGraphics(bus, system, area, mapPresentation: RetailPresentationFixture());
             byte[] pause = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank);
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
             {
-                int offset = AreaMapLayout.GetTilemapWordIndex(new(x, y)) * 2;
+                int offset = AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2;
                 ushort raw = BinaryPrimitives.ReadUInt16LittleEndian(original.AsSpan(offset));
                 bool explored = (x + y) % 7 == 0;
                 // Independent transcription of $82:9517's two branches.
                 ushort expected = explored ? (ushort)(raw & 0xfbff)
-                    : downloaded && map.IsRevealedByMapStation(new(x, y)) ? raw
+                    : downloaded && map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))) ? raw
                     : downloaded ? (ushort)31 : (ushort)15;
                 AssertEqual(expected, graphics.Vram.ReadWord((ushort)(0x5000 + offset / 2)),
                     $"room-select area {areaIndex} downloaded={downloaded} cell {x},{y}");
-                ushort pauseExpected = !explored && !(downloaded && map.IsRevealedByMapStation(new(x, y)))
+                ushort pauseExpected = !explored && !(downloaded && map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))))
                     ? (ushort)31 : expected;
                 AssertEqual(pauseExpected, BinaryPrimitives.ReadUInt16LittleEndian(pause.AsSpan(offset)),
                     "shared builder retains pause map hidden character");
-                AssertEqual(explored, system.IsMapTileExplored(area, new(x, y)), "map projection does not mark exploration");
+                AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
             }
             AssertTrue(original.SequenceEqual(map.RawTilemapBytes), "map projection preserves cartridge map");
             ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomLabelPointers + areaIndex * 2);
@@ -79,7 +79,7 @@ internal static partial class Program
             AssertTrue(retailOam.LastFinalizedSpriteCount < OamBuffer.SpriteCount,
                 $"area {areaIndex} retail map-icon lists fit OAM");
             if (downloaded)
-                PngWriterTooling.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), new(256, 224), pixels);
+                PngWriterTooling.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), new Extent16<ScreenPixels>(256, 224), pixels);
         }
     }
 
@@ -214,7 +214,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var system = new Bank80SystemState();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
-        var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new Point32<MapPixels>(511, 255));
+        var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
         landmarks[MapLandmarkDefinitions.Bosses(AreaId.Brinstar).ToArray().First(id => id is not null)!] = new(32, 40);
         var destination = MapLandmarkDefinitions.Elevators(AreaId.Brinstar).ToArray().First(label =>
             label.Destination == AreaId.Crateria);
@@ -222,7 +222,7 @@ internal static partial class Program
         using var landmarkJson = new MemoryStream();
         MapLandmarkLayout.Write(landmarkJson, new() { Version = 1, Markers = landmarks });
         landmarkJson.Position = 0;
-        var stations = MapStationDiscoveryRules.All.ToArray().ToDictionary(rule => rule.Id, _ => new Point32<MapPixels>(511, 255));
+        var stations = MapStationDiscoveryRules.All.ToArray().ToDictionary(rule => rule.Id, _ => new Position16<MapPixels>(511, 255));
         var station = MapStationDiscoveryRules.Get(AreaId.Brinstar, MapStationKind.Missile).First();
         stations[station.Id] = new(64, 80);
         using var stationJson = new MemoryStream();
@@ -292,7 +292,7 @@ internal static partial class Program
         {
             var station = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
             var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
-            var cell = room.MapPosition + new Point32<MapTiles>(station.SamusPosition.X >> 8, (station.SamusPosition.Y >> 8) + 1);
+            var cell = room.MapPosition + new Offset16<MapTiles>(checked((short)(station.SamusPosition.X >> 8)), checked((short)((station.SamusPosition.Y >> 8) + 1)));
             snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(cell)] |= AreaMapLayout.GetBitMask(cell.X);
         }
         saves.SaveSlot(0, snapshot);
@@ -340,7 +340,7 @@ internal static partial class Program
         frame = game.Step(0x1000);
         Until(() => frame.Phase == "Room", 80);
         for (int i = 0; i < 15; i++) frame = game.Step(0);
-        PngWriterTooling.WriteRgba(Path.GetFullPath("csharp/test-temp/file-select-map/live-maridia-room.png"), new(256, 224), frame.Pixels);
+        PngWriterTooling.WriteRgba(Path.GetFullPath("csharp/test-temp/file-select-map/live-maridia-room.png"), new Extent16<ScreenPixels>(256, 224), frame.Pixels);
         AssertTrue(game.RuntimeForVerification is null, "room map does not implicitly load the save");
         frame = game.Step(0x8000);
         Until(() => frame.Phase == "Area", 80);
@@ -361,7 +361,7 @@ internal static partial class Program
             AssertTrue(predicate(), $"saved map frontend reached requested boundary; current {frame.GameState}/{frame.Phase}");
         }
         void Capture(string name) => PngWriterTooling.WriteRgba(
-            Path.GetFullPath($"csharp/test-temp/file-select-map/{name}.png"), new(256, 224), frame.Pixels);
+            Path.GetFullPath($"csharp/test-temp/file-select-map/{name}.png"), new Extent16<ScreenPixels>(256, 224), frame.Pixels);
     }
 
     private static void VerifyFileSelectMapNavigation()

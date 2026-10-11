@@ -348,10 +348,8 @@ public sealed class TitleSequenceState
                 TitleSequenceRomData.Scenes.Rotation.TableIndex,
                 0,
                 matrixScale,
-                128,
-                128,
-                unchecked((short)mode7.X.Whole),
-                unchecked((short)mode7.Y.Whole));
+                new Offset16<Mode7Pixels>(128, 128),
+                mode7.Whole.AsSignedRegister());
         }
 
         PrepareRenderOam();
@@ -390,7 +388,7 @@ public sealed class TitleSequenceState
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam),
             mode7BackgroundEnabled
                 ? new Mode7RenderRegisters(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
-                    0, scale, 128, 128, unchecked((short)mode7.X.Whole), unchecked((short)mode7.Y.Whole))
+                    0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
                 : null,
             TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector,
             checked((byte)brightness), gradientEnabled ? ResolveTitleGradient() : default);
@@ -415,13 +413,13 @@ public sealed class TitleSequenceState
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             artwork.DrawSprite(activeSpritemap, oam,
-                activeOrigin, activeCharacterOffset);
+                activeOrigin.ToOam(), activeCharacterOffset);
         }
 
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
             artwork.DrawSprite(TitleSequenceRomData.Sprites.NintendoCopyright, oam,
-                TitleSequenceRomData.Sprites.CopyrightOrigin,
+                TitleSequenceRomData.Sprites.CopyrightOrigin.ToOam(),
                 TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         }
 

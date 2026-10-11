@@ -7,17 +7,18 @@ public static partial class SnesGameplayFrameRenderer
 {
     /// <summary>Resolves the same tangent inequalities as the reference X-ray raster into immutable line intervals.</summary>
     public static XrayWindowLine[] CaptureXrayWindowLines(ISnesAddressSpace bus, SamusState samus,
-        ushort layer1X, ushort layer1Y)
+        Position16<RoomPixels> layer1)
     {
         bool leftFacing = samus.IsFacingLeft(bus);
-        int originX = unchecked((short)(samus.XPosition - layer1X)) +
+        Offset16<ScreenPixels> samusOnScreen = new Position16<RoomPixels>(samus.XPosition, samus.YPosition).RelativeToCamera(layer1);
+        int originX = samusOnScreen.X +
             (leftFacing ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
-        int originY = unchecked((short)(samus.YPosition - layer1Y)) -
+        int originY = samusOnScreen.Y -
             (samus.ReadMovementType(bus) == SamusMovementType.Crouching
                 ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
         int angle = samus.Xray.Angle.TableIndex;
         int width = samus.Xray.AngularWidth & 0xff;
-        XrayDirection a = ReadXrayDirection(angle - width), b = ReadXrayDirection(angle + width);
+        Offset16<ScreenPixels> a = ReadXrayDirection(angle - width), b = ReadXrayDirection(angle + width);
         bool horizontal = width == 0 && (angle == SnesAngle.QuarterTurn.TableIndex || angle == SnesAngle.ThreeQuarterTurn.TableIndex);
         var lines = new XrayWindowLine[Height];
         Array.Fill(lines, new XrayWindowLine(1, 0));

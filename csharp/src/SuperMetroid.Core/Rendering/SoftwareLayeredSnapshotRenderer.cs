@@ -62,9 +62,9 @@ public static class SoftwareLayeredSnapshotRenderer
                     {
                         Rgba32[] mask = scratch.Colors(SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);
                         SnesBgTilemapRenderer.Composite4BppViewport(mask, memory.Vram, memory.Cgram,
-                            coverage.TilemapWord, coverage.CharacterWord, coverage.HorizontalScroll, coverage.VerticalScroll,
-                            SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels,
-                            coverage.MapWidthTiles, coverage.MapHeightTiles, priority: coverage.Priority);
+                            coverage.TilemapWord, coverage.CharacterWord, coverage.Scroll,
+                            SnesPpuLayout.ScreenSize,
+                            coverage.MapSize, priority: coverage.Priority);
                         byte[]? palettes = null;
                         Rgba32[]? highMain = null;
                         if (sub.MainObjects)
@@ -74,8 +74,8 @@ public static class SoftwareLayeredSnapshotRenderer
                                 snapshot.ObjectSelection, scratch.Colors(subscreen.Length), palettes);
                             highMain = scratch.Colors(256 * 224);
                             SnesBgTilemapRenderer.Composite4BppViewport(highMain, memory.Vram, memory.Cgram,
-                                coverage.TilemapWord, coverage.CharacterWord, coverage.HorizontalScroll, coverage.VerticalScroll,
-                                256, 224, coverage.MapWidthTiles, coverage.MapHeightTiles, priority: true);
+                                coverage.TilemapWord, coverage.CharacterWord, coverage.Scroll,
+                                SnesPpuLayout.ScreenSize, coverage.MapSize, priority: true);
                         }
                         for (int i = 0; i < subscreen.Length; i++)
                         {
@@ -104,10 +104,10 @@ public static class SoftwareLayeredSnapshotRenderer
                 case OrdinaryGameplayRenderLayer gameplay:
                     OrdinaryGameplayRegisters r = gameplay.Registers;
                     output = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                        memory.Vram, memory.Cgram, memory.Oam, r.Bg1X, r.Bg1Y, r.Bg2X, r.Bg2Y,
+                        memory.Vram, memory.Cgram, memory.Oam, r.Bg1Scroll, r.Bg2Scroll,
                         gameplay.HorizontalScrolls.IsEmpty ? null : gameplay.HorizontalScrolls.ToArray(),
                         gameplay.VerticalScrolls.IsEmpty ? null : gameplay.VerticalScrolls.ToArray(),
-                        r.Bg2WidthTiles, r.Bg2HeightTiles, r.Bg2TilemapWord,
+                        r.Bg2MapSize, r.Bg2TilemapWord,
                         r.Bg1CharacterWord, r.Bg2CharacterWord, r.HudCharacterWord,
                         snapshot.ObjectSelection, r.MainScreenLayers, gameplayOutputBuffer,
                         r.Bg2FirstScanline, r.Bg2EndScanline, r.Windows, r.MainScreenWindowMask, r.Bg2Mosaic,
@@ -137,7 +137,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     Rgba32[] mode7Pixels = scratch.Colors(SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);
                     SnesMode7Renderer.CompositeViewport(mode7Pixels,
                         memory.Vram, memory.Cgram, m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD,
-                        m.CenterX, m.CenterY, m.HorizontalOffset, m.VerticalOffset,
+                        m.Center, m.Scroll,
                         fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero, wrapOutsideMap: m.WrapOutsideMap);
                     if (mode7.AddBg1Subscreen)
                     {
@@ -202,9 +202,9 @@ public static class SoftwareLayeredSnapshotRenderer
                     break;
                 case Bg4BppRenderLayer bg:
                     SnesBgTilemapRenderer.Composite4BppViewport(output, memory.Vram, memory.Cgram,
-                        bg.TilemapWord, bg.CharacterWord, bg.HorizontalScroll, bg.VerticalScroll,
-                        SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels,
-                        bg.MapWidthTiles, bg.MapHeightTiles, priority: bg.Priority);
+                        bg.TilemapWord, bg.CharacterWord, bg.Scroll,
+                        SnesPpuLayout.ScreenSize,
+                        bg.MapSize, priority: bg.Priority);
                     break;
                 case Bg2BppRenderLayer bg:
                     Rgba32[] rows = scratch.Colors(256 * bg.RowCount * 8);
@@ -228,8 +228,8 @@ public static class SoftwareLayeredSnapshotRenderer
         Rgba32[] source = scratch.Colors(256 * (perLine ? 256 : 224));
         if (layer.FourBpp)
             SnesBgTilemapRenderer.Composite4BppViewport(source, memory.Vram, memory.Cgram,
-                layer.TilemapWord, layer.CharacterWord, 0, perLine ? (ushort)0 : layer.VerticalScroll,
-                256, perLine ? 256 : 224, 32, 32, priority: priority);
+                layer.TilemapWord, layer.CharacterWord, new Position16<BgPlanePixels>(0, perLine ? (ushort)0 : layer.VerticalScroll),
+                new Extent16<ScreenPixels>(256, checked((ushort)(perLine ? 256 : 224))), new Extent16<TilemapCells>(32, 32), priority: priority);
         else
             SnesBgTilemapRenderer.Render2Bpp(source, memory.Vram, memory.Cgram,
                 layer.TilemapWord, layer.CharacterWord, rowCount: perLine ? 32 : 28,

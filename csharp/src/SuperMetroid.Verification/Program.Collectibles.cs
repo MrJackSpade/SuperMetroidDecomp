@@ -139,8 +139,8 @@ internal static partial class Program
             precollected: false);
         orb.Plms.Step(bus, orb.Level, orb.Streamer, new(0, 0), 0);
         var grappleSamus = new SamusState();
-        grappleSamus.XPosition = (ushort)((orb.BlockIndex % orb.Level.Size.Width) * 16 + 8);
-        grappleSamus.YPosition = (ushort)((orb.BlockIndex / orb.Level.Size.Width) * 16 + 8);
+        grappleSamus.XPosition = (ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8);
+        grappleSamus.YPosition = (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8);
         SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
         var orbHit = SamusGrappleMovement.StepFiring(bus, orb.Level, grappleSamus,
             (ushort)SnesButton.X, orb.Plms);

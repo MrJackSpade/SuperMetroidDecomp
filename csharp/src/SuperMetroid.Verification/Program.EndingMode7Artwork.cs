@@ -169,7 +169,7 @@ internal static partial class Program
                 image = IndexedPng.Read(input, new(EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(pngOverride))
-                IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EndingMode7ArtworkCatalog editedCharacters = installation.LoadEndingMode7Art();
             state.BindMode7Artwork(editedCharacters);
             LayeredRenderSnapshot characterSnapshot = state.CaptureRenderSnapshot();

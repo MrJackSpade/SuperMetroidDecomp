@@ -376,7 +376,7 @@ public static partial class SamusGrappleMovement
         int blockY)
     {
         RoomCollisionBlock initialBlock =
-            level.GetCollisionBlockOrPrefilledSolid(new(blockX, blockY));
+            level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
         if (initialBlock.Index < 0)
             return true;
 
@@ -431,7 +431,7 @@ public static partial class SamusGrappleMovement
                 case RoomCollisionType.VerticalExtension:
                     if (block.Bts == RoomBlockBehaviorValues.None)
                         return false;
-                    index += block.Bts.ExtensionOffset * level.Size.Width;
+                    index += block.Bts.ExtensionOffset * level.Size.X;
                     continue;
 
                 default:

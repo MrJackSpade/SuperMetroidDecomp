@@ -7,15 +7,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Cosmetic world-map label anchors. Area availability and navigation are not content.</summary>
 public sealed class WorldMapLabelLayout
 {
-    private readonly Point32<ScreenPixels> crateria;
-    private readonly Point32<ScreenPixels> brinstar;
-    private readonly Point32<ScreenPixels> norfair;
-    private readonly Point32<ScreenPixels> wreckedShip;
-    private readonly Point32<ScreenPixels> maridia;
-    private readonly Point32<ScreenPixels> tourian;
+    private readonly Position16<OamPixels> crateria;
+    private readonly Position16<OamPixels> brinstar;
+    private readonly Position16<OamPixels> norfair;
+    private readonly Position16<OamPixels> wreckedShip;
+    private readonly Position16<OamPixels> maridia;
+    private readonly Position16<OamPixels> tourian;
 
-    private WorldMapLabelLayout(Point32<ScreenPixels> crateria, Point32<ScreenPixels> brinstar, Point32<ScreenPixels> norfair,
-        Point32<ScreenPixels> wreckedShip, Point32<ScreenPixels> maridia, Point32<ScreenPixels> tourian)
+    private WorldMapLabelLayout(Position16<OamPixels> crateria, Position16<OamPixels> brinstar, Position16<OamPixels> norfair,
+        Position16<OamPixels> wreckedShip, Position16<OamPixels> maridia, Position16<OamPixels> tourian)
     {
         this.crateria = crateria;
         this.brinstar = brinstar;
@@ -29,7 +29,7 @@ public sealed class WorldMapLabelLayout
     /// <remarks>Reviewed for #1165: the six native area identities select layout roles,
     /// not numerical samples. Preserve each imported/custom point without deriving it
     /// from another area or storing a positional lookup. Only area IDs0..5 are valid.</remarks>
-    public Point32<ScreenPixels> Get(int area) => area switch
+    public Position16<OamPixels> Get(int area) => area switch
     {
         (int)AreaId.Crateria => crateria,
         (int)AreaId.Brinstar => brinstar,
@@ -51,7 +51,7 @@ public sealed class WorldMapLabelLayout
         catch (JsonException error) { throw new InvalidDataException("Invalid world-map label layout JSON.", error); }
         if (document.Version != WorldMapLabelFormat.Version || document.Areas is null || document.Areas.Count != 6)
             throw new InvalidDataException("World-map labels require version 1 and exactly the six Zebes areas.");
-        Point32<ScreenPixels> RequireArea(AreaId area)
+        Position16<OamPixels> RequireArea(AreaId area)
         {
             string name = area.ToString();
             if (!document.Areas.TryGetValue(name, out var point) ||
@@ -81,7 +81,7 @@ public sealed record WorldMapLabelDocument
     public required int Version { get; init; }
 
     /// <summary>Gets the label anchors keyed by the six case-sensitive area names.</summary>
-    public required Dictionary<string, Point32<ScreenPixels>> Areas { get; init; }
+    public required Dictionary<string, Position16<OamPixels>> Areas { get; init; }
 }
 
 /// <summary>Defines the installed world-map label resource contract.</summary>

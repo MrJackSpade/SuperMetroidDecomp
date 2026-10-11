@@ -85,8 +85,8 @@ internal static class MapCrossViewAudit
             room.AreaIndex,
             checked((byte)room.MapPosition.X),
             checked((byte)room.MapPosition.Y),
-            room.Size.ToRoomBlocks().Width,
-            room.Size.ToRoomBlocks().Height,
+            room.Size.ToRoomBlocks().X,
+            room.Size.ToRoomBlocks().Y,
             samus.XPosition,
             samus.YPosition,
             nmiFrameCounter: 8);
@@ -99,8 +99,8 @@ internal static class MapCrossViewAudit
             room.MapPosition);
         _ = pause.Render();
 
-        Position16<ScreenPixels> expectedMarker = new Point32<MapTiles>(hud.MinimapCenterX, hud.MinimapCenterY)
-            .ToMapPixels().ToScreen(pause.MapScroll);
+        Position16<OamPixels> expectedMarker = new Position16<MapTiles>(hud.MinimapCenterX, hud.MinimapCenterY)
+            .ToMapPixels().ToScreen(pause.MapScroll).ToOam();
         if (pause.LastIndicatorOrigin != expectedMarker)
         {
             throw new InvalidDataException(

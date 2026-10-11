@@ -10,7 +10,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var words = new ushort[16 * 16];
         for (int row = 0; row < 10; row++) words[row * 16 + 4] = 0x8000;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(16, 16), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
         var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, XPosition = 59, YPosition = 80 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
@@ -40,7 +40,7 @@ internal static partial class Program
     {
         var words = new ushort[32 * 16];
         words[3 * 32 + 23] = 0x8000;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(32, 16), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
         var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundLeftPose, XPosition = 371, YPosition = 71 };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

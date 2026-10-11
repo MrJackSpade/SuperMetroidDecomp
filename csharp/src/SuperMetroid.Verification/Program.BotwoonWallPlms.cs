@@ -111,7 +111,7 @@ internal static partial class Program
             $"Botwoon {(clear ? "clear" : "crumble")} PLM allocates");
         var guarded = new BotwoonWallSourceGuard(new TestAddressSpace());
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            guarded, 2, 1, RoomScrollState.RedBoundary);
+            guarded, new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         int soundCount = 0;

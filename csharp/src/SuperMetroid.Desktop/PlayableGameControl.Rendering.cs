@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Desktop;
 
@@ -77,11 +78,11 @@ public sealed partial class PlayableGameControl
     /// Starts the window-owned renderer with the UI message pump free to service DXGI.
     /// Call once after showing the form. Auto prefers hardware with logged startup fallback.
     /// </summary>
-    public Task InitializeRendererAsync() => InitializeRendererAsync(static (window, width, height, generation) =>
-        new D3D11RenderWorker(window, width, height, generation, D3D11DeviceKind.Hardware));
+    public Task InitializeRendererAsync() => InitializeRendererAsync(static (window, clientSize, generation) =>
+        new D3D11RenderWorker(window, clientSize, generation, D3D11DeviceKind.Hardware));
 
     /// <summary>Verification seam for a worker that genuinely fails asynchronous device/window startup.</summary>
-    internal async Task InitializeRendererAsync(Func<nint, int, int, long, D3D11RenderWorker> createWorker)
+    internal async Task InitializeRendererAsync(Func<nint, Extent16<DisplayPixels>, long, D3D11RenderWorker> createWorker)
     {
         ArgumentNullException.ThrowIfNull(createWorker);
         ObjectDisposedException.ThrowIf(IsDisposed, this);
@@ -90,7 +91,7 @@ public sealed partial class PlayableGameControl
         rendererStarted = true;
         if (gameOptions.Renderer == RendererSelection.Software) return;
         var worker = createWorker(canvas.Handle,
-            Math.Max(1, canvas.ClientSize.Width), Math.Max(1, canvas.ClientSize.Height),
+            DisplayViewport.ClientSize(Math.Max(1, canvas.ClientSize.Width), Math.Max(1, canvas.ClientSize.Height)),
             displayGeneration);
         gpuWorker = worker;
         string adapter;
@@ -133,7 +134,8 @@ public sealed partial class PlayableGameControl
         // Minimization may retain the child canvas dimensions. The form's state,
         // not just its child SizeChanged event, owns presentation suspension.
         bool minimized = rendererHost?.WindowState == FormWindowState.Minimized;
-        gpuWorker?.Resize(minimized ? 0 : canvas.ClientSize.Width, minimized ? 0 : canvas.ClientSize.Height);
+        gpuWorker?.Resize(minimized ? Extent16<DisplayPixels>.Zero
+            : DisplayViewport.ClientSize(canvas.ClientSize.Width, canvas.ClientSize.Height));
     }
 
     private void CheckRendererHealth(object? sender, EventArgs e)
@@ -169,7 +171,7 @@ public sealed partial class PlayableGameControl
         var pixels = pendingDisplay is { } packet
             ? SoftwareFrameSnapshotRenderer.Render(packet)
             : frame.Pixels;
-        canvas.ReplaceFrame(FrontendFrame.Width, FrontendFrame.Height, pixels);
+        canvas.ReplaceFrame(new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), pixels);
     }
 
     /// <summary>Await before destroying the form/child HWND; never synchronously wait on the UI thread.</summary>

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <param name="DynamicGraphic">Optional decoded permanent-collectible tiles and palette offsets; population construction validates and copies their payloads.</param>
 public sealed record RoomPlmPlacement(
     RoomPlmHeaderDefinition Header,
-    Point32<RoomBlocks> Block,
+    Position16<RoomBlocks> Block,
     ushort RoomArgument,
     ReadOnlyMemory<byte> ScrollProgram = default,
     RoomPlmDynamicCollectibleGraphic? DynamicGraphic = null)

@@ -18,7 +18,7 @@ internal static partial class Program
             bus.WriteBytes(0xa19600, [0xff, 0xff]);
             var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
             enemies.Load(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), () => 0, level: level, samus: new SamusState());
-            enemies.ApplyDownwardGateProjectileRequest(plms.TakeDownwardGateProjectileRequests().Single(), level.Size.Width);
+            enemies.ApplyDownwardGateProjectileRequest(plms.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
             enemies.StepEnemyProjectiles(level, null);
             enemies.StepEnemyProjectiles(level, null);
             var oam = new OamBuffer();
@@ -28,8 +28,8 @@ internal static partial class Program
             int hitIndex = gateIndex + (trigger == DownwardGateTriggerBehavior.GreenLeft ? -1 : 1);
             var samus = new SamusState
             {
-                XPosition = (ushort)(hitIndex % level.Size.Width * 16 + 8),
-                YPosition = (ushort)(hitIndex / level.Size.Width * 16 + 8),
+                XPosition = (ushort)(hitIndex % level.Size.X * 16 + 8),
+                YPosition = (ushort)(hitIndex / level.Size.X * 16 + 8),
             };
             for (int frame = 0; frame < 12; frame++)
             {

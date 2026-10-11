@@ -14,9 +14,9 @@ public sealed partial class D3D11FrameRenderer
         data[0] = (uint)D3D11TileOperation.XrayGameplay;
         // Xray.hlsli reuses the tile header for BG1/BG2 registers and CGADSUB.
         data[1] = r.Bg1CharacterWord; data[2] = r.Bg2CharacterWord;
-        data[3] = r.Bg1X;
-        data[4] = unchecked((ushort)(r.Bg1Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
-        data[5] = (uint)r.Bg2WidthTiles; data[6] = (uint)r.Bg2HeightTiles;
+        data[3] = r.Bg1Scroll.X;
+        data[4] = unchecked((ushort)(r.Bg1Scroll.Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
+        data[5] = (uint)r.Bg2MapSize.X; data[6] = (uint)r.Bg2MapSize.Y;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.ColorMath;
         data[10] = layer.FixedRed; data[11] = layer.FixedGreen; data[12] = layer.FixedBlue;
@@ -38,8 +38,8 @@ public sealed partial class D3D11FrameRenderer
         for (int y = 32; y < 224; y++)
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4, line = y - 32;
-            data[offset] = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.Gameplay.HorizontalScrolls[line];
-            ushort verticalScroll = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[line];
+            data[offset] = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2Scroll.X : layer.Gameplay.HorizontalScrolls[line];
+            ushort verticalScroll = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Scroll.Y : layer.Gameplay.VerticalScrolls[line];
             data[offset + 1] = unchecked((ushort)(verticalScroll + SnesPpuLayout.FirstVisibleBackgroundScanline));
             data[offset + 2] = (uint)(layer.Lines[y].Left | layer.Lines[y].Right << 8);
             // The high half carries the main-screen enable register for this line;

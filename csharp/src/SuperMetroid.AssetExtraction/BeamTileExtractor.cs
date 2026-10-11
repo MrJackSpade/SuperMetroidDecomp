@@ -22,7 +22,7 @@ public static class BeamTileExtractor
             byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 SamusProjectileRomData.Banks.CharacterData | pointer, BeamTileAtlasDefinitions.ByteCount);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
-                BeamTileAtlasDefinitions.Width / 8, out Size32<ImagePixels> size);
+                BeamTileAtlasDefinitions.Width / 8, out Extent16<ImagePixels> size);
             using var stream = new MemoryStream();
             IndexedPng.Write(stream, size, pixels, SnesGraphics.DiagnosticPalette(16));
             byte[] png = stream.ToArray();

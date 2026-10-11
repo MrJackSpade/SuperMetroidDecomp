@@ -106,14 +106,14 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         uint[] data = ClearUploadConstants();
         data[0] = (uint)(color.R | color.G << 8 | color.B << 16 | color.A << 24);
         data[1] = (uint)packet.BrightnessPasses.Length;
-        data[2] = (uint)packet.Width; data[3] = (uint)packet.Height;
+        data[2] = packet.Size.X; data[3] = packet.Size.Y;
         for (int i = 0; i < packet.BrightnessPasses.Length; i++) data[D3D11ShaderLayout.SolidHeaderWords + i] = packet.BrightnessPasses[i];
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetShader(shader);
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetUnorderedAccessView(0, view);
-        owner.Context.Dispatch((uint)((packet.Width + D3D11ShaderLayout.DispatchTileEdge - 1) / D3D11ShaderLayout.DispatchTileEdge),
-            (uint)((packet.Height + D3D11ShaderLayout.DispatchTileEdge - 1) / D3D11ShaderLayout.DispatchTileEdge), 1);
+        owner.Context.Dispatch((uint)((packet.Size.X + D3D11ShaderLayout.DispatchTileEdge - 1) / D3D11ShaderLayout.DispatchTileEdge),
+            (uint)((packet.Size.Y + D3D11ShaderLayout.DispatchTileEdge - 1) / D3D11ShaderLayout.DispatchTileEdge), 1);
     }
 
     /// <summary>Unbinds renderer shader/resource state and releases its owned GPU objects in reverse creation order on the owner thread; the shared device remains alive and repeated disposal is harmless.</summary>

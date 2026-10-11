@@ -96,7 +96,7 @@ internal static partial class Program
         for (int row = 0; row < DownwardGatePlmRomData.GateHeightInBlocks; row++)
         {
             AssertEqual(DownwardGatePlmRomData.ClosedGateBts,
-                level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.Width).Behavior,
+                level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Behavior,
                 $"gate setup writes BTS $10 to row {row}");
         }
         AssertEqual((int)RoomCollisionType.ShootableBlock,
@@ -125,7 +125,7 @@ internal static partial class Program
             nextRandom: () => 0,
             level: level,
             samus: new SamusState());
-        enemies.ApplyDownwardGateProjectileRequest(request, level.Size.Width);
+        enemies.ApplyDownwardGateProjectileRequest(request, level.Size.X);
         RoomEnemyProjectileSlot actor = enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,
             "bank-$86 pool owns the closed gate actor");
@@ -145,7 +145,7 @@ internal static partial class Program
         StepDownwardGatePlm(plms, bus, level, streamer);
         StepDownwardGatePlm(plms, bus, level, streamer);
         AssertEqual((ushort)0xc0ff,
-            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.Width).LevelWord,
+            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).LevelWord,
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(plms.TrySpawnDownwardGateTrigger(
                 level,
@@ -162,7 +162,7 @@ internal static partial class Program
                     SoundEffectLibrary.Library3,
                     DownwardGatePlmRomData.MovementSound)),
             "opening gate queues its cartridge movement sound");
-        enemies.ApplyDownwardGateProjectileRequest(wake, level.Size.Width);
+        enemies.ApplyDownwardGateProjectileRequest(wake, level.Size.X);
 
         // Run the PLM and bank-$86 actor together until the open-state coroutine sleeps.
         // This exercises all four 16-pixel movement segments and the list's final goto.
@@ -174,7 +174,7 @@ internal static partial class Program
         AssertEqual(0, enemies.ActiveEnemyProjectileCount,
             "opened gate actor retracts four tiles and deletes");
         AssertEqual((ushort)0x00ff,
-            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.Width).LevelWord,
+            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).LevelWord,
             "compiled final open draw clears the second column collision word");
         RoomPlmSlotSnapshot openedGate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -196,7 +196,7 @@ internal static partial class Program
             "open gate publishes a moving close actor");
         AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateMoving,
             close.DefinitionPointer, "close request uses definition $E64B");
-        enemies.ApplyDownwardGateProjectileRequest(close, level.Size.Width);
+        enemies.ApplyDownwardGateProjectileRequest(close, level.Size.X);
         for (int frame = 0; frame < 80; frame++)
             enemies.StepEnemyProjectiles(level, samus: null);
         RoomEnemyProjectileSlot closedActor = enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);

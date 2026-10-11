@@ -18,7 +18,7 @@ public static class MapLandmarkExtractor
     /// <exception cref="InvalidDataException">Required records, unused slots, destination bindings, or list boundaries differ from compiled definitions.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        var points = new Dictionary<string, Point32<MapPixels>>();
+        var points = new Dictionary<string, Position16<MapPixels>>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int boss = Pointer(FileSelectMapIconRomData.BossLists, area);

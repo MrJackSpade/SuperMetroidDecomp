@@ -71,7 +71,7 @@ public sealed partial class SuperMetroidRuntime
         var room = LoadCartridgeRoomHeader(scene.RoomPointer);
         ActiveLoadStation = null;
         CeresElevatorArrival = null;
-        LoadCartridgeRoom(door, room, scene.CameraPosition.X, scene.CameraPosition.Y,
+        LoadCartridgeRoom(door, room, scene.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport);
         ApplyAttractRoomSetup(scene.RoomSetupPointer);
         Samus.LoadSuitPalette(_addressSpace, Cgram);

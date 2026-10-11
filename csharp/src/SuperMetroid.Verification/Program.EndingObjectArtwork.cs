@@ -345,10 +345,10 @@ internal static partial class Program
             IndexedPngImage image;
             using (var input = File.OpenRead(Path.Combine(installation.EndingObjectDirectory, name)))
                 image = IndexedPng.Read(input,
-                    new(RoomCharacterAtlasFormat.TileColumns * 8, rows * 8));
+                    new(RoomCharacterAtlasFormat.TileColumns * 8, checked((ushort)(rows * 8))));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             scene.BindObjectArtwork(edited);
             LayeredRenderSnapshot changed = scene.CaptureRenderSnapshot();
@@ -396,7 +396,7 @@ internal static partial class Program
             persistentClouds = IndexedPng.Read(input, new(256, 128));
         persistentClouds.Pixels[0] = (byte)((persistentClouds.Pixels[0] + 1) & 15);
         using (var output = File.Create(invalidPath))
-            IndexedPng.Write(output, new(persistentClouds.Size.Width, persistentClouds.Size.Height),
+            IndexedPng.Write(output, new(persistentClouds.Size.X, persistentClouds.Size.Y),
                 persistentClouds.Pixels, persistentClouds.Palette);
         byte[] editedClouds = installation.LoadEndingObjectArt().Clouds.Transfer.ToArray();
         string stockExplosion = Path.Combine(installation.EndingObjectDirectory,

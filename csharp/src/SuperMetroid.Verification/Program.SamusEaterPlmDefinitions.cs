@@ -33,7 +33,7 @@ internal static partial class Program
             var levelWords = new ushort[blockCount];
             levelWords[5] = 0xb123;
             var level = new RoomLevelData(
-                new Size32<RoomBlocks>(width, height),
+                new Extent16<RoomBlocks>(width, height),
                 levelWords,
                 new byte[blockCount],
                 new ushort[blockCount],

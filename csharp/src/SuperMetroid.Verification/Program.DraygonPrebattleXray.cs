@@ -18,7 +18,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new(256, 288));
+        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
@@ -44,11 +44,11 @@ internal static partial class Program
         var unmasked = RenderWithRegisters(r with { Bg2FirstScanline = 32, Bg2EndScanline = 224 });
         int exposed = pixels.Zip(hidden).Count(pair => pair.First != pair.Second);
         int wrapped = unmasked.Zip(hidden).Count(pair => pair.First != pair.Second);
-        Console.WriteLine($"Pre-battle Draygon: body={boss.Body.XPosition:X4}/{boss.Body.YPosition:X4}, Samus={samus.XPosition}/{samus.YPosition}, camera={r.Bg1X}/{r.Bg1Y}; exposed={exposed}, unmasked={wrapped} pixels.");
+        Console.WriteLine($"Pre-battle Draygon: body={boss.Body.XPosition:X4}/{boss.Body.YPosition:X4}, Samus={samus.XPosition}/{samus.YPosition}, camera={r.Bg1Scroll.X}/{r.Bg1Scroll.Y}; exposed={exposed}, unmasked={wrapped} pixels.");
         const string output = "csharp/test-temp/issue-1260-draygon-xray";
         Directory.CreateDirectory(output);
         File.WriteAllBytes(Path.Combine(output, "frame-000.smframe"), RenderFrameSnapshotCodec.Serialize(new(new(1, 1, runtime.NmiFrameCounter), scene)));
-        PngWriterTooling.WriteRgba(Path.Combine(output, "prebattle.png"), new(256, 224), pixels);
+        PngWriterTooling.WriteRgba(Path.Combine(output, "prebattle.png"), new Extent16<ScreenPixels>(256, 224), pixels);
         AssertTrue(wrapped > 0, "the reported corner visibly exposes repeated body art without native clipping");
         AssertEqual(0, exposed, "pre-battle X-Ray hides the offscreen body exactly like native TM HDMA");
 

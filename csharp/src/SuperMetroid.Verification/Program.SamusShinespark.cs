@@ -127,7 +127,7 @@ static void VerifySamusStoredShineAndShinespark()
     // handlers. The pose definition's literal X-direction byte—not target-pose parity in
     // production—selects horizontal sign, while the phase selects which block axes run.
     RoomLevelData directionLevel = new RoomLevelData(
-        new Size32<RoomBlocks>(width, height),
+        new Extent16<RoomBlocks>(width, height),
         new ushort[width * height],
         new byte[width * height],
         new ushort[width * height],

@@ -28,7 +28,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
         {
             if (id is not null)
             {
-                Position16<MapPixels> point = layout.Get(id).ToPosition16();
+                Position16<MapPixels> point = layout.Get(id);
                 bool dead = (remainingBits & 1) != 0;
                 remainingBits >>= 1;
                 if (dead)
@@ -63,7 +63,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                 "Map station icons require installed station layout.");
             foreach (var rule in MapStationDiscoveryRules.Get(area, kind))
                 if (system.IsMapTileExplored(area, rule.Cell))
-                    Draw(id, layout.Get(rule.Id).ToPosition16(), FileSelectMapRomData.StationMarkerPalette);
+                    Draw(id, layout.Get(rule.Id), FileSelectMapRomData.StationMarkerPalette);
         }
         void Draw(MapSpriteId id, Position16<MapPixels> position, ushort palette) =>
             Add(oam, id, position, scroll, palette);
@@ -76,7 +76,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
         {
             var point = (landmarks ?? throw new InvalidOperationException(
                 "Gunship icon requires installed landmark layout.")).Get(MapLandmarkDefinitions.Gunship);
-            Add(oam, MapSpriteId.MarkerGunship, point.ToPosition16(), scroll, FileSelectMapRomData.StationMarkerPalette);
+            Add(oam, MapSpriteId.MarkerGunship, point, scroll, FileSelectMapRomData.StationMarkerPalette);
         }
         drawArrows?.Invoke();
         DrawElevatorLabels(oam, scroll);
@@ -91,13 +91,13 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
         foreach (var label in MapLandmarkDefinitions.Elevators(area))
         {
             Add(oam, MapLandmarkDefinitions.ElevatorSpritemap(label.Destination),
-                elevatorLayout.Get(label.Id).ToPosition16(), scroll, 0);
+                elevatorLayout.Get(label.Id), scroll, 0);
         }
     }
     private void Add(OamBuffer oam, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll, ushort palette)
     {
         (sprites ?? throw new InvalidOperationException(
             "Map icons require installed sprite artwork."))
-            .Draw(id, oam, position.ToScreen(scroll), palette);
+            .Draw(id, oam, (position.ToScreen(scroll)).ToOam(), palette);
     }
 }

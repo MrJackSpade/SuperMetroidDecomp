@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Rendering.Direct3D11;
 
@@ -75,14 +76,15 @@ public sealed partial class D3D11FrameRenderer
                     break;
                 case Bg4BppRenderLayer bg:
                     DispatchTile(D3D11TileOperation.Bg4, bg.TilemapWord, bg.CharacterWord,
-                        bg.HorizontalScroll, bg.VerticalScroll, (uint)bg.MapWidthTiles, (uint)bg.MapHeightTiles, Priority(bg.Priority));
+                        bg.Scroll, bg.MapSize, Priority(bg.Priority));
                     break;
                 case Bg2BppRenderLayer bg:
                     DispatchTile(D3D11TileOperation.Bg2, bg.TilemapWord, bg.CharacterWord, priority: Priority(bg.Priority));
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     DispatchTile(D3D11TileOperation.Bg2, bg.TilemapWord, bg.CharacterWord,
-                        y: bg.VerticalScroll, priority: Priority(bg.Priority), transparentZero: bg.TransparentColorZero ? 1u : 0u);
+                        scroll: new Position16<BgPlanePixels>(0, bg.VerticalScroll), priority: Priority(bg.Priority),
+                        transparentZero: bg.TransparentColorZero ? 1u : 0u);
                     break;
                 case FixedColorAddRenderLayer add:
                     DispatchTile(D3D11TileOperation.FixedAdd, red: add.Red, green: add.Green, blue: add.Blue);
@@ -95,7 +97,7 @@ public sealed partial class D3D11FrameRenderer
     }
 
     private unsafe void DispatchTile(D3D11TileOperation operation, uint map = 0, uint characters = 0,
-        uint x = 0, uint y = 0, uint width = 32, uint height = 32, uint priority = 0,
+        Position16<BgPlanePixels> scroll = default, Extent16<TilemapCells>? mapSize = null, uint priority = 0,
         uint transparentZero = 1, uint level = 15, uint red = 0, uint green = 0, uint blue = 0,
         uint objectCount = 0, uint objectSelection = 0, uint firstScanline = 0, uint endScanline = 224,
         SnesWindowRegisters windows = default, SnesMainScreenLayers windowMask = SnesMainScreenLayers.None,
@@ -103,9 +105,12 @@ public sealed partial class D3D11FrameRenderer
     {
         // Upload the complete allocated cbuffer, so UpdateSubresource cannot read past
         // a short managed array. The trailing header words supply scanline clipping.
+        // The tile shader's header words three through six are the BG scroll and map size;
+        // unmapped operations keep the shader's default 32x32-cell plane.
+        Extent16<TilemapCells> size = mapSize ?? new Extent16<TilemapCells>(32, 32);
         var data = ClearUploadConstants();
-        data[0] = (uint)operation; data[1] = map; data[2] = characters; data[3] = x;
-        data[4] = y; data[5] = width; data[6] = height; data[7] = priority;
+        data[0] = (uint)operation; data[1] = map; data[2] = characters; data[3] = scroll.X;
+        data[4] = scroll.Y; data[5] = size.X; data[6] = size.Y; data[7] = priority;
         data[8] = transparentZero; data[9] = level; data[10] = red; data[11] = green; data[12] = blue;
         data[13] = objectCount; data[14] = objectSelection;
         data[25] = firstScanline; data[26] = endScanline;
@@ -126,8 +131,8 @@ public sealed partial class D3D11FrameRenderer
         data[13] = objectCount; data[14] = objectSelection;
         data[16] = registers.MatrixA; data[17] = registers.MatrixB;
         data[18] = registers.MatrixC; data[19] = registers.MatrixD;
-        data[20] = registers.CenterX; data[21] = registers.CenterY;
-        data[22] = registers.HorizontalOffset; data[23] = registers.VerticalOffset;
+        data[20] = registers.Center.X; data[21] = registers.Center.Y;
+        data[22] = registers.Scroll.X; data[23] = registers.Scroll.Y;
         data[24] = (int)Mode7OverflowPolicy.FromRegisters(registers);
         data[25] = firstScanline; data[26] = endScanline;
         data[27] = (int)(addBg1 ? Mode7ColorMathOperation.AddBg1

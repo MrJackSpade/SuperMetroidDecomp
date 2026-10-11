@@ -24,7 +24,7 @@ internal static partial class Program
             // isolating the reported pause/equipment/launch contract from room obstacles.
             foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
             var level = runtime.LevelData!;
-            for (int block = 0; block < level.Size.Width * level.Size.Height; block++)
+            for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             { level.SetForegroundEntry(block, 0); level.SetBehavior(block, 0); }
             var samus = runtime.Samus!;
             samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);

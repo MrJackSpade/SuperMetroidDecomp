@@ -30,7 +30,7 @@ internal static partial class Program
 
     private static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus,
         SamusState samus, Bank80SystemState system, AreaId areaIndex,
-        Point32<MapTiles> roomMapPosition, CartridgeAudioState? audio = null,
+        Position16<MapTiles> roomMapPosition, CartridgeAudioState? audio = null,
         SnesVram? gameplayVram = null, MapRevealMode mapRevealMode = MapRevealMode.None) =>
         RepositoryInstallation.CreatePause(bus, samus, system, areaIndex, roomMapPosition, audio,
             gameplayVram, mapRevealMode);

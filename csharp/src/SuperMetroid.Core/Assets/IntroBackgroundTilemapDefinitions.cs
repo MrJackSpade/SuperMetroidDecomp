@@ -47,7 +47,7 @@ internal static class IntroBackgroundTilemapDefinitions
                 10 => true,
                 _ => column < 15,
             };
-            if (occupied) p.Put(new(8 + column, 4 + row), 0x0890 + row * 16 + column);
+            if (occupied) p.Put(new(checked((ushort)(8 + column)), checked((ushort)(4 + row))), 0x0890 + row * 16 + column);
         }
         p.Patch(new(24, 6), new(1, 4), 0x094f);
         p.Patch(new(8, 23), new(7, 1), 0x0890);
@@ -77,7 +77,7 @@ internal static class IntroBackgroundTilemapDefinitions
                 18 => column >= 1,
                 _ => column >= 2,
             };
-            if (occupied) p.Put(new(4 + column, 4 + row), 0x09c0 + row * 16 + column);
+            if (occupied) p.Put(new(checked((ushort)(4 + column)), checked((ushort)(4 + row))), 0x09c0 + row * 16 + column);
         }
         p.Patch(new(10, 4), new(4, 2), 0x09ca, mirrorX: true);
         p.Patch(new(11, 6), new(3, 4), 0x09ea, mirrorX: true);
@@ -97,7 +97,7 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Patch(new(20, 14), new(5, 1), 0x0804);
         p.Patch(new(20, 15), new(6, 6), 0x0814);
         for (int strip = 0; strip < 3; strip++)
-            p.Patch(new(20 + strip * 2, 21), new(2, 3), 0x080a + strip * 3 * 16);
+            p.Patch(new(checked((ushort)(20 + strip * 2)), 21), new(2, 3), 0x080a + strip * 3 * 16);
         p.Put(new(24, 23), 0x087b);
         p.Put(new(25, 23), BorderBlank);
     }
@@ -108,19 +108,19 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Fill(new(0, 4), new(32, 22), SceneBlank);
         p.Fill(new(28, 25), new(4, 1), BorderBlank);
         p.Fill(new(12, 26), new(2, 1), BorderBlank | 0x4000);
-        for (int x = 0; x < 32; x += 2) p.Patch(new(x, 2), new(2, 2), 0x1dc8);
+        for (int x = 0; x < 32; x += 2) p.Patch(new(checked((ushort)x), 2), new(2, 2), 0x1dc8);
         for (int side = 0; side < 2; side++)
         {
-            p.Patch(new(2 + side * 8, 4), new(2, 2), 0x1dc8);
-            p.Fill(new(2 + side * 8, 6), new(2, 2), 0x1de9);
+            p.Patch(new(checked((ushort)(2 + side * 8)), 4), new(2, 2), 0x1dc8);
+            p.Fill(new(checked((ushort)(2 + side * 8)), 6), new(2, 2), 0x1de9);
         }
         p.Fill(new(4, 4), new(6, 4), 0x1de8);
-        for (int y = 4; y < 8; y++) p.Patch(new(6, y), new(2, 1), 0x9e08);
+        for (int y = 4; y < 8; y++) p.Patch(new(6, checked((ushort)y)), new(2, 1), 0x9e08);
         p.Fill(new(4, 8), new(6, 1), 0x1e78);
-        for (int x = 4; x < 10; x += 2) p.Patch(new(x, 9), new(2, 1), 0x1e68);
+        for (int x = 4; x < 10; x += 2) p.Patch(new(checked((ushort)x), 9), new(2, 1), 0x1e68);
         p.Patch(new(18, 4), new(2, 2), 0x3dc8);
         p.Fill(new(18, 6), new(2, 2), 0x3de9);
-        for (int x = 16; x <= 20; x += 4) p.Patch(new(x, 6), new(2, 2), 0x3e28);
+        for (int x = 16; x <= 20; x += 4) p.Patch(new(checked((ushort)x), 6), new(2, 2), 0x3e28);
         p.Put(new(15, 7), 0x7e17);
         p.Put(new(22, 7), 0x3e17);
         p.Patch(new(15, 8), new(2, 1), 0x3e18, mirrorX: true);
@@ -141,7 +141,7 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Patch(new(10, 12), new(2, 5), 0x1c0e);
         p.Put(new(10, 17), 0x1c5e);
         p.Patch(new(10, 18), new(2, 1), 0x1c6e);
-        for (int row = 0; row < 4; row++) p.Put(new(9, 14 + row), 0x1c3c + row % 2 * 16 + row / 2);
+        for (int row = 0; row < 4; row++) p.Put(new(9, checked((ushort)(14 + row))), 0x1c3c + row % 2 * 16 + row / 2);
         p.Put(new(2, 18), 0x9c8c);
         p.Put(new(3, 18), 0x1ce0);
         p.Patch(new(2, 19), new(2, 1), 0x9c7c);
@@ -153,19 +153,19 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Patch(new(12, 20), new(2, 2), 0x3de6, mirrorX: true);
         for (int side = 0; side < 2; side++)
         {
-            p.Fill(new(2 + side * 8, 20), new(2, 2), 0x1de9);
-            p.Fill(new(2 + side * 8, 24), new(2, 2), 0x1de9);
-            p.Patch(new(0 + side * 8, 24), new(2, 2), 0x1de6, mirrorY: true);
+            p.Fill(new(checked((ushort)(2 + side * 8)), 20), new(2, 2), 0x1de9);
+            p.Fill(new(checked((ushort)(2 + side * 8)), 24), new(2, 2), 0x1de9);
+            p.Patch(new(checked((ushort)(0 + side * 8)), 24), new(2, 2), 0x1de6, mirrorY: true);
         }
         for (int x = 4; x < 10; x += 2)
         {
-            p.Patch(new(x, 20), new(2, 1), 0x9e68);
-            for (int y = 21; y < 24; y++) p.Patch(new(x, y), new(2, 1), 0x1e08);
+            p.Patch(new(checked((ushort)x), 20), new(2, 1), 0x9e68);
+            for (int y = 21; y < 24; y++) p.Patch(new(checked((ushort)x), checked((ushort)y)), new(2, 1), 0x1e08);
         }
         for (int y = 22; y < 24; y++)
         {
-            p.Patch(new(0, y), new(2, 1), 0x1df8);
-            p.Patch(new(12, y), new(2, 1), 0x3df8, mirrorX: true);
+            p.Patch(new(0, checked((ushort)y)), new(2, 1), 0x1df8);
+            p.Patch(new(12, checked((ushort)y)), new(2, 1), 0x3df8, mirrorX: true);
         }
         p.Patch(new(2, 22), new(2, 2), 0x1de6);
         p.Patch(new(10, 22), new(2, 2), 0x1de6, mirrorX: true);
@@ -174,7 +174,7 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Patch(new(6, 24), new(2, 2), 0x3e48);
         p.Patch(new(18, 17), new(2, 1), 0xbe06);
         p.Patch(new(18, 18), new(2, 1), 0xbe68);
-        for (int y = 19; y < 22; y++) p.Patch(new(18, y), new(2, 1), 0x3e08);
+        for (int y = 19; y < 22; y++) p.Patch(new(18, checked((ushort)y)), new(2, 1), 0x3e08);
         p.Patch(new(18, 22), new(2, 2), 0x3e48);
         p.Fill(new(18, 24), new(4, 2), 0x1de9);
 
@@ -183,9 +183,9 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Fill(new(21, 13), new(9, 2), 0x0403);
         for (int row = 0; row < 2; row++)
         {
-            p.Fill(new(0, 9 + row * 10), new(2, 1), 0x048a);
-            for (int x = 21; x < 30; x += 2) p.Put(new(x, 9 + row * 10), 0x048a);
-            p.Fill(new(15, 4 + row * 19), new(2, 1), 0x048b);
+            p.Fill(new(0, checked((ushort)(9 + row * 10))), new(2, 1), 0x048a);
+            for (int x = 21; x < 30; x += 2) p.Put(new(checked((ushort)x), checked((ushort)(9 + row * 10))), 0x048a);
+            p.Fill(new(15, checked((ushort)(4 + row * 19))), new(2, 1), 0x048b);
         }
         p.Put(new(24, 18), 0x3dce);
         p.Fill(new(25, 18), new(4, 1), 0x3dcf);
@@ -197,9 +197,9 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Fill(new(0, 4), new(32, 20), SceneBlank);
         for (int group = 0; group < 2; group++)
         {
-            p.Patch(new(group * 4, 4), new(4, 2), 0x1dc0);
-            p.Patch(new(24 + group * 4, 4), new(4, 2), 0x1dc0);
-            p.Patch(new(group * 4, 6), new(4, 2), 0x1dc0, mirrorY: true);
+            p.Patch(new(checked((ushort)(group * 4)), 4), new(4, 2), 0x1dc0);
+            p.Patch(new(checked((ushort)(24 + group * 4)), 4), new(4, 2), 0x1dc0);
+            p.Patch(new(checked((ushort)(group * 4)), 6), new(4, 2), 0x1dc0, mirrorY: true);
         }
         p.Patch(new(8, 4), new(2, 2), 0x1dc2);
         CeilingPoint(p, new(10, 4), false);
@@ -234,7 +234,7 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Put(new(22, 21), 0x3e50);
         p.Put(new(23, 21), 0x3ee0);
         for (int group = 0; group < 6; group++)
-            p.Patch(new(group * 4, 22), new(4, 2), 0x1dc0 | (group == 5 ? 0x2000 : 0));
+            p.Patch(new(checked((ushort)(group * 4)), 22), new(4, 2), 0x1dc0 | (group == 5 ? 0x2000 : 0));
         p.Patch(new(24, 22), new(4, 2), 0x3dc4, mirrorY: true);
         p.Patch(new(28, 22), new(2, 2), 0x3dc6, mirrorX: true, mirrorY: true);
         p.Patch(new(30, 22), new(2, 2), 0x3dc4, mirrorY: true);
@@ -242,34 +242,34 @@ internal static class IntroBackgroundTilemapDefinitions
     }
 
     /// <summary>$96:FF14 cave: two selected two-cell stalactite drawings. Their lower rows are repacked at $1E2/$200 and $1F2/blank instead of an atlas-row stride.</summary>
-    private static void CeilingPoint(Page p, Point32<TilemapCells> cell, bool narrow)
+    private static void CeilingPoint(Page p, Position16<TilemapCells> cell, bool narrow)
     {
         int top = narrow ? 0x1df0 : 0x1de0;
         p.Patch(cell, new(2, 1), top);
-        p.Put(cell + new Point32<TilemapCells>(0, 1), top + 2);
-        p.Put(cell + new Point32<TilemapCells>(1, 1), narrow ? SceneBlank : 0x1e00);
+        p.Put(cell + new Offset16<TilemapCells>(0, 1), top + 2);
+        p.Put(cell + new Offset16<TilemapCells>(1, 1), narrow ? SceneBlank : 0x1e00);
     }
 
     private sealed class Page(byte[] output, int page)
     {
         // One 32x32 background page of tilemap words.
-        private static readonly Size32<TilemapCells> PageSize = new(32, 32);
+        private static readonly Extent16<TilemapCells> PageSize = new(32, 32);
 
-        internal void Put(Point32<TilemapCells> cell, int word) => BinaryPrimitives.WriteUInt16LittleEndian(
+        internal void Put(Position16<TilemapCells> cell, int word) => BinaryPrimitives.WriteUInt16LittleEndian(
             output.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount + PageSize.RowMajorIndex(cell) * 2), (ushort)word);
-        internal void Fill(Point32<TilemapCells> origin, Size32<TilemapCells> size, int word)
+        internal void Fill(Position16<TilemapCells> origin, Extent16<TilemapCells> size, int word)
         {
-            for (int row = 0; row < size.Height; row++)
-            for (int column = 0; column < size.Width; column++) Put(origin + new Point32<TilemapCells>(column, row), word);
+            for (int row = 0; row < size.Y; row++)
+            for (int column = 0; column < size.X; column++) Put(origin + new Offset16<TilemapCells>(checked((short)column), checked((short)row)), word);
         }
-        internal void Patch(Point32<TilemapCells> origin, Size32<TilemapCells> size, int word, bool mirrorX = false, bool mirrorY = false)
+        internal void Patch(Position16<TilemapCells> origin, Extent16<TilemapCells> size, int word, bool mirrorX = false, bool mirrorY = false)
         {
-            for (int row = 0; row < size.Height; row++)
-            for (int column = 0; column < size.Width; column++)
+            for (int row = 0; row < size.Y; row++)
+            for (int column = 0; column < size.X; column++)
             {
-                int sx = mirrorX ? size.Width - 1 - column : column;
-                int sy = mirrorY ? size.Height - 1 - row : row;
-                Put(origin + new Point32<TilemapCells>(column, row),
+                int sx = mirrorX ? size.X - 1 - column : column;
+                int sy = mirrorY ? size.Y - 1 - row : row;
+                Put(origin + new Offset16<TilemapCells>(checked((short)column), checked((short)row)),
                     (word + sy * 16 + sx) ^ (mirrorX ? 0x4000 : 0) ^ (mirrorY ? 0x8000 : 0));
             }
         }

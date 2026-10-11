@@ -33,7 +33,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
     internal readonly record struct Run(
         ushort DirectionAndCount,
         ReadOnlyMemory<ushort> LevelWords,
-        Point32<RoomBlocks> Next);
+        Offset16<RoomBlocks> Next);
 
     internal readonly record struct DrawList(ushort Pointer, ReadOnlyMemory<Run> Runs);
 

@@ -15,7 +15,7 @@ internal static partial class Program
         var image = IndexedPng.Read(new MemoryStream(png), new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
         for (int tile = 0; tile < 16; tile++) image.Pixels[tile * 8] ^= 1;
         using var changedPng = new MemoryStream();
-        IndexedPng.Write(changedPng, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+        IndexedPng.Write(changedPng, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         var edited = GrappleTileAtlas.Load(new MemoryStream(changedPng.ToArray()));
         foreach (var transfer in GrappleTileDefinitions.Transfers)
             AssertTrue(stock.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");

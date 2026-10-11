@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Rendering.Direct3D11;
 
 /// <summary>Verification views of private Direct3D 11 worker state.</summary>
@@ -11,12 +12,12 @@ internal static class RenderingAccess
         internal long OccludedFrames => PrivateState.Field<long>(worker, "occluded");
         internal long RetainedRedraws => PrivateState.Field<long>(worker, "retainedRedraws");
 
-        internal (int Width, int Height) LastDrawnSize
+        internal Extent16<DisplayPixels> LastDrawnSize
         {
             get
             {
                 long size = PrivateState.Field<long>(worker, "lastDrawnSize");
-                return ((int)(size >> 32), (int)size);
+                return new((ushort)(size >> 32), (ushort)size);
             }
         }
     }

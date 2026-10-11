@@ -334,7 +334,7 @@ internal static partial class Program
             zebesPng = IndexedPng.Read(input, new(256, 128));
         zebesPng.Pixels[0] = (byte)((zebesPng.Pixels[0] + 1) & 15);
         using (var output = File.Create(zebesPngOverride))
-            IndexedPng.Write(output, new(zebesPng.Size.Width, zebesPng.Size.Height),
+            IndexedPng.Write(output, new(zebesPng.Size.X, zebesPng.Size.Y),
                 zebesPng.Pixels, zebesPng.Palette);
         IntroCinematicArtworkCatalog editedZebesPng = installation.LoadIntroCinematicArt();
         File.Delete(zebesPngOverride);

@@ -49,7 +49,7 @@ internal static partial class Program
         {
             WriteRomWord(
                 rom,
-                0xb59000 + AreaMapLayout.GetTilemapWordIndex(new(mapX, revealTestMapY)) * 2,
+                0xb59000 + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)mapX), revealTestMapY)) * 2,
                 0x0403);
         }
 
@@ -115,7 +115,7 @@ internal static partial class Program
             "downloaded pause map horizontal centering");
         AssertEqual(unchecked((ushort)-24), pause.MapScroll.Y,
             "downloaded pause map vertical centering");
-        AssertEqual(new Position16<ScreenPixels>(116, 64), pause.LastIndicatorOrigin, "pause map marker origin");
+        AssertEqual(new Position16<OamPixels>(116, 64), pause.LastIndicatorOrigin, "pause map marker origin");
         AssertEqual(0x5f, pause.LastIndicatorSpritemapId, "pause map marker initial frame");
         // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
         AssertEqual(23, pause.LastRenderedSpriteCount, "pause marker plus downloaded destination labels OAM count");
@@ -133,7 +133,7 @@ internal static partial class Program
         AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");
         pause.Render();
         AssertEqual((int)PauseSelectorDefinitions.NativeSpriteId(PauseEquipmentCategory.Suits), pause.LastIndicatorSpritemapId, "pause selector category base ID");
-        AssertEqual(new Position16<ScreenPixels>(0x90, 0x70), pause.LastIndicatorOrigin, "pause Morph selector origin");
+        AssertEqual(new Position16<OamPixels>(0x90, 0x70), pause.LastIndicatorOrigin, "pause Morph selector origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
             "pause map label dims on equipment page");
@@ -156,7 +156,7 @@ internal static partial class Program
         pause.Step(0, (ushort)SnesButton.Down);
         AssertEqual(3, pause.SelectedItem, "pause Down selects collected Bombs");
         pause.Render();
-        AssertEqual(new Position16<ScreenPixels>(0xa0, 0x80), pause.LastIndicatorOrigin, "pause Bombs selector origin");
+        AssertEqual(new Position16<OamPixels>(0xa0, 0x80), pause.LastIndicatorOrigin, "pause Bombs selector origin");
         pause.Step(0, (ushort)SnesButton.A);
         AssertTrue(!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),
             "pause A unequips live Bombs bit");
@@ -196,7 +196,7 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         byte[] wavePlanar = Enumerable.Range(0, 256).Select(index => unchecked((byte)(0x40 + index))).ToArray();
         byte[] wavePixels = SnesGraphics.DecodePlanarTiles(wavePlanar, 4,
-            BeamTileAtlasDefinitions.Width / 8, out Size32<ImagePixels> waveSize);
+            BeamTileAtlasDefinitions.Width / 8, out Extent16<ImagePixels> waveSize);
         using var wavePng = new MemoryStream();
         IndexedPng.Write(wavePng, waveSize, wavePixels, SnesGraphics.DiagnosticPalette(16));
         beamFiles[BeamTileAtlasDefinitions.FileName(SamusBeamCombination.Wave)] = wavePng.ToArray();

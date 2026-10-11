@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Spatial;
 
 internal static class LegacyOptionsMigrationVerification
 {
@@ -106,7 +107,7 @@ internal static class LegacyOptionsMigrationVerification
         var type = typeof(SuperMetroid.Core.Game.ScrollBoundaryCamera);
         var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         var selected = DebuggerStateFieldMigrations.WithoutIntroductions(type, fields, "<PreviousSamusPoint>k__BackingField");
-        if (selected.Length != 11 || !selected.SequenceEqual(fields.Where(field =>
+        if (selected.Length != 4 || !selected.SequenceEqual(fields.Where(field =>
             field.Name != "<PreviousSamusPoint>k__BackingField")))
             throw new InvalidDataException("Legacy camera migration changed fields beyond the new checkpoint.");
         // This isolated graph test deliberately has no scroll grid; no camera movement
@@ -114,7 +115,7 @@ internal static class LegacyOptionsMigrationVerification
         var camera = (SuperMetroid.Core.Game.ScrollBoundaryCamera)RuntimeHelpers.GetUninitializedObject(type);
         if (camera.PreviousSamusPoint is not null)
             throw new InvalidDataException("Legacy camera should start without a fabricated checkpoint.");
-        camera.FinishSamusScrolling(new(128, 12345, 1900, 54321));
+        camera.FinishSamusScrolling(FixedPosition<RoomPixels>.FromWords(128, 12345, 1900, 54321));
         using var bytes = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(bytes, camera);
         bytes.Position = 0;

@@ -30,8 +30,8 @@ internal static class MapAssetExtractor
             {
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
-                    bool discoverable = map.IsDiscoverable(new(x, y));
-                    bool stationVisible = map.IsRevealedByMapStation(new(x, y));
+                    bool discoverable = map.IsDiscoverable(new(checked((ushort)x), checked((ushort)y)));
+                    bool stationVisible = map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y)));
                     if (stationVisible && !discoverable)
                     {
                         throw new InvalidDataException(
@@ -44,7 +44,7 @@ internal static class MapAssetExtractor
 
             PngWriterTooling.WriteIndexedAsRgba(
                 stem + ".coverage.png",
-                new(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles),
+                new Extent16<ImagePixels>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles),
                 coverage,
                 [
                     new Rgba32(8, 8, 16, 255),

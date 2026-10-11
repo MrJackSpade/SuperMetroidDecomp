@@ -11,15 +11,16 @@ internal static class ViewportReference
         SnesCgram cgram,
         ushort tilemapBaseWord,
         ushort characterBaseWord,
-        ushort horizontalScroll,
-        ushort verticalScroll,
-        int width,
-        int height,
-        int tilemapWidthInTiles = 64,
-        int tilemapHeightInTiles = 32,
+        Position16<BgPlanePixels> scroll,
+        Extent16<ScreenPixels> size,
+        Extent16<TilemapCells> tilemapSize,
         IReadOnlyList<ushort>? horizontalScrollByLine = null,
         bool? priority = null)
     {
+        // The frozen scalar body below reads the components under their original names.
+        ushort horizontalScroll = scroll.X, verticalScroll = scroll.Y;
+        int width = size.X, height = size.Y;
+        int tilemapWidthInTiles = tilemapSize.X, tilemapHeightInTiles = tilemapSize.Y;
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
         if (width <= 0 || height <= 0)

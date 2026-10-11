@@ -21,7 +21,7 @@ public sealed class IntroMotherBrainSpritePresentation
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Actor's OBJ palette bits, applied only to parts configured to inherit the palette.</param>
     /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin, ushort paletteBits)
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException($"Intro Mother Brain frame $8C:{pointer:X4} is not installed.");

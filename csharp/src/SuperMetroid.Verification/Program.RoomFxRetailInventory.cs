@@ -303,8 +303,8 @@ internal static partial class Program
 
         if (unchecked((short)expectedBase) < 0)
         {
-            actual.PrimeViewport(cameraX: 0, cameraY: 0);
-            actual.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
+            actual.PrimeViewport(new Position16<RoomPixels>(0, 0));
+            actual.Step(bus, vram, new Position16<RoomPixels>(0, 0), timeIsFrozen: false, mainGameLoopCarry: true);
             RoomLayer3FxRenderSnapshot hiddenSnapshot = actual.CaptureForDisplay()
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} negative liquid record $83:{expectedRecord:X4} " +
@@ -328,8 +328,8 @@ internal static partial class Program
         ushort cameraY = expectedBase > RetailRoomFxDefinitions.AuditSurfaceScreenY
             ? unchecked((ushort)(expectedBase - RetailRoomFxDefinitions.AuditSurfaceScreenY))
             : (ushort)0;
-        actual.PrimeViewport(cameraX: 0, cameraY);
-        actual.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false, mainGameLoopCarry: true);
+        actual.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
+        actual.Step(bus, vram, new Position16<RoomPixels>(0, cameraY), timeIsFrozen: false, mainGameLoopCarry: true);
 
         if (expectedType is RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -406,8 +406,8 @@ internal static partial class Program
         cgram.SetColor(27, Bgr555.FromWord(0x7c00));
         ushort cameraY = unchecked((ushort)(
             fx.BaseYPosition - RetailRoomFxDefinitions.AuditSurfaceScreenY));
-        fx.PrimeViewport(cameraX: 0, cameraY);
-        fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false, mainGameLoopCarry: true);
+        fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
+        fx.Step(bus, vram, new Position16<RoomPixels>(0, cameraY), timeIsFrozen: false, mainGameLoopCarry: true);
 
         RoomLayer3FxRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException("Business Center lava published no render snapshot.");
@@ -431,7 +431,7 @@ internal static partial class Program
              frame < RetailRoomFxDefinitions.LavaSurfaceFrameDuration;
              frame++)
         {
-            fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false, mainGameLoopCarry: true);
+            fx.Step(bus, vram, new Position16<RoomPixels>(0, cameraY), timeIsFrozen: false, mainGameLoopCarry: true);
         }
         Rgba32[] second = RenderRoomFx(
             vram,
@@ -596,7 +596,7 @@ internal static partial class Program
             $"room {definition.Room} target lava Y");
 
         ushort cameraY = door.DestinationScreen.ToRoomPixels().Y;
-        fx.PrimeViewport(cameraX: 0, cameraY);
+        fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         AssertTrue(fx.CaptureForDisplay()!.Value.WaterSurfaceScreenY >=
                 SnesGameplayFrameRenderer.Height,
             $"room {definition.Room} entry lava begins below the viewport");
@@ -604,7 +604,7 @@ internal static partial class Program
         int movingFrames = 0;
         for (; movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames; movingFrames++)
         {
-            fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false, mainGameLoopCarry: true);
+            fx.Step(bus, vram, new Position16<RoomPixels>(0, cameraY), timeIsFrozen: false, mainGameLoopCarry: true);
             if (fx.PackedYVelocity == 0)
                 break;
         }
@@ -709,23 +709,23 @@ internal static partial class Program
             RoomFxRomData.Earthquake.RisingLiquidType *
             RoomFxRomData.Earthquake.BytesPerType;
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table)),
-            firstActiveShake.Bg1X, "room $02/$28 first shake BG1 X");
+            firstActiveShake.Bg1.X, "room $02/$28 first shake BG1 X");
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 2)),
-            firstActiveShake.Bg1Y, "room $02/$28 first shake BG1 Y");
+            firstActiveShake.Bg1.Y, "room $02/$28 first shake BG1 Y");
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 4)),
-            firstActiveShake.Bg2X, "room $02/$28 first shake BG2 X");
+            firstActiveShake.Bg2.X, "room $02/$28 first shake BG2 X");
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 6)),
-            firstActiveShake.Bg2Y, "room $02/$28 first shake BG2 Y");
+            firstActiveShake.Bg2.Y, "room $02/$28 first shake BG2 Y");
 
         StepAndVerifySound(2);
         RoomShakeFrameResult secondActiveShake = runtime.Enemies.LastRoomShake;
-        AssertEqual(unchecked((short)-firstActiveShake.Bg1X), secondActiveShake.Bg1X,
+        AssertEqual(unchecked((short)-firstActiveShake.Bg1.X), secondActiveShake.Bg1.X,
             "room $02/$28 alternating shake BG1 X");
-        AssertEqual(unchecked((short)-firstActiveShake.Bg1Y), secondActiveShake.Bg1Y,
+        AssertEqual(unchecked((short)-firstActiveShake.Bg1.Y), secondActiveShake.Bg1.Y,
             "room $02/$28 alternating shake BG1 Y");
-        AssertEqual(unchecked((short)-firstActiveShake.Bg2X), secondActiveShake.Bg2X,
+        AssertEqual(unchecked((short)-firstActiveShake.Bg2.X), secondActiveShake.Bg2.X,
             "room $02/$28 alternating shake BG2 X");
-        AssertEqual(unchecked((short)-firstActiveShake.Bg2Y), secondActiveShake.Bg2Y,
+        AssertEqual(unchecked((short)-firstActiveShake.Bg2.Y), secondActiveShake.Bg2.Y,
             "room $02/$28 alternating shake BG2 Y");
 
         int appliedFrames = 2;
@@ -779,7 +779,7 @@ internal static partial class Program
             room.State.FxPointer,
             doorPointer,
             randomNumber: 0);
-        fx.PrimeViewport(cameraX: 0, cameraY: 0);
+        fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
 
         int maximumAbsoluteOffset = 0;
         for (int frame = 0; frame < RetailRoomFxDefinitions.TideAuditFrames; frame++)
@@ -790,8 +790,7 @@ internal static partial class Program
             fx.Step(
                 bus,
                 vram,
-                cameraX: 0,
-                cameraY: 0,
+                Position16<RoomPixels>.Zero,
                 timeIsFrozen: false, mainGameLoopCarry: true);
             int offset = unchecked((short)(fx.CurrentYPosition - fx.BaseYPosition));
             maximumAbsoluteOffset = Math.Max(maximumAbsoluteOffset, Math.Abs(offset));
@@ -824,8 +823,8 @@ internal static partial class Program
         SeedVisibleRoomFxPalette(cgram);
         var fx = CreateRetailFxState(bus);
         fx.Load(bus, vram, cgram, visibleRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
-        fx.PrimeViewport(cameraX: 0, cameraY: 0);
-        fx.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
+        fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
+        fx.Step(bus, vram, new Position16<RoomPixels>(0, 0), timeIsFrozen: false, mainGameLoopCarry: true);
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
@@ -837,8 +836,8 @@ internal static partial class Program
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
         fx.Load(bus, vram, cgram, hiddenRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
-        fx.PrimeViewport(cameraX: 0, cameraY: 0);
-        fx.Step(bus, vram, cameraX: 0, cameraY: 0, timeIsFrozen: false, mainGameLoopCarry: true);
+        fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
+        fx.Step(bus, vram, new Position16<RoomPixels>(0, 0), timeIsFrozen: false, mainGameLoopCarry: true);
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
         SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(

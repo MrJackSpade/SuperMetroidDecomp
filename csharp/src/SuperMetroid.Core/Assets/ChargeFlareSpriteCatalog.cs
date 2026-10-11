@@ -20,7 +20,7 @@ public sealed class ChargeFlareSpriteCatalog
     public static bool Contains(ushort selector) => selector < ChargeFlareSpriteDefinitions.Selectors.Length;
 
     /// <summary>Draws a valid native charge-flare selector without consulting ROM.</summary>
-    public void Draw(ushort selector, OamBuffer oam, Position16<ScreenPixels> origin)
+    public void Draw(ushort selector, OamBuffer oam, Position16<OamPixels> origin)
     {
         if (selector >= ChargeFlareSpriteDefinitions.Selectors.Length)
             throw new InvalidDataException($"Unknown charge-flare sprite selector {selector:X4}.");

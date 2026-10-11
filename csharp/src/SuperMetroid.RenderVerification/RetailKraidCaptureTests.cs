@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class RetailKraidCaptureTests
 {
@@ -15,7 +16,7 @@ internal static class RetailKraidCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new(0, 256));
+        runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
         var samus = runtime.Samus!;
         // Match the existing Kraid rise audit's stationary approach position.
         samus.XPosition = 128; samus.YPosition = 456;
@@ -114,7 +115,7 @@ internal static class RetailKraidCaptureTests
             KraidAuditDefinitions.LeftExitDoor, KraidAuditDefinitions.LeftExitDestination, "defeated Kraid left");
         // The second route starts from the saved defeat bit, as in the existing
         // regression. Run the defeated-room restoration before opening the other door.
-        runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new(0, 256));
+        runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
         int restoreTicks = 0;
         while (runtime.Enemies.Kraid is { DeathSequenceComplete: false } && restoreTicks++ < 120)
             runtime.StepFrame(0);

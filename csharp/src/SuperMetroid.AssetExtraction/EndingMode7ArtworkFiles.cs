@@ -54,9 +54,9 @@ public static class EndingMode7ArtworkFiles
 
             byte[] pixels = SnesGraphics.DecodeMode7Tiles(
                 characters.AsSpan(0, EndingMode7ArtworkFormat.CharacterByteCount).ToArray(),
-                16, out Size32<ImagePixels> size);
-            if (size.Width != EndingMode7ArtworkFormat.CharacterWidth ||
-                size.Height != EndingMode7ArtworkFormat.CharacterHeight)
+                16, out Extent16<ImagePixels> size);
+            if (size.X != EndingMode7ArtworkFormat.CharacterWidth ||
+                size.Y != EndingMode7ArtworkFormat.CharacterHeight)
                 throw new InvalidDataException($"Ending {id} Mode-7 characters have unexpected dimensions.");
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(256));
@@ -93,7 +93,7 @@ public static class EndingMode7ArtworkFiles
             Tiles = rewardMap,
         });
         byte[] rewardPixels = SnesGraphics.DecodeMode7Tiles(rewardCharacters, 16,
-            out Size32<ImagePixels> rewardSize);
+            out Extent16<ImagePixels> rewardSize);
         using var rewardPng = new MemoryStream();
         IndexedPng.Write(rewardPng, rewardSize, rewardPixels,
             SnesGraphics.DiagnosticPalette(256));

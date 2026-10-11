@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class XrayGameplayTests
 {
@@ -32,14 +33,14 @@ internal static class XrayGameplayTests
             var oam = new byte[SnesPpuLayout.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(0x30 | palette << 1);
             var memory = new PpuMemorySnapshot(vram.Bytes, cgram.Colors, oam, 1);
-            var registers = new OrdinaryGameplayRegisters(0, 0, 0, 0, 64, 32,
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 SnesPpuLayout.GameplayBg2TilemapWord, 0, 0, 0x1000,
                 SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var lines = Enumerable.Repeat(new XrayWindowLine(128, 255), 224).ToArray();
             var controls = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg2 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop
                 | (half ? SnesColorMathControl.Half : 0) | (subtract ? SnesColorMathControl.Subtract : 0);
             var bg3 = sub ? new Bg2BppColorMathRenderLayer(0x5C00, 0x1000, 32, 32,
-                ExpandedColorMathOperation.Add, new BackgroundLineScroll[224]) : null;
+                ExpandedColorMathOperation.Add, new Position16<BgPlanePixels>[224]) : null;
             var layer = new GameplayColorMathRenderLayer(new(registers), lines, reveal, controls, true, 7, 7, 7, bg3);
             var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 0, 15);
             var packet = new RenderFrameSnapshot(new(++count, 1, 0), scene);
@@ -133,15 +134,15 @@ internal static class XrayGameplayTests
             var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
             var memory = new PpuMemorySnapshot(bytes, colors, oam, 128);
             ushort Word() => (ushort)random.Next(65536);
-            var registers = new OrdinaryGameplayRegisters(Word(), Word(), Word(), Word(),
-                frame % 2 == 0 ? 64 : 32, frame % 2 == 0 ? 32 : 64, Word(), Word(), Word(), Word(),
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(Word(), Word()), new Position16<Bg2Pixels>(Word(), Word()),
+                frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64), Word(), Word(), Word(), Word(),
                 (SnesMainScreenLayers)(random.Next(32) & 0x13));
             var gameplay = new OrdinaryGameplayRenderLayer(registers,
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray(),
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray());
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
             var bg3 = new Bg2BppColorMathRenderLayer(Word(), Word(), frame % 2 == 0 ? 32 : 64, 32,
-                ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new BackgroundLineScroll(Word(), Word())).ToArray());
+                ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<BgPlanePixels>(Word(), Word())).ToArray());
             bool bg2Subscreen = frame % 4 == 0;
             var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, (SnesColorMathControl)random.Next(256),
                 bg2Subscreen || frame % 3 != 0, (byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32),

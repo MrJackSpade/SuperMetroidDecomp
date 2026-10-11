@@ -121,7 +121,7 @@ internal static partial class RepositoryInstallation
             titlePalettePresentation ?? Maps.TitlePalette, titleGraphicsPresentation ?? Maps.TitleGraphics);
 
     internal static PauseMenuState CreatePause(ISnesAddressSpace bus, SamusState samus, Bank80SystemState system,
-        AreaId areaIndex, Point32<MapTiles> roomMapPosition, CartridgeAudioState? audio = null,
+        AreaId areaIndex, Position16<MapTiles> roomMapPosition, CartridgeAudioState? audio = null,
         SnesVram? gameplayVram = null, MapRevealMode mapRevealMode = MapRevealMode.None) =>
         new(bus, samus, system, areaIndex, roomMapPosition, audio, gameplayVram, mapRevealMode, Maps);
 

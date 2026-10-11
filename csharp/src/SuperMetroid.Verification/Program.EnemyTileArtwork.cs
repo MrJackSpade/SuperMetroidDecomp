@@ -118,13 +118,13 @@ internal static partial class Program
             int columns = Math.Min(tileCount, RoomCharacterAtlasFormat.TileColumns);
             int rows = (tileCount + columns - 1) / columns;
             using var stockPng = new MemoryStream(File.ReadAllBytes(editedFile), writable: false);
-            IndexedPngImage image = IndexedPng.Read(stockPng, new(columns * 8, rows * 8));
+            IndexedPngImage image = IndexedPng.Read(stockPng, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
             image.Pixels[0] ^= 1;
             string overrideDirectory = Path.Combine(directory, "overrides");
             Directory.CreateDirectory(overrideDirectory);
             string overridePath = Path.Combine(overrideDirectory, Path.GetFileName(editedFile));
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
             string meltFile = Path.Combine(directory,
                 CrocomireMeltingArtworkFormat.FirstFileName);
@@ -134,7 +134,7 @@ internal static partial class Program
                 meltImage.Pixels[0] ^= 1;
                 using var meltOutput = File.Create(Path.Combine(overrideDirectory,
                     CrocomireMeltingArtworkFormat.FirstFileName));
-                IndexedPng.Write(meltOutput, new(meltImage.Size.Width, meltImage.Size.Height),
+                IndexedPng.Write(meltOutput, new(meltImage.Size.X, meltImage.Size.Y),
                     meltImage.Pixels, meltImage.Palette);
             }
             EnemyTileArtworkCatalog editedMelt = EnemyTileArtworkFiles.Load(

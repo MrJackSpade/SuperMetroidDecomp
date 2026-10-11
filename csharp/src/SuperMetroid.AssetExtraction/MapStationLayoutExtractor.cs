@@ -18,7 +18,7 @@ public static class MapStationLayoutExtractor
     /// <exception cref="InvalidDataException">Station records are missing/extra, discovery cells differ, or the generated layout fails format validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        var markers = new Dictionary<string, Point32<MapPixels>>();
+        var markers = new Dictionary<string, Position16<MapPixels>>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         foreach (MapStationKind kind in Enum.GetValues<MapStationKind>())
         {
@@ -41,7 +41,7 @@ public static class MapStationLayoutExtractor
                     if (count == rules.Length) throw new InvalidDataException($"Unexpected {area}/{kind} station record.");
                     ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
                     var rule = rules[count];
-                    if (new Point32<MapTiles>(x >> 3, y >> 3) != rule.Cell)
+                    if (new Position16<MapTiles>(checked((ushort)(x >> 3)), checked((ushort)(y >> 3))) != rule.Cell)
                         throw new InvalidDataException($"Station discovery definition differs from cartridge: {rule.Id}.");
                     markers.Add(rule.Id, new(x, y));
                 }

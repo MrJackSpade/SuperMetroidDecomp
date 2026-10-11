@@ -49,7 +49,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        runtime.Camera!.SetPosition(0, 158);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 158));
         var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
         body.XPosition = 139; body.YPosition = 282;
         body.SpritemapPointer = 0xe9e9; body.Properties = 0x3800;
@@ -205,7 +205,7 @@ internal static partial class Program
             var room = runtime.ActiveRoom!;
             AssertEqual(!defeated, runtime.Hud.MinimapDisabled, "only live Ridley disables the minimap");
             for (int row = 0; row < 2; row++)
-                AssertEqual(!defeated, runtime.System.IsMapTileExplored(room.AreaIndex, room.MapPosition + new Point32<MapTiles>(0, row + 1)),
+                AssertEqual(!defeated, runtime.System.IsMapTileExplored(room.AreaIndex, room.MapPosition + new Offset16<MapTiles>(0, checked((short)(row + 1)))),
                     "Ridley initializes both native arena map cells");
             if (!defeated)
             {
@@ -330,13 +330,13 @@ internal static partial class Program
             };
             samus.Kinematics.YSubposition = 0x97ff;
             samus.RefreshCollisionRadii(bus);
-            var previous = new SamusCameraPoint(128, 0, 401, 0xb7ff);
+            var previous = FixedPosition<RoomPixels>.FromWords(128, 0, 401, 0xb7ff);
             AssertTrue(samus.TryApplyMorphTransition(bus, level,
                 left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0),
                 "source6289 airborne morph accepted");
             AssertEqual((ushort)411, samus.YPosition, "native morph center alignment");
             AssertEqual((ushort)0x97ff, samus.Kinematics.YSubposition, "morph preserves current fraction");
-            AssertEqual(previous with { YPosition = 411 }, samus.ApplyPreviousPositionWrites(previous),
+            AssertEqual(previous.WithY(previous.Y.WithWhole(411)), samus.ApplyPreviousPositionWrites(previous),
                 "command seven replaces previous whole Y and retains previous fraction");
             AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous), "checkpoint consumed once");
 
@@ -345,7 +345,7 @@ internal static partial class Program
             AssertTrue(samus.TryApplyMorphTransition(bus, level,
                 left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0),
                 "unmorph command seven accepted");
-            AssertEqual(previous with { YPosition = samus.YPosition }, samus.ApplyPreviousPositionWrites(previous),
+            AssertEqual(previous.WithY(previous.Y.WithWhole(samus.YPosition)), samus.ApplyPreviousPositionWrites(previous),
                 "zero alignment entry still replaces previous whole Y");
         }
         Console.WriteLine("Morph camera checkpoint: both facings, alignment, fractions, one-time consumption and unmorph pass.");
@@ -710,10 +710,10 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.SourceRoom);
         var level = runtime.LevelData!;
         bool found = false;
-        for (int y = 0; y < level.Size.Height && !found; y++)
-        for (int x = 0; x < level.Size.Width && !found; x++)
+        for (int y = 0; y < level.Size.Y && !found; y++)
+        for (int x = 0; x < level.Size.X && !found; x++)
         {
-            var block = level.GetCollisionBlock(new(x, y));
+            var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
             if (door.Door?.DestinationRoomPointer != NativeSnapshotMemory.RidleyRoom) continue;
@@ -771,13 +771,13 @@ internal static partial class Program
             if (index == 5)
             {
                 AssertEqual(0x010e9000u, samus.Kinematics.XFixed, "native placement rebases and advances Samus while loading tiles");
-                AssertEqual((ushort)0x00f8, runtime.Camera!.XPosition, "first loading IRQ moves camera four pixels");
+                AssertEqual((ushort)0x00f8, runtime.Camera!.PixelPosition.X, "first loading IRQ moves camera four pixels");
             }
             if (index == 4)
             {
                 AssertEqual(0x00135800u, samus.Kinematics.XFixed, "native scrolling setup moves Samus before destination placement");
                 AssertEqual(yFixed, samus.Kinematics.YFixed, "left scrolling setup preserves perpendicular coordinate");
-                AssertEqual((ushort)0x00fc, runtime.Camera!.XPosition, "native setup camera origin");
+                AssertEqual((ushort)0x00fc, runtime.Camera!.PixelPosition.X, "native setup camera origin");
             }
         }
         game.Step(0); // The atomic destination loader must use the pre-setup source.
@@ -1060,26 +1060,26 @@ internal static partial class Program
                 ? (runtime.PendingDoorTransition ?? throw new InvalidDataException("Missing selected destination door")).DestinationRoomPointer
                 : runtime.ActiveRoom!.Pointer;
             Check("Selected room", selectedRoom, NativeSnapshotMemory.Room);
-            Check("Camera X", runtime.Camera!.XPosition, NativeSnapshotMemory.CameraX);
-            Check("Camera X fraction", runtime.Camera.XSubposition, NativeSnapshotMemory.CameraXFraction);
-            Check("Camera Y", runtime.Camera.YPosition, NativeSnapshotMemory.CameraY);
-            Check("Camera Y fraction", runtime.Camera.YSubposition, NativeSnapshotMemory.CameraYFraction);
+            Check("Camera X", runtime.Camera!.PixelPosition.X, NativeSnapshotMemory.CameraX);
+            Check("Camera X fraction", runtime.Camera.Position.X.Fraction, NativeSnapshotMemory.CameraXFraction);
+            Check("Camera Y", runtime.Camera.PixelPosition.Y, NativeSnapshotMemory.CameraY);
+            Check("Camera Y fraction", runtime.Camera.Position.Y.Fraction, NativeSnapshotMemory.CameraYFraction);
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
-                Check("Ideal camera X", runtime.Camera.IdealXPosition, NativeSnapshotMemory.IdealCameraX);
-                Check("Ideal camera Y", runtime.Camera.IdealYPosition, NativeSnapshotMemory.IdealCameraY);
-                Check("Camera speed X", runtime.Camera.CameraXSpeed, NativeSnapshotMemory.CameraSpeedX);
-                Check("Camera speed X fraction", runtime.Camera.CameraXSubspeed, NativeSnapshotMemory.CameraSpeedXFraction);
-                Check("Camera speed Y", runtime.Camera.CameraYSpeed, NativeSnapshotMemory.CameraSpeedY);
-                Check("Camera speed Y fraction", runtime.Camera.CameraYSubspeed, NativeSnapshotMemory.CameraSpeedYFraction);
+                Check("Ideal camera X", runtime.Camera.IdealPosition.X, NativeSnapshotMemory.IdealCameraX);
+                Check("Ideal camera Y", runtime.Camera.IdealPosition.Y, NativeSnapshotMemory.IdealCameraY);
+                Check("Camera speed X", runtime.Camera.Speed.X.WholeWord, NativeSnapshotMemory.CameraSpeedX);
+                Check("Camera speed X fraction", runtime.Camera.Speed.X.Fraction, NativeSnapshotMemory.CameraSpeedXFraction);
+                Check("Camera speed Y", runtime.Camera.Speed.Y.WholeWord, NativeSnapshotMemory.CameraSpeedY);
+                Check("Camera speed Y fraction", runtime.Camera.Speed.Y.Fraction, NativeSnapshotMemory.CameraSpeedYFraction);
                 // A fresh door camera defers its first sample to the runtime's frame-start
                 // fallback. Compare that effective sample instead of requiring storage.
-                var previous = runtime.Camera.PreviousSamusPoint ?? new SamusCameraPoint(
+                var previous = runtime.Camera.PreviousSamusPoint ?? FixedPosition<RoomPixels>.FromWords(
                     samus.XPosition, samus.Kinematics.XSubposition, samus.YPosition, samus.Kinematics.YSubposition);
-                Check("Previous Samus X", previous.XPosition, NativeSnapshotMemory.PreviousSamusX);
-                Check("Previous Samus X fraction", previous.XSubposition, NativeSnapshotMemory.PreviousSamusXFraction);
-                Check("Previous Samus Y", previous.YPosition, NativeSnapshotMemory.PreviousSamusY);
-                Check("Previous Samus Y fraction", previous.YSubposition, NativeSnapshotMemory.PreviousSamusYFraction);
+                Check("Previous Samus X", previous.X.Whole, NativeSnapshotMemory.PreviousSamusX);
+                Check("Previous Samus X fraction", previous.X.Fraction, NativeSnapshotMemory.PreviousSamusXFraction);
+                Check("Previous Samus Y", previous.Y.Whole, NativeSnapshotMemory.PreviousSamusY);
+                Check("Previous Samus Y fraction", previous.Y.Fraction, NativeSnapshotMemory.PreviousSamusYFraction);
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
@@ -1377,7 +1377,7 @@ internal static partial class Program
                     // all subsequent live links are checked through the semantic phase.
                 }
                 var activeLevel = runtime.LevelData ?? throw new InvalidDataException("Missing active collision data.");
-                for (int block = 0; block < activeLevel.Size.Width * activeLevel.Size.Height; block++)
+                for (int block = 0; block < activeLevel.Size.X * activeLevel.Size.Y; block++)
                 {
                     Check($"Room block {block}", activeLevel.ForegroundEntries.Span[block], NativeSnapshotMemory.Level + block * 2);
                     byte expectedBehavior = memory[NativeSnapshotMemory.Bts + block];
@@ -1502,7 +1502,7 @@ internal static partial class Program
                     expectedOam.BeginFrame();
                     actualOam.BeginFrame();
                     DrawImportedEnemyProjectileSpritemap(bus, expectedOam, nativeMap, 128, 96, 0, true);
-                    actualOam.AddEnemySpritemap(parts.Span, 128, 96, 0, 0,
+                    actualOam.AddEnemySpritemap(parts.Span, new Position16<OamPixels>(128, 96), 0, 0,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     if (actualOam.NextByteOffset != expectedOam.NextByteOffset ||
                         !actualOam.LowTable.SequenceEqual(expectedOam.LowTable) ||
@@ -1569,12 +1569,12 @@ internal static partial class Program
                 Console.Error.WriteLine($"Pose history: port={(int)samus.PoseHistory.PreviousPose:X4}/{samus.PoseHistory.PreviousDirectionAndMovement:X4}/{(int)samus.PoseHistory.LastDifferentPose:X4}/{samus.PoseHistory.LastDifferentDirectionAndMovement:X4}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
                 Console.Error.WriteLine($"Liquid diagnostic: Y={samus.YPosition:X4}, surface={samus.LiquidPhysics.LavaAcidYPosition:X4}, pose={(int)samus.Pose:X2}, radius={samus.Kinematics.YRadius}");
                 Console.Error.WriteLine($"Shot diagnostic: locked={samus.InputLocked}, HUD={samus.SelectedHudItem}, grappleDebug={runtime.DebugGrappleItemSelected}, charge={runtime.Projectiles.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.Controller1.Current:X4}, new={runtime.Controller1.NewlyPressed:X4}, spawn={runtime.Projectiles.LastFiredProjectileSnapshot}");
-                Console.Error.WriteLine($"Room width={level.Size.Width}, Samus radius={samus.Kinematics.XRadius}/{samus.Kinematics.YRadius}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
-                for (int block = 0; block < level.Size.Width * level.Size.Height; block++)
+                Console.Error.WriteLine($"Room width={level.Size.X}, Samus radius={samus.Kinematics.XRadius}/{samus.Kinematics.YRadius}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
+                for (int block = 0; block < level.Size.X * level.Size.Y; block++)
                 {
                     ushort expectedBlock = W(NativeSnapshotMemory.Level + block * 2);
                     ushort actualBlock = level.ForegroundEntries.Span[block];
-                    if (expectedBlock != actualBlock) Console.Error.WriteLine($"Block {block} ({block % level.Size.Width},{block / level.Size.Width}): native={expectedBlock:X4} port={actualBlock:X4}");
+                    if (expectedBlock != actualBlock) Console.Error.WriteLine($"Block {block} ({block % level.Size.X},{block / level.Size.X}): native={expectedBlock:X4} port={actualBlock:X4}");
                 }
                 throw new InvalidDataException($"Full movie first divergence at update {frame} (SMV source frame {(frame == 0 ? 0 : updates[frame - 1].GetProperty("sourceFrame").GetInt32())}): " + string.Join("; ", mismatches));
             }

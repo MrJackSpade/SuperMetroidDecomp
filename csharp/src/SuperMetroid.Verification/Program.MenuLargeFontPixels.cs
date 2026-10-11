@@ -42,7 +42,7 @@ internal static partial class Program
             int expected = 0;
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            AssertEqual((byte)expected, font.Pixel(tile, new(x, y)), "original glyph foreground, shadow, retouch and transparency");
+            AssertEqual((byte)expected, font.Pixel(tile, new(checked((ushort)x), checked((ushort)y))), "original glyph foreground, shadow, retouch and transparency");
             byte[] pixels = (byte[])image.Pixels.Clone();
             int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
             pixels[position] = (byte)((expected + 1) % 16);
@@ -67,8 +67,8 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(invalid, new(0, 0)), "invalid title font tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x0a, new(invalid, 0)), "invalid glyph X");
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x0a, new(0, invalid)), "invalid glyph Y");
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x0a, new(unchecked((ushort)invalid), 0)), "invalid glyph X");
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x0a, new(0, unchecked((ushort)invalid))), "invalid glyph Y");
         }
         void CheckEdited(byte[] pixels)
         {

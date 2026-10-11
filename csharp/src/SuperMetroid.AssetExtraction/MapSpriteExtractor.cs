@@ -24,7 +24,7 @@ public static class MapSpriteExtractor
         foreach (var definition in MapSpriteDefinitions.Frames)
             frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, (ushort)definition.NativeId));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount),
-            4, MapSpriteFormat.TileColumns, out Size32<ImagePixels> size);
+            4, MapSpriteFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new MapSpriteDocument { Version = MapSpriteFormat.Version, Frames = frames },

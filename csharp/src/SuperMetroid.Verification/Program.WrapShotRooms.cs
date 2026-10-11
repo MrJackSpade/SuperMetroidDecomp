@@ -31,7 +31,7 @@ internal static partial class Program
             AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(setup.Target).CollisionType, "Retail remote cap begins closed");
             int firstHit = -1, firstClear = -1;
             bool openingSound = false;
-            ushort cameraX = (ushort)(left ? 0 : level.Size.Width * 16 - 256);
+            ushort cameraX = (ushort)(left ? 0 : level.Size.X * 16 - 256);
             ushort cameraY = (ushort)Math.Max(0, setup.Y - 128);
             for (int frame = 0; frame < 40; frame++)
             {
@@ -42,7 +42,7 @@ internal static partial class Program
                     firstHit = frame;
                 runtime.Plms.Step(bus, level, runtime.BackgroundStreamer!, new(cameraX, cameraY), 0);
                 openingSound |= runtime.Plms.SoundRequests.Any(request => request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
-                if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.Width).CollisionType == RoomCollisionType.Air))
+                if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.X).CollisionType == RoomCollisionType.Air))
                     firstClear = frame;
             }
             Console.WriteLine($"Retail wrap room={setup.Room:X4} beams={beams:X}: hit={firstHit}, clear={firstClear}, sound={openingSound}");

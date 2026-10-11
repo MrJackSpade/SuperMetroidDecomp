@@ -66,7 +66,7 @@ internal sealed class WorldMapLabelComposition
         return new(id, parts[^1].OffsetX, twoLines ? parts[3].OffsetX : 0, advances, null);
     }
 
-    internal void Draw(OamBuffer oam, Position16<ScreenPixels> origin, ushort paletteBits)
+    internal void Draw(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (authored is not null) { authored.DrawOnScreen(oam, origin, paletteBits); return; }
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
@@ -76,7 +76,7 @@ internal sealed class WorldMapLabelComposition
             int tile = 0x6a + text[text.Length - 1 - index] - 'A';
             oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(HorizontalOffset(index, text.Length), false),
                 unchecked((byte)VerticalOffset(identity, index)),
-                SnesObjAttributeWord.Create(tile, 0, 3).WithPaletteBits(paletteBits), origin.X, origin.Y);
+                SnesObjAttributeWord.Create(tile, 0, 3).WithPaletteBits(paletteBits), origin);
         }
     }
 

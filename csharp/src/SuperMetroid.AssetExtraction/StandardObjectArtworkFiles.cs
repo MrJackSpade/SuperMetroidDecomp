@@ -24,7 +24,7 @@ public static class StandardObjectArtworkFiles
         byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), StandardObjectArtworkAddresses.Source,
             StandardObjectArtworkFormat.TransferByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
-            RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
+            RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] selected = png.ToArray();

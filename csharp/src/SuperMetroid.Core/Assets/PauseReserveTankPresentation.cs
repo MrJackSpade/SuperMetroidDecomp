@@ -17,10 +17,10 @@ public sealed class PauseReserveTankPresentation
     /// <summary>Gets one reserve-strip screen anchor, falling back independently to each stock coordinate.</summary>
     /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
     /// <returns>The configured screen-pixel anchor for that strip position.</returns>
-    public Point32<ScreenPixels> Anchor(int index)
+    public Position16<OamPixels> Anchor(int index)
     {
         var basis = PauseReserveTankDefinitions.StockAnchor(index);
-        return anchorOverrides.TryGetValue(index, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
+        return anchorOverrides.TryGetValue(index, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
     }
     /// <summary>Draws one full, empty, partially filled, or end-cap reserve visual at a strip position.</summary>
     /// <param name="oam">The OAM buffer that receives the authored or stock sprite parts.</param>
@@ -44,11 +44,11 @@ public sealed class PauseReserveTankPresentation
             PauseReserveTankVisual.Fill7 => frames.Fill7,
             _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {nativeIdentity}."),
         };
-        Position16<ScreenPixels> origin = anchor.ToPosition16();
+        Position16<OamPixels> origin = anchor;
         if (frame is not null) frame.DrawOnScreen(oam, origin, paletteBits);
         else oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, false), 0,
             SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3).WithPaletteBits(paletteBits),
-            origin.X, origin.Y);
+            origin);
     }
     /// <summary>Loads and validates the reserve-strip palette, six anchors, and ten named sprite frames.</summary>
     /// <param name="json">The caller-owned stream containing the editable presentation document.</param>
@@ -110,7 +110,7 @@ public sealed record PauseReserveTankDocument
     public required int Palette { get; init; }
 
     /// <summary>Gets the six screen-pixel anchors for five tank positions and the trailing cap.</summary>
-    public required Point32<ScreenPixels>[] Anchors { get; init; }
+    public required Position16<OamPixels>[] Anchors { get; init; }
 
     /// <summary>Gets the ten named full, end-cap, empty, and partial-fill sprite compositions.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }

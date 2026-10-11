@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Shared thirteen-part vortex drawing embedded in two star-field frames.
 /// Scene placement is authored content; see ceresStarPointContentReview in the lookup review inventory.</summary>
-internal sealed class CeresVortexParts(bool odd, Point32<OamPixels> anchor, IReadOnlyList<CompiledSpritePart> stars)
+internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IReadOnlyList<CompiledSpritePart> stars)
     : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>The two alternating bank-$8C vortex drawings this calculator owns among the Ceres flight visuals.</summary>
@@ -30,7 +30,7 @@ internal sealed class CeresVortexParts(bool odd, Point32<OamPixels> anchor, IRea
         if (supplied.PartCount != (odd ? 33 : 36)) return supplied;
         int tip = odd ? 3 : 0, core = odd ? 12 : 18;
         var anchorPart = supplied.Part(core + 10);
-        var anchor = new Point32<OamPixels>(anchorPart.X.SignedOffset, unchecked((sbyte)anchorPart.Y));
+        var anchor = new Offset16<OamPixels>(checked((short)anchorPart.X.SignedOffset), unchecked((sbyte)anchorPart.Y));
         if (anchor.X > 215) return supplied;
         var stars = new CompiledSpritePart[supplied.PartCount - 13];
         int next = 0;
@@ -47,24 +47,24 @@ internal sealed class CeresVortexParts(bool odd, Point32<OamPixels> anchor, IRea
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int tip = odd ? 3 : 0, core = odd ? 12 : 18;
-            Point32<OamPixels> offset;
+            Offset16<OamPixels> offset;
             int tile;
             bool large;
             if (index >= tip && index < tip + 2)
             {
                 large = false;
-                offset = new(32 + 8 * (1 - (index - tip)), 48);
+                offset = new(checked((short)(32 + 8 * (1 - (index - tip)))), 48);
                 tile = CeresVortexAtlas.LowerEdge;
             }
             else if (index >= core && index < core + 11)
             {
                 large = true;
                 int cell = 10 - (index - core);
-                offset = new(16 * (cell % 3), 16 * (cell / 3));
+                offset = new(checked((short)(16 * (cell % 3))), checked((short)(16 * (cell / 3))));
                 tile = CeresVortexAtlas.Core + 32 * (cell / 8) + 2 * (cell % 8);
             }
             else return stars[index - (index >= tip + 2 ? 2 : 0) - (index >= core + 11 ? 11 : 0)];
-            Point32<OamPixels> position = anchor + offset;
+            Offset16<OamPixels> position = anchor + offset;
             return new(SnesSpritemapXWord.Create(position.X, large), unchecked((byte)position.Y),
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }

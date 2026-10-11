@@ -56,14 +56,14 @@ internal static partial class Program
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(0x0e00);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         int rows = (tileCount + columns - 1) / columns;
-        IndexedPngImage image = IndexedPng.Read(source, new(columns * 8, rows * 8));
+        IndexedPngImage image = IndexedPng.Read(source, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
         // The first copy starts at source offset $0040, tile 2. Its first
         // pixel becomes the high bit at WRAM $7E:2040.
         image.Pixels[2 * 8] ^= 1;
         string overrideDirectory = Path.Combine(directory, "dead-sidehopper-overrides");
         Directory.CreateDirectory(overrideDirectory);
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         var stockBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var editedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InitializeDeadSidehopperArtwork(stockBus, stock, 0);
@@ -124,7 +124,7 @@ internal static partial class Program
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
                 nativePointer, 128, 128, 0, 0);
-            installedOam.AddEnemySpritemap(installedParts, 128, 128, 0, 0);
+            installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
@@ -158,7 +158,7 @@ internal static partial class Program
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
                 nativePointer, 128, 128, 0, 0);
-            installedOam.AddEnemySpritemap(installedParts, 128, 128, 0, 0);
+            installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,

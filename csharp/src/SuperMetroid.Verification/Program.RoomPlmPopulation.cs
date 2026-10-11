@@ -1252,7 +1252,7 @@ internal static partial class Program
             new byte[32 * 32], blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(bus,
-            new byte[RoomScrollGrid.StorageByteCount], 2, 2);
+            new byte[RoomScrollGrid.StorageByteCount], new Extent16<RoomScreens>(2, 2));
         var samus = new SamusState();
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();
@@ -1391,8 +1391,8 @@ internal static partial class Program
 
         StationActivationEvent saveRequest = plms.StationActivationEvents.Single();
         samus.XPosition = 0x0127;
-        ushort[] levelBeforeSave = Enumerable.Range(0, level.Size.Width * level.Size.Height)
-            .Select(block => level.GetCollisionBlock(new(block % level.Size.Width, block / level.Size.Width)).LevelWord)
+        ushort[] levelBeforeSave = Enumerable.Range(0, level.Size.X * level.Size.Y)
+            .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).LevelWord)
             .ToArray();
         SaveStationConfirmationResult confirmation =
             plms.ResolveSaveStationConfirmation(bus, saveRequest, accepted: true, level, streamer, new(0, 0), 0);
@@ -1401,7 +1401,7 @@ internal static partial class Program
         AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2e), 6)),
             "the confirming pass queues cartridge library-one sound $2E");
         AssertTrue(Enumerable.Range(0, levelBeforeSave.Length).Any(block => levelBeforeSave[block] !=
-                level.GetCollisionBlock(new(block % level.Size.Width, block / level.Size.Width)).LevelWord),
+                level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).LevelWord),
             "the confirming pass draws the first electricity frame");
         AssertEqual(0x0120, samus.XPosition,
             "save animation centers Samus on the station's 16-pixel boundary");
@@ -1490,7 +1490,7 @@ internal static partial class Program
             nextRandom: () => 0x4040,
             level: level,
             samus: new SamusState());
-        enemies.SpawnSaveStationElectricity(saveBlockIndex, level.Size.Width);
+        enemies.SpawnSaveStationElectricity(saveBlockIndex, level.Size.X);
 
         var visible = new SpriteVisualPart
         {

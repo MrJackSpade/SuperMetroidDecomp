@@ -11,24 +11,24 @@ namespace SuperMetroid.Core.Assets;
 /// Shoulder geometry and the split-pose grid are calculated separately.</summary>
 internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
 {
-    private readonly Point32<OamPixels>[]? arm;
-    private readonly Point32<OamPixels> splitOrigin;
+    private readonly Offset16<OamPixels>[]? arm;
+    private readonly Offset16<OamPixels> splitOrigin;
     private readonly int[]? editedTiles;
     private readonly Pose pose;
-    private readonly Point32<OamPixels> shoulder;
+    private readonly Offset16<OamPixels> shoulder;
     private readonly bool splitArm;
     private EndingRewardArmParts(SpriteComposition supplied, Pose pose)
     {
         this.pose = pose;
         splitArm = pose == Pose.SamusArmFromEndingFrame2;
         int count = splitArm ? 3 : 2;
-        var positions = new Point32<OamPixels>[count];
+        var positions = new Offset16<OamPixels>[count];
         var tiles = new int[count];
         bool stock = true;
         for (int index = 0; index < count; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
-            positions[index] = new(part.X.SignedOffset, unchecked((sbyte)part.Y));
+            positions[index] = new(checked((short)part.X.SignedOffset), unchecked((sbyte)part.Y));
             tiles[index] = part.Attributes.TileNumber;
             stock &= tiles[index] == StockTile(pose, index);
         }
@@ -44,14 +44,14 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         arm = grid ? null : positions;
         editedTiles = stock ? null : tiles;
         CompiledSpritePart shoulderPart = supplied.Part(count);
-        shoulder = new(shoulderPart.X.SignedOffset, unchecked((sbyte)shoulderPart.Y));
+        shoulder = new(checked((short)shoulderPart.X.SignedOffset), unchecked((sbyte)shoulderPart.Y));
     }
 
-    internal static Point32<OamPixels> SplitOffset(int index)
+    internal static Offset16<OamPixels> SplitOffset(int index)
     {
         if ((uint)index >= 3) throw new ArgumentOutOfRangeException(nameof(index));
         // Small column bottom-to-top, then the adjacent large piece.
-        return new(index == 2 ? 8 : 0, index == 0 ? 8 : 0);
+        return new(checked((short)(index == 2 ? 8 : 0)), checked((short)(index == 0 ? 8 : 0)));
     }
 
     internal static int StockTile(Pose pose, int index)
@@ -89,7 +89,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int tile;
-            Point32<OamPixels> position;
+            Offset16<OamPixels> position;
             bool large;
             if (index < ArmCount)
             {
@@ -103,7 +103,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
                 large = piece == 0;
                 int column = piece == 1 ? 1 : 0;
                 tile = EndingRewardArmAtlas.ShoulderCap + (large ? 16 : column);
-                position = shoulder + new Point32<OamPixels>(8 * column, large ? 0 : -8);
+                position = shoulder + new Offset16<OamPixels>(checked((short)(8 * column)), checked((short)(large ? 0 : -8)));
             }
             return new(SnesSpritemapXWord.Create(position.X, large), unchecked((byte)position.Y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);

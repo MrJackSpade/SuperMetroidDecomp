@@ -21,7 +21,7 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Packed OBJ palette bits used only by parts whose editable palette is null.</param>
     /// <param name="originIsOnScreen">Selects ordinary origin clipping when true or the native negative-origin Y-wrap path when false.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))

@@ -82,9 +82,9 @@ internal static partial class Program
                 // Mode-1 BG output row y samples physical scanline y + 1 (#516).
                 int physicalY = y + SnesPpuLayout.FirstVisibleBackgroundScanline;
                 var a = ReadDraygonAuditPixel(capture.Memory, SnesPpuLayout.GameplayBg1TilemapWord,
-                    r.Bg1CharacterWord, 64, 32, x + r.Bg1X, physicalY + r.Bg1Y);
+                    r.Bg1CharacterWord, 64, 32, x + r.Bg1Scroll.X, physicalY + r.Bg1Scroll.Y);
                 var b = ReadDraygonAuditPixel(capture.Memory, r.Bg2TilemapWord,
-                    r.Bg2CharacterWord, r.Bg2WidthTiles, r.Bg2HeightTiles, x + r.Bg2X, physicalY + r.Bg2Y);
+                    r.Bg2CharacterWord, r.Bg2MapSize.X, r.Bg2MapSize.Y, x + r.Bg2Scroll.X, physicalY + r.Bg2Scroll.Y);
                 // With OBJ/BG3 excluded, front-to-back is BG1 high, BG2 high,
                 // BG1 low, BG2 low. Color zero is transparent on either plane.
                 bool terrainWins = a.Opaque && (!b.Opaque || a.High || !b.High);

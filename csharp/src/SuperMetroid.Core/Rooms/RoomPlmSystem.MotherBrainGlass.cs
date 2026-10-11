@@ -36,7 +36,7 @@ public sealed partial class RoomPlmSystem
     {
         int physicalSlot = Array.IndexOf(_slots, slot);
         if (record.RecordIndex != 0 || physicalSlot != _slots.Length - 1 ||
-            record.Block != new Point32<RoomBlocks>(9, 5) || record.RoomArgument != 0x8000)
+            record.Block != new Position16<RoomBlocks>(9, 5) || record.RoomArgument != 0x8000)
         {
             throw new InvalidDataException(
                 $"Mother Brain glass population diverged: record={record.RecordIndex}, " +
@@ -53,7 +53,7 @@ public sealed partial class RoomPlmSystem
         streamer.SetLevelEntry(slot.BlockIndex, glassLevelWord);
 
         _motherBrainGlassSlotIndex = physicalSlot;
-        _motherBrainGlassRoomWidth = level.Size.Width;
+        _motherBrainGlassRoomWidth = level.Size.X;
         _motherBrainGlassWasLoaded = true;
         _motherBrainGlassLastRoomArgument = 0;
     }
@@ -164,7 +164,7 @@ public sealed partial class RoomPlmSystem
             case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
                 _soundRequests.Add(CreateSoundRequest(RoomPlmSounds.MotherBrainGlassShattering, MaximumQueued: 15));
                 // The native fragment spawn carries both block coordinates as bytes.
-                Point32<RoomBlocks> glassBlock = new(checked((byte)(slot.BlockIndex % _motherBrainGlassRoomWidth)),
+                Position16<RoomBlocks> glassBlock = new(checked((byte)(slot.BlockIndex % _motherBrainGlassRoomWidth)),
                     checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth)));
                 for (int shard = 0; shard < 4; shard++)
                 {
@@ -243,4 +243,4 @@ public sealed partial class RoomPlmSystem
 public readonly record struct MotherBrainGlassProjectileRequest(
     ushort DefinitionPointer,
     ushort Parameter,
-    Point32<RoomBlocks> PlmBlock);
+    Position16<RoomBlocks> PlmBlock);

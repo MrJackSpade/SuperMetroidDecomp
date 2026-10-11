@@ -47,7 +47,7 @@ internal static class CeresDestructionArtworkExtractor
         if (zebesCharacters.Length != CeresDestructionArtworkFormat.ZebesCharacterByteCount)
             throw new InvalidDataException("Zebes reveal character stream has the wrong transfer length.");
         byte[] pixels = SnesGraphics.DecodePlanarTiles(zebesCharacters, 4,
-            IntroCinematicArtworkFormat.TileColumns, out Size32<ImagePixels> size);
+            IntroCinematicArtworkFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] zebesPng = png.ToArray();

@@ -127,7 +127,7 @@ internal static partial class Program
             (editedPixels[RoomFxAnimatedTileAtlasFormat.PreStatueWidth] + 1) %
             RoomFxAnimatedTileAtlasFormat.ColorCount);
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), editedPixels,
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), editedPixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
         AreaMapPresentationCatalog changed = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(changed.ContentIdentity != baseline.ContentIdentity,

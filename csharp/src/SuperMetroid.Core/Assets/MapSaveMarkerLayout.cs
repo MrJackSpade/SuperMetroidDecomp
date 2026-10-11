@@ -25,12 +25,12 @@ public sealed class MapSaveMarkerLayout
     /// <returns>The drawing position, without altering the station's load target or initial map scrolling.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The area or station slot is outside its supported range.</exception>
     /// <exception cref="InvalidDataException">The station slot is unused.</exception>
-    public Point32<MapPixels> Get(AreaId area, int index)
+    public Position16<MapPixels> Get(AreaId area, int index)
     {
         string id = MapSaveMarkerDefinitions.Id(area, index);
         Position16<MapPixels> basis = FileSelectMapLoadAnchors.Get(area, index);
         var edited = coordinateOverrides.GetValueOrDefault(id);
-        return new(edited.X ?? basis.X, edited.Y ?? basis.Y);
+        return new(checked((ushort)(edited.X ?? basis.X)), checked((ushort)(edited.Y ?? basis.Y)));
     }
     /// <summary>Loads all 34 supported save/elevator marker anchors, validates the complete identity set and coordinate bounds, and retains only coordinates differing from compiled station projections.</summary>
     /// <param name="json">Caller-owned stream containing the editable save-marker JSON document.</param>
@@ -75,7 +75,7 @@ public sealed record MapSaveMarkerDocument
     /// <summary>Schema revision, which loading requires to equal <see cref="MapSaveMarkerFormat.Version"/>.</summary>
     public required int Version { get; init; }
     /// <summary>One non-null area-map pixel anchor per usable station, keyed as <c>Area.Save.slot</c> with exact casing; X=0..511 and Y=0..255 are measured before scroll subtraction.</summary>
-    public required Dictionary<string, Point32<MapPixels>> Markers { get; init; }
+    public required Dictionary<string, Position16<MapPixels>> Markers { get; init; }
 }
 /// <summary>Asset filename and supported JSON revision for editable selected-save marker drawing positions.</summary>
 public static class MapSaveMarkerFormat

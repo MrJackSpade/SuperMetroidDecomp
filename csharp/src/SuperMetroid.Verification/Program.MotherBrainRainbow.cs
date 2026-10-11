@@ -124,15 +124,15 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.XSubposition = 0x1234;
     samus.YPosition = 0x00c3;
     samus.Kinematics.YSubposition = 0xffff;
-    var frameStart = new SamusCameraPoint(samus.XPosition, samus.Kinematics.XSubposition,
+    var frameStart = FixedPosition<RoomPixels>.FromWords(samus.XPosition, samus.Kinematics.XSubposition,
         samus.YPosition, samus.Kinematics.YSubposition);
     // The earlier clamps above queued their own writes; each frame's scroll applies them.
     samus.ApplyPreviousPositionWrites(frameStart);
     movement.BeginFallingAfterRainbowBeam();
     movement.StepFallingAfterRainbowBeam(samus);
     AssertEqual(0x00c0, samus.YPosition, "the fall reaches the floor clamp");
-    SamusCameraPoint checkpoint = samus.ApplyPreviousPositionWrites(frameStart);
-    AssertEqual(new SamusCameraPoint(samus.XPosition, samus.Kinematics.XSubposition,
+    FixedPosition<RoomPixels> checkpoint = samus.ApplyPreviousPositionWrites(frameStart);
+    AssertEqual(FixedPosition<RoomPixels>.FromWords(samus.XPosition, samus.Kinematics.XSubposition,
             samus.YPosition, samus.Kinematics.YSubposition), checkpoint,
         "the forced move leaves the camera checkpoint at Samus's new position");
 

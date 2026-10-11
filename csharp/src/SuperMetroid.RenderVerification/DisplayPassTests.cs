@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
+using SuperMetroid.Core.Spatial;
 
 internal static class DisplayPassTests
 {
@@ -24,7 +25,7 @@ internal static class DisplayPassTests
             if (!timer.TryBegin(packet.Identity)) throw new InvalidOperationException("Display timing ring unexpectedly full.");
             renderer.Render(packet);
             timer.MarkCompositionFinished();
-            renderer.DrawDisplay(view, width, height);
+            renderer.DrawDisplay(view, new Extent16<DisplayPixels>((ushort)width, (ushort)height));
             timer.End();
             device.Context.CopyResource(staging, target);
             var mapped = device.Context.Map(staging, 0, MapMode.Read);

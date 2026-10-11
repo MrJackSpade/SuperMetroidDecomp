@@ -29,7 +29,7 @@ internal static partial class Program
             "beam combination rejects index beyond low nibble");
 
         var room = new RoomLevelData(
-            new Size32<RoomBlocks>(16, 16),
+            new Extent16<RoomBlocks>(16, 16),
             new ushort[256],
             new byte[256],
             new ushort[256],

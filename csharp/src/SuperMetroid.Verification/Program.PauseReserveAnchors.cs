@@ -31,8 +31,8 @@ internal static partial class Program
             AssertEqual(expected, horizontal ? basis.X : basis.Y, "original reserve geometry");
             foreach (int value in new[] { 0, horizontal ? 255 : 223 })
             {
-                var anchors = (Point32<ScreenPixels>[])document.Anchors.Clone();
-                anchors[index] = horizontal ? new(value, anchors[index].Y) : new(anchors[index].X, value);
+                var anchors = (Position16<OamPixels>[])document.Anchors.Clone();
+                anchors[index] = horizontal ? new(checked((ushort)value), anchors[index].Y) : new(anchors[index].X, checked((ushort)value));
                 using var stream = new MemoryStream(); PauseReserveTankPresentation.Write(stream, document with { Anchors = anchors }); stream.Position = 0;
                 var edited = PauseReserveTankPresentation.Load(stream);
                 AssertEqual(1, edited.StoredAnchorComponentCount, "independent reserve coordinate edit");
@@ -48,8 +48,8 @@ internal static partial class Program
         }
         foreach (int invalid in new[] { -1, horizontal ? 256 : 224 })
         {
-            var anchors = (Point32<ScreenPixels>[])document.Anchors.Clone();
-            anchors[0] = horizontal ? new(invalid, anchors[0].Y) : new(anchors[0].X, invalid);
+            var anchors = (Position16<OamPixels>[])document.Anchors.Clone();
+            anchors[0] = horizontal ? new(unchecked((ushort)invalid), anchors[0].Y) : new(anchors[0].X, unchecked((ushort)invalid));
             AssertThrows<InvalidDataException>(() => PauseReserveTankPresentation.Write(new MemoryStream(), document with { Anchors = anchors }),
                 "invalid authored reserve coordinate");
         }

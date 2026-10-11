@@ -162,7 +162,7 @@ internal static partial class Program
             pixels[0] = (byte)seed;
             if (edit == name) pixels[^1] = 1;
             using var png = new MemoryStream();
-            IndexedPng.Write(png, new(columns * 8, rows * 8), pixels, Enumerable.Range(0, 16)
+            IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), pixels, Enumerable.Range(0, 16)
                 .Select(index => new Rgba32((byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
             png.Position = 0;
             return RoomCharacterAtlas.Load(png, bytes);

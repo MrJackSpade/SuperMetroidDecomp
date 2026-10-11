@@ -27,7 +27,7 @@ internal static partial class Program
             definitions[i * 2] = (byte)i;
             definitions[i * 2 + 1] = (byte)(i >> 8);
         }
-        var level = new RoomLevelData(new Size32<RoomBlocks>(32, 32), new ushort[1024], new byte[1024], new ushort[1024], definitions);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new ushort[1024], new byte[1024], new ushort[1024], definitions);
         var system = new Bank80SystemState();
         var items = new[]
         {

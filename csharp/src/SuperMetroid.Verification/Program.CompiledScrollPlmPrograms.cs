@@ -20,7 +20,7 @@ internal static partial class Program
         // VerifyRoomScrollPlms and supply decoded pairs before the handler runs.
         var guarded = new RetailScrollProgramReadGuard(rom);
         const int width = 64;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(width, 64),
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64),
             new ushort[width * 64], new byte[width * 64],
             new ushort[width * 64], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
@@ -30,7 +30,7 @@ internal static partial class Program
                 () => new SamusState(), () => false),
             "retail scroll-only population loads from compiled placement");
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(guarded,
-            widthInScreens: 4, heightInScreens: 4,
+            size: new Extent16<RoomScreens>(4, 4),
             lastRowState: RoomScrollState.RedBoundary);
         scrolls.SetStorage(0, RoomScrollState.RedBoundary);
         AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(new(8, 13))),

@@ -31,7 +31,7 @@ internal static partial class Program
             for (int y = 16; y < 36; y++)
             for (int x = 16; x < 64; x++)
             {
-                int index = y * level.Size.Width + x;
+                int index = y * level.Size.X + x;
                 level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
                     y >= 32 || x == 54 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
                 level.SetBehavior(index, 0);
@@ -43,13 +43,13 @@ internal static partial class Program
             samus.YPosition = 490;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
-            runtime.Camera!.SetPosition(400, 350);
+            runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
             for (int frame = -64; frame < 0; frame++)
             {
                 runtime.StepFrame(0);
                 CompareNative(frame);
             }
-            ushort settledCameraX = runtime.Camera.XPosition;
+            ushort settledCameraX = runtime.Camera.PixelPosition.X;
             int impact = -1, deleted = -1;
             void CompareNative(int frame)
             {
@@ -58,7 +58,7 @@ internal static partial class Program
                 {
                     ushort[] actual = [samus.XPosition, samus.Kinematics.XSubposition,
                         samus.YPosition, samus.Kinematics.YSubposition, (ushort)samus.Pose,
-                        runtime.Camera.XPosition, runtime.Camera.YPosition,
+                        runtime.Camera.PixelPosition.X, runtime.Camera.PixelPosition.Y,
                         shot.XPosition, shot.XSubposition, shot.YPosition, shot.YSubposition,
                         unchecked((ushort)shot.XVelocity), unchecked((ushort)shot.YVelocity), shot.Type, shot.InstructionPointer];
                     var expected = native[(walkAfterShot ? 1 : 0, frame)];
@@ -98,19 +98,19 @@ internal static partial class Program
                 }
                 if (!shot.IsActive) { deleted = frame; break; }
             }
-            Console.WriteLine($"Runtime Hero walking={walkAfterShot}: impact={impact}, deletion={deleted}, SamusX={samus.XPosition}, cameraX={runtime.Camera.XPosition}.");
+            Console.WriteLine($"Runtime Hero walking={walkAfterShot}: impact={impact}, deletion={deleted}, SamusX={samus.XPosition}, cameraX={runtime.Camera.PixelPosition.X}.");
             if (walkAfterShot)
             {
                 AssertTrue(impact >= 0 && deleted < 0,
                     "Ordinary Samus movement and camera tracking preserve the shot to the target");
-                AssertTrue(samus.XPosition > 512 && runtime.Camera.XPosition > settledCameraX,
+                AssertTrue(samus.XPosition > 512 && runtime.Camera.PixelPosition.X > settledCameraX,
                     "The actual runtime movement and camera owners advance without test camera writes");
             }
             else
             {
                 AssertTrue(deleted >= 0 && impact < 0,
                     "Without following movement the identical shot expires before the target");
-                AssertEqual(settledCameraX, runtime.Camera.XPosition,
+                AssertEqual(settledCameraX, runtime.Camera.PixelPosition.X,
                     "Stationary control does not drift the camera during the shot lifetime");
             }
         }
@@ -134,8 +134,8 @@ internal static partial class Program
         samus.RefreshCollisionRadii(bus);
         AssertEqual(21, samus.Kinematics.YRadius, "next alpha publishes landing radius");
         AssertEqual(475, samus.YPosition, "alpha does not repeat landing correction");
-        var previous = new SamusCameraPoint(120, 0x1234, 477, 0xabcd);
-        AssertEqual(previous with { YPosition = 475 }, samus.ApplyPreviousPositionWrites(previous),
+        var previous = FixedPosition<RoomPixels>.FromWords(120, 0x1234, 477, 0xabcd);
+        AssertEqual(previous.WithY(previous.Y.WithWhole(475)), samus.ApplyPreviousPositionWrites(previous),
             "Native pose correction changes only previous Y, preserving both X words and previous Y fraction");
         AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous),
             "Checkpoint event is consumed once before normal scrolling replaces it");

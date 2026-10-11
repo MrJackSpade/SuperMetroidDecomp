@@ -15,6 +15,12 @@ public sealed class Bg2Pixels : ISpatialSpace;
 /// <summary>BG3 scroll-register pixels (room FX layer, HUD and message boxes).</summary>
 public sealed class Bg3Pixels : ISpatialSpace;
 
+/// <summary>
+/// BG3 room-FX texture drift in 1/256 pixels: the 8.8 rain, fog and spores accumulators whose
+/// signed high byte is a whole <see cref="Bg3Pixels"/> displacement.
+/// </summary>
+public sealed class Bg3Subpixels : ISpatialSpace;
+
 /// <summary>Room block grid: sixteen-pixel collision/level-data cells.</summary>
 public sealed class RoomBlocks : ISpatialSpace;
 
@@ -40,8 +46,8 @@ public sealed class Mode7Pixels : ISpatialSpace;
 public sealed class TilemapCells : ISpatialSpace;
 
 /// <summary>
-/// Host raster pixels: columns and rows of a decoded image, artwork atlas, tile bitmap or rendered
-/// frame, measured from the image's own top-left corner rather than any screen or room.
+/// Host raster pixels: columns and rows of a decoded image, artwork atlas or rendered host image,
+/// measured from the image's own top-left corner rather than any screen or room.
 /// </summary>
 public sealed class ImagePixels : ISpatialSpace;
 
@@ -50,6 +56,25 @@ public sealed class ImagePixels : ISpatialSpace;
 /// right and Y positive downwards, centred on zero.
 /// </summary>
 public sealed class GamepadStick : ISpatialSpace;
+
+/// <summary>
+/// Sixteen-pixel blocks of the circular BG1/BG2 VRAM tilemap: a PPU scroll register shifted
+/// right four times, as the level and background streamers address it.
+/// </summary>
+public sealed class TilemapBlocks : ISpatialSpace;
+
+/// <summary>
+/// Background-plane pixels of any BG layer: the tilemap-plane coordinate a BGnHOFS/BGnVOFS
+/// register pair selects at the screen origin, as generic render layers consume it. Gameplay
+/// state keeps its own spaces (room, BG2, BG3) and converts by name at capture.
+/// </summary>
+public sealed class BgPlanePixels : ISpatialSpace;
+
+/// <summary>Host presentation pixels: a window client area, swapchain back buffer or display surface.</summary>
+public sealed class DisplayPixels : ISpatialSpace;
+
+/// <summary>Pixels within one eight-by-eight background or OBJ character, zero through seven on each axis.</summary>
+public sealed class CharacterPixels : ISpatialSpace;
 
 /// <summary>
 /// Marks a spatial value type, or a narrow storage/hardware/serialization adapter, that may declare

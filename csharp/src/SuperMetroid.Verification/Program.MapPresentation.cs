@@ -32,7 +32,7 @@ internal static partial class Program
         var system = new Bank80SystemState();
         byte[] projected = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank, MapRevealMode.Secret);
         ushort Word(int x, int y) => System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(
-            projected.AsSpan(AreaMapLayout.GetTilemapWordIndex(new(x, y)) * 2));
+            projected.AsSpan(AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2));
         AssertEqual(map.GetTile(new(5, 6)).Raw, Word(5, 6), "shared pause/file-select projection uses editable art");
         AssertEqual(MapTileWords.PauseBlank.Raw, Word(4, 6), "secret reveal uses rules, not painted cells");
         AssertTrue(!system.IsMapTileExplored(AreaId.Crateria, new(5, 6)), "projection never mutates exploration");
@@ -77,9 +77,9 @@ internal static partial class Program
                 for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
-                    AssertEqual(stock.GetTile(new(x, y)).Raw, restored.GetTile(new(x, y)).Raw, "stock map JSON retains tile/attributes");
-                    AssertEqual(stock.IsDiscoverable(new(x, y)), restored.IsDiscoverable(new(x, y)), "stock discovery rules survive import");
-                    AssertEqual(stock.RevealsCellAbove(new(x, y)), restored.RevealsCellAbove(new(x, y)), "stock slope rules survive import");
+                    AssertEqual(stock.GetTile(new(checked((ushort)x), checked((ushort)y))).Raw, restored.GetTile(new(checked((ushort)x), checked((ushort)y))).Raw, "stock map JSON retains tile/attributes");
+                    AssertEqual(stock.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), restored.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "stock discovery rules survive import");
+                    AssertEqual(stock.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), restored.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "stock slope rules survive import");
                 }
             }
             Console.WriteLine("Map presentation: all 14,336 retail cell words round-trip exactly.");
@@ -92,10 +92,10 @@ internal static partial class Program
     private sealed class PresentationMapRules : IAreaMapView
     {
         public AreaId Area => AreaId.Crateria;
-        public MapTileWord GetTile(Point32<MapTiles> cell) => MapTileWords.PauseBlank;
-        public bool IsDiscoverable(Point32<MapTiles> cell) => cell.X == 5 && cell.Y is 5 or 6;
-        public bool IsRevealedByMapStation(Point32<MapTiles> cell) => cell == new Point32<MapTiles>(5, 6);
-        public bool RevealsCellAbove(Point32<MapTiles> cell) => cell == new Point32<MapTiles>(5, 6);
+        public MapTileWord GetTile(Position16<MapTiles> cell) => MapTileWords.PauseBlank;
+        public bool IsDiscoverable(Position16<MapTiles> cell) => cell.X == 5 && cell.Y is 5 or 6;
+        public bool IsRevealedByMapStation(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
+        public bool RevealsCellAbove(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
     }
 
     private sealed class ForbiddenMapBus : ISnesAddressSpace
@@ -175,10 +175,10 @@ internal static partial class Program
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
             var actual = original.Get(area);
-            AssertEqual(rules[area].GetTile(new(x, y)), actual.GetTile(new(x, y)), "ROM-free catalog retains stock cells");
-            AssertEqual(rules[area].IsDiscoverable(new(x, y)), actual.IsDiscoverable(new(x, y)), "ROM-free stock discovery parity");
-            AssertEqual(rules[area].IsRevealedByMapStation(new(x, y)), actual.IsRevealedByMapStation(new(x, y)), "ROM-free station mask parity");
-            AssertEqual(rules[area].RevealsCellAbove(new(x, y)), actual.RevealsCellAbove(new(x, y)), "ROM-free stock slope parity");
+            AssertEqual(rules[area].GetTile(new(checked((ushort)x), checked((ushort)y))), actual.GetTile(new(checked((ushort)x), checked((ushort)y))), "ROM-free catalog retains stock cells");
+            AssertEqual(rules[area].IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), actual.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "ROM-free stock discovery parity");
+            AssertEqual(rules[area].IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), actual.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), "ROM-free station mask parity");
+            AssertEqual(rules[area].RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), actual.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "ROM-free stock slope parity");
         }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
         Directory.CreateDirectory(overrides);
@@ -210,7 +210,7 @@ internal static partial class Program
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options)!;
         document.Cells[0] = document.Cells[0] with { TileColumn = (document.Cells[0].TileColumn + 1) % MapPresentationFormat.AtlasColumns };
-        int visibleCell = Enumerable.Range(0, document.Cells.Length).First(i => rules[AreaId.Crateria].IsDiscoverable(new(i % 64, i / 64)));
+        int visibleCell = Enumerable.Range(0, document.Cells.Length).First(i => rules[AreaId.Crateria].IsDiscoverable(new(checked((ushort)(i % 64)), checked((ushort)(i / 64)))));
         document.Cells[visibleCell] = document.Cells[visibleCell] with { Palette = (document.Cells[visibleCell].Palette + 1) % 8 };
         string replacement = Path.Combine(overrides, name);
         File.WriteAllText(replacement, JsonSerializer.Serialize(document, options));
@@ -220,9 +220,9 @@ internal static partial class Program
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
-            AssertEqual(original.Get(area).IsDiscoverable(new(x, y)), edited.Get(area).IsDiscoverable(new(x, y)), "override cannot alter discovery");
-            AssertEqual(original.Get(area).IsRevealedByMapStation(new(x, y)), edited.Get(area).IsRevealedByMapStation(new(x, y)), "override cannot alter station reveal");
-            AssertEqual(original.Get(area).RevealsCellAbove(new(x, y)), edited.Get(area).RevealsCellAbove(new(x, y)), "override cannot alter slope exploration");
+            AssertEqual(original.Get(area).IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "override cannot alter discovery");
+            AssertEqual(original.Get(area).IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), "override cannot alter station reveal");
+            AssertEqual(original.Get(area).RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "override cannot alter slope exploration");
         }
         Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(bus, original, edited, rules.Values.ToArray(), initialPalettes,
             fixtureAssets));
@@ -1214,7 +1214,7 @@ internal static partial class Program
         byte[] pixels = image.Pixels.Select(value => unchecked((byte)(value + 1))).ToArray();
         string replacement = Path.Combine(overrides, name);
         using (var output = File.Create(replacement))
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Palette);
 
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,

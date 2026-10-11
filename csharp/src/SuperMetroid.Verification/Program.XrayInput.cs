@@ -55,7 +55,7 @@ internal static partial class Program
         AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "held Run widens the X-ray beam fully");
         var horizontal = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         var horizontalPixels = SoftwareLayeredSnapshotRenderer.Render(horizontal);
-        var probe = runtime.LevelData!.GetPlmCollisionBlockByIndex(7 * runtime.LevelData.Size.Width + 12);
+        var probe = runtime.LevelData!.GetPlmCollisionBlockByIndex(7 * runtime.LevelData.Size.X + 12);
         AssertEqual((ushort)255, XrayRevealTable.Find(probe.CollisionType, probe.Behavior)!.Value.TopLeft,
             "native air definition replaces decorative wall art with the blank metatile");
         var ordinaryPixels = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime));
@@ -66,7 +66,7 @@ internal static partial class Program
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))
         {
             Directory.CreateDirectory("csharp/test-temp/issue-348-xray");
-            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/horizontal.png", new(256, 224), horizontalPixels);
+            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/horizontal.png", new Extent16<ScreenPixels>(256, 224), horizontalPixels);
             File.WriteAllBytes("csharp/test-temp/issue-348-xray/horizontal.smframe",
                 RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), horizontal)));
         }
@@ -90,7 +90,7 @@ internal static partial class Program
             AssertEqual(frozenMap[i], (ushort)(captured.Memory.Vram[offset] | captured.Memory.Vram[offset + 1] << 8), "captured BG2 is the setup-owned reveal map");
         }
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))
-            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/aimed.png", new(256, 224), pixels);
+            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/aimed.png", new Extent16<ScreenPixels>(256, 224), pixels);
         var beforeRelease = RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), captured));
         runtime.StepFrame(0);
         var releaseEdge = GameplayDisplayCapture.TryCaptureFrame(runtime)!;

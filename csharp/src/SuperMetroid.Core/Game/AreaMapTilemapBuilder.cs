@@ -20,7 +20,7 @@ public static class AreaMapTilemapBuilder
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
-            var cell = new Point32<MapTiles>(x, y);
+            var cell = new Position16<MapTiles>(unchecked((ushort)x), unchecked((ushort)y));
             MapTileWord word = map.GetTile(cell);
             bool explored = system.IsMapTileExplored(map.Area, cell);
             if (explored)

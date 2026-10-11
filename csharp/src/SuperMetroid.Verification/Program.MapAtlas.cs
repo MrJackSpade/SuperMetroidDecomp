@@ -29,7 +29,7 @@ internal static partial class Program
         using (var input = File.OpenRead(Path.Combine(stock, MapTileAtlasFormat.FileName)))
             image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         for (int i = 0; i < image.Pixels.Length; i++) image.Pixels[i] = (byte)((image.Pixels[i] + 1) % MapTileAtlasFormat.ColorCount);
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         byte[] replacementBytes = File.ReadAllBytes(replacement);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "PNG edit changes selected catalog identity");
@@ -65,7 +65,7 @@ internal static partial class Program
         File.WriteAllBytes(replacement, replacementBytes);
         var tooManyColors = SnesGraphics.DiagnosticPalette(17);
         image.Pixels[0] = 16;
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, tooManyColors);
+        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, tooManyColors);
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "PNG index outside 4-bpp atlas rejected");
         File.WriteAllBytes(replacement, replacementBytes);
         string rebuiltAtlas = Path.Combine(rebuilt, MapTileAtlasFormat.FileName);

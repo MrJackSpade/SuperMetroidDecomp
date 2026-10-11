@@ -27,7 +27,7 @@ internal static partial class Program
             "decoded population owns its record ordering independently of caller mutation");
 
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var level = new RoomLevelData(new Size32<RoomBlocks>(8, 8), new ushort[64], new byte[64], new ushort[64], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new ushort[64], new byte[64], new ushort[64], new byte[8]);
         var plms = new RoomPlmSystem();
         var streamer = level.CreateBackgroundStreamer();
         AssertEqual(3, plms.LoadRoomPopulation(memory, level, streamer, new SnesVram(), population,
@@ -39,7 +39,7 @@ internal static partial class Program
             "typed trigger setup publishes its native collision behavior");
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");
-        var scrolls = RoomScrollGrid.CreateImplicit(memory, 2, 2, RoomScrollState.RedBoundary);
+        var scrolls = RoomScrollGrid.CreateImplicit(memory, new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
         AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
         plms.Step(memory, level, streamer, new(0, 0), 0, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");

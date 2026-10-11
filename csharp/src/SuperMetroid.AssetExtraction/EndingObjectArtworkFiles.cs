@@ -170,7 +170,7 @@ public static class EndingObjectArtworkFiles
                 throw new InvalidDataException($"Ending OBJ source ${source:X6} is shorter than {name}'s native DMA.");
             byte[] native = decompressed.AsSpan(0, count).ToArray();
             byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
-                IntroCinematicArtworkFormat.TileColumns, out Size32<ImagePixels> size);
+                IntroCinematicArtworkFormat.TileColumns, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             byte[] file = png.ToArray();

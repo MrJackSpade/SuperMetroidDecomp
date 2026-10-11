@@ -42,7 +42,7 @@ public sealed class RoomLevelData
     /// <exception cref="InvalidDataException">The selected visual layout does not match the room dimensions.</exception>
     /// <exception cref="OverflowException">The logical dimension product exceeds the signed 32-bit range.</exception>
     public RoomLevelData(
-        Size32<RoomBlocks> size,
+        Extent16<RoomBlocks> size,
         ReadOnlySpan<ushort> foregroundEntries,
         ReadOnlySpan<byte> behaviorBytes,
         ReadOnlySpan<ushort> backgroundEntries,
@@ -52,9 +52,9 @@ public sealed class RoomLevelData
         ReadOnlySpan<ushort> streamingBackgroundAllocation = default,
         RoomVisualLayout? visualLayout = null)
     {
-        if (size.Width is <= 0 or > 0xff)
+        if (size.X is <= 0 or > 0xff)
             throw new ArgumentOutOfRangeException(nameof(size), "Room width must be 1..255 blocks.");
-        if (size.Height <= 0)
+        if (size.Y <= 0)
             throw new ArgumentOutOfRangeException(nameof(size), "Room height must be positive.");
 
         int expectedBlocks = size.Area;
@@ -147,7 +147,7 @@ public sealed class RoomLevelData
     /// Logical room size in 16-pixel blocks. The width is native <c>room_width_in_blocks</c>, used as
     /// every row's index stride; the height comes from the room header.
     /// </summary>
-    public Size32<RoomBlocks> Size { get; }
+    public Extent16<RoomBlocks> Size { get; }
 
     /// <summary>
     /// Bank-$8F pointer to this room's native door-pointer table. Synthetic collision
@@ -178,12 +178,12 @@ public sealed class RoomLevelData
     /// Converts a 16-pixel block coordinate using the same row-major multiplication as
     /// bank $94. Invalid coordinates fail loudly instead of wrapping into unrelated WRAM.
     /// </summary>
-    public int GetBlockIndex(Point32<RoomBlocks> block)
+    public int GetBlockIndex(Position16<RoomBlocks> block)
     {
-        if ((uint)block.X >= (uint)Size.Width)
-            throw new ArgumentOutOfRangeException(nameof(block), $"Block X {block.X} lies outside the {Size.Width}-block room width.");
-        if ((uint)block.Y >= (uint)Size.Height)
-            throw new ArgumentOutOfRangeException(nameof(block), $"Block Y {block.Y} lies outside the {Size.Height}-block room height.");
+        if ((uint)block.X >= (uint)Size.X)
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block X {block.X} lies outside the {Size.X}-block room width.");
+        if ((uint)block.Y >= (uint)Size.Y)
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block Y {block.Y} lies outside the {Size.Y}-block room height.");
         return Size.RowMajorIndex(block);
     }
 
@@ -197,11 +197,11 @@ public sealed class RoomLevelData
     /// consumption point. Native-memory setup and draw operations may use the bounded PLM
     /// allocation, matching the two shipped off-room colored-door records safely.
     /// </remarks>
-    internal int GetPlmBlockIndex(Point32<RoomBlocks> block)
+    internal int GetPlmBlockIndex(Position16<RoomBlocks> block)
     {
         if (block.X < 0 || block.Y < 0)
             throw new ArgumentOutOfRangeException(nameof(block), $"PLM block {block} has a negative coordinate.");
-        int blockIndex = checked(block.Y * Size.Width + block.X);
+        int blockIndex = checked(block.Y * Size.X + block.X);
         if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
         {
             throw new ArgumentOutOfRangeException(
@@ -293,7 +293,7 @@ public sealed class RoomLevelData
         SetPlmBehavior(blockIndex, behavior.Value);
 
     /// <summary>Returns both collision inputs consumed for one block by bank $94.</summary>
-    public RoomCollisionBlock GetCollisionBlock(Point32<RoomBlocks> block)
+    public RoomCollisionBlock GetCollisionBlock(Position16<RoomBlocks> block)
     {
         int index = GetBlockIndex(block);
         return GetCollisionBlockByIndex(index);
@@ -311,7 +311,7 @@ public sealed class RoomLevelData
     /// and streaming remain logical-sized; collision callers share this seam instead of
     /// independently fabricating wrapping or empty terrain.
     /// </remarks>
-    internal RoomCollisionBlock GetCollisionBlockOrPrefilledSolid(Point32<RoomBlocks> block)
+    internal RoomCollisionBlock GetCollisionBlockOrPrefilledSolid(Position16<RoomBlocks> block)
     {
         if (!Size.Contains(block))
         {
@@ -488,7 +488,7 @@ public sealed class RoomLevelData
     /// </summary>
     public BackgroundTilemapStreamer CreateBackgroundStreamer(ushort sizeOfBg2 = 0) =>
         new(
-            Size.Width,
+            Size.X,
             _visualStreamingForegroundAllocation,
             _visualStreamingBackgroundAllocation,
             _blockDefinitions,

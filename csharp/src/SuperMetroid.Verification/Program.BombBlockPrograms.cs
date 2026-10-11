@@ -225,7 +225,7 @@ internal static partial class Program
                 definitions[0x54 * 8 + tile * 2] = 0x18;
             }
 
-            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words,
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), words,
                 new byte[words.Length], new ushort[words.Length], definitions);
             var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
@@ -262,7 +262,7 @@ internal static partial class Program
             var definitions = new byte[0x400 * 8];
             for (int tile = 0; tile < 4; tile++)
                 definitions[0x58 * 8 + tile * 2] = tileIndex;
-            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words,
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), words,
                 new byte[words.Length], new ushort[words.Length], definitions);
             var plms = new RoomPlmSystem();
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 1),
@@ -303,7 +303,7 @@ internal static partial class Program
         words[blockIndex] = 0xf321;
         var bts = new byte[words.Length];
         bts[blockIndex] = behavior;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(width, width), words, bts,
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), words, bts,
             new ushort[words.Length], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         bool spawned = producer switch

@@ -10,12 +10,13 @@ internal static class PngWriterTooling
 {
     internal static readonly byte[] Signature = [137, 80, 78, 71, 13, 10, 26, 10];
     /// <summary>Expands palette indexes to RGBA and writes them as a PNG.</summary>
-    public static void WriteIndexedAsRgba(
+    public static void WriteIndexedAsRgba<TSpace>(
         string path,
-        Size32<ImagePixels> size,
+        Extent16<TSpace> size,
         ReadOnlySpan<byte> indexes,
         IReadOnlyList<Rgba32> palette,
         int scale = 1)
+        where TSpace : ISpatialSpace
     {
         if (indexes.Length != size.Area)
             throw new ArgumentException("Pixel count does not match dimensions.", nameof(indexes));
@@ -28,19 +29,20 @@ internal static class PngWriterTooling
         WriteRgba(path, size, pixels, scale);
     }
     /// <summary>Writes an RGBA buffer, optionally nearest-neighbor scaled by an integer.</summary>
-    public static void WriteRgba(
+    public static void WriteRgba<TSpace>(
         string path,
-        Size32<ImagePixels> size,
+        Extent16<TSpace> size,
         ReadOnlySpan<Rgba32> pixels,
         int scale = 1)
+        where TSpace : ISpatialSpace
     {
         if (pixels.Length != size.Area)
             throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
         ArgumentOutOfRangeException.ThrowIfLessThan(scale, 1);
 
-        int width = size.Width;
+        int width = size.X;
         int outputWidth = width * scale;
-        int outputHeight = size.Height * scale;
+        int outputHeight = size.Y * scale;
         int scanlineBytes = checked(outputHeight * (1 + outputWidth * 4));
         // Stored DEFLATE blocks add five bytes per 64 KiB; zlib adds six. Leave far more than
         // that, so incompressible art still fits and the fixed stream never needs to grow.

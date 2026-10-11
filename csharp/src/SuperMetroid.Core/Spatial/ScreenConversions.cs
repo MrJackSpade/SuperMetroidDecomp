@@ -1,0 +1,22 @@
+namespace SuperMetroid.Core.Spatial;
+
+/// <summary>Conversions from room pixels to the viewport the camera selects, and from the viewport to OAM.</summary>
+public static class ScreenConversions
+{
+    /// <summary>
+    /// The screen-relative position of <paramref name="room"/> when the camera's top-left corner is
+    /// <paramref name="camera"/>: each axis is the native wrapped sixteen-bit difference read as
+    /// signed, so positions left of or above the viewport are negative.
+    /// </summary>
+    public static Offset16<ScreenPixels> RelativeToCamera(this Position16<RoomPixels> room, Position16<RoomPixels> camera)
+    {
+        Offset16<RoomPixels> delta = room - camera;
+        return new Offset16<ScreenPixels>(delta.X, delta.Y);
+    }
+
+    /// <summary>
+    /// The OAM coordinate of a screen position: sprite coordinates are screen pixels, so the words are
+    /// unchanged and the OAM writer applies its nine-bit X and eight-bit Y range rules.
+    /// </summary>
+    public static Position16<OamPixels> ToOam(this Position16<ScreenPixels> screen) => new(screen.X, screen.Y);
+}

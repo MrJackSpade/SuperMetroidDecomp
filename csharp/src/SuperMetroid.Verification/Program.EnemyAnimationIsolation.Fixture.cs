@@ -35,7 +35,7 @@ internal static partial class Program
             for (int y = FloorY / 16; y < roomBlocks; y++)
             for (int x = 0; x < roomBlocks; x++)
                 layer[y * roomBlocks + x] = RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw;
-            Level = new RoomLevelData(new Size32<RoomBlocks>(roomBlocks, roomBlocks), layer, new byte[layer.Length], new ushort[layer.Length], []);
+            Level = new RoomLevelData(new Extent16<RoomBlocks>(roomBlocks, roomBlocks), layer, new byte[layer.Length], new ushort[layer.Length], []);
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
             Bind("_bus", Memory);
             Bind("_vram", Vram);

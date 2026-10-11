@@ -17,7 +17,7 @@ internal static partial class Program
         var bus = new ProjectileSoundRoutingForbiddenBus(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
         var level = new RoomLevelData(
-            new Size32<RoomBlocks>(16, 16),
+            new Extent16<RoomBlocks>(16, 16),
             new ushort[256],
             new byte[256],
             new ushort[256],

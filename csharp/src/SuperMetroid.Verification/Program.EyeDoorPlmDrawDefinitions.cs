@@ -81,7 +81,7 @@ internal static partial class Program
 
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x55 * 8] = 0x55;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(width, width),
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
             new ushort[width * width], new byte[width * width],
             new ushort[width * width], blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
@@ -150,7 +150,7 @@ internal static partial class Program
             unchecked((byte)doorBit), 0,
             0, 0,
         ]);
-        var level = new RoomLevelData(new Size32<RoomBlocks>(width, width),
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
             new ushort[width * width], new byte[width * width],
             new ushort[width * width], new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
@@ -198,7 +198,7 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{orientation} retail eye-door lifecycle avoids instruction and draw ROM reads");
 
-        var reopenedLevel = new RoomLevelData(new Size32<RoomBlocks>(width, width),
+        var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
             new ushort[width * width], new byte[width * width],
             new ushort[width * width], new byte[0x400 * 8]);
         BackgroundTilemapStreamer reopenedStreamer =

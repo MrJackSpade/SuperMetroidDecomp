@@ -22,7 +22,7 @@ internal static partial class Program
         DoorListDefinition landingDoors = DoorDefinitionsTooling.GetList(
             RoomHeaderDefinitions.Get(RoomHeaderPointers.LandingSite).DoorListPointer);
         var level = new RoomLevelData(
-            new Size32<RoomBlocks>(1, 1), [0], [0], [0], [], doorListPointer: landingDoors.Pointer);
+            new Extent16<RoomBlocks>(1, 1), [0], [0], [0], [], doorListPointer: landingDoors.Pointer);
         CartridgeDoorHeader resolved = level.ResolveDoorCollision(
             new DoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door!;
         AssertEqual(DoorDefinitions.Get(landingDoors.DoorPointers.Span[0]), resolved,

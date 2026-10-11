@@ -23,16 +23,18 @@ internal static class VramDmaProducerContracts
             // #627 re-pinned: only the gunship function write became the typed GunshipFunction.FireUpEngines.
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGunshipTakeoffTiles", "9A200AA74DB1FC9E406E752D8AD2D3EFBEFDE2038A64B9439CFC3048F147E621") => "gunship",
             ("SuperMetroid.Core.Game.RoomFxAnimatedTilesState.Step", "74D7F0380AB8B028C6809093235F87837DFD62D7794A242BEFA09C99182049CD") => "fx",
-            ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "71A7789688B774B2A32EB48B793BE93363C555C6C461C1FEC7240A4D59B923D7") => "arm",
+            // #628 reviewed: only the OAM origin became one typed Position16<OamPixels>; transfer source and count unchanged.
+            ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "3737C2A62363B96D963D988A98CE7AE2680D5D48A235C356DC218DD151D43DCE") => "arm",
             ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "2EA2B64CC751F333B40AED2D5CD4E4FB7B6261003A1882E42E0CF34234C2EB4D") => "death",
-            ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "08658BA90E0B432295CA0E4C8F2F72C0BF5F3E4C6F2FC78D0931AEBBB999CE51") => "grapple-native",
+            // #628 reviewed: only the two OAM origins became typed Position16<OamPixels>; transfer source and count unchanged.
+            ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "D07A25AF807F3691BF0355A95B4D1FA9B68742F814DDD4EB2B53C3D5BFF761D2") => "grapple-native",
             ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "9400C1F1F3EB941C04621BC070CE56B89828DFFFD4A90A89DD48495304C9700B") => "beam",
             // #627 re-pin: the chunk table parameter became ScrollingSkyChunkTable with the same two tables; sources and counts unchanged.
             ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "A2AD8385A17B2882557B10624010100C822C3E1F6065403D06698A5C6B73C32B") => "sky",
             ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "91776F442E0E3B352859873875ED9CC1EEF2DE5B7AE0404EF11E0B7B3FA74322") => "statues",
             ("SuperMetroid.Core.Game.WreckedShipTreadmillAnimatedTilesState.Step", "3326DF0E41031BBC1A775D7CB9AE16CD0E0DEACDBFF496AD2482229F046152CE") => "treadmill",
-            // #628 re-pin: the PLM step takes the layer-1 camera as one Position16<RoomPixels>; sources and counts unchanged.
-            ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "4330E9D2BC046DABF5F084CA45812E591F065B476A1A72D3E627DAC61B437588") => "plm",
+            // #628 reviewed: the camera and BG1 offset are read from their typed positions and the PLM step takes the camera as one Position16<RoomPixels>; PLM VRAM requests unchanged.
+            ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "0988026C82C1790773401B94A5DD8959CDB8CADEA1A3D69796C98D23C29BBDAE") => "plm",
             _ => null,
         };
         return family is not null;

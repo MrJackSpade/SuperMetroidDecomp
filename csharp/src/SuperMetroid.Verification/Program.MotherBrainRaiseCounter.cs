@@ -24,7 +24,7 @@ internal static partial class Program
         var camera = runtime.Camera!;
 
         void Step(byte counter8, ushort counter) => runtime.Enemies.StepFrame(
-            camera.XPosition, camera.YPosition, timeIsFrozen: false, runtime.Samus,
+            camera.PixelPosition.X, camera.PixelPosition.Y, timeIsFrozen: false, runtime.Samus,
             level: runtime.LevelData, nmiFrameCounter8: counter8, nmiFrameCounter: counter);
 
         Step(0x68, 0x01ff);

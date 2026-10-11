@@ -70,7 +70,7 @@ public static class SamusArmCannonArtworkFiles
                         (SamusArmCannonArtworkFormat.TileSourcePointers[tile] + offset));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             SamusArmCannonArtworkFormat.TileSourcePointers.Length,
-            out Size32<ImagePixels> size);
+            out Extent16<ImagePixels> size);
         using var pngStream = new MemoryStream();
         IndexedPng.Write(pngStream, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] png = pngStream.ToArray();

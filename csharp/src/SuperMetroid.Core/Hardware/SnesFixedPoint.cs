@@ -31,21 +31,11 @@ public readonly record struct SnesSignedSixteenSixteen
     /// <summary>The zero displacement.</summary>
     public static SnesSignedSixteenSixteen Zero => default;
 
-    /// <summary>The signed whole-pixel word.</summary>
-    public short WholePixels => unchecked((short)(RawValue >> 16));
+    /// <summary>The whole-pixel word as its unsigned native bit pattern.</summary>
+    public ushort WholeWord => unchecked((ushort)(RawValue >> 16));
 
     /// <summary>The unsigned fractional word.</summary>
     public ushort Fraction => unchecked((ushort)RawValue);
-
-    /// <summary>Replaces only the whole word, as cartridge routines that store one half do.</summary>
-    public SnesSignedSixteenSixteen WithWholePixels(short wholePixels) => FromParts(wholePixels, Fraction);
-
-    /// <summary>Replaces only the fractional word, as cartridge routines that store one half do.</summary>
-    public SnesSignedSixteenSixteen WithFraction(ushort fraction) => FromParts(WholePixels, fraction);
-
-    /// <summary>Adds two displacements, carrying the fraction and wrapping at 32 bits.</summary>
-    public static SnesSignedSixteenSixteen operator +(SnesSignedSixteenSixteen left, SnesSignedSixteenSixteen right) =>
-        new(unchecked(left.RawValue + right.RawValue));
 
     /// <summary>Subtracts two displacements, borrowing from the whole word and wrapping at 32 bits.</summary>
     public static SnesSignedSixteenSixteen operator -(SnesSignedSixteenSixteen left, SnesSignedSixteenSixteen right) =>
@@ -67,6 +57,13 @@ public readonly record struct SnesSignedSixteenSixteen
 /// <param name="Fraction">The unsigned fractional-position word representing fractions of one pixel.</param>
 public readonly record struct SnesFixedPosition(ushort Whole, ushort Fraction)
 {
+    /// <summary>Splits one native 32-bit position (whole word high, fraction word low).</summary>
+    public static SnesFixedPosition FromRaw(uint rawValue) =>
+        new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
+
+    /// <summary>The native 32-bit position: the whole word high and the fraction word low.</summary>
+    public uint RawValue => ((uint)Whole << 16) | Fraction;
+
     /// <summary>Replaces only the whole word, as cartridge routines that store one half do.</summary>
     public SnesFixedPosition WithWhole(ushort whole) => this with { Whole = whole };
 

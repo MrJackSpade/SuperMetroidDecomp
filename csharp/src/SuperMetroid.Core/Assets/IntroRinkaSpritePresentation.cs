@@ -22,7 +22,7 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
     /// <param name="paletteBits">Actor's OBJ palette bits, used only for parts configured to inherit a palette.</param>
     /// <param name="originIsOnScreen">Whether to use ordinary origin clipping; false selects the cinematic negative-origin Y-wrap clipping path.</param>
     /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))

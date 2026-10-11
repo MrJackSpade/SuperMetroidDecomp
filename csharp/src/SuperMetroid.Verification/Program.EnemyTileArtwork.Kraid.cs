@@ -223,7 +223,7 @@ internal static partial class Program
             new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(overrides, HudTileAtlasFormat.FileName)))
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height),
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Palette);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
         SnesVram changed = RunKraidBg3Restoration(enemyArtwork,
@@ -309,7 +309,7 @@ internal static partial class Program
         image.Pixels[0] ^= 1;
         string overridePath = Path.Combine(overrides, fileName);
         using (var output = File.Create(overridePath))
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height),
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
         SnesVram changed = UploadKraidRoomBackground(edited);

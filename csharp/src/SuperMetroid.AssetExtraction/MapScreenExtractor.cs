@@ -61,7 +61,7 @@ public static class MapScreenExtractor
         byte[] Atlas(int address, int count, int bpp)
         {
             byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address, count), bpp,
-                WorldMapArtworkFormat.TileColumns, out Size32<ImagePixels> size);
+                WorldMapArtworkFormat.TileColumns, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(1 << bpp));
             return png.ToArray();

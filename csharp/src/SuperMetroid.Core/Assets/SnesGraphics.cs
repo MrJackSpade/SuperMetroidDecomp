@@ -17,7 +17,7 @@ public static class SnesGraphics
     /// Decodes consecutive 8x8 SNES planar tiles into one byte-per-pixel palette indexes.
     /// Two-bit tiles occupy 16 bytes; four-bit tiles occupy 32 bytes.
     /// </summary>
-    public static byte[] DecodePlanarTiles(ReadOnlySpan<byte> data, int bitsPerPixel, int tilesPerRow, out Size32<ImagePixels> size)
+    public static byte[] DecodePlanarTiles(ReadOnlySpan<byte> data, int bitsPerPixel, int tilesPerRow, out Extent16<ImagePixels> size)
     {
         if (bitsPerPixel is not (2 or 4))
             throw new ArgumentOutOfRangeException(nameof(bitsPerPixel));
@@ -25,7 +25,7 @@ public static class SnesGraphics
         int bytesPerTile = bitsPerPixel * 8;
         int tileCount = data.Length / bytesPerTile;
         size = TileSheetSize(tileCount, tilesPerRow);
-        int width = size.Width;
+        int width = size.X;
         var pixels = new byte[size.Area];
 
         for (int tile = 0; tile < tileCount; tile++)
@@ -58,11 +58,11 @@ public static class SnesGraphics
     /// Decodes Mode 7 tiles. Unlike ordinary planar tiles, each Mode 7 pixel is already
     /// stored as one chunky eight-bit palette index, so rows can be copied directly.
     /// </summary>
-    public static byte[] DecodeMode7Tiles(ReadOnlySpan<byte> data, int tilesPerRow, out Size32<ImagePixels> size)
+    public static byte[] DecodeMode7Tiles(ReadOnlySpan<byte> data, int tilesPerRow, out Extent16<ImagePixels> size)
     {
         int tileCount = data.Length / 64;
         size = TileSheetSize(tileCount, tilesPerRow);
-        int width = size.Width;
+        int width = size.X;
         var pixels = new byte[size.Area];
         for (int tile = 0; tile < tileCount; tile++)
         {
@@ -75,9 +75,9 @@ public static class SnesGraphics
     }
 
     // A sheet of complete 8x8 characters, tilesPerRow wide; at least one tile in each axis.
-    private static Size32<ImagePixels> TileSheetSize(int tileCount, int tilesPerRow) =>
-        new(Math.Max(1, Math.Min(tilesPerRow, tileCount)) * 8,
-            Math.Max(1, (tileCount + tilesPerRow - 1) / tilesPerRow) * 8);
+    private static Extent16<ImagePixels> TileSheetSize(int tileCount, int tilesPerRow) =>
+        new(checked((ushort)(Math.Max(1, Math.Min(tilesPerRow, tileCount)) * 8)),
+            checked((ushort)(Math.Max(1, (tileCount + tilesPerRow - 1) / tilesPerRow) * 8)));
 
     /// <summary>
     /// Creates a grayscale palette for inspecting raw tile indexes when the tilemap has

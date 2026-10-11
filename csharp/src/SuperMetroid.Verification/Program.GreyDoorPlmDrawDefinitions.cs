@@ -66,7 +66,7 @@ internal static partial class Program
             byte[] blockDefinitions = new byte[0x400 * 8];
             blockDefinitions[(originalVisual & 0x3ff) * 8] = 0xae;
             blockDefinitions[0x53 * 8] = 0x53;
-            var level = new RoomLevelData(new Size32<RoomBlocks>(width, width),
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], blockDefinitions);
             var plms = new RoomPlmSystem
@@ -144,7 +144,7 @@ internal static partial class Program
                 AssertEqual(0, guarded.ForbiddenReadAttempts,
                     $"resident grey door ${(int)header:X4} never rereads program or draw data");
 
-                var reopenedLevel = new RoomLevelData(new Size32<RoomBlocks>(width, width),
+                var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
                     new ushort[width * width], new byte[width * width],
                     new ushort[width * width], blockDefinitions);
                 BackgroundTilemapStreamer reopenedStreamer =
@@ -221,7 +221,7 @@ internal static partial class Program
             "Bomb Torizo grey door avoids both compiled program and draw sources");
 
         const int width = 16;
-        var reopenedLevel = new RoomLevelData(new Size32<RoomBlocks>(width, width),
+        var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
             new ushort[width * width], new byte[width * width],
             new ushort[width * width], blockDefinitions);
         BackgroundTilemapStreamer reopenedStreamer =
@@ -275,7 +275,7 @@ internal static partial class Program
         const int origin = 4 + 4 * width;
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x54 * 8] = 0x54;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(width, width),
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
             new ushort[width * width], new byte[width * width],
             new ushort[width * width], blockDefinitions);
         var plms = new RoomPlmSystem { GreyDoorVisuals = edited };

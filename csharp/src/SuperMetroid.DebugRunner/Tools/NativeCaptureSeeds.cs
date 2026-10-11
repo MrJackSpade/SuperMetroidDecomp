@@ -44,7 +44,7 @@ internal static partial class AssetTools
         Directory.CreateDirectory(output);
         using (var writer = new BinaryWriter(File.Create(Path.Combine(output, "room.bin"))))
         {
-            writer.Write((ushort)level.Size.Width); writer.Write((ushort)level.Size.Height);
+            writer.Write((ushort)level.Size.X); writer.Write((ushort)level.Size.Y);
             foreach (ushort tile in level.ForegroundEntries.Span) writer.Write(tile);
             writer.Write(level.BehaviorBytes.Span);
         }

@@ -20,13 +20,13 @@ internal static partial class Program
             int expected = ReadVerificationWord(rom, 0x81aa1c + area * 4 + field);
             var stock = FileSelectMapWindowMotions.StockOrigin(area);
             AssertEqual(expected, vertical ? stock.Y : stock.X, $"native area {area} origin field {field}");
-            Point32<ScreenPixels> installed = labels.Get(area);
+            Position16<OamPixels> installed = labels.Get(area);
             AssertEqual(expected, vertical ? installed.Y : installed.X, $"imported area {area} origin field {field}");
 
-            var editedAreas = new Dictionary<string, Point32<ScreenPixels>>();
+            var editedAreas = new Dictionary<string, Position16<OamPixels>>();
             for (int identity = 0; identity < 6; identity++)
                 editedAreas.Add(((AreaId)identity).ToString(), labels.Get(identity));
-            int editedCoordinate = vertical ? 223 : 255;
+            ushort editedCoordinate = vertical ? (ushort)223 : (ushort)255;
             editedAreas[((AreaId)area).ToString()] = vertical
                 ? installed with { Y = editedCoordinate } : installed with { X = editedCoordinate };
             using var json = new MemoryStream();

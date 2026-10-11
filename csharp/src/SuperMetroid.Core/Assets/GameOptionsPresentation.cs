@@ -16,12 +16,12 @@ public sealed class GameOptionsPresentation
 {
     private readonly Dictionary<string, byte[]> pages;
     private readonly Dictionary<string, ushort[]> controllerLabels;
-    private readonly Point32<TilemapCells>[]? controllerLabelAnchors;
+    private readonly Position16<TilemapCells>[]? controllerLabelAnchors;
     private readonly GameOptionsLanguageRegionDocument[]? languageRegions;
     private readonly Dictionary<string, GameOptionsToggleVisualDocument>? specialToggles;
     private readonly Dictionary<string, SpriteComposition> sprites;
-    private readonly Dictionary<string, Point32<ScreenPixels>>? headingAnchors;
-    private readonly Dictionary<string, Point32<ScreenPixels>[]>? cursorAnchors;
+    private readonly Dictionary<string, Position16<OamPixels>>? headingAnchors;
+    private readonly Dictionary<string, Position16<OamPixels>[]>? cursorAnchors;
 
     private GameOptionsPresentation(
         Dictionary<string, byte[]> pages,
@@ -60,7 +60,7 @@ public sealed class GameOptionsPresentation
     /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying selected artwork and layout including their encoding.</summary>
     public string ContentIdentity { get; }
     /// <summary>Cursor origin used during phases without a cursor table, in screen pixels with X=0-511 and Y=0-255; the actor remains in OAM.</summary>
-    public Point32<ScreenPixels> HiddenCursor { get; }
+    public Position16<OamPixels> HiddenCursor { get; }
     /// <summary>BG palette index 0-7 applied to the currently chosen language and special-toggle text regions.</summary>
     public int SelectedPalette { get; }
     /// <summary>BG palette index 0-7 applied to the other language and toggle choices; differs from <see cref="SelectedPalette"/>.</summary>
@@ -105,7 +105,7 @@ public sealed class GameOptionsPresentation
             throw new ArgumentOutOfRangeException(nameof(action));
         string label = GameOptionsPresentationDefinitions.ControllerLabelName(button);
         controllerLabels.TryGetValue(label, out ushort[]? cells);
-        Point32<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPresentationDefinitions.ControllerAnchor(action);
+        Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPresentationDefinitions.ControllerAnchor(action);
         for (int row = 0; row < GameOptionsPresentationDefinitions.ControllerLabelHeight; row++)
         for (int column = 0; column < GameOptionsPresentationDefinitions.ControllerLabelWidth; column++)
         {
@@ -136,32 +136,32 @@ public sealed class GameOptionsPresentation
             enabled ? UnselectedPalette : SelectedPalette);
     }
 
-    internal Point32<ScreenPixels> CursorPosition(string page, int selectedItem)
+    internal Position16<OamPixels> CursorPosition(string page, int selectedItem)
     {
         if (cursorAnchors is null)
             return GameOptionsPresentationDefinitions.CursorAnchor(page, selectedItem);
-        return cursorAnchors.TryGetValue(page, out Point32<ScreenPixels>[]? points) &&
+        return cursorAnchors.TryGetValue(page, out Position16<OamPixels>[]? points) &&
             (uint)selectedItem < points.Length
             ? points[selectedItem]
             : throw new InvalidDataException($"Options cursor {page}[{selectedItem}] is not authored.");
     }
     internal void DrawHeading(OamBuffer oam, string page, int verticalScroll)
     {
-        Point32<ScreenPixels> point = headingAnchors is null
+        Position16<OamPixels> point = headingAnchors is null
             ? GameOptionsPresentationDefinitions.HeadingAnchor(page)
-            : headingAnchors.TryGetValue(page, out Point32<ScreenPixels> edited) ? edited
+            : headingAnchors.TryGetValue(page, out Position16<OamPixels> edited) ? edited
                 : throw new InvalidDataException($"Options heading {page} is not authored.");
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
-        Position16<ScreenPixels> origin = new(checked((ushort)point.X), unchecked((ushort)(point.Y - verticalScroll)));
+        Position16<OamPixels> origin = new(checked((ushort)point.X), unchecked((ushort)(point.Y - verticalScroll)));
         sprites[GameOptionsPresentationDefinitions.HeadingFrameName(page)].DrawOnScreen(
             oam, origin,
             PaletteBits(CursorPalette));
     }
 
-    internal void DrawCursor(OamBuffer oam, int frame, Point32<ScreenPixels> point)
+    internal void DrawCursor(OamBuffer oam, int frame, Position16<OamPixels> point)
     {
         sprites[GameOptionsPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
-            oam, point.ToExactPosition16(), PaletteBits(CursorPalette));
+            oam, point, PaletteBits(CursorPalette));
     }
 
     /// <summary>Reads a complete options-menu JSON document and compiles validated pages, controller labels, highlights, and sprite layouts.</summary>
@@ -245,7 +245,7 @@ public sealed class GameOptionsPresentation
             labels.Add(name, words);
         }
 
-        foreach (Point32<TilemapCells> anchor in document.ControllerLabelAnchors)
+        foreach (Position16<TilemapCells> anchor in document.ControllerLabelAnchors)
             ValidateTilePoint(anchor, "controller-label anchor", GameOptionsPresentationDefinitions.ControllerLabelSize);
         var claimedLanguageCells = new HashSet<int>();
         foreach (GameOptionsLanguageRegionDocument? region in document.LanguageRegions)
@@ -273,10 +273,10 @@ public sealed class GameOptionsPresentation
         {
             ValidatePoint(document.HeadingAnchors[page], $"{page} heading", allowOffscreenX: false);
             int expected = GameOptionsPresentationDefinitions.CursorCount(page);
-            Point32<ScreenPixels>[]? points = document.CursorAnchors[page];
+            Position16<OamPixels>[]? points = document.CursorAnchors[page];
             if (points is null || points.Length != expected)
                 throw new InvalidDataException($"Options {page} requires {expected} cursor anchors.");
-            foreach (Point32<ScreenPixels> point in points)
+            foreach (Position16<OamPixels> point in points)
                 ValidatePoint(point, $"{page} cursor", allowOffscreenX: false);
         }
 
@@ -347,7 +347,7 @@ public sealed class GameOptionsPresentation
                 throw new InvalidDataException($"Options {owner} contains an invalid or duplicate cell {cell}.");
     }
 
-    private static void ValidatePoint(Point32<ScreenPixels> point, string owner, bool allowOffscreenX)
+    private static void ValidatePoint(Position16<OamPixels> point, string owner, bool allowOffscreenX)
     {
         int maximumX = allowOffscreenX ? 0x1ff : byte.MaxValue;
         if (point.X < 0 || point.X > maximumX || (uint)point.Y > byte.MaxValue)
@@ -355,11 +355,11 @@ public sealed class GameOptionsPresentation
                 $"Options {owner} requires X=0..{maximumX} and Y=0..255.");
     }
 
-    private static void ValidateTilePoint(Point32<TilemapCells> point, string owner, Size32<TilemapCells> size)
+    private static void ValidateTilePoint(Position16<TilemapCells> point, string owner, Extent16<TilemapCells> size)
     {
         if (point.X < 0 || point.Y < 0 ||
-            point.X + size.Width > GameOptionsRomData.MenuTilemapWidth ||
-            point.Y + size.Height > GameOptionsRomData.MenuTilemapHeight)
+            point.X + size.X > GameOptionsRomData.MenuTilemapWidth ||
+            point.Y + size.Y > GameOptionsRomData.MenuTilemapHeight)
             throw new InvalidDataException($"Options {owner} escapes the 32x32 page.");
     }
 
@@ -384,7 +384,7 @@ public sealed record GameOptionsPresentationDocument
     /// <summary>Seven named assignable-button glyph patches, each containing six row-major cells forming a 3-by-2 tile rectangle.</summary>
     public required Dictionary<string, MapPresentationCell[]> ControllerLabels { get; init; }
     /// <summary>Seven controller-action glyph origins in action order, in tile units; each 3-by-2 label must fit the page.</summary>
-    public required Point32<TilemapCells>[] ControllerLabelAnchors { get; init; }
+    public required Position16<TilemapCells>[] ControllerLabelAnchors { get; init; }
     /// <summary>Four nonempty, mutually disjoint primary-page cell regions whose palettes reflect the selected language.</summary>
     public required GameOptionsLanguageRegionDocument[] LanguageRegions { get; init; }
     /// <summary>Exactly the icon-cancel and moonwalk choice regions; these select visual palettes without changing option behavior.</summary>
@@ -392,11 +392,11 @@ public sealed record GameOptionsPresentationDocument
     /// <summary>Exactly three menu-heading compositions and four missile-cursor frames, using sprite-part offsets from drawing anchors.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Sprites { get; init; }
     /// <summary>Heading origins for primary, controller, and special menus in screen pixels, X=0-255 and Y=0-255; drawing subtracts vertical scroll from Y.</summary>
-    public required Dictionary<string, Point32<ScreenPixels>> HeadingAnchors { get; init; }
+    public required Dictionary<string, Position16<OamPixels>> HeadingAnchors { get; init; }
     /// <summary>Cursor origins in selection-row order for each menu: five primary, nine controller, and three special points, in screen pixels X=0-255 and Y=0-255.</summary>
-    public required Dictionary<string, Point32<ScreenPixels>[]> CursorAnchors { get; init; }
+    public required Dictionary<string, Position16<OamPixels>[]> CursorAnchors { get; init; }
     /// <summary>Cursor origin for phases without a selection table, in screen pixels X=0-511 and Y=0-255, allowing offscreen placement.</summary>
-    public required Point32<ScreenPixels> HiddenCursor { get; init; }
+    public required Position16<OamPixels> HiddenCursor { get; init; }
     /// <summary>BG palette index 0-7 for chosen language and toggle regions; must differ from the unselected index.</summary>
     public required int SelectedPalette { get; init; }
     /// <summary>BG palette index 0-7 for language and toggle regions that are not chosen.</summary>
@@ -465,7 +465,7 @@ public static class GameOptionsPresentationDefinitions
     /// <summary>Six row-major tile cells required for each controller-button glyph patch.</summary>
     public const int ControllerLabelCellCount = ControllerLabelWidth * ControllerLabelHeight;
     /// <summary>Size of one controller-label glyph patch in tile cells.</summary>
-    public static Size32<TilemapCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
+    public static Extent16<TilemapCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
 
     private static readonly string[] pageNames =
         [BackgroundPage, PrimaryPage, ControllerEnglishPage, ControllerJapanesePage,
@@ -584,14 +584,14 @@ public static class GameOptionsPresentationDefinitions
         return SnesBgTilemapWord.Create(tile, 0, false, flips).Raw;
     }
     /// <summary>$82:F639 controller label destinations: three tile rows per action.</summary>
-    internal static Point32<TilemapCells> ControllerAnchor(int action)
+    internal static Position16<TilemapCells> ControllerAnchor(int action)
     {
         int word = GameOptionsRomData.ControllerLabels.Destination(action) / sizeof(ushort);
-        return new(word % GameOptionsRomData.MenuTilemapWidth, word / GameOptionsRomData.MenuTilemapWidth);
+        return new(checked((ushort)(word % GameOptionsRomData.MenuTilemapWidth)), checked((ushort)(word / GameOptionsRomData.MenuTilemapWidth)));
     }
 
     /// <summary>$82:F307/F31B/F33F selection missile rows, including controller scroll displacement.</summary>
-    internal static Point32<ScreenPixels> CursorAnchor(string page, int row)
+    internal static Position16<OamPixels> CursorAnchor(string page, int row)
     {
         if (page is not (PrimaryMenu or ControllerMenu or SpecialMenu) || (uint)row >= CursorCount(page))
             throw new InvalidDataException($"Options cursor {page}[{row}] is not authored.");
@@ -604,7 +604,7 @@ public static class GameOptionsPresentationDefinitions
     }
 
     /// <summary>$82:F34B/F353/F35B and F369 named page heading setup anchors.</summary>
-    internal static Point32<ScreenPixels> HeadingAnchor(string page)
+    internal static Position16<OamPixels> HeadingAnchor(string page)
     {
         GameOptionsPage selected = page switch
         {

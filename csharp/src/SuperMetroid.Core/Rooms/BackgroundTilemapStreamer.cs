@@ -146,7 +146,7 @@ public sealed class BackgroundTilemapStreamer
         ReadOnlySpan<ushort> source = SelectSource(request.Layer);
         var leftTiles = new ushort[32];
         var rightTiles = new ushort[32];
-        int sourceIndex = SourceIndex(new(request.SourceXBlock, request.SourceYBlock));
+        int sourceIndex = SourceIndex(request.SourceBlock);
 
         // The viewport streamer always expands sixteen 16x16 blocks. Each contributes two
         // vertically adjacent tile words to each of the left/right column buffers.
@@ -164,13 +164,13 @@ public sealed class BackgroundTilemapStreamer
 
         // VRAM is a two-screen-wide, one-screen-tall ring buffer. The current vertical
         // block modulo 16 determines where a 32-tile column wraps from bottom back to top.
-        int wrappedBytes = (4 * request.VramYBlock) & 0x003c;
+        int wrappedBytes = (4 * request.VramBlock.Y) & 0x003c;
         int unwrappedBytes = (wrappedBytes ^ 0x003f) + 1;
         int unwrappedWords = unwrappedBytes / 2;
         int wrappedWords = wrappedBytes / 2;
 
-        int yWordOffset = (request.VramYBlock & 0x000f) * 0x0040;
-        int xBlock = request.VramXBlock & 0x001f;
+        int yWordOffset = (request.VramBlock.Y & 0x000f) * 0x0040;
+        int xBlock = request.VramBlock.X & 0x001f;
         int xWordOffset = xBlock * 2;
         ushort screenBase = xBlock >= 0x10 ? (ushort)0x53e0 : (ushort)0x5000;
         if (request.Layer == BackgroundLayer.Background)
@@ -197,7 +197,7 @@ public sealed class BackgroundTilemapStreamer
         ReadOnlySpan<ushort> source = SelectSource(request.Layer);
         var topTiles = new ushort[34];
         var bottomTiles = new ushort[34];
-        int sourceIndex = SourceIndex(new(request.SourceXBlock, request.SourceYBlock));
+        int sourceIndex = SourceIndex(request.SourceBlock);
 
         // Seventeen blocks, rather than sixteen, cover both partial blocks at the screen's
         // horizontal edges. This is the literal loop count $0011 at $80:AC51.
@@ -212,14 +212,14 @@ public sealed class BackgroundTilemapStreamer
             bottomTiles[destination + 1] = tiles.BottomRight;
         }
 
-        int xWithinScreen = request.VramXBlock & 0x000f;
+        int xWithinScreen = request.VramBlock.X & 0x000f;
         int unwrappedBytes = 4 * (16 - xWithinScreen);
         int wrappedBytes = 4 * (xWithinScreen + 1);
         int unwrappedWords = unwrappedBytes / 2;
         int wrappedWords = wrappedBytes / 2;
 
-        int yWordOffset = (request.VramYBlock & 0x000f) * 0x0040;
-        int xBlock = request.VramXBlock & 0x001f;
+        int yWordOffset = (request.VramBlock.Y & 0x000f) * 0x0040;
+        int xBlock = request.VramBlock.X & 0x001f;
         int xWordOffset = xBlock * 2;
         ushort wrappedScreenBase = 0x5400;
         ushort unwrappedScreenBase = 0x5000;
@@ -253,11 +253,11 @@ public sealed class BackgroundTilemapStreamer
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
-    private int SourceIndex(Position16<RoomBlocks> source)
+    private int SourceIndex(Position16<RoomBlocks> block)
     {
         // $80:A9E5/$80:AB7F use the SNES 8x8 multiplier for Y*roomWidth, then add the
         // complete 16-bit X word. Valid gameplay requests stay inside the loaded room.
-        return unchecked((byte)source.Y * RoomWidthInBlocks + source.X);
+        return unchecked((byte)block.Y * RoomWidthInBlocks + block.X);
     }
 
     private static ushort ReadSource(
@@ -268,7 +268,7 @@ public sealed class BackgroundTilemapStreamer
         if ((uint)index >= (uint)source.Length)
         {
             throw new InvalidDataException(
-                $"{request.Layer} stream request ({request.SourceXBlock:X4},{request.SourceYBlock:X4}) " +
+                $"{request.Layer} stream request ({request.SourceBlock.X:X4},{request.SourceBlock.Y:X4}) " +
                 $"indexed entry {index}, outside the {source.Length}-entry room layer.");
         }
         return source[index];

@@ -174,7 +174,7 @@ internal static partial class Program
             : blockDefinitions.ToArray();
 
         return new RoomLevelData(
-            new Size32<RoomBlocks>(widthInBlocks, heightInBlocks),
+            new Extent16<RoomBlocks>(checked((ushort)widthInBlocks), checked((ushort)heightInBlocks)),
             foreground,
             behavior,
             clearedBackground,

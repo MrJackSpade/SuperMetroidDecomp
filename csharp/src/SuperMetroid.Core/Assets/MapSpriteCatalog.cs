@@ -12,7 +12,7 @@ public sealed class MapSpriteCatalog
     private readonly MapObjectTileArtwork characters;
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
     /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor.</summary>
-    public void Draw(MapSpriteId id, OamBuffer oam, Position16<ScreenPixels> origin, ushort paletteBits)
+    public void Draw(MapSpriteId id, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         var label = GetWorldLabel(id);
         if (label is not null) { label.Draw(oam, origin, paletteBits); return; }
@@ -22,7 +22,7 @@ public sealed class MapSpriteCatalog
         for (int index = 0; index < MapMarkerGeometry.PartCount(id); index++)
         {
             var part = MapMarkerGeometry.Part(id, index);
-            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), origin.X, origin.Y);
+            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), origin);
         }
     }
     /// <summary>Loads the compiled shared 4-bpp map-object characters at a byte-addressed VRAM destination.</summary>

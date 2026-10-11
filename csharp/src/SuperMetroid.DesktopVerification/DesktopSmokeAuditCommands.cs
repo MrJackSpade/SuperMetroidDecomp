@@ -113,7 +113,7 @@ internal static class DesktopSmokeAuditCommands
                 $"Frame timing passed: emulation {result.EmulatedFramesPerSecond:F1} fps, " +
                 $"paint {result.PaintedFramesPerSecond:F1} fps, " +
                 $"step {result.AverageEmulationMilliseconds:F2}/{result.WorstEmulationMilliseconds:F2} ms, " +
-                $"late {result.LateFrames:F1}; persistent {bitmap.Width}x{bitmap.Height} " +
+                $"late {result.LateFrames:F1}; persistent {bitmap.BitmapSize.Width}x{bitmap.BitmapSize.Height} " +
                 $"bitmap replacement preserved RGBA.");
             return true;
         }

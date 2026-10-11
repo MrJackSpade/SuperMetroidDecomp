@@ -254,7 +254,7 @@ internal sealed class IntroCinematicObjectSystem
             IntroNarrationCharacter? next = narrationCharacterIndex + 1 < program.Length
                 ? program[narrationCharacterIndex + 1]
                 : null;
-            (textGlow ??= new()).Spawn(new(character.Column, character.Row), new(1, 1));
+            (textGlow ??= new()).Spawn(new(checked((ushort)character.Column), checked((ushort)character.Row)), new(1, 1));
             if (next is { } following)
             {
                 Caret = new(
@@ -502,22 +502,22 @@ internal sealed class IntroCinematicObjectSystem
     }
 
     // A native BG record packs the tile column in the low byte and the row in the high byte.
-    private static Point32<TilemapCells> UnpackCell(ushort packedPosition) =>
-        new(packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask, packedPosition >> 8);
+    private static Position16<TilemapCells> UnpackCell(ushort packedPosition) =>
+        new(checked((ushort)(packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask)), checked((ushort)(packedPosition >> 8)));
 
-    private void CopyRectangleToPortrait(Point32<TilemapCells> destination, Size32<TilemapCells> size,
+    private void CopyRectangleToPortrait(Position16<TilemapCells> destination, Extent16<TilemapCells> size,
         ReadOnlySpan<ushort> source)
     {
         ValidateRectangle(destination, size);
         if (source.Length != size.Area)
             throw new InvalidDataException("Opening eye frame does not match its native rectangle size.");
-        for (int row = 0; row < size.Height; row++)
+        for (int row = 0; row < size.Y; row++)
         {
             ushort destinationWord = (ushort)(
                 IntroCinematicRomData.Layers.PortraitTilemapWord +
                 (destination.Y + row) * IntroCinematicRomData.Layers.TilemapWidth +
                 destination.X);
-            vram.ExecuteWordTransfer(source.Slice(row * size.Width, size.Width), destinationWord, 1);
+            vram.ExecuteWordTransfer(source.Slice(row * size.X, size.X), destinationWord, 1);
         }
     }
 
@@ -538,12 +538,12 @@ internal sealed class IntroCinematicObjectSystem
         spriteInstructionTimer = 1;
     }
 
-    private static void ValidateRectangle(Point32<TilemapCells> origin, Size32<TilemapCells> size)
+    private static void ValidateRectangle(Position16<TilemapCells> origin, Extent16<TilemapCells> size)
     {
-        if (origin.X + size.Width > IntroCinematicRomData.Layers.TilemapWidth ||
-            origin.Y + size.Height > IntroCinematicRomData.Layers.TilemapWidth)
+        if (origin.X + size.X > IntroCinematicRomData.Layers.TilemapWidth ||
+            origin.Y + size.Y > IntroCinematicRomData.Layers.TilemapWidth)
             throw new InvalidDataException(
-                $"Cinematic rectangle ({origin.X},{origin.Y}) {size.Width}x{size.Height} leaves its 32x32 tilemap.");
+                $"Cinematic rectangle ({origin.X},{origin.Y}) {size.X}x{size.Y} leaves its 32x32 tilemap.");
     }
 
     private static ushort ReadBank8B(ushort pointer) =>

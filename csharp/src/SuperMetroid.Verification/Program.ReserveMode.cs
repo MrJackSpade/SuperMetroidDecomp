@@ -85,7 +85,7 @@ internal static partial class Program
         knockbackVariant.InitializeAnimation(bus);
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter =
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter;
-        var level = new RoomLevelData(new Size32<RoomBlocks>(16, 16), new ushort[256], new byte[256],
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new ushort[256], new byte[256],
             new ushort[256], new byte[8]);
         AssertTrue(knockbackVariant.TryApplyPostureTransition(
                 bus,

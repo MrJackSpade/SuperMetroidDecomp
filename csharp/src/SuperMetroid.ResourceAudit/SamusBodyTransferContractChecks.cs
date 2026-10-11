@@ -67,7 +67,7 @@ internal static class SamusBodyTransferContractChecks
                 new[] { 0, (int)SamusArmCannonArtworkFormat.TileSourcePointers[0],
                     (int)SamusArmCannonArtworkFormat.TileSourcePointers[0], (int)SamusArmCannonArtworkFormat.TileSourcePointers[0] }).ToArray() };
         using var cannonJson = new MemoryStream(SamusArmCannonArtworkCatalog.Write(cannonDocument));
-        using var cannonPng = Png(new(SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8, 8));
+        using var cannonPng = Png(new(checked((ushort)(SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8)), 8));
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(cannonJson, cannonPng);
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         if (invalidAdjacentFrame) frames[1] = new(byte.MaxValue, 0, byte.MaxValue, 0);
@@ -132,7 +132,7 @@ internal static class SamusBodyTransferContractChecks
         Require(Inspect(Compile(trees.Append(extra)), true).UnresolvedCount == 8, "unreviewed private-state access revokes transfer closure");
     }
 
-    private static MemoryStream Png(Size32<ImagePixels> size)
+    private static MemoryStream Png(Extent16<ImagePixels> size)
     {
         var stream = new MemoryStream();
         IndexedPng.Write(stream, size, new byte[size.Area], [new Rgba32(0, 0, 0)]);

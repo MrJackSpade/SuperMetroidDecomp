@@ -33,10 +33,10 @@ internal static partial class Program
             // offscreen positions intercept this shot regardless of the lower wait.
             for (int frame = 0; frame < 120; frame++)
             {
-                runtime.Camera!.SetPosition(0, 160);
+                runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 160));
                 runtime.StepFrame((ushort)SnesButton.Up);
             }
-            runtime.Camera!.SetPosition(0, 450);
+            runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 450));
             for (int frame = 0; frame < 120; frame++) runtime.StepFrame((ushort)SnesButton.Up);
             AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlock(new(7, 10)).CollisionType,
                 "Red Tower top target is still intact before firing");
@@ -48,7 +48,7 @@ internal static partial class Program
                     ? (ushort)((ushort)SnesButton.Up | runtime.ControllerBindings.Shoot)
                     : (ushort)SnesButton.Up;
                 if (followShot && frame > 0 && runtime.Projectiles!.Slots[0].IsActive)
-                    runtime.Camera.SetPosition(0, (ushort)Math.Max(0, runtime.Projectiles.Slots[0].YPosition - 160));
+                    runtime.Camera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Slots[0].YPosition - 160)));
                 runtime.StepFrame(input);
                 var shot = runtime.Projectiles!.Slots[0];
                 if (frame == 0)

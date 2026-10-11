@@ -10,7 +10,7 @@ public sealed partial class FileSelectAreaMapGraphics
     public LayeredRenderSnapshot CaptureRenderSnapshot(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true)
     {
         OamBuffer oam = PrepareLabels(usedStationMasks);
-        var foreground = new Bg4BppRenderLayer(MenuPpuState.Bg1TilemapWord, 0, 0, 0, 32, 32, null);
+        var foreground = new Bg4BppRenderLayer(MenuPpuState.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null);
         return new(PpuMemorySnapshot.Capture(Vram, Cgram, oam), new RenderLayer[] {
             foreground,
             new BgSubscreenAddRenderLayer(FileSelectMapRomData.AreaBackgroundVram,
@@ -27,15 +27,13 @@ public sealed partial class FileSelectRoomMapGraphics
     {
         var layers = new List<RenderLayer>();
         if (frameOnly)
-            layers.Add(new Bg4BppRenderLayer(MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, 0,
-                FileSelectMapRomData.RoomFrameVerticalScroll, 32, 32, null));
+            layers.Add(new Bg4BppRenderLayer(MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), null));
         else
             foreach (bool priority in new[] { false, true })
             {
-                layers.Add(new Bg4BppRenderLayer(MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, 0,
-                    FileSelectMapRomData.RoomFrameVerticalScroll, 32, 32, priority));
+                layers.Add(new Bg4BppRenderLayer(MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), priority));
                 layers.Add(new Bg4BppRenderLayer(MenuPpuState.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
-                    scroll.X, scroll.Y, 64, 32, priority));
+                    scroll.AsBgPlaneScroll(), new Extent16<TilemapCells>(64, 32), priority));
             }
         OamBuffer oam;
         if (marker is not null && !frameOnly)

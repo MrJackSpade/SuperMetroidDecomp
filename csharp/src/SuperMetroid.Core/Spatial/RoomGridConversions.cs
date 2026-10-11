@@ -10,14 +10,17 @@ public static class RoomGridConversions
     /// The block containing an unsigned room pixel, exactly as the native <c>LSR ×4</c> collision
     /// paths derive it from each sixteen-bit coordinate word.
     /// </summary>
-    public static Point32<RoomBlocks> ToRoomBlock(this Position16<RoomPixels> position) =>
-        new(position.X >> 4, position.Y >> 4);
+    public static Position16<RoomBlocks> ToRoomBlock(this Position16<RoomPixels> position) =>
+        new((ushort)(position.X >> 4), (ushort)(position.Y >> 4));
 
-    /// <summary>The top-left room pixel of a screen (<c>screen &lt;&lt; 8</c>), wrapping each axis at sixteen bits.</summary>
-    public static Position16<RoomPixels> ToRoomPixels(this Point32<RoomScreens> screen) =>
+    /// <summary>
+    /// The room-pixel origin of a screen cell: each axis shifted left eight bits, wrapping at
+    /// sixteen bits.
+    /// </summary>
+    public static Position16<RoomPixels> ToRoomPixels(this Position16<RoomScreens> screen) =>
         new(unchecked((ushort)(screen.X << 8)), unchecked((ushort)(screen.Y << 8)));
 
     /// <summary>A screen-grid size measured in blocks.</summary>
-    public static Size32<RoomBlocks> ToRoomBlocks(this Size32<RoomScreens> size) =>
-        new(size.Width * BlocksPerScreen, size.Height * BlocksPerScreen);
+    public static Extent16<RoomBlocks> ToRoomBlocks(this Extent16<RoomScreens> size) =>
+        new(checked((ushort)(size.X * BlocksPerScreen)), checked((ushort)(size.Y * BlocksPerScreen)));
 }

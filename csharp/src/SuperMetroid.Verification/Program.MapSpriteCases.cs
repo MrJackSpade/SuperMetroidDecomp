@@ -91,8 +91,8 @@ internal static partial class Program
                 native.BeginFrame(); installed.BeginFrame();
                 for (int index = 0; index < occupied; index++)
                 {
-                    native.AddRawSmallSprite(12, 34, 56);
-                    installed.AddRawSmallSprite(12, 34, 56);
+                    native.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56);
+                    installed.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56);
                 }
                 DrawImportedSpritemap(bus, native, pointer, x, y, (ushort)(palette << 9));
                 catalog.Draw((MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9));

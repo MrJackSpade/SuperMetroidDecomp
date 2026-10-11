@@ -92,7 +92,7 @@ internal static partial class Program
             "ProcessBombTorizoWalkInstruction",
             instanceFlags)!;
         var level = new RoomLevelData(
-            new Size32<RoomBlocks>(64, 64),
+            new Extent16<RoomBlocks>(64, 64),
             new ushort[4096],
             new byte[4096],
             new ushort[4096],

@@ -46,14 +46,14 @@ internal static partial class Program
             slot => slot.HeaderPointer == PlmHeaderId.DownwardGate);
         var shotBlock = runtime.Plms.PopulationSlots.Single(
             slot => slot.HeaderPointer == PlmHeaderId.DownwardGateShotBlock);
-        AssertEqual(32, original.Size.Width, "Pink Brinstar Hopper room width");
-        AssertEqual(32, original.Size.Height, "Pink Brinstar Hopper room height");
+        AssertEqual(32, original.Size.X, "Pink Brinstar Hopper room width");
+        AssertEqual(32, original.Size.Y, "Pink Brinstar Hopper room height");
         AssertEqual(0x0091, residentGate.BlockIndex, "Authored Pink Brinstar gate block");
         AssertEqual((ushort)0x0002, shotBlock.RoomArgument,
             "Authored Pink Brinstar blue-right trigger table row");
 
-        int gateX = residentGate.BlockIndex % original.Size.Width * 16;
-        int gateY = residentGate.BlockIndex / original.Size.Width * 16;
+        int gateX = residentGate.BlockIndex % original.Size.X * 16;
+        int gateY = residentGate.BlockIndex / original.Size.X * 16;
         int cameraX = gateX - 128;
         int cameraY = 0;
         var actual = new List<string>();
@@ -182,8 +182,8 @@ internal static partial class Program
             slot => slot.HeaderPointer == PlmHeaderId.DownwardGate);
         var shotBlock = runtime.Plms.PopulationSlots.Single(
             slot => slot.HeaderPointer == PlmHeaderId.DownwardGateShotBlock);
-        AssertEqual(64, level.Size.Width, "East Tunnel room width");
-        AssertEqual(32, level.Size.Height, "East Tunnel room height");
+        AssertEqual(64, level.Size.X, "East Tunnel room width");
+        AssertEqual(32, level.Size.Y, "East Tunnel room height");
         AssertEqual(0x0156, gate.BlockIndex, "Authored East Tunnel gate block");
         AssertEqual((ushort)0x000a, shotBlock.RoomArgument,
             "Authored East Tunnel green-right trigger table row");
@@ -200,7 +200,7 @@ internal static partial class Program
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        runtime.Camera!.SetPosition(128, 0);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(128, 0));
 
         RoomEnemySlot frozen = runtime.Enemies.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon);

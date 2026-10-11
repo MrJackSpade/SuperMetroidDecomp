@@ -73,7 +73,7 @@ internal static partial class Program
             MotherBrainCorpseArtworkDefinitions.ByteCount);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         int rows = (tileCount + columns - 1) / columns;
-        IndexedPngImage image = IndexedPng.Read(input, new(columns * 8, rows * 8));
+        IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
         // The first native copy starts $C0 bytes into this sheet: tile six,
         // first pixel. That pixel becomes the high bit of $7E:9000.
         image.Pixels[6 * 8] ^= 1;
@@ -81,7 +81,7 @@ internal static partial class Program
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
         using (var output = File.Create(overridePath))
-            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainCorpsePages(edited,
             SuperMetroidAddressSpace.CreateWithoutCartridge());

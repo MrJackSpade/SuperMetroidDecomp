@@ -82,13 +82,13 @@ internal static partial class Program
         body.Properties=0x2000;body.CurrentInstruction=0xbc80;body.InstructionTimer=5;
         body.XPosition=128;body.YPosition=(ushort)(190-body.YRadius);
         var words=new ushort[256];for(int i=12*16;i<13*16;i++)words[i]=0x8000;
-        var level=new RoomLevelData(new Size32<RoomBlocks>(16, 16),words,new byte[256],new ushort[256],new byte[8]);
+        var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16),words,new byte[256],new ushort[256],new byte[8]);
         typeof(SuperMetroidRuntime).GetProperty("LevelData")!.SetValue(runtime,level);
         var samus=runtime.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;
         samus.RefreshCollisionRadii(bus);samus.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
         samus.XPosition=240;samus.YPosition=(ushort)(192-samus.Kinematics.YRadius);samus.InputLocked=false;
-        runtime.Camera!.SetPosition(0,0);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 0));
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game,SuperMetroidGameState.MainGameplay);
         var renderer=new CartridgeAudioRenderer(installation.LoadAudio());
         int shaken=0;

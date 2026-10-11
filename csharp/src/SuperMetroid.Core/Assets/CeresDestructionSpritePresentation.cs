@@ -24,7 +24,7 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Packed OBJ palette bits used only by parts whose editable palette is null.</param>
     /// <param name="originIsOnScreen">True for ordinary origin clipping, false for the native off-screen Y-wrap path.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
@@ -99,7 +99,7 @@ internal sealed class CeresSceneSpritePresentation(
     CeresFlightSpritePresentation flight,
     CeresDestructionSpritePresentation destruction) : IIntroCinematicSpritePresentation
 {
-    public void Draw(ushort pointer, OamBuffer oam, Position16<ScreenPixels> origin,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         IIntroCinematicSpritePresentation owner = destruction.Contains(pointer)

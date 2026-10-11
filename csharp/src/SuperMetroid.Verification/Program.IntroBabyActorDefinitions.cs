@@ -78,7 +78,7 @@ internal static partial class Program
                 $"intro baby actor {index} initializer palette immediate");
         }
 
-        var guarded = new IntroBabyActorDefinitionReadGuard(retail);
+        var guarded = NewIntroBabyActorDefinitionGuard(retail);
         byte[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
         var discovery = new IntroBabyDiscoveryState(guarded,
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Game.SamusState()));
@@ -223,16 +223,9 @@ internal static partial class Program
     private static ushort ReadIntroBabyActorWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
-    private sealed class IntroBabyActorDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            bool forbidden =
+    private static CartridgeReadGuard NewIntroBabyActorDefinitionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address =>
                 (address >= IntroBabyDiscoveryCollisionDefinitions.SourceAddress &&
                     address < IntroBabyDiscoveryCollisionDefinitions.SourceAddress +
                         IntroBabyDiscoveryCollisionDefinitions.SourceByteCount) ||
@@ -244,8 +237,7 @@ internal static partial class Program
                 >= 0x8ba8d5 and < 0x8ba8e8 or
                 >= 0x8bad55 and < 0x8bad68 or
                 >= 0x8bad93 and < 0x8bada6 or
-                >= 0x8bba4b and < 0x8bba5e;
-            forbidden |=
+                >= 0x8bba4b and < 0x8bba5e ||
                 (address >= (IntroBabyActorDefinitions.NativeBank |
                     IntroScientistInstructionDefinitions.DeliveryStart) &&
                  address < (IntroBabyActorDefinitions.NativeBank |
@@ -257,16 +249,6 @@ internal static partial class Program
                 (address >= (DemoInputRomData.BankBase |
                     IntroBabyDiscoveryInputDefinitions.HeaderStart) &&
                  address < (DemoInputRomData.BankBase |
-                    IntroBabyDiscoveryInputDefinitions.HeaderEnd));
-            if (forbidden)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Intro egg/baby actor reread compiled byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                    IntroBabyDiscoveryInputDefinitions.HeaderEnd)),
+            address => $"Intro egg/baby actor reread compiled byte ${address:X6}.");
 }

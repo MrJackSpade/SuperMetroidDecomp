@@ -18,7 +18,7 @@ internal static partial class Program
         Suite(nameof(VerifyKraidLintMechanicsMapping), () => VerifyKraidLintMechanicsMapping(rom));
         Suite(nameof(VerifyKraidLintPresentationMapping), () => VerifyKraidLintPresentationMapping());
 
-        var guard = new KraidLintInstructionReadGuard(rom);
+        var guard = NewKraidLintInstructionGuard(rom);
         var executedOperands = new HashSet<ushort>();
         EnemyDefinitionId[] definitions =
         [
@@ -59,7 +59,7 @@ internal static partial class Program
             }
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Enemy presentation performs zero live cartridge reads");
         AssertEqual(KraidLintInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "Every native visual operand executes");
@@ -111,41 +111,22 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class KraidLintInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewKraidLintInstructionGuard(ISnesAddressSpace source)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        var guard = new CartridgeReadGuard(source)
+            .Forbid(KraidLintInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                    address => $"Production read compiled Kraid lint mechanics byte ${address:X6}.");
+        // Records every presentation word whose low or high byte is read.
+        guard.Observe(address => (address & 0xff0000) == 0xa70000, address =>
         {
-            if (KraidLintInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0; index < KraidLintInstructionProgramDefinitions.PresentationWordCount; index++)
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Kraid lint mechanics byte ${address:X6}.");
+                ushort presentation = KraidLintInstructionProgramDefinitions.PresentationWordAddress(index);
+                if (bankAddress == presentation || bankAddress == unchecked((ushort)(presentation + 1)))
+                    guard.ObservedWords.Add(presentation);
             }
-            if ((address & 0xff0000) == 0xa70000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < KraidLintInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        KraidLintInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        });
+        return guard;
     }
 }

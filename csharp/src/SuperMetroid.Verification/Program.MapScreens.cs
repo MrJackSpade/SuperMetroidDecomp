@@ -12,7 +12,7 @@ internal static partial class Program
 {
     private static void VerifyMapScreens(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
-        var guard = new MapScreenReadGuard(bus);
+        var guard = NewMapScreenGuard(bus);
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         for (int index = 0; index < MapScreenDefinitions.ZebesAreas; index++)
@@ -166,46 +166,24 @@ internal static partial class Program
         AssertTrue(saves.ReadSlot(0)!.ToSnapshot().MapStationBytes.AsSpan().SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
     }
 
-    private sealed class MapScreenReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    [CpuBusBoundary("exact bus test: retail ROM oracle reading the native room-label pointers to forbid every map-screen presentation source")]
+    private static MutableCartridgeReadGuard NewMapScreenGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> forbidden = new();
-        public MapScreenReadGuard(ISnesAddressSpace source)
-        {
-            this.source = source;
-            Add(FileSelectMapRomData.InitialMenuBackground, MapScreenDefinitions.PageBytes);
-            Add(FileSelectMapRomData.AreaForeground, MapScreenDefinitions.PageBytes);
-            Add(FileSelectMapRomData.AreaBackgrounds, MapScreenDefinitions.PageBytes * MapScreenDefinitions.ZebesAreas);
-            Add(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
-            Add(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes);
-            Add(FileSelectMapRomData.RoomFrame, 1600);
-            Add(FileSelectMapRomData.RoomFrameFooter, 322);
-            Add(FileSelectMapRomData.RoomLabelPointers, MapScreenDefinitions.ZebesAreas * 2);
-            for (int area = 0; area < MapScreenDefinitions.ZebesAreas; area++)
-                Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), FileSelectMapRomData.RoomLabelPointers + area * 2), 24);
-            void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
-        }
-        private void RejectScreenSource(int address)
-        {
-            if (forbidden.Contains(address))
-                throw new InvalidOperationException($"Installed map screens read cartridge presentation at {address:X6}.");
-        }
-        public byte ReadByte(int address)
-        {
-            RejectScreenSource(address);
-            return source.ReadByte(address);
-        }
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectScreenSource(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Map-screen guard source does not expose WRAM.")).ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Map-screen guard source does not expose SRAM.")).ReadSaveRamByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
+        var forbidden = new HashSet<int>();
+        Add(FileSelectMapRomData.InitialMenuBackground, MapScreenDefinitions.PageBytes);
+        Add(FileSelectMapRomData.AreaForeground, MapScreenDefinitions.PageBytes);
+        Add(FileSelectMapRomData.AreaBackgrounds, MapScreenDefinitions.PageBytes * MapScreenDefinitions.ZebesAreas);
+        Add(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
+        Add(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes);
+        Add(FileSelectMapRomData.RoomFrame, 1600);
+        Add(FileSelectMapRomData.RoomFrameFooter, 322);
+        Add(FileSelectMapRomData.RoomLabelPointers, MapScreenDefinitions.ZebesAreas * 2);
+        for (int area = 0; area < MapScreenDefinitions.ZebesAreas; area++)
+            Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, FileSelectMapRomData.RoomLabelPointers + area * 2), 24);
+        void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(forbidden.Contains, address => $"Installed map screens read cartridge presentation at {address:X6}.");
+        return guard;
     }
 }

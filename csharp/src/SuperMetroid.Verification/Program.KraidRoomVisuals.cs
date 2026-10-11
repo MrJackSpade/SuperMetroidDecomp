@@ -133,7 +133,7 @@ internal static partial class Program
         };
         AssertTrue(tubePlms.TrySpawnMaridiaElevatube(tubeLevel),
             "elevatube allocates alongside Kraid appearance resource");
-        var tubeGuard = new KraidRoomSourceGuard(new TestAddressSpace());
+        var tubeGuard = NewKraidRoomSourceGuard(new TestAddressSpace());
         tubePlms.Step(tubeGuard, tubeLevel,
             tubeLevel.CreateBackgroundStreamer(), new(0, 0), 0);
         int tubeBlock = tubeLevel.GetBlockIndex(
@@ -174,7 +174,7 @@ internal static partial class Program
         };
         AssertTrue(plms.TrySpawnKraidRoomMutation(level, new(5, 5), header),
             $"Kraid visual owner ${(int)header:X4} allocates");
-        var guard = new KraidRoomSourceGuard(new TestAddressSpace());
+        var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         plms.Step(guard, level, streamer, new(layer1X, 0), 0);
         int blockIndex = 5 * width + 5 + blockOffset;

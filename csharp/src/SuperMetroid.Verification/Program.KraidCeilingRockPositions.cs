@@ -22,7 +22,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new KraidCeilingReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewKraidCeilingGuard(rom));
         typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 63));
         var step = typeof(RoomEnemySystem).GetMethod("RunKraidGrowthFunction", flags)!
             .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
@@ -54,12 +54,8 @@ internal static partial class Program
         Console.WriteLine("Kraid ceiling rocks: all 18 byte reads and 589824 actual growth updates match with placement reads forbidden.");
     }
 
-    private sealed class KraidCeilingReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa7acb3 and <= 0xa7acc5
-            ? throw new InvalidOperationException("Unexpected migrated ceiling placement read.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected ceiling bus write.");
-    }
+    private static CartridgeReadGuard NewKraidCeilingGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa7acb3 and <= 0xa7acc5, _ => "Unexpected migrated ceiling placement read.")
+            .RejectWrites(_ => "Unexpected ceiling bus write.");
 }

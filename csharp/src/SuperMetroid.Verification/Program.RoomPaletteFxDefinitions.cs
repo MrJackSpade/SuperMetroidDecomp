@@ -73,7 +73,7 @@ internal static partial class Program
             }
         }
 
-        var guardedRom = new RoomPaletteFxDefinitionReadGuard(rom, forbidden);
+        var guardedRom = NewRoomPaletteFxDefinitionGuard(rom, forbidden);
         Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(guardedRom, pointers));
 
         const ushort fxPointer = 0x9000;
@@ -172,30 +172,7 @@ internal static partial class Program
     private static ushort PaletteFxSlotWord(object slot, string name) =>
         (ushort)slot.GetType().GetProperty(name)!.GetValue(slot)!;
 
-    private sealed class RoomPaletteFxDefinitionReadGuard(
-        ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadByte(int address)
-        {
-            RejectMetadataRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectMetadataRead(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Palette-FX test source requires cartridge data.")).ReadCartridgeByte(address);
-        }
-
-        private void RejectMetadataRead(int address)
-        {
-            if (forbidden.Contains(address))
-                throw new InvalidOperationException(
-                    $"Palette-FX runtime reread compiled metadata byte ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewRoomPaletteFxDefinitionGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
+        new CartridgeReadGuard(source).Forbid(forbidden.Contains,
+            address => $"Palette-FX runtime reread compiled metadata byte ${address:X6}.");
 }

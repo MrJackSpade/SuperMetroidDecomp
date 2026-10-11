@@ -55,16 +55,8 @@ internal static partial class Program
         }
     }
 
-    private sealed class BlackBlendSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadByte(int address)
-        {
-            foreach (byte id in OriginalBlackBlendIds())
-                if (address == 0x89aa06 + id || address == 0x89aa07 + id)
-                    throw new InvalidOperationException("FX blend extraction read a calculated black color.");
-            return source.ReadByte(address);
-        }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBlackBlendSourceGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => OriginalBlackBlendIds().Any(id => address == 0x89aa06 + id || address == 0x89aa07 + id),
+            _ => "FX blend extraction read a calculated black color.");
 }

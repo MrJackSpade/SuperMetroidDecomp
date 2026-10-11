@@ -21,6 +21,7 @@ internal static partial class Program
     /// keep a blank spritemap and name the image by instruction operand; the cartridge's spritemap
     /// for such a frame is the word stored at that operand in bank $86.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the bank-$86 spritemap word an installed-presentation enemy projectile operand names")]
     private static ushort NativeEnemyProjectileSpritemap(ISnesAddressSpace bus, RoomEnemyProjectileSlot projectile) =>
         projectile.PresentationOperandAddress != 0
             ? SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -34,6 +35,7 @@ internal static partial class Program
             bank8dSpritemapPointer, origin, graphicsIndex, originYIsOnScreen);
 
     /// <summary>Imports only the sprite records authored in a sparse projectile fixture.</summary>
+    [CpuBusBoundary("exact bus test: imports the bank-$86 projectile frame operands a sparse fixture seeds")]
     private static EnemyProjectileSpritemapCatalog ImportFixtureProjectileSprites(TestAddressSpace bus)
     {
         var frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(

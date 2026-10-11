@@ -75,7 +75,7 @@ internal static partial class Program
                     ? edited : stock,
             };
             var system = new Bank80SystemState();
-            var guarded = new GreyDoorDrawReadGuard(bus, lists);
+            var guarded = NewGreyDoorDrawGuard(bus, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             AssertEqual(1, plms.LoadRoomPopulation(guarded, level, streamer,
                     new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system,
@@ -168,8 +168,21 @@ internal static partial class Program
             "  Grey doors: 420 ordinary and 117 Bomb Torizo program bytes, five close/unlock/open/reload paths, 20 physical draws, and editable visual blocks pass with source reads blocked.");
     }
 
+    private static CartridgeReadGuard NewGreyDoorDrawGuard(
+        ISnesAddressSpace source,
+        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x84be59 and <= 0x84bffc,
+                address => $"Resident grey door reread compiled instruction ${address:X6}.")
+            .Forbid(address => address is >= 0x84ba4c and <= 0x84ba6e or >= 0x84ba7f and <= 0x84bad0,
+                address => $"Bomb Torizo grey door reread compiled instruction ${address:X6}.")
+            .Forbid(address => lists.Any(list =>
+                    address >= (0x840000 | list.Pointer) &&
+                    address < (0x840000 | list.Pointer) + GreyDoorPlmDrawDefinitions.DrawListBytes),
+                address => $"Resident grey door reread draw payload ${address:X6}.");
+
     private static void VerifyBombTorizoGreyDoorLifecycle(
-        GreyDoorDrawReadGuard guarded,
+        CartridgeReadGuard guarded,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         RoomPlmSystem plms,
@@ -284,7 +297,7 @@ internal static partial class Program
                 new SamusProjectileTypeWord(0)),
             "shared clear visual test allocates a real blue-door opening actor");
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        var guarded = new GreyDoorDrawReadGuard(rom, lists);
+        var guarded = NewGreyDoorDrawGuard(rom, lists);
         int frame = 0;
         while (frame++ < 200 &&
             level.GetCollisionBlockByIndex(origin).LevelWord != 0x0482)
@@ -361,45 +374,5 @@ internal static partial class Program
             if (Directory.Exists(testRoot))
                 Directory.Delete(testRoot, recursive: true);
         }
-    }
-
-    private sealed class GreyDoorDrawReadGuard(
-        ISnesAddressSpace source,
-        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x84be59 and <= 0x84bffc)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Resident grey door reread compiled instruction ${address:X6}.");
-            }
-            if (address is >= 0x84ba4c and <= 0x84ba6e or
-                >= 0x84ba7f and <= 0x84bad0)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Bomb Torizo grey door reread compiled instruction ${address:X6}.");
-            }
-            foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-            {
-                int first = 0x840000 | list.Pointer;
-                if (address >= first &&
-                    address < first + GreyDoorPlmDrawDefinitions.DrawListBytes)
-                {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Resident grey door reread draw payload ${address:X6}.");
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

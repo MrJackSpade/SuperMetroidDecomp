@@ -17,7 +17,7 @@ internal static partial class Program
         Suite(nameof(VerifyFxBlendSelectorIdentities), () => VerifyFxBlendSelectorIdentities());
         Suite(nameof(VerifyFxBlendSourceAddresses), () => VerifyFxBlendSourceAddresses(rom));
         RoomFxPaletteBlendCatalog catalog = RoomFxPaletteBlendCatalog.Load(
-            new MemoryStream(RoomFxPaletteBlendExtractor.Extract(new BlackBlendSourceGuard(new DerivedBlendSourceGuard(rom)))));
+            new MemoryStream(RoomFxPaletteBlendExtractor.Extract(NewBlackBlendSourceGuard(new DerivedBlendSourceGuard(rom)))));
         Suite(nameof(VerifyCeresDefaultRed), () => VerifyCeresDefaultRed(rom, catalog));
         Suite(nameof(VerifyCeresDefaultGreen), () => VerifyCeresDefaultGreen(rom, catalog));
         Suite(nameof(VerifyCeresDefaultBlue), () => VerifyCeresDefaultBlue(rom, catalog));
@@ -39,27 +39,27 @@ internal static partial class Program
         {
             ReadOnlySpan<Bgr555> compiled = catalog.Resolve(id);
 
-            (RoomLayer3FxState state, ForbiddenRoomFxPaletteBus bus, SnesCgram cgram) =
+            (RoomLayer3FxState state, CartridgeReadGuard bus, SnesCgram cgram) =
                 ConstructBlendLoad(catalog, tilemaps, (byte)id);
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {(int)id:X2} installed load color {index}");
-            AssertEqual(0, bus.ForbiddenReads, $"room-FX blend {(int)id:X2} load does not read bank-$89");
+            AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {(int)id:X2} load does not read bank-$89");
 
             ushort reloadRecord = SelectCompiledBlendRecord((byte)id).Pointer;
             _ = state.ApplyEntry(cgram, reloadRecord);
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {(int)id:X2} installed FX-entry color {index}");
-            AssertEqual(0, bus.ForbiddenReads, $"room-FX blend {(int)id:X2} FX entry does not read bank-$89");
+            AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {(int)id:X2} FX entry does not read bank-$89");
         }
-        (RoomLayer3FxState emptyState, ForbiddenRoomFxPaletteBus emptyBus, SnesCgram emptyCgram) =
+        (RoomLayer3FxState emptyState, CartridgeReadGuard emptyBus, SnesCgram emptyCgram) =
             ConstructBlendLoad(catalog, tilemaps, 0);
         _ = emptyState;
         AssertEqual((ushort)0x1234, emptyCgram.Colors[25], "zero blend preserves color 25");
         AssertEqual((ushort)0x2345, emptyCgram.Colors[26], "zero blend preserves color 26");
         AssertEqual((ushort)0, emptyCgram.Colors[27], "zero blend clears only color 27");
-        AssertEqual(0, emptyBus.ForbiddenReads, "zero blend does not read bank-$89");
+        AssertEqual(0, emptyBus.ForbiddenReadAttempts, "zero blend does not read bank-$89");
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendCatalog.Load(
             new MemoryStream([1, 2, 3])), "corrupt room-FX blend resource fails loudly");
         string duplicate = "{\"version\":1,\"version\":1,\"blends\":{}}";
@@ -154,12 +154,12 @@ internal static partial class Program
         Bgr555 expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
         AssertTrue(expected != baseline.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0],
             "room-FX blend edit changes the authored color");
-        (_, ForbiddenRoomFxPaletteBus bus, SnesCgram cgram) = ConstructBlendLoad(
+        (_, CartridgeReadGuard bus, SnesCgram cgram) = ConstructBlendLoad(
             edited.RoomFxPaletteBlends, edited.RoomFxLayer3Tilemaps,
             (byte)RoomFxPaletteBlend.Lava);
         AssertEqual(expected, cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex],
             "edited room-FX blend color reaches production CGRAM");
-        AssertEqual(0, bus.ForbiddenReads, "edited room-FX blend does not read native palette table");
+        AssertEqual(0, bus.ForbiddenReadAttempts, "edited room-FX blend does not read native palette table");
         AssertTrue(SnesGameplayFrameRenderer.CaptureCeresHaze(false,
                 colors: edited.RoomFxPaletteBlends).Windows[120].Green > 0,
             "installed room-FX color override reaches Ceres haze rendering");
@@ -177,13 +177,13 @@ internal static partial class Program
         Console.WriteLine("Room-FX blend override: edited color reaches CGRAM and removal restores stock.");
     }
 
-    private static (RoomLayer3FxState State, ForbiddenRoomFxPaletteBus Bus, SnesCgram Cgram)
+    private static (RoomLayer3FxState State, CartridgeReadGuard Bus, SnesCgram Cgram)
         ConstructBlendLoad(RoomFxPaletteBlendCatalog catalog,
             RoomFxLayer3TilemapCatalog tilemaps, byte selection)
     {
         RoomFxRecordDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();
-        var bus = new ForbiddenRoomFxPaletteBus(memory);
+        var bus = NewForbiddenRoomFxPaletteBus(memory);
         var cgram = new SnesCgram();
         cgram.SetColor(25, Bgr555.FromWord(0x1234));
         cgram.SetColor(26, Bgr555.FromWord(0x2345));
@@ -202,33 +202,7 @@ internal static partial class Program
             candidate.DoorPointer == 0 && candidate.PaletteBlend == selection)
         ?? throw new InvalidDataException($"No compiled default room-FX record selects blend ${selection:X2}.");
 
-    private sealed class ForbiddenRoomFxPaletteBus(TestAddressSpace inner) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public TestAddressSpace Inner { get; } = inner;
-        public int ForbiddenReads { get; private set; }
-
-        private void RejectPaletteSource(int address)
-        {
-            if ((address >> 16) == 0x89)
-            {
-                ForbiddenReads++;
-                throw new InvalidOperationException($"Installed room-FX blend read ROM ${address:X6}.");
-            }
-        }
-
-        public byte ReadByte(int address)
-        {
-            RejectPaletteSource(address);
-            return Inner.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectPaletteSource(address);
-            return Inner.ReadCartridgeByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => Inner.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewForbiddenRoomFxPaletteBus(TestAddressSpace inner) =>
+        new CartridgeReadGuard(inner).Forbid(address => (address >> 16) == 0x89,
+            address => $"Installed room-FX blend read ROM ${address:X6}.");
 }

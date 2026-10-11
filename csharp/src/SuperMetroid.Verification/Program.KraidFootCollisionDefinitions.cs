@@ -11,7 +11,7 @@ internal static partial class Program
             "TryFindExtendedHitboxCallback", flags)!;
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var denied = new KraidFootCollisionNoReadBus();
+        var denied = NewKraidFootCollisionNoReadBus();
         var installed = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installed, denied);
 
@@ -85,7 +85,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => KraidFootCollisionDefinitions.HitboxesAt(0x8000).ToArray(),
             "uncompiled Kraid foot hitbox list fails loudly");
-        AssertEqual(0, denied.ReadAttempts,
+        AssertEqual(0, denied.ForbiddenReadAttempts,
             "all installed Kraid foot collision probes read no cartridge data");
         Console.WriteLine($"Kraid foot collision: {frames.Length} frames, " +
             $"one hitbox list and {probes} native-equivalent touch/shot probes; " +
@@ -137,20 +137,8 @@ internal static partial class Program
         ];
     }
 
-    private sealed class KraidFootCollisionNoReadBus : ISnesAddressSpace,
-        IImportCartridgeSource
-    {
-        internal int ReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            ReadAttempts++;
-            throw new InvalidOperationException(
-                $"Installed Kraid-foot collision read ROM byte ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) =>
-            throw new InvalidOperationException(
-                $"Installed Kraid-foot collision wrote byte ${address:X6}.");
-    }
+    private static CartridgeReadGuard NewKraidFootCollisionNoReadBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Installed Kraid-foot collision read ROM byte ${address:X6}.")
+            .RejectWrites(address => $"Installed Kraid-foot collision wrote byte ${address:X6}.");
 }

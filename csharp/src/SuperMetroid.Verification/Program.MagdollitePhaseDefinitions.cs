@@ -25,7 +25,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new MagdollitePhaseReadGuard(new TestAddressSpace()));
+            NewMagdollitePhaseGuard(new TestAddressSpace()));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeMagdollite", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState?>>(enemies);
         var rise = typeof(RoomEnemySystem).GetMethod("RunMagdolliteBodyRising", flags)!
@@ -123,15 +123,7 @@ internal static partial class Program
     private static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class MagdollitePhaseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa8af55 and < 0xa8af8b
-            ? throw new InvalidOperationException(
-                $"Magdollite attempted migrated phase read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMagdollitePhaseGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).ForbidRange(0xa8af55, 0xa8af8b - 0xa8af55,
+            address => $"Magdollite attempted migrated phase read ${address:X6}.");
 }

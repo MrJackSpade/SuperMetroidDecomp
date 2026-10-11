@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for every room-FX BG3 tilemap page")]
     private static void VerifyRoomFxLayer3Tilemaps()
     {
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -14,7 +15,7 @@ internal static partial class Program
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FX tilemap oracle revision");
         Suite(nameof(VerifyFxTilemapTypeEnumeration), () => VerifyFxTilemapTypeEnumeration());
         Suite(nameof(VerifyFxTilemapSourceAddresses), () => VerifyFxTilemapSourceAddresses(rom));
-        byte[] json = RoomFxLayer3TilemapExtractor.Extract(new LiquidTilemapSourceGuard(rom));
+        byte[] json = RoomFxLayer3TilemapExtractor.Extract(NewLiquidTilemapSourceGuard(rom));
         RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(json));
         Suite(nameof(VerifyLiquidTilemaps), () => VerifyLiquidTilemaps(rom, catalog));
         Suite(nameof(VerifySporeTilemapAttributes), () => VerifySporeTilemapAttributes(rom, catalog));
@@ -29,12 +30,12 @@ internal static partial class Program
                 RoomFxLayer3TilemapFormat.PageByteCount);
             if (type == RoomFxType.Spores) continue;
             SnesVram vram = LoadConstructedRoomFxTilemap(type, catalog, paletteColors,
-                out ForbiddenRoomFxTilemapBus guarded);
+                out CartridgeReadGuard guarded);
             int destination = RoomFxRomData.Layer3.TilemapDestinationWord * 2;
             for (int index = 0; index < native.Length; index++)
                 AssertEqual(native[index], vram.ReadByte(destination + index),
                     $"room-FX {type} installed VRAM byte {index}");
-            AssertEqual(0, guarded.ForbiddenReads,
+            AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"room-FX {type} installed load reads no tilemap ROM or pointer table");
         }
         AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapCatalog.Load(
@@ -68,12 +69,12 @@ internal static partial class Program
             "room-FX BG3 edit changes the selected tilemap words");
         SnesVram vram = LoadConstructedRoomFxTilemap(RoomFxType.Lava,
             edited.RoomFxLayer3Tilemaps, edited.RoomFxPaletteBlends,
-            out ForbiddenRoomFxTilemapBus guarded);
+            out CartridgeReadGuard guarded);
         ushort editedWord = BitConverter.ToUInt16(
             edited.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span[..sizeof(ushort)]);
         AssertEqual(editedWord, vram.ReadWord(RoomFxRomData.Layer3.TilemapDestinationWord),
             "edited lava tile cell reaches production BG3 VRAM");
-        AssertEqual(0, guarded.ForbiddenReads,
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
             "edited lava page loads without native art or pointer reads");
         AssertThrows<InvalidDataException>(() =>
         {
@@ -90,13 +91,13 @@ internal static partial class Program
 
     private static SnesVram LoadConstructedRoomFxTilemap(RoomFxType type,
         RoomFxLayer3TilemapCatalog catalog, RoomFxPaletteBlendCatalog paletteColors,
-        out ForbiddenRoomFxTilemapBus guarded)
+        out CartridgeReadGuard guarded)
     {
         RoomFxRecordDefinition record = RoomFxRecordDefinitions.All.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.Type == (byte)type)
             ?? throw new InvalidDataException($"No compiled default room-FX record selects {type}.");
         var memory = new TestAddressSpace();
-        guarded = new ForbiddenRoomFxTilemapBus(memory);
+        guarded = NewForbiddenRoomFxTilemapBus(memory);
         var state = new RoomLayer3FxState
         {
             Layer3Tilemaps = catalog,
@@ -108,35 +109,10 @@ internal static partial class Program
         return vram;
     }
 
-    private sealed class ForbiddenRoomFxTilemapBus(ISnesAddressSpace inner) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReads { get; private set; }
-
-        private void RejectTilemapSource(int address)
-        {
-            if ((address >> 16) == 0x8a ||
+    private static CartridgeReadGuard NewForbiddenRoomFxTilemapBus(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => (address >> 16) == 0x8a ||
                 address >= RoomFxRomData.Tables.Layer3TilemapPointers &&
-                address < RoomFxRomData.Tables.Layer3TilemapPointers + 14)
-            {
-                ForbiddenReads++;
-                throw new InvalidOperationException(
-                    $"Installed room-FX BG3 tilemap read ROM ${address:X6}.");
-            }
-        }
-
-        public byte ReadByte(int address)
-        {
-            RejectTilemapSource(address);
-            return inner.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectTilemapSource(address);
-            return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
-    }
+                address < RoomFxRomData.Tables.Layer3TilemapPointers + 14,
+            address => $"Installed room-FX BG3 tilemap read ROM ${address:X6}.");
 }

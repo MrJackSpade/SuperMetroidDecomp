@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple endpoint and segment OBJ attributes")]
     private static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
     {
         byte[] json = GrappleSpriteExtractor.Extract(bus);
@@ -21,7 +22,9 @@ internal static partial class Program
         var changedCatalog = GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var stock = GrappleTileAtlas.Load(new MemoryStream(png), catalog);
         var changed = GrappleTileAtlas.Load(new MemoryStream(png), changedCatalog);
-        var guard = new GrappleSpriteReadGuard(bus);
+        var guard = new CartridgeReadGuard(bus).Forbid(
+            address => address is >= 0x94b13d and <= 0x94b13e or >= 0x94b17d and <= 0x94b17e or >= 0x94b18b and <= 0x94b19e,
+            _ => "Grapple still reads native visual records.");
         int cases = 0;
         for (int angle = 0; angle < 256; angle += 4)
         {
@@ -86,18 +89,5 @@ internal static partial class Program
             style["tileColumn"] = style["tileColumn"]!.GetValue<int>() ^ 1;
             style["palette"] = style["palette"]!.GetValue<int>() ^ 1;
         }
-    }
-
-    private sealed class GrappleSpriteReadGuard(ISnesAddressSpace bus) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x94b13d and <= 0x94b13e or >= 0x94b17d and <= 0x94b17e or >= 0x94b18b and <= 0x94b19e)
-                throw new InvalidOperationException("Grapple still reads native visual records.");
-            return bus.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => bus.WriteByte(address, value);
     }
 }

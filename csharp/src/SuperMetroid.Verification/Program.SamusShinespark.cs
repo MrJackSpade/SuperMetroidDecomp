@@ -382,8 +382,7 @@ static void VerifySamusStoredShineAndShinespark()
 
     horizontal.Shinespark.StepReleasedCrashEchoProjectiles(
         bus, horizontal,
-        layer1X: unchecked((ushort)(crashCenterX - 128)),
-        layer1Y: 0);
+        layer1: new(unchecked((ushort)(crashCenterX - 128)), 0));
     AssertEqual(8, horizontal.Shinespark.FirstReleasedCrashEchoRadius,
         "speed-echo pre-instruction expands radius by eight");
     AssertEqual(crashCenterX,
@@ -406,8 +405,7 @@ static void VerifySamusStoredShineAndShinespark()
     {
         horizontal.Shinespark.StepReleasedCrashEchoProjectiles(
             bus, horizontal,
-            layer1X: unchecked((ushort)(crashCenterX - 128)),
-            layer1Y: 0);
+            layer1: new(unchecked((ushort)(crashCenterX - 128)), 0));
         AssertEqual(horizontal.Position.Y.Whole - radius >= 0,
             horizontal.Shinespark.FirstReleasedCrashEcho.Active,
             "upward echo remains active through row zero");

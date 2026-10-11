@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private delegate bool SpecialGrappleHandler(ISnesAddressSpace bus, SamusState samus,
-        SamusGrappleState grapple, ushort previousX, ushort previousY, out GrappleMovementResult result);
+        SamusGrappleState grapple, Position16<RoomPixels> previous, out GrappleMovementResult result);
 
     private static void VerifyGrappleConnectionDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -46,7 +46,7 @@ internal static partial class Program
     private static void VerifyGrappleConnectionDispatch(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult> connect =
+        Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect =
             SamusGrappleMovement.ConnectAcceptedFiring;
         var metadata = new GrappleFiringReadGuard(rom);
         var guard = new GrappleConnectionReadGuard(metadata);
@@ -71,7 +71,7 @@ internal static partial class Program
             var g = samus.Grapple;
             g.FireDirection = direction; g.Anchor = g.Anchor.WithX(536); g.Anchor = g.Anchor.WithY(520); g.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            var result = connect(guard, samus, g, 512, 512, !enemy, enemy);
+            var result = connect(guard, samus, g, new(512, 512), !enemy, enemy);
             AssertEqual(!enemy, g.ValidateAnchorBlock, "Connection preserves block owner");
             AssertEqual(enemy, g.ValidateAnchorEnemy, "Connection preserves enemy owner");
             AssertEqual(-8, g.RopeLengthDelta, "Connection caller begins native retraction");
@@ -121,7 +121,7 @@ internal static partial class Program
             g.Phase = GrapplePhase.ConnectedSwinging; g.Anchor = g.Anchor.WithY(512).WithX(512);
             g.Angle = SnesAngle.FromRaw((ushort)angle);
             int index = Array.FindLastIndex(native, row => row.Angle == angle);
-            AssertEqual(index >= 0, special(guard, samus, g, 100, 200, out _), "Exact native special angle, no tolerance");
+            AssertEqual(index >= 0, special(guard, samus, g, new(100, 200), out _), "Exact native special angle, no tolerance");
             if (index < 0)
             {
                 AssertEqual(100, samus.Position.X.Whole, "Non-match retains body X");
@@ -135,7 +135,7 @@ internal static partial class Program
         {
             g.Anchor = g.Anchor.WithX((ushort)coordinate); g.Anchor = g.Anchor.WithY(unchecked((ushort)~coordinate));
             g.Angle = SnesAngle.FromRaw(row.Angle); g.WallJumpTimer = 77;
-            AssertTrue(special(guard, samus, g, 0, ushort.MaxValue, out var result), "Native special record dispatch");
+            AssertTrue(special(guard, samus, g, new(0, ushort.MaxValue), out var result), "Native special record dispatch");
             ushort x = unchecked((ushort)(g.Anchor.X + row.X)), y = unchecked((ushort)(g.Anchor.Y + row.Y));
             AssertEqual(x, samus.Position.X.Whole, "Special wrapped body X");
             AssertEqual(y, samus.Position.Y.Whole, "Special wrapped body Y");

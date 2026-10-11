@@ -30,7 +30,7 @@ internal static partial class Program
         var edited = ChargeFlarePlacementCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
-        Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
+        Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
         int locked = 0;
         var authoredPoses = Enumerable.Range(0, 253)
@@ -68,9 +68,9 @@ internal static partial class Program
                 SamusGrappleMovement.StepFiring(guarded, empty, changed, (ushort)SnesButton.X);
                 Compare();
             }
-            var expectedConnection = connect(nativeBus, native, native.Grapple, 512, 512, true, false);
-            var selectedConnection = connect(guarded, selected, selected.Grapple, 512, 512, true, false);
-            var editedConnection = connect(guarded, changed, changed.Grapple, 512, 512, true, false);
+            var expectedConnection = connect(nativeBus, native, native.Grapple, new(512, 512), true, false);
+            var selectedConnection = connect(guarded, selected, selected.Grapple, new(512, 512), true, false);
+            var editedConnection = connect(guarded, changed, changed.Grapple, new(512, 512), true, false);
             AssertEqual(expectedConnection, selectedConnection, "Stock placement retains connection result");
             AssertEqual(expectedConnection, editedConnection, "Edited placement retains connection result");
             // A non-swinging connection installs the locked-in-place grapple function.

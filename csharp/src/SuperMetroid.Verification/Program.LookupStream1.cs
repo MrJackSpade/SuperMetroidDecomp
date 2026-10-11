@@ -1848,7 +1848,7 @@ internal static partial class Program
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem();
         var draw = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, ushort, ushort, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
+            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
         var shiftedDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
         foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
             shiftedDocument.Offsets[key] = shiftedDocument.Offsets[key] with { X = (short)(shiftedDocument.Offsets[key].X + 7) };
@@ -1868,8 +1868,8 @@ internal static partial class Program
             var expected = new OamBuffer(); var actual = new OamBuffer(); var edited = new OamBuffer();
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, (ushort)(100 + x),
                 unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose)))));
-            draw(new LookupFlareForbiddenBus(), actual, samus, 0, 0, 0, null, stock, compositions);
-            draw(new LookupFlareForbiddenBus(), edited, samus, 0, 0, 0, null, shifted, compositions);
+            draw(new LookupFlareForbiddenBus(), actual, samus, Position16<RoomPixels>.Zero, 0, null, stock, compositions);
+            draw(new LookupFlareForbiddenBus(), edited, samus, Position16<RoomPixels>.Zero, 0, null, shifted, compositions);
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), "Actual flare OAM matches independently positioned native sprite");
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Native flare OAM admission");
             AssertTrue(actual.NextByteOffset > 0, "Focused flare placement fixture emits its native sprite");

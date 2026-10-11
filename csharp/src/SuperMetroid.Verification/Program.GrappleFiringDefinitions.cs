@@ -14,7 +14,7 @@ internal static partial class Program
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
-        Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
+        Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var bus = new GrappleFiringReadGuard(rom);
         var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
         var grapple = samus.Grapple;
@@ -171,7 +171,7 @@ internal static partial class Program
             grapple.Anchor = grapple.Anchor.WithY(unchecked((ushort)(coordinate + 8)));
             grapple.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            connect(bus, samus, grapple, coordinate, coordinate, true, false);
+            connect(bus, samus, grapple, new(coordinate, coordinate), true, false);
             if (grapple.Phase != GrapplePhase.ConnectedLocked) continue;
             locked++;
             AssertEqual(unchecked((ushort)(grapple.RopeStart.X - Word(0x9bc122 + direction * 2))), samus.Position.X.Whole, "Locked connection body X");

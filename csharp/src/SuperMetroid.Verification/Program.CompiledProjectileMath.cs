@@ -37,7 +37,7 @@ internal static partial class Program
         var arc = Reader<Action<RoomEnemyProjectileSlot, ushort>>(typeof(RoomEnemySystem), "MoveNoobTubeProjectileHorizontallyAlongArc");
         var crocomire = Reader<Func<byte, (ushort X, ushort Y)>>(
             typeof(RoomEnemySystem), "CalculateCrocomireProjectileVelocity");
-        var echo = Reader<Func<SnesAngle, byte, (ushort X, ushort Y)>>(
+        var echo = Reader<Func<SnesAngle, byte, Offset16<RoomPixels>>>(
             typeof(SamusShinesparkState), "ProjectileSinLookup");
 
         // Every angle high byte (with zero, mid and saturated fractions, which the reader
@@ -52,7 +52,7 @@ internal static partial class Program
             ushort yMagnitude = (ushort)(native[(yAngle & 127) + 64] * radius / 256);
             ushort x = xAngle < 128 ? xMagnitude : unchecked((ushort)-xMagnitude);
             ushort y = yAngle < 128 ? yMagnitude : unchecked((ushort)-yMagnitude);
-            if (echo(SnesAngle.FromRaw((ushort)rawAngle), (byte)radius) != (x, y))
+            if (echo(SnesAngle.FromRaw((ushort)rawAngle), (byte)radius) != new Offset16<RoomPixels>(unchecked((short)x), unchecked((short)y)))
                 throw new InvalidDataException($"Shinespark vector differs: angle={rawAngle:X4}, radius={radius}.");
         }
 

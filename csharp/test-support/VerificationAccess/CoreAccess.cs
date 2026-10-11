@@ -159,10 +159,10 @@ internal static partial class CoreAccess
     {
         /// <summary>Accepted grapple firing with its connection pose applied immediately, as ordinary firing does.</summary>
         internal static GrappleMovementResult ConnectAcceptedFiring(ISnesAddressSpace bus, SamusState samus,
-            SamusGrappleState grapple, ushort previousXPosition, ushort previousYPosition,
+            SamusGrappleState grapple, Position16<RoomPixels> previousPosition,
             bool validateAnchorBlock = true, bool validateAnchorEnemy = false) =>
             (GrappleMovementResult)PrivateState.InvokeStatic(typeof(SamusGrappleMovement), "ConnectAcceptedFiringCore",
-                bus, samus, grapple, previousXPosition, previousYPosition, validateAnchorBlock, validateAnchorEnemy, false)!;
+                bus, samus, grapple, previousPosition, validateAnchorBlock, validateAnchorEnemy, false)!;
     }
 
     extension(RoomEnemySystem enemies)

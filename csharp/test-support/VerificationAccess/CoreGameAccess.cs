@@ -2111,13 +2111,12 @@ internal static class SamusShinesparkStateAccess
         internal void StepReleasedCrashEchoProjectiles(
             ISnesAddressSpace bus,
             SamusState samus,
-            ushort layer1X,
-            ushort layer1Y)
+            Position16<RoomPixels> layer1)
         {
             ArgumentNullException.ThrowIfNull(bus);
             ArgumentNullException.ThrowIfNull(samus);
-            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), (ushort)(layer1X), (ushort)(layer1Y), PrivateState.Field<object>(self, "_firstReleasedCrashEcho"));
-            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), (ushort)(layer1X), (ushort)(layer1Y), PrivateState.Field<object>(self, "_secondReleasedCrashEcho"));
+            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), layer1, PrivateState.Field<object>(self, "_firstReleasedCrashEcho"));
+            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), layer1, PrivateState.Field<object>(self, "_secondReleasedCrashEcho"));
         }
     }
 }

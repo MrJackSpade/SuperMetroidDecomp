@@ -14,17 +14,17 @@ internal static partial class Program
         var body = Expression.Parameter(typeof(RoomEnemySlot), "body");
         var shot = Expression.Parameter(typeof(SamusProjectileSlot), "shot");
         var scratch = Expression.Variable(scratchType, "scratch");
-        Expression Field(string name) => Expression.PropertyOrField(shot, name);
+        Expression Field(string path) => path.Split('.').Aggregate((Expression)shot, Expression.PropertyOrField);
         var nativeShot = Expression.New(shotType.GetConstructor(
             Enumerable.Repeat(typeof(ushort), 6).ToArray())!,
-            Field(nameof(SamusProjectileSlot.Position.X.Whole)), Field(nameof(SamusProjectileSlot.Position.Y.Whole)),
-            Field(nameof(SamusProjectileSlot.Radius.X)), Field(nameof(SamusProjectileSlot.Radius.Y)),
+            Field("Position.X.Whole"), Field("Position.Y.Whole"),
+            Field("Radius.X"), Field("Radius.Y"),
             Field(nameof(SamusProjectileSlot.Type)), Field(nameof(SamusProjectileSlot.Damage)));
         // Enter the body-contour branch at its exact Y threshold. The surrounding
         // mouth/body dispatch is covered by the encounter collision fixtures.
         var bottom = Expression.Convert(Expression.Subtract(Expression.Subtract(
-            Expression.Convert(Field(nameof(SamusProjectileSlot.Position.Y.Whole)), typeof(int)),
-            Expression.Convert(Field(nameof(SamusProjectileSlot.Radius.Y)), typeof(int))),
+            Expression.Convert(Field("Position.Y.Whole"), typeof(int)),
+            Expression.Convert(Field("Radius.Y"), typeof(int))),
             Expression.Constant(1)), typeof(ushort));
         return Expression.Lambda<Func<RoomEnemySlot, SamusProjectileSlot, bool>>(
             Expression.Block([scratch],

@@ -20,7 +20,7 @@ internal static partial class Program
         // Independently import the cartridge colors for the comparison path;
         // the gameplay palette runner has no runtime ROM fallback.
         var native = CreateEnemy(rom, nativeCgram, extracted);
-        var installed = CreateEnemy(new PaletteReadForbiddenBus(), installedCgram,
+        var installed = CreateEnemy(NewPaletteReadForbiddenBus(), installedCgram,
             original.MotherBrainRoomColors);
         Method("LoadMotherBrainRoomEntryColors").Invoke(native, null);
         Method("LoadMotherBrainRoomEntryColors").Invoke(installed, null);
@@ -193,7 +193,7 @@ internal static partial class Program
         Seed(nativeCgram);
         Seed(installedCgram);
         var native = CreateEnemy(rom, nativeCgram, extracted);
-        var runtime = CreateEnemy(new PaletteReadForbiddenBus(), installedCgram, installed);
+        var runtime = CreateEnemy(NewPaletteReadForbiddenBus(), installedCgram, installed);
         MethodInfo apply = Method("LoadMotherBrainRecoveryLights");
         for (ushort frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)
         {
@@ -220,9 +220,9 @@ internal static partial class Program
     {
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        var stock = CreateEnemy(new PaletteReadForbiddenBus(), stockCgram,
+        var stock = CreateEnemy(NewPaletteReadForbiddenBus(), stockCgram,
             original.MotherBrainRoomColors);
-        var replacement = CreateEnemy(new PaletteReadForbiddenBus(), editedCgram,
+        var replacement = CreateEnemy(NewPaletteReadForbiddenBus(), editedCgram,
             edited.MotherBrainRoomColors);
         MethodInfo apply = Method("LoadMotherBrainRecoveryLights");
         var request = RecoveryRequest(0);
@@ -250,9 +250,9 @@ internal static partial class Program
     {
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        var stockEnemy = CreateEnemy(new PaletteReadForbiddenBus(), stockCgram,
+        var stockEnemy = CreateEnemy(NewPaletteReadForbiddenBus(), stockCgram,
             original.MotherBrainRoomColors);
-        var editedEnemy = CreateEnemy(new PaletteReadForbiddenBus(), editedCgram,
+        var editedEnemy = CreateEnemy(NewPaletteReadForbiddenBus(), editedCgram,
             edited.MotherBrainRoomColors);
         Method("LoadMotherBrainRoomEntryColors").Invoke(stockEnemy, null);
         Method("LoadMotherBrainRoomEntryColors").Invoke(editedEnemy, null);
@@ -273,9 +273,9 @@ internal static partial class Program
     {
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        var stockEnemy = CreateEnemy(new PaletteReadForbiddenBus(), stockCgram,
+        var stockEnemy = CreateEnemy(NewPaletteReadForbiddenBus(), stockCgram,
             original.MotherBrainRoomColors);
-        var editedEnemy = CreateEnemy(new PaletteReadForbiddenBus(), editedCgram,
+        var editedEnemy = CreateEnemy(NewPaletteReadForbiddenBus(), editedCgram,
             edited.MotherBrainRoomColors);
         var stockState = new MotherBrainEnemyState(stockEnemy.Slots[0]);
         var editedState = new MotherBrainEnemyState(editedEnemy.Slots[0]);

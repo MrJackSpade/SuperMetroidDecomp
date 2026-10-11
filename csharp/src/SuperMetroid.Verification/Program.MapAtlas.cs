@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map tile atlas")]
     private static void VerifyMapAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {
@@ -13,7 +14,7 @@ internal static partial class Program
         var vram = new SnesVram();
         original.Tiles.LoadTo(vram, 0);
         for (int i = 0; i < source.Length; i++) AssertEqual(source[i], vram.ReadByte(i), "stock PNG recompiles exact map tile bytes");
-        var guard = new MapDataGuard(bus, rules);
+        var guard = NewMapDataGuard(bus, rules);
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         var menu = new FileSelectRoomMapGraphics(guard, system, AreaId.Crateria, mapPresentation: original);

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Tourian statue palette sources")]
     private static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -31,7 +32,7 @@ internal static partial class Program
             CheckSource(TourianStatuePaletteRomData.GreyColors + color * sizeof(ushort),
                 colors.ResolveGrey(color).ToWord());
 
-        var guard = new TourianStatueColorReadGuard(bus, forbidden);
+        var guard = NewTourianStatueColorGuard(bus, forbidden);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             SnesCgram nativeCgram = SeedColors();
@@ -103,10 +104,10 @@ internal static partial class Program
         EnemyTileArtworkCatalog editedGrey = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var installedRoom = CreateGreyRoom(
-            new TourianStatueColorReadGuard(
+            NewTourianStatueColorGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), stock);
         var editedRoom = CreateGreyRoom(
-            new TourianStatueColorReadGuard(
+            NewTourianStatueColorGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), editedGrey);
         // Use the room's pre-step palette as the unchanged background, then apply
         // only the native grey instruction writes read from the four retail programs.
@@ -233,6 +234,15 @@ internal static partial class Program
         }
     }
 
+    private static MutableCartridgeReadGuard NewTourianStatueColorGuard(ISnesAddressSpace source,
+        HashSet<int> forbidden)
+    {
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(forbidden.Contains,
+            address => $"Installed Tourian statue color reread ROM byte ${address:X6}.");
+        return guard;
+    }
+
     private static void CheckOnlyDifferences(SnesCgram reference, SnesCgram edited,
         IReadOnlyList<(int Index, int Mask)> differences, string context)
     {
@@ -242,47 +252,6 @@ internal static partial class Program
                 .Aggregate(0, (current, change) => current ^ change.Mask);
             AssertEqual((ushort)(reference.Colors[color].ToWord() ^ mask), edited.Colors[color],
                 $"{context} CGRAM {color}");
-        }
-    }
-
-    private sealed class TourianStatueColorReadGuard(ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource,
-        ISnesMutableMemory
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            RejectForbidden(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectForbidden(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Tourian statue color guard requires a cartridge import source."))
-                .ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Tourian statue color guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Tourian statue color guard requires SRAM."))
-            .ReadSaveRamByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private void RejectForbidden(int address)
-        {
-            if (!forbidden.Contains(address)) return;
-            ForbiddenReadAttempts++;
-            throw new InvalidOperationException(
-                $"Installed Tourian statue color reread ROM byte ${address:X6}.");
         }
     }
 }

@@ -45,7 +45,7 @@ internal static partial class Program
             () => EscapeEtecoonDefinitions.Initialization(0xffff),
             "escape Etecoon wrapping restored selector");
 
-        var guarded = new EscapeEtecoonDefinitionReadGuard(rom);
+        var guarded = NewEscapeEtecoonDefinitionGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeEscapeEtecoon",
             instanceFlags)!;
@@ -104,7 +104,7 @@ internal static partial class Program
                 $"escape Etecoon mechanics word $B3:{definition.Address:X4}");
         }
 
-        var guard = new EscapeEtecoonDefinitionReadGuard(rom);
+        var guard = NewEscapeEtecoonDefinitionGuard(rom);
         RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem(guard, flags);
         RoomEnemySlot etecoon = enemies.Slots[0];
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
@@ -138,7 +138,7 @@ internal static partial class Program
         AssertEqual(EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount,
             selectedPresentation.Count,
             "all escape-Etecoon native presentation operands execute");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "escape-Etecoon uses compiled presentation without ROM reads");
         for (int index = 0;
              index < EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount;
@@ -225,46 +225,13 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class EscapeEtecoonDefinitionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (EscapeEtecoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled escape-Etecoon mechanics byte ${address:X6}.");
-            }
-            if (address is >= 0xb3e718 and < 0xb3e736)
-            {
-                throw new InvalidOperationException(
-                    $"Escape Etecoon attempted migrated definition read ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xb30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = EscapeEtecoonInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEscapeEtecoonDefinitionGuard(ISnesAddressSpace rom) =>
+        new CartridgeReadGuard(rom)
+            .Forbid(EscapeEtecoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled escape-Etecoon mechanics byte ${address:X6}.")
+            .Forbid(address => address is >= 0xb3e718 and < 0xb3e736,
+                address => $"Escape Etecoon attempted migrated definition read ${address:X6}.")
+            .ObserveWords(0xb30000,
+                EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount,
+                EscapeEtecoonInstructionProgramDefinitions.PresentationWordAddress);
 }

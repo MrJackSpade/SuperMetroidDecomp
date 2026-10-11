@@ -8,7 +8,9 @@ internal static partial class Program
     private static void VerifyFirefleaFx(bool includeXrayCapture = true)
     {
         var memory = new TestAddressSpace();
-        var bus = new FirefleaFxDefinitionReadGuard(memory);
+        var bus = new MutableCartridgeReadGuard(memory);
+        bus.Forbid(address => address is >= 0x88B058 and < 0x88B07E,
+            address => $"Fireflea FX attempted migrated definition read ${address:X6}.");
         var fx = new RoomLayer3FxState();
         var vram = new SnesVram();
         ushort record = RoomFxRecordDefinitions.All.First(record => record.Type == (byte)RoomFxType.Fireflea && record.DoorPointer == 0).Pointer;
@@ -84,30 +86,6 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(1), "Darkness odd offset");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(14), "Darkness upper bound");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(ushort.MaxValue), "Darkness invalid maximum");
-    }
-    private sealed class FirefleaFxDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x88B058 and < 0x88B07E)
-                throw new InvalidOperationException($"Fireflea FX attempted migrated definition read ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Fireflea FX audit source must expose WRAM."))
-                .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Fireflea FX audit source must expose SRAM."))
-                .ReadSaveRamByte(address);
     }
 
     private static ushort ReadFirefleaWord(SuperMetroidAddressSpace bus, int address) =>

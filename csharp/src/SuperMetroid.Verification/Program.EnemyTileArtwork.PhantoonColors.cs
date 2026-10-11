@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon palette bands")]
     private static void VerifyInstalledPhantoonColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -64,7 +65,12 @@ internal static partial class Program
 
         // Drive the actual boss palette handlers. The complete authored color range is
         // forbidden on the bus, proving no installed runtime path silently falls back.
-        var guarded = new PhantoonPaletteReadGuard(rom);
+        CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
+            address => address is >= PhantoonColorRomData.FadeOutSource and
+                < (PhantoonColorRomData.HealthBandsSource +
+                    PhantoonColorRomData.HealthBandCount *
+                    PhantoonColorRomData.HealthBandColorCount * sizeof(ushort)),
+            address => $"Phantoon accessed migrated palette ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -175,22 +181,5 @@ internal static partial class Program
                     AssertEqual(original(color), changed(color),
                         $"Phantoon {name} edit leaves color {color} unchanged");
         }
-    }
-
-    private sealed class PhantoonPaletteReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= PhantoonColorRomData.FadeOutSource and
-            < (PhantoonColorRomData.HealthBandsSource +
-                PhantoonColorRomData.HealthBandCount *
-                PhantoonColorRomData.HealthBandColorCount * sizeof(ushort))
-                ? throw new InvalidOperationException(
-                    $"Phantoon accessed migrated palette ROM ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

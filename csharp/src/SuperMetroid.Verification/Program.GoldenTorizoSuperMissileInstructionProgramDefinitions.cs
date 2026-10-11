@@ -31,7 +31,12 @@ internal static partial class Program
         var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
-        var guard = new GoldenTorizoSuperMissileInstructionReadGuard(rom);
+        var guard = new CartridgeReadGuard(rom)
+            .Forbid(GoldenTorizoSuperMissileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Golden Torizo Super Missile byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount,
+                GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordAddress);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
@@ -146,7 +151,7 @@ internal static partial class Program
         AssertTrue(!impact.IsActive,
             "Golden Torizo Super Missile impact deletes after six five-frame poses");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "GoldenTorizoSuperMissile execution performs no live spritemap operand reads");
         AssertEqual(GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "GoldenTorizoSuperMissile executes every native visual operand");
@@ -208,45 +213,5 @@ internal static partial class Program
                     : GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact);
         }
         return checksum;
-    }
-
-    private sealed class GoldenTorizoSuperMissileInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (GoldenTorizoSuperMissileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
-                    address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Golden Torizo Super Missile byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = GoldenTorizoSuperMissileInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

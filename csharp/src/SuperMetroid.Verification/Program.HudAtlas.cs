@@ -8,6 +8,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed HUD tile atlas")]
     private static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules,
         GameplayBasePaletteCatalog initialPalettes,
@@ -15,7 +16,7 @@ internal static partial class Program
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount);
         AssertTrue(source.AsSpan().SequenceEqual(original.Resolve(VramAssetId.StandardHudTiles).Span), "HUD PNG and compiled padding match all native transfer bytes");
-        var guard = new MapDataGuard(bus, rules);
+        var guard = NewMapDataGuard(bus, rules);
         var native = new SuperMetroidRuntime(bus, initialPaletteArt: initialPalettes)
         {
             MapPresentation = original,

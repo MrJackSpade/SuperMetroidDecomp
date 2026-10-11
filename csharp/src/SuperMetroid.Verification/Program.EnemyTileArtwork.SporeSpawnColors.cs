@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Spore Spawn colors")]
     private static void VerifyInstalledSporeSpawnColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -70,7 +71,12 @@ internal static partial class Program
                 .SporeSpawnColors!.ResolveDeathSprite(6, 5),
             "Spore Spawn override survives catalog reload");
 
-        var guarded = new SporeSpawnPaletteReadGuard(rom);
+        CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
+            address => address is >= SporeSpawnColorRomData.SporeSource and
+                < (SporeSpawnColorRomData.DeathBackgroundSource +
+                    SporeSpawnColorRomData.DeathSceneFrameCount *
+                    SporeSpawnColorRomData.FrameByteCount),
+            address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -188,29 +194,5 @@ internal static partial class Program
             AssertEqual(original(frame, 4), changed(frame, 4),
                 $"{name} frame {frame} edit leaves adjacent color unchanged");
         }
-    }
-
-    private sealed class SporeSpawnPaletteReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= SporeSpawnColorRomData.SporeSource and
-                < (SporeSpawnColorRomData.DeathBackgroundSource +
-                    SporeSpawnColorRomData.DeathSceneFrameCount *
-                    SporeSpawnColorRomData.FrameByteCount))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Live Spore Spawn read migrated color ROM ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -52,7 +52,7 @@ internal static partial class Program
             "Evir visual catalog rejects adjacent AI callback code");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-        var guard = new EvirInstructionReadGuard(rom, forbidPresentation: true);
+        var guard = NewEvirInstructionGuard(rom, forbidPresentation: true);
         for (int index = 0;
              index < EvirInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -74,7 +74,7 @@ internal static partial class Program
             AssertEqual(EvirVisualDefinitions.FrameAt(operand), slot.SpritemapPointer,
                 $"installed Evir program {index} selects its native visual frame");
         }
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "all 49 installed Evir programs avoid cartridge presentation words");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "all 49 installed Evir programs retain compiled timing words");

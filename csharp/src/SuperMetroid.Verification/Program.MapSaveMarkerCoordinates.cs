@@ -84,7 +84,7 @@ internal static partial class Program
                     $"original/custom marker coordinate {id} vertical={vertical}");
                 // The other field must remain independent when this one is edited.
                 AssertEqual(point, result, "marker edits preserve the complete supplied point");
-                var marker = new FileSelectStationMarker(new ForbiddenMapBus(), (AreaId)area, station, actual);
+                var marker = new FileSelectStationMarker(NewForbiddenMapBus(), (AreaId)area, station, actual);
                 AssertEqual(point, marker.MapPosition, "actual marker binds supplied position without ROM access");
             }
         }

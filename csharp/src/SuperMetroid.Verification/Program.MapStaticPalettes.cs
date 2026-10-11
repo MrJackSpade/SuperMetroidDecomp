@@ -7,10 +7,11 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed static map palettes")]
     private static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {
-        var guard = new MapDataGuard(bus, rules);
+        var guard = NewMapDataGuard(bus, rules);
         var palette = new SnesCgram();
         SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(palette, bus, MapStaticPalettesRomData.PausePalette);
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.Pause), "all static pause colors match cartridge");

@@ -61,7 +61,7 @@ internal static partial class Program
         OamBuffer nativeCeres = DrawReferenceProgramFrame(ceresOperand, bus,
             RoomEnemyProjectileKind.CeresRidleyFireball);
         OamBuffer installedCeres = DrawProgramFrame(stock, ceresOperand,
-            new EnemyProjectileVisualReadGuard(bus),
+            NewEnemyProjectileVisualGuard(bus),
             RoomEnemyProjectileKind.CeresRidleyFireball);
         AssertTrue(nativeCeres.NextByteOffset > 0 &&
             nativeCeres.LowTable.SequenceEqual(installedCeres.LowTable) &&
@@ -76,7 +76,7 @@ internal static partial class Program
             OamBuffer nativeAlcoon = DrawReferenceProgramFrame(operand, bus,
                 RoomEnemyProjectileKind.AlcoonFireball);
             OamBuffer installedAlcoon = DrawProgramFrame(stock, operand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball);
             AssertTrue(nativeAlcoon.NextByteOffset > 0 &&
                 nativeAlcoon.NextByteOffset == installedAlcoon.NextByteOffset &&
@@ -103,7 +103,7 @@ internal static partial class Program
                 ushort operand = addressAt(index);
                 OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind);
+                    NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
                     native.LowTable.SequenceEqual(extracted.LowTable) &&
                     native.HighTable.SequenceEqual(extracted.HighTable),
@@ -119,7 +119,7 @@ internal static partial class Program
             OamBuffer native = DrawReferenceProgramFrame(operand, bus,
                 RoomEnemyProjectileKind.GoldenTorizoEgg);
             OamBuffer extracted = DrawProgramFrame(stock, operand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg);
             AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
                 native.LowTable.SequenceEqual(extracted.LowTable) &&
@@ -156,7 +156,7 @@ internal static partial class Program
                 ushort operand = addressAt(index);
                 OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind);
+                    NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
                     native.LowTable.SequenceEqual(extracted.LowTable) &&
                     native.HighTable.SequenceEqual(extracted.HighTable),
@@ -181,7 +181,7 @@ internal static partial class Program
                 ushort operand = addressAt(index);
                 OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind);
+                    NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
                     native.LowTable.SequenceEqual(extracted.LowTable) &&
                     native.HighTable.SequenceEqual(extracted.HighTable),
@@ -233,7 +233,7 @@ internal static partial class Program
                 ushort operand = addressAt(index);
                 OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind);
+                    NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
                     native.LowTable.SequenceEqual(extracted.LowTable) &&
                     native.HighTable.SequenceEqual(extracted.HighTable),
@@ -267,7 +267,7 @@ internal static partial class Program
                 ushort operand = addressAt(index);
                 OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind);
+                    NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
                     native.LowTable.SequenceEqual(extracted.LowTable) &&
                     native.HighTable.SequenceEqual(extracted.HighTable),
@@ -277,7 +277,7 @@ internal static partial class Program
         // $86:D5F2 selects the second operand on this even frame; reflected X remains 128.
         OamBuffer nativeShard = DrawReferenceProgramFrame(0xd485, bus);
         OamBuffer installedShard = DrawNoobTubeShard(stock,
-            new EnemyProjectileVisualReadGuard(bus));
+            NewEnemyProjectileVisualGuard(bus));
         AssertTrue(nativeShard.NextByteOffset > 0 &&
             nativeShard.LowTable.SequenceEqual(installedShard.LowTable) &&
             nativeShard.HighTable.SequenceEqual(installedShard.HighTable),
@@ -285,7 +285,7 @@ internal static partial class Program
 
         var installedSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0)) };
         var installedArrival = new CeresElevatorArrivalState(
-            new EnemyProjectileVisualReadGuard(bus), installedSamus, installed);
+            NewEnemyProjectileVisualGuard(bus), installedSamus, installed);
         for (int frame = 0; frame < 3; frame++)
         {
             installedArrival.Step(installedSamus);
@@ -450,18 +450,18 @@ internal static partial class Program
         AssertTrue(!DrawSharedFrame(stock, editableProgramFrame.OperandAddress, bus)
                 .LowTable.SequenceEqual(DrawSharedFrame(editedArt,
                     editableProgramFrame.OperandAddress,
-                    new EnemyProjectileVisualReadGuard(bus)).LowTable),
+                    NewEnemyProjectileVisualGuard(bus)).LowTable),
             "edited shared projectile frame changes production OAM without a ROM visual read");
         AssertTrue(!installedCeres.LowTable.SequenceEqual(
                 DrawProgramFrame(editedArt, ceresOperand,
-                    new EnemyProjectileVisualReadGuard(bus),
+                    NewEnemyProjectileVisualGuard(bus),
                     RoomEnemyProjectileKind.CeresRidleyFireball).LowTable),
             "edited Ceres Ridley frame changes production OAM without a ROM visual read");
         AssertTrue(!DrawProgramFrame(stock, alcoonOperand,
-                    new EnemyProjectileVisualReadGuard(bus),
+                    NewEnemyProjectileVisualGuard(bus),
                     RoomEnemyProjectileKind.AlcoonFireball).LowTable
                 .SequenceEqual(DrawProgramFrame(editedArt, alcoonOperand,
-                    new EnemyProjectileVisualReadGuard(bus),
+                    NewEnemyProjectileVisualGuard(bus),
                     RoomEnemyProjectileKind.AlcoonFireball).LowTable),
             "edited Alcoon fireball frame changes production OAM without a ROM visual read");
         foreach ((string family, ushort operand, RoomEnemyProjectileKind kind) in new[]
@@ -473,16 +473,16 @@ internal static partial class Program
                  })
         {
             AssertTrue(!DrawProgramFrame(stock, operand,
-                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                        NewEnemyProjectileVisualGuard(bus), kind).LowTable
                     .SequenceEqual(DrawProgramFrame(editedArt, operand,
-                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                        NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"edited Golden Torizo {family} frame changes production OAM");
         }
         AssertTrue(!DrawProgramFrame(stock, goldenEggOperand,
-                    new EnemyProjectileVisualReadGuard(bus),
+                    NewEnemyProjectileVisualGuard(bus),
                     RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
                 .SequenceEqual(DrawProgramFrame(editedArt, goldenEggOperand,
-                    new EnemyProjectileVisualReadGuard(bus),
+                    NewEnemyProjectileVisualGuard(bus),
                     RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
             "edited Golden Torizo egg frame changes production OAM");
         foreach ((string family, RoomEnemyProjectileKind kind, int _,
@@ -490,9 +490,9 @@ internal static partial class Program
         {
             ushort operand = torizoEditableOperands[family];
             AssertTrue(!DrawProgramFrame(stock, operand,
-                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                        NewEnemyProjectileVisualGuard(bus), kind).LowTable
                     .SequenceEqual(DrawProgramFrame(editedArt, operand,
-                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                        NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"edited Torizo {family} frame changes production OAM");
         }
         foreach ((string family, RoomEnemyProjectileKind kind, int _,
@@ -500,9 +500,9 @@ internal static partial class Program
         {
             ushort operand = genericDeathEditableOperands[family];
             AssertTrue(!DrawProgramFrame(stock, operand,
-                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                        NewEnemyProjectileVisualGuard(bus), kind).LowTable
                     .SequenceEqual(DrawProgramFrame(editedArt, operand,
-                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                        NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"edited {family} frame changes production OAM");
         }
         foreach ((string family, RoomEnemyProjectileKind kind, int _,
@@ -510,9 +510,9 @@ internal static partial class Program
         {
             ushort operand = environmentEditableOperands[family];
             AssertTrue(!DrawProgramFrame(stock, operand,
-                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                        NewEnemyProjectileVisualGuard(bus), kind).LowTable
                     .SequenceEqual(DrawProgramFrame(editedArt, operand,
-                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                        NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"edited {family} frame changes production OAM");
         }
         foreach ((string family, RoomEnemyProjectileKind kind, int _,
@@ -520,9 +520,9 @@ internal static partial class Program
         {
             ushort operand = motherBrainEditableOperands[family];
             AssertTrue(!DrawProgramFrame(stock, operand,
-                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                        NewEnemyProjectileVisualGuard(bus), kind).LowTable
                     .SequenceEqual(DrawProgramFrame(editedArt, operand,
-                        new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                        NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"edited {family} frame changes production OAM");
         }
         var incompleteCurrent = document.Frames
@@ -595,7 +595,7 @@ internal static partial class Program
         AssertTrue(DrawSharedFrame(stock, editableProgramFrame.OperandAddress, bus)
                 .LowTable.SequenceEqual(DrawSharedFrame(migratedV2,
                     editableProgramFrame.OperandAddress,
-                    new EnemyProjectileVisualReadGuard(bus)).LowTable),
+                    NewEnemyProjectileVisualGuard(bus)).LowTable),
             "version-two edits inherit stock shared-program frames");
         var versionThreeFrames = EnemyProjectileInstructionMechanicsDefinitions.VisualFrames
             .ToArray().ToDictionary(frame => frame.Name,
@@ -611,12 +611,12 @@ internal static partial class Program
             EnemyProjectileSpritemapDefinitions.FileName), versionThreeJson);
         EnemyTileArtworkCatalog migratedV3 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawSharedFrame(migratedV3, editableProgramFrame.OperandAddress,
-                new EnemyProjectileVisualReadGuard(bus)).LowTable
+                NewEnemyProjectileVisualGuard(bus)).LowTable
             .SequenceEqual(DrawSharedFrame(editedArt, editableProgramFrame.OperandAddress,
-                new EnemyProjectileVisualReadGuard(bus)).LowTable),
+                NewEnemyProjectileVisualGuard(bus)).LowTable),
             "version-three shared-program edits survive the expanded projectile catalog");
         AssertTrue(DrawProgramFrame(migratedV3, ceresOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.CeresRidleyFireball).LowTable
             .SequenceEqual(installedCeres.LowTable),
             "version-three overrides inherit newly extracted Ceres Ridley frames");
@@ -640,17 +640,17 @@ internal static partial class Program
             EnemyProjectileSpritemapDefinitions.FileName), versionFourJson);
         EnemyTileArtworkCatalog migratedV4 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawProgramFrame(migratedV4, ceresOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.CeresRidleyFireball).LowTable
             .SequenceEqual(DrawProgramFrame(editedArt, ceresOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.CeresRidleyFireball).LowTable),
             "version-four overrides retain their edited projectile frames");
         AssertTrue(DrawProgramFrame(migratedV4, alcoonOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball).LowTable
             .SequenceEqual(DrawProgramFrame(stock, alcoonOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball).LowTable),
             "version-four overrides inherit newly extracted Alcoon fireball frames");
         var versionFiveFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
@@ -667,10 +667,10 @@ internal static partial class Program
             EnemyProjectileSpritemapDefinitions.FileName), versionFiveJson);
         EnemyTileArtworkCatalog migratedV5 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawProgramFrame(migratedV5, alcoonOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball).LowTable
             .SequenceEqual(DrawProgramFrame(editedArt, alcoonOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball).LowTable),
             "version-five overrides retain their edited Alcoon fireball frames");
         foreach ((string family, ushort operand, RoomEnemyProjectileKind kind) in new[]
@@ -682,9 +682,9 @@ internal static partial class Program
                  })
         {
             AssertTrue(DrawProgramFrame(migratedV5, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                    NewEnemyProjectileVisualGuard(bus), kind).LowTable
                 .SequenceEqual(DrawProgramFrame(stock, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                    NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"version-five overrides inherit extracted Golden Torizo {family} frames");
         }
         var versionSixFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg
@@ -701,17 +701,17 @@ internal static partial class Program
             EnemyProjectileSpritemapDefinitions.FileName), versionSixJson);
         EnemyTileArtworkCatalog migratedV6 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawProgramFrame(migratedV6, goldenMissileOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoSuperMissile).LowTable
             .SequenceEqual(DrawProgramFrame(editedArt, goldenMissileOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoSuperMissile).LowTable),
             "version-six overrides retain their edited Golden Torizo missile frame");
         AssertTrue(DrawProgramFrame(migratedV6, goldenEggOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
             .SequenceEqual(DrawProgramFrame(stock, goldenEggOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
             "version-six overrides inherit extracted Golden Torizo egg frames");
         var versionSevenFrames = EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects
@@ -728,10 +728,10 @@ internal static partial class Program
             EnemyProjectileSpritemapDefinitions.FileName), versionSevenJson);
         EnemyTileArtworkCatalog migratedV7 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawProgramFrame(migratedV7, goldenEggOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
             .SequenceEqual(DrawProgramFrame(editedArt, goldenEggOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
             "version-seven overrides retain their edited Golden Torizo egg frame");
         foreach ((string family, RoomEnemyProjectileKind kind, int _,
@@ -739,9 +739,9 @@ internal static partial class Program
         {
             ushort operand = torizoEditableOperands[family];
             AssertTrue(DrawProgramFrame(migratedV7, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                    NewEnemyProjectileVisualGuard(bus), kind).LowTable
                 .SequenceEqual(DrawProgramFrame(stock, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                    NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"version-seven overrides inherit Torizo {family} frames");
         }
         var versionEightFrames = EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath
@@ -759,10 +759,10 @@ internal static partial class Program
         EnemyTileArtworkCatalog migratedV8 = EnemyTileArtworkFiles.Load(directory, overrides);
         ushort editedTorizoOperand = torizoEditableOperands["Chozo orb"];
         AssertTrue(DrawProgramFrame(migratedV8, editedTorizoOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.BombTorizoChozoOrb).LowTable
             .SequenceEqual(DrawProgramFrame(editedArt, editedTorizoOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.BombTorizoChozoOrb).LowTable),
             "version-eight overrides retain their edited Torizo Chozo-orb frame");
         foreach ((string family, RoomEnemyProjectileKind kind, int _,
@@ -770,9 +770,9 @@ internal static partial class Program
         {
             ushort operand = genericDeathEditableOperands[family];
             AssertTrue(DrawProgramFrame(migratedV8, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                    NewEnemyProjectileVisualGuard(bus), kind).LowTable
                 .SequenceEqual(DrawProgramFrame(stock, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                    NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"version-eight overrides inherit {family} frames");
         }
         var versionNineFrames = EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack
@@ -790,10 +790,10 @@ internal static partial class Program
         EnemyTileArtworkCatalog migratedV9 = EnemyTileArtworkFiles.Load(directory, overrides);
         ushort editedDeathOperand = genericDeathEditableOperands["enemy death"];
         AssertTrue(DrawProgramFrame(migratedV9, editedDeathOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.EnemyDeathExplosion).LowTable
             .SequenceEqual(DrawProgramFrame(editedArt, editedDeathOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.EnemyDeathExplosion).LowTable),
             "version-nine overrides retain their edited generic enemy-death frame");
         foreach ((string family, RoomEnemyProjectileKind kind, int _,
@@ -801,9 +801,9 @@ internal static partial class Program
         {
             ushort operand = environmentEditableOperands[family];
             AssertTrue(DrawProgramFrame(migratedV9, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                    NewEnemyProjectileVisualGuard(bus), kind).LowTable
                 .SequenceEqual(DrawProgramFrame(stock, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                    NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"version-nine overrides inherit {family} frames");
         }
         var versionTenFrames = EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue
@@ -821,10 +821,10 @@ internal static partial class Program
         EnemyTileArtworkCatalog migratedV10 = EnemyTileArtworkFiles.Load(directory, overrides);
         ushort editedEnvironmentOperand = environmentEditableOperands["falling spark"];
         AssertTrue(DrawProgramFrame(migratedV10, editedEnvironmentOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.FallingSpark).LowTable
             .SequenceEqual(DrawProgramFrame(editedArt, editedEnvironmentOperand,
-                new EnemyProjectileVisualReadGuard(bus),
+                NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.FallingSpark).LowTable),
             "version-ten overrides retain their edited falling-spark frame");
         foreach ((string family, RoomEnemyProjectileKind kind, int _,
@@ -832,9 +832,9 @@ internal static partial class Program
         {
             ushort operand = motherBrainEditableOperands[family];
             AssertTrue(DrawProgramFrame(migratedV10, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable
+                    NewEnemyProjectileVisualGuard(bus), kind).LowTable
                 .SequenceEqual(DrawProgramFrame(stock, operand,
-                    new EnemyProjectileVisualReadGuard(bus), kind).LowTable),
+                    NewEnemyProjectileVisualGuard(bus), kind).LowTable),
                 $"version-ten overrides inherit {family} frames");
         }
         Console.WriteLine($"  Enemy projectile visuals: " +
@@ -879,7 +879,7 @@ internal static partial class Program
                     AssertTrue(DrawReferenceProgramFrame(frame.OperandAddress, bus)
                             .LowTable.SequenceEqual(DrawSharedFrame(artwork,
                                 frame.OperandAddress,
-                                new EnemyProjectileVisualReadGuard(bus)).LowTable),
+                                NewEnemyProjectileVisualGuard(bus)).LowTable),
                         $"shared frame $86:{frame.OperandAddress:X4} runs without visual ROM reads");
                 }
             }
@@ -895,7 +895,7 @@ internal static partial class Program
             {
                 OamBuffer native = DrawReferenceBurst(program, bus);
                 OamBuffer installedBurst = DrawBurst(artwork, program,
-                    new EnemyProjectileVisualReadGuard(bus));
+                    NewEnemyProjectileVisualGuard(bus));
                 AssertTrue(native.NextByteOffset > 0 &&
                     native.NextByteOffset == installedBurst.NextByteOffset &&
                     native.LowTable.SequenceEqual(installedBurst.LowTable) &&
@@ -1013,28 +1013,19 @@ internal static partial class Program
         }
     }
 
-    private sealed class EnemyProjectileVisualReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            ushort low = unchecked((ushort)address);
-            if ((address & 0xff0000) == 0x8d0000 ||
-                (address & 0xff0000) == 0x860000 &&
-                (EnemyProjectilePresentationFrameDefinitions.Contains(low) ||
-                 EnemyProjectilePresentationFrameDefinitions.Contains(
-                     unchecked((ushort)(low - 1))) ||
-                 low is (ushort)SkreeMetareeParticleOperand.Skree or
-                    (ushort)SkreeMetareeParticleOperand.Metaree ||
-                 low == (ushort)SkreeMetareeParticleOperand.Skree + 1 ||
-                 low == (ushort)SkreeMetareeParticleOperand.Metaree + 1))
-                throw new InvalidOperationException(
-                    $"Installed enemy projectile reread visual byte ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEnemyProjectileVisualGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
+            {
+                ushort low = unchecked((ushort)address);
+                return (address & 0xff0000) == 0x8d0000 ||
+                    (address & 0xff0000) == 0x860000 &&
+                    (EnemyProjectilePresentationFrameDefinitions.Contains(low) ||
+                     EnemyProjectilePresentationFrameDefinitions.Contains(
+                         unchecked((ushort)(low - 1))) ||
+                     low is (ushort)SkreeMetareeParticleOperand.Skree or
+                        (ushort)SkreeMetareeParticleOperand.Metaree ||
+                     low == (ushort)SkreeMetareeParticleOperand.Skree + 1 ||
+                     low == (ushort)SkreeMetareeParticleOperand.Metaree + 1);
+            },
+            address => $"Installed enemy projectile reread visual byte ${address:X6}.");
 }

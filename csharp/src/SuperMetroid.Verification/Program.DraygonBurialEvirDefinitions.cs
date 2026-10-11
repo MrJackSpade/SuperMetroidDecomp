@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon burial Evir definitions")]
     private static void VerifyDraygonBurialEvirDefinitions(SuperMetroidAddressSpace rom)
     {
         const int subspeedTable = 0xa5a1af;
@@ -13,7 +14,7 @@ internal static partial class Program
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         for (int entry = 0; entry < 6; entry++)
         {

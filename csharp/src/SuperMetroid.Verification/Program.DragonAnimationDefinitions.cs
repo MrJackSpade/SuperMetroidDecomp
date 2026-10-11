@@ -159,8 +159,9 @@ internal static partial class Program
         AssertEqual(0, slot.Timer, $"{context} loop timer");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Dragon animation words")]
     private static ushort ReadDragonAnimationWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewDragonAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

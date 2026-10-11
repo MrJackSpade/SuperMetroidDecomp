@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight actor metadata")]
     private static void VerifyCeresFlightActorMetadata(ISnesAddressSpace retail)
     {
         CeresFlightActorDefinition front = CeresFlightActorDefinitions.FrontStars;
@@ -20,7 +21,7 @@ internal static partial class Program
         {
             CeresFlightActorDefinition actor = CeresFlightActorDefinitions.RearViewActor(index);
             int[] spawnOperands = [0x8bbe3c, 0x8bbe42, 0x8bbe48, 0x8bbe4e, 0x8bbe57];
-            AssertEqual((byte)0xa0, retail.ReadByte(spawnOperands[index] - 1), "native rear spawn LDY");
+            AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native rear spawn LDY");
             ushort definition = ReadWord(retail, spawnOperands[index]);
             VerifyActor(retail, actor, definition, $"rear actor {index}");
             AssertEqual((ushort)0, actor.InitialTimer, "rear initializer leaves cleared timer");
@@ -111,7 +112,7 @@ internal static partial class Program
         }
 
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+            unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
     }
 
 }

@@ -9,16 +9,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Verification access to <see cref="AttractDemoRomData"/> members production does not use.</summary>
-internal static class AttractDemoRomDataAccess
-{
-    extension(AttractDemoRomData)
-    {
-        /// <summary>VerifySRAM compares the twelve letters without a terminator; the selected-slot word follows.</summary>
-        internal static ReadOnlySpan<byte> CompletionMarker => SuperMetroid.Core.Game.SaveRamLayout.CompletionMarker;
-    }
-}
-
 /// <summary>Verification access to <see cref="CeresDepartureState"/> members production does not use.</summary>
 internal static class CeresDepartureStateAccess
 {

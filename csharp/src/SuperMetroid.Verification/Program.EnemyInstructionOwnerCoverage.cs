@@ -269,10 +269,11 @@ internal static partial class Program
         return records;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy instruction owner audit words")]
     private static ushort ReadEnemyOwnerAuditWord(
         ISnesAddressSpace bus,
         int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewEnemyInstructionOwnerReadProbe(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(_ => true,

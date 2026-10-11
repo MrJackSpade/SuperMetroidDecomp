@@ -192,6 +192,18 @@ internal static partial class Program
         return 0;
     }
 
+    /// <summary>Checks that a pre-spike PNG inherits every new stock spike tile byte-for-byte from the cartridge.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the bank-$87 spike tile sources a legacy room-FX PNG inherits")]
+    private static void AssertInheritedSpikeArtworkMatchesCartridge(ISnesAddressSpace rom, RoomFxAnimatedTileAtlas migrated)
+    {
+        foreach (int source in new[] { 0x879d84, 0x879e04, 0x879e84 })
+        {
+            AssertTrue(migrated.TryResolve(source, 0x80, out var bytes), "Legacy PNG inherits new stock spike art");
+            for (int i = 0; i < bytes.Length; i++)
+                AssertEqual(rom.ReadCartridgeByte(source + i), bytes.Span[i], "Inherited spike bytes match the pinned cartridge");
+        }
+    }
+
     private static void VerifyCrocomireSpikeCompatibility(SuperMetroidRuntime runtime,
         ISnesAddressSpace bus, RoomFxAnimatedTileAtlas stock)
     {
@@ -211,12 +223,7 @@ internal static partial class Program
         AssertTrue(stock.TryResolve(oldSource, 0x40, out var original) &&
             migrated.TryResolve(oldSource, 0x40, out var edited) && !original.Span.SequenceEqual(edited.Span),
             "Pre-spike PNG retains the user's existing edited prefix");
-        foreach (int source in new[] { 0x879d84, 0x879e04, 0x879e84 })
-        {
-            AssertTrue(migrated.TryResolve(source, 0x80, out var bytes), "Legacy PNG inherits new stock spike art");
-            for (int i = 0; i < bytes.Length; i++)
-                AssertEqual(rom.ReadByte(source + i), bytes.Span[i], "Inherited spike bytes match the pinned cartridge");
-        }
+        AssertInheritedSpikeArtworkMatchesCartridge(rom, migrated);
 
         using var graph = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(graph, runtime.RoomSpikes);

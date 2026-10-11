@@ -161,12 +161,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Dachora instruction words")]
     private static ushort ReadDachoraInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa70000 | address) |
-            source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa70000 | address) |
+            source.ReadCartridgeByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewDachoraInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

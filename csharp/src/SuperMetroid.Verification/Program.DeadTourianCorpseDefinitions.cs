@@ -132,10 +132,11 @@ internal static partial class Program
             $"dead {species} variant {variantIndex} wrap offset");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Tourian corpse words")]
     private static ushort ReadDeadTourianCorpseWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewDeadTourianCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

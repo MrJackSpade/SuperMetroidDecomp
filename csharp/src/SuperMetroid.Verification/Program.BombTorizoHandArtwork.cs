@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     /// <summary>Confirm #1162's exact PLM-to-installed-art-to-NMI handoff, not a room sweep.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo hand artwork")]
     private static void VerifyBombTorizoHandArtwork()
     {
         var importer = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -20,7 +21,7 @@ internal static partial class Program
             AssertTrue(stock.TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> bytes),
                 "installed Chozo debris page exists");
             for (int index = 0; index < bytes.Length; index++)
-                AssertEqual(importer.ReadByte(page.SourceAddress + index), bytes.Span[index],
+                AssertEqual(importer.ReadCartridgeByte(page.SourceAddress + index), bytes.Span[index],
                     $"imported debris tile byte {index:X4} matches the pinned cartridge");
             VerifyBombTorizoHandPlm(stock);
             VerifyBombTorizoDebrisOverride(directory, stock, page);

@@ -175,10 +175,11 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for collectible visual words")]
     private static ushort ReadCollectibleVisualWord(ISnesAddressSpace bus,
         ushort pointer) => unchecked((ushort)(
-        bus.ReadByte(0x840000 | pointer) |
-        bus.ReadByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
+        bus.ReadCartridgeByte(0x840000 | pointer) |
+        bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
 
     private static CartridgeReadGuard NewCollectibleDrawReadGuard(ISnesAddressSpace source)
     {

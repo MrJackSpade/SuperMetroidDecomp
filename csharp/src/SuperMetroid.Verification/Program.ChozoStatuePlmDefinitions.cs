@@ -108,6 +108,7 @@ internal static partial class Program
             "Chozo collision-trigger header cannot enter terrain-spawn domain");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo statue PLM words")]
     private static ushort ReadChozoStatuePlmWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

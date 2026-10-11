@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for charge flare placement")]
     private static void VerifyChargeFlarePlacement(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(bus));
@@ -39,13 +40,13 @@ internal static partial class Program
             // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
             int record = SamusMovementRomData.Poses.Definitions + (int)pose * 8;
-            bool running = bus.ReadByte(record + 1) == (byte)SamusMovementType.Running;
-            bool facingLeft = bus.ReadByte(record) == 4;
-            byte yOffset = bus.ReadByte(record + 4);
+            bool running = bus.ReadCartridgeByte(record + 1) == (byte)SamusMovementType.Running;
+            bool facingLeft = bus.ReadCartridgeByte(record) == 4;
+            byte yOffset = bus.ReadCartridgeByte(record + 4);
             var native = new OamBuffer(); var actual = new OamBuffer();
             int xTable = running ? SamusProjectileRomData.Origins.FlareRunningX : SamusProjectileRomData.Origins.FlareDefaultX;
             int yTable = running ? SamusProjectileRomData.Origins.FlareRunningY : SamusProjectileRomData.Origins.FlareDefaultY;
-            short Word(int address) => unchecked((short)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+            short Word(int address) => unchecked((short)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
             var world = new Position16<RoomPixels>(coordinate, coordinate);
             var point = transform is { } selectedTransform ? selectedTransform.Transform(world) : world;
             ushort x = unchecked((ushort)(point.X + Word(xTable + direction * 2)));

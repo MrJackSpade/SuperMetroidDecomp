@@ -16,6 +16,7 @@ internal static partial class Program
             "production trajectory passes with migrated ROM reads forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro latency definitions")]
     private static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
     {
         const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
@@ -23,7 +24,7 @@ internal static partial class Program
         {
             int address = source + (slotIndex - 28) * 2;
             short expected = unchecked((short)(
-                rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+                rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
             AssertEqual(expected,
                 DraygonIntroDanceDefinitions.MovementLatencyForSlot(slotIndex),
                 $"Draygon intro Evir slot {slotIndex} latency");
@@ -37,6 +38,7 @@ internal static partial class Program
         Console.WriteLine("Evir latency algorithm: all four signed native delays and slot bounds match.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro movement definitions")]
     private static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroDeleteSelection), () => VerifyDraygonIntroDeleteSelection(rom));
@@ -45,8 +47,8 @@ internal static partial class Program
              offset <= DraygonIntroDanceDefinitions.LastMovementStreamOffset;
              offset += DraygonIntroDanceDefinitions.StreamIndexAdvance)
         {
-            byte nativeX = rom.ReadByte(source + offset);
-            byte nativeY = rom.ReadByte(source + offset + 1);
+            byte nativeX = rom.ReadCartridgeByte(source + offset);
+            byte nativeY = rom.ReadCartridgeByte(source + offset + 1);
             DraygonIntroMovement actual =
                 DraygonIntroDanceDefinitions.ResolveMovement(offset);
 
@@ -66,13 +68,14 @@ internal static partial class Program
             "Draygon intro rejects a restored stream index beyond the compiled route");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro delete selection")]
     private static void VerifyDraygonIntroDeleteSelection(SuperMetroidAddressSpace rom)
     {
         int commands = 0;
         for (int offset = 0; offset <= 0x113c; offset += 4)
         {
-            bool expected = rom.ReadByte(0xa5ce07 + offset) == 0x80 &&
-                rom.ReadByte(0xa5ce08 + offset) == 0x80;
+            bool expected = rom.ReadCartridgeByte(0xa5ce07 + offset) == 0x80 &&
+                rom.ReadCartridgeByte(0xa5ce08 + offset) == 0x80;
             DraygonIntroMovement actual = DraygonIntroDanceDefinitions.ResolveMovement((ushort)offset);
             AssertEqual(expected, actual.DeletesSprite, "Draygon original intro delete command selection");
             if (expected) commands++;
@@ -83,6 +86,7 @@ internal static partial class Program
                 "Draygon command selection preserves alignment and outer bounds");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for complete Draygon intro trajectory")]
     private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -125,9 +129,9 @@ internal static partial class Program
                 if (unchecked((short)streamIndex) < 0 || !expectedActive[actor])
                     continue;
 
-                byte xDelta = rom.ReadByte(
+                byte xDelta = rom.ReadCartridgeByte(
                     DraygonIntroDanceDefinitions.NativeMovementStreamAddress + streamIndex);
-                byte yDelta = rom.ReadByte(
+                byte yDelta = rom.ReadCartridgeByte(
                     DraygonIntroDanceDefinitions.NativeMovementStreamAddress + streamIndex + 1);
                 if (xDelta == 0x80 && yDelta == 0x80)
                 {

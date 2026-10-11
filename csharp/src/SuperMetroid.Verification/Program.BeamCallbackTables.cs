@@ -91,6 +91,7 @@ internal static partial class Program
             "Beam callback definitions: all 32 low-nibble words and 24 production firing paths pass with both source ranges forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for beam callback table words")]
     private static ushort ReadBeamCallbackWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

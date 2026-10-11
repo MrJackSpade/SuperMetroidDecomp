@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire tongue visual selectors")]
     private static void VerifyInstalledCrocomireTongueVisualSelectors(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -25,8 +26,8 @@ internal static partial class Program
         {
             ushort operand = CrocomireTongueInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            ushort native = (ushort)(rom.ReadByte(0xa40000 | operand) |
-                rom.ReadByte(0xa40000 | unchecked((ushort)(operand + 1))) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(0xa40000 | operand) |
+                rom.ReadCartridgeByte(0xa40000 | unchecked((ushort)(operand + 1))) << 8);
             ushort selected = (ushort)selector.Invoke(enemies, [slot, operand])!;
             AssertEqual(native, selected,
                 $"Crocomire tongue selector $A4:{operand:X4} matches native");
@@ -43,23 +44,25 @@ internal static partial class Program
             "editable frames, no ROM reads.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue frame positions")]
     private static void VerifyCrocomireTongueFramePositions(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xbe58, 0xbe5c, 0xbe60, 0xbe64, 0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa];
         AssertEqual(9, CrocomireTongueCollisionDefinitions.FrameCount, "tongue frame count");
         for (int i = 0; i < operands.Length; i++)
         {
-            ushort expected = (ushort)(rom.ReadByte(0xa40000 | operands[i]) | rom.ReadByte(0xa40000 | (operands[i] + 1)) << 8);
+            ushort expected = (ushort)(rom.ReadCartridgeByte(0xa40000 | operands[i]) | rom.ReadCartridgeByte(0xa40000 | (operands[i] + 1)) << 8);
             AssertEqual(expected, CrocomireTongueCollisionDefinitions.FramePointer(i), "tongue native selected frame identity");
         }
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueCollisionDefinitions.FramePointer(-1), "negative tongue frame index");
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueCollisionDefinitions.FramePointer(9), "tongue frame index past end");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue component cases")]
     private static void VerifyCrocomireTongueComponentCases(SuperMetroidAddressSpace rom)
     {
         ushort[] frames = [0xc65e, 0xc668, 0xc672, 0xc67c, 0xcace, 0xcad8, 0xcae2, 0xcaec, 0xcaf6];
-        ushort ReadWord(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort ReadWord(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         foreach (ushort frame in frames)
         {
             var component = CrocomireTongueCollisionDefinitions.ComponentAt(frame);
@@ -77,6 +80,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.ComponentAt(frame), "tongue rejects non-frame identity");
         AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.HitboxCountAt(ClosedNativeWords.Decode<CrocomireTongueHitboxList>(0x8000, "compiled Crocomire tongue hitbox list")), "tongue rejects unknown hitbox list");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue collision definitions")]
     private static void VerifyCrocomireTongueCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -156,7 +160,7 @@ internal static partial class Program
             $"{probes} native-equivalent touch/shot probes; installed path reads no ROM.");
 
         ushort ReadWord(int address) => (ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private static CartridgeReadGuard NewCrocomireTongueNoReadBus() =>

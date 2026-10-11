@@ -4,12 +4,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile math")]
     private static void VerifyCompiledProjectileMath(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 20; parameter++)
         {
             int address = 0x869059 + (parameter >> 1) * 2;
-            short expected = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            short expected = unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
             AssertEqual(expected, CrocomireProjectileRomData.GradientForSpawnParameter(parameter),
                 "Crocomire authored gradient and final instruction-byte overread");
         }
@@ -21,7 +22,7 @@ internal static partial class Program
         for (int i = 0; i < native.Length; i++)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
-            native[i] = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            native[i] = unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
         }
         T Reader<T>(Type type, string name) where T : Delegate => type
             .GetMethod(name, BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<T>();

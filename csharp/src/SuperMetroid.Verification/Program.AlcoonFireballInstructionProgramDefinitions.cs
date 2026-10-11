@@ -15,6 +15,7 @@ internal static partial class Program
         Suite(nameof(VerifyAlcoonFireballInstructionProgramDefinitions), () => VerifyAlcoonFireballInstructionProgramDefinitions(rom));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Alcoon fireball visual selectors")]
     private static void VerifyAlcoonFireballVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0x9ea0, 0x9ea4, 0x9ea8, 0x9eac];
@@ -23,8 +24,8 @@ internal static partial class Program
             ushort native = ReadAlcoonFireballInstructionWord(rom, operand);
             AssertEqual(native, EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(operand),
                 "Alcoon fireball native visual pointer");
-            AssertEqual((byte)1, rom.ReadByte(0x8d0000 | native), "fireball native single-sprite map count");
-            AssertEqual((byte)0, rom.ReadByte(0x8d0000 | (native + 1)), "fireball map count high byte");
+            AssertEqual((byte)1, rom.ReadCartridgeByte(0x8d0000 | native), "fireball native single-sprite map count");
+            AssertEqual((byte)0, rom.ReadCartridgeByte(0x8d0000 | (native + 1)), "fireball map count high byte");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, operand, out ushort shared),
                 "shared fireball selector exists");
             AssertEqual(native, shared, "shared fireball selector matches native pointer");
@@ -227,12 +228,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Alcoon fireball instruction words")]
     private static ushort ReadAlcoonFireballInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadByte(
+            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
+            source.ReadCartridgeByte(
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 

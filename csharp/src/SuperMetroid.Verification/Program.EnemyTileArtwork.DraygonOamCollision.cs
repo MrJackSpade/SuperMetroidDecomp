@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Draygon OAM collision")]
     private static void VerifyCompiledDraygonOamCollision(
         SuperMetroidAddressSpace rom)
     {
@@ -67,7 +68,7 @@ internal static partial class Program
                 DraygonCollisionDefinitions.ComponentsAt(frame.Pointer).Length,
                 $"Draygon OAM frame {frame.Name} has no collision components");
             int root = (frame.Bank << 16) | frame.Pointer;
-            int componentCount = rom.ReadByte(root);
+            int componentCount = rom.ReadCartridgeByte(root);
             AssertTrue(componentCount is > 0 and <= 8,
                 $"Draygon OAM frame {frame.Name} has bounded components");
             for (int component = 0; component < componentCount; component++)
@@ -110,6 +111,6 @@ internal static partial class Program
         Console.WriteLine($"  Draygon OAM collision: {draygonFrames} frames and {componentsChecked} native zero-hitbox components return no shot/touch callback without ROM reads; 12 Spore Spawn frames excluded.");
 
         ushort ReadWord(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 }

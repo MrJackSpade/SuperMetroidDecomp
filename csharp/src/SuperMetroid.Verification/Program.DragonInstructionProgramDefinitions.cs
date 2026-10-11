@@ -134,8 +134,9 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Dragon instruction words")]
     private static ushort ReadDragonInstructionWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewDragonInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

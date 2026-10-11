@@ -11,12 +11,13 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon instruction definitions")]
     private static void VerifyBotwoonInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
         ushort Word(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         Suite(nameof(VerifyBotwoonHeadMovementSelection), () => VerifyBotwoonHeadMovementSelection(rom));
         Suite(nameof(VerifyBotwoonHeadSpitSelection), () => VerifyBotwoonHeadSpitSelection(rom));
@@ -286,10 +287,11 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon instruction words")]
     private static ushort ReadBotwoonInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewBotwoonInstructionReadGuard(ISnesAddressSpace source)
     {

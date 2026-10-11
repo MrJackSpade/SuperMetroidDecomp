@@ -3,9 +3,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending text regions")]
     private static void VerifyEndingTextRegions(ISnesAddressSpace bus)
     {
-        ushort Read(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        ushort Read(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
         void Panel(EndingTextRegionDefinition actual, int source, string expectedText, int startColumn)
         {
             AssertEqual(0, actual.Row, "ending panel row");
@@ -33,14 +34,14 @@ internal static partial class Program
         void Line(int start, EndingTextRegionDefinition actual, string expectedText, EndingTextStyle style)
         {
             int cursor = start, count = 0;
-            int nativeRow = bus.ReadByte(start + 3);
+            int nativeRow = bus.ReadCartridgeByte(start + 3);
             AssertEqual(nativeRow, actual.Row, "native typewriter row");
-            AssertEqual((int)bus.ReadByte(start + 2), actual.Column, "native first typewriter column");
+            AssertEqual((int)bus.ReadCartridgeByte(start + 2), actual.Column, "native first typewriter column");
             AssertEqual(style, actual.Style, "typewriter style");
             var text = new System.Text.StringBuilder();
-            while (count < 32 && Read(cursor) < 0x8000 && bus.ReadByte(cursor + 3) == nativeRow)
+            while (count < 32 && Read(cursor) < 0x8000 && bus.ReadCartridgeByte(cursor + 3) == nativeRow)
             {
-                AssertEqual(actual.Column + count, (int)bus.ReadByte(cursor + 2), "native consecutive typewriter column");
+                AssertEqual(actual.Column + count, (int)bus.ReadCartridgeByte(cursor + 2), "native consecutive typewriter column");
                 int glyph = 0x8c0000 | Read(cursor + 4);
                 text.Append(EndingTextDefinitions.DecodeGlyph(Read(glyph + 4), style));
                 count++;
@@ -54,6 +55,7 @@ internal static partial class Program
         Line(0x8ce0b5, EndingTextDefinitions.FinalMessage, "SEE YOU NEXT MISSION", EndingTextStyle.FinalLarge);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending glyph mapping")]
     private static void VerifyEndingGlyphMapping(ISnesAddressSpace bus)
     {
         // Transcribed from the SHA-pinned Font3 atlas, viewed with --lookup-ending-font-layout.
@@ -66,7 +68,7 @@ internal static partial class Program
             0x3d,0x3e,0x3f,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59];
         ushort[] digitsTop = [0x60,0x61,0x62,0x63,0x64,0x65,0x66,0x67,0x68,0x69];
         ushort[] digitsBottom = [0x70,0x71,0x72,0x73,0x74,0x75,0x76,0x77,0x78,0x79];
-        ushort Read(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        ushort Read(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
         (char Glyph, int Address)[] largeRecords = [
             (' ', 0x8ce135),
             ('S', 0x8ce13d),

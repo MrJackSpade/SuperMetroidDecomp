@@ -11,6 +11,7 @@ internal static partial class Program
     /// Compares every compiled Mother Brain/misc-dust mechanics word to the pinned ROM,
     /// then runs all 39 production programs while rejecting reads from those source bytes.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy projectile instruction mechanics definitions")]
     private static void VerifyEnemyProjectileInstructionMechanicsDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -57,9 +58,9 @@ internal static partial class Program
                 MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index);
             int operandAddress = EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(instruction + 2));
-            int native = rom.ReadByte(operandAddress) |
-                rom.ReadByte(operandAddress + 1) << 8 |
-                rom.ReadByte(operandAddress + 2) << 16;
+            int native = rom.ReadCartridgeByte(operandAddress) |
+                rom.ReadCartridgeByte(operandAddress + 1) << 8 |
+                rom.ReadCartridgeByte(operandAddress + 2) << 16;
             AssertEqual(MotherBrainHandBeamInstructionProgramDefinitions.SpawnNextCallback,
                 native,
                 $"Mother Brain hand-beam callback at ${instruction:X4}");
@@ -437,9 +438,7 @@ internal static partial class Program
                 "real projectile interpreter leaves spritemap resolution to installed content");
             if (bus is CartridgeReadGuard)
             {
-                int durationAddress = 0x860000 | unchecked((ushort)(operand - 2));
-                ushort native = (ushort)(nativeReference.ReadByte(durationAddress) |
-                    nativeReference.ReadByte(durationAddress + 1) << 8);
+                ushort native = ReadNativeEnemyProjectileProgramWord(nativeReference, unchecked((ushort)(operand - 2)));
                 AssertEqual(native, projectile.InstructionTimer, "real projectile frame retains exact native duration");
             }
         }
@@ -524,10 +523,11 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy projectile mechanics words")]
     private static ushort ReadEnemyProjectileMechanicsWord(
         SuperMetroidAddressSpace source,
         int address) =>
-        unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+        unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewEnemyProjectileMechanicsReadGuard(ISnesAddressSpace source,
         HashSet<int> presentationReadBytes) =>

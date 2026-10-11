@@ -107,10 +107,11 @@ internal static partial class Program
             $"dead sidehopper parameter {parameter1} wrap offset");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Sidehopper corpse words")]
     private static ushort ReadDeadSidehopperCorpseWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewDeadSidehopperCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

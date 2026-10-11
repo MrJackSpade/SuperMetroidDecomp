@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres initial actor metadata")]
     private static void VerifyCeresInitialActorMetadata(ISnesAddressSpace retail)
     {
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
@@ -10,7 +11,7 @@ internal static partial class Program
             CeresDestructionActorDefinition actor =
                 CeresDestructionActorDefinitions.InitialActor(index);
             int[] spawnOperands = [0x8bc27d, 0x8bc283, 0x8bc28e];
-            AssertEqual((byte)0xa0, retail.ReadByte(spawnOperands[index] - 1), "native destruction spawn LDY");
+            AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native destruction spawn LDY");
             // The spawn operand names the native definition this compiled actor must match.
             VerifyActor(retail, ReadWord(retail, spawnOperands[index]), actor,
                 preservesDefinitionCallback: index != 2, $"initial destruction actor {index}");
@@ -33,9 +34,9 @@ internal static partial class Program
         AssertEqual(ReadWord(retail, 0x8bbfac), vortex.ActivePreInstruction,
             "destruction vortex no-op callback override");
 
-        AssertEqual((byte)0xa9, retail.ReadByte(0x8bc292), "stationary vortex parameter opcode");
+        AssertEqual((byte)0xa9, retail.ReadCartridgeByte(0x8bc292), "stationary vortex parameter opcode");
         AssertEqual((ushort)0, ReadWord(retail, 0x8bc293), "stationary vortex parameter zero");
-        AssertEqual((byte)0x60, retail.ReadByte(0x8b0000 | vortex.ActivePreInstruction), "stationary vortex RTS");
+        AssertEqual((byte)0x60, retail.ReadCartridgeByte(0x8b0000 | vortex.ActivePreInstruction), "stationary vortex RTS");
         AssertEqual(0, vortex.HorizontalDelta, "stationary vortex has no displacement");
         AssertEqual(false, vortex.WrapX, "stationary vortex has no wrap operation");
         foreach (int index in new[] { int.MinValue, -1, 3, int.MaxValue })
@@ -80,7 +81,7 @@ internal static partial class Program
         }
 
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+            unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
     }
 
 }

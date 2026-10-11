@@ -58,6 +58,10 @@ internal static partial class Program
         }
         return (bodyVisible, windowVisible);
 
-        ushort Word(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        ushort Word(int address) => ReadNativeCrystalFlashPaletteWord(bus, address);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crystal Flash palette timeline records and colors")]
+    private static ushort ReadNativeCrystalFlashPaletteWord(ISnesAddressSpace rom, int address) =>
+        (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 }

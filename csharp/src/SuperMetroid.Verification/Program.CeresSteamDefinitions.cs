@@ -50,8 +50,9 @@ internal static partial class Program
             "Ceres steam definitions: twelve native words and all six production initialization paths pass with both selector tables forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres steam words")]
     private static ushort ReadCeresSteamWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewCeresSteamDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

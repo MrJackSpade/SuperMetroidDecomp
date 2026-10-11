@@ -115,6 +115,7 @@ internal static partial class Program
                 "Atomic distant invalid visual operand");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for atomic movement definitions")]
     private static void VerifyAtomicMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyAtomicInitialProgramSelection), () => VerifyAtomicInitialProgramSelection(rom));
@@ -135,7 +136,7 @@ internal static partial class Program
         for (ushort selector = 0; selector < 4; selector++)
         {
             int address = instructionTable + selector * 2;
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
             slot.Parameter1 = selector;
             slot.Parameter2 = (ushort)(selector * 7);
@@ -211,12 +212,13 @@ internal static partial class Program
             "and 24 visual-selector source reads forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for atomic program words")]
     private static ushort ReadAtomicProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa80000 | address) |
-            source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa80000 | address) |
+            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewAtomicInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa8e380 and < 0xa8e388,

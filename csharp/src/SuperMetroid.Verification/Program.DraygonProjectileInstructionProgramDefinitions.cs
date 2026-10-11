@@ -18,7 +18,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord definition =
                 DraygonProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(definition.Value, ReadWord(rom, definition.Address),
+            AssertEqual(definition.Value, ReadNativeEnemyProjectileProgramWord(rom, definition.Address),
                 $"Draygon projectile mechanics word $86:{definition.Address:X4}");
         }
 
@@ -173,11 +173,6 @@ internal static partial class Program
                     selectedPresentation.Add(projectile.PresentationOperandAddress);
             }
         }
-
-        static ushort ReadWord(SuperMetroidAddressSpace source, ushort address) =>
-            unchecked((ushort)(source.ReadByte(EnemyProjectileCodePointers.BankBase | address) |
-                source.ReadByte(EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(address + 1))) << 8));
     }
 
     private static int ProbeDraygonProjectileInstructionMechanicsAllocation()

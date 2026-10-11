@@ -215,10 +215,11 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Blue Brinstar face block words")]
     private static ushort ReadBlueBrinstarFaceBlockWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewBlueBrinstarFaceBlockProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

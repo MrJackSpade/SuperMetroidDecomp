@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo movement definitions")]
     private static void VerifyBombTorizoMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int standingXAddress = 0xaac3ee;
@@ -16,7 +17,7 @@ internal static partial class Program
         const int facelessWalkAddress = 0xaac532;
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         for (ushort tableOffset = 0; tableOffset < 32; tableOffset += 2)
         {

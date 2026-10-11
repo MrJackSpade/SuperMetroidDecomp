@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon BG2 frames")]
     private static void VerifyInstalledDraygonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
@@ -21,7 +22,7 @@ internal static partial class Program
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Draygon BG2 frame {frame.Name} exists");
             int root = (DraygonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
-            AssertEqual((byte)1, rom.ReadByte(root),
+            AssertEqual((byte)1, rom.ReadCartridgeByte(root),
                 $"Draygon {frame.Name} has one BG2 component");
             AssertEqual((ushort)0, ReadWord(root + 2),
                 $"Draygon {frame.Name} BG2 component X offset");
@@ -124,9 +125,10 @@ internal static partial class Program
         Console.WriteLine("  Draygon BG2 frames: 34 selected frames and 102 native writes match installed VRAM; live edit, producer gate, ROM guard, reload, hash and strict validation pass.");
 
         ushort ReadWord(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Draygon BG2 collision")]
     private static void VerifyCompiledDraygonBg2Collision(
         SuperMetroidAddressSpace rom)
     {
@@ -136,7 +138,7 @@ internal static partial class Program
             int root = (DraygonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
             DraygonCollisionComponent[] components =
                 [.. DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)];
-            AssertEqual((int)rom.ReadByte(root), components.Length,
+            AssertEqual((int)rom.ReadCartridgeByte(root), components.Length,
                 $"Draygon {frame.Name} compiled collision component count");
             for (int index = 0; index < components.Length; index++)
             {
@@ -215,7 +217,7 @@ internal static partial class Program
         Console.WriteLine("  Draygon BG2 collision: 34 native frame roots, three hitbox lists, and the guarded live callback walker match the cartridge.");
 
         ushort ReadWord(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private static byte[] DrawDraygonBg2(EnemyTileArtworkCatalog art,

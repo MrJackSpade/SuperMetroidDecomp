@@ -131,10 +131,11 @@ internal static partial class Program
             "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 24 real surface handoffs pass with source tables forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for crawler animation words")]
     private static ushort ReadCrawlerAnimationWord(
         SuperMetroidAddressSpace source,
         int address) =>
-        (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+        (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewCrawlerAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -77,16 +77,17 @@ internal static partial class Program
         Console.WriteLine("Beam PNG artwork: twelve production VRAM uploads, exact edited-pixel isolation and malformed resource rejection pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the native beam tile artwork fixture")]
     private static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
         SnesCgram cgram, VramWriteQueue? queue, ushort selection)
     {
-        ushort Word(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
         int tileSource = SamusProjectileRomData.Banks.CharacterData |
             Word(SamusProjectileRomData.Beams.TilePointers + selection * 2);
         if (vram is not null)
         {
             var bytes = new byte[BeamTileAtlasDefinitions.ByteCount];
-            for (int i = 0; i < bytes.Length; i++) bytes[i] = bus.ReadByte(tileSource + i);
+            for (int i = 0; i < bytes.Length; i++) bytes[i] = bus.ReadCartridgeByte(tileSource + i);
             vram.LoadBytes(BeamTileAtlasDefinitions.DestinationWord * 2, bytes);
         }
         queue?.Enqueue(BeamTileAtlasDefinitions.ByteCount, tileSource, BeamTileAtlasDefinitions.DestinationWord);

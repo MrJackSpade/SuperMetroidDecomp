@@ -164,10 +164,11 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Etecoon instruction words")]
     private static ushort ReadEtecoonInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa70000 | address) |
-            source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa70000 | address) |
+            source.ReadCartridgeByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 }

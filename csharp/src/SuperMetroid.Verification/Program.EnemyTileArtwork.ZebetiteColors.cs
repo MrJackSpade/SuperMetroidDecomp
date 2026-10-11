@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Zebetite colors")]
     private static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -125,7 +126,7 @@ internal static partial class Program
             {
                 int address = 0xa6fd87 + counter * 4 + color * 2;
                 cgram.SetColor(0xac + color,
-                    Bgr555.FromWord((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8)));
+                    Bgr555.FromWord((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8)));
             }
         }
 

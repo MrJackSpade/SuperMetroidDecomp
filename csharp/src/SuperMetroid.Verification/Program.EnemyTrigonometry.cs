@@ -333,6 +333,7 @@ internal static partial class Program
     /// <summary>The whole family in registry order, in this process.</summary>
     private static void VerifyCompiledEnemyTrigonometry() => RunSuitesSerially(CompiledEnemyTrigonometrySuites());
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy sine")]
     private static void VerifyCompiledEnemySine()
     {
         var rom = LoadRepositoryRom();
@@ -340,9 +341,9 @@ internal static partial class Program
         var words = new ushort[128];
         for (int i = 0; i < 128; i++)
         {
-            bytes[i] = rom.ReadByte(EnemyMathReferenceData.ByteSine + i);
+            bytes[i] = rom.ReadCartridgeByte(EnemyMathReferenceData.ByteSine + i);
             int address = EnemyMathReferenceData.UnsignedSine + i * 2;
-            words[i] = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            words[i] = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         }
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
@@ -401,12 +402,13 @@ internal static partial class Program
         Console.WriteLine("Compiled enemy sine: 256 exact samples, 65,536 byte inputs including both Sbug vector phases, and 8,388,608 unsigned products (two wrapped offsets) pass without any production bus dependency.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled signed trigonometry")]
     private static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         short Reference(int index)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + index * 2;
-            return unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            return unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
         }
         var cinematicReaders = new[] { typeof(CeresDestructionCinematicState), typeof(EndingCreditsState), typeof(IntroCeresFlightState) }
             .Select(type => type.GetMethod("ReadSine", BindingFlags.NonPublic | BindingFlags.Static)!

@@ -256,12 +256,13 @@ internal static partial class Program
             "selectors pass through the complete production loop.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Baby program words")]
     private static ushort ReadCeresBabyProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa60000 | address) |
-            source.ReadByte(0xa60000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa60000 | address) |
+            source.ReadCartridgeByte(0xa60000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewCeresBabyInstructionReadGuard(
         ISnesAddressSpace source, bool blockBabyFrames = false) =>

@@ -93,13 +93,14 @@ internal static partial class Program
             $"Bomb Torizo {scenario} random {random:X2} X origin");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo drool words")]
     private static ushort ReadBombTorizoDroolWord(
         SuperMetroidAddressSpace rom,
         int table,
         int wordOffset)
     {
         int address = table + wordOffset;
-        return unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        return unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
     }
 
     private static CartridgeReadGuard NewBombTorizoDroolSineReadGuard(ISnesAddressSpace source) =>

@@ -19,12 +19,14 @@ internal static partial class Program
         var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         ReferenceDeadTorizoCorpseGraphics(nativeBus);
         RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
-        AssertDeadTorizoBufferParity(nativeBus, installedBus, 0x7e2000, 0x1000,
+        AssertDeadTorizoBufferParity(new EnemyScratchMemory(nativeBus).CorpseTiles,
+            new EnemyScratchMemory(installedBus).CorpseTiles, 0x1000,
             "installed dead-Torizo initial corpse sheet matches cartridge WRAM");
 
         ReferenceDeadTorizoSandLine(nativeBus, 0);
         CopyDeadTorizoSandLine(installed, 0);
-        AssertDeadTorizoBufferParity(nativeBus, installedBus, 0x7e9500, 0x200,
+        AssertDeadTorizoBufferParity(new EnemyScratchMemory(nativeBus).DeadTorizoSand,
+            new EnemyScratchMemory(installedBus).DeadTorizoSand, 0x200,
             "installed dead-Torizo sand line matches cartridge WRAM");
 
         var nativeCorpse = new OamBuffer();
@@ -61,33 +63,36 @@ internal static partial class Program
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         var editedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InitializeDeadTorizoArtwork(editedBus, edited);
-        AssertEqual((byte)(installedBus.ReadByte(0x7e2060) ^ 0x80),
-            editedBus.ReadByte(0x7e2060),
+        WorkRamByteTable installedTiles = new EnemyScratchMemory(installedBus).CorpseTiles;
+        WorkRamByteTable editedTiles = new EnemyScratchMemory(editedBus).CorpseTiles;
+        AssertEqual((byte)(installedTiles[0x60] ^ 0x80),
+            editedTiles[0x60],
             "dead-Torizo PNG pixel edit reaches the live corpse staging buffer");
         for (int offset = 0; offset < 0x1000; offset++)
         {
             if (offset == 0x60)
                 continue;
-            AssertEqual(installedBus.ReadByte(0x7e2000 + offset),
-                editedBus.ReadByte(0x7e2000 + offset),
+            AssertEqual(installedTiles[offset],
+                editedTiles[offset],
                 "dead-Torizo PNG edit leaves neighboring corpse staging bytes unchanged");
         }
         var reloadedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InitializeDeadTorizoArtwork(reloadedBus,
             EnemyTileArtworkFiles.Load(directory, overrideDirectory));
-        AssertEqual(editedBus.ReadByte(0x7e2060), reloadedBus.ReadByte(0x7e2060),
+        AssertEqual(editedTiles[0x60], new EnemyScratchMemory(reloadedBus).CorpseTiles[0x60],
             "dead-Torizo PNG edit survives catalog reload");
 
         Console.WriteLine("  Dead Torizo artwork: guarded initial corpse and sand-line ROM parity, visible PNG edit and reload pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo stationary visual")]
     private static void VerifyDeadTorizoStationaryVisual(
         EnemyTileArtworkCatalog stock)
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         int selector = 0xa90000 | DeadTorizoArtworkDefinitions.StationaryOperand;
         ushort nativePointer = unchecked((ushort)(
-            rom.ReadByte(selector) | rom.ReadByte(selector + 1) << 8));
+            rom.ReadCartridgeByte(selector) | rom.ReadCartridgeByte(selector + 1) << 8));
         AssertEqual(DeadTorizoArtworkDefinitions.StationarySpritemap, nativePointer,
             "Dead Torizo stationary visual identity matches its native list");
         AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
@@ -114,6 +119,7 @@ internal static partial class Program
         Console.WriteLine("  Dead Torizo stationary visual: compiled selector, editable 25-part OAM, and native composition parity pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo VRAM transfer definitions")]
     private static void VerifyDeadTorizoVramTransferDefinitions(
         EnemyTileArtworkCatalog stock)
     {
@@ -177,15 +183,15 @@ internal static partial class Program
         Console.WriteLine("  Dead Torizo VRAM queues: fourteen native descriptors and both real frame builders match with installed ROM reads forbidden.");
 
         ushort ReadWord(int address) => unchecked((ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
     }
 
     // Independent transcription of Torizo_CorpseRottingInitFunc ($A9:DE18)
     // from the pinned sm_a9.c. Do not derive expected copies from runtime definitions.
     private static void ReferenceDeadTorizoCorpseGraphics(SuperMetroidAddressSpace bus)
     {
-        for (int offset = 0; offset < 0x1000; offset++)
-            bus.WriteByte(0x7e2000 + offset, 0);
+        WorkRamByteTable tiles = new EnemyScratchMemory(bus).CorpseTiles;
+        tiles.Fill(0);
         (int Source, int Destination, int Length)[] copies =
         [
             (288, 0x060, 0xc0), (800, 0x1a0, 0xc0),
@@ -197,22 +203,30 @@ internal static partial class Program
         ];
         foreach (var copy in copies)
             for (int offset = 0; offset < copy.Length; offset++)
-                bus.WriteByte(0x7e2000 + copy.Destination + offset,
-                    bus.ReadByte(0xb7a800 + copy.Source + offset));
+                tiles[copy.Destination + offset] = ReadNativeDeadTorizoSheetByte(bus, copy.Source + offset);
     }
 
     // $A9:D5EA copies eighteen words selected by the two cartridge offset tables.
     private static void ReferenceDeadTorizoSandLine(SuperMetroidAddressSpace bus, ushort line)
     {
-        int destination = ReadWord(0xa9d67c + line * 2);
-        int source = ReadWord(0xa9d69c + line * 2);
+        (int destination, int source) = ReadNativeDeadTorizoSandLineOffsets(bus, line);
+        WorkRamByteTable sand = new EnemyScratchMemory(bus).DeadTorizoSand;
         for (int row = 0; row < 18; row++)
             for (int part = 0; part < 2; part++)
-                bus.WriteByte(0x7e9500 + destination + row * 16 + part,
-                    bus.ReadByte(0xb7a800 + source + row * 16 + part));
+                sand[destination + row * 16 + part] = ReadNativeDeadTorizoSheetByte(bus, source + row * 16 + part);
+    }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Dead Torizo corpse tile sheet at $B7:A800")]
+    private static byte ReadNativeDeadTorizoSheetByte(ISnesAddressSpace rom, int sheetOffset) =>
+        rom.ReadCartridgeByte(0xb7a800 + sheetOffset);
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Dead Torizo sand-line destination and source offset tables")]
+    private static (int Destination, int Source) ReadNativeDeadTorizoSandLineOffsets(ISnesAddressSpace rom, ushort line)
+    {
+        return (ReadWord(0xa9d67c + line * 2), ReadWord(0xa9d69c + line * 2));
 
         ushort ReadWord(int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private static RoomEnemySystem InitializeDeadTorizoArtwork(
@@ -250,12 +264,11 @@ internal static partial class Program
     }
 
     private static void AssertDeadTorizoBufferParity(
-        ISnesAddressSpace expected, ISnesAddressSpace actual, int address, int length,
+        WorkRamByteTable expected, WorkRamByteTable actual, int length,
         string description)
     {
         for (int offset = 0; offset < length; offset++)
-            AssertEqual(expected.ReadByte(address + offset), actual.ReadByte(address + offset),
-                description);
+            AssertEqual(expected[offset], actual[offset], description);
     }
 
     private static MutableCartridgeReadGuard NewDeadTorizoArtworkReadGuard(ISnesAddressSpace source)

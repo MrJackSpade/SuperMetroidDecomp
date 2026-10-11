@@ -51,8 +51,6 @@ internal static class AreaAnimatedTileObjectDefinitionsConstants
 /// <summary>Cartridge values of <see cref="AttractDemoRomData"/> that only verification reads.</summary>
 internal static class AttractDemoRomDataConstants
 {
-    /// <summary>$70:1FE0, completion marker checked by VerifySRAM to unlock set four.</summary>
-    public const int CompletionMarkerAddress = (SaveRamLayoutConstants.SramBank << 16) | SuperMetroid.Core.Game.SaveRamLayout.CompletionMarkerOffset;
     /// <summary>CheckForNextDemo's room-list termination word.</summary>
     public const ushort EndOfSet = 0xffff;
     /// <summary>LoadDemoData's bank and sixteen-byte equipment record stride.</summary>
@@ -72,8 +70,6 @@ internal static class AttractDemoRomDataConstants
 
     extension(AttractDemoRomData)
     {
-        /// <inheritdoc cref="AttractDemoRomDataConstants.CompletionMarkerAddress"/>
-        internal static int CompletionMarkerAddress => AttractDemoRomDataConstants.CompletionMarkerAddress;
         /// <inheritdoc cref="AttractDemoRomDataConstants.EndOfSet"/>
         internal static ushort EndOfSet => AttractDemoRomDataConstants.EndOfSet;
         /// <inheritdoc cref="AttractDemoRomDataConstants.EquipmentBank"/>

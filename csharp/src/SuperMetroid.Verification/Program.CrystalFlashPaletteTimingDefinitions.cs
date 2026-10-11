@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crystal Flash palette timing definitions")]
     private static void VerifyCrystalFlashPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -13,7 +14,7 @@ internal static partial class Program
             int address = CrystalFlashPaletteTimingDefinitions.NativeFirstTimerAddress +
                 record * CrystalFlashPaletteTimingDefinitions.RecordByteCount;
             ushort nativeDuration = unchecked((ushort)(
-                rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+                rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
             ushort byteOffset = unchecked((ushort)(
                 record * CrystalFlashPaletteTimingDefinitions.RecordByteCount));
             AssertEqual(nativeDuration,

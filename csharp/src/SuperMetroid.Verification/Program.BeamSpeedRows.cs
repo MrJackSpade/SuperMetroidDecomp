@@ -6,11 +6,12 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for beam speed rows, pose aim directions and missile acceleration words")]
     private static void VerifyBeamSpeedRows()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusPoseId AimPose(byte direction) => (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
-            retail.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction);
+            retail.ReadCartridgeByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction);
         var room = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new ushort[256], new byte[256],
             new ushort[256], new byte[8]);
         for (ushort combination = 0; combination < 12; combination++)
@@ -43,7 +44,7 @@ internal static partial class Program
         var initialize = typeof(SamusProjectileSystem).GetMethod("InitializePowerBeamVelocity",
             System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>();
-        ushort Word(int address) => (ushort)(retail.ReadByte(address) | retail.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(retail.ReadCartridgeByte(address) | retail.ReadCartridgeByte(address + 1) << 8);
         var guarded = new BeamSpeedRowAddressSpace(retail);
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
             AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address),

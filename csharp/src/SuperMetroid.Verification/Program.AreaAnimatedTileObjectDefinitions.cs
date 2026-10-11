@@ -28,6 +28,7 @@ internal static partial class Program
             "selectors are compiled; both production owners reject their ROM sources.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled area selection")]
     private static void VerifyCompiledAreaSelection(
         ISnesAddressSpace rom,
         AreaId area,
@@ -37,7 +38,7 @@ internal static partial class Program
     {
         // Original compiled default-door FX record with both sand/treadmill bits.
         const ushort fxRecord = 0x9e44;
-        AssertEqual(animatedTileBits, rom.ReadByte(0x839e52), "Native fixture animation bitset");
+        AssertEqual(animatedTileBits, rom.ReadCartridgeByte(0x839e52), "Native fixture animation bitset");
         var guarded = NewAreaAnimatedTileSelectionForbiddenBus(rom);
         var sand = new RoomSandAnimatedTilesState();
         var treadmills = new RoomTreadmillAnimatedTilesState();

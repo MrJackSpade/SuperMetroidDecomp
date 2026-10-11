@@ -41,10 +41,11 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledDynamicCollectibleArt), () => VerifyInstalledDynamicCollectibleArt(rom));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for collectible graphics words")]
     private static ushort ReadCollectibleGraphicsWord(
         ISnesAddressSpace bus, int address) => unchecked((ushort)(
-        bus.ReadByte(0x840000 | address) |
-        bus.ReadByte(0x840000 | (address + 1)) << 8));
+        bus.ReadCartridgeByte(0x840000 | address) |
+        bus.ReadCartridgeByte(0x840000 | (address + 1)) << 8));
 
     private static CartridgeReadGuard NewRetailCollectibleGraphicsReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

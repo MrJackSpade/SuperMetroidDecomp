@@ -54,10 +54,11 @@ internal static partial class Program
             "Ceres door initialization definitions: all fourteen native selector words and seven production initializers pass with both source tables forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door initialization words")]
     private static ushort ReadCeresDoorInitializationWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewCeresDoorInitializationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

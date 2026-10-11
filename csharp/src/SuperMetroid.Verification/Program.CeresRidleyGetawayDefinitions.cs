@@ -3,9 +3,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Ridley getaway")]
     private static void VerifyCompiledCeresRidleyGetaway(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (ushort offset = 0; offset <= 224; offset += 2)
         {
             var frame = CeresRidleyGetawayDefinitions.FromByteIndex(offset);
@@ -24,6 +25,7 @@ internal static partial class Program
         Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match, including irregular zoom steps and terminal frame.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Ridley Mode 7 transfers")]
     private static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)
     {
         int checkedTransfers = 0;
@@ -38,14 +40,14 @@ internal static partial class Program
             actualVram.LoadBytes(0, expectedVram);
             foreach (CeresMode7Transfer transfer in compiled)
             {
-                AssertEqual((byte)0x80, rom.ReadByte(cursor),
+                AssertEqual((byte)0x80, rom.ReadCartridgeByte(cursor),
                     "Ceres Mode 7 native transfer control");
-                int source = rom.ReadByte(cursor + 1) |
-                    rom.ReadByte(cursor + 2) << 8 |
-                    rom.ReadByte(cursor + 3) << 16;
-                ushort size = (ushort)(rom.ReadByte(cursor + 4) | rom.ReadByte(cursor + 5) << 8);
-                ushort destination = (ushort)(rom.ReadByte(cursor + 6) | rom.ReadByte(cursor + 7) << 8);
-                AssertEqual((byte)0, rom.ReadByte(cursor + 8),
+                int source = rom.ReadCartridgeByte(cursor + 1) |
+                    rom.ReadCartridgeByte(cursor + 2) << 8 |
+                    rom.ReadCartridgeByte(cursor + 3) << 16;
+                ushort size = (ushort)(rom.ReadCartridgeByte(cursor + 4) | rom.ReadCartridgeByte(cursor + 5) << 8);
+                ushort destination = (ushort)(rom.ReadCartridgeByte(cursor + 6) | rom.ReadCartridgeByte(cursor + 7) << 8);
+                AssertEqual((byte)0, rom.ReadCartridgeByte(cursor + 8),
                     "Ceres Mode 7 native VRAM increment mode");
                 AssertEqual(size, transfer.TileNumbers.Length,
                     "Ceres Mode 7 compiled byte count");
@@ -53,7 +55,7 @@ internal static partial class Program
                     "Ceres Mode 7 compiled VRAM destination");
                 for (int index = 0; index < size; index++)
                 {
-                    byte value = rom.ReadByte(source + index);
+                    byte value = rom.ReadCartridgeByte(source + index);
                     AssertEqual(value, transfer.TileNumbers[index],
                         "Ceres Mode 7 compiled tilemap source byte");
                     expectedVram[((destination + index) & 0x7fff) * 2] = value;
@@ -61,7 +63,7 @@ internal static partial class Program
                 cursor += 9;
                 checkedTransfers++;
             }
-            AssertEqual((byte)0, rom.ReadByte(cursor),
+            AssertEqual((byte)0, rom.ReadCartridgeByte(cursor),
                 "Ceres Mode 7 compiled list reaches native terminator");
             CeresMode7TransferDefinitions.ApplyTo(actualVram, pointer);
             AssertTrue(actualVram.Bytes.SequenceEqual(expectedVram),

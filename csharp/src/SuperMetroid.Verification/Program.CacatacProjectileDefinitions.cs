@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Cacatac projectile definitions")]
     private static void VerifyCacatacProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0x86d96a;
@@ -26,8 +27,8 @@ internal static partial class Program
                 projectile.Clear();
 
             ushort raw = (ushort)direction;
-            ushort native = (ushort)(rom.ReadByte(instructionTable + raw) |
-                rom.ReadByte(instructionTable + raw + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(instructionTable + raw) |
+                rom.ReadCartridgeByte(instructionTable + raw + 1) << 8);
             AssertEqual(native, CacatacProjectileDefinitions.InstructionList(direction),
                 $"compiled Cacatac spike instruction {direction}");
 

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Checks ending scene selection and original import metadata without a playthrough.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending Mode 7 role selection")]
     private static void VerifyEndingMode7RoleSelection()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -13,10 +14,10 @@ internal static partial class Program
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mode7 metadata oracle revision");
         int Source(int instruction)
         {
-            AssertEqual(0xa9, (int)rom.ReadByte(instruction), "native source bank LDA");
-            AssertEqual(0xa9, (int)rom.ReadByte(instruction + 5), "native source offset LDA");
-            return rom.ReadByte(instruction + 2) << 16 | rom.ReadByte(instruction + 6) |
-                rom.ReadByte(instruction + 7) << 8;
+            AssertEqual(0xa9, (int)rom.ReadCartridgeByte(instruction), "native source bank LDA");
+            AssertEqual(0xa9, (int)rom.ReadCartridgeByte(instruction + 5), "native source offset LDA");
+            return rom.ReadCartridgeByte(instruction + 2) << 16 | rom.ReadCartridgeByte(instruction + 6) |
+                rom.ReadCartridgeByte(instruction + 7) << 8;
         }
         foreach (var native in new[]
         {

@@ -111,9 +111,8 @@ internal static partial class AssetTools
         Word(0xAFE, k.Radius.X); Word(0xB00, k.Radius.Y);
         Word(0xA1C, (int)samus.Pose);
         // Native pose record carries direction/movement type in its first two bytes.
-        int pose = 0x91B629 + (int)samus.Pose * 8;
-        ram[0xA1E] = runtime.AddressSpace.ReadByte(pose);
-        ram[0xA1F] = runtime.AddressSpace.ReadByte(pose + 1);
+        ram[0xA1E] = SamusPoseDispatchDefinitions.ReadFacing(samus.Pose);
+        ram[0xA1F] = SamusPoseDispatchDefinitions.ReadMovement(samus.Pose);
         Word(0xA56, samus.BombJumpDirection); Word(0xA58, 0xE032); Word(0xA60, 0xE90E);
         Word(0xB2C, k.YSubspeed); Word(0xB2E, k.YSpeed);
         Word(0xB32, k.YSubacceleration); Word(0xB34, k.YAcceleration); Word(0xB36, (ushort)k.YDirection);

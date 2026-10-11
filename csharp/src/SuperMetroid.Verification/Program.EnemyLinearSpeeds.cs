@@ -4,9 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled linear enemy speeds")]
     private static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var shared = typeof(RoomEnemySystem).GetMethod("ReadLinearEnemySpeed",
             BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<ushort, (short Whole, ushort Fraction)>>();

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for escape Etecoon definitions")]
     private static void VerifyEscapeEtecoonDefinitions(SuperMetroidAddressSpace rom)
     {
         const int xTable = 0xb3e718;
@@ -14,7 +15,7 @@ internal static partial class Program
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         for (int role = 0; role < 3; role++)
         {
@@ -209,10 +210,11 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for escape Etecoon instruction words")]
     private static ushort ReadEscapeEtecoonInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static int ProbeEscapeEtecoonInstructionMechanicsAllocation()
     {

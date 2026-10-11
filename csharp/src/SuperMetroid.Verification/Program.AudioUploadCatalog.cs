@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the audio upload catalog pointers")]
     private static void VerifyAudioUploadCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["SPCEngine", "Music_TitleSequence", "Music_EmptyCrateria", "Music_LowerCrateria", "Music_UpperCrateria", "Music_GreenBrinstar", "Music_RedBrinstar", "Music_UpperNorfair", "Music_LowerNorfair", "Music_Maridia", "Music_Tourian", "Music_MotherBrain", "Music_BossFight1", "Music_BossFight2", "Music_MiniBossFight", "Music_Ceres", "Music_WreckedShip", "Music_ZebesExplosion", "Music_Intro", "Music_Death", "Music_Credits", "Music_TheLastMetroidIsInCaptivity", "Music_TheGalaxyIsAtPeace", "Music_BabyMetroid_BossFight2", "Music_SamusTheme_UpperCrateria"];
@@ -16,7 +17,7 @@ internal static partial class Program
                 continue;
             }
             int address = 0x8fe7e1 + index;
-            int pointer = rom.ReadByte(address) | rom.ReadByte(address + 1) << 8 | rom.ReadByte(address + 2) << 16;
+            int pointer = rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8 | rom.ReadCartridgeByte(address + 2) << 16;
             var actual = AudioAssetCatalogData.ResolveDataIndex((byte)index);
             AssertEqual(pointer, actual.SnesAddress, "original upload pointer");
             AssertEqual((byte)index, actual.DataIndex, "native byte offset identity");

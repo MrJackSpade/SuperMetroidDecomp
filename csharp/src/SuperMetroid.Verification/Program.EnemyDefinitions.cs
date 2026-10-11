@@ -82,6 +82,7 @@ internal static partial class Program
             "cartridge parsing is isolated in the importer.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain falling tube population definitions")]
     private static void VerifyMotherBrainFallingTubePopulationDefinitions(
         ISnesAddressSpace rom)
     {
@@ -124,13 +125,13 @@ internal static partial class Program
         // silently borrowing the retail coordinates from the compiled catalog.
         var fixture = new TestAddressSpace();
         byte[] header = Enumerable.Range(0, 64)
-            .Select(offset => rom.ReadByte(0xa00000 |
+            .Select(offset => rom.ReadCartridgeByte(0xa00000 |
                 ((ushort)EnemyDefinitionId.MotherBrainTubes + offset)))
             .ToArray();
         fixture.WriteBytes(0xa00000 | (ushort)EnemyDefinitionId.MotherBrainTubes, header);
         int fixtureAddress = 0xa90000 | MotherBrainFallingTubePopulationDefinitions.BottomLeft;
         byte[] authoredRecord = Enumerable.Range(0, 16)
-            .Select(offset => rom.ReadByte(fixtureAddress + offset))
+            .Select(offset => rom.ReadCartridgeByte(fixtureAddress + offset))
             .ToArray();
         authoredRecord[2] = 0x34;
         authoredRecord[3] = 0x12;
@@ -146,12 +147,13 @@ internal static partial class Program
             "spawns and one independent constructed placement pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy definition records")]
     private static RoomEnemyDefinition ReadNativeEnemyDefinition(
         ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
         int address = RoomEnemyRomLayout.DefinitionBank | (ushort)pointer;
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
-        byte Byte(int offset) => bus.ReadByte(address + offset);
+        byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         return new RoomEnemyDefinition(Word(0), Word(2), Word(4), Word(6), new(Word(8), Word(10)), Byte(12), Byte(13), Word(14), Word(16), Word(18), Word(20), Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36), Word(38), Word(40), Word(42), Word(44), Word(46), Word(48), Word(50), Word(52), Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60), Word(62));
     }
 

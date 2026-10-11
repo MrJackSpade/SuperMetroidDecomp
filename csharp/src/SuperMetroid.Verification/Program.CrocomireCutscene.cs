@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire corpse collision")]
     private static void VerifyCrocomireCorpseCollision()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -20,7 +21,7 @@ internal static partial class Program
         object?[] arguments = [slot, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>((ushort)8, (ushort)8), false, (ushort)0];
         AssertTrue(!(bool)walker.Invoke(enemies, arguments)!, "river corpse has native empty collision");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        ushort Word(int address) => (ushort)(rom.ReadByte(0xa40000 | address) | rom.ReadByte(0xa40000 | (address + 1)) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(0xa40000 | address) | rom.ReadCartridgeByte(0xa40000 | (address + 1)) << 8);
         foreach (var frame in CrocomireSkeletonVisualDefinitions.Frames)
         {
             var components = CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer);
@@ -69,10 +70,15 @@ internal static partial class Program
         Console.WriteLine("All 33 corpse frames match native offsets, rectangles and callbacks; production collision uses no ROM.");
     }
 
+    /// <summary>The Crocomire room's authored scroll storage, read from its retail $8F:A9D7 record.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Crocomire room's authored scroll storage")]
+    private static byte[] ReadNativeCrocomireRoomScrolls(ISnesAddressSpace rom) =>
+        Enumerable.Range(0, RoomScrollGrid.StorageByteCount).Select(index => rom.ReadCartridgeByte(0x8fa9d7 + index)).ToArray();
+
     private static void VerifyCrocomireCutsceneCamera()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        byte[] storage = Enumerable.Range(0, RoomScrollGrid.StorageByteCount).Select(index => rom.ReadByte(0x8fa9d7 + index)).ToArray();
+        byte[] storage = ReadNativeCrocomireRoomScrolls(rom);
         var scrolls = RoomScrollGrid.LoadCompiled(rom, storage, new Extent16<RoomScreens>(8, 1));
         var camera = new ScrollBoundaryCamera(scrolls);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

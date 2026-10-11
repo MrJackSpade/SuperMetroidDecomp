@@ -22,12 +22,13 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight program")]
     private static void VerifyCeresFlightProgram(ISnesAddressSpace rom, ushort start, ushort end, bool crossesIntoNext, bool destructionAlias)
     {
-        ushort OriginalWord(ushort p) => (ushort)(rom.ReadByte(0x8b0000 | p) | rom.ReadByte(0x8b0000 | (p + 1)) << 8);
+        ushort OriginalWord(ushort p) => (ushort)(rom.ReadCartridgeByte(0x8b0000 | p) | rom.ReadCartridgeByte(0x8b0000 | (p + 1)) << 8);
         for (int p = start; p < end; p++)
         {
-            byte expected = rom.ReadByte(0x8b0000 | p);
+            byte expected = rom.ReadCartridgeByte(0x8b0000 | p);
             AssertEqual(expected, CeresFlightSpriteInstructionDefinitions.ReadByte((ushort)p), "original flight program byte");
             if (destructionAlias)
                 AssertEqual(expected, CeresDestructionSpriteInstructionDefinitions.ReadByte((ushort)p), "shared destruction byte alias");

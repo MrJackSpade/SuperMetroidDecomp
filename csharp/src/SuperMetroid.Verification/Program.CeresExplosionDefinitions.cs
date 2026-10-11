@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres explosion definitions")]
     private static void VerifyCeresExplosionDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -62,9 +63,10 @@ internal static partial class Program
         }
 
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+            unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres burst layout")]
     private static void VerifyCeresBurstLayout(ISnesAddressSpace retail)
     {
         for (int index = 0; index < CeresExplosionDefinitions.RepeatingExplosionCount; index++)
@@ -93,7 +95,7 @@ internal static partial class Program
                 () => CeresExplosionDefinitions.FinalExplosion(invalid), "final layout bounds");
 
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+            unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
     }
 
     private static CartridgeReadGuard NewCeresExplosionDefinitionReadGuard(ISnesAddressSpace source) =>

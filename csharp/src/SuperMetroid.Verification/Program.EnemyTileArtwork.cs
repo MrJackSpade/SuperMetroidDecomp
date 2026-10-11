@@ -20,6 +20,22 @@ internal static partial class Program
         return cgram;
     }
 
+    /// <summary>The melt scratch image <paramref name="pass"/>'s copies produce from their retail cartridge sources.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Crocomire melting pass source bytes")]
+    private static byte[] ReadNativeCrocomireMeltingPassScratch(ISnesAddressSpace rom, CrocomireMeltingPass pass)
+    {
+        var expected = new byte[CrocomireDeathState.MeltingGraphicsByteCount];
+        foreach (CrocomireMeltingCopy copy in pass.Copies)
+        {
+            int destination = copy.DestinationWord - 0x4000;
+            for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
+                expected[destination + index] = rom.ReadCartridgeByte(
+                    (pass.SourceBank << 16) |
+                    unchecked((ushort)(copy.SourceWord + index)));
+        }
+        return expected;
+    }
+
     private static void VerifyEnemyTileArtwork()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -86,15 +102,7 @@ internal static partial class Program
             foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
             {
                 byte[] actual = VerifyInstalledCrocomireMeltingPass(bus, stock, pass);
-                var expected = new byte[CrocomireDeathState.MeltingGraphicsByteCount];
-                foreach (CrocomireMeltingCopy copy in pass.Copies)
-                {
-                    int destination = copy.DestinationWord - 0x4000;
-                    for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
-                        expected[destination + index] = bus.ReadByte(
-                            (pass.SourceBank << 16) |
-                            unchecked((ushort)(copy.SourceWord + index)));
-                }
+                byte[] expected = ReadNativeCrocomireMeltingPassScratch(bus, pass);
                 AssertTrue(actual.SequenceEqual(expected),
                     $"installed Crocomire melt pass ${pass.HeaderOffset:X4} preserves native scratch bytes");
                 stockMeltImages.Add(actual);

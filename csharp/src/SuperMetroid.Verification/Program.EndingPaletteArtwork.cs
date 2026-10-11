@@ -9,11 +9,12 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette fade")]
     private static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
     {
         var original = new byte[512 * 2];
         var colors = new PaletteRgb5[512];
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         // The original pointer list and reverse-copy operand order are the oracle.
         // Neither the production source selector nor the proposed arithmetic supplies it.
         for (int step = 0; step < 16; step++)
@@ -107,6 +108,7 @@ internal static partial class Program
         AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending palette metadata")]
     private static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
     {
         // Original indexed LDA operands select the six contiguous resources. The gunship
@@ -122,9 +124,9 @@ internal static partial class Program
         ];
         foreach (var load in loads)
         {
-            AssertEqual(load.Long ? 0xbf : 0xbd, (int)rom.ReadByte(load.Load), "native palette indexed load opcode");
-            int address = rom.ReadByte(load.Load + 1) | rom.ReadByte(load.Load + 2) << 8 |
-                (load.Long ? rom.ReadByte(load.Load + 3) << 16 : load.Load & 0xff0000);
+            AssertEqual(load.Long ? 0xbf : 0xbd, (int)rom.ReadCartridgeByte(load.Load), "native palette indexed load opcode");
+            int address = rom.ReadCartridgeByte(load.Load + 1) | rom.ReadCartridgeByte(load.Load + 2) << 8 |
+                (load.Long ? rom.ReadCartridgeByte(load.Load + 3) << 16 : load.Load & 0xff0000);
             AssertEqual(address, EndingPaletteDefinitions.SourceAddress(load.Role), "native palette source role");
         }
         // Allocation boundaries in pinned bank8C, independent of partial runtime transfers.
@@ -139,8 +141,8 @@ internal static partial class Program
                 EndingPaletteDefinitions.ColorCount(allocation.Item1), "complete palette allocation size");
         foreach (var single in new[] { (EndingPaletteId.FinalGunship, 0x8bde34), (EndingPaletteId.LogoInitial, 0x8be57a) })
         {
-            AssertEqual(0xa2, (int)rom.ReadByte(single.Item2), "native reverse palette LDX opcode");
-            int lastOffset = rom.ReadByte(single.Item2 + 1) | rom.ReadByte(single.Item2 + 2) << 8;
+            AssertEqual(0xa2, (int)rom.ReadCartridgeByte(single.Item2), "native reverse palette LDX opcode");
+            int lastOffset = rom.ReadCartridgeByte(single.Item2 + 1) | rom.ReadCartridgeByte(single.Item2 + 2) << 8;
             AssertEqual(lastOffset / 2 + 1, EndingPaletteDefinitions.ColorCount(single.Item1), "single palette reverse-copy size");
         }
         AssertEqual((0x8be627 - 0x8be5e7) / 2 * 16,
@@ -456,6 +458,7 @@ internal static partial class Program
             "edited Zebes lava palette-FX changes visible ending pixels without changing phase or VRAM");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette artwork")]
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
         ISnesAddressSpace nativeBus, MutableCartridgeReadGuard guardedBus)
     {
@@ -467,8 +470,8 @@ internal static partial class Program
             "installed initial logo palette matches cartridge CGRAM");
         for (int frame = 0; frame < 300 && !nativeLogo.Completed; frame++)
         {
-            nativeLogo.Step(nativeCgram, pointer => (ushort)(nativeBus.ReadByte(0x8b0000 | pointer) |
-                nativeBus.ReadByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8));
+            nativeLogo.Step(nativeCgram, pointer => (ushort)(nativeBus.ReadCartridgeByte(0x8b0000 | pointer) |
+                nativeBus.ReadCartridgeByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8));
             if (nativeLogo.PaletteStep > 0)
             {
                 byte[] nativeColors = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus,

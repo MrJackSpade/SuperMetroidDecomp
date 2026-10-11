@@ -106,6 +106,7 @@ internal static partial class Program
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).TargetHoleByteOffset, "Botwoon native destination including repeated hidden choice");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon navigation definitions")]
     private static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
@@ -113,7 +114,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
         ushort Word(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         var holes = new BotwoonHoleDefinition[4];
         for (ushort byteOffset = 0; byteOffset <= 24; byteOffset += 8)
@@ -175,8 +176,8 @@ internal static partial class Program
              pointer < BotwoonNavigationDefinitions.MovementDataEndExclusive;
              pointer += 2)
         {
-            sbyte expectedX = unchecked((sbyte)rom.ReadByte(0xb30000 | pointer));
-            sbyte expectedY = unchecked((sbyte)rom.ReadByte(0xb30000 | pointer + 1));
+            sbyte expectedX = unchecked((sbyte)rom.ReadCartridgeByte(0xb30000 | pointer));
+            sbyte expectedY = unchecked((sbyte)rom.ReadCartridgeByte(0xb30000 | pointer + 1));
             Offset16<RoomPixels> compiled =
                 BotwoonNavigationDefinitions.MovementSampleForPointer((ushort)pointer);
             AssertEqual(expectedX, compiled.X, $"Botwoon movement ${pointer:X4} X");

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton artwork")]
     private static void VerifyCrocomireSkeletonArtwork(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -30,7 +31,7 @@ internal static partial class Program
                 artwork.Chunk(index).Length,
                 $"Crocomire skeleton upload {index} has the native length");
             for (int offset = 0; offset < artwork.Chunk(index).Length; offset++)
-                AssertEqual(rom.ReadByte(frame.SourceAddress + offset),
+                AssertEqual(rom.ReadCartridgeByte(frame.SourceAddress + offset),
                     artwork.Chunk(index).Span[offset],
                     $"Crocomire skeleton chunk {index} byte {offset} matches cartridge art");
         }
@@ -54,7 +55,7 @@ internal static partial class Program
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
             int source = 0xad0000 | ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
-            byte[] page = Enumerable.Range(0, 0x200).Select(offset => rom.ReadByte(source + offset)).ToArray();
+            byte[] page = Enumerable.Range(0, 0x200).Select(offset => rom.ReadCartridgeByte(source + offset)).ToArray();
             nativeVram.LoadBytes((0x6000 + destination) * 2, page);
         }
         AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),

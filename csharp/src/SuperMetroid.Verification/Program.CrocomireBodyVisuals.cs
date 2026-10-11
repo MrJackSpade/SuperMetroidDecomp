@@ -7,13 +7,14 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire body frame geometry")]
     private static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var original = new SortedSet<ushort>();
         for (int index = 0; index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
             int operand = CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort frame = (ushort)(rom.ReadByte(0xa40000 | operand) | rom.ReadByte(0xa40000 | (operand + 1)) << 8);
+            ushort frame = (ushort)(rom.ReadCartridgeByte(0xa40000 | operand) | rom.ReadCartridgeByte(0xa40000 | (operand + 1)) << 8);
             if (frame < 0xe1fe) original.Add(frame);
         }
         AssertEqual(50, original.Count, "native body frame selection count");
@@ -23,7 +24,7 @@ internal static partial class Program
         {
             AssertEqual(expected[index], CrocomireBodyVisualDefinitions.FramePointer(index), "body native frame address order");
             AssertEqual(expected[index], CrocomireBodyVisualDefinitions.Frames[index], "body indexed sequence");
-            ushort count = (ushort)(rom.ReadByte(0xa40000 | expected[index]) | rom.ReadByte(0xa40000 | (expected[index] + 1)) << 8);
+            ushort count = (ushort)(rom.ReadCartridgeByte(0xa40000 | expected[index]) | rom.ReadCartridgeByte(0xa40000 | (expected[index] + 1)) << 8);
             AssertEqual((ushort)(index >= 42 ? 1 : index is < 12 or >= 18 and < 24 ? 6 : 7), count,
                 "native component count supporting each frame stride");
         }
@@ -38,13 +39,14 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(-1), "negative body frame");
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(50), "body frame past end");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire BG2 generated catalog")]
     private static void VerifyCrocomireBg2GeneratedCatalog(SuperMetroidAddressSpace rom)
     {
         var pointers = new SortedSet<ushort>();
         for (int i = 0; i < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; i++)
         {
             int operand = CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(i);
-            ushort pointer = (ushort)(rom.ReadByte(0xa40000 | operand) | rom.ReadByte(0xa40000 | (operand + 1)) << 8);
+            ushort pointer = (ushort)(rom.ReadCartridgeByte(0xa40000 | operand) | rom.ReadCartridgeByte(0xa40000 | (operand + 1)) << 8);
             if (pointer < 0xca7e) pointers.Add(pointer);
         }
         EnemyBg2FrameDefinition[] expected = pointers.Select(pointer =>
@@ -72,6 +74,7 @@ internal static partial class Program
                 "generated catalog loads every native BG2 stream by its published key");
         AssertTrue(!loaded.TryGet(0xca7e, out _), "pure-OAM frame excluded from BG2 catalog");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire body visuals")]
     private static void VerifyInstalledCrocomireBodyVisuals(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
@@ -202,8 +205,8 @@ internal static partial class Program
         Console.WriteLine(
             "  Crocomire body: 236 selectors, 50 mixed/pure OAM roots and 42 BG2 roots match native OAM and VRAM with visual ROM reads denied; BG2 edits obey the new-frame gate.");
 
-        ushort ReadWord(int address) => unchecked((ushort)(rom.ReadByte(address) |
-            rom.ReadByte((address & 0xff0000) | unchecked((ushort)(address + 1))) << 8));
+        ushort ReadWord(int address) => unchecked((ushort)(rom.ReadCartridgeByte(address) |
+            rom.ReadCartridgeByte((address & 0xff0000) | unchecked((ushort)(address + 1))) << 8));
 
         (OamBuffer Oam, byte[] Vram) DrawNative(ushort pointer, bool newFrame) =>
             (DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080)),

@@ -113,13 +113,14 @@ internal static partial class Program
         Console.WriteLine("Ending font: 160 PNG tiles compile to exact native 4-bpp bytes; an indexed-pixel edit changes installed VRAM content.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending text presentation words")]
     private static ushort[] ReadEndingWords(ISnesAddressSpace bus, ushort pointer, int count)
     {
         var result = new ushort[count];
         int address = (int)new SnesAddress(EndingTextDefinitions.Native.Bank, pointer);
         for (int index = 0; index < count; index++)
-            result[index] = unchecked((ushort)(bus.ReadByte(address + index * 2) |
-                bus.ReadByte(address + index * 2 + 1) << 8));
+            result[index] = unchecked((ushort)(bus.ReadCartridgeByte(address + index * 2) |
+                bus.ReadCartridgeByte(address + index * 2 + 1) << 8));
         return result;
     }
 

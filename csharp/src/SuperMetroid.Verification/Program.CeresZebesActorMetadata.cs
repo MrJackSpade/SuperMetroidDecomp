@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Zebes actor metadata")]
     private static void VerifyCeresZebesActorMetadata(ISnesAddressSpace retail)
     {
         int[] xAddresses = [0x8bc83c, 0x8bc944, 0x8bc958, 0x8bc96c, 0x8bc980, 0x8bc993];
@@ -13,7 +14,7 @@ internal static partial class Program
             CeresDestructionActorDefinition actor =
                 CeresDestructionActorDefinitions.ZebesActor(index);
             int spawnOperand = 0x8bc811 + 6 * index;
-            AssertEqual((byte)0xa0, retail.ReadByte(spawnOperand - 1), "native spawn LDY");
+            AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperand - 1), "native spawn LDY");
             ushort pointer = ReadWord(retail, spawnOperand);
             AssertEqual(ReadWord(retail, (0x8b0000 | pointer) + 2), actor.ActivePreInstruction,
                 "native reveal callback, which the initializer leaves unchanged");
@@ -64,12 +65,12 @@ internal static partial class Program
                 () => CeresDestructionActorDefinitions.ZebesActor(index), "Zebes metadata invalid index");
 
         // Native lower-right slide callback alone installs the load-game function.
-        AssertEqual((byte)0xa9, retail.ReadByte(0x8bc8f2), "completion load immediate opcode");
+        AssertEqual((byte)0xa9, retail.ReadCartridgeByte(0x8bc8f2), "completion load immediate opcode");
         AssertEqual((ushort)0xcadf, ReadWord(retail, 0x8bc8f3), "completion load-game function");
-        AssertEqual((byte)0x8d, retail.ReadByte(0x8bc8f5), "completion function store opcode");
+        AssertEqual((byte)0x8d, retail.ReadCartridgeByte(0x8bc8f5), "completion function store opcode");
         AssertEqual((ushort)0x1f51, ReadWord(retail, 0x8bc8f6), "completion cinematic function destination");
 
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
     }
 }

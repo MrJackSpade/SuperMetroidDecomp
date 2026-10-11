@@ -3,11 +3,12 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres shaft compiled rotation")]
     private static void VerifyCeresShaftCompiledRotation()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        ushort Word(int offset) => (ushort)(rom.ReadByte(CeresShaftRotationDefinitions.ReferenceAddress + offset) |
-            rom.ReadByte(CeresShaftRotationDefinitions.ReferenceAddress + offset + 1) << 8);
+        ushort Word(int offset) => (ushort)(rom.ReadCartridgeByte(CeresShaftRotationDefinitions.ReferenceAddress + offset) |
+            rom.ReadCartridgeByte(CeresShaftRotationDefinitions.ReferenceAddress + offset + 1) << 8);
         // Numeric coefficients/phases were proven by the #1165 research; this check covers
         // actual per-frame publication only.
         var state = new CeresElevatorShaftRoomMainState();

@@ -8,6 +8,7 @@ internal static partial class Program
     /// The dormant entry is a bounded bank-$AA program segment. Match every
     /// compiled control word and its visual selector against the pinned cartridge.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo dormant definitions")]
     private static void VerifyBombTorizoDormantDefinitions(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyBombTorizoDormantControlMapping), () => VerifyBombTorizoDormantControlMapping(rom));
@@ -51,10 +52,11 @@ internal static partial class Program
             "match the pinned cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(rom.ReadCartridgeByte((bank << 16) | address) |
+                rom.ReadCartridgeByte((bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo dormant control mapping")]
     private static void VerifyBombTorizoDormantControlMapping(ISnesAddressSpace rom)
     {
         ushort[] expected = [0xb879,0xb87b,0xb87d,0xb881,0xb883,0xb885];
@@ -67,7 +69,7 @@ internal static partial class Program
         {
             bool found = BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
             AssertEqual(words.Contains((ushort)address), found, "dormant full control membership");
-            ushort native = found ? (ushort)(rom.ReadByte(0xaa0000 | address) | rom.ReadByte(0xaa0000 | (address + 1)) << 8) : (ushort)0;
+            ushort native = found ? (ushort)(rom.ReadCartridgeByte(0xaa0000 | address) | rom.ReadCartridgeByte(0xaa0000 | (address + 1)) << 8) : (ushort)0;
             AssertEqual(native, value, "dormant original control value or cleared missing output");
             AssertEqual(bytes.Contains(address), BombTorizoDormantInstructionProgramDefinitions.IsCompiledMechanicsByte(0xaa0000 | address), "dormant exact byte ownership");
             AssertEqual(bytes.Contains(address), BombTorizoDormantInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1aa0000 | address), "dormant existing high-bit alias");

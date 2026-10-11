@@ -20,10 +20,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord definition =
                 ChozoTourianDustInstructionProgramDefinitions.MechanicsWord(index);
-            ushort native = unchecked((ushort)(
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(definition.Address + 1))) << 8));
+            ushort native = ReadNativeEnemyProjectileProgramWord(rom, definition.Address);
             AssertEqual(definition.Value, native,
                 $"Chozo/Tourian dust mechanics word $86:{definition.Address:X4}");
         }

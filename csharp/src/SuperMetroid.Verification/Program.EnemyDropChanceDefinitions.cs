@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy drop chance definitions")]
     private static void VerifyEnemyDropChanceDefinitions(SuperMetroidAddressSpace rom)
     {
         Span<byte> actual = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
@@ -17,7 +18,7 @@ internal static partial class Program
             {
                 int address = EnemyDropChanceDefinitions.NativeBank |
                     unchecked((ushort)(pointer + field));
-                AssertEqual(rom.ReadByte(address), actual[field],
+                AssertEqual(rom.ReadCartridgeByte(address), actual[field],
                     $"enemy drop record ${pointer:X4} byte {field}");
             }
         }

@@ -7,13 +7,14 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door quake definitions")]
     private static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa6a321;
 
         for (ushort phase = 0; phase < 4; phase++)
         {
-            sbyte expected = unchecked((sbyte)rom.ReadByte(sourceAddress + phase));
+            sbyte expected = unchecked((sbyte)rom.ReadCartridgeByte(sourceAddress + phase));
             AssertEqual(expected, CeresDoorQuakeDefinitions.XOffset(phase),
                 $"Ceres private door quake phase {phase}");
         }
@@ -21,7 +22,7 @@ internal static partial class Program
         for (int timer = 0; timer <= ushort.MaxValue; timer++)
         {
             AssertEqual(
-                unchecked((sbyte)rom.ReadByte(sourceAddress + (timer & 3))),
+                unchecked((sbyte)rom.ReadCartridgeByte(sourceAddress + (timer & 3))),
                 CeresDoorQuakeDefinitions.XOffset((ushort)timer),
                 $"Ceres private door quake timer ${timer:X4}");
         }

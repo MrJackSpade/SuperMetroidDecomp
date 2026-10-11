@@ -54,10 +54,11 @@ internal static partial class Program
             "Enemy death explosion definitions: five native selectors, five real variants and the generic clamp path pass with the pointer table forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy death explosion words")]
     private static ushort ReadEnemyDeathExplosionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewEnemyDeathExplosionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -170,9 +170,10 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Cacatac instruction words")]
     private static ushort ReadCacatacInstructionWord(
         SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewCacatacInstructionProgramReadGuard(ISnesAddressSpace source)
     {

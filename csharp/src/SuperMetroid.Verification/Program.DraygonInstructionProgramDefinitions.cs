@@ -135,8 +135,9 @@ internal static partial class Program
             "operands, four physical owners, atomic list handoff, and both HUD IRQ opcodes pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon words")]
     private static ushort ReadDraygonWord(SuperMetroidAddressSpace source, int address) =>
-        unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+        unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
     private static int ProbeDraygonInstructionMechanicsAllocation()
     {

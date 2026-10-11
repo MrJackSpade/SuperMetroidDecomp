@@ -47,6 +47,7 @@ internal static partial class Program
             "duplicate button invalidates permutation");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for default controller buttons")]
     private static void VerifyDefaultControllerButtons(ISnesAddressSpace rom)
     {
         // Parse the seven original LDA-immediate/STA-absolute pairs, including their
@@ -54,8 +55,8 @@ internal static partial class Program
         var original = new Dictionary<ushort, ushort>();
         for (int address = 0x81b324; address <= 0x81b348; address += 6)
         {
-            AssertEqual((byte)0xa9, rom.ReadByte(address), "default binding LDA immediate");
-            AssertEqual((byte)0x8d, rom.ReadByte(address + 3), "default binding STA absolute");
+            AssertEqual((byte)0xa9, rom.ReadCartridgeByte(address), "default binding LDA immediate");
+            AssertEqual((byte)0x8d, rom.ReadCartridgeByte(address + 3), "default binding STA absolute");
             original.Add(ReadVerificationWord(rom, address + 4), ReadVerificationWord(rom, address + 1));
         }
         ushort[] destinations = [0x09b2, 0x09b4, 0x09b6, 0x09ba, 0x09b8, 0x09be, 0x09bc];

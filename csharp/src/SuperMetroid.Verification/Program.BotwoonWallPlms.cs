@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Botwoon wall PLMs")]
     private static void VerifyCompiledBotwoonWallPlms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -21,8 +22,8 @@ internal static partial class Program
             AssertTrue(BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord(
                     address, out ushort compiled),
                 $"Botwoon wall word $84:{address:X4} is compiled");
-            AssertEqual((ushort)(rom.ReadByte(0x840000 | address) |
-                    rom.ReadByte(0x840000 | (address + 1)) << 8),
+            AssertEqual((ushort)(rom.ReadCartridgeByte(0x840000 | address) |
+                    rom.ReadCartridgeByte(0x840000 | (address + 1)) << 8),
                 compiled,
                 $"Botwoon wall word $84:{address:X4} matches ROM");
         }
@@ -35,7 +36,7 @@ internal static partial class Program
             AssertTrue(BotwoonWallPlmProgramDefinitions.TryReadMechanicsByte(
                     address, out byte compiled),
                 $"Botwoon wall byte $84:{address:X4} is compiled");
-            AssertEqual(rom.ReadByte(0x840000 | address), compiled,
+            AssertEqual(rom.ReadCartridgeByte(0x840000 | address), compiled,
                 $"Botwoon wall byte $84:{address:X4} matches ROM");
         }
         AssertTrue(!BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord(
@@ -67,15 +68,15 @@ internal static partial class Program
         foreach (ushort word in draw.Runs.Span[0].LevelWords.Span)
             AssertWord(word);
         for (int index = 0; index < 9; index++)
-            AssertEqual((ushort)(rom.ReadByte(0x849311 + index * 2) |
-                rom.ReadByte(0x849312 + index * 2) << 8),
+            AssertEqual((ushort)(rom.ReadCartridgeByte(0x849311 + index * 2) |
+                rom.ReadCartridgeByte(0x849312 + index * 2) << 8),
                 BotwoonWallPlmDrawDefinitions.LevelWordAt(index), "Botwoon calculated clear word matches native");
         foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BotwoonWallPlmDrawDefinitions.LevelWordAt(index), "Botwoon fill rejects invalid block index");
-        AssertEqual(rom.ReadByte(0x840000 | cursor++),
+        AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
             unchecked((byte)draw.Runs.Span[0].Next.X),
             "Botwoon clear final X offset");
-        AssertEqual(rom.ReadByte(0x840000 | cursor++),
+        AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
             unchecked((byte)draw.Runs.Span[0].Next.Y),
             "Botwoon clear final Y offset");
         AssertEqual(BotwoonWallPlmDrawDefinitions.EndExclusive, cursor,
@@ -88,8 +89,8 @@ internal static partial class Program
 
         void AssertWord(ushort expected)
         {
-            AssertEqual((ushort)(rom.ReadByte(0x840000 | cursor) |
-                    rom.ReadByte(0x840000 | (cursor + 1)) << 8),
+            AssertEqual((ushort)(rom.ReadCartridgeByte(0x840000 | cursor) |
+                    rom.ReadCartridgeByte(0x840000 | (cursor + 1)) << 8),
                 expected, $"Botwoon draw word +{cursor - draw.Pointer}");
             cursor += 2;
         }

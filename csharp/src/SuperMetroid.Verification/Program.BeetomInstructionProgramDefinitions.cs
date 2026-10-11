@@ -342,12 +342,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Beetom instruction words")]
     private static ushort ReadBeetomInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa80000 | address) |
-            source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa80000 | address) |
+            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewBeetomInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)

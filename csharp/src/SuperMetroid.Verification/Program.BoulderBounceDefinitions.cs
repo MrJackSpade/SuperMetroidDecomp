@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boulder bounces")]
     private static void VerifyCompiledBoulderBounces(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
@@ -21,7 +22,7 @@ internal static partial class Program
         for (ushort counter = 0; counter <= 2; counter++)
         {
             int address = 0xa686f1 + (counter - 1) * 2;
-            ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort expected = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(expected, BoulderBounceDefinitions.SpeedIndex(counter), "Boulder native leading-zero/bounce word");
             actor.Position = actor.Position.WithY(new(55, 0));
             state.BounceCounter = counter;

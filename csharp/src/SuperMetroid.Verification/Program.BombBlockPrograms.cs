@@ -5,6 +5,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb block restoration mapping")]
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
@@ -41,8 +42,8 @@ internal static partial class Program
                     AssertEqual(native, exportedRun.LevelWords.Span[block], "bomb restoration exported word");
                 }
                 cursor += 2 + 2 * count;
-                byte x = rom.ReadByte(0x840000 | cursor);
-                byte y = rom.ReadByte(0x840000 | (cursor + 1));
+                byte x = rom.ReadCartridgeByte(0x840000 | cursor);
+                byte y = rom.ReadCartridgeByte(0x840000 | (cursor + 1));
                 AssertEqual(unchecked((sbyte)x), exportedRun.Next.X, "bomb restoration next X");
                 AssertEqual(unchecked((sbyte)y), exportedRun.Next.Y, "bomb restoration next Y");
                 AssertEqual((byte)0, x, "bomb restoration calculated next row X");
@@ -109,6 +110,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb block sound mapping")]
     private static void VerifyBombBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcc37,0xcc3e,0xcc61,0xcc68,0xcc8d,0xcc94,0xccb9,0xccc0,
@@ -119,7 +121,7 @@ internal static partial class Program
         {
             bool found = RoomPlmBombBlockProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
             AssertEqual(known.Contains((ushort)address), found, "bomb full packed byte address domain");
-            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0, value, "bomb native collision/projectile sound bytes");
+            AssertEqual(found ? rom.ReadCartridgeByte(0x840000 | address) : (byte)0, value, "bomb native collision/projectile sound bytes");
         }
     }
 

@@ -194,16 +194,17 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "logo part bounds");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo definitions")]
     private static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
-            source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+            source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
         for (int index = 0; index < EndingLogoDefinitions.ActorCount; index++)
         {
             EndingLogoActorDefinition actual = EndingLogoDefinitions.Actor(index);
             int spawn = 0x8be554 + index * 6;
-            AssertEqual((byte)0xa0, bus.ReadByte(spawn), "native LDY actor definition" );
+            AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn), "native LDY actor definition" );
             ushort nativePointer = ReadWord(bus, spawn + 1);
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
             AssertEqual(ReadWord(bus, address + 2), actual.PreInstruction,
@@ -211,8 +212,8 @@ internal static partial class Program
             AssertEqual(ReadWord(bus, address + 4), actual.InstructionList,
                 $"logo actor {index} initial instruction list");
             int initialize = 0x8b0000 | ReadWord(bus, address);
-            AssertEqual((byte)0xa9, bus.ReadByte(initialize), "native LDA X origin");
-            AssertEqual((byte)0xa9, bus.ReadByte(initialize + 6), "native LDA Y origin");
+            AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize), "native LDA X origin");
+            AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize + 6), "native LDA Y origin");
             var origin = EndingLogoDefinitions.Origin(index);
             AssertEqual(ReadWord(bus, initialize + 1), origin.X, "native actor X origin");
             AssertEqual(ReadWord(bus, initialize + 7), origin.Y, "native actor Y origin");

@@ -50,6 +50,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for contact crumble sound mapping")]
     private static void VerifyContactCrumbleSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xc9fb,0xca1e,0xca43,0xca68,0xca8d,0xcaa2,0xcab7,0xcacc];
@@ -60,11 +61,12 @@ internal static partial class Program
         {
             bool found = RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
             AssertEqual(known.Contains((ushort)address), found, "contact crumble full sound address domain");
-            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0,
+            AssertEqual(found ? rom.ReadCartridgeByte(0x840000 | address) : (byte)0,
                 value, "contact crumble native packed sound bytes");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for contact crumble restoration mapping")]
     private static void VerifyContactCrumbleRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4a1, 0xa4a9, 0xa4b1];
@@ -101,8 +103,8 @@ internal static partial class Program
                     AssertEqual(native, exportedRun.LevelWords.Span[block], "contact restoration exported word");
                 }
                 cursor += 2 + 2 * count;
-                byte x = rom.ReadByte(0x840000 | cursor);
-                byte y = rom.ReadByte(0x840000 | (cursor + 1));
+                byte x = rom.ReadCartridgeByte(0x840000 | cursor);
+                byte y = rom.ReadCartridgeByte(0x840000 | (cursor + 1));
                 AssertEqual(unchecked((sbyte)x), exportedRun.Next.X, "contact restoration next X");
                 AssertEqual(unchecked((sbyte)y), exportedRun.Next.Y, "contact restoration next Y");
                 AssertEqual((byte)0, x, "contact restoration calculated next row X");

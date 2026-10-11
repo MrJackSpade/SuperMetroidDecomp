@@ -48,8 +48,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
     WritePoseDefinition(bus, (int)SamusPoseId.DrainedStandingLeftPose,
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DrainedStandingLeftPose * 2, 0xc100);
-    bus.WriteByte(0x91c100, 0x10);
+    SeedSyntheticAnimationDelay(bus, SamusPoseId.DrainedStandingLeftPose, 0xc100, 0x10);
 
     var samus = new SamusState
     {

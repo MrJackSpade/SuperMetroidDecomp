@@ -105,8 +105,7 @@ public sealed partial class BabyMetroidCutsceneState
         // index before looking up a pair, so a freshly cleared counter begins at entry one.
         (short x, short y) = DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex);
         return new BabyMetroidDeathExplosionRequest(
-            XPosition: unchecked((ushort)(XPosition + x)),
-            YPosition: unchecked((ushort)(YPosition + y)),
+            Position: new Position16<RoomPixels>(XPosition, YPosition) + new Offset16<RoomPixels>(x, y),
             ProjectileParameter: 3,
             SoundEffect: 0x0013);
     }

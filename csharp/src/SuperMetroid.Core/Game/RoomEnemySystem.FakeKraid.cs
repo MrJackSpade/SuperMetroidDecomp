@@ -286,8 +286,8 @@ public sealed partial class RoomEnemySystem
             if (SpawnFakeKraidSpit(
                     slot,
                     xOffset,
-                    launch.XVelocity,
-                    launch.YVelocity))
+                    new EightEightVector<RoomPixels>(
+                        new SnesSignedEightEight(launch.XVelocity), new SnesSignedEightEight(launch.YVelocity))))
                 state.SpawnedSpitCount++;
         }
     }
@@ -295,8 +295,7 @@ public sealed partial class RoomEnemySystem
     private bool SpawnFakeKraidSpit(
         RoomEnemySlot source,
         short xOffset,
-        ushort xVelocity,
-        ushort yVelocity)
+        EightEightVector<RoomPixels> velocity)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -306,8 +305,9 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.FakeKraidSpit,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
-        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(source.Position.X.Whole + xOffset)), unchecked((ushort)(source.Position.Y.Whole - 16))));
-        projectile.Velocity = new(new SnesSignedEightEight(xVelocity), new SnesSignedEightEight(yVelocity));
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(
+            source.Position.Whole + new Offset16<RoomPixels>(xOffset, -16));
+        projectile.Velocity = velocity;
         return true;
     }
 
@@ -387,19 +387,18 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void KillFakeKraid(RoomEnemySlot slot)
     {
-        ushort originX = slot.Position.X.Whole;
-        ushort originY = slot.Position.Y.Whole;
+        Position16<RoomPixels> origin = slot.Position.Whole;
         ushort chancePointer = slot.Definition.ItemDropChancesPointer;
         StartGenericEnemyDeath(slot, deathAnimation: 3);
-        SpawnFakeKraidDeathDrops(originX, originY);
+        SpawnFakeKraidDeathDrops(origin);
     }
 
-    private void SpawnFakeKraidDeathDrops(ushort originX, ushort originY)
+    private void SpawnFakeKraidDeathDrops(Position16<RoomPixels> origin)
     {
         LastFakeKraidDropRequest = new FakeKraidDropRequest();
         SpawnEnemyDropScatterAround(
             EnemyDefinitionId.MiniKraid,
             count: 4,
-            new(originX, originY));
+            origin);
     }
 }

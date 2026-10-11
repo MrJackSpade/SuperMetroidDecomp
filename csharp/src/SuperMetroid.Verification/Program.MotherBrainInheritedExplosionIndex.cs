@@ -33,9 +33,9 @@ internal static partial class Program
             .Invoke(sequence, [false, (Func<ushort>)(() => 0), requests]);
         AssertEqual(2, requests.Count, "a smoky burst spawns two explosions");
         AssertEqual((ushort)1, sequence.DeathAndEscapeExplosionIndex, "the first burst decrements to row 1");
-        AssertEqual(((short)0x0011, unchecked((short)0xffc9)), (requests[0].XOffset, requests[0].YOffset),
+        AssertEqual(((short)0x0011, unchecked((short)0xffc9)), (requests[0].Offset.X, requests[0].Offset.Y),
             "row 1's first offset pair");
-        AssertEqual(((short)0x001e, unchecked((short)0xffea)), (requests[1].XOffset, requests[1].YOffset),
+        AssertEqual(((short)0x001e, unchecked((short)0xffea)), (requests[1].Offset.X, requests[1].Offset.Y),
             "row 1's second offset pair");
         Console.WriteLine("Mother Brain inherited explosion index: the death explosions continue word $0FF2.");
     }

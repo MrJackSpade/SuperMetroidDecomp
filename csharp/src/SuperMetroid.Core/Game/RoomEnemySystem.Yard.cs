@@ -437,8 +437,8 @@ public sealed partial class RoomEnemySystem
 
         int horizontalTangent = GetSurfaceSlopeAdjustedHorizontalDisplacement(
             slot,
-            state.CrawlingXVelocity,
-            state.CrawlingYVelocity,
+            new EightEightVector<RoomPixels>(
+                new SnesSignedEightEight(state.CrawlingXVelocity), new SnesSignedEightEight(state.CrawlingYVelocity)),
             level);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalTangent))
         {

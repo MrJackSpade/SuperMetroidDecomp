@@ -39,7 +39,8 @@ internal static partial class Program
             byte[] legacyLayout = SpatialMergeLegacyLayout(current, field, expected, merge, components);
             object restored = SpatialMergeDeserialize(legacyLayout, type);
             object? actual = field.GetValue(restored);
-            if (!Equals(actual, expected))
+            // Shared extra-WRAM arrays rebuild as arrays: compare their elements.
+            if (!System.Collections.StructuralComparisons.StructuralEqualityComparer.Equals(actual, expected))
                 throw new InvalidOperationException($"{merge.TypeName}.{merge.Field} restored {actual}, expected {expected}.");
             if (!SpatialMergeSerialize(restored).AsSpan().SequenceEqual(current))
                 throw new InvalidOperationException($"{merge.TypeName} legacy restore changed another field.");
@@ -54,6 +55,7 @@ internal static partial class Program
         _ when componentType == typeof(short) => (object)(short)(index == 0 ? -46 : 0x0123),
         _ when componentType == typeof(int) => (object)(index == 0 ? 0x1234 : 0x56),
         _ when componentType == typeof(uint) => (object)(index == 0 ? 0xfffe_8000u : 0x0001_2345u),
+        _ when componentType == typeof(ushort[]) => index == 0 ? new ushort[] { 0xffe0, 0x0001 } : new ushort[] { 0x8123, 0x7ffe },
         _ => throw new InvalidOperationException($"No sample for legacy component type {componentType}."),
     };
 
@@ -65,7 +67,7 @@ internal static partial class Program
         DebuggerSpatialFieldMigration merge, object[] components)
     {
         string declaring = DebuggerStateTypeIdentity.GetSerializedName(field.DeclaringType!);
-        byte[] currentRecord = [.. SpatialMergeNames(declaring, field.Name), .. SpatialMergeSerialize(value)];
+        byte[] currentRecord = SpatialMergeCurrentRecord(serializedRoot, declaring, field.Name, value);
         int at = SpatialMergeIndexOf(serializedRoot, currentRecord);
         if (at < 0 || SpatialMergeIndexOf(serializedRoot.AsSpan(at + 1).ToArray(), currentRecord) >= 0)
             throw new InvalidOperationException($"{merge.TypeName}.{merge.Field} record is not uniquely locatable.");
@@ -73,7 +75,8 @@ internal static partial class Program
         for (int index = 0; index < components.Length; index++)
         {
             legacyRecords.AddRange(SpatialMergeNames(declaring, merge.LegacyFields[index]));
-            legacyRecords.AddRange(SpatialMergeSerialize(components[index]));
+            // Legacy component arrays are new objects with reference ids no other record uses.
+            legacyRecords.AddRange(SpatialMergeNested(components[index], SpatialMergeLegacyReferenceBase + index));
         }
 
         using var input = new BinaryReader(new MemoryStream(serializedRoot));
@@ -87,6 +90,36 @@ internal static partial class Program
         byte[] result = [.. serializedRoot[..at], .. legacyRecords, .. serializedRoot[(at + currentRecord.Length)..]];
         BitConverter.GetBytes(count + components.Length - 1).CopyTo(result, countOffset);
         return result;
+    }
+
+    private const int SpatialMergeLegacyReferenceBase = 1_000_000;
+
+    /// <summary>
+    /// The current field's serialized record. A value type serializes the same nested or as a
+    /// root; a reference-typed value (a shared array) carries the reference id the root
+    /// serialization assigned it, which is the id that makes the record locatable.
+    /// </summary>
+    private static byte[] SpatialMergeCurrentRecord(byte[] serializedRoot, string declaring, string field, object value)
+    {
+        byte[] names = SpatialMergeNames(declaring, field);
+        if (value.GetType().IsValueType)
+            return [.. names, .. SpatialMergeSerialize(value)];
+        for (int referenceId = 2; referenceId < 64; referenceId++)
+        {
+            byte[] record = [.. names, .. SpatialMergeNested(value, referenceId)];
+            if (SpatialMergeIndexOf(serializedRoot, record) >= 0)
+                return record;
+        }
+        throw new InvalidOperationException($"{declaring}.{field} reference record is not locatable.");
+    }
+
+    /// <summary>A serialized value as a nested record: a reference type takes <paramref name="referenceId"/>.</summary>
+    private static byte[] SpatialMergeNested(object value, int referenceId)
+    {
+        byte[] bytes = SpatialMergeSerialize(value);
+        if (!value.GetType().IsValueType)
+            BitConverter.GetBytes(referenceId).CopyTo(bytes, 1); // New-object marker, then the reference id.
+        return bytes;
     }
 
     private static byte[] SpatialMergeNames(string declaring, string field)

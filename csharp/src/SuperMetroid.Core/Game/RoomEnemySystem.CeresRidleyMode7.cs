@@ -98,10 +98,10 @@ public sealed partial class RoomEnemySystem
         state.Mode7Zoom = zoom;
         state.Mode7VerticalOffset = unchecked((ushort)(
             state.Mode7VerticalOffset +
-            frame.YVelocity));
+            frame.Velocity.Y));
         state.Mode7HorizontalOffset = unchecked((ushort)(
             state.Mode7HorizontalOffset -
-            frame.XVelocity));
+            frame.Velocity.X));
 
         UpdateCeresRidleyMode7Palette(zoom);
         state.Mode7Angle = state.Mode7Angle.AddRaw(0x0030);

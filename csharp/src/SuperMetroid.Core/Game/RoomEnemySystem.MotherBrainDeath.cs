@@ -80,18 +80,18 @@ public sealed partial class RoomEnemySystem
             for (int i = 0; i < 2; i++)
                 _cgram!.SetColor(EscapeTypewriterRomData.ColorDestination + i,
                     _cgram.Colors[EscapeTypewriterRomData.ColorSource + i]);
-            state.Bg2XScroll = state.Bg2YScroll = 0;
+            state.Bg2Scroll = Position16<Bg2Pixels>.Zero;
         }
         if (step.ExplodedDoorPaletteRequested)
             LoadMotherBrainDeathDoorPalette();
         if (step.EscapeDoorExplosion is { } doorDust)
         {
-            SpawnRoomGraphicsDustExplosion(new(doorDust.XPosition, doorDust.YPosition), doorDust.ProjectileParameter);
+            SpawnRoomGraphicsDustExplosion(doorDust.Position, doorDust.ProjectileParameter);
             // $A9:B346 queues the door explosion through QueueSound_Lib2_Max3.
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, doorDust.SoundEffect), maximumQueued: 3);
         }
         if (step.EscapeDoorPlm is { } doorPlm)
-            state.RequestPlm(doorPlm.BlockX, doorPlm.BlockY, doorPlm.PlmEntry);
+            state.RequestPlm(doorPlm.Block, doorPlm.PlmEntry);
         foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Parameter);
         if (step.TimeBombSetSubtitleSpawnRequested)
         {
@@ -161,7 +161,8 @@ public sealed partial class RoomEnemySystem
         InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphicsIndex: 0);
         projectile.InstructionPointer = instructionList;
         projectile.InstructionTimer = 1;
-        projectile.Velocity = new(new SnesSignedEightEight(unchecked((ushort)request.XOffset)), new SnesSignedEightEight(unchecked((ushort)request.YOffset)));
+        // The native initializer keeps the body-relative offset in the velocity words.
+        projectile.Velocity = new EightEightVector<RoomPixels>(request.Offset.X, request.Offset.Y);
         RunMotherBrainDeathExplosion(projectile);
     }
 
@@ -178,8 +179,8 @@ public sealed partial class RoomEnemySystem
         var fragment = AllocateEnemyProjectile();
         if (fragment is null) return;
         InitializeEnemyProjectileFromDefinition(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, graphicsIndex: 0);
-        fragment.Position = fragment.Position.WithWhole(new(unchecked((ushort)(MotherBrainDeathRomData.DoorX + definition.XOffset)), unchecked((ushort)(MotherBrainDeathRomData.DoorY + definition.YOffset))));
-        fragment.Velocity = new(new SnesSignedEightEight(unchecked((ushort)definition.XVelocity)), new SnesSignedEightEight(unchecked((ushort)definition.YVelocity)));
+        fragment.Position = fragment.Position.WithWhole(new Position16<RoomPixels>(MotherBrainDeathRomData.DoorX, MotherBrainDeathRomData.DoorY) + definition.Offset);
+        fragment.Velocity = definition.Velocity;
         fragment.Variable0 = MotherBrainDeathRomData.DoorFragmentLifetime;
     }
 

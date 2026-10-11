@@ -417,12 +417,9 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_skulteraPreviousYOffsets);
         Array.Clear(_skulteraCurrentYOffsets);
         Array.Clear(_chootStates);
-        Array.Clear(_chootSpawnXPositions);
-        Array.Clear(_chootSpawnYPositions);
-        Array.Clear(_chootInitialFallingXPositions);
-        Array.Clear(_chootInitialFallingYPositions);
-        Array.Clear(_chootFallingXOrigins);
-        Array.Clear(_chootFallingYOrigins);
+        Array.Clear(_chootSpawnPositions);
+        Array.Clear(_chootInitialFallingPositions);
+        Array.Clear(_chootFallingOrigins);
         Array.Clear(_chootInitialYSpeedTableIndexes);
         Array.Clear(_chootJumpDelayTimers);
         Array.Clear(_platformStates);
@@ -448,8 +445,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_beetomFallingFlags);
         Array.Clear(_beetomAttachedToSamusFlags);
         Array.Clear(_beetomDirections);
-        Array.Clear(_beetomInitialAttachmentXOffsets);
-        Array.Clear(_beetomInitialAttachmentYOffsets);
+        Array.Clear(_beetomInitialAttachmentOffsets);
         Array.Clear(_powampStates);
         Array.Clear(_workRobotStates);
         _workRobotPaletteAnimationTimer = 0;

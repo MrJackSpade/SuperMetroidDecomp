@@ -142,7 +142,7 @@ internal static partial class Program
 
         foreach (short direction in new short[] { -2, 2 })
         {
-            state.XVelocity = unchecked((ushort)direction);
+            state.Velocity = state.Velocity.WithWholeX(direction);
             foreach (ushort velocityOffset in new ushort[] { 0, 2, 4 })
                 spawn.Invoke(enemies, [source, velocityOffset]);
         }

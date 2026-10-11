@@ -83,7 +83,7 @@ internal static class RidleyExplosionDefinitions
     /// <c>SpawnSmallExplosionNearRidley</c> at <c>$A6:C623</c> (words $A6:C66E-$A6:C695,
     /// shared with the Baby Metroid death).
     /// </summary>
-    public static RidleyDeathExplosionPlacement DeathExplosionPlacement(int index)
+    public static Offset16<RoomPixels> DeathExplosionPlacement(int index)
     {
         (short x, short y) = DeathExplosionScatterDefinitions.Offset(index);
         return new(x, y);
@@ -118,16 +118,16 @@ internal static class RidleyExplosionDefinitions
         RidleyExplosionPart parameter,
         bool facingRight) => (parameter, facingRight) switch
     {
-        (RidleyExplosionPart.Wings, false) => new(0, 0, 0xca59),
-        (RidleyExplosionPart.Wings, true) => new(0, 0, 0xca5f),
-        (RidleyExplosionPart.Legs, false) => new(15, 22, 0xca65),
-        (RidleyExplosionPart.Legs, true) => new(-15, 22, 0xca6b),
-        (RidleyExplosionPart.OpenHeadAndNeck, false) => new(-3, -24, 0xca71),
-        (RidleyExplosionPart.OpenHeadAndNeck, true) => new(3, -24, 0xca77),
-        (RidleyExplosionPart.Torso, false) => new(16, 0, 0xca7d),
-        (RidleyExplosionPart.Torso, true) => new(-16, 0, 0xca83),
-        (RidleyExplosionPart.Claw, false) => new(8, 7, 0xca89),
-        (RidleyExplosionPart.Claw, true) => new(-8, 7, 0xca8f),
+        (RidleyExplosionPart.Wings, false) => new(new(0, 0), 0xca59),
+        (RidleyExplosionPart.Wings, true) => new(new(0, 0), 0xca5f),
+        (RidleyExplosionPart.Legs, false) => new(new(15, 22), 0xca65),
+        (RidleyExplosionPart.Legs, true) => new(new(-15, 22), 0xca6b),
+        (RidleyExplosionPart.OpenHeadAndNeck, false) => new(new(-3, -24), 0xca71),
+        (RidleyExplosionPart.OpenHeadAndNeck, true) => new(new(3, -24), 0xca77),
+        (RidleyExplosionPart.Torso, false) => new(new(16, 0), 0xca7d),
+        (RidleyExplosionPart.Torso, true) => new(new(-16, 0), 0xca83),
+        (RidleyExplosionPart.Claw, false) => new(new(8, 7), 0xca89),
+        (RidleyExplosionPart.Claw, true) => new(new(-8, 7), 0xca8f),
         _ => throw new ArgumentOutOfRangeException(nameof(parameter)),
     };
 }
@@ -138,11 +138,5 @@ internal readonly record struct RidleyExplosionPartDefinition(
 
 /// <summary>One facing-specific body fragment placement and animation selector.</summary>
 internal readonly record struct RidleyExplosionBodyPartDefinition(
-    short XOffset,
-    short YOffset,
+    Offset16<RoomPixels> Offset,
     ushort InstructionList);
-
-/// <summary>One signed body-relative position in Ridley's death-explosion cycle.</summary>
-internal readonly record struct RidleyDeathExplosionPlacement(
-    short XOffset,
-    short YOffset);

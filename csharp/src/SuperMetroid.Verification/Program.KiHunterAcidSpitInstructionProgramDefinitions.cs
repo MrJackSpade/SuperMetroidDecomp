@@ -160,7 +160,7 @@ internal static partial class Program
                     expected.BeginFrame();
                     actual.BeginFrame();
                     DrawImportedEnemyProjectileSpritemap(rom, expected,
-                        ReadKiHunterAcidSpitInstructionWord(rom, operand), 128, 112, 0, true);
+                        ReadKiHunterAcidSpitInstructionWord(rom, operand), new(128, 112), 0, true);
                     actual.AddEnemySpritemap(spriteArtwork.GetProgramFrame(operand).Span,
                         new Position16<OamPixels>(128, 112), 0, 0, clipVerticalWrap: true, originYIsOnScreen: true);
                     AssertEqual(expected.NextByteOffset, actual.NextByteOffset,

@@ -1640,7 +1640,7 @@ public sealed partial class RoomEnemySystem
                 }
                 if (isFakeKraid && enemy.EnemyDefinitionPointer != 0 &&
                     enemyHealthBefore != 0 && enemy.Health == 0)
-                    SpawnFakeKraidDeathDrops(enemy.Position.X.Whole, enemy.Position.Y.Whole);
+                    SpawnFakeKraidDeathDrops(enemy.Position.Whole);
                 if (isBabyTurtle)
                     ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
                 if (isKago)
@@ -2787,8 +2787,9 @@ public sealed partial class RoomEnemySystem
                      SporeSpawnCollisionDefinitions.ComponentsAt(
                          enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+                ushort componentX = componentOrigin.X;
+                ushort componentY = componentOrigin.Y;
                 foreach (SporeSpawnCollisionHitbox hitbox in
                          SporeSpawnCollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
@@ -2848,8 +2849,9 @@ public sealed partial class RoomEnemySystem
             foreach (RidleyCollisionComponent component in
                      RidleyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+                ushort componentX = componentOrigin.X;
+                ushort componentY = componentOrigin.Y;
                 foreach (RidleyCollisionHitbox hitbox in
                          RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
@@ -2977,8 +2979,9 @@ public sealed partial class RoomEnemySystem
             foreach (GoldenTorizoCollisionComponent component in
                      TorizoCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+                ushort componentX = componentOrigin.X;
+                ushort componentY = componentOrigin.Y;
                 foreach (GoldenTorizoCollisionHitbox hitbox in
                          TorizoCollisionDefinitions.HitboxesAt(component.HitboxList))
                 {
@@ -3064,8 +3067,9 @@ public sealed partial class RoomEnemySystem
             foreach (MotherBrainCollisionComponent component in
                      MotherBrainCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+                ushort componentX = componentOrigin.X;
+                ushort componentY = componentOrigin.Y;
                 foreach (MotherBrainCollisionHitbox hitbox in
                          MotherBrainCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {

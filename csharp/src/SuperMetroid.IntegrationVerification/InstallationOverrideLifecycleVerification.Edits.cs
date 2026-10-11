@@ -10,12 +10,13 @@ internal static partial class InstallationOverrideLifecycleVerification
     private static OverrideExpectations EditPresentation(GameInstallation installation)
     {
         byte[] standard = EditPng(Path.Combine(installation.StandardObjectOverrideDirectory,
-            StandardObjectArtworkFormat.FileName), RoomCharacterAtlasFormat.TileColumns * 8,
-            (RoomCharacterAtlasFormat.ValidateTileCount(StandardObjectArtworkFormat.TransferByteCount) +
-                RoomCharacterAtlasFormat.TileColumns - 1) / RoomCharacterAtlasFormat.TileColumns * 8, 4)
+            StandardObjectArtworkFormat.FileName), new(checked((ushort)(RoomCharacterAtlasFormat.TileColumns * 8)),
+            checked((ushort)((RoomCharacterAtlasFormat.ValidateTileCount(StandardObjectArtworkFormat.TransferByteCount) +
+                RoomCharacterAtlasFormat.TileColumns - 1) / RoomCharacterAtlasFormat.TileColumns * 8))), 4)
             .AsSpan(0, StandardObjectArtworkFormat.TransferByteCount).ToArray();
         byte[] font = EditPng(Path.Combine(installation.MapOverrideDirectory, IntroFontAtlasFormat.FileName),
-            IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height, IntroFontAtlasFormat.BitsPerPixel);
+            new(checked((ushort)IntroFontAtlasFormat.Width), checked((ushort)IntroFontAtlasFormat.Height)),
+            IntroFontAtlasFormat.BitsPerPixel);
         string palettePath = Path.Combine(installation.GameplayBasePaletteOverrideDirectory, GameplayBasePaletteFormat.ArtworkFileName);
         GameplayBasePaletteDocument palette = JsonSerializer.Deserialize<GameplayBasePaletteDocument>(
             File.ReadAllBytes(palettePath), GameplayBasePaletteFormat.JsonOptions)!;
@@ -58,13 +59,13 @@ internal static partial class InstallationOverrideLifecycleVerification
             instrument, program.Id, instructionIndex, arguments);
     }
 
-    private static byte[] EditPng(string path, int width, int height, int bitsPerPixel)
+    private static byte[] EditPng(string path, Extent16<ImagePixels> size, int bitsPerPixel)
     {
         IndexedPngImage image;
-        using (Stream input = File.OpenRead(path)) image = IndexedPng.Read(input, new(checked((ushort)width), checked((ushort)height)));
+        using (Stream input = File.OpenRead(path)) image = IndexedPng.Read(input, size);
         image.Pixels[0] = (byte)((image.Pixels[0] + 1) % (1 << bitsPerPixel));
-        using (Stream output = File.Create(path)) IndexedPng.Write(output, new(checked((ushort)width), checked((ushort)height)), image.Pixels, image.Palette);
-        return SnesPlanarTileEncoder.Encode(image.Pixels, new(checked((ushort)width), checked((ushort)height)), bitsPerPixel);
+        using (Stream output = File.Create(path)) IndexedPng.Write(output, size, image.Pixels, image.Palette);
+        return SnesPlanarTileEncoder.Encode(image.Pixels, size, bitsPerPixel);
     }
 
     private static void VerifySelected(GameInstallation installation, OverrideExpectations expected,

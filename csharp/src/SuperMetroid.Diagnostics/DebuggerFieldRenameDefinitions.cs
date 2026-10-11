@@ -12,6 +12,9 @@ internal static class DebuggerFieldRenameDefinitions
     // An explicit inventory, not permission to remap arbitrary unknown fields.
     private static readonly Dictionary<(Type DeclaringType, string Name), string> Renames = new()
     {
+        // #628: the ghost's movement classes are the spawn-offset table's column and row byte offsets.
+        [(typeof(WreckedShipGhostEnemyState), "<HorizontalMovementClass>k__BackingField")] = "<SpawnColumnOffset>k__BackingField",
+        [(typeof(WreckedShipGhostEnemyState), "<VerticalMovementClass>k__BackingField")] = "<SpawnRowOffset>k__BackingField",
         // #628: the spread's horizontal word is a direction/magnitude word, not a velocity axis.
         [(typeof(SamusBombProjectileSlot), "<BombSpreadXVelocity>k__BackingField")] = "<BombSpreadDirectionMagnitude>k__BackingField",
         // The post-Ceres countdown became the NMI-wait count of every $82:8000 load.

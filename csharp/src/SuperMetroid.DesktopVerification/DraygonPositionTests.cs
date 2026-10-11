@@ -21,8 +21,8 @@ internal static partial class Program
         for (int frame = 0; frame < 600; frame++)
         {
             var before = runtime.Enemies.Draygon!;
-            var window = DraygonMainScreenWindow.Select(before.Body.Position.X.Whole, before.Body.Position.Y.Whole,
-                runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y, ((ushort)before.Body.Properties & 0x200) != 0);
+            var window = DraygonMainScreenWindow.Select(before.Body.Position.Whole,
+                runtime.Camera!.PixelPosition, ((ushort)before.Body.Properties & 0x200) != 0);
             loaded.Game.Step(0);
             // The graphics-drawn hook uses the final camera, exactly like appendage OAM,
             // not the camera sampled before Samus movement/scrolling earlier in the frame.
@@ -31,8 +31,8 @@ internal static partial class Program
             var boss = runtime.Enemies.Draygon ?? throw new InvalidOperationException("Fixture must remain in Draygon's encounter.");
             verifiedTilemapWords += VerifyDraygonBodyTilemap(runtime);
             // Independent transcription of $A5:9342, including unsigned PPU-word wrapping.
-            ushort expectedX = unchecked((ushort)(boss.BodyGraphicsXDisplacement + cameraX - boss.Body.Position.X.Whole - 450));
-            ushort expectedY = unchecked((ushort)(boss.BodyGraphicsYDisplacement + cameraY - boss.Body.Position.Y.Whole - 192));
+            ushort expectedX = unchecked((ushort)(boss.BodyGraphicsDisplacement.X + cameraX - boss.Body.Position.X.Whole - 450));
+            ushort expectedY = unchecked((ushort)(boss.BodyGraphicsDisplacement.Y + cameraY - boss.Body.Position.Y.Whole - 192));
             if (runtime.BackgroundScroll.Bg2Scroll.X != expectedX || runtime.BackgroundScroll.Bg2Scroll.Y != expectedY)
                 throw new InvalidOperationException($"Draygon frame {frame}: body ({boss.Body.Position.X.Whole},{boss.Body.Position.Y.Whole}), BG2 actual ({runtime.BackgroundScroll.Bg2Scroll.X},{runtime.BackgroundScroll.Bg2Scroll.Y}), native ({expectedX},{expectedY}).");
             if (frame > 0)
@@ -96,7 +96,7 @@ internal static partial class Program
         Console.WriteLine($"Draygon retained ROM map commands: {verifiedTilemapWords} word comparisons verified, including priority bits.");
         foreach (var sample in new (int Y, int First, int End)[] { (-17, 32, 32), (-16, 32, 96),
             (39, 32, 96), (40, 32, 224), (191, 32, 224), (192, 128, 224), (303, 128, 224), (304, 32, 32) })
-            if (DraygonMainScreenWindow.Select(100, unchecked((ushort)sample.Y), 0, 0, false) != (sample.First, sample.End))
+            if (DraygonMainScreenWindow.Select(new(100, unchecked((ushort)sample.Y)), Position16<RoomPixels>.Zero, false) != (sample.First, sample.End))
                 throw new InvalidOperationException("Draygon HDMA branch boundary differs from $88:DF94.");
         Console.WriteLine($"Draygon body alignment: 600 frames, {positions.Count} distinct positions; native BG2 anchor and captured NMI registers agree.");
     }

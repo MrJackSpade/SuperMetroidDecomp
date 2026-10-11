@@ -25,7 +25,7 @@ internal static partial class Program
             installedOam.BeginFrame();
             bool onScreen = (originY & 0xff00) == 0;
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, pointer,
-                originX, originY, graphicsIndex, onScreen);
+                new(originX, originY), graphicsIndex, onScreen);
             installedOam.AddEnemySpritemap(installed.Get(pointer).Span,
                 new Position16<OamPixels>(originX, originY),
                 unchecked((ushort)(graphicsIndex & 0xff00)),
@@ -298,9 +298,9 @@ internal static partial class Program
             int padOperand = (frame & 1) == 0 ? 0x86a28f : 0x86a293;
             ushort padPointer = (ushort)(bus.ReadByte(padOperand) | bus.ReadByte(padOperand + 1) << 8);
             ushort platformPointer = (ushort)(bus.ReadByte(0x86a29b) | bus.ReadByte(0x86a29c) << 8);
-            DrawImportedEnemyProjectileSpritemap(bus, nativeOam, padPointer, 128, 28, 0, true);
-            DrawImportedEnemyProjectileSpritemap(bus, nativeOam, platformPointer, 128, 97, 0, true);
-            installedArrival.Draw(installedOam, 0, 0);
+            DrawImportedEnemyProjectileSpritemap(bus, nativeOam, padPointer, new(128, 28), 0, true);
+            DrawImportedEnemyProjectileSpritemap(bus, nativeOam, platformPointer, new(128, 97), 0, true);
+            installedArrival.Draw(installedOam, Position16<RoomPixels>.Zero);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable),
                 $"Ceres elevator arrival frame {frame} draws from installed $8D compositions");
@@ -863,7 +863,7 @@ internal static partial class Program
                     nativeOam.BeginFrame();
                     installedOam.BeginFrame();
                     DrawImportedEnemyProjectileSpritemap(bus, nativeOam, nativePointer,
-                        originX, originY, 0x0a04, originYIsOnScreen: true);
+                        new(originX, originY), 0x0a04, originYIsOnScreen: true);
                     installedOam.AddEnemySpritemap(
                         installed.GetProgramFrame(frame.OperandAddress).Span,
                         new Position16<OamPixels>(originX, originY), 0x0a00, 4,
@@ -913,7 +913,7 @@ internal static partial class Program
                 source.ReadByte(0x860000 | unchecked((ushort)(operand + 1))) << 8);
             var oam = new OamBuffer();
             oam.BeginFrame();
-            DrawImportedEnemyProjectileSpritemap(source, oam, pointer, 128, 96,
+            DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(128, 96),
                 0x0a04, originYIsOnScreen: true);
             return oam;
         }
@@ -927,7 +927,7 @@ internal static partial class Program
             // Native Skree/Metaree spawn order: two right particles then two left.
             // Initialization offsets X by six; no motion tick precedes this draw.
             foreach (ushort x in new ushort[] { 134, 134, 122, 122 })
-                DrawImportedEnemyProjectileSpritemap(source, oam, pointer, x, 96,
+                DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(x, 96),
                     0x0e00, originYIsOnScreen: true);
             return oam;
         }

@@ -22,18 +22,19 @@ public sealed class ZoaEnemyState
 
     internal ZoaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Whole-pixel room X captured at initialization and restored by offscreen launch reset; the current X subposition is intentionally not captured or reset with it.</summary>
-    public ushort SpawnXPosition
+    /// <summary>
+    /// Whole-pixel population position captured at initialization and restored when a launch
+    /// ends offscreen, stored in native enemy variables A (X) and B (Y). Only the whole words
+    /// are reset: the subpixel fractions accumulated in flight survive.
+    /// </summary>
+    public Position16<RoomPixels> SpawnPosition
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
-
-    /// <summary>Whole-pixel room Y captured at initialization and restored when launch ends offscreen; fractional Y accumulated during rising survives the reset.</summary>
-    public ushort SpawnYPosition
-    {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => new(_slot.VariableA, _slot.VariableB);
+        internal set
+        {
+            _slot.VariableA = value.X;
+            _slot.VariableB = value.Y;
+        }
     }
 
     /// <summary>Element index zero through three in the instruction-list pointer table.</summary>
@@ -106,8 +107,7 @@ public sealed partial class RoomEnemySystem
             InstructionListTableIndex = ZoaAnimationSelector.None,
             PreviousInstructionListTableIndex = ZoaAnimationSelector.None,
             XSpeedTableIndex = 0,
-            SpawnXPosition = slot.Position.X.Whole,
-            SpawnYPosition = slot.Position.Y.Whole,
+            SpawnPosition = slot.Position.Whole,
         };
         _zoaStates[slot.SlotIndex] = state;
 
@@ -177,7 +177,7 @@ public sealed partial class RoomEnemySystem
         {
             // NTSC subtracts exactly 0.5 px/frame. The PAL regional constant is 0.625;
             // this project targets the user's Japan/USA retail ROM and reads NTSC data.
-            AddZoaDisplacement(slot, xDisplacement: 0, yDisplacement: -ZoaRisingSubpixelSpeed);
+            slot.Position = slot.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(-ZoaRisingSubpixelSpeed));
             return;
         }
 
@@ -199,7 +199,7 @@ public sealed partial class RoomEnemySystem
         int xDisplacement = state.InstructionListTableIndex == ZoaAnimationSelector.None
             ? -unsignedDisplacement
             : unsignedDisplacement;
-        AddZoaDisplacement(slot, xDisplacement, yDisplacement: 0);
+        slot.Position = slot.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
         if (EnemyCenterIsOnScreen(slot, camera))
         {
             SetZoaInstructionList(slot, state);
@@ -211,29 +211,10 @@ public sealed partial class RoomEnemySystem
         // `$A3:B51E-$B527` stores only the whole words: the subpixel fractions left by the
         // rise and the shot carry into the next flight.
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        slot.Position = slot.Position.WithWhole(new(state.SpawnXPosition, state.SpawnYPosition));
+        slot.Position = slot.Position.WithWhole(state.SpawnPosition);
         state.InstructionListTableIndex = ZoaAnimationSelector.None;
         SetZoaInstructionList(slot, state);
         state.Function = ZoaEnemyFunction.WaitForSamus;
-    }
-
-    private static void AddZoaDisplacement(
-        RoomEnemySlot slot,
-        int xDisplacement,
-        int yDisplacement)
-    {
-        if (xDisplacement != 0)
-        {
-            uint x = slot.Position.X.RawValue;
-            x = unchecked(x + (uint)xDisplacement);
-            slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)x)));
-        }
-        if (yDisplacement != 0)
-        {
-            uint y = slot.Position.Y.RawValue;
-            y = unchecked(y + (uint)yDisplacement);
-            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)y)));
-        }
     }
 
     private static void SetZoaInstructionList(RoomEnemySlot slot, ZoaEnemyState state)

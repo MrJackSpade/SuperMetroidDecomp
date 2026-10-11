@@ -418,17 +418,15 @@ public sealed partial class BabyMetroidCutsceneState
                     // exact order. Each helper adds its signed word offsets to the brain
                     // enemy's current room coordinate and passes animation parameter nine
                     // to the ordinary highest-free-slot allocator.
+                    var headPosition = new Position16<RoomPixels>(head.X, head.Y);
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        unchecked((ushort)(head.X - 0x0010)),
-                        unchecked((ushort)(head.Y - 0x0008)),
+                        headPosition + new Offset16<RoomPixels>(-0x0010, -0x0008),
                         ProjectileParameter: 0x0009));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        head.X,
-                        unchecked((ushort)(head.Y - 0x0010)),
+                        headPosition + new Offset16<RoomPixels>(0, -0x0010),
                         ProjectileParameter: 0x0009));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        unchecked((ushort)(head.X + 0x0010)),
-                        unchecked((ushort)(head.Y - 0x0008)),
+                        headPosition + new Offset16<RoomPixels>(0x0010, -0x0008),
                         ProjectileParameter: 0x0009));
                     Phase = BabyMetroidCutscenePhase.MoveToTheCeiling;
                 }

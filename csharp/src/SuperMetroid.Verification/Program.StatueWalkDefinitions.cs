@@ -26,7 +26,7 @@ internal static partial class Program
         {
             slot.Position = slot.Position.WithWholeY(256).WithWholeX(256).WithFractionX(123);
             ushort next = walk(slot, torizo, null, level, 0x1000, offset);
-            AssertEqual(Word(0xaad59a + offset), torizo.HorizontalVelocity, "Torizo actual walking velocity without bus");
+            AssertEqual(Word(0xaad59a + offset), torizo.Velocity.X.RawValue, "Torizo actual walking velocity without bus");
             AssertEqual(unchecked((ushort)(256 + (short)Word(0xaad59a + offset))), slot.Position.X.Whole, "Torizo real whole-pixel movement");
             AssertEqual((ushort)123, slot.Position.X.Fraction, "Torizo preserves subpixel state");
             AssertEqual((ushort)0x1004, next, "Torizo instruction operand handoff");

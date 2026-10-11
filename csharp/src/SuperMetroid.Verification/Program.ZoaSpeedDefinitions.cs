@@ -55,8 +55,7 @@ internal static partial class Program
         state.XSpeedTableIndex = 0;
         state.InstructionListTableIndex = state.PreviousInstructionListTableIndex =
             ZoaAnimationSelector.None;
-        state.SpawnXPosition = 0x560;
-        state.SpawnYPosition = 0xd8;
+        state.SpawnPosition = new(0x560, 0xd8);
         actor.Position = new(new(128, 0x8000), new(128, 0x4000));
         int resetDisplacement = -unchecked((Word(0xa3b415) << 16) | Word(0xa3b417));
         uint movedX = unchecked(0x00808000u + (uint)resetDisplacement);

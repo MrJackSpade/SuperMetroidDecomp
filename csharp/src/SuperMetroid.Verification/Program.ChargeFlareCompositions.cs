@@ -48,7 +48,7 @@ internal static partial class Program
                     native.AddProjectileSpritePart(default, 0, default, new Position16<OamPixels>(10, 20));
                     actual.AddProjectileSpritePart(default, 0, default, new Position16<OamPixels>(10, 20));
                 }
-                DrawImportedFlareSpritemap(bus, native, selector, x, y);
+                DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
                 stock.Draw(selector, actual, new(x, y));
                 AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable),
                     "Extracted flare matches complete native OAM, including signed placement, high bits and capacity wrap");
@@ -80,7 +80,7 @@ internal static partial class Program
 
     /// <summary>Import-only oracle for the bank-$93 flare selector and part records.</summary>
     private static void DrawImportedFlareSpritemap(SuperMetroidAddressSpace bus, OamBuffer oam,
-        ushort selector, ushort originX, ushort originY)
+        ushort selector, Position16<OamPixels> origin)
     {
         ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) |
             (bus.ReadByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
@@ -93,7 +93,7 @@ internal static partial class Program
             oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
                 new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
-                new Position16<OamPixels>(originX, originY));
+                origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }

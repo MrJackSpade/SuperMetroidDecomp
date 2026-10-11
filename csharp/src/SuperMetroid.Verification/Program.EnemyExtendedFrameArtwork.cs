@@ -892,7 +892,7 @@ internal static partial class Program
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
                 out var unchangedFallingLeftCollision) &&
-                   unchangedFallingLeftCollision[0].X == -16 &&
+                   unchangedFallingLeftCollision[0].Offset.X == -16 &&
                    unchangedFallingLeftCollision[0].HitboxList == 0x87c7,
             "Torizo falling-left cosmetic edit cannot move its physical component");
 
@@ -993,7 +993,7 @@ internal static partial class Program
             "editable Golden Torizo left-foot orb component changes live OAM");
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xac06, out var unchangedLeftFootOrbCollision) &&
-                   unchangedLeftFootOrbCollision[0].X == 9 &&
+                   unchangedLeftFootOrbCollision[0].Offset.X == 9 &&
                    unchangedLeftFootOrbCollision[0].HitboxList == 0x87c7,
             "Golden Torizo left-foot orb cosmetic edit cannot move its physical component");
 
@@ -1019,7 +1019,7 @@ internal static partial class Program
             "editable Golden Torizo right-sonic component changes live OAM");
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xabec, out var unchangedRightSonicCollision) &&
-                   unchangedRightSonicCollision[0].X == 15 &&
+                   unchangedRightSonicCollision[0].Offset.X == 15 &&
                    unchangedRightSonicCollision[0].HitboxList == 0x87c7,
             "Golden Torizo right-sonic cosmetic edit cannot move its physical component");
 
@@ -1045,7 +1045,7 @@ internal static partial class Program
             "editable Golden Torizo right-orb component changes live OAM");
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xac88, out var unchangedRightOrbCollision) &&
-                   unchangedRightOrbCollision[0].X == 15 &&
+                   unchangedRightOrbCollision[0].Offset.X == 15 &&
                    unchangedRightOrbCollision[0].HitboxList == 0x87c7,
             "Golden Torizo right-orb cosmetic edit cannot move its physical component");
 
@@ -1071,7 +1071,7 @@ internal static partial class Program
             "editable Torizo jump-back component changes live OAM");
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xb048, out var unchangedJumpBackCollision) &&
-                   unchangedJumpBackCollision[0].X == 15 &&
+                   unchangedJumpBackCollision[0].Offset.X == 15 &&
                    unchangedJumpBackCollision[0].HitboxList == 0x87c7,
             "Torizo jump-back cosmetic edit cannot move its physical component");
 
@@ -1097,7 +1097,7 @@ internal static partial class Program
             "editable Golden Torizo turning-right component changes live OAM");
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xa4f0, out var unchangedRightwardCollision) &&
-                   unchangedRightwardCollision[0].X == 0 &&
+                   unchangedRightwardCollision[0].Offset.X == 0 &&
                    unchangedRightwardCollision[0].HitboxList == 0x87c7,
             "Golden Torizo rightward cosmetic edit cannot move its physical component");
 
@@ -1123,7 +1123,7 @@ internal static partial class Program
             "editable Golden Torizo walking component changes live OAM");
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xa4fa, out var unchangedWalkingCollision) &&
-                   unchangedWalkingCollision[0].X == -15 &&
+                   unchangedWalkingCollision[0].Offset.X == -15 &&
                    unchangedWalkingCollision[0].HitboxList == 0x87c7,
             "Golden Torizo walking cosmetic edit cannot move its physical component");
 
@@ -1149,7 +1149,7 @@ internal static partial class Program
             "editable Golden Torizo awakening component changes live OAM");
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xaa5e, out var unchangedGoldenCollision) &&
-                   unchangedGoldenCollision[0].X == -5 &&
+                   unchangedGoldenCollision[0].Offset.X == -5 &&
                    unchangedGoldenCollision[0].HitboxList == 0x886a,
             "Golden Torizo cosmetic edit cannot move the engine-owned physical component");
 
@@ -1407,8 +1407,7 @@ internal static partial class Program
             if (((componentX + 128) & 0xfe00) != 0 ||
                 ((componentY + 128) & 0xfe00) != 0)
                 continue;
-            DrawImportedEnemySpritemap(bus, oam, bank, sprite, componentX,
-                componentY, 0, 0, clipVerticalWrap: true,
+            DrawImportedEnemySpritemap(bus, oam, bank, sprite, new(componentX, componentY), 0, 0, clipVerticalWrap: true,
                 originYIsOnScreen: (componentY >> 8) == 0);
         }
         return oam;

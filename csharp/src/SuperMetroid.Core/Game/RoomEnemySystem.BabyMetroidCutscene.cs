@@ -208,13 +208,11 @@ public sealed partial class RoomEnemySystem
             state.LastSoundEffect = 0x0052;
 
         foreach (BabyMetroidReleaseDustRequest dust in step.ReleaseDustClouds)
-            SpawnRoomGraphicsDustExplosion(new(dust.XPosition, dust.YPosition), dust.ProjectileParameter);
+            SpawnRoomGraphicsDustExplosion(dust.Position, dust.ProjectileParameter);
 
         if (step.DeathExplosion is { } explosion)
         {
-            SpawnRoomGraphicsDustExplosion(
-                new(explosion.XPosition, explosion.YPosition),
-                explosion.ProjectileParameter);
+            SpawnRoomGraphicsDustExplosion(explosion.Position, explosion.ProjectileParameter);
             // $A9:CDF4 queues the explosion through QueueSound_Lib3_Max3.
             state.LastSoundEffectLibrary3 = explosion.SoundEffect;
         }

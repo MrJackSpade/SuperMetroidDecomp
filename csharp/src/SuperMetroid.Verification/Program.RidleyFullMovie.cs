@@ -468,10 +468,10 @@ internal static partial class Program
         update.Invoke(null, [body, state, new Position16<RoomPixels>((ushort)0, (ushort)287)]);
         AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native reentry clears collision gate");
         AssertEqual((ushort)2, state.IntangibilityTimer, "onscreen AI resumes release timer");
-        AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(64, 254, 0, 287), "one pixel above native window");
-        AssertTrue(!RidleyCollisionDefinitions.IsOutsideInteractionWindow(64, 255, 0, 287), "native upper edge is admitted");
-        AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(64, 543, 0, 287), "native lower edge is excluded");
-        AssertTrue(!RidleyCollisionDefinitions.IsOutsideInteractionWindow(64, 542, 0, 287), "last lower pixel is admitted");
+        AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
+        AssertTrue(!RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 255), new(0, 287)), "native upper edge is admitted");
+        AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 543), new(0, 287)), "native lower edge is excluded");
+        AssertTrue(!RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 542), new(0, 287)), "last lower pixel is admitted");
         Console.WriteLine("Ridley screen gate: recorded reentry, signed bounds and timer ownership pass.");
     }
 
@@ -1492,7 +1492,7 @@ internal static partial class Program
                     var actualOam = new OamBuffer();
                     expectedOam.BeginFrame();
                     actualOam.BeginFrame();
-                    DrawImportedEnemyProjectileSpritemap(bus, expectedOam, nativeMap, 128, 96, 0, true);
+                    DrawImportedEnemyProjectileSpritemap(bus, expectedOam, nativeMap, new(128, 96), 0, true);
                     actualOam.AddEnemySpritemap(parts.Span, new Position16<OamPixels>(128, 96), 0, 0,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     if (actualOam.NextByteOffset != expectedOam.NextByteOffset ||

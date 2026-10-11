@@ -2,14 +2,13 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// One bank-$86 Torizo launch tuple whose two velocity words receive independent signed
-/// random-byte displacements when the projectile is initialized.
+/// random-byte displacements when the projectile is initialized. The native record interleaves
+/// X offset, X velocity, Y offset and Y velocity words.
 /// </summary>
 internal readonly record struct TorizoRandomizedProjectileDefinition(
     ushort InstructionList,
-    short XOffset,
-    short BaseXVelocity,
-    short YOffset,
-    short BaseYVelocity);
+    Offset16<RoomPixels> Offset,
+    EightEightVector<RoomPixels> BaseVelocity);
 
 /// <summary>Fixed randomized launch definitions shared by Bomb and Golden Torizo.</summary>
 internal static class TorizoRandomizedProjectileDefinitions
@@ -19,16 +18,20 @@ internal static class TorizoRandomizedProjectileDefinitions
     /// </summary>
     internal static TorizoRandomizedProjectileDefinition BombChozoOrb(bool facingRight) =>
         facingRight
-            ? new(0xab1d, 27, 400, -40, -416)
-            : new(0xab15, -27, -400, -40, -416);
+            ? new(0xab1d,
+                new(27, -40), new(400, -416))
+            : new(0xab15,
+                new(-27, -40), new(-400, -416));
 
     /// <summary>
     /// Golden Torizo Chozo-orb records at <c>$86:AC99-$86:ACAC</c>, selected by facing.
     /// </summary>
     internal static TorizoRandomizedProjectileDefinition GoldenChozoOrb(bool facingRight) =>
         facingRight
-            ? new(0xab1d, 27, 256, -40, -448)
-            : new(0xab15, -27, -256, -40, -448);
+            ? new(0xab1d,
+                new(27, -40), new(256, -448))
+            : new(0xab15,
+                new(-27, -40), new(-256, -448));
 
     /// <summary>
     /// Golden Torizo egg records at <c>$86:B02F-$86:B042</c>, selected by horizontal
@@ -37,9 +40,9 @@ internal static class TorizoRandomizedProjectileDefinitions
     internal static TorizoRandomizedProjectileDefinition GoldenEgg(bool movingRight) =>
         movingRight
             ? new(GoldenTorizoEggInstructionProgramDefinitions.BouncingRight,
-                16, 128, -1, -384)
+                new(16, -1), new(128, -384))
             : new(GoldenTorizoEggInstructionProgramDefinitions.BouncingLeft,
-                -16, -128, -1, -384);
+                new(-16, -1), new(-128, -384));
 
     /// <summary>
     /// Golden Torizo eye-beam records at <c>$86:B376-$86:B389</c>, selected by facing.
@@ -48,7 +51,7 @@ internal static class TorizoRandomizedProjectileDefinitions
     internal static TorizoRandomizedProjectileDefinition GoldenEyeBeam(bool facingRight) =>
         facingRight
             ? new(GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal,
-                20, 1024, -30, 1024)
+                new(20, -30), new(1024, 1024))
             : new(GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal,
-                -20, -1024, -30, 1024);
+                new(-20, -30), new(-1024, 1024));
 }

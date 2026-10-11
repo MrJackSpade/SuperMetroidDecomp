@@ -376,14 +376,14 @@ internal static partial class Program
                 mismatches.Add($"Enemy projectile {slot} is allocated while the Ceres arrival owns it");
             Check($"Enemy projectile {slot} ID", active ? id : (ushort)0, MovieDesyncMemory.EnemyProjectileIds + offset);
             if (!active) return;
-            Check($"Enemy projectile {slot} X", arrival!.XPosition, MovieDesyncMemory.EnemyProjectileX + offset);
+            Check($"Enemy projectile {slot} X", arrival!.PadPosition.X, MovieDesyncMemory.EnemyProjectileX + offset);
             Check($"Enemy projectile {slot} Y", y, MovieDesyncMemory.EnemyProjectileY + offset);
         }
         bool arrivalLive = arrival is { IsComplete: false };
         if (arrivalLive)
         {
-            CheckArrivalSlot(17, arrival!.PadActive, 0xa387, arrival!.PadYPosition);
-            CheckArrivalSlot(16, arrival!.PlatformActive, 0xa395, arrival!.PlatformYPosition);
+            CheckArrivalSlot(17, arrival!.PadActive, 0xa387, arrival!.PadPosition.Y);
+            CheckArrivalSlot(16, arrival!.PlatformActive, 0xa395, arrival!.PlatformPosition.Y);
         }
         for (int slot = 0; slot < (arrivalLive ? 16 : projectiles.Count); slot++)
         {

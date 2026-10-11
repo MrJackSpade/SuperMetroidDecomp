@@ -281,7 +281,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.Body.Position = state.Body.Position.WithWhole(new(0x003b, 0x0117));
-        PublishMotherBrainBg2Scroll(state, 0xffe5, 0xff27);
+        PublishMotherBrainBg2Scroll(state, new(0xffe5, 0xff27));
         state.HitboxesEnabled = 7;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake;
     }
@@ -292,7 +292,7 @@ public sealed partial class RoomEnemySystem
         state.Head!.InstructionTimer = 1;
         state.Body.Properties = state.Body.Properties.Without(EnemyProperties.Invisible);
         state.Body.Position = state.Body.Position.WithWhole(new(0x003b, 0x0117));
-        PublishMotherBrainBg2Scroll(state, 0xffe5, 0xff27);
+        PublishMotherBrainBg2Scroll(state, new(0xffe5, 0xff27));
         state.RequestMusic(MusicCommand.SelectTrack(5), MusicCommandDelay.EightFrames);
         EarthquakeType = 2;
         EarthquakeTimer = 0x0100;
@@ -311,9 +311,9 @@ public sealed partial class RoomEnemySystem
             return;
 
         SpawnMotherBrainAscentDust(state);
-        state.Bg2YScroll = unchecked((ushort)(state.Bg2YScroll + 2));
+        state.Bg2Scroll = state.Bg2Scroll + new Offset16<Bg2Pixels>(0, 2);
         state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(state.Body.Position.Y.Whole - 2)));
-        PublishMotherBrainBg2Scroll(state, state.Bg2XScroll, state.Bg2YScroll);
+        PublishMotherBrainBg2Scroll(state, state.Bg2Scroll);
         if (state.Body.Position.Y.Whole >= 0x00bd)
             return;
 
@@ -848,15 +848,14 @@ public sealed partial class RoomEnemySystem
     /// rigidly attached to its small OBJ hitbox record. X movement happens before this call
     /// in the cartridge, so the derived scroll must sample the already-updated body X.
     /// </summary>
-    private void MoveMotherBrainBody(short xDisplacement, short yDisplacement)
+    private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)
     {
         MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain body bytecode ran without its multipart encounter state.");
-        state.Body.Position += new Offset16<RoomPixels>(xDisplacement, yDisplacement);
-        PublishMotherBrainBg2Scroll(
-            state,
+        state.Body.Position += displacement;
+        PublishMotherBrainBg2Scroll(state, new(
             unchecked((ushort)(0x0022 - state.Body.Position.X.Whole)),
-            unchecked((ushort)(state.Bg2YScroll - yDisplacement)));
+            unchecked((ushort)(state.Bg2Scroll.Y - displacement.Y))));
     }
 
     /// <summary>
@@ -870,10 +869,9 @@ public sealed partial class RoomEnemySystem
         MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain posture bytecode ran without its multipart encounter state.");
         state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(state.Body.Position.Y.Whole + yDisplacement)));
-        PublishMotherBrainBg2Scroll(
-            state,
+        PublishMotherBrainBg2Scroll(state, new(
             unchecked((ushort)(0x0022 + horizontalScrollBias - state.Body.Position.X.Whole)),
-            unchecked((ushort)(state.Bg2YScroll - yDisplacement)));
+            unchecked((ushort)(state.Bg2Scroll.Y - yDisplacement))));
     }
 
     /// <summary>Shared four-frame earthquake produced by each planted walking frame.</summary>
@@ -897,12 +895,10 @@ public sealed partial class RoomEnemySystem
 
     private void PublishMotherBrainBg2Scroll(
         MotherBrainEnemyState state,
-        ushort x,
-        ushort y)
+        Position16<Bg2Pixels> scroll)
     {
-        state.Bg2XScroll = x;
-        state.Bg2YScroll = y;
+        state.Bg2Scroll = scroll;
         state.HasBg2ScrollOverride = true;
-        RequireSetMotherBrainBg2Scroll(x, y);
+        RequireSetMotherBrainBg2Scroll(scroll.X, scroll.Y);
     }
 }

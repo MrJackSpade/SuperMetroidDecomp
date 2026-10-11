@@ -100,20 +100,14 @@ public sealed partial class RoomEnemySystem
         beam.GraphicsIndex = 0x0400;
         beam.Position = beam.Position.WithWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + 0x0040)), unchecked((ushort)(state.Body.Position.Y.Whole - 0x0030))));
 
-        state.HandBeamNextXPosition = beam.Position.X.Whole;
-        state.HandBeamNextXSubposition = 0;
-        state.HandBeamNextYPosition = beam.Position.Y.Whole;
-        state.HandBeamNextYSubposition = 0;
+        state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);
 
-        short deltaX = unchecked((short)(samus.Position.X.Whole - beam.Position.X.Whole));
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - beam.Position.Y.Whole));
         byte angle = unchecked((byte)(
-            0x80 - CalculateCartridgeAngle(new(deltaX, deltaY))));
+            0x80 - CalculateCartridgeAngle(samus.Position.Whole - beam.Position.Whole)));
         state.HandBeamNextAngle = angle;
-        state.HandBeamNextXVelocity = MultiplyCartridgeSinCos(0x0c00, angle);
-        state.HandBeamNextYVelocity = MultiplyCartridgeSinCos(
-            0x0c00,
-            unchecked((byte)(angle + 0x40)));
+        state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
+            new SnesSignedEightEight(MultiplyCartridgeSinCos(0x0c00, angle)),
+            new SnesSignedEightEight(MultiplyCartridgeSinCos(0x0c00, unchecked((byte)(angle + 0x40)))));
 
         beam.InstructionPointer = MotherBrainHandBeamInstructionProgramDefinitions.Initial;
         beam.InstructionTimer = 1;
@@ -137,14 +131,11 @@ public sealed partial class RoomEnemySystem
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamFired,
             graphicsIndex: 0);
-        beam.Position = new(new(state.HandBeamNextXPosition, state.HandBeamNextXSubposition), new(state.HandBeamNextYPosition, state.HandBeamNextYSubposition));
-        beam.Velocity = new(new SnesSignedEightEight(state.HandBeamNextXVelocity), new SnesSignedEightEight(state.HandBeamNextYVelocity));
+        beam.Position = state.HandBeamNextPosition;
+        beam.Velocity = state.HandBeamNextVelocity;
 
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
-        state.HandBeamNextXPosition = beam.Position.X.Whole;
-        state.HandBeamNextXSubposition = beam.Position.X.Fraction;
-        state.HandBeamNextYPosition = beam.Position.Y.Whole;
-        state.HandBeamNextYSubposition = beam.Position.Y.Fraction;
+        state.HandBeamNextPosition = beam.Position;
 
         ushort angleRandom = _nextRandom!();
         byte scatterAngle = unchecked((byte)(

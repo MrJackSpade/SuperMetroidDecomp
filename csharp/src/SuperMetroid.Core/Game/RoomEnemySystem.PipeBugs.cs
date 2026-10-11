@@ -108,10 +108,8 @@ public sealed class PipeBugEnemyState
 
     // The names below follow their role in the currently selected species. They are kept
     // together because the cartridge overlays all of them in one Enemy_PipeBug structure.
-    /// <summary>Gets the horizontal spawn position restored after leaving the screen.</summary>
-    public ushort SpawnX { get; internal set; }
-    /// <summary>Gets the vertical spawn position restored after leaving the screen.</summary>
-    public ushort SpawnY { get; internal set; }
+    /// <summary>Gets the whole-pixel spawn position restored after leaving the screen.</summary>
+    public Position16<RoomPixels> SpawnPosition { get; internal set; }
     /// <summary>Gets the upper Y boundary of a Brinstar Pipe Bug's emergence.</summary>
     public ushort EmergenceTopY { get; internal set; }
     /// <summary>Gets the requested Brinstar animation selector bits.</summary>
@@ -183,8 +181,7 @@ public sealed partial class RoomEnemySystem
     private void InitializeBrinstarPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
-        state.SpawnX = slot.Position.X.Whole;
-        state.SpawnY = slot.Position.Y.Whole;
+        state.SpawnPosition = slot.Position.Whole;
         state.EmergenceTopY = unchecked((ushort)(slot.Position.Y.Whole - BrinstarPipeBugEmergenceHeight));
         state.Function = PipeBugEnemyFunction.BrinstarWaitUntilOnScreen;
         state.DelayOrCounter = BrinstarPipeBugRespawnFrames;
@@ -199,8 +196,7 @@ public sealed partial class RoomEnemySystem
     private void InitializeNorfairPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
-        state.SpawnX = slot.Position.X.Whole;
-        state.SpawnY = slot.Position.Y.Whole;
+        state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         state.LinearSpeedTableOffset = unchecked((ushort)((slot.Parameter2 >> 8) * 8));
         state.DelayOrCounter = 0;
@@ -214,8 +210,7 @@ public sealed partial class RoomEnemySystem
     private void InitializeYellowPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
-        state.SpawnX = slot.Position.X.Whole;
-        state.SpawnY = slot.Position.Y.Whole;
+        state.SpawnPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
@@ -406,10 +401,10 @@ public sealed partial class RoomEnemySystem
         if (!EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;
 
-        slot.Position = slot.Position.WithWholeX(state.SpawnX).WithFractionX(0).WithWholeY(state.SpawnY);
+        slot.Position = slot.Position.WithWhole(state.SpawnPosition).WithFractionX(0);
         // This apparently strange assignment is literal $B3:8958 behavior: the original
         // stores the integer spawn Y into both halves rather than clearing the fraction.
-        slot.Position = slot.Position.WithFractionY(state.SpawnY);
+        slot.Position = slot.Position.WithFractionY(state.SpawnPosition.Y);
         state.AnimationState = PipeBugAnimationSelector.None;
         SelectBrinstarPipeBugAnimation(slot, state);
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
@@ -560,7 +555,7 @@ public sealed partial class RoomEnemySystem
             return;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;
-        slot.Position = slot.Position.WithWhole(new(state.SpawnX, state.SpawnY));
+        slot.Position = slot.Position.WithWhole(state.SpawnPosition);
     }
 
     private RoomEnemySlot[] RequireNorfairPipeBugFormation(RoomEnemySlot leader)
@@ -689,8 +684,8 @@ public sealed partial class RoomEnemySystem
         AddPipeBugDisplacement(slot, horizontal: false,
             ReadQuadraticEnemySpeed(state.ArcCounter, negative: true));
         bool returnedToSpawnY = movingLeft
-            ? unchecked((short)(slot.Position.Y.Whole - state.SpawnY)) < 0
-            : unchecked((short)(state.SpawnY - slot.Position.Y.Whole)) >= 0;
+            ? unchecked((short)(slot.Position.Y.Whole - state.SpawnPosition.Y)) < 0
+            : unchecked((short)(state.SpawnPosition.Y - slot.Position.Y.Whole)) >= 0;
         if (!returnedToSpawnY)
             return;
 
@@ -714,7 +709,7 @@ public sealed partial class RoomEnemySystem
         // Every Geega flight function resets through CheckIfEnemyCenterIsOnScreen.
         if (EnemyCenterIsOnScreen(slot, camera))
             return false;
-        slot.Position = FixedPosition<RoomPixels>.FromWhole(new(state.SpawnX, state.SpawnY));
+        slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
         state.Function = PipeBugEnemyFunction.YellowWaitForSamus;
         state.ArcCompleted = false;
         slot.InstructionTimer = 1;

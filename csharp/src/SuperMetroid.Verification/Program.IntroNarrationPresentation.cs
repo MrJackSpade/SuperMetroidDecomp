@@ -7,13 +7,14 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the decompressed opening-font planar bytes")]
     private static void VerifyIntroNarrationPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.IntroNarrationExtractor.Extract(nativeBus);
         IntroNarrationPresentation presentation = IntroNarrationPresentation.Load(
             new MemoryStream(extracted, writable: false));
-        ISnesAddressSpace installedBus = new IntroNarrationReadGuard(nativeBus);
+        ISnesAddressSpace installedBus = NewIntroNarrationGuard(nativeBus);
 
         byte[] fontPng = SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(nativeBus);
         IntroFontAtlas font = IntroFontAtlas.Load(new MemoryStream(fontPng, writable: false));
@@ -25,7 +26,7 @@ internal static partial class Program
             nativeFont.AsSpan(0, IntroFontAtlasFormat.ByteCount)),
             "installed opening-font PNG compiles to exact native planar bytes");
         var installedIntro = CreateRetailIntroFixture(
-            new IntroFontReadGuard(nativeBus), introFont: font);
+            NewIntroFontGuard(nativeBus), introFont: font);
         AssertTrue(installedIntro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
             IntroCinematicRomData.Vram.FontOneDestinationByte,
             IntroFontAtlasFormat.ByteCount).SequenceEqual(font.Transfer.Span),
@@ -231,40 +232,13 @@ internal static partial class Program
             "Opening-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
-    private sealed class IntroNarrationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+    private static CartridgeReadGuard NewIntroNarrationGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => address >> 16 == 0x8c &&
+                (address & 0xffff) is >= 0xc383 and <= 0xd5dd or >= 0xd67d and <= 0xd780,
+            address => $"Installed opening narration read cartridge text address ${address:X6}.");
 
-        public byte ReadByte(int address)
-        {
-            int bank = address >> 16;
-            int offset = address & 0xffff;
-            if (bank == 0x8c &&
-                (offset is >= 0xc383 and <= 0xd5dd or >= 0xd67d and <= 0xd780))
-            {
-                throw new InvalidOperationException(
-                    $"Installed opening narration read cartridge text address ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
-
-    private sealed class IntroFontReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x95d089 and < 0x95d713)
-            {
-                throw new InvalidOperationException(
-                    $"Installed opening font read cartridge address ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewIntroFontGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).ForbidRange(0x95d089, 0x95d713 - 0x95d089,
+            address => $"Installed opening font read cartridge address ${address:X6}.");
 }

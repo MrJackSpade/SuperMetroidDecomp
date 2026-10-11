@@ -64,7 +64,7 @@ internal static partial class Program
                 IntroMotherBrainDefinitions.SmallExplosionCount),
             "intro Mother Brain small explosion definition boundary");
 
-        var guarded = new IntroMotherBrainDefinitionReadGuard(retail);
+        var guarded = NewIntroMotherBrainDefinitionGuard(retail);
         var motherBrain = new IntroMotherBrainSpriteState();
         AssertEqual(IntroMotherBrainDefinitions.MotherBrainOrigin.X,
             IntroMotherBrainSpriteState.Position.X, "intro Mother Brain compiled X origin");
@@ -156,32 +156,14 @@ internal static partial class Program
     private static ushort ReadIntroMotherBrainWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
-    private sealed class IntroMotherBrainDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            bool forbidden =
-                address is >= 0x8bcb05 and < 0x8bcb33 or
+    private static CartridgeReadGuard NewIntroMotherBrainDefinitionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => address is >= 0x8bcb05 and < 0x8bcb33 or
                 >= 0x8bcdab and < 0x8bcdeb or
                 >= 0x8bce53 and < 0x8bce55 or
                 >= 0x8bce55 and < 0x8bce5b or
                 >= 0x8bcf15 and < 0x8bcf21 or
                 >= 0x8bb9b6 and < 0x8bb9d4 or
-                >= 0x8bb9fd and < 0x8bba0f;
-            if (forbidden)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Intro Mother Brain reread compiled byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                >= 0x8bb9fd and < 0x8bba0f,
+            address => $"Intro Mother Brain reread compiled byte ${address:X6}.");
 }

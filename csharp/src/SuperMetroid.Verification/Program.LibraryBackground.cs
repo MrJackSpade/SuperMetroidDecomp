@@ -7,6 +7,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+[CpuBusBoundary("exact bus test: retail ROM oracle decompressing every library-background tilemap source to validate its page count")]
 static void VerifyLibraryBackgroundSourceInventory()
 {
     ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -51,6 +52,7 @@ static void VerifyLibraryBackgroundSourceInventory()
             $"VRAM ${transfer.VramDestination:X4} via {transfer.Command}");
 }
 
+[CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid HUD library-background planar characters")]
 static void VerifyKraidLibraryHudArtwork(
     ISnesAddressSpace bus, IReadOnlyList<LibraryBackgroundSource> romTransfers)
 {
@@ -183,6 +185,7 @@ static void VerifyLibraryBackgroundLoader()
         "  Library BG: typed ROM/WRAM command reads, decompression, Ceres BG2 pages, and native clear agree.");
 }
 
+[CpuBusBoundary("exact bus test: counts cartridge and WRAM reads separately to witness that library backgrounds route each source byte through its typed bus read")]
 private sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
     ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
 {

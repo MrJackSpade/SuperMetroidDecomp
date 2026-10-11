@@ -168,6 +168,7 @@ internal static partial class Program
             "Kraid growth reads its live low-half alias through typed WRAM");
     }
 
+    [CpuBusBoundary("exact bus test: witnesses that Kraid reads the $A7:1002 live tilemap alias only through typed WRAM reads, never the generic bus, with compiled head-program bytes forbidden")]
     private sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {

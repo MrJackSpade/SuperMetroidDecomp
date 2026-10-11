@@ -83,6 +83,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: cartridge source that clears the calculated FX-pair color bits, proving the blend extractor recomputes them")]
     private sealed class DerivedBlendSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte ReadByte(int address)

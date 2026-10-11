@@ -11,6 +11,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the native save/elevator marker slots per area")]
     private static void VerifySaveMarkerEligibility(ISnesAddressSpace bus)
     {
         var expectedIds = new List<string>();
@@ -73,7 +74,7 @@ internal static partial class Program
 
     private static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
-        var guard = new SaveMarkerReadGuard(bus);
+        var guard = NewSaveMarkerGuard(bus);
         Suite(nameof(VerifySaveMarkerEligibility), () => VerifySaveMarkerEligibility(bus));
         int valid = 0;
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
@@ -169,43 +170,21 @@ internal static partial class Program
         }
     }
 
-    private sealed class SaveMarkerReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    [CpuBusBoundary("exact bus test: retail ROM oracle walking the native selected-save marker coordinate lists to forbid them")]
+    private static MutableCartridgeReadGuard NewSaveMarkerGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> blocked = new();
-        public SaveMarkerReadGuard(ISnesAddressSpace source)
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
+        var blocked = new HashSet<int>();
+        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
-            this.source = source;
-            for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
-            {
-                int entry = FileSelectMapRomData.SavePointMapPointers + area * 2;
-                int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), entry);
-                blocked.Add(entry); blocked.Add(entry + 1);
-                for (int offset = 0; offset < MapSaveMarkerDefinitions.SlotsPerArea * 4; offset++)
-                    blocked.Add(FileSelectMapRomData.MenuObjectBank | (list + offset));
-            }
+            int entry = FileSelectMapRomData.SavePointMapPointers + area * 2;
+            int list = RomDataReader.ReadWordFixedBank(cartridge, entry);
+            blocked.Add(entry); blocked.Add(entry + 1);
+            for (int offset = 0; offset < MapSaveMarkerDefinitions.SlotsPerArea * 4; offset++)
+                blocked.Add(FileSelectMapRomData.MenuObjectBank | (list + offset));
         }
-        private void RejectMarkerSource(int address)
-        {
-            if (blocked.Contains(address))
-                throw new InvalidOperationException("Installed selected-save marker read cartridge coordinate table.");
-        }
-        public byte ReadByte(int address)
-        {
-            RejectMarkerSource(address);
-            return source.ReadByte(address);
-        }
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectMarkerSource(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Save-marker guard source does not expose WRAM.")).ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Save-marker guard source does not expose SRAM.")).ReadSaveRamByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(blocked.Contains, _ => "Installed selected-save marker read cartridge coordinate table.");
+        return guard;
     }
 }

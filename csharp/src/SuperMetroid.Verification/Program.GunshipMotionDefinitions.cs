@@ -22,7 +22,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies,
-                new GunshipMotionDefinitionReadGuard(rom));
+                new GunshipMotionFixtureGuard(rom));
             var applyBrake = brakeMethod.CreateDelegate<Action<RoomEnemySlot, SamusState>>(enemies);
             RoomEnemySlot top = enemies.Slots[0];
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
@@ -52,7 +52,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies,
-                new GunshipMotionDefinitionReadGuard(rom));
+                new GunshipMotionFixtureGuard(rom));
             var stepBob = bobMethod.CreateDelegate<Action<RoomEnemySlot>>(enemies);
             RoomEnemySlot top = enemies.Slots[0];
             top.VariableC = phase;
@@ -109,9 +109,22 @@ internal static partial class Program
     private static ushort ReadGunshipMotionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class GunshipMotionDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, IRoomEnemyFixtureSource
+    /// <summary>
+    /// The shared cartridge-read guard that also forwards enemy fixture lookups, so a sparse
+    /// fixture's constructed population still reaches the production loader.
+    /// </summary>
+    private sealed class GunshipMotionFixtureGuard : CartridgeReadGuard, IRoomEnemyFixtureSource
     {
+        private readonly ISnesAddressSpace source;
+
+        public GunshipMotionFixtureGuard(ISnesAddressSpace source)
+            : base(source)
+        {
+            this.source = source;
+            Forbid(address => address is >= 0xa2a622 and < 0xa2a644 or >= 0xa2a7cf and < 0xa2a7d7,
+                address => $"Gunship attempted migrated motion-definition read ${address:X6}.");
+        }
+
         public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyDefinition(pointer)
@@ -126,16 +139,5 @@ internal static partial class Program
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyGraphicsSet(pointer)
                 : RoomEnemyGraphicsSetDefinitions.Get(pointer);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa2a622 and < 0xa2a644 or
-                >= 0xa2a7cf and < 0xa2a7d7
-                ? throw new InvalidOperationException(
-                    $"Gunship attempted migrated motion-definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

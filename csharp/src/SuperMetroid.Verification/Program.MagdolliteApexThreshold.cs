@@ -33,7 +33,7 @@ internal static partial class Program
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, new MagdolliteApexReadGuard(new TestAddressSpace()));
+                enemies, NewMagdolliteApexGuard(new TestAddressSpace()));
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeMagdollite", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, SamusState?>>(enemies);
             var rise = typeof(RoomEnemySystem).GetMethod("RunMagdolliteBodyRising", flags)!
@@ -64,15 +64,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class MagdolliteApexReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa8af55 and < 0xa8b717
-            ? throw new InvalidOperationException(
-                $"Magdollite attempted a migrated threshold read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMagdolliteApexGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).ForbidRange(0xa8af55, 0xa8b717 - 0xa8af55,
+            address => $"Magdollite attempted a migrated threshold read ${address:X6}.");
 }

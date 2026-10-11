@@ -8,6 +8,7 @@ internal static partial class Program
     /// Compares the complete asymmetric shell contour with the pinned cartridge and drives
     /// the real sleeping-parent collision path with the old source range forbidden.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mama Turtle shell contour definitions")]
     private static void VerifyMamaTurtleShellContourDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -15,7 +16,7 @@ internal static partial class Program
         {
             int address = MamaTurtleShellContourDefinitions.SourceAddress + index * 2;
             short expected = unchecked((short)(
-                rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+                rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
             AssertEqual(expected, MamaTurtleShellContourDefinitions.GetRawOffset(index),
                 $"Mama Turtle shell contour word {index}");
         }

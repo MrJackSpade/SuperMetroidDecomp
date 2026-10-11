@@ -18,6 +18,8 @@ internal static partial class Program
             "Callback verification requires upstream-disassembly/src/bank_A0.asm " +
             "in this checkout or an ancestor containing the shared reference checkout.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb callback definitions")]
     private static void VerifyPowerBombCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
         int headers = 0;
@@ -28,9 +30,9 @@ internal static partial class Program
             if (!match.Success)
                 continue;
             int address = Convert.ToInt32(match.Groups[1].Value, 16);
-            byte bank = rom.ReadByte(address + 12);
-            ushort callback = (ushort)(rom.ReadByte(address + 40) | rom.ReadByte(address + 41) << 8);
-            bool expected = callback != 0 && rom.ReadByte((bank << 16) | callback) == 0x6b;
+            byte bank = rom.ReadCartridgeByte(address + 12);
+            ushort callback = (ushort)(rom.ReadCartridgeByte(address + 40) | rom.ReadCartridgeByte(address + 41) << 8);
+            bool expected = callback != 0 && rom.ReadCartridgeByte((bank << 16) | callback) == 0x6b;
             AssertEqual(expected, EnemyPowerBombCallbackDefinitions.IsLiteralNoOp(bank, callback),
                 $"header {address:X6} native Power Bomb classification");
             if (expected)

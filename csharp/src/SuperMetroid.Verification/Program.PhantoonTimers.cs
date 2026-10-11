@@ -4,9 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon timers")]
     private static void VerifyCompiledPhantoonTimers(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int i = 0; i < 8; i++)
         {
             AssertEqual(Word(0xa7cd41 + i * 2), PhantoonTimerDefinitions.VulnerableWindow[i], "Native vulnerable timer");

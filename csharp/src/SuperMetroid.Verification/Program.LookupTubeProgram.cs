@@ -10,6 +10,7 @@ internal static partial class Program
     private static void VerifyTubeEvents(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 4);
     private static void VerifyTubeSound(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 5);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Tube field")]
     private static void VerifyTubeField(SuperMetroidAddressSpace rom, int field)
     {
         // Native instruction boundaries, independently transcribed from bank_84.asm.
@@ -48,7 +49,7 @@ internal static partial class Program
             else if (field == 5)
             {
                 count++;
-                byte expected = rom.ReadByte(0x84d506);
+                byte expected = rom.ReadCartridgeByte(0x84d506);
                 AssertEqual(expected, b, "Tube original sound byte");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "Tube composed sound ownership");
                 AssertEqual(expected, shared, "Tube composed original sound byte");

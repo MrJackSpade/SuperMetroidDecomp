@@ -9,6 +9,7 @@ internal static partial class Program
         Suite(nameof(VerifyPhantoonProjectileInstructionProgramDefinitions), () => VerifyPhantoonProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon projectile instruction program definitions")]
     private static void VerifyPhantoonProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -186,8 +187,8 @@ internal static partial class Program
 
         static ushort ReadWord(SuperMetroidAddressSpace source, ushort address) =>
             unchecked((ushort)(
-                source.ReadByte(EnemyProjectileCodePointers.BankBase | address) |
-                source.ReadByte(EnemyProjectileCodePointers.BankBase |
+                source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
+                source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase |
                     unchecked((ushort)(address + 1))) << 8));
     }
 

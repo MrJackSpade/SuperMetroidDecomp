@@ -4,9 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon patterns")]
     private static void VerifyCompiledPhantoonPatterns(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int i = 0; i < 8; i++)
         {
             var placement = PhantoonPatternDefinitions.RainPlacement(i);
@@ -14,8 +15,8 @@ internal static partial class Program
             AssertEqual(Word(0xa7cdaf + i * 8), placement.X, "Native rain body X");
             AssertEqual(Word(0xa7cdb1 + i * 8), placement.Y, "Native rain body Y");
             AssertEqual((ushort)0, Word(0xa7cdb3 + i * 8), "Native unused rain record word");
-            AssertEqual(rom.ReadByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
-            AssertEqual(rom.ReadByte(0xa7cda5 + i), PhantoonPatternDefinitions.ShotEyeMarkers[i], "Native shot eye marker");
+            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
+            AssertEqual(rom.ReadCartridgeByte(0xa7cda5 + i), PhantoonPatternDefinitions.ShotEyeMarkers[i], "Native shot eye marker");
         }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
@@ -46,8 +47,8 @@ internal static partial class Program
             AssertEqual(8, flames.Length, "Actual rain population");
             for (int i = 0; i < 8; i++)
             {
-                int column = (rom.ReadByte(0xa7cfc2 + pattern) + i) % 9;
-                AssertEqual((ushort)rom.ReadByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
+                int column = (rom.ReadCartridgeByte(0xa7cfc2 + pattern) + i) % 9;
+                AssertEqual((ushort)rom.ReadCartridgeByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
                 AssertEqual((ushort)40, flames[i].Position.Y.Whole, "Actual rain ceiling Y");
                 AssertEqual((ushort)((i + 1) * 8), flames[i].Velocity.X.RawValue, "Actual staggered rain delay");
             }
@@ -101,7 +102,7 @@ internal static partial class Program
             shotBody.VariableE = 60;
             shotState.Tentacles.VariableA = shotState.Tentacles.VariableB = 0;
             shot(shotBody, shotState, 0x100, 1);
-            AssertEqual((ushort)rom.ReadByte(0xa7cda5 + (raw & 7)), shotState.Eye.VariableB, "Real shot exact eye marker without bus");
+            AssertEqual((ushort)rom.ReadCartridgeByte(0xa7cda5 + (raw & 7)), shotState.Eye.VariableB, "Real shot exact eye marker without bus");
             AssertEqual((ushort)(raw & 7), shotState.Mouth.Parameter2, "Real shot retains selected pattern");
             AssertEqual((ushort)16, shotBody.VariableE, "Real shot window shortening preserved");
             AssertEqual(raw + 1, shotCalls, "Shot consumes exactly one RNG call");

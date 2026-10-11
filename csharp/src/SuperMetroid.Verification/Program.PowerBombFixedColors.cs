@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb fixed colors")]
     private static void VerifyPowerBombFixedColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -26,11 +27,11 @@ internal static partial class Program
                 int address = PowerBombFixedColorFormat.SourceAddress(sequence) +
                     index * SamusPaletteRomData.PowerBomb.BytesPerColor;
                 (byte red, byte green, byte blue) = catalog.Resolve(sequence, index);
-                AssertEqual((byte)(rom.ReadByte(address) & SamusPaletteRomData.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address) & SamusPaletteRomData.PowerBomb.ComponentMask),
                     red, $"{sequence} native red {index}");
-                AssertEqual((byte)(rom.ReadByte(address + 1) & SamusPaletteRomData.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & SamusPaletteRomData.PowerBomb.ComponentMask),
                     green, $"{sequence} native green {index}");
-                AssertEqual((byte)(rom.ReadByte(address + 2) & SamusPaletteRomData.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address + 2) & SamusPaletteRomData.PowerBomb.ComponentMask),
                     blue, $"{sequence} native blue {index}");
                 compared++;
             }

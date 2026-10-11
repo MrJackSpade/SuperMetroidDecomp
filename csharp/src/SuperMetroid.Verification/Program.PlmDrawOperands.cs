@@ -6,11 +6,12 @@ internal static partial class Program
 {
     private delegate bool TryCompiledPlmWord(ushort address, out ushort value);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for bank-$84 PLM program words")]
     private static ushort ReadImportedPlmWord(SuperMetroidAddressSpace source, ushort offset)
     {
         int bank = RoomPlmMemoryLayout.ProgramBank << 16;
-        return (ushort)(source.ReadByte(bank | offset) |
-            source.ReadByte(bank | unchecked((ushort)(offset + sizeof(byte)))) << 8);
+        return (ushort)(source.ReadCartridgeByte(bank | offset) |
+            source.ReadCartridgeByte(bank | unchecked((ushort)(offset + sizeof(byte)))) << 8);
     }
 
     /// <summary>

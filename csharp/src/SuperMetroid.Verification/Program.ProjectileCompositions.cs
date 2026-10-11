@@ -77,18 +77,19 @@ internal static partial class Program
     }
 
     /// <summary>Import-only bank-$93 record decoder for the projectile OAM oracle.</summary>
+    [CpuBusBoundary("exact bus test: reference bank-$93 projectile spritemap decoder over a retail or synthetic cartridge")]
     private static void DrawImportedProjectileSpritemap(ISnesAddressSpace source,
         OamBuffer oam, ushort pointer, Position16<OamPixels> origin)
     {
-        ushort ReadWord(int address) => (ushort)(source.ReadByte(address) |
-            (source.ReadByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
+        ushort ReadWord(int address) => (ushort)(source.ReadCartridgeByte(address) |
+            (source.ReadCartridgeByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
         int record = 0x930000 | pointer;
         ushort partCount = ReadWord(record);
         int partAddress = SnesAddressMath.AddWithinBank(record, 2);
         for (int part = 0; part < partCount; part++)
         {
             oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
-                source.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
+                source.ReadCartridgeByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
                 new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
                 origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);

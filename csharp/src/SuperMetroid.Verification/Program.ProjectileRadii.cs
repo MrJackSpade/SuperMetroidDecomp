@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile radii")]
     private static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
     {
         // Independent address inventory from the pinned disassembly's timed-record fields.
@@ -82,18 +83,18 @@ internal static partial class Program
             0x93a12d, 0x93a135, 0x93a141, 0x93a149, 0x93a151, 0x93a15d, 0x93a165, 0x93a171, 0x93a179, 0x93a181, 0x93a189, 0x93a191,
             0x93a199,
         ];
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        ushort Word(int a) => (ushort)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte(a + 1) << 8);
         var guard = NewProjectileRadiusReadGuard(rom, addresses);
         foreach (int address in addresses)
         {
-            AssertEqual(rom.ReadByte(address), SamusProjectileRadiusDefinitions.ReadByte(address), "Native X radius");
-            AssertEqual(rom.ReadByte(address + 1), SamusProjectileRadiusDefinitions.ReadByte(address + 1), "Native Y radius");
+            AssertEqual(rom.ReadCartridgeByte(address), SamusProjectileRadiusDefinitions.ReadByte(address), "Native X radius");
+            AssertEqual(rom.ReadCartridgeByte(address + 1), SamusProjectileRadiusDefinitions.ReadByte(address + 1), "Native Y radius");
         }
-        AssertEqual(rom.ReadByte(SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress),
+        AssertEqual(ReadMurderBeamRadiusMirrorByte(rom, SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress),
             SamusProjectileRadiusDefinitions.ReadByte(
                 SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress),
             "bounded Murder Beam X-radius observation");
-        AssertEqual(rom.ReadByte(SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1),
+        AssertEqual(ReadMurderBeamRadiusMirrorByte(rom, SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1),
             SamusProjectileRadiusDefinitions.ReadByte(
                 SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1),
             "bounded Murder Beam Y-radius observation");
@@ -134,8 +135,8 @@ internal static partial class Program
                 AssertEqual(false, projectiles.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
                 AssertEqual(duration, slot.InstructionTimer, "Frame duration unchanged");
                 AssertEqual(expectedSprite, slot.SpritemapPointer, "Artwork reference changes independently");
-                AssertEqual((ushort)rom.ReadByte(address), slot.Radius.X, "Published collision X independent of artwork");
-                AssertEqual((ushort)rom.ReadByte(address + 1), slot.Radius.Y, "Published collision Y independent of artwork");
+                AssertEqual((ushort)rom.ReadCartridgeByte(address), slot.Radius.X, "Published collision X independent of artwork");
+                AssertEqual((ushort)rom.ReadCartridgeByte(address + 1), slot.Radius.Y, "Published collision Y independent of artwork");
                 AssertEqual(Word(address + 2), slot.AnimationFrame, "Trail frame unchanged");
                 AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Instruction progression unchanged");
 
@@ -146,14 +147,19 @@ internal static partial class Program
                 AssertEqual(false, (bool)runBomb.Invoke(bombs, new object[] { bomb })!, "Bomb timed record survives");
                 AssertEqual(duration, bomb.InstructionTimer, "Bomb duration unchanged");
                 AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb artwork reference changes independently");
-                AssertEqual((ushort)rom.ReadByte(address), bomb.Radius.X, "Bomb physical X independent of artwork");
-                AssertEqual((ushort)rom.ReadByte(address + 1), bomb.Radius.Y, "Bomb physical Y independent of artwork");
+                AssertEqual((ushort)rom.ReadCartridgeByte(address), bomb.Radius.X, "Bomb physical X independent of artwork");
+                AssertEqual((ushort)rom.ReadCartridgeByte(address + 1), bomb.Radius.Y, "Bomb physical Y independent of artwork");
                 AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Bomb stream progression unchanged");
                 bombFrames++;
             }
         }
         Console.WriteLine($"Projectile radii: 805 native pairs, loud non-catalog rejection, 1610 projectile frames and {bombFrames} bomb frames pass with radius reads forbidden and replaced art references.");
     }
+
+    /// <summary>The Murder Beam's radius pointer selects bank $93's lower half: the low-WRAM mirror.</summary>
+    [CpuBusBoundary("exact bus test: Murder Beam radius over-read through the bank-$93 low-window WRAM mirror")]
+    private static byte ReadMurderBeamRadiusMirrorByte(SuperMetroidAddressSpace memory, int address) =>
+        memory.ReadWorkRamByte(address);
 
     private static CartridgeReadGuard NewProjectileRadiusReadGuard(ISnesAddressSpace source, int[] addresses)
     {

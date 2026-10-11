@@ -11,6 +11,7 @@ internal static partial class Program
     /// dispatcher through every glass-break threshold without permitting a ROM
     /// read of the compiled control bytes.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass PLM program")]
     private static void VerifyMotherBrainGlassPlmProgram(SuperMetroidAddressSpace rom)
     {
         VerifyGlassControls(rom);
@@ -25,7 +26,7 @@ internal static partial class Program
         var source = new TestAddressSpace();
         var bank84 = new byte[0x8000];
         for (int index = 0; index < bank84.Length; index++)
-            bank84[index] = rom.ReadByte(0x848000 + index);
+            bank84[index] = rom.ReadCartridgeByte(0x848000 + index);
         source.WriteBytes(0x848000, bank84);
         source.WriteBytes(0x8f9000,
         [

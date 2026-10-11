@@ -12,7 +12,7 @@ internal static partial class Program
         for (int address = 0x9b8000; address <= 0x9bffff; address++)
         {
             if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out byte value))
-            { AssertEqual(bus.ReadByte(address), value, "Compiled trail pointer/coordinate byte matches pinned ROM"); bytes++; }
+            { AssertEqual(ReadRetailTrailOperandByte(bus, address), value, "Compiled trail pointer/coordinate byte matches pinned ROM"); bytes++; }
             int next = (address & 0xff0000) | ((address + 1) & 0xffff);
             if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out _) &&
                 ProjectileTrailCoordinateDefinitions.TryReadByte(next, out _))
@@ -25,20 +25,7 @@ internal static partial class Program
         }
         AssertEqual(4342, bytes, "174 pointer words, 870 four-coordinate records, 28 adjacent observations, 485 further reflected-list-start bytes and the empty-family wrapped byte cover the reachable native region");
         Suite(nameof(VerifyCoordinateSpawn), () => VerifyCoordinateSpawn(bus));
-        AssertTrue(ProjectileTrailCoordinateDefinitions.TryReadByte(0x9bffff, out byte boundaryLow),
-            "bank-end trail operand has a compiled low byte");
-        byte originalBoundaryHigh = ((ISnesMutableMemory)bus).ReadWorkRamByte(0x9c0000);
-        try
-        {
-            bus.WriteByte(0x9c0000, 0x34);
-            AssertEqual((ushort)(boundaryLow | 0x3400),
-                ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, 0, 0xffff),
-                "bank-end trail word combines compiled ROM byte with live next-bank WRAM");
-        }
-        finally
-        {
-            bus.WriteByte(0x9c0000, originalBoundaryHigh);
-        }
+        VerifyTrailBankEndWordWrapsIntoWorkRamMirror(bus, guard);
         for (int index = 0; index <= ushort.MaxValue; index++)
         foreach (ushort operand in new ushort[] { 0, 1, 2 })
         {
@@ -183,9 +170,33 @@ internal static partial class Program
             : throw new InvalidOperationException(
                 $"Native trail operand ${address:X6} addresses unmodeled hardware.");
 
+    /// <summary>
+    /// The bank-end trail operand's high byte is the following bank's first byte, $9C:0000, a
+    /// low-window mirror of WRAM: the word combines the compiled ROM byte with live WRAM.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: bank-end trail operand word wraps into the next bank's low-window WRAM mirror")]
+    private static void VerifyTrailBankEndWordWrapsIntoWorkRamMirror(ISnesAddressSpace bus, ISnesAddressSpace guard)
+    {
+        AssertTrue(ProjectileTrailCoordinateDefinitions.TryReadByte(0x9bffff, out byte boundaryLow),
+            "bank-end trail operand has a compiled low byte");
+        byte originalBoundaryHigh = ((ISnesMutableMemory)bus).ReadWorkRamByte(0x9c0000);
+        try
+        {
+            bus.WriteByte(0x9c0000, 0x34);
+            AssertEqual((ushort)(boundaryLow | 0x3400),
+                ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(guard, 0, 0xffff),
+                "bank-end trail word combines compiled ROM byte with live next-bank WRAM");
+        }
+        finally
+        {
+            bus.WriteByte(0x9c0000, originalBoundaryHigh);
+        }
+    }
+
     // Import-only reference for the actual $9B absolute-indexed operand. The
     // production CPU reader intentionally rejects ROM, so native expectations
     // must resolve cartridge bytes through the asset-import boundary instead.
+    [CpuBusBoundary("exact bus test: reference CPU read of the $9B absolute-indexed trail operand across ROM, WRAM, SRAM, open bus and devices")]
     private static ushort ReadNativeTrailOperandWord(
         ISnesAddressSpace bus, ushort operand, ushort index)
     {

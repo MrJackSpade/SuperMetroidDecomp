@@ -3,13 +3,14 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pose collision definitions")]
     private static void VerifyPoseCollisionDefinitions(SuperMetroidAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();
         var samus = new SamusState();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
-            ushort expected = rom.ReadByte(SamusMovementRomData.Poses.Definitions +
+            ushort expected = rom.ReadCartridgeByte(SamusMovementRomData.Poses.Definitions +
                 pose * SamusMovementRomData.Poses.DefinitionByteCount + 6);
             ISnesAddressSpace source = forbidden;
             AssertEqual(expected, SamusState.ReadPoseYRadius((SamusPoseId)pose),

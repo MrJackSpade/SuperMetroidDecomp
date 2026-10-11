@@ -26,6 +26,7 @@ internal static partial class Program
 
     ];
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain generated OAM catalog")]
     private static void VerifyMotherBrainGeneratedOamCatalog(SuperMetroidAddressSpace rom)
     {
         AssertEqual(17, MotherBrainBodyVisualDefinitions.Frames.Length, "Mother Brain OAM count");
@@ -33,7 +34,7 @@ internal static partial class Program
         {
             var expected = OriginalMotherBrainFrames[i];
             AssertEqual(expected, MotherBrainBodyVisualDefinitions.Frame(i), "Mother Brain published OAM identity/name");
-            ushort count = (ushort)(rom.ReadByte(0xa90000 | expected.Pointer) | rom.ReadByte(0xa90000 | (expected.Pointer + 1)) << 8);
+            ushort count = (ushort)(rom.ReadCartridgeByte(0xa90000 | expected.Pointer) | rom.ReadCartridgeByte(0xa90000 | (expected.Pointer + 1)) << 8);
             int expectedCount = i is >= 1 and <= 3 ? 10 : i == 9 ? 7 : i == 12 ? 1 : 9;
             AssertEqual((ushort)expectedCount, count, "Mother Brain native frame stride geometry");
         }

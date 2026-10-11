@@ -4,14 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon flame spawns")]
     private static void VerifyCompiledPhantoonFlameSpawns(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 16; i++)
-            AssertEqual(rom.ReadByte(0x8698b4 + i), PhantoonFlameSpawnDefinitions.RageAngle(i), "All native rage start angles");
+            AssertEqual(rom.ReadCartridgeByte(0x8698b4 + i), PhantoonFlameSpawnDefinitions.RageAngle(i), "All native rage start angles");
         for (int i = 0; i < 9; i++)
-            AssertEqual(rom.ReadByte(0x8698f7 + i), PhantoonFlameSpawnDefinitions.RainX(i), "All native rain columns");
+            AssertEqual(rom.ReadCartridgeByte(0x8698f7 + i), PhantoonFlameSpawnDefinitions.RainX(i), "All native rain columns");
         for (int i = 0; i < 8; i++)
-            AssertEqual(rom.ReadByte(0x869979 + i), PhantoonFlameSpawnDefinitions.SpiralAngle(i), "All native spiral start angles");
+            AssertEqual(rom.ReadCartridgeByte(0x869979 + i), PhantoonFlameSpawnDefinitions.SpiralAngle(i), "All native spiral start angles");
         var parameters = Enumerable.Range(0, 16).Select(i => (ushort)(0x200 + i))
             .Concat(Enumerable.Range(0, 8).Select(i => (ushort)(0x600 + i)))
             .Concat(Enumerable.Range(0, 16).SelectMany(delay => Enumerable.Range(0, 9).Select(column => (ushort)(0x400 + delay * 16 + column))))
@@ -33,12 +34,12 @@ internal static partial class Program
             var flame = enemies.EnemyProjectiles.Single(p => p.IsActive);
             ushort angle = type switch
             {
-                PhantoonFlameSpawnType.Enraged => rom.ReadByte(0x8698b4 + index),
-                PhantoonFlameSpawnType.Spiral => rom.ReadByte(0x869979 + index),
+                PhantoonFlameSpawnType.Enraged => rom.ReadCartridgeByte(0x8698b4 + index),
+                PhantoonFlameSpawnType.Spiral => rom.ReadCartridgeByte(0x869979 + index),
                 PhantoonFlameSpawnType.Casual or PhantoonFlameSpawnType.Rain => 0,
                 _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {(int)type}."),
             };
-            ushort x = type == PhantoonFlameSpawnType.Rain ? rom.ReadByte(0x8698f7 + (index & 15)) : origin;
+            ushort x = type == PhantoonFlameSpawnType.Rain ? rom.ReadCartridgeByte(0x8698f7 + (index & 15)) : origin;
             ushort y = type == PhantoonFlameSpawnType.Rain ? (ushort)40
                 : unchecked((ushort)(origin + (type == PhantoonFlameSpawnType.Spiral ? 16 : 32)));
             ushort speed = type switch

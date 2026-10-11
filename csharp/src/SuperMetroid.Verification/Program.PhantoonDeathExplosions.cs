@@ -4,15 +4,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon death explosions")]
     private static void VerifyCompiledPhantoonDeathExplosions(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 13; i++)
         {
             var entry = PhantoonDeathExplosionDefinitions.Read(i);
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0xa7da1d + i * 4)), entry.X, "Native death explosion X offset");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0xa7da1e + i * 4)), entry.Y, "Native death explosion Y offset");
-            AssertEqual(rom.ReadByte(0xa7da1f + i * 4), entry.Type, "Native death explosion type");
-            AssertEqual(rom.ReadByte(0xa7da20 + i * 4), entry.Delay, "Native death explosion delay");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7da1d + i * 4)), entry.X, "Native death explosion X offset");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7da1e + i * 4)), entry.Y, "Native death explosion Y offset");
+            AssertEqual(rom.ReadCartridgeByte(0xa7da1f + i * 4), entry.Type, "Native death explosion type");
+            AssertEqual(rom.ReadCartridgeByte(0xa7da20 + i * 4), entry.Delay, "Native death explosion delay");
         }
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })
         foreach (bool full in new[] { false, true })
@@ -36,10 +37,10 @@ internal static partial class Program
                 if (!full) foreach (var projectile in enemies.EnemyProjectiles) projectile.Clear();
                 bool due = --timer <= 0;
                 int current = index;
-                byte type = rom.ReadByte(0xa7da1f + current * 4);
+                byte type = rom.ReadCartridgeByte(0xa7da1f + current * 4);
                 if (due)
                 {
-                    timer = rom.ReadByte(0xa7da20 + current * 4);
+                    timer = rom.ReadCartridgeByte(0xa7da20 + current * 4);
                     requests++;
                     if (++index == 13) { index = 5; passes++; }
                 }
@@ -56,10 +57,10 @@ internal static partial class Program
                     if (!full)
                     {
                         var explosion = enemies.EnemyProjectiles.Single(p => p.IsActive);
-                        AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadByte(0xa7da1d + current * 4))), explosion.Position.X.Whole, "Real death explosion wrapped world X");
-                        AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadByte(0xa7da1e + current * 4))), explosion.Position.Y.Whole, "Real death explosion wrapped world Y");
+                        AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1d + current * 4))), explosion.Position.X.Whole, "Real death explosion wrapped world X");
+                        AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1e + current * 4))), explosion.Position.Y.Whole, "Real death explosion wrapped world Y");
                         int listAddress = 0x86e42c + type * 2;
-                        AssertEqual((ushort)(rom.ReadByte(listAddress) | rom.ReadByte(listAddress + 1) << 8), explosion.InstructionPointer, "Real explosion animation selection");
+                        AssertEqual((ushort)(rom.ReadCartridgeByte(listAddress) | rom.ReadCartridgeByte(listAddress + 1) << 8), explosion.InstructionPointer, "Real explosion animation selection");
                     }
                 }
             }

@@ -16,9 +16,10 @@ internal static partial class Program
                 "unsupported marker sprite phase");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for map indicator delays")]
     private static void VerifyMapIndicatorDelays(ISnesAddressSpace rom)
     {
-        AssertEqual((byte)0xe0, rom.ReadByte(0x82ba06), "native marker frame CPX");
+        AssertEqual((byte)0xe0, rom.ReadCartridgeByte(0x82ba06), "native marker frame CPX");
         AssertEqual((int)ReadVerificationWord(rom, 0x82ba07), PauseMapIndicatorAnimation.FrameCount * 2,
             "native marker word-offset wrap boundary");
         for (int frame = 0; frame < 4; frame++)

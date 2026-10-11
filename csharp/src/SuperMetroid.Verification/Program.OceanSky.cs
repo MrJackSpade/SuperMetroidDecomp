@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ocean Sky")]
     private static void VerifyOceanSky()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -40,11 +41,11 @@ internal static partial class Program
             {
                 int worldY = cameraY + line;
                 int pointerAddress = 0x88ADA6 + (worldY >> 8) * 2;
-                int pointer = bus.ReadByte(pointerAddress) | bus.ReadByte(pointerAddress + 1) << 8;
+                int pointer = bus.ReadCartridgeByte(pointerAddress) | bus.ReadCartridgeByte(pointerAddress + 1) << 8;
                 for (int column = 0; column < 32; column++)
                 {
                     int source = 0x8A0000 | ((pointer + (worldY & 0xF8) * 8 + column * 2) & 0xFFFF);
-                    ushort expected = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+                    ushort expected = (ushort)(bus.ReadCartridgeByte(source) | bus.ReadCartridgeByte(source + 1) << 8);
                     int destination = (0x4800 + ((worldY & 0x1F8) >> 3) * 32 + column) * 2;
                     ushort actual = (ushort)(runtime.Vram.Bytes[destination] | runtime.Vram.Bytes[destination + 1] << 8);
                     AssertEqual(expected, actual, $"ocean visible map row {worldY:X4}, column {column} follows ROM ocean chunk");
@@ -79,7 +80,7 @@ internal static partial class Program
         runtime.StepFrame(0);
         ushort upper = unchecked((ushort)((runtime.Camera.PixelPosition.Y & 0x7F8) - 16));
         int sourcePointer = 0x88ADA6 + (upper >> 8) * 2;
-        int sourceWord = bus.ReadByte(sourcePointer) | bus.ReadByte(sourcePointer + 1) << 8;
+        int sourceWord = bus.ReadCartridgeByte(sourcePointer) | bus.ReadCartridgeByte(sourcePointer + 1) << 8;
         int expectedSource = 0x8A0000 | ((sourceWord + (upper & 255) * 8) & 65535);
         AssertTrue(runtime.VramWrites.Entries.Any(entry => entry.SourceAddress == expectedSource && entry.SizeInBytes == 64),
             "ordinary runtime frame queues the ocean table, not the land table");

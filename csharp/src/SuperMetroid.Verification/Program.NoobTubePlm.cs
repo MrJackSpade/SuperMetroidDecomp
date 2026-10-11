@@ -439,7 +439,7 @@ internal static partial class Program
         WriteWord(bus, 0x84d500, 1);
         WriteWord(bus, 0x84d502, 0x99e5);
         WriteWord(bus, 0x84d504, (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6);
-        bus.WriteByte(0x84d506, NoobTubePlmRomData.BreakSound);
+        bus.WriteBytes(0x84d506, [NoobTubePlmRomData.BreakSound]);
         WriteWord(bus, 0x84d507, (ushort)RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles);
         WriteWord(bus, 0x84d509, (ushort)RoomPlmInstruction.TriggerNoobTubeEarthquake);
         WriteWord(bus, 0x84d50b, 0x0060);

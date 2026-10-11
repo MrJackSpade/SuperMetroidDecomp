@@ -10,6 +10,7 @@ internal static partial class Program
         Suite(nameof(VerifyNoobTubeProjectileInstructionProgramDefinitions), () => VerifyNoobTubeProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Noob Tube projectile instruction program definitions")]
     private static void VerifyNoobTubeProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -24,8 +25,8 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 NoobTubeProjectileInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase |
+                rom.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
+                rom.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase |
                     unchecked((ushort)(definition.Address + 1))) << 8));
             AssertEqual(definition.Value, native,
                 $"n00b-tube mechanics word $86:{definition.Address:X4}");
@@ -187,8 +188,8 @@ internal static partial class Program
                 // Native reflected flicker selects the first or second operand by
                 // frame parity, then advances past both rather than one timed frame.
                 ushort commandAddress = unchecked((ushort)(projectile.InstructionPointer - 6));
-                ushort command = (ushort)(rom.ReadByte(0x860000 | commandAddress) |
-                    rom.ReadByte(0x860000 | unchecked((ushort)(commandAddress + 1))) << 8);
+                ushort command = (ushort)(rom.ReadCartridgeByte(0x860000 | commandAddress) |
+                    rom.ReadCartridgeByte(0x860000 | unchecked((ushort)(commandAddress + 1))) << 8);
                 if (command == (ushort)EnemyProjectileInstruction.NoobTubeShardReflectFlicker)
                 {
                     bool oddFrame = ((byte)projectileFrame.GetValue(system)! & 1) != 0;

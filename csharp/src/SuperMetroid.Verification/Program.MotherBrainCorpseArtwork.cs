@@ -53,14 +53,18 @@ internal static partial class Program
         var installedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         // Independent $A9:E08B oracle: copy each right-hand frame's seven-tile row,
         // omitting the transparent last tile in the first four rows. No runtime fallback.
+        WorkRamByteTable nativeTiles = MotherBrainCorpseTiles(nativeBus);
         for (int row = 0; row < 6; row++)
-            native.AsSpan(row * 0x200 + 0xc0, row < 4 ? 0xc0 : 0xe0).CopyTo(
-                nativeBus.WorkRam.Slice(0x9000 + row * 0xe0));
+        {
+            ReadOnlySpan<byte> rowBytes = native.AsSpan(row * 0x200 + 0xc0, row < 4 ? 0xc0 : 0xe0);
+            for (int offset = 0; offset < rowBytes.Length; offset++)
+                nativeTiles[row * 0xe0 + offset] = rowBytes[offset];
+        }
+        CorpseRotTable nativeRotTable = new EnemyScratchMemory(nativeBus).MotherBrainRotTable;
         for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
         {
-            int address = 0x9700 + index * 4;
-            nativeBus.WriteByte(0x7e0000 + address, (byte)(47 - index));
-            nativeBus.WriteByte(0x7e0000 + address + 2, (byte)(index * 2));
+            nativeRotTable.SetYOffset(index, (ushort)(47 - index));
+            nativeRotTable.SetDelay(index, (ushort)(index * 2));
         }
         new MotherBrainCorpseRottingState().Initialize(installedBus, artwork);
         AssertMotherBrainCorpseBufferParity(nativeBus, installedBus);
@@ -96,18 +100,20 @@ internal static partial class Program
             "Mother Brain corpse PNG edit changes live sprite VRAM");
         var editedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         new MotherBrainCorpseRottingState().Initialize(editedBus, edited.MotherBrainCorpse!);
-        AssertEqual((byte)(installedBus.ReadWorkRamByte(0x7e9000) ^ 0x80),
-            editedBus.ReadWorkRamByte(0x7e9000),
+        WorkRamByteTable installedTiles = MotherBrainCorpseTiles(installedBus);
+        WorkRamByteTable editedTiles = MotherBrainCorpseTiles(editedBus);
+        AssertEqual((byte)(installedTiles[0] ^ 0x80),
+            editedTiles[0],
             "Mother Brain corpse PNG pixel edit changes live WRAM staging");
         for (int offset = 1; offset < MotherBrainCorpseRottingState.GraphicsBufferSize; offset++)
-            AssertEqual(installedBus.ReadWorkRamByte(0x7e9000 + offset),
-                editedBus.ReadWorkRamByte(0x7e9000 + offset),
+            AssertEqual(installedTiles[offset],
+                editedTiles[offset],
                 "Mother Brain corpse PNG edit leaves other staged pixels unchanged");
         var reloadedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Load(directory, overrideDirectory)
             .MotherBrainCorpse!;
         new MotherBrainCorpseRottingState().Initialize(reloadedBus, reloaded);
-        AssertEqual(editedBus.ReadWorkRamByte(0x7e9000), reloadedBus.ReadWorkRamByte(0x7e9000),
+        AssertEqual(editedTiles[0], MotherBrainCorpseTiles(reloadedBus)[0],
             "Mother Brain corpse override survives catalog reload");
 
         File.WriteAllBytes(overridePath, [0]);
@@ -140,12 +146,16 @@ internal static partial class Program
         return vram;
     }
 
+    private static WorkRamByteTable MotherBrainCorpseTiles(ISnesMemoryBus bus) =>
+        new EnemyScratchMemory(bus).MotherBrainCorpseTiles;
+
     private static void AssertMotherBrainCorpseBufferParity(
         SuperMetroidAddressSpace expected, SuperMetroidAddressSpace actual)
     {
+        WorkRamByteTable expectedTiles = MotherBrainCorpseTiles(expected);
+        WorkRamByteTable actualTiles = MotherBrainCorpseTiles(actual);
         for (int offset = 0; offset < MotherBrainCorpseRottingState.GraphicsBufferSize; offset++)
-            AssertEqual(expected.ReadWorkRamByte(MotherBrainCorpseRottingState.GraphicsBufferAddress + offset),
-                actual.ReadWorkRamByte(MotherBrainCorpseRottingState.GraphicsBufferAddress + offset),
+            AssertEqual(expectedTiles[offset], actualTiles[offset],
                 "installed Mother Brain corpse staging agrees with cartridge");
         for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
             AssertEqual(MotherBrainCorpseRottingState.ReadEntry(expected, index),

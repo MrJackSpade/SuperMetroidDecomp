@@ -11,8 +11,9 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var source = new TestAddressSpace();
-        source.WriteByte(MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x5a);
-        source.WriteByte(0xa0c000, 0x6b);
+        WorkRamByteTable corpseTiles = new EnemyScratchMemory(source).MotherBrainCorpseTiles;
+        corpseTiles[0] = 0x5a;
+        source.WriteBytes(0xa0c000, [0x6b]);
         var enemies = new RoomEnemySystem();
         var vram = new SnesVram();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
@@ -117,7 +118,7 @@ internal static partial class Program
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
                 $"Baby tile record {page} size");
             uint source = (uint)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2) |
-                rom.ReadByte(record + 4) << 16);
+                rom.ReadCartridgeByte(record + 4) << 16);
             AssertEqual((uint)(baby.SourceAddress +
                 page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount), source,
                 $"Baby tile record {page} source");
@@ -166,7 +167,7 @@ internal static partial class Program
             AssertEqual(compiled.Size, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
                 $"Mother Brain leg transfer {page} size");
             uint nativeSource = (uint)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2) |
-                rom.ReadByte(record + 4) << 16);
+                rom.ReadCartridgeByte(record + 4) << 16);
             AssertEqual(compiled.SourceAddress, nativeSource,
                 $"Mother Brain leg transfer {page} source");
             AssertEqual(compiled.VramDestination,
@@ -254,7 +255,8 @@ internal static partial class Program
             new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7000),
             "uncatalogued cartridge source does not fall back to ROM");
 
-        bus.WriteByte(MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x5a);
+        WorkRamByteTable corpseTiles = new EnemyScratchMemory(bus).MotherBrainCorpseTiles;
+        corpseTiles[0] = 0x5a;
         transfer.Invoke(enemies,
             [new MotherBrainSpriteTileTransferRequest(0, 1,
                 MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000)]);

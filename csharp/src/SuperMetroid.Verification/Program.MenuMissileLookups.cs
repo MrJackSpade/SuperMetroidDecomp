@@ -3,10 +3,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for menu missile spritemap ids")]
     private static void VerifyMenuMissileSpritemapIds(ISnesAddressSpace rom)
     {
         AssertEqual(4, MenuMissileAnimationDefinitions.FrameCount, "menu missile frame count");
-        AssertEqual((byte)0x29, rom.ReadByte(0x82ba80), "native frame wrap AND immediate");
+        AssertEqual((byte)0x29, rom.ReadCartridgeByte(0x82ba80), "native frame wrap AND immediate");
         AssertEqual((ushort)(MenuMissileAnimationDefinitions.FrameCount - 1),
             ReadVerificationWord(rom, 0x82ba81), "native frame wrap mask");
         for (int frame = 0; frame < 4; frame++)

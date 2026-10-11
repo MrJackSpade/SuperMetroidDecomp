@@ -8,6 +8,7 @@ internal static partial class Program
     /// Proves that the compiled Mother Brain body mechanics words match the pinned cartridge
     /// and that every supported native program can run while those ROM bytes are inaccessible.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain body instruction programs")]
     private static void VerifyMotherBrainBodyInstructionPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -50,6 +51,6 @@ internal static partial class Program
             "body command/duration words and visual selectors match the cartridge.");
 
         static ushort ReadRetailWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+            unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
     }
 }

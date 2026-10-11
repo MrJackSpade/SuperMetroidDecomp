@@ -107,10 +107,11 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass shard words")]
     private static ushort ReadMotherBrainGlassShardWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMotherBrainGlassShardReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

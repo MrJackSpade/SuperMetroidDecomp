@@ -4,13 +4,14 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon wave math")]
     private static void VerifyPhantoonWaveMath(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var samples = new short[512];
         for (int offset = 0; offset < samples.Length; offset++)
         {
             int address = EnemyMathReferenceData.SignedSine + offset;
-            samples[offset] = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            samples[offset] = unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
         }
 
         static int NativeDisplacement(short sample, ushort amplitude)

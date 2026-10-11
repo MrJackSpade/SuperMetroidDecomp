@@ -4,13 +4,14 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon path")]
     private static void VerifyCompiledPhantoonPath(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 534; index++)
         {
             var delta = PhantoonPathDefinitions.Step(index);
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0xa7e3d2 + index * 2)), delta.X, "Exact Phantoon path X byte");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0xa7e3d3 + index * 2)), delta.Y, "Exact Phantoon path Y byte");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d2 + index * 2)), delta.X, "Exact Phantoon path X byte");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d3 + index * 2)), delta.Y, "Exact Phantoon path Y byte");
         }
         var enemies = new RoomEnemySystem();
         var body = enemies.Slots[0];
@@ -35,8 +36,8 @@ internal static partial class Program
             int cursor = index, x = origin, y = origin;
             for (int i = 0; i < count; i++)
             {
-                int dx = unchecked((sbyte)rom.ReadByte(0xa7e3d2 + cursor * 2));
-                int dy = unchecked((sbyte)rom.ReadByte(0xa7e3d3 + cursor * 2));
+                int dx = unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d2 + cursor * 2));
+                int dy = unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d3 + cursor * 2));
                 x += reverse ? -dx : dx;
                 y += reverse ? -dy : dy;
                 cursor = (cursor + (reverse ? 533 : 1)) % 534;

@@ -119,12 +119,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Polyp rock instruction words")]
     private static ushort ReadPolypRockInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadByte(
+            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
+            source.ReadCartridgeByte(
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 

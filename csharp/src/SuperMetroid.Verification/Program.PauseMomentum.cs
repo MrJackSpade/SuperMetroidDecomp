@@ -3,11 +3,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause momentum reconciliation")]
     private static void VerifyPauseMomentumReconciliation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int counterAddress = SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes;
-        ushort initialCounter = (ushort)(bus.ReadByte(counterAddress) | bus.ReadByte(counterAddress + 1) << 8);
+        ushort initialCounter = (ushort)(bus.ReadCartridgeByte(counterAddress) | bus.ReadCartridgeByte(counterAddress + 1) << 8);
         foreach (bool equipped in new[] { false, true })
         foreach (bool momentum in new[] { false, true })
         foreach (ushort counter in new ushort[] { 0, 0x0402 })

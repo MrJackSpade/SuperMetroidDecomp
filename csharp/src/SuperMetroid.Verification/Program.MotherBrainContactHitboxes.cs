@@ -110,7 +110,8 @@ internal static partial class Program
         return (false, 0);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain hitbox words")]
     private static ushort ReadMotherBrainHitboxWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
 }

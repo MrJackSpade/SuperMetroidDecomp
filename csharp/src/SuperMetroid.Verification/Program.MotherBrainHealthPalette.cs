@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain health palette")]
     private static void VerifyMotherBrainHealthPalette(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -22,9 +23,9 @@ internal static partial class Program
             void VerifyCopy(int table, int destination)
             {
                 int pointer = table + index * 2;
-                int source = 0xad0000 | bus.ReadByte(pointer) | bus.ReadByte(pointer + 1) << 8;
+                int source = 0xad0000 | bus.ReadCartridgeByte(pointer) | bus.ReadCartridgeByte(pointer + 1) << 8;
                 for (int color = 0; color < 15; color++)
-                    AssertEqual((ushort)(bus.ReadByte(source + color * 2) | bus.ReadByte(source + color * 2 + 1) << 8),
+                    AssertEqual((ushort)(bus.ReadCartridgeByte(source + color * 2) | bus.ReadCartridgeByte(source + color * 2 + 1) << 8),
                         cgram.Colors[destination + color], $"health {health} palette {index} color {color}");
             }
         }

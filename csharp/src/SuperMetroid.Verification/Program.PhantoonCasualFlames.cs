@@ -4,9 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon casual flames")]
     private static void VerifyCompiledPhantoonCasualFlames(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int pattern = 0; pattern < 4; pattern++)
         {
             int pointer = 0xa70000 | Word(0xa7ccfd + pattern * 2);

@@ -4,9 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile origins")]
     private static void VerifyProjectileOrigins(SuperMetroidAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        short Word(int address) => unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
         var bus = new ProjectileOriginReadGuard(rom);
         var initialize = typeof(SamusProjectileSystem).GetMethod("InitializePosition", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusProjectileSlot>>();
@@ -16,11 +17,11 @@ internal static partial class Program
         void Check(SamusPoseId pose, ushort direction, ushort x, ushort y)
         {
             samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(x, y)); slot.Direction = direction;
-            bool running = rom.ReadByte(0x91b629 + (int)pose * 8 + 1) == 1 || pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
+            bool running = rom.ReadCartridgeByte(0x91b629 + (int)pose * 8 + 1) == 1 || pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
             int offset = (direction & 15) * 2;
             short dx = Word((running ? 0x90c22c : 0x90c204) + offset);
             short dy = Word((running ? 0x90c240 : 0x90c218) + offset);
-            byte correction = rom.ReadByte(0x91b629 + (int)pose * 8 + 4);
+            byte correction = rom.ReadCartridgeByte(0x91b629 + (int)pose * 8 + 4);
             initialize(bus, samus, slot);
             AssertEqual(unchecked((ushort)(x + dx)), slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.Position.Y.Whole, "Physical muzzle Y follows native signed origin and unsigned pose correction");
@@ -60,15 +61,13 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: serves substitute presentation bytes ($90:C1A8-C203) while forbidding origin rows, proving physical origins ignore presentation data")]
     private sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        public byte ReadCartridgeByte(int address)
         {
             if (address is >= 0x90c204 and < 0x90c28f)
                 throw new InvalidOperationException($"Compiled projectile origin read ROM ${address:X6}.");
             // Deliberately different presentation bytes cannot affect physical origins.
             if (address is >= 0x90c1a8 and < 0x90c204) return 0x5a;
-            return source.ReadByte(address);
+            return source.ReadCartridgeByte(address);
         }
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

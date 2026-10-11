@@ -6,26 +6,29 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb width algorithm")]
     private static void VerifyPowerBombWidthAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 32; i++)
-            AssertEqual(rom.ReadByte(PowerBombShapeReferenceData.Width + i), PowerBombShapeDefinitions.Width(i),
+            AssertEqual(rom.ReadCartridgeByte(PowerBombShapeReferenceData.Width + i), PowerBombShapeDefinitions.Width(i),
                 "Power Bomb quantized sine width");
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => PowerBombShapeDefinitions.Width(invalid),
                 "Power Bomb width bounds");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb top offset algorithm")]
     private static void VerifyPowerBombTopOffsetAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 32; i++)
-            AssertEqual(rom.ReadByte(PowerBombShapeReferenceData.TopOffset + i), PowerBombShapeDefinitions.TopOffset(i),
+            AssertEqual(rom.ReadCartridgeByte(PowerBombShapeReferenceData.TopOffset + i), PowerBombShapeDefinitions.TopOffset(i),
                 "Power Bomb doubly quantized vertical boundary");
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => PowerBombShapeDefinitions.TopOffset(invalid),
                 "Power Bomb top offset bounds");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb shape")]
     private static void VerifyCompiledPowerBombShape(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyPowerBombWidthAlgorithm), () => VerifyPowerBombWidthAlgorithm(rom));
@@ -33,8 +36,8 @@ internal static partial class Program
         byte[] widths = new byte[32], tops = new byte[32];
         for (int i = 0; i < 32; i++)
         {
-            widths[i] = rom.ReadByte(PowerBombShapeReferenceData.Width + i);
-            tops[i] = rom.ReadByte(PowerBombShapeReferenceData.TopOffset + i);
+            widths[i] = rom.ReadCartridgeByte(PowerBombShapeReferenceData.Width + i);
+            tops[i] = rom.ReadCartridgeByte(PowerBombShapeReferenceData.TopOffset + i);
         }
         int[] Profile(int radius)
         {

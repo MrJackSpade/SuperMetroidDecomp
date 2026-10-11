@@ -61,19 +61,20 @@ internal static partial class Program
             "retail population load pass without reading 128 source bytes.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy definition headers")]
     private static RoomEnemyDefinition ReadNativeEnemyDefinition(
         SuperMetroidAddressSpace bus,
         ushort pointer)
     {
         int address = RoomEnemyRomLayout.DefinitionBank | pointer;
         ushort Word(int offset) => unchecked((ushort)(
-            bus.ReadByte(address + offset) | bus.ReadByte(address + offset + 1) << 8));
+            bus.ReadCartridgeByte(address + offset) | bus.ReadCartridgeByte(address + offset + 1) << 8));
         int Long(int offset) =>
-            bus.ReadByte(address + offset) |
-            bus.ReadByte(address + offset + 1) << 8 |
-            bus.ReadByte(address + offset + 2) << 16;
+            bus.ReadCartridgeByte(address + offset) |
+            bus.ReadCartridgeByte(address + offset + 1) << 8 |
+            bus.ReadCartridgeByte(address + offset + 2) << 16;
 
-        return new RoomEnemyDefinition(Word(0), Word(2), Word(4), Word(6), new(Word(8), Word(10)), bus.ReadByte(address + 12), bus.ReadByte(address + 13), Word(14), Word(16), Word(18), Word(20), Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36), Word(38), Word(40), Word(42), Word(44), Word(46), Word(48), Word(50), Word(52), Long(54), bus.ReadByte(address + 57), Word(58), Word(60), Word(62));
+        return new RoomEnemyDefinition(Word(0), Word(2), Word(4), Word(6), new(Word(8), Word(10)), bus.ReadCartridgeByte(address + 12), bus.ReadCartridgeByte(address + 13), Word(14), Word(16), Word(18), Word(20), Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36), Word(38), Word(40), Word(42), Word(44), Word(46), Word(48), Word(50), Word(52), Long(54), bus.ReadCartridgeByte(address + 57), Word(58), Word(60), Word(62));
     }
 
     private static CartridgeReadGuard NewMamaTurtleDefinitionGuard(ISnesAddressSpace source) =>

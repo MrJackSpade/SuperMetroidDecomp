@@ -32,23 +32,25 @@ internal static partial class Program
                 PauseEquipmentCategories.Get(category).TilemapPointerTableAddress, "native category tilemap-list pointer");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause category item counts")]
     private static void VerifyPauseCategoryItemCounts(ISnesAddressSpace rom)
     {
         // Independent original CPX instruction sites in the initial inventory scan.
         foreach (var (category, address) in new[] { (PauseEquipmentCategory.Beams, 0x82abcc), (PauseEquipmentCategory.Suits, 0x82abeb), (PauseEquipmentCategory.Boots, 0x82ac05) })
         {
-            AssertEqual((byte)0xe0, rom.ReadByte(address), "original inventory scan CPX");
+            AssertEqual((byte)0xe0, rom.ReadCartridgeByte(address), "original inventory scan CPX");
             AssertEqual(ReadVerificationWord(rom, address + 1) / 2,
                 PauseEquipmentCategories.Get(category).ItemCount, "native category item-count bound");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause category copy lengths")]
     private static void VerifyPauseCategoryCopyLengths(ISnesAddressSpace rom)
     {
         // The dispatched category owns this byte count even if movement changes the selection.
         foreach (var (category, address) in new[] { (PauseEquipmentCategory.Beams, 0x82afce), (PauseEquipmentCategory.Suits, 0x82b0c8), (PauseEquipmentCategory.Boots, 0x82b156) })
         {
-            AssertEqual((byte)0xa9, rom.ReadByte(address), "original equipment copy-length LDA");
+            AssertEqual((byte)0xa9, rom.ReadCartridgeByte(address), "original equipment copy-length LDA");
             AssertEqual(ReadVerificationWord(rom, address + 1) / 2,
                 PauseEquipmentCategories.Get(category).LabelWordCount, "native dispatched category label length");
         }

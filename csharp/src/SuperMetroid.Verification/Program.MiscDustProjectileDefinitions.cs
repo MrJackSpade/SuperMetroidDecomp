@@ -96,8 +96,9 @@ internal static partial class Program
         return enemies;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for misc dust words")]
     private static ushort ReadMiscDustWord(SuperMetroidAddressSpace source, int address) =>
-        (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+        (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMiscDustDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

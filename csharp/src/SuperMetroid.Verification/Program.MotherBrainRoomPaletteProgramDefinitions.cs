@@ -101,10 +101,11 @@ internal static partial class Program
             "and allocation-free lookup pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain room palette words")]
     private static ushort ReadMotherBrainRoomPaletteWord(
         SuperMetroidAddressSpace source,
         int address) =>
-        unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+        unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
     private static int ProbeMotherBrainRoomPaletteAllocation()
     {

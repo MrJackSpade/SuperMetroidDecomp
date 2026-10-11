@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for menu large font pixels")]
     private static void VerifyMenuLargeFontPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x11,0x17,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x2b,0x2c,0x2d,0x2f,0x30,0x31,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x3a,0x3b,0x3e,0x3f,0x40,0x41,0x42,0x50,0x52];
@@ -29,7 +30,7 @@ internal static partial class Program
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(3360, stock.StoredArtworkByteCount, "font planar tiles absent from retained atlas");
         var native = new byte[8192];
-        for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
+        for (int index = 0; index < native.Length; index++) native[index] = rom.ReadCartridgeByte(0xb6c000 + index);
         foreach (int destination in new[] { 0x4000, 0xc000 })
         {
             var vram = new SnesVram(); stock.LoadArtworkTo(vram, destination);

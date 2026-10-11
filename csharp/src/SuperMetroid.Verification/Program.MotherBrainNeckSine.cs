@@ -80,6 +80,7 @@ internal static partial class Program
             Upper(20));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain neck component")]
     private static short ReferenceMotherBrainNeckComponent(
         SuperMetroidAddressSpace rom,
         byte angle,
@@ -87,7 +88,7 @@ internal static partial class Program
     {
         int address = EnemyMathReferenceData.SignedSine + angle * 2;
         short sine = unchecked((short)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
         return unchecked((short)(sine * unchecked((sbyte)distance) >> 8));
     }
 }

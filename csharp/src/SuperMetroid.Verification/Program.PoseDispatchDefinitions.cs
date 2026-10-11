@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pose dispatch definitions")]
     private static void VerifyPoseDispatchDefinitions(SuperMetroidAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();
@@ -13,10 +14,10 @@ internal static partial class Program
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             int address = SamusMovementRomData.Poses.Definitions + pose * SamusMovementRomData.Poses.DefinitionByteCount;
-            byte facing = rom.ReadByte(address), movement = rom.ReadByte(address + 1), fallback = rom.ReadByte(address + 2);
+            byte facing = rom.ReadCartridgeByte(address), movement = rom.ReadCartridgeByte(address + 1), fallback = rom.ReadCartridgeByte(address + 2);
             ISnesAddressSpace source = forbidden;
             samus.Pose = (SamusPoseId)pose;
-            byte aim = rom.ReadByte(address + 3);
+            byte aim = rom.ReadCartridgeByte(address + 3);
             AssertEqual(aim, samus.ReadShotDirection(source), "Live aim and restrictions retain the full native byte without authored ROM reads");
             AssertEqual(aim, SamusState.ReadShotDirection(source, (SamusPoseId)pose), "Prospective aim retains native byte and adjacent indexes");
             AssertEqual(facing, samus.ReadPoseXDirection(source), "Live pose facing retains native value");

@@ -74,6 +74,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(new OamBuffer(), 0, 0, -1), "negative composition phase");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for pause selector native compositions")]
     private static void VerifyPauseSelectorNativeCompositions(ISnesAddressSpace rom, PauseSelectorPresentation selector, int group)
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);
@@ -86,7 +87,7 @@ internal static partial class Program
             for (int phase = 0; phase < 14; phase++)
             foreach (int occupied in new[] { 0, 127, 128 })
             {
-                int sprite = ReadVerificationWord(rom, bases + (int)anchor.Category * 2) + rom.ReadByte(program + phase * 3 + 2);
+                int sprite = ReadVerificationWord(rom, bases + (int)anchor.Category * 2) + rom.ReadCartridgeByte(program + phase * 3 + 2);
                 int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + sprite * 2);
                 var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
                 for (int i = 0; i < occupied; i++) { expected.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56); actual.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56); }

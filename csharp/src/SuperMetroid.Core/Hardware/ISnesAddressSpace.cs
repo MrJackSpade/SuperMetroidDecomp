@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Hardware;
 /// ROM, WRAM, SRAM, and peripheral reads have separate contracts. No generic read is
 /// exposed here: a caller must declare which source owns the byte it needs.
 /// </remarks>
+[CpuBusAccess]
 public interface ISnesAddressSpace
 {
     /// <summary>

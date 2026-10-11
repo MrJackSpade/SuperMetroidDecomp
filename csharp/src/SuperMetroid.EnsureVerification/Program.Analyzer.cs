@@ -72,6 +72,46 @@ internal static partial class Program
     }
 
     /// <summary>#628 spatial data-clump rules: positive and negative cases for each diagnostic.</summary>
+    private static void VerifyCpuBusAccessAnalyzer()
+    {
+        var analyzer = new CpuBusAccessAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer);
+        const string api =
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class CpuBusAccessAttribute : System.Attribute { } " +
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class CpuBusBoundaryAttribute(string reason) : System.Attribute { } " +
+            "[CpuBusAccess] interface IBus { void WriteByte(int address, byte value); byte ReadWorkRamByte(int address); } " +
+            "[CpuBusAccess] static class WorkRam { public static ushort ReadWord(IBus bus, int address) => 0; } " +
+            "[CpuBusAccess] readonly struct Word { public Word(IBus bus, int address) { } public ushort Read() => 0; } " +
+            "[CpuBusBoundary(\"implementation\")] sealed class Bus : IBus { public void WriteByte(int a, byte v) { } public byte ReadWorkRamByte(int a) => 0; " +
+            "[CpuBusAccess] public System.Span<byte> SaveRam => default; } ";
+
+        // SME6290: raw reads and writes, helpers, buffers, primitives and method groups outside a boundary.
+        Expect(api + "class Game { void M(IBus bus) => bus.WriteByte(0x7e0a1c, 1); }",
+            CpuBusAccessAnalyzer.RawAccessId, "'IBus.WriteByte' is raw CPU-bus access");
+        Expect(api + "class Game { ushort M(IBus bus) => WorkRam.ReadWord(bus, 0x7e0998); }",
+            CpuBusAccessAnalyzer.RawAccessId, "'WorkRam.ReadWord'");
+        Expect(api + "class Game { byte M(Bus bus) => bus.ReadWorkRamByte(0x7e0998); }",
+            CpuBusAccessAnalyzer.RawAccessId, "'Bus.ReadWorkRamByte'");
+        Expect(api + "class Game { int M(Bus bus) => bus.SaveRam.Length; }",
+            CpuBusAccessAnalyzer.RawAccessId, "'Bus.SaveRam'");
+        Expect(api + "class Game { object M(IBus bus) => new Word(bus, 0x7e0998); }",
+            CpuBusAccessAnalyzer.RawAccessId, "'Word.ctor'");
+        Expect(api + "class Game { System.Func<int, byte> M(IBus bus) => bus.ReadWorkRamByte; }",
+            CpuBusAccessAnalyzer.RawAccessId, "'IBus.ReadWorkRamByte'");
+        // A typed domain view, a boundary member or property, and code that only passes the bus along pass.
+        Expect(api + "[CpuBusBoundary(\"domain view\")] sealed class SamusMemory(IBus bus) { public ushort Health { get => WorkRam.ReadWord(bus, 0x7e09c2); } } " +
+            "class Game { ushort M(SamusMemory samus) => samus.Health; }");
+        Expect(api + "class Codec { [CpuBusBoundary(\"codec\")] static byte M(IBus bus) => bus.ReadWorkRamByte(0); " +
+            "ushort P(IBus bus) { return Q; } [CpuBusBoundary(\"view\")] ushort Q => new Word(null!, 0).Read(); }");
+        Expect(api + "class Game { SamusView M(IBus bus) => new SamusView(bus); } class SamusView(IBus bus) { }");
+
+        // SME6291: raw contracts implemented outside a boundary.
+        Expect(api + "sealed class Fake : IBus { public void WriteByte(int a, byte v) { } public byte ReadWorkRamByte(int a) => 0; }",
+            CpuBusAccessAnalyzer.RawImplementationId, "Fake implements raw CPU-bus contract 'IBus'");
+        Expect(api + "[CpuBusBoundary(\"exact bus test double\")] sealed class Fake : IBus { public void WriteByte(int a, byte v) { } public byte ReadWorkRamByte(int a) => 0; }");
+    }
+
     private static void VerifySpatialClumpAnalyzer()
     {
         var analyzer = new SpatialClumpAnalyzer();

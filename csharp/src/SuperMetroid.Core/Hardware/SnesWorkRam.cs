@@ -1,6 +1,7 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Little-endian reads from live WRAM, with native fixed-bank offset wrapping.</summary>
+[CpuBusAccess]
 public static class SnesWorkRam
 {
     /// <summary>Reads two WRAM bytes; the typed source rejects cartridge, SRAM, and peripheral windows.</summary>

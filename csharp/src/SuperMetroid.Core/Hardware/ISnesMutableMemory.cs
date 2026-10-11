@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Hardware;
 /// Read access to the console's mutable WRAM and battery-backed SRAM. Unlike
 /// the legacy CPU-bus reader, this contract cannot return cartridge bytes.
 /// </summary>
+[CpuBusAccess]
 public interface ISnesMutableMemory
 {
     /// <summary>Reads WRAM through bank $7E/$7F or a low-window system-bank mirror.</summary>

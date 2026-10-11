@@ -1,6 +1,7 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Data reads for translated absolute-indexed CPU instructions with explicit operand-bus state.</summary>
+[CpuBusAccess]
 public static class SnesCpuOperandRead
 {
     /// <summary>

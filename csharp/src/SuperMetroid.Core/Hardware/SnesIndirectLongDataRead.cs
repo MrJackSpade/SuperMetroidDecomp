@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Hardware;
 /// value. This models a particular instruction's bus context, not arbitrary high-level
 /// reads as if they were a CPU instruction stream. Untranslated hardware still throws.
 /// </remarks>
+[CpuBusAccess]
 public static class SnesIndirectLongDataRead
 {
     /// <summary>Reads the little-endian data word addressed by an already fetched long pointer plus Y, carrying across banks and wrapping at 24 bits; each byte independently selects memory, a compiled definition, a device, or the proven undriven expansion window.</summary>

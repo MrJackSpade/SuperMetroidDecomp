@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Hardware;
 /// <remarks>
 /// Hardware registers and cartridge windows are intentionally unmapped.
 /// </remarks>
-public class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
+[CpuBusBoundary("CPU-bus implementation: maps WRAM banks, low-window mirrors and SRAM windows.")]
+public class SuperMetroidAddressSpace : ISnesMemoryBus
 {
     /// <summary>Two complete 64 KiB WRAM banks, <c>$7E</c> and <c>$7F</c>.</summary>
     public const int WorkRamByteCount = 0x20000;
@@ -27,6 +28,7 @@ public class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
         new();
 
     /// <summary>Mutable battery-backed SRAM; persistence remains an explicit host concern.</summary>
+    [CpuBusAccess]
     public Span<byte> SaveRam => _saveRam;
 
     /// <inheritdoc />

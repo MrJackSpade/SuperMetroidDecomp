@@ -20,7 +20,7 @@ internal static class MotherBrainRoomFlashAudit
     }
 
     internal static byte[] ExtractDeclarationDocument() =>
-        MotherBrainRoomColorExtractor.Extract(new ConstructedColorSource());
+        MotherBrainRoomColorExtractor.Extract(ConstructedColorSource());
 
     internal static void Inspect(string source, ResourceIndex exports, AuditReport report) =>
         RequireOperands(Enumerable.Range(0, MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
@@ -41,43 +41,29 @@ internal static class MotherBrainRoomFlashAudit
         MotherBrainRoomColorRomData.SourceBank >> 16, pointer);
 
     /// <summary>Only declared pointer slots and color payload ranges may be read; mutations are forbidden.</summary>
-    private sealed class ConstructedColorSource : ISnesAddressSpace, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: declares the Mother Brain room palette pointer slots and color ranges the importer may read")]
+    private static SyntheticCartridge ConstructedColorSource()
     {
         // A synthetic RGB5 payload, not a native resource identity.
-        private const ushort SyntheticPalettePointer = 0xf000;
-        private readonly Dictionary<int, byte> pointerBytes = [];
-        private readonly HashSet<int> colorBytes = [];
-
-        public ConstructedColorSource()
-        {
-            for (int index = 0; index < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; index++)
-            {
-                int address = MotherBrainRoomColorRomData.SourceBank |
-                    MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(index);
-                pointerBytes.Add(address, unchecked((byte)SyntheticPalettePointer));
-                pointerBytes.Add(address + 1, (byte)(SyntheticPalettePointer >> 8));
-            }
-            AddColors(MotherBrainRoomColorRomData.SourceBank | SyntheticPalettePointer,
-                MotherBrainRoomColorRomData.SliceColors * 2);
-            AddColors(MotherBrainRoomColorRomData.SourceBank | MotherBrainRoomPaletteProgramDefinitions.FinalPalette,
-                MotherBrainRoomColorRomData.SliceColors * 2);
-            AddColors(MotherBrainRoomColorRomData.PhaseTwoAttackSource, MotherBrainRoomColorRomData.PhaseTwoColors);
-            AddColors(MotherBrainRoomColorRomData.PhaseTwoRearLegSource, MotherBrainRoomColorRomData.PhaseTwoColors);
-            AddColors(MotherBrainRoomColorRomData.InitialGlassShardSource, MotherBrainRoomColorRomData.InitialColors);
-            AddColors(MotherBrainRoomColorRomData.InitialTubeProjectileSource, MotherBrainRoomColorRomData.InitialColors);
-            for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsFrames; index++)
-                AddColors(MotherBrainRoomColorRomData.RecoveryLightsSource(index),
-                    MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * 2);
-        }
-
-        private void AddColors(int source, int count)
-        {
-            for (int index = 0; index < count * sizeof(ushort); index++) colorBytes.Add(source + index);
-        }
-
-        public byte ReadCartridgeByte(int cpuAddress) => pointerBytes.TryGetValue(cpuAddress, out byte value)
-            ? value : colorBytes.Contains(cpuAddress) ? (byte)0
-            : throw new InvalidDataException($"Room-flash audit requested undeclared bytes at {cpuAddress:X6}.");
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Static color extraction cannot mutate emulated state.");
+        const ushort syntheticPalettePointer = 0xf000;
+        var source = new SyntheticCartridge(
+            address => new InvalidDataException($"Room-flash audit requested undeclared bytes at {address:X6}."),
+            _ => new InvalidOperationException("Static color extraction cannot mutate emulated state."));
+        for (int index = 0; index < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; index++)
+            source.SetWord(MotherBrainRoomColorRomData.SourceBank |
+                MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(index), syntheticPalettePointer);
+        void AddColors(int start, int count) => source.DeclareZero(start, count * sizeof(ushort));
+        AddColors(MotherBrainRoomColorRomData.SourceBank | syntheticPalettePointer,
+            MotherBrainRoomColorRomData.SliceColors * 2);
+        AddColors(MotherBrainRoomColorRomData.SourceBank | MotherBrainRoomPaletteProgramDefinitions.FinalPalette,
+            MotherBrainRoomColorRomData.SliceColors * 2);
+        AddColors(MotherBrainRoomColorRomData.PhaseTwoAttackSource, MotherBrainRoomColorRomData.PhaseTwoColors);
+        AddColors(MotherBrainRoomColorRomData.PhaseTwoRearLegSource, MotherBrainRoomColorRomData.PhaseTwoColors);
+        AddColors(MotherBrainRoomColorRomData.InitialGlassShardSource, MotherBrainRoomColorRomData.InitialColors);
+        AddColors(MotherBrainRoomColorRomData.InitialTubeProjectileSource, MotherBrainRoomColorRomData.InitialColors);
+        for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsFrames; index++)
+            AddColors(MotherBrainRoomColorRomData.RecoveryLightsSource(index),
+                MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * 2);
+        return source;
     }
 }

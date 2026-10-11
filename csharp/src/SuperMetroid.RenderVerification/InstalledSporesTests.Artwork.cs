@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class InstalledSporesTests
 {
+    [SuperMetroid.Core.Hardware.CpuBusBoundary("exact bus test: retail ROM oracle for every installed animated-tile atlas segment")]
     private static void CheckArtwork(RoomFxAnimatedTileAtlas stock, string maps, string romPath,
         string nativeArtworkDirectory)
     {

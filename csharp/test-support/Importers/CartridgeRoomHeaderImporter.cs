@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Reads native bank-$8F room records for import and cartridge-reference checks.</summary>
+[CpuBusBoundary("codec: ROM bank-$8F room header and state-selection records → CartridgeRoomHeader")]
 public static class CartridgeRoomHeaderImporter
 {
     // This is the import/reference decoder. Gameplay uses the compiled room branches;

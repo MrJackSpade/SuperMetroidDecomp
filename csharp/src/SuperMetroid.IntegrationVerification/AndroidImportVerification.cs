@@ -58,6 +58,7 @@ internal static class AndroidImportVerification
         Console.WriteLine("PASS Android imports: corrupt rejection preserves slots/pending save, valid state bytes and backups, next-launch regular save activation.");
     }
 
+    [CpuBusBoundary("exact bus test: a cartridge-free address space retains WRAM/SRAM writes and rejects cartridge reads")]
     private static void VerifyMutableMemoryWithoutCartridge()
     {
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

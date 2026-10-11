@@ -74,7 +74,7 @@ internal static class PaletteDefinitionAudit
 
     internal static void InstallColorIdentities(ResourceIndex exports)
     {
-        var recorder = new ColorAddressRecorder();
+        SyntheticCartridge recorder = ColorAddressRecorder();
         byte[] roomDocument = RoomPaletteFxPresentationExtractor.Extract(recorder);
         RoomPaletteFxPresentation room = RoomPaletteFxPresentation.Load(new MemoryStream(roomDocument));
         byte[] titleDocument = TitlePaletteExtractor.Extract(recorder);
@@ -134,19 +134,15 @@ internal static class PaletteDefinitionAudit
         return "csharp/src/SuperMetroid.Core/Game/" + name;
     }
 
-    private sealed class ColorAddressRecorder : ISnesAddressSpace, IImportCartridgeSource
+    /// <summary>Serves zero for every palette-FX bank or title initial-palette byte and records the read order.</summary>
+    [CpuBusBoundary("exact bus test: records which palette-FX bank and title palette bytes the color importers read")]
+    private static SyntheticCartridge ColorAddressRecorder()
     {
-        public List<int> Reads { get; } = [];
-        public byte ReadCartridgeByte(int cpuAddress)
-        {
-            bool titleInitialColor = cpuAddress is >= TitleSequenceRomData.Assets.PaletteAddress and
-                < (TitleSequenceRomData.Assets.PaletteAddress + SnesCgram.ByteCount);
-            if ((cpuAddress >> 16) != ResourceBanks.ProjectileOamAndPaletteFx && !titleInitialColor)
-                throw new InvalidDataException("Palette audit unexpectedly requested non-color-bank data.");
-            Reads.Add(cpuAddress);
-            return 0;
-        }
-        public void WriteByte(int address, byte value) =>
-            throw new InvalidOperationException("Static color extraction must not mutate emulated state.");
+        var recorder = new SyntheticCartridge(
+            _ => new InvalidDataException("Palette audit unexpectedly requested non-color-bank data."),
+            _ => new InvalidOperationException("Static color extraction must not mutate emulated state."));
+        recorder.DeclareZero(address => (address >> 16) == ResourceBanks.ProjectileOamAndPaletteFx);
+        recorder.DeclareZero(TitleSequenceRomData.Assets.PaletteAddress, SnesCgram.ByteCount);
+        return recorder;
     }
 }

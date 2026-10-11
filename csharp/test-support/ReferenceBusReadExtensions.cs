@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 /// spaces. This file is linked only into verification/debug executables; gameplay
 /// Core and asset extractors cannot see this extension.
 /// </summary>
+[CpuBusAccess]
 internal static class ReferenceBusReadExtensions
 {
     private static readonly ConditionalWeakTable<ISnesAddressSpace, Func<int, byte>> Readers = new();

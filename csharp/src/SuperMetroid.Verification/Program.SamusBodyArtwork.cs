@@ -593,8 +593,8 @@ internal static partial class Program
         editedLandingSamus.TileTransfers.BindArtwork(replacement);
         stockLandingSamus.Draw(guardedBus, new OamBuffer(), layer1: new(0, 0));
         editedLandingSamus.Draw(guardedBus, new OamBuffer(), layer1: new(0, 0));
-        AssertEqual(unchecked((ushort)(stockLandingSamus.SpritemapYPosition - 1)),
-            editedLandingSamus.SpritemapYPosition,
+        AssertEqual(unchecked((ushort)(stockLandingSamus.SpritemapPosition.Y - 1)),
+            editedLandingSamus.SpritemapPosition.Y,
             "edited landing visual offset changes production OAM origin without a ROM read");
         var editedSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
         editedSamus.TileTransfers.BindArtwork(replacement);
@@ -610,8 +610,8 @@ internal static partial class Program
         editedOam.BeginFrame();
         stockSamus.Draw(guardedBus, stockOam, layer1: new(0, 0));
         editedSamus.Draw(guardedBus, editedOam, layer1: new(0, 0));
-        AssertEqual(unchecked((ushort)(stockSamus.SpritemapYPosition - 1)),
-            editedSamus.SpritemapYPosition,
+        AssertEqual(unchecked((ushort)(stockSamus.SpritemapPosition.Y - 1)),
+            editedSamus.SpritemapPosition.Y,
             "edited pose graphics Y offset shifts the actual Samus OAM origin one pixel");
         AssertEqual(unchecked((byte)originalYOffset),
             SamusPoseProjectileOriginDefinitions.ReadYOffset(SamusPoseId.FacingRightNormalPose),

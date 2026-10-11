@@ -103,9 +103,9 @@ internal static partial class Program
         {
             (nameof(SamusState.TopSpritemapIndex), NativeSnapshotMemory.SamusTopSpritemap),
             (nameof(SamusState.BottomSpritemapIndex), NativeSnapshotMemory.SamusBottomSpritemap),
-            (nameof(SamusState.SpritemapXPosition), NativeSnapshotMemory.SamusSpriteX),
-            (nameof(SamusState.SpritemapYPosition), NativeSnapshotMemory.SamusSpriteY),
         }) typeof(SamusState).GetProperty(property)!.SetValue(samus, W(address));
+        typeof(SamusState).GetProperty(nameof(SamusState.SpritemapPosition))!.SetValue(samus,
+            new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY)));
         foreach (var (property, address) in new[]
         {
             (nameof(SamusArmCannonState.Frame), NativeSnapshotMemory.CannonFrame),

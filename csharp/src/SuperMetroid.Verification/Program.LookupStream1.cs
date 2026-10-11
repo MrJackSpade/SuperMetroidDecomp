@@ -963,7 +963,7 @@ internal static partial class Program
             var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.TileTransfers.BindArtwork(stock);
             samus.Draw(rom, new OamBuffer(), new(0, 0));
-            AssertEqual(unchecked((ushort)(128 + native[frame])), samus.SpritemapYPosition,
+            AssertEqual(unchecked((ushort)(128 + native[frame])), samus.SpritemapPosition.Y,
                 "Actual drained drawing uses exact signed native correction");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
             draws++;
@@ -1037,7 +1037,7 @@ internal static partial class Program
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
                 samus.TileTransfers.BindArtwork(stock);
                 samus.Draw(rom, new OamBuffer(), new(0, 0));
-                AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.SpritemapYPosition,
+                AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.SpritemapPosition.Y,
                     "Actual transition rendering preserves native support correction");
                 AssertEqual((ushort)128, samus.Position.Y.Whole, "Posture art never mutates physical center");
             }
@@ -1121,7 +1121,7 @@ internal static partial class Program
             samus.TileTransfers.BindArtwork(stock);
             samus.Draw(rom, new OamBuffer(), layer1: new(0, 0));
             ushort nativeWord = (ushort)(landing[index] | landing[index + 1] << 8);
-            AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.SpritemapYPosition, "Actual rendering preserves every bounded native landing word");
+            AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
         }
         string identity = stock.ContentIdentity;

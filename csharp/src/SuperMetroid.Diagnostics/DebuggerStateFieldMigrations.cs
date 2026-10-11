@@ -409,8 +409,7 @@ internal static class DebuggerStateFieldMigrations
         // Restores as zero, matching the zero latch on the Mother Brain state.
         new(typeof(MotherBrainRainbowBeamAttackSequence).FullName!, ["<SmallPurpleBreathGenerationWriteCount>k__BackingField"], null),
         // Pending previous-fraction writes live within one frame; a capture has none.
-        new(typeof(SamusState).FullName!, ["_previousXSubpositionWriteMask", "_previousXSubpositionWriteValue",
-            "_previousYSubpositionWriteMask", "_previousYSubpositionWriteValue"], null),
+        new(typeof(SamusState).FullName!, ["_previousFractionWrites"], null),
         // Older builds never deleted the liquid HDMA objects; a capture keeps them live.
         new(typeof(RoomLayer3FxState).FullName!, ["liquidHdmaObjectsDeleted"], null),
         new(typeof(RoomEnemySystem).FullName!, ["<GradualColorChange>k__BackingField"], null,
@@ -472,6 +471,10 @@ internal static class DebuggerStateFieldMigrations
                 fade.SetTiming(1, 1);
                 Set(fileSelect, "screenFade", fade);
             }),
+
+        // #628: Samus spritemap-origin words became one screen position.
+        new(typeof(SamusState).FullName!, ["<SpritemapPosition>k__BackingField"], null,
+            value => Set(value, "<SpritemapPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<ScreenPixels>(value, "SpritemapXPosition", "SpritemapYPosition"))),
 
         // #628: solid-enemy collision body position and radius words became spatial values.
         new(typeof(SolidEnemyCollisionBody).FullName!, ["<Position>k__BackingField"], null,

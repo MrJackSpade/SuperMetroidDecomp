@@ -125,8 +125,8 @@ static void VerifySamusRenderingSlice()
     oam.FinalizeFrame();
 
     // Pose $01's graphics Y offset is six, so world (1152,134) becomes origin (128,128).
-    AssertEqual(128, samus.SpritemapXPosition, "Samus default screen X calculation");
-    AssertEqual(128, samus.SpritemapYPosition, "Samus signed graphics-Y offset calculation");
+    AssertEqual(128, samus.SpritemapPosition.X, "Samus default screen X calculation");
+    AssertEqual(128, samus.SpritemapPosition.Y, "Samus signed graphics-Y offset calculation");
     AssertEqual(0x019a, samus.TopSpritemapIndex, "Samus pose 1 top spritemap index");
     AssertEqual(0x04aa, samus.BottomSpritemapIndex, "Samus pose 1 bottom spritemap index");
     AssertEqual(7, oam.LastFinalizedSpriteCount, "Samus pose 1 emits four top and three bottom OBJs");
@@ -359,14 +359,14 @@ static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1: new(samus.Position.X.Whole, 0));
     oam.FinalizeFrame();
-    AssertEqual(0x0082, samus.SpritemapYPosition,
+    AssertEqual(0x0082, samus.SpritemapPosition.Y,
         "morph transition frame zero reads signed minus-four table byte");
     samus.AnimationFrame = 1;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1: new(samus.Position.X.Whole, 0));
     oam.FinalizeFrame();
-    AssertEqual(0x0084, samus.SpritemapYPosition,
+    AssertEqual(0x0084, samus.SpritemapPosition.Y,
         "morph transition frame one reads signed minus-two table byte");
 
     WritePoseDefinition(bus, 0x39, [8, 0x0f, 0xff, 0xff, 9, 0, 16, 0]);
@@ -381,7 +381,7 @@ static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1: new(samus.Position.X.Whole, 0));
     oam.FinalizeFrame();
-    AssertEqual(0x0086, samus.SpritemapYPosition,
+    AssertEqual(0x0086, samus.SpritemapPosition.Y,
         "unused transition pose reads native zero instead of generic graphics offset");
 
     // Standing's position selector has two special families. Front-view frames zero/one
@@ -397,7 +397,7 @@ static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1: new(0x0400, 0));
     oam.FinalizeFrame();
-    AssertEqual(0x0085, samus.SpritemapYPosition,
+    AssertEqual(0x0085, samus.SpritemapPosition.Y,
         "front-facing frame two uses fixed one-pixel graphics offset");
 
     // Landing's `$90:8D28` table is byte-packed but read by a 16-bit unaligned LDA. The
@@ -423,7 +423,7 @@ static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1: new(0x0400, 0));
     oam.FinalizeFrame();
-    AssertEqual(0xfa83, samus.SpritemapYPosition,
+    AssertEqual(0xfa83, samus.SpritemapPosition.Y,
         "normal-jump landing frame zero preserves unaligned word subtraction");
     AssertEqual(0x83, oam.GetEntry(0).Y,
         "landing OAM exposes low-byte three-pixel visual nudge");
@@ -433,7 +433,7 @@ static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1: new(0x0400, 0));
     oam.FinalizeFrame();
-    AssertEqual(0x0080, samus.SpritemapYPosition,
+    AssertEqual(0x0080, samus.SpritemapPosition.Y,
         "normal-jump landing frame one reads overlapping 0006 word");
 
     // Ceres status bit `$8000` makes `$90:8C1F` borrow bank `$8B`'s Mode 7 point
@@ -456,9 +456,9 @@ static void VerifySamusRenderingSlice()
         layer1: new(0x0400, 0),
         mode7Transform: quarterTurn);
     oam.FinalizeFrame();
-    AssertEqual(0x007a, samus.SpritemapXPosition,
+    AssertEqual(0x007a, samus.SpritemapPosition.X,
         "Mode 7 quarter-turn rotates Samus render X around M7X");
-    AssertEqual(0x0082, samus.SpritemapYPosition,
+    AssertEqual(0x0082, samus.SpritemapPosition.Y,
         "Mode 7 quarter-turn applies pose graphics offset after rotated Y");
     AssertEqual(0x0488, samus.Position.X.Whole,
         "Mode 7 body calculation restores physical Samus X");

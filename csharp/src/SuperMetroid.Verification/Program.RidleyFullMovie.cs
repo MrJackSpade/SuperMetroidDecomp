@@ -912,7 +912,7 @@ internal static partial class Program
         int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
         (ushort Top, ushort Bottom, ushort X, ushort Y) BodyRecord() =>
             (samus.TopSpritemapIndex, samus.BottomSpritemapIndex,
-                samus.SpritemapXPosition, samus.SpritemapYPosition);
+                samus.SpritemapPosition.X, samus.SpritemapPosition.Y);
         var previousBodyRecord = BodyRecord();
         for (int frame = 0; frame <= length; frame++)
         {
@@ -992,8 +992,8 @@ internal static partial class Program
                 {
                     Check("Samus top spritemap", samus.TopSpritemapIndex, NativeSnapshotMemory.SamusTopSpritemap);
                     Check("Samus bottom spritemap", samus.BottomSpritemapIndex, NativeSnapshotMemory.SamusBottomSpritemap);
-                    Check("Samus sprite X", samus.SpritemapXPosition, NativeSnapshotMemory.SamusSpriteX);
-                    Check("Samus sprite Y", samus.SpritemapYPosition, NativeSnapshotMemory.SamusSpriteY);
+                    Check("Samus sprite X", samus.SpritemapPosition.X, NativeSnapshotMemory.SamusSpriteX);
+                    Check("Samus sprite Y", samus.SpritemapPosition.Y, NativeSnapshotMemory.SamusSpriteY);
                 }
                 if (frame != 0)
                 {

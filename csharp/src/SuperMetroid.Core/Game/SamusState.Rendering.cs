@@ -18,10 +18,7 @@ public sealed partial class SamusState
     public ushort BottomSpritemapIndex { get; private set; }
 
     /// <summary>Last screen-space origin calculated from world position and layer-1 scroll.</summary>
-    public ushort SpritemapXPosition { get; private set; }
-
-    /// <summary>Last screen-space origin calculated from world position and layer-1 scroll.</summary>
-    public ushort SpritemapYPosition { get; private set; }
+    public Position16<ScreenPixels> SpritemapPosition { get; private set; }
 
     /// <summary>The exact pending bank-$92 definitions consumed by accepted NMI.</summary>
     public SamusTileTransferState TileTransfers { get; } = new();
@@ -538,7 +535,8 @@ public sealed partial class SamusState
         // $90:8C94 sign-extends the byte at pose-definition offset four. Pose $01 stores
         // +6, moving the art origin six pixels above Samus's world-space center.
         sbyte graphicsYOffset = ReadGraphicsYOffset(bus);
-        SpritemapXPosition = unchecked((ushort)(renderX - layer1.X));
+        ushort spritemapX = unchecked((ushort)(renderX - layer1.X));
+        ushort spritemapY;
         if (movementType == SamusMovementType.Standing &&
             Pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose &&
             AnimationFrame >= 2)
@@ -546,7 +544,7 @@ public sealed partial class SamusState
             // `$90:8D07-$90:8D27` uses the ordinary pose graphics offset for front-facing
             // frames zero/one, then pins every later frame exactly one pixel above Samus's
             // center. This is independent of `$00`'s extra power-suit chest-cover OBJ.
-            SpritemapYPosition = unchecked((ushort)(renderY - 1 - layer1.Y));
+            spritemapY = unchecked((ushort)(renderY - 1 - layer1.Y));
         }
         else if (movementType == SamusMovementType.Standing && Pose >= SamusPoseId.NormalLandingRightPose &&
             Pose <= SamusPoseId.SpinLandingLeftPose)
@@ -560,7 +558,7 @@ public sealed partial class SamusState
             if (TileTransfers.Artwork is not { } landingArt ||
                 !landingArt.TryLandingYOffset(landingOffsetIndex, out ushort landingOffset))
                 throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
-            SpritemapYPosition = unchecked((ushort)(
+            spritemapY = unchecked((ushort)(
                 renderY - landingOffset - layer1.Y));
         }
         else if (movementType == SamusMovementType.PostureTransition &&
@@ -576,7 +574,7 @@ public sealed partial class SamusState
             if (TileTransfers.Artwork is not { } postureArt ||
                 !postureArt.TryPostureYOffset(postureIndex, out sbyte transitionOffset))
                 throw new InvalidDataException($"Samus posture offset {postureIndex} lacks installed art.");
-            SpritemapYPosition = unchecked((ushort)(renderY + transitionOffset - layer1.Y));
+            spritemapY = unchecked((ushort)(renderY + transitionOffset - layer1.Y));
         }
         else if (Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
@@ -587,19 +585,20 @@ public sealed partial class SamusState
             if (TileTransfers.Artwork is not { } drainedArt ||
                 !drainedArt.TryDrainedYOffset(AnimationFrame, out sbyte drainedOffset))
                 throw new InvalidDataException($"Samus drained offset {AnimationFrame} lacks installed art.");
-            SpritemapYPosition = unchecked((ushort)(renderY + drainedOffset - layer1.Y));
+            spritemapY = unchecked((ushort)(renderY + drainedOffset - layer1.Y));
         }
         else if ((Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose) &&
                  AnimationFrame >= 5)
         {
             // `$90:8DB1-$8DBC` replaces the usual pose graphics offset with -3 after
             // standing drained art reaches byte index five.
-            SpritemapYPosition = unchecked((ushort)(renderY - 3 - layer1.Y));
+            spritemapY = unchecked((ushort)(renderY - 3 - layer1.Y));
         }
         else
         {
-            SpritemapYPosition = unchecked((ushort)(renderY - graphicsYOffset - layer1.Y));
+            spritemapY = unchecked((ushort)(renderY - graphicsYOffset - layer1.Y));
         }
+        SpritemapPosition = new(spritemapX, spritemapY);
 
         var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus rendering requires installed spritemap artwork.");
@@ -607,14 +606,14 @@ public sealed partial class SamusState
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
         oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Samus zero-pointer spritemap requires WRAM."),
-            TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition, spritemaps);
+            TopSpritemapIndex, SpritemapPosition.X, SpritemapPosition.Y, spritemaps);
 
         // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
         // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
         // the disassembly identifies tile `$021` as a cover for the left side of the power-
         // suit chest. The suited `$9B` body has that shape in its ordinary spritemap and
         // deliberately skips this write. Coordinates use Samus's world center directly,
-        // not SpritemapYPosition (which has already applied pose graphics offset `$08`).
+        // not SpritemapPosition.Y (which has already applied pose graphics offset `$08`).
         if (Pose == SamusPoseId.ForwardFacingPowerSuitPose)
         {
             ushort chestX = unchecked((ushort)(Position.X.Whole - 7 - layer1.X));
@@ -688,7 +687,7 @@ public sealed partial class SamusState
             BottomSpritemapIndex = unchecked((ushort)(bottomBase + AnimationFrame));
             oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Samus zero-pointer spritemap requires WRAM."),
-                BottomSpritemapIndex, SpritemapXPosition, SpritemapYPosition,
+                BottomSpritemapIndex, SpritemapPosition.X, SpritemapPosition.Y,
                 spritemaps);
         }
 

@@ -27,7 +27,7 @@ public sealed partial class SamusProjectileSystem
         }
         if (falling)
         {
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 8)));
+            slot.Position += new Offset16<RoomPixels>(0, 8);
             if (unchecked((short)(slot.Position.Y.Whole - cameraY - 248)) >= 0)
             {
                 ClearProjectile(slot);
@@ -37,7 +37,7 @@ public sealed partial class SamusProjectileSystem
         else
         {
             var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(
-                slot.Variable, unchecked((ushort)slot.Velocity.X));
+                slot.Variable, unchecked((ushort)slot.Velocity.X.SignedRawValue));
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + x)), unchecked((ushort)(samus.Position.Y.Whole + y - (slot.AuxiliaryPhase == SpazerComboPhase.Circling ? 0 : 114)))));
             switch (slot.AuxiliaryPhase)
             {
@@ -45,8 +45,8 @@ public sealed partial class SamusProjectileSystem
                     AdvanceSpazerAngle(slot);
                     if (slot.Variable == 128)
                     {
-                        slot.Velocity = slot.Velocity.WithX(160);
-                        slot.Velocity = slot.Velocity.WithY((short)((slot.SlotIndex & 1) == 0 ? 2 : -2));
+                        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(160));
+                        slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw((short)((slot.SlotIndex & 1) == 0 ? 2 : -2)));
                         slot.Direction = 0;
                         slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
                     }
@@ -57,10 +57,10 @@ public sealed partial class SamusProjectileSystem
                     else
                     {
                         AdvanceSpazerAngle(slot);
-                        slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X - 5)));
-                        if (slot.Velocity.X == 0)
+                        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue - 5))));
+                        if (slot.Velocity.X.SignedRawValue == 0)
                         {
-                            slot.Velocity = slot.Velocity.WithY((short)((slot.SlotIndex & 1) == 0 ? -2 : 2));
+                            slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw((short)((slot.SlotIndex & 1) == 0 ? -2 : 2)));
                             slot.Variable = unchecked((byte)(slot.Variable + 128));
                             slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
@@ -75,8 +75,8 @@ public sealed partial class SamusProjectileSystem
                     else
                     {
                         AdvanceSpazerAngle(slot);
-                        slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X + 5)));
-                        if (slot.Velocity.X >= 96) BeginSpazerFall(slot);
+                        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue + 5))));
+                        if (slot.Velocity.X.SignedRawValue >= 96) BeginSpazerFall(slot);
                     }
                     break;
                 default: throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {(int)slot.AuxiliaryPhase}.");
@@ -88,7 +88,7 @@ public sealed partial class SamusProjectileSystem
     }
 
     private static void AdvanceSpazerAngle(SamusProjectileSlot slot) =>
-        slot.Variable = unchecked((byte)(slot.Variable + slot.Velocity.Y));
+        slot.Variable = unchecked((byte)(slot.Variable + slot.Velocity.Y.SignedRawValue));
 
     private static void BeginSpazerFall(SamusProjectileSlot slot)
     {

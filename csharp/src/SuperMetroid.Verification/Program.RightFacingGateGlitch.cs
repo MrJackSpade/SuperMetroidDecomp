@@ -44,14 +44,14 @@ internal static partial class Program
             slot => slot.HeaderPointer == PlmHeaderId.DownwardGate);
         var shotBlock = runtime.Plms.PopulationSlots.Single(
             slot => slot.HeaderPointer == PlmHeaderId.DownwardGateShotBlock);
-        AssertEqual(32, original.WidthInBlocks, "Pink Brinstar Hopper room width");
-        AssertEqual(32, original.HeightInBlocks, "Pink Brinstar Hopper room height");
+        AssertEqual(32, original.Size.X, "Pink Brinstar Hopper room width");
+        AssertEqual(32, original.Size.Y, "Pink Brinstar Hopper room height");
         AssertEqual(0x0091, residentGate.BlockIndex, "Authored Pink Brinstar gate block");
         AssertEqual((ushort)0x0002, shotBlock.RoomArgument,
             "Authored Pink Brinstar blue-right trigger table row");
 
-        int gateX = residentGate.BlockIndex % original.WidthInBlocks * 16;
-        int gateY = residentGate.BlockIndex / original.WidthInBlocks * 16;
+        int gateX = residentGate.BlockIndex % original.Size.X * 16;
+        int gateY = residentGate.BlockIndex / original.Size.X * 16;
         int cameraX = gateX - 128;
         int cameraY = 0;
         var actual = new List<string>();
@@ -59,9 +59,8 @@ internal static partial class Program
         var populationVram = new SnesVram();
         // One pristine level and one working level restored from it per position. The
         // field-by-field check proves no state from the previous position survives.
-        RoomLevelData NewLevel() => new(
-            original.WidthInBlocks,
-            original.HeightInBlocks,
+        RoomLevelData NewLevel() => new RoomLevelData(
+            original.Size,
             original.ForegroundEntries.Span,
             original.BehaviorBytes.Span,
             original.BackgroundEntries.Span,
@@ -94,7 +93,7 @@ internal static partial class Program
                 () => samus,
                 () => false);
             for (int warm = 0; warm < 2; warm++)
-                plms.Step(bus, level, streamer, (ushort)cameraX, (ushort)cameraY, 0);
+                plms.Step(bus, level, streamer, new((ushort)cameraX, (ushort)cameraY), 0);
             plms.TakeDownwardGateProjectileRequests();
 
             var shots = CreateProjectileFixture();
@@ -119,7 +118,7 @@ internal static partial class Program
                     actual.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
                     break;
                 }
-                plms.Step(bus, level, streamer, (ushort)cameraX, (ushort)cameraY, 0);
+                plms.Step(bus, level, streamer, new((ushort)cameraX, (ushort)cameraY), 0);
             }
         }
 
@@ -179,8 +178,8 @@ internal static partial class Program
             slot => slot.HeaderPointer == PlmHeaderId.DownwardGate);
         var shotBlock = runtime.Plms.PopulationSlots.Single(
             slot => slot.HeaderPointer == PlmHeaderId.DownwardGateShotBlock);
-        AssertEqual(64, level.WidthInBlocks, "East Tunnel room width");
-        AssertEqual(32, level.HeightInBlocks, "East Tunnel room height");
+        AssertEqual(64, level.Size.X, "East Tunnel room width");
+        AssertEqual(32, level.Size.Y, "East Tunnel room height");
         AssertEqual(0x0156, gate.BlockIndex, "Authored East Tunnel gate block");
         AssertEqual((ushort)0x000a, shotBlock.RoomArgument,
             "Authored East Tunnel green-right trigger table row");
@@ -197,7 +196,7 @@ internal static partial class Program
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        runtime.Camera!.SetPosition(128, 0);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(128, 0));
 
         RoomEnemySlot frozen = runtime.Enemies.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon);

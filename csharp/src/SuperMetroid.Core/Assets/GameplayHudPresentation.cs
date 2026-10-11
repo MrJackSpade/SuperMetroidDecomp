@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -35,11 +36,11 @@ public sealed class GameplayHudPresentation
             tank => GameplayHudDefinitions.EnergyTankByteOffset(tank) / sizeof(ushort));
         healthDigits = CompileDigitOverrides(document.Digits.Health, "health digits");
         ammoDigits = CompileDigitOverrides(document.Digits.Ammo, "ammo digits");
-        HealthAnchor = ValidateAnchor(document.Digits.HealthAnchor, 2, 1, "health digits");
-        MissileAmmoAnchor = ValidateAnchor(document.Digits.MissileAnchor, 3, 1, "missile digits");
-        SuperMissileAmmoAnchor = ValidateAnchor(document.Digits.SuperMissileAnchor, 2, 1, "Super Missile digits");
-        PowerBombAmmoAnchor = ValidateAnchor(document.Digits.PowerBombAnchor, 2, 1, "Power Bomb digits");
-        MinimapAnchor = ValidateAnchor(document.MinimapAnchor, 5, 3, "minimap");
+        HealthAnchor = ValidateAnchor(document.Digits.HealthAnchor, new(2, 1), "health digits");
+        MissileAmmoAnchor = ValidateAnchor(document.Digits.MissileAnchor, new(3, 1), "missile digits");
+        SuperMissileAmmoAnchor = ValidateAnchor(document.Digits.SuperMissileAnchor, new(2, 1), "Super Missile digits");
+        PowerBombAmmoAnchor = ValidateAnchor(document.Digits.PowerBombAnchor, new(2, 1), "Power Bomb digits");
+        MinimapAnchor = ValidateAnchor(document.MinimapAnchor, MinimapSize, "minimap");
         autoReserveOverrides = CompileAutoReserve(document.AutoReserve);
         autoAnchors = CompileAnchors(document.AutoReserve.Anchors, GameplayHudDefinitions.AutoReserveCellCount, "AUTO indicator",
             GameplayHudDefinitions.AutoReserveCellIndex);
@@ -88,15 +89,15 @@ public sealed class GameplayHudPresentation
     /// <summary>Gets the BG palette index applied to deselected item icons.</summary>
     public int DeselectedPalette { get; }
     /// <summary>Gets the tile coordinate of the two health digits.</summary>
-    public MapLabelPoint HealthAnchor { get; }
+    public Position16<TilemapCells> HealthAnchor { get; }
     /// <summary>Gets the tile coordinate of the three missile-ammo digits.</summary>
-    public MapLabelPoint MissileAmmoAnchor { get; }
+    public Position16<TilemapCells> MissileAmmoAnchor { get; }
     /// <summary>Gets the tile coordinate of the two Super Missile ammo digits.</summary>
-    public MapLabelPoint SuperMissileAmmoAnchor { get; }
+    public Position16<TilemapCells> SuperMissileAmmoAnchor { get; }
     /// <summary>Gets the tile coordinate of the two Power Bomb ammo digits.</summary>
-    public MapLabelPoint PowerBombAmmoAnchor { get; }
+    public Position16<TilemapCells> PowerBombAmmoAnchor { get; }
     /// <summary>Gets the upper-left tile coordinate of the five-by-three minimap.</summary>
-    public MapLabelPoint MinimapAnchor { get; }
+    public Position16<TilemapCells> MinimapAnchor { get; }
 
     /// <summary>Writes the complete editable HUD template into a mutable tilemap.</summary>
     /// <param name="tiles">The 32-by-3 HUD tilemap to populate.</param>
@@ -115,12 +116,12 @@ public sealed class GameplayHudPresentation
     {
         ValidateTilemap(tiles);
         CompiledIcon icon = Icon(itemIndex);
-        int first = Index(icon.Anchor.X, icon.Anchor.Y);
+        int first = Index(icon.Anchor);
         if (new SnesBgTilemapWord(tiles[first]).CharacterIndex != new SnesBgTilemapWord(Blank).CharacterIndex)
             return;
         for (int y = 0; y < CompiledIcon.Height; y++)
         for (int x = 0; x < icon.Width; x++)
-            tiles[Index(icon.Anchor.X + x, icon.Anchor.Y + y)] = icon.Cell(y * icon.Width + x);
+            tiles[Index(icon.Anchor + new Offset16<TilemapCells>(checked((short)x), checked((short)y)))] = icon.Cell(y * icon.Width + x);
     }
 
     /// <summary>Draws energy tanks and the two-digit current-energy remainder.</summary>
@@ -144,7 +145,7 @@ public sealed class GameplayHudPresentation
     public void ApplyAmmo(Span<ushort> tiles, int itemIndex, ushort value)
     {
         ValidateTilemap(tiles);
-        (MapLabelPoint anchor, int digits) = itemIndex switch
+        (Position16<TilemapCells> anchor, int digits) = itemIndex switch
         {
             0 => (MissileAmmoAnchor, 3),
             1 => (SuperMissileAmmoAnchor, 2),
@@ -188,20 +189,22 @@ public sealed class GameplayHudPresentation
         for (int y = 0; y < CompiledIcon.Height; y++)
         for (int x = 0; x < icon.Width; x++)
         {
-            int destination = Index(icon.Anchor.X + x, icon.Anchor.Y + y);
+            int destination = Index(icon.Anchor + new Offset16<TilemapCells>(checked((short)x), checked((short)y)));
             if (tiles[destination] != Blank)
                 tiles[destination] = new SnesBgTilemapWord(tiles[destination]).WithPaletteIndex(palette).Raw;
         }
     }
 
+    /// <summary>The five-by-three minimap's size in HUD tilemap cells.</summary>
+    public static Extent16<TilemapCells> MinimapSize => new(5, 3);
+
     /// <summary>Returns the linear HUD tilemap index for a minimap output coordinate.</summary>
-    /// <param name="outputX">The zero-based minimap column.</param>
-    /// <param name="outputY">The zero-based minimap row.</param>
+    /// <param name="output">The zero-based minimap column and row.</param>
     /// <returns>The corresponding cell index in the 32-by-3 HUD tilemap.</returns>
-    public int MinimapCellIndex(int outputX, int outputY)
+    public int MinimapCellIndex(Position16<TilemapCells> output)
     {
-        if ((uint)outputX >= 5 || (uint)outputY >= 3) throw new ArgumentOutOfRangeException(nameof(outputX));
-        return Index(MinimapAnchor.X + outputX, MinimapAnchor.Y + outputY);
+        if (!MinimapSize.Contains(output)) throw new ArgumentOutOfRangeException(nameof(output));
+        return Index(MinimapAnchor + (output - Position16<TilemapCells>.Zero));
     }
 
     /// <summary>Loads and validates a gameplay-HUD presentation document.</summary>
@@ -228,7 +231,7 @@ public sealed class GameplayHudPresentation
         }
         if (document.Version != GameplayHudDefinitions.Version || document.Template is null ||
             document.Blank is null || document.EnergyTanks is null || document.Digits is null ||
-            document.AutoReserve is null || document.MinimapAnchor is null)
+            document.AutoReserve is null)
             throw new InvalidDataException("Gameplay HUD presentation requires version 2 and every named visual owner.");
         return new(document, source);
     }
@@ -243,13 +246,13 @@ public sealed class GameplayHudPresentation
         output.Write(bytes);
     }
 
-    private static void DrawDigits(Span<ushort> tiles, Dictionary<int, ushort> glyphs, int value, MapLabelPoint anchor, int count)
+    private static void DrawDigits(Span<ushort> tiles, Dictionary<int, ushort> glyphs, int value, Position16<TilemapCells> anchor, int count)
     {
         int divisor = count == 3 ? 100 : 10;
         for (int digit = 0; digit < count; digit++)
         {
             int numeral = (value / divisor) % 10;
-            tiles[Index(anchor.X + digit, anchor.Y)] = glyphs.TryGetValue(numeral, out ushort edited)
+            tiles[Index(anchor + new Offset16<TilemapCells>(checked((short)digit), 0))] = glyphs.TryGetValue(numeral, out ushort edited)
                 ? edited : GameplayHudDefinitions.DigitWord(numeral);
             divisor /= 10;
         }
@@ -273,16 +276,16 @@ public sealed class GameplayHudPresentation
         {
             CompiledIcon icon = Icon(item);
             for (int y = 0; y < CompiledIcon.Height; y++)
-            for (int x = 0; x < icon.Width; x++) Own(Index(icon.Anchor.X + x, icon.Anchor.Y + y), GameplayHudDefinitions.IconName(item));
+            for (int x = 0; x < icon.Width; x++) Own(Index(icon.Anchor + new Offset16<TilemapCells>(checked((short)x), checked((short)y))), GameplayHudDefinitions.IconName(item));
         }
         for (int tank = 0; tank < GameplayHudDefinitions.EnergyTankCount; tank++) Own(EnergyTankCell(tank), "energy tank");
         for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++) Own(AutoReserveCell(cell), "AUTO indicator");
-        for (int x = 0; x < 2; x++) Own(Index(HealthAnchor.X + x, HealthAnchor.Y), "health digits");
-        for (int x = 0; x < 3; x++) Own(Index(MissileAmmoAnchor.X + x, MissileAmmoAnchor.Y), "missile digits");
-        for (int x = 0; x < 2; x++) Own(Index(SuperMissileAmmoAnchor.X + x, SuperMissileAmmoAnchor.Y), "Super Missile digits");
-        for (int x = 0; x < 2; x++) Own(Index(PowerBombAmmoAnchor.X + x, PowerBombAmmoAnchor.Y), "Power Bomb digits");
+        for (int x = 0; x < 2; x++) Own(Index(HealthAnchor + new Offset16<TilemapCells>(checked((short)x), 0)), "health digits");
+        for (int x = 0; x < 3; x++) Own(Index(MissileAmmoAnchor + new Offset16<TilemapCells>(checked((short)x), 0)), "missile digits");
+        for (int x = 0; x < 2; x++) Own(Index(SuperMissileAmmoAnchor + new Offset16<TilemapCells>(checked((short)x), 0)), "Super Missile digits");
+        for (int x = 0; x < 2; x++) Own(Index(PowerBombAmmoAnchor + new Offset16<TilemapCells>(checked((short)x), 0)), "Power Bomb digits");
         for (int y = 0; y < 3; y++)
-        for (int x = 0; x < 5; x++) Own(MinimapCellIndex(x, y), "minimap");
+        for (int x = 0; x < 5; x++) Own(MinimapCellIndex(new(checked((ushort)x), checked((ushort)y))), "minimap");
     }
 
     private static Dictionary<int, ushort> CompileAutoReserve(GameplayHudAutoReserveDocument document)
@@ -333,7 +336,7 @@ public sealed class GameplayHudPresentation
     private int AutoReserveCell(int index) => autoAnchors.TryGetValue(index, out int cell)
         ? cell : GameplayHudDefinitions.AutoReserveCellIndex(index);
 
-    private static Dictionary<int, int> CompileAnchors(MapLabelPoint[]? anchors, int count,
+    private static Dictionary<int, int> CompileAnchors(Position16<TilemapCells>[]? anchors, int count,
         string name, Func<int, int> defaultCell)
     {
         if (anchors is null || anchors.Length != count)
@@ -341,15 +344,15 @@ public sealed class GameplayHudPresentation
         var overrides = new Dictionary<int, int>();
         for (int index = 0; index < count; index++)
         {
-            int cell = Index(ValidateAnchor(anchors[index], 1, 1, $"{name} {index}"));
+            int cell = Index(ValidateAnchor(anchors[index], new(1, 1), $"{name} {index}"));
             if (cell != defaultCell(index)) overrides.Add(index, cell);
         }
         return overrides;
     }
-    private static MapLabelPoint ValidateAnchor(MapLabelPoint? anchor, int width, int height, string name)
+    private static Position16<TilemapCells> ValidateAnchor(Position16<TilemapCells> anchor, Extent16<TilemapCells> size, string name)
     {
-        if (anchor is null || anchor.X < 0 || anchor.Y < 0 ||
-            anchor.X + width > GameplayHudDefinitions.Width || anchor.Y + height > GameplayHudDefinitions.Height)
+        if (anchor.X < 0 || anchor.Y < 0 ||
+            anchor.X + size.X > GameplayHudDefinitions.Width || anchor.Y + size.Y > GameplayHudDefinitions.Height)
             throw new InvalidDataException($"Gameplay HUD {name} lies outside the 32x3 mutable tilemap.");
         return anchor;
     }
@@ -358,8 +361,7 @@ public sealed class GameplayHudPresentation
         ? palette
         : throw new InvalidDataException($"Gameplay HUD {name} must be in range 0..7.");
 
-    private static int Index(MapLabelPoint point) => Index(point.X, point.Y);
-    private static int Index(int x, int y) => y * GameplayHudDefinitions.Width + x;
+    private static int Index(Position16<TilemapCells> point) => GameplayHudDefinitions.Size.RowMajorIndex(point);
     private static void ValidateTilemap(Span<ushort> tiles)
     {
         if (tiles.Length != GameplayHudDefinitions.CellCount)
@@ -373,20 +375,20 @@ public sealed class GameplayHudPresentation
         internal int Width => GameplayHudDefinitions.IconWidth(item);
         internal const int Height = 2;
 
-        [AllowNull]
-        internal MapLabelPoint Anchor => field ?? StockAnchor(item);
-        private static MapLabelPoint StockAnchor(int item)
+        private readonly Position16<TilemapCells>? anchorOverride;
+        internal Position16<TilemapCells> Anchor => anchorOverride ?? StockAnchor(item);
+        private static Position16<TilemapCells> StockAnchor(int item)
         {
             int index = GameplayHudDefinitions.ItemByteOffset(item) / sizeof(ushort);
-            return new(index % GameplayHudDefinitions.Width, index / GameplayHudDefinitions.Width);
+            return new(checked((ushort)(index % GameplayHudDefinitions.Width)), checked((ushort)(index / GameplayHudDefinitions.Width)));
         }
         internal CompiledIcon(int item, GameplayHudIconDocument? document)
         {
             this.item = item;
             string name = GameplayHudDefinitions.IconName(item);
             if (document is null) throw new InvalidDataException($"Gameplay HUD icon {name} is null.");
-            MapLabelPoint anchor = ValidateAnchor(document.Anchor, Width, Height, $"{name} icon");
-            Anchor = anchor == StockAnchor(item) ? null : anchor;
+            Position16<TilemapCells> anchor = ValidateAnchor(document.Anchor, new(checked((ushort)Width), Height), $"{name} icon");
+            anchorOverride = anchor == StockAnchor(item) ? null : anchor;
             ushort[] cells = CompileCells(document.Cells, Width * Height, $"{name} icon");
             for (int cell = 0; cell < cells.Length; cell++)
                 if (cells[cell] != GameplayHudDefinitions.IconWord(item, cell)) edits.Add(cell, cells[cell]);
@@ -412,7 +414,7 @@ public sealed record GameplayHudPresentationDocument
     /// <summary>Gets the palette index used for a deselected item.</summary>
     public required int DeselectedPalette { get; init; }
     /// <summary>Gets the upper-left coordinate of the minimap output region.</summary>
-    public required MapLabelPoint MinimapAnchor { get; init; }
+    public required Position16<TilemapCells> MinimapAnchor { get; init; }
     /// <summary>Gets the energy-tank visuals and anchors.</summary>
     public required GameplayHudEnergyTankDocument EnergyTanks { get; init; }
     /// <summary>Gets the health and ammunition digit visuals and anchors.</summary>
@@ -427,7 +429,7 @@ public sealed record GameplayHudPresentationDocument
 public sealed record GameplayHudEnergyTankDocument
 {
     /// <summary>Gets the ordered energy-tank cell coordinates.</summary>
-    public required MapLabelPoint[] Anchors { get; init; }
+    public required Position16<TilemapCells>[] Anchors { get; init; }
     /// <summary>Gets the cell drawn for a filled energy tank.</summary>
     public required GameplayHudCell Filled { get; init; }
     /// <summary>Gets the cell drawn for an empty energy tank.</summary>
@@ -442,20 +444,20 @@ public sealed record GameplayHudDigitDocument
     /// <summary>Gets the ten ammunition-digit cells in numeral order.</summary>
     public required GameplayHudCell[] Ammo { get; init; }
     /// <summary>Gets the anchor of the health digits.</summary>
-    public required MapLabelPoint HealthAnchor { get; init; }
+    public required Position16<TilemapCells> HealthAnchor { get; init; }
     /// <summary>Gets the anchor of the missile digits.</summary>
-    public required MapLabelPoint MissileAnchor { get; init; }
+    public required Position16<TilemapCells> MissileAnchor { get; init; }
     /// <summary>Gets the anchor of the Super Missile digits.</summary>
-    public required MapLabelPoint SuperMissileAnchor { get; init; }
+    public required Position16<TilemapCells> SuperMissileAnchor { get; init; }
     /// <summary>Gets the anchor of the Power Bomb digits.</summary>
-    public required MapLabelPoint PowerBombAnchor { get; init; }
+    public required Position16<TilemapCells> PowerBombAnchor { get; init; }
 }
 
 /// <summary>Serializable AUTO reserve-indicator cells and their HUD anchors.</summary>
 public sealed record GameplayHudAutoReserveDocument
 {
     /// <summary>Gets the ordered AUTO indicator cell coordinates.</summary>
-    public required MapLabelPoint[] Anchors { get; init; }
+    public required Position16<TilemapCells>[] Anchors { get; init; }
     /// <summary>Gets the six cells drawn when reserve energy is available.</summary>
     public required GameplayHudCell[] ContainsEnergy { get; init; }
     /// <summary>Gets the six cells drawn when the reserve is empty.</summary>
@@ -466,7 +468,7 @@ public sealed record GameplayHudAutoReserveDocument
 public sealed record GameplayHudIconDocument
 {
     /// <summary>Gets the upper-left coordinate of the icon.</summary>
-    public required MapLabelPoint Anchor { get; init; }
+    public required Position16<TilemapCells> Anchor { get; init; }
     /// <summary>Gets the icon cells in row-major order.</summary>
     public required GameplayHudCell[] Cells { get; init; }
 }

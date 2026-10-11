@@ -76,8 +76,8 @@ internal static partial class Program
             side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.TileNumberAttributes = attributes;
             var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
-            { native.AddProjectileTrailSprite(0, 0, 0); authored.AddProjectileTrailSprite(0, 0, 0); }
-            system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), native, new(0, 0), true);
+            { native.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); authored.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); }
+            system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), native, Position16<RoomPixels>.Zero, true);
             system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authored, Position16<RoomPixels>.Zero, true, catalog);
             AssertTrue(native.LowTable.SequenceEqual(authored.LowTable) && native.HighTable.SequenceEqual(authored.HighTable), "Trail catalog preserves native culling and complete OAM bytes");
             AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Trail catalog retains OAM capacity behavior");
@@ -153,7 +153,7 @@ internal static partial class Program
                 if (side.InstructionTimer == 0) continue;
             }
             if (side.Position.X < 256 && side.Position.Y < 256)
-                oam.AddProjectileTrailSprite((byte)side.Position.X, (byte)side.Position.Y,
+                oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.Position.X, (byte)side.Position.Y),
                     side.TileNumberAttributes);
         }
     }
@@ -166,7 +166,7 @@ internal static partial class Program
         var side = runtime.Projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
         side.InstructionTimer = 3; side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
-        side.Position = side.Position.WithX((ushort)(runtime.Camera!.XPosition + 100)).WithY((ushort)(runtime.Camera.YPosition + 100));
+        side.Position = side.Position.WithX((ushort)(runtime.Camera!.PixelPosition.X + 100)).WithY((ushort)(runtime.Camera.PixelPosition.Y + 100));
         var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var runtimeField = game.GetType().GetField("runtime", flags)!;

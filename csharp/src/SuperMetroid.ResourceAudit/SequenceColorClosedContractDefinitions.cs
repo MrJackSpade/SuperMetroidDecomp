@@ -37,7 +37,7 @@ internal static class SequenceColorClosedContractDefinitions
             ["LoadInitial", "LoadCommonSprites", "LoadEnemyProjectileSprites"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs", "C819FF7045379D59182A5B10BF6D902C33DF1C65F5BF140773BBED033A9C08D9"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesCgram.cs", "7484167AFD8A11931A9C036F734FFBA1CEF5EFA9D1B596177FF9C583CC5E4684"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesPpuLayout.cs", "C6753DAA77F9809E6D599040E9E4F13561458352D11DAA0D7EC89B0BFBE3A6C2")]),
+             new("csharp/src/SuperMetroid.Core/Hardware/SnesPpuLayout.cs", "2C0B763C5F05F8D3B37F4DBE93A0514973596F99EF0D07AAD7537C616B33A6F0")]),
         new("SuperMetroid.Core.Assets.SamusDeathPaletteArtworkCatalog", "samus-death-complete-cloned-color-sequences",
             ["SuitedColor", "SuitlessColor", "WhiteoutColor", "ExplosionPaletteIndex"],
             [new("csharp/src/SuperMetroid.Core/Assets/SamusDeathPaletteArtworkCatalog.cs", "25A85F0AE8DA898F4FEEA6462128946DDE0A0BDC01B1F0E4D4A9DDA8C91F8DC9"),

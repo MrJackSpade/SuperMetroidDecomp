@@ -35,7 +35,7 @@ public sealed class SamusProjectileSlot
     /// Signed 8.8 per-frame velocity words <c>$0C2C/$0C40</c>. Charge combos reuse the same two
     /// WRAM words for their own orbit radius, lifetime and phase counters.
     /// </summary>
-    public Vector88<RoomPixels> Velocity { get; internal set; }
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>Bank-$93 instruction-list pointer; zero marks the slot inactive for animation.</summary>
@@ -77,7 +77,7 @@ public sealed class SamusProjectileSlot
         Type = 0;
         Direction = 0;
         Position = FixedPosition<RoomPixels>.Zero;
-        Velocity = Vector88<RoomPixels>.Zero;
+        Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
         InstructionPointer = 0;
         InstructionTimer = 0;
@@ -97,7 +97,7 @@ public sealed class SamusProjectileSlot
         TrailTimer = 0;
         Position = Position.WithWhole(Position16<RoomPixels>.Zero);
         Direction = 0;
-        Velocity = Vector88<RoomPixels>.Zero;
+        Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
         Type = 0;
         Damage = 0;

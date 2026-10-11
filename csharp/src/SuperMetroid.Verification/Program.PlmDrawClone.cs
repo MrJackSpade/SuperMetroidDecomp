@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -15,18 +16,18 @@ internal static partial class Program
             var words = new ushort[16 * 16];
             const int block = 3 * 16 + 3;
             words[block] = 0xc321;
-            var level = new RoomLevelData(16, 16, words, new byte[words.Length],
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), words, new byte[words.Length],
                 new ushort[words.Length], new byte[1024 * 8]);
             var streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem();
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, block, 1), "spawn restore-word PLM");
             plms.SetSoleWorkRamProgramForVerification(bus, probePointer,
                 instruction, (ushort)RoomPlmInstruction.Delete);
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(bus, level, streamer, new(0, 0), 0);
             AssertEqual(0xc321, level.GetCollisionBlockByIndex(block).LevelWord, "draw opcode restores slot level word");
             AssertEqual(1, plms.TilemapUpdates.Count, "draw opcode publishes visible tilemap update");
             AssertEqual(1, plms.ActiveCount, "draw opcode yields for one frame before following Delete");
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(bus, level, streamer, new(0, 0), 0);
             AssertEqual(0, plms.ActiveCount, "draw opcode resumes immediately after its operand-free word");
         }
         Console.WriteLine("  Both native PLM draw entry points restore terrain, redraw, yield, and resume identically.");

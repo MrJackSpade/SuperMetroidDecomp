@@ -102,13 +102,13 @@ internal static class VramDmaDomains
             ScrollingSkyChunkTable table = state.MainCallback == RoomMainCallback.ScrollingSkyOcean
                 ? ScrollingSkyChunkTable.Ocean
                 : ScrollingSkyChunkTable.Land;
-            int logicalCount = room.WidthInScreens * room.HeightInScreens;
+            int logicalCount = room.Size.Area;
             bool blueBottom = unchecked((short)state.ScrollPointer) >= 0
                 ? (byte)(state.ScrollPointer + 1) == (byte)RoomScrollState.Blue
                 : RoomScrollDefinitions.Get(state.ScrollPointer).Storage.Span
-                    .Slice(logicalCount - room.WidthInScreens, room.WidthInScreens).ToArray()
+                    .Slice(logicalCount - room.Size.X, room.Size.X).ToArray()
                     .All(cell => cell == (byte)RoomScrollState.Blue);
-            int maximum = ((room.HeightInScreens - 1) << VramDmaDomainGeometry.ScreenPixelShift) +
+            int maximum = ((room.Size.Y - 1) << VramDmaDomainGeometry.ScreenPixelShift) +
                 (blueBottom ? 0 : VramDmaDomainGeometry.NonBlueLowerAlignment);
             for (int camera = 0; camera <= maximum; camera += VramDmaDomainGeometry.TileRowPixels)
             foreach (int offset in new[] { -(int)RoomFxRomData.ScrollingSky.UpperRowCameraOffset,

@@ -10,7 +10,7 @@ public sealed partial class FileSelectMapMenuState
     {
         LayeredRenderSnapshot Area(bool backdrop = true) => areaGraphics.CaptureRenderSnapshot(usedStations, backdrop);
         LayeredRenderSnapshot Frame() => roomGraphics.CaptureRenderSnapshot(frameOnly: true);
-        LayeredRenderSnapshot Room(bool icons = true) => roomGraphics.CaptureRenderSnapshot(scroll.Horizontal, scroll.Vertical,
+        LayeredRenderSnapshot Room(bool icons = true) => roomGraphics.CaptureRenderSnapshot(scroll.Scroll,
             icons ? marker : null, drawArrows ? animations : null);
         if (!entry.IsComplete)
         {

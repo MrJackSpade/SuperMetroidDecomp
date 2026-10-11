@@ -3,6 +3,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -64,7 +65,7 @@ internal static partial class Program
         var blocks = new ushort[64];
         Array.Fill(blocks, (ushort)0x8000, 32, 32);
         var level = new RoomLevelData(
-            8, 8, blocks, new byte[64], new ushort[64], new byte[8]);
+            new Extent16<RoomBlocks>(8, 8), blocks, new byte[64], new ushort[64], new byte[8]);
         left.XPosition = 64;
         left.YPosition = 63;
         left.XRadius = 2;
@@ -164,7 +165,7 @@ internal static partial class Program
                     DrawImportedEnemyProjectileSpritemap(rom, expected,
                         ReadKiHunterAcidSpitInstructionWord(rom, operand), 128, 112, 0, true);
                     actual.AddEnemySpritemap(spriteArtwork.GetProgramFrame(operand).Span,
-                        128, 112, 0, 0, clipVerticalWrap: true, originYIsOnScreen: true);
+                        new Position16<OamPixels>(128, 112), 0, 0, clipVerticalWrap: true, originYIsOnScreen: true);
                     AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
                         $"KiHunter frame $86:{operand:X4} native sprite part count");
                     AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) &&

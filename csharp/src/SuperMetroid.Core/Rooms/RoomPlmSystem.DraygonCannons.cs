@@ -49,7 +49,7 @@ public sealed partial class RoomPlmSystem
             DraygonCannonRomData.CannonCollisionWord);
         WriteDraygonCannonTypeAndBts(
             level,
-            checked(slot.BlockIndex + level.WidthInBlocks),
+            checked(slot.BlockIndex + level.Size.X),
             DraygonCannonRomData.CannonExtensionWord);
     }
 
@@ -154,7 +154,7 @@ public sealed partial class RoomPlmSystem
             DraygonCannonRomData.DestroyedCannonWord);
         WriteDraygonCannonTypeAndBts(
             level,
-            checked(slot.BlockIndex + level.WidthInBlocks),
+            checked(slot.BlockIndex + level.Size.X),
             DraygonCannonRomData.DestroyedCannonWord);
         state.Destroyed = true;
     }

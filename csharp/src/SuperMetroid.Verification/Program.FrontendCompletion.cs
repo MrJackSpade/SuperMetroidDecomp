@@ -177,10 +177,9 @@ static void VerifyDoorOpeningTrajectories()
     // IRQ endpoint is destination+$20; the other three finish on the header coordinate.
     const ushort destinationX = 0x0300;
     const ushort destinationY = 0x0200;
-    const uint sourceX = 0x00a5_4000;
-    const uint sourceY = 0x0073_8000;
-    const uint postNudgeX = 0x0318_4000;
-    const uint postNudgeY = 0x0218_8000;
+    var source = FixedPosition<RoomPixels>.FromWords(0x00a5, 0x4000, 0x0073, 0x8000);
+    var postNudge = FixedPosition<RoomPixels>.FromWords(0x0318, 0x4000, 0x0218, 0x8000);
+    var finalLayer2 = new Position16<Bg2Pixels>(0x0180, 0x0140);
 
     for (int direction = 0; direction < 4; direction++)
     {
@@ -192,10 +191,8 @@ static void VerifyDoorOpeningTrajectories()
             Pointer: 0x8000,
             DestinationRoomPointer: 0x9000,
             Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
-            PlmX: 0,
-            PlmY: 0,
-            DestinationScreenX: 3,
-            DestinationScreenY: 2,
+            PlmBlock: new(0, 0),
+            DestinationScreen: new(3, 2),
             SamusDistance: 0x0100,
             SetupCodePointer: DoorSetupCode.None);
         ushort finalCameraY = direction == 3
@@ -203,14 +200,10 @@ static void VerifyDoorOpeningTrajectories()
             : destinationY;
         var trajectory = DoorOpeningScrollState.Create(
             door,
-            sourceX,
-            sourceY,
-            destinationX,
-            finalCameraY,
-            finalLayer2X: 0x0180,
-            finalLayer2Y: 0x0140,
-            finalSamusXFixed: postNudgeX,
-            finalSamusYFixed: postNudgeY);
+            source,
+            new Position16<RoomPixels>(destinationX, finalCameraY),
+            finalLayer2,
+            postNudge);
 
         // $82:E3C0 rebases both axes before the later E6A2 nudge. The
         // perpendicular axis must not start at the supplied post-nudge endpoint.
@@ -219,13 +212,13 @@ static void VerifyDoorOpeningTrajectories()
             0 => 0x02aa4000u,
             1 => 0x04a04000u,
             _ => 0x03a54000u,
-        }, trajectory.SamusXFixed, $"door direction {direction} rebased initial Samus X");
+        }, trajectory.SamusPosition.X.RawValue, $"door direction {direction} rebased initial Samus X");
         AssertEqual(direction switch
         {
             2 => 0x01938000u,
             3 => 0x036d8000u,
             _ => 0x02738000u,
-        }, trajectory.SamusYFixed, $"door direction {direction} rebased initial Samus Y");
+        }, trajectory.SamusPosition.Y.RawValue, $"door direction {direction} rebased initial Samus Y");
 
         int expectedFrames = direction switch
         {
@@ -241,15 +234,28 @@ static void VerifyDoorOpeningTrajectories()
             0 => (ushort)(destinationX - 252),
             1 => (ushort)(destinationX + 252),
             _ => destinationX,
-        }, trajectory.CameraX, $"door direction {direction} initial camera X");
+        }, trajectory.CameraPosition.X, $"door direction {direction} initial camera X");
         AssertEqual(direction switch
         {
             2 => (ushort)(destinationY - 224),
             3 => (ushort)(destinationY + 251),
             _ => destinationY,
-        }, trajectory.CameraY, $"door direction {direction} initial camera Y");
+        }, trajectory.CameraPosition.Y, $"door direction {direction} initial camera Y");
 
-        ushort previousCamera = direction < 2 ? trajectory.CameraX : trajectory.CameraY;
+        // Each IRQ call is one whole-value step along the travel axis: camera and layer two
+        // move four pixels, Samus moves her 16.16 step, and the other axis never changes.
+        var cameraStep = direction switch
+        {
+            0 => new Offset16<RoomPixels>(4, 0),
+            1 => new Offset16<RoomPixels>(-4, 0),
+            2 => new Offset16<RoomPixels>(0, 4),
+            _ => new Offset16<RoomPixels>(0, -4),
+        };
+        var layer2Step = new Offset16<Bg2Pixels>(cameraStep.X, cameraStep.Y);
+        int samusStepRaw = direction is 0 or 2 ? 0x0001_0000 : -0x0001_0000;
+        Position16<RoomPixels> previousCamera = trajectory.CameraPosition;
+        Position16<Bg2Pixels> previousLayer2 = trajectory.Layer2Position;
+        FixedPosition<RoomPixels> previousSamus = trajectory.SamusPosition;
         for (int frame = 0; frame < expectedFrames; frame++)
         {
             bool completed = trajectory.Advance();
@@ -260,15 +266,25 @@ static void VerifyDoorOpeningTrajectories()
             }
             AssertEqual(frame == expectedFrames - 1, completed,
                 $"door direction {direction} completion call");
-            ushort currentCamera = direction < 2 ? trajectory.CameraX : trajectory.CameraY;
-            short delta = unchecked((short)(currentCamera - previousCamera));
-            AssertEqual(direction is 0 or 2 ? (short)4 : (short)-4, delta,
-                $"door direction {direction} per-IRQ camera delta");
-            previousCamera = currentCamera;
+            AssertEqual(cameraStep, trajectory.CameraPosition - previousCamera,
+                $"door direction {direction} per-IRQ camera step");
+            AssertEqual(layer2Step, trajectory.Layer2Position - previousLayer2,
+                $"door direction {direction} per-IRQ layer-two step");
+            uint expectedTravelRaw = unchecked((direction < 2 ? previousSamus.X : previousSamus.Y).RawValue + (uint)samusStepRaw);
+            AssertEqual(expectedTravelRaw, (direction < 2 ? trajectory.SamusPosition.X : trajectory.SamusPosition.Y).RawValue,
+                $"door direction {direction} per-IRQ Samus 16.16 step with 32-bit wrap");
+            AssertEqual(direction < 2 ? previousSamus.Y : previousSamus.X,
+                direction < 2 ? trajectory.SamusPosition.Y : trajectory.SamusPosition.X,
+                $"door direction {direction} leaves Samus's perpendicular axis untouched");
+            previousCamera = trajectory.CameraPosition;
+            previousLayer2 = trajectory.Layer2Position;
+            previousSamus = trajectory.SamusPosition;
         }
+        AssertEqual(finalLayer2, trajectory.Layer2Position,
+            $"door direction {direction} layer two reaches its endpoint on the final step");
 
-        ushort preSnapCameraX = trajectory.CameraX;
-        ushort preSnapCameraY = trajectory.CameraY;
+        ushort preSnapCameraX = trajectory.CameraPosition.X;
+        ushort preSnapCameraY = trajectory.CameraPosition.Y;
         AssertEqual(direction switch
         {
             0 => (ushort)(destinationX + 0x0000),
@@ -283,15 +299,13 @@ static void VerifyDoorOpeningTrajectories()
         }, preSnapCameraY, $"door direction {direction} final streamed camera Y");
 
         trajectory.SnapLayerOneToDestination();
-        AssertEqual(destinationX, trajectory.CameraX,
-            $"door direction {direction} final camera X");
-        AssertEqual(finalCameraY, trajectory.CameraY,
-            $"door direction {direction} final camera Y");
+        AssertEqual(new Position16<RoomPixels>(destinationX, finalCameraY), trajectory.CameraPosition,
+            $"door direction {direction} final camera snap");
+        AssertEqual(finalLayer2, trajectory.Layer2Position,
+            $"door direction {direction} snap leaves layer two at its streamed endpoint");
         AssertEqual(0, trajectory.RemainingFrames,
             $"door direction {direction} exhausts IRQ frame count");
-        AssertTrue(
-            trajectory.SamusXFixed != trajectory.FinalSamusXFixed ||
-            trajectory.SamusYFixed != trajectory.FinalSamusYFixed,
+        AssertTrue(trajectory.SamusPosition != trajectory.FinalSamusPosition,
             $"door direction {direction} leaves $82:E6A2 nudge for its later phase");
     }
 

@@ -60,13 +60,13 @@ internal sealed class RenderScratch : IDisposable
 
     /// <summary>OAM resolved into scratch color and priority planes.</summary>
     public ResolvedObjFrame ResolveObjects(Hardware.OamBuffer oam, Hardware.SnesVram vram, Hardware.SnesCgram cgram,
-        byte objectSelection, int width = Hardware.SnesPpuLayout.ScreenWidthPixels,
-        int height = Hardware.SnesPpuLayout.ScreenHeightPixels)
+        byte objectSelection)
     {
-        int count = checked(width * height);
+        Extent16<ScreenPixels> screen = Hardware.SnesPpuLayout.ScreenSize;
+        int count = screen.X * screen.Y;
         Rgba32[] pixels = Colors(count);
         byte[] priorities = Bytes(count);
-        SnesObjRenderer.RenderResolved(oam, vram, cgram, objectSelection, pixels, priorities, width, height);
+        SnesObjRenderer.RenderResolved(oam, vram, cgram, objectSelection, pixels, priorities, screen);
         return new ResolvedObjFrame(pixels, priorities);
     }
 

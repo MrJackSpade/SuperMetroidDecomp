@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -26,9 +27,9 @@ public static class RoomFxAnimatedTileAtlasExtractor
                 $"Room-FX animation art has {planar.Length} bytes, expected {RoomFxAnimatedTileAtlasFormat.TotalByteCount}.");
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar.ToArray(),
             RoomFxAnimatedTileAtlasFormat.BitsPerPixel,
-            RoomFxAnimatedTileAtlasFormat.TileCount, out int width, out int height);
+            RoomFxAnimatedTileAtlasFormat.TileCount, out Extent16<ImagePixels> size);
         using var output = new MemoryStream();
-        IndexedPng.Write(output, width, height, pixels,
+        IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
         return output.ToArray();
     }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -17,20 +18,19 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
     /// <summary>Draws the ending-logo composition identified by its bank-$8C spritemap pointer.</summary>
     /// <param name="pointer">Bank-$8C pointer identifying one of the eight installed logo frames.</param>
     /// <param name="oam">Object-attribute buffer that receives the composition.</param>
-    /// <param name="x">Horizontal origin in screen-space coordinates.</param>
-    /// <param name="y">Vertical origin in screen-space coordinates.</param>
+    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">SNES OAM attribute bits to combine with each part.</param>
     /// <param name="originIsOnScreen">Whether the origin is already in the visible coordinate range.</param>
-    public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException(
                 $"Ending logo sprite frame $8C:{pointer:X4} is not installed.");
         if (originIsOnScreen)
-            frame.DrawOnScreen(oam, x, y, paletteBits);
+            frame.DrawOnScreen(oam, origin, paletteBits);
         else
-            frame.DrawOffScreen(oam, x, y, paletteBits);
+            frame.DrawOffScreen(oam, origin, paletteBits);
     }
 
     /// <summary>Loads and validates the eight named final-logo compositions from JSON.</summary>

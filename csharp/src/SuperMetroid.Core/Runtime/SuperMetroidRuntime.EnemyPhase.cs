@@ -47,13 +47,13 @@ public sealed partial class SuperMetroidRuntime
     /// The camera's frame-start Samus checkpoint, under the live previous-position words that
     /// <c>CapScrollingSpeed</c> reads.
     /// </param>
-    private void RunEnemyMainPhase(bool processingListPrepared, SamusCameraPoint? samusPreviousPositionCheckpoint)
+    private void RunEnemyMainPhase(bool processingListPrepared, FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint)
     {
         if (Camera is not null && Enemies.IsLoaded)
         {
             Enemies.StepFrame(
-                Camera.XPosition,
-                Camera.YPosition,
+                Camera.PixelPosition.X,
+                Camera.PixelPosition.Y,
                 TimeIsFrozen,
                 Samus,
                 Controller1.NewlyPressed,
@@ -103,8 +103,8 @@ public sealed partial class SuperMetroidRuntime
                 // while eye/tentacle collision follows enemy positions. Publish those
                 // writes before the next accepted NMI latches the matching OAM frame.
                 // The room's fixed layer-two axes preserve them during camera scrolling.
-                BackgroundScroll.SetBg2ScrollRegisters(
-                    phantoon.Bg2HorizontalScroll, phantoon.Bg2VerticalScroll);
+                BackgroundScroll.SetBg2ScrollRegisters(new Position16<Bg2Pixels>(
+                    phantoon.Bg2HorizontalScroll, phantoon.Bg2VerticalScroll));
             }
             if (Enemies.CeresEscapeStartedThisFrame)
             {
@@ -118,7 +118,7 @@ public sealed partial class SuperMetroidRuntime
                 // scrolling routine later in this frame. Do not route it through entry
                 // placement, which would clear subposition and ideal-camera state.
                 Camera.SetLayerOneXFromEnemyAi(shitroidCameraX);
-                BackgroundScroll.Layer1XPosition = shitroidCameraX;
+                BackgroundScroll.Layer1Position = BackgroundScroll.Layer1Position.WithX(shitroidCameraX);
             }
             // `$A9:8C0C` deletes HDMA objects 0-3; the next frame's HDMA pass runs none of them.
             if (Enemies.MotherBrainDeletedHdmaObjects)
@@ -135,8 +135,8 @@ public sealed partial class SuperMetroidRuntime
             // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
             Enemies.DrawCeresRidleyImmediateBabyAndDoor(
                 Oam,
-                Camera.XPosition,
-                Camera.YPosition);
+                Camera.PixelPosition.X,
+                Camera.PixelPosition.Y);
             if (Samus is not null)
             {
                 Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;

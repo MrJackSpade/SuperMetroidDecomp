@@ -37,14 +37,14 @@ internal static partial class Program
                 {
                     AssertTrue(!spawned, "station explosion spawns only once");
                     reference.Spawn(
-                        new(unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - scene.BackgroundX)), unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY - scene.BackgroundY))));
+                        new(unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - scene.Background.X.Whole)), unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY - scene.Background.Y.Whole))));
                     spawned = true;
                 }
 
                 var actual = scene.CaptureRenderSnapshot().Layers.ToArray()
                     .OfType<ScanlineColorAddRenderLayer>().SingleOrDefault();
                 var expected = SnesGameplayFrameRenderer.CapturePowerBombColorMath(
-                    bus, reference, 0, 0, firstVisibleScanline: 0);
+                    bus, reference, new Position16<RoomPixels>(0, 0), firstVisibleScanline: 0);
                 AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");
                 if (expected is not null && actual is not null)
                 {

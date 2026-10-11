@@ -23,13 +23,13 @@ internal static partial class Program
                 RoomPlmPopulationImporter.Read(bus, 0x9000), new Bank80SystemState(),
                 areaIndex: AreaId.Crateria, getSamus: () => samus, isAreaTorizoDefeated: () => false);
             int accessX = right ? 9 : 7;
-            var behavior = new RoomBlockBehavior(level.GetCollisionBlock(accessX, 8).Behavior);
-            bool Touch() => plms.TryNotifyStationCollision(level.GetBlockIndex(accessX, 8), behavior,
+            var behavior = new RoomBlockBehavior(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Behavior);
+            bool Touch() => plms.TryNotifyStationCollision(level.GetBlockIndex(new(checked((ushort)accessX), 8)), behavior,
                 right ? SamusPoseId.RanIntoWallLeftPose : SamusPoseId.RanIntoWallRightPose,
                 horizontal: true, movingPositive: !right, roomWidthInBlocks: 32);
             AssertTrue(Touch(), "full recharge station remains solid");
             AssertTrue(!samus.InputLocked, "full resource must be rejected before station input lock");
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(bus, level, streamer, new(0, 0), 0);
             AssertTrue(!samus.InputLocked && plms.StationActivationEvents.Count == 0,
                 "rejected recharge starts no operation and leaves controller enabled");
 
@@ -38,14 +38,14 @@ internal static partial class Program
             // The first access-list instruction rechecks fullness and explicitly
             // restores movement before deleting an access that no longer needs refill.
             if (missile) samus.Missiles = samus.MaxMissiles; else samus.Health = samus.MaxHealth;
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(bus, level, streamer, new(0, 0), 0);
             AssertEqual(0, plms.StationActivationEvents.Count, "full-resource access-list exit skips recharge");
             AssertTrue(!samus.InputLocked, "full-resource access-list exit immediately restores controller input");
             AssertTrue(Touch() && !samus.InputLocked, "touching completed station cannot relock input at full resource");
             if (missile) samus.Missiles = 1; else samus.Health = 25;
             AssertTrue(Touch() && samus.InputLocked, "ordinary recharge still accepts depleted resource");
             for (int frame = 0; frame < 120; frame++)
-                plms.Step(bus, level, streamer, 0, 0, 0);
+                plms.Step(bus, level, streamer, new(0, 0), 0);
             AssertEqual(missile ? samus.MaxMissiles : samus.MaxHealth,
                 missile ? samus.Missiles : samus.Health, "ordinary recharge restores the depleted resource");
             AssertTrue(!samus.InputLocked, "ordinary recharge unlocks after retraction");

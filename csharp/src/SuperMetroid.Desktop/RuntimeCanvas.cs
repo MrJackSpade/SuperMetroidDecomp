@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Desktop;
 
@@ -59,16 +60,15 @@ public sealed class RuntimeCanvas : Control
     /// dimensions, so this avoids sixty Bitmap allocations and native disposals per second.
     /// </summary>
     public void ReplaceFrame(
-        int width,
-        int height,
+        Extent16<ScreenPixels> size,
         ReadOnlySpan<SuperMetroid.Core.Assets.Rgba32> pixels)
     {
-        if (frame is null || frame.Width != width || frame.Height != height)
+        if (frame is null || frame.Width != size.X || frame.Height != size.Y)
         {
             frame?.Dispose();
-            frame = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            frame = new Bitmap(size.X, size.Y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         }
-        RgbaBitmap.CopyTo(frame, width, height, pixels);
+        RgbaBitmap.CopyTo(frame, size, pixels);
         Invalidate();
     }
 
@@ -88,14 +88,15 @@ public sealed class RuntimeCanvas : Control
         // about 299 display pixels wide. Keep the vertical scale integral so tile edges
         // remain stable, then apply only this horizontal correction with nearest-neighbor
         // sampling; emulation and captured PNGs remain the untouched native raster.
-        var viewport = SuperMetroid.Core.Rendering.DisplayViewport.ForClient(ClientSize.Width, ClientSize.Height);
+        var viewport = SuperMetroid.Core.Rendering.DisplayViewport.ForClient(
+            SuperMetroid.Core.Rendering.DisplayViewport.ClientSize(ClientSize.Width, ClientSize.Height));
 
         e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
         e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
         e.Graphics.CompositingMode = CompositingMode.SourceOver;
         e.Graphics.DrawImage(
             frame,
-            new Rectangle(viewport.Left, viewport.Top, viewport.Width, viewport.Height),
+            new Rectangle(viewport.Offset.X, viewport.Offset.Y, viewport.Size.X, viewport.Size.Y),
             new Rectangle(0, 0, frame.Width, frame.Height),
             GraphicsUnit.Pixel);
         FramePainted?.Invoke(Stopwatch.GetTimestamp() - paintStarted);

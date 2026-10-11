@@ -76,8 +76,8 @@ internal static partial class Program
         var map = new ushort[1024];
         for (int row = 0; row < 32; row++) map[row * 32 + 8] = 1;
         vram.ExecuteWordTransfer(map, 0x4800, 1);
-        var pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, 0x4800, 0, 13, 32, 256, 192,
-            tilemapWidthInTiles: 32, tilemapHeightInTiles: 32, horizontalScrollByLine: wave.DisplayedScrolls);
+        var pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, 0x4800, 0, new Position16<BgPlanePixels>(13, 32), new Extent16<ScreenPixels>(256, 192),
+            tilemapSize: new Extent16<TilemapCells>(32, 32), horizontalScrollByLine: wave.DisplayedScrolls);
         for (int line = 0; line < 192; line++)
             AssertEqual(new Rgba32(255, 0, 0, 255), pixels[line * 256 + 51],
                 $"first death-wave BG2 stripe stays aligned on rendered scanline {line}");

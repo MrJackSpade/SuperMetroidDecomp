@@ -70,9 +70,9 @@ internal static partial class Program
             // The definition's initialization callback supplies the compiled placement.
             int initializer = IntroBabyActorDefinitions.NativeBank |
                 ReadIntroBabyActorWord(retail, definitionAddress);
-            AssertEqual(ReadIntroBabyActorWord(retail, initializer + 1), actual.X,
+            AssertEqual(ReadIntroBabyActorWord(retail, initializer + 1), actual.Position.X,
                 $"intro baby actor {index} initializer X immediate");
-            AssertEqual(ReadIntroBabyActorWord(retail, initializer + 7), actual.Y,
+            AssertEqual(ReadIntroBabyActorWord(retail, initializer + 7), actual.Position.Y,
                 $"intro baby actor {index} initializer Y immediate");
             AssertEqual(ReadIntroBabyActorWord(retail, initializer + 13), actual.PaletteBits,
                 $"intro baby actor {index} initializer palette immediate");
@@ -138,7 +138,7 @@ internal static partial class Program
                 $"SR388 egg visual frame {frame} matches ROM-backed instruction playback");
             AssertEqual(nativeBaby.SpriteMapPointer, baby.SpriteMapPointer,
                 $"SR388 baby visual frame {frame} matches ROM-backed instruction playback");
-            AssertEqual(nativeBaby.YPosition, baby.YPosition,
+            AssertEqual(nativeBaby.WholePosition.Y, baby.WholePosition.Y,
                 $"SR388 baby Y motion at frame {frame} matches ROM-backed instruction playback");
             if (discovery.PageThreeRequested)
             {
@@ -182,13 +182,13 @@ internal static partial class Program
             examination.Step(frame, introCrossfadeTimer: 0x007f);
             nativeDelivery.Step(frame, introCrossfadeTimer: 0x007f);
             nativeExamination.Step(frame, introCrossfadeTimer: 0x007f);
-            AssertEqual(nativeDelivery.BackgroundX, delivery.BackgroundX,
+            AssertEqual(nativeDelivery.Background.X, delivery.Background.X,
                 $"scientist delivery camera X at frame {frame}");
-            AssertEqual(nativeExamination.BackgroundY, examination.BackgroundY,
+            AssertEqual(nativeExamination.Background.Y, examination.Background.Y,
                 $"scientist examination camera Y at frame {frame}");
-            AssertEqual(nativeDeliveredBaby.XPosition, deliveredBaby.XPosition,
+            AssertEqual(nativeDeliveredBaby.WholePosition.X, deliveredBaby.WholePosition.X,
                 $"scientist delivery baby X at frame {frame}");
-            AssertEqual(nativeExaminedBaby.YPosition, examinedBaby.YPosition,
+            AssertEqual(nativeExaminedBaby.WholePosition.Y, examinedBaby.WholePosition.Y,
                 $"scientist examination baby Y at frame {frame}");
             AssertEqual(nativeDeliveredBaby.SpriteMapPointer, deliveredBaby.SpriteMapPointer,
                 $"scientist delivery visual frame {frame}");

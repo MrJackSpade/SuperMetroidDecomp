@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class InstalledSamusArtworkTests
 {
@@ -116,7 +117,7 @@ internal static partial class InstalledSamusArtworkTests
                 int character = (start - SamusRenderingRomData.TileTransfers.TopDestinations.First) / 16 + tile;
                 oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), 0,
                     SnesObjAttributeWord.Create(character, 4, 3),
-                    (ushort)(32 + slot % 8 * 16), (ushort)(32 + slot / 8 * 16));
+                    new Position16<OamPixels>((ushort)(32 + slot % 8 * 16), (ushort)(32 + slot / 8 * 16)));
             }
         }
     }

@@ -20,7 +20,7 @@ internal static partial class Program
         AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Phase, "native flyaway handoff reached");
         for (int frame = 0; frame < 100; frame++) ending.Step();
         var definition = EndingCreditsRomData.Sprites.ExplosionAfterglow;
-        var afterglow = new IntroDiscoverySprite(definition.X, definition.Y,
+        var afterglow = new IntroDiscoverySprite(new(definition.Position.X, definition.Position.Y),
             definition.Attributes.Raw, definition.InstructionPointer);
         afterglow.Step(instructionWord: EndingCartridgeInstructionWord(bus));
         var expected = new OamBuffer();
@@ -44,8 +44,8 @@ internal static partial class Program
             snapshot.ObjectSelection, snapshot.Brightness));
         var actualPixels = ending.Render();
         Directory.CreateDirectory("csharp/test-temp/ending-507");
-        PngWriterTooling.WriteRgba("csharp/test-temp/ending-507/actual.png", 256, 224, actualPixels);
-        PngWriterTooling.WriteRgba("csharp/test-temp/ending-507/native-priority.png", 256, 224, nativePixels);
+        PngWriterTooling.WriteRgba("csharp/test-temp/ending-507/actual.png", new Extent16<ScreenPixels>(256, 224), actualPixels);
+        PngWriterTooling.WriteRgba("csharp/test-temp/ending-507/native-priority.png", new Extent16<ScreenPixels>(256, 224), nativePixels);
         AssertTrue(actualPixels.AsSpan().SequenceEqual(nativePixels),
             "live getaway ship occludes priority-zero afterglow pixels");
     }

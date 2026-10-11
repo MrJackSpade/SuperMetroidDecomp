@@ -27,7 +27,7 @@ internal static partial class Program
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, pointer,
                 originX, originY, graphicsIndex, onScreen);
             installedOam.AddEnemySpritemap(installed.Get(pointer).Span,
-                originX, originY,
+                new Position16<OamPixels>(originX, originY),
                 unchecked((ushort)(graphicsIndex & 0xff00)),
                 unchecked((byte)graphicsIndex),
                 clipVerticalWrap: true, originYIsOnScreen: onScreen);
@@ -436,9 +436,9 @@ internal static partial class Program
         originalOam.BeginFrame();
         editedOam.BeginFrame();
         originalOam.AddEnemySpritemap(installed.Get(0xb1ba).Span,
-            0x0080, 0x0004, 0, 0, clipVerticalWrap: true);
+            new Position16<OamPixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
         editedOam.AddEnemySpritemap(edited.Get(0xb1ba).Span,
-            0x0080, 0x0004, 0, 0, clipVerticalWrap: true);
+            new Position16<OamPixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
         AssertEqual((byte)(originalOam.LowTable[0] + 1), editedOam.LowTable[0],
             "enemy-projectile composition override moves the live Ceres pad OAM part");
         OamBuffer stockBurst = DrawBurst(stock,
@@ -576,7 +576,7 @@ internal static partial class Program
         var migratedPad = new OamBuffer();
         migratedPad.BeginFrame();
         migratedPad.AddEnemySpritemap(migrated.ProjectileSpritemaps!.Get(0xb1ba).Span,
-            0x0080, 0x0004, 0, 0, clipVerticalWrap: true);
+            new Position16<OamPixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
         AssertEqual(editedOam.LowTable[0], migratedPad.LowTable[0],
             "version-one Ceres composition edit survives the version-three catalog upgrade");
         byte[] versionTwoJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -866,7 +866,7 @@ internal static partial class Program
                         originX, originY, 0x0a04, originYIsOnScreen: true);
                     installedOam.AddEnemySpritemap(
                         installed.GetProgramFrame(frame.OperandAddress).Span,
-                        originX, originY, 0x0a00, 4,
+                        new Position16<OamPixels>(originX, originY), 0x0a00, 4,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     AssertTrue(nativeOam.NextByteOffset == installedOam.NextByteOffset &&
                         nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&

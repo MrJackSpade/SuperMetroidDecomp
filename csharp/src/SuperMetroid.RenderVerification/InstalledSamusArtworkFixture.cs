@@ -52,13 +52,13 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
             void Edit(string name, int width, int height)
             {
                 using var input = File.OpenRead(Path.Combine(installation.SamusBodyDirectory, name));
-                IndexedPngImage image = IndexedPng.Read(input, width, height);
+                IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)width), checked((ushort)height)));
                 for (int i = 0; i < image.Pixels.Length; i++)
                     image.Pixels[i] = Remap(image.Pixels[i]);
                 using var output = File.Create(Path.Combine(installation.SamusBodyOverrideDirectory, name));
                 // Preserve transparent zero, PNG palette, dimensions and unused cells.
                 // Only four-bit character indices are changed, on disk, then reloaded.
-                IndexedPng.Write(output, width, height, image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(checked((ushort)width), checked((ushort)height)), image.Pixels, image.Palette);
             }
         }
         catch { Dispose(); throw; }

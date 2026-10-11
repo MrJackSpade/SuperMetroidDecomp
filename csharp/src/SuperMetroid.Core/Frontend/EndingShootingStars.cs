@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -36,14 +37,13 @@ internal sealed class EndingShootingStars
             else
             {
                 int multiplier = (star.IndexAndFrame & 0xff00) >= EndingShootingStarDefinitions.DoubleAccelerationFrame ? 2 : 1;
-                star.XVelocity = unchecked((ushort)(star.XVelocity + multiplier * definition.XAcceleration));
-                star.YVelocity = unchecked((ushort)(star.YVelocity + multiplier * definition.YAcceleration));
-                Move(ref star.X, ref star.XSubposition, star.XVelocity);
-                Move(ref star.Y, ref star.YSubposition, star.YVelocity);
+                star.Velocity += definition.Acceleration * multiplier;
+                star.Position = star.Position.Advance(star.Velocity.ToSixteenSixteen());
             }
 
-            if (star.X is < EndingShootingStarDefinitions.SpriteOffset or > byte.MaxValue ||
-                star.Y is < EndingShootingStarDefinitions.SpriteOffset or > byte.MaxValue)
+            Position16<ScreenPixels> whole = star.Position.Whole;
+            if (whole.X is < EndingShootingStarDefinitions.SpriteOffset or > byte.MaxValue ||
+                whole.Y is < EndingShootingStarDefinitions.SpriteOffset or > byte.MaxValue)
             {
                 Reset(ref star, (ushort)index);
                 continue;
@@ -63,26 +63,22 @@ internal sealed class EndingShootingStars
         {
             if ((short)star.IndexAndFrame < 0 || (star.IndexAndFrame & 0xff00) == 0) continue;
             int frame = star.IndexAndFrame >> 9;
-            oam.AddRawSmallSprite((ushort)(star.X - EndingShootingStarDefinitions.SpriteOffset),
-                (ushort)(star.Y - EndingShootingStarDefinitions.SpriteOffset), EndingShootingStarDefinitions.Attributes[frame]);
+            Position16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
+            oam.AddRawSmallSprite(origin.ToOam(), EndingShootingStarDefinitions.Attributes[frame]);
         }
-    }
-
-    private static void Move(ref ushort whole, ref ushort fraction, ushort velocity)
-    {
-        uint position = unchecked((((uint)whole << 16) | fraction) + (uint)((short)velocity << 8));
-        whole = (ushort)(position >> 16);
-        fraction = (ushort)position;
     }
 
     private static void Reset(ref EndingShootingStar star, ushort index) => star = new()
     {
-        IndexAndFrame = index, X = EndingShootingStarDefinitions.Origin, Y = EndingShootingStarDefinitions.Origin,
+        IndexAndFrame = index,
+        Position = new(new(EndingShootingStarDefinitions.Origin, 0), new(EndingShootingStarDefinitions.Origin, 0)),
         Timer = EndingShootingStarDefinitions.InitialTimer
     };
 }
 
 internal struct EndingShootingStar
 {
-    internal ushort IndexAndFrame, X, XSubposition, Y, YSubposition, Timer, XVelocity, YVelocity;
+    internal ushort IndexAndFrame, Timer;
+    internal FixedPosition<ScreenPixels> Position;
+    internal EightEightVector<ScreenPixels> Velocity;
 }

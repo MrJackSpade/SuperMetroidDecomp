@@ -34,9 +34,9 @@ internal static partial class Program
             var source = new Rgba32(248, 128, 64);
             Array.Fill(reference, source);
             SnesGameplayFrameRenderer.ApplyXrayWindowColorMath(reference, bus, samus.Xray, samus,
-                (ushort)scroll.Item1, (ushort)scroll.Item2);
+                new Position16<RoomPixels>((ushort)scroll.Item1, (ushort)scroll.Item2));
             var lines = SnesGameplayFrameRenderer.CaptureXrayWindowLines(bus, samus,
-                (ushort)scroll.Item1, (ushort)scroll.Item2);
+                new Position16<RoomPixels>((ushort)scroll.Item1, (ushort)scroll.Item2));
             for (int y = 32; y < 224; y++)
             for (int x = 0; x < 256; x++)
             {

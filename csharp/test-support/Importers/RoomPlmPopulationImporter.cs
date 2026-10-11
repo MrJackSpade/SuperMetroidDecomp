@@ -43,8 +43,7 @@ internal static class RoomPlmPopulationImporter
                 graphic = new RoomPlmDynamicCollectibleGraphic(kind, graphicsPointer, palettes, tiles);
             }
             records.Add(new RoomPlmPlacement(metadata,
-                Byte(0x8f, unchecked((ushort)(cursor + 2))),
-                Byte(0x8f, unchecked((ushort)(cursor + 3))), argument, scroll, graphic));
+                new(Byte(0x8f, unchecked((ushort)(cursor + 2))), Byte(0x8f, unchecked((ushort)(cursor + 3)))), argument, scroll, graphic));
             cursor = unchecked((ushort)(cursor + RoomPlmPopulationFormat.RecordByteCount));
         }
         // Preserve the loader's bounded parser: a terminator beyond record 256

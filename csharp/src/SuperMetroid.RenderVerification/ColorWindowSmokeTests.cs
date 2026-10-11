@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class ColorWindowSmokeTests
 {
@@ -26,28 +27,28 @@ internal static class ColorWindowSmokeTests
         }
         Check(SnesGameplayFrameRenderer.CaptureCeresHaze(false));
         Check(SnesGameplayFrameRenderer.CaptureCeresHaze(true));
-        foreach (int height in new[] { 32, 64 })
+        foreach (ushort height in new ushort[] { 32, 64 })
         foreach (int first in new[] { 0, 32, 223, 224 })
         foreach (ExpandedColorMathOperation operation in Enum.GetValues<ExpandedColorMathOperation>())
         foreach (ushort offset in new ushort[] { 0, 255, 511, ushort.MaxValue })
         {
-            var scrolls = new BackgroundLineScroll[224];
+            var scrolls = new Position16<BgPlanePixels>[224];
             for (int y = 0; y < scrolls.Length; y++)
                 scrolls[y] = new(unchecked((ushort)(offset + y * 7)), unchecked((ushort)(offset - y * 3)));
             var math = new Bg2BppColorMathRenderLayer(0x7ffe, 0x7ff8, height, first, operation, scrolls);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, 3, 11, 32, 32, null), math }, 3, 15));
+                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null), math }, 3, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: BG color math {count}, {operation}, height {height}, first {first}, offset {offset}");
         }
-        foreach (int width in new[] { 32, 64 })
-        foreach (int height in new[] { 32, 64 })
+        foreach (ushort width in new ushort[] { 32, 64 })
+        foreach (ushort height in new ushort[] { 32, 64 })
         foreach (bool? priority in new bool?[] { null, false, true })
         foreach (bool masked in new[] { false, true })
         {
-            var coverage = masked ? new Bg4BppRenderLayer(0x7ffe, 0x6000, 65535, 511, width, height, priority) : null;
+            var coverage = masked ? new Bg4BppRenderLayer(0x7ffe, 0x6000, new Position16<BgPlanePixels>(65535, 511), new Extent16<TilemapCells>(width, height), priority) : null;
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, 3, 11, 32, 32, null),
+                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null),
                     new FixedColorAddRenderLayer(1, 2, 3), new BgSubscreenAddRenderLayer(0x5800, 0x4000, coverage) }, 3, 13));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: subscreen {count}, masked {masked}, geometry {width}x{height}, priority {priority}");
@@ -57,7 +58,7 @@ internal static class ColorWindowSmokeTests
         {
             ushort[] tiles = Enumerable.Range(0, rows * 32).Select(_ => (ushort)random.Next(65536)).ToArray();
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, 3, 11, 32, 32, null),
+                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null),
                     new MessageBoxRenderLayer(tiles, radius) }, 3, 13));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: message {count}, rows {rows}, radius {radius}");
@@ -67,7 +68,7 @@ internal static class ColorWindowSmokeTests
         void Check(ScanlineColorAddRenderLayer windows)
         {
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, 3, 11, 32, 32, null),
+                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null),
                     windows, new FixedColorAddRenderLayer(1, 2, 3), windows }, 3, 13), new byte[] { 11 });
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: color-window sample {count}");

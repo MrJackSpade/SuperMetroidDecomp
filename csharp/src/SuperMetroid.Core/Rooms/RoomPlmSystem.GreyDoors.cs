@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -15,8 +16,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         PlmSlot slot,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset,
         ushort enemyDeaths,
         byte enemyDeathQuota)
@@ -61,8 +61,7 @@ public sealed partial class RoomPlmSystem
                 streamer,
                 slot.BlockIndex,
                 drawPointer,
-                layer1XPosition,
-                layer1YPosition,
+                layer1Position,
                 bg1XOffset);
             slot.Active = false;
             slot.GreyDoor = null;
@@ -77,8 +76,7 @@ public sealed partial class RoomPlmSystem
                 streamer,
                 slot.BlockIndex,
                 door.ClosedGreyDraw,
-                layer1XPosition,
-                layer1YPosition,
+                layer1Position,
                 bg1XOffset);
             door.InitialDrawCompleted = true;
         }

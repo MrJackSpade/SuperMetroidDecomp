@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -17,18 +18,16 @@ public static class FileSelectMapLoadAnchors
     /// Only fixed compiled room metadata is needed, never room-state selection,
     /// cartridge access, editable marker art, or a generated coordinate cache.
     /// </remarks>
-    public static FileSelectMapAnchor Get(AreaId area, int stationIndex)
+    public static Position16<MapPixels> Get(AreaId area, int stationIndex)
     {
         _ = MapSaveMarkerDefinitions.Id(area, stationIndex);
         LoadStationEntry station = LoadStationDefinitions.Get(area, (byte)stationIndex);
         RoomHeaderDefinition room = RoomHeaderDefinitions.Get(station.RoomPointer);
-        return new((ushort)((room.MapX + (station.SamusX >> 8)) << 3),
-            (ushort)((room.MapY + (station.SamusY >> 8) + 1) << 3));
+        Position16<RoomPixels> samus = station.SamusPosition;
+        return new((ushort)((room.MapPosition.X + (samus.X >> 8)) << 3),
+            (ushort)((room.MapPosition.Y + (samus.Y >> 8) + 1) << 3));
     }
 }
-
-/// <summary>Player-map position supplied to native initial-scroll clipping, not a marker drawing origin.</summary>
-public readonly record struct FileSelectMapAnchor(ushort X, ushort Y);
 
 /// <summary>Compiled $81:AAA0 FileSelectMapArea_IndexTable order used by label composition.</summary>
 public static class FileSelectMapAreaOrder

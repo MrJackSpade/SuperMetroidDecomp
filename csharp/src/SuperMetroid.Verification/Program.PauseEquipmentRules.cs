@@ -141,7 +141,7 @@ internal static partial class Program
             }
         }
         Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");
-        PauseMenuState Create(SamusState samus) => new(guard, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: catalog);
+        PauseMenuState Create(SamusState samus) => new(guard, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0), mapPresentation: catalog);
         static SamusState Inventory(PauseEquipmentCategory category, ushort owned) => category == PauseEquipmentCategory.Beams
             ? new SamusState { CollectedBeams = owned, EquippedBeams = owned }
             : new SamusState { CollectedItems = owned, EquippedItems = owned };

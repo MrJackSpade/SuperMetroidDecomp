@@ -31,9 +31,9 @@ internal static partial class Program
         AssertEqual(33, runtime.Enemies.EarthquakeType, "Ceres left impact requests native quake type");
         AssertEqual(11, runtime.Enemies.EarthquakeTimer, "first draw consumes one of twelve quake frames");
         AssertTrue(runtime.Enemies.LastRoomShake != default, "impact reaches room shaking consumer");
-        AssertEqual(0, runtime.Enemies.LastRoomShake.Bg1X, "native impact does not shift BG1 X");
-        AssertEqual(0, runtime.Enemies.LastRoomShake.Bg1Y, "native impact does not shift BG1 Y");
-        AssertEqual(3, runtime.Enemies.LastRoomShake.Bg2X, "native impact shifts BG2 three pixels on first frame");
+        AssertEqual(0, runtime.Enemies.LastRoomShake.Bg1.X, "native impact does not shift BG1 X");
+        AssertEqual(0, runtime.Enemies.LastRoomShake.Bg1.Y, "native impact does not shift BG1 Y");
+        AssertEqual(3, runtime.Enemies.LastRoomShake.Bg2.X, "native impact shifts BG2 three pixels on first frame");
         AssertTrue(body.ShakeTimer != 0, "native impact also shakes selected enemies");
         AssertEqual(runtime.Enemies.LastRoomShake, runtime.DisplayedGameplayPpu.RoomShake,
             "accepted display snapshot carries the wall-impact displacement");

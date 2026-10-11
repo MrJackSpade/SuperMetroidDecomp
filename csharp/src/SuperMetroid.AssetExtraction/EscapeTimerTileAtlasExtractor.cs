@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -21,10 +22,9 @@ public static class EscapeTimerTileAtlasExtractor
                 EscapeTimerTileAtlasFormat.TotalByteCount),
             EscapeTimerTileAtlasFormat.BitsPerPixel,
             EscapeTimerTileAtlasFormat.TileCount,
-            out int width,
-            out int height);
+            out Extent16<ImagePixels> size);
         using var output = new MemoryStream();
-        IndexedPng.Write(output, width, height, pixels,
+        IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(EscapeTimerTileAtlasFormat.ColorCount));
         return output.ToArray();
     }

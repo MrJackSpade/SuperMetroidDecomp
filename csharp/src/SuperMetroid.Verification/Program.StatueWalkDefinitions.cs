@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -15,7 +16,7 @@ internal static partial class Program
             .CreateDelegate<Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, ushort, ushort, ushort>>(enemies);
         var carry = typeof(RoomEnemySystem).GetMethod("ProcessChozoStatueMovement", BindingFlags.NonPublic | BindingFlags.Instance)!
             .CreateDelegate<Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, ushort>>(enemies);
-        var level = new RoomLevelData(32, 32, new ushort[1024], new byte[1024], new ushort[1024], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new ushort[1024], new byte[1024], new ushort[1024], new byte[8]);
         RoomEnemySlot slot = enemies.Slots[0];
         slot.XRadius = slot.YRadius = 8;
         var torizo = new TorizoEnemyState(slot, true);

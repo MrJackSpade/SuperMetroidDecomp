@@ -53,7 +53,7 @@ internal static class GrappleBeamTilePatterns
             };
             if (filled) pixels[y * 8 + x] = Pen;
         }
-        return SnesPlanarTileEncoder.Encode(pixels, 8, 8, 4);
+        return SnesPlanarTileEncoder.Encode(pixels, new(8, 8), 4);
     }
 
     /// <summary>$9A:9220-929F vertical characters transpose the four horizontal characters at $8220-829F without reordering animation frames.</summary>

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -49,7 +50,7 @@ internal static partial class Program
     {
         var words = new ushort[32 * 32];
         for (int x = 0; x < 32; x++) words[16 * 32 + x] = 0x8000;
-        var floor = new RoomLevelData(32, 32, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
+        var floor = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
         foreach (ushort direction in Enumerable.Range(0, 8).Select(x => (ushort)x))
         foreach (ushort facing in new ushort[] { 0, 1 })
         {

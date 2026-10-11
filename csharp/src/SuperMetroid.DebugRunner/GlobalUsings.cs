@@ -2,4 +2,5 @@
 // audit. Keeping the namespace import here prevents audit fixtures from reverting to
 // unlabelled integer library arguments.
 global using SuperMetroid.Core.Audio;
+// Typed spatial values (#628) appear throughout the tools.
 global using SuperMetroid.Core.Spatial;

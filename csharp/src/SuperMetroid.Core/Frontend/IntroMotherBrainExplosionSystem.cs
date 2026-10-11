@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -52,8 +53,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (!actor.IsActive || actor.SpriteMapPointer == 0)
                 continue;
 
-            installedArt.Draw(actor.SpriteMapPointer, oam, actor.XPosition,
-                actor.YPosition, IntroCinematicRomData.Objects.ExplosionPalette.Raw);
+            installedArt.Draw(actor.SpriteMapPointer, oam, actor.Position.ToOam(), IntroCinematicRomData.Objects.ExplosionPalette.Raw);
         }
     }
 
@@ -63,20 +63,16 @@ internal sealed class IntroMotherBrainExplosionSystem
         private ushort instructionTimer;
 
         private ExplosionActor(
-            ushort xPosition,
-            ushort yPosition,
+            Position16<ScreenPixels> position,
             ushort instructionPointer,
             ushort instructionTimer)
         {
-            XPosition = xPosition;
-            YPosition = yPosition;
+            Position = position;
             this.instructionPointer = instructionPointer;
             this.instructionTimer = instructionTimer;
         }
 
-        public ushort XPosition { get; }
-
-        public ushort YPosition { get; }
+        public Position16<ScreenPixels> Position { get; }
 
         public ushort SpriteMapPointer { get; private set; }
 
@@ -86,10 +82,8 @@ internal sealed class IntroMotherBrainExplosionSystem
         {
             IntroMotherBrainExplosionPlacement placement =
                 IntroMotherBrainDefinitions.BigExplosion(parameter);
-            (ushort originX, ushort originY) = IntroMotherBrainDefinitions.MotherBrainOrigin;
             return new ExplosionActor(
-                AddSigned(originX, placement.XOffset),
-                AddSigned(originY, placement.YOffset),
+                IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
                 instructionPointer: IntroMotherBrainDefinitions.BigExplosionActor.InstructionList,
                 instructionTimer: placement.StartTimer);
         }
@@ -98,10 +92,8 @@ internal sealed class IntroMotherBrainExplosionSystem
         {
             IntroMotherBrainExplosionPlacement placement =
                 IntroMotherBrainDefinitions.SmallExplosion(parameter);
-            (ushort originX, ushort originY) = IntroMotherBrainDefinitions.MotherBrainOrigin;
             return new ExplosionActor(
-                AddSigned(originX, placement.XOffset),
-                AddSigned(originY, placement.YOffset),
+                IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
                 instructionPointer: IntroMotherBrainDefinitions.SmallExplosionActor.InstructionList,
                 instructionTimer: placement.StartTimer);
         }
@@ -161,7 +153,5 @@ internal sealed class IntroMotherBrainExplosionSystem
         private static ushort Add(ushort pointer, int byteCount) =>
             unchecked((ushort)(pointer + byteCount));
 
-        private static ushort AddSigned(ushort value, short offset) =>
-            unchecked((ushort)(value + offset));
     }
 }

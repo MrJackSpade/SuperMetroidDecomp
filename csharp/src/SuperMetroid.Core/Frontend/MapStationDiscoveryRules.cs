@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -16,9 +17,8 @@ public enum MapStationKind
 /// <summary>Stable marker identity and original exploration cell, independent of authored drawing coordinates.</summary>
 /// <param name="Id">Stable area/family/ordinal key used to resolve the editable marker drawing position.</param>
 /// <param name="Area">Area whose saved exploration bits govern this marker's visibility.</param>
-/// <param name="CellX">Original horizontal exploration-cell index, obtained from the native map-pixel X divided by eight.</param>
-/// <param name="CellY">Original vertical exploration-cell index, obtained from the native map-pixel Y divided by eight.</param>
-public readonly record struct MapStationDiscoveryRule(string Id, AreaId Area, int CellX, int CellY);
+/// <param name="Cell">Original exploration cell, obtained from the native map-pixel position divided by eight.</param>
+public readonly record struct MapStationDiscoveryRule(string Id, AreaId Area, Position16<MapTiles> Cell);
 
 /// <summary>Application-owned discovery cells from the retail $82:C7DB/C7EB/C7FB station lists.</summary>
 public static class MapStationDiscoveryRules
@@ -26,28 +26,28 @@ public static class MapStationDiscoveryRules
     /// <summary>$82:C8A3: Brinstar missile station; $82:C9E1: Maridia missile station.</summary>
     private static readonly MapStationDiscoveryRule[] missile =
     [
-        new("Brinstar.Missile.0", AreaId.Brinstar, 5, 8),
-        new("Maridia.Missile.0", AreaId.Maridia, 38, 9),
+        new("Brinstar.Missile.0", AreaId.Brinstar, new(5, 8)),
+        new("Maridia.Missile.0", AreaId.Maridia, new(38, 9)),
     ];
     /// <summary>$82:C8A9/C913/C9E7/CA49: Brinstar, Norfair, Maridia and Tourian energy station cells.</summary>
     private static readonly MapStationDiscoveryRule[] energy =
     [
-        new("Brinstar.Energy.0", AreaId.Brinstar, 9, 13),
-        new("Brinstar.Energy.1", AreaId.Brinstar, 32, 19),
-        new("Brinstar.Energy.2", AreaId.Brinstar, 54, 19),
-        new("Norfair.Energy.0", AreaId.Norfair, 20, 10),
-        new("Norfair.Energy.1", AreaId.Norfair, 21, 16),
-        new("Maridia.Energy.0", AreaId.Maridia, 42, 7),
-        new("Tourian.Energy.0", AreaId.Tourian, 11, 17),
+        new("Brinstar.Energy.0", AreaId.Brinstar, new(9, 13)),
+        new("Brinstar.Energy.1", AreaId.Brinstar, new(32, 19)),
+        new("Brinstar.Energy.2", AreaId.Brinstar, new(54, 19)),
+        new("Norfair.Energy.0", AreaId.Norfair, new(20, 10)),
+        new("Norfair.Energy.1", AreaId.Norfair, new(21, 16)),
+        new("Maridia.Energy.0", AreaId.Maridia, new(42, 7)),
+        new("Tourian.Energy.0", AreaId.Tourian, new(11, 17)),
     ];
     /// <summary>$82:C84D/C8B7/C91D/C98B/C9ED: the five map station exploration cells.</summary>
     private static readonly MapStationDiscoveryRule[] map =
     [
-        new("Crateria.Map.0", AreaId.Crateria, 23, 8),
-        new("Brinstar.Map.0", AreaId.Brinstar, 5, 5),
-        new("Norfair.Map.0", AreaId.Norfair, 9, 5),
-        new("WreckedShip.Map.0", AreaId.WreckedShip, 13, 20),
-        new("Maridia.Map.0", AreaId.Maridia, 17, 18),
+        new("Crateria.Map.0", AreaId.Crateria, new(23, 8)),
+        new("Brinstar.Map.0", AreaId.Brinstar, new(5, 5)),
+        new("Norfair.Map.0", AreaId.Norfair, new(9, 5)),
+        new("WreckedShip.Map.0", AreaId.WreckedShip, new(13, 20)),
+        new("Maridia.Map.0", AreaId.Maridia, new(17, 18)),
     ];
 
     /// <summary>Every compiled station marker in missile, energy, then map order; used to require the complete marker set in editable layouts.</summary>

@@ -19,13 +19,13 @@ internal static partial class Program
         AssertEqual(PowerBombExplosionPhase.ExplosionWhite, explosion.RenderedPhase, "transition retains the final expanding oval");
         ushort finalShape = explosion.RenderedShapeDefinitionPointer;
         AssertEqual((ushort)0x9e46, finalShape, "native final white profile");
-        var last = SnesGameplayFrameRenderer.CapturePowerBombColorMath(rom, explosion, 0, 0)!;
+        var last = SnesGameplayFrameRenderer.CapturePowerBombColorMath(rom, explosion, new Position16<RoomPixels>(0, 0))!;
         int checkedFrames = 0;
         while (explosion.IsActive)
         {
-            var actual = SnesGameplayFrameRenderer.CapturePowerBombColorMath(rom, explosion, 0, 0)!;
+            var actual = SnesGameplayFrameRenderer.CapturePowerBombColorMath(rom, explosion, new Position16<RoomPixels>(0, 0))!;
             var pixels = Enumerable.Repeat(new Rgba32(0, 0, 0), 256 * 224).ToArray();
-            SnesGameplayFrameRenderer.ApplyPowerBombColorMath(pixels, rom, explosion, 0, 0);
+            SnesGameplayFrameRenderer.ApplyPowerBombColorMath(pixels, rom, explosion, new Position16<RoomPixels>(0, 0));
             for (int y = 32; y < 224; y++)
             {
                 int row = Math.Abs(y - 208);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using SuperMetroid.Core.Hardware;
@@ -8,21 +9,21 @@ namespace SuperMetroid.Rendering.Direct3D11;
 public sealed partial class D3D11FrameRenderer
 {
     /// <summary>Draws the submitted integer frame into an owner-device target, without readback.</summary>
-    internal unsafe void DrawDisplay(ID3D11RenderTargetView target, int width, int height)
+    internal unsafe void DrawDisplay(ID3D11RenderTargetView target, Extent16<DisplayPixels> client)
     {
         owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+        if (client.X == 0 || client.Y == 0)
+            throw new ArgumentOutOfRangeException(nameof(client), client, "A display target must have positive dimensions.");
         if (renderedIdentity is null) throw new InvalidOperationException("No frame has been submitted for display.");
-        var viewport = DisplayViewport.ForClient(width, height);
+        var viewport = DisplayViewport.ForClient(client);
         var data = System.Runtime.InteropServices.MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
-        data[0] = viewport.Left; data[1] = viewport.Top;
-        data[2] = viewport.Width; data[3] = viewport.Height;
+        data[0] = viewport.Offset.X; data[1] = viewport.Offset.Y;
+        data[2] = viewport.Size.X; data[3] = viewport.Size.Y;
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetUnorderedAccessView(0, null);
         owner.Context.CSSetUnorderedAccessView(1, null);
         owner.Context.OMSetRenderTargets(target);
-        owner.Context.RSSetViewport(0, 0, width, height);
+        owner.Context.RSSetViewport(0, 0, client.X, client.Y);
         owner.Context.IASetInputLayout(null);
         owner.Context.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
         owner.Context.VSSetShader(displayVertexShader);

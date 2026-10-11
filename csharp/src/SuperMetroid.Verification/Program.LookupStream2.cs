@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -358,7 +359,7 @@ internal static partial class Program
             var native = new OamBuffer();
             var actual = new OamBuffer();
             DrawImportedProjectileSpritemap(rom, native, pointer, 255, 255);
-            selected.Draw(pointer, actual, 255, 255);
+            selected.Draw(pointer, actual, new(255, 255));
             AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "All417 calculated/remaining identities extract and draw exact native OAM");
         }
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
@@ -370,8 +371,8 @@ internal static partial class Program
         var editedMissile = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var originalMissileOam = new OamBuffer();
         var editedMissileOam = new OamBuffer();
-        selected.Draw(superMissilePointer, originalMissileOam, 255, 255);
-        editedMissile.Draw(superMissilePointer, editedMissileOam, 255, 255);
+        selected.Draw(superMissilePointer, originalMissileOam, new(255, 255));
+        editedMissile.Draw(superMissilePointer, editedMissileOam, new(255, 255));
         byte[] expectedMissileOam = originalMissileOam.LowTable.ToArray();
         expectedMissileOam[4]++;
         AssertTrue(expectedMissileOam.SequenceEqual(editedMissileOam.LowTable) && originalMissileOam.HighTable.SequenceEqual(editedMissileOam.HighTable), "Independent SuperMissile tail edit changes only its emitted X byte");
@@ -383,12 +384,12 @@ internal static partial class Program
         var edited = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var baselineOam = new OamBuffer();
         var editedOam = new OamBuffer();
-        selected.Draw(editedPointer, baselineOam, 255, 255);
-        edited.Draw(editedPointer, editedOam, 255, 255);
+        selected.Draw(editedPointer, baselineOam, new(255, 255));
+        edited.Draw(editedPointer, editedOam, new(255, 255));
         AssertEqual(unchecked((byte)(baselineOam.LowTable[0] + 1)), editedOam.LowTable[0], "Independent composition edit reaches calculated identity");
         document.Frames[editedName][0] = before;
         var ownedOam = new OamBuffer();
-        edited.Draw(editedPointer, ownedOam, 255, 255);
+        edited.Draw(editedPointer, ownedOam, new(255, 255));
         AssertTrue(ownedOam.LowTable.SequenceEqual(editedOam.LowTable), "Loaded composition owns independent edited content");
         const ushort quadPointer = 0xed9e;
         string quadName = ProjectileSpriteDefinitions.Name(quadPointer);
@@ -397,8 +398,8 @@ internal static partial class Program
         var editedQuadCatalog = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var nativeQuad = new OamBuffer();
         var editedQuad = new OamBuffer();
-        selected.Draw(quadPointer, nativeQuad, 255, 255);
-        editedQuadCatalog.Draw(quadPointer, editedQuad, 255, 255);
+        selected.Draw(quadPointer, nativeQuad, new(255, 255));
+        editedQuadCatalog.Draw(quadPointer, editedQuad, new(255, 255));
         byte[] expectedQuad = nativeQuad.LowTable.ToArray();
         expectedQuad[3] ^= 0x40;
         AssertTrue(expectedQuad.AsSpan().SequenceEqual(editedQuad.LowTable) && nativeQuad.HighTable.SequenceEqual(editedQuad.HighTable), "Independent one-quadrant reflection edit changes only its exact emitted OAM attribute bit");
@@ -409,8 +410,8 @@ internal static partial class Program
         var editedWaveCatalog = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
         var nativeWave = new OamBuffer();
         var editedWave = new OamBuffer();
-        selected.Draw(wavePointer, nativeWave, 255, 255);
-        editedWaveCatalog.Draw(wavePointer, editedWave, 255, 255);
+        selected.Draw(wavePointer, nativeWave, new(255, 255));
+        editedWaveCatalog.Draw(wavePointer, editedWave, new(255, 255));
         byte[] expectedWave = nativeWave.LowTable.ToArray();
         expectedWave[1]++;
         AssertTrue(expectedWave.AsSpan().SequenceEqual(editedWave.LowTable) && nativeWave.HighTable.SequenceEqual(editedWave.HighTable), "Independent diagonal Wave Y edit changes exactly its emitted coordinate and preserves X ninth bit");
@@ -420,7 +421,7 @@ internal static partial class Program
             var native = new OamBuffer();
             var actual = new OamBuffer();
             DrawImportedProjectileSpritemap(rom, native, ChargeFlareSpriteDefinitions.Selectors[selector], 255, 255);
-            flare.Draw(selector, actual, 255, 255);
+            flare.Draw(selector, actual, new(255, 255));
             AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "Existing flare span caller preserves exact extracted OAM");
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
@@ -951,9 +952,9 @@ internal static partial class Program
         byte[] planar = Enumerable.Range(0, DeadTorizoArtworkDefinitions.ByteCount)
             .Select(index => rom.ReadByte(DeadTorizoArtworkDefinitions.SourceAddress + index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns,
-            out int width, out int height);
+            out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         png.Position = 0;
         // An independently edited display composition is deliberately unrelated to
         // stock tile coverage. Native staging must still copy the same artwork rows.
@@ -970,7 +971,7 @@ internal static partial class Program
         AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out EnemySpritemapParts selectedDisplay),
             "Edited Dead Torizo display is selected");
         var editedOam = new OamBuffer();
-        editedOam.AddEnemySpritemap(selectedDisplay, 128, 128, 0, 0);
+        editedOam.AddEnemySpritemap(selectedDisplay, new Position16<OamPixels>(128, 128), 0, 0);
         AssertEqual(4, editedOam.NextByteOffset, "Edited display draws one small part instead of25stock parts");
         AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
@@ -1136,7 +1137,7 @@ internal static partial class Program
     {
         var storage = new byte[RoomScrollGrid.StorageByteCount];
         Array.Fill(storage, (byte)1);
-        var grid = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), storage, 3, 2);
+        var grid = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), storage, new Extent16<RoomScreens>(3, 2));
         foreach (CameraDistanceMode mode in Enum.GetValues<CameraDistanceMode>())
         foreach (byte facing in new byte[] { 4, 8 })
         for (int reversal = 0; reversal < 4; reversal++)
@@ -1149,14 +1150,16 @@ internal static partial class Program
             ushort nativeOffset = ReadVerificationWord(rom, (right ? 0x90963f : 0x909647) + (int)mode);
             AssertEqual(nativeOffset, HorizontalCameraTargetDefinitions.Offset(mode, right), "Native mode/facing target offset");
             var camera = new ScrollBoundaryCamera(grid);
-            camera.SetPosition(100, 0);
-            camera.TrackMovedSamusHorizontally(new(200, 0, 100, 0), new(204, 0, 100, 0), context);
-            AssertEqual(unchecked((ushort)(204 - nativeOffset)), camera.IdealXPosition, "Actual camera target preserves mode and reversal");
-            AssertEqual((ushort)5, camera.CameraXSpeed, "Target dispatch preserves movement speed calculation");
+            camera.SetPosition(new Position16<RoomPixels>(100, 0));
+            camera.TrackMovedSamusHorizontally(
+                FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0), FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0), context);
+            AssertEqual(unchecked((ushort)(204 - nativeOffset)), camera.IdealPosition.X, "Actual camera target preserves mode and reversal");
+            AssertEqual((ushort)5, camera.Speed.X.WholeWord, "Target dispatch preserves movement speed calculation");
         }
         var invalidCamera = new ScrollBoundaryCamera(grid);
         AssertThrows<ArgumentOutOfRangeException>(() => invalidCamera.TrackMovedSamusHorizontally(
-            new(200, 0, 100, 0), new(204, 0, 100, 0), new(0, 0, 0, 8, (CameraDistanceMode)1)), "Native mode domain remains validated before tracking");
+            FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0), FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0),
+            new(0, 0, 0, 8, (CameraDistanceMode)1)), "Native mode domain remains validated before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
     private static void VerifyLookupStream2TorizoPageDispatch(ISnesAddressSpace rom)
@@ -1177,9 +1180,9 @@ internal static partial class Program
             AssertEqual(page, TorizoInstructionVramArtworkDefinitions.All[ordinal], "Torizo page enumeration/index agreement");
             native[ordinal] = Enumerable.Range(0, page.ByteCount).Select(offset => rom.ReadByte(page.SourceAddress + offset)).ToArray();
             byte[] pixels = SnesGraphics.DecodePlanarTiles(native[ordinal], 4,
-                Math.Min(RoomCharacterAtlasFormat.TileColumns, page.ByteCount / RoomCharacterAtlasFormat.BytesPerTile), out int width, out int height);
+                Math.Min(RoomCharacterAtlasFormat.TileColumns, page.ByteCount / RoomCharacterAtlasFormat.BytesPerTile), out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             png.Position = 0;
             pages[ordinal++] = RoomCharacterAtlas.Load(png, page.ByteCount);
         }
@@ -1517,7 +1520,7 @@ internal static partial class Program
                     else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
                 }
             }
-            oam.AddProjectileTrailSprite((byte)side.Position.X, (byte)side.Position.Y, side.TileNumberAttributes);
+            oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.Position.X, (byte)side.Position.Y), side.TileNumberAttributes);
         }
     }
 
@@ -2306,12 +2309,12 @@ internal static partial class Program
                     var wanted = expected[component];
                     var found = actual.Span[component];
                     var parts = EnemySpritemapCatalog.CompileParts(wanted.Parts, frame.Name);
-                    AssertEqual((short)wanted.OffsetX, found.OffsetX, "Golden Torizo independent component X");
-                    AssertEqual((short)wanted.OffsetY, found.OffsetY, "Golden Torizo independent component Y");
+                    AssertEqual((short)wanted.OffsetX, found.Offset.X, "Golden Torizo independent component X");
+                    AssertEqual((short)wanted.OffsetY, found.Offset.Y, "Golden Torizo independent component Y");
                     AssertTrue(found.Parts.SequenceEqual(parts), "Golden Torizo exact supplied part order and fields");
                     ushort x = unchecked((ushort)(128 + wanted.OffsetX)), y = unchecked((ushort)(96 + wanted.OffsetY));
-                    expectedOam.AddEnemySpritemap(parts.AsSpan(), x, y, 0, 0);
-                    actualOam.AddEnemySpritemap(found.Parts, x, y, 0, 0);
+                    expectedOam.AddEnemySpritemap(parts.AsSpan(), new Position16<OamPixels>(x, y), 0, 0);
+                    actualOam.AddEnemySpritemap(found.Parts, new Position16<OamPixels>(x, y), 0, 0);
                 }
                 AssertEqual(expectedOam.NextByteOffset, actualOam.NextByteOffset, "Golden Torizo packed OBJ count");
                 AssertTrue(expectedOam.LowTable.SequenceEqual(actualOam.LowTable) && expectedOam.HighTable.SequenceEqual(actualOam.HighTable),

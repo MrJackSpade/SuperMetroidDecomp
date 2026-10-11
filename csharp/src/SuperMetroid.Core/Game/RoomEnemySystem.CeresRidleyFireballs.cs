@@ -761,7 +761,7 @@ public sealed partial class RoomEnemySystem
             ReadOnlyMemory<EnemySpritemapPart> parts = projectile.PresentationOperandAddress != 0
                 ? artwork.GetProgramFrame(projectile.PresentationOperandAddress)
                 : artwork.Get(projectile.SpritemapPointer);
-            oam.AddEnemySpritemap(parts.Span, screenX, screenY,
+            oam.AddEnemySpritemap(parts.Span, new Position16<OamPixels>(screenX, screenY),
                 new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
                 unchecked((byte)projectile.GraphicsIndex),
                 clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);
@@ -901,7 +901,8 @@ public sealed partial class RoomEnemySystem
         switch (ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(projectile.PreInstruction, "enemy-projectile pre-instruction"))
         {
             case EnemyProjectilePreInstruction.PrePhantoonRoom:
-                RequireEnemyProjectileBackgroundScroll().Bg2YOffset = 0;
+                BackgroundScrollState scroll = RequireEnemyProjectileBackgroundScroll();
+                scroll.Bg2Offset = scroll.Bg2Offset.WithY(0);
                 return;
             case EnemyProjectilePreInstruction.None:
             case EnemyProjectilePreInstruction.RTS_868170:
@@ -1421,8 +1422,8 @@ public sealed partial class RoomEnemySystem
         out ushort? slopeAlignedPosition)
     {
         slopeAlignedPosition = null;
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
+        if ((uint)blockX >= (uint)level.Size.X ||
+            (uint)blockY >= (uint)level.Size.Y)
         {
             return true;
         }
@@ -1534,7 +1535,7 @@ public sealed partial class RoomEnemySystem
     /// read directly without following extensions.
     /// </summary>
     private static bool NonAirBlockAt(RoomLevelData level, ushort x, ushort y) =>
-        level.GetCollisionBlock(x >> 4, y >> 4).CollisionType != RoomCollisionType.Air;
+        level.GetCollisionBlock(new(unchecked((ushort)(x >> 4)), unchecked((ushort)(y >> 4)))).CollisionType != RoomCollisionType.Air;
 
     private static ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,

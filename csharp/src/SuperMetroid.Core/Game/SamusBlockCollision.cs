@@ -161,7 +161,8 @@ public static partial class SamusBlockCollision
 
             for (int rowOffset = 0; rowOffset <= verticalSpan; rowOffset++)
             {
-                RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(blockX, topBlockY + rowOffset);
+                RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(
+                    new(unchecked((ushort)blockX), unchecked((ushort)(topBlockY + rowOffset))));
                 if (!TryResolveExtension(level, ref block))
                     continue;
                 switch (block.CollisionType)
@@ -314,7 +315,7 @@ public static partial class SamusBlockCollision
                                  state.CollisionPose,
                                  horizontal: true,
                                  movingPositive: acceptedDisplacement > 0,
-                                 roomWidthInBlocks: level.WidthInBlocks)))
+                                 roomWidthInBlocks: level.Size.X)))
                         {
                             throw new InvalidOperationException(
                                 $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
@@ -536,7 +537,7 @@ public static partial class SamusBlockCollision
         for (int offset = 0; offset <= horizontalSpan; offset++)
         {
             int blockX = scanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
-            RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(blockX, blockY);
+            RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
             if (!TryResolveExtension(level, ref block))
                 continue;
             switch (block.CollisionType)
@@ -724,7 +725,7 @@ public static partial class SamusBlockCollision
                              state.CollisionPose,
                              horizontal: false,
                              movingPositive: acceptedDisplacement > 0,
-                             roomWidthInBlocks: level.WidthInBlocks)))
+                             roomWidthInBlocks: level.Size.X)))
                     {
                         throw new InvalidOperationException(
                             $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
@@ -1150,7 +1151,7 @@ public static partial class SamusBlockCollision
         RoomLevelData level,
         ref RoomCollisionBlock block)
     {
-        int blockCount = checked(level.WidthInBlocks * level.HeightInBlocks);
+        int blockCount = checked(level.Size.X * level.Size.Y);
         for (int hops = 0; hops < blockCount; hops++)
         {
             int delta = block.CollisionType switch
@@ -1159,7 +1160,7 @@ public static partial class SamusBlockCollision
                     block.Bts != RoomBlockBehaviorValues.None => block.Bts.ExtensionOffset,
                 RoomCollisionType.VerticalExtension when
                     block.Bts != RoomBlockBehaviorValues.None =>
-                    block.Bts.ExtensionOffset * level.WidthInBlocks,
+                    block.Bts.ExtensionOffset * level.Size.X,
                 RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => 0,
                 RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
                     RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or RoomCollisionType.UnusedAir or

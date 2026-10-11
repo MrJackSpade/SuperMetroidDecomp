@@ -3,6 +3,7 @@ using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -87,9 +88,9 @@ internal static partial class Program
             AssertEqual(original, horizontal ? point.X : point.Y, "native installed selector coordinate field");
             foreach (int value in new[] { 0, horizontal ? 255 : 223 })
             {
-                var anchors = new Dictionary<string, MapLabelPoint>(document.Anchors);
+                var anchors = new Dictionary<string, Position16<OamPixels>>(document.Anchors);
                 var previous = anchors[anchor.Name];
-                anchors[anchor.Name] = horizontal ? new(value, previous.Y) : new(previous.X, value);
+                anchors[anchor.Name] = horizontal ? new(checked((ushort)value), previous.Y) : new(previous.X, checked((ushort)value));
                 using var stream = new MemoryStream(); PauseSelectorPresentation.Write(stream, document with { Anchors = anchors }); stream.Position = 0;
                 var edited = PauseSelectorPresentation.Load(stream);
                 AssertEqual(1, edited.StoredAnchorComponentCount, "only one independently authored coordinate captured");
@@ -99,9 +100,9 @@ internal static partial class Program
         }
         foreach (int invalid in new[] { -1, horizontal ? 256 : 224 })
         {
-            var anchors = new Dictionary<string, MapLabelPoint>(document.Anchors);
+            var anchors = new Dictionary<string, Position16<OamPixels>>(document.Anchors);
             var first = anchors["Reserve.Mode"];
-            anchors["Reserve.Mode"] = horizontal ? new(invalid, first.Y) : new(first.X, invalid);
+            anchors["Reserve.Mode"] = horizontal ? new(unchecked((ushort)invalid), first.Y) : new(first.X, unchecked((ushort)invalid));
             AssertThrows<InvalidDataException>(() => PauseSelectorPresentation.Write(new MemoryStream(), document with { Anchors = anchors }),
                 "invalid authored coordinate");
         }

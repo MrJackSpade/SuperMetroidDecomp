@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -39,9 +40,8 @@ internal sealed partial class EndingCreditsState
     private int phaseTimer;
     private int fadeCounter;
     private byte brightness;
-    private ushort mode7X;
-    private ushort mode7XSubposition;
-    private ushort mode7Y;
+    // Only X ever receives a subpixel; Y's fraction word stays zero as the native state has none.
+    private FixedPosition<Mode7Pixels> mode7;
     private ushort mode7Zoom = EndingCreditsRomData.Motion.IdentityScale;
     private SnesAngle mode7Angle;
     private ushort planetMotionIndex;
@@ -443,7 +443,7 @@ internal sealed partial class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftTop, EndingSpriteRole.CloudLeftA);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightBottom, EndingSpriteRole.CloudRightB);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
-        mode7X = mode7Y = 0;
+        mode7 = new(mode7.X.WithWhole(0), default);
         mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
         mode7Angle = SnesAngle.FromTableIndex(EndingCreditsRomData.Motion.EscapeInitialAngle);
         brightness = 0;
@@ -468,7 +468,7 @@ internal sealed partial class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomA, EndingSpriteRole.CloudBottomA);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
-        mode7X = mode7Y = 0;
+        mode7 = new(mode7.X.WithWhole(0), default);
         mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
         mode7Angle = SnesAngle.FromTableIndex(EndingCreditsRomData.Motion.EscapeInitialAngle);
         brightness = 0;
@@ -489,8 +489,7 @@ internal sealed partial class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.ExplosionLava, EndingSpriteRole.ExplosionLava);
         SpawnSprite(EndingCreditsRomData.Sprites.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
         SpawnSprite(EndingCreditsRomData.Sprites.ExplosionStars, EndingSpriteRole.ExplosionStars);
-        mode7X = 0;
-        mode7Y = 0;
+        mode7 = new(mode7.X.WithWhole(0), default);
         mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
         mode7Angle = SnesAngle.Zero;
         brightness = 0;
@@ -507,8 +506,7 @@ internal sealed partial class EndingCreditsState
         cgram.SetColor(128, Bgr555.Black);
         paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.GunshipEmergence, 0);
-        mode7X = unchecked((ushort)-72);
-        mode7Y = unchecked((ushort)-104);
+        mode7 = new(mode7.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
         mode7Zoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
         mode7Angle = SnesAngle.NormalizeTableIndex(-112);
         phaseTimer = 192;
@@ -882,8 +880,7 @@ internal sealed partial class EndingCreditsState
     {
         int normalized = Math.Clamp(digit, 0, 9);
         SpawnSprite(
-            x,
-            EndingCreditsRomData.Sprites.ClearTimeDigitY,
+            new(x, EndingCreditsRomData.Sprites.ClearTimeDigitY),
             0,
             unchecked((ushort)(
                 EndingCreditsRomData.Sprites.ClearTimeDigitInstructionBase +
@@ -920,8 +917,7 @@ internal sealed partial class EndingCreditsState
             wordIncrement: 1);
 
     private void SpawnSprite(
-        ushort x,
-        ushort y,
+        Position16<ScreenPixels> position,
         ushort palette,
         ushort instructionPointer,
         EndingSpriteRole role)
@@ -945,7 +941,7 @@ internal sealed partial class EndingCreditsState
         };
         if (slot < 0) throw new InvalidOperationException("Ending cinematic actor slots exhausted.");
         sprites.RemoveAll(actor => actor.NativeSlot == slot);
-        sprites.Add(new EndingSprite(new IntroDiscoverySprite(x, y, palette, instructionPointer), role)
+        sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, palette, instructionPointer), role)
             { NativeSlot = slot });
         if (role == EndingSpriteRole.ExplosionStarsLeft)
             sprites[^1].Sprite.PreInstructionPointerForDiscovery((ushort)EndingSpritePreInstruction.WaitForFlyaway);
@@ -953,8 +949,7 @@ internal sealed partial class EndingCreditsState
 
     private void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
-            definition.X,
-            definition.Y,
+            definition.Position,
             definition.Attributes.Raw,
             definition.InstructionPointer,
             role);
@@ -965,10 +960,7 @@ internal sealed partial class EndingCreditsState
             phaseTimer--;
         else StepFlyawayFade();
         mode7Angle = mode7Angle.AddTableUnits(-4);
-        AddSignedFixed(
-            ref mode7X,
-            ref mode7XSubposition,
-            EndingCreditsRomData.Motion.PlanetFastDelta(planetMotionIndex));
+        mode7 = mode7.WithX(AddSignedFixed(mode7.X, EndingCreditsRomData.Motion.PlanetFastDelta(planetMotionIndex)));
         planetMotionIndex = unchecked((ushort)(
             (planetMotionIndex + 1) &
             (EndingCreditsRomData.Motion.PlanetFastPatternLength - 1)));
@@ -985,10 +977,7 @@ internal sealed partial class EndingCreditsState
         StepFlyawayFade();
         if (mode7Angle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)
             mode7Angle = mode7Angle.AddTableUnits(-1);
-        AddSignedFixed(
-            ref mode7X,
-            ref mode7XSubposition,
-            EndingCreditsRomData.Motion.PlanetSlowDelta(planetMotionIndex));
+        mode7 = mode7.WithX(AddSignedFixed(mode7.X, EndingCreditsRomData.Motion.PlanetSlowDelta(planetMotionIndex)));
         planetMotionIndex = unchecked((ushort)(
             (planetMotionIndex + 1) &
             (EndingCreditsRomData.Motion.PlanetSlowPatternLength - 1)));
@@ -1000,7 +989,7 @@ internal sealed partial class EndingCreditsState
             Phase = EndingCreditsPhase.PlanetEscapeAccelerating;
             if (crittersEscaped)
             {
-                SpawnSprite(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin,
+                SpawnSprite(new(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin),
                     EndingAnimalEscapeDefinitions.Palette, EndingAnimalEscapeDefinitions.InstructionStart,
                     EndingSpriteRole.AnimalEscape);
                 IntroDiscoverySprite pod = sprites[^1].Sprite;
@@ -1021,7 +1010,7 @@ internal sealed partial class EndingCreditsState
             velocity - EndingCreditsRomData.Motion.AccelerationDelta16Point16);
         planetVelocityWhole = unchecked((short)(velocity >> 16));
         planetVelocityFraction = unchecked((ushort)velocity);
-        AddSignedFixed(ref mode7X, ref mode7XSubposition, velocity);
+        mode7 = mode7.WithX(AddSignedFixed(mode7.X, velocity));
         if (mode7Zoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&
             (cinematicFrame & 3) == 0 &&
             mode7Angle != EndingCreditsRomData.Motion.PlanetExitTargetAngle)
@@ -1072,14 +1061,10 @@ internal sealed partial class EndingCreditsState
         return brightness == 15;
     }
 
-    private static void AddSignedFixed(ref ushort whole, ref ushort fraction, int delta)
-    {
-        SnesFixedPosition result = SnesSignedSixteenSixteen
+    private static SnesFixedPosition AddSignedFixed(SnesFixedPosition position, int delta) =>
+        SnesSignedSixteenSixteen
             .FromRaw(delta)
-            .AddTo(whole, fraction);
-        whole = result.Whole;
-        fraction = result.Fraction;
-    }
+            .AddTo(position.Whole, position.Fraction);
 
     private static void RequireMinimum(ReadOnlyMemory<byte> data, int minimum, string name)
     {

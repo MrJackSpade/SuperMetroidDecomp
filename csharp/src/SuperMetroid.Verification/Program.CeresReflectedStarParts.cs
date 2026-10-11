@@ -44,11 +44,11 @@ internal static partial class Program
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var expectedOam = new OamBuffer(); expectedOam.BeginFrame();
-                if (y == 72) reference.DrawOnScreen(expectedOam, 120, y, 0x0800);
-                else reference.DrawOffScreen(expectedOam, 120, y, 0x0800);
+                if (y == 72) reference.DrawOnScreen(expectedOam, new(120, y), 0x0800);
+                else reference.DrawOffScreen(expectedOam, new(120, y), 0x0800);
                 expectedOam.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
-                loaded.Draw(0x8fe7, actual, 120, y, 0x0800, y == 72); actual.FinalizeFrame();
+                loaded.Draw(0x8fe7, actual, new(120, y), 0x0800, y == 72); actual.FinalizeFrame();
                 AssertTrue(expectedOam.LowTable.SequenceEqual(actual.LowTable) && expectedOam.HighTable.SequenceEqual(actual.HighTable)
                     && expectedOam.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "reflection loader preserves independent and paired edits");
             }

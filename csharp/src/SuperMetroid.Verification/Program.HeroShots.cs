@@ -40,13 +40,13 @@ internal static partial class Program
                     if (vertical)
                     {
                         uint next = unchecked(((uint)shot.Position.Y.Whole << 16 | shot.Position.Y.Fraction)
-                            + (uint)((short)(shot.Velocity.Y - 16) * 256));
+                            + (uint)((short)(shot.Velocity.Y.SignedRawValue - 16) * 256));
                         cameraY = unchecked((ushort)((next >> 16) + (cameraMode == 2 ? 64u : 65u)));
                     }
                     else
                     {
                         uint next = unchecked(((uint)shot.Position.X.Whole << 16 | shot.Position.X.Fraction)
-                            + (uint)((short)(shot.Velocity.X + 16) * 256));
+                            + (uint)((short)(shot.Velocity.X.SignedRawValue + 16) * 256));
                         cameraX = unchecked((ushort)((next >> 16) - (cameraMode == 2 ? 319u : 320u)));
                     }
                 }
@@ -56,8 +56,8 @@ internal static partial class Program
                 if (native is not null)
                 {
                     ushort[] actual = [cameraX, cameraY, shot.Position.X.Whole, shot.Position.X.Fraction,
-                        shot.Position.Y.Whole, shot.Position.Y.Fraction, unchecked((ushort)shot.Velocity.X),
-                        unchecked((ushort)shot.Velocity.Y), shot.Type, shot.InstructionPointer];
+                        shot.Position.Y.Whole, shot.Position.Y.Fraction, unchecked((ushort)shot.Velocity.X.SignedRawValue),
+                        unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.Type, shot.InstructionPointer];
                     AssertTrue(actual.SequenceEqual(native[(vertical ? 1 : 0, cameraMode, frame)]),
                         $"Native Hero trace vertical={vertical}, camera={cameraMode}, frame={frame}: actual {string.Join(',', actual.Select(x => x.ToString("X4")))}");
                     comparedFrames++;

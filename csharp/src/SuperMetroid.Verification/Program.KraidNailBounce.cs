@@ -2,13 +2,14 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
     private static void VerifyKraidNailBounce(SuperMetroidAddressSpace rom)
     {
         var words = new ushort[32 * 32];
-        var level = new RoomLevelData(32, 32, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, rom);
@@ -31,7 +32,7 @@ internal static partial class Program
         }
         var wallWords = new ushort[32 * 32];
         for (int row = 0; row < 32; row++) wallWords[row * 32 + 9] = 0x8000;
-        var wallRoom = new RoomLevelData(32, 32, wallWords, new byte[wallWords.Length], new ushort[wallWords.Length], new byte[8]);
+        var wallRoom = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), wallWords, new byte[wallWords.Length], new ushort[wallWords.Length], new byte[8]);
         // A wall hit must skip the contour lookup entirely, not bounce twice.
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
         for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)

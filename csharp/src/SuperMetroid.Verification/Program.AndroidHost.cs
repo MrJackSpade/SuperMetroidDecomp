@@ -39,12 +39,12 @@ internal static partial class Program
             deadline = next.NextDeadline;
         }
         AssertTrue(Math.Abs(time - 10) < 0.000001, "600 normal host frames retain exact ten-second cadence");
-        AssertEqual(new DisplayViewport(28, 172, 1024, 896), DisplayViewport.IntegerPixels(1080, 1240), "Retroid upright integer viewport");
-        AssertEqual(new DisplayViewport(108, 92, 1024, 896), DisplayViewport.IntegerPixels(1240, 1080), "Retroid rotated integer viewport");
-        AssertEqual(new DisplayViewport(28, 124, 1024, 896), DisplayViewport.IntegerPixels(1080, 1144), "insets reduce usable surface before scaling");
-        AssertEqual(new DisplayViewport(0, 0, 256, 224), DisplayViewport.IntegerPixels(256, 224), "native exact fit");
-        AssertEqual(0, DisplayViewport.IntegerPixels(255, 224).Width, "too small never crops or stretches");
-        AssertThrows<ArgumentOutOfRangeException>(() => DisplayViewport.IntegerPixels(-1, 224), "negative viewport rejected");
+        AssertEqual(new DisplayViewport(new(28, 172), new(1024, 896)), DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(1080, 1240)), "Retroid upright integer viewport");
+        AssertEqual(new DisplayViewport(new(108, 92), new(1024, 896)), DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(1240, 1080)), "Retroid rotated integer viewport");
+        AssertEqual(new DisplayViewport(new(28, 124), new(1024, 896)), DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(1080, 1144)), "insets reduce usable surface before scaling");
+        AssertEqual(new DisplayViewport(new(0, 0), new(256, 224)), DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(256, 224)), "native exact fit");
+        AssertEqual(0, DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(255, 224)).Size.X, "too small never crops or stretches");
+        AssertThrows<ArgumentOutOfRangeException>(() => DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(-1, 224)), "negative viewport rejected");
 
         var input = new FrameInputLatch();
         input.Set(1, SnesButton.A);

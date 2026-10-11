@@ -65,7 +65,7 @@ internal static partial class Program
             RoomLevelData level, BackgroundTilemapStreamer streamer) =>
             // Keep both upper and lower shield origins inside the visible
             // tilemap ring so their immediate redraws are observable.
-            plms.Step(bus, level, streamer, 0, 0x00e0, 0);
+            plms.Step(bus, level, streamer, new(0, 0x00e0), 0);
 
         Step(plms, guarded, level, streamer);
         int rightShieldBlock = 18 * width + 2;

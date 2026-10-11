@@ -25,11 +25,11 @@ internal static partial class Program
             var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
             {
-                native.AddProjectileSpritePart(new(0), 0, new(0), 0, 0);
-                authored.AddProjectileSpritePart(new(0), 0, new(0), 0, 0);
+                native.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
+                authored.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
             }
             DrawImportedProjectileSpritemap(rom, native, id, origin, origin);
-            content.Draw(id, authored, origin, origin);
+            content.Draw(id, authored, new(origin, origin));
             AssertTrue(native.LowTable.SequenceEqual(authored.LowTable), "Extracted composition retains all low OAM bytes");
             AssertTrue(native.HighTable.SequenceEqual(authored.HighTable), "Extracted composition retains all high OAM bits");
             AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Extracted composition retains native capacity wrapping");
@@ -53,11 +53,11 @@ internal static partial class Program
         if (!compositionOnly)
             VerifyIntroProjectileArtwork(rom, content, edited, editedId);
         var baselineOam = new OamBuffer(); var editedOam = new OamBuffer();
-        content.Draw(editedId, baselineOam, 100, 100); edited.Draw(editedId, editedOam, 100, 100);
+        content.Draw(editedId, baselineOam, new(100, 100)); edited.Draw(editedId, editedOam, new(100, 100));
         AssertEqual(unchecked((byte)(baselineOam.LowTable[0] + (original.OffsetX == 255 ? -1 : 1))), editedOam.LowTable[0], "Edited offset reaches emitted OAM");
         AssertTrue(!baselineOam.LowTable.SequenceEqual(editedOam.LowTable), "Visual edit is observable");
         document.Frames[name][0] = original;
-        editedOam = new OamBuffer(); edited.Draw(editedId, editedOam, 100, 100);
+        editedOam = new OamBuffer(); edited.Draw(editedId, editedOam, new(100, 100));
         AssertTrue(!baselineOam.LowTable.SequenceEqual(editedOam.LowTable), "Loaded composition owns immutable compiled parts");
 
         void Reject(ProjectileSpriteDocument bad) => AssertThrows<InvalidDataException>(() => ProjectileSpriteCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(bad, options))), "Malformed composition rejected");
@@ -72,7 +72,7 @@ internal static partial class Program
             byte[] malformed = System.Text.Encoding.UTF8.GetBytes(System.Text.Encoding.UTF8.GetString(json).Insert(1, field));
             AssertThrows<InvalidDataException>(() => ProjectileSpriteCatalog.Load(new MemoryStream(malformed)), "Duplicate or unknown mechanics fields rejected");
         }
-        AssertThrows<InvalidDataException>(() => content.Draw(0, new OamBuffer(), 0, 0), "Unknown sprite is loud");
+        AssertThrows<InvalidDataException>(() => content.Draw(0, new OamBuffer(), new(0, 0)), "Unknown sprite is loud");
         Console.WriteLine($"Projectile compositions: 417 extracted sprites/{draws} native OAM comparisons, observable edits, immutable load and invalid-field rejection pass without a draw-time ROM.");
     }
 
@@ -90,7 +90,7 @@ internal static partial class Program
             oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 source.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
                 new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
-                originX, originY);
+                new Position16<OamPixels>(originX, originY));
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }
@@ -180,13 +180,13 @@ internal static partial class Program
             {
                 var slot = runtime.BombProjectiles.Slots[0];
                 slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
-                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Camera!.XPosition + 100), (ushort)(runtime.Camera.YPosition + 100)));
+                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Camera!.PixelPosition.X + 100), (ushort)(runtime.Camera.PixelPosition.Y + 100)));
             }
             else
             {
                 var slot = runtime.Projectiles.Slots[0];
                 slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
-                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Camera!.XPosition + 100), (ushort)(runtime.Camera.YPosition + 100)));
+                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Camera!.PixelPosition.X + 100), (ushort)(runtime.Camera.PixelPosition.Y + 100)));
             }
             // Actor drawing also updates mutable visual state. Compare identical
             // captured states rather than two sequential draws of one runtime.
@@ -276,10 +276,10 @@ internal static partial class Program
         string beamStock = Path.Combine(installation.ProjectileDirectory, beamName);
         string beamOverride = Path.Combine(installation.ProjectileOverrideDirectory, beamName);
         IndexedPngImage beamImage;
-        using (var input = File.OpenRead(beamStock)) beamImage = IndexedPng.Read(input, 64, 8);
+        using (var input = File.OpenRead(beamStock)) beamImage = IndexedPng.Read(input, new(64, 8));
         beamImage.Pixels[0] ^= 1;
         using (var output = File.Create(beamOverride))
-            IndexedPng.Write(output, 64, 8, beamImage.Pixels, beamImage.Palette);
+            IndexedPng.Write(output, new(64, 8), beamImage.Pixels, beamImage.Palette);
         var beamEdited = installation.LoadProjectiles();
         AssertTrue(beamEdited.SelectedSha256 != edited.SelectedSha256, "PNG-only change updates aggregate content identity");
         AssertEqual((byte)(stock.BeamTiles.Resolve(BeamTileCatalog.AssetFor(0)).Span[0] ^ 0x80),
@@ -355,10 +355,10 @@ internal static partial class Program
         File.WriteAllText(trailOverride, trailDocument.ToJsonString());
         string trailPngStock = Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName);
         string trailPngOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName);
-        var trailImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(trailPngStock)), ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
+        var trailImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(trailPngStock)), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
         trailImage.Pixels[0] ^= 1;
         using var trailPng = new MemoryStream();
-        IndexedPng.Write(trailPng, trailImage.Width, trailImage.Height, trailImage.Pixels, trailImage.Palette);
+        IndexedPng.Write(trailPng, new(trailImage.Size.X, trailImage.Size.Y), trailImage.Pixels, trailImage.Palette);
         File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
         var pngEdited = installation.LoadProjectiles();
         AssertTrue(pngEdited.SelectedSha256 != trailEdited.SelectedSha256, "Trail PNG-only edit changes identity");
@@ -398,7 +398,7 @@ internal static partial class Program
         var compositionEdited = installation.LoadProjectiles();
         AssertTrue(compositionEdited.SelectedSha256 != flareEdited.SelectedSha256, "Composition-only flare edit changes content identity");
         var flareOam = new OamBuffer();
-        compositionEdited.FlareCompositions.Draw(0, flareOam, 100, 100);
+        compositionEdited.FlareCompositions.Draw(0, flareOam, new(100, 100));
         AssertEqual(117, flareOam.GetEntry(0).X, "Installed flare composition emits selected part offset");
         File.WriteAllText(compositionStock, "broken stock");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Flare composition override cannot conceal corrupt stock");
@@ -411,10 +411,10 @@ internal static partial class Program
         File.WriteAllText(compositionOverride, compositionDocument.ToJsonString());
         string grappleStock = Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName);
         string grappleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName);
-        var grappleImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(grappleStock)), GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
+        var grappleImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(grappleStock)), new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
         grappleImage.Pixels[0] ^= 1;
         using var grapplePng = new MemoryStream();
-        IndexedPng.Write(grapplePng, grappleImage.Width, grappleImage.Height, grappleImage.Pixels, grappleImage.Palette);
+        IndexedPng.Write(grapplePng, new(grappleImage.Size.X, grappleImage.Size.Y), grappleImage.Pixels, grappleImage.Palette);
         File.WriteAllBytes(grappleOverride, grapplePng.ToArray());
         var grappleEdited = installation.LoadProjectiles();
         AssertTrue(grappleEdited.SelectedSha256 != compositionEdited.SelectedSha256, "Grapple PNG-only edit changes content identity");

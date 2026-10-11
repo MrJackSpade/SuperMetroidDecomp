@@ -104,8 +104,8 @@ internal static partial class Program
             differences += changed;
             if (checkedFrames % 8 == 0 || changed != 0)
             {
-                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/actual-{checkedFrames:D2}.png", 256, 224, actual);
-                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/native-{checkedFrames:D2}.png", 256, 224, expected);
+                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/actual-{checkedFrames:D2}.png", new Extent16<ScreenPixels>(256, 224), actual);
+                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/native-{checkedFrames:D2}.png", new Extent16<ScreenPixels>(256, 224), expected);
             }
             checkedFrames++;
             ending.Step();
@@ -122,8 +122,8 @@ internal static partial class Program
             differences += ending.Render().Zip(nativePixels).Count(pair => pair.First != pair.Second);
             if (frame % 16 == 0)
             {
-                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/later-{frame:D4}-{ending.Phase}.png", 256, 224, ending.Render());
-                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/later-native-{frame:D4}-{ending.Phase}.png", 256, 224, nativePixels);
+                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/later-{frame:D4}-{ending.Phase}.png", new Extent16<ScreenPixels>(256, 224), ending.Render());
+                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/later-native-{frame:D4}-{ending.Phase}.png", new Extent16<ScreenPixels>(256, 224), nativePixels);
                 // Preserve raw graphics/register/layer evidence alongside each image.
                 // A later renderer comparison can replay exactly this sample without
                 // re-running the cinematic or depending on a mutable debugger slot.

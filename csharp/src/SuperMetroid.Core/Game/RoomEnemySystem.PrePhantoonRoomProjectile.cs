@@ -21,6 +21,6 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile = AllocateEnemyProjectile() ?? throw new InvalidOperationException(
             "The pre-Phantoon room projectile found no free slot in a freshly cleared pool.");
         InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoom, graphicsIndex: 0);
-        backgroundScroll.Bg2YOffset = 0;
+        backgroundScroll.Bg2Offset = backgroundScroll.Bg2Offset.WithY(0);
     }
 }

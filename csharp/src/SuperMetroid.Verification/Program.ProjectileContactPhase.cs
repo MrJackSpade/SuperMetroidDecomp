@@ -12,11 +12,11 @@ internal static partial class Program
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(runtime.ActiveRoom!.Pointer, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(runtime.ActiveRoom!.Pointer, new Position16<RoomPixels>(0, 0));
         var level = runtime.LevelData!;
         for (int y = 0; y <= 16; y++)
-        for (int x = 0; x < level.WidthInBlocks; x++)
-            level.SetForegroundEntry(y * level.WidthInBlocks + x, y == 16 ? (ushort)0x8000 : (ushort)0);
+        for (int x = 0; x < level.Size.X; x++)
+            level.SetForegroundEntry(y * level.Size.X + x, y == 16 ? (ushort)0x8000 : (ushort)0);
         foreach (var actor in runtime.Enemies.Slots)
             actor.Properties = actor.Properties.With(EnemyProperties.Deleted);
         foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();

@@ -110,10 +110,10 @@ internal static partial class Program
                 foreach (ushort word in run.LevelWords.Span)
                     AssertDrawWord(word);
                 AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextX),
+                    unchecked((byte)run.Next.X),
                     $"Spore Spawn draw ${draw.Pointer:X4} signed X offset");
                 AssertEqual(rom.ReadByte(0x840000 | cursor++),
-                    unchecked((byte)run.NextY),
+                    unchecked((byte)run.Next.Y),
                     $"Spore Spawn draw ${draw.Pointer:X4} signed Y offset");
             }
             AssertEqual(16, cursor - draw.Pointer,
@@ -152,7 +152,7 @@ internal static partial class Program
         int soundFrame = -1;
         for (int frame = 0; frame < 32 && plms.ActiveCount != 0; frame++)
         {
-            plms.Step(guarded, level, streamer, 0, 16 * 16, 0);
+            plms.Step(guarded, level, streamer, new(0, 16 * 16), 0);
             if (plms.SoundRequests.Any(request =>
                     request.SoundEffect == SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2,

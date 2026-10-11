@@ -54,24 +54,24 @@ internal static partial class Program
             var phantoon = runtime.Enemies.Phantoon!;
             ushort displayedX = phantoon.Bg2HorizontalScroll;
             ushort displayedY = phantoon.Bg2VerticalScroll;
-            ushort displayedBodyX = (ushort)(phantoon.Body.XPosition - runtime.Camera!.XPosition);
-            ushort displayedBodyY = (ushort)(phantoon.Body.YPosition - runtime.Camera.YPosition);
+            ushort displayedBodyX = (ushort)(phantoon.Body.XPosition - runtime.Camera!.PixelPosition.X);
+            ushort displayedBodyY = (ushort)(phantoon.Body.YPosition - runtime.Camera.PixelPosition.Y);
             runtime.StepFrame(0);
-            AssertEqual(phantoon.Bg2HorizontalScroll, runtime.BackgroundScroll.Bg2HorizontalScroll,
+            AssertEqual(phantoon.Bg2HorizontalScroll, runtime.BackgroundScroll.Bg2Scroll.X,
                 $"Phantoon live BG2 horizontal handoff frame {frame}");
-            AssertEqual(phantoon.Bg2VerticalScroll, runtime.BackgroundScroll.Bg2VerticalScroll,
+            AssertEqual(phantoon.Bg2VerticalScroll, runtime.BackgroundScroll.Bg2Scroll.Y,
                 $"Phantoon live BG2 vertical handoff frame {frame}");
             if (frame == 0) continue;
             var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
-            AssertEqual(displayedX, layer.Registers.Bg2X, "Phantoon captured horizontal register follows accepted NMI");
-            AssertEqual(displayedY, layer.Registers.Bg2Y, "Phantoon captured vertical register follows accepted NMI");
+            AssertEqual(displayedX, layer.Registers.Bg2Scroll.X, "Phantoon captured horizontal register follows accepted NMI");
+            AssertEqual(displayedY, layer.Registers.Bg2Scroll.Y, "Phantoon captured vertical register follows accepted NMI");
             // $A7:CEA6 anchors the BG2 image's (40,40) origin to the body. Assert the
             // rendered anchor against the physical body, not merely two copied fields.
             if (phantoon.Eye!.Parameter1 == 0)
             {
-                AssertEqual(displayedBodyX, unchecked((ushort)(40 - layer.Registers.Bg2X)),
+                AssertEqual(displayedBodyX, unchecked((ushort)(40 - layer.Registers.Bg2Scroll.X)),
                     "Phantoon displayed BG2 anchor shares the collision body's horizontal position");
-                AssertEqual(displayedBodyY, unchecked((ushort)(40 - layer.Registers.Bg2Y)),
+                AssertEqual(displayedBodyY, unchecked((ushort)(40 - layer.Registers.Bg2Scroll.Y)),
                     "Phantoon displayed BG2 anchor shares the collision body's vertical position");
             }
             positions.Add((phantoon.Body.XPosition, phantoon.Body.YPosition));

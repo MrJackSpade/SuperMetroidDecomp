@@ -276,8 +276,15 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         });
     }
 
-    private static bool IsZero(object key) => key is IConvertible convertible && !(key is bool) &&
-        convertible.ToDecimal(System.Globalization.CultureInfo.InvariantCulture) == 0;
+    private static bool IsZero(object key) => NumericValue(key) == 0;
+
+    /// <summary>The value of an integral or floating constant; null for strings, chars, booleans and other kinds.</summary>
+    private static decimal? NumericValue(object value) => value switch
+    {
+        sbyte or byte or short or ushort or int or uint or long or ulong or float or double or decimal =>
+            Convert.ToDecimal(value, System.Globalization.CultureInfo.InvariantCulture),
+        _ => null,
+    };
 
     private static string? MaskExtraction(ILocalSymbol local)
     {
@@ -414,13 +421,13 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         private void RecordConstant(IOperation subject, IOperation other)
         {
             if (!IsIntegral(subject.Type) || Subject(subject) is not { } symbol ||
-                other.ConstantValue is not { HasValue: true, Value: { } value })
+                other.ConstantValue is not { HasValue: true, Value: { } value } || NumericValue(value) is not { } number)
                 return;
             lock (_gate)
             {
                 if (!_comparedConstants.TryGetValue(symbol, out HashSet<object>? set))
                     _comparedConstants[symbol] = set = [];
-                set.Add(Convert.ToDecimal(value, System.Globalization.CultureInfo.InvariantCulture));
+                set.Add(number);
             }
         }
 
@@ -446,7 +453,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 if (!_writes.TryGetValue(target, out var writes))
                     _writes[target] = writes = [];
                 object? constantValue = value is not null && Unwrap(value).ConstantValue is { HasValue: true, Value: { } written }
-                    ? Convert.ToDecimal(written, System.Globalization.CultureInfo.InvariantCulture) : null;
+                    ? NumericValue(written) : null;
                 writes.Add((domain, site, context.Operation is ICompoundAssignmentOperation or IIncrementOrDecrementOperation,
                     constantValue));
             }

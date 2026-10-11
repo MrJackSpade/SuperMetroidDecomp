@@ -80,7 +80,7 @@ internal static partial class Program
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x53 * 8] = 0x53;
         blockDefinitions[0x54 * 8] = 0x54;
-        RoomLevelData CreateLevel() => new(width, width,
+        RoomLevelData CreateLevel() => new RoomLevelData(new(width, width),
             new ushort[width * width], new byte[width * width],
             new ushort[width * width], blockDefinitions);
         var system = new Bank80SystemState();
@@ -92,7 +92,7 @@ internal static partial class Program
                 closedStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system, AreaId.Tourian,
                 () => new SamusState(), () => false),
             "edited escape gate loads its real resident header");
-        closed.Step(guarded, closedLevel, closedStreamer, 0, 0, 0);
+        closed.Step(guarded, closedLevel, closedStreamer, new(0, 0), 0);
         AssertEqual((ushort)0x830f,
             closedLevel.GetCollisionBlockByIndex(origin).LevelWord,
             "edited closed gate preserves native physical collision");
@@ -114,17 +114,15 @@ internal static partial class Program
             Pointer: 0xaa8c,
             DestinationRoomPointer: 0xde4d,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
-            PlmX: gateX,
-            PlmY: gateY,
-            DestinationScreenX: 0,
-            DestinationScreenY: 0,
+            PlmBlock: new(gateX, gateY),
+            DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
             SetupCodePointer: DoorSetupCode.None);
         AssertTrue(closing.TrySpawnDoorClosingPlm(guarded, closingLevel,
                 enteringDoor, system),
             "edited escape closure selects the real secondary instruction list");
         for (int frame = 0; frame < 3; frame++)
-            closing.Step(guarded, closingLevel, closingStreamer, 0, 0, 0);
+            closing.Step(guarded, closingLevel, closingStreamer, new(0, 0), 0);
         AssertEqual((ushort)0x830f,
             closingLevel.GetCollisionBlockByIndex(origin).LevelWord,
             "edited half-closed gate preserves native physical collision");

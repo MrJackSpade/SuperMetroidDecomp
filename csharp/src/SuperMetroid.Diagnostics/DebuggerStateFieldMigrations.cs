@@ -194,10 +194,8 @@ internal static class DebuggerStateFieldMigrations
             "Legacy projectile owner predates charge-combo state; restoring no combo pending."),
         new(typeof(SamusKinematicsState).FullName!, ["<ProbeContactDamageIndex>k__BackingField"],
             "Legacy kinematics lacks prospective-pose contact mode; retaining live owner lookup."),
-        // 571b9a42 implemented Samus Eater capture. Earlier builds did not execute that capture;
-        // fresh plant setup supplies the coordinates if the player is subsequently caught.
-        new("SuperMetroid.Core.Rooms.RoomPlmSystem+PlmSlot", ["<PlantHeldX>k__BackingField", "<PlantHeldY>k__BackingField"],
-            "Legacy PLM slot lacks plant-held coordinates; restoring zero until a new capture setup."),
+        // 571b9a42's Samus Eater capture coordinates are one spatial value (#628); DebuggerSpatialFieldMigrations
+        // restores both the pre-capture layout and the component layout.
         new("SuperMetroid.Core.Rooms.RoomPlmSystem", ["_pendingSpeedBoosterPickupContinuation"],
             "Legacy PLM system lacks a pending Speed Booster pickup continuation; restoring none pending."),
         // Before direct retail scroll dispatch, decoded pairs (when present) were authoritative.
@@ -315,10 +313,8 @@ internal static class DebuggerStateFieldMigrations
         // #1275: older builds derived $0A1E/$0A1F from the live pose on every read.
         new(typeof(SamusState).FullName!, ["<InitializedPose>k__BackingField"], null,
             samus => Set(samus, "<InitializedPose>k__BackingField", ((SamusState)samus).Pose)),
-        // #1275: older builds cleared the layer-one fractions whenever a runtime was released.
-        new(typeof(SuperMetroidGame).FullName!, ["retainedLayer1XSubposition", "retainedLayer1YSubposition"], null),
-        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!,
-            ["<InheritedLayer1XSubposition>k__BackingField", "<InheritedLayer1YSubposition>k__BackingField"], null),
+        // #1275's layer-one fractions (older builds cleared them whenever a runtime was released)
+        // are now typed positions; DebuggerSpatialFieldMigrations owns both layouts.
         // #1275: older builds always faded a Yes answer into the area map.
         new("SuperMetroid.Core.Frontend.GameOverMenuState",
             ["continueLoadsCeresArrival", "<CeresArrivalRequested>k__BackingField"], null),
@@ -373,6 +369,9 @@ internal static class DebuggerStateFieldMigrations
             "Older debugger state has no statue displacement/water surface; initializing to zero."),
         new(typeof(RoomEnemySystem).FullName!, ["<EnemyDoorTransitionActive>k__BackingField"],
             "Legacy enemy state lacks the enemy door-transition latch; restoring no transition in progress."),
+
+        // #628: parallel scalar coordinates became typed spatial values.
+        .. DebuggerSpatialFieldMigrations.Introductions,
 
         // v0.4.0 hotfix (#1269) additions. Fields restored as their zero/false/null value need
         // no initializer: that value reproduces the earlier build's behavior.
@@ -453,12 +452,6 @@ internal static class DebuggerStateFieldMigrations
         new(typeof(RoomLayer3FxState).FullName!, ["lavaSoundTimer"],
             "Legacy room FX predates lava's ambient sound timer; it restarts a full period.",
             fx => Set(fx, "lavaSoundTimer", RoomFxRomData.LavaAcid.AmbientSoundPeriod)),
-        // The quarter words are rebuilt from zero by the next firing; a capture taken
-        // mid-extension before they existed resumes with the clean quarter of its velocity.
-        // #628 merged the four words into one displacement, rebuilt from them when present.
-        new(typeof(SamusGrappleState).FullName!, ["<QuarterVelocity>k__BackingField"], null,
-            grapple => Set(grapple, "<QuarterVelocity>k__BackingField", DebuggerSpatialFieldMerges.OptionalFixedVector<RoomPixels>(
-                grapple, "XQuarterVelocity", "XQuarterSubVelocity", "YQuarterVelocity", "YQuarterSubVelocity"))),
         // False is the slow-scroll state of every non-swinging grapple; a swing sets it again.
         new(typeof(SamusGrappleState).FullName!, ["<SlowScrolling>k__BackingField"], null),
         // Older builds applied the release pose immediately; nothing is pending.
@@ -471,90 +464,6 @@ internal static class DebuggerStateFieldMigrations
                 fade.SetTiming(1, 1);
                 Set(fileSelect, "screenFade", fade);
             }),
-
-        // #628: Mother Brain forced Samus velocity words became one 8.8 velocity.
-        new(typeof(MotherBrainRainbowBeamSamusMovement).FullName!, ["<CustomVelocity>k__BackingField"], null,
-            value => Set(value, "<CustomVelocity>k__BackingField", DebuggerSpatialFieldMerges.Vector88FromWords<RoomPixels>(value, "CustomXVelocity", "CustomYVelocity"))),
-
-        // #628: Samus spritemap-origin words became one screen position.
-        new(typeof(SamusState).FullName!, ["<SpritemapPosition>k__BackingField"], null,
-            value => Set(value, "<SpritemapPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<ScreenPixels>(value, "SpritemapXPosition", "SpritemapYPosition"))),
-
-        // #628: solid-enemy collision body position and radius words became spatial values.
-        new(typeof(SolidEnemyCollisionBody).FullName!, ["<Position>k__BackingField"], null,
-            value => Set(value, "<Position>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "XPosition", "YPosition"))),
-        new(typeof(SolidEnemyCollisionBody).FullName!, ["<Radius>k__BackingField"], null,
-            value => Set(value, "<Radius>k__BackingField", DebuggerSpatialFieldMerges.Extent<RoomPixels>(value, "XRadius", "YRadius"))),
-
-        // #628: Mode 7 centre words became one position.
-        new(typeof(SamusMode7Transform).FullName!, ["<Center>k__BackingField"], null,
-            value => Set(value, "<Center>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "CenterX", "CenterY"))),
-
-        // #628: Draygon owner position words became one position.
-        new(typeof(SamusDraygonGrabbedState).FullName!, ["<OwnerPosition>k__BackingField"], null,
-            value => Set(value, "<OwnerPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "OwnerXPosition", "OwnerYPosition"))),
-
-        // #628: death screen words became one screen position.
-        new(typeof(SamusDeathSequenceState).FullName!, ["<ScreenPosition>k__BackingField"], null,
-            value => Set(value, "<ScreenPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<ScreenPixels>(value, "ScreenX", "ScreenY"))),
-
-        // #628: Power Bomb explosion centre words became one position.
-        new(typeof(SamusPowerBombExplosionState).FullName!, ["<Position>k__BackingField"], null,
-            value => Set(value, "<Position>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "XPosition", "YPosition"))),
-
-        // #628: atmospheric-effect anchor words became one position.
-        new(typeof(SamusAtmosphericEffectSlot).FullName!, ["<Position>k__BackingField"], null,
-            value => Set(value, "<Position>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "XPosition", "YPosition"))),
-
-        // #628: speed-echo and released crash-echo positions, rebuilt from the retired words.
-        new(typeof(SamusHorizontalSpeedState).FullName!, ["<FirstSpeedEchoPosition>k__BackingField"], null,
-            speed => Set(speed, "<FirstSpeedEchoPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(speed, "FirstSpeedEchoXPosition", "FirstSpeedEchoYPosition"))),
-        new(typeof(SamusHorizontalSpeedState).FullName!, ["<SecondSpeedEchoPosition>k__BackingField"], null,
-            speed => Set(speed, "<SecondSpeedEchoPosition>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(speed, "SecondSpeedEchoXPosition", "SecondSpeedEchoYPosition"))),
-        new("SuperMetroid.Core.Game.SamusShinesparkState+ReleasedEchoSlot", ["<Position>k__BackingField"], null,
-            echo => Set(echo, "<Position>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(echo, "XPosition", "YPosition"))),
-
-        // #628: grapple spatial values, rebuilt from the retired component words.
-        new(typeof(SamusGrappleState).FullName!, ["<Anchor>k__BackingField"], null,
-            grapple => Set(grapple, "<Anchor>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(grapple, "AnchorX", "AnchorY"))),
-        new(typeof(SamusGrappleState).FullName!, ["<RopeStart>k__BackingField"], null,
-            grapple => Set(grapple, "<RopeStart>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(grapple, "RopeStartX", "RopeStartY"))),
-        new(typeof(SamusGrappleState).FullName!, ["<BeamStart>k__BackingField"], null,
-            grapple => Set(grapple, "<BeamStart>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(grapple, "BeamStartX", "BeamStartY"))),
-        new(typeof(SamusGrappleState).FullName!, ["<ExtensionVelocity>k__BackingField"], null,
-            grapple => Set(grapple, "<ExtensionVelocity>k__BackingField", DebuggerSpatialFieldMerges.Vector88<RoomPixels>(grapple, "ExtensionXVelocity", "ExtensionYVelocity"))),
-        new(typeof(SamusGrappleState).FullName!, ["<OriginOffset>k__BackingField"], null,
-            grapple => Set(grapple, "<OriginOffset>k__BackingField", DebuggerSpatialFieldMerges.Offset<RoomPixels>(grapple, "OriginXOffset", "OriginYOffset"))),
-        new(typeof(SamusGrappleState).FullName!, ["<FlareOffset>k__BackingField"], null,
-            grapple => Set(grapple, "<FlareOffset>k__BackingField", DebuggerSpatialFieldMerges.Offset<RoomPixels>(grapple, "FlareXOffset", "FlareYOffset"))),
-        new(typeof(SamusGrappleState).FullName!, ["<EndpointOffset>k__BackingField"], null,
-            grapple => Set(grapple, "<EndpointOffset>k__BackingField", DebuggerSpatialFieldMerges.FixedVectorFromRaw<RoomPixels>(grapple, "EndpointXOffsetFixed", "EndpointYOffsetFixed"))),
-
-        // #628: Samus projectile, bomb and trail spatial values, rebuilt from the retired words.
-        new(typeof(SamusProjectileSlot).FullName!, ["<Position>k__BackingField"], null,
-            slot => Set(slot, "<Position>k__BackingField", DebuggerSpatialFieldMerges.FixedPosition<RoomPixels>(
-                slot, "XPosition", "XSubposition", "YPosition", "YSubposition"))),
-        new(typeof(SamusProjectileSlot).FullName!, ["<Velocity>k__BackingField"], null,
-            slot => Set(slot, "<Velocity>k__BackingField", DebuggerSpatialFieldMerges.Vector88<RoomPixels>(slot, "XVelocity", "YVelocity"))),
-        new(typeof(SamusProjectileSlot).FullName!, ["<Radius>k__BackingField"], null,
-            slot => Set(slot, "<Radius>k__BackingField", DebuggerSpatialFieldMerges.Extent<RoomPixels>(slot, "XRadius", "YRadius"))),
-        new(typeof(SamusBombProjectileSlot).FullName!, ["<Position>k__BackingField"], null,
-            slot => Set(slot, "<Position>k__BackingField", DebuggerSpatialFieldMerges.FixedPosition<RoomPixels>(
-                slot, "XPosition", "XSubposition", "YPosition", "YSubposition"))),
-        new(typeof(SamusBombProjectileSlot).FullName!, ["<Radius>k__BackingField"], null,
-            slot => Set(slot, "<Radius>k__BackingField", DebuggerSpatialFieldMerges.Extent<RoomPixels>(slot, "XRadius", "YRadius"))),
-        new(typeof(SamusProjectileTrailSide).FullName!, ["<Position>k__BackingField"], null,
-            side => Set(side, "<Position>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(side, "XPosition", "YPosition"))),
-
-        // #628: Samus kinematics' spatial values, rebuilt from the retired component words.
-        new(typeof(SamusKinematicsState).FullName!, ["<Position>k__BackingField"], null,
-            body => Set(body, "<Position>k__BackingField", DebuggerSpatialFieldMerges.FixedPosition<RoomPixels>(
-                body, "XPosition", "XSubposition", "YPosition", "YSubposition"))),
-        new(typeof(SamusKinematicsState).FullName!, ["<ExtraDisplacement>k__BackingField"], null,
-            body => Set(body, "<ExtraDisplacement>k__BackingField", DebuggerSpatialFieldMerges.FixedVector<RoomPixels>(
-                body, "ExtraXDisplacement", "ExtraXSubdisplacement", "ExtraYDisplacement", "ExtraYSubdisplacement"))),
-        new(typeof(SamusKinematicsState).FullName!, ["<Radius>k__BackingField"], null,
-            body => Set(body, "<Radius>k__BackingField", DebuggerSpatialFieldMerges.Extent<RoomPixels>(body, "XRadius", "YRadius"))),
     ];
 
     private static readonly Dictionary<string, DebuggerFieldIntroduction[]> introductionsByType =

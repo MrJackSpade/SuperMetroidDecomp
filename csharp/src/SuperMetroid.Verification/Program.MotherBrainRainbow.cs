@@ -39,7 +39,7 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     movement.BeginFallingAfterRainbowBeam();
     MotherBrainForcedSamusMovementResult first =
         movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual(new Vector88<RoomPixels>(unchecked((short)0xff02), 0x0018), movement.CustomVelocity,
+    AssertEqual(new EightEightVector<RoomPixels>(unchecked((short)0xff02), 0x0018), movement.CustomVelocity,
         "rainbow fall first eased X and accelerated Y velocity");
     AssertEqual(100, samus.Position.X.Whole, "rainbow fall signed X plus fractional carry");
     AssertEqual(0x01aa, samus.Kinematics.Position.X.Fraction, "rainbow fall preserves X low sub-byte");
@@ -52,9 +52,9 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     // there instead of allowing a positive recoil; subsequent calls must remain zero.
     for (int call = 1; call < 128; call++)
         movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual(0, movement.CustomVelocity.X, "rainbow fall X easing clamps at zero");
+    AssertEqual(0, movement.CustomVelocity.X.SignedRawValue, "rainbow fall X easing clamps at zero");
     movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual(0, movement.CustomVelocity.X, "rainbow fall X easing stays zero");
+    AssertEqual(0, movement.CustomVelocity.X.SignedRawValue, "rainbow fall X easing stays zero");
     AssertEqual(0x00c0, samus.Position.Y.Whole, "rainbow fall clamps at arena floor Y $C0");
     AssertEqual(0, samus.Kinematics.Position.Y.Fraction, "arena floor clamp clears Y subposition");
 
@@ -122,16 +122,14 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x1234);
     samus.Position = samus.Position.WithWholeY(0x00c3);
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
-    var frameStart = new SamusCameraPoint(samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction,
-        samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction);
+    var frameStart = samus.Position;
     // The earlier clamps above queued their own writes; each frame's scroll applies them.
     samus.ApplyPreviousPositionWrites(frameStart);
     movement.BeginFallingAfterRainbowBeam();
     movement.StepFallingAfterRainbowBeam(samus);
     AssertEqual(0x00c0, samus.Position.Y.Whole, "the fall reaches the floor clamp");
-    SamusCameraPoint checkpoint = samus.ApplyPreviousPositionWrites(frameStart);
-    AssertEqual(new SamusCameraPoint(samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction,
-            samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction), checkpoint,
+    FixedPosition<RoomPixels> checkpoint = samus.ApplyPreviousPositionWrites(frameStart);
+    AssertEqual(samus.Position, checkpoint,
         "the forced move leaves the camera checkpoint at Samus's new position");
 
     Console.WriteLine("  Mother Brain: rainbow-beam forced 8.8 movement and arena clamps agree.");

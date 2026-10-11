@@ -42,19 +42,19 @@ public static class SoftwareGameplayColorMathRenderer
         var colors = new Rgba32[256];
         for (int color = 0; color < colors.Length; color++) colors[color] = memory.Cgram.GetRgba(color);
         var hud = new SnesBackgroundPixelSampler(memory.Vram, colors, SnesPpuLayout.GameplayHudTilemapWord,
-            r.HudCharacterWord, 32, 32, false);
+            r.HudCharacterWord, new Extent16<TilemapCells>(32, 32), false);
         var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, SnesPpuLayout.GameplayBg1TilemapWord,
-            r.Bg1CharacterWord, 64, 32, true);
+            r.Bg1CharacterWord, new Extent16<TilemapCells>(64, 32), true);
         var bg2Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, r.Bg2TilemapWord,
-            r.Bg2CharacterWord, r.Bg2WidthTiles, r.Bg2HeightTiles, true);
+            r.Bg2CharacterWord, r.Bg2MapSize, true);
         var subSampler = layer.Subscreen is { } subLayer ? new SnesBackgroundPixelSampler(memory.Vram, colors,
-            subLayer.TilemapWord, subLayer.CharacterWord, 32, subLayer.MapHeightTiles, false) : null;
+            subLayer.TilemapWord, subLayer.CharacterWord, new Extent16<TilemapCells>(32, checked((ushort)subLayer.MapHeightTiles)), false) : null;
         SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram, memory.Cgram, objectSelection,
-            objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), width, height,
+            objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), new Extent16<ScreenPixels>(checked((ushort)width), checked((ushort)height)),
             palettes.AsSpan(0, output.Length));
         for (int y = 0; y < SnesPpuLayout.GameplayHudHeightPixels; y++)
         for (int x = 0; x < width; x++)
-            output[y * width + x] = hud.Sample(x, y, opaqueZero: true).Color;
+            output[y * width + x] = hud.Sample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), opaqueZero: true).Color;
         for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < height; y++)
         for (int x = 0; x < width; x++)
         {
@@ -74,14 +74,13 @@ public static class SoftwareGameplayColorMathRenderer
             // the reveal beam, BG2 outside it. Excluded rooms leave both unmasked.
             if ((!layer.RevealBlocks || inside) && showBg2)
             {
-                int sx = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.Gameplay.HorizontalScrolls[lineIndex];
-                int sy = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[lineIndex];
-                var pixel = bg2Sampler.Sample(r.Bg2Mosaic.SourceX(x, (ushort)sx), r.Bg2Mosaic.SourceY(y, (ushort)sy));
+                var pixel = bg2Sampler.Sample(Bg2Source(r, layer.Gameplay, lineIndex, new Position16<ScreenPixels>((ushort)x, (ushort)y)));
                 Insert(pixel.Color, pixel.High ? 5 : 2, SnesColorMathControl.Bg2);
             }
             if ((!layer.RevealBlocks || !inside) && showBg1)
             {
-                var pixel = bg1Sampler.Sample(x + r.Bg1X, y + r.Bg1Y + SnesPpuLayout.FirstVisibleBackgroundScanline);
+                var pixel = bg1Sampler.Sample(r.Bg1Scroll.AsBgPlaneScroll() +
+                    new Offset16<BgPlanePixels>((short)x, (short)(y + SnesPpuLayout.FirstVisibleBackgroundScanline)));
                 Insert(pixel.Color, pixel.High ? 6 : 3, SnesColorMathControl.Bg1);
             }
             if (showObjects && priorities[i] != SnesObjRenderer.TransparentPriority)
@@ -96,14 +95,12 @@ public static class SoftwareGameplayColorMathRenderer
                 Rgba32 sub = default;
                 if (layer.SubscreenUsesBg2)
                 {
-                    int sx = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.Gameplay.HorizontalScrolls[lineIndex];
-                    int sy = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[lineIndex];
-                    sub = bg2Sampler.Sample(r.Bg2Mosaic.SourceX(x, (ushort)sx), r.Bg2Mosaic.SourceY(y, (ushort)sy)).Color;
+                    sub = bg2Sampler.Sample(Bg2Source(r, layer.Gameplay, lineIndex, new Position16<ScreenPixels>((ushort)x, (ushort)y))).Color;
                 }
                 if (layer.AddSubscreen && layer.Subscreen is { } bg3 && y >= bg3.FirstScanline)
                 {
-                    BackgroundLineScroll scroll = bg3.Scrolls[y];
-                    var pixel = subSampler!.Sample(x + scroll.X, y + scroll.Y);
+                    Position16<BgPlanePixels> scroll = bg3.Scrolls[y];
+                    var pixel = subSampler!.Sample(scroll + new Offset16<BgPlanePixels>((short)x, (short)y));
                     // Gameplay uses Mode 1 with BG3 priority: high BG3 beats both
                     // BG2 priorities; low BG3 is behind both. Transparent pixels
                     // never replace an opaque operand on the same subscreen.
@@ -135,5 +132,18 @@ public static class SoftwareGameplayColorMathRenderer
         }
         return output;
 
+    }
+
+    /// <summary>
+    /// The BG2 plane pixel sampled at a screen pixel: the line's HDMA scroll replacements (or the
+    /// latched registers), then mosaic grouping.
+    /// </summary>
+    private static Position16<BgPlanePixels> Bg2Source(OrdinaryGameplayRegisters r, OrdinaryGameplayRenderLayer gameplay,
+        int lineIndex, Position16<ScreenPixels> screen)
+    {
+        ushort horizontal = gameplay.HorizontalScrolls.IsEmpty ? r.Bg2Scroll.X : gameplay.HorizontalScrolls[lineIndex];
+        ushort vertical = gameplay.VerticalScrolls.IsEmpty ? r.Bg2Scroll.Y : gameplay.VerticalScrolls[lineIndex];
+        return new(unchecked((ushort)r.Bg2Mosaic.SourceX(screen.X, horizontal)),
+            unchecked((ushort)r.Bg2Mosaic.SourceY(screen.Y, vertical)));
     }
 }

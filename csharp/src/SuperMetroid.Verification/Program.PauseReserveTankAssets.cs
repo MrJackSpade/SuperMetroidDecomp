@@ -112,7 +112,7 @@ internal static partial class Program
         }
         static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentationCatalog content)
         {
-            var pause = new PauseMenuState(source, state, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: content);
+            var pause = new PauseMenuState(source, state, new Bank80SystemState(), AreaId.Crateria, new(0, 0), mapPresentation: content);
             EnterPauseEquipment(pause);
             return pause;
         }

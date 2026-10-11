@@ -20,7 +20,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
         ScrollBoundaryCamera ceresCamera = runtime.Camera!;
-        ceresCamera.SetDoorTransitionPosition(ceresCamera.XPosition, ceresCamera.YPosition, 0xa000, 0x1234);
+        ceresCamera.SetDoorTransitionPosition(ceresCamera.PixelPosition, FixedPosition<RoomPixels>.FromWords(0, 0xa000, 0, 0x1234));
         // The escape ends with Samus running: the 13% capture enters the load carrying
         // base speed $1.8000 and extra run speed $0.8000, plus inventory from Ceres.
         SamusState escaped = runtime.Samus!;
@@ -41,7 +41,7 @@ internal static partial class Program
         AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, landed.Pose, "station load clears Samus's pose");
         // $80:C470/$C479 write only the integer layer-one words.
         AssertEqual(((ushort)0xa000, (ushort)0x1234),
-            (runtime.Camera!.XSubposition, runtime.Camera.YSubposition),
+            (runtime.Camera!.Position.X.Fraction, runtime.Camera.Position.Y.Fraction),
             "station load keeps the previous camera fractions");
 
         // Hold Left+B throughout: locked handlers ignore it until the ship unlocks Samus.
@@ -50,10 +50,10 @@ internal static partial class Program
         while (runtime.Enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted &&
                frames++ < PostCeresLandingMaximumFrames)
         {
-            ushort cameraX = runtime.Camera.XPosition;
+            ushort cameraX = runtime.Camera.PixelPosition.X;
             runtime.StepFrame(input);
             if (runtime.Enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened)
-                AssertEqual(cameraX, runtime.Camera.XPosition,
+                AssertEqual(cameraX, runtime.Camera.PixelPosition.X,
                     "hatch placement writes SamusPreviousXPosition, so the camera does not scroll");
         }
         AssertEqual(GunshipFrameEvent.LandingCompleted, runtime.Enemies.LastGunshipEvent,

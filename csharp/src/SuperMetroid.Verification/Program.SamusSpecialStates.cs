@@ -180,7 +180,7 @@ static void VerifySamusCrystalFlash()
             SuperMetroid.AssetExtraction.PowerBombFixedColorExtractor.Extract(bus))),
     };
     crystalWindow.Arm();
-    crystalWindow.BeginCrystalFlash(new(samus.Position.X.Whole, samus.Position.Y.Whole));
+    crystalWindow.BeginCrystalFlash(samus.Position.Whole);
     AssertTrue(!crystalWindow.IsArmed,
         "Crystal Flash spawn clears one-at-a-time Power Bomb flag");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
@@ -448,8 +448,7 @@ static void VerifySamusXray()
         bus,
         standing.Xray,
         standing,
-        layer1X: 0,
-        layer1Y: 0);
+        layer1: new Position16<RoomPixels>(0, 0));
     AssertEqual(248, xrayFrame[184 * 256 + 255].R,
         "X-ray horizontal center remains inside window");
     AssertEqual(156, xrayFrame[184 * 256].R,

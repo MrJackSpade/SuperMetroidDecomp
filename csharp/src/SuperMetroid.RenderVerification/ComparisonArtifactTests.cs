@@ -11,7 +11,7 @@ internal static class ComparisonArtifactTests
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new Rgba32(31, 73, 127));
         var expected = SoftwareFrameSnapshotRenderer.Render(packet);
         var actual = expected.ToArray();
-        int first = packet.Width + 2, last = 3 * packet.Width + 5;
+        int first = packet.Size.X + 2, last = 3 * packet.Size.X + 5;
         actual[first] = new(255, 0, 0);
         actual[last] = new(0, 255, 0);
         string? failure = null;
@@ -41,7 +41,7 @@ internal static class ComparisonArtifactTests
         foreach (var (name, pixels) in new[] { ("expected.png", expected), ("actual.png", actual), ("difference.png", difference) })
         {
             string check = Path.Combine(directory, "check.png");
-            PngWriterTooling.WriteRgba(check, packet.Width, packet.Height, pixels);
+            PngWriterTooling.WriteRgba(check, packet.Size, pixels);
             if (!File.ReadAllBytes(check).AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(directory, name))))
                 throw new InvalidOperationException($"Mismatch artifact {name} contains the wrong image.");
         }

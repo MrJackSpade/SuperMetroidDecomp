@@ -73,10 +73,10 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BotwoonWallPlmDrawDefinitions.LevelWordAt(index), "Botwoon fill rejects invalid block index");
         AssertEqual(rom.ReadByte(0x840000 | cursor++),
-            unchecked((byte)draw.Runs.Span[0].NextX),
+            unchecked((byte)draw.Runs.Span[0].Next.X),
             "Botwoon clear final X offset");
         AssertEqual(rom.ReadByte(0x840000 | cursor++),
-            unchecked((byte)draw.Runs.Span[0].NextY),
+            unchecked((byte)draw.Runs.Span[0].Next.Y),
             "Botwoon clear final Y offset");
         AssertEqual(BotwoonWallPlmDrawDefinitions.EndExclusive, cursor,
             "Botwoon clear draw covers exactly its native span");
@@ -111,13 +111,13 @@ internal static partial class Program
             $"Botwoon {(clear ? "clear" : "crumble")} PLM allocates");
         var guarded = new BotwoonWallSourceGuard(new TestAddressSpace());
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            guarded, 2, 1, RoomScrollState.RedBoundary);
+            guarded, new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         int soundCount = 0;
         for (int frame = 0; frame < 220 && plms.ActiveCount != 0; frame++)
         {
-            plms.Step(guarded, level, streamer, 0, 0, 0, scrolls);
+            plms.Step(guarded, level, streamer, new(0, 0), 0, scrolls);
             soundCount += plms.SoundRequests.Count(request =>
                 request.SoundEffect == SoundEffectId.FromCartridge(
                     SoundEffectLibrary.Library2,

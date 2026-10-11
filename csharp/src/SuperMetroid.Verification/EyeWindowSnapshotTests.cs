@@ -37,7 +37,7 @@ internal static partial class Program
             Check(x, y, angle, width);
         foreach (MorphBallEyeBeamPhase phase in new[] { MorphBallEyeBeamPhase.Inactive, MorphBallEyeBeamPhase.PendingInitialization })
             AssertTrue(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus,
-                new(phase, 0, 0, SnesAngle.Zero, 0, 0, 0, 0), 0, 0) is null, "unpublished eye beam emits no operation");
+                new(phase, 0, 0, SnesAngle.Zero, 0, 0, 0, 0), new Position16<RoomPixels>(0, 0)) is null, "unpublished eye beam emits no operation");
         Console.WriteLine($"  Eye window snapshots: {samples} backend/codec cases agree; cartridge endpoint assertions also pass.");
 
         void Check(int x, int y, int angle, ushort width)
@@ -47,8 +47,8 @@ internal static partial class Program
                 unchecked((ushort)(x + 512)), unchecked((ushort)(y + 768)),
                 SnesAngle.FromTableIndex((byte)angle), width, 0x3f, 0x4c, 0x81);
             Rgba32[] expected = baseline.ToArray();
-            SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(expected, bus, beam, 512, 768);
-            ScanlineColorAddRenderLayer layer = SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, 512, 768)!;
+            SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(expected, bus, beam, new Position16<RoomPixels>(512, 768));
+            ScanlineColorAddRenderLayer layer = SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>(512, 768))!;
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [layer], 3, 15));
             Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
             AssertTrue(expected.AsSpan().SequenceEqual(actual), $"eye capture origin {x},{y}; angle {angle}; width {width}");
@@ -74,7 +74,7 @@ internal static partial class Program
         {
             var beam = new MorphBallEyeBeamRenderSnapshot(MorphBallEyeBeamPhase.Full,
                 552, 616, SnesAngle.FromTableIndex(sample.Angle), sample.Width, 31, 31, 0);
-            ColorAddWindow row = SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, 384, 512)!.Windows[sample.Y];
+            ColorAddWindow row = SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>(384, 512))!.Windows[sample.Y];
             for (int x = 0; x < 256; x++)
                 AssertEqual(x >= sample.Left && x <= sample.Right, x >= row.Left && x <= row.Right,
                     $"native reported-eye angle {sample.Angle}, width {sample.Width}, pixel {x},{sample.Y}");

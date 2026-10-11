@@ -13,7 +13,7 @@ public sealed partial class RoomPlmSystem
             ClearSlot(slot);
             slot.Active = true;
             slot.HeaderPointer = definition.HeaderPointer;
-            slot.BlockIndex = level.GetBlockIndex(6, 12);
+            slot.BlockIndex = level.GetBlockIndex(new(6, 12));
             slot.InstructionPointer = definition.InstructionListPointer;
             slot.InstructionTimer = 1;
             return true;

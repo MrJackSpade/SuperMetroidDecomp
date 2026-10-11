@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -14,10 +15,8 @@ internal sealed class IntroEggParticle
         // $A958 indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
         // the two fixed biases. The compiled catalog is independently checked against all
         // twelve native words so this physical spawn does not require a cartridge read.
-        var (x, y) = IntroEggMotionDefinitions.FragmentInitialPosition(index);
         sprite = new IntroDiscoverySprite(
-            x,
-            y,
+            IntroEggMotionDefinitions.FragmentInitialPosition(index),
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
             instructionPointer: definition.InstructionList)
         {
@@ -45,7 +44,7 @@ internal sealed class IntroEggParticle
 
         int yIndex = sprite.GeneralTimer >> 8;
         AddSixteenSixteenVelocity(sprite, horizontal: false, IntroEggMotionDefinitions.FragmentY(yIndex));
-        if (unchecked((short)(sprite.YPosition - 0x00a8)) >= 0)
+        if (unchecked((short)(sprite.WholePosition.Y - 0x00a8)) >= 0)
         {
             // Native code primes the shared one-word delete list, which the generic handler
             // consumes later in this same object call.
@@ -68,22 +67,8 @@ internal sealed class IntroEggParticle
         bool horizontal,
         (ushort Whole, ushort Fraction) velocity)
     {
-        ushort whole = horizontal ? sprite.XPosition : sprite.YPosition;
-        ushort fraction = horizontal ? sprite.XSubPosition : sprite.YSubPosition;
-        IntroCinematicMotion.AddSixteenSixteen(
-            ref whole,
-            ref fraction,
-            velocity.Whole,
-            velocity.Fraction);
-        if (horizontal)
-        {
-            sprite.XPosition = whole;
-            sprite.XSubPosition = fraction;
-        }
-        else
-        {
-            sprite.YPosition = whole;
-            sprite.YSubPosition = fraction;
-        }
+        sprite.Position = horizontal
+            ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, velocity.Whole, velocity.Fraction))
+            : sprite.Position.WithY(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.Y, velocity.Whole, velocity.Fraction));
     }
 }

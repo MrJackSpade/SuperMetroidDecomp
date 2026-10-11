@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Desktop;
 
 /// <summary>Result of updating one persistent GDI frame surface twice.</summary>
-public readonly record struct RgbaBitmapSmokeTestResult(int Width, int Height, Color FinalPixel);
+public readonly record struct RgbaBitmapSmokeTestResult(Size BitmapSize, Color FinalPixel);
 
 /// <summary>
 /// Verifies channel order and in-place replacement without opening a WinForms window. This
@@ -21,24 +22,24 @@ public static class RgbaBitmapSmokeTest
         ];
         // The playable canvas owns one 32-bpp ARGB bitmap and refreshes it in place.
         using var bitmap = new Bitmap(2, 2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-        RgbaBitmap.CopyTo(bitmap, width: 2, height: 2, first);
-        AssertPixel(bitmap, 0, 0, Color.FromArgb(255, 255, 0, 0), "initial red");
-        AssertPixel(bitmap, 1, 0, Color.FromArgb(255, 0, 255, 0), "initial green");
+        RgbaBitmap.CopyTo(bitmap, new Extent16<ScreenPixels>(2, 2), first);
+        AssertPixel(bitmap, new Point(0, 0), Color.FromArgb(255, 255, 0, 0), "initial red");
+        AssertPixel(bitmap, new Point(1, 0), Color.FromArgb(255, 0, 255, 0), "initial green");
 
         Rgba32[] second =
         [
             new(1, 2, 3), new(4, 5, 6),
             new(7, 8, 9), new(10, 11, 12),
         ];
-        RgbaBitmap.CopyTo(bitmap, width: 2, height: 2, second);
+        RgbaBitmap.CopyTo(bitmap, new Extent16<ScreenPixels>(2, 2), second);
         Color final = bitmap.GetPixel(1, 1);
-        AssertPixel(bitmap, 1, 1, Color.FromArgb(255, 10, 11, 12), "replacement");
-        return new RgbaBitmapSmokeTestResult(bitmap.Width, bitmap.Height, final);
+        AssertPixel(bitmap, new Point(1, 1), Color.FromArgb(255, 10, 11, 12), "replacement");
+        return new RgbaBitmapSmokeTestResult(bitmap.Size, final);
     }
 
-    private static void AssertPixel(Bitmap bitmap, int x, int y, Color expected, string subject)
+    private static void AssertPixel(Bitmap bitmap, Point pixel, Color expected, string subject)
     {
-        Color actual = bitmap.GetPixel(x, y);
+        Color actual = bitmap.GetPixel(pixel.X, pixel.Y);
         if (actual.ToArgb() != expected.ToArgb())
         {
             throw new InvalidDataException(

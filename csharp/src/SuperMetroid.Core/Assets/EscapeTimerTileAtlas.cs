@@ -55,16 +55,15 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
 
     private byte[] Transfer() => SnesPlanarTileEncoder.Encode(
         Enumerable.Range(0, EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height).Select(Pixel).ToArray(),
-        EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height, EscapeTimerTileAtlasFormat.BitsPerPixel);
+        new(EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height), EscapeTimerTileAtlasFormat.BitsPerPixel);
 
     /// <summary>Loads the indexed PNG and compiles its pixels to the cartridge's two native DMA pages.</summary>
     public static EscapeTimerTileAtlas Load(Stream png)
     {
         IndexedPngImage image = IndexedPng.Read(
             png,
-            EscapeTimerTileAtlasFormat.Width,
-            EscapeTimerTileAtlasFormat.Height);
-        byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4);
+            new(EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height));
+        byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4);
         if (planar.Length != EscapeTimerTileAtlasFormat.TotalByteCount)
             throw new InvalidDataException(
                 $"Escape timer artwork compiled to {planar.Length} bytes; expected {EscapeTimerTileAtlasFormat.TotalByteCount}.");

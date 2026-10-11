@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Spatial;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -83,7 +84,7 @@ internal sealed partial class WindowsGamepadInput
                 $"raw X/Y={initialPosition.X}/{initialPosition.Y} in " +
                 $"{capabilities.XMinimum}..{capabilities.XMaximum}/" +
                 $"{capabilities.YMinimum}..{capabilities.YMaximum}, " +
-                $"normalized X/Y={LastSnapshot.HorizontalAxis}/{LastSnapshot.VerticalAxis}, " +
+                $"normalized X/Y={LastSnapshot.Stick.X}/{LastSnapshot.Stick.Y}, " +
                 $"face layout={ResolveFaceButtonLayout(capabilities)}.");
             return;
         }
@@ -143,10 +144,11 @@ internal sealed partial class WindowsGamepadInput
         return new GenericGamepadSnapshot(
             // Drivers can expose buttons without axes while leaving X/Y zero-filled.
             // Zero is a full negative deflection only for an axis that actually exists.
-            HorizontalAxis: capabilities.AxisCount >= 1
-                ? NormalizeAxis(position.X, capabilities.XMinimum, capabilities.XMaximum) : (short)0,
-            VerticalAxis: capabilities.AxisCount >= 2
-                ? NormalizeAxis(position.Y, capabilities.YMinimum, capabilities.YMaximum) : (short)0,
+            Stick: new(
+                capabilities.AxisCount >= 1
+                    ? NormalizeAxis(position.X, capabilities.XMinimum, capabilities.XMaximum) : (short)0,
+                capabilities.AxisCount >= 2
+                    ? NormalizeAxis(position.Y, capabilities.YMinimum, capabilities.YMaximum) : (short)0),
             PointOfView: pointOfView,
             Buttons: position.Buttons);
     }
@@ -171,6 +173,7 @@ internal sealed partial class WindowsGamepadInput
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    [SpatialComponents("Win32 interop: winmm's JOYCAPSW declares each axis range as separate fields.")]
     private struct JoystickCapabilities
     {
         public ushort ManufacturerId;
@@ -235,6 +238,7 @@ internal sealed partial class WindowsGamepadInput
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    [SpatialComponents("Win32 interop: winmm's JOYINFOEX declares each axis reading as separate fields.")]
     private struct JoystickPosition
     {
         public uint Size;

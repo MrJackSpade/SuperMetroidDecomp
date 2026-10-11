@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -11,10 +12,10 @@ internal static partial class Program
     {
         byte[] pairs = [1, (byte)RoomScrollState.Green, 0x80];
         var trigger = new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),
-            3, 3, 0x9100, pairs);
+            new(3, 3), 0x9100, pairs);
         var extension = new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.RightwardsScrollExtension),
-            4, 3, 0x8000);
-        var second = trigger with { BlockX = 5, ScrollProgram = new byte[] { 0x80 } };
+            new(4, 3), 0x8000);
+        var second = trigger with { Block = new(5, trigger.Block.Y), ScrollProgram = new byte[] { 0x80 } };
         RoomPlmPlacement[] records = [trigger, extension, second];
         var population = new RoomPlmPopulationDefinition(0xfffa, records);
         pairs[0] = 49;
@@ -22,11 +23,11 @@ internal static partial class Program
         records[0] = second;
         AssertEqual((byte)1, population.Placements.Span[0].ScrollProgram.Span[0],
             "decoded population owns its scroll pairs independently of caller mutation");
-        AssertEqual((byte)3, population.Placements.Span[0].BlockX,
+        AssertEqual(3, population.Placements.Span[0].Block.X,
             "decoded population owns its record ordering independently of caller mutation");
 
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var level = new RoomLevelData(8, 8, new ushort[64], new byte[64], new ushort[64], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new ushort[64], new byte[64], new ushort[64], new byte[8]);
         var plms = new RoomPlmSystem();
         var streamer = level.CreateBackgroundStreamer();
         AssertEqual(3, plms.LoadRoomPopulation(memory, level, streamer, new SnesVram(), population,
@@ -34,13 +35,13 @@ internal static partial class Program
             "typed population runs the real sequential allocator using a RAM-only bus");
         AssertTrue(plms.PopulationSlots.Select(slot => slot.NativeSlotIndex).SequenceEqual(new[] { 39, 38 }),
             "extension deletion permits immediate highest-slot reuse in authored order");
-        AssertEqual(RoomBlockBehaviorValues.ScrollTrigger.Value, level.GetCollisionBlock(3, 3).Behavior,
+        AssertEqual(RoomBlockBehaviorValues.ScrollTrigger.Value, level.GetCollisionBlock(new(3, 3)).Behavior,
             "typed trigger setup publishes its native collision behavior");
-        AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(4, 3).CollisionType,
+        AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");
-        var scrolls = RoomScrollGrid.CreateImplicit(memory, 2, 2, RoomScrollState.RedBoundary);
-        AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(3, 3)), "typed trigger wakes at its placement");
-        plms.Step(memory, level, streamer, 0, 0, 0, scrolls);
+        var scrolls = RoomScrollGrid.CreateImplicit(memory, new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
+        AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
+        plms.Step(memory, level, streamer, new(0, 0), 0, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
         AssertTrue(!plms.ScrollPlmTriggered(plms.ScrollPlms[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
 

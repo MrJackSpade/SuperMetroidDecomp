@@ -77,7 +77,7 @@ internal static partial class Program
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(0x91f8);
-        runtime.Camera!.SetPosition(0x0400, 0x0400);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
         var samus = runtime.Samus!;
         var top = runtime.Enemies.Slots.First(slot => slot.Definition.InitializationAiPointer == 0xa644);
         samus.InputLocked = false;

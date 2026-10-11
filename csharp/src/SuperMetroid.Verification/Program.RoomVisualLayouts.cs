@@ -44,8 +44,8 @@ internal static partial class Program
             int count = layerBytes / 2;
             int backgroundOffset = 2 + layerBytes + count;
             int backgroundBytes = Math.Min(layerBytes, native.Length - backgroundOffset);
-            AssertEqual(width, layout.WidthInBlocks, $"room ${source:X6} visual stride");
-            AssertEqual(count / width, layout.HeightInBlocks,
+            AssertEqual(width, layout.Size.X, $"room ${source:X6} visual stride");
+            AssertEqual(count / width, layout.Size.Y,
                 $"room ${source:X6} visual allocation height");
             for (int index = 0; index < count; index++)
             {
@@ -89,7 +89,7 @@ internal static partial class Program
                     new RoomLevelCorpusReadGuard(bus, source), room,
                     characterArt: characters, paletteArt: palettes,
                     metatileArt: metatiles, visualLayouts: stock).LevelData;
-                AssertEqual(blockCount, loaded.WidthInBlocks * loaded.HeightInBlocks,
+                AssertEqual(blockCount, loaded.Size.X * loaded.Size.Y,
                     $"room ${header.Pointer:X4} state ${statePointer:X4} physical allocation");
                 for (int blockIndex = 0; blockIndex < blockCount; blockIndex++)
                 {
@@ -161,8 +161,7 @@ internal static partial class Program
             "edited BG1 layout changes the live renderer's first block");
 
         var bg2Request = new BackgroundUpdateRequest(BackgroundLayer.Background,
-            BackgroundUpdateAxis.Row, SourceXBlock: 0, SourceYBlock: 0,
-            VramXBlock: 0, VramYBlock: 0);
+            BackgroundUpdateAxis.Row, SourceBlock: new(0, 0), VramBlock: new(0, 0));
         TilemapStreamUpdate nativeBg2 = nativeStream.Build(bg2Request)!
             ?? throw new InvalidOperationException("Native BG2 row was suppressed.");
         TilemapStreamUpdate stockBg2 = stockStream.Build(bg2Request)!
@@ -190,7 +189,7 @@ internal static partial class Program
                     compiledOther.LevelData.BehaviorBytes.Span) &&
                 nativeOther.LevelData.BackgroundEntries.Span.SequenceEqual(
                     compiledOther.LevelData.BackgroundEntries.Span) &&
-                nativeOther.LevelData.HeightInBlocks == compiledOther.LevelData.HeightInBlocks,
+                nativeOther.LevelData.Size.Y == compiledOther.LevelData.Size.Y,
                 $"compiled room ${pointer:X4} retains native collision, BTS, BG2, and allocation height");
         }
 

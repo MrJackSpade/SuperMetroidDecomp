@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -470,7 +471,7 @@ public sealed partial class FileSelectMenuState
             "Data-management screen requires at least one nonempty save slot.");
     }
 
-    private (ushort X, ushort Y) GetSelectionMissilePosition()
+    private Position16<OamPixels> GetSelectionMissilePosition()
     {
         if (mapPresentation is not null)
         {
@@ -479,15 +480,15 @@ public sealed partial class FileSelectMenuState
             int selected = IsMainScreenPhase
                 ? SelectedItem
                 : confirmation ? confirmationSelection : submenuSelection;
-            MapLabelPoint point = mapPresentation.FileSelect.CursorPosition(
+            Position16<OamPixels> point = mapPresentation.FileSelect.CursorPosition(
                 IsMainScreenPhase, confirmation, selected);
-            return (checked((ushort)point.X), checked((ushort)point.Y));
+            return point;
         }
         if (!showDataManagementScreen)
-            return (14, FileSelectLayout.MainSelectionY(SelectedItem));
+            return new(14, FileSelectLayout.MainSelectionY(SelectedItem));
         if (Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm)
-            return (94, confirmationSelection == 0 ? (ushort)184 : (ushort)208);
-        return (22, FileSelectLayout.DataSelectionY(submenuSelection));
+            return new(94, confirmationSelection == 0 ? (ushort)184 : (ushort)208);
+        return new(22, FileSelectLayout.DataSelectionY(submenuSelection));
     }
 
     private void UploadBg1Tilemap() =>

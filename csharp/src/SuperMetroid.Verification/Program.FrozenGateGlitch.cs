@@ -51,8 +51,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(
             RoomHeaderPointers.Caterpillar,
-            FrozenGateCameraX,
-            FrozenGateCameraY);
+            new Position16<RoomPixels>(FrozenGateCameraX, FrozenGateCameraY));
 
         RoomLevelData level = runtime.LevelData!;
         RoomPlmSystem plms = runtime.Plms;
@@ -77,8 +76,7 @@ internal static partial class Program
                 bus,
                 level,
                 runtime.BackgroundStreamer!,
-                FrozenGateCameraX,
-                FrozenGateCameraY,
+                new(FrozenGateCameraX, FrozenGateCameraY),
                 bg1XOffset: 0);
         }
         gate = plms.PopulationSlots.Single(slot =>
@@ -126,8 +124,7 @@ internal static partial class Program
             bus,
             level,
             runtime.BackgroundStreamer!,
-            FrozenGateCameraX,
-            FrozenGateCameraY,
+            new(FrozenGateCameraX, FrozenGateCameraY),
             bg1XOffset: 0);
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);

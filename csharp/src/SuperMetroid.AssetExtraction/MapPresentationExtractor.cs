@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -28,7 +29,7 @@ public static class MapPresentationExtractor
             var map = AreaMapImporter.Load(bus, area);
             AreaMapPresentationAsset.Write(buffer, map);
             stationCells.Add(area.ToString(), Enumerable.Range(0, AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
-                .Where(i => map.IsRevealedByMapStation(i % AreaMapLayout.WidthInTiles, i / AreaMapLayout.WidthInTiles)).ToArray());
+                .Where(i => map.IsRevealedByMapStation(new(checked((ushort)(i % AreaMapLayout.WidthInTiles)), checked((ushort)(i / AreaMapLayout.WidthInTiles))))).ToArray());
             byte[] bytes = buffer.ToArray();
             string name = AreaMapCatalogFormat.FileName(area);
             // Exclusive creation prevents this stock importer from overwriting edited
@@ -43,29 +44,29 @@ public static class MapPresentationExtractor
         hashes.Add(AreaMapCatalogFormat.StationRevealFile, Convert.ToHexString(SHA256.HashData(revealBytes)));
         byte[] tilePixels = SnesGraphics.DecodePlanarTiles(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount),
-            4, MapTileAtlasFormat.TileColumns, out int atlasWidth, out int atlasHeight);
+            4, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> atlasSize);
         using var atlas = new MemoryStream();
         // Palette indexes are tile content; runtime CGRAM supplies the selected map
         // palette. This neutral preview palette is not an imported gameplay palette.
-        IndexedPng.Write(atlas, atlasWidth, atlasHeight, tilePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
+        IndexedPng.Write(atlas, atlasSize, tilePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
         byte[] atlasBytes = atlas.ToArray();
         using (var file = new FileStream(Path.Combine(directory, MapTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(atlasBytes);
         hashes.Add(MapTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(atlasBytes)));
         byte[] pausePixels = SnesGraphics.DecodePlanarTiles(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount),
-            4, MapTileAtlasFormat.TileColumns, out int pauseWidth, out int pauseHeight);
+            4, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> pauseSize);
         using var pauseAtlas = new MemoryStream();
-        IndexedPng.Write(pauseAtlas, pauseWidth, pauseHeight, pausePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
+        IndexedPng.Write(pauseAtlas, pauseSize, pausePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
         byte[] pauseBytes = pauseAtlas.ToArray();
         using (var file = new FileStream(Path.Combine(directory, PauseTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(pauseBytes);
         hashes.Add(PauseTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(pauseBytes)));
         byte[] hudPixels = SnesGraphics.DecodePlanarTiles(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount),
-            2, MapTileAtlasFormat.TileColumns, out int hudWidth, out int hudHeight);
+            2, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> hudSize);
         using var hudAtlas = new MemoryStream();
-        IndexedPng.Write(hudAtlas, hudWidth, hudHeight, hudPixels, SnesGraphics.DiagnosticPalette(4));
+        IndexedPng.Write(hudAtlas, hudSize, hudPixels, SnesGraphics.DiagnosticPalette(4));
         byte[] hudBytes = hudAtlas.ToArray();
         using (var file = new FileStream(Path.Combine(directory, HudTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(hudBytes);
@@ -78,7 +79,7 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, MapStaticPalettesFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(paletteBytes);
         hashes.Add(MapStaticPalettesFormat.FileName, Convert.ToHexString(SHA256.HashData(paletteBytes)));
-        var labelPoints = new Dictionary<string, MapLabelPoint>();
+        var labelPoints = new Dictionary<string, Position16<OamPixels>>();
         for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelectMapRomData.AreaCount; area++)
         {
             int address = SuperMetroid.Core.Frontend.FileSelectMapRomData.LabelPositions + area * 4;

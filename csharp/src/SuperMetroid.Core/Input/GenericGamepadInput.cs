@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
@@ -10,9 +12,11 @@ namespace SuperMetroid.Core.Input;
 /// exact host-to-SNES bit conversion deterministic and independently testable without a
 /// physical controller or a dependency on Windows native APIs.
 /// </remarks>
+/// <param name="Stick">Normalized analog-stick deflection on both axes.</param>
+/// <param name="PointOfView">POV hat angle in hundredths of a degree clockwise from north, or <see cref="GenericGamepadInput.CenteredPointOfView"/>.</param>
+/// <param name="Buttons">Host button bits, button one in bit zero.</param>
 public readonly record struct GenericGamepadSnapshot(
-    short HorizontalAxis,
-    short VerticalAxis,
+    Offset16<GamepadStick> Stick,
     uint PointOfView,
     uint Buttons);
 
@@ -91,13 +95,13 @@ public static class GenericGamepadInput
         // drifting analogue stick from cancelling the deliberate opposite D-pad direction.
         if (!left && !right)
         {
-            left = snapshot.HorizontalAxis < -axisDeadZone;
-            right = snapshot.HorizontalAxis > axisDeadZone;
+            left = snapshot.Stick.X < -axisDeadZone;
+            right = snapshot.Stick.X > axisDeadZone;
         }
         if (!up && !down)
         {
-            up = snapshot.VerticalAxis < -axisDeadZone;
-            down = snapshot.VerticalAxis > axisDeadZone;
+            up = snapshot.Stick.Y < -axisDeadZone;
+            down = snapshot.Stick.Y > axisDeadZone;
         }
 
         SnesButton result = SnesButton.None;

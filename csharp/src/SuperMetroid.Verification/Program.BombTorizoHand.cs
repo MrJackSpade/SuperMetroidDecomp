@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -61,8 +62,7 @@ internal static partial class Program
         var blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x53 * 8] = 0x53;
         var level = new RoomLevelData(
-            width,
-            height,
+            new Extent16<RoomBlocks>(width, height),
             new ushort[width * height],
             new byte[width * height],
             new ushort[width * height],
@@ -95,8 +95,8 @@ internal static partial class Program
 
         // First pass draws the closed hand; second installs D33B and reaches sleep. Many
         // additional passes prove that neither a countdown nor host wall clock bypasses it.
-        plms.Step(guarded, level, streamer, 0, 0, 0);
-        int handOrigin = level.GetBlockIndex(13, 11);
+        plms.Step(guarded, level, streamer, new(0, 0), 0);
+        int handOrigin = level.GetBlockIndex(new(13, 11));
         AssertEqual((ushort)0x8065,
             level.GetCollisionBlockByIndex(handOrigin).LevelWord,
             "edited Bomb Torizo hand keeps the cartridge's physical level word");
@@ -107,28 +107,28 @@ internal static partial class Program
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                 handOrigin, 0).TopRow[0],
             "edited hand survives later background streaming");
-        AssertEqual((ushort)0x8064, level.GetCollisionBlock(12, 11).LevelWord,
+        AssertEqual((ushort)0x8064, level.GetCollisionBlock(new(12, 11)).LevelWord,
             "multi-run hand geometry retains the second native run");
-        AssertEqual((ushort)0x8049, level.GetCollisionBlock(14, 12).LevelWord,
+        AssertEqual((ushort)0x8049, level.GetCollisionBlock(new(14, 12)).LevelWord,
             "multi-run hand geometry retains the fourth native run");
-        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, new(0, 0), 0);
         for (int frame = 0; frame < 180; frame++)
-            plms.Step(guarded, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, new(0, 0), 0);
         AssertTrue(plms.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "hand remains resident while Samus lacks Bombs");
         AssertEqual(0, plms.VramWriteRequests.Count,
             "sleeping hand performs no premature DMA");
 
         samus.CollectedItems |= (ushort)SamusEquipmentFlags.Bombs;
-        plms.Step(guarded, level, streamer, 0, 0, 0); // D33B skips sleep, starts 120-frame wait.
+        plms.Step(guarded, level, streamer, new(0, 0), 0); // D33B skips sleep, starts 120-frame wait.
         AssertTrue(plms.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "Bombs wake starts authored delay without deleting hand");
 
         for (int frame = 0; frame < 119; frame++)
-            plms.Step(guarded, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, new(0, 0), 0);
         AssertEqual(0, plms.VramWriteRequests.Count,
             "DMA waits for complete 120-frame post-pickup delay");
-        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, new(0, 0), 0);
         AssertEqual(1, plms.VramWriteRequests.Count,
             "120th frame emits one PLM VRAM write");
         AssertEqual(0x0400, plms.VramWriteRequests[0].SizeInBytes,
@@ -165,7 +165,7 @@ internal static partial class Program
         var parameters = new List<ushort>();
         for (int frame = 0; frame < 400 && plms.HasActiveHeader(PlmHeaderId.BombTorizoHand); frame++)
         {
-            plms.Step(guarded, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, new(0, 0), 0);
             parameters.AddRange(plms.BombTorizoStatueProjectileRequests.Select(
                 request => request.Parameter));
         }

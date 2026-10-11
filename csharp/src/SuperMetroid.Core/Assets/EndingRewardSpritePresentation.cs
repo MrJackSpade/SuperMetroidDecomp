@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -17,20 +18,19 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
     /// <summary>Draws an installed post-credits Samus composition by its bank-$8C identity.</summary>
     /// <param name="pointer">Bank-relative native OAM record pointer.</param>
     /// <param name="oam">Destination OAM buffer.</param>
-    /// <param name="x">Horizontal origin in screen or offscreen coordinate space.</param>
-    /// <param name="y">Vertical origin in screen or offscreen coordinate space.</param>
+    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Packed OBJ palette bits inherited by applicable parts.</param>
     /// <param name="originIsOnScreen">Whether the origin uses on-screen wrapping rules.</param>
-    public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException(
                 $"Ending reward sprite frame $8C:{pointer:X4} is not installed.");
         if (originIsOnScreen)
-            frame.DrawOnScreen(oam, x, y, paletteBits);
+            frame.DrawOnScreen(oam, origin, paletteBits);
         else
-            frame.DrawOffScreen(oam, x, y, paletteBits);
+            frame.DrawOffScreen(oam, origin, paletteBits);
     }
 
     /// <summary>Loads and validates all 37 named post-credits Samus visual frames.</summary>

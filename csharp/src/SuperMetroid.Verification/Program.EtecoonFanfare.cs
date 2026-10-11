@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -27,8 +28,8 @@ internal static partial class Program
             slot.Parameter2 = (ushort)index;
             typeof(RoomEnemySystem).GetMethod("InitializeEtecoon", flags)!.Invoke(enemies, [slot]);
         }
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x240, 0xb98)), Health = 999, MaxHealth = 999 };
-        var level = new RoomLevelData(48, 192, new ushort[48 * 192], new byte[48 * 192], new ushort[48 * 192], new byte[8]);
+        var samus = new SamusState { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(48, 192), new ushort[48 * 192], new byte[48 * 192], new ushort[48 * 192], new byte[8]);
         enemies.ElevatorDoorTransitionActive = true;
         for (int frame = 0; frame < 3; frame++)
         {

@@ -118,8 +118,7 @@ public static partial class SamusGrappleMovement
                 ?? unchecked((ushort)(SamusGrappleRomData.Rendering.FirstSegmentAttributes + grapple.SegmentAnimationFrames[instructionSlot]));
             ushort segmentAttributes = unchecked((ushort)(appearance | flipAttributes));
             oam.AddRawSmallSprite(
-                unchecked((ushort)screenX),
-                unchecked((ushort)screenY),
+                new Position16<OamPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
                 segmentAttributes);
             screenXFixed = unchecked(screenXFixed + stepX);
             screenYFixed = unchecked(screenYFixed + stepY);
@@ -146,8 +145,7 @@ public static partial class SamusGrappleMovement
         int borrowX = swinging && grapple.Anchor.X < layer1.X ? 1 : 0;
         int borrowY = swinging && grapple.Anchor.Y < layer1.Y ? 1 : 0;
         oam.AddRawSmallSprite(
-            unchecked((ushort)(grapple.Anchor.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)),
-            unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY)),
+            new Position16<OamPixels>(unchecked((ushort)(grapple.Anchor.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)), unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY))),
             attributes);
     }
 
@@ -201,7 +199,7 @@ public static partial class SamusGrappleMovement
         grapple.PoseChangeAutoFireTimer = 0;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;
-        grapple.ExtensionVelocity = Vector88<RoomPixels>.Zero;
+        grapple.ExtensionVelocity = default(EightEightVector<RoomPixels>);
         grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         grapple.CancelFromConnectedPose = false;
         ClearFlareAnimation(grapple);

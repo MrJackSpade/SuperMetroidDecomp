@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -164,7 +165,7 @@ public static class XrayRevealVisualFiles
         var overlays = new XrayOverlayVisualCatalog(selected.ItemMetatiles,
             selected.Rooms.Select(room => (room.Pointer,
                 (IReadOnlyList<XrayRoomOverlayVisual>)room.Tiles.Select(tile =>
-                    new XrayRoomOverlayVisual(tile.X, tile.Y, tile.Word)).ToArray())));
+                    new XrayRoomOverlayVisual(tile.Block, tile.Word)).ToArray())));
         return new XrayRevealVisualCatalog(mappings, overlays);
     }
 
@@ -328,5 +329,10 @@ public static class XrayRevealVisualFiles
 
     // Keep file admission separate from the runtime value type. A missing coordinate
     // must not become the struct's legal zero/default value during deserialization.
-    private sealed record XrayRoomOverlayTileDocument(byte X, byte Y, ushort Word);
+    [SpatialComponents("External format: reveals.json stores each room-overlay tile's block coordinates as x/y bytes.")]
+    private sealed record XrayRoomOverlayTileDocument(byte X, byte Y, ushort Word)
+    {
+        [JsonIgnore]
+        public Position16<RoomBlocks> Block => new(X, Y);
+    }
 }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -32,25 +33,24 @@ public sealed class SpriteComposition
     }
     /// <summary>Appends all parts using the ordinary on-screen origin clipping path.</summary>
     /// <param name="oam">Object-attribute buffer that receives the ordered parts.</param>
-    /// <param name="x">Horizontal composition origin in screen-space pixels.</param>
-    /// <param name="y">Vertical composition origin in screen-space pixels.</param>
+    /// <param name="origin">Composition origin in screen-space pixels.</param>
     /// <param name="paletteBits">OBJ palette bits applied only to parts configured to inherit them.</param>
-    public void DrawOnScreen(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    public void DrawOnScreen(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         foreach (var part in parts)
             oam.AddOnScreenSpritePart(part.X, part.Y,
-                part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, x, y);
+                part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, origin);
     }
 
     /// <summary>Preserves the cartridge's opposite Y-wrap clipping for negative origins.</summary>
-    public void DrawOffScreen(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    public void DrawOffScreen(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         foreach (var part in parts)
             oam.AddOffScreenSpritePart(part.X, part.Y,
                 part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes,
-                x, y);
+                origin);
     }
 }
 
@@ -58,6 +58,7 @@ public sealed class SpriteComposition
 internal readonly record struct CompiledSpritePart(SnesSpritemapXWord X, byte Y, SnesObjAttributeWord Attributes, bool InheritPalette);
 
 /// <summary>One ordered region in an indexed tile sheet. Null palette inherits its drawing owner's current palette.</summary>
+[SpatialComponents("External format: sprite composition JSON stores each OAM part displacement as offsetX/offsetY.")]
 public sealed record SpriteVisualPart
 {
     /// <summary>Gets the signed horizontal pixel offset from the composition origin.</summary>

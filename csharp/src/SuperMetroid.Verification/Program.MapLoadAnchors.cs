@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -78,10 +79,10 @@ internal static partial class Program
                     continue;
                 }
                 var expected = originalMapLoadAnchors.Single(entry => entry.Area == typedArea && entry.Station == station);
-                FileSelectMapAnchor native = ReadNativeMapLoadAnchor(bus, typedArea, station);
+                Position16<MapPixels> native = ReadNativeMapLoadAnchor(bus, typedArea, station);
                 AssertEqual(vertical ? expected.Y : expected.X, vertical ? native.Y : native.X,
                     "preserved table agrees with original load/room records");
-                FileSelectMapAnchor actual = FileSelectMapLoadAnchors.Get(typedArea, station);
+                Position16<MapPixels> actual = FileSelectMapLoadAnchors.Get(typedArea, station);
                 AssertEqual(vertical ? expected.Y : expected.X, vertical ? actual.Y : actual.X,
                     $"original projected map anchor {typedArea}/{station} vertical={vertical}");
                 anchors++;
@@ -121,8 +122,8 @@ internal static partial class Program
                     var system = new Bank80SystemState();
                     if (visibility == 1)
                     {
-                        system.MarkExploredMapTile(typedArea, 0, 0);
-                        system.MarkExploredMapTile(typedArea, 63, 31);
+                        system.MarkExploredMapTile(typedArea, new(0, 0));
+                        system.MarkExploredMapTile(typedArea, new(63, 31));
                     }
                     if (visibility == 2) system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
                     if (visibility == 3)
@@ -130,8 +131,8 @@ internal static partial class Program
                         var stations = new byte[Bank80SystemState.MapStationByteCount]; stations[area] = 1;
                         system.LoadMapStationBytes(stations);
                     }
-                    var native = new FileSelectMapScroll(bus, SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, typedArea), system, expected.X, expected.Y);
-                    var compiled = new FileSelectMapScroll(guard, catalog.Get(typedArea), system, actual.X, actual.Y);
+                    var native = new FileSelectMapScroll(bus, SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, typedArea), system, expected);
+                    var compiled = new FileSelectMapScroll(guard, catalog.Get(typedArea), system, actual);
                     AssertEqual(ScrollState(native), ScrollState(compiled), "compiled anchors retain bounds and initial clipping for empty/sparse/full/downloaded maps");
                     foreach (ushort input in MapScrollControls.Buttons)
                         for (int tick = 0; tick < 40; tick++)
@@ -194,11 +195,11 @@ internal static partial class Program
             .Select(offset => bus.ReadByte((SaveRamLayout.SramBank << 16) | offset)).ToArray();
         static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => (FileSelectMapScroll)typeof(FileSelectMapMenuState)
             .GetField("scroll", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(menu)!;
-        static (ushort, ushort, ushort, ushort, ushort, ushort, MapScrollDirection) ScrollState(FileSelectMapScroll value) =>
-            (value.Horizontal, value.Vertical, value.MinimumX, value.MaximumX, value.MinimumY, value.MaximumY, value.Direction);
+        static (Position16<MapPixels>, Position16<MapPixels>, Position16<MapPixels>, MapScrollDirection) ScrollState(FileSelectMapScroll value) =>
+            (value.Scroll, value.Minimum, value.Maximum, value.Direction);
     }
 
-    private static FileSelectMapAnchor ReadNativeMapLoadAnchor(ISnesAddressSpace bus, AreaId area, int station)
+    private static Position16<MapPixels> ReadNativeMapLoadAnchor(ISnesAddressSpace bus, AreaId area, int station)
     {
         // Independent literal native layout: no production LoadStationEntry or
         // CartridgeRoomHeader/state-selection call participates in this oracle.

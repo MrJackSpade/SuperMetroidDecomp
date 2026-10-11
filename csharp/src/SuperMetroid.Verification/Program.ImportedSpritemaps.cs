@@ -96,7 +96,7 @@ internal static partial class Program
         expected.BeginFrame();
         actual.BeginFrame();
         DrawImportedEnemyProjectileSpritemap(rom, expected, nativePointer, 128, 112, 0, true);
-        actual.AddEnemySpritemap(parts.Span, 128, 112, 0, 0,
+        actual.AddEnemySpritemap(parts.Span, new Position16<OamPixels>(128, 112), 0, 0,
             clipVerticalWrap: true, originYIsOnScreen: true);
         AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
             $"projectile frame $86:{operand:X4} native sprite part count");

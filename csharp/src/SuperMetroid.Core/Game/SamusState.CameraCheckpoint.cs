@@ -56,32 +56,28 @@ public sealed partial class SamusState
     /// The live SamusPreviousXPosition/SamusPreviousYPosition words ($0B10/$0B14): the
     /// frame-start checkpoint with this frame's writes so far, without consuming them.
     /// </summary>
-    internal (ushort X, ushort Y) PeekPreviousPositionWords(SamusCameraPoint previous) => (
-        _previousXPositionWrite ?? previous.XPosition,
-        unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.YPosition) + _poseAlignmentPreviousYDelta)));
+    internal (ushort X, ushort Y) PeekPreviousPositionWords(FixedPosition<RoomPixels> previous) => (
+        _previousXPositionWrite ?? previous.X.Whole,
+        unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta)));
 
     /// <summary>
     /// Applies this frame's previous-position word writes before $90:94EC calculates
     /// distance. Its normal tail subsequently replaces the complete checkpoint.
     /// </summary>
-    internal SamusCameraPoint ApplyPreviousPositionWrites(SamusCameraPoint previous)
+    internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
     {
-        ushort correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.YPosition)
+        ushort correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
             + _poseAlignmentPreviousYDelta));
-        ushort xPosition = _previousXPositionWrite ?? previous.XPosition;
-        ushort xSubposition = _previousFractionWrites.X.ApplyTo(previous.XSubposition);
-        ushort ySubposition = _previousFractionWrites.Y.ApplyTo(previous.YSubposition);
+        ushort xPosition = _previousXPositionWrite ?? previous.X.Whole;
+        ushort xSubposition = _previousFractionWrites.X.ApplyTo(previous.X.Fraction);
+        ushort ySubposition = _previousFractionWrites.Y.ApplyTo(previous.Y.Fraction);
         _poseCollisionPreviousYPosition = null;
         _poseAlignmentPreviousYDelta = 0;
         _previousXPositionWrite = null;
         _previousFractionWrites = default;
-        return previous with
-        {
-            XPosition = xPosition,
-            XSubposition = xSubposition,
-            YPosition = correctedY,
-            YSubposition = ySubposition,
-        };
+        return new FixedPosition<RoomPixels>(
+            new SnesFixedPosition(xPosition, xSubposition),
+            new SnesFixedPosition(correctedY, ySubposition));
     }
 
     /// <summary>

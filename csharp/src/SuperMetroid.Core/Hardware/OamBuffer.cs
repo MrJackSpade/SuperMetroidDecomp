@@ -57,23 +57,23 @@ public sealed class OamBuffer
 
     /// <summary>Draws a compiled visual part with the same $81:879F clipping/packing as cartridge spritemaps.</summary>
     public void AddOnScreenSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
-        SnesObjAttributeWord attributes, ushort originX, ushort originY)
-        => AppendGenericSprite(xOffset, yOffset, attributes, originX, originY, originIsOnScreen: true);
+        SnesObjAttributeWord attributes, Position16<OamPixels> origin)
+        => AppendGenericSprite(xOffset, yOffset, attributes, origin, originIsOnScreen: true);
 
     /// <summary>Draws a compiled visual part with $81:8853's reversed vertical-wrap branch.</summary>
     public void AddOffScreenSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
-        SnesObjAttributeWord attributes, ushort originX, ushort originY)
-        => AppendGenericSprite(xOffset, yOffset, attributes, originX, originY, originIsOnScreen: false);
+        SnesObjAttributeWord attributes, Position16<OamPixels> origin)
+        => AppendGenericSprite(xOffset, yOffset, attributes, origin, originIsOnScreen: false);
 
     private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
-        SnesObjAttributeWord finalAttributes, ushort originX, ushort originY, bool originIsOnScreen)
+        SnesObjAttributeWord finalAttributes, Position16<OamPixels> origin, bool originIsOnScreen)
     {
         if (NextByteOffset >= LowTableByteCount) return; // Native stops at the hardware OAM capacity.
 
         // Only the low nine X bits reach hardware. The independent size flag
         // survives even when vertical clipping parks the sprite off screen.
-        ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
-        int calculatedY = (byte)originY + encodedYOffset;
+        ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
+        int calculatedY = (byte)origin.Y + encodedYOffset;
         bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
         bool hideForVerticalWrap = ShouldHideForOnScreenOrigin(calculatedY, yOffsetIsNegative);
         if (!originIsOnScreen)
@@ -108,14 +108,12 @@ public sealed class OamBuffer
     /// </remarks>
     /// <param name="memory">Mutable memory for the native zero-pointer WRAM case.</param>
     /// <param name="spritemapIndex">Word index into <c>$92:808D</c>.</param>
-    /// <param name="originX">Screen-space X origin produced by bank $90.</param>
-    /// <param name="originY">Screen-space Y origin produced by bank $90.</param>
+    /// <param name="origin">Screen-space origin produced by bank $90.</param>
     /// <param name="artwork">Required installed Samus compositions indexed by the native pointer-table ordinal; a zero-pointer catalog entry selects the mutable WRAM spritemap case rather than an empty image.</param>
     public void AddSamusSpritemap(
         ISnesMutableMemory memory,
         ushort spritemapIndex,
-        ushort originX,
-        ushort originY,
+        Position16<OamPixels> origin,
         SamusSpritemapArtworkCatalog artwork)
     {
         ArgumentNullException.ThrowIfNull(memory);
@@ -125,7 +123,7 @@ public sealed class OamBuffer
         {
             foreach (SamusSpritePart part in definition!.Parts)
                 AddSamusSpritePart(new SnesSpritemapXWord(part.X), part.Y,
-                    part.Attributes, originX, originY);
+                    part.Attributes, origin);
             return;
         }
 
@@ -146,19 +144,19 @@ public sealed class OamBuffer
             byte encodedYOffset = memory.ReadWorkRamByte(AddWithinBank(entryAddress, 2));
             ushort attributes = ReadWorkRamWord(AddWithinBank(entryAddress, 3));
 
-            AddSamusSpritePart(encodedXOffset, encodedYOffset, attributes, originX, originY);
+            AddSamusSpritePart(encodedXOffset, encodedYOffset, attributes, origin);
             entryAddress = AddWithinBank(entryAddress, 5);
         }
     }
 
     /// <summary>Emits one already-decoded Samus part with native OAM wrapping and authored attributes.</summary>
     public void AddSamusSpritePart(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
-        ushort attributes, ushort originX, ushort originY)
+        ushort attributes, Position16<OamPixels> origin)
     {
         // The 65C816 adds the complete encoded X word, including size and old art-tool
         // bits. Only X bit 8 reaches high OAM; bit 15 independently chooses OBJ size.
-        ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
-        byte calculatedY = unchecked((byte)(originY + encodedYOffset));
+        ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
+        byte calculatedY = unchecked((byte)(origin.Y + encodedYOffset));
         int spriteIndex = NextByteOffset >> 2;
         int lowOffset = NextByteOffset;
         _lowTable[lowOffset] = (byte)calculatedX;
@@ -178,10 +176,10 @@ public sealed class OamBuffer
     /// The caller owns whole-projectile viewport admission.
     /// </summary>
     public void AddProjectileSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
-        SnesObjAttributeWord attributes, ushort originX, ushort originY)
+        SnesObjAttributeWord attributes, Position16<OamPixels> origin)
     {
-        ushort x = unchecked((ushort)(originX + xOffset.Raw));
-        byte y = unchecked((byte)(originY + yOffset));
+        ushort x = unchecked((ushort)(origin.X + xOffset.Raw));
+        byte y = unchecked((byte)(origin.Y + yOffset));
         int spriteIndex = NextByteOffset >> 2;
         int lowOffset = NextByteOffset;
         _lowTable[lowOffset] = (byte)x;
@@ -195,8 +193,7 @@ public sealed class OamBuffer
     /// <summary>Draws an installed enemy frame without reading visual records from ROM.</summary>
     public void AddEnemySpritemap(
         ReadOnlySpan<EnemySpritemapPart> parts,
-        ushort originX,
-        ushort originY,
+        Position16<OamPixels> origin,
         ushort paletteBits,
         ushort baseTileIndex,
         bool clipVerticalWrap = false,
@@ -204,29 +201,30 @@ public sealed class OamBuffer
     {
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         foreach (EnemySpritemapPart part in parts)
-            AppendEnemySpritemapPart(part, originX, originY, paletteBits,
+            AppendEnemySpritemapPart(part, origin, paletteBits,
                 baseTileIndex, clipVerticalWrap, originYIsOnScreen);
     }
 
     /// <summary>Appends an immutable calculated enemy composition in its original drawing order.</summary>
     public void AddEnemySpritemap(EnemySpritemapParts parts,
-        ushort originX, ushort originY, ushort paletteBits, ushort baseTileIndex,
+        Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap = false, bool originYIsOnScreen = true)
     {
         ArgumentNullException.ThrowIfNull(parts);
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         for (int index = 0; index < parts.Count; index++)
-            AppendEnemySpritemapPart(parts[index], originX, originY, paletteBits,
+            AppendEnemySpritemapPart(parts[index], origin, paletteBits,
                 baseTileIndex, clipVerticalWrap, originYIsOnScreen);
     }
+
     private void AppendEnemySpritemapPart(EnemySpritemapPart part,
-        ushort originX, ushort originY, ushort paletteBits, ushort baseTileIndex,
+        Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap, bool originYIsOnScreen)
     {
         SnesSpritemapXWord encodedXOffset = part.X;
         byte encodedYOffset = part.Y;
-        ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
-        int unsignedYSum = unchecked((byte)originY) + encodedYOffset;
+        ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
+        int unsignedYSum = unchecked((byte)origin.Y) + encodedYOffset;
         byte calculatedY;
         if (!clipVerticalWrap)
         {
@@ -268,14 +266,14 @@ public sealed class OamBuffer
     /// and flips are calculated by the native caller. X remains a nine-bit hardware value;
     /// Y wraps to its low byte exactly like a direct store to OAMLow.
     /// </remarks>
-    public void AddRawSmallSprite(ushort x, ushort y, ushort attributes)
+    public void AddRawSmallSprite(Position16<OamPixels> position, ushort attributes)
     {
         int spriteIndex = NextByteOffset >> 2;
         int lowOffset = NextByteOffset;
-        _lowTable[lowOffset] = unchecked((byte)x);
-        _lowTable[lowOffset + 1] = unchecked((byte)y);
+        _lowTable[lowOffset] = unchecked((byte)position.X);
+        _lowTable[lowOffset + 1] = unchecked((byte)position.Y);
         WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
-        SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(x, isLarge: false));
+        SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(position.X, isLarge: false));
         NextByteOffset = (NextByteOffset + 4) & 0x01ff;
     }
 
@@ -290,14 +288,15 @@ public sealed class OamBuffer
     /// coordinates have zero high bytes, so the cleared high-OAM pair already describes a
     /// small object at X 0..255 and is deliberately left untouched.
     /// </remarks>
-    public void AddProjectileTrailSprite(byte x, byte y, ushort attributes)
+    public void AddProjectileTrailSprite(Position16<OamPixels> position, ushort attributes)
     {
         if (NextByteOffset >= LowTableByteCount)
             return;
 
+        // Only the low bytes are stored: the caller has already admitted an on-screen point.
         int lowOffset = NextByteOffset;
-        _lowTable[lowOffset] = x;
-        _lowTable[lowOffset + 1] = y;
+        _lowTable[lowOffset] = unchecked((byte)position.X);
+        _lowTable[lowOffset + 1] = unchecked((byte)position.Y);
         WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
         NextByteOffset += 4;
     }

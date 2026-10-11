@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -26,7 +27,7 @@ internal sealed class MapObjectTileArtwork
 
     internal MapObjectTileArtwork(IndexedPngImage image)
     {
-        byte[] encoded = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4);
+        byte[] encoded = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4);
         smallFont = new(image);
         largeFont = new(image);
         elevatorLettering = new(image);
@@ -48,16 +49,16 @@ internal sealed class MapObjectTileArtwork
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
-            if (pixel != ReservePixel(tile, x, y))
+            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
+            if (pixel != ReservePixel(tile, new(checked((ushort)x), checked((ushort)y))))
                 (reserveEdits ??= new()).Add((tile - FirstReserveTile) * 64 + y * 8 + x, pixel);
         }
         for (int tile = FirstHighlightTile; tile < FirstHighlightTile + HighlightTileCount; tile++)
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
-            if (pixel != HighlightPixel(tile, x, y))
+            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
+            if (pixel != HighlightPixel(tile, new(checked((ushort)x), checked((ushort)y))))
                 (highlightEdits ??= new()).Add((tile - FirstHighlightTile) * 64 + y * 8 + x, pixel);
         }
     }
@@ -67,33 +68,33 @@ internal sealed class MapObjectTileArtwork
 
     /// <summary>Border index12; left corner reuses cursor46 shifted right with colors1/2 exchanged.
     /// Source cursor edits are compensated by independent corner-pixel edits captured at import.</summary>
-    internal byte HighlightPixel(int tile, int x, int y)
+    internal byte HighlightPixel(int tile, Position16<CharacterPixels> point)
     {
-        if (!IsHighlight(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        if (!IsHighlight(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         if (tile == FirstHighlightTile)
         {
-            if (x == 0 || y == 0) return 12;
+            if (point.X == 0 || point.Y == 0) return 12;
             int pixel = 0;
             int cursorOffset = 0;
             for (int sourceTile = 0; sourceTile < CursorTile; sourceTile++)
                 if (!IsReserve(sourceTile) && !IsHighlight(sourceTile) && !MenuSmallFontArtwork.Contains(sourceTile) && !MenuLargeFontArtwork.Contains(sourceTile) && !MenuCompactLetteringArtwork.Contains(sourceTile) && !MenuPanelTileArtwork.Contains(sourceTile) && !MenuShoulderButtonArtwork.Contains(sourceTile) && !MenuShoulderHighlightArtwork.Contains(sourceTile) && !MapMarkerTileArtwork.Contains(sourceTile) && !MenuBeveledSquareArtwork.Contains(sourceTile) && !MenuThinBorderArtwork.Contains(sourceTile)) cursorOffset += 32;
             for (int plane = 0; plane < 4; plane++)
-                pixel |= ((otherCharacters[cursorOffset + plane / 2 * 16 + y * 2 + plane % 2] >> (8 - x)) & 1) << plane;
+                pixel |= ((otherCharacters[cursorOffset + plane / 2 * 16 + point.Y * 2 + plane % 2] >> (8 - point.X)) & 1) << plane;
             return (byte)(pixel == 1 ? 2 : pixel == 2 ? 1 : pixel);
         }
-        if (tile == FirstHighlightTile + 1) return y == 0 ? (byte)12 : (byte)0;
-        return (y == 0 && x < 2) || (tile == FirstHighlightTile + 2 && x == 1) ? (byte)12 : (byte)0;
+        if (tile == FirstHighlightTile + 1) return point.Y == 0 ? (byte)12 : (byte)0;
+        return (point.Y == 0 && point.X < 2) || (tile == FirstHighlightTile + 2 && point.X == 1) ? (byte)12 : (byte)0;
     }
     /// <summary>Calculates the native border, fill and empty-interior indices of one reserve pixel.</summary>
-    internal static byte ReservePixel(int tile, int x, int y)
+    internal static byte ReservePixel(int tile, Position16<CharacterPixels> point)
     {
-        if ((uint)(tile - FirstReserveTile) >= ReserveTileCount || (uint)x >= 8 || (uint)y >= 8)
+        if ((uint)(tile - FirstReserveTile) >= ReserveTileCount || (uint)point.X >= 8 || (uint)point.Y >= 8)
             throw new ArgumentOutOfRangeException(nameof(tile));
-        if (y < 2) return 0;
-        if (tile == FirstReserveTile + 8) return x == 0 ? (byte)5 : (byte)0;
-        if (y is 2 or 7 || x == 0) return 5;
+        if (point.Y < 2) return 0;
+        if (tile == FirstReserveTile + 8) return point.X == 0 ? (byte)5 : (byte)0;
+        if (point.Y is 2 or 7 || point.X == 0) return 5;
         int fill = tile < FirstReserveTile + 6 ? tile - FirstReserveTile + 1 : tile == FirstReserveTile + 6 ? 0 : 7;
-        return x <= fill ? (byte)9 : (byte)14;
+        return point.X <= fill ? (byte)9 : (byte)14;
     }
 
     internal void LoadTo(SnesVram vram, int destinationByte)
@@ -128,8 +129,8 @@ internal sealed class MapObjectTileArtwork
                 for (int x = 0; x < 8; x++)
                 {
                     int key = (tile - first) * 64 + y * 8 + x;
-                    byte pixel = thin ? thinBorder.Pixel(tile, x, y) : square ? squares.Pixel(tile, x, y) : marker ? markers.Pixel(tile, x, y) : shoulderFrame ? shoulderHighlight.Pixel(tile, x, y) : shoulder ? shoulderButtons.Pixel(tile, x, y) : panelTile ? panel.Pixel(tile, x, y) : lettering ? elevatorLettering.Pixel(tile, x, y) : title ? largeFont.Pixel(tile, x, y) : font ? smallFont.Pixel(tile, x, y) : edits is not null && edits.TryGetValue(key, out byte authored)
-                        ? authored : reserve ? ReservePixel(tile, x, y) : HighlightPixel(tile, x, y);
+                    byte pixel = thin ? thinBorder.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : square ? squares.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : marker ? markers.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : shoulderFrame ? shoulderHighlight.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : shoulder ? shoulderButtons.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : panelTile ? panel.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : lettering ? elevatorLettering.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : title ? largeFont.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : font ? smallFont.Pixel(tile, new(checked((ushort)x), checked((ushort)y))) : edits is not null && edits.TryGetValue(key, out byte authored)
+                        ? authored : reserve ? ReservePixel(tile, new(checked((ushort)x), checked((ushort)y))) : HighlightPixel(tile, new(checked((ushort)x), checked((ushort)y)));
                     encoded |= (byte)(((pixel >> plane) & 1) << (7 - x));
                 }
                 transfer[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] = encoded;

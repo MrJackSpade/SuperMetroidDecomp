@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed actor metadata and physical spawn schedule for the Ceres destruction blasts.</summary>
@@ -129,7 +131,7 @@ internal static class CeresExplosionDefinitions
             throw new ArgumentOutOfRangeException(nameof(index));
         int x = index == 4 ? 0 : 16 * (1 - 2 * (index & 1));
         int y = index < 2 ? -x : x;
-        return new((short)x, (short)y, (ushort)(index == 0 ? 1 : 16 * index));
+        return new(new((short)x, (short)y), (ushort)(index == 0 ? 1 : 16 * index));
     }
 
     /// <summary>$8B:C4EB-$C50A, the repeating burst's eight chosen screen-space positions.</summary>
@@ -154,7 +156,7 @@ internal static class CeresExplosionDefinitions
         if ((uint)index >= RepeatingExplosionCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         var position = RepeatingBurstLayout[index];
-        return new(position.X, position.Y, 1);
+        return new(new(position.X, position.Y), 1);
     }
 
     /// <summary>$8B:C57A-$C581, chosen heights of the four final large bursts.</summary>
@@ -199,7 +201,7 @@ internal static class CeresExplosionDefinitions
         int magnitude = 8 + 4 * (index & 1);
         int x = index < 2 ? magnitude : -magnitude;
         int y = FinalBurstHeights[index];
-        return new((short)x, (short)y, (ushort)(index == 0 ? 1 : 1 << (index + 1)));
+        return new(new((short)x, (short)y), (ushort)(index == 0 ? 1 : 1 << (index + 1)));
     }
 }
 
@@ -209,7 +211,7 @@ internal readonly record struct CeresExplosionActorDefinition(
     ushort InstructionList);
 
 /// <summary>One fixed Ceres explosion offset and initial instruction delay.</summary>
-internal readonly record struct CeresExplosionPlacement(short X, short Y, ushort DelayFrames);
+internal readonly record struct CeresExplosionPlacement(Offset16<ScreenPixels> Offset, ushort DelayFrames);
 
 /// <summary>Ordered spawner events; repeating and final waves may occur on the same call.</summary>
 internal readonly record struct CeresExplosionSpawnEvents(bool Initial, bool Repeating, bool Final);

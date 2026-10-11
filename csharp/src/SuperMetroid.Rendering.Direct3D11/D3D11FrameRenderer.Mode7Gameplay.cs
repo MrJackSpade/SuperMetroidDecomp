@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Rendering.Direct3D11;
@@ -25,8 +26,7 @@ public sealed partial class D3D11FrameRenderer
             void Objects(uint priority) => DispatchTile(D3D11TileOperation.InsertObj,
                 priority: priority + 1, firstScanline: (uint)floorStart);
             void Background(bool high) => DispatchTile(D3D11TileOperation.Bg4,
-                floor.TilemapWord, floor.CharacterWord, floor.HorizontalScroll, floor.VerticalScroll,
-                (uint)floor.MapWidthTiles, (uint)floor.MapHeightTiles, Priority(high),
+                floor.TilemapWord, floor.CharacterWord, floor.Scroll.AsBgPlaneScroll(), floor.MapSize, Priority(high),
                 firstScanline: (uint)floorStart);
         }
         // HUD color zero is opaque, and OBJ never overlays this band.

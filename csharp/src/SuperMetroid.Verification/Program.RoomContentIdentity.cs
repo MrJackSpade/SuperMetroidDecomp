@@ -2,6 +2,7 @@ using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -55,7 +56,7 @@ internal static partial class Program
             using var png = new MemoryStream();
             var pixels = new byte[64];
             pixels[0] = change ? (byte)1 : (byte)0;
-            IndexedPng.Write(png, 8, 8, pixels, [new Rgba32(0, 0, 0), new Rgba32(255, 255, 255)]);
+            IndexedPng.Write(png, new(8, 8), pixels, [new Rgba32(0, 0, 0), new Rgba32(255, 255, 255)]);
             png.Position = 0;
             return RoomCharacterAtlas.Load(png, RoomCharacterAtlasFormat.BytesPerTile);
         }
@@ -121,8 +122,8 @@ internal static partial class Program
         bool editLayout = edited == GameInstallationLayout.RoomVisualLayoutDirectoryName;
         var layouts = new Dictionary<int, RoomVisualLayout>
         {
-            [1] = new RoomVisualLayout(1, 1, 2, [0, 1], [editLayout ? (ushort)2 : (ushort)0, 1]),
-            [2] = new RoomVisualLayout(2, 2, 1, [1, 0], [0, 1]),
+            [1] = new RoomVisualLayout(1, new Extent16<RoomBlocks>(1, 2), [0, 1], [editLayout ? (ushort)2 : (ushort)0, 1]),
+            [2] = new RoomVisualLayout(2, new Extent16<RoomBlocks>(2, 1), [1, 0], [0, 1]),
         };
         if (reverse) layouts = layouts.Reverse().ToDictionary(pair => pair.Key, pair => pair.Value);
         return new RoomIdentityFixture(

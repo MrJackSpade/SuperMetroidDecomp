@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -21,9 +22,9 @@ public static class BeamTileExtractor
             byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 SamusProjectileRomData.Banks.CharacterData | pointer, BeamTileAtlasDefinitions.ByteCount);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
-                BeamTileAtlasDefinitions.Width / 8, out int width, out int height);
+                BeamTileAtlasDefinitions.Width / 8, out Extent16<ImagePixels> size);
             using var stream = new MemoryStream();
-            IndexedPng.Write(stream, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            IndexedPng.Write(stream, size, pixels, SnesGraphics.DiagnosticPalette(16));
             byte[] png = stream.ToArray();
             var verified = BeamTileAtlas.Load(new MemoryStream(png), selection);
             if (!verified.Transfer.Span.SequenceEqual(planar))

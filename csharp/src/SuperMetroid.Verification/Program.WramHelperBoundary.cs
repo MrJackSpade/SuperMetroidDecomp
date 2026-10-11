@@ -94,7 +94,7 @@ internal static partial class Program
                     3 or 4 or 5 or 6 => speed + (snapshot[6] >> 8 | snapshot[7] << 8),
                     _ => 0,
                 }));
-                AssertEqual(new Vector88<RoomPixels>(x, y), SamusProjectileInheritance.ReadVelocity(memory, direction, speed),
+                AssertEqual(new EightEightVector<RoomPixels>(x, y), SamusProjectileInheritance.ReadVelocity(memory, direction, speed),
                     "projectile inheritance preserves each directional overlapping word");
             }
         }

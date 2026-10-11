@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -21,23 +22,23 @@ internal static partial class Program
         {
             var before = runtime.Enemies.Draygon!;
             var window = DraygonMainScreenWindow.Select(before.Body.XPosition, before.Body.YPosition,
-                runtime.Camera!.XPosition, runtime.Camera.YPosition, ((ushort)before.Body.Properties & 0x200) != 0);
+                runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y, ((ushort)before.Body.Properties & 0x200) != 0);
             loaded.Game.Step(0);
             // The graphics-drawn hook uses the final camera, exactly like appendage OAM,
             // not the camera sampled before Samus movement/scrolling earlier in the frame.
-            ushort cameraX = runtime.Camera!.XPosition;
-            ushort cameraY = runtime.Camera.YPosition;
+            ushort cameraX = runtime.Camera!.PixelPosition.X;
+            ushort cameraY = runtime.Camera.PixelPosition.Y;
             var boss = runtime.Enemies.Draygon ?? throw new InvalidOperationException("Fixture must remain in Draygon's encounter.");
             verifiedTilemapWords += VerifyDraygonBodyTilemap(runtime);
             // Independent transcription of $A5:9342, including unsigned PPU-word wrapping.
             ushort expectedX = unchecked((ushort)(boss.BodyGraphicsXDisplacement + cameraX - boss.Body.XPosition - 450));
             ushort expectedY = unchecked((ushort)(boss.BodyGraphicsYDisplacement + cameraY - boss.Body.YPosition - 192));
-            if (runtime.BackgroundScroll.Bg2HorizontalScroll != expectedX || runtime.BackgroundScroll.Bg2VerticalScroll != expectedY)
-                throw new InvalidOperationException($"Draygon frame {frame}: body ({boss.Body.XPosition},{boss.Body.YPosition}), BG2 actual ({runtime.BackgroundScroll.Bg2HorizontalScroll},{runtime.BackgroundScroll.Bg2VerticalScroll}), native ({expectedX},{expectedY}).");
+            if (runtime.BackgroundScroll.Bg2Scroll.X != expectedX || runtime.BackgroundScroll.Bg2Scroll.Y != expectedY)
+                throw new InvalidOperationException($"Draygon frame {frame}: body ({boss.Body.XPosition},{boss.Body.YPosition}), BG2 actual ({runtime.BackgroundScroll.Bg2Scroll.X},{runtime.BackgroundScroll.Bg2Scroll.Y}), native ({expectedX},{expectedY}).");
             if (frame > 0)
             {
                 var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
-                if (layer.Registers.Bg2X != previousX || layer.Registers.Bg2Y != previousY)
+                if (layer.Registers.Bg2Scroll.X != previousX || layer.Registers.Bg2Scroll.Y != previousY)
                     throw new InvalidOperationException($"Draygon frame {frame}: accepted-NMI body scroll is detached from the matching sprite frame.");
                 if (layer.Registers.Bg2FirstScanline != window.First || layer.Registers.Bg2EndScanline != window.End)
                     throw new InvalidOperationException("Draygon native main-screen window was not captured with its OAM.");
@@ -69,7 +70,7 @@ internal static partial class Program
             previousY = expectedY;
             positions.Add((boss.Body.XPosition, boss.Body.YPosition));
             if (frame is 1 or 120 or 240 or 360 or 480)
-                PngWriterTooling.WriteRgba($"{output}/frame-{frame}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"{output}/frame-{frame}.png", new Extent16<ScreenPixels>(256, 224),
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
         }
         if (positions.Count < 20) throw new InvalidOperationException("Draygon fixture did not exercise a moving body.");
@@ -79,7 +80,7 @@ internal static partial class Program
         var finalCapture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
         var finalLayer = (OrdinaryGameplayRenderLayer)finalCapture.Layers[0];
         var offscreenRegisters = finalLayer.Registers with
-            { Bg2Y = unchecked((ushort)(finalLayer.Registers.Bg2Y + 256)), Bg2FirstScanline = 32, Bg2EndScanline = 32 };
+            { Bg2Scroll = finalLayer.Registers.Bg2Scroll + new Offset16<Bg2Pixels>(0, 256), Bg2FirstScanline = 32, Bg2EndScanline = 32 };
         var clipped = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(finalCapture.Memory,
             new RenderLayer[] { new OrdinaryGameplayRenderLayer(offscreenRegisters) }, finalCapture.ObjectSelection, finalCapture.Brightness));
         var unmasked = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(finalCapture.Memory,

@@ -34,10 +34,10 @@ internal static partial class Program
 
         var level = runtime.LevelData!;
         bool selected = false;
-        for (int y = 0; y < level.HeightInBlocks && !selected; y++)
-        for (int x = 0; x < level.WidthInBlocks && !selected; x++)
+        for (int y = 0; y < level.Size.Y && !selected; y++)
+        for (int x = 0; x < level.Size.X && !selected; x++)
         {
-            var block = level.GetCollisionBlock(x, y);
+            var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock ||
                 level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, publishDoorSideEffects: false)
                     .Door?.DestinationRoomPointer != FixtureRoomHeaders.MotherBrain)
@@ -69,6 +69,6 @@ internal static partial class Program
     /// <summary>Reports every enemy initialized once the door scroll has reached a layer-1 X.</summary>
     private sealed class CameraReachedLoaderProgress(SuperMetroidRuntime runtime, ushort cameraX) : IDoorLoaderProgressSource
     {
-        public bool HasInitializedEnemySlot(int slot) => runtime.Camera!.XPosition <= cameraX;
+        public bool HasInitializedEnemySlot(int slot) => runtime.Camera!.PixelPosition.X <= cameraX;
     }
 }

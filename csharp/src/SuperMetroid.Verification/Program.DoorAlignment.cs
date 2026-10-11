@@ -32,12 +32,10 @@ internal static partial class Program
 
             DoorCameraAlignmentState actual = DoorCameraAlignmentState.Step(
                 (DoorDirection)direction,
-                beforeX,
-                beforeY);
+                new Position16<RoomPixels>(beforeX, beforeY));
             string context =
                 $"door alignment direction {direction}, start ${startX:X4}/${startY:X4}, call {call}";
-            AssertEqual(expectedX, actual.CameraX, $"{context} camera X");
-            AssertEqual(expectedY, actual.CameraY, $"{context} camera Y");
+            AssertEqual(new Position16<RoomPixels>(expectedX, expectedY), actual.CameraPosition, $"{context} camera");
             AssertEqual(nextFunction != 0xe310, actual.Completed, $"{context} completion seam");
             if (actual.Completed)
                 completedCases++;
@@ -50,43 +48,35 @@ internal static partial class Program
         // The scrolling owner replaces only whole position words. Fractional movement
         // survives the complete transition and is therefore available to the first frame
         // in the destination room, which is the basis of alignment-sensitive strategies.
-        const uint sourceX = 0x04d2_abcd;
-        const uint sourceY = 0x0187_2468;
-        const uint finalX = 0x0318_abcd;
-        const uint finalY = 0x0218_2468;
+        var source = FixedPosition<RoomPixels>.FromWords(0x04d2, 0xabcd, 0x0187, 0x2468);
+        var final = FixedPosition<RoomPixels>.FromWords(0x0318, 0xabcd, 0x0218, 0x2468);
         for (int direction = 0; direction < 4; direction++)
         {
             var door = new CartridgeDoorHeader(
                 Pointer: 0x8000,
                 DestinationRoomPointer: 0x9000,
                 Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
-                PlmX: 0,
-                PlmY: 0,
-                DestinationScreenX: 3,
-                DestinationScreenY: 2,
+                PlmBlock: new(0, 0),
+                DestinationScreen: new(3, 2),
                 SamusDistance: 0x0100,
                 SetupCodePointer: DoorSetupCode.None);
             DoorOpeningScrollState transition = DoorOpeningScrollState.Create(
                 door,
-                sourceX,
-                sourceY,
-                finalCameraX: 0x0300,
-                finalCameraY: direction == 3 ? (ushort)0x0220 : (ushort)0x0200,
-                finalLayer2X: 0x0180,
-                finalLayer2Y: 0x0140,
-                finalSamusXFixed: finalX,
-                finalSamusYFixed: finalY);
+                source,
+                finalCamera: new Position16<RoomPixels>(0x0300, direction == 3 ? (ushort)0x0220 : (ushort)0x0200),
+                finalLayer2: new Position16<Bg2Pixels>(0x0180, 0x0140),
+                finalSamus: final);
             while (!transition.Advance())
             {
             }
 
-            AssertEqual(unchecked((ushort)sourceX), unchecked((ushort)transition.SamusXFixed),
+            AssertEqual(source.X.Fraction, transition.SamusPosition.X.Fraction,
                 $"door direction {direction} retains X subposition during visible scroll");
-            AssertEqual(unchecked((ushort)sourceY), unchecked((ushort)transition.SamusYFixed),
+            AssertEqual(source.Y.Fraction, transition.SamusPosition.Y.Fraction,
                 $"door direction {direction} retains Y subposition during visible scroll");
-            AssertEqual(unchecked((ushort)sourceX), unchecked((ushort)transition.FinalSamusXFixed),
+            AssertEqual(source.X.Fraction, transition.FinalSamusPosition.X.Fraction,
                 $"door direction {direction} retains X subposition at handoff");
-            AssertEqual(unchecked((ushort)sourceY), unchecked((ushort)transition.FinalSamusYFixed),
+            AssertEqual(source.Y.Fraction, transition.FinalSamusPosition.Y.Fraction,
                 $"door direction {direction} retains Y subposition at handoff");
         }
 
@@ -109,10 +99,10 @@ internal static partial class Program
         int doorX = -1;
         int doorY = -1;
         byte behavior = 0;
-        for (int y = 0; y < level.HeightInBlocks && doorX < 0; y++)
-        for (int x = 0; x < level.WidthInBlocks; x++)
+        for (int y = 0; y < level.Size.Y && doorX < 0; y++)
+        for (int x = 0; x < level.Size.X; x++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(x, y);
+            RoomCollisionBlock block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
             CartridgeDoorHeader? candidate = level.ResolveDoorCollision(
@@ -131,8 +121,7 @@ internal static partial class Program
 
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
-            cameraX: (ushort)(doorX / 16 * 256),
-            cameraY: (ushort)(doorY / 16 * 256));
+            camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
         SamusState samus = runtime.Samus!;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
@@ -145,8 +134,7 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         runtime.LevelData!.ResolveDoorCollision(bus, behavior, samus.Pose, true);
         runtime.Camera!.SetPosition(
-            runtime.Camera.XPosition,
-            unchecked((ushort)(runtime.Camera.YPosition + 2)));
+            new Position16<RoomPixels>(runtime.Camera.PixelPosition.X, unchecked((ushort)(runtime.Camera.PixelPosition.Y + 2))));
         runtime.GameTime.Load(frames: 58, seconds: 56, minutes: 34, hours: 12);
 
         var transition = new DoorTransitionState();

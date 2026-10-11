@@ -70,9 +70,9 @@ internal static partial class Program
         for (int index = 0; index < CeresExplosionDefinitions.RepeatingExplosionCount; index++)
         {
             CeresExplosionPlacement placement = CeresExplosionDefinitions.RepeatingExplosion(index);
-            AssertEqual(ReadWord(retail, 0x8bc4eb + index * 4), unchecked((ushort)placement.X),
+            AssertEqual(ReadWord(retail, 0x8bc4eb + index * 4), unchecked((ushort)placement.Offset.X),
                 $"repeating explosion {index} X offset");
-            AssertEqual(ReadWord(retail, 0x8bc4ed + index * 4), unchecked((ushort)placement.Y),
+            AssertEqual(ReadWord(retail, 0x8bc4ed + index * 4), unchecked((ushort)placement.Offset.Y),
                 $"repeating explosion {index} Y offset");
             AssertEqual((ushort)1, placement.DelayFrames,
                 $"repeating explosion {index} initial instruction delay");
@@ -81,7 +81,7 @@ internal static partial class Program
         for (int index = 0; index < CeresExplosionDefinitions.FinalExplosionCount; index++)
         {
             CeresExplosionPlacement placement = CeresExplosionDefinitions.FinalExplosion(index);
-            AssertEqual(ReadWord(retail, 0x8bc57a + index * 2), unchecked((ushort)placement.Y),
+            AssertEqual(ReadWord(retail, 0x8bc57a + index * 2), unchecked((ushort)placement.Offset.Y),
                 $"final explosion {index} Y offset");
         }
 

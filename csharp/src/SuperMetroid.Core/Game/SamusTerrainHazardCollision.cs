@@ -72,7 +72,7 @@ public static class SamusTerrainHazardCollision
         SamusState samus,
         Position16<RoomPixels> point)
     {
-        RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(point.X >> 4, point.Y >> 4);
+        RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)(point.X >> 4)), unchecked((ushort)(point.Y >> 4))));
         if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
         if (block.CollisionType != RoomCollisionType.SpikeAir ||

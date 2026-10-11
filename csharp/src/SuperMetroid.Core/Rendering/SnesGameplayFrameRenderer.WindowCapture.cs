@@ -28,7 +28,7 @@ public static partial class SnesGameplayFrameRenderer
     /// The renderer receives only clipped endpoints/colors, not a bus or projectile owner.
     /// </summary>
     public static ScanlineColorAddRenderLayer? CapturePowerBombColorMath(ISnesAddressSpace bus,
-        SamusPowerBombExplosionState explosion, ushort layer1X, ushort layer1Y,
+        SamusPowerBombExplosionState explosion, Position16<RoomPixels> layer1,
         int firstVisibleScanline = HudHeight)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -38,8 +38,10 @@ public static partial class SnesGameplayFrameRenderer
         if (!explosion.IsActive) return null;
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
-        int centerX = unchecked((short)(explosion.Position.X - layer1X));
-        int centerY = unchecked((short)(explosion.Position.Y - layer1Y));
+        Offset16<ScreenPixels> center = explosion.Position
+            .RelativeToCamera(layer1);
+        int centerX = center.X;
+        int centerY = center.Y;
         byte red = ExpandFiveBit(explosion.FixedColorRed);
         byte green = ExpandFiveBit(explosion.FixedColorGreen);
         byte blue = ExpandFiveBit(explosion.FixedColorBlue);

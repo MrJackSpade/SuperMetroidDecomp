@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>
 /// Import-only packed sprite decoder for cartridge-versus-installed OAM comparisons.
@@ -29,9 +30,9 @@ internal static class ImportedSpritemapOracle
             byte y = Byte(offset + 2);
             var attributes = new SnesObjAttributeWord(Word(offset + 3)).WithPaletteBits(paletteBits);
             if (originIsOnScreen)
-                oam.AddOnScreenSpritePart(x, y, attributes, originX, originY);
+                oam.AddOnScreenSpritePart(x, y, attributes, new Position16<OamPixels>(originX, originY));
             else
-                oam.AddOffScreenSpritePart(x, y, attributes, originX, originY);
+                oam.AddOffScreenSpritePart(x, y, attributes, new Position16<OamPixels>(originX, originY));
         }
     }
 
@@ -40,7 +41,7 @@ internal static class ImportedSpritemapOracle
         byte bank, ushort spritemapPointer, ushort originX, ushort originY,
         ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap = false, bool originYIsOnScreen = true) =>
-        oam.AddEnemySpritemap(ReadEnemyParts(source, bank, spritemapPointer), originX, originY,
+        oam.AddEnemySpritemap(ReadEnemyParts(source, bank, spritemapPointer), new Position16<OamPixels>(originX, originY),
             paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
 
     public static void DrawEnemyProjectile(IImportCartridgeSource source, OamBuffer oam,

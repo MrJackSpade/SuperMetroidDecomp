@@ -15,8 +15,8 @@ public static class XrayRevealExtensions
         if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
             throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(blockIndex));
         if (block.Behavior == 0) return null;
-        ushort x = (ushort)(blockIndex % level.WidthInBlocks);
-        ushort y = (ushort)(blockIndex / level.WidthInBlocks);
+        ushort x = (ushort)(blockIndex % level.Size.X);
+        ushort y = (ushort)(blockIndex / level.Size.X);
         bool vertical = block.CollisionType == RoomCollisionType.VerticalExtension;
         // Both entry points sign-extend the initial BTS. Later reads are asymmetric:
         // only the horizontal-extension branch repeats that sign extension.
@@ -31,7 +31,7 @@ public static class XrayRevealExtensions
             if (vertical) y = coordinate; else x = coordinate;
             // GetBlockTypeAndBTS uses the hardware's byte-wide Y multiplication;
             // X is then added as a word, so it may legitimately spill into the next row.
-            block = level.GetPlmCollisionBlockByIndex(unchecked((ushort)((byte)y * level.WidthInBlocks + x)));
+            block = level.GetPlmCollisionBlockByIndex(unchecked((ushort)((byte)y * level.Size.X + x)));
             step = block.Behavior;
             if (block.CollisionType == RoomCollisionType.VerticalExtension)
             {

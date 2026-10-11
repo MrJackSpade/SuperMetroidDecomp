@@ -300,7 +300,7 @@ public sealed class SamusBombProjectileSystem
 
             (compositions ?? throw new InvalidOperationException(
                 "Bomb projectiles require installed sprite compositions."))
-                .Draw(slot.SpritemapPointer, oam, unchecked((ushort)screenX), screenY);
+                .Draw(slot.SpritemapPointer, oam, new(unchecked((ushort)screenX), screenY));
         }
     }
 
@@ -416,7 +416,7 @@ public sealed class SamusBombProjectileSystem
         slot.ClearFields();
         slot.Type = placingPowerBomb ? PowerBombType : NormalBombType;
         slot.Direction = 0;
-        slot.Position = slot.Position.WithWhole(new(samus.Position.X.Whole, samus.Position.Y.Whole));
+        slot.Position = slot.Position.WithWhole(samus.Position.Whole);
         slot.BombTimer = SamusBombSpreadRomData.InitialBombTimer;
         InitializeBombFromRom(slot);
         CooldownTimer = placingPowerBomb
@@ -491,7 +491,7 @@ public sealed class SamusBombProjectileSystem
             slot.ClearFields();
             slot.Type = SamusBombSpreadRomData.BombSpreadType;
             slot.IsBombSpread = true;
-            slot.Position = slot.Position.WithWhole(new(samus.Position.X.Whole, samus.Position.Y.Whole));
+            slot.Position = slot.Position.WithWhole(samus.Position.Whole);
             InitializeBombFromRom(slot);
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
@@ -751,13 +751,13 @@ public sealed class SamusBombProjectileSystem
     {
         int blockX = slot.Position.X.Whole >> 4;
         int blockY = slot.Position.Y.Whole >> 4;
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
+        if ((uint)blockX >= (uint)level.Size.X ||
+            (uint)blockY >= (uint)level.Size.Y)
         {
             return true;
         }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+        RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
 
@@ -804,11 +804,11 @@ public sealed class SamusBombProjectileSystem
 
         int left = Math.Max(0, explosion.X - horizontalRadius) >> 4;
         int right = Math.Min(
-            level.WidthInBlocks - 1,
+            level.Size.X - 1,
             (explosion.X + horizontalRadius) >> 4);
         int top = Math.Max(0, explosion.Y - verticalRadius) >> 4;
         int bottom = Math.Min(
-            level.HeightInBlocks - 1,
+            level.Size.Y - 1,
             (explosion.Y + verticalRadius) >> 4);
 
         // $94:A0F4/$A11A visit all four inclusive edges in this exact order. Corners are
@@ -844,7 +844,7 @@ public sealed class SamusBombProjectileSystem
 
         foreach ((int x, int y) in cross)
         {
-            if ((uint)x >= (uint)level.WidthInBlocks || (uint)y >= (uint)level.HeightInBlocks)
+            if ((uint)x >= (uint)level.Size.X || (uint)y >= (uint)level.Size.Y)
             {
                 // $94:9CAC first admits the bomb centre through the room's scroll bounds,
                 // and valid rooms surround reachable bomb centres with an edge wall. An
@@ -874,7 +874,7 @@ public sealed class SamusBombProjectileSystem
     {
         int x = bombedBlock.X;
         int y = bombedBlock.Y;
-        RoomCollisionBlock visitedBlock = level.GetCollisionBlock(x, y);
+        RoomCollisionBlock visitedBlock = level.GetCollisionBlock(bombedBlock);
         reactions.Add(new BombBlockReaction());
 
         // `$94:9411/$9447` do not react to an extension block directly. A nonzero signed

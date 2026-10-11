@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -23,10 +24,11 @@ internal static partial class Program
         })
         {
             var system = new Bank80SystemState();
-            system.MarkExploredMapTile(area, roomX + (samusX >> 8), roomY + (samusY >> 8) + 1);
+            var samusCell = new Position16<MapTiles>(checked((ushort)(roomX + (samusX >> 8))), checked((ushort)(roomY + (samusY >> 8) + 1)));
+            system.MarkExploredMapTile(area, samusCell);
             var pause = CreateRetailPauseFixture(bus,
-                new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)samusX, (ushort)samusY)) },
-                system, area, (byte)roomX, (byte)roomY);
+                new SamusState { Position = new(new((ushort)samusX, 0), new((ushort)samusY, 0))},
+                system, area, new(checked((ushort)roomX), checked((ushort)roomY)));
             int nativeFrame = 0, nativeTimer = 0;
             for (int frame = 0; frame < 48; frame++)
             {
@@ -39,8 +41,8 @@ internal static partial class Program
                 int id = new[] { 0x5f, 0x60, 0x61, 0x60 }[nativeFrame];
                 pause.AdvanceAnimations();
                 var pixels = pause.Render();
-                ushort x = unchecked((ushort)(8 * (roomX + (samusX >> 8)) - pause.MapHorizontalScroll));
-                ushort y = unchecked((ushort)(8 * (roomY + (samusY >> 8) + 1) - pause.MapVerticalScroll));
+                Position16<ScreenPixels> marker = samusCell.ToMapPixels().ToScreen(pause.MapScroll);
+                ushort x = marker.X, y = marker.Y;
                 var expected = new OamBuffer(); expected.BeginFrame();
                 DrawImportedSpritemap(bus, expected, 0x820000 | Read(0x82c569 + id * 2), x, y, 0x0e00);
                 int bytes = expected.NextByteOffset; expected.FinalizeFrame();

@@ -67,13 +67,13 @@ internal static partial class Program
                 AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(snapshot.Memory.Vram), "every stock transition frame retains exact native VRAM");
                 var pixels = pause.Render();
                 AssertTrue(native.Render().AsSpan().SequenceEqual(pixels), "seven-area stock pixels match native path with frame, buttons and label ROM reads blocked");
-                var selection = (pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapHorizontalScroll, pause.MapVerticalScroll);
+                var selection = (pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll);
                 pause.BindMapPresentation(edited);
                 var changed = pause.CaptureRenderSnapshot();
                 AssertTrue(changed.Memory.Vram.SequenceEqual(persistentEdit.CaptureRenderSnapshot().Memory.Vram),
                     "fresh edited session and live rebind retain the same artwork through equipment return and Start");
                 AssertTrue(snapshot.Memory.Vram.Slice(0x6000, 0x1000).SequenceEqual(changed.Memory.Vram.Slice(0x6000, 0x1000)), "backdrop rebind leaves shared map/equipment BG1 untouched");
-                AssertEqual(selection, (pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapHorizontalScroll, pause.MapVerticalScroll), "backdrop rebind leaves navigation and scroll untouched");
+                AssertEqual(selection, (pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll), "backdrop rebind leaves navigation and scroll untouched");
                 foreach (var span in PauseMenuLayout.ButtonLabelSpans)
                 for (int word = 0; word < span.Count; word++)
                 {
@@ -99,7 +99,7 @@ internal static partial class Program
         // The native invalid-beam selection deliberately leaves an overlong label
         // in equipment VRAM. A full inventory rebuild during content rebind loses it.
         var samus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300, CollectedBeams = 0x100f, EquippedBeams = 4 };
-        var glitch = new PauseMenuState(guard, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: original);
+        var glitch = new PauseMenuState(guard, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0), mapPresentation: original);
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);
         AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
@@ -154,7 +154,7 @@ internal static partial class Program
             var system = new Bank80SystemState();
             if (area != AreaId.Ceres) system.SetAreaMapAcquired(area);
             return new(addressSpace, new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge, EquippedBeams = (ushort)SamusBeamFlags.Charge },
-                system, area, 10, 10, mapPresentation: catalog);
+                system, area, new(10, 10), mapPresentation: catalog);
         }
     }
 

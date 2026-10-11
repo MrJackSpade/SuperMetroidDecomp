@@ -19,7 +19,7 @@ public sealed class EndingFontAtlas
     public ReadOnlyMemory<byte> Transfer => SnesPlanarTileEncoder.Encode(
         Enumerable.Range(0, EndingFontAtlasFormat.Width * EndingFontAtlasFormat.Height)
             .Select(Pixel).ToArray(),
-        EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height, EndingFontAtlasFormat.BitsPerPixel);
+        new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height), EndingFontAtlasFormat.BitsPerPixel);
 
     private byte Pixel(int pixel) => pixels.TryGetValue(pixel, out byte value) ? value
         : EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out byte calculated) ? calculated
@@ -32,9 +32,9 @@ public sealed class EndingFontAtlas
     public static EndingFontAtlas Load(Stream png)
     {
         IndexedPngImage image = IndexedPng.Read(
-            png, EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height);
+            png, new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height));
         byte[] planar = SnesPlanarTileEncoder.Encode(
-            image.Pixels, image.Width, image.Height, EndingFontAtlasFormat.BitsPerPixel);
+            image.Pixels, image.Size, EndingFontAtlasFormat.BitsPerPixel);
         if (planar.Length != EndingFontAtlasFormat.ByteCount)
             throw new InvalidDataException(
                 $"Ending font compiled to {planar.Length} bytes; expected {EndingFontAtlasFormat.ByteCount}.");

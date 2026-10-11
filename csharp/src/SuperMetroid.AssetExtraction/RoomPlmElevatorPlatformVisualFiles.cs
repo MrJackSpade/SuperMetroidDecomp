@@ -118,9 +118,9 @@ public static class RoomPlmElevatorPlatformVisualFiles
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
-                if (bus.ReadCartridgeByte(0x840000 | cursor) != unchecked((byte)run.NextX) ||
+                if (bus.ReadCartridgeByte(0x840000 | cursor) != unchecked((byte)run.Next.X) ||
                     bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(cursor + 1))) !=
-                        unchecked((byte)run.NextY))
+                        unchecked((byte)run.Next.Y))
                     throw new InvalidDataException(
                         $"Elevator-platform draw list ${list.Pointer:X4} differs in next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));

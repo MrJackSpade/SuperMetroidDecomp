@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Game;
 
@@ -209,7 +210,7 @@ public sealed partial class RoomEnemySystem
 
         int triggerBlockX = statue.Parameter2 == 0 ? 0x4a : ChozoStatuePlmRomData.LowerNorfairTriggerX;
         int triggerBlockY = statue.Parameter2 == 0 ? 0x17 : ChozoStatuePlmRomData.LowerNorfairTriggerY;
-        int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(triggerBlockX, triggerBlockY);
+        int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(new(unchecked((ushort)triggerBlockX), unchecked((ushort)triggerBlockY)));
         RoomCollisionBlock triggerBlock = level.GetCollisionBlockByIndex(triggerBlockIndex);
 
         // Both setup routines clear only the block-type nibble. The parallel BTS byte and
@@ -410,8 +411,8 @@ public sealed partial class RoomEnemySystem
         short xOffset = unchecked((short)rawXOffset);
         ushort probeX = unchecked((ushort)(statue.XPosition + xOffset));
         ushort probeY = unchecked((ushort)(statue.YPosition + 28));
-        RoomCollisionBlock current = level.GetCollisionBlockAtPixel(probeX, probeY);
-        int belowIndex = current.Index + level.WidthInBlocks;
+        RoomCollisionBlock current = level.GetCollisionBlockAtPixel(new Position16<RoomPixels>(probeX, probeY));
+        int belowIndex = current.Index + level.Size.X;
         if ((uint)belowIndex >= (uint)level.ForegroundEntries.Length ||
             (level.GetCollisionBlockByIndex(belowIndex).LevelWord & 0xf000) != 0xa000)
         {

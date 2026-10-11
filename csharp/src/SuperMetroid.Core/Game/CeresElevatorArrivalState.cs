@@ -187,7 +187,7 @@ public sealed class CeresElevatorArrivalState
         var installed = projectileSpritemaps ?? throw new InvalidOperationException(
             "Ceres elevator projectiles require installed sprite artwork.");
         oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
-            screenX, screenY,
+            new Position16<OamPixels>(screenX, screenY),
             new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
             unchecked((byte)projectile.GraphicsIndex),
             clipVerticalWrap: true,

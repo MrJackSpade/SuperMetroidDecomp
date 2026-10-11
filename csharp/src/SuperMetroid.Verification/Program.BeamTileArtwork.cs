@@ -23,10 +23,10 @@ internal static partial class Program
             LoadNativeBeamFixture(bus, native, new SnesCgram(), null, selection);
             atlas.LoadTo(extracted);
             AssertTrue(native.Bytes.SequenceEqual(extracted.Bytes), "PNG matches production beam upload across complete VRAM");
-            var image = IndexedPng.Read(new MemoryStream(png), 64, 8);
+            var image = IndexedPng.Read(new MemoryStream(png), new(64, 8));
             image.Pixels[0] ^= 1;
             using var editedPng = new MemoryStream();
-            IndexedPng.Write(editedPng, image.Width, image.Height, image.Pixels, image.Palette);
+            IndexedPng.Write(editedPng, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             editedPng.Position = 0;
             var edited = BeamTileAtlas.Load(editedPng, SamusBeamCombinations.FromTableIndex(selection));
             edited.LoadTo(extracted);
@@ -64,13 +64,13 @@ internal static partial class Program
             AssertEqual(0, restored.TailInBytes, "NMI clears restored asset queue");
         }
         using var wrongSize = new MemoryStream();
-        IndexedPng.Write(wrongSize, 8, 8, new byte[64], new[] { new Rgba32(0, 0, 0, 255) });
+        IndexedPng.Write(wrongSize, new(8, 8), new byte[64], new[] { new Rgba32(0, 0, 0, 255) });
         wrongSize.Position = 0;
         AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(wrongSize, 0), "Wrong beam atlas dimensions rejected");
         using var invalidIndex = new MemoryStream();
         var colors = Enumerable.Range(0, 17).Select(i => new Rgba32((byte)i, 0, 0, 255)).ToArray();
         var pixels = new byte[512]; pixels[0] = 16;
-        IndexedPng.Write(invalidIndex, 64, 8, pixels, colors);
+        IndexedPng.Write(invalidIndex, new(64, 8), pixels, colors);
         invalidIndex.Position = 0;
         AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(invalidIndex, 0), "Beam index exceeds four bit hardware palette");
         AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(new MemoryStream(new byte[8]), 0), "Malformed beam PNG rejected");
@@ -117,10 +117,10 @@ internal static partial class Program
 
     private static void VerifyRuntimeBeamArtwork(ISnesAddressSpace bus, Dictionary<string, byte[]> files, BeamTileCatalog stock)
     {
-        var image = IndexedPng.Read(new MemoryStream(files[BeamTileAtlasDefinitions.FileName(0)]), 64, 8);
+        var image = IndexedPng.Read(new MemoryStream(files[BeamTileAtlasDefinitions.FileName(0)]), new(64, 8));
         image.Pixels[0] ^= 1;
         using var png = new MemoryStream();
-        IndexedPng.Write(png, 64, 8, image.Pixels, image.Palette);
+        IndexedPng.Write(png, new(64, 8), image.Pixels, image.Palette);
         var changed = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(0)] = png.ToArray() };
         var edited = BeamTileCatalog.Load(changed, stock.Palettes);
         var runtime = CreateRetailRuntimeFixture(bus);

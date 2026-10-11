@@ -10,16 +10,18 @@ namespace SuperMetroid.Core.Rendering;
 /// Create a new sampler after changing VRAM or palette contents.
 /// </summary>
 internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
-    int map, int characters, int mapWidth, int mapHeight, bool fourBit)
+    int map, int characters, Extent16<TilemapCells> mapSize, bool fourBit)
 {
     private int cachedKey = -1;
     private SnesBgTilemapWord tile;
     private int plane0, plane1, plane2, plane3;
 
-    internal (Rgba32 Color, bool High) Sample(int x, int y, bool opaqueZero = false)
+    /// <summary>Samples the plane pixel, wrapping each axis within the tilemap.</summary>
+    internal (Rgba32 Color, bool High) Sample(Position16<BgPlanePixels> pixel, bool opaqueZero = false)
     {
-        x &= mapWidth * 8 - 1;
-        y &= mapHeight * 8 - 1;
+        int mapWidth = mapSize.X;
+        int x = pixel.X & (mapWidth * 8 - 1);
+        int y = pixel.Y & (mapSize.Y * 8 - 1);
         int tx = x >> 3;
         int key = y * mapWidth + tx;
         if (key != cachedKey)

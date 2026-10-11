@@ -40,7 +40,7 @@ internal static partial class Program
         for (int column = 0; column < 2; column++)
         for (int row = 0; row < 3; row++)
         {
-            ushort word = level.GetCollisionBlockByIndex(level.GetBlockIndex(0x10 + column, 0x87 + row)).LevelWord;
+            ushort word = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(checked((ushort)(0x10 + column)), checked((ushort)(0x87 + row))))).LevelWord;
             AssertEqual((ushort)0x00ff, word, $"wall block ({column},{row}) opens to $00FF");
         }
         Console.WriteLine("Old Tourian escape shaft wall: setup spawns the PLM; Samus past the target blows the wall.");

@@ -1,6 +1,7 @@
 ﻿using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Text;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -9,15 +10,15 @@ internal static class PngWriterTooling
 {
     internal static readonly byte[] Signature = [137, 80, 78, 71, 13, 10, 26, 10];
     /// <summary>Expands palette indexes to RGBA and writes them as a PNG.</summary>
-    public static void WriteIndexedAsRgba(
+    public static void WriteIndexedAsRgba<TSpace>(
         string path,
-        int width,
-        int height,
+        Extent16<TSpace> size,
         ReadOnlySpan<byte> indexes,
         IReadOnlyList<Rgba32> palette,
         int scale = 1)
+        where TSpace : ISpatialSpace
     {
-        if (indexes.Length != width * height)
+        if (indexes.Length != size.Area)
             throw new ArgumentException("Pixel count does not match dimensions.", nameof(indexes));
         if (palette.Count == 0)
             throw new ArgumentException("Palette is empty.", nameof(palette));
@@ -25,22 +26,23 @@ internal static class PngWriterTooling
         var pixels = new Rgba32[indexes.Length];
         for (int i = 0; i < indexes.Length; i++)
             pixels[i] = palette[indexes[i] % palette.Count];
-        WriteRgba(path, width, height, pixels, scale);
+        WriteRgba(path, size, pixels, scale);
     }
     /// <summary>Writes an RGBA buffer, optionally nearest-neighbor scaled by an integer.</summary>
-    public static void WriteRgba(
+    public static void WriteRgba<TSpace>(
         string path,
-        int width,
-        int height,
+        Extent16<TSpace> size,
         ReadOnlySpan<Rgba32> pixels,
         int scale = 1)
+        where TSpace : ISpatialSpace
     {
-        if (pixels.Length != width * height)
+        if (pixels.Length != size.Area)
             throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
         ArgumentOutOfRangeException.ThrowIfLessThan(scale, 1);
 
+        int width = size.X;
         int outputWidth = width * scale;
-        int outputHeight = height * scale;
+        int outputHeight = size.Y * scale;
         int scanlineBytes = checked(outputHeight * (1 + outputWidth * 4));
         // Stored DEFLATE blocks add five bytes per 64 KiB; zlib adds six. Leave far more than
         // that, so incompressible art still fits and the fixed stream never needs to grow.

@@ -30,7 +30,7 @@ internal static partial class Program
                     "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Slots[0];
                 ushort[] actual = [shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
-                    unchecked((ushort)shot.Velocity.X), unchecked((ushort)shot.Velocity.Y), shot.Type, shot.InstructionPointer];
+                    unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.Type, shot.InstructionPointer];
                 AssertTrue(actual.SequenceEqual(native[(edge, frame)]),
                     $"Missile edge={edge} frame={frame} native comparison: {string.Join(',', actual.Select(v => v.ToString("X4")))}");
                 compared++;

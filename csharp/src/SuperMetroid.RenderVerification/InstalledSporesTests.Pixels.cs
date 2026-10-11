@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class InstalledSporesTests
 {
@@ -34,12 +35,12 @@ internal static partial class InstalledSporesTests
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)3, 1024).ToArray(), 0x5c00, 1);
             var oam = new byte[SnesPpuLayout.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(objPriority << 4 | palette << 1);
-            var registers = new OrdinaryGameplayRegisters(0, 0, 0, 0, 64, 32,
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 SnesPpuLayout.GameplayBg2TilemapWord, 0, 0, SnesPpuLayout.GameplayHudCharacterBaseWord,
                 SnesMainScreenLayers.Obj | ((enabled & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0) |
                     ((enabled & 2) != 0 ? SnesMainScreenLayers.Bg2 : 0));
             var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers),
-                new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, 0, 0));
+                new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero));
             var scene = new LayeredRenderSnapshot(new(vram.Bytes, colors.Colors, oam, 1), [layer], 0, 15);
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only

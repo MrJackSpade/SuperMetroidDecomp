@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -28,8 +29,7 @@ internal static partial class Program
             "word carry must return to the mutable-memory owner");
         var gameplayBus = new SpacetimeMutableOnlyBus(bus);
         var level = new RoomLevelData(
-            16,
-            16,
+            new Extent16<RoomBlocks>(16, 16),
             new ushort[256],
             new byte[256],
             new ushort[256],
@@ -50,8 +50,7 @@ internal static partial class Program
             samus,
             new Bank80SystemState(),
             AreaId.Crateria,
-            0,
-            0);
+            new(0, 0));
         EnterPauseEquipment(selection);
         SelectPauseBoots(selection);
         selection.Step(0, (ushort)(SnesButton.Left | SnesButton.A));

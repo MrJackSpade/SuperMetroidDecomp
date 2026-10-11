@@ -29,10 +29,10 @@ internal static partial class Program
         int doorX = -1;
         int doorY = -1;
         byte behavior = 0;
-        for (int y = 0; y < level.HeightInBlocks && doorX < 0; y++)
-        for (int x = 0; x < level.WidthInBlocks; x++)
+        for (int y = 0; y < level.Size.Y && doorX < 0; y++)
+        for (int x = 0; x < level.Size.X; x++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(x, y);
+            RoomCollisionBlock block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
             CartridgeDoorHeader? candidate = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false).Door;
@@ -47,8 +47,7 @@ internal static partial class Program
 
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
-            cameraX: (ushort)(doorX / 16 * 256),
-            cameraY: (ushort)(doorY / 16 * 256));
+            camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
@@ -94,8 +93,7 @@ internal static partial class Program
             }
             PngWriterTooling.WriteRgba(
                 Path.Combine(output, $"destination-{destinationFrames:D3}-{phase}.png"),
-                256,
-                224,
+                new Extent16<ScreenPixels>(256, 224),
                 pixels);
             destinationFrames++;
         }
@@ -118,7 +116,7 @@ internal static partial class Program
             trace.WriteLine($"{500 + frame},Gameplay,{runtime.ActiveRoom!.Pointer:X4},{runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid)},{runtime.RoomLayer3Fx.Type},{runtime.RoomLayer3Fx.CurrentYPosition:X4},{runtime.DisplayedRoomLayer3Fx?.Type},{runtime.DisplayedRoomLayer3Fx?.CurrentYPosition:X4}");
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(
                 GameplayDisplayCapture.TryCaptureFrame(runtime)!);
-            PngWriterTooling.WriteRgba(Path.Combine(output, $"gameplay-{frame:D3}.png"), 256, 224, pixels);
+            PngWriterTooling.WriteRgba(Path.Combine(output, $"gameplay-{frame:D3}.png"), new Extent16<ScreenPixels>(256, 224), pixels);
         }
         AssertEqual(drainedAcidY, runtime.RoomLayer3Fx.CurrentYPosition,
             $"completed Chozo event restores the drained acid height (transition ended at ${transitionEndY:X4})");

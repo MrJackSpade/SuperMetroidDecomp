@@ -98,9 +98,9 @@ internal static partial class AssetTools
         var k = samus.Kinematics;
         var speed = samus.HorizontalSpeed;
         var level = runtime.LevelData!;
-        Word(0x7A5, level.WidthInBlocks);
-        Word(0x7A7, level.HeightInBlocks);
-        for (int i = 0; i < level.WidthInBlocks * level.HeightInBlocks; i++)
+        Word(0x7A5, level.Size.X);
+        Word(0x7A7, level.Size.Y);
+        for (int i = 0; i < level.Size.X * level.Size.Y; i++)
         {
             var block = level.GetCollisionBlockByIndex(i);
             Word(0x10002 + i * 2, block.LevelWord);

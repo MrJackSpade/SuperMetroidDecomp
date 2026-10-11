@@ -38,8 +38,8 @@ internal static partial class Program
                     AssertEqual(!(worldLabel && horizontalOnly), edited.StoresComposition((MapSpriteId)role.NativeId),
                         "horizontal label edits remain positions; other authored edits retain their composition");
                     var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
-                    MenuSpriteCompiler.Compile(parts, role.Name).DrawOnScreen(expected, 100, 100, 0x600);
-                    edited.Draw((MapSpriteId)role.NativeId, actual, 100, 100, 0x600);
+                    MenuSpriteCompiler.Compile(parts, role.Name).DrawOnScreen(expected, new(100, 100), 0x600);
+                    edited.Draw((MapSpriteId)role.NativeId, actual, new(100, 100), 0x600);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                         "every marker part field preserves independently authored edits");
@@ -58,7 +58,7 @@ internal static partial class Program
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.NativeId * 2);
                     DrawImportedSpritemap(rom, expected, pointer, 100, 100, 0x600);
                 }
-                edited.Draw((MapSpriteId)frame.NativeId, actual, 100, 100, 0x600);
+                edited.Draw((MapSpriteId)frame.NativeId, actual, new(100, 100), 0x600);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                     "independently edited map sprite role and all unchanged roles");
@@ -67,8 +67,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => Load(frames), "each map sprite role remains required");
         }
         foreach (ushort invalid in new ushort[] { 0, 3, 8, 12, 0x37, 0x3f, 0x58, 0x5e, 0x64, ushort.MaxValue })
-            AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)invalid, new OamBuffer(), 0, 0, 0), "undefined map sprite identity fails");
-        AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)0, new OamBuffer(), 0, 0, 0xffff), "undefined identity precedes invalid palette");
+            AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)invalid, new OamBuffer(), new(0, 0), 0), "undefined map sprite identity fails");
+        AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)0, new OamBuffer(), new(0, 0), 0xffff), "undefined identity precedes invalid palette");
         MapSpriteCatalog Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
             byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, MapPresentationFormat.JsonOptions);
@@ -91,11 +91,11 @@ internal static partial class Program
                 native.BeginFrame(); installed.BeginFrame();
                 for (int index = 0; index < occupied; index++)
                 {
-                    native.AddRawSmallSprite(12, 34, 56);
-                    installed.AddRawSmallSprite(12, 34, 56);
+                    native.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56);
+                    installed.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56);
                 }
                 DrawImportedSpritemap(bus, native, pointer, x, y, (ushort)(palette << 9));
-                catalog.Draw((MapSpriteId)frame.NativeId, installed, x, y, (ushort)(palette << 9));
+                catalog.Draw((MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9));
                 AssertEqual(native.NextByteOffset, installed.NextByteOffset, "map sprite count/capacity matches native");
                 native.FinalizeFrame(); installed.FinalizeFrame();
                 AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) && native.HighTable.SequenceEqual(installed.HighTable),

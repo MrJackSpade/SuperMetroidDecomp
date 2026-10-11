@@ -37,7 +37,7 @@ internal static partial class Program
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xb32e, cameraY: 0);
+        runtime.LoadCartridgeRoomForDebug(0xb32e, camera: new Position16<RoomPixels>(0, 0));
         var enemies = runtime.Enemies;
         var body = enemies.Slots[0]; var state = enemies.Ridley!; var samus = runtime.Samus!;
         var seed = Read(375);

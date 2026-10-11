@@ -70,7 +70,7 @@ internal static partial class Program
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalCorrection)), g.Anchor.Y, "Grapple physical endpoint ignores art correction");
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - visualCorrection)), g.BeamStart.Y, "Grapple flare retains visual correction");
             ushort endpoint = g.Anchor.Y;
-            samus.Position = samus.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole + 5)));
+            samus.Position += new Offset16<RoomPixels>(0, 5);
             refresh(bus, samus, g);
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalY)), g.RopeStart.Y, "Late Grapple physical start ignores art correction");
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)art))), g.BeamStart.Y, "Late Grapple flare uses current artwork");

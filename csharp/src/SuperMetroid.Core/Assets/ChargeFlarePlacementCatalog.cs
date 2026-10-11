@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -8,8 +9,8 @@ public sealed class ChargeFlarePlacementCatalog
 {
     // Source kind comes from the importing file contract, never from supplied pixel/offset values.
     private readonly bool grapple;
-    private readonly Dictionary<int, ChargeFlareOffset> offsets = new();
-    private ChargeFlarePlacementCatalog(ChargeFlareOffset[] supplied, bool grapple)
+    private readonly Dictionary<int, Offset16<RoomPixels>> offsets = new();
+    private ChargeFlarePlacementCatalog(Offset16<RoomPixels>[] supplied, bool grapple)
     {
         this.grapple = grapple;
         for (int index = 0; index < supplied.Length; index++)
@@ -26,13 +27,13 @@ public sealed class ChargeFlarePlacementCatalog
     /// <param name="running">True for running placement; false for the standing/default row.</param>
     /// <param name="direction">Direction selector 0..15, including adjacent-row selections beyond the named aiming directions.</param>
     /// <returns>The signed whole-pixel placement offset, without camera or pose-graphics Y adjustments.</returns>
-    public ChargeFlareOffset Resolve(bool running, int direction)
+    public Offset16<RoomPixels> Resolve(bool running, int direction)
     {
         if ((uint)direction >= ChargeFlarePlacementDefinitions.DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
         return offsets.TryGetValue((running ? ChargeFlarePlacementDefinitions.DirectionCount : 0) + direction, out var supplied)
             ? supplied : CalculatedOffset(running, direction);
     }
-    private ChargeFlareOffset CalculatedOffset(bool running, int direction) => grapple
+    private Offset16<RoomPixels> CalculatedOffset(bool running, int direction) => grapple
         ? ChargeFlarePlacementDefinitions.GrappleOffset(running, direction)
         : ChargeFlarePlacementDefinitions.BeamOffset(running, direction);
 
@@ -58,14 +59,14 @@ public sealed class ChargeFlarePlacementCatalog
         int count = ChargeFlarePlacementDefinitions.DirectionCount;
         if (document.Version != ChargeFlarePlacementDefinitions.Version || document.Offsets is null || document.Offsets.Count != count * 2)
             throw new InvalidDataException("Charge-flare placement requires version 1 and all standing/running directions.");
-        var offsets = new ChargeFlareOffset[count * 2];
+        var offsets = new Offset16<RoomPixels>[count * 2];
         for (int mode = 0; mode < 2; mode++)
         for (int direction = 0; direction < count; direction++)
         {
             string key = ChargeFlarePlacementDefinitions.Key(mode != 0, direction);
             if (!document.Offsets.TryGetValue(key, out var value) || value is null)
                 throw new InvalidDataException($"Missing charge-flare placement {key}.");
-            offsets[mode * count + direction] = value;
+            offsets[mode * count + direction] = value.Offset;
         }
         return new(offsets, grapple);
     }
@@ -84,8 +85,13 @@ public sealed class ChargeFlarePlacementCatalog
 }
 
 /// <summary>Signed whole-pixel visual muzzle displacement from Samus's render center, applied before camera subtraction and the renderer's separate pose-graphics Y adjustment.</summary>
+[SpatialComponents("External format: the placement JSON stores each muzzle displacement as signed x/y words.")]
 public sealed record ChargeFlareOffset
 {
+    /// <summary>The displacement as one spatial value.</summary>
+    [JsonIgnore]
+    public Offset16<RoomPixels> Offset => new(X, Y);
+
     /// <summary>Horizontal displacement in signed pixels; positive values move the visual origin right.</summary>
     public required short X { get; init; }
     /// <summary>Vertical displacement in signed pixels; positive values move the visual origin down, before the separate pose-graphics Y offset is subtracted.</summary>

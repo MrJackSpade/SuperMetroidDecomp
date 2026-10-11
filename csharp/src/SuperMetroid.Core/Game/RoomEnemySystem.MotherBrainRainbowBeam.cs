@@ -264,8 +264,8 @@ public sealed partial class RoomEnemySystem
             // captures that pre-move point in its typed movement result, so use it for the
             // initializer and let `$C94C` attach to the current position on the later bank-
             // $86 pass. Finish-firing has no movement and therefore uses the unchanged actor.
-            ushort baseX = current.Movement?.Before.XPosition ?? samus.Position.X.Whole;
-            ushort baseY = current.Movement?.Before.YPosition ?? samus.Position.Y.Whole;
+            ushort baseX = current.Movement?.Before.X.Whole ?? samus.Position.X.Whole;
+            ushort baseY = current.Movement?.Before.Y.Whole ?? samus.Position.Y.Whole;
             SpawnMotherBrainRainbowExplosion(baseX, baseY, explosion);
         }
     }

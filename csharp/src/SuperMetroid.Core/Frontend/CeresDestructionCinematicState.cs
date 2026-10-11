@@ -3,6 +3,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -35,10 +36,7 @@ internal sealed partial class CeresDestructionCinematicState
     private IntroDiscoverySprite? zebesCompletionStarActor;
     private IntroDiscoverySprite? zebesTitleActor;
 
-    private ushort backgroundX = unchecked((ushort)-44);
-    private ushort backgroundXSubPosition;
-    private ushort backgroundY = unchecked((ushort)-112);
-    private ushort backgroundYSubPosition;
+    private FixedPosition<Mode7Pixels> background = new(new(unchecked((ushort)-44), 0), new(unchecked((ushort)-112), 0));
     private ushort zoom = CeresDestructionRomData.Motion.IdentityScale;
     private SnesAngle angle;
     private byte brightness;
@@ -241,7 +239,7 @@ internal sealed partial class CeresDestructionCinematicState
                 break;
 
             case CeresDestructionPhase.FlyingAwayFromExplosion:
-                backgroundX = unchecked((ushort)(backgroundX + 2));
+                background = background.WithX(background.X.WithWhole(unchecked((ushort)(background.X.Whole + 2))));
                 angle = angle.AddTableUnits(-1);
                 if (zoom < CeresDestructionRomData.Motion.MinimumScale)
                 {
@@ -297,10 +295,8 @@ internal sealed partial class CeresDestructionCinematicState
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesA:
-                AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition,
-                    CeresDestructionRomData.Motion.EighthPixel16Point16);
-                AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition,
-                    CeresDestructionRomData.Motion.NegativeHalfPixel16Point16);
+                background = background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(background.Y, CeresDestructionRomData.Motion.EighthPixel16Point16));
+                background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, CeresDestructionRomData.Motion.NegativeHalfPixel16Point16));
                 if (zoom < CeresDestructionRomData.Motion.ZebesApproachScaleLimit)
                     zoom = unchecked((ushort)(zoom + 4));
                 else
@@ -309,11 +305,9 @@ internal sealed partial class CeresDestructionCinematicState
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesB:
-                AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition,
-                    CeresDestructionRomData.Motion.EighthPixel16Point16);
-                AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition,
-                    CeresDestructionRomData.Motion.NegativeHalfPixel16Point16);
-                if (unchecked((short)backgroundX) < -128)
+                background = background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(background.Y, CeresDestructionRomData.Motion.EighthPixel16Point16));
+                background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, CeresDestructionRomData.Motion.NegativeHalfPixel16Point16));
+                if (unchecked((short)background.X.Whole) < -128)
                 {
                     Phase = CeresDestructionPhase.FlyingTowardZebesC;
                 }
@@ -326,10 +320,8 @@ internal sealed partial class CeresDestructionCinematicState
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesC:
-                AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition,
-                    CeresDestructionRomData.Motion.EighthPixel16Point16);
-                AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition,
-                    CeresDestructionRomData.Motion.EighthPixel16Point16);
+                background = background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(background.Y, CeresDestructionRomData.Motion.EighthPixel16Point16));
+                background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, CeresDestructionRomData.Motion.EighthPixel16Point16));
                 if (zoom < CeresDestructionRomData.Motion.FarZebesScaleLimit)
                 {
                     zoom = unchecked((ushort)(zoom + CeresDestructionRomData.Motion.FastScaleStep));
@@ -439,11 +431,7 @@ internal sealed partial class CeresDestructionCinematicState
             if (artwork?.CeresDestruction.DestructionActors is { } layout)
             {
                 CeresDestructionActorPlacement placement = layout[index];
-                definition = definition with
-                {
-                    X = checked((ushort)placement.X),
-                    Y = checked((ushort)placement.Y),
-                };
+                definition = definition with { Position = placement.Position };
             }
             actors.Add(CreateActor(definition));
         }
@@ -478,10 +466,7 @@ internal sealed partial class CeresDestructionCinematicState
             zebesCharacters.AsSpan(0, CeresDestructionRomData.Vram.Mode7CharacterBytes));
 
         actors.Clear();
-        backgroundX = 0;
-        backgroundXSubPosition = 0;
-        backgroundY = 0;
-        backgroundYSubPosition = 0;
+        background = FixedPosition<Mode7Pixels>.Zero;
         angle = SnesAngle.Zero;
         zoom = CeresDestructionRomData.Motion.IdentityScale;
         brightness = 0;
@@ -493,8 +478,8 @@ internal sealed partial class CeresDestructionCinematicState
     private void SetupZebesMode7Actors()
     {
         usesMode7 = true;
-        backgroundX = CeresDestructionRomData.Sprites.ZebesInitialBackgroundX;
-        backgroundY = unchecked((ushort)-104);
+        background = new(background.X.WithWhole(CeresDestructionRomData.Sprites.ZebesInitialBackgroundX),
+            background.Y.WithWhole(unchecked((ushort)-104)));
         angle = CeresDestructionRomData.Motion.ApproachAngle;
         zoom = CeresDestructionRomData.Motion.IdentityScale;
         actors.Clear();
@@ -512,10 +497,8 @@ internal sealed partial class CeresDestructionCinematicState
 
     private void StepInitialDrift()
     {
-        AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition,
-            CeresDestructionRomData.Motion.SixteenthPixel16Point16);
-        AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition,
-            CeresDestructionRomData.Motion.NegativeQuarterPixel16Point16);
+        background = background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(background.Y, CeresDestructionRomData.Motion.SixteenthPixel16Point16));
+        background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, CeresDestructionRomData.Motion.NegativeQuarterPixel16Point16));
     }
 
     private void StepSlowFadeIn()
@@ -551,8 +534,7 @@ internal sealed partial class CeresDestructionCinematicState
         CeresDestructionActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(
-            definition.X,
-            definition.Y,
+            definition.Position,
             definition.Attributes,
             definition.InstructionList);
         actor.PreInstructionPointerForDiscovery(definition.ActivePreInstruction);
@@ -566,25 +548,9 @@ internal sealed partial class CeresDestructionCinematicState
         if (artwork?.CeresDestruction.RevealActors is { } layout)
         {
             CeresRevealActorPlacement placement = layout[index];
-            definition = definition with
-            {
-                X = checked((ushort)placement.X),
-                Y = checked((ushort)placement.Y),
-            };
+            definition = definition with { Position = placement.Position };
         }
         return CreateActor(definition);
-    }
-
-    private static void AddSignedSixteenSixteen(
-        ref ushort whole,
-        ref ushort sub,
-        int fixedDelta)
-    {
-        IntroCinematicMotion.AddSixteenSixteen(
-            ref whole,
-            ref sub,
-            unchecked((ushort)(fixedDelta >> 16)),
-            unchecked((ushort)fixedDelta));
     }
 
     private static void RequireMinimum(byte[] bytes, int minimum, string name)

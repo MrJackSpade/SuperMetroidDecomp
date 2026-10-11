@@ -20,7 +20,7 @@ internal static partial class Program
             WriteTestWord(bus, 0x93f702, (ushort)rawX);
             bus.WriteByte(0x93f704, yOffset);
             WriteTestWord(bus, 0x93f705, attribute);
-            parts.AddProjectileSpritePart(new((ushort)rawX), yOffset, new(attribute), origin, origin);
+            parts.AddProjectileSpritePart(new((ushort)rawX), yOffset, new(attribute), new Position16<OamPixels>(origin, origin));
             DrawImportedProjectileSpritemap(bus, packed, 0xf700, origin, origin);
             ushort expectedX = unchecked((ushort)(origin + rawX));
             int offset = index * 4;

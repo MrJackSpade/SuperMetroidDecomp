@@ -19,10 +19,8 @@ internal static class LoadStationEntryImporter
         return new LoadStationEntry(
             RoomPointer: ReadWord(bus, address),
             DoorPointer: ReadWord(bus, address + 2),
-            CameraX: ReadWord(bus, address + 6),
-            CameraY: ReadWord(bus, address + 8),
-            SamusYOffset: ReadWord(bus, address + 10),
-            SamusXOffset: ReadWord(bus, address + 12));
+            CameraPosition: new(ReadWord(bus, address + 6), ReadWord(bus, address + 8)),
+            SamusOffset: new(unchecked((short)ReadWord(bus, address + 12)), unchecked((short)ReadWord(bus, address + 10))));
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

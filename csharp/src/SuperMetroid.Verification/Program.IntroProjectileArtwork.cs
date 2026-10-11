@@ -93,11 +93,11 @@ internal static partial class Program
         game.BindTrailArtwork(stock);
         draw(intro);
         AssertTrue(native.AsSpan().SequenceEqual(vram.Bytes), "Intro stock trail PNG preserves every VRAM byte, including compressed cinematic sprites");
-        var image = IndexedPng.Read(new MemoryStream(png), ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
+        var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
         image.Pixels[0] ^= 1;
         image.Pixels[64] ^= 1;
         using var changed = new MemoryStream();
-        IndexedPng.Write(changed, image.Width, image.Height, image.Pixels, image.Palette);
+        IndexedPng.Write(changed, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         changed.Position = 0;
         var edited = ProjectileTrailCatalog.Load(new MemoryStream(json), ProjectileTrailAtlas.Load(changed));
         using var saved = new MemoryStream();

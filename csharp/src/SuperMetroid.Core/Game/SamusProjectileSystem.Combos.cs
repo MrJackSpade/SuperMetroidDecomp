@@ -54,12 +54,12 @@ public sealed partial class SamusProjectileSystem
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
                 {
                     slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
-                    slot.Velocity = slot.Velocity.WithX(kind == SamusComboKind.Wave ? (short)0 : (short)40);
+                    slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(kind == SamusComboKind.Wave ? (short)0 : (short)40));
                 }
                 if (kind == SamusComboKind.Spazer) slot.AuxiliaryPhase = SpazerComboPhase.Circling;
-                if (kind == SamusComboKind.Plasma) slot.Velocity = slot.Velocity.WithX(40);
-                slot.Velocity = slot.Velocity.WithY(kind is SamusComboKind.Wave or SamusComboKind.Ice ? (short)600
-                    : kind == SamusComboKind.Spazer ? (short)((i & 1) == 0 ? 4 : -4) : (short)0);
+                if (kind == SamusComboKind.Plasma) slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(40));
+                slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(kind is SamusComboKind.Wave or SamusComboKind.Ice ? (short)600
+                    : kind == SamusComboKind.Spazer ? (short)((i & 1) == 0 ? 4 : -4) : (short)0));
                 if (kind == SamusComboKind.Wave)
                 {
                     slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + (i < 2 ? 128 : -128))), unchecked((ushort)(samus.Position.Y.Whole + (i is 0 or 3 ? 128 : -128)))));

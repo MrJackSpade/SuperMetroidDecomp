@@ -3,12 +3,9 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Literal Mode-1 register inputs for the modeled HUD/gameplay scanline split.</summary>
-/// <param name="Bg1X">BG1 horizontal scroll-register value in pixels, before tilemap wrapping.</param>
-/// <param name="Bg1Y">BG1 vertical scroll-register value in pixels, without the renderer's first-visible-background-scanline adjustment.</param>
-/// <param name="Bg2X">Fallback BG2 horizontal scroll-register value when no per-line replacement is captured.</param>
-/// <param name="Bg2Y">Fallback BG2 vertical scroll-register value, without the first-visible-background-scanline adjustment.</param>
-/// <param name="Bg2WidthTiles">BG2 tilemap width in 8-pixel cells: 32 or 64.</param>
-/// <param name="Bg2HeightTiles">BG2 tilemap height in 8-pixel cells: 32 or 64.</param>
+/// <param name="Bg1Scroll">BG1 scroll-register values in pixels, before tilemap wrapping and without the renderer's first-visible-background-scanline adjustment.</param>
+/// <param name="Bg2Scroll">Fallback BG2 scroll-register values when no per-line replacement is captured, without the first-visible-background-scanline adjustment.</param>
+/// <param name="Bg2MapSize">BG2 tilemap size in 8-pixel cells: 32 or 64 on each axis.</param>
 /// <param name="Bg2TilemapWord">BG2 tilemap base in VRAM words, not byte addresses.</param>
 /// <param name="Bg1CharacterWord">BG1 four-bit planar character base in VRAM words.</param>
 /// <param name="Bg2CharacterWord">BG2 four-bit planar character base in VRAM words.</param>
@@ -20,8 +17,8 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="MainScreenWindowMask">TMW layer bits selecting which main-screen layers are subject to their configured windows.</param>
 /// <param name="Bg2Mosaic">Captured BG2 mosaic sampling configuration, applied by rendering without advancing simulation state.</param>
 public readonly record struct OrdinaryGameplayRegisters(
-    ushort Bg1X, ushort Bg1Y, ushort Bg2X, ushort Bg2Y,
-    int Bg2WidthTiles, int Bg2HeightTiles, ushort Bg2TilemapWord,
+    Position16<RoomPixels> Bg1Scroll, Position16<Bg2Pixels> Bg2Scroll,
+    Extent16<TilemapCells> Bg2MapSize, ushort Bg2TilemapWord,
     ushort Bg1CharacterWord, ushort Bg2CharacterWord, ushort HudCharacterWord,
     SnesMainScreenLayers MainScreenLayers,
     int Bg2FirstScanline = 32, int Bg2EndScanline = 224,
@@ -41,9 +38,9 @@ public sealed record OrdinaryGameplayRenderLayer : RenderLayer
     private readonly ushort[] mainScreenLayersByLine;
     /// <summary>Captured register values for this composition operation; PPU memory and OAM belong to the enclosing render snapshot, not this value.</summary>
     public OrdinaryGameplayRegisters Registers { get; }
-    /// <summary>Owned BG2 horizontal register replacements for physical lines 32..223, indexed 0..191; empty means use <see cref="OrdinaryGameplayRegisters.Bg2X"/> on every line.</summary>
+    /// <summary>Owned BG2 horizontal register replacements for physical lines 32..223, indexed 0..191; empty means use the X of <see cref="OrdinaryGameplayRegisters.Bg2Scroll"/> on every line.</summary>
     public ReadOnlySpan<ushort> HorizontalScrolls => horizontalScrolls;
-    /// <summary>Owned BG2 vertical register replacements for physical lines 32..223, before the renderer's visible-line adjustment; empty means use <see cref="OrdinaryGameplayRegisters.Bg2Y"/> on every line.</summary>
+    /// <summary>Owned BG2 vertical register replacements for physical lines 32..223, before the renderer's visible-line adjustment; empty means use the Y of <see cref="OrdinaryGameplayRegisters.Bg2Scroll"/> on every line.</summary>
     public ReadOnlySpan<ushort> VerticalScrolls => verticalScrolls;
     /// <summary>Owned TM layer-enable words for physical lines 32..223; nonempty entries replace the fallback gameplay mask, not the separate TMW window mask or fixed HUD composition.</summary>
     public ReadOnlySpan<ushort> MainScreenLayersByLine => mainScreenLayersByLine;
@@ -58,8 +55,8 @@ public sealed record OrdinaryGameplayRenderLayer : RenderLayer
         ReadOnlySpan<ushort> horizontalScrolls = default, ReadOnlySpan<ushort> verticalScrolls = default,
         ReadOnlySpan<ushort> mainScreenLayersByLine = default)
     {
-        if (registers.Bg2WidthTiles is not (32 or 64) || registers.Bg2HeightTiles is not (32 or 64)
-            || registers.Bg2WidthTiles * registers.Bg2HeightTiles is not (1024 or 2048 or 4096))
+        if (registers.Bg2MapSize.X is not (32 or 64) || registers.Bg2MapSize.Y is not (32 or 64)
+            || registers.Bg2MapSize.X * registers.Bg2MapSize.Y is not (1024 or 2048 or 4096))
             throw new ArgumentException("Gameplay BG2 requires 32 or 64 tiles on each axis.", nameof(registers));
         int lines = SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels;
         if ((!horizontalScrolls.IsEmpty && horizontalScrolls.Length != lines)

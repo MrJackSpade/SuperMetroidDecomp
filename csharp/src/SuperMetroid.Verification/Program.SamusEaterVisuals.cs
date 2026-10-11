@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -216,10 +217,10 @@ internal static partial class Program
                     sbyte x = unchecked((sbyte)offset), y = unchecked((sbyte)(offset >> 8));
                     AssertEqual(x, SamusEaterPlmDrawDefinitions.Draw.NextX(run), "plant signed horizontal offset");
                     AssertEqual(y, draw.NextY(run), "plant signed vertical offset");
-                    AssertEqual(x, dtoRun.NextX, "plant DTO horizontal offset");
-                    AssertEqual(y, dtoRun.NextY, "plant DTO vertical offset");
-                    AssertEqual(x, exportedRun.NextX, "plant export horizontal offset");
-                    AssertEqual(y, exportedRun.NextY, "plant export vertical offset");
+                    AssertEqual(x, dtoRun.Next.X, "plant DTO horizontal offset");
+                    AssertEqual(y, dtoRun.Next.Y, "plant DTO vertical offset");
+                    AssertEqual(x, exportedRun.Next.X, "plant export horizontal offset");
+                    AssertEqual(y, exportedRun.Next.Y, "plant export vertical offset");
                 }
                 cursor += 4 + count * 2;
             }
@@ -248,10 +249,10 @@ internal static partial class Program
         MethodInfo draw = typeof(RoomPlmSystem)
             .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
             .Single(method => method.Name == "DrawPlmInstruction" &&
-                method.GetParameters().Length == 9);
+                method.GetParameters().Length == 8);
         int origin = 8 * width + 8;
         draw.Invoke(plms, [guard, level, streamer, (ushort)0, origin, pointer,
-            (ushort)0, (ushort)0, (ushort)0]);
+            default(Position16<RoomPixels>), (ushort)0]);
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(origin).LevelWord,
             "Samus Eater edited draw retains native collision word");

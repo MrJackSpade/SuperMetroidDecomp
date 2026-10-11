@@ -38,10 +38,10 @@ internal static partial class Program
         typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
         var level = runtime.LevelData!;
         bool selected = false;
-        for (int y = 0; y < level.HeightInBlocks && !selected; y++)
-        for (int x = 0; x < level.WidthInBlocks && !selected; x++)
+        for (int y = 0; y < level.Size.Y && !selected; y++)
+        for (int x = 0; x < level.Size.X && !selected; x++)
         {
-            var block = level.GetCollisionBlock(x, y);
+            var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
             selected = true;

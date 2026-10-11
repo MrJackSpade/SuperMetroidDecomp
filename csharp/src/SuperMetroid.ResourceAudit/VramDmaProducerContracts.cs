@@ -23,17 +23,18 @@ internal static class VramDmaProducerContracts
             // #627 re-pinned: only the gunship function write became the typed GunshipFunction.FireUpEngines.
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGunshipTakeoffTiles", "9A200AA74DB1FC9E406E752D8AD2D3EFBEFDE2038A64B9439CFC3048F147E621") => "gunship",
             ("SuperMetroid.Core.Game.RoomFxAnimatedTilesState.Step", "74D7F0380AB8B028C6809093235F87837DFD62D7794A242BEFA09C99182049CD") => "fx",
-            // #628 re-pin: the camera parameter and Samus position became typed values; sources and counts unchanged.
-            ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "E7248109C4622FC5BBEB1E1BC8B0335EE3303A37F539C945791CE9C278181E8E") => "arm",
+            // #628 reviewed: the OAM origin, layer-1 camera and Samus position became typed values; transfer source and count unchanged.
+            ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "EC37A73DA413F9BD7373082C08B2959D7ED95D568D86E397609583E2F8F80649") => "arm",
             ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "2EA2B64CC751F333B40AED2D5CD4E4FB7B6261003A1882E42E0CF34234C2EB4D") => "death",
-            // #628 re-pin: the camera parameter and grapple anchor/flare became typed values; sources and counts unchanged.
-            ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "95D9F734654D98178B181DF01015E2C0EECF28217AAE983CD808AEF53396062E") => "grapple-native",
+            // #628 reviewed: the OAM origins, layer-1 camera and grapple anchor/flare became typed values; transfer source and count unchanged.
+            ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "BBB8433532E18ED78343123D82F05922EE2C641B89B0F994B613ED7D47EA89A8") => "grapple-native",
             ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "9400C1F1F3EB941C04621BC070CE56B89828DFFFD4A90A89DD48495304C9700B") => "beam",
             // #627 re-pin: the chunk table parameter became ScrollingSkyChunkTable with the same two tables; sources and counts unchanged.
             ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "A2AD8385A17B2882557B10624010100C822C3E1F6065403D06698A5C6B73C32B") => "sky",
             ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "91776F442E0E3B352859873875ED9CC1EEF2DE5B7AE0404EF11E0B7B3FA74322") => "statues",
             ("SuperMetroid.Core.Game.WreckedShipTreadmillAnimatedTilesState.Step", "3326DF0E41031BBC1A775D7CB9AE16CD0E0DEACDBFF496AD2482229F046152CE") => "treadmill",
-            ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "440774579B4AA06B249473C51A59FECC7580D0C35E5316933E1E361582FC27ED") => "plm",
+            // #628 reviewed: the camera and BG1 offset are read from their typed positions and the PLM step takes the camera as one Position16<RoomPixels>; PLM VRAM requests unchanged.
+            ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "0988026C82C1790773401B94A5DD8959CDB8CADEA1A3D69796C98D23C29BBDAE") => "plm",
             _ => null,
         };
         return family is not null;

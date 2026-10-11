@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 internal static partial class Program
 {
     private static void VerifyPauseDoorShinespark()
@@ -84,7 +85,7 @@ internal static partial class Program
                 bts[row * 32 + 10] = 3;
                 words[row * 32 + 12] = 0x8000;
             }
-            var level = new RoomLevelData(32, 16, words, bts, new ushort[512], new byte[8], doorListPointer: 0xdad5);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), words, bts, new ushort[512], new byte[8], doorListPointer: 0xdad5);
             typeof(SuperMetroidRuntime).GetProperty(nameof(SuperMetroidRuntime.LevelData))!.SetValue(runtime, level);
             var samus = runtime.Samus!;
             samus.InputLocked = false;

@@ -47,8 +47,8 @@ internal static partial class Program
                 DrawImportedSpritemap(rom, native, 0x8c0000 + definition.Pointer, 120, y, 0x0c00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
-                if (y == 72) result.DrawOnScreen(actual, 120, y, 0x0c00);
-                else result.DrawOffScreen(actual, 120, y, 0x0c00);
+                if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0c00);
+                else result.DrawOffScreen(actual, new(120, y), 0x0c00);
                 actual.FinalizeFrame();
                 AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable)
                     && native.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "native Scientist OAM at visible and wrapped origins");
@@ -59,7 +59,7 @@ internal static partial class Program
         {
             if (pointer != IntroCaretSpriteDefinitions.Still) return;
             var expected = new OamBuffer(); expected.BeginFrame();
-            IntroCinematicSpriteCompiler.Compile(visual, "caret reference").DrawOnScreen(expected, 120, 72, 0x0c00);
+            IntroCinematicSpriteCompiler.Compile(visual, "caret reference").DrawOnScreen(expected, new(120, 72), 0x0c00);
             expected.FinalizeFrame();
             foreach (IntroCaretSpriteVersion version in Enum.GetValues<IntroCaretSpriteVersion>())
             {
@@ -75,7 +75,7 @@ internal static partial class Program
                 json.Position = 0;
                 var presentation = IntroCaretSpritePresentation.Load(json);
                 var actual = new OamBuffer(); actual.BeginFrame();
-                presentation.Draw(pointer, actual, 120, 72, 0x0c00);
+                presentation.Draw(pointer, actual, new(120, 72), 0x0c00);
                 actual.FinalizeFrame();
                 AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable)
                     && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,

@@ -2,4 +2,5 @@
 // type. A global static import keeps call sites compact across every domain-focused file.
 global using static VerificationAssert;
 global using SuperMetroid.Core.Audio;
+// Typed spatial values (#628) appear throughout the verifier suites.
 global using SuperMetroid.Core.Spatial;

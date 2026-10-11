@@ -13,6 +13,10 @@ namespace SuperMetroid.Core.Game;
 /// Matrix D is absent because this particular cartridge routine uses A for both diagonal
 /// terms; B and C provide the two cross terms exactly as written by bank <c>$8B</c>.
 /// </remarks>
+/// <param name="MatrixA">M7A, also used for M7D.</param>
+/// <param name="MatrixB">M7B.</param>
+/// <param name="MatrixC">M7C.</param>
+/// <param name="Center">M7X/M7Y: the room point the shaft's layer-one Mode 7 plane rotates about.</param>
 public readonly record struct SamusMode7Transform(
     ushort MatrixA,
     ushort MatrixB,

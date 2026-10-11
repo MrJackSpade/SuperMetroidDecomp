@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -24,12 +25,12 @@ public sealed class MapSaveMarkerLayout
     /// <returns>The drawing position, without altering the station's load target or initial map scrolling.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The area or station slot is outside its supported range.</exception>
     /// <exception cref="InvalidDataException">The station slot is unused.</exception>
-    public MapLabelPoint Get(AreaId area, int index)
+    public Position16<MapPixels> Get(AreaId area, int index)
     {
         string id = MapSaveMarkerDefinitions.Id(area, index);
-        FileSelectMapAnchor basis = FileSelectMapLoadAnchors.Get(area, index);
+        Position16<MapPixels> basis = FileSelectMapLoadAnchors.Get(area, index);
         var edited = coordinateOverrides.GetValueOrDefault(id);
-        return new(edited.X ?? basis.X, edited.Y ?? basis.Y);
+        return new(checked((ushort)(edited.X ?? basis.X)), checked((ushort)(edited.Y ?? basis.Y)));
     }
     /// <summary>Loads all 34 supported save/elevator marker anchors, validates the complete identity set and coordinate bounds, and retains only coordinates differing from compiled station projections.</summary>
     /// <param name="json">Caller-owned stream containing the editable save-marker JSON document.</param>
@@ -49,9 +50,9 @@ public sealed class MapSaveMarkerLayout
         foreach (int index in MapSaveMarkerDefinitions.Indices((AreaId)area))
         {
             string id = MapSaveMarkerDefinitions.Id((AreaId)area, index);
-            if (!document.Markers.TryGetValue(id, out var point) || point is null || point.X is < 0 or > 511 || point.Y is < 0 or > 255)
+            if (!document.Markers.TryGetValue(id, out var point) || point.X is < 0 or > 511 || point.Y is < 0 or > 255)
                 throw new InvalidDataException($"Save marker {id} requires X=0..511 and Y=0..255.");
-            FileSelectMapAnchor basis = FileSelectMapLoadAnchors.Get((AreaId)area, index);
+            Position16<MapPixels> basis = FileSelectMapLoadAnchors.Get((AreaId)area, index);
             int? x = point.X == basis.X ? null : point.X;
             int? y = point.Y == basis.Y ? null : point.Y;
             if (x.HasValue || y.HasValue) overrides.Add(id, (x, y));
@@ -74,7 +75,7 @@ public sealed record MapSaveMarkerDocument
     /// <summary>Schema revision, which loading requires to equal <see cref="MapSaveMarkerFormat.Version"/>.</summary>
     public required int Version { get; init; }
     /// <summary>One non-null area-map pixel anchor per usable station, keyed as <c>Area.Save.slot</c> with exact casing; X=0..511 and Y=0..255 are measured before scroll subtraction.</summary>
-    public required Dictionary<string, MapLabelPoint> Markers { get; init; }
+    public required Dictionary<string, Position16<MapPixels>> Markers { get; init; }
 }
 /// <summary>Asset filename and supported JSON revision for editable selected-save marker drawing positions.</summary>
 public static class MapSaveMarkerFormat

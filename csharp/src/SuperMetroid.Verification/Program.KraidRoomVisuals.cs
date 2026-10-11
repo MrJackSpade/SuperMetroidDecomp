@@ -135,10 +135,9 @@ internal static partial class Program
             "elevatube allocates alongside Kraid appearance resource");
         var tubeGuard = new KraidRoomSourceGuard(new TestAddressSpace());
         tubePlms.Step(tubeGuard, tubeLevel,
-            tubeLevel.CreateBackgroundStreamer(), 0, 0, 0);
+            tubeLevel.CreateBackgroundStreamer(), new(0, 0), 0);
         int tubeBlock = tubeLevel.GetBlockIndex(
-            MaridiaElevatubePlmRomData.BlockX,
-            MaridiaElevatubePlmRomData.BlockY);
+            new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
         AssertEqual((ushort)0x8180,
             tubeLevel.GetCollisionBlockByIndex(tubeBlock).LevelWord,
             "elevatube retains shared native physical word");
@@ -173,11 +172,11 @@ internal static partial class Program
             KraidVisuals = kraid,
             MaridiaElevatubeVisuals = tube,
         };
-        AssertTrue(plms.TrySpawnKraidRoomMutation(level, 5, 5, header),
+        AssertTrue(plms.TrySpawnKraidRoomMutation(level, new(5, 5), header),
             $"Kraid visual owner ${(int)header:X4} allocates");
         var guard = new KraidRoomSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(guard, level, streamer, layer1X, 0, 0);
+        plms.Step(guard, level, streamer, new(layer1X, 0), 0);
         int blockIndex = 5 * width + 5 + blockOffset;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,

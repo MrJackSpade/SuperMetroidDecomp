@@ -35,8 +35,8 @@ public sealed class ProjectileTrailAtlas : IVramAssetProvider
     /// <returns>Installed character art split into eight ice/wave tiles followed by four missile tiles, excluding the native inter-range gap.</returns>
     public static ProjectileTrailAtlas Load(Stream png)
     {
-        var image = IndexedPng.Read(png, ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
-        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4));
+        var image = IndexedPng.Read(png, new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
+        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4));
     }
     /// <summary>Immediately uploads the two trail ranges in ice/wave-then-missile order at VRAM bytes $C700 and $C900, leaving the intervening $0100-byte region untouched.</summary>
     /// <param name="vram">Destination VRAM; this changes character pixels only, not sprite attributes, palettes, or trail lifetimes.</param>

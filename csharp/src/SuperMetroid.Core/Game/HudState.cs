@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Game;
 
@@ -35,7 +36,7 @@ public sealed class HudState
         MinimapDisabled = true;
         for (int y = 0; y < 3; y++)
         for (int x = 0; x < 5; x++)
-            _tiles[presentation?.MinimapCellIndex(x, y) ?? NativeMinimapCellIndex(x, y)] =
+            _tiles[presentation?.MinimapCellIndex(new(unchecked((ushort)x), unchecked((ushort)y))) ?? NativeMinimapCellIndex(x, y)] =
                 (ushort)MapTileWords.HudBlank;
     }
 
@@ -86,13 +87,13 @@ public sealed class HudState
         var minimap = new ushort[15];
         for (int y = 0; y < 3; y++)
         for (int x = 0; x < 5; x++)
-            minimap[y * 5 + x] = _tiles[previous?.MinimapCellIndex(x, y) ?? NativeMinimapCellIndex(x, y)];
+            minimap[y * 5 + x] = _tiles[previous?.MinimapCellIndex(new(unchecked((ushort)x), unchecked((ushort)y))) ?? NativeMinimapCellIndex(x, y)];
 
         value.ApplyTemplate(_tiles);
         ApplyCurrentPresentationState(samus);
         for (int y = 0; y < 3; y++)
         for (int x = 0; x < 5; x++)
-            _tiles[value.MinimapCellIndex(x, y)] = minimap[y * 5 + x];
+            _tiles[value.MinimapCellIndex(new(unchecked((ushort)x), unchecked((ushort)y)))] = minimap[y * 5 + x];
     }
 
     /// <summary>
@@ -250,7 +251,7 @@ public sealed class HudState
         // Exploration is persistent game state, not HUD-local rendering state. Earlier
         // builds kept this bit in HudState, which made the minimap look correct until a
         // save/load or HUD reconstruction silently erased the visited route.
-        system.MarkExploredMapTile(areaIndex, centerX, centerY);
+        system.MarkExploredMapTile(areaIndex, new Position16<MapTiles>(unchecked((ushort)centerX), unchecked((ushort)centerY)));
         bool hasAreaMap = system.HasAreaMap(areaIndex);
 
         for (int outputY = 0; outputY < 3; outputY++)
@@ -258,7 +259,7 @@ public sealed class HudState
             int mapY = centerY + outputY - 1;
             for (int outputX = 0; outputX < 5; outputX++)
             {
-                int destination = presentation?.MinimapCellIndex(outputX, outputY) ??
+                int destination = presentation?.MinimapCellIndex(new(unchecked((ushort)outputX), unchecked((ushort)outputY))) ??
                     NativeMinimapCellIndex(outputX, outputY);
                 int mapX = (centerX + outputX - 2) & 0x3f;
                 if ((uint)mapY >= 32)
@@ -267,17 +268,18 @@ public sealed class HudState
                     continue;
                 }
 
-                bool explored = system.IsMapTileExplored(areaIndex, mapX, mapY);
-                bool stationVisible = presentationMap.IsRevealedByMapStation(mapX, mapY);
+                var cell = new Position16<MapTiles>(unchecked((ushort)mapX), unchecked((ushort)mapY));
+                bool explored = system.IsMapTileExplored(areaIndex, cell);
+                bool stationVisible = presentationMap.IsRevealedByMapStation(cell);
 
                 // A 64x32 SNES map is two adjacent 32x32 screens in VRAM order, not one
                 // linear 64-word row. Preserve that page split when reading bank-$B5 data.
-                MapTileWord mapTile = presentationMap.GetTile(mapX, mapY);
+                MapTileWord mapTile = presentationMap.GetTile(cell);
                 if (!AreaMapVisibility.IsVisible(
                         explored,
                         hasAreaMap,
                         stationVisible,
-                        presentationMap.IsDiscoverable(mapX, mapY),
+                        presentationMap.IsDiscoverable(cell),
                         mapRevealMode))
                 {
                     _tiles[destination] = (ushort)MapTileWords.HudBlank;
@@ -289,8 +291,8 @@ public sealed class HudState
                 // row has already been rendered and its explored bits latched, so that
                 // cell acquires the explored palette on the next minimap update.
                 if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
-                    presentationMap.RevealsCellAbove(mapX, mapY))
-                    system.MarkExploredMapTile(areaIndex, centerX, centerY - 1);
+                    presentationMap.RevealsCellAbove(cell))
+                    system.MarkExploredMapTile(areaIndex, new Position16<MapTiles>(unchecked((ushort)centerX), unchecked((ushort)(centerY - 1))));
             }
         }
 
@@ -299,7 +301,7 @@ public sealed class HudState
         // familiar blinking Samus location without a separate sprite.
         if ((nmiFrameCounter & 8) == 0)
         {
-            int center = presentation?.MinimapCellIndex(2, 1) ?? NativeMinimapCellIndex(2, 1);
+            int center = presentation?.MinimapCellIndex(new(2, 1)) ?? NativeMinimapCellIndex(2, 1);
             _tiles[center] = (ushort)new MapTileWord(_tiles[center]).WithLocationBlink();
         }
     }

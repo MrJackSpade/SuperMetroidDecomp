@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -165,7 +166,7 @@ internal static partial class Program
         words[blockIndex] = bomb ? (ushort)0xf321 : (ushort)0xb321;
         var definitions = new byte[0x400 * 8];
         definitions[editedWord * 8] = (byte)editedWord;
-        var level = new RoomLevelData(width, width, words,
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), words,
             new byte[words.Length], new ushort[words.Length], definitions);
         var plms = new RoomPlmSystem { LinkedRestoreVisuals = visuals };
         bool spawned = bomb
@@ -181,7 +182,7 @@ internal static partial class Program
         ushort blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         for (int frame = 0; frame < (bomb ? 420 : 100); frame++)
         {
-            plms.Step(guarded, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, new(0, 0), 0);
             sawImmediate |= plms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == blockDestination &&
                 update.TopRow[0] == editedWord);

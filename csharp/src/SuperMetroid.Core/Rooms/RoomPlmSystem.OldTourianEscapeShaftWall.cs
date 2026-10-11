@@ -19,8 +19,7 @@ public sealed partial class RoomPlmSystem
     {
         ArgumentNullException.ThrowIfNull(level);
         int blockIndex = level.GetBlockIndex(
-            OldTourianEscapeShaftWallPlmDefinitions.BlockX,
-            OldTourianEscapeShaftWallPlmDefinitions.BlockY);
+            new(OldTourianEscapeShaftWallPlmDefinitions.BlockX, OldTourianEscapeShaftWallPlmDefinitions.BlockY));
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot slot = _slots[slotIndex];

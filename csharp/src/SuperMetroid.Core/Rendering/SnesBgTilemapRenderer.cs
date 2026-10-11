@@ -18,29 +18,32 @@ public static class SnesBgTilemapRenderer
         SnesCgram cgram,
         ushort tilemapBaseWord,
         ushort characterBaseWord,
-        ushort horizontalScroll,
-        ushort verticalScroll,
-        int width,
-        int height,
-        int tilemapWidthInTiles = 64,
-        int tilemapHeightInTiles = 32,
+        Position16<BgPlanePixels> scroll,
+        Extent16<ScreenPixels> size,
+        Extent16<TilemapCells>? tilemapSize = null,
         IReadOnlyList<ushort>? horizontalScrollByLine = null,
         bool? priority = null)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
-        if (width <= 0 || height <= 0)
-            throw new ArgumentOutOfRangeException(nameof(width));
-        if (output.Length != checked(width * height))
+        int width = size.X;
+        int height = size.Y;
+        if (width == 0 || height == 0)
+            throw new ArgumentOutOfRangeException(nameof(size));
+        if (output.Length != width * height)
         {
             throw new ArgumentException(
                 "A 4-bpp destination must contain exactly width*height pixels.",
                 nameof(output));
         }
+        // Gameplay-style BGSC defaults to two horizontal 32x32 screens.
+        Extent16<TilemapCells> tilemap = tilemapSize ?? new Extent16<TilemapCells>(64, 32);
+        int tilemapWidthInTiles = tilemap.X;
+        int tilemapHeightInTiles = tilemap.Y;
         if (tilemapWidthInTiles is not (32 or 64))
-            throw new ArgumentOutOfRangeException(nameof(tilemapWidthInTiles));
+            throw new ArgumentOutOfRangeException(nameof(tilemapSize));
         if (tilemapHeightInTiles is not (32 or 64))
-            throw new ArgumentOutOfRangeException(nameof(tilemapHeightInTiles));
+            throw new ArgumentOutOfRangeException(nameof(tilemapSize));
         if (horizontalScrollByLine is not null && horizontalScrollByLine.Count != height)
             throw new ArgumentException("Per-line scroll list must contain exactly one word per output line.", nameof(horizontalScrollByLine));
 
@@ -55,11 +58,11 @@ public static class SnesBgTilemapRenderer
             // screen blocks. Masking by the declared pixel height reproduces PPU wrapping
             // while retaining bit eight for a vertically paired map such as BG2SC=$4A.
             int yMask = tilemapHeightInTiles * 8 - 1;
-            int scrolledY = unchecked(verticalScroll + screenY) & yMask;
+            int scrolledY = unchecked(scroll.Y + screenY) & yMask;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
             ushort lineHorizontalScroll = horizontalScrollByLine is null
-                ? horizontalScroll
+                ? scroll.X
                 : horizontalScrollByLine[screenY];
 
             for (int screenX = 0; screenX < width;)

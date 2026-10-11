@@ -30,7 +30,7 @@ internal static partial class InstalledSamusArtworkTests
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
             var stock = new SamusState { Pose = (SamusPoseId)pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), Health = 99 };
-            var edited = new SamusState { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(new(stock.Position.X.Whole, stock.Position.Y.Whole)), Health = stock.Health };
+            var edited = new SamusState { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(stock.Position.Whole), Health = stock.Health };
             stock.RefreshCollisionRadii(memory); edited.RefreshCollisionRadii(memory);
             stock.TileTransfers.BindArtwork(fixture.Stock);
             edited.TileTransfers.BindArtwork(fixture.Edited);

@@ -37,7 +37,7 @@ internal static partial class Program
             "all six production egg particles complete their physical lifetime");
 
         var slimeDrops = Enumerable.Range(0, IntroEggEffectDefinitions.SlimeDropCount)
-            .Select(index => new IntroEggSlimeDrop(0x0070, 0x0091, (byte)index))
+            .Select(index => new IntroEggSlimeDrop(new(0x0070, 0x0091), (byte)index))
             .ToArray();
         for (int frame = 0; frame < 192 && slimeDrops.Any(static actor => actor.IsActive); frame++)
             foreach (IntroEggSlimeDrop slimeDrop in slimeDrops)
@@ -45,7 +45,7 @@ internal static partial class Program
         AssertTrue(slimeDrops.All(static actor => !actor.IsActive),
             "all four production slime drops complete motion and puddle animation");
 
-        var impact = new IntroEggSlimeDrop(0x0070, 0x00b8, index: 0);
+        var impact = new IntroEggSlimeDrop(new(0x0070, 0x00b8), index: 0);
         var impactSprite = (IntroDiscoverySprite)typeof(IntroEggSlimeDrop)
             .GetField("sprite", BindingFlags.Instance | BindingFlags.NonPublic)!
             .GetValue(impact)!;

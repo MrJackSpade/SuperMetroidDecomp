@@ -34,12 +34,12 @@ public sealed partial class SamusProjectileSystem
         }
 
         int directionOffset = slot.PackedDirection.DirectionIndex * 2;
-        slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X +
+        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.XAccelerations + directionOffset)))));
-        slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y +
+                SamusProjectileRomData.Beams.XAccelerations + directionOffset))))));
+        slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.YAccelerations + directionOffset)))));
+                SamusProjectileRomData.Beams.YAccelerations + directionOffset))))));
 
         SamusProjectileDirection direction = slot.PackedDirection.Direction;
         bool collided = direction switch
@@ -127,12 +127,12 @@ public sealed partial class SamusProjectileSystem
         RoomPlmSystem? roomPlms)
     {
         int direction = slot.PackedDirection.DirectionIndex;
-        slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X +
+        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.XAccelerations + direction * 2)))));
-        slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y +
+                SamusProjectileRomData.Beams.XAccelerations + direction * 2))))));
+        slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.YAccelerations + direction * 2)))));
+                SamusProjectileRomData.Beams.YAccelerations + direction * 2))))));
 
         // `$94:A352/$A3E4` advance the same 16.16 positions and scan every block touched by
         // the projectile radii, but deliberately return carry clear unconditionally. That is
@@ -141,12 +141,12 @@ public sealed partial class SamusProjectileSystem
         // PLMs while intentionally discarding their carry result, matching this fallthrough.
         if (direction is 2 or 7 or 1 or 3 or 6 or 8)
         {
-            slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X));
+            slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X.SignedRawValue));
             ScanHorizontalWaveShotReactions(level, slot, roomPlms);
         }
         if (direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
         {
-            slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y));
+            slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y.SignedRawValue));
             ScanVerticalWaveShotReactions(level, slot, roomPlms);
         }
 
@@ -179,12 +179,12 @@ public sealed partial class SamusProjectileSystem
         // Missile pre-instruction `$90:AF8F-$AFA0` first applies the same small directional
         // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
-        slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X +
+        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.XAccelerations + direction * 2)))));
-        slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y +
+                SamusProjectileRomData.Beams.XAccelerations + direction * 2))))));
+        slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.YAccelerations + direction * 2)))));
+                SamusProjectileRomData.Beams.YAccelerations + direction * 2))))));
 
         if ((slot.Variable & 0xff00) == 0)
         {
@@ -198,10 +198,10 @@ public sealed partial class SamusProjectileSystem
         else
         {
             int acceleration = SamusProjectileRomData.NonBeam.MissileAccelerations + direction * 4;
-            slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration)))));
-            slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2)))));
+            slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))))));
+            slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2))))));
         }
 
         bool collided = direction switch
@@ -267,10 +267,10 @@ public sealed partial class SamusProjectileSystem
         {
             int acceleration =
                 SamusProjectileRomData.NonBeam.SuperMissileAccelerations + direction * 4;
-            slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration)))));
-            slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2)))));
+            slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))))));
+            slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2))))));
         }
 
         bool collided = false;
@@ -338,7 +338,7 @@ public sealed partial class SamusProjectileSystem
         link.ClearFields();
         link.Type = 0x8200;
         link.Direction = owner.Direction;
-        link.Position = link.Position.WithWhole(new(owner.Position.X.Whole, owner.Position.Y.Whole));
+        link.Position = link.Position.WithWhole(owner.Position.Whole);
 
         // `$90:BF78` deliberately calls the ordinary muzzle initializer again after copying
         // the owner's coordinates. At ignition both positions are equivalent; retaining the
@@ -384,7 +384,7 @@ public sealed partial class SamusProjectileSystem
         if (!link.IsActive)
             return;
 
-        short velocity = vertical ? owner.Velocity.Y : owner.Velocity.X;
+        short velocity = vertical ? owner.Velocity.Y.SignedRawValue : owner.Velocity.X.SignedRawValue;
         int wholeMagnitude = (Math.Abs((int)velocity) & 0xff00) >> 8;
         bool ownerExploded = owner.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion);
         if (wholeMagnitude < 11)
@@ -439,12 +439,12 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms)
     {
-        slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X));
+        slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X.SignedRawValue));
 
         // `$94:A46F` tests the projectile center, not its radius-spanning leading edge. Room
         // width is stored in 256-pixel screens; coordinates in/past the first out-of-room
         // high byte skip reaction and are left for the later 64-pixel viewport deletion.
-        int roomWidthInScreens = (level.WidthInBlocks + 15) >> 4;
+        int roomWidthInScreens = (level.Size.X + 15) >> 4;
         if ((slot.Position.X.Whole >> 8) >= roomWidthInScreens)
             return false;
         return MissilePointReaction(
@@ -456,9 +456,9 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms)
     {
-        slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y));
+        slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y.SignedRawValue));
 
-        int roomHeightInScreens = (level.HeightInBlocks + 15) >> 4;
+        int roomHeightInScreens = (level.Size.Y + 15) >> 4;
         if ((slot.Position.Y.Whole >> 8) >= roomHeightInScreens)
             return false;
         return MissilePointReaction(
@@ -473,13 +473,13 @@ public sealed partial class SamusProjectileSystem
     {
         int blockX = slot.Position.X.Whole >> 4;
         int blockY = slot.Position.Y.Whole >> 4;
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
+        if ((uint)blockX >= (uint)level.Size.X ||
+            (uint)blockY >= (uint)level.Size.Y)
         {
             return false;
         }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+        RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
 
         // `$94:9D9F/$9DCA` return the dispatcher to its caller with N set, causing the same
         // point reaction to run again on the signed horizontal/vertical parent. A zero-BTS

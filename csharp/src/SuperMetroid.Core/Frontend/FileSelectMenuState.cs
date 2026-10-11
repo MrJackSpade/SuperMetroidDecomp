@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -197,10 +198,10 @@ public sealed partial class FileSelectMenuState
         Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
         SnesBgTilemapRenderer.Composite4BppViewport(
             background,
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, 0, 0, 256, 224, 32, 32);
+            ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
         SnesBgTilemapRenderer.Composite4BppViewport(
             background,
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0, 256, 224, 32, 32);
+            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
 
         PrepareRenderOam();
         Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
@@ -231,9 +232,8 @@ public sealed partial class FileSelectMenuState
             mapPresentation.FileSelect.DrawBorder(oam, borderName);
             if (ShouldDrawSelectionMissile)
             {
-                (ushort missileX, ushort missileY) = GetSelectionMissilePosition();
                 mapPresentation.FileSelect.DrawCursor(oam, missileAnimationFrame,
-                    new(missileX, missileY));
+                    GetSelectionMissilePosition());
             }
             for (int slot = 0; mainScreen && slot < 3; slot++)
             {
@@ -247,7 +247,7 @@ public sealed partial class FileSelectMenuState
             {
                 (int shape, ushort y) = FileCopyArrowDefinitions.Select(operationSourceSlot, operationDestinationSlot);
                 foreach (CompiledSpritePart part in FileCopyArrowDefinitions.Parts(shape))
-                    oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes, FileCopyArrowDefinitions.OriginX, y);
+                    oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes, new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, y));
             }
             oam.FinalizeFrame();
             return;
@@ -258,14 +258,12 @@ public sealed partial class FileSelectMenuState
                 ? FileSelectLayout.ClearBorderSpritemap
                 : FileSelectLayout.NormalBorderSpritemap;
         ushort borderX = IsClearPhase ? (ushort)124 : (ushort)128;
-        DrawMenuSpritemap(border, borderX, 16);
+        DrawMenuSpritemap(border, new(borderX, 16));
         if (ShouldDrawSelectionMissile)
         {
-            (ushort missileX, ushort missileY) = GetSelectionMissilePosition();
             DrawMenuSpritemap(
                 MenuMissileAnimationDefinitions.SpritemapId(missileAnimationFrame),
-                missileX,
-                missileY);
+                GetSelectionMissilePosition());
         }
         for (int slot = 0; mainScreen && slot < 3; slot++)
         {
@@ -278,8 +276,7 @@ public sealed partial class FileSelectMenuState
                 : 0;
             DrawMenuSpritemap(
                 FileSelectHelmetAnimation.SpritemapId(Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1)),
-                100,
-                FileSelectLayout.HelmetY(slot));
+                new(100, FileSelectLayout.HelmetY(slot)));
         }
         oam.FinalizeFrame();
 
@@ -380,7 +377,7 @@ public sealed partial class FileSelectMenuState
             "File-select tilemaps require installed menu presentation assets.");
     }
 
-    private static void DrawMenuSpritemap(ushort spritemapId, ushort x, ushort y)
+    private static void DrawMenuSpritemap(ushort spritemapId, Position16<OamPixels> position)
     {
         // `DrawMenuSpritemap` indexes a word-pointer array, so the displayed spritemap ID
         // is doubled before following bank $82. AddOnScreenSpritemap then applies the same

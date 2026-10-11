@@ -110,10 +110,10 @@ internal static partial class Program
         level.SetBlockDefinitionWord(0x0059 * 4, 0x0059);
         level.SetBlockDefinitionWord(0x0249 * 4, 0x0249);
         var plms = new RoomPlmSystem { MotherBrainFakeDeathVisuals = visuals };
-        AssertTrue(plms.TrySpawnMotherBrainMutation(level, 5, 3, header),
+        AssertTrue(plms.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain visual header ${(int)header:X4} allocates");
         var guard = new MotherBrainFakeDeathSourceGuard(new TestAddressSpace());
-        plms.Step(guard, level, level.CreateBackgroundStreamer(), cameraX, 0, 0);
+        plms.Step(guard, level, level.CreateBackgroundStreamer(), new(cameraX, 0), 0);
         int blockIndex = (3 + yOffset) * width + 5 + xOffset;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,

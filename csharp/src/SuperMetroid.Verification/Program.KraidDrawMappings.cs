@@ -71,8 +71,8 @@ internal static partial class Program
             AssertEqual(expected.Count, run.LevelWords.Length, "Kraid export word extent");
             ushort tail = KraidDrawRomWord(rom, expected.Pointer + 2 + expected.Count * 2);
             AssertEqual((ushort)0, tail, "Kraid native terminator has zero displacement");
-            AssertEqual((sbyte)0, run.NextX, "Kraid export terminal X");
-            AssertEqual((sbyte)0, run.NextY, "Kraid export terminal Y");
+            AssertEqual((sbyte)0, run.Next.X, "Kraid export terminal X");
+            AssertEqual((sbyte)0, run.Next.Y, "Kraid export terminal Y");
         }
     }
 

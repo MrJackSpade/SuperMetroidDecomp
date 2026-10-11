@@ -70,8 +70,8 @@ internal static partial class Program
                 var calculatedOam = new OamBuffer();
                 originalOam.BeginFrame(); calculatedOam.BeginFrame();
                 DrawImportedSpritemap(bus, originalOam, header, 120, y, 0x0800, originIsOnScreen: y == 72);
-                if (y == 72) calculated.DrawOnScreen(calculatedOam, 120, y, 0x0800);
-                else calculated.DrawOffScreen(calculatedOam, 120, y, 0x0800);
+                if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
+                else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
                 originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
                 AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
                     "cloud grid preserves native OAM and clipping");
@@ -92,8 +92,8 @@ internal static partial class Program
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = grid[invalid], "cloud grid part bounds");
             ushort list = unchecked((ushort)(EndingCloudInstructionDefinitions.Start + index * 8));
-            var nativeActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
-            var installedActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
+            var nativeActor = new IntroDiscoverySprite(new(120, 72), 0x0800, list);
+            var installedActor = new IntroDiscoverySprite(new(120, 72), 0x0800, list);
             for (int frame = 0; frame < 120; frame++)
             {
                 nativeActor.Step(instructionWord: pointer => (ushort)(
@@ -181,7 +181,7 @@ internal static partial class Program
                 var installedOam = new OamBuffer();
                 installedOam.BeginFrame();
                 stock.CloudSprites.Draw(definition.Pointer, installedOam,
-                    120, y, 0x0800, onScreen);
+                    new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                         nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
@@ -345,10 +345,10 @@ internal static partial class Program
             IndexedPngImage image;
             using (var input = File.OpenRead(Path.Combine(installation.EndingObjectDirectory, name)))
                 image = IndexedPng.Read(input,
-                    RoomCharacterAtlasFormat.TileColumns * 8, rows * 8);
+                    new(RoomCharacterAtlasFormat.TileColumns * 8, checked((ushort)(rows * 8))));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             scene.BindObjectArtwork(edited);
             LayeredRenderSnapshot changed = scene.CaptureRenderSnapshot();
@@ -393,10 +393,10 @@ internal static partial class Program
         IndexedPngImage persistentClouds;
         using (var input = File.OpenRead(Path.Combine(installation.EndingObjectDirectory,
                    EndingObjectArtworkFormat.CloudFileName)))
-            persistentClouds = IndexedPng.Read(input, 256, 128);
+            persistentClouds = IndexedPng.Read(input, new(256, 128));
         persistentClouds.Pixels[0] = (byte)((persistentClouds.Pixels[0] + 1) & 15);
         using (var output = File.Create(invalidPath))
-            IndexedPng.Write(output, persistentClouds.Width, persistentClouds.Height,
+            IndexedPng.Write(output, new(persistentClouds.Size.X, persistentClouds.Size.Y),
                 persistentClouds.Pixels, persistentClouds.Palette);
         byte[] editedClouds = installation.LoadEndingObjectArt().Clouds.Transfer.ToArray();
         string stockExplosion = Path.Combine(installation.EndingObjectDirectory,
@@ -415,12 +415,12 @@ internal static partial class Program
         var preservedCloudOam = new OamBuffer();
         preservedCloudOam.BeginFrame();
         repaired.LoadEndingObjectArt().CloudSprites.Draw(0xb83b, preservedCloudOam,
-            120, 72, 0x0800, originIsOnScreen: true);
+            new(120, 72), 0x0800, originIsOnScreen: true);
         preservedCloudOam.FinalizeFrame();
         var editedCloudOam = new OamBuffer();
         editedCloudOam.BeginFrame();
         editedCloudSprites.CloudSprites.Draw(0xb83b, editedCloudOam,
-            120, 72, 0x0800, originIsOnScreen: true);
+            new(120, 72), 0x0800, originIsOnScreen: true);
         editedCloudOam.FinalizeFrame();
         AssertTrue(preservedCloudOam.LowTable.SequenceEqual(editedCloudOam.LowTable) &&
                 preservedCloudOam.HighTable.SequenceEqual(editedCloudOam.HighTable),

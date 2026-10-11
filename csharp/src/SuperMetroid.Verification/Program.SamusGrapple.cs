@@ -147,7 +147,7 @@ static void VerifySamusGrappleSwingAndRelease()
     firingSamus.Kinematics.YSpeed = 1; // selects moving-vertically connection table $C3EE
     SamusGrappleMovement.BeginFiring(bus, firingSamus);
     AssertEqual(GrapplePhase.Firing, firingSamus.Grapple.Phase, "grapple firing phase");
-    AssertEqual(0x0bf4, firingSamus.Grapple.ExtensionVelocity.X,
+    AssertEqual(0x0bf4, firingSamus.Grapple.ExtensionVelocity.X.SignedRawValue,
         "grapple X extension velocity comes from ROM");
     AssertEqual(34, firingSamus.Grapple.Anchor.X, "grapple initial endpoint X");
     AssertEqual(50, firingSamus.Grapple.Anchor.Y, "grapple initial endpoint Y");
@@ -275,7 +275,7 @@ static void VerifySamusGrappleSwingAndRelease()
         "BTS-one grapple firing connects through PLM setup");
     AssertEqual(1, breakableFiringPlms.ActiveCount,
         "BTS-one acquisition installs one independent room PLM");
-    AssertEqual(0, breakableFiringLevel.GetCollisionBlock(3, 3).Behavior,
+    AssertEqual(0, breakableFiringLevel.GetCollisionBlock(new(3, 3)).Behavior,
         "BTS-one acquisition synchronously clears low BTS byte");
 
     // Bank $94 does not treat extension blocks as collision results of their own. Instead,

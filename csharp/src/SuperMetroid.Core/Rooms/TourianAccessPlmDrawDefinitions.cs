@@ -111,7 +111,7 @@ internal static class TourianAccessPlmDrawDefinitions
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[rows];
         for (int row = 0; row < rows; row++)
             runs[row] = new(4, new ushort[] {word, word, word, word},
-                0, (sbyte)(row + 1 < rows ? row + 1 : 0));
+                new(0, (sbyte)(row + 1 < rows ? row + 1 : 0)));
         list = new(pointer, runs);
         return true;
     }

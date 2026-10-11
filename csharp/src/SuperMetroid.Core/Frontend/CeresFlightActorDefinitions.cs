@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed actor metadata and motion parameters for Samus's flight toward Ceres.</summary>
@@ -48,8 +50,7 @@ internal static class CeresFlightActorDefinitions
     public static CeresFlightActorDefinition FrontStars => new(
         ActivePreInstruction: 0xbeb5,
         InstructionList: 0xcda3,
-        X: 0x0070,
-        Y: 0x0057,
+        Position: new(0x0070, 0x0057),
         Attributes: 0x0800,
         InitialTimer: 0xfc00,
         HorizontalDelta: 0,
@@ -78,28 +79,28 @@ internal static class CeresFlightActorDefinitions
     /// CE4B selects the large-asteroid loop. The destruction scene substitutes CE7F/CC3F.</summary>
     private static CeresFlightActorDefinition LargeAsteroids =>
         new(0xbf35, 0xce4b,
-            80, 159, 0x0800, 0, 0x4000, true);
+            new(80, 159), 0x0800, 0, 0x4000, true);
 
     /// <summary>$8B:CE85, CinematicSpriteObjectDefinitions_CeresUnderAttack.
     /// BF4C initializes (116,160), palette0C00; BF5F adds 1/16 pixel with nine-bit X wrap;
     /// CC47 selects the station-under-attack loop.</summary>
     private static CeresFlightActorDefinition StationUnderAttack =>
         new(0xbf5f, 0xcc47,
-            116, 160, 0x0c00, 0, 0x1000, true);
+            new(116, 160), 0x0c00, 0, 0x1000, true);
 
     /// <summary>$8B:CE8B, CinematicSpriteObjectDefinitions_CeresSmallAsteroids.
     /// BF76 initializes (128,96), palette0800; BF89 adds 1/32 pixel with nine-bit X wrap;
     /// CC4F selects the small-asteroid loop. Both Ceres scenes share this identity.</summary>
     private static CeresFlightActorDefinition SmallAsteroids =>
         new(0xbf89, 0xcc4f,
-            128, 96, 0x0800, 0, 0x0800, true);
+            new(128, 96), 0x0800, 0, 0x0800, true);
 
     /// <summary>$8B:CE91, CinematicSpriteObjectDefinitions_CeresPurpleSpaceVortex, parameter1.
     /// BFA0 takes the nonzero branch to (224,87), palette0800, preserving BFC6 movement;
     /// CC57 alternates two frames. Parameter0 is the stationary destruction-scene variant.</summary>
     private static CeresFlightActorDefinition MovingVortex =>
         new(VortexMotionCallback, 0xcc57,
-            224, 87, 0x0800, 0, VortexHorizontalDelta, false);
+            new(224, 87), 0x0800, 0, VortexHorizontalDelta, false);
 
     /// <summary>$8B:CF0F, CinematicSpriteObjectDefinitions_CeresStars, parameter1.
     /// BE7E takes the nonzero branch: X=-32, Y87, palette0800, timer remains cleared;
@@ -107,7 +108,7 @@ internal static class CeresFlightActorDefinitions
     private static CeresFlightActorDefinition RearStars => FrontStars with
     {
         ActivePreInstruction = VortexMotionCallback,
-        X = unchecked((ushort)-32),
+        Position = FrontStars.Position.WithX(unchecked((ushort)-32)),
         InitialTimer = 0,
         HorizontalDelta = VortexHorizontalDelta,
     };
@@ -124,8 +125,7 @@ internal static class CeresFlightActorDefinitions
 internal readonly record struct CeresFlightActorDefinition(
     ushort ActivePreInstruction,
     ushort InstructionList,
-    ushort X,
-    ushort Y,
+    Position16<ScreenPixels> Position,
     ushort Attributes,
     ushort InitialTimer,
     int HorizontalDelta,

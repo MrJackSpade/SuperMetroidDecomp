@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Constructs a bounded source-room boundary; subsequent frames use the frontend door owner.</summary>
 internal static class MaridiaPipeIncomingDoorSeed
@@ -20,11 +21,11 @@ internal static class MaridiaPipeIncomingDoorSeed
         }
         if (entry < 0) throw new InvalidDataException("Plasma Spark has no matching northern elevatube door block.");
         ushort x = MaridiaPipeFixtureDefinitions.TubeCenterX;
-        ushort y = checked((ushort)((entry / level.WidthInBlocks) * 16 - 96));
+        ushort y = checked((ushort)((entry / level.Size.X) * 16 - 96));
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom,
-            (ushort)(x & 0xff00), (ushort)(y & 0xff00));
-        runtime.Samus!.Kinematics.Position = runtime.Samus!.Kinematics.Position.WithX(SnesFixedPosition.FromRaw((uint)x << 16));
-        runtime.Samus.Kinematics.Position = runtime.Samus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw((uint)y << 16));
+            new Position16<RoomPixels>((ushort)(x & 0xff00), (ushort)(y & 0xff00)));
+        runtime.Samus!.Kinematics.Position = runtime.Samus!.Kinematics.Position.WithX(new SnesFixedPosition(x, 0));
+        runtime.Samus.Kinematics.Position = runtime.Samus.Kinematics.Position.WithY(new SnesFixedPosition(y, 0));
         // Let gravity reach the authored door block. Publishing a pending door here
         // skipped the source camera's approach and retained an arbitrary scroll phase.
         Console.WriteLine($"incoming seed block={entry} Samus={x}/{y} door={door.Pointer:X4}");

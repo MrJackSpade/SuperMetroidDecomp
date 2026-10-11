@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -34,7 +35,7 @@ internal static partial class Program
         ]);
         var guarded = new MotherBrainGlassProgramReadGuard(source);
         const int width = 32;
-        var level = new RoomLevelData(width, 16,
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 16),
             new ushort[width * 16], new byte[width * 16],
             new ushort[width * 16], new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
@@ -55,10 +56,10 @@ internal static partial class Program
         // With no head hits, the first one-frame draw must loop at the $0002
         // threshold instead of shattering early. Both passes use the guarded
         // production interpreter, not an independent table reader.
-        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, new(0, 0), 0);
         AssertEqual(0xd215, plms.MotherBrainGlassInstructionPointer,
             "intact glass first draw advances to the hit threshold");
-        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, new(0, 0), 0);
         AssertEqual(0xd215, plms.MotherBrainGlassInstructionPointer,
             "zero head hits loop at the first glass stage");
         AssertTrue(!eventSet && plms.MotherBrainGlassProjectileRequests.Count == 0,
@@ -72,7 +73,7 @@ internal static partial class Program
         int emitted = 0;
         for (int frame = 0; frame < 128 && plms.HasActiveHeader(PlmHeaderId.MotherBrainGlass); frame++)
         {
-            plms.Step(guarded, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, new(0, 0), 0);
             emitted += plms.MotherBrainGlassProjectileRequests.Count;
         }
         AssertTrue(eventSet && !plms.HasActiveHeader(PlmHeaderId.MotherBrainGlass),

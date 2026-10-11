@@ -20,8 +20,8 @@ internal static partial class Program
             AssertEqual((ushort)19, samus.Kinematics.Radius.Y, "Standing alignment does not publish next-frame radius early");
             AssertEqual((ushort)33, samus.Position.Y.Whole, "Native diagonal crash-to-standing feet alignment");
             AssertEqual((ushort)0x1234, samus.Kinematics.Position.Y.Fraction, "Crash alignment preserves current fraction");
-            var previous = new SamusCameraPoint(699, 0x5678, 40, 0xabcd);
-            AssertEqual(previous with { YPosition = 38 }, samus.ApplyPreviousPositionWrites(previous),
+            var previous = FixedPosition<RoomPixels>.FromWords(699, 0x5678, 40, 0xabcd);
+            AssertEqual(previous.WithY(previous.Y.WithWhole(38)), samus.ApplyPreviousPositionWrites(previous),
                 "Native alignment shifts previous whole Y, not replacing it with current Y");
             AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous), "Alignment checkpoint consumed once");
         }

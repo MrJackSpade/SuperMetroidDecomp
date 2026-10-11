@@ -12,18 +12,18 @@ public sealed partial class SamusProjectileSystem
         ushort bottom = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int remaining = unchecked((ushort)(bottom - (top & 0xfff0))) >> 4;
         int span = remaining;
-        ushort targetX = unchecked((ushort)(slot.Velocity.X < 0
+        ushort targetX = unchecked((ushort)(slot.Velocity.X.SignedRawValue < 0
             ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1));
         // XBA sets N/Z from its resulting LOW BYTE even with a 16-bit accumulator.
         // BMI therefore tests the original coordinate's high-byte sign, not bit 7
         // of its pixel offset. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
         if (remaining >= 16 || unchecked((short)slot.Position.Y.Whole) < 0 ||
-            (slot.Position.Y.Whole >> 8) >= (level.HeightInBlocks + 15) / 16 ||
-            (targetX >> 8) >= (level.WidthInBlocks + 15) / 16)
+            (slot.Position.Y.Whole >> 8) >= (level.Size.Y + 15) / 16 ||
+            (targetX >> 8) >= (level.Size.X + 15) / 16)
             return;
 
-        int product = unchecked((byte)(top >> 4)) * unchecked((byte)level.WidthInBlocks);
+        int product = unchecked((byte)(top >> 4)) * unchecked((byte)level.Size.X);
         ushort byteOffset = unchecked((ushort)((product + (targetX >> 4)) * 2));
         do
         {
@@ -47,8 +47,8 @@ public sealed partial class SamusProjectileSystem
 
             // There is only one CLC before the two ADCs. Do not simplify this
             // to offset += width * 2: the first carry causes ceiling odd reads.
-            int first = byteOffset + level.WidthInBlocks;
-            byteOffset = unchecked((ushort)((ushort)first + level.WidthInBlocks + (first > ushort.MaxValue ? 1 : 0)));
+            int first = byteOffset + level.Size.X;
+            byteOffset = unchecked((ushort)((ushort)first + level.Size.X + (first > ushort.MaxValue ? 1 : 0)));
         } while (--remaining >= 0);
     }
 
@@ -63,12 +63,12 @@ public sealed partial class SamusProjectileSystem
         int remaining = unchecked((ushort)(right - (left & 0xfff0))) >> 4;
         if (remaining >= 16) return;
         int span = remaining;
-        ushort targetY = unchecked((ushort)(slot.Velocity.Y < 0
+        ushort targetY = unchecked((ushort)(slot.Velocity.Y.SignedRawValue < 0
             ? slot.Position.Y.Whole - slot.Radius.Y
             : slot.Position.Y.Whole + slot.Radius.Y - 1));
         int centerScreenX = slot.Position.X.Whole >> 8;
-        if (centerScreenX >= (level.WidthInBlocks + 15) / 16 ||
-            (targetY >> 8) >= (level.HeightInBlocks + 15) / 16)
+        if (centerScreenX >= (level.Size.X + 15) / 16 ||
+            (targetY >> 8) >= (level.Size.Y + 15) / 16)
             return;
 
         // The hardware multiplier consumes bytes. The following addition and
@@ -77,14 +77,14 @@ public sealed partial class SamusProjectileSystem
         // starts 4095 tiles forward while the center remains inside the room.
         // The native block reaction dispatcher bounds the resulting allocation
         // offset, not the horizontal extent of this individual tile span.
-        int rowOffset = unchecked((byte)(targetY >> 4)) * level.WidthInBlocks;
+        int rowOffset = unchecked((byte)(targetY >> 4)) * level.Size.X;
         ushort byteOffset = unchecked((ushort)((rowOffset + (left >> 4)) * 2));
         do
         {
             int index = byteOffset >> 1;
-            if (index < level.WidthInBlocks * level.HeightInBlocks)
+            if (index < level.Size.X * level.Size.Y)
             {
-                RunShotReaction(level, slot, level.GetCollisionBlock(index % level.WidthInBlocks, index / level.WidthInBlocks), roomPlms,
+                RunShotReaction(level, slot, level.GetCollisionBlock(new(unchecked((ushort)(index % level.Size.X)), unchecked((ushort)(index / level.Size.X)))), roomPlms,
                     new ShotSpan(span, remaining, targetY), out bool endSpan, horizontalMovement: false);
                 if (endSpan) return;
             }

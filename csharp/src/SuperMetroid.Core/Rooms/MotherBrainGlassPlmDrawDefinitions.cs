@@ -154,7 +154,7 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         {
             var words = new ushort[draw.WordCount(run)];
             for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
-            runs[run] = new((ushort)(words.Length | (draw.Vertical(run) ? 0x8000 : 0)), words, draw.NextX(run), draw.NextY(run));
+            runs[run] = new((ushort)(words.Length | (draw.Vertical(run) ? 0x8000 : 0)), words, new(draw.NextX(run), draw.NextY(run)));
         }
         list = new(pointer, runs);
         return true;

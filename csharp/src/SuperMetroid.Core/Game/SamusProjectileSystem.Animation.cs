@@ -85,7 +85,7 @@ public sealed partial class SamusProjectileSystem
 
         (compositions ?? throw new InvalidOperationException(
             "Samus projectiles require installed sprite compositions."))
-            .Draw(slot.SpritemapPointer, oam, unchecked((ushort)screenX), screenY);
+            .Draw(slot.SpritemapPointer, oam, new(unchecked((ushort)screenX), screenY));
     }
 
     private void AdvanceFlareComponent(int component)
@@ -171,9 +171,10 @@ public sealed partial class SamusProjectileSystem
         // body renderer. Only Samus's center is transformed; the pose-selected muzzle
         // offsets are added afterward. Retail then restores `$0AF6/$0AFA`, so this path
         // must never write the public physics coordinates merely to reuse the arithmetic.
+        var samusPosition = samus.Position.Whole;
         Position16<RoomPixels> renderPoint = mode7Transform is { } transform
-            ? transform.Transform(samus.Position.Whole)
-            : samus.Position.Whole;
+            ? transform.Transform(samusPosition)
+            : samusPosition;
         ushort screenX = unchecked((ushort)(renderPoint.X + xOffset - layer1.X));
         ushort screenY = unchecked((ushort)(renderPoint.Y + yOffset - poseYOffset - layer1.Y));
 
@@ -197,7 +198,7 @@ public sealed partial class SamusProjectileSystem
         // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
         if (!Assets.ChargeFlareSpriteCatalog.Contains(tableIndex))
             return;
-        catalog.Draw(tableIndex, oam, screenX, screenY);
+        catalog.Draw(tableIndex, oam, new(screenX, screenY));
     }
 
     private void ClearFlareAnimationState()

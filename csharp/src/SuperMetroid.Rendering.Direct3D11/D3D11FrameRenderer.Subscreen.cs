@@ -21,8 +21,8 @@ public sealed partial class D3D11FrameRenderer
             // there so all physical scanline rows remain available to HDMA scrolls.
             int offset = 16;
             data[offset] = coverage.TilemapWord; data[offset + 1] = coverage.CharacterWord;
-            data[offset + 2] = coverage.HorizontalScroll; data[offset + 3] = coverage.VerticalScroll;
-            data[offset + 4] = (uint)coverage.MapWidthTiles; data[offset + 5] = (uint)coverage.MapHeightTiles;
+            data[offset + 2] = coverage.Scroll.X; data[offset + 3] = coverage.Scroll.Y;
+            data[offset + 4] = coverage.MapSize.X; data[offset + 5] = coverage.MapSize.Y;
             data[offset + 6] = Priority(coverage.Priority); data[offset + 7] = 1;
         }
         if (!layer.Scrolls.IsEmpty)

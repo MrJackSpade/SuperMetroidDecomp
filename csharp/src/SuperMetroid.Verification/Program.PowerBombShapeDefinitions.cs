@@ -78,7 +78,7 @@ internal static partial class Program
             Set(nameof(explosion.RenderedExplosionRadius), (ushort)(radius << 8));
             Set(nameof(explosion.FixedColorRed), (byte)31);
             var frame = Enumerable.Repeat(new Rgba32(0, 0, 0, 255), 256 * 224).ToArray();
-            SnesGameplayFrameRenderer.ApplyPowerBombColorMath(frame, forbidden, explosion, 0, 0);
+            SnesGameplayFrameRenderer.ApplyPowerBombColorMath(frame, forbidden, explosion, new Position16<RoomPixels>(0, 0));
             int[] profile = Profile(radius);
             for (int y = 0; y < 224; y++)
             for (int x = 0; x < 256; x++)

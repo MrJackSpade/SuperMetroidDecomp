@@ -73,8 +73,8 @@ internal static partial class Program
         ];
         foreach (ushort start in starts)
         {
-            var native = new IntroDiscoverySprite(120, 120, 0x0a00, start);
-            var installed = new IntroDiscoverySprite(120, 120, 0x0a00, start);
+            var native = new IntroDiscoverySprite(new(120, 120), 0x0a00, start);
+            var installed = new IntroDiscoverySprite(new(120, 120), 0x0a00, start);
             for (int frame = 0; frame < 480; frame++)
             {
                 // Scene callbacks own actor allocation and velocity; the
@@ -200,8 +200,8 @@ internal static partial class Program
             var calculatedOam = new OamBuffer();
             originalOam.BeginFrame(); calculatedOam.BeginFrame();
             DrawImportedSpritemap(bus, originalOam, 0x8c0000 | definition.Pointer, 120, y, 0x0800, originIsOnScreen: y == 72);
-            if (y == 72) calculated.DrawOnScreen(calculatedOam, 120, y, 0x0800);
-            else calculated.DrawOffScreen(calculatedOam, 120, y, 0x0800);
+            if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
+            else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
             originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
             AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
                 "reward composition preserves native OAM and clipping");

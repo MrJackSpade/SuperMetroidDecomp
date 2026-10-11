@@ -148,7 +148,7 @@ internal static class EndingFontAtlasAccess
                 throw new InvalidDataException(
                     $"Ending font contains {planar.Length} planar bytes; expected {EndingFontAtlasFormat.ByteCount}.");
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, EndingFontAtlasFormat.BitsPerPixel,
-                EndingFontAtlasFormat.TilesPerRow, out _, out _);
+                EndingFontAtlasFormat.TilesPerRow, out _);
             return ((EndingFontAtlas)PrivateState.Construct(typeof(EndingFontAtlas), (byte[])(pixels)));
         }
     }

@@ -7,16 +7,15 @@ public static partial class SnesGameplayFrameRenderer
 {
     /// <summary>Resolves the published eye cone and ROM tangent table into inclusive color windows.</summary>
     public static ScanlineColorAddRenderLayer? CaptureMorphBallEyeBeam(ISnesAddressSpace bus,
-        MorphBallEyeBeamRenderSnapshot beam, ushort layer1X, ushort layer1Y)
+        MorphBallEyeBeamRenderSnapshot beam, Position16<RoomPixels> layer1)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
             return null;
-        int originX = unchecked((short)(beam.WorldX - layer1X));
-        int originY = unchecked((short)(beam.WorldY - layer1Y));
+        Offset16<ScreenPixels> origin = new Position16<RoomPixels>(beam.WorldX, beam.WorldY).RelativeToCamera(layer1);
         int angle = beam.Angle.TableIndex;
         int angularWidth = unchecked((byte)beam.AngularWidth);
-        ushort[] nativeWindows = EyeBeamWindowBuilder.Build(originX, originY, angle, angularWidth);
+        ushort[] nativeWindows = EyeBeamWindowBuilder.Build(origin, angle, angularWidth);
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
         byte red = ExpandFiveBit(beam.Red), green = ExpandFiveBit(beam.Green), blue = ExpandFiveBit(beam.Blue);

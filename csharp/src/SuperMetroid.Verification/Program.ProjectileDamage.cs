@@ -196,7 +196,7 @@ internal static partial class Program
                 continue;
             SamusProjectileSlot first = projectiles.Slots[0];
             ushort angle = first.Variable;
-            ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.Velocity.X);
+            ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.Velocity.X.SignedRawValue);
             (ushort X, ushort Y) offset = SamusComboMechanicsDefinitions.GetSineOffset(
                 angle, amplitude);
             if (beam == 2)

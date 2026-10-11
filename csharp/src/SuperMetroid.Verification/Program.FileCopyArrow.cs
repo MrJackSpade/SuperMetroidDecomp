@@ -69,7 +69,7 @@ internal static partial class Program
             {
                 int address = spritemap + 2 + part * 5;
                 expected.AddOnScreenSpritePart((SnesSpritemapXWord)ReadVerificationWord(rom, address),
-                    rom.ReadByte(address + 2), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), originX, originY);
+                    rom.ReadByte(address + 2), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<OamPixels>(originX, originY));
                 AssertEqual(expected.GetEntry(part), actual.GetEntry(noArrowCount + part),
                     $"copy {pair.slots}: exact arrow position, tile, flip, palette and priority, part {part}");
             }

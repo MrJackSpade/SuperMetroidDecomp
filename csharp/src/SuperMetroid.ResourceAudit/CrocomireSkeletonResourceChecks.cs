@@ -33,7 +33,7 @@ internal static class CrocomireSkeletonResourceChecks
         for (int index = 0; index < count; index++)
         {
             var component = components.Span[index];
-            ExtendedEnemyCompositionResourceChecks.Require(component.OffsetX == index && component.OffsetY == -index &&
+            ExtendedEnemyCompositionResourceChecks.Require(component.Offset.X == index && component.Offset.Y == -index &&
                 component.Parts.Length == 1 && component.Parts[0].X.SignedOffset == 3 && component.Parts[0].Y == 4,
                 "the importer/loader must preserve component order, signed offsets and OAM pieces");
         }

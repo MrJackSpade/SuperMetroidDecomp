@@ -37,7 +37,7 @@ internal static partial class Program
         static MemoryStream Png(int seed)
         {
             var png = new MemoryStream();
-            IndexedPng.Write(png, 128, 128, Enumerable.Repeat((byte)seed, 128 * 128).ToArray(),
+            IndexedPng.Write(png, new(128, 128), Enumerable.Repeat((byte)seed, 128 * 128).ToArray(),
                 Enumerable.Range(0, 256).Select(i => new Rgba32((byte)i, 0, 0)).ToArray());
             png.Position = 0;
             return png;
@@ -162,7 +162,7 @@ internal static partial class Program
             pixels[0] = (byte)seed;
             if (edit == name) pixels[^1] = 1;
             using var png = new MemoryStream();
-            IndexedPng.Write(png, columns * 8, rows * 8, pixels, Enumerable.Range(0, 16)
+            IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), pixels, Enumerable.Range(0, 16)
                 .Select(index => new Rgba32((byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
             png.Position = 0;
             return RoomCharacterAtlas.Load(png, bytes);
@@ -256,7 +256,7 @@ internal static partial class Program
             pixels[0] = (byte)seed;
             if (edit == name + "-pixels") pixels[^1] = 1;
             var png = new MemoryStream();
-            IndexedPng.Write(png, EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight,
+            IndexedPng.Write(png, new(EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight),
                 pixels, Enumerable.Range(0, 256).Select(index => new Rgba32(
                     (byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
             png.Position = 0;

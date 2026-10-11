@@ -58,7 +58,7 @@ internal static partial class Program
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank,
                 TitleSequenceRomData.Sprites.NintendoCopyright),
-            TitleSequenceRomData.Sprites.CopyrightX, TitleSequenceRomData.Sprites.CopyrightY,
+            TitleSequenceRomData.Sprites.CopyrightOrigin.X, TitleSequenceRomData.Sprites.CopyrightOrigin.Y,
             TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         expected.FinalizeFrame();
         EqualOam(expected, Field<OamBuffer>(title, "oam"), "title copyright owner parity");
@@ -80,7 +80,7 @@ internal static partial class Program
         expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, caret.SpriteMapPointer),
-            caret.CaretX, caret.CaretY, IntroCinematicRomData.Objects.ScientistPalette.Raw);
+            caret.Caret.X, caret.Caret.Y, IntroCinematicRomData.Objects.ScientistPalette.Raw);
         expected.FinalizeFrame();
         EqualOam(expected, actual, "illustrated-page caret owner parity");
 
@@ -93,7 +93,7 @@ internal static partial class Program
         Field<SamusState>(intro, "flashbackSamus").Draw(memory, expected, new(0, 0), 0);
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, motherBrain.SpriteMapPointer),
-            IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition,
+            IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y,
             IntroMotherBrainSpriteState.PaletteBits);
         expected.FinalizeFrame();
         EqualOam(expected, actual, "Mother Brain owner preserves actor order and exact OAM");
@@ -131,10 +131,10 @@ internal static partial class Program
             actual.BeginFrame();
             if (onScreen)
                 actual.AddOnScreenSpritePart(SnesSpritemapXWord.Create(5, true), (byte)offset,
-                    SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), 12, (ushort)origin);
+                    SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(12, (ushort)origin));
             else
                 actual.AddOffScreenSpritePart(SnesSpritemapXWord.Create(5, true), (byte)offset,
-                    SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), 12, (ushort)origin);
+                    SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(12, (ushort)origin));
             int signedY = origin + unchecked((sbyte)offset);
             bool hide = signedY is < -32 or >= 224;
             if (!onScreen) hide = !hide;

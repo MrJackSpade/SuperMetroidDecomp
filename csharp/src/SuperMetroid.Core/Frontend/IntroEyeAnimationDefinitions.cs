@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
@@ -18,10 +20,8 @@ internal static class IntroEyeAnimationDefinitions
     internal const int FrameCount = 4;
     /// <summary>Each native record holds a draw function, dimensions and six words.</summary>
     internal const int FrameStride = 0x10;
-    /// <summary>Native portrait-eye rectangle width in BG tiles.</summary>
-    internal const int FrameColumns = 3;
-    /// <summary>Native portrait-eye rectangle height in BG tiles.</summary>
-    internal const int FrameRows = 2;
+    /// <summary>Native portrait-eye rectangle size in BG tiles: three columns by two rows.</summary>
+    internal static Extent16<TilemapCells> FrameSize => new(3, 2);
     /// <summary>$8C:D61F, page-six deadpan record and final self-loop target.</summary>
     private const ushort DeadpanLoop = 0xd61f;
     /// <summary>Native BG record position bytes17,13: portrait eye tile column/row.</summary>

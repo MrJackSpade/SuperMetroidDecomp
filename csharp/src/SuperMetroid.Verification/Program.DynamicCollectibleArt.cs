@@ -6,6 +6,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -38,12 +39,12 @@ internal static partial class Program
                 InWorldCollectibleKind.Bombs);
             IndexedPngImage image = IndexedPng.Read(
                 new MemoryStream(File.ReadAllBytes(Path.Combine(stockDirectory, name))),
-                64, 8);
+                new(64, 8));
             image.Pixels[0] ^= 1;
             using (var editedPng = new FileStream(
                        Path.Combine(overrideDirectory, name), FileMode.CreateNew,
                        FileAccess.Write))
-                IndexedPng.Write(editedPng, image.Width, image.Height,
+                IndexedPng.Write(editedPng, new(image.Size.X, image.Size.Y),
                     image.Pixels, image.Palette);
 
             JsonNode paletteDocument = JsonNode.Parse(File.ReadAllText(
@@ -119,7 +120,7 @@ internal static partial class Program
             RoomPlmDynamicCollectibleArtCatalog art)
     {
         const int width = 64;
-        var level = new RoomLevelData(width, 64,
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64),
             new ushort[width * 64], new byte[width * 64],
             new ushort[width * 64], new byte[0x400 * 8]);
         var vram = new SnesVram();

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -11,17 +12,17 @@ public sealed class MapSpriteCatalog
     private readonly MapObjectTileArtwork characters;
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
     /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor.</summary>
-    public void Draw(MapSpriteId id, OamBuffer oam, ushort x, ushort y, ushort paletteBits)
+    public void Draw(MapSpriteId id, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         var label = GetWorldLabel(id);
-        if (label is not null) { label.Draw(oam, x, y, paletteBits); return; }
+        if (label is not null) { label.Draw(oam, origin, paletteBits); return; }
         var frame = GetFrame(id);
-        if (frame is not null) { frame.DrawOnScreen(oam, x, y, paletteBits); return; }
+        if (frame is not null) { frame.DrawOnScreen(oam, origin, paletteBits); return; }
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         for (int index = 0; index < MapMarkerGeometry.PartCount(id); index++)
         {
             var part = MapMarkerGeometry.Part(id, index);
-            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), x, y);
+            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), origin);
         }
     }
     /// <summary>Loads the compiled shared 4-bpp map-object characters at a byte-addressed VRAM destination.</summary>
@@ -146,7 +147,7 @@ public sealed class MapSpriteCatalog
                 throw new InvalidDataException($"Map sprite {name} requires an ordered array of at most 128 parts.");
             return WorldMapLabelComposition.Compile(id, parts, name);
         }
-        var image = IndexedPng.Read(png, MapSpriteFormat.Width, MapSpriteFormat.Height);
+        var image = IndexedPng.Read(png, new(MapSpriteFormat.Width, MapSpriteFormat.Height));
         return new(frames, new MapObjectTileArtwork(image));
     }
 }

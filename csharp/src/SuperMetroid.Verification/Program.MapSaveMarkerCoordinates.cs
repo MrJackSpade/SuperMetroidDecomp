@@ -3,12 +3,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
     private static void VerifyMapSaveMarkerCoordinates(ISnesAddressSpace rom)
     {
-        var points = new Dictionary<string, MapLabelPoint>();
+        var points = new Dictionary<string, Position16<MapPixels>>();
         for (int area = 0; area < 6; area++)
         {
             int pointer = ReadVerificationWord(rom, 0x82c80b + area * 2);
@@ -18,7 +19,7 @@ internal static partial class Program
                 int x = ReadVerificationWord(rom, address);
                 AssertTrue(x != ushort.MaxValue, "native marker view has sixteen slots");
                 if (x == ushort.MaxValue - 1) continue;
-                points.Add($"{(AreaId)area}.Save.{station}", new(x, ReadVerificationWord(rom, address + 2)));
+                points.Add($"{(AreaId)area}.Save.{station}", new(checked((ushort)x), ReadVerificationWord(rom, address + 2)));
             }
         }
         AssertEqual(34, points.Count, "complete original marker coordinate corpus");
@@ -44,23 +45,23 @@ internal static partial class Program
         foreach (string id in original.Markers.Keys)
         foreach (int coordinate in new[] { 0, vertical ? 255 : 511 })
         {
-            MapLabelPoint point = original.Markers[id];
-            var editedPoints = new Dictionary<string, MapLabelPoint>(original.Markers);
-            editedPoints[id] = vertical ? point with { Y = coordinate } : point with { X = coordinate };
+            Position16<MapPixels> point = original.Markers[id];
+            var editedPoints = new Dictionary<string, Position16<MapPixels>>(original.Markers);
+            editedPoints[id] = vertical ? point with { Y = checked((ushort)coordinate) } : point with { X = checked((ushort)coordinate) };
             var editedDocument = original with { Markers = editedPoints };
             MapSaveMarkerLayout edited = RoundTrip(editedDocument);
             AssertEqual(1, edited.StoredCoordinateComponentCount, "one edited axis stores one independent component");
             Check(editedDocument, edited);
         }
         var allEdited = original with { Markers = original.Markers.ToDictionary(pair => pair.Key,
-            pair => new MapLabelPoint(511 - pair.Value.X, 255 - pair.Value.Y)) };
+            pair => new Position16<MapPixels>(checked((ushort)(511 - pair.Value.X)), checked((ushort)(255 - pair.Value.Y)))) };
         MapSaveMarkerLayout allCustom = RoundTrip(allEdited);
         AssertEqual(68, allCustom.StoredCoordinateComponentCount, "all independent custom axes are preserved");
         Check(allEdited, allCustom);
-        foreach (int invalid in new[] { -1, vertical ? 256 : 512 })
+        foreach (ushort invalid in new ushort[] { ushort.MaxValue, vertical ? (ushort)256 : (ushort)512 })
         {
             string id = original.Markers.Keys.First();
-            var invalidPoints = new Dictionary<string, MapLabelPoint>(original.Markers);
+            var invalidPoints = new Dictionary<string, Position16<MapPixels>>(original.Markers);
             invalidPoints[id] = vertical ? invalidPoints[id] with { Y = invalid }
                 : invalidPoints[id] with { X = invalid };
             AssertThrows<InvalidDataException>(() => RoundTrip(original with { Markers = invalidPoints }),
@@ -78,14 +79,13 @@ internal static partial class Program
             {
                 string id = $"{(AreaId)area}.Save.{station}";
                 if (!expected.Markers.TryGetValue(id, out var point)) continue;
-                MapLabelPoint result = actual.Get((AreaId)area, station);
+                Position16<MapPixels> result = actual.Get((AreaId)area, station);
                 AssertEqual(vertical ? point.Y : point.X, vertical ? result.Y : result.X,
                     $"original/custom marker coordinate {id} vertical={vertical}");
                 // The other field must remain independent when this one is edited.
                 AssertEqual(point, result, "marker edits preserve the complete supplied point");
                 var marker = new FileSelectStationMarker(new ForbiddenMapBus(), (AreaId)area, station, actual);
-                AssertEqual((ushort)point.X, marker.MapX, "actual marker binds supplied X without ROM access");
-                AssertEqual((ushort)point.Y, marker.MapY, "actual marker binds supplied Y without ROM access");
+                AssertEqual(point, marker.MapPosition, "actual marker binds supplied position without ROM access");
             }
         }
         static MapSaveMarkerLayout RoundTrip(MapSaveMarkerDocument document)

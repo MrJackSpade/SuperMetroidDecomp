@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -16,7 +17,7 @@ internal static class IntroBackgroundTilemapDefinitions
         for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
         {
             var canvas = new Page(output, page);
-            canvas.Fill(0, 0, 32, 32, BorderBlank);
+            canvas.Fill(new(0, 0), new(32, 32), BorderBlank);
             switch (page)
             {
                 case 0: MotherBrainRoom(canvas); break;
@@ -31,7 +32,7 @@ internal static class IntroBackgroundTilemapDefinitions
     /// <summary>$96:FF14 page two: selected scientist/Samus delivery portrait, palette two. The nineteen atlas rows begin at $90, with a separate shoulder strip and two foot runs.</summary>
     private static void DeliveryPortrait(Page p)
     {
-        p.Fill(0, 4, 32, 20, 0x08e6);
+        p.Fill(new(0, 4), new(32, 20), 0x08e6);
         for (int row = 0; row < 19; row++)
         for (int column = 0; column < 16; column++)
         {
@@ -46,23 +47,23 @@ internal static class IntroBackgroundTilemapDefinitions
                 10 => true,
                 _ => column < 15,
             };
-            if (occupied) p.Put(8 + column, 4 + row, 0x0890 + row * 16 + column);
+            if (occupied) p.Put(new(checked((ushort)(8 + column)), checked((ushort)(4 + row))), 0x0890 + row * 16 + column);
         }
-        p.Patch(24, 6, 1, 4, 0x094f);
-        p.Patch(8, 23, 7, 1, 0x0890);
-        p.Patch(16, 23, 7, 1, 0x08a0);
+        p.Patch(new(24, 6), new(1, 4), 0x094f);
+        p.Patch(new(8, 23), new(7, 1), 0x0890);
+        p.Patch(new(16, 23), new(7, 1), 0x08a0);
     }
 
     /// <summary>$96:FF14 page three: selected examination laboratory. Atlas body $1C0-$2FF shares reflected apparatus halves; right-side $000-$089 patches are repacked into a continuous lab wall/floor.</summary>
     private static void ExaminationRoom(Page p)
     {
-        p.Patch(10, 2, 3, 1, 0x089d);
-        p.Put(13, 2, 0x08b0);
-        p.Patch(15, 2, 3, 1, 0x089d, mirrorX: true);
-        p.Put(14, 2, 0x48b0);
-        p.Put(18, 2, BorderBlank | 0x4000);
-        p.Patch(10, 3, 4, 1, 0x08b1);
-        p.Patch(14, 3, 4, 1, 0x08b1, mirrorX: true);
+        p.Patch(new(10, 2), new(3, 1), 0x089d);
+        p.Put(new(13, 2), 0x08b0);
+        p.Patch(new(15, 2), new(3, 1), 0x089d, mirrorX: true);
+        p.Put(new(14, 2), 0x48b0);
+        p.Put(new(18, 2), BorderBlank | 0x4000);
+        p.Patch(new(10, 3), new(4, 1), 0x08b1);
+        p.Patch(new(14, 3), new(4, 1), 0x08b1, mirrorX: true);
         for (int row = 0; row < 20; row++)
         for (int column = 0; column < 16; column++)
         {
@@ -76,196 +77,200 @@ internal static class IntroBackgroundTilemapDefinitions
                 18 => column >= 1,
                 _ => column >= 2,
             };
-            if (occupied) p.Put(4 + column, 4 + row, 0x09c0 + row * 16 + column);
+            if (occupied) p.Put(new(checked((ushort)(4 + column)), checked((ushort)(4 + row))), 0x09c0 + row * 16 + column);
         }
-        p.Patch(10, 4, 4, 2, 0x09ca, mirrorX: true);
-        p.Patch(11, 6, 3, 4, 0x09ea, mirrorX: true);
-        p.Patch(12, 7, 1, 3, 0x09ed);
-        p.Put(12, 10, 0x0a89);
-        p.Patch(13, 10, 1, 1, 0x0a2a, mirrorX: true);
-        p.Patch(12, 11, 2, 5, 0x0a3a, mirrorX: true);
-        p.Patch(13, 16, 1, 1, 0x0a8a, mirrorX: true);
-        p.Put(13, 22, 0x0ae8);
-        p.Put(13, 23, 0x0ae8);
-        p.Put(18, 23, 0x0aee);
-        p.Put(19, 5, 0x09df);
-        p.Patch(18, 6, 2, 3, 0x09ee);
-        p.Patch(20, 5, 3, 1, 0x0800);
-        p.Patch(20, 6, 4, 8, 0x0810);
-        p.Put(24, 13, 0x085f);
-        p.Patch(20, 14, 5, 1, 0x0804);
-        p.Patch(20, 15, 6, 6, 0x0814);
+        p.Patch(new(10, 4), new(4, 2), 0x09ca, mirrorX: true);
+        p.Patch(new(11, 6), new(3, 4), 0x09ea, mirrorX: true);
+        p.Patch(new(12, 7), new(1, 3), 0x09ed);
+        p.Put(new(12, 10), 0x0a89);
+        p.Patch(new(13, 10), new(1, 1), 0x0a2a, mirrorX: true);
+        p.Patch(new(12, 11), new(2, 5), 0x0a3a, mirrorX: true);
+        p.Patch(new(13, 16), new(1, 1), 0x0a8a, mirrorX: true);
+        p.Put(new(13, 22), 0x0ae8);
+        p.Put(new(13, 23), 0x0ae8);
+        p.Put(new(18, 23), 0x0aee);
+        p.Put(new(19, 5), 0x09df);
+        p.Patch(new(18, 6), new(2, 3), 0x09ee);
+        p.Patch(new(20, 5), new(3, 1), 0x0800);
+        p.Patch(new(20, 6), new(4, 8), 0x0810);
+        p.Put(new(24, 13), 0x085f);
+        p.Patch(new(20, 14), new(5, 1), 0x0804);
+        p.Patch(new(20, 15), new(6, 6), 0x0814);
         for (int strip = 0; strip < 3; strip++)
-            p.Patch(20 + strip * 2, 21, 2, 3, 0x080a + strip * 3 * 16);
-        p.Put(24, 23, 0x087b);
-        p.Put(25, 23, BorderBlank);
+            p.Patch(new(checked((ushort)(20 + strip * 2)), 21), new(2, 3), 0x080a + strip * 3 * 16);
+        p.Put(new(24, 23), 0x087b);
+        p.Put(new(25, 23), BorderBlank);
     }
 
     /// <summary>$96:FF14 page zero: selected broken tank, paired pipe loops, suspended apparatus and small wall marks. Repeated atlas motifs and geometric reflections calculate; individual damaged-glass fragments remain drawing choices.</summary>
     private static void MotherBrainRoom(Page p)
     {
-        p.Fill(0, 4, 32, 22, SceneBlank);
-        p.Fill(28, 25, 4, 1, BorderBlank);
-        p.Fill(12, 26, 2, 1, BorderBlank | 0x4000);
-        for (int x = 0; x < 32; x += 2) p.Patch(x, 2, 2, 2, 0x1dc8);
+        p.Fill(new(0, 4), new(32, 22), SceneBlank);
+        p.Fill(new(28, 25), new(4, 1), BorderBlank);
+        p.Fill(new(12, 26), new(2, 1), BorderBlank | 0x4000);
+        for (int x = 0; x < 32; x += 2) p.Patch(new(checked((ushort)x), 2), new(2, 2), 0x1dc8);
         for (int side = 0; side < 2; side++)
         {
-            p.Patch(2 + side * 8, 4, 2, 2, 0x1dc8);
-            p.Fill(2 + side * 8, 6, 2, 2, 0x1de9);
+            p.Patch(new(checked((ushort)(2 + side * 8)), 4), new(2, 2), 0x1dc8);
+            p.Fill(new(checked((ushort)(2 + side * 8)), 6), new(2, 2), 0x1de9);
         }
-        p.Fill(4, 4, 6, 4, 0x1de8);
-        for (int y = 4; y < 8; y++) p.Patch(6, y, 2, 1, 0x9e08);
-        p.Fill(4, 8, 6, 1, 0x1e78);
-        for (int x = 4; x < 10; x += 2) p.Patch(x, 9, 2, 1, 0x1e68);
-        p.Patch(18, 4, 2, 2, 0x3dc8);
-        p.Fill(18, 6, 2, 2, 0x3de9);
-        for (int x = 16; x <= 20; x += 4) p.Patch(x, 6, 2, 2, 0x3e28);
-        p.Put(15, 7, 0x7e17);
-        p.Put(22, 7, 0x3e17);
-        p.Patch(15, 8, 2, 1, 0x3e18, mirrorX: true);
-        p.Patch(21, 8, 2, 1, 0x3e18);
-        p.Patch(18, 8, 2, 1, 0x3df8);
-        p.Patch(18, 9, 2, 1, 0x3e68);
-        p.Patch(18, 10, 2, 1, 0x3e06);
+        p.Fill(new(4, 4), new(6, 4), 0x1de8);
+        for (int y = 4; y < 8; y++) p.Patch(new(6, checked((ushort)y)), new(2, 1), 0x9e08);
+        p.Fill(new(4, 8), new(6, 1), 0x1e78);
+        for (int x = 4; x < 10; x += 2) p.Patch(new(checked((ushort)x), 9), new(2, 1), 0x1e68);
+        p.Patch(new(18, 4), new(2, 2), 0x3dc8);
+        p.Fill(new(18, 6), new(2, 2), 0x3de9);
+        for (int x = 16; x <= 20; x += 4) p.Patch(new(checked((ushort)x), 6), new(2, 2), 0x3e28);
+        p.Put(new(15, 7), 0x7e17);
+        p.Put(new(22, 7), 0x3e17);
+        p.Patch(new(15, 8), new(2, 1), 0x3e18, mirrorX: true);
+        p.Patch(new(21, 8), new(2, 1), 0x3e18);
+        p.Patch(new(18, 8), new(2, 1), 0x3df8);
+        p.Patch(new(18, 9), new(2, 1), 0x3e68);
+        p.Patch(new(18, 10), new(2, 1), 0x3e06);
 
         // Three roof fragments form one half; their opposite half reflects exactly.
-        p.Patch(2, 10, 2, 2, 0x1c7c);
-        p.Patch(4, 10, 2, 2, 0x1c5c);
-        p.Patch(6, 10, 1, 2, 0x1cc0);
-        p.Patch(7, 10, 1, 2, 0x1cc0, mirrorX: true);
-        p.Patch(8, 10, 2, 2, 0x1c5c, mirrorX: true);
-        p.Patch(10, 10, 2, 2, 0x1c7c, mirrorX: true);
-        p.Patch(2, 12, 2, 3, 0x1c0c);
-        p.Patch(2, 15, 2, 3, 0x1c0c, mirrorY: true);
-        p.Patch(10, 12, 2, 5, 0x1c0e);
-        p.Put(10, 17, 0x1c5e);
-        p.Patch(10, 18, 2, 1, 0x1c6e);
-        for (int row = 0; row < 4; row++) p.Put(9, 14 + row, 0x1c3c + row % 2 * 16 + row / 2);
-        p.Put(2, 18, 0x9c8c);
-        p.Put(3, 18, 0x1ce0);
-        p.Patch(2, 19, 2, 1, 0x9c7c);
-        p.Patch(10, 19, 2, 1, 0x9c7c, mirrorX: true);
-        p.Patch(5, 18, 5, 1, 0x1e01);
-        p.Patch(4, 19, 6, 1, 0x1e10);
+        p.Patch(new(2, 10), new(2, 2), 0x1c7c);
+        p.Patch(new(4, 10), new(2, 2), 0x1c5c);
+        p.Patch(new(6, 10), new(1, 2), 0x1cc0);
+        p.Patch(new(7, 10), new(1, 2), 0x1cc0, mirrorX: true);
+        p.Patch(new(8, 10), new(2, 2), 0x1c5c, mirrorX: true);
+        p.Patch(new(10, 10), new(2, 2), 0x1c7c, mirrorX: true);
+        p.Patch(new(2, 12), new(2, 3), 0x1c0c);
+        p.Patch(new(2, 15), new(2, 3), 0x1c0c, mirrorY: true);
+        p.Patch(new(10, 12), new(2, 5), 0x1c0e);
+        p.Put(new(10, 17), 0x1c5e);
+        p.Patch(new(10, 18), new(2, 1), 0x1c6e);
+        for (int row = 0; row < 4; row++) p.Put(new(9, checked((ushort)(14 + row))), 0x1c3c + row % 2 * 16 + row / 2);
+        p.Put(new(2, 18), 0x9c8c);
+        p.Put(new(3, 18), 0x1ce0);
+        p.Patch(new(2, 19), new(2, 1), 0x9c7c);
+        p.Patch(new(10, 19), new(2, 1), 0x9c7c, mirrorX: true);
+        p.Patch(new(5, 18), new(5, 1), 0x1e01);
+        p.Patch(new(4, 19), new(6, 1), 0x1e10);
 
-        p.Patch(0, 20, 2, 2, 0x1de6);
-        p.Patch(12, 20, 2, 2, 0x3de6, mirrorX: true);
+        p.Patch(new(0, 20), new(2, 2), 0x1de6);
+        p.Patch(new(12, 20), new(2, 2), 0x3de6, mirrorX: true);
         for (int side = 0; side < 2; side++)
         {
-            p.Fill(2 + side * 8, 20, 2, 2, 0x1de9);
-            p.Fill(2 + side * 8, 24, 2, 2, 0x1de9);
-            p.Patch(0 + side * 8, 24, 2, 2, 0x1de6, mirrorY: true);
+            p.Fill(new(checked((ushort)(2 + side * 8)), 20), new(2, 2), 0x1de9);
+            p.Fill(new(checked((ushort)(2 + side * 8)), 24), new(2, 2), 0x1de9);
+            p.Patch(new(checked((ushort)(0 + side * 8)), 24), new(2, 2), 0x1de6, mirrorY: true);
         }
         for (int x = 4; x < 10; x += 2)
         {
-            p.Patch(x, 20, 2, 1, 0x9e68);
-            for (int y = 21; y < 24; y++) p.Patch(x, y, 2, 1, 0x1e08);
+            p.Patch(new(checked((ushort)x), 20), new(2, 1), 0x9e68);
+            for (int y = 21; y < 24; y++) p.Patch(new(checked((ushort)x), checked((ushort)y)), new(2, 1), 0x1e08);
         }
         for (int y = 22; y < 24; y++)
         {
-            p.Patch(0, y, 2, 1, 0x1df8);
-            p.Patch(12, y, 2, 1, 0x3df8, mirrorX: true);
+            p.Patch(new(0, checked((ushort)y)), new(2, 1), 0x1df8);
+            p.Patch(new(12, checked((ushort)y)), new(2, 1), 0x3df8, mirrorX: true);
         }
-        p.Patch(2, 22, 2, 2, 0x1de6);
-        p.Patch(10, 22, 2, 2, 0x1de6, mirrorX: true);
-        p.Patch(4, 24, 2, 2, 0x1de6, mirrorX: true, mirrorY: true);
-        p.Patch(12, 24, 2, 2, 0x3de6, mirrorX: true, mirrorY: true);
-        p.Patch(6, 24, 2, 2, 0x3e48);
-        p.Patch(18, 17, 2, 1, 0xbe06);
-        p.Patch(18, 18, 2, 1, 0xbe68);
-        for (int y = 19; y < 22; y++) p.Patch(18, y, 2, 1, 0x3e08);
-        p.Patch(18, 22, 2, 2, 0x3e48);
-        p.Fill(18, 24, 4, 2, 0x1de9);
+        p.Patch(new(2, 22), new(2, 2), 0x1de6);
+        p.Patch(new(10, 22), new(2, 2), 0x1de6, mirrorX: true);
+        p.Patch(new(4, 24), new(2, 2), 0x1de6, mirrorX: true, mirrorY: true);
+        p.Patch(new(12, 24), new(2, 2), 0x3de6, mirrorX: true, mirrorY: true);
+        p.Patch(new(6, 24), new(2, 2), 0x3e48);
+        p.Patch(new(18, 17), new(2, 1), 0xbe06);
+        p.Patch(new(18, 18), new(2, 1), 0xbe68);
+        for (int y = 19; y < 22; y++) p.Patch(new(18, checked((ushort)y)), new(2, 1), 0x3e08);
+        p.Patch(new(18, 22), new(2, 2), 0x3e48);
+        p.Fill(new(18, 24), new(4, 2), 0x1de9);
 
-        p.Fill(13, 6, 1, 4, 0x0403);
-        p.Fill(13, 17, 1, 3, 0x0403);
-        p.Fill(21, 13, 9, 2, 0x0403);
+        p.Fill(new(13, 6), new(1, 4), 0x0403);
+        p.Fill(new(13, 17), new(1, 3), 0x0403);
+        p.Fill(new(21, 13), new(9, 2), 0x0403);
         for (int row = 0; row < 2; row++)
         {
-            p.Fill(0, 9 + row * 10, 2, 1, 0x048a);
-            for (int x = 21; x < 30; x += 2) p.Put(x, 9 + row * 10, 0x048a);
-            p.Fill(15, 4 + row * 19, 2, 1, 0x048b);
+            p.Fill(new(0, checked((ushort)(9 + row * 10))), new(2, 1), 0x048a);
+            for (int x = 21; x < 30; x += 2) p.Put(new(checked((ushort)x), checked((ushort)(9 + row * 10))), 0x048a);
+            p.Fill(new(15, checked((ushort)(4 + row * 19))), new(2, 1), 0x048b);
         }
-        p.Put(24, 18, 0x3dce);
-        p.Fill(25, 18, 4, 1, 0x3dcf);
-        p.Put(29, 18, 0x3dde);
+        p.Put(new(24, 18), 0x3dce);
+        p.Fill(new(25, 18), new(4, 1), 0x3dcf);
+        p.Put(new(29, 18), 0x3dde);
     }
     /// <summary>$96:FF14 page one: selected SR388 ceiling/floor rock motifs and egg ledge. Repeated four-cell rocks and reflected edge pairs share atlas patches; these are illustration tiles, not room collision geometry.</summary>
     private static void DiscoveryCave(Page p)
     {
-        p.Fill(0, 4, 32, 20, SceneBlank);
+        p.Fill(new(0, 4), new(32, 20), SceneBlank);
         for (int group = 0; group < 2; group++)
         {
-            p.Patch(group * 4, 4, 4, 2, 0x1dc0);
-            p.Patch(24 + group * 4, 4, 4, 2, 0x1dc0);
-            p.Patch(group * 4, 6, 4, 2, 0x1dc0, mirrorY: true);
+            p.Patch(new(checked((ushort)(group * 4)), 4), new(4, 2), 0x1dc0);
+            p.Patch(new(checked((ushort)(24 + group * 4)), 4), new(4, 2), 0x1dc0);
+            p.Patch(new(checked((ushort)(group * 4)), 6), new(4, 2), 0x1dc0, mirrorY: true);
         }
-        p.Patch(8, 4, 2, 2, 0x1dc2);
-        CeilingPoint(p, 10, 4, false);
-        CeilingPoint(p, 12, 4, true);
-        p.Patch(14, 4, 2, 2, 0x1dc6, mirrorX: true);
-        p.Patch(16, 4, 4, 2, 0x1dc4);
-        CeilingPoint(p, 20, 4, false);
-        p.Patch(22, 4, 2, 2, 0x1dc6, mirrorX: true);
-        p.Patch(8, 6, 2, 2, 0x1dc6);
-        p.Patch(24, 6, 2, 2, 0x1dc6, mirrorX: true);
-        p.Patch(26, 6, 4, 2, 0x1dc0, mirrorY: true);
-        p.Patch(30, 6, 2, 2, 0x1dc0, mirrorY: true);
-        p.Patch(0, 8, 4, 2, 0x1dc4);
-        CeilingPoint(p, 4, 8, false);
-        CeilingPoint(p, 6, 8, true);
-        CeilingPoint(p, 26, 8, false);
-        CeilingPoint(p, 28, 8, true);
-        CeilingPoint(p, 30, 8, false);
+        p.Patch(new(8, 4), new(2, 2), 0x1dc2);
+        CeilingPoint(p, new(10, 4), false);
+        CeilingPoint(p, new(12, 4), true);
+        p.Patch(new(14, 4), new(2, 2), 0x1dc6, mirrorX: true);
+        p.Patch(new(16, 4), new(4, 2), 0x1dc4);
+        CeilingPoint(p, new(20, 4), false);
+        p.Patch(new(22, 4), new(2, 2), 0x1dc6, mirrorX: true);
+        p.Patch(new(8, 6), new(2, 2), 0x1dc6);
+        p.Patch(new(24, 6), new(2, 2), 0x1dc6, mirrorX: true);
+        p.Patch(new(26, 6), new(4, 2), 0x1dc0, mirrorY: true);
+        p.Patch(new(30, 6), new(2, 2), 0x1dc0, mirrorY: true);
+        p.Patch(new(0, 8), new(4, 2), 0x1dc4);
+        CeilingPoint(p, new(4, 8), false);
+        CeilingPoint(p, new(6, 8), true);
+        CeilingPoint(p, new(26, 8), false);
+        CeilingPoint(p, new(28, 8), true);
+        CeilingPoint(p, new(30, 8), false);
 
-        p.Patch(0, 20, 4, 2, 0x1dc4, mirrorY: true);
-        p.Patch(7, 20, 2, 2, 0x1c97);
-        p.Patch(9, 20, 3, 1, 0x1de3);
-        p.Patch(17, 20, 3, 1, 0x1de3, mirrorX: true);
-        p.Put(4, 21, 0x9dd4);
-        p.Put(5, 21, 0x9dd7);
-        p.Put(6, 21, 0x1ee0);
-        p.Put(12, 21, 0x1ee0);
-        p.Patch(9, 21, 3, 1, 0x1e20);
-        p.Patch(15, 21, 2, 1, 0x1ef0);
-        p.Patch(17, 21, 3, 1, 0x1e30);
-        p.Patch(20, 21, 2, 1, 0x3e40);
-        p.Put(22, 21, 0x3e50);
-        p.Put(23, 21, 0x3ee0);
+        p.Patch(new(0, 20), new(4, 2), 0x1dc4, mirrorY: true);
+        p.Patch(new(7, 20), new(2, 2), 0x1c97);
+        p.Patch(new(9, 20), new(3, 1), 0x1de3);
+        p.Patch(new(17, 20), new(3, 1), 0x1de3, mirrorX: true);
+        p.Put(new(4, 21), 0x9dd4);
+        p.Put(new(5, 21), 0x9dd7);
+        p.Put(new(6, 21), 0x1ee0);
+        p.Put(new(12, 21), 0x1ee0);
+        p.Patch(new(9, 21), new(3, 1), 0x1e20);
+        p.Patch(new(15, 21), new(2, 1), 0x1ef0);
+        p.Patch(new(17, 21), new(3, 1), 0x1e30);
+        p.Patch(new(20, 21), new(2, 1), 0x3e40);
+        p.Put(new(22, 21), 0x3e50);
+        p.Put(new(23, 21), 0x3ee0);
         for (int group = 0; group < 6; group++)
-            p.Patch(group * 4, 22, 4, 2, 0x1dc0 | (group == 5 ? 0x2000 : 0));
-        p.Patch(24, 22, 4, 2, 0x3dc4, mirrorY: true);
-        p.Patch(28, 22, 2, 2, 0x3dc6, mirrorX: true, mirrorY: true);
-        p.Patch(30, 22, 2, 2, 0x3dc4, mirrorY: true);
-        p.Fill(20, 24, 12, 4, BorderBlank | 0x2000);
+            p.Patch(new(checked((ushort)(group * 4)), 22), new(4, 2), 0x1dc0 | (group == 5 ? 0x2000 : 0));
+        p.Patch(new(24, 22), new(4, 2), 0x3dc4, mirrorY: true);
+        p.Patch(new(28, 22), new(2, 2), 0x3dc6, mirrorX: true, mirrorY: true);
+        p.Patch(new(30, 22), new(2, 2), 0x3dc4, mirrorY: true);
+        p.Fill(new(20, 24), new(12, 4), BorderBlank | 0x2000);
     }
 
     /// <summary>$96:FF14 cave: two selected two-cell stalactite drawings. Their lower rows are repacked at $1E2/$200 and $1F2/blank instead of an atlas-row stride.</summary>
-    private static void CeilingPoint(Page p, int x, int y, bool narrow)
+    private static void CeilingPoint(Page p, Position16<TilemapCells> cell, bool narrow)
     {
         int top = narrow ? 0x1df0 : 0x1de0;
-        p.Patch(x, y, 2, 1, top);
-        p.Put(x, y + 1, top + 2);
-        p.Put(x + 1, y + 1, narrow ? SceneBlank : 0x1e00);
+        p.Patch(cell, new(2, 1), top);
+        p.Put(cell + new Offset16<TilemapCells>(0, 1), top + 2);
+        p.Put(cell + new Offset16<TilemapCells>(1, 1), narrow ? SceneBlank : 0x1e00);
     }
 
     private sealed class Page(byte[] output, int page)
     {
-        internal void Put(int x, int y, int word) => BinaryPrimitives.WriteUInt16LittleEndian(
-            output.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount + (y * 32 + x) * 2), (ushort)word);
-        internal void Fill(int x, int y, int width, int height, int word)
+        // One 32x32 background page of tilemap words.
+        private static readonly Extent16<TilemapCells> PageSize = new(32, 32);
+
+        internal void Put(Position16<TilemapCells> cell, int word) => BinaryPrimitives.WriteUInt16LittleEndian(
+            output.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount + PageSize.RowMajorIndex(cell) * 2), (ushort)word);
+        internal void Fill(Position16<TilemapCells> origin, Extent16<TilemapCells> size, int word)
         {
-            for (int row = 0; row < height; row++)
-            for (int column = 0; column < width; column++) Put(x + column, y + row, word);
+            for (int row = 0; row < size.Y; row++)
+            for (int column = 0; column < size.X; column++) Put(origin + new Offset16<TilemapCells>(checked((short)column), checked((short)row)), word);
         }
-        internal void Patch(int x, int y, int width, int height, int word, bool mirrorX = false, bool mirrorY = false)
+        internal void Patch(Position16<TilemapCells> origin, Extent16<TilemapCells> size, int word, bool mirrorX = false, bool mirrorY = false)
         {
-            for (int row = 0; row < height; row++)
-            for (int column = 0; column < width; column++)
+            for (int row = 0; row < size.Y; row++)
+            for (int column = 0; column < size.X; column++)
             {
-                int sx = mirrorX ? width - 1 - column : column;
-                int sy = mirrorY ? height - 1 - row : row;
-                Put(x + column, y + row, (word + sy * 16 + sx) ^ (mirrorX ? 0x4000 : 0) ^ (mirrorY ? 0x8000 : 0));
+                int sx = mirrorX ? size.X - 1 - column : column;
+                int sy = mirrorY ? size.Y - 1 - row : row;
+                Put(origin + new Offset16<TilemapCells>(checked((short)column), checked((short)row)),
+                    (word + sy * 16 + sx) ^ (mirrorX ? 0x4000 : 0) ^ (mirrorY ? 0x8000 : 0));
             }
         }
     }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -24,17 +25,17 @@ internal static partial class Program
         AreaMapPresentationAsset Load(string text) => AreaMapPresentationAsset.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(text)), rules);
         var map = Load(Json(document));
-        AssertEqual((ushort)0x6c51, map.GetTile(5, 6).Raw, "map JSON compiles only presentation attributes");
-        AssertTrue(map.RevealsCellAbove(5, 6), "replaced slope art retains its compiled reveal rule");
-        AssertTrue(!map.IsDiscoverable(4, 6), "new artwork cannot create exploration cells");
+        AssertEqual((ushort)0x6c51, map.GetTile(new(5, 6)).Raw, "map JSON compiles only presentation attributes");
+        AssertTrue(map.RevealsCellAbove(new(5, 6)), "replaced slope art retains its compiled reveal rule");
+        AssertTrue(!map.IsDiscoverable(new(4, 6)), "new artwork cannot create exploration cells");
 
         var system = new Bank80SystemState();
         byte[] projected = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank, MapRevealMode.Secret);
         ushort Word(int x, int y) => System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(
-            projected.AsSpan(AreaMapLayout.GetTilemapWordIndex(x, y) * 2));
-        AssertEqual(map.GetTile(5, 6).Raw, Word(5, 6), "shared pause/file-select projection uses editable art");
+            projected.AsSpan(AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2));
+        AssertEqual(map.GetTile(new(5, 6)).Raw, Word(5, 6), "shared pause/file-select projection uses editable art");
         AssertEqual(MapTileWords.PauseBlank.Raw, Word(4, 6), "secret reveal uses rules, not painted cells");
-        AssertTrue(!system.IsMapTileExplored(AreaId.Crateria, 5, 6), "projection never mutates exploration");
+        AssertTrue(!system.IsMapTileExplored(AreaId.Crateria, new(5, 6)), "projection never mutates exploration");
 
         if (File.Exists("Super Metroid.smc"))
         {
@@ -49,14 +50,14 @@ internal static partial class Program
             hud.Initialize(new TestAddressSpace(), HudSnapshot.CeresDebug);
             hud.UpdateMinimap(new ForbiddenMapBus(), system, AreaId.Crateria, 5, 5, 16, 16, 128, 128, 8,
                 MapRevealMode.Secret, map);
-            AssertEqual(map.GetTile(5, 6).ForHud(true).Raw, hud.Tiles[60], "live minimap consumes edited cells without cartridge reads");
-            AssertTrue(system.IsMapTileExplored(AreaId.Crateria, 5, 5), "art replacement preserves slope corner exploration");
+            AssertEqual(map.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "live minimap consumes edited cells without cartridge reads");
+            AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new(5, 5)), "art replacement preserves slope corner exploration");
 
             var edited = document with { Cells = document.Cells.Select(c => c with { TileColumn = 19 }).ToArray() };
             var reloaded = Load(Json(edited));
             hud.UpdateMinimap(new ForbiddenMapBus(), system, AreaId.Crateria, 5, 5, 16, 16, 128, 128, 8,
                 MapRevealMode.Secret, reloaded);
-            AssertEqual(reloaded.GetTile(5, 6).ForHud(true).Raw, hud.Tiles[60], "reloaded edit changes live minimap without ROM patch");
+            AssertEqual(reloaded.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "reloaded edit changes live minimap without ROM patch");
         }
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Version = 2 })), "reject unsupported map schema");
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Area = "Norfair" })), "reject wrong area");
@@ -76,9 +77,9 @@ internal static partial class Program
                 for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
-                    AssertEqual(stock.GetTile(x, y).Raw, restored.GetTile(x, y).Raw, "stock map JSON retains tile/attributes");
-                    AssertEqual(stock.IsDiscoverable(x, y), restored.IsDiscoverable(x, y), "stock discovery rules survive import");
-                    AssertEqual(stock.RevealsCellAbove(x, y), restored.RevealsCellAbove(x, y), "stock slope rules survive import");
+                    AssertEqual(stock.GetTile(new(checked((ushort)x), checked((ushort)y))).Raw, restored.GetTile(new(checked((ushort)x), checked((ushort)y))).Raw, "stock map JSON retains tile/attributes");
+                    AssertEqual(stock.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), restored.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "stock discovery rules survive import");
+                    AssertEqual(stock.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), restored.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "stock slope rules survive import");
                 }
             }
             Console.WriteLine("Map presentation: all 14,336 retail cell words round-trip exactly.");
@@ -91,10 +92,10 @@ internal static partial class Program
     private sealed class PresentationMapRules : IAreaMapView
     {
         public AreaId Area => AreaId.Crateria;
-        public MapTileWord GetTile(int x, int y) => MapTileWords.PauseBlank;
-        public bool IsDiscoverable(int x, int y) => x == 5 && y is 5 or 6;
-        public bool IsRevealedByMapStation(int x, int y) => x == 5 && y == 6;
-        public bool RevealsCellAbove(int x, int y) => x == 5 && y == 6;
+        public MapTileWord GetTile(Position16<MapTiles> cell) => MapTileWords.PauseBlank;
+        public bool IsDiscoverable(Position16<MapTiles> cell) => cell.X == 5 && cell.Y is 5 or 6;
+        public bool IsRevealedByMapStation(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
+        public bool RevealsCellAbove(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
     }
 
     private sealed class ForbiddenMapBus : ISnesAddressSpace
@@ -174,10 +175,10 @@ internal static partial class Program
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
             var actual = original.Get(area);
-            AssertEqual(rules[area].GetTile(x, y), actual.GetTile(x, y), "ROM-free catalog retains stock cells");
-            AssertEqual(rules[area].IsDiscoverable(x, y), actual.IsDiscoverable(x, y), "ROM-free stock discovery parity");
-            AssertEqual(rules[area].IsRevealedByMapStation(x, y), actual.IsRevealedByMapStation(x, y), "ROM-free station mask parity");
-            AssertEqual(rules[area].RevealsCellAbove(x, y), actual.RevealsCellAbove(x, y), "ROM-free stock slope parity");
+            AssertEqual(rules[area].GetTile(new(checked((ushort)x), checked((ushort)y))), actual.GetTile(new(checked((ushort)x), checked((ushort)y))), "ROM-free catalog retains stock cells");
+            AssertEqual(rules[area].IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), actual.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "ROM-free stock discovery parity");
+            AssertEqual(rules[area].IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), actual.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), "ROM-free station mask parity");
+            AssertEqual(rules[area].RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), actual.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "ROM-free stock slope parity");
         }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
         Directory.CreateDirectory(overrides);
@@ -209,7 +210,7 @@ internal static partial class Program
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options)!;
         document.Cells[0] = document.Cells[0] with { TileColumn = (document.Cells[0].TileColumn + 1) % MapPresentationFormat.AtlasColumns };
-        int visibleCell = Enumerable.Range(0, document.Cells.Length).First(i => rules[AreaId.Crateria].IsDiscoverable(i % 64, i / 64));
+        int visibleCell = Enumerable.Range(0, document.Cells.Length).First(i => rules[AreaId.Crateria].IsDiscoverable(new(checked((ushort)(i % 64)), checked((ushort)(i / 64)))));
         document.Cells[visibleCell] = document.Cells[visibleCell] with { Palette = (document.Cells[visibleCell].Palette + 1) % 8 };
         string replacement = Path.Combine(overrides, name);
         File.WriteAllText(replacement, JsonSerializer.Serialize(document, options));
@@ -219,14 +220,14 @@ internal static partial class Program
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
-            AssertEqual(original.Get(area).IsDiscoverable(x, y), edited.Get(area).IsDiscoverable(x, y), "override cannot alter discovery");
-            AssertEqual(original.Get(area).IsRevealedByMapStation(x, y), edited.Get(area).IsRevealedByMapStation(x, y), "override cannot alter station reveal");
-            AssertEqual(original.Get(area).RevealsCellAbove(x, y), edited.Get(area).RevealsCellAbove(x, y), "override cannot alter slope exploration");
+            AssertEqual(original.Get(area).IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "override cannot alter discovery");
+            AssertEqual(original.Get(area).IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), "override cannot alter station reveal");
+            AssertEqual(original.Get(area).RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "override cannot alter slope exploration");
         }
         Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(bus, original, edited, rules.Values.ToArray(), initialPalettes,
             fixtureAssets));
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
-        AssertTrue(edited.Get(AreaId.Crateria).GetTile(0, 0) != original.Get(AreaId.Crateria).GetTile(0, 0), "catalog prefers valid override");
+        AssertTrue(edited.Get(AreaId.Crateria).GetTile(new(0, 0)) != original.Get(AreaId.Crateria).GetTile(new(0, 0)), "catalog prefers valid override");
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
         var afterRepair = AreaMapPresentationCatalog.Load(repaired, overrides);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity, "re-extracted stock preserves selected override");
@@ -1209,11 +1210,11 @@ internal static partial class Program
         string name = TitleGraphicsFormat.Mode7TilesFile;
         IndexedPngImage image;
         using (var input = File.OpenRead(Path.Combine(stock, name)))
-            image = IndexedPng.Read(input, TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height);
+            image = IndexedPng.Read(input, new(TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height));
         byte[] pixels = image.Pixels.Select(value => unchecked((byte)(value + 1))).ToArray();
         string replacement = Path.Combine(overrides, name);
         using (var output = File.Create(replacement))
-            IndexedPng.Write(output, image.Width, image.Height, pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Palette);
 
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
@@ -1315,15 +1316,14 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        AssertEqual(edited.Get(AreaId.Ceres).GetTile(runtime.Hud.MinimapCenterX, runtime.Hud.MinimapCenterY).CharacterIndex,
+        AssertEqual(edited.Get(AreaId.Ceres).GetTile(new(runtime.Hud.MinimapCenterX, runtime.Hud.MinimapCenterY)).CharacterIndex,
             (ushort)(runtime.Hud.Tiles[60] & 0x3ff), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
         var room = runtime.ActiveRoom!;
         var pause = new SuperMetroid.Core.Frontend.PauseMenuState(guard, runtime.Samus!, runtime.System,
-            room.AreaIndex, room.MapX, room.MapY, mapPresentation: edited);
-        ushort x = pause.MapHorizontalScroll, y = pause.MapVerticalScroll;
+            room.AreaIndex, room.MapPosition, mapPresentation: edited);
+        Position16<MapPixels> scroll = pause.MapScroll;
         pause.BindMapPresentation(original);
-        AssertEqual(x, pause.MapHorizontalScroll, "pause content rebind retains horizontal scroll");
-        AssertEqual(y, pause.MapVerticalScroll, "pause content rebind retains vertical scroll");
+        AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");
         _ = pause.Render();
         Suite(nameof(VerifyFileSelectMapCatalog), () => VerifyFileSelectMapCatalog(bus, guard, original, edited));
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, edited));
@@ -1339,7 +1339,7 @@ internal static partial class Program
             AreaId.Crateria, mapPresentation: original);
         var installed = new SuperMetroid.Core.Frontend.FileSelectRoomMapGraphics(guard, system, AreaId.Crateria,
             mapPresentation: original);
-        AssertTrue(stock.RenderBackgrounds(0, 0).AsSpan().SequenceEqual(installed.RenderBackgrounds(0, 0)),
+        AssertTrue(stock.RenderBackgrounds(new(0, 0)).AsSpan().SequenceEqual(installed.RenderBackgrounds(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
         installed.BindMapPresentation(edited);
         byte[] expected = AreaMapTilemapBuilder.Build(edited.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank);
@@ -1353,7 +1353,7 @@ internal static partial class Program
         snapshot.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.FileSelectRoomMapGraphics>(snapshot);
         restored.BindMapPresentation(original);
-        AssertTrue(stock.RenderBackgrounds(0, 0).AsSpan().SequenceEqual(restored.RenderBackgrounds(0, 0)),
+        AssertTrue(stock.RenderBackgrounds(new(0, 0)).AsSpan().SequenceEqual(restored.RenderBackgrounds(new(0, 0))),
             "restored file-select graphics accept current stock without stale override pixels");
         Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
     }

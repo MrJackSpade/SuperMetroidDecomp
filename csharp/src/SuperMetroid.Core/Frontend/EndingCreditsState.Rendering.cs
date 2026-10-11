@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -30,12 +31,9 @@ internal sealed partial class EndingCreditsState
                 cgram,
                 tilemapBaseWord: EndingCreditsRomData.Rendering.CreditsTilemapWord,
                 characterBaseWord: EndingCreditsRomData.Rendering.CreditsCharacterWord,
-                horizontalScroll: 0,
-                verticalScroll: credits!.VerticalScroll,
-                width: 256,
-                height: 224,
-                tilemapWidthInTiles: 32,
-                tilemapHeightInTiles: 32);
+                scroll: new Position16<BgPlanePixels>(0, credits!.VerticalScroll),
+                size: SnesPpuLayout.ScreenSize,
+                tilemapSize: new Extent16<TilemapCells>(32, 32));
         }
         else if (Phase >= EndingCreditsPhase.PostCreditsBlank)
         {
@@ -69,10 +67,8 @@ internal sealed partial class EndingCreditsState
             matrixB,
             unchecked((short)-matrixB),
             matrixA,
-            centerX: CurrentMode7CenterX,
-            centerY: CurrentMode7CenterY,
-            horizontalOffset: unchecked((short)mode7X),
-            verticalOffset: unchecked((short)mode7Y), wrapOutsideMap: AtmosphericMapWraps);
+            center: CurrentMode7Center,
+            scroll: mode7.Whole.AsSignedRegister(), wrapOutsideMap: AtmosphericMapWraps);
     }
 
     private byte CurrentEscapeObjectSelection => Phase < EndingCreditsPhase.FadeInZebesExplosion
@@ -89,10 +85,10 @@ internal sealed partial class EndingCreditsState
     private bool EndingObjectsEnabled => !ExplosionWhiteout && Phase is not
         (EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsBlank);
 
-    private short CurrentMode7CenterX => Phase < EndingCreditsPhase.PlanetEscapeFast
-        ? EndingCreditsRomData.Rendering.AtmosphericMode7Center : EndingCreditsRomData.Rendering.Mode7CenterX;
-    private short CurrentMode7CenterY => Phase < EndingCreditsPhase.PlanetEscapeFast
-        ? EndingCreditsRomData.Rendering.AtmosphericMode7Center : EndingCreditsRomData.Rendering.Mode7CenterY;
+    // The Mode 7 matrix centre: the atmospheric scenes rotate about one shared point.
+    private Offset16<Mode7Pixels> CurrentMode7Center => Phase < EndingCreditsPhase.PlanetEscapeFast
+        ? new(EndingCreditsRomData.Rendering.AtmosphericMode7Center, EndingCreditsRomData.Rendering.AtmosphericMode7Center)
+        : new(EndingCreditsRomData.Rendering.Mode7CenterX, EndingCreditsRomData.Rendering.Mode7CenterY);
 
     private void RenderPostCreditsBackground(Span<Rgba32> pixels)
     {
@@ -107,12 +103,9 @@ internal sealed partial class EndingCreditsState
             cgram,
             tilemapBaseWord: CurrentPostCreditsTilemapWord,
             characterBaseWord: CurrentPostCreditsCharacterWord,
-            horizontalScroll: 0,
-            verticalScroll: postCreditsVerticalScroll,
-            width: 256,
-            height: 224,
-            tilemapWidthInTiles: 32,
-            tilemapHeightInTiles: postCreditsMapHeight);
+            scroll: new Position16<BgPlanePixels>(0, postCreditsVerticalScroll),
+            size: SnesPpuLayout.ScreenSize,
+            tilemapSize: new Extent16<TilemapCells>(32, checked((ushort)postCreditsMapHeight)));
     }
 
     private void RenderSprites(Span<Rgba32> pixels, byte obsel)

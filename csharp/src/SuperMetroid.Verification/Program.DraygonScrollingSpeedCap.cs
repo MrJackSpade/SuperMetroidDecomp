@@ -12,7 +12,7 @@ internal static partial class Program
     private static void VerifyDraygonScrollingSpeedCap()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var checkpoint = new SamusCameraPoint(XPosition: 0x0190, XSubposition: 0, YPosition: 0x0170, YSubposition: 0);
+        var checkpoint = FixedPosition<RoomPixels>.FromWords(0x0190, 0, 0x0170, 0);
 
         // Down 33 and right 8: Y is capped twelve beyond Samus, X is under the threshold.
         (ushort x, ushort y) = PreviousAfterDraygonMove(bus, checkpoint, bodyX: 0x0190, bodyY: 0x0169);
@@ -31,13 +31,13 @@ internal static partial class Program
     }
 
     private static (ushort X, ushort Y) PreviousAfterDraygonMove(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, SamusCameraPoint checkpoint, ushort bodyX, ushort bodyY)
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, FixedPosition<RoomPixels> checkpoint, ushort bodyX, ushort bodyY)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         typeof(RoomEnemySystem).GetField("_samusPreviousPositionCheckpoint", flags)!.SetValue(enemies, checkpoint);
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(checkpoint.XPosition, checkpoint.YPosition)) };
+        var samus = new SamusState { Position = new(new(checkpoint.X.Whole, 0), new(checkpoint.Y.Whole, 0))};
         samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
         var state = new DraygonEnemyState(enemies.Slots[0]);
         state.Body.XPosition = bodyX;

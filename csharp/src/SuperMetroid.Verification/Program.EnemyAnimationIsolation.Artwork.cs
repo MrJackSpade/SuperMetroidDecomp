@@ -74,7 +74,7 @@ internal static partial class Program
             AssertTrue(nativeIndex >= 0, "draw assertion selects a declared Boyon frame");
             int selectedIndex = (nativeIndex + 1) % definitions.Length;
             expected.AddEnemySpritemap(EnemySpritemapCatalog.CompileParts(EditedAnimationParts(selectedIndex),
-                definitions[selectedIndex].Name), actor.XPosition, actor.YPosition, actor.PaletteIndex,
+                definitions[selectedIndex].Name), new Position16<OamPixels>(actor.XPosition, actor.YPosition), actor.PaletteIndex,
                 actor.VramTilesIndex);
         }
         else
@@ -91,7 +91,7 @@ internal static partial class Program
 
             void Add(int x, int y, int tile) => expected.AddEnemySpritemap(
                 EnemySpritemapCatalog.CompileParts(EditedAnimationParts(tile), definitions[selectedIndex].Name),
-                unchecked((ushort)(actor.XPosition + x)), unchecked((ushort)(actor.YPosition + y)),
+                new Position16<OamPixels>(unchecked((ushort)(actor.XPosition + x)), unchecked((ushort)(actor.YPosition + y))),
                 actor.PaletteIndex, actor.VramTilesIndex, clipVerticalWrap: true);
         }
         // Body is queued before projectiles; compare its exact packed OAM prefix.

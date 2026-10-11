@@ -17,6 +17,6 @@ public sealed partial class SuperMetroidRuntime
         var death = Enemies.CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire's comeback room callback has no death state.");
         BackgroundScroll.SetBg1VerticalScrollRegister(unchecked((ushort)(
-            BackgroundScroll.Layer1YPosition + BackgroundScroll.Bg1YOffset + death.RumbleYOffset)));
+            BackgroundScroll.Layer1Position.Y + BackgroundScroll.Bg1Offset.Y + death.RumbleYOffset)));
     }
 }

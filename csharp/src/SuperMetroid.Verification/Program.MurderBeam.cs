@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -16,8 +17,7 @@ internal static partial class Program
         var bus = new ProjectileSoundRoutingForbiddenBus(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
         var level = new RoomLevelData(
-            16,
-            16,
+            new Extent16<RoomBlocks>(16, 16),
             new ushort[256],
             new byte[256],
             new ushort[256],
@@ -42,8 +42,7 @@ internal static partial class Program
             samus,
             new Bank80SystemState(),
             AreaId.Crateria,
-            0,
-            0);
+            new(0, 0));
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         pause.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
@@ -78,8 +77,8 @@ internal static partial class Program
             "safe left-facing data record selects no animation list");
         AssertEqual((ushort)0, shot.Radius.X, "safe Murder Beam X radius");
         AssertEqual((ushort)0, shot.Radius.Y, "safe Murder Beam Y radius");
-        AssertEqual((short)0, shot.Velocity.X, "safe Murder Beam X speed");
-        AssertEqual((short)0, shot.Velocity.Y, "safe Murder Beam Y speed");
+        AssertEqual((short)0, shot.Velocity.X.SignedRawValue, "safe Murder Beam X speed");
+        AssertEqual((short)0, shot.Velocity.Y.SignedRawValue, "safe Murder Beam Y speed");
         AssertTrue(!shot.IsActive, "zero-list Murder Beam is not animated or drawn");
         AssertTrue(shot.HasEnemyCollisionPayload,
             "zero-list Murder Beam remains visible to bank-$A0 enemy collision");

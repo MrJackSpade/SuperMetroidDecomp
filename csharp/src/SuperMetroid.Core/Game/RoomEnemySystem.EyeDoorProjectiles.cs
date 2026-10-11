@@ -286,12 +286,12 @@ public sealed partial class RoomEnemySystem
         int fixedBlock = unchecked((ushort)fixedAxisPixel) >> 4;
         int startBlock = unchecked((ushort)spanStartPixel) >> 4;
         int extraBlocks = unchecked((ushort)(spanEndPixel - (spanStartPixel & 0xfff0))) >> 4;
-        int width = level.WidthInBlocks;
+        int width = level.Size.X;
         int linear = verticalEdge ? fixedBlock * width + startBlock : startBlock * width + fixedBlock;
         int step = verticalEdge ? 1 : width;
         for (int tested = 0; tested <= extraBlocks; tested++, linear += step)
         {
-            if (tested > 0 && linear >= width * level.HeightInBlocks)
+            if (tested > 0 && linear >= width * level.Size.Y)
             {
                 throw new InvalidDataException(
                     "Enemy projectile block scan ran past the room's level data into other WRAM.");

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class WindowSceneSmokeTests
 {
@@ -21,12 +22,12 @@ internal static class WindowSceneSmokeTests
         for (byte brightness = 0; brightness <= 15; brightness++)
         {
             var child = new LayeredRenderSnapshot(childMemory, new RenderLayer[] {
-                new Mode7RenderLayer(new(255,71,-71,255,128,112,13,-11,true)),
+                new Mode7RenderLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), true)),
                 new ObjRenderLayer() }, 7, brightness);
             var window = new WindowedSceneRenderLayer(child, edges.Item1, edges.Item2, edges.Item3, edges.Item4);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(parentMemory,
                 new RenderLayer[] { new ObjPriorityRenderLayer(0), window,
-                    new Bg4BppRenderLayer(0x4000, 0x6000, 3, 11, 32, 32, true),
+                    new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), true),
                     new ObjPriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 3, 13), new byte[] { 11 });
             var before = renderer.UploadStatistics;
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),

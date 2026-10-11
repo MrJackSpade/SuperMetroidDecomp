@@ -2,6 +2,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -14,14 +15,14 @@ internal static partial class Program
             var next = loaded.Game.Step(frame < 180 ? (ushort)SnesButton.Right : (ushort)0);
             if (frame == 240)
             {
-                Console.WriteLine($"BG2={runtime.DisplayedGameplayPpu.Bg2HorizontalScroll},{runtime.DisplayedGameplayPpu.Bg2VerticalScroll} background={runtime.ActiveRoom!.State.BackgroundDataPointer:X4} FX={runtime.RoomLayer3Fx.Type}");
+                Console.WriteLine($"BG2={runtime.DisplayedGameplayPpu.Bg2Scroll.X},{runtime.DisplayedGameplayPpu.Bg2Scroll.Y} background={runtime.ActiveRoom!.State.BackgroundDataPointer:X4} FX={runtime.RoomLayer3Fx.Type}");
                 var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
                 var registers = ((OrdinaryGameplayRenderLayer)capture.Layers[0]).Registers;
-                if (registers.Bg2WidthTiles != 32 || registers.Bg2HeightTiles != 64)
+                if (registers.Bg2MapSize.X != 32 || registers.Bg2MapSize.Y != 64)
                     throw new InvalidOperationException("Statue FX did not apply native BG2SC=$4A vertical tilemap layout.");
                 var correct = SoftwareLayeredSnapshotRenderer.Render(capture);
                 var bad = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(capture.Memory,
-                    [new OrdinaryGameplayRenderLayer(registers with { Bg2WidthTiles = 64, Bg2HeightTiles = 32 })],
+                    [new OrdinaryGameplayRenderLayer(registers with { Bg2MapSize = new Extent16<TilemapCells>(64, 32) })],
                     capture.ObjectSelection, capture.Brightness));
                 int restoredPixels = 0;
                 for (int y = 80; y < 180; y++)
@@ -31,7 +32,7 @@ internal static partial class Program
                     throw new InvalidOperationException("The saved entry no longer exercises the missing background statue artwork.");
                 Console.WriteLine($"Restored statue artwork differs at {restoredPixels} pixels in the reported region.");
                 Directory.CreateDirectory("csharp/test-temp/issue-481");
-                PngWriterTooling.WriteRgba("csharp/test-temp/issue-481/entry.png", 256, 224,
+                PngWriterTooling.WriteRgba("csharp/test-temp/issue-481/entry.png", new Extent16<ScreenPixels>(256, 224),
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             }
             if (frame % 120 == 0)
@@ -39,12 +40,12 @@ internal static partial class Program
         }
         if (!runtime.System.HasEvent(EventNumber.TourianUnlocked))
             throw new InvalidOperationException("The four defeated bosses never opened Tourian after the statue sequence.");
-        PngWriterTooling.WriteRgba("csharp/test-temp/issue-481/open.png", 256, 224,
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-481/open.png", new Extent16<ScreenPixels>(256, 224),
             SuperMetroidRuntimeFrameRenderer.Render(runtime));
         for (int frame = 0; frame < 240; frame++)
             loaded.Game.Step(frame < 18 ? (ushort)SnesButton.Left : (ushort)0);
-        Console.WriteLine($"After shaft approach Samus={runtime.Samus!.Position.X.Whole},{runtime.Samus.Position.Y.Whole}, camera={runtime.Camera!.YPosition}");
-        if (runtime.Samus.Position.Y.Whole <= 256 || runtime.Camera.YPosition == 0)
+        Console.WriteLine($"After shaft approach Samus={runtime.Samus!.Position.X.Whole},{runtime.Samus.Position.Y.Whole}, camera={runtime.Camera!.PixelPosition.Y}");
+        if (runtime.Samus.Position.Y.Whole <= 256 || runtime.Camera.PixelPosition.Y == 0)
             throw new InvalidOperationException("Tourian unlock did not make the shaft physically traversable with camera tracking.");
     }
 }

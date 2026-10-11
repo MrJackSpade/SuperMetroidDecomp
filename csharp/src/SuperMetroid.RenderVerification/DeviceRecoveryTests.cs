@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class SwapchainTests
 {
@@ -13,7 +14,7 @@ internal static partial class SwapchainTests
         int attempts = 0;
         try
         {
-            worker = new(window, 640, 480, 1, kind, () =>
+            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, kind, () =>
             {
                 Interlocked.Increment(ref attempts);
                 if (repeatDeviceLoss) new SharpGen.Runtime.Result((int)DxgiDeviceLoss.DeviceRemoved).CheckError();

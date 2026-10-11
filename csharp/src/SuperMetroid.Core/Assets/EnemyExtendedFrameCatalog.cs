@@ -2,12 +2,15 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One visual component of an extended enemy frame, without hitbox metadata.</summary>
+/// <param name="Offset">Signed displacement of the component's spritemap from the enemy's on-screen origin.</param>
+/// <param name="Parts">The component's OAM parts.</param>
 internal readonly record struct EnemyExtendedDrawComponent(
-    short OffsetX, short OffsetY, EnemySpritemapParts Parts);
+    Offset16<OamPixels> Offset, EnemySpritemapParts Parts);
 
 /// <summary>
 /// Installed visual compositions for extended enemy frames. Hitbox records and
@@ -24,8 +27,8 @@ public sealed class EnemyExtendedFrameCatalog
                 content.Append("components", components.Length);
                 foreach (EnemyExtendedDrawComponent component in components)
                 {
-                    content.Append("offset-x", component.OffsetX);
-                    content.Append("offset-y", component.OffsetY);
+                    content.Append("offset-x", component.Offset.X);
+                    content.Append("offset-y", component.Offset.Y);
                     content.AppendEnemyParts(component.Parts);
                 }
             }
@@ -221,7 +224,7 @@ public sealed class EnemyExtendedFrameCatalog
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(
-                    (short)component.OffsetX, (short)component.OffsetY,
+                    new((short)component.OffsetX, (short)component.OffsetY),
                     GoldenTorizoStrideGeometryDefinitions.Compile((definition.Bank << 16) | definition.Pointer,
                         index, EnemySpritemapParts.FromOwnedArray(parts)));
             }
@@ -347,6 +350,7 @@ public sealed class EnemyExtendedFrameCatalog
 }
 
 /// <summary>Editable, visual-only coordinates and OAM parts of one component.</summary>
+[SpatialComponents("External format: the extended-frame JSON stores each component displacement as offsetX/offsetY.")]
 public sealed record EnemyExtendedVisualComponent
 {
     /// <summary>Gets the signed whole-pixel horizontal displacement from the enemy anchor.</summary>

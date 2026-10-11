@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -18,8 +19,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// </summary>
         internal InitialViewportResult LoadCartridgeRoomForDebug(
             ushort roomPointer,
-            ushort cameraX = 0,
-            ushort cameraY = 0)
+            Position16<RoomPixels> camera = default)
         {
             if (self.Samus is null)
                 throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
@@ -32,10 +32,8 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 Pointer: 0,
                 DestinationRoomPointer: roomPointer,
                 Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
-                PlmX: 0,
-                PlmY: 0,
-                DestinationScreenX: unchecked((byte)(cameraX >> 8)),
-                DestinationScreenY: unchecked((byte)(cameraY >> 8)),
+                PlmBlock: default,
+                DestinationScreen: new(unchecked((byte)(camera.X >> 8)), unchecked((byte)(camera.Y >> 8))),
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
 
@@ -44,8 +42,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             InitialViewportResult viewport = self.LoadCartridgeRoom(
                 door,
                 room,
-                cameraX,
-                cameraY,
+                camera,
                 RoomViewportLoadMode.DisplayInitialViewport);
             self.Samus.LiquidPhysics.RoomIdentity = room.Identity;
             self.Samus.RefreshCollisionRadii(self._addressSpace);
@@ -59,8 +56,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// </summary>
         internal InitialViewportResult LoadCartridgeRoomThroughDoorForVerification(
             CartridgeDoorHeader door,
-            ushort cameraX = 0,
-            ushort cameraY = 0)
+            Position16<RoomPixels> camera = default)
         {
             ArgumentNullException.ThrowIfNull(door);
             if (self.Samus is null)
@@ -70,8 +66,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             return self.LoadCartridgeRoom(
                 door,
                 room,
-                cameraX,
-                cameraY,
+                camera,
                 RoomViewportLoadMode.DisplayInitialViewport,
                 runDoorClosingPlm: true);
         }

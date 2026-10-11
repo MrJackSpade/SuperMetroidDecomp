@@ -31,10 +31,10 @@ internal static partial class Program
             IntroRinkaPhysicalDefinition actual = IntroRinkaDefinitions.Rinka(parameter);
             AssertEqual(ReadIntroRinkaWord(retail,
                     IntroRinkaDefinitions.InitialXReferenceAddress + parameter * 2),
-                actual.X, $"intro Rinka {parameter} initial X");
+                actual.Position.X, $"intro Rinka {parameter} initial X");
             AssertEqual(unchecked((ushort)(ReadIntroRinkaWord(retail,
                     IntroRinkaDefinitions.InitialYReferenceAddress + parameter * 2) - 8)),
-                actual.Y, $"intro Rinka {parameter} biased initial Y");
+                actual.Position.Y, $"intro Rinka {parameter} biased initial Y");
             AssertEqual(unchecked((short)ReadIntroRinkaWord(retail,
                     IntroRinkaDefinitions.XWholeVelocityReferenceAddress + parameter * 2)),
                 actual.XWholeVelocity, $"intro Rinka {parameter} signed X whole velocity");

@@ -330,7 +330,7 @@ static void VerifySamusRenderingSlice()
         samus.AnimationFrame = frame;
         oam.BeginFrame();
         BindSyntheticSamusRendering(bus, samus);
-        samus.Draw(bus, oam, layer1: new(samus.Position.X.Whole, samus.Position.Y.Whole));
+        samus.Draw(bus, oam, layer1: samus.Position.Whole);
         oam.FinalizeFrame();
         AssertEqual(expectedSprites, oam.LastFinalizedSpriteCount, name);
     }
@@ -346,7 +346,7 @@ static void VerifySamusRenderingSlice()
         "movement-type API rejects a discriminator outside the complete retail domain");
     oam.BeginFrame();
     AssertThrows<InvalidDataException>(
-        () => samus.Draw(bus, oam, layer1: new(samus.Position.X.Whole, samus.Position.Y.Whole)),
+        () => samus.Draw(bus, oam, layer1: samus.Position.Whole),
         "movement type beyond complete bottom-half table is rejected as malformed pose data");
 
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
@@ -447,7 +447,7 @@ static void VerifySamusRenderingSlice()
         MatrixA: 0x0000,
         MatrixB: 0x0100,
         MatrixC: 0xff00,
-        Center: new(0x0480, 0x0080));
+        Center: new Position16<RoomPixels>(0x0480, 0x0080));
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Draw(
@@ -472,8 +472,8 @@ static void VerifySamusRenderingSlice()
         MatrixA: 0xff80,
         MatrixB: 0x0180,
         MatrixC: 0xfe80,
-        Center: new(0xfff0, 0x0010));
-    Position16<RoomPixels> wrapped = wrappedMatrix.Transform(new(0x0010, 0xffe0));
+        Center: new Position16<RoomPixels>(0xfff0, 0x0010));
+    Position16<RoomPixels> wrapped = wrappedMatrix.Transform(new Position16<RoomPixels>(0x0010, 0xffe0));
     AssertEqual(0x0028, wrapped.X,
         "Mode 7 transform preserves signed-product and center-X word wrap");
     AssertEqual(0x0058, wrapped.Y,

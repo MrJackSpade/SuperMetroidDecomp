@@ -18,9 +18,9 @@ internal static partial class Program
         var samus = runtime.Samus!;
         var level = runtime.LevelData!;
         var expectedColumns = new SortedSet<int>();
-        for (int y = 0; y < level.HeightInBlocks; y++)
-            for (int x = 0; x < level.WidthInBlocks; x++)
-                if (level.GetCollisionBlock(x, y).CollisionType == RoomCollisionType.GrappleBlock)
+        for (int y = 0; y < level.Size.Y; y++)
+            for (int x = 0; x < level.Size.X; x++)
+                if (level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y))).CollisionType == RoomCollisionType.GrappleBlock)
                     expectedColumns.Add(x);
         AssertTrue(expectedColumns.Count > 0, "demo room supplies grapple ceiling terrain");
         var connectedColumns = new List<int>();

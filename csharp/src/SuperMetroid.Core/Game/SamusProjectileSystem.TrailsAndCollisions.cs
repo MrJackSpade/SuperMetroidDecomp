@@ -390,8 +390,7 @@ public sealed partial class SamusProjectileSystem
             return;
 
         oam.AddProjectileTrailSprite(
-            unchecked((byte)screenX),
-            unchecked((byte)screenY),
+            new Position16<OamPixels>(unchecked((byte)screenX), unchecked((byte)screenY)),
             artwork is null ? side.TileNumberAttributes : artwork.ResolveCurrent(side.InstructionPointer, side.TileNumberAttributes));
     }
 
@@ -401,7 +400,7 @@ public sealed partial class SamusProjectileSystem
         RoomPlmSystem? roomPlms,
         bool waveBeam = false)
     {
-        slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X));
+        slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X.SignedRawValue));
 
         if (waveBeam)
         {
@@ -425,10 +424,10 @@ public sealed partial class SamusProjectileSystem
         // the sole exception: `$90:BDA4/$BDF2` writes -1 before the horizontal scan so the
         // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
         // including the cartridge's counterintuitive right-edge initial horizontal probe.
-        slot.Velocity = slot.Velocity.WithX(slot.PackedDirection.Direction == SamusProjectileDirection.Left
+        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(slot.PackedDirection.Direction == SamusProjectileDirection.Left
             ? (short)-1
-            : (short)0);
-        slot.Velocity = slot.Velocity.WithY(0);
+            : (short)0));
+        slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(0));
 
         SamusProjectileDirection direction = slot.PackedDirection.Direction;
         bool collided = false;
@@ -484,7 +483,7 @@ public sealed partial class SamusProjectileSystem
         RoomPlmSystem? roomPlms,
         bool waveBeam = false)
     {
-        slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y));
+        slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y.SignedRawValue));
 
         if (waveBeam)
         {
@@ -501,14 +500,14 @@ public sealed partial class SamusProjectileSystem
     {
         int topBlock = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)) >> 4;
         int bottomBlock = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1)) >> 4;
-        int targetX = slot.Velocity.X < 0
+        int targetX = slot.Velocity.X.SignedRawValue < 0
             ? unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X))
             : unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
         int blockX = targetX >> 4;
 
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)topBlock >= (uint)level.HeightInBlocks ||
-            (uint)bottomBlock >= (uint)level.HeightInBlocks)
+        if ((uint)blockX >= (uint)level.Size.X ||
+            (uint)topBlock >= (uint)level.Size.Y ||
+            (uint)bottomBlock >= (uint)level.Size.Y)
         {
             return false;
         }
@@ -520,7 +519,7 @@ public sealed partial class SamusProjectileSystem
         int span = bottomBlock - topBlock;
         for (int blockY = topBlock; blockY <= bottomBlock; blockY++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+            RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
             var context = new ShotSpan(span, bottomBlock - blockY, targetX);
             if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan))
                 everyBlockSolid = false;
@@ -536,14 +535,14 @@ public sealed partial class SamusProjectileSystem
     {
         int leftBlock = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
         int rightBlock = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
-        int targetY = slot.Velocity.Y < 0
+        int targetY = slot.Velocity.Y.SignedRawValue < 0
             ? unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))
             : unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int blockY = targetY >> 4;
 
-        if ((uint)blockY >= (uint)level.HeightInBlocks ||
-            (uint)leftBlock >= (uint)level.WidthInBlocks ||
-            (uint)rightBlock >= (uint)level.WidthInBlocks)
+        if ((uint)blockY >= (uint)level.Size.Y ||
+            (uint)leftBlock >= (uint)level.Size.X ||
+            (uint)rightBlock >= (uint)level.Size.X)
         {
             return false;
         }
@@ -552,7 +551,7 @@ public sealed partial class SamusProjectileSystem
         int span = rightBlock - leftBlock;
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+            RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
             var context = new ShotSpan(span, rightBlock - blockX, targetY);
             if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan, horizontalMovement: false))
                 everyBlockSolid = false;
@@ -642,7 +641,7 @@ public sealed partial class SamusProjectileSystem
             // $94:A147/A15E dispatch non-square slopes through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
             int centerBlock = horizontalMovement ? slot.Position.Y.Whole >> 4 : slot.Position.X.Whole >> 4;
-            int slopeBlock = horizontalMovement ? block.Index / level.WidthInBlocks : block.Index % level.WidthInBlocks;
+            int slopeBlock = horizontalMovement ? block.Index / level.Size.X : block.Index % level.Size.X;
             if (centerBlock != slopeBlock) return false;
 
             int x = slot.Position.X.Whole & 15;
@@ -715,7 +714,7 @@ public sealed partial class SamusProjectileSystem
                 case RoomCollisionType.VerticalExtension:
                     if (offset == 0)
                         return null;
-                    targetIndex = block.Index + (offset * level.WidthInBlocks);
+                    targetIndex = block.Index + (offset * level.Size.X);
                     break;
 
                 case RoomCollisionType.Air:
@@ -854,14 +853,14 @@ public sealed partial class SamusProjectileSystem
         // the instruction list. Diagonals adjust both axes in their respective signs.
         byte direction = unchecked((byte)(slot.Direction & 0x0f));
         if (direction is 1 or 2 or 3)
-            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X)));
+            slot.Position += new Offset16<RoomPixels>(unchecked((short)slot.Radius.X), 0);
         else if (direction is 6 or 7 or 8)
-            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)));
+            slot.Position -= new Offset16<RoomPixels>(unchecked((short)slot.Radius.X), 0);
 
         if (direction is 0 or 1 or 8 or 9)
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)));
+            slot.Position -= new Offset16<RoomPixels>(0, unchecked((short)slot.Radius.Y));
         else if (direction is 3 or 4 or 5 or 6)
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y)));
+            slot.Position += new Offset16<RoomPixels>(0, unchecked((short)slot.Radius.Y));
 
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.BeamExplosion);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(

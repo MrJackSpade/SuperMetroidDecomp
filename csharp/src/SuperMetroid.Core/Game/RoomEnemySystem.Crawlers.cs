@@ -563,10 +563,10 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
         int blockX = slot.XPosition >> 4;
         int blockY = surfaceY >> 4;
-        if ((uint)blockX < (uint)level.WidthInBlocks &&
-            (uint)blockY < (uint)level.HeightInBlocks)
+        if ((uint)blockX < (uint)level.Size.X &&
+            (uint)blockY < (uint)level.Size.Y)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+            RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
             int slopeShape = block.Bts.SlopeShape;
             if (block.CollisionType == RoomCollisionType.Slope && slopeShape >= 5)
             {

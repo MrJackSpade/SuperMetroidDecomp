@@ -7,6 +7,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -76,9 +77,8 @@ static void VerifySamusMorphBallMovement()
     var floorBlocks = new ushort[width * height];
     for (int x = 0; x < width; x++)
         floorBlocks[4 * width + x] = 0x8000;
-    RoomLevelData floor = new(
-        width,
-        height,
+    RoomLevelData floor = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         floorBlocks,
         new byte[floorBlocks.Length],
         new ushort[floorBlocks.Length],
@@ -183,9 +183,8 @@ static void VerifySamusMorphBallMovement()
 
     // Remove the floor and execute the stable grounded handler. Its failed +1 probe drives
     // the explicit `$1D/$41 -> $31/$32` walk-off transition and starts downward gravity.
-    RoomLevelData empty = new(
-        width,
-        height,
+    RoomLevelData empty = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         new ushort[width * height],
         new byte[width * height],
         new ushort[width * height],
@@ -429,9 +428,8 @@ static void VerifySamusMorphBallMovement()
     var tunnelBlocks = (ushort[])floorBlocks.Clone();
     for (int x = 0; x < width; x++)
         tunnelBlocks[2 * width + x] = 0x8000;
-    RoomLevelData tunnel = new(
-        width,
-        height,
+    RoomLevelData tunnel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         tunnelBlocks,
         new byte[tunnelBlocks.Length],
         new ushort[tunnelBlocks.Length],
@@ -1279,9 +1277,8 @@ static void VerifySamusMorphBallMovement()
     reactionWords[reactionExtensionIndex] = 0x5058;
     reactionBts[reactionExtensionIndex] = 0xff;
     var reactionDefinitions = new byte[0x400 * 8];
-    RoomLevelData reactionLevel = new(
-        width,
-        height,
+    RoomLevelData reactionLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         reactionWords,
         reactionBts,
         new ushort[reactionWords.Length],
@@ -1335,7 +1332,7 @@ static void VerifySamusMorphBallMovement()
     // PLM_Handler runs after movement beta in the same gameplay frame. Normal-bomb setup
     // began at `$CC3F`, so this first handler pass draws air `$0053` without queueing the
     // reaction head's sound $0A. The bomb explosion itself remains the sound owner.
-    reactionPlms.Step(bus, reactionLevel, reactionStreamer, 0, 0, 0);
+    reactionPlms.Step(bus, reactionLevel, reactionStreamer, new(0, 0), 0);
     AssertEqual(0x0053,
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
         "same-frame PLM pass draws the first bomb-block air frame");
@@ -1345,18 +1342,18 @@ static void VerifySamusMorphBallMovement()
     // Walk the exact forward, 384-frame blank hold, reverse, restore, and delayed-delete
     // timeline. The restored word is deliberately `$F058`, not the original `$F321`:
     // setup CEDA synthesized PLM_Vars by replacing all twelve low bits with `$058`.
-    StepFrames(12, _ => reactionPlms.Step(bus, reactionLevel, reactionStreamer, 0, 0, 0));
+    StepFrames(12, _ => reactionPlms.Step(bus, reactionLevel, reactionStreamer, new(0, 0), 0));
     AssertEqual(0x00ff,
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
         "bomb reaction reaches blank air after three four-frame transitions");
     StepFrames(384 + 12, _ =>
-        reactionPlms.Step(bus, reactionLevel, reactionStreamer, 0, 0, 0));
+        reactionPlms.Step(bus, reactionLevel, reactionStreamer, new(0, 0), 0));
     AssertEqual(0xf058,
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
         "bomb reaction restores synthesized type-F parent after native hold");
     AssertEqual(1, reactionPlms.ActiveCount,
         "DrawPLMBlock retains reaction PLM through its timer-one restore pass");
-    reactionPlms.Step(bus, reactionLevel, reactionStreamer, 0, 0, 0);
+    reactionPlms.Step(bus, reactionLevel, reactionStreamer, new(0, 0), 0);
     AssertEqual(0, reactionPlms.ActiveCount,
         "bomb reaction PLM deletes on the handler pass after restoration");
 
@@ -1369,9 +1366,8 @@ static void VerifySamusMorphBallMovement()
     const int integratedRevealIndex = 3 * width + 3;
     integratedRevealWords[integratedRevealIndex] = 0xc000;
     integratedRevealBts[integratedRevealIndex] = 8;
-    RoomLevelData integratedRevealLevel = new(
-        width,
-        height,
+    RoomLevelData integratedRevealLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         integratedRevealWords,
         integratedRevealBts,
         new ushort[integratedRevealWords.Length],
@@ -1418,8 +1414,7 @@ static void VerifySamusMorphBallMovement()
         bus,
         integratedRevealLevel,
         integratedRevealStreamer,
-        0,
-        0,
+        new(0, 0),
         0);
     AssertEqual(0xc057,
         integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).LevelWord,
@@ -1435,9 +1430,8 @@ static void VerifySamusMorphBallMovement()
     const int bombDoorIndex = 3 * width + 3;
     bombDoorWords[bombDoorIndex] = 0xc000;
     bombDoorBts[bombDoorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.Value;
-    RoomLevelData bombDoorLevel = new(
-        width,
-        height,
+    RoomLevelData bombDoorLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         bombDoorWords,
         bombDoorBts,
         new ushort[bombDoorWords.Length],
@@ -1474,9 +1468,8 @@ static void VerifySamusMorphBallMovement()
         bombDoorLevel.GetCollisionBlockByIndex(bombDoorIndex).CollisionType,
         "normal bomb synchronously runs blue-door setup");
 
-    RoomLevelData powerBombDoorLevel = new(
-        width,
-        height,
+    RoomLevelData powerBombDoorLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         bombDoorWords,
         bombDoorBts,
         new ushort[bombDoorWords.Length],
@@ -1499,9 +1492,8 @@ static void VerifySamusMorphBallMovement()
     var shotWords = new ushort[width * height];
     const int shotIndex = 3 * width + 3;
     shotWords[shotIndex] = 0xc321;
-    RoomLevelData shotLevel = new(
-        width,
-        height,
+    RoomLevelData shotLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         shotWords,
         new byte[shotWords.Length],
         new ushort[shotWords.Length],
@@ -1514,7 +1506,7 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0x8052,
         shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "CE6B installs synthesized temporary shot-block word");
-    shotPlms.Step(bus, shotLevel, shotStreamer, 0, 0, 0);
+    shotPlms.Step(bus, shotLevel, shotStreamer, new(0, 0), 0);
     AssertEqual(0x0053,
         shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "respawning shot block begins with retail air frame");
@@ -1524,16 +1516,16 @@ static void VerifySamusMorphBallMovement()
         "shot-block head queues crumble sound $0A");
     AssertEqual(1, shotPlms.SoundRequests[0].MaximumQueued,
         "$84:8C79 uses sound-library-two maximum one");
-    StepFrames(12, _ => shotPlms.Step(bus, shotLevel, shotStreamer, 0, 0, 0));
+    StepFrames(12, _ => shotPlms.Step(bus, shotLevel, shotStreamer, new(0, 0), 0));
     AssertEqual(0x00ff,
         shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "respawning shot block reaches its blank hold word");
     StepFrames(384 + 12, _ =>
-        shotPlms.Step(bus, shotLevel, shotStreamer, 0, 0, 0));
+        shotPlms.Step(bus, shotLevel, shotStreamer, new(0, 0), 0));
     AssertEqual(0xc052,
         shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "respawning shot block restores CE6B's synthesized parent");
-    shotPlms.Step(bus, shotLevel, shotStreamer, 0, 0, 0);
+    shotPlms.Step(bus, shotLevel, shotStreamer, new(0, 0), 0);
     AssertEqual(0, shotPlms.ActiveCount,
         "respawning shot block deletes one handler pass after restoration");
 
@@ -1542,9 +1534,8 @@ static void VerifySamusMorphBallMovement()
     // max-one sound opcode rather than ordinary shot block `$8C79`. Following the entire
     // reverse animation proves RestoreLevelWord is the setup-produced `$C057`, never the
     // fixture's original visual block `$C321`.
-    RoomLevelData powerBombShotLevel = new(
-        width,
-        height,
+    RoomLevelData powerBombShotLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         shotWords,
         new byte[shotWords.Length],
         new ushort[shotWords.Length],
@@ -1564,19 +1555,19 @@ static void VerifySamusMorphBallMovement()
         powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "CF2E installs synthesized temporary power-bomb word");
     powerBombShotPlms.Step(
-        bus, powerBombShotLevel, powerBombShotStreamer, 0, 0, 0);
+        bus, powerBombShotLevel, powerBombShotStreamer, new(0, 0), 0);
     AssertEqual(0x0053,
         powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "power-bomb block begins with retail air frame");
     AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 1), powerBombShotPlms.SoundRequests[0],
         "$8C7C queues power-bomb breakup sound with maximum one");
     StepFrames(12 + 384 + 12, _ =>
-        powerBombShotPlms.Step(bus, powerBombShotLevel, powerBombShotStreamer, 0, 0, 0));
+        powerBombShotPlms.Step(bus, powerBombShotLevel, powerBombShotStreamer, new(0, 0), 0));
     AssertEqual(0xc057,
         powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "respawning power-bomb block restores synthesized $C057 parent");
     powerBombShotPlms.Step(
-        bus, powerBombShotLevel, powerBombShotStreamer, 0, 0, 0);
+        bus, powerBombShotLevel, powerBombShotStreamer, new(0, 0), 0);
     AssertEqual(0, powerBombShotPlms.ActiveCount,
         "respawning power-bomb block deletes after restoration");
 
@@ -1589,9 +1580,8 @@ static void VerifySamusMorphBallMovement()
     var integratedPowerBombBts = new byte[integratedPowerBombWords.Length];
     integratedPowerBombWords[shotIndex] = 0xc321;
     integratedPowerBombBts[shotIndex] = 8;
-    RoomLevelData integratedPowerBombLevel = new(
-        width,
-        height,
+    RoomLevelData integratedPowerBombLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         integratedPowerBombWords,
         integratedPowerBombBts,
         new ushort[integratedPowerBombWords.Length],
@@ -1648,8 +1638,7 @@ static void VerifySamusMorphBallMovement()
         bus,
         integratedPowerBombLevel,
         integratedPowerBombStreamer,
-        0,
-        0,
+        new(0, 0),
         0);
     AssertEqual(0x0053,
         integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
@@ -1663,9 +1652,8 @@ static void VerifySamusMorphBallMovement()
     var collisionProbeBts = new byte[collisionProbeWords.Length];
     collisionProbeWords[shotIndex] = 0xc321;
     collisionProbeBts[shotIndex] = 0x10;
-    RoomLevelData collisionProbeLevel = new(
-        width,
-        height,
+    RoomLevelData collisionProbeLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         collisionProbeWords,
         collisionProbeBts,
         new ushort[collisionProbeWords.Length],
@@ -1688,9 +1676,8 @@ static void VerifySamusMorphBallMovement()
     // synthesizes `$C09F`, and retains `$CB71`'s max-six sound plus the same 384-frame
     // blank hold. An ordinary missile must fail that setup without touching terrain or
     // leaving an apparently occupied host PLM slot.
-    RoomLevelData superShotLevel = new(
-        width,
-        height,
+    RoomLevelData superShotLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         shotWords,
         new byte[shotWords.Length],
         new ushort[shotWords.Length],
@@ -1719,15 +1706,15 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0x809f,
         superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "CF67 installs synthesized temporary Super Missile word");
-    superShotPlms.Step(bus, superShotLevel, superShotStreamer, 0, 0, 0);
+    superShotPlms.Step(bus, superShotLevel, superShotStreamer, new(0, 0), 0);
     AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6), superShotPlms.SoundRequests[0],
         "$CB71 queues Super Missile breakup sound with maximum six");
     StepFrames(12 + 384 + 12, _ =>
-        superShotPlms.Step(bus, superShotLevel, superShotStreamer, 0, 0, 0));
+        superShotPlms.Step(bus, superShotLevel, superShotStreamer, new(0, 0), 0));
     AssertEqual(0xc09f,
         superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "respawning Super Missile block restores synthesized $C09F parent");
-    superShotPlms.Step(bus, superShotLevel, superShotStreamer, 0, 0, 0);
+    superShotPlms.Step(bus, superShotLevel, superShotStreamer, new(0, 0), 0);
     AssertEqual(0, superShotPlms.ActiveCount,
         "respawning Super Missile block deletes after restoration");
 
@@ -1740,9 +1727,8 @@ static void VerifySamusMorphBallMovement()
         ((byte)11, (ushort)0x0200, "Super-Missile"),
     })
     {
-        RoomLevelData permanentWeaponLevel = new(
-            width,
-            height,
+        RoomLevelData permanentWeaponLevel = new RoomLevelData(
+            new Extent16<RoomBlocks>(width, height),
             shotWords,
             new byte[shotWords.Length],
             new ushort[shotWords.Length],
@@ -1760,7 +1746,7 @@ static void VerifySamusMorphBallMovement()
         for (int frame = 0; frame < 20; frame++)
         {
             permanentWeaponPlms.Step(
-                bus, permanentWeaponLevel, permanentWeaponStreamer, 0, 0, 0);
+                bus, permanentWeaponLevel, permanentWeaponStreamer, new(0, 0), 0);
         }
         AssertEqual(0x00ff,
             permanentWeaponLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
@@ -1773,9 +1759,8 @@ static void VerifySamusMorphBallMovement()
     // has a collision-nibble asymmetry instead: type C allocates an area-table no-op, while
     // type four returns before Spawn_PLM. These slots are visually invisible, but retaining
     // their one-handler lifetime prevents the finite 40-slot pool from behaving differently.
-    RoomLevelData noOpShotLevel = new(
-        width,
-        height,
+    RoomLevelData noOpShotLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         shotWords,
         new byte[shotWords.Length],
         new ushort[shotWords.Length],
@@ -1815,7 +1800,7 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0xc321,
         noOpShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "all no-op shot reactions preserve terrain");
-    noOpShotPlms.Step(bus, noOpShotLevel, noOpShotStreamer, 0, 0, 0);
+    noOpShotPlms.Step(bus, noOpShotLevel, noOpShotStreamer, new(0, 0), 0);
     AssertEqual(0, noOpShotPlms.ActiveCount,
         "no-op shot PLMs delete on their first handler pass");
 
@@ -1829,9 +1814,8 @@ static void VerifySamusMorphBallMovement()
     revealWords[powerRevealIndex] = 0x4000;
     revealWords[superRevealIndex] = 0xc000;
     revealWords[areaNoOpIndex] = 0xc222;
-    RoomLevelData revealLevel = new(
-        width,
-        height,
+    RoomLevelData revealLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         revealWords,
         new byte[revealWords.Length],
         new ushort[revealWords.Length],
@@ -1847,7 +1831,7 @@ static void VerifySamusMorphBallMovement()
     AssertTrue(
         revealPlms.TrySpawnBombedShootableBlock(revealLevel, areaNoOpIndex, 0x80, 0x0500),
         "negative type-C BTS allocates area-table no-op PLM");
-    revealPlms.Step(bus, revealLevel, revealStreamer, 0, 0, 0);
+    revealPlms.Step(bus, revealLevel, revealStreamer, new(0, 0), 0);
     AssertEqual(0xc057,
         revealLevel.GetCollisionBlockByIndex(powerRevealIndex).LevelWord,
         "normal bomb reveals visible power-bomb block word");
@@ -1861,7 +1845,7 @@ static void VerifySamusMorphBallMovement()
         "area-dependent shootable no-op leaves terrain unchanged");
     AssertEqual(2, revealPlms.ActiveCount,
         "area no-op deletes while both one-frame reveal PLMs remain timed");
-    revealPlms.Step(bus, revealLevel, revealStreamer, 0, 0, 0);
+    revealPlms.Step(bus, revealLevel, revealStreamer, new(0, 0), 0);
     AssertEqual(0, revealPlms.ActiveCount,
         "weapon-required reveal PLMs delete after their one-frame draw");
 
@@ -1874,9 +1858,8 @@ static void VerifySamusMorphBallMovement()
     const int speedIndex = 5 * width + 5;
     specialWords[crumbleIndex] = 0xb000;
     specialWords[speedIndex] = 0xb000;
-    RoomLevelData specialLevel = new(
-        width,
-        height,
+    RoomLevelData specialLevel = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         specialWords,
         new byte[specialWords.Length],
         new ushort[specialWords.Length],
@@ -1890,12 +1873,12 @@ static void VerifySamusMorphBallMovement()
         var behaviors = new byte[words.Length];
         words[crumbleIndex] = 0xb000;
         behaviors[crumbleIndex] = behavior;
-        var tableLevel = new RoomLevelData(width, height, words, behaviors,
+        var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), words, behaviors,
             new ushort[words.Length], reactionDefinitions);
         var tablePlms = new RoomPlmSystem();
         SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,
             new(2, 2), new(), tablePlms, AreaId.Crateria, 0x0500);
-        tablePlms.Step(bus, tableLevel, tableLevel.CreateBackgroundStreamer(), 0, 0, 0);
+        tablePlms.Step(bus, tableLevel, tableLevel.CreateBackgroundStreamer(), new(0, 0), 0);
         AssertEqual(behavior is >= 0x1a and <= 0x1d ? 0xb0b6 : 0xb000,
             tableLevel.GetCollisionBlockByIndex(crumbleIndex).LevelWord,
             $"extended bomb-special BTS {behavior:X2} native reveal/no-op terrain");
@@ -1915,7 +1898,7 @@ static void VerifySamusMorphBallMovement()
         "Power Bomb visits special block but CFA0 synchronously clears its PLM header");
     AssertEqual(2, specialPlms.ActiveCount,
         "rejected Power Bomb special reveal leaves no active PLM slot");
-    specialPlms.Step(bus, specialLevel, specialStreamer, 0, 0, 0);
+    specialPlms.Step(bus, specialLevel, specialStreamer, new(0, 0), 0);
     AssertEqual(0xb0bc,
         specialLevel.GetCollisionBlockByIndex(crumbleIndex).LevelWord,
         "crumble reveal writes parent word");
@@ -1931,7 +1914,7 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0xb0b6,
         specialLevel.GetCollisionBlockByIndex(speedIndex).LevelWord,
         "Brinstar area table reveals speed-booster block");
-    specialPlms.Step(bus, specialLevel, specialStreamer, 0, 0, 0);
+    specialPlms.Step(bus, specialLevel, specialStreamer, new(0, 0), 0);
     AssertEqual(0, specialPlms.ActiveCount,
         "special reveal PLMs delete after their one-frame draw");
 
@@ -1994,9 +1977,8 @@ static void VerifySamusMorphBallMovement()
     var ceilingBlocks = new ushort[width * height];
     for (int x = 0; x < width; x++)
         ceilingBlocks[2 * width + x] = 0x8000;
-    RoomLevelData ceiling = new(
-        width,
-        height,
+    RoomLevelData ceiling = new RoomLevelData(
+        new Extent16<RoomBlocks>(width, height),
         ceilingBlocks,
         new byte[ceilingBlocks.Length],
         new ushort[ceilingBlocks.Length],

@@ -34,8 +34,9 @@ public static partial class GameplayDisplayCapture
             }
             registers = registers with
             {
-                Bg2X = (ushort)(ppu.Bg1HorizontalScroll & 15), Bg2Y = (ushort)(ppu.Bg1VerticalScroll & 15),
-                Bg2WidthTiles = 64, Bg2HeightTiles = 32, Bg2TilemapWord = SnesPpuLayout.GameplayBg2TilemapWord,
+                // The reveal map is drawn on BG2 at BG1's fine scroll within one 16-pixel block.
+                Bg2Scroll = new Position16<Bg2Pixels>((ushort)(ppu.Bg1Scroll.X & 15), (ushort)(ppu.Bg1Scroll.Y & 15)),
+                Bg2MapSize = new Extent16<TilemapCells>(64, 32), Bg2TilemapWord = SnesPpuLayout.GameplayBg2TilemapWord,
             };
         }
         registers = registers with
@@ -61,7 +62,7 @@ public static partial class GameplayDisplayCapture
                 (RoomFxRomData.Layer3.LiquidVerticalCoordinateMask + 1) / SnesPpuLayout.BackgroundTileSizePixels,
                 SnesPpuLayout.GameplayHudHeightPixels,
                 ExpandedColorMathOperation.Add,
-                new BackgroundLineScroll[SnesPpuLayout.ScreenHeightPixels]);
+                new Position16<BgPlanePixels>[SnesPpuLayout.ScreenHeightPixels]);
         }
         // The arithmetic sign belongs to the room's blend configuration, even when
         // its liquid plane is currently offscreen/disabled and supplies no pixels.
@@ -84,7 +85,7 @@ public static partial class GameplayDisplayCapture
         // restoration keeps ownership until phase five finally unfreezes gameplay.
         bool closed = settingUp || restoring || samus.Xray.BeamPhase == XrayBeamPhase.NoBeam;
         var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray()
-            : SnesGameplayFrameRenderer.CaptureXrayWindowLines(runtime.AddressSpace, samus, ppu.Layer1XPosition, ppu.Layer1YPosition);
+            : SnesGameplayFrameRenderer.CaptureXrayWindowLines(runtime.AddressSpace, samus, ppu.Layer1Position);
         var layer = new GameplayColorMathRenderLayer(gameplay,
             lines,
             reveal, control, mode != XrayRoomBlendMode.Fireflea, red, green, blue, sub);

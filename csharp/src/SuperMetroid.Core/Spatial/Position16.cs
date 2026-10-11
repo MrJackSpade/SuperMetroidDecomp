@@ -37,19 +37,12 @@ public readonly record struct Offset16<TSpace>(short X, short Y)
     /// <summary>No displacement.</summary>
     public static Offset16<TSpace> Zero => default;
 
-    /// <summary>Replaces the X axis.</summary>
-    public Offset16<TSpace> WithX(short x) => this with { X = x };
-
     /// <summary>Replaces the Y axis.</summary>
     public Offset16<TSpace> WithY(short y) => this with { Y = y };
 
     /// <summary>Adds two displacements, wrapping each axis at sixteen bits.</summary>
     public static Offset16<TSpace> operator +(Offset16<TSpace> left, Offset16<TSpace> right) =>
         new(unchecked((short)(left.X + right.X)), unchecked((short)(left.Y + right.Y)));
-
-    /// <summary>Subtracts two displacements, wrapping each axis at sixteen bits.</summary>
-    public static Offset16<TSpace> operator -(Offset16<TSpace> left, Offset16<TSpace> right) =>
-        new(unchecked((short)(left.X - right.X)), unchecked((short)(left.Y - right.Y)));
 
     /// <summary>Reverses the displacement, wrapping at sixteen bits.</summary>
     public static Offset16<TSpace> operator -(Offset16<TSpace> offset) =>
@@ -70,4 +63,17 @@ public readonly record struct Extent16<TSpace>(ushort X, ushort Y)
 
     /// <summary>Replaces the Y extent.</summary>
     public Extent16<TSpace> WithY(ushort y) => this with { Y = y };
+
+    /// <summary>The number of cells in a row-major grid of this size.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int Area => X * Y;
+
+    /// <summary>Whether <paramref name="cell"/> lies inside a grid of this size anchored at the origin.</summary>
+    public bool Contains(Position16<TSpace> cell) => cell.X < X && cell.Y < Y;
+
+    /// <summary>The row-major index of <paramref name="cell"/>, without a bounds check.</summary>
+    public int RowMajorIndex(Position16<TSpace> cell) => cell.Y * X + cell.X;
+
+    /// <summary>The cell at a row-major index in a grid of this width.</summary>
+    public Position16<TSpace> CellAtRowMajorIndex(int index) => new(checked((ushort)(index % X)), checked((ushort)(index / X)));
 }

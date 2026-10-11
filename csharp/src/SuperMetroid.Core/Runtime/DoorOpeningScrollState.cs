@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -7,195 +8,177 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 /// <remarks>
 /// Keeping the arithmetic independent of room loading makes every directional trace
-/// exhaustively testable. The runtime merely publishes these words to Camera, Samus, and
-/// the background-scroll mirrors; it never substitutes host interpolation.
+/// exhaustively testable. The runtime merely publishes these values to Camera, Samus, and
+/// the background-scroll mirrors; it never substitutes host interpolation. Each IRQ call
+/// moves only the travel axis, so whole-value steps carry a zero component on the other.
 /// </remarks>
 internal sealed class DoorOpeningScrollState
 {
+    /// <summary>Pixels the camera and layer two move per IRQ call.</summary>
+    private const short LayerStepPixels = 4;
+
     private DoorOpeningScrollState(
         DoorDirection direction,
-        uint samusStep,
+        FixedVector<RoomPixels> samusIrqStep,
         int remainingFrames,
-        ushort cameraX,
-        ushort cameraY,
-        ushort layer2X,
-        ushort layer2Y,
-        uint samusXFixed,
-        uint samusYFixed,
-        ushort finalCameraX,
-        ushort finalCameraY,
-        ushort finalLayer2X,
-        ushort finalLayer2Y,
-        uint finalSamusXFixed,
-        uint finalSamusYFixed)
+        Position16<RoomPixels> cameraPosition,
+        Position16<Bg2Pixels> layer2Position,
+        FixedPosition<RoomPixels> samusPosition,
+        Position16<RoomPixels> finalCameraPosition,
+        Position16<Bg2Pixels> finalLayer2Position,
+        FixedPosition<RoomPixels> finalSamusPosition)
     {
         Direction = direction;
-        SamusStep = samusStep;
+        SamusIrqStep = samusIrqStep;
         RemainingFrames = remainingFrames;
-        CameraX = cameraX;
-        CameraY = cameraY;
-        Layer2X = layer2X;
-        Layer2Y = layer2Y;
-        SamusXFixed = samusXFixed;
-        SamusYFixed = samusYFixed;
-        FinalCameraX = finalCameraX;
-        FinalCameraY = finalCameraY;
-        FinalLayer2X = finalLayer2X;
-        FinalLayer2Y = finalLayer2Y;
-        FinalSamusXFixed = finalSamusXFixed;
-        FinalSamusYFixed = finalSamusYFixed;
+        CameraPosition = cameraPosition;
+        Layer2Position = layer2Position;
+        SamusPosition = samusPosition;
+        FinalCameraPosition = finalCameraPosition;
+        FinalLayer2Position = finalLayer2Position;
+        FinalSamusPosition = finalSamusPosition;
     }
 
     public DoorDirection Direction { get; }
-    public uint SamusStep { get; }
+
+    /// <summary>Samus's signed 16.16 displacement for one moving IRQ call, along the travel axis.</summary>
+    public FixedVector<RoomPixels> SamusIrqStep { get; }
+
     public int RemainingFrames { get; private set; }
-    public ushort CameraX { get; private set; }
-    public ushort CameraY { get; private set; }
-    public ushort Layer2X { get; private set; }
-    public ushort Layer2Y { get; private set; }
-    public uint SamusXFixed { get; private set; }
-    public uint SamusYFixed { get; private set; }
-    public ushort FinalCameraX { get; }
-    public ushort FinalCameraY { get; }
-    public ushort FinalLayer2X { get; }
-    public ushort FinalLayer2Y { get; }
-    public uint FinalSamusXFixed { get; }
-    public uint FinalSamusYFixed { get; }
+
+    /// <summary>The layer-one words <c>$0911/$0915</c> owned by the IRQ.</summary>
+    public Position16<RoomPixels> CameraPosition { get; private set; }
+
+    /// <summary>The layer-two words <c>$0917/$0919</c> owned by the IRQ.</summary>
+    public Position16<Bg2Pixels> Layer2Position { get; private set; }
+
+    /// <summary>Samus's 16.16 position as the IRQ carries her.</summary>
+    public FixedPosition<RoomPixels> SamusPosition { get; private set; }
+
+    public Position16<RoomPixels> FinalCameraPosition { get; }
+
+    public Position16<Bg2Pixels> FinalLayer2Position { get; }
+
+    public FixedPosition<RoomPixels> FinalSamusPosition { get; }
+
     public bool ShouldStreamAfterAdvance { get; private set; } = true;
 
     public static DoorOpeningScrollState Create(
         CartridgeDoorHeader door,
-        uint sourceSamusXFixed,
-        uint sourceSamusYFixed,
-        ushort finalCameraX,
-        ushort finalCameraY,
-        ushort finalLayer2X,
-        ushort finalLayer2Y,
-        uint finalSamusXFixed,
-        uint finalSamusYFixed)
+        FixedPosition<RoomPixels> sourceSamus,
+        Position16<RoomPixels> finalCamera,
+        Position16<Bg2Pixels> finalLayer2,
+        FixedPosition<RoomPixels> finalSamus)
     {
         DoorDirection direction = door.Orientation.Direction;
-        uint samusStep = GetSamusStep(door);
-        (sourceSamusXFixed, sourceSamusYFixed) = ApplySetupMovement(
-            door, sourceSamusXFixed, sourceSamusYFixed);
-        ushort destinationX = unchecked((ushort)(door.DestinationScreenX << 8));
-        ushort destinationY = unchecked((ushort)(door.DestinationScreenY << 8));
+        FixedPosition<RoomPixels> samus = RebaseSamus(door, ApplySetupMovement(door, sourceSamus));
 
-        var setupCamera = GetSetupCamera(door);
-        ushort cameraX = setupCamera.X;
-        ushort cameraY = setupCamera.Y;
-        ushort layer2X = finalLayer2X;
-        ushort layer2Y = finalLayer2Y;
-        (uint samusX, uint samusY) = RebaseSamus(door, sourceSamusXFixed, sourceSamusYFixed);
-        int remainingFrames;
-
-        switch (direction)
+        // Layer two starts as far before its endpoint as the setup camera does before the
+        // destination, except upward doors: their layer two begins $DC (not $FB) below it.
+        Offset16<Bg2Pixels> layer2Setup = direction switch
         {
-            case DoorDirection.Right: // Right setup calls DoorTransition_Right once before placement.
-                cameraX = unchecked((ushort)(destinationX - 252));
-                layer2X = unchecked((ushort)(finalLayer2X - 252));
-                remainingFrames = 63;
-                break;
-
-            case DoorDirection.Left: // Left setup is the exact subtracting mirror.
-                cameraX = unchecked((ushort)(destinationX + 252));
-                layer2X = unchecked((ushort)(finalLayer2X + 252));
-                remainingFrames = 63;
-                break;
-
-            case DoorDirection.Down: // Down frame zero only stages the off-screen row.
-                cameraY = unchecked((ushort)(destinationY - 224));
-                layer2Y = unchecked((ushort)(finalLayer2Y - 224));
-                remainingFrames = 56;
-                break;
-
-            case DoorDirection.Up: // FixDoorsMovingUp leaves counter one for setup's first moving call.
-                cameraY = unchecked((ushort)(destinationY + 251));
-                layer2Y = unchecked((ushort)(finalLayer2Y + 220));
-                remainingFrames = 55;
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(door), direction, "Undefined door direction.");
-        }
+            DoorDirection.Right => new(-252, 0),
+            DoorDirection.Left => new(252, 0),
+            DoorDirection.Down => new(0, -224), // Down frame zero only stages the off-screen row.
+            DoorDirection.Up => new(0, 220),
+            _ => throw new ArgumentOutOfRangeException(nameof(door), direction, "Undefined door direction."),
+        };
 
         return new DoorOpeningScrollState(
             direction,
-            samusStep,
-            remainingFrames,
-            cameraX,
-            cameraY,
-            layer2X,
-            layer2Y,
-            samusX,
-            samusY,
-            finalCameraX,
-            finalCameraY,
-            finalLayer2X,
-            finalLayer2Y,
-            finalSamusXFixed,
-            finalSamusYFixed);
+            GetSamusStep(door),
+            MovingIrqCalls(direction),
+            GetSetupCamera(door),
+            finalLayer2 + layer2Setup,
+            samus,
+            finalCamera,
+            finalLayer2,
+            finalSamus);
     }
 
-    /// <summary>Layer-one origin after the directional setup's initial call.</summary>
-    internal static (ushort X, ushort Y) GetSetupCamera(CartridgeDoorHeader door)
+    /// <summary>
+    /// The IRQ calls that remain after setup: right/left setup calls DoorTransition once
+    /// before placement (63 remain), down's frame zero only stages a row (56 remain), and
+    /// FixDoorsMovingUp leaves counter one for setup's first moving call (55 remain).
+    /// </summary>
+    internal static int MovingIrqCalls(DoorDirection direction) => direction switch
     {
-        ushort x = unchecked((ushort)(door.DestinationScreenX << 8));
-        ushort y = unchecked((ushort)(door.DestinationScreenY << 8));
-        return door.Orientation.Direction switch
+        DoorDirection.Right or DoorDirection.Left => 63,
+        DoorDirection.Down => 56,
+        DoorDirection.Up => 55,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined door direction."),
+    };
+
+    /// <summary>The room-pixel origin of the door's destination screen.</summary>
+    internal static Position16<RoomPixels> GetDestination(CartridgeDoorHeader door) =>
+        door.DestinationScreen.ToRoomPixels();
+
+    /// <summary>Layer-one origin after the directional setup's initial call.</summary>
+    internal static Position16<RoomPixels> GetSetupCamera(CartridgeDoorHeader door) =>
+        GetDestination(door) + door.Orientation.Direction switch
         {
-            DoorDirection.Right => (unchecked((ushort)(x - 252)), y),
-            DoorDirection.Left => (unchecked((ushort)(x + 252)), y),
-            DoorDirection.Down => (x, unchecked((ushort)(y - 224))),
-            DoorDirection.Up => (x, unchecked((ushort)(y + 251))),
+            DoorDirection.Right => new Offset16<RoomPixels>(-252, 0),
+            DoorDirection.Left => new Offset16<RoomPixels>(252, 0),
+            DoorDirection.Down => new Offset16<RoomPixels>(0, -224),
+            DoorDirection.Up => new Offset16<RoomPixels>(0, 251),
             _ => throw new ArgumentOutOfRangeException(nameof(door), door.Orientation.Direction, "Undefined door direction."),
         };
-    }
 
     /// <summary>
     /// <c>$82:E3C0</c> replaces both whole coordinates with layer one plus the
     /// low position byte, preserving the fractions and deferring final nudges.
     /// </summary>
-    internal static (uint X, uint Y) RebaseSamus(CartridgeDoorHeader door, uint setupX, uint setupY)
+    internal static FixedPosition<RoomPixels> RebaseSamus(CartridgeDoorHeader door, FixedPosition<RoomPixels> setup)
     {
-        var camera = GetSetupCamera(door);
-        return (
-            ReplaceWholePosition(unchecked((ushort)(camera.X + (byte)(setupX >> 16))), setupX),
-            ReplaceWholePosition(unchecked((ushort)(camera.Y + (byte)(setupY >> 16))), setupY));
+        var withinScreen = new Offset16<RoomPixels>((byte)setup.X.Whole, (byte)setup.Y.Whole);
+        return setup.WithWhole(GetSetupCamera(door) + withinScreen);
     }
 
     /// <summary>One moving IRQ call; downward setup alone omits this displacement.</summary>
-    internal static (uint X, uint Y) AdvanceSamus(CartridgeDoorHeader door, uint x, uint y)
-    {
-        uint step = GetSamusStep(door);
-        return door.Orientation.Direction switch
-        {
-            DoorDirection.Right => (unchecked(x + step), y),
-            DoorDirection.Left => (unchecked(x - step), y),
-            DoorDirection.Down => (x, unchecked(y + step)),
-            DoorDirection.Up => (x, unchecked(y - step)),
-            _ => throw new ArgumentOutOfRangeException(nameof(door), door.Orientation.Direction, "Undefined door direction."),
-        };
-    }
+    internal static FixedPosition<RoomPixels> AdvanceSamus(CartridgeDoorHeader door, FixedPosition<RoomPixels> samus) =>
+        samus.Advance(GetSamusStep(door));
 
-    /// <summary>Samus's fixed-point displacement for one native door IRQ call.</summary>
-    internal static uint GetSamusStep(CartridgeDoorHeader door)
+    /// <summary>
+    /// Samus's fixed-point displacement for one native door IRQ call: the door's distance
+    /// (or the native default) times $100 subpixels, added along right/down and subtracted
+    /// along left/up with the native 32-bit wrap.
+    /// </summary>
+    internal static FixedVector<RoomPixels> GetSamusStep(CartridgeDoorHeader door)
     {
         int distance = unchecked((short)door.SamusDistance);
         if (distance < 0)
             distance = door.Orientation.IsVertical ? 384 : 200;
-        return unchecked((uint)(distance << 8));
+        int magnitude = distance << 8;
+        var step = SnesSignedSixteenSixteen.FromRaw(magnitude);
+        var back = SnesSignedSixteenSixteen.FromRaw(-magnitude);
+        return door.Orientation.Direction switch
+        {
+            DoorDirection.Right => new(step, SnesSignedSixteenSixteen.Zero),
+            DoorDirection.Left => new(back, SnesSignedSixteenSixteen.Zero),
+            DoorDirection.Down => new(SnesSignedSixteenSixteen.Zero, step),
+            DoorDirection.Up => new(SnesSignedSixteenSixteen.Zero, back),
+            _ => throw new ArgumentOutOfRangeException(nameof(door), door.Orientation.Direction, "Undefined door direction."),
+        };
     }
 
     /// <summary>
     /// Applies setup's first directional call before <c>$82:E3C0</c> replaces the
     /// whole position words. Downward setup stages a row without moving Samus.
     /// </summary>
-    internal static (uint X, uint Y) ApplySetupMovement(
-        CartridgeDoorHeader door, uint sourceX, uint sourceY)
-    {
-        return door.Orientation.Direction == DoorDirection.Down ? (sourceX, sourceY) : AdvanceSamus(door, sourceX, sourceY);
-    }
+    internal static FixedPosition<RoomPixels> ApplySetupMovement(
+        CartridgeDoorHeader door, FixedPosition<RoomPixels> source) =>
+        door.Orientation.Direction == DoorDirection.Down ? source : AdvanceSamus(door, source);
+
+    /// <summary>The signed four-pixel layer step of one IRQ call along the travel axis.</summary>
+    private static Offset16<TSpace> LayerStep<TSpace>(DoorDirection direction)
+        where TSpace : ISpatialSpace => direction switch
+        {
+            DoorDirection.Right => new(LayerStepPixels, 0),
+            DoorDirection.Left => new(-LayerStepPixels, 0),
+            DoorDirection.Down => new(0, LayerStepPixels),
+            DoorDirection.Up => new(0, -LayerStepPixels),
+            _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
+        };
 
     /// <summary>Runs one IRQ call and reports the frame that sets completion bit $8000.</summary>
     public bool Advance()
@@ -204,28 +187,9 @@ internal sealed class DoorOpeningScrollState
             return true;
 
         int frameCounter = Direction == DoorDirection.Up ? 57 - RemainingFrames : 0;
-        int cameraDelta = Direction switch
-        {
-            DoorDirection.Right or DoorDirection.Down => 4,
-            DoorDirection.Left or DoorDirection.Up => -4,
-            _ => throw new InvalidOperationException($"Undefined door direction {Direction}."),
-        };
-        if (!Direction.IsVertical())
-        {
-            CameraX = unchecked((ushort)(CameraX + cameraDelta));
-            Layer2X = unchecked((ushort)(Layer2X + cameraDelta));
-            SamusXFixed = Direction == DoorDirection.Right
-                ? unchecked(SamusXFixed + SamusStep)
-                : unchecked(SamusXFixed - SamusStep);
-        }
-        else
-        {
-            CameraY = unchecked((ushort)(CameraY + cameraDelta));
-            Layer2Y = unchecked((ushort)(Layer2Y + cameraDelta));
-            SamusYFixed = Direction == DoorDirection.Down
-                ? unchecked(SamusYFixed + SamusStep)
-                : unchecked(SamusYFixed - SamusStep);
-        }
+        CameraPosition += LayerStep<RoomPixels>(Direction);
+        Layer2Position += LayerStep<Bg2Pixels>(Direction);
+        SamusPosition = SamusPosition.Advance(SamusIrqStep);
 
         RemainingFrames--;
         ShouldStreamAfterAdvance = Direction != DoorDirection.Up || frameCounter >= 5;
@@ -236,11 +200,10 @@ internal sealed class DoorOpeningScrollState
     /// Applies the door loader's <c>PlaceSamusOnElevator</c> ($A3:9612): whole X, and Y
     /// with a zero fraction. Later IRQ calls move Samus on from this position.
     /// </summary>
-    public void PlaceSamusOnElevator(ushort xPosition, ushort yPosition)
-    {
-        SamusXFixed = ((uint)xPosition << 16) | (SamusXFixed & 0xffff);
-        SamusYFixed = (uint)yPosition << 16;
-    }
+    public void PlaceSamusOnElevator(Position16<RoomPixels> position) =>
+        SamusPosition = new FixedPosition<RoomPixels>(
+            SamusPosition.X.WithWhole(position.X),
+            new SnesFixedPosition(position.Y, 0));
 
     /// <summary>
     /// Applies <c>Irq_FollowDoorTransition</c>'s layer-one destination snap after the
@@ -256,13 +219,9 @@ internal sealed class DoorOpeningScrollState
         // Irq_FollowDoorTransition. Only then does the wrapper replace $0911/$0915 with
         // the exact door destination. Layer two reaches its endpoint through the final
         // directional step and is not rewritten by the wrapper.
-        CameraX = FinalCameraX;
-        CameraY = FinalCameraY;
+        CameraPosition = FinalCameraPosition;
     }
-
-    private static uint ReplaceWholePosition(ushort whole, uint fixedPosition) =>
-        ((uint)whole << 16) | (fixedPosition & 0xffff);
 }
 
 /// <summary>A door loader's deferred write of Samus's whole position.</summary>
-internal readonly record struct LoaderSamusPlacement(int EnemySlot, ushort XPosition, ushort YPosition);
+internal readonly record struct LoaderSamusPlacement(int EnemySlot, Position16<RoomPixels> Position);

@@ -602,8 +602,7 @@ public sealed partial class SuperMetroidRuntime
         if (Camera is null)
             throw new InvalidOperationException("A room camera must be initialized before BG scrolling.");
 
-        BackgroundScroll.Layer1XPosition = Camera.XPosition;
-        BackgroundScroll.Layer1YPosition = Camera.YPosition;
+        BackgroundScroll.Layer1Position = Camera.PixelPosition;
         IReadOnlyList<BackgroundUpdateRequest> requests = BackgroundScroll.StepScrolling(timeIsFrozen);
 
         // Both native block producers begin with the same `$0783` test at
@@ -867,7 +866,7 @@ public sealed partial class SuperMetroidRuntime
         SamusDeathSequenceStartResult result = Samus.DeathSequence.Begin(
             _addressSpace,
             Samus,
-            new(Camera.XPosition, Camera.YPosition));
+            Camera.PixelPosition);
 
         // The next accepted NMI must see pose `$D7/$D8` definitions. Native game state 15
         // draws once before setup and state 16 draws the new pose on its following call;
@@ -891,7 +890,7 @@ public sealed partial class SuperMetroidRuntime
         LastSamusBodyDrawn = Samus.Draw(
             _addressSpace,
             Oam,
-            new(Camera.XPosition, Camera.YPosition),
+            Camera.PixelPosition,
             mode7Transform: ActiveSamusMode7Transform);
         Oam.FinalizeFrame();
     }
@@ -920,7 +919,7 @@ public sealed partial class SuperMetroidRuntime
             LastSamusBodyDrawn = Samus.Draw(
                 _addressSpace,
                 Oam,
-                new(Camera.XPosition, Camera.YPosition),
+                Camera.PixelPosition,
                 mode7Transform: ActiveSamusMode7Transform);
         }
         else if (LastDeathSequenceStep.Value.DrawExplosion)
@@ -1016,20 +1015,14 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Layer-one fraction words <c>$090F</c>/<c>$0913</c> left in WRAM by an earlier gameplay
-    /// owner. No load path writes them, so this runtime's first camera starts from them.
+    /// The layer-one position an earlier gameplay owner left in WRAM. Only its fraction words
+    /// <c>$090F</c>/<c>$0913</c> matter: no load path writes them, so this runtime's first
+    /// camera starts from them.
     /// </summary>
-    internal ushort InheritedLayer1XSubposition { get; private set; }
+    internal FixedPosition<RoomPixels> InheritedLayer1Position { get; private set; }
 
-    /// <inheritdoc cref="InheritedLayer1XSubposition"/>
-    internal ushort InheritedLayer1YSubposition { get; private set; }
-
-    /// <summary>Adopts the layer-one fraction words that survived the previous runtime.</summary>
-    internal void AdoptLayer1Subpositions(ushort xSubposition, ushort ySubposition)
-    {
-        InheritedLayer1XSubposition = xSubposition;
-        InheritedLayer1YSubposition = ySubposition;
-    }
+    /// <summary>Adopts the layer-one position whose fraction words survived the previous runtime.</summary>
+    internal void AdoptLayer1Position(FixedPosition<RoomPixels> retained) => InheritedLayer1Position = retained;
 
     /// <summary>Low-byte NMI frame counter at WRAM <c>$05B5</c>.</summary>
     public byte NmiFrameCounter8 { get; private set; }
@@ -1218,8 +1211,7 @@ public sealed partial class SuperMetroidRuntime
             RoomLayer3Fx.Step(
                 _addressSpace,
                 Vram,
-                Camera.XPosition,
-                Camera.YPosition,
+                Camera.PixelPosition,
                 TimeIsFrozen,
                 System.MainGameLoopCarry,
                 System.RandomNumber,
@@ -1244,18 +1236,14 @@ public sealed partial class SuperMetroidRuntime
         // frame start. This fallback is only for a newly loaded/restored camera; otherwise
         // retain the preceding scrolling checkpoint so later room-main movement (such as
         // the elevatube) contributes to the next frame's distance just like enemy movement.
-        SamusCameraPoint? samusCameraPointAtFrameStart = Samus is null
+        FixedPosition<RoomPixels>? samusCameraPointAtFrameStart = Samus is null
             ? null
-            : new SamusCameraPoint(
-                Samus.Position.X.Whole,
-                Samus.Kinematics.Position.X.Fraction,
-                Samus.Position.Y.Whole,
-                Samus.Kinematics.Position.Y.Fraction);
+            : Samus.Position;
 
         // `GameState_8_MainGameplay` begins with Determine_Which_Enemies_to_Process
         // ($82:8B47), before palette FX and Samus. The grapple scan uses this list.
         if (Camera is not null && Enemies.IsLoaded)
-            Enemies.PrepareEnemyProcessingList(Camera.XPosition, Camera.YPosition);
+            Enemies.PrepareEnemyProcessingList(Camera.PixelPosition.X, Camera.PixelPosition.Y);
 
         // Gameplay state eight calls `$8D:C527` before `$91:8000` dispatches Samus and
         // before `$A0:868F` processes enemies. Controller function three is invoked by the
@@ -1341,7 +1329,7 @@ public sealed partial class SuperMetroidRuntime
 
             // Preserve movement on either side of the frame boundary. A new camera uses
             // the fallback sampled before enemy-owned motion and the bank-$90 handler.
-            SamusCameraPoint previousCameraPoint = Camera.PreviousSamusPoint ?? samusCameraPointAtFrameStart!.Value;
+            FixedPosition<RoomPixels> previousCameraPoint = Camera.PreviousSamusPoint ?? samusCameraPointAtFrameStart!.Value;
 
             // Whether this frame's alpha handler is the locked one installed at its start.
             bool AlphaInputLocked() => Samus.InputLocked || enemyMainReleasedAlphaLock;
@@ -1556,7 +1544,7 @@ public sealed partial class SuperMetroidRuntime
                         Samus,
                         Controller1.Current,
                         Controller1.NewlyPressed,
-                        new(Camera.XPosition, Camera.YPosition),
+                        Camera.PixelPosition,
                         BombProjectiles,
                         // Locked alpha advances existing shots without dispatching the
                         // HUD weapon producer (including station command six).
@@ -1656,11 +1644,8 @@ public sealed partial class SuperMetroidRuntime
                     // `$9B:BAD5-$BB5F` clamps native previous-position words to twelve
                     // pixels after a close-collision snap. Feed those corrected whole words
                     // to bank-$90 tracking while preserving the pre-frame subpositions.
-                    previousCameraPoint = new SamusCameraPoint(
-                        grapplePrevious.X,
-                        previousCameraPoint.XSubposition,
-                        grapplePrevious.Y,
-                        previousCameraPoint.YSubposition);
+                    previousCameraPoint = previousCameraPoint.WithWhole(
+                        grapplePrevious);
                 }
 
                 poseAtBetaMovement = Samus.Pose;
@@ -1734,7 +1719,7 @@ public sealed partial class SuperMetroidRuntime
                         _addressSpace,
                         LevelData,
                         Samus,
-                        Camera.XPosition,
+                        Camera.PixelPosition.X,
                         NmiFrameCounter);
                 }
                 // Knockback's `$90:DF38` handler takes precedence over the normal movement-
@@ -2556,11 +2541,8 @@ Landed: true, HitCeiling: false);
                             _addressSpace,
                             Samus,
                             pendingConnection);
-                    previousCameraPoint = new SamusCameraPoint(
-                        grapplePrevious.X,
-                        previousCameraPoint.XSubposition,
-                        grapplePrevious.Y,
-                        previousCameraPoint.YSubposition);
+                    previousCameraPoint = previousCameraPoint.WithWhole(
+                        grapplePrevious);
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                     ProspectiveSamusWallCollisionPose = null;
@@ -3645,7 +3627,7 @@ Landed: true, HitCeiling: false);
         if (frameTail is { } tail && Samus is not null && Camera is not null)
         {
             bool deathOwnsSamus = tail.DeathOwnsSamus;
-            SamusCameraPoint previousCameraPoint = tail.PreviousCameraPoint;
+            FixedPosition<RoomPixels> previousCameraPoint = tail.PreviousCameraPoint;
             bool stationaryScriptControlLocked = tail.StationaryScriptControlLocked;
             bool suitOwnsSamus = tail.SuitOwnsSamus;
             if (!deathOwnsSamus && !TimeIsFrozen)
@@ -3696,11 +3678,7 @@ Landed: true, HitCeiling: false);
                 ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
 
                 previousCameraPoint = Samus.ApplyPreviousPositionWrites(previousCameraPoint);
-                var currentCameraPoint = new SamusCameraPoint(
-                    Samus.Position.X.Whole,
-                    Samus.Kinematics.Position.X.Fraction,
-                    Samus.Position.Y.Whole,
-                    Samus.Kinematics.Position.Y.Fraction);
+                var currentCameraPoint = Samus.Position;
 
                 // GameState_8 calls MainScrollingRoutine after movement/PLMs and before
                 // DrawSamusEnemiesAndProjectiles regardless of which Samus input handler is
@@ -3711,7 +3689,7 @@ Landed: true, HitCeiling: false);
                 {
                     // $90:94F2: a fast grapple swing takes the slow branch, which leaves
                     // the camera speed words from the last normal frame in place.
-                    Camera.TrackGrappleSlowScrolling(Samus.Position.X.Whole, Samus.Position.Y.Whole);
+                    Camera.TrackGrappleSlowScrolling(currentCameraPoint.Whole);
                 }
                 else
                 {
@@ -3736,9 +3714,8 @@ Landed: true, HitCeiling: false);
                 // kick setup. Publish the camera calculation itself, including its
                 // integer-only sign test and previous scrolling checkpoint. A second
                 // frame-end absolute delta loses both the bias and checkpoint timing.
-                Samus.AbsoluteMovedLastFrameXFixed =
-                    ((uint)Camera.CameraXSpeed << 16) | Camera.CameraXSubspeed;
-                SamusProjectileInheritance.PublishCameraYSubspeed(_addressSpace, Camera.CameraYSubspeed);
+                Samus.AbsoluteMovedLastFrameXFixed = unchecked((uint)Camera.Speed.X.RawValue);
+                SamusProjectileInheritance.PublishCameraYSubspeed(_addressSpace, Camera.Speed.Y.Fraction);
 
                 // MainScrollingRoutine `$90:9563` invokes the mutable global
                 // scrolling-finished hook after both axes have tracked Samus. Live Spore
@@ -3767,10 +3744,10 @@ Landed: true, HitCeiling: false);
                     _addressSpace,
                     System,
                     roomGeometry.AreaIndex,
-                    roomGeometry.MapX,
-                    roomGeometry.MapY,
-                    LevelData.WidthInBlocks,
-                    LevelData.HeightInBlocks,
+                    checked((byte)roomGeometry.MapPosition.X),
+                    checked((byte)roomGeometry.MapPosition.Y),
+                    LevelData.Size.X,
+                    LevelData.Size.Y,
                     Samus.Position.X.Whole,
                     Samus.Position.Y.Whole,
                     NmiFrameCounter8,
@@ -3831,7 +3808,7 @@ Landed: true, HitCeiling: false);
         if (ScrollingSky is not null && Camera is not null)
         {
             ScrollingSky.ProcessFrame(
-                Camera.YPosition,
+                Camera.PixelPosition.Y,
                 timeIsFrozen: TimeIsFrozen,
                 VramWrites,
                 ActiveRoom?.State.MainCallback ?? RoomMainCallback.ScrollingSkyLand);
@@ -3971,16 +3948,13 @@ Landed: true, HitCeiling: false);
         DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
         var bg2Window = Enemies.Draygon is { } boss
             ? DraygonMainScreenWindow.Select(boss.Body.XPosition, boss.Body.YPosition,
-                BackgroundScroll.Layer1XPosition, BackgroundScroll.Layer1YPosition,
+                BackgroundScroll.Layer1Position.X, BackgroundScroll.Layer1Position.Y,
                 boss.Body.Properties.HasAny(EnemyProperties.Deleted))
             : (First: 32, End: 224);
         DisplayedGameplayPpu = new GameplayPpuRenderSnapshot(
-            BackgroundScroll.Layer1XPosition,
-            BackgroundScroll.Layer1YPosition,
-            BackgroundScroll.Bg1HorizontalScroll,
-            BackgroundScroll.Bg1VerticalScroll,
-            BackgroundScroll.Bg2HorizontalScroll,
-            BackgroundScroll.Bg2VerticalScroll,
+            BackgroundScroll.Layer1Position,
+            BackgroundScroll.Bg1Scroll,
+            BackgroundScroll.Bg2Scroll,
             Enemies.LastRoomShake, bg2Window.First, bg2Window.End);
         DisplayedRoomLayer3Fx = RoomLayer3Fx.CaptureForDisplay();
         Enemies.Phantoon?.Wave.LatchDisplay();
@@ -4194,16 +4168,15 @@ Landed: true, HitCeiling: false);
                 accepted.Value,
                 level,
                 BackgroundStreamer,
-                Camera.XPosition,
-                Camera.YPosition,
-                BackgroundScroll.Bg1XOffset);
+                Camera.PixelPosition,
+                unchecked((ushort)BackgroundScroll.Bg1Offset.X));
             foreach (PlmTilemapUpdate update in confirmation.TilemapUpdates)
                 update.ExecuteTo(Vram);
             if (confirmation.Saving)
             {
                 Enemies.SpawnSaveStationElectricity(
                     saveStation.BlockIndex,
-                    level.WidthInBlocks);
+                    level.Size.X);
                 System.MarkSaveStationUsed(
                     saveStation.AreaIndex,
                     saveStation.StationIndex & 7);
@@ -4223,8 +4196,8 @@ Landed: true, HitCeiling: false);
         if (LevelData is null || BackgroundStreamer is null || Camera is null)
             throw new InvalidOperationException("A message box returned without an active room.");
         foreach (PlmTilemapUpdate update in Plms.CompleteCollectibleMessage(
-                     _addressSpace, LevelData, BackgroundStreamer, Camera.XPosition, Camera.YPosition,
-                     BackgroundScroll.Bg1XOffset))
+                     _addressSpace, LevelData, BackgroundStreamer, Camera.PixelPosition,
+                     unchecked((ushort)BackgroundScroll.Bg1Offset.X)))
             update.ExecuteTo(Vram);
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.
@@ -4248,7 +4221,7 @@ Landed: true, HitCeiling: false);
             SuitPickup.Begin(
                 _addressSpace,
                 Samus,
-                new(Camera.XPosition, Camera.YPosition),
+                Camera.PixelPosition,
                 pendingSuit,
                 soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
             _pendingSuitPickup = null;
@@ -4275,13 +4248,16 @@ Landed: true, HitCeiling: false);
 /// <summary>
 /// PPU register values that were made visible together by one accepted gameplay NMI.
 /// </summary>
+/// <param name="Layer1Position">The camera/layer-one position the frame's actors were drawn against.</param>
+/// <param name="Bg1Scroll">The latched BG1HOFS/BG1VOFS mirrors.</param>
+/// <param name="Bg2Scroll">The latched BG2HOFS/BG2VOFS mirrors.</param>
+/// <param name="RoomShake">The room shake displayed with this frame.</param>
+/// <param name="Bg2FirstScanline">The first scanline of the BG2 main-screen window.</param>
+/// <param name="Bg2EndScanline">The scanline that ends the BG2 main-screen window.</param>
 public readonly record struct GameplayPpuRenderSnapshot(
-    ushort Layer1XPosition,
-    ushort Layer1YPosition,
-    ushort Bg1HorizontalScroll,
-    ushort Bg1VerticalScroll,
-    ushort Bg2HorizontalScroll,
-    ushort Bg2VerticalScroll,
+    Position16<RoomPixels> Layer1Position,
+    Position16<RoomPixels> Bg1Scroll,
+    Position16<Bg2Pixels> Bg2Scroll,
     RoomShakeFrameResult RoomShake,
     int Bg2FirstScanline = 32, int Bg2EndScanline = 224);
 

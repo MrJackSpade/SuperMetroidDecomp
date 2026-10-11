@@ -31,7 +31,7 @@ internal static partial class Program
             samus.Missiles = samus.MaxMissiles = 10;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
-            runtime.Camera!.SetPosition(0, 224);
+            runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 224));
             bool activated = false;
             for (int frame = -60; frame < 80; frame++)
             {

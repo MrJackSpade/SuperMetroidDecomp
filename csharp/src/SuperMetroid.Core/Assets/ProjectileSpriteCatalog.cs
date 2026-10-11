@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -13,16 +14,15 @@ public sealed class ProjectileSpriteCatalog
     /// <summary>Emits one installed projectile composition in authored OAM order using native projectile coordinate wrapping, without advancing animation or collision state.</summary>
     /// <param name="id">Bank-$93 spritemap offset selected by a timed projectile record, not an instruction-list pointer or projectile family.</param>
     /// <param name="oam">Destination OAM buffer; the native wrapping insertion cursor advances for every part.</param>
-    /// <param name="x">Screen-space horizontal origin in pixels, including unsigned representations of negative coordinates; individual parts retain nine-bit hardware X.</param>
-    /// <param name="y">Screen-space vertical origin in pixels; native projectile insertion wraps the resulting Y to eight bits without vertical-origin clipping.</param>
+    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <exception cref="InvalidDataException">The requested sprite identity is not installed.</exception>
-    public void Draw(ushort id, OamBuffer oam, ushort x, ushort y)
+    public void Draw(ushort id, OamBuffer oam, Position16<OamPixels> origin)
     {
         if (!frames.TryGetValue(id, out var parts)) throw new InvalidDataException($"Missing projectile sprite {id:X4}.");
         for (int index = 0; index < parts.PartCount; index++)
         {
             var part = parts.Part(index);
-            oam.AddProjectileSpritePart(part.X, part.Y, part.Attributes, x, y);
+            oam.AddProjectileSpritePart(part.X, part.Y, part.Attributes, origin);
         }
     }
 

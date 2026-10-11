@@ -20,8 +20,7 @@ public sealed class DoorTransitionState
     private CartridgePaletteTransition? paletteTransition;
     private Bgr555[]? fadedSourcePalette;
     private CartridgeDoorHeader? door;
-    private uint sourceSamusXFixed;
-    private uint sourceSamusYFixed;
+    private FixedPosition<RoomPixels> sourceSamus;
     private byte sourceCreBitset;
     private byte destinationCreBitset;
 
@@ -49,8 +48,7 @@ public sealed class DoorTransitionState
         sourceCreBitset = runtime.ActiveRoom?.CreBitset
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
         destinationCreBitset = runtime.PendingDoorDestinationCreBitset;
-        sourceSamusXFixed = runtime.Samus.Kinematics.Position.X.RawValue;
-        sourceSamusYFixed = runtime.Samus.Kinematics.Position.Y.RawValue;
+        sourceSamus = runtime.Samus.Position;
         paletteTransition = new CartridgePaletteTransition(
             BuildSourceFadeTarget(runtime),
             denominator: 12,
@@ -144,8 +142,7 @@ public sealed class DoorTransitionState
                 // during the fade. The atomic loader must not apply this step twice.
                 var setupSamus = runtime.Samus
                     ?? throw new InvalidOperationException("Door scrolling requires Samus.");
-                sourceSamusXFixed = setupSamus.Kinematics.Position.X.RawValue;
-                sourceSamusYFixed = setupSamus.Kinematics.Position.Y.RawValue;
+                sourceSamus = setupSamus.Position;
                 runtime.ApplyDoorScrollingSetupMovement();
                 Phase = DoorTransitionPhase.PlaceSamusAndLoadTiles;
                 break;
@@ -165,7 +162,7 @@ public sealed class DoorTransitionState
                 // door_transition_flag bit $8000. The host room constructor performs that
                 // setup atomically; its following calls now run the real coordinate path.
                 fadedSourcePalette = runtime.Cgram.Colors.ToArray();
-                runtime.LoadPendingDoorDestinationForTransition(sourceSamusXFixed, sourceSamusYFixed);
+                runtime.LoadPendingDoorDestinationForTransition(sourceSamus);
                 // Enemy loading resets room-private host gates. Restore the native
                 // $0795 transition ownership before any destination EnemyMain call;
                 // elevator AI must remain frozen through the final palette fade.
@@ -178,8 +175,7 @@ public sealed class DoorTransitionState
                 DoorTransitionPaletteDefinitions.RestoreLoadedBeamPalette(runtime.Cgram, destinationTarget);
                 runtime.BeginDoorOpeningScroll(
                     door ?? throw new InvalidOperationException("Door header was not captured."),
-                    sourceSamusXFixed,
-                    sourceSamusYFixed,
+                    sourceSamus,
                     loaderProgress,
                     completedLoadingIrqSteps: 1);
                 runtime.StepDoorOpeningScroll(loaderProgress);

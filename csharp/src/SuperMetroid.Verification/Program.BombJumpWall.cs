@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -9,8 +10,8 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var words = new ushort[16 * 16];
         for (int row = 0; row < 10; row++) words[row * 16 + 4] = 0x8000;
-        var level = new RoomLevelData(16, 16, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
-        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(59, 80)) };
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
+        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, Position = new(new(59, 0), new(80, 0))};
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0xF000);
@@ -39,8 +40,8 @@ internal static partial class Program
     {
         var words = new ushort[32 * 16];
         words[3 * 32 + 23] = 0x8000;
-        var level = new RoomLevelData(32, 16, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
-        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(371, 71)) };
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), words, new byte[words.Length], new ushort[words.Length], new byte[8]);
+        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundLeftPose, Position = new(new(371, 0), new(71, 0))};
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(-1);

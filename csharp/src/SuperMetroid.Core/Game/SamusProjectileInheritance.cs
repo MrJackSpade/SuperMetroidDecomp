@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class SamusProjectileInheritance
 {
-    internal static Vector88<RoomPixels> ReadVelocity(ISnesMutableMemory memory, ushort directionWord, short baseSpeed)
+    internal static EightEightVector<RoomPixels> ReadVelocity(ISnesMutableMemory memory, ushort directionWord, short baseSpeed)
     {
         var word = new SamusProjectileDirectionWord(directionWord);
         if (word.DirectionIndex > 9)

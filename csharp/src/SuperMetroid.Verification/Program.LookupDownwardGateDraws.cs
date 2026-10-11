@@ -87,10 +87,10 @@ internal static partial class Program
                 {
                     AssertEqual(x, shape.NextX(run), "Gate original continuation X");
                     AssertEqual((sbyte)0, y, "Gate runtime continuation Y");
-                    AssertEqual(x, dto.Runs.Span[run].NextX, "Gate DTO X");
-                    AssertEqual(y, dto.Runs.Span[run].NextY, "Gate DTO Y");
-                    AssertEqual(x, exported[index].Runs.Span[run].NextX, "Gate export X");
-                    AssertEqual(y, exported[index].Runs.Span[run].NextY, "Gate export Y");
+                    AssertEqual(x, dto.Runs.Span[run].Next.X, "Gate DTO X");
+                    AssertEqual(y, dto.Runs.Span[run].Next.Y, "Gate DTO Y");
+                    AssertEqual(x, exported[index].Runs.Span[run].Next.X, "Gate export X");
+                    AssertEqual(y, exported[index].Runs.Span[run].Next.Y, "Gate export Y");
                 }
                 run++;
                 if (x == 0 && y == 0) break;

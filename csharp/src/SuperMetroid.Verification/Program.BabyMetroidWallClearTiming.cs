@@ -24,7 +24,7 @@ internal static partial class Program
         const int WallColumn = 0x30, WallRow = 11;
         // The wall as Baby Metroid's earlier create request leaves it: rows 9-12 solid.
         for (int row = 9; row <= 12; row++)
-            level.SetForegroundEntry(row * level.WidthInBlocks + WallColumn,
+            level.SetForegroundEntry(row * level.Size.X + WallColumn,
                 RoomLevelWord.Create(0x00ff, 0, RoomCollisionType.SolidBlock).Raw);
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -42,11 +42,11 @@ internal static partial class Program
         samus.HorizontalSpeed.BaseSubspeed = 0x3000;
         samus.HorizontalSpeed.ExtraRunSpeed = 2;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0xc000;
-        runtime.Camera!.SetPosition(0x0200, 0x0000);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0x0200, 0x0000));
         runtime.StepFrame(unchecked((ushort)(SnesButton.Right | SnesButton.B)));
 
         AssertEqual(ShitroidAiFunction.HoverNearSamus, shitroid.Function, "Baby Metroid finished rising this frame");
-        AssertEqual(RoomCollisionType.Air, level.GetCollisionBlock(WallColumn, WallRow).CollisionType,
+        AssertEqual(RoomCollisionType.Air, level.GetCollisionBlock(new(WallColumn, WallRow)).CollisionType,
             "the wall is cleared");
         AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "Samus keeps running");
         AssertTrue(samus.Position.X.Whole > 0x02fb, "Samus moves into the cleared column in the same frame");

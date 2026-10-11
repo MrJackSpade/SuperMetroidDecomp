@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Hardware;
 /// <param name="RawValue">The unchanged two's-complement word containing eight whole and eight fractional bits.</param>
 public readonly record struct SnesSignedEightEight(ushort RawValue)
 {
+    /// <summary>The raw word read as its signed two's-complement value.</summary>
+    public short SignedRawValue => unchecked((short)RawValue);
+
     /// <summary>Creates a value from a signed raw 8.8 word without changing its bits.</summary>
     public static SnesSignedEightEight FromSignedRaw(short rawValue) =>
         new(unchecked((ushort)rawValue));
@@ -30,6 +33,9 @@ public readonly record struct SnesSignedSixteenSixteen
 
     /// <summary>The zero displacement.</summary>
     public static SnesSignedSixteenSixteen Zero => default;
+
+    /// <summary>The whole-pixel word as its unsigned native bit pattern.</summary>
+    public ushort WholeWord => unchecked((ushort)(RawValue >> 16));
 
     /// <summary>The signed whole-pixel word.</summary>
     public short WholePixels => unchecked((short)(RawValue >> 16));
@@ -67,11 +73,11 @@ public readonly record struct SnesSignedSixteenSixteen
 /// <param name="Fraction">The unsigned fractional-position word representing fractions of one pixel.</param>
 public readonly record struct SnesFixedPosition(ushort Whole, ushort Fraction)
 {
-    /// <summary>Splits an unsigned native 16.16 position into its whole and fractional words.</summary>
+    /// <summary>Splits one native 32-bit position (whole word high, fraction word low).</summary>
     public static SnesFixedPosition FromRaw(uint rawValue) =>
         new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
 
-    /// <summary>The unsigned native 16.16 position: whole word high, fractional word low.</summary>
+    /// <summary>The native 32-bit position: the whole word high and the fraction word low.</summary>
     public uint RawValue => ((uint)Whole << 16) | Fraction;
 
     /// <summary>Replaces only the whole word, as cartridge routines that store one half do.</summary>

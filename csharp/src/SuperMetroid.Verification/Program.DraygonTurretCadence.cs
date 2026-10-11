@@ -14,14 +14,14 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, cameraX: 256, cameraY: 288);
+        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
         var boss = runtime.Enemies.Draygon!;
         AssertEqual(DraygonAiFunction.IntroInitialDelay, boss.Function, "fight intro waits before the dance");
 
         int StepWith(byte counter8, ushort counter16)
         {
             int before = boss.TurretCadenceChecks;
-            runtime.Enemies.StepFrame(runtime.Camera!.XPosition, runtime.Camera.YPosition,
+            runtime.Enemies.StepFrame(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y,
                 timeIsFrozen: false, samus: runtime.Samus, level: runtime.LevelData,
                 nmiFrameCounter8: counter8, nmiFrameCounter: counter16);
             return boss.TurretCadenceChecks - before;
@@ -70,7 +70,7 @@ internal static partial class Program
         runtime.Samus!.XSpeedDivisor = 3;
         ushort bombedX = bombed.XPosition;
         runtime.Enemies.StepEnemyProjectileInstructions(runtime.LevelData!, runtime.Samus,
-            runtime.Camera!.XPosition, runtime.Camera.YPosition);
+            runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y);
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
         AssertEqual((ushort)0, runtime.Samus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
         AssertTrue(bombed.XPosition != bombedX, "the goop routine still moves the released slot");

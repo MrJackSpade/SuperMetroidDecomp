@@ -65,8 +65,8 @@ internal static partial class Program
                 grapple.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
                 SamusGrappleMovement.BeginFiring(bus, samus);
-                AssertEqual(vx, grapple.ExtensionVelocity.X, "Actual launch X velocity");
-                AssertEqual(vy, grapple.ExtensionVelocity.Y, "Actual launch Y velocity");
+                AssertEqual(vx, grapple.ExtensionVelocity.X.SignedRawValue, "Actual launch X velocity");
+                AssertEqual(vy, grapple.ExtensionVelocity.Y.SignedRawValue, "Actual launch Y velocity");
                 AssertEqual(angle, grapple.Angle.RawValue, "Actual launch angle");
                 AssertEqual(angle, grapple.MirroredAngle.RawValue, "Actual mirrored angle");
                 AssertEqual(x, grapple.OriginOffset.X, "Actual physical origin X");
@@ -76,9 +76,8 @@ internal static partial class Program
                 ushort anchorX = grapple.Anchor.X, anchorY = grapple.Anchor.Y;
                 // Late drawing recomputes the physical hand after Samus moves; it must
                 // not reuse stale offsets or move the independent collision endpoint.
-                samus.Position = samus.Position.WithWholeX(unchecked((ushort)(samus.Position.X.Whole + 7)));
-                samus.Position = samus.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole - 5)));
-                grapple.OriginOffset = grapple.OriginOffset.WithY(1234).WithX(1234);
+                samus.Position += new Offset16<RoomPixels>(7, -5);
+                grapple.OriginOffset = new(1234, 1234);
                 refresh(bus, samus, grapple);
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + x)), grapple.RopeStart.X, "Late physical Start X");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + correctedY)), grapple.RopeStart.Y, "Late physical Start Y");
@@ -148,8 +147,8 @@ internal static partial class Program
             samus.LiquidPhysics.BeginFrameSoundRequests();
             SamusGrappleMovement.BeginFiring(bus, samus, (ushort)input);
             AssertEqual(direction, grapple.FireDirection, "Held aim selection");
-            AssertEqual(Word(0x9bc0db + direction * 2), grapple.ExtensionVelocity.X, "Held launch X");
-            AssertEqual(Word(0x9bc0ef + direction * 2), grapple.ExtensionVelocity.Y, "Held launch Y");
+            AssertEqual(Word(0x9bc0db + direction * 2), grapple.ExtensionVelocity.X.SignedRawValue, "Held launch X");
+            AssertEqual(Word(0x9bc0ef + direction * 2), grapple.ExtensionVelocity.Y.SignedRawValue, "Held launch Y");
             AssertEqual(unchecked((ushort)Word(0x9bc104 + direction * 2)), grapple.Angle.RawValue, "Held launch angle");
             AssertEqual(512 + Word(0x9bc122 + direction * 2), grapple.Anchor.X, "Held anchor X");
             AssertEqual(506 + Word(0x9bc136 + direction * 2), grapple.Anchor.Y, "Held anchor Y correction");

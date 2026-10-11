@@ -32,7 +32,7 @@ internal static class RoomPlmBombedRevealDrawDefinitions
             RoomPlmBombedRevealDraw.CrumbleSingle => 0xb0bc,
             _ => throw new InvalidOperationException($"Undefined bombed-reveal draw ${pointer:X4}."),
         };
-        draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { word }, 0, 0) });
+        draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { word }, new(0, 0)) });
         return true;
     }
 }

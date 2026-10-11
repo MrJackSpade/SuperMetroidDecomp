@@ -505,7 +505,7 @@ static void VerifyFrameRuntime()
 
     // `$89:ACC3` writes Mode 7 shadow registers during room main. They must become visible
     // only when an accepted NMI reaches `$80:95A7`, at the same boundary as displayed OAM.
-    var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, 0xfff0, new(0x0080, 0x03f0));
+    var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, 0xfff0, new Position16<RoomPixels>(0x0080, 0x03f0));
     runtime.ActiveSamusMode7Transform = firstMode7;
 
     runtime.StepFrame((ushort)SnesButton.Start);
@@ -518,7 +518,7 @@ static void VerifyFrameRuntime()
     AssertEqual(firstMode7, runtime.DisplayedSamusMode7Transform,
         "accepted NMI publishes Mode 7 shadow registers");
 
-    var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, 0xffe0, new(0x0080, 0x03f0));
+    var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, 0xffe0, new Position16<RoomPixels>(0x0080, 0x03f0));
     runtime.ActiveSamusMode7Transform = secondMode7;
     runtime.StepFrame((ushort)SnesButton.Start);
     AssertEqual(0, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");
@@ -529,7 +529,7 @@ static void VerifyFrameRuntime()
         "following accepted NMI publishes the changed Mode 7 matrix");
 
     // A lag NMI must not sample the changed input or advance accepted-frame state.
-    var laggedMode7 = new SamusMode7Transform(0x00d0, 0x0030, 0xffd0, new(0x0080, 0x03f0));
+    var laggedMode7 = new SamusMode7Transform(0x00d0, 0x0030, 0xffd0, new Position16<RoomPixels>(0x0080, 0x03f0));
     runtime.ActiveSamusMode7Transform = laggedMode7;
     runtime.RunNmi((ushort)SnesButton.A, mainLoopRequestedNmi: false);
     AssertEqual((ushort)SnesButton.Start, runtime.Controller1.Current, "lag NMI skips controller read");

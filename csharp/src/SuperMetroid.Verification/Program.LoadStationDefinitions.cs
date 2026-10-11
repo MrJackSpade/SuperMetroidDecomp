@@ -59,10 +59,10 @@ internal static partial class Program
 
     private static void VerifyLoadStationRoomPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.RoomPointer, "RoomPointer");
     private static void VerifyLoadStationDoorPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.DoorPointer, "DoorPointer");
-    private static void VerifyLoadStationCameraX(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraX, "CameraX");
-    private static void VerifyLoadStationCameraY(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraY, "CameraY");
-    private static void VerifyLoadStationSamusYOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusYOffset, "SamusYOffset");
-    private static void VerifyLoadStationSamusXOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusXOffset, "SamusXOffset");
+    private static void VerifyLoadStationCameraX(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraPosition.X, "CameraX");
+    private static void VerifyLoadStationCameraY(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraPosition.Y, "CameraY");
+    private static void VerifyLoadStationSamusYOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusOffset.Y, "SamusYOffset");
+    private static void VerifyLoadStationSamusXOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusOffset.X, "SamusXOffset");
 
     private static void VerifyLoadStationField(SuperMetroidAddressSpace rom,
         Func<LoadStationEntry, int> field, string name)
@@ -75,10 +75,10 @@ internal static partial class Program
             LoadStationEntry actual = LoadStationDefinitions.Get((AreaId)area, (byte)station);
             AssertEqual(field(original), field(actual), $"Area {area} station {station} original {name}");
             if (name == "SamusXOffset")
-                AssertEqual(unchecked((ushort)(original.CameraX + 128 + original.SamusXOffset)), actual.SamusX,
+                AssertEqual(unchecked((ushort)(original.CameraPosition.X + 128 + original.SamusOffset.X)), actual.SamusPosition.X,
                     "Native horizontal placement preserves16-bit wrap of signed offset encoding");
             if (name == "SamusYOffset")
-                AssertEqual(unchecked((ushort)(original.CameraY + original.SamusYOffset)), actual.SamusY,
+                AssertEqual(unchecked((ushort)(original.CameraPosition.Y + original.SamusOffset.Y)), actual.SamusPosition.Y,
                     "Native vertical placement preserves16-bit wrap");
             total++;
         }

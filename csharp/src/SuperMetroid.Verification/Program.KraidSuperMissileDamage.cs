@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 internal static partial class Program
 {
     private static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
@@ -79,13 +80,13 @@ internal static partial class Program
         body.VariableB=0x96f4;body.VariableC=64;
         state.CurrentHeadTilemap=0xa0c8;state.VulnerableMouthHitbox=0x97a0;state.InvulnerableMouthHitbox=0x97c0;
         var words=new ushort[32*64];for(int i=32*32;i<33*32;i++)words[i]=0x8000;
-        var level=new RoomLevelData(32,64,words,new byte[2048],new ushort[2048],new byte[8]);
+        var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64),words,new byte[2048],new ushort[2048],new byte[8]);
         typeof(SuperMetroidRuntime).GetProperty("LevelData")!.SetValue(runtime,level);
         var samus=runtime.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=2;
         samus.RefreshCollisionRadii(bus);samus.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
-        runtime.Camera!.SetPosition(0,384);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 384));
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game,SuperMetroidGameState.MainGameplay);
         if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
         var renderer=new CartridgeAudioRenderer(installation.LoadAudio());

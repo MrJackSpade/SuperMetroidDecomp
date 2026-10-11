@@ -42,7 +42,7 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
         }
         draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
-            new(0x0002, new ushort[] { 0x00ff, 0x00ff }, 0, 0),
+            new(0x0002, new ushort[] { 0x00ff, 0x00ff }, new(0, 0)),
         });
         return true;
     }

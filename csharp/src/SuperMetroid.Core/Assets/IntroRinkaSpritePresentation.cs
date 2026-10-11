@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -17,20 +18,19 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
     /// <summary>Appends an installed intro Rinka composition to OAM without changing its actor's movement, hit behavior, or animation timing.</summary>
     /// <param name="pointer">Native bank-$8C frame identity $8C8D, $8CA3, or $8CB9.</param>
     /// <param name="oam">Destination object-attribute buffer receiving the authored parts in their original order.</param>
-    /// <param name="x">Horizontal screen-space origin in pixels, including wrapping unsigned representations of negative coordinates.</param>
-    /// <param name="y">Vertical screen-space origin in pixels, including wrapping unsigned representations of negative coordinates.</param>
+    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Actor's OBJ palette bits, used only for parts configured to inherit a palette.</param>
     /// <param name="originIsOnScreen">Whether to use ordinary origin clipping; false selects the cinematic negative-origin Y-wrap clipping path.</param>
     /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
-    public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
+    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException($"Intro Rinka frame $8C:{pointer:X4} is not installed.");
         if (originIsOnScreen)
-            frame.DrawOnScreen(oam, x, y, paletteBits);
+            frame.DrawOnScreen(oam, origin, paletteBits);
         else
-            frame.DrawOffScreen(oam, x, y, paletteBits);
+            frame.DrawOffScreen(oam, origin, paletteBits);
     }
 
     /// <summary>Validates and compiles all three named intro Rinka frames into independently owned visual compositions.</summary>

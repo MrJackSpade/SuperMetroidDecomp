@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -36,7 +37,7 @@ internal static partial class Program
         const int publicMapX = 9;
         const int exploredSecretMapX = 10;
         const int revealTestMapY = 3;
-        int secretMapByte = AreaMapLayout.GetBitByteIndex(secretMapX, revealTestMapY);
+        int secretMapByte = AreaMapLayout.GetBitByteIndex(new(secretMapX, revealTestMapY));
         byte secretAndExploredSecretMasks = (byte)(
             AreaMapLayout.GetBitMask(secretMapX) |
             AreaMapLayout.GetBitMask(exploredSecretMapX));
@@ -48,7 +49,7 @@ internal static partial class Program
         {
             WriteRomWord(
                 rom,
-                0xb59000 + AreaMapLayout.GetTilemapWordIndex(mapX, revealTestMapY) * 2,
+                0xb59000 + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)mapX), revealTestMapY)) * 2,
                 0x0403);
         }
 
@@ -88,14 +89,13 @@ internal static partial class Program
         };
         var system = new Bank80SystemState();
         system.SetAreaMapAcquired(0);
-        system.MarkExploredMapTile(0, mapX: 30, mapY: 5);
+        system.MarkExploredMapTile(0, new(30, 5));
         var pause = new PauseMenuState(
             bus,
             samus,
             system,
             areaIndex: AreaId.Crateria,
-            roomMapX: 28,
-            roomMapY: 1,
+            roomMapPosition: new(28, 1),
             gameplayVram: gameplayVram, mapPresentation: presentation);
 
         AssertEqual(0, pause.ScreenMode, "pause begins on map page");
@@ -110,12 +110,11 @@ internal static partial class Program
             "pause retains and draws gameplay BG3 HUD tilemap");
         AssertEqual(new Rgba32(0, 255, 0, 255), firstPauseFrame[80 * 256 + 80],
             "high-priority pause holder clips the fully revealed low-priority map");
-        AssertEqual(124, pause.MapHorizontalScroll,
+        AssertEqual(124, pause.MapScroll.X,
             "downloaded pause map horizontal centering");
-        AssertEqual(unchecked((ushort)-24), pause.MapVerticalScroll,
+        AssertEqual(unchecked((ushort)-24), pause.MapScroll.Y,
             "downloaded pause map vertical centering");
-        AssertEqual(116, pause.LastIndicatorOriginX, "pause map marker X origin");
-        AssertEqual(64, pause.LastIndicatorOriginY, "pause map marker Y origin");
+        AssertEqual(new Position16<OamPixels>(116, 64), pause.LastIndicatorOrigin, "pause map marker origin");
         AssertEqual(0x5f, pause.LastIndicatorSpritemapId, "pause map marker initial frame");
         // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
         AssertEqual(23, pause.LastRenderedSpriteCount, "pause marker plus downloaded destination labels OAM count");
@@ -133,8 +132,7 @@ internal static partial class Program
         AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");
         pause.Render();
         AssertEqual((int)PauseSelectorDefinitions.NativeSpriteId(PauseEquipmentCategory.Suits), pause.LastIndicatorSpritemapId, "pause selector category base ID");
-        AssertEqual(0x90, pause.LastIndicatorOriginX, "pause Morph selector X origin");
-        AssertEqual(0x70, pause.LastIndicatorOriginY, "pause Morph selector Y origin");
+        AssertEqual(new Position16<OamPixels>(0x90, 0x70), pause.LastIndicatorOrigin, "pause Morph selector origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
             "pause map label dims on equipment page");
@@ -157,8 +155,7 @@ internal static partial class Program
         pause.Step(0, (ushort)SnesButton.Down);
         AssertEqual(3, pause.SelectedItem, "pause Down selects collected Bombs");
         pause.Render();
-        AssertEqual(0xa0, pause.LastIndicatorOriginX, "pause Bombs selector X origin");
-        AssertEqual(0x80, pause.LastIndicatorOriginY, "pause Bombs selector Y origin");
+        AssertEqual(new Position16<OamPixels>(0xa0, 0x80), pause.LastIndicatorOrigin, "pause Bombs selector origin");
         pause.Step(0, (ushort)SnesButton.A);
         AssertTrue(!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),
             "pause A unequips live Bombs bit");
@@ -181,8 +178,7 @@ internal static partial class Program
             samus,
             system,
             areaIndex: AreaId.Crateria,
-            roomMapX: 28,
-            roomMapY: 1,
+            roomMapPosition: new(28, 1),
             gameplayVram: gameplayVram, mapPresentation: presentation);
         EnterPauseEquipment(beamPause);
         AssertEqual(PauseEquipmentCategory.Reserves, beamPause.SelectedCategory,
@@ -199,9 +195,9 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         byte[] wavePlanar = Enumerable.Range(0, 256).Select(index => unchecked((byte)(0x40 + index))).ToArray();
         byte[] wavePixels = SnesGraphics.DecodePlanarTiles(wavePlanar, 4,
-            BeamTileAtlasDefinitions.Width / 8, out int waveWidth, out int waveHeight);
+            BeamTileAtlasDefinitions.Width / 8, out Extent16<ImagePixels> waveSize);
         using var wavePng = new MemoryStream();
-        IndexedPng.Write(wavePng, waveWidth, waveHeight, wavePixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(wavePng, waveSize, wavePixels, SnesGraphics.DiagnosticPalette(16));
         beamFiles[BeamTileAtlasDefinitions.FileName(SamusBeamCombination.Wave)] = wavePng.ToArray();
         var colors = Enumerable.Range(0, 12).Select(_ => new ushort[16]).ToArray();
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
@@ -229,8 +225,7 @@ internal static partial class Program
             samus,
             new Bank80SystemState(),
             areaIndex: AreaId.Crateria,
-            roomMapX: 28,
-            roomMapY: 1,
+            roomMapPosition: new(28, 1),
             gameplayVram: gameplayVram, mapPresentation: presentation);
         Rgba32[] blankMapFrame = blankMapPause.Render();
         AssertEqual(new Rgba32(0, 0, 0, 255), blankMapFrame[40 * 256],
@@ -243,15 +238,13 @@ internal static partial class Program
         var revealSystem = new Bank80SystemState();
         revealSystem.MarkExploredMapTile(
             AreaId.Crateria,
-            exploredSecretMapX,
-            revealTestMapY);
+            new(exploredSecretMapX, revealTestMapY));
         PauseMenuState CreateRevealPause(MapRevealMode mode) => new(
             bus,
             samus,
             revealSystem,
             areaIndex: AreaId.Crateria,
-            roomMapX: 4,
-            roomMapY: 3,
+            roomMapPosition: new(4, 3),
             gameplayVram: gameplayVram,
             mapRevealMode: mode, mapPresentation: presentation);
 
@@ -296,8 +289,7 @@ internal static partial class Program
             samus,
             restoredRevealSystem,
             AreaId.Crateria,
-            roomMapX: 4,
-            roomMapY: 3,
+            roomMapPosition: new(4, 3),
             gameplayVram: gameplayVram,
             mapRevealMode: MapRevealMode.None, mapPresentation: presentation);
         AssertTrue(!restoredRevealSystem.HasAreaMap(AreaId.Crateria),

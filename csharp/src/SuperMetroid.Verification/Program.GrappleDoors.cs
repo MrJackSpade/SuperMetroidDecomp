@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -25,7 +26,7 @@ internal static partial class Program
                     ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension) << 12);
                 bts[origin + offset * stride] = unchecked((byte)-offset);
             }
-            var level = new RoomLevelData(width, width, words, bts, new ushort[words.Length], new byte[8]);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), words, bts, new ushort[words.Length], new byte[8]);
             int hitBlock = origin + hitOffset * stride;
             var samus = new SamusState
             {
@@ -44,7 +45,7 @@ internal static partial class Program
             bool heardOpening = false;
             for (int frame = 0; frame < 19; frame++)
             {
-                plms.Step(bus, level, streamer, 0x1000, 0x1000, 0);
+                plms.Step(bus, level, streamer, new(0x1000, 0x1000), 0);
                 heardOpening |= plms.SoundRequests.Any(r => r == new PlmSoundRequest(
                     SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
             }

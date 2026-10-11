@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using System.Buffers;
 using System.Runtime.CompilerServices;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Verification access to <see cref="RenderFrameSnapshotCodec"/> members production does not use.</summary>
 internal static class RenderFrameSnapshotCodecAccess
@@ -33,28 +34,22 @@ internal static class SnesBgTilemapRendererAccess
             SnesCgram cgram,
             ushort tilemapBaseWord,
             ushort characterBaseWord,
-            ushort horizontalScroll,
-            ushort verticalScroll,
-            int width,
-            int height,
-            int tilemapWidthInTiles = 64,
-            int tilemapHeightInTiles = 32,
+            Position16<BgPlanePixels> scroll,
+            Extent16<ScreenPixels> size,
+            Extent16<TilemapCells>? tilemapSize = null,
             IReadOnlyList<ushort>? horizontalScrollByLine = null,
             bool? priority = null)
         {
-            var output = new Rgba32[checked(width * height)];
+            var output = new Rgba32[size.X * size.Y];
             SnesBgTilemapRenderer.Composite4BppViewport(
                 output,
                 vram,
                 cgram,
                 tilemapBaseWord,
                 characterBaseWord,
-                horizontalScroll,
-                verticalScroll,
-                width,
-                height,
-                tilemapWidthInTiles,
-                tilemapHeightInTiles,
+                scroll,
+                size,
+                tilemapSize,
                 horizontalScrollByLine,
                 priority);
             return output;
@@ -124,16 +119,15 @@ internal static class SnesGameplayFrameRendererAccess
             SnesCgram cgram,
             OamBuffer oam,
             ReadOnlySpan<Rgba32> roomPixels,
-            int roomWidth,
-            int roomHeight,
-            int cameraX,
-            int cameraY,
+            Extent16<RoomPixels> roomSize,
+            Position16<RoomPixels> camera,
             byte obsel = 0x03)
         {
-            if (roomWidth <= 0 || roomHeight <= 0 || roomPixels.Length != checked(roomWidth * roomHeight))
+            int roomWidth = roomSize.X, roomHeight = roomSize.Y;
+            if (roomWidth == 0 || roomHeight == 0 || roomPixels.Length != roomWidth * roomHeight)
                 throw new ArgumentException("Room pixel buffer does not match its dimensions.", nameof(roomPixels));
-            if (cameraX < 0 || cameraY < 0 || cameraX + SnesGameplayFrameRenderer.Width > roomWidth || cameraY + SnesGameplayFrameRenderer.Height > roomHeight)
-                throw new ArgumentOutOfRangeException(nameof(cameraX), "Camera must contain the complete physical 256x224 viewport.");
+            if (camera.X + SnesGameplayFrameRenderer.Width > roomWidth || camera.Y + SnesGameplayFrameRenderer.Height > roomHeight)
+                throw new ArgumentOutOfRangeException(nameof(camera), "Camera must contain the complete physical 256x224 viewport.");
 
             Rgba32[] output = SnesLayerCompositor.CreateBackdrop(cgram, SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height);
             for (int screenY = SnesGameplayFrameRenderer.HudHeight; screenY < SnesGameplayFrameRenderer.Height; screenY++)
@@ -143,8 +137,8 @@ internal static class SnesGameplayFrameRendererAccess
                 // Consequently the first visible terrain row at screen Y=32 samples world
                 // cameraY+32. This is also what the live PPU renderer expresses by adding
                 // HudHeight to BG1VOFS before rendering its 192-row diagnostic surface.
-                int sourceY = cameraY + screenY;
-                roomPixels.Slice(sourceY * roomWidth + cameraX, SnesGameplayFrameRenderer.Width)
+                int sourceY = camera.Y + screenY;
+                roomPixels.Slice(sourceY * roomWidth + camera.X, SnesGameplayFrameRenderer.Width)
                     .CopyTo(output.AsSpan(screenY * SnesGameplayFrameRenderer.Width, SnesGameplayFrameRenderer.Width));
             }
 
@@ -170,8 +164,7 @@ internal static class SnesGameplayFrameRendererAccess
             ISnesAddressSpace bus,
             SamusXrayState xray,
             SamusState samus,
-            ushort layer1X,
-            ushort layer1Y)
+            Position16<RoomPixels> layer1)
         {
             ArgumentNullException.ThrowIfNull(bus);
             ArgumentNullException.ThrowIfNull(xray);
@@ -194,8 +187,9 @@ internal static class SnesGameplayFrameRendererAccess
             // `$88:88B8-$88F3` anchors the ray three pixels in front of Samus. Standing and
             // turning bodies place it sixteen pixels above the center; only stable movement
             // type five uses the crouching twelve-pixel offset.
-            int originX = unchecked((short)(samus.Position.X.Whole - layer1X)) + (facingLeft ? -3 : 3);
-            int originY = unchecked((short)(samus.Position.Y.Whole - layer1Y)) -
+            Offset16<ScreenPixels> samusOnScreen = samus.Position.Whole.RelativeToCamera(layer1);
+            int originX = samusOnScreen.X + (facingLeft ? -3 : 3);
+            int originY = samusOnScreen.Y -
                 (movementType == SamusMovementType.Crouching ? 12 : 16);
             int centerAngle = xray.Angle.TableIndex;
             int angularWidth = xray.AngularWidth & 0x00ff;
@@ -208,8 +202,8 @@ internal static class SnesGameplayFrameRendererAccess
             bool horizontalLine = angularWidth == 0 &&
                 (centerAngle == SnesAngle.QuarterTurn.TableIndex ||
                  centerAngle == SnesAngle.ThreeQuarterTurn.TableIndex);
-            object leftEdge = ((object)(PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "ReadXrayDirection", (int)(leftEdgeAngle)))!);
-            object rightEdge = ((object)(PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "ReadXrayDirection", (int)(rightEdgeAngle)))!);
+            var leftEdge = (Offset16<ScreenPixels>)PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "ReadXrayDirection", (int)(leftEdgeAngle))!;
+            var rightEdge = (Offset16<ScreenPixels>)PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "ReadXrayDirection", (int)(rightEdgeAngle))!;
 
             for (int screenY = SnesGameplayFrameRenderer.HudHeight; screenY < SnesGameplayFrameRenderer.Height; screenY++)
             {
@@ -232,10 +226,8 @@ internal static class SnesGameplayFrameRendererAccess
                         // always-narrower-than-180-degree cone when it is clockwise from the
                         // left edge and counter-clockwise from the right edge. Cross products
                         // retain the exact ROM tangent ratios without floating-point atan/trig.
-                        long leftCross = (long)PrivateState.Property<int>(leftEdge, "X") * fromOriginY -
-                            (long)PrivateState.Property<int>(leftEdge, "Y") * fromOriginX;
-                        long rightCross = (long)PrivateState.Property<int>(rightEdge, "X") * fromOriginY -
-                            (long)PrivateState.Property<int>(rightEdge, "Y") * fromOriginX;
+                        long leftCross = (long)leftEdge.X * fromOriginY - (long)leftEdge.Y * fromOriginX;
+                        long rightCross = (long)rightEdge.X * fromOriginY - (long)rightEdge.Y * fromOriginX;
                         // The assembly stores the high byte after each 8.8 accumulation, so
                         // a fractional boundary is rounded outward to its containing pixel.
                         // A ±$FF cross-product tolerance is precisely that subpixel remainder.
@@ -273,20 +265,16 @@ internal static class SnesMode7RendererAccess
             short matrixB,
             short matrixC,
             short matrixD,
-            short centerX,
-            short centerY,
-            short horizontalOffset,
-            short verticalOffset,
-            int width = SnesPpuLayout.ScreenWidthPixels,
-            int height = SnesPpuLayout.ScreenHeightPixels,
+            Offset16<Mode7Pixels> center,
+            Offset16<Mode7Pixels> scroll,
+            Extent16<ScreenPixels>? size = null,
             bool fillOutsideWithCharacterZero = false, bool wrapOutsideMap = false)
         {
             ArgumentNullException.ThrowIfNull(vram);
             ArgumentNullException.ThrowIfNull(cgram);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+            Extent16<ScreenPixels> viewport = size ?? SnesPpuLayout.ScreenSize;
 
-            var output = new Rgba32[checked(width * height)];
+            var output = new Rgba32[viewport.X * viewport.Y];
             SnesMode7Renderer.CompositeViewport(
                 output,
                 vram,
@@ -295,12 +283,9 @@ internal static class SnesMode7RendererAccess
                 matrixB,
                 matrixC,
                 matrixD,
-                centerX,
-                centerY,
-                horizontalOffset,
-                verticalOffset,
-                width,
-                height,
+                center,
+                scroll,
+                viewport,
                 fillOutsideWithCharacterZero, wrapOutsideMap);
             return output;
         }
@@ -321,17 +306,15 @@ internal static class SnesObjRendererAccess
             SnesVram vram,
             SnesCgram cgram,
             byte obsel,
-            int width = SnesPpuLayout.ScreenWidthPixels,
-            int height = SnesPpuLayout.ScreenHeightPixels,
+            Extent16<ScreenPixels>? size = null,
             int? priority = null)
         {
             ArgumentNullException.ThrowIfNull(oam);
             ArgumentNullException.ThrowIfNull(vram);
             ArgumentNullException.ThrowIfNull(cgram);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-            var output = new Rgba32[checked(width * height)];
-            SnesObjRenderer.Render(output, oam, vram, cgram, obsel, width, height, priority);
+            Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
+            var output = new Rgba32[frame.X * frame.Y];
+            SnesObjRenderer.Render(output, oam, vram, cgram, obsel, frame, priority);
             return output;
         }
 
@@ -352,16 +335,14 @@ internal static class SnesObjRendererAccess
             SnesVram vram,
             SnesCgram cgram,
             byte obsel,
-            int width = SnesPpuLayout.ScreenWidthPixels,
-            int height = SnesPpuLayout.ScreenHeightPixels)
+            Extent16<ScreenPixels>? size = null)
         {
             ArgumentNullException.ThrowIfNull(oam);
             ArgumentNullException.ThrowIfNull(vram);
             ArgumentNullException.ThrowIfNull(cgram);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+            Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
 
-            var pixels = new Rgba32[checked(width * height)];
+            var pixels = new Rgba32[frame.X * frame.Y];
             var priorities = new byte[pixels.Length];
             SnesObjRenderer.RenderResolved(
                 oam,
@@ -370,8 +351,7 @@ internal static class SnesObjRendererAccess
                 obsel,
                 pixels,
                 priorities,
-                width,
-                height);
+                frame);
 
             return new ResolvedObjFrame(pixels, priorities);
         }

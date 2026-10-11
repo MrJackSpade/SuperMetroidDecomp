@@ -21,8 +21,8 @@ internal static partial class Program
         AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, samus.Pose, "power suit faces forward");
         AssertEqual(boardingRadius, samus.Kinematics.Radius.Y, "face-forward does not write SamusYRadius");
         AssertEqual((ushort)0x88, samus.Position.Y.Whole, "non-front radius lifts Samus three pixels");
-        var previous = new SamusCameraPoint(0x7b, 0, 0x8b, 0xffff);
-        AssertEqual(previous with { YPosition = 0x88 }, samus.ApplyPreviousPositionWrites(previous),
+        var previous = FixedPosition<RoomPixels>.FromWords(0x7b, 0, 0x8b, 0xffff);
+        AssertEqual(previous.WithY(previous.Y.WithWhole(0x88)), samus.ApplyPreviousPositionWrites(previous),
             "the lift also writes SamusPreviousYPosition");
 
         samus.RefreshCollisionRadii(bus);

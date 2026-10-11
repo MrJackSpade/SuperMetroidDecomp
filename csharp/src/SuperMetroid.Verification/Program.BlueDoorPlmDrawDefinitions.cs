@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -55,7 +56,7 @@ internal static partial class Program
             byte[] blockDefinitions = new byte[0x400 * 8];
             blockDefinitions[originalVisual * 8] = 0x0d;
             blockDefinitions[0x53 * 8] = 0x53;
-            var level = new RoomLevelData(width, width,
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
                 new ushort[width * width], new byte[width * width],
                 new ushort[width * width], blockDefinitions);
             var plms = new RoomPlmSystem
@@ -69,7 +70,7 @@ internal static partial class Program
                 $"{orientation} blue door allocates its native opening actor");
             var guarded = new BlueDoorDrawReadGuard(rom, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-            plms.Step(guarded, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, new(0, 0), 0);
             int stride = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right
                 ? width : 1;
             for (int block = 0; block < 4; block++)
@@ -90,7 +91,7 @@ internal static partial class Program
 
             // Continue through every opening draw, the long air-cap hold and Delete.
             for (int frame = 0; frame < 128 && plms.ActiveCount != 0; frame++)
-                plms.Step(guarded, level, streamer, 0, 0, 0);
+                plms.Step(guarded, level, streamer, new(0, 0), 0);
             AssertEqual(0, plms.ActiveCount,
                 $"{orientation} blue-door opening reaches its native Delete");
 
@@ -117,7 +118,7 @@ internal static partial class Program
                     $"{orientation} allocates actor for list ${list:X4}");
                 plms.SetSoleInstructionPointerForVerification(list);
                 for (int frame = 0; frame < 20 && plms.ActiveCount != 0; frame++)
-                    plms.Step(guarded, level, streamer, 0, 0, 0);
+                    plms.Step(guarded, level, streamer, new(0, 0), 0);
                 AssertEqual(0, plms.ActiveCount,
                     $"{orientation} list ${list:X4} reaches its native Delete");
                 AssertEqual((int)behavior.Value,

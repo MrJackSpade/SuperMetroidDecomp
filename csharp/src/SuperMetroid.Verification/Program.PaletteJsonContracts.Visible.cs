@@ -111,18 +111,18 @@ internal static partial class Program
         if (color < SnesCgram.ColorCount / 2)
         {
             vram.ExecuteWordTransfer([SnesBgTilemapWord.Create(0, color / 16, priority: false)], 1024, 1);
-            stockPixels = SnesBgTilemapRenderer.Render4BppViewport(vram, stock, 1024, 0, 0, 0, 8, 8, 32);
-            editedPixels = SnesBgTilemapRenderer.Render4BppViewport(vram, edited, 1024, 0, 0, 0, 8, 8, 32);
+            stockPixels = SnesBgTilemapRenderer.Render4BppViewport(vram, stock, 1024, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<ScreenPixels>(8, 8), new Extent16<TilemapCells>(32, 32));
+            editedPixels = SnesBgTilemapRenderer.Render4BppViewport(vram, edited, 1024, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<ScreenPixels>(8, 8), new Extent16<TilemapCells>(32, 32));
         }
         else
         {
             var oam = new OamBuffer();
             oam.BeginFrame();
             oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), 0,
-                SnesObjAttributeWord.Create(0, (color - SnesCgram.ColorCount / 2) / 16, 0), 0, 0);
+                SnesObjAttributeWord.Create(0, (color - SnesCgram.ColorCount / 2) / 16, 0), new Position16<OamPixels>(0, 0));
             oam.FinalizeFrame();
-            stockPixels = SnesObjRenderer.Render(oam, vram, stock, obsel: 0, width: 8, height: 8);
-            editedPixels = SnesObjRenderer.Render(oam, vram, edited, obsel: 0, width: 8, height: 8);
+            stockPixels = SnesObjRenderer.Render(oam, vram, stock, obsel: 0, size: new Extent16<ScreenPixels>(8, 8));
+            editedPixels = SnesObjRenderer.Render(oam, vram, edited, obsel: 0, size: new Extent16<ScreenPixels>(8, 8));
         }
         AssertTrue(stockPixels.All(pixel => pixel == stock.GetRgba(color)), "all original raster pixels have the exact selected RGB5 color");
         AssertTrue(editedPixels.All(pixel => pixel == edited.GetRgba(color)), "all edited raster pixels have the exact replacement RGB5 color");

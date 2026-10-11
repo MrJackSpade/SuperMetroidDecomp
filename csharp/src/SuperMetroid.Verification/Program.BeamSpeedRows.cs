@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -10,7 +11,7 @@ internal static partial class Program
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusPoseId AimPose(byte direction) => (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
             retail.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction);
-        var room = new RoomLevelData(16, 16, new ushort[256], new byte[256],
+        var room = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new ushort[256], new byte[256],
             new ushort[256], new byte[8]);
         for (ushort combination = 0; combination < 12; combination++)
         for (byte direction = 0; direction < 10; direction++)
@@ -34,8 +35,8 @@ internal static partial class Program
                 SamusProjectileRomData.Beams.XAccelerations + direction * 2));
             short ay = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
                 SamusProjectileRomData.Beams.YAccelerations + direction * 2));
-            AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X, $"beam {combination} direction {direction} native speed-row X");
-            AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y, $"beam {combination} direction {direction} native speed-row Y");
+            AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.SignedRawValue, $"beam {combination} direction {direction} native speed-row X");
+            AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y.SignedRawValue, $"beam {combination} direction {direction} native speed-row Y");
         }
         // Unlike the twelve identical authored rows, C..F overread different adjacent
         // words. Exercise the actual initializer to detect a dropped combination index.
@@ -59,9 +60,9 @@ internal static partial class Program
             int speed = unchecked((short)Word(0x90c2d1 + combination * 4 +
                 (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
             AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)),
-                slot.Velocity.X, "Actual initializer retains combination-dependent adjacent-table overreads X");
+                slot.Velocity.X.SignedRawValue, "Actual initializer retains combination-dependent adjacent-table overreads X");
             AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)),
-                slot.Velocity.Y, "Actual initializer retains combination-dependent adjacent-table overreads Y");
+                slot.Velocity.Y.SignedRawValue, "Actual initializer retains combination-dependent adjacent-table overreads Y");
         }
         for (ushort weapon = 1; weapon <= 2; weapon++)
         for (byte direction = 0; direction < 10; direction++)
@@ -98,8 +99,8 @@ internal static partial class Program
                 y = unchecked(y + (uint)(vy << 8));
                 var owner = projectiles.Slots[0];
                 AssertTrue(owner.IsActive, "Motion fixture retains its visible missile owner");
-                AssertEqual((short)vx, owner.Velocity.X, "Native missile acceleration X across ignition and movement");
-                AssertEqual((short)vy, owner.Velocity.Y, "Native missile acceleration Y across ignition and movement");
+                AssertEqual((short)vx, owner.Velocity.X.SignedRawValue, "Native missile acceleration X across ignition and movement");
+                AssertEqual((short)vy, owner.Velocity.Y.SignedRawValue, "Native missile acceleration Y across ignition and movement");
                 AssertEqual(x, ((uint)owner.Position.X.Whole << 16) | owner.Position.X.Fraction, "Missile X trajectory retains fixed-point carry");
                 AssertEqual(y, ((uint)owner.Position.Y.Whole << 16) | owner.Position.Y.Fraction, "Missile Y trajectory retains fixed-point carry");
             }

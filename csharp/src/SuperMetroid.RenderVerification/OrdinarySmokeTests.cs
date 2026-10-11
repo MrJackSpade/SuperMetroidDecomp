@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class OrdinarySmokeTests
 {
@@ -22,8 +23,8 @@ internal static class OrdinarySmokeTests
             var flags = (mask & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0;
             if ((mask & 2) != 0) flags |= SnesMainScreenLayers.Bg2;
             if ((mask & 4) != 0) flags |= SnesMainScreenLayers.Obj;
-            var registers = new OrdinaryGameplayRegisters(511, 255, 65535, 511,
-                geometry.Item1, geometry.Item2, 0x4800, 0, 0x6000, 0x4000, flags);
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+                new Extent16<TilemapCells>((ushort)geometry.Item1, (ushort)geometry.Item2), 0x4800, 0, 0x6000, 0x4000, flags);
             var layer = new OrdinaryGameplayRenderLayer(registers,
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,

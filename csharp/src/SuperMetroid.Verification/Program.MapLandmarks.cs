@@ -37,7 +37,7 @@ internal static partial class Program
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapLandmarkDocument>(File.ReadAllBytes(Path.Combine(stock, MapLandmarkFormat.FileName)), options)!;
-        var points = document.Markers.ToDictionary(pair => pair.Key, pair => pair.Value with { X = pair.Value.X + 8 });
+        var points = document.Markers.ToDictionary(pair => pair.Key, pair => pair.Value with { X = (ushort)(pair.Value.X + 8) });
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapLandmarkFormat.FileName);
         using (var stream = File.Create(path)) MapLandmarkLayout.Write(stream, document with { Markers = points });
@@ -61,18 +61,18 @@ internal static partial class Program
             var native = new FileSelectRoomMapGraphics(bus, system, area,
                 mapPresentation: original);
             var room = new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original);
-            var before = native.Render(0, 0, marker);
-            AssertTrue(before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "full file-select landmark stock pixel parity");
+            var before = native.Render(new(0, 0), marker);
+            AssertTrue(before.AsSpan().SequenceEqual(room.Render(new(0, 0), marker)), "full file-select landmark stock pixel parity");
             room.BindMapPresentation(edited);
-            AssertTrue(!before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "edited landmarks change file-select pixels");
+            AssertTrue(!before.AsSpan().SequenceEqual(room.Render(new(0, 0), marker)), "edited landmarks change file-select pixels");
             using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, room); capture.Position = 0;
             room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
             room.BindMapPresentation(original);
-            AssertTrue(before.AsSpan().SequenceEqual(room.Render(0, 0, marker)), "restored file-select uses current landmark content");
+            AssertTrue(before.AsSpan().SequenceEqual(room.Render(new(0, 0), marker)), "restored file-select uses current landmark content");
             if (area != AreaId.WreckedShip) continue;
             var pauseNative = new PauseMenuState(bus, new SamusState(), system, area,
-                19, 20, mapPresentation: original);
-            var pause = new PauseMenuState(guard, new SamusState(), system, area, 19, 20, mapPresentation: original);
+                new(19, 20), mapPresentation: original);
+            var pause = new PauseMenuState(guard, new SamusState(), system, area, new(19, 20), mapPresentation: original);
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "pause stock boss pixels with ROM coordinates blocked");
             pause.BindMapPresentation(edited);
@@ -85,7 +85,7 @@ internal static partial class Program
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "landmarks survive stock replacement");
         AssertTrue(bytes.AsSpan().SequenceEqual(File.ReadAllBytes(path)), "landmark override bytes preserved");
         foreach (var bad in new[] { document with { Version = 0 }, document with { Markers = new() },
-            document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { Y = -1 }) } })
+            document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { Y = ushort.MaxValue }) } })
             AssertThrows<InvalidDataException>(() => MapLandmarkLayout.Write(new MemoryStream(), bad), "invalid landmark schema/identity/position rejected");
         File.WriteAllText(path, "{bad landmarks");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad landmark override cannot fall back");
@@ -99,8 +99,8 @@ internal static partial class Program
 
         static byte[] Draw(FileSelectMapIcons icons, AreaId area)
         {
-            var oam = new OamBuffer(); oam.BeginFrame(); icons.DrawBossMarkers(oam, 24, 8);
-            if (area != AreaId.Ceres) icons.DrawAfterMarker(oam, 24, 8);
+            var oam = new OamBuffer(); oam.BeginFrame(); icons.DrawBossMarkers(oam, new(24, 8));
+            if (area != AreaId.Ceres) icons.DrawAfterMarker(oam, new(24, 8));
             oam.FinalizeFrame(); return oam.LowTable.ToArray().Concat(oam.HighTable.ToArray()).ToArray();
         }
     }

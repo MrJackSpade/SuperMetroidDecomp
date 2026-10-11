@@ -92,10 +92,10 @@ internal static partial class Program
                     IndexedPngImage image;
                     using (var input = File.OpenRead(Path.Combine(
                                installation.EndingMode7Directory, name)))
-                        image = IndexedPng.Read(input, 128, 128);
+                        image = IndexedPng.Read(input, new(128, 128));
                     Array.Fill(image.Pixels, (byte)0);
                     using var output = File.Create(overridePath);
-                    IndexedPng.Write(output, image.Width, image.Height,
+                    IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                         image.Pixels, image.Palette);
                 }
                 EndingMode7ArtworkCatalog edited = installation.LoadEndingMode7Art();
@@ -191,10 +191,10 @@ internal static partial class Program
         IndexedPngImage persistentImage;
         using (var input = File.OpenRead(Path.Combine(installation.EndingMode7Directory,
                    EndingRewardIconArtworkFormat.CharacterFileName)))
-            persistentImage = IndexedPng.Read(input, 128, 128);
+            persistentImage = IndexedPng.Read(input, new(128, 128));
         persistentImage.Pixels[0] = (byte)(persistentImage.Pixels[0] ^ 1);
         using (var output = File.Create(userPng))
-            IndexedPng.Write(output, persistentImage.Width, persistentImage.Height,
+            IndexedPng.Write(output, new(persistentImage.Size.X, persistentImage.Size.Y),
                 persistentImage.Pixels, persistentImage.Palette);
         byte[] selected = installation.LoadEndingMode7Art().RewardIcon.Transfer.ToArray();
         string stockMap = Path.Combine(installation.EndingMode7Directory,

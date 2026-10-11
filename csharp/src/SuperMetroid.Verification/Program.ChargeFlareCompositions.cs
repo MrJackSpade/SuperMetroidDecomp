@@ -45,11 +45,11 @@ internal static partial class Program
                 var native = new OamBuffer(); var actual = new OamBuffer();
                 for (int i = 0; i < occupied; i++)
                 {
-                    native.AddProjectileSpritePart(default, 0, default, 10, 20);
-                    actual.AddProjectileSpritePart(default, 0, default, 10, 20);
+                    native.AddProjectileSpritePart(default, 0, default, new Position16<OamPixels>(10, 20));
+                    actual.AddProjectileSpritePart(default, 0, default, new Position16<OamPixels>(10, 20));
                 }
                 DrawImportedFlareSpritemap(bus, native, selector, x, y);
-                stock.Draw(selector, actual, x, y);
+                stock.Draw(selector, actual, new(x, y));
                 AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable),
                     "Extracted flare matches complete native OAM, including signed placement, high bits and capacity wrap");
                 AssertEqual(native.NextByteOffset, actual.NextByteOffset, "Flare composition retains native OAM cursor");
@@ -62,7 +62,7 @@ internal static partial class Program
         document["frames"]![first]![0]!["offsetX"] = oldX + 7;
         var edited = Load(document);
         var before = new OamBuffer(); var after = new OamBuffer();
-        stock.Draw(0, before, 100, 100); edited.Draw(0, after, 100, 100);
+        stock.Draw(0, before, new(100, 100)); edited.Draw(0, after, new(100, 100));
         AssertEqual((before.GetEntry(0).X + 7) & 511, after.GetEntry(0).X, "Composition edit changes emitted flare position");
         AssertEqual(before.GetEntry(0).Y, after.GetEntry(0).Y, "X-only composition edit preserves Y");
         document["frames"]!.AsObject().Remove(first);
@@ -72,8 +72,8 @@ internal static partial class Program
         document = JsonNode.Parse(json)!; document["frames"]![first]![0]!["palette"] = 8;
         AssertThrows<InvalidDataException>(() => Load(document), "Invalid flare palette rejected");
         AssertThrows<InvalidDataException>(() => ChargeFlareSpriteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare JSON rejected");
-        AssertThrows<InvalidDataException>(() => stock.Draw(54, new OamBuffer(), 0, 0), "Non-charge selector is not silently substituted");
-        AssertThrows<InvalidDataException>(() => stock.Draw(ushort.MaxValue, new OamBuffer(), 0, 0), "Invalid selector is not clamped");
+        AssertThrows<InvalidDataException>(() => stock.Draw(54, new OamBuffer(), new(0, 0)), "Non-charge selector is not silently substituted");
+        AssertThrows<InvalidDataException>(() => stock.Draw(ushort.MaxValue, new OamBuffer(), new(0, 0)), "Invalid selector is not clamped");
         Console.WriteLine($"Charge-flare compositions: {cases} native OAM comparisons, editable displacement and invalid-resource checks pass.");
         static ChargeFlareSpriteCatalog Load(JsonNode node) => ChargeFlareSpriteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
     }
@@ -93,7 +93,7 @@ internal static partial class Program
             oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
                 new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
-                originX, originY);
+                new Position16<OamPixels>(originX, originY));
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }

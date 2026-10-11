@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed egg-shell and slime trajectories, independent of cinematic artwork.</summary>
@@ -16,14 +18,14 @@ internal static class IntroEggMotionDefinitions
     /// shell artwork, so retaining six explicit pairs is clearer than a
     /// generated sequence or polynomial encoding.
     /// </remarks>
-    public static (ushort X, ushort Y) FragmentInitialPosition(int index) => index switch
+    public static Position16<ScreenPixels> FragmentInitialPosition(int index) => index switch
     {
-        0 => (0x006c, 0x0093),
-        1 => (0x0073, 0x0093),
-        2 => (0x0069, 0x0098),
-        3 => (0x0070, 0x0096),
-        4 => (0x0076, 0x0099),
-        5 => (0x0073, 0x009b),
+        0 => new(0x006c, 0x0093),
+        1 => new(0x0073, 0x0093),
+        2 => new(0x0069, 0x0098),
+        3 => new(0x0070, 0x0096),
+        4 => new(0x0076, 0x0099),
+        5 => new(0x0073, 0x009b),
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 

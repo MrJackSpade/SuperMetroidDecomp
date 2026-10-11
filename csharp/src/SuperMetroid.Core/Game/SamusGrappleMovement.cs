@@ -245,7 +245,7 @@ public static partial class SamusGrappleMovement
             grapple.FlareAnimationFrame + Assets.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset));
         (compositions ?? throw new InvalidOperationException(
             "Grapple flare requires installed sprite compositions."))
-            .Draw(tableIndex, oam, screenX, screenY);
+            .Draw(tableIndex, oam, new(screenX, screenY));
         return true;
     }
 
@@ -331,8 +331,8 @@ public static partial class SamusGrappleMovement
         // keeps stale bytes from the previous frame, so the four steps need not add up to
         // exactly one authored per-frame velocity.
         grapple.QuarterVelocity = new(
-            QuarterExtensionVelocity(grapple.ExtensionVelocity.X, grapple.QuarterVelocity.X),
-            QuarterExtensionVelocity(grapple.ExtensionVelocity.Y, grapple.QuarterVelocity.Y));
+            QuarterExtensionVelocity(grapple.ExtensionVelocity.X.SignedRawValue, grapple.QuarterVelocity.X),
+            QuarterExtensionVelocity(grapple.ExtensionVelocity.Y.SignedRawValue, grapple.QuarterVelocity.Y));
         GrappleBlockReaction finalReaction = default;
         for (int substep = 0; substep < 4; substep++)
         {

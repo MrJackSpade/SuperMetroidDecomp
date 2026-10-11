@@ -103,7 +103,7 @@ public sealed class SamusGrappleState
     /// <summary>Native $0CF6, GrappleBeam_PoseChangeAutoFireTimer; permits early pose-directed refiring.</summary>
     public ushort PoseChangeAutoFireTimer { get; set; }
     /// <summary>Gets or sets the signed 8.8 endpoint extension velocity.</summary>
-    public Vector88<RoomPixels> ExtensionVelocity { get; set; }
+    public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
     /// <summary>
     /// <c>GrappleCollision_X/YQuarterSubVelocity</c> and <c>X/YQuarterVelocity</c>

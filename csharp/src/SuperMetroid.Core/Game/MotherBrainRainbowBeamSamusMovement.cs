@@ -24,7 +24,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     // component routine. Entries are 16-bit sign-extended values in the range -256..256.
 
     /// <summary>Mother Brain body extra words <c>$0FB2/$0FB4</c>: Samus's forced signed 8.8 velocity.</summary>
-    public Vector88<RoomPixels> CustomVelocity { get; private set; }
+    public EightEightVector<RoomPixels> CustomVelocity { get; private set; }
 
     /// <summary>
     /// The low-byte beam angle stored by <c>$A9:BBA8-$BBAB</c>; zero points down and the
@@ -43,7 +43,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
-        SamusCameraPoint before = Capture(samus);
+        FixedPosition<RoomPixels> before = Capture(samus);
         bool reachedWall = MoveHorizontallyTowardWall(samus, velocity: 0x1000);
         ushort yVelocity = 0;
         bool reachedVerticalBoundary = false;
@@ -73,7 +73,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     {
         ArgumentNullException.ThrowIfNull(samus);
 
-        SamusCameraPoint before = Capture(samus);
+        FixedPosition<RoomPixels> before = Capture(samus);
 
         // `CPY SamusYPosition / BPL` tests signed(YTarget-currentY). For the fight's normal
         // coordinate range this is exactly currentY <= $7C, but preserve the 16-bit branch
@@ -104,17 +104,17 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     {
         ArgumentNullException.ThrowIfNull(samus);
 
-        SamusCameraPoint before = Capture(samus);
+        FixedPosition<RoomPixels> before = Capture(samus);
 
         // Native ADC wraps to 16 bits and BMI examines the resulting sign bit. As soon as
         // the negative speed crosses into $0000..$7FFF it is clamped to exact zero.
-        short acceleratedX = unchecked((short)(CustomVelocity.X + 0x0002));
-        CustomVelocity = CustomVelocity.WithX(acceleratedX < 0 ? acceleratedX : (short)0);
-        bool reachedWall = MoveHorizontallyTowardWall(samus, unchecked((ushort)CustomVelocity.X));
+        short acceleratedX = unchecked((short)(CustomVelocity.X.SignedRawValue + 0x0002));
+        CustomVelocity = CustomVelocity.WithX(SnesSignedEightEight.FromSignedRaw(acceleratedX < 0 ? acceleratedX : (short)0));
+        bool reachedWall = MoveHorizontallyTowardWall(samus, unchecked((ushort)CustomVelocity.X.SignedRawValue));
 
-        CustomVelocity += new Vector88<RoomPixels>(0, 0x0018);
+        CustomVelocity += new EightEightVector<RoomPixels>(0, 0x0018);
         bool reachedVerticalBoundary =
-            MoveVerticallyTowardCeilingOrFloor(samus, unchecked((ushort)CustomVelocity.Y));
+            MoveVerticallyTowardCeilingOrFloor(samus, unchecked((ushort)CustomVelocity.Y.SignedRawValue));
 
         // `$A9:BAD1` branches on the carry returned by the vertical helper. Horizontal wall
         // carry is intentionally discarded by the following LDA/ADC sequence.
@@ -209,14 +209,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return unchecked((ushort)(wholePosition + wholeDelta));
     }
 
-    private static SamusCameraPoint Capture(SamusState samus) => new(
-        samus.Position.X.Whole,
-        samus.Kinematics.Position.X.Fraction,
-        samus.Position.Y.Whole,
-        samus.Kinematics.Position.Y.Fraction);
+    private static FixedPosition<RoomPixels> Capture(SamusState samus) => samus.Position;
 
     private static MotherBrainForcedSamusMovementResult CreateResult(
-        SamusCameraPoint before,
+        FixedPosition<RoomPixels> before,
         bool nativeCarry) => new(
             before,
             nativeCarry);
@@ -224,5 +220,5 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
 /// <summary>One-call witness for Mother Brain's forced Samus coordinate helpers.</summary>
 public readonly record struct MotherBrainForcedSamusMovementResult(
-    SamusCameraPoint Before,
+    FixedPosition<RoomPixels> Before,
     bool NativeCarry);

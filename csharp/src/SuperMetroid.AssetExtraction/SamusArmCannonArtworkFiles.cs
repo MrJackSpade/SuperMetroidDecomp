@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -69,9 +70,9 @@ public static class SamusArmCannonArtworkFiles
                         (SamusArmCannonArtworkFormat.TileSourcePointers[tile] + offset));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             SamusArmCannonArtworkFormat.TileSourcePointers.Length,
-            out int width, out int height);
+            out Extent16<ImagePixels> size);
         using var pngStream = new MemoryStream();
-        IndexedPng.Write(pngStream, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(pngStream, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] png = pngStream.ToArray();
         byte[] json = SamusArmCannonArtworkCatalog.Write(document);
         File.WriteAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName), png);

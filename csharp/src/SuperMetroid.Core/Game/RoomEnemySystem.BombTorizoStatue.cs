@@ -35,9 +35,9 @@ public sealed partial class RoomEnemySystem
 
         projectile.InstructionPointer = definition.InstructionList;
         projectile.XPosition = unchecked((ushort)(
-            request.PlmBlockX * 16 + definition.XOffset));
+            request.PlmBlock.X * 16 + definition.XOffset));
         projectile.YPosition = unchecked((ushort)(
-            request.PlmBlockY * 16 + definition.YOffset));
+            request.PlmBlock.Y * 16 + definition.YOffset));
         projectile.YVelocity = definition.YVelocity;
         projectile.Variable1 = definition.Acceleration;
         return projectile;

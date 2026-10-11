@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>
 /// Finite production-owner tests of the source-identified color/lifetime coupling in
@@ -61,8 +62,8 @@ internal static partial class InstalledPowerBombIsolationTests
                         Require(expected == actual, context + ": cleanup result differs");
                         if (replacement.Phase == PowerBombExplosionPhase.CrystalFlashAfterglow)
                             CheckEditedRestore(replacement, stock.PowerBombFixedColors, context);
-                        var first = SnesGameplayFrameRenderer.CapturePowerBombColorMath(memory, baseline, 0, 0);
-                        var second = SnesGameplayFrameRenderer.CapturePowerBombColorMath(memory, replacement, 0, 0);
+                        var first = SnesGameplayFrameRenderer.CapturePowerBombColorMath(memory, baseline, new Position16<RoomPixels>(0, 0));
+                        var second = SnesGameplayFrameRenderer.CapturePowerBombColorMath(memory, replacement, new Position16<RoomPixels>(0, 0));
                         RequireSameGeometry(first, second, context);
                         if (Colors(baseline) != Colors(replacement)) changedColors++;
                         if (second is not null)
@@ -76,7 +77,7 @@ internal static partial class InstalledPowerBombIsolationTests
                             // selected expanded RGB, not merely different from stock.
                             ColorAddWindow center = second.Windows[112];
                             if (center.Left <= 128 && center.Right >= 128)
-                                Require(SoftwareFrameSnapshotRenderer.Render(packet)[112 * packet.Width + 128] ==
+                                Require(SoftwareFrameSnapshotRenderer.Render(packet)[112 * packet.Size.X + 128] ==
                                     new Rgba32(center.Red, center.Green, center.Blue), context + ": edited RGB did not reach pixels");
                         }
                         comparisons++;

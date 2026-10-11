@@ -425,100 +425,27 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Frontend.IntroCinematicState", "fadeDelay")] = Discard,
         [("SuperMetroid.Core.Frontend.IntroRinkaSystem", "rinkas")] = Remember,
         [("SuperMetroid.Core.Frontend.IntroCeresFlightState", "musicQueueTimer")] = Discard,
-        // #628: Mother Brain forced Samus velocity words became one 8.8 velocity.
-        [(typeof(MotherBrainRainbowBeamSamusMovement).FullName!, "<CustomXVelocity>k__BackingField")] = Remember,
-        [(typeof(MotherBrainRainbowBeamSamusMovement).FullName!, "<CustomYVelocity>k__BackingField")] = Remember,
-        // #628: Samus spritemap-origin words became one screen position.
-        [(typeof(SamusState).FullName!, "<SpritemapXPosition>k__BackingField")] = Remember,
-        [(typeof(SamusState).FullName!, "<SpritemapYPosition>k__BackingField")] = Remember,
         // #628: the four pending previous-fraction write words became one value. Such writes
         // live within one frame, so a capture's words are always empty.
         [(typeof(SamusState).FullName!, "_previousXSubpositionWriteMask")] = Discard,
         [(typeof(SamusState).FullName!, "_previousXSubpositionWriteValue")] = Discard,
         [(typeof(SamusState).FullName!, "_previousYSubpositionWriteMask")] = Discard,
         [(typeof(SamusState).FullName!, "_previousYSubpositionWriteValue")] = Discard,
-        // #628: solid-enemy collision body position and radius words became spatial values.
-        [(typeof(SolidEnemyCollisionBody).FullName!, "<XPosition>k__BackingField")] = Remember,
-        [(typeof(SolidEnemyCollisionBody).FullName!, "<YPosition>k__BackingField")] = Remember,
-        [(typeof(SolidEnemyCollisionBody).FullName!, "<XRadius>k__BackingField")] = Remember,
-        [(typeof(SolidEnemyCollisionBody).FullName!, "<YRadius>k__BackingField")] = Remember,
-        // #628: Mode 7 centre words became one position.
-        [(typeof(SamusMode7Transform).FullName!, "<CenterX>k__BackingField")] = Remember,
-        [(typeof(SamusMode7Transform).FullName!, "<CenterY>k__BackingField")] = Remember,
-        // #628: Draygon owner position words became one position.
-        [(typeof(SamusDraygonGrabbedState).FullName!, "<OwnerXPosition>k__BackingField")] = Remember,
-        [(typeof(SamusDraygonGrabbedState).FullName!, "<OwnerYPosition>k__BackingField")] = Remember,
-        // #628: death screen words became one screen position.
-        [(typeof(SamusDeathSequenceState).FullName!, "<ScreenX>k__BackingField")] = Remember,
-        [(typeof(SamusDeathSequenceState).FullName!, "<ScreenY>k__BackingField")] = Remember,
-        // #628: Power Bomb explosion centre words became one position.
-        [(typeof(SamusPowerBombExplosionState).FullName!, "<XPosition>k__BackingField")] = Remember,
-        [(typeof(SamusPowerBombExplosionState).FullName!, "<YPosition>k__BackingField")] = Remember,
-        // #628: atmospheric-effect anchor words became one position.
-        [(typeof(SamusAtmosphericEffectSlot).FullName!, "<XPosition>k__BackingField")] = Remember,
-        [(typeof(SamusAtmosphericEffectSlot).FullName!, "<YPosition>k__BackingField")] = Remember,
-        // #628: released crash-echo position words became one position.
-        [("SuperMetroid.Core.Game.SamusShinesparkState+ReleasedEchoSlot", "<XPosition>k__BackingField")] = Remember,
-        [("SuperMetroid.Core.Game.SamusShinesparkState+ReleasedEchoSlot", "<YPosition>k__BackingField")] = Remember,
-        // #628: speed-echo position words became two positions.
-        [(typeof(SamusHorizontalSpeedState).FullName!, "<FirstSpeedEchoXPosition>k__BackingField")] = Remember,
-        [(typeof(SamusHorizontalSpeedState).FullName!, "<SecondSpeedEchoXPosition>k__BackingField")] = Remember,
-        [(typeof(SamusHorizontalSpeedState).FullName!, "<FirstSpeedEchoYPosition>k__BackingField")] = Remember,
-        [(typeof(SamusHorizontalSpeedState).FullName!, "<SecondSpeedEchoYPosition>k__BackingField")] = Remember,
-        // #628: grapple anchor, rope, flare, velocity and offset words became spatial values.
-        [(typeof(SamusGrappleState).FullName!, "<AnchorX>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<AnchorY>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<RopeStartX>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<RopeStartY>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<BeamStartX>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<BeamStartY>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<ExtensionXVelocity>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<ExtensionYVelocity>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<XQuarterSubVelocity>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<XQuarterVelocity>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<YQuarterSubVelocity>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<YQuarterVelocity>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<OriginXOffset>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<OriginYOffset>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<FlareXOffset>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<FlareYOffset>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<EndpointXOffsetFixed>k__BackingField")] = Remember,
-        [(typeof(SamusGrappleState).FullName!, "<EndpointYOffsetFixed>k__BackingField")] = Remember,
-        // #628: projectile-trail position words became one position.
-        [(typeof(SamusProjectileTrailSide).FullName!, "<XPosition>k__BackingField")] = Remember,
-        [(typeof(SamusProjectileTrailSide).FullName!, "<YPosition>k__BackingField")] = Remember,
-        // #628: bomb position and radius words became spatial values.
-        [(typeof(SamusBombProjectileSlot).FullName!, "<XPosition>k__BackingField")] = Remember,
-        [(typeof(SamusBombProjectileSlot).FullName!, "<XSubposition>k__BackingField")] = Remember,
-        [(typeof(SamusBombProjectileSlot).FullName!, "<YPosition>k__BackingField")] = Remember,
-        [(typeof(SamusBombProjectileSlot).FullName!, "<YSubposition>k__BackingField")] = Remember,
-        [(typeof(SamusBombProjectileSlot).FullName!, "<XRadius>k__BackingField")] = Remember,
-        [(typeof(SamusBombProjectileSlot).FullName!, "<YRadius>k__BackingField")] = Remember,
-        // #628: Samus projectile position, velocity and radius words became spatial values.
-        [(typeof(SamusProjectileSlot).FullName!, "<XPosition>k__BackingField")] = Remember,
-        [(typeof(SamusProjectileSlot).FullName!, "<XSubposition>k__BackingField")] = Remember,
-        [(typeof(SamusProjectileSlot).FullName!, "<YPosition>k__BackingField")] = Remember,
-        [(typeof(SamusProjectileSlot).FullName!, "<YSubposition>k__BackingField")] = Remember,
-        [(typeof(SamusProjectileSlot).FullName!, "<XVelocity>k__BackingField")] = Remember,
-        [(typeof(SamusProjectileSlot).FullName!, "<YVelocity>k__BackingField")] = Remember,
-        [(typeof(SamusProjectileSlot).FullName!, "<XRadius>k__BackingField")] = Remember,
-        [(typeof(SamusProjectileSlot).FullName!, "<YRadius>k__BackingField")] = Remember,
-        // #628: Samus position, external displacement and radius words became spatial values.
-        [(typeof(SamusKinematicsState).FullName!, "<XPosition>k__BackingField")] = Remember,
-        [(typeof(SamusKinematicsState).FullName!, "<XSubposition>k__BackingField")] = Remember,
-        [(typeof(SamusKinematicsState).FullName!, "<YPosition>k__BackingField")] = Remember,
-        [(typeof(SamusKinematicsState).FullName!, "<YSubposition>k__BackingField")] = Remember,
-        [(typeof(SamusKinematicsState).FullName!, "<ExtraXDisplacement>k__BackingField")] = Remember,
-        [(typeof(SamusKinematicsState).FullName!, "<ExtraXSubdisplacement>k__BackingField")] = Remember,
-        [(typeof(SamusKinematicsState).FullName!, "<ExtraYDisplacement>k__BackingField")] = Remember,
-        [(typeof(SamusKinematicsState).FullName!, "<ExtraYSubdisplacement>k__BackingField")] = Remember,
-        [(typeof(SamusKinematicsState).FullName!, "<XRadius>k__BackingField")] = Remember,
-        [(typeof(SamusKinematicsState).FullName!, "<YRadius>k__BackingField")] = Remember,
     };
 
     /// <summary>Returns the migration of a retired serialized field.</summary>
-    internal static bool TryGetMigration(Type declaringType, string serializedName, out RetiredFieldMigration migrate) =>
-        Retired.TryGetValue((declaringType.FullName!, serializedName), out migrate!);
+    internal static bool TryGetMigration(Type declaringType, string serializedName, out RetiredFieldMigration migrate)
+    {
+        if (Retired.TryGetValue((declaringType.FullName!, serializedName), out migrate!))
+            return true;
+        // #628 scalar coordinate components are kept until their typed value is rebuilt.
+        if (DebuggerSpatialFieldMigrations.IsLegacyField(declaringType, serializedName))
+        {
+            migrate = Remember;
+            return true;
+        }
+        return false;
+    }
 
     /// <summary>Returns a retired word drained from <paramref name="instance"/>, if its capture had one.</summary>
     internal static bool TryGetLegacyWord(object instance, string serializedName, out ushort value)

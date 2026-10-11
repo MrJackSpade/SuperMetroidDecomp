@@ -161,6 +161,13 @@ internal static partial class Program
             PrimitiveDomainAnalyzer.PrimitiveInterludeId, "narrowed to int and is then compared");
         Expect(domain + " class C { int field; void Set(Mode m) => field = (int)m; int Get() => field switch { 0 => 1, _ => 2 }; }",
             PrimitiveDomainAnalyzer.PrimitiveInterludeId, "is then switched");
+        // SME6278: storage written and compared only as a small literal set is a closed domain.
+        Expect("class C { ushort direction; void Rise() => direction = 1; void Fall() => direction = 2; void Stop() => direction = 0; bool Up() => direction == 1; bool Down() => direction == 2; }",
+            PrimitiveDomainAnalyzer.LiteralDomainId, "only as the values 0, 1, 2");
+        // A stepped counter, an ordered quantity, or a single written value is not a literal domain.
+        Expect("class C { int count; void Reset() => count = 0; void Add() => count++; bool Done() => count == 3 || count == 0; }");
+        Expect("class C { int speed; void A() => speed = 2; void B() => speed = 5; bool Fast() => speed > 3 || speed == 2 || speed == 5; }");
+        Expect("class C { int mode; void A() => mode = 4; bool M() => mode == 4 || mode == 0; }");
         // Multipurpose storage written from several sources (a native slot word) is a raw boundary.
         Expect(domain + " class C { ushort slot; void A(Mode m) => slot = (ushort)m; void B(ushort timer) => slot = timer; bool T() => slot == 3; }");
         // A conversion consumed immediately as an index or arithmetic is a boundary expression.

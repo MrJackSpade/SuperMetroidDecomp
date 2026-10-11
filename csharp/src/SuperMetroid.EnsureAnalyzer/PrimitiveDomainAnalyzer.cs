@@ -78,6 +78,20 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     /// <summary>A closed-domain value is narrowed to a primitive and then used as the domain identity.</summary>
     public const string PrimitiveInterludeId = "SME6277";
 
+    /// <summary>Storage written and compared only as a small set of literals is a closed domain.</summary>
+    public const string LiteralDomainId = "SME6278";
+
+    private static readonly DiagnosticDescriptor LiteralDomainRule = new(
+        LiteralDomainId,
+        "Closed domain stored as literals",
+        "'{0}' is a {1} written and compared only as the values {2}; model the closed domain as a type",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A field or property whose every write is one of a few constants, and which is only switched or " +
+            "compared against those constants, is a closed state set; stepped or ordered quantities are excluded.",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
+
     private static readonly DiagnosticDescriptor CatalogComparisonRule = new(
         CatalogComparisonId,
         "Closed domain compared as a primitive",
@@ -119,7 +133,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         [PrimitiveSwitchRule, SilentEnumSwitchRule, MaskedSelectorRule, EnumNumericFormatRule,
-            CatalogComparisonRule, CastOnlyParameterRule, EnumArithmeticRule, PrimitiveInterludeRule];
+            CatalogComparisonRule, CastOnlyParameterRule, EnumArithmeticRule, PrimitiveInterludeRule, LiteralDomainRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -223,7 +237,10 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         private readonly Dictionary<(ISymbol Subject, INamedTypeSymbol Catalog), (HashSet<string> Names, Location First)> _comparisons =
             new(new SubjectCatalogComparer());
         // Every write to a symbol: the enum it narrows (null for any other value) and where.
-        private readonly Dictionary<ISymbol, List<(ITypeSymbol? Domain, Location Site, bool Stepped)>> _writes = new(SymbolEqualityComparer.Default);
+        private readonly Dictionary<ISymbol, List<(ITypeSymbol? Domain, Location Site, bool Stepped, object? Constant)>> _writes = new(SymbolEqualityComparer.Default);
+        // Constants each symbol is compared against, and symbols that are switched.
+        private readonly Dictionary<ISymbol, HashSet<object>> _comparedConstants = new(SymbolEqualityComparer.Default);
+        private readonly HashSet<ISymbol> _switched = new(SymbolEqualityComparer.Default);
         private readonly Dictionary<ISymbol, string> _domainUses = new(SymbolEqualityComparer.Default);
         // Symbols ordered with < <= > >=: quantities, which an identity domain never is.
         private readonly HashSet<ISymbol> _ordered = new(SymbolEqualityComparer.Default);
@@ -256,6 +273,8 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 return;
             Record(left, right);
             Record(right, left);
+            RecordConstant(left, right);
+            RecordConstant(right, left);
             MarkDomainUse(left, "compared");
             MarkDomainUse(right, "compared");
         }
@@ -278,6 +297,9 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 _ => throw new InvalidOperationException("Unexpected switch operation."),
             };
             MarkDomainUse(Unwrap(value), "switched");
+            if (Subject(Unwrap(value)) is { } switched)
+                lock (_gate)
+                    _switched.Add(switched);
         }
 
         private void Record(IOperation subject, IOperation constant)
@@ -296,6 +318,19 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 if (!_comparisons.TryGetValue(key, out var entry))
                     _comparisons[key] = entry = (new HashSet<string>(StringComparer.Ordinal), subject.Syntax.GetLocation());
                 entry.Names.Add(field.Name);
+            }
+        }
+
+        private void RecordConstant(IOperation subject, IOperation other)
+        {
+            if (!IsIntegral(subject.Type) || Subject(subject) is not { } symbol ||
+                other.ConstantValue is not { HasValue: true, Value: { } value })
+                return;
+            lock (_gate)
+            {
+                if (!_comparedConstants.TryGetValue(symbol, out HashSet<object>? set))
+                    _comparedConstants[symbol] = set = [];
+                set.Add(Convert.ToDecimal(value, System.Globalization.CultureInfo.InvariantCulture));
             }
         }
 
@@ -320,8 +355,31 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             {
                 if (!_writes.TryGetValue(target, out var writes))
                     _writes[target] = writes = [];
-                writes.Add((domain, site, context.Operation is ICompoundAssignmentOperation or IIncrementOrDecrementOperation));
+                object? constantValue = value is not null && Unwrap(value).ConstantValue is { HasValue: true, Value: { } written }
+                    ? Convert.ToDecimal(written, System.Globalization.CultureInfo.InvariantCulture) : null;
+                writes.Add((domain, site, context.Operation is ICompoundAssignmentOperation or IIncrementOrDecrementOperation,
+                    constantValue));
             }
+        }
+
+        private void ReportLiteralDomain(CompilationAnalysisContext context, ISymbol symbol,
+            List<(ITypeSymbol? Domain, Location Site, bool Stepped, object? Constant)> writes)
+        {
+            if (symbol is ILocalSymbol || !symbol.Locations.Any(location => location.IsInSource) ||
+                _ordered.Contains(symbol) || writes.Any(write => write.Stepped || write.Constant is null))
+                return;
+            var written = new HashSet<object>(writes.Select(write => write.Constant!));
+            if (written.Count < 2)
+                return;
+            bool compared = _comparedConstants.TryGetValue(symbol, out HashSet<object>? constants) &&
+                constants.Count >= 2 && constants.IsSubsetOf(written);
+            if (!compared && !_switched.Contains(symbol))
+                return;
+            Location site = writes.Select(write => write.Site)
+                .OrderBy(location => location.SourceTree?.FilePath, StringComparer.Ordinal)
+                .ThenBy(location => location.SourceSpan.Start).First();
+            context.ReportDiagnostic(Diagnostic.Create(LiteralDomainRule, site, symbol.Name,
+                TypeOf(symbol)!.ToDisplayString(), string.Join(", ", written.OrderBy(value => value))));
         }
 
         // A counter or accumulator is stepped by ++, -- or compound assignment; identities never are.
@@ -349,6 +407,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 }
                 foreach (var entry in _writes)
                 {
+                    ReportLiteralDomain(context, entry.Key, entry.Value);
                     if (!_domainUses.TryGetValue(entry.Key, out string? how))
                         continue;
                     var narrowed = entry.Value.Where(write => write.Domain is not null)

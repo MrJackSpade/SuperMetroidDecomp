@@ -36,6 +36,14 @@ dotnet_diagnostic.SME6271.severity = error
 dotnet_diagnostic.SME6272.severity = error
 # #627: an enum formatted with a numeric specifier throws; format its underlying value.
 dotnet_diagnostic.SME6273.severity = error
+# #627: a primitive compared against several named constants of one catalog is a closed domain.
+dotnet_diagnostic.SME6274.severity = error
+# #627: a primitive parameter only cast to a domain enum should take the enum or decode once.
+dotnet_diagnostic.SME6275.severity = error
+# #627: arithmetic or stepping must not manufacture an undefined closed-enum value.
+dotnet_diagnostic.SME6276.severity = error
+# #627: a domain value is not carried as a primitive through dedicated storage.
+dotnet_diagnostic.SME6277.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
 # #620: advisory until the existing reusable guards are migrated.

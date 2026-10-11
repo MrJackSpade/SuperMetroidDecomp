@@ -33,16 +33,16 @@ internal static partial class Program
 
     private static IEnumerable<ushort> EnumerateRetailDoorPointers()
     {
-        for (int pointer = DoorHeaderRomData.PreFxBlockStart;
-             pointer <= DoorHeaderRomData.PreFxBlockEnd;
-             pointer += DoorHeaderRomData.RecordByteCount)
+        for (int pointer = DoorHeaderRomDataConstants.PreFxBlockStart;
+             pointer <= DoorHeaderRomDataConstants.PreFxBlockEnd;
+             pointer += DoorHeaderRomDataConstants.RecordByteCount)
         {
             yield return checked((ushort)pointer);
         }
 
-        for (int pointer = DoorHeaderRomData.PostFxBlockStart;
-             pointer <= DoorHeaderRomData.PostFxBlockEnd;
-             pointer += DoorHeaderRomData.RecordByteCount)
+        for (int pointer = DoorHeaderRomDataConstants.PostFxBlockStart;
+             pointer <= DoorHeaderRomDataConstants.PostFxBlockEnd;
+             pointer += DoorHeaderRomDataConstants.RecordByteCount)
         {
             yield return checked((ushort)pointer);
         }

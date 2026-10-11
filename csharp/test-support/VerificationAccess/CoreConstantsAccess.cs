@@ -862,7 +862,7 @@ internal static class DoorDefinitionsConstants
     }
 }
 
-/// <summary>Cartridge values of <see cref="DoorHeaderRomData"/> that only verification reads.</summary>
+/// <summary>Cartridge values of the bank-$83 door headers that only verification reads.</summary>
 internal static class DoorHeaderRomDataConstants
 {
     /// <summary>Last Ceres door, <c>Door_CeresRidley</c>.</summary>
@@ -876,19 +876,6 @@ internal static class DoorHeaderRomDataConstants
     /// <summary>Encoded byte length of one physical door record.</summary>
     public const int RecordByteCount = 12;
 
-    extension(DoorHeaderRomData)
-    {
-        /// <inheritdoc cref="DoorHeaderRomDataConstants.PostFxBlockEnd"/>
-        internal static ushort PostFxBlockEnd => DoorHeaderRomDataConstants.PostFxBlockEnd;
-        /// <inheritdoc cref="DoorHeaderRomDataConstants.PostFxBlockStart"/>
-        internal static ushort PostFxBlockStart => DoorHeaderRomDataConstants.PostFxBlockStart;
-        /// <inheritdoc cref="DoorHeaderRomDataConstants.PreFxBlockEnd"/>
-        internal static ushort PreFxBlockEnd => DoorHeaderRomDataConstants.PreFxBlockEnd;
-        /// <inheritdoc cref="DoorHeaderRomDataConstants.PreFxBlockStart"/>
-        internal static ushort PreFxBlockStart => DoorHeaderRomDataConstants.PreFxBlockStart;
-        /// <inheritdoc cref="DoorHeaderRomDataConstants.RecordByteCount"/>
-        internal static int RecordByteCount => DoorHeaderRomDataConstants.RecordByteCount;
-    }
 }
 
 /// <summary>Cartridge values of <see cref="DownwardGateEnemyProjectileRomData"/> that only verification reads.</summary>

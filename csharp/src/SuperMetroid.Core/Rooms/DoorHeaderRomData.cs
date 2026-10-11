@@ -1,11 +1,5 @@
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Native bank-$83 door-header ranges retained for cartridge parity diagnostics.</summary>
-/// <remarks>Diagnostic ranges are supplied by tooling and verification extensions.</remarks>
-public static class DoorHeaderRomData
-{
-}
-
 /// <summary>The two zero-destination elevator pseudo-door entries of the bank-$83 door lists, valued by pointer.</summary>
 public enum ElevatorPseudoDoorPointer : ushort
 {

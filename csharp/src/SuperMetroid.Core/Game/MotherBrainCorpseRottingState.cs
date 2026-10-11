@@ -73,8 +73,7 @@ public sealed class MotherBrainCorpseRottingState
     public MotherBrainCorpseRottingStepResult Step(
         ISnesAddressSpace bus,
         ISnesMutableMemory memory,
-        ushort brainXPosition,
-        ushort brainYPosition,
+        Position16<RoomPixels> brainPosition,
         ushort randomNumberSeed,
         ushort mainEnemyExecutionCounter)
     {
@@ -103,9 +102,9 @@ public sealed class MotherBrainCorpseRottingState
                 // RNG. One dust projectile is emitted for every completed table entry.
                 FinishedEntryCount++;
                 dustRequests.Add(new MotherBrainCorpseDustRequest(
-                    XPosition: unchecked((ushort)(
-                        brainXPosition + (randomNumberSeed & 0x001f) - 0x0010)),
-                    YPosition: unchecked((ushort)(brainYPosition + 0x0010)),
+                    Position: brainPosition + new Offset16<RoomPixels>(
+                        unchecked((short)((randomNumberSeed & 0x001f) - 0x0010)),
+                        0x0010),
                     ProjectileParameter: 0x000a,
                     SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,
                     SoundEffect: 0x0010));
@@ -191,8 +190,7 @@ public sealed class MotherBrainCorpseRottingState
 
 /// <summary>One MiscDust projectile emitted by Mother Brain's row-finished hook.</summary>
 public readonly record struct MotherBrainCorpseDustRequest(
-    ushort XPosition,
-    ushort YPosition,
+    Position16<RoomPixels> Position,
     ushort ProjectileParameter,
     bool SoundEffectQueued,
     ushort SoundEffect);

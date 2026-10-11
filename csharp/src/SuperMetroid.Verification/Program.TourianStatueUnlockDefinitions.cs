@@ -12,7 +12,7 @@ internal static partial class Program
     {
         for (ushort parameter = 0; parameter <= 6; parameter += 2)
         {
-            TourianStatueEyePosition position =
+            Position16<RoomPixels> position =
                 TourianStatueUnlockDefinitions.EyePosition(parameter);
             AssertEqual(ReadTourianEyeWord(rom, 0x86b90e + parameter), position.X,
                 $"Tourian statue eye X parameter {parameter}");
@@ -34,7 +34,7 @@ internal static partial class Program
             cgramField.SetValue(enemies, new SnesCgram());
             enemies.SpawnTourianUnlockEffect(parameter, soul);
 
-            TourianStatueEyePosition expected =
+            Position16<RoomPixels> expected =
                 TourianStatueUnlockDefinitions.EyePosition(parameter);
             RoomEnemyProjectileSlot projectile =
                 enemies.EnemyProjectiles.Single(candidate => candidate.IsActive);

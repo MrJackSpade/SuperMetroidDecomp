@@ -113,8 +113,7 @@ internal static partial class Program
             {
                 MovementFunction = movement,
                 TurnTransitionDisabled = disabled,
-                CrawlingXVelocity = 0x0100,
-                CrawlingYVelocity = 0x0100,
+                CrawlingVelocity = new EightEightVector<RoomPixels>(0x0100, 0x0100),
             };
 
             run(slot, state, level);

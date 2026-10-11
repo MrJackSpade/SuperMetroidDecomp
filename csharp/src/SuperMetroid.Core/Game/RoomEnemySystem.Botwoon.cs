@@ -186,12 +186,10 @@ public sealed class BotwoonEnemyState
 }
 
 /// <summary>Observable request emitted by Botwoon's specialized item-drop tail.</summary>
-/// <param name="X">Wrapping room-world pixel X, randomized to 64 through 191 by the specialized sixteen-drop producer.</param>
-/// <param name="Y">Wrapping room-world pixel Y, randomized to 128 through 191 by that same producer.</param>
+/// <param name="Position">Wrapping room position, randomized to X 64 through 191 and Y 128 through 191 by the specialized sixteen-drop producer.</param>
 /// <param name="ItemDropChancesPointer">The retained head definition's native six-entry item-chance-table pointer, consumed by ordinary pickup selection.</param>
 public readonly record struct BotwoonDropRequest(
-    ushort X,
-    ushort Y,
+    Position16<RoomPixels> Position,
     ushort ItemDropChancesPointer);
 
 /// <summary>Delayed music queue request emitted by Botwoon's completed death sequence.</summary>
@@ -862,13 +860,14 @@ public sealed partial class RoomEnemySystem
         {
             ushort random = _nextRandom!();
             var request = new BotwoonDropRequest(
-                X: unchecked((ushort)((random & 0x007f) + 64)),
-                Y: unchecked((ushort)(((random & 0x3f00) >> 8) + 128)),
+                Position: new Position16<RoomPixels>(
+                    unchecked((ushort)((random & 0x007f) + 64)),
+                    unchecked((ushort)(((random & 0x3f00) >> 8) + 128))),
                 ItemDropChancesPointer: head.Definition.ItemDropChancesPointer);
             _botwoonDropRequests.Add(request);
             LastBotwoonDropRequest = request;
             SpawnEnemyDropFromChanceTable(
-                new(request.X, request.Y),
+                request.Position,
                 request.ItemDropChancesPointer);
         }
         state.DropRequested = true;

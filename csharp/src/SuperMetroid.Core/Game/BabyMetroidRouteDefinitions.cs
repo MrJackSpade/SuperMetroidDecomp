@@ -4,8 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// One compiled <c>$A9:CA24-$CA63</c> Baby Metroid ceiling-to-Samus route record.
 /// </summary>
 internal readonly record struct BabyMetroidRouteRecord(
-    ushort TargetX,
-    ushort TargetY,
+    Position16<RoomPixels> Target,
     ushort AccelerationDivisorIndex,
     BabyMetroidRouteMovementFunction MovementFunction,
     ushort FollowingWord);
@@ -46,18 +45,20 @@ internal static class BabyMetroidRouteDefinitions
     /// <c>$CA66</c> callback word. The first five legs use the wrong-way extra-$10 callback and
     /// the final three the extra-$08 callback.
     /// </summary>
-    private static ReadOnlySpan<ushort> WaypointX => [0x00a0, 0x0130, 0x00c0, 0x00c0, 0x00e0, 0x00cd, 0x00cc, 0x00cb];
-    private static ReadOnlySpan<ushort> WaypointY => [0x0078, 0x007a, 0x0040, 0x0070, 0x0080, 0x0090, 0x00a0, 0x00b0];
+    private static readonly Position16<RoomPixels>[] Waypoints =
+    [
+        new(0x00a0, 0x0078), new(0x0130, 0x007a), new(0x00c0, 0x0040), new(0x00c0, 0x0070),
+        new(0x00e0, 0x0080), new(0x00cd, 0x0090), new(0x00cc, 0x00a0), new(0x00cb, 0x00b0),
+    ];
     private const int FirstExtraEightLeg = 5;
 
     private static BabyMetroidRouteRecord Record(int index) => new(
-        WaypointX[index],
-        WaypointY[index],
+        Waypoints[index],
         0x0000,
         index < FirstExtraEightLeg
             ? BabyMetroidRouteMovementFunction.GradualAccelerationExtraSixteen
             : BabyMetroidRouteMovementFunction.GradualAccelerationExtraEight,
-        index + 1 < RecordCount ? WaypointX[index + 1] : LatchOntoSamusFunction);
+        index + 1 < RecordCount ? Waypoints[index + 1].X : LatchOntoSamusFunction);
 
     /// <summary>Returns the exact authored record identified by its native bank-$A9 pointer.</summary>
     internal static BabyMetroidRouteRecord GetRecord(ushort pointer)

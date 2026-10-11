@@ -65,12 +65,24 @@ public sealed class MamaTurtleEnemyState
         internal set => _slot.VariableA = (ushort)value;
     }
 
-    /// <summary>Signed whole half of the horizontal 16.16 velocity at variable E.</summary>
-    public ushort XVelocity
+    /// <summary>
+    /// Signed 16.16 velocity. The horizontal whole word is ordinary variable E; the horizontal
+    /// fraction and the vertical axis are extension words.
+    /// </summary>
+    public FixedVector<RoomPixels> Velocity
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => new(SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableE), _horizontalSubvelocity), _verticalVelocity);
+        internal set
+        {
+            _slot.VariableE = value.X.WholeWord;
+            _horizontalSubvelocity = value.X.Fraction;
+            _verticalVelocity = value.Y;
+        }
     }
+
+    // Extension words behind Velocity: the horizontal fraction and the vertical 16.16 axis.
+    private ushort _horizontalSubvelocity;
+    private SnesSignedSixteenSixteen _verticalVelocity;
 
     /// <summary>Wake counter at variable F; each Baby touch or shot decrements it.</summary>
     public ushort AsleepFlag
@@ -85,12 +97,6 @@ public sealed class MamaTurtleEnemyState
     public ushort XSubAcceleration { get; internal set; }
     /// <summary>Gets the whole word of signed horizontal 16.16 acceleration.</summary>
     public ushort XAcceleration { get; internal set; }
-    /// <summary>Gets the fractional word paired with <see cref="XVelocity"/>.</summary>
-    public ushort XSubVelocity { get; internal set; }
-    /// <summary>Gets the whole word of signed vertical 16.16 velocity.</summary>
-    public ushort YVelocity { get; internal set; }
-    /// <summary>Gets the fractional word paired with <see cref="YVelocity"/>.</summary>
-    public ushort YSubVelocity { get; internal set; }
 
     /// <summary>
     /// Extended word six. Every Baby clears this through its main-AI prologue; a child in
@@ -134,17 +140,25 @@ public sealed class BabyTurtleEnemyState
         internal set => _slot.VariableD = value;
     }
 
-    /// <summary>Signed whole-pixel horizontal velocity at ordinary variable E.</summary>
-    public ushort XVelocity
+    /// <summary>
+    /// Signed whole-pixel velocity per update. The horizontal word is ordinary variable E; the
+    /// vertical word is an extension word.
+    /// </summary>
+    public Offset16<RoomPixels> Velocity
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => new(unchecked((short)_slot.VariableE), _verticalVelocity);
+        internal set
+        {
+            _slot.VariableE = unchecked((ushort)value.X);
+            _verticalVelocity = value.Y;
+        }
     }
+
+    // Extension word behind Velocity's vertical axis.
+    private short _verticalVelocity;
 
     /// <summary>Gets the phase-specific Baby Turtle countdown.</summary>
     public ushort FunctionTimer { get; internal set; }
-    /// <summary>Gets the signed whole-pixel vertical velocity.</summary>
-    public ushort YVelocity { get; internal set; }
     /// <summary>Gets the reaction countdown used while the child is not carrying Samus.</summary>
     public ushort NotCarryingSamusReactionTimer { get; internal set; }
 }
@@ -284,7 +298,7 @@ public sealed partial class RoomEnemySystem
             SpawnXPosition = slot.Position.X.Whole,
             SpawnTopBoundary = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)),
             Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus,
-            XVelocity = slot.Parameter1,
+            Velocity = new Offset16<RoomPixels>(unchecked((short)slot.Parameter1), 0),
         };
         _babyTurtleStates[slot.SlotIndex] = state;
 
@@ -490,8 +504,7 @@ public sealed partial class RoomEnemySystem
             state.XSubAcceleration = 0xf000;
             state.XAcceleration = 0xffff;
         }
-        state.XVelocity = 0;
-        state.XSubVelocity = 0;
+        state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.Zero);
         state.Function = MamaTurtleAiFunction.Hovering;
     }
 
@@ -503,8 +516,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
-        int displacement = ((int)(short)state.XVelocity << 16) | state.XSubVelocity;
-        if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, displacement))
+        if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, state.Velocity.X.RawValue))
         {
             ReverseMamaTurtleAtWall(state);
             EarthquakeType = 0;
@@ -527,28 +539,29 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.Function = MamaTurtleAiFunction.RisingToPeak;
-        SnesSignedSixteenSixteen result = samus.Kinematics.ExtraDisplacement.X -
-            SnesSignedSixteenSixteen.FromParts(unchecked((short)state.XVelocity), state.XSubVelocity);
+        SnesSignedSixteenSixteen result = samus.Kinematics.ExtraDisplacement.X - state.Velocity.X;
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(result.WholePixels < -16 ? result.WithWholePixels(-16) : result);
     }
 
     private static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
-        uint subSum = (uint)state.XSubVelocity + state.XSubAcceleration;
-        ushort oldWhole = state.XVelocity;
+        SnesSignedSixteenSixteen velocity = state.Velocity.X;
+        uint subSum = (uint)velocity.Fraction + state.XSubAcceleration;
+        ushort oldWhole = velocity.WholeWord;
         ushort newWhole = unchecked((ushort)(
             oldWhole + state.XAcceleration + (subSum >> 16)));
-        state.XSubVelocity = unchecked((ushort)subSum);
 
         int magnitude = Math.Abs((int)unchecked((short)newWhole));
-        state.XVelocity = magnitude < MamaTurtleMaximumHoveringSpeed
+        ushort cappedWhole = magnitude < MamaTurtleMaximumHoveringSpeed
             ? newWhole
             // Native chooses the cap's sign from the old velocity word, before storing the
             // just-computed result. Preserve that one-frame zero-crossing behavior.
             : unchecked((short)oldWhole) < 0
                 ? unchecked((ushort)-MamaTurtleMaximumHoveringSpeed)
                 : MamaTurtleMaximumHoveringSpeed;
+        state.Velocity = state.Velocity.WithX(
+            SnesSignedSixteenSixteen.FromParts(unchecked((short)cappedWhole), unchecked((ushort)subSum)));
     }
 
     /// <summary>
@@ -557,11 +570,14 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
-        state.XSubVelocity = unchecked((ushort)(~state.XSubVelocity + 1));
+        SnesSignedSixteenSixteen velocity = state.Velocity.X;
+        ushort negatedFraction = unchecked((ushort)(~velocity.Fraction + 1));
 
-        uint xVelocitySum = (uint)state.XVelocity + 1; // BCS supplied carry-in one.
+        uint xVelocitySum = (uint)velocity.WholeWord + 1; // BCS supplied carry-in one.
         bool carry = xVelocitySum > ushort.MaxValue;
-        state.XVelocity = unchecked((ushort)(~(ushort)xVelocitySum + 1));
+        ushort negatedWhole = unchecked((ushort)(~(ushort)xVelocitySum + 1));
+        state.Velocity = state.Velocity.WithX(
+            SnesSignedSixteenSixteen.FromParts(unchecked((short)negatedWhole), negatedFraction));
 
         state.XSubAcceleration = unchecked((ushort)(~state.XSubAcceleration + 1));
         uint accelerationSum = (uint)state.XAcceleration + (carry ? 1u : 0u);
@@ -579,8 +595,7 @@ public sealed partial class RoomEnemySystem
         {
             state.FunctionTimer = MamaTurtlePeakPauseFrames;
             state.Function = MamaTurtleAiFunction.HoveringAtPeak;
-            state.YSubVelocity = 0;
-            state.YVelocity = 0;
+            state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.Zero);
             return;
         }
 
@@ -592,8 +607,7 @@ public sealed partial class RoomEnemySystem
         }
 
         state.Function = MamaTurtleAiFunction.Falling;
-        state.YSubVelocity = 0;
-        state.YVelocity = 0;
+        state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.Zero);
     }
 
     /// <summary>Ports the 30-frame peak delay at <c>$A2:90CC</c>.</summary>
@@ -621,21 +635,21 @@ public sealed partial class RoomEnemySystem
         // The retail parent is slot zero, but retaining the explicit source documents the
         // behavior for debugger-created populations as well.
         MamaTurtleEnemyState comparisonState = _mamaTurtleStates[0] ?? state;
-        if (unchecked((short)(comparisonState.YVelocity - MamaTurtleMaximumFallingSpeed)) < 0)
+        if (unchecked((short)(comparisonState.Velocity.Y.WholeWord - MamaTurtleMaximumFallingSpeed)) < 0)
         {
-            uint sum = (uint)state.YSubVelocity + 0x2000;
-            state.YSubVelocity = unchecked((ushort)sum);
-            state.YVelocity = unchecked((ushort)(state.YVelocity + (sum >> 16)));
+            // The $2000 fraction step carries into the whole word; both are one 16.16 add.
+            state.Velocity = state.Velocity.WithY(
+                state.Velocity.Y + SnesSignedSixteenSixteen.FromParts(0, 0x2000));
         }
 
-        // Only the whole word is passed to MoveEnemyDown; YSubVelocity influences later
+        // Only the whole word is passed to MoveEnemyDown; the fraction influences later
         // whole-speed carries but is not itself part of this frame's displacement.
-        if (!MoveEnemyVertically(level, mama, (int)(short)state.YVelocity << 16))
+        if (!MoveEnemyVertically(level, mama, state.Velocity.Y.WholePixels << 16))
             return;
 
         InstallTurtleInstruction(
             mama,
-            unchecked((short)state.XVelocity) < 0
+            state.Velocity.X.WholePixels < 0
                 ? MamaTurtleInstructionProgramDefinitions.MamaLeaveShellLeft
                 : MamaTurtleInstructionProgramDefinitions.MamaLeaveShellRight);
         state.Function = MamaTurtleAiFunction.Idle;
@@ -662,7 +676,7 @@ public sealed partial class RoomEnemySystem
                     state.NotCarryingSamusReactionTimer = 4;
                     InstallTurtleInstruction(
                         baby,
-                        unchecked((short)state.XVelocity) < 0
+                        state.Velocity.X < 0
                             ? MamaTurtleInstructionProgramDefinitions.BabyHidingLeft
                             : MamaTurtleInstructionProgramDefinitions.BabyHidingRight);
                 }
@@ -690,10 +704,8 @@ public sealed partial class RoomEnemySystem
                     InstallTurtleInstruction(
                         baby,
                         MamaTurtleInstructionProgramDefinitions.BabySpinning);
-                    state.YVelocity = 1;
-                    state.XVelocity = (samus.ReadPoseXDirection(_bus!) & 0x0f) == 8
-                        ? (ushort)3
-                        : unchecked((ushort)-3);
+                    bool facingRight = (samus.ReadPoseXDirection(_bus!) & 0x0f) == (byte)SamusFacingDirection.Right; // magic-number-audit: allow(PoseOrMovement) - the native low-nibble mask isolating the pose X-direction byte.
+                    state.Velocity = new Offset16<RoomPixels>(facingRight ? (short)3 : (short)-3, 1);
                     return;
                 }
                 state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
@@ -738,12 +750,12 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                level, baby, (int)(short)state.XVelocity << 16))
+                level, baby, state.Velocity.X << 16))
         {
-            state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
+            state.Velocity = state.Velocity.WithX(unchecked((short)-state.Velocity.X));
             return;
         }
-        MoveEnemyVertically(level, baby, (int)(short)state.YVelocity << 16);
+        MoveEnemyVertically(level, baby, state.Velocity.Y << 16);
     }
 
     /// <summary>Instruction <c>$A2:9381</c>: crawl across the sleeping parent contour.</summary>
@@ -762,13 +774,13 @@ public sealed partial class RoomEnemySystem
         bool carryingSamus = IsSamusRidingPlatform(baby, samus);
         if (carryingSamus)
         {
-            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(state.XVelocity)), 0);
+            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(state.Velocity.X, 0);
         }
 
         ushort previousY = baby.Position.Y.Whole;
         baby.Position = baby.Position.WithWholeY(state.SpawnTopBoundary);
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-            level, baby, (int)(short)state.XVelocity << 16);
+            level, baby, state.Velocity.X << 16);
 
         RoomEnemySlot parentSlot = SlotFromNativeIndex(state.ParentNativeIndex);
         MamaTurtleEnemyState parent = RequireMamaTurtleState(parentSlot);
@@ -797,11 +809,9 @@ public sealed partial class RoomEnemySystem
         int distance = Math.Abs((int)signedDifference);
         if (distance >= BabyTurtleTravelDistance)
         {
-            state.XVelocity = signedDifference < 0
-                ? unchecked((ushort)-1)
-                : (ushort)1;
+            state.Velocity = state.Velocity.WithX(signedDifference < 0 ? (short)-1 : (short)1);
         }
-        return unchecked((short)state.XVelocity) < 0
+        return state.Velocity.X < 0
             ? MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft
             : MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight;
     }
@@ -818,7 +828,7 @@ public sealed partial class RoomEnemySystem
         // Cartridge comments describe the visual facing, while the stored velocity is the
         // opposite sign: $9451 writes -1 and $946B writes +1.
         state.Function = MamaTurtleAiFunction.RisingToHover;
-        state.XVelocity = rightward ? unchecked((ushort)-1) : (ushort)1;
+        state.Velocity = state.Velocity.WithWholeX(rightward ? (short)-1 : (short)1);
         state.FunctionTimer = 16;
     }
 
@@ -833,7 +843,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Baby Turtle shell bytecode requires Samus.");
         if (!IsSamusRidingPlatform(baby, samus))
             return fallthroughCursor;
-        return unchecked((short)state.XVelocity) < 0
+        return state.Velocity.X < 0
             ? MamaTurtleInstructionProgramDefinitions.BabyLeaveShellLeft
             : MamaTurtleInstructionProgramDefinitions.BabyLeaveShellRight;
     }
@@ -849,7 +859,7 @@ public sealed partial class RoomEnemySystem
         state.Function = IsSamusRidingPlatform(baby, samus)
             ? BabyTurtleAiFunction.CrawlingCarryingSamus
             : BabyTurtleAiFunction.CrawlingNotCarryingSamus;
-        return unchecked((short)state.XVelocity) < 0
+        return state.Velocity.X < 0
             ? MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft
             : MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight;
     }
@@ -864,7 +874,7 @@ public sealed partial class RoomEnemySystem
             return;
         ResolveNormalEnemyTouch(mama, samus);
         state.Function = MamaTurtleAiFunction.Falling;
-        state.YVelocity = 2;
+        state.Velocity = state.Velocity.WithWholeY(2);
     }
 
     /// <summary>Ports Baby's direction flip, separation, and wake callback at $A2:929F.</summary>
@@ -878,19 +888,19 @@ public sealed partial class RoomEnemySystem
             return;
         RequireTurtleLevel(level);
 
-        if (unchecked((short)state.XVelocity) < 0)
+        if (state.Velocity.X < 0)
         {
             InstallTurtleInstruction(
                 baby,
                 MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight);
-            state.XVelocity = 1;
+            state.Velocity = state.Velocity.WithX(1);
         }
         else
         {
             InstallTurtleInstruction(
                 baby,
                 MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft);
-            state.XVelocity = unchecked((ushort)-1);
+            state.Velocity = state.Velocity.WithX(-1);
         }
 
         baby.Position = baby.Position.WithWholeX(unchecked((short)(baby.Position.X.Whole - samus.Position.X.Whole)) >= 0
@@ -898,7 +908,7 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.Radius.X)));
         state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-            level!, baby, (int)(short)state.XVelocity << 16);
+            level!, baby, state.Velocity.X << 16);
         WakeMamaTurtle(state);
     }
 
@@ -975,7 +985,7 @@ public sealed partial class RoomEnemySystem
         BabyTurtleEnemyState state) =>
         InstallTurtleInstruction(
             baby,
-            unchecked((short)state.XVelocity) < 0
+            state.Velocity.X < 0
                 ? MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft
                 : MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight);
 

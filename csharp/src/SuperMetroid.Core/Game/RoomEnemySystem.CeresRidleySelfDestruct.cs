@@ -105,8 +105,7 @@ public sealed partial class RoomEnemySystem
 
             case 12:
                 UpdateCeresSelfDestructPalette(state, _slots[0].FrameCounter);
-                state.HorizontalVelocity = 0;
-                state.VerticalVelocity = 0;
+                state.Velocity = new EightEightVector<RoomPixels>(0, 0);
                 state.FunctionTimer = 0;
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 CeresStatus = 2;

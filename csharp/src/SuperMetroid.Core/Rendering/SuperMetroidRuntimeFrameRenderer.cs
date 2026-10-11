@@ -48,8 +48,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                 matrixB: unchecked((short)getaway.Mode7MatrixB),
                 matrixC: unchecked((short)getaway.Mode7MatrixC),
                 matrixD: unchecked((short)getaway.Mode7MatrixD),
-                center: new Offset16<Mode7Pixels>(unchecked((short)getaway.Mode7CenterX), unchecked((short)getaway.Mode7CenterY)),
-                scroll: new Offset16<Mode7Pixels>(unchecked((short)(getaway.Mode7HorizontalOffset + shake.Bg1.X)), unchecked((short)(getaway.Mode7VerticalOffset + shake.Bg1.Y))),
+                center: getaway.Mode7Center.AsSignedRegister(),
+                scroll: new Offset16<Mode7Pixels>(unchecked((short)(getaway.Mode7Offset.X + shake.Bg1.X)), unchecked((short)(getaway.Mode7Offset.Y + shake.Bg1.Y))),
                 bg2Scroll: bg2Scroll,
                 // Setup ASM $8F:C97B writes BG12NBA=$66; the floor slice returns to
                 // Mode 1 and therefore consumes the same $6000 character base as BG2 did
@@ -135,12 +135,12 @@ public static class SuperMetroidRuntimeFrameRenderer
                 bg1Scroll,
                 new Position16<Bg2Pixels>(
                     kraidOwnsBg2
-                        ? AddShake(kraid!.Bg2HorizontalScroll, shake.Bg2.X)
+                        ? AddShake(kraid!.Bg2Scroll.X, shake.Bg2.X)
                         : crocomireOwnsBg2
                         ? AddShake(runtime.Enemies.CrocomireBg2HorizontalScroll, shake.Bg2.X)
                         : bg2Scroll.X,
                     kraidOwnsBg2
-                        ? AddShake(kraid!.Bg2VerticalScroll, shake.Bg2.Y)
+                        ? AddShake(kraid!.Bg2Scroll.Y, shake.Bg2.Y)
                         : crocomireOwnsBg2
                         ? AddShake(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2.Y)
                         : scrollingSky is not null

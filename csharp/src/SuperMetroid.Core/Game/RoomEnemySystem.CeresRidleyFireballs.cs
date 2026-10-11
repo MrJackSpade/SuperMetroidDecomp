@@ -783,8 +783,9 @@ public sealed partial class RoomEnemySystem
         // takes the absolute table word,
         // shifts by eight, then reapplies the sign. Speed $0500 therefore remains a
         // signed 8.8 velocity whose magnitude never exceeds $0500.
-        state.FireballXVelocity = MultiplyCartridgeSinCos(0x0500, angle);
-        state.FireballYVelocity = MultiplyCartridgeSinCos(0x0500, unchecked((byte)(angle + 64)));
+        state.FireballVelocity = new EightEightVector<RoomPixels>(
+            new SnesSignedEightEight(MultiplyCartridgeSinCos(0x0500, angle)),
+            new SnesSignedEightEight(MultiplyCartridgeSinCos(0x0500, unchecked((byte)(angle + 64)))));
     }
 
     private static ushort MultiplyCartridgeSinCos(ushort speed, byte angle)
@@ -807,7 +808,7 @@ public sealed partial class RoomEnemySystem
         ApplyRidleyProjectileAreaDamage(projectile);
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole +
             (state.FacingDirection == RidleyFacing.Left ? -25 : 25))), unchecked((ushort)(ridley.Position.Y.Whole - 43))));
-        projectile.Velocity = new(new SnesSignedEightEight(state.FireballXVelocity), new SnesSignedEightEight(state.FireballYVelocity));
+        projectile.Velocity = state.FireballVelocity;
         projectile.RemainingAfterburns = spawnAfterburn ? (ushort)3 : (ushort)0;
     }
 
@@ -2016,7 +2017,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.SporeSpawner_SpawnSpore:
-                    SpawnSporeSpawnSpore(projectile.Position.X.Whole, projectile.Position.Y.Whole);
+                    SpawnSporeSpawnSpore(projectile.Position.Whole);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.TorizoLandingDustClouds:

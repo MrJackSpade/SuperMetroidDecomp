@@ -23,7 +23,7 @@ internal static partial class Program
         var carry = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyGrabbedSamus", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState>>();
         var overlaps = typeof(RoomEnemySystem).GetMethod("RidleyClawOverlapsSamus", flags)!
-            .CreateDelegate<Func<RoomEnemySlot, RidleyEnemyState, SamusState, ushort, ushort, bool>>();
+            .CreateDelegate<Func<RoomEnemySlot, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool>>();
         var slot = new RoomEnemySystem().Slots[0];
         var state = new RidleyEnemyState();
         var samus = new SamusState();
@@ -35,15 +35,14 @@ internal static partial class Program
             slot.Position = slot.Position.WithWhole(new((ushort)raw, (ushort)(ushort.MaxValue - raw)));
             state.FacingDirection = facing;
             state.FeetDistanceIndex = feet;
-            state.GrabXOffset = (ushort)raw;
-            state.GrabYOffset = (ushort)(ushort.MaxValue - raw);
-            int dx = Decay(unchecked((short)state.GrabXOffset));
-            int dy = Decay(unchecked((short)state.GrabYOffset));
+            state.GrabOffset = new Offset16<RoomPixels>(unchecked((short)raw), unchecked((short)(ushort.MaxValue - raw)));
+            int dx = Decay(unchecked((short)state.GrabOffset.X));
+            int dy = Decay(unchecked((short)state.GrabOffset.Y));
             carry(slot, state, samus);
             AssertEqual(unchecked((ushort)(raw + x[(int)facing] + dx)), samus.Position.X.Whole, "Actual carry X includes claw, signed decay and word wrap");
             AssertEqual(unchecked((ushort)(ushort.MaxValue - raw + y[feet >> 1] + dy)), samus.Position.Y.Whole, "Actual carry Y includes animated claw, signed decay and word wrap");
-            AssertEqual(unchecked((ushort)dx), state.GrabXOffset, "Carry X offset decays four pixels");
-            AssertEqual(unchecked((ushort)dy), state.GrabYOffset, "Carry Y offset decays four pixels");
+            AssertEqual(unchecked((short)dx), state.GrabOffset.X, "Carry X offset decays four pixels");
+            AssertEqual(unchecked((short)dy), state.GrabOffset.Y, "Carry Y offset decays four pixels");
         }
         foreach (ushort world in new ushort[] { 0, 128, 65535 })
         foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())
@@ -56,7 +55,7 @@ internal static partial class Program
             state.FeetDistanceIndex = feet;
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(world + x[(int)facing] + dx)), unchecked((ushort)(world + y[feet >> 1] + dy))));
             bool expected = Math.Abs(dx) < samus.Kinematics.Radius.X + 8 && Math.Abs(dy) < samus.Kinematics.Radius.Y + 12;
-            AssertEqual(expected, overlaps(slot, state, samus, 8, 12), "Actual claw collision boundaries including world wrap");
+            AssertEqual(expected, overlaps(slot, state, samus, new Extent16<RoomPixels>(8, 12)), "Actual claw collision boundaries including world wrap");
         }
         Console.WriteLine("Ridley claws: exact native read windows, all index words, 1179648 carry placements and 228150 collision probes pass through bus-free consumers.");
     }

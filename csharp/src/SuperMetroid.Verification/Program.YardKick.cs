@@ -32,13 +32,13 @@ internal static partial class Program
             AssertTrue(enemies.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor.NativeIndex),
                 "Yard kick enters through native contact dispatcher");
             bool left = pose == SamusPoseId.FacingLeftNormalPose;
-            AssertEqual(left ? unchecked((ushort)-whole) : whole, state.AirborneXVelocity, "kick whole word");
-            AssertEqual(left ? unchecked((ushort)-fraction) : fraction, state.AirborneXSubvelocity, "kick fraction negates independently");
+            AssertEqual(left ? unchecked((ushort)-whole) : whole, state.AirborneVelocity.X.WholeWord, "kick whole word");
+            AssertEqual(left ? unchecked((ushort)-fraction) : fraction, state.AirborneVelocity.X.Fraction, "kick fraction negates independently");
             int index = Math.Min((int)whole, 15);
             ushort expectedFraction = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D517 + index * 4);
             ushort expectedWhole = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D519 + index * 4);
-            AssertEqual(expectedFraction, state.AirborneYSubvelocity, "vertical kick table capped independently of horizontal speed");
-            AssertEqual(expectedWhole, state.AirborneYVelocity, "vertical kick table whole word");
+            AssertEqual(expectedFraction, state.AirborneVelocity.Y.Fraction, "vertical kick table capped independently of horizontal speed");
+            AssertEqual(expectedWhole, state.AirborneVelocity.Y.WholeWord, "vertical kick table whole word");
             AssertEqual(YardBehavior.Kicked, state.Behavior, "touch installs kicked behavior");
             cases++;
         }

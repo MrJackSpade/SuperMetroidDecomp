@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -21,7 +22,7 @@ internal static partial class Program
         {
             Function = RidleyAiFunction.NorfairGrabApproach,
             FacingDirection = RidleyFacing.Left, FightMode = RidleyFightMode.Fighting,
-            MinimumX = 32, MaximumX = 224, MinimumY = 64, MaximumY = 416,
+            MovementMinimum = new Position16<RoomPixels>(32, 64), MovementMaximum = new Position16<RoomPixels>(224, 416),
         };
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairHoverSetup, state.Function,
@@ -41,7 +42,7 @@ internal static partial class Program
             slot.Health = 1000;
             state.Function = RidleyAiFunction.NorfairGrabApproach;
             state.FacingDirection = facing;
-            state.HorizontalVelocity = state.VerticalVelocity = 0;
+            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
             state.HitRoomBoundary = false;
             state.ZeroHealthLungeCount = 0;
             state.FightMode = RidleyFightMode.Fighting;
@@ -66,12 +67,12 @@ internal static partial class Program
         }
         // Exercise real integration, not a manually supplied boundary flag.
         ResetLunge(223, 300);
-        state.HorizontalVelocity = 0x100;
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x100));
         move(slot, state, false);
         AssertTrue(state.HitRoomBoundary, "exact maximum X counts as a native boundary hit");
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairHoverSetup, state.Function, "movement boundary result exits the next lunge call");
-        state.HorizontalVelocity = unchecked((ushort)-0x100);
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-0x100)));
         move(slot, state, false);
         AssertTrue(!state.HitRoomBoundary, "moving back inside clears the boundary result");
 
@@ -95,7 +96,7 @@ internal static partial class Program
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairReturnToArena, state.Function, "bomb selects native dodge instead of ordinary retreat");
         AssertEqual(RidleyFightMode.PowerBombDodge, state.FightMode, "dodge suppresses repeated combat interruption");
-        AssertTrue((short)state.HorizontalVelocity < 0 && (short)state.VerticalVelocity < 0,
+        AssertTrue((short)state.Velocity.X.RawValue < 0 && (short)state.Velocity.Y.RawValue < 0,
             "low right-side bomb immediately accelerates Ridley toward upper-left target");
         bomb.ReleaseFlag();
         run(slot, state, samus, 0, null);

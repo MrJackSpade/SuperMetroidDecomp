@@ -32,8 +32,8 @@ internal static partial class Program
             {
                 var component = components[index];
                 int address = frame.Pointer + 2 + 8 * index;
-                AssertEqual(unchecked((short)Word(address)), component.X, "corpse native component X");
-                AssertEqual(unchecked((short)Word(address + 2)), component.Y, "corpse native component Y");
+                AssertEqual(unchecked((short)Word(address)), component.Offset.X, "corpse native component X");
+                AssertEqual(unchecked((short)Word(address + 2)), component.Offset.Y, "corpse native component Y");
                 AssertEqual(Word(address + 6), component.HitboxPointer, "corpse native hitbox pointer");
                 var boxes = CrocomireBodyCollisionDefinitions.HitboxesAt(component.HitboxPointer);
                 AssertEqual((int)Word(component.HitboxPointer), boxes.Length, "corpse native hitbox count");
@@ -48,8 +48,8 @@ internal static partial class Program
                 if (!anyHitbox && boxes.Length != 0)
                 {
                     var box = boxes[0];
-                    ushort x = (ushort)(4096 + component.X + (box.Left + box.Right) / 2);
-                    ushort y = (ushort)(4096 + component.Y + (box.Top + box.Bottom) / 2);
+                    ushort x = (ushort)(4096 + component.Offset.X + (box.Left + box.Right) / 2);
+                    ushort y = (ushort)(4096 + component.Offset.Y + (box.Top + box.Bottom) / 2);
                     foreach (bool shot in new[] { false, true })
                     {
                         object?[] hit = [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot, (ushort)0];

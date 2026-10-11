@@ -61,11 +61,8 @@ public sealed class MaridiaLargeSnailEnemyState
     /// <summary>Extra word $05: one when Samus is to the left, zero when to the right.</summary>
     public bool SamusIsLeft { get; internal set; }
 
-    /// <summary>Extra word $06: whole-pixel X position captured before this frame's AI.</summary>
-    public ushort PreviousXPosition { get; internal set; }
-
-    /// <summary>Extra word $08: whole-pixel Y position captured before this frame's AI.</summary>
-    public ushort PreviousYPosition { get; internal set; }
+    /// <summary>Extra words $06/$08: whole-pixel position captured before this frame's AI.</summary>
+    public Position16<RoomPixels> PreviousPosition { get; internal set; }
 
     /// <summary>
     /// Extra word $0A is cleared by initialization and otherwise unused by the retail code.
@@ -168,8 +165,7 @@ public sealed partial class RoomEnemySystem
             AttackAllowsRotation = false,
             SamusInPushingRange = false,
             SamusIsLeft = false,
-            PreviousXPosition = 0,
-            PreviousYPosition = 0,
+            PreviousPosition = Position16<RoomPixels>.Zero,
             UnusedExtra0A = 0,
             StopMovementNextFrame = false,
             Function = MaridiaLargeSnailEnemyFunction.Idle,
@@ -204,8 +200,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Maridia Large Snail AI requires room level data.");
 
         UpdateMaridiaLargeSnailSamusProximity(slot, state, samus);
-        state.PreviousXPosition = slot.Position.X.Whole;
-        state.PreviousYPosition = slot.Position.Y.Whole;
+        state.PreviousPosition = slot.Position.Whole;
 
         switch (state.Function)
         {
@@ -466,13 +461,13 @@ public sealed partial class RoomEnemySystem
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
             // displacement word. This preserves the last touching Oum's native ownership.
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(unchecked((short)(
-                slot.Position.Y.Whole - state.PreviousYPosition)));
+                slot.Position.Y.Whole - state.PreviousPosition.Y)));
         }
 
         if (!state.SamusInPushingRange)
             return;
 
-        ushort deltaX = unchecked((ushort)(slot.Position.X.Whole - state.PreviousXPosition));
+        ushort deltaX = unchecked((ushort)(slot.Position.X.Whole - state.PreviousPosition.X));
         bool movedLeft = unchecked((short)deltaX) < 0;
         if (movedLeft != state.SamusIsLeft)
             return;
@@ -488,7 +483,7 @@ public sealed partial class RoomEnemySystem
         if (!state.SamusInPushingRange)
             return;
 
-        short deltaX = unchecked((short)(slot.Position.X.Whole - state.PreviousXPosition));
+        short deltaX = unchecked((short)(slot.Position.X.Whole - state.PreviousPosition.X));
         bool stop;
         if (deltaX == 0)
         {
@@ -511,7 +506,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.StopMovementNextFrame = true;
-        slot.Position = slot.Position.WithWholeX(state.PreviousXPosition);
+        slot.Position = slot.Position.WithWholeX(state.PreviousPosition.X);
     }
 
     /// <summary>

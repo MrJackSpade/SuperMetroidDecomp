@@ -9,7 +9,7 @@ internal static partial class Program
         var ceres = typeof(RoomEnemySystem).GetMethod("AccelerateRidleyToward", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, ushort, ushort, int>>();
         var norfair = typeof(RoomEnemySystem).GetMethod("MoveNorfairRidleyToward", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, ushort, ushort, int, ushort>>();
+            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int, ushort>>();
         var slot = new RoomEnemySystem().Slots[0];
         var state = new RidleyEnemyState();
         for (int index = 0; index < 16; index++)
@@ -25,15 +25,15 @@ internal static partial class Program
                 short distance = unchecked((short)raw);
                 ushort velocity = unchecked((ushort)((raw % 7) switch { 0 => -1280, 1 => -1, 2 => 0, 3 => 1, 4 => 1280, 5 => short.MinValue, _ => short.MaxValue }));
                 slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0xff00 + distance)), unchecked((ushort)(0x100 - distance))));
-                state.HorizontalVelocity = state.VerticalVelocity = velocity;
+                state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
                 ceres(slot, state, 0xff00, 0x100, index);
-                AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, ceresDivisor), state.HorizontalVelocity, "Ceres actual X acceleration");
-                AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, ceresDivisor), state.VerticalVelocity, "Ceres actual wrapped Y acceleration");
-                state.HorizontalVelocity = state.VerticalVelocity = velocity;
+                AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, ceresDivisor), state.Velocity.X.RawValue, "Ceres actual X acceleration");
+                AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, ceresDivisor), state.Velocity.Y.RawValue, "Ceres actual wrapped Y acceleration");
+                state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
                 ushort boost = (ushort)(raw % 3 * 16);
-                norfair(slot, state, 0xff00, 0x100, index, boost);
-                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, divisor, boost), state.HorizontalVelocity, "Norfair actual X acceleration");
-                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, divisor, boost), state.VerticalVelocity, "Norfair actual wrapped Y acceleration");
+                norfair(slot, state, new Position16<RoomPixels>(0xff00, 0x100), index, boost);
+                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, divisor, boost), state.Velocity.X.RawValue, "Norfair actual X acceleration");
+                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, divisor, boost), state.Velocity.Y.RawValue, "Norfair actual wrapped Y acceleration");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertiaDefinitions.Divisor(-1), "Negative inertia index");

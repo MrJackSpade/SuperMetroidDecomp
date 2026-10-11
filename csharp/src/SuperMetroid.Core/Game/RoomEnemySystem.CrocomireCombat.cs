@@ -6,8 +6,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Dispatches $A4:B951/$B968/$BA05/$BAB4 after multibox collision.</summary>
     private void ResolveCrocomireHitboxShot(
         SamusProjectileTypeWord projectileType,
-        ushort projectileX,
-        ushort projectileY,
+        Position16<RoomPixels> projectile,
         ushort callback)
     {
         CrocomireEnemyState state = Crocomire ??
@@ -32,7 +31,7 @@ public sealed partial class RoomEnemySystem
 
             case CrocomireHitboxShotCallback.Dust:
             case CrocomireHitboxShotCallback.AlternateDust:
-                SpawnCrocomireShotDust(projectileType, projectileX, projectileY);
+                SpawnCrocomireShotDust(projectileType, projectile);
                 return;
 
             case CrocomireHitboxShotCallback.Mouth:
@@ -40,8 +39,7 @@ public sealed partial class RoomEnemySystem
                     state,
                     body,
                     projectileType,
-                    projectileX,
-                    projectileY);
+                    projectile);
                 return;
 
             case CrocomireHitboxShotCallback.HeaderReturn:
@@ -58,8 +56,7 @@ public sealed partial class RoomEnemySystem
         CrocomireEnemyState state,
         RoomEnemySlot body,
         SamusProjectileTypeWord projectileType,
-        ushort projectileX,
-        ushort projectileY)
+        Position16<RoomPixels> projectile)
     {
         body.InvincibilityTimer = 0;
 
@@ -77,7 +74,7 @@ public sealed partial class RoomEnemySystem
                 if (!projectileType.IsChargedBeam)
                 {
                     body.InstructionTimer = 8;
-                    SpawnCrocomireShotDust(projectileType, projectileX, projectileY);
+                    SpawnCrocomireShotDust(projectileType, projectile);
                     return;
                 }
                 stepCount = 2;
@@ -119,15 +116,12 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnCrocomireShotDust(
         SamusProjectileTypeWord projectileType,
-        ushort projectileX,
-        ushort projectileY)
+        Position16<RoomPixels> projectile)
     {
         ushort animationIndex = projectileType.Family != SamusProjectileFamily.SuperMissile
             ? (ushort)6
             : (ushort)29;
-        SpawnRoomGraphicsDustExplosion(
-            new(projectileX, projectileY),
-            animationIndex);
+        SpawnRoomGraphicsDustExplosion(projectile, animationIndex);
     }
 
     /// <summary>Ports $A4:B992 without applying normal power-bomb HP damage.</summary>

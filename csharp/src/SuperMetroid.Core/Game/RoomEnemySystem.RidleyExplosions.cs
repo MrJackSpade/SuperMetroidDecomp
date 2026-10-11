@@ -81,7 +81,7 @@ public sealed partial class RoomEnemySystem
         {
             int tailIndex = (int)part >> 1;
             RidleyTailSegment tail = state.TailSegments[tailIndex];
-            fragment.Position = fragment.Position.WithWhole(new(tail.XPosition, tail.YPosition));
+            fragment.Position = fragment.Position.WithWhole(tail.Position);
             int tailTipOrientation =
                 (((tail.Angle & 0x00ff) +
                     (state.TailSegments[5].Angle & 0x00ff) + 8) & 0x00f0) >> 4;

@@ -207,57 +207,53 @@ public sealed partial class BabyMetroidCutsceneState
     }
 
     private bool CollidesWithRectangle(
-        ushort centerX,
-        ushort centerY,
-        ushort rectangleXRadius,
-        ushort rectangleYRadius)
+        Position16<RoomPixels> center,
+        Extent16<RoomPixels> rectangleRadius)
     {
         // `$A9:EF06` adds both radii and one, then rejects `abs(delta) >= sum+1`.
         // In the normal room-coordinate domain that is equivalently `abs(delta) <= sum`.
-        int xDistance = Math.Abs(unchecked((short)(centerX - XPosition)));
-        if (xDistance > rectangleXRadius + XHitboxRadius)
+        int xDistance = Math.Abs(unchecked((short)(center.X - XPosition)));
+        if (xDistance > rectangleRadius.X + XHitboxRadius)
             return false;
-        int yDistance = Math.Abs(unchecked((short)(centerY - YPosition)));
-        return yDistance <= rectangleYRadius + YHitboxRadius;
+        int yDistance = Math.Abs(unchecked((short)(center.Y - YPosition)));
+        return yDistance <= rectangleRadius.Y + YHitboxRadius;
     }
 
     private void GraduallyAccelerateTowardsPoint(
-        ushort targetX,
-        ushort targetY,
+        Position16<RoomPixels> target,
         ushort accelerationDivisor,
         ushort wrongWayOffScreenXSpeed,
-        ushort layer1X,
-        ushort layer1Y)
+        Position16<RoomPixels> layer1)
     {
         byte divisor = checked((byte)accelerationDivisor);
         XVelocity = BabyMetroidGradualAcceleration.AccelerateHorizontally(
-            XPosition, targetX, XVelocity, divisor, wrongWayOffScreenXSpeed,
-            () => IsVaguelyOffScreen(layer1X, layer1Y));
+            XPosition, target.X, XVelocity, divisor, wrongWayOffScreenXSpeed,
+            () => IsVaguelyOffScreen(layer1));
         YVelocity = BabyMetroidGradualAcceleration.AccelerateVertically(
-            YPosition, targetY, YVelocity, divisor);
+            YPosition, target.Y, YVelocity, divisor);
     }
 
-    private bool IsVaguelyOffScreen(ushort layer1X, ushort layer1Y)
+    private bool IsVaguelyOffScreen(Position16<RoomPixels> layer1)
     {
         // This is the signed-branch sequence at `$A9:F57A`; its generous rectangle extends
         // 16 pixels left/right and 96 pixels vertically beyond the ordinary 256x224 view.
         if (unchecked((short)YPosition) < 0)
             return true;
-        short relativeY = unchecked((short)(YPosition + 0x0060 - layer1Y));
+        short relativeY = unchecked((short)(YPosition + 0x0060 - layer1.Y));
         if (relativeY is < 0 or >= 0x01a0)
             return true;
         if (unchecked((short)XPosition) < 0)
             return true;
-        short relativeX = unchecked((short)(XPosition + 0x0010 - layer1X));
+        short relativeX = unchecked((short)(XPosition + 0x0010 - layer1.X));
         return relativeX is < 0 or >= 0x0120;
     }
 
-    private bool AccelerateTowardsPoint(ushort targetX, ushort targetY, ushort acceleration)
+    private bool AccelerateTowardsPoint(Position16<RoomPixels> target, ushort acceleration)
     {
         // `$F5A6` counts axes whose next whole-pixel prediction reaches/crosses target,
         // then shifts the count twice. Carry is set only for count two.
-        bool reachedX = AccelerateTowardsXPosition(targetX, acceleration);
-        bool reachedY = AccelerateTowardsYPosition(targetY, acceleration);
+        bool reachedX = AccelerateTowardsXPosition(target.X, acceleration);
+        bool reachedY = AccelerateTowardsYPosition(target.Y, acceleration);
         return reachedX && reachedY;
     }
 
@@ -317,4 +313,15 @@ public sealed partial class BabyMetroidCutsceneState
     }
 
     private static BabyMetroidCutscenePoint Capture() => new();
+
+    /// <summary>The 4x4 half-extent rectangle every route and staging target is tested with.</summary>
+    private static Extent16<RoomPixels> TargetRadius => new(4, 4);
+
+    /// <summary>Samus's centre minus twenty pixels vertically: the latch-onto-Samus target.</summary>
+    private static Position16<RoomPixels> SamusLatchPoint(SamusState samus) =>
+        samus.Position.Whole - new Offset16<RoomPixels>(0, 0x0014);
+
+    /// <summary>The brain enemy's centre minus <c>$18</c> pixels vertically: the latch-onto-brain target.</summary>
+    private static Position16<RoomPixels> BrainLatchPoint(MotherBrainHeadPosition head) =>
+        new Position16<RoomPixels>(head.X, head.Y) - new Offset16<RoomPixels>(0, 0x0018);
 }

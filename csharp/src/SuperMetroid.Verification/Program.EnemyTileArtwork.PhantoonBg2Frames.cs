@@ -152,9 +152,9 @@ internal static partial class Program
             {
                 int record = root + 2 + index * 8;
                 PhantoonCollisionComponent component = components[index];
-                AssertEqual(unchecked((short)ReadWord(record)), component.X,
+                AssertEqual(unchecked((short)ReadWord(record)), component.Offset.X,
                     $"Phantoon {frame.Name} component X");
-                AssertEqual(unchecked((short)ReadWord(record + 2)), component.Y,
+                AssertEqual(unchecked((short)ReadWord(record + 2)), component.Offset.Y,
                     $"Phantoon {frame.Name} component Y");
                 AssertEqual(ReadWord(record + 6), component.HitboxPointer,
                     $"Phantoon {frame.Name} engine hitbox list");
@@ -185,32 +185,32 @@ internal static partial class Program
                 }
             }
             _ = FindPhantoonHitboxCallback(stock, guardedBus,
-                frame.Pointer, 0x0080, 0x0080, selectShot: true);
+                frame.Pointer, new(0x0080, 0x0080), selectShot: true);
             _ = FindPhantoonHitboxCallback(stock, guardedBus,
-                frame.Pointer, 0x0080, 0x00a0, selectShot: false);
+                frame.Pointer, new(0x0080, 0x00a0), selectShot: false);
         }
         AssertEqual(3, checkedLists.Count,
             "Phantoon uses the three compiled retail hitbox lists");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi,
             FindPhantoonHitboxCallback(stock, guardedBus,
                 (ushort)PhantoonCollisionFrame.BodyFullHitbox,
-                0x0080, 0x0080, selectShot: true),
+                new(0x0080, 0x0080), selectShot: true),
             "Phantoon full-body frame selects native shot callback");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi,
             FindPhantoonHitboxCallback(edited, guardedBus,
                 (ushort)PhantoonCollisionFrame.BodyFullHitbox,
-                0x0080, 0x0080, selectShot: true),
+                new(0x0080, 0x0080), selectShot: true),
             "Phantoon BG2 artwork edit does not move or replace hitbox callbacks");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi,
             FindPhantoonHitboxCallback(edited, guardedBus,
                 (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
-                0x0080, 0x0099, selectShot: true),
+                new(0x0080, 0x0099), selectShot: true),
             "Phantoon eye-only frame selects native vulnerable eye callback");
     }
 
     private static ushort FindPhantoonHitboxCallback(
         EnemyTileArtworkCatalog art, ISnesAddressSpace bus,
-        ushort pointer, ushort targetX, ushort targetY, bool selectShot)
+        ushort pointer, Position16<RoomPixels> target, bool selectShot)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
@@ -224,7 +224,7 @@ internal static partial class Program
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
-            [slot, new Position16<RoomPixels>(targetX, targetY), new Extent16<RoomPixels>((ushort)2, (ushort)2), selectShot, null];
+            [slot, target, new Extent16<RoomPixels>((ushort)2, (ushort)2), selectShot, null];
         bool found = (bool)typeof(RoomEnemySystem)
             .GetMethod("TryFindExtendedHitboxCallback", flags)!
             .Invoke(enemies, arguments)!;

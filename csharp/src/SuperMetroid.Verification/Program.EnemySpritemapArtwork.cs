@@ -3712,7 +3712,7 @@ internal static partial class Program
         var oam = new OamBuffer();
         typeof(RoomEnemySystem).GetMethod("DrawMotherBrainWorldSpritemap", flags)!
             .Invoke(enemies,
-                [oam, pointer, worldX, worldY, (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010)]);
+                [oam, pointer, new Position16<RoomPixels>(worldX, worldY), (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010)]);
         return oam;
     }
 

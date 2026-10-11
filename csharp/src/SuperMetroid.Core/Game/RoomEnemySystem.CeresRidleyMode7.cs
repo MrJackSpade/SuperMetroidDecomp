@@ -16,15 +16,13 @@ public sealed partial class RoomEnemySystem
         state.Mode7Finished = false;
         state.Mode7TableByteIndex = 0;
         state.Mode7Angle = SnesAngle.FromRaw(1);
-        state.Mode7HorizontalOffset = 0xff80;
-        state.Mode7VerticalOffset = 0x0020;
+        state.Mode7Offset = new Offset16<Mode7Pixels>(-0x0080, 0x0020);
         state.Mode7Zoom = 0x0800;
         state.Mode7MatrixA = 0x0100;
         state.Mode7MatrixB = 0x0100;
         state.Mode7MatrixC = 0x0100;
         state.Mode7MatrixD = 0x0100;
-        state.Mode7CenterX = 0x0040;
-        state.Mode7CenterY = 0x0040;
+        state.Mode7Center = new Position16<Mode7Pixels>(0x0040, 0x0040);
         state.Mode7BabyFrame = 0;
         state.Mode7WingFrame = 0;
     }
@@ -79,14 +77,12 @@ public sealed partial class RoomEnemySystem
             // keep sampling Mode 7 VRAM for the self-destruct text scene.
             state.Mode7Finished = true;
             state.Mode7Active = false;
-            state.Mode7HorizontalOffset = 0;
-            state.Mode7VerticalOffset = 0;
+            state.Mode7Offset = Offset16<Mode7Pixels>.Zero;
             state.Mode7MatrixA = 0;
             state.Mode7MatrixB = 0;
             state.Mode7MatrixC = 0;
             state.Mode7MatrixD = 0;
-            state.Mode7CenterX = 0;
-            state.Mode7CenterY = 0;
+            state.Mode7Center = Position16<Mode7Pixels>.Zero;
             // $A6:AB55 hands the same extended actor workspace to $A6:C04E. Samus's
             // special push/fall handler remains responsible for restoring normal input;
             // ending Mode 7 itself does not unlock her in the cartridge.
@@ -96,12 +92,11 @@ public sealed partial class RoomEnemySystem
         }
 
         state.Mode7Zoom = zoom;
-        state.Mode7VerticalOffset = unchecked((ushort)(
-            state.Mode7VerticalOffset +
-            frame.YVelocity));
-        state.Mode7HorizontalOffset = unchecked((ushort)(
-            state.Mode7HorizontalOffset -
-            frame.XVelocity));
+        // The getaway frame's velocity is added to the vertical word and subtracted from the
+        // horizontal word.
+        state.Mode7Offset = new Offset16<Mode7Pixels>(
+            unchecked((short)(state.Mode7Offset.X - frame.XVelocity)),
+            unchecked((short)(state.Mode7Offset.Y + frame.YVelocity)));
 
         UpdateCeresRidleyMode7Palette(zoom);
         state.Mode7Angle = state.Mode7Angle.AddRaw(0x0030);

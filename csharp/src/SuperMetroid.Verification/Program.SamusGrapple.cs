@@ -611,8 +611,7 @@ static void VerifySamusGrappleSwingAndRelease()
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         samus,
-        anchorX: 200,
-        anchorY: 100,
+        anchor: new Position16<RoomPixels>(200, 100),
         ropeLength: 50,
         angle: SnesAngle.HalfTurn,
         angularVelocity: 0,
@@ -814,8 +813,7 @@ static void VerifySamusGrappleSwingAndRelease()
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         angularCollisionSamus,
-        anchorX: 128,
-        anchorY: 128,
+        anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
         angle: SnesAngle.QuarterTurn,
         angularVelocity: 0x0100,
@@ -859,8 +857,7 @@ static void VerifySamusGrappleSwingAndRelease()
         SamusGrappleMovement.ConnectUnobstructedSwing(
             bus,
             spikeBlockSamus,
-            anchorX: 128,
-            anchorY: 128,
+            anchor: new Position16<RoomPixels>(128, 128),
             ropeLength: 32,
             angle: SnesAngle.QuarterTurn,
             angularVelocity: 0x0100,
@@ -904,8 +901,7 @@ static void VerifySamusGrappleSwingAndRelease()
         SamusGrappleMovement.ConnectUnobstructedSwing(
             bus,
             spikeAirSamus,
-            anchorX: 128,
-            anchorY: 128,
+            anchor: new Position16<RoomPixels>(128, 128),
             ropeLength: 32,
             angle: SnesAngle.QuarterTurn,
             angularVelocity: 0x0100,
@@ -975,8 +971,7 @@ static void VerifySamusGrappleSwingAndRelease()
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         ropeCollisionSamus,
-        anchorX: 128,
-        anchorY: 128,
+        anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
         angle: SnesAngle.QuarterTurn,
         angularVelocity: 0,
@@ -1003,8 +998,7 @@ static void VerifySamusGrappleSwingAndRelease()
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         disconnectedAnchorSamus,
-        anchorX: 128,
-        anchorY: 128,
+        anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
         angle: SnesAngle.QuarterTurn,
         angularVelocity: 0,
@@ -1038,8 +1032,7 @@ static void VerifySamusGrappleSwingAndRelease()
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         wallGrabSamus,
-        anchorX: 128,
-        anchorY: 128,
+        anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
         angle: SnesAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
@@ -1136,8 +1129,7 @@ static void VerifySamusGrappleSwingAndRelease()
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         expiredWallGrabSamus,
-        anchorX: 128,
-        anchorY: 128,
+        anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
         angle: SnesAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
@@ -1181,8 +1173,7 @@ static void VerifySamusGrappleSwingAndRelease()
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         lockedSamus,
-        anchorX: 128,
-        anchorY: 128,
+        anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
         angle: SnesAngle.FromRaw(0xd600),
         angularVelocity: 0x0200,
@@ -1219,7 +1210,7 @@ static void VerifySamusGrappleSwingAndRelease()
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusGrappleMovement.ConnectUnobstructedSwing(
-            bus, new SamusState(), 0, 0, ropeLength: 7, angle: SnesAngle.Zero, angularVelocity: 0, faceRight: true),
+            bus, new SamusState(), Position16<RoomPixels>.Zero, ropeLength: 7, angle: SnesAngle.Zero, angularVelocity: 0, faceRight: true),
         "grapple rejects a rope shorter than retail connected minimum");
 
     Console.WriteLine("  Samus grapple: firing, swing collision, locked/wall-grab specials, wall jump, dropped pose, beam OAM, and release agree.");

@@ -26,12 +26,11 @@ internal static partial class Program
         samus.InputLocked = true;
         // Stage the last two frames of the actual Maw's held delay. The report's
         // (936,172) is this population mouth (936,192) plus native held offset (0,-20).
-        var maw = runtime.Enemies.YappingMawStates.Single(state => state?.OriginX == 936)!;
+        var maw = runtime.Enemies.YappingMawStates.Single(state => state?.Origin.X == 936)!;
         maw.Function = YappingMawAiFunction.RetractedDelay;
         maw.HasGrabbedSamus = true;
         maw.RetractedDelayTimer = 1;
-        maw.HeldSamusXOffset = 0;
-        maw.HeldSamusYOffset = unchecked((ushort)-20);
+        maw.HeldSamusOffset = new Offset16<RoomPixels>(0, -20);
         // The grapple handler runs in Samus's alpha pass, before EnemyMain. The Maw's
         // command three therefore queues $9B:C8C5 after this frame's swing, and the drop
         // completes in the next frame's handler, before the Maw's delay underflows.

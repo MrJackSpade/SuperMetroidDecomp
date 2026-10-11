@@ -13,7 +13,7 @@ internal static partial class Program
                 Word(EnemyRomTablePointersTorizo.WakeInstructionLists), Word(EnemyRomTablePointersTorizo.WakePropertyMasks),
                 Word(EnemyRomTablePointersTorizo.WakeXRadii), Word(EnemyRomTablePointersTorizo.WakeYRadii)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
-            ushort[] actual = [compiled.X, compiled.Y, compiled.Instruction, compiled.PropertyMask, compiled.XRadius, compiled.YRadius];
+            ushort[] actual = [compiled.Position.X, compiled.Position.Y, compiled.Instruction, compiled.PropertyMask, compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.AsSpan().SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
             var enemies = new RoomEnemySystem();

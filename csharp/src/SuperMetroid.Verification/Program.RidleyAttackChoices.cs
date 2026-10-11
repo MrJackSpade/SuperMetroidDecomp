@@ -73,8 +73,8 @@ internal static partial class Program
             AssertEqual(referenceReads, actualReads, "Chosen setup reads the same current RNG word");
             AssertEqual(expected.Function, state.Function, "Native chosen callback executes on the selection frame");
             AssertEqual(expected.FunctionTimer, state.FunctionTimer, "Same-frame selected timer");
-            AssertEqual(expected.HorizontalVelocity, state.HorizontalVelocity, "Same-frame selected X motion");
-            AssertEqual(expected.VerticalVelocity, state.VerticalVelocity, "Same-frame selected Y motion");
+            AssertEqual(expected.Velocity.X.RawValue, state.Velocity.X.RawValue, "Same-frame selected X motion");
+            AssertEqual(expected.Velocity.Y.RawValue, state.Velocity.Y.RawValue, "Same-frame selected Y motion");
             AssertEqual(expected.ZeroHealthLungeCount, state.ZeroHealthLungeCount, "Zero-health lunge counter wraps; spin takes priority");
         }
         Console.WriteLine("Ridley choices: all 48 native pointers and 655360 actual selections pass with table reads forbidden, exact RNG and same-frame setup checks.");

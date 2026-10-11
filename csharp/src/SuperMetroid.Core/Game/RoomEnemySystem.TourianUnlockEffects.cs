@@ -22,7 +22,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>$87:8320/832F use the native bank-$86 definitions and eye-position tables.</summary>
     public void SpawnTourianUnlockEffect(ushort parameter, bool soul)
     {
-        TourianStatueEyePosition position =
+        Position16<RoomPixels> position =
             TourianStatueUnlockDefinitions.EyePosition(parameter);
         var projectile = AllocateEnemyProjectile();
         if (projectile is null) return;
@@ -32,7 +32,7 @@ public sealed partial class RoomEnemySystem
                 ? RoomEnemyProjectileKind.TourianStatueSoul
                 : RoomEnemyProjectileKind.TourianStatueEyeGlow,
             0);
-        projectile.Position = projectile.Position.WithWhole(new(position.X, position.Y));
+        projectile.Position = projectile.Position.WithWhole(position);
         if (soul) projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-1024)));
         else
             (TileArtwork?.TourianStatueColors ?? throw new InvalidOperationException(

@@ -2110,8 +2110,8 @@ internal static partial class Program
             AssertEqual(Word(0xa2e5ef + selector * 2), DragonAnimationDefinitions.InstructionList((DragonAnimationSelector)selector), "Dragon native phase/facing program");
             var role = EscapeEtecoonDefinitions.Initialization(selector);
             int offset = selector & ~1;
-            AssertEqual(Word(0xb3e718 + offset), role.XPosition, "Etecoon native role X");
-            AssertEqual(Word(0xb3e71e + offset), role.YPosition, "Etecoon native role Y");
+            AssertEqual(Word(0xb3e718 + offset), role.Position.X, "Etecoon native role X");
+            AssertEqual(Word(0xb3e71e + offset), role.Position.Y, "Etecoon native role Y");
             AssertEqual(Word(0xb3e724 + offset), (ushort)role.PreInstruction, "Etecoon native role action");
             AssertEqual(Word(0xb3e72a + offset), role.InstructionList, "Etecoon native role program");
             AssertEqual(Word(0xb3e730 + offset), role.HorizontalSpeed, "Etecoon native role speed");

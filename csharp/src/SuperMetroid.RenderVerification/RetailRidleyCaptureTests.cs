@@ -30,9 +30,8 @@ internal static class RetailRidleyCaptureTests
             ridley.Mode7MatrixA = scale; ridley.Mode7MatrixD = scale;
             ridley.Mode7MatrixB = unchecked((ushort)tilt);
             ridley.Mode7MatrixC = unchecked((ushort)-tilt);
-            ridley.Mode7CenterX = 128; ridley.Mode7CenterY = 120;
-            ridley.Mode7HorizontalOffset = 7;
-            ridley.Mode7VerticalOffset = unchecked((ushort)scroll);
+            ridley.Mode7Center = new Position16<Mode7Pixels>(128, 120);
+            ridley.Mode7Offset = new Offset16<Mode7Pixels>(7, unchecked((short)scroll));
             var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
             var scene = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
             if (scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null } mixed ||

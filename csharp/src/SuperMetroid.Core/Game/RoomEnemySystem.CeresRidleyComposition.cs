@@ -12,8 +12,8 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports $A6:D97D-$D9EC after the common Ridley movement pass.</summary>
     private static void TickRidleyWingAnimation(RidleyEnemyState state)
     {
-        int absoluteXVelocity = Math.Abs(unchecked((short)state.HorizontalVelocity));
-        int absoluteYVelocity = Math.Abs(unchecked((short)state.VerticalVelocity));
+        int absoluteXVelocity = Math.Abs(state.Velocity.X.SignedRawValue);
+        int absoluteYVelocity = Math.Abs(state.Velocity.Y.SignedRawValue);
         int largestAxisVelocity = Math.Max(absoluteXVelocity, absoluteYVelocity);
         if (largestAxisVelocity == 0)
         {
@@ -25,7 +25,7 @@ public sealed partial class RoomEnemySystem
             // converts the resulting word-table byte index, and clamps that index to $E.
             int tableIndex = Math.Min(7, ((largestAxisVelocity << 2) & 0x0f00) >> 8);
             ushort delta = CeresRidleyWingAnimationDeltas[tableIndex];
-            if (unchecked((short)state.VerticalVelocity) >= 0)
+            if (state.Velocity.Y.SignedRawValue >= 0)
                 delta >>= 1;
             state.WingAnimationTimerDelta = delta;
         }
@@ -72,24 +72,25 @@ public sealed partial class RoomEnemySystem
         // $CAF5 always composes positions, but only the selected tail controller
         // updates offsets. Function zero and stagger/stop returns retain them.
         RidleyTailSegment first = state.TailSegments[0];
-        first.YPosition = unchecked((ushort)(slot.Position.Y.Whole + first.YOffset + 16));
-        first.XPosition = state.FacingDirection switch
+        ushort firstY = unchecked((ushort)(slot.Position.Y.Whole + first.Offset.Y + 16));
+        ushort firstX = state.FacingDirection switch
         {
-            RidleyFacing.Left => unchecked((ushort)(slot.Position.X.Whole + 0x0020 + first.XOffset)),
+            RidleyFacing.Left => unchecked((ushort)(slot.Position.X.Whole + 0x0020 + first.Offset.X)),
             RidleyFacing.Turning => slot.Position.X.Whole,
-            RidleyFacing.Right => unchecked((ushort)(slot.Position.X.Whole - 0x0020 + first.XOffset)),
+            RidleyFacing.Right => unchecked((ushort)(slot.Position.X.Whole - 0x0020 + first.Offset.X)),
             _ => throw new InvalidOperationException(
                 $"Undefined {nameof(RidleyFacing)} {(int)state.FacingDirection}."),
         };
+        first.Position = new Position16<RoomPixels>(firstX, firstY);
 
         for (int index = 1; index < state.TailSegments.Length; index++)
         {
             RidleyTailSegment previous = state.TailSegments[index - 1];
             RidleyTailSegment current = state.TailSegments[index];
-            current.YPosition = unchecked((ushort)(previous.YPosition + current.YOffset));
-            current.XPosition = state.FacingDirection == RidleyFacing.Turning
-                ? slot.Position.X.Whole
-                : unchecked((ushort)(previous.XPosition + current.XOffset));
+            Position16<RoomPixels> chained = previous.Position + current.Offset;
+            current.Position = state.FacingDirection == RidleyFacing.Turning
+                ? chained.WithX(slot.Position.X.Whole)
+                : chained;
         }
 
         UpdateRidleyTailDistances(state);
@@ -164,15 +165,15 @@ public sealed partial class RoomEnemySystem
             foreach (var projectile in projectiles.Slots.Take(5))
             {
                 if (projectile.PackedType.Family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)) continue;
-                if (Math.Abs((short)(projectile.Position.X.Whole - tip.XPosition)) - projectile.Radius.X >= 64 ||
-                    Math.Abs((short)(projectile.Position.Y.Whole - tip.YPosition)) - projectile.Radius.Y >= 64) continue;
+                if (Math.Abs((short)(projectile.Position.X.Whole - tip.Position.X)) - projectile.Radius.X >= 64 ||
+                    Math.Abs((short)(projectile.Position.Y.Whole - tip.Position.Y)) - projectile.Radius.Y >= 64) continue;
                 targetX = projectile.Position.X.Whole;
                 targetY = projectile.Position.Y.Whole;
                 break;
             }
         }
         byte cartridgeAngle = CalculateCartridgeAngle(
-            new(unchecked((short)(targetX - root.XPosition)), unchecked((short)(targetY - root.YPosition))));
+            new(unchecked((short)(targetX - root.Position.X)), unchecked((short)(targetY - root.Position.Y))));
         byte targetByte = unchecked((byte)-(cartridgeAngle - 0x80));
         ushort additional = unchecked((ushort)(additionalAngle << 8));
 
@@ -316,10 +317,9 @@ public sealed partial class RoomEnemySystem
         ushort distanceInPixels = unchecked((ushort)(segment.Distance >> 8));
         // $A9:C46C reads the middle/high bytes of the signed Mode 7 product.
         // An arithmetic shift preserves its floor for negative fractional pixels.
-        segment.XOffset = unchecked((ushort)(
-            distanceInPixels * EnemyTrigonometryTables.SignedSine(angle) >> 8));
-        segment.YOffset = unchecked((ushort)(
-            distanceInPixels * EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64))) >> 8));
+        segment.Offset = new Offset16<RoomPixels>(
+            unchecked((short)(distanceInPixels * EnemyTrigonometryTables.SignedSine(angle) >> 8)),
+            unchecked((short)(distanceInPixels * EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64))) >> 8)));
     }
 
     private static void DeactivateRidleyTailSegment(RidleyTailSegment segment)
@@ -461,12 +461,12 @@ public sealed partial class RoomEnemySystem
                     oam,
                     bank: CeresBabyInstructionProgramDefinitions.Bank,
                     pointer: babySpritemap,
-                    new(unchecked((ushort)(state.BabyXPosition - camera.X)), unchecked((ushort)(state.BabyYPosition - camera.Y))),
+                    state.BabyPosition.ToScreen(camera).ToOam(),
                     paletteBits: 0,
                     baseTileIndex: 0,
                     clipVerticalWrap: true,
                     originYIsOnScreen:
-                        unchecked((ushort)(state.BabyYPosition - camera.Y)) < 0x0100);
+                        state.BabyPosition.ToScreen(camera).Y < 0x0100);
             }
         }
 
@@ -618,17 +618,16 @@ public sealed partial class RoomEnemySystem
         ushort spritemap,
         Position16<RoomPixels> camera)
     {
-        ushort screenX = unchecked((ushort)(segment.XPosition - camera.X));
-        ushort screenY = unchecked((ushort)(segment.YPosition - camera.Y));
+        Position16<ScreenPixels> screen = segment.Position.ToScreen(camera);
         DrawEnemySpritemap(
             oam,
             RidleySupplementalVisualDefinitions.Bank,
             spritemap,
-            new(screenX, screenY),
+            screen.ToOam(),
             paletteIndex,
             0,
             clipVerticalWrap: true,
-            originYIsOnScreen: screenY < 0x0100);
+            originYIsOnScreen: screen.Y < 0x0100);
     }
 
     private bool ResolveRidleyBodySamusContact(SamusState samus)
@@ -696,11 +695,11 @@ public sealed partial class RoomEnemySystem
             state.MovementAnimationEnabled == 0 || state.TailSegments.Length != 7)
             return false;
         RidleyTailSegment tip = state.TailSegments[6];
-        int dx = Math.Abs(unchecked((short)(samus.Position.X.Whole - tip.XPosition)));
-        int dy = Math.Abs(unchecked((short)(samus.Position.Y.Whole - tip.YPosition)));
+        int dx = Math.Abs(unchecked((short)(samus.Position.X.Whole - tip.Position.X)));
+        int dy = Math.Abs(unchecked((short)(samus.Position.Y.Whole - tip.Position.Y)));
         if (dx >= samus.Kinematics.Radius.X + 14 || dy >= samus.Kinematics.Radius.Y + 14)
             return false;
-        ApplyNormalEnemyTouchDamage(samus, state.TailDamage, tip.XPosition);
+        ApplyNormalEnemyTouchDamage(samus, state.TailDamage, tip.Position.X);
         return true;
     }
 

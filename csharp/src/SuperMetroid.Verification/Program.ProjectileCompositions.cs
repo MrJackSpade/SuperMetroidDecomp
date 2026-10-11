@@ -28,7 +28,7 @@ internal static partial class Program
                 native.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
                 authored.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
             }
-            DrawImportedProjectileSpritemap(rom, native, id, origin, origin);
+            DrawImportedProjectileSpritemap(rom, native, id, new(origin, origin));
             content.Draw(id, authored, new(origin, origin));
             AssertTrue(native.LowTable.SequenceEqual(authored.LowTable), "Extracted composition retains all low OAM bytes");
             AssertTrue(native.HighTable.SequenceEqual(authored.HighTable), "Extracted composition retains all high OAM bits");
@@ -78,7 +78,7 @@ internal static partial class Program
 
     /// <summary>Import-only bank-$93 record decoder for the projectile OAM oracle.</summary>
     private static void DrawImportedProjectileSpritemap(ISnesAddressSpace source,
-        OamBuffer oam, ushort pointer, ushort originX, ushort originY)
+        OamBuffer oam, ushort pointer, Position16<OamPixels> origin)
     {
         ushort ReadWord(int address) => (ushort)(source.ReadByte(address) |
             (source.ReadByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
@@ -90,7 +90,7 @@ internal static partial class Program
             oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 source.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
                 new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
-                new Position16<OamPixels>(originX, originY));
+                origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }

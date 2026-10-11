@@ -57,7 +57,7 @@ internal static partial class Program
             random = W(expected, 0x5e5);
             enemies.StepFrame(new(W(expected, 0x911), W(expected, 0x915)), false, samus,
                 level: runtime.LevelData, controllerInput: W(expected, 0x8b));
-            string actual = $"{(ushort)state.Function:X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.HorizontalVelocity:X4},{state.VerticalVelocity:X4}";
+            string actual = $"{(ushort)state.Function:X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
             string native = string.Join(",", new[] {0xfa8,0xf7a,0xf7c,0xf7e,0xf80,0xfaa,0xfac}.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)
                 throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={body.CurrentInstruction:X4}/{body.InstructionTimer}; timer={state.FunctionTimer} native={W(expected,0xfb2)}");

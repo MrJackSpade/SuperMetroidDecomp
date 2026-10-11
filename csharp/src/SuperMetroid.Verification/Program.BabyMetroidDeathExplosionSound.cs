@@ -38,7 +38,7 @@ internal static partial class Program
         {
             DeathExplosions = [], CorpseRottingVramTransfers = [], EscapeSequenceTileTransfers = [],
             EscapePaletteFxRequests = [], EscapeDoorParticleSpawns = [],
-            CorpseDustRequests = [new MotherBrainCorpseDustRequest(0x0080, 0x0080, 0x000a, SoundEffectQueued: true, SoundEffect: 0x0010)],
+            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), 0x000a, SoundEffectQueued: true, SoundEffect: 0x0010)],
             EscapeDoorExplosion = new MotherBrainEscapeDoorExplosionRequest(0x0080, 0x0080, 0x0003, 0x0024),
         };
         state.LastSoundEffectLibrary3 = null;

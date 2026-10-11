@@ -34,10 +34,12 @@ public sealed class YappingMawEnemyState
     /// <summary>Host projection of the native bank-$A8 variable-A dispatcher entry, initialized to neutral and advanced by targeting, curl completion, and cooldown expiration.</summary>
     public YappingMawAiFunction Function { get; internal set; }
 
-    /// <summary>The immovable population coordinate retained in native variables 0C/0D.</summary>
-    public ushort OriginX { get; internal set; }
-    /// <summary>Fixed population Y in whole room pixels, corresponding to native $7E:781E per enemy; link and mouth positions are offsets from this root rather than accumulated movement.</summary>
-    public ushort OriginY { get; internal set; }
+    /// <summary>
+    /// The immovable population position in whole room pixels, retained in native variables
+    /// 0C/0D (Y at $7E:781E per enemy); link and mouth positions are offsets from this root
+    /// rather than accumulated movement.
+    /// </summary>
+    public Position16<RoomPixels> Origin { get; internal set; }
 
     /// <summary>
     /// Final signed word offsets for the four successive tongue points. Link zero is nearest
@@ -62,10 +64,11 @@ public sealed class YappingMawEnemyState
     /// <summary>Native variable 2F: zero bends one way, one bends the mirrored way.</summary>
     public ushort MirroredBend { get; internal set; }
 
-    /// <summary>Reference X/Y samples subtracted before rotating each link.</summary>
-    public ushort BaselineX { get; internal set; }
-    /// <summary>Signed room-pixel reference sample at angle $80 and half SegmentRadius, corresponding to native $7E:781A and subtracted from each raw link Y before curl correction.</summary>
-    public ushort BaselineY { get; internal set; }
+    /// <summary>
+    /// Signed room-pixel reference samples subtracted from each raw link before curl correction:
+    /// X at angle $80 and SegmentRadius, Y (native $7E:781A) at angle $80 and half SegmentRadius.
+    /// </summary>
+    public Offset16<RoomPixels> Baseline { get; internal set; }
 
     /// <summary>
     /// Native B/C signed 16.16 curl amount. It accelerates past +128, wraps negative, and
@@ -87,10 +90,8 @@ public sealed class YappingMawEnemyState
     /// <summary>Native variable 30: the mouth currently owns Samus's input/position.</summary>
     public bool HasGrabbedSamus { get; internal set; }
 
-    /// <summary>Animation-selected offsets added to the moving mouth while Samus is held.</summary>
-    public ushort HeldSamusXOffset { get; internal set; }
-    /// <summary>Signed whole room-pixel Y offset from the moving mouth to captive Samus, stored as a two's-complement word and selected by aiming/animation opcodes into native $7E:8026.</summary>
-    public ushort HeldSamusYOffset { get; internal set; }
+    /// <summary>Signed whole room-pixel offset from the moving mouth to captive Samus, selected by aiming/animation opcodes (Y at native $7E:8026).</summary>
+    public Offset16<RoomPixels> HeldSamusOffset { get; internal set; }
 
     /// <summary>Even byte offset zero through fourteen selecting one of eight facing lists.</summary>
     public ushort DirectionTableByteOffset { get; internal set; }
@@ -191,8 +192,7 @@ public sealed partial class RoomEnemySystem
         var state = new YappingMawEnemyState(slot)
         {
             Function = YappingMawAiFunction.WaitingForSamus,
-            OriginX = slot.Position.X.Whole,
-            OriginY = slot.Position.Y.Whole,
+            Origin = slot.Position.Whole,
             ActivationDistance = slot.Parameter1,
             RetractedDelayTimer = YappingMawRetractedDelayFrames,
             OriginalPaletteBits = new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits,
@@ -284,22 +284,10 @@ public sealed partial class RoomEnemySystem
         // and three-quarter points in variables 40..43. Hardware writes coordinates even
         // though their pre-instructions are empty; bank $86 advances only their one-frame
         // map selection and permanent sleep opcode.
-        PositionYappingMawBodyProjectile(state, 0, state.OriginX, state.OriginY);
-        PositionYappingMawBodyProjectile(
-            state,
-            1,
-            unchecked((ushort)(state.OriginX + state.SegmentXOffsets[0])),
-            unchecked((ushort)(state.OriginY + state.SegmentYOffsets[0])));
-        PositionYappingMawBodyProjectile(
-            state,
-            2,
-            unchecked((ushort)(state.OriginX + state.SegmentXOffsets[1])),
-            unchecked((ushort)(state.OriginY + state.SegmentYOffsets[1])));
-        PositionYappingMawBodyProjectile(
-            state,
-            3,
-            unchecked((ushort)(state.OriginX + state.SegmentXOffsets[2])),
-            unchecked((ushort)(state.OriginY + state.SegmentYOffsets[2])));
+        PositionYappingMawBodyProjectile(state, 0, state.Origin);
+        PositionYappingMawBodyProjectile(state, 1, YappingMawLinkPosition(state, 0));
+        PositionYappingMawBodyProjectile(state, 2, YappingMawLinkPosition(state, 1));
+        PositionYappingMawBodyProjectile(state, 3, YappingMawLinkPosition(state, 2));
     }
 
     /// <summary>Ports $A8:A235, including the deliberately approximate distance helper.</summary>
@@ -308,10 +296,8 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         (ushort distance, ushort angle) = CalculateYappingMawTarget(
-            state.OriginX,
-            state.OriginY,
-            samus.Position.X.Whole,
-            samus.Position.Y.Whole);
+            state.Origin,
+            samus.Position.Whole);
         state.DistanceToSamus = distance;
 
         if (unchecked((short)(distance - YappingMawGrabSafetyDistance)) < 0)
@@ -346,10 +332,11 @@ public sealed partial class RoomEnemySystem
             ? (ushort)0
             : (ushort)1;
 
-        state.BaselineX = CalculateYappingMawX(0x0080, state.SegmentRadius);
-        state.BaselineY = CalculateYappingMawY(
-            0x0080,
-            unchecked((ushort)(state.SegmentRadius >> 1)));
+        state.Baseline = new Offset16<RoomPixels>(
+            unchecked((short)CalculateYappingMawX(0x0080, state.SegmentRadius)),
+            unchecked((short)CalculateYappingMawY(
+                0x0080,
+                unchecked((ushort)(state.SegmentRadius >> 1)))));
 
         ushort directionByteOffset = unchecked((ushort)(
             2 * (unchecked((byte)(state.AimAngle + 16)) >> 5)));
@@ -360,9 +347,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
 
-        (short heldX, short heldY) = YappingMawRomData.HeldSamusOffset(direction);
-        state.HeldSamusXOffset = unchecked((ushort)heldX);
-        state.HeldSamusYOffset = unchecked((ushort)heldY);
+        state.HeldSamusOffset = YappingMawRomData.HeldSamusOffset(direction);
         state.Function = YappingMawAiFunction.ExtendingOrRetracting;
     }
 
@@ -384,11 +369,11 @@ public sealed partial class RoomEnemySystem
                 : unchecked((ushort)(128 - multiple));
 
             ushort rawX = unchecked((ushort)(
-                CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.BaselineX));
+                CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X));
             ushort rawY = unchecked((ushort)(
                 CalculateYappingMawY(
                     linkAngle,
-                    unchecked((ushort)(state.SegmentRadius >> 1))) - state.BaselineY));
+                    unchecked((ushort)(state.SegmentRadius >> 1))) - state.Baseline.Y));
 
             // Variables 27..2E rotate a correction whose length is the LOW BYTE of raw X.
             // Passing raw Y here is an attractive cleanup and is wrong; the cartridge's
@@ -405,7 +390,7 @@ public sealed partial class RoomEnemySystem
             state.SegmentYOffsets[segment] = AddWithCarry(rawY, correctionY, ref carry);
         }
 
-        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(state.OriginX + state.SegmentXOffsets[3])), unchecked((ushort)(state.OriginY + state.SegmentYOffsets[3]))));
+        slot.Position = slot.Position.WithWhole(YappingMawLinkPosition(state, 3));
         AddYappingMawQuadraticSpeed(state);
 
         if (unchecked((short)state.ExtensionWhole) >= 0)
@@ -528,7 +513,7 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(slot.Position.X.Whole + state.HeldSamusXOffset)), unchecked((ushort)(slot.Position.Y.Whole + state.HeldSamusYOffset))));
+        samus.Position = samus.Position.WithWhole(slot.Position.Whole + state.HeldSamusOffset);
         CapSamusScrollingSpeed(samus);
     }
 
@@ -622,9 +607,7 @@ public sealed partial class RoomEnemySystem
         YappingMawEnemyState state,
         int directionIndex)
     {
-        (short x, short y) = YappingMawRomData.HeldSamusOffset(directionIndex);
-        state.HeldSamusXOffset = unchecked((ushort)x);
-        state.HeldSamusYOffset = unchecked((ushort)y);
+        state.HeldSamusOffset = YappingMawRomData.HeldSamusOffset(directionIndex);
     }
 
     private void PlayYappingMawAttackSound(YappingMawEnemyState state)
@@ -636,14 +619,19 @@ public sealed partial class RoomEnemySystem
     private static void PositionYappingMawBodyProjectile(
         YappingMawEnemyState state,
         int index,
-        ushort x,
-        ushort y)
+        Position16<RoomPixels> position)
     {
         RoomEnemyProjectileSlot projectile = state.BodyProjectiles[index] ??
             throw new InvalidOperationException(
                 $"Yapping Maw slot {state.Owner.SlotIndex} lost body projectile {index}.");
-        projectile.Position = projectile.Position.WithWhole(new(x, y));
+        projectile.Position = projectile.Position.WithWhole(position);
     }
+
+    /// <summary>The root plus one solved link's signed word offsets, wrapping at sixteen bits.</summary>
+    private static Position16<RoomPixels> YappingMawLinkPosition(YappingMawEnemyState state, int segment) =>
+        state.Origin + new Offset16<RoomPixels>(
+            unchecked((short)state.SegmentXOffsets[segment]),
+            unchecked((short)state.SegmentYOffsets[segment]));
 
     private static bool IsYappingMawPointOffScreen(
         RoomEnemySlot slot,
@@ -655,17 +643,15 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Ports EnemyFunc_ACA8 at $A0:ACA8 for the one family that consumes it.</summary>
     private static (ushort Distance, ushort Angle) CalculateYappingMawTarget(
-        ushort originX,
-        ushort originY,
-        ushort samusX,
-        ushort samusY)
+        Position16<RoomPixels> origin,
+        Position16<RoomPixels> samus)
     {
-        ushort deltaX = unchecked((ushort)(samusX - originX));
+        ushort deltaX = unchecked((ushort)(samus.X - origin.X));
         ushort absoluteX = WrappedMagnitude(deltaX);
         if (unchecked((short)(absoluteX - 255)) >= 0)
             return (absoluteX, 0);
 
-        ushort deltaY = unchecked((ushort)(samusY - originY));
+        ushort deltaY = unchecked((ushort)(samus.Y - origin.Y));
         ushort absoluteY = WrappedMagnitude(deltaY);
         if (unchecked((short)(absoluteY - 255)) >= 0)
             return (absoluteY, 0);

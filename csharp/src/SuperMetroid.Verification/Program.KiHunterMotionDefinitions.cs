@@ -19,7 +19,7 @@ internal static partial class Program
         var delta = Method<Func<ushort, bool, ushort>>("ReadKiHunterQuadraticAngleDelta");
         var cosine = Method<Func<ushort, ushort, int>>("ReadEightBitCosineProduct");
         var sine = Method<Func<ushort, ushort, int>>("ReadEightBitNegativeSineProduct");
-        var add = Method<Func<ushort, ushort, ushort, ushort, (ushort Whole, ushort Fraction)>>("AddKiHunterFixed");
+        var gravity = (SnesSignedSixteenSixteen)typeof(RoomEnemySystem).GetProperty("KiHunterGravity", flags)!.GetValue(null)!;
         var slot = new RoomEnemySystem().Slots[0];
         var state = new KiHunterEnemyState(slot);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -30,19 +30,17 @@ internal static partial class Program
             ushort angle = unchecked((ushort)(raw + delta(speed, true)));
             state.Angle = (ushort)raw;
             state.TargetXOrSpeedIndex = speed;
-            state.OrbitCenterX = (ushort)raw;
-            state.OrbitCenterY = (ushort)(ushort.MaxValue - raw);
-            state.OrbitXOffset = 13;
-            state.OrbitYOffset = 17;
-            ushort x = unchecked((ushort)(state.OrbitCenterX + cosine((ushort)(angle >> 8), radius) - 13));
-            ushort y = unchecked((ushort)(state.OrbitCenterY + sine((ushort)(angle >> 8), radius) - 17));
+            state.OrbitCenter = new Position16<RoomPixels>((ushort)raw, (ushort)(ushort.MaxValue - raw));
+            state.OrbitOffset = new Offset16<RoomPixels>(13, 17);
+            ushort x = unchecked((ushort)(state.OrbitCenter.X + cosine((ushort)(angle >> 8), radius) - 13));
+            ushort y = unchecked((ushort)(state.OrbitCenter.Y + sine((ushort)(angle >> 8), radius) - 17));
             orbit(slot, state);
             AssertEqual(x, slot.Position.X.Whole, "Actual detached orbit uses native radius and wrapped X");
             AssertEqual(y, slot.Position.Y.Whole, "Actual detached orbit uses native radius and wrapped Y");
-            var actual = add((ushort)(ushort.MaxValue - raw), (ushort)raw,
-                KiHunterMotionDefinitions.GravityWhole, KiHunterMotionDefinitions.GravityFraction);
+            SnesSignedSixteenSixteen actual = SnesSignedSixteenSixteen.FromParts(
+                unchecked((short)(ushort.MaxValue - raw)), (ushort)raw) + gravity;
             uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + ((uint)high << 16 | low));
-            AssertEqual((ushort)(expected >> 16), actual.Whole, "Native gravity whole carry");
+            AssertEqual((ushort)(expected >> 16), actual.WholeWord, "Native gravity whole carry");
             AssertEqual((ushort)expected, actual.Fraction, "Native gravity fraction wrap");
         }
         Console.WriteLine("KiHunter motion: native constants, 65536 bus-free orbit placements and all gravity fractional carries pass.");

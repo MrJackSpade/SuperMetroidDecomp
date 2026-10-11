@@ -87,9 +87,9 @@ internal static partial class Program
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunYappingMawInstructionFrames(process, enemies, arguments, slot, count: 1);
-            AssertEqual(unchecked((ushort)x), state.HeldSamusXOffset,
+            AssertEqual(x, state.HeldSamusOffset.X,
                 $"Yapping Maw {name} callback X offset");
-            AssertEqual(unchecked((ushort)y), state.HeldSamusYOffset,
+            AssertEqual(y, state.HeldSamusOffset.Y,
                 $"Yapping Maw {name} callback Y offset");
             RunYappingMawInstructionFrames(
                 process,

@@ -14,10 +14,10 @@ public static class YappingMawRomData
     /// pixels between the two components; opposite directions negate both.
     /// Native BeginExtension quantizes/wraps its angle before this selection.
     /// </summary>
-    internal static (short X, short Y) HeldSamusOffset(int direction)
+    internal static Offset16<RoomPixels> HeldSamusOffset(int direction)
     {
         if ((uint)direction >= 8) throw new IndexOutOfRangeException();
         static short Component(int phase) => (short)(8 * (2 - Math.Abs(phase - 4)));
-        return (Component((direction + 2) & 7), Component(direction));
+        return new(Component((direction + 2) & 7), Component(direction));
     }
 }

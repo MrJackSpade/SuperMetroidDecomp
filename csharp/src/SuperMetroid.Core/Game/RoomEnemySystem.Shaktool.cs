@@ -239,34 +239,33 @@ public sealed partial class RoomEnemySystem
         ShaktoolSegmentState state,
         RoomLevelData level)
     {
-        ushort previousX = slot.Position.X.Whole;
-        ushort previousY = slot.Position.Y.Whole;
+        Position16<RoomPixels> previous = slot.Position.Whole;
         AdvanceShaktoolOrbit(slot, state);
-        ushort candidateX = slot.Position.X.Whole;
-        ushort candidateY = slot.Position.Y.Whole;
+        Position16<RoomPixels> candidate = slot.Position.Whole;
+        Offset16<RoomPixels> step = candidate - previous;
 
         // The native helper restores only whole-pixel words before collision. Subpositions
         // remain those produced by DC2A, a subtle asymmetry that affects wall alignment.
-        slot.Position = slot.Position.WithWhole(new(previousX, previousY));
-        int xDisplacement = unchecked((short)(candidateX - previousX)) << 16;
+        slot.Position = slot.Position.WithWhole(previous);
+        int xDisplacement = step.X << 16;
         bool collided = MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             slot,
             xDisplacement);
         if (!collided)
         {
-            slot.Position = slot.Position.WithWholeY(previousY);
-            int yDisplacement = unchecked((short)(candidateY - previousY)) << 16;
+            slot.Position = slot.Position.WithWholeY(previous.Y);
+            int yDisplacement = step.Y << 16;
             collided = MoveEnemyVertically(level, slot, yDisplacement);
         }
 
         if (collided)
         {
-            ReverseShaktoolAfterCollision(slot, state, previousX, previousY);
+            ReverseShaktoolAfterCollision(slot, state, previous);
             return;
         }
 
-        slot.Position = slot.Position.WithWhole(new(candidateX, candidateY));
+        slot.Position = slot.Position.WithWhole(candidate);
         ShaktoolMotionFlags flags = (ShaktoolMotionFlags)slot.Parameter1;
         if ((flags & ShaktoolMotionFlags.Straightening) != 0)
         {
@@ -299,8 +298,7 @@ public sealed partial class RoomEnemySystem
     private void ReverseShaktoolAfterCollision(
         RoomEnemySlot slot,
         ShaktoolSegmentState state,
-        ushort previousX,
-        ushort previousY)
+        Position16<RoomPixels> previous)
     {
         ShaktoolMotionFlags flags = (ShaktoolMotionFlags)slot.Parameter1;
         if ((flags & ShaktoolMotionFlags.ReversedOnce) != 0)
@@ -312,7 +310,7 @@ public sealed partial class RoomEnemySystem
         }
         else
         {
-            slot.Position = slot.Position.WithWhole(new(previousX, previousY));
+            slot.Position = slot.Position.WithWhole(previous);
             ReverseShaktoolChainEndpoints(slot);
 
             // DB0E is called twice. The second call reads the parameter word just written

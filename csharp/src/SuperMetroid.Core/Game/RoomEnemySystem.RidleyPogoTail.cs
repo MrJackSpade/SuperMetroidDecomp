@@ -5,18 +5,18 @@ public sealed partial class RoomEnemySystem
     /// <summary>$A6:B8A9 chooses the next bounce's direction from position and the current seed.</summary>
     private void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
-        if (state.HorizontalVelocity == 0)
-            state.HorizontalVelocity = (slot.Position.X.Whole & 0x80) == 0 ? (ushort)0x00c0 : unchecked((ushort)-0x00c0);
-        bool negative = (short)state.HorizontalVelocity < 0;
+        if (state.Velocity.X.RawValue == 0)
+            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight((slot.Position.X.Whole & 0x80) == 0 ? (ushort)0x00c0 : unchecked((ushort)-0x00c0)));
+        bool negative = state.Velocity.X.SignedRawValue < 0;
         bool reverse;
-        if ((short)(slot.Position.X.Whole - state.MinimumX) < 0) reverse = negative;
-        else if ((short)(slot.Position.X.Whole - state.MaximumX) >= 0) reverse = !negative;
+        if ((short)(slot.Position.X.Whole - state.MovementMinimum.X) < 0) reverse = negative;
+        else if ((short)(slot.Position.X.Whole - state.MovementMaximum.X) >= 0) reverse = !negative;
         else
         {
-            bool oppositeSigns = ((ushort)(slot.Position.X.Whole - (samus?.Position.X.Whole ?? 0)) ^ state.HorizontalVelocity) >= 0x8000;
+            bool oppositeSigns = ((ushort)(slot.Position.X.Whole - (samus?.Position.X.Whole ?? 0)) ^ state.Velocity.X.RawValue) >= 0x8000;
             reverse = oppositeSigns ? RequireRandomNumber() < 0x0555 : RequireRandomNumber() >= 0x0555;
         }
-        if (reverse) state.HorizontalVelocity = unchecked((ushort)-state.HorizontalVelocity);
+        if (reverse) state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.RawValue)));
     }
 
     /// <summary>Live pogo tail controllers $A6:CB33..CBD3 and $CD24..CE64.</summary>
@@ -59,7 +59,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
         if (state.TailSegments.Any(segment => segment.Active)) return;
-        if ((short)state.VerticalVelocity >= 0)
+        if (state.Velocity.Y.SignedRawValue >= 0)
         {
             state.TailFunctionIndex = stabbing ? RidleyTailFunction.Stab : RidleyTailFunction.StabSetup;
             if (stabbing)

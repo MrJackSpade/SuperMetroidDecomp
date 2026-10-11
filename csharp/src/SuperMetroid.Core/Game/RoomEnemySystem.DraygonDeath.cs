@@ -157,7 +157,7 @@ public sealed partial class RoomEnemySystem
         DraygonBurialEvirDefinition definition =
             DraygonBurialEvirDefinitions.ForEntry(entry);
         RoomSpriteObjectSlot? sprite = SpawnRoomSpriteObject(
-            new(definition.InitialX, definition.InitialY),
+            definition.Initial,
             kind,
             graphicsIndex: EnemyPaletteBits.Palette7);
         if (sprite is null)
@@ -184,14 +184,7 @@ public sealed partial class RoomEnemySystem
 
             DraygonBurialEvirDefinition definition =
                 DraygonBurialEvirDefinitions.ForEntry(entry);
-            sprite.Position = sprite.Position.WithX(AddSpriteObjectSubspeed(
-                sprite.Position.X,
-                definition.XSubspeed,
-                add: ((definition.Angle + 0x0040) & 0x0080) != 0));
-            sprite.Position = sprite.Position.WithY(AddSpriteObjectSubspeed(
-                sprite.Position.Y,
-                definition.YSubspeed,
-                add: ((definition.Angle + 0x0080) & 0x0080) != 0));
+            sprite.Position = sprite.Position.Advance(definition.Velocity);
         }
     }
 
@@ -213,18 +206,6 @@ public sealed partial class RoomEnemySystem
             body.Position.Y,
             yMagnitude,
             subtract: ((movementAngle + 0x80) & 0x80) != 0));
-    }
-
-    private static SnesFixedPosition AddSpriteObjectSubspeed(
-        SnesFixedPosition position,
-        ushort magnitude,
-        bool add)
-    {
-        uint fixedPosition = position.RawValue;
-        fixedPosition = add
-            ? unchecked(fixedPosition + magnitude)
-            : unchecked(fixedPosition - magnitude);
-        return SnesFixedPosition.FromRaw(fixedPosition);
     }
 
     private void ClearRoomSpriteObjectPool()

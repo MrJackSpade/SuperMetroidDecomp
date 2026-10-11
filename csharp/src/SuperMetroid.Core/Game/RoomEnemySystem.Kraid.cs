@@ -202,9 +202,9 @@ public sealed partial class RoomEnemySystem
             ResolveKraidBodyContact(body, state, samus);
         // `$A7:AC21` makes BG2 follow Kraid rather than the room. X radius is the native
         // body's right-edge origin adjustment; 152 is the authored vertical anchor.
-        state.Bg2HorizontalScroll = unchecked((ushort)(
-            camera.X - body.Position.X.Whole + body.Radius.X));
-        state.Bg2VerticalScroll = unchecked((ushort)(camera.Y - body.Position.Y.Whole + 152));
+        state.Bg2Scroll = new Position16<Bg2Pixels>(
+            unchecked((ushort)(camera.X - body.Position.X.Whole + body.Radius.X)),
+            unchecked((ushort)(camera.Y - body.Position.Y.Whole + 152)));
         KraidAiFunction function = (KraidAiFunction)body.VariableA;
         if (function is >= KraidAiFunction.RestrictSamusToFirstScreen and
             <= KraidAiFunction.RaiseBody)

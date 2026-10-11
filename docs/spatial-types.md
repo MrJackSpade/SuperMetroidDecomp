@@ -84,8 +84,8 @@ the wrapped value (collision and PLM grid probes).
     native code stores (Samus's death-sequence screen position);
     `ScreenConversions.ToOam`: an on-screen position as the OAM draw origin.
   - `RoomGridConversions.ToRoomBlock`: a room pixel to its block (`LSR ×4`);
-    `ToRoomPixels`: a scroll-zone screen to its top-left room pixel; `ToRoomBlocks`: a room size in
-    screens as blocks.
+    `ToRoomPixels`: a block or a scroll-zone screen to its top-left room pixel; `ToRoomBlocks`: a
+    room size in screens as blocks.
   - `BackgroundBlockConversions.ToTilemapBlocks` / `ToSourceBlocks`: layer pixels to the wrapping
     tilemap block and to the room source block (sign-extended), as the bank-$80 streamer does.
   - `BgPlaneConversions.AsBgPlaneScroll`: a BG1, BG2 or area-map scroll as the generic plane's scroll words.

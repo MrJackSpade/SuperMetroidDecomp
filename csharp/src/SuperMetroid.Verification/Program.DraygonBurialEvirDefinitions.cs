@@ -19,13 +19,13 @@ internal static partial class Program
         {
             DraygonBurialEvirDefinition definition =
                 DraygonBurialEvirDefinitions.ForEntry(entry);
-            AssertEqual(ReadWord(rom, subspeedTable + entry * 4), definition.XSubspeed,
+            AssertEqual(ReadWord(rom, subspeedTable + entry * 4), definition.SubspeedMagnitude.X.Fraction,
                 $"Draygon burial Evir {entry} X subspeed");
-            AssertEqual(ReadWord(rom, subspeedTable + entry * 4 + 2), definition.YSubspeed,
+            AssertEqual(ReadWord(rom, subspeedTable + entry * 4 + 2), definition.SubspeedMagnitude.Y.Fraction,
                 $"Draygon burial Evir {entry} Y subspeed");
-            AssertEqual(ReadWord(rom, positionTable + entry * 4), definition.InitialX,
+            AssertEqual(ReadWord(rom, positionTable + entry * 4), definition.Initial.X,
                 $"Draygon burial Evir {entry} initial X");
-            AssertEqual(ReadWord(rom, positionTable + entry * 4 + 2), definition.InitialY,
+            AssertEqual(ReadWord(rom, positionTable + entry * 4 + 2), definition.Initial.Y,
                 $"Draygon burial Evir {entry} initial Y");
             AssertEqual(ReadWord(rom, angleTable + entry * 4), definition.Angle,
                 $"Draygon burial Evir {entry} angle");
@@ -62,9 +62,9 @@ internal static partial class Program
                 DraygonBurialEvirDefinitions.ForEntry(entry);
             AssertTrue(sprite.IsActive, $"Draygon burial Evir {entry} active after spawn");
             AssertEqual(kind, sprite.Kind, $"Draygon burial Evir {entry} kind");
-            AssertEqual(definition.InitialX, sprite.Position.X.Whole,
+            AssertEqual(definition.Initial.X, sprite.Position.X.Whole,
                 $"Draygon burial Evir {entry} spawned X");
-            AssertEqual(definition.InitialY, sprite.Position.Y.Whole,
+            AssertEqual(definition.Initial.Y, sprite.Position.Y.Whole,
                 $"Draygon burial Evir {entry} spawned Y");
             AssertEqual(EnemyPaletteBits.Palette7, sprite.GraphicsIndex,
                 $"Draygon burial Evir {entry} palette");
@@ -78,12 +78,12 @@ internal static partial class Program
             DraygonBurialEvirDefinition definition =
                 DraygonBurialEvirDefinitions.ForEntry(entry);
             (ushort expectedX, ushort expectedXSub) = AddDraygonBurialSubspeed(
-                definition.InitialX,
-                definition.XSubspeed,
+                definition.Initial.X,
+                definition.SubspeedMagnitude.X.Fraction,
                 add: ((definition.Angle + 0x0040) & 0x0080) != 0);
             (ushort expectedY, ushort expectedYSub) = AddDraygonBurialSubspeed(
-                definition.InitialY,
-                definition.YSubspeed,
+                definition.Initial.Y,
+                definition.SubspeedMagnitude.Y.Fraction,
                 add: ((definition.Angle + 0x0080) & 0x0080) != 0);
             AssertEqual(expectedX, sprite.Position.X.Whole,
                 $"Draygon burial Evir {entry} moved X");

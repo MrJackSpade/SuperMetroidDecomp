@@ -79,18 +79,18 @@ public sealed class WallSpacePirateEnemyState
         internal set => _slot.VariableC = (ushort)value;
     }
 
-    /// <summary>Whole room-pixel X center in slot variable D, set by $B2:EED4/$EEFD to the departure X plus or minus half parameter two for the jump ellipse.</summary>
-    public ushort WallJumpArcCenterX
+    /// <summary>
+    /// Whole room-pixel jump-ellipse center in slot variables D/E, set by $B2:EED4/$EEFD: X is the
+    /// departure X plus or minus half parameter two and Y the departure Y.
+    /// </summary>
+    public Position16<RoomPixels> WallJumpArcCenter
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
-    }
-
-    /// <summary>Whole room-pixel Y center in slot variable E, captured from departure Y when preparing either jump and used by the cosine-based arc position writer.</summary>
-    public ushort WallJumpArcCenterY
-    {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => new(_slot.VariableD, _slot.VariableE);
+        internal set
+        {
+            _slot.VariableD = value.X;
+            _slot.VariableE = value.Y;
+        }
     }
 
     /// <summary>Slot variable F's byte-angle phase, wrapping over 0..255: starts at $40 for a rightward jump or $C0 for a leftward jump and advances after each whole-position calculation.</summary>
@@ -256,12 +256,12 @@ public sealed partial class RoomEnemySystem
         // the fractions untouched. The jump ellipse is parameter2 pixels wide and
         // parameter2/4 pixels tall.
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-            state.WallJumpArcCenterX +
+            state.WallJumpArcCenter.X +
             ReadEightBitNegativeSineProduct(
                 state.WallJumpArcAngle,
                 (ushort)(slot.Parameter2 >> 1)))));
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
-            state.WallJumpArcCenterY -
+            state.WallJumpArcCenter.Y -
             ReadEightBitCosineProduct(state.WallJumpArcAngle, (ushort)(slot.Parameter2 >> 2)))));
     }
 
@@ -352,8 +352,9 @@ public sealed partial class RoomEnemySystem
             ? slot.Parameter2 >> 1
             : -(slot.Parameter2 >> 1);
         state.WallJumpDestinationX = unchecked((ushort)(slot.Position.X.Whole + signedSpan));
-        state.WallJumpArcCenterX = unchecked((ushort)(slot.Position.X.Whole + signedHalfSpan));
-        state.WallJumpArcCenterY = slot.Position.Y.Whole;
+        state.WallJumpArcCenter = new Position16<RoomPixels>(
+            unchecked((ushort)(slot.Position.X.Whole + signedHalfSpan)),
+            slot.Position.Y.Whole);
         state.WallJumpArcAngle = jumpingRight ? (ushort)64 : (ushort)192;
     }
 

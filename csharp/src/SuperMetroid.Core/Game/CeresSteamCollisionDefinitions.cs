@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Immutable physical component of a Ceres steam extended frame.</summary>
-internal readonly record struct CeresSteamCollisionComponent(short X, short Y, ushort HitboxPointer);
+internal readonly record struct CeresSteamCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
 
 /// <summary>Immutable steam rectangle and native touch/shot callback identities.</summary>
 internal readonly record struct CeresSteamCollisionHitbox(
@@ -89,7 +89,7 @@ internal static class CeresSteamCollisionDefinitions
     {
         public int Count => 1;
         public CeresSteamCollisionComponent this[int index] => index == 0
-            ? new(0, 0, hitboxPointer) : throw new IndexOutOfRangeException();
+            ? new(Offset16<RoomPixels>.Zero, hitboxPointer) : throw new IndexOutOfRangeException();
         public IEnumerator<CeresSteamCollisionComponent> GetEnumerator()
         {
             yield return this[0];

@@ -32,8 +32,8 @@ internal static partial class Program
             {
                 setYard(slot, yard, direction);
                 int address = 0xa3cd82 + direction * 8;
-                AssertEqual(unchecked((ushort)((expected ^ Word(address)) + Word(address + 2))), yard.CrawlingXVelocity, "Real Yard X reset without bus");
-                AssertEqual(unchecked((ushort)((expected ^ Word(address + 4)) + Word(address + 6))), yard.CrawlingYVelocity, "Real Yard Y reset without bus");
+                AssertEqual(unchecked((ushort)((expected ^ Word(address)) + Word(address + 2))), yard.CrawlingVelocity.X.RawValue, "Real Yard X reset without bus");
+                AssertEqual(unchecked((ushort)((expected ^ Word(address + 4)) + Word(address + 6))), yard.CrawlingVelocity.Y.RawValue, "Real Yard Y reset without bus");
             }
         }
         // The preserve sentinel skips the table, not the subsequent native sign application.
@@ -53,8 +53,8 @@ internal static partial class Program
             {
                 int address = 0xa3cd82 + direction * 8;
                 var actual = YardVelocityDefinitions.Apply((ushort)magnitude, direction);
-                AssertEqual(unchecked((ushort)((magnitude ^ Word(address)) + Word(address + 2))), actual.X, "Yard exhaustive native X sign");
-                AssertEqual(unchecked((ushort)((magnitude ^ Word(address + 4)) + Word(address + 6))), actual.Y, "Yard exhaustive native Y sign");
+                AssertEqual(unchecked((ushort)((magnitude ^ Word(address)) + Word(address + 2))), actual.X.RawValue, "Yard exhaustive native X sign");
+                AssertEqual(unchecked((ushort)((magnitude ^ Word(address + 4)) + Word(address + 6))), actual.Y.RawValue, "Yard exhaustive native Y sign");
             }
         }
         AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler invalid speed");

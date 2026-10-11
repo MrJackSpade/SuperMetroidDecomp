@@ -51,9 +51,9 @@ internal static partial class Program
         ShaktoolSegmentState tailState = enemies.ShaktoolSegments[6]!;
         var reverse = typeof(RoomEnemySystem).GetMethod(
                 "ReverseShaktoolAfterCollision", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ShaktoolSegmentState, ushort, ushort>>(
+            .CreateDelegate<Action<RoomEnemySlot, ShaktoolSegmentState, Position16<RoomPixels>>>(
                 enemies);
-        reverse(tail, tailState, tail.Position.X.Whole, tail.Position.Y.Whole);
+        reverse(tail, tailState, tail.Position.Whole);
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(ShaktoolInstructionDefinitions.CollisionForSegment(index),
@@ -126,9 +126,9 @@ internal static partial class Program
         ShaktoolSegmentState tailState = enemies.ShaktoolSegments[6]!;
         var reverse = typeof(RoomEnemySystem).GetMethod(
                 "ReverseShaktoolAfterCollision", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ShaktoolSegmentState, ushort, ushort>>(
+            .CreateDelegate<Action<RoomEnemySlot, ShaktoolSegmentState, Position16<RoomPixels>>>(
                 enemies);
-        reverse(tail, tailState, tail.Position.X.Whole, tail.Position.Y.Whole);
+        reverse(tail, tailState, tail.Position.Whole);
         for (int index = 0; index < 7; index++)
             RunForcedShaktoolInstructions(process, enemies, enemies.Slots[index], 8);
 

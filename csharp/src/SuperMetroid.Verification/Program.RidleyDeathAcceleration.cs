@@ -26,11 +26,11 @@ internal static partial class Program
         foreach (int velocity in velocities)
         {
             slot.Position = new(new(unchecked((ushort)(128 + distance)), 0x8123), new(unchecked((ushort)(328 - distance)), 0x8123));
-            state.HorizontalVelocity = state.VerticalVelocity = unchecked((ushort)velocity);
+            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(unchecked((ushort)velocity)), new SnesSignedEightEight(unchecked((ushort)velocity)));
             state.FunctionTimer = 20;
             step(slot, state);
-            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.Position.X.Whole, 128, 16, 16), state.HorizontalVelocity, "Death phase native X acceleration");
-            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.Position.Y.Whole, 328, 16, 16), state.VerticalVelocity, "Death phase native Y acceleration");
+            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.Position.X.Whole, 128, 16, 16), state.Velocity.X.RawValue, "Death phase native X acceleration");
+            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.Position.Y.Whole, 328, 16, 16), state.Velocity.Y.RawValue, "Death phase native Y acceleration");
             AssertEqual(unchecked((ushort)(128 + distance)), slot.Position.X.Whole, "Death phase leaves integration to shared movement");
             AssertEqual((ushort)0x8123, slot.Position.X.Fraction, "Death phase preserves fractional position");
         }

@@ -118,7 +118,7 @@ public sealed partial class RoomEnemySystem
 
         EscapeEtecoonInitialization initialization =
             EscapeEtecoonDefinitions.Initialization(slot.Parameter1);
-        slot.Position = slot.Position.WithWhole(new(initialization.XPosition, initialization.YPosition));
+        slot.Position = slot.Position.WithWhole(initialization.Position);
         state.PreInstruction = initialization.PreInstruction;
         slot.CurrentInstruction = initialization.InstructionList;
         state.HorizontalSpeed = initialization.HorizontalSpeed;

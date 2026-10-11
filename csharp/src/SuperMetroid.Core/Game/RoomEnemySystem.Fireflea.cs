@@ -55,18 +55,15 @@ public sealed class FirefleaEnemyState
         internal set => _slot.VariableD = value;
     }
 
-    /// <summary>Native Fireflea.XCenter ($0FB0 plus slot offset): initial whole-pixel room X used as the fixed circular-motion center.</summary>
-    public ushort XCenter
+    /// <summary>Native Fireflea.XCenter/YCenter (variables E/F at $0FB0/$0FB2 plus slot offset): initial whole-pixel room position used as the fixed circular-motion center.</summary>
+    public Position16<RoomPixels> Center
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
-    }
-
-    /// <summary>Native Fireflea.YCenter ($0FB2 plus slot offset): initial whole-pixel room Y used as the fixed circular-motion center.</summary>
-    public ushort YCenter
-    {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => new(_slot.VariableE, _slot.VariableF);
+        internal set
+        {
+            _slot.VariableE = value.X;
+            _slot.VariableF = value.Y;
+        }
     }
 
     /// <summary>Per-slot extra-WRAM upper extent, initialized to Y minus radius in wrapped room pixels for vertical motion; crossing below it reverses speed after movement.</summary>
@@ -132,17 +129,13 @@ public sealed partial class RoomEnemySystem
 
         if (state.UsesCircularMovement)
         {
-            state.XCenter = slot.Position.X.Whole;
-            state.YCenter = slot.Position.Y.Whole;
+            state.Center = slot.Position.Whole;
             state.Angle = unchecked((ushort)(slot.Parameter1 & 0xff00));
 
             // The initializer passes the complete 8.8 angle word to an eight-bit routine,
             // which reads its low byte. That is the retail missing-division bug; main AI
             // begins using the high byte on frame one and corrects the position immediately.
-            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(state.XCenter +
-                ReadEightBitCosineProduct(state.Angle, state.Radius))));
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.YCenter +
-                ReadEightBitNegativeSineProduct(state.Angle, state.Radius))));
+            slot.Position = slot.Position.WithWhole(state.Center + CircleOffset(state.Angle, state.Radius));
             return;
         }
 
@@ -156,10 +149,7 @@ public sealed partial class RoomEnemySystem
         if (state.UsesCircularMovement)
         {
             ushort angle = unchecked((ushort)(state.Angle >> 8));
-            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(state.XCenter +
-                ReadEightBitCosineProduct(angle, state.Radius))));
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.YCenter +
-                ReadEightBitNegativeSineProduct(angle, state.Radius))));
+            slot.Position = slot.Position.WithWhole(state.Center + CircleOffset(angle, state.Radius));
 
             // `$A3:8E2D` performs an unaligned word read at var0+1. Combining the high byte
             // of sub-angle with the low byte of whole-angle reproduces that exact signed 8.8

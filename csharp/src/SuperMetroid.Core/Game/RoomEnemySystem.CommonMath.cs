@@ -140,6 +140,14 @@ public sealed partial class RoomEnemySystem
             radius);
 
     /// <summary>
+    /// The point on a circle at an eight-bit angle: the cosine product as X and the negative-sine
+    /// product as Y, each truncated to its native sixteen-bit word.
+    /// </summary>
+    private static Offset16<RoomPixels> CircleOffset(ushort angle, ushort radius) => new(
+        unchecked((short)ReadEightBitCosineProduct(angle, radius)),
+        unchecked((short)ReadEightBitNegativeSineProduct(angle, radius)));
+
+    /// <summary>
     /// Returns the complete signed 16.16 result produced by the native eight-bit sine
     /// multiplier, including its independent whole/fraction negation bug. Evir needs both
     /// words for projectile motion; callers that only need pixels use the helpers above.

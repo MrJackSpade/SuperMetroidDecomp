@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical block-relative origin for one Mother Brain glass-shard emitter.</summary>
-internal readonly record struct MotherBrainGlassShardPlacement(short XOffset, short YOffset);
+internal readonly record struct MotherBrainGlassShardPlacement(Offset16<RoomPixels> Offset);
 
 /// <summary>Compiled animation selectors and physical origins for Mother Brain's glass shards.</summary>
 internal static class MotherBrainGlassShardDefinitions
@@ -35,7 +35,7 @@ internal static class MotherBrainGlassShardDefinitions
             2 => LeftEmitterX,
             _ => CentreEmitterX,
         };
-        return new(x, 2 * 16);
+        return new(new Offset16<RoomPixels>(x, 2 * 16));
     }
     /// <summary>$86:CE61: right glass emitter, half a block right of the PLM origin.</summary>
     private const short RightEmitterX = 8;

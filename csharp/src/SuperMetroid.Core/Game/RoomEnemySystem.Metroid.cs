@@ -48,32 +48,21 @@ public sealed class MetroidEnemyState
         OuterBodyB = outerBodyB;
     }
 
-    /// <summary>Variable A at native $0FA8: unsigned low word of horizontal 16.16 velocity; fractional units are 1/65536 pixel per movement update.</summary>
-    public ushort XSubvelocity
+    /// <summary>
+    /// Signed 16.16 velocity in pixels per movement update, positive right and down: variables
+    /// B:A (native $0FAA:$0FA8) hold the horizontal whole:fraction words and D:C ($0FAE:$0FAC)
+    /// the vertical ones.
+    /// </summary>
+    public FixedVector<RoomPixels> Velocity
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
-
-    /// <summary>Variable B at native $0FAA: signed high word of horizontal 16.16 velocity, in pixels per update; positive values move right.</summary>
-    public short XVelocity
-    {
-        get => unchecked((short)_slot.VariableB);
-        internal set => _slot.VariableB = unchecked((ushort)value);
-    }
-
-    /// <summary>Variable C at native $0FAC: unsigned low word of vertical 16.16 velocity; fractional units are 1/65536 pixel per movement update.</summary>
-    public ushort YSubvelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Variable D at native $0FAE: signed high word of vertical 16.16 velocity, in pixels per update; positive values move down.</summary>
-    public short YVelocity
-    {
-        get => unchecked((short)_slot.VariableD);
-        internal set => _slot.VariableD = unchecked((ushort)value);
+        get => FixedVector<RoomPixels>.FromWords(_slot.VariableB, _slot.VariableA, _slot.VariableD, _slot.VariableC);
+        internal set
+        {
+            _slot.VariableA = value.X.Fraction;
+            _slot.VariableB = value.X.WholeWord;
+            _slot.VariableC = value.Y.Fraction;
+            _slot.VariableD = value.Y.WholeWord;
+        }
     }
 
     /// <summary>Variable E; four-frame escape timer and frozen-shake countdown.</summary>
@@ -100,11 +89,6 @@ public sealed class MetroidEnemyState
     /// selected rate removes exactly one energy from Samus.
     /// </summary>
     public ushort DrainAccumulator { get; internal set; }
-
-    /// <summary>Horizontal velocity composed losslessly from variables B:A as signed 16.16 pixels per movement update.</summary>
-    public int SignedXVelocity => unchecked((XVelocity << 16) | XSubvelocity);
-    /// <summary>Vertical velocity composed losslessly from variables D:C as signed 16.16 pixels per movement update.</summary>
-    public int SignedYVelocity => unchecked((YVelocity << 16) | YSubvelocity);
 }
 
 /// <summary>
@@ -234,14 +218,14 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         int yDifference = unchecked((short)(slot.Position.Y.Whole - targetY));
-        int yVelocity = unchecked(state.SignedYVelocity - ((yDifference >> 2) << 8));
+        int yVelocity = unchecked(state.Velocity.Y.RawValue - ((yDifference >> 2) << 8));
         yVelocity = ClampMetroidVelocity(yVelocity);
         StoreMetroidYVelocity(state, yVelocity);
         if (MoveEnemyVertically(level, slot, yVelocity))
             StoreMetroidYVelocity(state, 0);
 
         int xDifference = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
-        int xVelocity = unchecked(state.SignedXVelocity - ((xDifference >> 2) << 8));
+        int xVelocity = unchecked(state.Velocity.X.RawValue - ((xDifference >> 2) << 8));
         xVelocity = ClampMetroidVelocity(xVelocity);
         StoreMetroidXVelocity(state, xVelocity);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
@@ -416,8 +400,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         ushort collisionProjectileType,
         ushort collisionProjectileDamage,
-        ushort recoilOriginX,
-        ushort recoilOriginY,
+        Position16<RoomPixels> recoilOrigin,
         SamusState? samus)
     {
         MetroidEnemyState state = RequireMetroidState(slot);
@@ -436,10 +419,10 @@ public sealed partial class RoomEnemySystem
         // collision slot. The overlapping byte stores encode delta/8 as signed 16.16.
         StoreMetroidXVelocity(
             state,
-            unchecked((short)(slot.Position.X.Whole - recoilOriginX)) << 13);
+            unchecked((short)(slot.Position.X.Whole - recoilOrigin.X)) << 13);
         StoreMetroidYVelocity(
             state,
-            unchecked((short)(slot.Position.Y.Whole - recoilOriginY)) << 13);
+            unchecked((short)(slot.Position.Y.Whole - recoilOrigin.Y)) << 13);
         state.Function = MetroidAiFunction.Homing;
         SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.ChasingSamus);
 
@@ -476,7 +459,7 @@ public sealed partial class RoomEnemySystem
     private void FinishMetroidDeath(RoomEnemySlot slot, SamusState? samus)
     {
         MetroidEnemyState state = RequireMetroidState(slot);
-        state.XVelocity = 0;
+        state.Velocity = state.Velocity.WithWholeX(0);
         state.OuterBodyA.InstructionPointer = 0;
         state.OuterBodyB.InstructionPointer = 0;
         if (samus is not null)
@@ -487,15 +470,17 @@ public sealed partial class RoomEnemySystem
     /// <c>MetroidDeathItemDropRoutine</c> ($A0:B968) around the origin $A3:EF31/EF38
     /// recorded before <c>EnemyDeath</c> cleared the slot.
     /// </summary>
-    private void RequestMetroidDrops(ushort originX, ushort originY)
+    private void RequestMetroidDrops(Position16<RoomPixels> origin)
     {
         for (int dropIndex = 0; dropIndex < MetroidSpecialDropCount; dropIndex++)
         {
             ushort random = _nextRandom!();
-            ushort x = unchecked((ushort)(originX + (random & 0x001f) - 16));
-            ushort y = unchecked((ushort)(originY + ((random & 0x1f00) >> 8) - 16));
+            // Each axis adds a five-bit random byte minus sixteen: -16..+15 pixels.
+            var scatter = new Offset16<RoomPixels>(
+                unchecked((short)((random & 0x001f) - 16)),
+                unchecked((short)(((random & 0x1f00) >> 8) - 16)));
             _metroidDropRequests.Add(new MetroidDropRequest());
-            SpawnEnemyDropFromEnemyHeader(new(x, y), EnemyDefinitionId.Metroid);
+            SpawnEnemyDropFromEnemyHeader(origin + scatter, EnemyDefinitionId.Metroid);
         }
     }
 
@@ -509,17 +494,11 @@ public sealed partial class RoomEnemySystem
         return velocity;
     }
 
-    private static void StoreMetroidXVelocity(MetroidEnemyState state, int velocity)
-    {
-        state.XVelocity = unchecked((short)(velocity >> 16));
-        state.XSubvelocity = unchecked((ushort)velocity);
-    }
+    private static void StoreMetroidXVelocity(MetroidEnemyState state, int velocity) =>
+        state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromRaw(velocity));
 
-    private static void StoreMetroidYVelocity(MetroidEnemyState state, int velocity)
-    {
-        state.YVelocity = unchecked((short)(velocity >> 16));
-        state.YSubvelocity = unchecked((ushort)velocity);
-    }
+    private static void StoreMetroidYVelocity(MetroidEnemyState state, int velocity) =>
+        state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromRaw(velocity));
 
     private static void PositionMetroidOuterBody(
         RoomSpriteObjectSlot outerBody,

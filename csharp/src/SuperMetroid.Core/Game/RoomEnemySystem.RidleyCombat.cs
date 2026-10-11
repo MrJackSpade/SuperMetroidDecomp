@@ -151,21 +151,21 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            int xDistance = Math.Abs(unchecked((short)(projectile.Position.X.Whole - joint.XPosition)));
-            int yDistance = Math.Abs(unchecked((short)(projectile.Position.Y.Whole - joint.YPosition)));
+            int xDistance = Math.Abs(unchecked((short)(projectile.Position.X.Whole - joint.Position.X)));
+            int yDistance = Math.Abs(unchecked((short)(projectile.Position.Y.Whole - joint.Position.Y)));
             if (xDistance >= projectile.Radius.X + radius ||
                 yDistance >= projectile.Radius.Y + radius)
             {
                 continue;
             }
 
-            projectile.Position = projectile.Position.WithWhole(new(joint.XPosition, joint.YPosition));
+            projectile.Position = projectile.Position.WithWhole(joint.Position);
             projectile.Direction = unchecked((ushort)(projectile.Direction | 0x0010));
 
             // Missile family one gets the tiny dud and library-one sound $3D. Beams and
             // supers use the larger smoke variant $0C, exactly as $A6:E126 selects it.
             ushort dustVariant = typeNibble == 1 ? (ushort)6 : (ushort)12;
-            SpawnRidleyDust(joint.XPosition, joint.YPosition, dustVariant);
+            SpawnRidleyDust(joint.Position.X, joint.Position.Y, dustVariant);
             if (typeNibble == 1)
                 LastEnemyProjectileDudSoundEffect = 0x003d;
             return true;

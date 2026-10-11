@@ -95,7 +95,7 @@ internal static partial class Program
             var state = new NinjaSpacePirateEnemyState(source);
             spawnClaw.Invoke(
                 enemies,
-                [source, state, direction, (ushort)0, (ushort)0]);
+                [source, state, direction, Offset16<RoomPixels>.Zero]);
             RoomEnemyProjectileSlot claw = enemies.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
             AssertEqual(program, claw.InstructionPointer,
@@ -113,7 +113,7 @@ internal static partial class Program
         var deleteState = new NinjaSpacePirateEnemyState(deleteSource);
         spawnClaw.Invoke(
             deleteSystem,
-            [deleteSource, deleteState, (ushort)0, (ushort)0, (ushort)0]);
+            [deleteSource, deleteState, (ushort)0, Offset16<RoomPixels>.Zero]);
         RoomEnemyProjectileSlot deleting = deleteSystem.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
         deleting.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;

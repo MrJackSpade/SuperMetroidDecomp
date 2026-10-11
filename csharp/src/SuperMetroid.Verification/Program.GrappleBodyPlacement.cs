@@ -58,8 +58,8 @@ internal static partial class Program
             var native = PrepareRetailSamusFixture(new SamusState()); var changed = PrepareRetailSamusFixture(new SamusState());
             native.Grapple.SwingFrames = stock; changed.Grapple.SwingFrames = edited;
             bus.ReplaceArt = false; bus.ForbidArt = true;
-            SamusGrappleMovement.ConnectUnobstructedSwing(bus, native, 512, 512, 32, SnesAngle.FromRaw((ushort)(angle << 8)), 128, faceRight);
-            SamusGrappleMovement.ConnectUnobstructedSwing(bus, changed, 512, 512, 32, SnesAngle.FromRaw((ushort)(angle << 8)), 128, faceRight);
+            SamusGrappleMovement.ConnectUnobstructedSwing(bus, native, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromRaw((ushort)(angle << 8)), 128, faceRight);
+            SamusGrappleMovement.ConnectUnobstructedSwing(bus, changed, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromRaw((ushort)(angle << 8)), 128, faceRight);
             for (int tick = 0; tick < 16; tick++)
             {
                 ushort input = (ushort)(SuperMetroid.Core.Input.SnesButton.X | (tick < 8 ? SuperMetroid.Core.Input.SnesButton.Left : SuperMetroid.Core.Input.SnesButton.Right));

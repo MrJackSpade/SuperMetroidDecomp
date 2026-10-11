@@ -1,8 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>World position shared by one Tourian statue eye glow and released soul.</summary>
-internal readonly record struct TourianStatueEyePosition(ushort X, ushort Y);
-
 /// <summary>Compiled fixed physical definitions for Tourian statue unlock effects.</summary>
 internal static class TourianStatueUnlockDefinitions
 {
@@ -11,7 +8,7 @@ internal static class TourianStatueUnlockDefinitions
     /// <c>$86:B916-$86:B91D</c>. The native boss parameter is a doubled byte offset:
     /// Phantoon zero, Ridley two, Draygon four, or Kraid six.
     /// </summary>
-    private static readonly TourianStatueEyePosition[] EyePositions =
+    private static readonly Position16<RoomPixels>[] EyePositions =
     [
         new(0x0084, 0x0090),
         new(0x007a, 0x0051),
@@ -19,8 +16,8 @@ internal static class TourianStatueUnlockDefinitions
         new(0x0068, 0x0072),
     ];
 
-    /// <summary>Returns the eye position selected by the native doubled boss parameter.</summary>
-    internal static TourianStatueEyePosition EyePosition(ushort parameter)
+    /// <summary>Returns the room position shared by the eye glow and released soul selected by the native doubled boss parameter.</summary>
+    internal static Position16<RoomPixels> EyePosition(ushort parameter)
     {
         if (parameter > 6 || (parameter & 1) != 0)
         {

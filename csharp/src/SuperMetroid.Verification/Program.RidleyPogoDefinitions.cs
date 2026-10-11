@@ -41,14 +41,14 @@ internal static partial class Program
             seed = (ushort)raw;
             reads = advances = 0;
             state.HealthStage = health;
-            state.HorizontalVelocity = previous;
+            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(previous));
             state.FunctionTimer = 0x1234;
             initialize(state);
             var expected = reference[raw & 3, Math.Min(health, (ushort)3) + 2];
             AssertEqual(0, advances, "Native Ridley pogo initializer must not advance RNG");
             AssertEqual(1, reads, "Native Ridley pogo initializer reads current RNG once");
-            AssertEqual(unchecked((ushort)((short)previous < 0 ? -expected.X : expected.X)), state.HorizontalVelocity, "Pogo selected horizontal magnitude/sign");
-            AssertEqual(expected.Y, state.VerticalVelocity, "Pogo selected vertical speed");
+            AssertEqual(unchecked((ushort)((short)previous < 0 ? -expected.X : expected.X)), state.Velocity.X.RawValue, "Pogo selected horizontal magnitude/sign");
+            AssertEqual(expected.Y, state.Velocity.Y.RawValue, "Pogo selected vertical speed");
             AssertEqual(expected.Up, state.PogoUpwardAcceleration, "Pogo upward acceleration");
             AssertEqual(expected.Down, state.PogoDownwardAcceleration, "Pogo downward acceleration");
             AssertEqual(health, state.HealthStage, "Pogo preserves health-stage state");

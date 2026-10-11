@@ -336,7 +336,7 @@ public sealed partial class RoomEnemySystem
         RequireSetRoomScrollState(5, RoomScrollState.Blue);
         if (state.Tongue is { } tongue)
             tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
-        PublishCrocomirePlm(0x4e, 0x03, PlmHeaderId.ClearCrocomireInvisibleWall);
+        PublishCrocomirePlm(new Position16<RoomBlocks>(0x4e, 0x03), PlmHeaderId.ClearCrocomireInvisibleWall);
         CameraDistanceIndex = CameraDistanceMode.NormalTracking; // $A4:90D8
         RequireCrocomireDeath().TargetHeightOrSkeletonTileIndex = 0;
     }
@@ -366,7 +366,7 @@ public sealed partial class RoomEnemySystem
             MusicCommandDelay.EightFrames);
         RequireSetRoomScrollState(3, RoomScrollState.RedBoundary);
         RequireSetRoomScrollState(4, RoomScrollState.Blue);
-        PublishCrocomirePlm(0x30, 0x03, PlmHeaderId.CreateCrocomireInvisibleWall);
+        PublishCrocomirePlm(new Position16<RoomBlocks>(0x30, 0x03), PlmHeaderId.CreateCrocomireInvisibleWall);
         CameraDistanceIndex = CameraDistanceMode.RightEdge; // $A4:97F3-97F6
         RoomEnemySlot body = state.Body;
         body.Properties = body.Properties.Replace(
@@ -441,9 +441,9 @@ public sealed partial class RoomEnemySystem
         death.RumbleCooldown = 80;
         state.ReactionTimer = 0;
         state.ProjectileCounter = 0;
-        PublishCrocomirePlm(0x20, 0x03, PlmHeaderId.ClearCrocomireInvisibleWall);
-        PublishCrocomirePlm(0x1e, 0x03, PlmHeaderId.CreateCrocomireInvisibleWall);
-        PublishCrocomirePlm(0x70, 0x0b, PlmHeaderId.ClearCrocomireBridge);
+        PublishCrocomirePlm(new Position16<RoomBlocks>(0x20, 0x03), PlmHeaderId.ClearCrocomireInvisibleWall);
+        PublishCrocomirePlm(new Position16<RoomBlocks>(0x1e, 0x03), PlmHeaderId.CreateCrocomireInvisibleWall);
+        PublishCrocomirePlm(new Position16<RoomBlocks>(0x70, 0x0b), PlmHeaderId.ClearCrocomireBridge);
         LastCrocomireSoundEffect = 0x0029;
         InstallCrocomireInstructionList(
             body,
@@ -533,7 +533,7 @@ public sealed partial class RoomEnemySystem
             CrocomireInstructionProgramDefinitions.Dead);
         state.Body.Position += new Offset16<RoomPixels>(64, 21);
         state.Body.Radius = new(40, 28);
-        PublishCrocomirePlm(0x30, 0x03, PlmHeaderId.ClearCrocomireInvisibleWall);
+        PublishCrocomirePlm(new Position16<RoomBlocks>(0x30, 0x03), PlmHeaderId.ClearCrocomireInvisibleWall);
         LastCrocomireDropRequest = new CrocomireDropRequest();
 
         // $A0:B995 emits sixteen independent $F337 projectiles across Crocomire's
@@ -554,7 +554,7 @@ public sealed partial class RoomEnemySystem
     {
         for (int index = 0; index < 4; index++)
             RequireSetRoomScrollState(index, RoomScrollState.Blue);
-        PublishCrocomirePlm(0x1e, 0x03, PlmHeaderId.ClearCrocomireInvisibleWall);
+        PublishCrocomirePlm(new Position16<RoomBlocks>(0x1e, 0x03), PlmHeaderId.ClearCrocomireInvisibleWall);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 

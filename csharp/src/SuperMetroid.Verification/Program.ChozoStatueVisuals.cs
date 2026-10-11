@@ -72,7 +72,7 @@ internal static partial class Program
                 BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
                 var plms = new RoomPlmSystem { ChozoStatueVisuals = selected };
                 AssertTrue(plms.TrySpawnChozoStatuePlm(level,
-                    new ChozoStatuePlmRequest(header, 3, 4, IsHardcoded: false)),
+                    new ChozoStatuePlmRequest(header, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                     $"Chozo actor ${(int)header:X4} spawns in a bounded test room");
                 plms.Step(guarded, level, streamer, new(0, 0), 0);
                 int origin = 4 * width + 3;
@@ -93,7 +93,7 @@ internal static partial class Program
             var crumblePlms = new RoomPlmSystem();
             AssertTrue(crumblePlms.TrySpawnChozoStatuePlm(crumbleLevel,
                 new ChozoStatuePlmRequest(PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-                    3, 4, IsHardcoded: false)),
+                    new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                 "Chozo crumble plug spawns in a bounded test room");
             var seenCrumbleWords = new HashSet<ushort>();
             for (int frame = 0; frame < 15; frame++)
@@ -114,7 +114,7 @@ internal static partial class Program
             var wreckedHandPlms = new RoomPlmSystem();
             AssertTrue(wreckedHandPlms.TrySpawnChozoStatuePlm(wreckedHandLevel,
                 new ChozoStatuePlmRequest(PlmHeaderId.WreckedShipChozoHand,
-                    3, 4, IsHardcoded: false)),
+                    new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                 "Wrecked Ship hand spawns from its compiled header");
             wreckedHandPlms.Step(guarded, wreckedHandLevel,
                 wreckedHandLevel.CreateBackgroundStreamer(), new(0, 0), 0);

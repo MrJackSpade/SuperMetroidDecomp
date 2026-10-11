@@ -36,6 +36,6 @@ public sealed partial class RoomEnemySystem
             ? RidleyLungeDefinitions.DodgeLeftX : RidleyLungeDefinitions.DodgeRightX;
         ushort targetY = unchecked((short)(bomb.Position.Y - RidleyLungeDefinitions.DodgeSplitY)) >= 0
             ? RidleyLungeDefinitions.DodgeUpperY : RidleyLungeDefinitions.DodgeLowerY;
-        MoveNorfairRidleyToward(slot, state, targetX, targetY, ReadRidleyHealthMovementDivisorIndex(state));
+        MoveNorfairRidleyToward(slot, state, new Position16<RoomPixels>(targetX, targetY), ReadRidleyHealthMovementDivisorIndex(state));
     }
 }

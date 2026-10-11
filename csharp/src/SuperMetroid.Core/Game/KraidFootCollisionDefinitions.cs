@@ -115,8 +115,8 @@ internal readonly record struct KraidFootComponentSequence(int Frame, int Length
         {
             if ((uint)index >= (uint)Length) throw new IndexOutOfRangeException();
             return index == 0
-                ? new(KraidFootCollisionDefinitions.FirstX(Frame), KraidFootCollisionDefinitions.FirstY(Frame), KraidFootCollisionDefinitions.HitboxList)
-                : new(KraidFootCollisionDefinitions.SecondX(Frame), KraidFootCollisionDefinitions.SecondY(Frame), KraidFootCollisionDefinitions.HitboxList);
+                ? new(new(KraidFootCollisionDefinitions.FirstX(Frame), KraidFootCollisionDefinitions.FirstY(Frame)), KraidFootCollisionDefinitions.HitboxList)
+                : new(new(KraidFootCollisionDefinitions.SecondX(Frame), KraidFootCollisionDefinitions.SecondY(Frame)), KraidFootCollisionDefinitions.HitboxList);
         }
     }
     public Enumerator GetEnumerator() => new(this);
@@ -148,7 +148,7 @@ internal readonly record struct KraidFootHitboxSequence(int Length)
         public KraidFootCollisionHitbox Current => sequence[next - 1];
     }
 }
-internal readonly record struct KraidFootCollisionComponent(short X, short Y, ushort HitboxPointer);
+internal readonly record struct KraidFootCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
 
 internal readonly record struct KraidFootCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);

@@ -49,10 +49,9 @@ internal static partial class Program
             actor.InstructionTimer = ushort.MaxValue;
             state.MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = behavior;
-            state.AirborneXVelocity = (ushort)(initialX >> 16);
-            state.AirborneXSubvelocity = (ushort)initialX;
-            state.AirborneYVelocity = (ushort)(initialY >> 16);
-            state.AirborneYSubvelocity = (ushort)initialY;
+            state.AirborneVelocity = new FixedVector<RoomPixels>(
+                SnesSignedSixteenSixteen.FromRaw(unchecked((int)initialX)),
+                SnesSignedSixteenSixteen.FromRaw(unchecked((int)initialY)));
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
                 Pose = SamusPoseId.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
             samus.RefreshCollisionRadii(bus);
@@ -75,8 +74,8 @@ internal static partial class Program
                 enemies.StepFrame(new(384, 384), false, samus, level: level);
                 AssertEqual(x, actor.Position.X.RawValue, "Yard airborne X trajectory");
                 AssertEqual(y, actor.Position.Y.RawValue, "Yard airborne Y trajectory");
-                AssertEqual(vx, ((uint)state.AirborneXVelocity << 16) | state.AirborneXSubvelocity, "Yard native friction words");
-                AssertEqual(vy, ((uint)state.AirborneYVelocity << 16) | state.AirborneYSubvelocity, "Yard native gravity words");
+                AssertEqual(vx, unchecked((uint)state.AirborneVelocity.X.RawValue), "Yard native friction words");
+                AssertEqual(vy, unchecked((uint)state.AirborneVelocity.Y.RawValue), "Yard native gravity words");
                 AssertEqual(YardMovementFunction.Airborne, state.MovementFunction, "empty fixture remains airborne");
                 samples++;
             }

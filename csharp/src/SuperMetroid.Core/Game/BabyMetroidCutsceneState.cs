@@ -241,6 +241,7 @@ public sealed partial class BabyMetroidCutsceneState
         if (Phase == BabyMetroidCutscenePhase.Inactive)
             throw new InvalidOperationException("The cutscene Baby Metroid has not been initialized.");
 
+        var layer1 = new Position16<RoomPixels>(layer1X, layer1Y);
         BabyMetroidCutscenePhase phaseBefore = Phase;
         BabyMetroidCutscenePoint before = Capture();
         bool brainCollision = false;
@@ -265,8 +266,7 @@ public sealed partial class BabyMetroidCutsceneState
         if (Phase == BabyMetroidCutscenePhase.LatchOntoSamus && TouchesSamus(samus))
         {
             bool reachedLatchPoint = AccelerateTowardsPoint(
-                samus.Position.X.Whole,
-                unchecked((ushort)(samus.Position.Y.Whole - 0x0014)),
+                SamusLatchPoint(samus),
                 acceleration: 0x0010);
             if (reachedLatchPoint)
             {
@@ -306,10 +306,8 @@ public sealed partial class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
                 UpdateSpeedAndAngle(angleDelta: 0xfa00, targetAngle: 0x8200, targetSpeed: 0x0e00);
                 brainCollision = CollidesWithRectangle(
-                    head.X,
-                    head.Y,
-                    rectangleXRadius: 4,
-                    rectangleYRadius: 4);
+                    new Position16<RoomPixels>(head.X, head.Y),
+                    TargetRadius);
 
                 // Collision skips the timer decrement. Otherwise `$0009` permits ten
                 // approach calls and expires when the tenth decrement wraps to `$FFFF`.
@@ -328,19 +326,13 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.LatchOntoMotherBrain:
             {
-                ushort targetY = unchecked((ushort)(head.Y - 0x0018));
+                Position16<RoomPixels> target = BrainLatchPoint(head);
                 GraduallyAccelerateTowardsPoint(
-                    head.X,
-                    targetY,
+                    target,
                     accelerationDivisor: 0x10,
                     wrongWayOffScreenXSpeed: 0x0400,
-                    layer1X,
-                    layer1Y);
-                brainCollision = CollidesWithRectangle(
-                    head.X,
-                    targetY,
-                    rectangleXRadius: 8,
-                    rectangleYRadius: 8);
+                    layer1);
+                brainCollision = CollidesWithRectangle(target, new Extent16<RoomPixels>(8, 8));
                 if (brainCollision)
                     Phase = BabyMetroidCutscenePhase.SetMotherBrainToStumbleBack;
                 break;
@@ -355,17 +347,16 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody:
             {
-                ushort targetX = head.X;
-                ushort targetY = unchecked((ushort)(head.Y - 0x0018));
-                bool reachedTarget = AccelerateTowardsPoint(targetX, targetY, acceleration: 0x0200);
+                Position16<RoomPixels> target = BrainLatchPoint(head);
+                bool reachedTarget = AccelerateTowardsPoint(target, acceleration: 0x0200);
                 if (reachedTarget)
                 {
                     // The helper predicts whole-pixel overshoot but does not itself store
                     // its returned target coordinate. `$C8A4-$C8B7` performs the exact pin.
                     XVelocity = 0;
                     YVelocity = 0;
-                    XPosition = targetX;
-                    YPosition = targetY;
+                    XPosition = target.X;
+                    YPosition = target.Y;
                     SetInstructionList(DrainingMotherBrainInstructionList);
                     Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
                     PaletteHandlerDelay = 1;
@@ -436,20 +427,13 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.MoveToTheCeiling:
             {
-                ushort targetX = head.X;
-                const ushort targetY = 0;
+                var target = new Position16<RoomPixels>(head.X, 0);
                 GraduallyAccelerateTowardsPoint(
-                    targetX,
-                    targetY,
+                    target,
                     accelerationDivisor: 0x10,
                     wrongWayOffScreenXSpeed: 0x0400,
-                    layer1X,
-                    layer1Y);
-                bool ceilingCollision = CollidesWithRectangle(
-                    targetX,
-                    targetY,
-                    rectangleXRadius: 4,
-                    rectangleYRadius: 4);
+                    layer1);
+                bool ceilingCollision = CollidesWithRectangle(target, TargetRadius);
                 brainCollision = ceilingCollision;
                 if (ceilingCollision)
                 {
@@ -474,8 +458,7 @@ public sealed partial class BabyMetroidCutsceneState
                 // sprite/instruction presentation remains separately cartridge-backed.
                 BabyMetroidRouteRecord record =
                     BabyMetroidRouteDefinitions.GetRecord(MovementTablePointer);
-                ushort targetX = record.TargetX;
-                ushort targetY = record.TargetY;
+                Position16<RoomPixels> target = record.Target;
                 ushort divisorIndex = record.AccelerationDivisorIndex;
 
                 // `$F56A` is `[10,0F,...,01]`; every retail `$CA24` record uses index zero,
@@ -491,18 +474,16 @@ public sealed partial class BabyMetroidCutsceneState
                     record.MovementFunction);
 
                 GraduallyAccelerateTowardsPoint(
-                    targetX,
-                    targetY,
+                    target,
                     accelerationDivisor,
                     wrongWayExtra,
-                    layer1X,
-                    layer1Y);
+                    layer1);
 
                 // The route's 4x4 rectangle test occurs before the common velocity mover.
                 // On ordinary records, +8 is merely the next record's target X and the
                 // pointer advances eight bytes. The final record deliberately overlaps its
                 // +8 word with `$CA66`, so BMI installs the next AI function instead.
-                if (CollidesWithRectangle(targetX, targetY, 4, 4))
+                if (CollidesWithRectangle(target, TargetRadius))
                 {
                     ushort nextWord = record.FollowingWord;
                     if ((nextWord & 0x8000) != 0)
@@ -527,12 +508,10 @@ public sealed partial class BabyMetroidCutsceneState
                 // never performs the state change. That transition belongs to enemy-touch
                 // handler `$CF03`, executed after main AI and the common mover below.
                 GraduallyAccelerateTowardsPoint(
-                    samus.Position.X.Whole,
-                    unchecked((ushort)(samus.Position.Y.Whole - 0x0014)),
+                    SamusLatchPoint(samus),
                     accelerationDivisor: 0x10,
                     wrongWayOffScreenXSpeed: 0x0400,
-                    layer1X,
-                    layer1Y);
+                    layer1);
                 break;
 
             case BabyMetroidCutscenePhase.HealSamusToFullHealth:
@@ -606,31 +585,29 @@ public sealed partial class BabyMetroidCutsceneState
                 // The helper's Y index zero means divisor `$10`. This leg and the next two
                 // enter at `$A9:F466`, which stores a `$10` wrong-way off-screen X extra,
                 // not the `$400` of the entrance helpers.
+            {
+                var target = new Position16<RoomPixels>(unchecked((ushort)(samus.Position.X.Whole - 4)), 0x0060);
                 GraduallyAccelerateTowardsPoint(
-                    unchecked((ushort)(samus.Position.X.Whole - 4)),
-                    0x0060,
+                    target,
                     accelerationDivisor: 0x0010,
                     wrongWayOffScreenXSpeed: 0x0010,
-                    layer1X,
-                    layer1Y);
-                if (CollidesWithRectangle(
-                    unchecked((ushort)(samus.Position.X.Whole - 4)), 0x0060, 4, 4))
+                    layer1);
+                if (CollidesWithRectangle(target, TargetRadius))
                 {
                     Phase = BabyMetroidCutscenePhase.FlyOffScreen;
                 }
                 break;
+            }
 
             case BabyMetroidCutscenePhase.FlyOffScreen:
                 // Despite the function's historical name, this leg targets the fixed point
                 // `(272,64)` just beyond the right edge of the original 256-pixel camera.
                 GraduallyAccelerateTowardsPoint(
-                    0x0110,
-                    0x0040,
+                    new Position16<RoomPixels>(0x0110, 0x0040),
                     accelerationDivisor: 0x0010,
                     wrongWayOffScreenXSpeed: 0x0010,
-                    layer1X,
-                    layer1Y);
-                if (CollidesWithRectangle(0x0110, 0x0040, 4, 4))
+                    layer1);
+                if (CollidesWithRectangle(new Position16<RoomPixels>(0x0110, 0x0040), TargetRadius))
                     Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
                 break;
 
@@ -639,13 +616,11 @@ public sealed partial class BabyMetroidCutsceneState
                 // exactly 79 HP so the final four-ring volley kills on its first collision,
                 // clears the brain-slot speed flag, and replaces Mother Brain's retreat AI.
                 GraduallyAccelerateTowardsPoint(
-                    0x0131,
-                    0x00a0,
+                    new Position16<RoomPixels>(0x0131, 0x00a0),
                     accelerationDivisor: 0x0010,
                     wrongWayOffScreenXSpeed: 0x0010,
-                    layer1X,
-                    layer1Y);
-                if (CollidesWithRectangle(0x0131, 0x00a0, 4, 4))
+                    layer1);
+                if (CollidesWithRectangle(new Position16<RoomPixels>(0x0131, 0x00a0), TargetRadius))
                 {
                     Health = 0x004f;
                     motherBrain.ExecuteFinalBabyMetroidAttack();
@@ -657,13 +632,11 @@ public sealed partial class BabyMetroidCutsceneState
                 // Divisor-table index `$A` maps to `$10-$A == 6`. This helper family adds
                 // `$400` only when an off-screen actor is moving the wrong horizontal way.
                 GraduallyAccelerateTowardsPoint(
-                    0x0122,
-                    0x0080,
+                    new Position16<RoomPixels>(0x0122, 0x0080),
                     accelerationDivisor: 0x0006,
                     wrongWayOffScreenXSpeed: 0x0400,
-                    layer1X,
-                    layer1Y);
-                if (CollidesWithRectangle(0x0122, 0x0080, 4, 4))
+                    layer1);
+                if (CollidesWithRectangle(new Position16<RoomPixels>(0x0122, 0x0080), TargetRadius))
                     Phase = BabyMetroidCutscenePhase.FinalCharge;
                 break;
 
@@ -672,12 +645,10 @@ public sealed partial class BabyMetroidCutsceneState
                 // centre. Index `$C` maps to divisor four and therefore accelerates much
                 // more aggressively than the staging leg.
                 GraduallyAccelerateTowardsPoint(
-                    head.X,
-                    unchecked((ushort)(head.Y - 0x0020)),
+                    new Position16<RoomPixels>(head.X, unchecked((ushort)(head.Y - 0x0020))),
                     accelerationDivisor: 0x0004,
                     wrongWayOffScreenXSpeed: 0x0400,
-                    layer1X,
-                    layer1Y);
+                    layer1);
                 if (Health == 0)
                 {
                     // `$A9:CBF2-$CC3D` changes graphics/list state, freezes the body AI,

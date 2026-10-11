@@ -666,8 +666,8 @@ internal static partial class Program
             {
                 int record = root + 2 + index * 8;
                 PhantoonCollisionComponent component = components[index];
-                AssertEqual(unchecked((short)ReadVerificationWord(rom, record)), component.X, "Native component X");
-                AssertEqual(unchecked((short)ReadVerificationWord(rom, record + 2)), component.Y, "Native component Y");
+                AssertEqual(unchecked((short)ReadVerificationWord(rom, record)), component.Offset.X, "Native component X");
+                AssertEqual(unchecked((short)ReadVerificationWord(rom, record + 2)), component.Offset.Y, "Native component Y");
                 AssertEqual(ReadVerificationWord(rom, record + 6), component.HitboxPointer, "Native collision identity");
                 componentCount++;
                 if (!lists.Add(component.HitboxPointer)) continue;
@@ -691,13 +691,13 @@ internal static partial class Program
         AssertEqual(25, componentCount, "All native components");
         AssertEqual(3, lists.Count, "All native hitbox lists");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null!, rom,
-            (ushort)PhantoonCollisionFrame.BodyFullHitbox, 128, 128, true), "Actual full-body shot callback");
+            (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), true), "Actual full-body shot callback");
         AssertEqual(PhantoonCollisionDefinitions.TouchAi, FindPhantoonHitboxCallback(null!, rom,
-            (ushort)PhantoonCollisionFrame.BodyFullHitbox, 128, 128, false), "Actual full-body touch callback");
+            (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), false), "Actual full-body touch callback");
         AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null!, rom,
-            (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, 128, 153, true), "Actual vulnerable eye callback");
+            (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 153), true), "Actual vulnerable eye callback");
         AssertEqual((ushort)0, FindPhantoonHitboxCallback(null!, rom,
-            (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, 128, 128, true), "Eye-only frame excludes body collision");
+            (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 128), true), "Eye-only frame excludes body collision");
         AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.ComponentsAt(0), "Frame domain");
         AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.HitboxesAt(0), "Hitbox domain");
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");
@@ -1166,8 +1166,8 @@ internal static partial class Program
 
         void Check(int direction, string context)
         {
-            AssertEqual(Word(0xa8a0a7 + direction * 4), state.HeldSamusXOffset, context);
-            AssertEqual(Word(0xa8a0a9 + direction * 4), state.HeldSamusYOffset, context);
+            AssertEqual(Word(0xa8a0a7 + direction * 4), unchecked((ushort)state.HeldSamusOffset.X), context);
+            AssertEqual(Word(0xa8a0a9 + direction * 4), unchecked((ushort)state.HeldSamusOffset.Y), context);
         }
     }
     private static void VerifyLookupStream5EyeGeometry(SuperMetroidAddressSpace rom)

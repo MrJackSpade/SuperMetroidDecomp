@@ -137,8 +137,7 @@ internal static partial class Program
             BabyInstruction = CeresBabyInstructionProgramDefinitions.ExpressiveLoop,
             BabyInstructionTimer = 1,
             BabyVerticalVelocity = 1,
-            BabyXPosition = 100,
-            BabyYPosition = 80,
+            BabyPosition = new Position16<RoomPixels>(100, 80),
         };
         ushort editedPalettePose = advance(editedPaletteState);
         AssertEqual(enemies.CeresRidleyColors.ResolveBaby(1, 0),
@@ -147,7 +146,7 @@ internal static partial class Program
             "edited Ceres Baby color reaches the native CGRAM slot");
         AssertEqual(CeresBabyInstructionProgramDefinitions.HorizontalFrame,
             editedPalettePose, "palette edit does not change Baby pose selection");
-        AssertEqual((ushort)100, editedPaletteState.BabyXPosition,
+        AssertEqual((ushort)100, editedPaletteState.BabyPosition.X,
             "palette edit does not change Baby world position");
         // $A6:DBFE installs the frame reached through the ASM instructions with an
         // elapsed timer of one; the palette edit must not alter that.
@@ -170,8 +169,7 @@ internal static partial class Program
             MovementAnimationEnabled = 0,
             BabyInstruction = CeresBabyInstructionProgramDefinitions.Initial,
             BabyInstructionTimer = 1,
-            BabyXPosition = 100,
-            BabyYPosition = 80,
+            BabyPosition = new Position16<RoomPixels>(100, 80),
         };
         typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, baby);
         var nativeBaby = new OamBuffer();

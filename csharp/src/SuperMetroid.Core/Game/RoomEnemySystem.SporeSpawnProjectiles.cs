@@ -48,7 +48,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports projectile definition $86:DE7A and initializer $86:DC8D.</summary>
-    private void SpawnSporeSpawnSpore(ushort x, ushort y)
+    private void SpawnSporeSpawnSpore(Position16<RoomPixels> position)
     {
         RoomEnemyProjectileSlot? spore = AllocateEnemyProjectile();
         if (spore is null)
@@ -58,18 +58,18 @@ public sealed partial class RoomEnemySystem
             spore,
             RoomEnemyProjectileKind.SporeSpawnSpore,
             SporeSpawnGraphicsIndex);
-        spore.Position = spore.Position.WithWhole(new(x, y));
+        spore.Position = spore.Position.WithWhole(position);
 
         // Var1 retains the original X coordinate. Bit seven alone mirrors horizontal motion,
         // so emitters at $20/$A0 move one way and $60/$E0 move the other.
-        spore.Variable1 = x;
+        spore.Variable1 = position.X;
     }
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_Spores</c> at $86:DCEE.</summary>
     private static void RunSporeSpawnSporePreInstruction(RoomEnemyProjectileSlot spore)
     {
         byte movementOffset = unchecked((byte)spore.Variable0);
-        SporeSpawnMovementDelta movement =
+        Offset16<RoomPixels> movement =
             SporeSpawnProjectileDefinitions.MovementAt(movementOffset);
         int xDelta = movement.X;
         if ((spore.Variable1 & 0x0080) != 0)

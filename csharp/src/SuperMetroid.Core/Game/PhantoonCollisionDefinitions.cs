@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Engine-owned component offset and bank-$A7 hitbox-list identity.</summary>
-internal readonly record struct PhantoonCollisionComponent(short X, short Y, ushort HitboxPointer);
+internal readonly record struct PhantoonCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
 
 /// <summary>Engine-owned rectangle and touch/shot callbacks for Phantoon.</summary>
 internal readonly record struct PhantoonCollisionHitbox(
@@ -105,7 +105,7 @@ internal static class PhantoonCollisionDefinitions
     {
         public int Count => count;
         public PhantoonCollisionComponent this[int index] => (uint)index < Count
-            ? new(0, 0, (ushort)list) : throw new IndexOutOfRangeException();
+            ? new(Offset16<RoomPixels>.Zero, (ushort)list) : throw new IndexOutOfRangeException();
         public IEnumerator<PhantoonCollisionComponent> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

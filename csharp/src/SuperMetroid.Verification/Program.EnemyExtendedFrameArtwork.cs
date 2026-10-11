@@ -27,9 +27,9 @@ internal static partial class Program
                    empty.IsEmpty,
             "walking Pirate initial empty frame is a compiled draw identity");
         OamBuffer nativeEmpty = DrawReferenceExtendedFrame(rom, EnemyExtendedFrameDefinitions.Bank, emptyPointer,
-            0x0040, 0x0080);
+            new(0x0040, 0x0080));
         OamBuffer installedEmpty = DrawExtended(stock, guard, emptyPointer,
-            0x0040, 0x0080);
+            new(0x0040, 0x0080));
         AssertTrue(nativeEmpty.LowTable.SequenceEqual(installedEmpty.LowTable) &&
                    nativeEmpty.HighTable.SequenceEqual(installedEmpty.HighTable) &&
                    nativeEmpty.NextByteOffset == installedEmpty.NextByteOffset,
@@ -59,9 +59,9 @@ internal static partial class Program
                      })
             {
                 OamBuffer native = DrawReferenceExtendedFrame(rom,
-                    frame.Bank, frame.Pointer, x, y);
+                    frame.Bank, frame.Pointer, new(x, y));
                 OamBuffer installed = DrawExtendedForBank(stock, guard,
-                    frame.Bank, frame.Pointer, x, y);
+                    frame.Bank, frame.Pointer, new(x, y));
                 AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) &&
                            native.HighTable.SequenceEqual(installed.HighTable) &&
                            native.NextByteOffset == installed.NextByteOffset,
@@ -224,25 +224,25 @@ internal static partial class Program
         EnemyTileArtworkCatalog editedRidley = EnemyTileArtworkFiles.Load(
             stockDirectory, ridleyOverrideDirectory);
         OamBuffer stockRidley = DrawExtendedForBank(stock, guard,
-            0xa6, 0xe983, 0x0040, 0x0080);
+            0xa6, 0xe983, new(0x0040, 0x0080));
         OamBuffer movedRidley = DrawExtendedForBank(editedRidley, guard,
-            0xa6, 0xe983, 0x0040, 0x0080);
+            0xa6, 0xe983, new(0x0040, 0x0080));
         OamBuffer stockDraygonOam = DrawExtendedForBank(stock, guard,
-            0xa5, 0xa2df, 0x0040, 0x0080);
+            0xa5, 0xa2df, new(0x0040, 0x0080));
         OamBuffer movedDraygonOam = DrawExtendedForBank(editedRidley, guard,
-            0xa5, 0xa2df, 0x0040, 0x0080);
+            0xa5, 0xa2df, new(0x0040, 0x0080));
         OamBuffer stockSteam = DrawExtendedForBank(stock, guard,
-            0xa6, 0xf142, 0x0040, 0x0080);
+            0xa6, 0xf142, new(0x0040, 0x0080));
         OamBuffer movedSteam = DrawExtendedForBank(editedRidley, guard,
-            0xa6, 0xf142, 0x0040, 0x0080);
+            0xa6, 0xf142, new(0x0040, 0x0080));
         OamBuffer stockOum = DrawExtendedForBank(stock, guard,
-            0xa2, 0xcb87, 0x0040, 0x0080);
+            0xa2, 0xcb87, new(0x0040, 0x0080));
         OamBuffer movedOum = DrawExtendedForBank(editedRidley, guard,
-            0xa2, 0xcb87, 0x0040, 0x0080);
+            0xa2, 0xcb87, new(0x0040, 0x0080));
         OamBuffer stockCrocomire = DrawExtendedForBank(stock, guard,
-            0xa4, 0xc65e, 0x0040, 0x0080);
+            0xa4, 0xc65e, new(0x0040, 0x0080));
         OamBuffer movedCrocomire = DrawExtendedForBank(editedRidley, guard,
-            0xa4, 0xc65e, 0x0040, 0x0080);
+            0xa4, 0xc65e, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockCrocomire.LowTable[0] + 1)),
             movedCrocomire.LowTable[0],
             "editable Crocomire tongue composition moves live OAM by one pixel");
@@ -288,9 +288,9 @@ internal static partial class Program
         ushort editedPointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
             .Single(frame => frame.Name == editedName).Pointer;
         OamBuffer stockOam = DrawExtended(stock, guard,
-            editedPointer, 0x0040, 0x0080);
+            editedPointer, new(0x0040, 0x0080));
         OamBuffer editedOam = DrawExtended(edited, guard,
-            editedPointer, 0x0040, 0x0080);
+            editedPointer, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockOam.LowTable[0] + 1)),
             editedOam.LowTable[0],
             "editable walking Pirate component moves live OAM by one pixel");
@@ -321,7 +321,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, legacyJson);
         EnemyTileArtworkCatalog legacy = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer legacyWalking = DrawExtended(legacy, guard,
-            editedPointer, 0x0040, 0x0080);
+            editedPointer, new(0x0040, 0x0080));
         AssertTrue(legacyWalking.LowTable.SequenceEqual(editedOam.LowTable) &&
                    legacyWalking.HighTable.SequenceEqual(editedOam.HighTable),
             "v1 walking-Pirate artwork edit survives the v2 catalog update");
@@ -330,9 +330,9 @@ internal static partial class Program
         ushort wallPointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
             .Single(frame => frame.Name == wallName).Pointer;
         OamBuffer stockWall = DrawExtended(stock, guard,
-            wallPointer, 0x0040, 0x0080);
+            wallPointer, new(0x0040, 0x0080));
         OamBuffer legacyWall = DrawExtended(legacy, guard,
-            wallPointer, 0x0040, 0x0080);
+            wallPointer, new(0x0040, 0x0080));
         AssertTrue(stockWall.LowTable.SequenceEqual(legacyWall.LowTable) &&
                    stockWall.HighTable.SequenceEqual(legacyWall.HighTable),
             "v1 override inherits stock wall-Pirate frames");
@@ -349,7 +349,7 @@ internal static partial class Program
             }));
         EnemyTileArtworkCatalog editedWall = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedWall = DrawExtended(editedWall, guard,
-            wallPointer, 0x0040, 0x0080);
+            wallPointer, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockWall.LowTable[0] + 1)),
             movedWall.LowTable[0],
             "editable wall-Pirate component moves live OAM by one pixel");
@@ -379,9 +379,9 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, versionTwoJson);
         EnemyTileArtworkCatalog versionTwo = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer versionTwoWalking = DrawExtended(versionTwo, guard,
-            editedPointer, 0x0040, 0x0080);
+            editedPointer, new(0x0040, 0x0080));
         OamBuffer versionTwoWall = DrawExtended(versionTwo, guard,
-            wallPointer, 0x0040, 0x0080);
+            wallPointer, new(0x0040, 0x0080));
         AssertTrue(versionTwoWalking.LowTable.SequenceEqual(editedOam.LowTable) &&
                    versionTwoWall.LowTable.SequenceEqual(movedWall.LowTable),
             "v2 override preserves both walking and wall-Pirate art edits");
@@ -392,11 +392,11 @@ internal static partial class Program
         string ninjaName = ninjaFrame.Name;
         ushort ninjaPointer = ninjaFrame.Pointer;
         OamBuffer stockNinja = DrawExtended(stock, guard,
-            ninjaPointer, 0x0040, 0x0080);
+            ninjaPointer, new(0x0040, 0x0080));
         OamBuffer versionTwoNinja = DrawExtended(versionTwo, guard,
-            ninjaPointer, 0x0040, 0x0080);
+            ninjaPointer, new(0x0040, 0x0080));
         OamBuffer versionOneNinja = DrawExtended(legacy, guard,
-            ninjaPointer, 0x0040, 0x0080);
+            ninjaPointer, new(0x0040, 0x0080));
         AssertTrue(stockNinja.LowTable.SequenceEqual(versionTwoNinja.LowTable) &&
                    stockNinja.HighTable.SequenceEqual(versionTwoNinja.HighTable) &&
                    stockNinja.LowTable.SequenceEqual(versionOneNinja.LowTable) &&
@@ -415,7 +415,7 @@ internal static partial class Program
             }));
         EnemyTileArtworkCatalog editedNinja = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedNinja = DrawExtended(editedNinja, guard,
-            ninjaPointer, 0x0040, 0x0080);
+            ninjaPointer, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockNinja.LowTable[0] + 1)),
             movedNinja.LowTable[0],
             "editable Ninja component moves live OAM by one pixel");
@@ -438,7 +438,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedBindings = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         AssertTrue(movedNinja.LowTable.SequenceEqual(DrawExtended(
-                upgradedBindings, guard, ninjaPointer, 0x0040, 0x0080).LowTable),
+                upgradedBindings, guard, ninjaPointer, new(0x0040, 0x0080)).LowTable),
             "version-three extended override retains edited art and stock display bindings");
 
         // The previous current schema had all Pirate art and editable display
@@ -462,8 +462,8 @@ internal static partial class Program
         ushort legacyTargetPointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
             .Single(frame => frame.Name == targetNameForLegacyBinding).Pointer;
         AssertTrue(DrawExtended(upgradedVersionFour, guard, legacySourcePointer,
-                0x0040, 0x0080).LowTable.SequenceEqual(DrawExtended(stock, guard,
-                legacyTargetPointer, 0x0040, 0x0080).LowTable),
+                new(0x0040, 0x0080)).LowTable.SequenceEqual(DrawExtended(stock, guard,
+                legacyTargetPointer, new(0x0040, 0x0080)).LowTable),
             "version-four visual binding survives Ridley-frame migration");
         AssertTrue(upgradedVersionFour.ExtendedFrames!.TryGet(0xa6, 0xe983, out _),
             "version-four override inherits stock Ridley body art");
@@ -483,8 +483,8 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionFive = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         AssertTrue(DrawExtended(upgradedVersionFive, guard, legacySourcePointer,
-                0x0040, 0x0080).LowTable.SequenceEqual(DrawExtended(stock, guard,
-                legacyTargetPointer, 0x0040, 0x0080).LowTable),
+                new(0x0040, 0x0080)).LowTable.SequenceEqual(DrawExtended(stock, guard,
+                legacyTargetPointer, new(0x0040, 0x0080)).LowTable),
             "version-five override retains its authored Pirate display binding");
         AssertTrue(upgradedVersionFive.ExtendedFrames!.TryGet(0xa5, 0xa2df, out _),
             "version-five override inherits stock Draygon OAM art");
@@ -520,14 +520,14 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionSix = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockSpore = DrawExtendedForBank(stock, guard,
-            0xa5, 0xee6f, 0x0040, 0x0080);
+            0xa5, 0xee6f, new(0x0040, 0x0080));
         OamBuffer editedSpore = DrawExtendedForBank(upgradedVersionSix, guard,
-            0xa5, 0xee6f, 0x0040, 0x0080);
+            0xa5, 0xee6f, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockSpore.LowTable[0] + 1)),
             editedSpore.LowTable[0],
             "version-six Draygon-named Spore Spawn art edit survives migration");
         OamBuffer reboundSpore = DrawExtendedForBank(upgradedVersionSix, guard,
-            0xa5, 0xee65, 0x0040, 0x0080);
+            0xa5, 0xee65, new(0x0040, 0x0080));
         AssertTrue(reboundSpore.LowTable.SequenceEqual(editedSpore.LowTable) &&
                    reboundSpore.HighTable.SequenceEqual(editedSpore.HighTable),
             "version-six Spore Spawn display binding survives key migration");
@@ -546,12 +546,12 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionSeven = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer inheritedSteam = DrawExtendedForBank(upgradedVersionSeven, guard,
-            0xa6, 0xf142, 0x0040, 0x0080);
+            0xa6, 0xf142, new(0x0040, 0x0080));
         AssertTrue(inheritedSteam.LowTable.SequenceEqual(stockSteam.LowTable) &&
                    inheritedSteam.HighTable.SequenceEqual(stockSteam.HighTable),
             "version-seven override inherits verified stock Ceres steam art");
         AssertTrue(DrawExtended(upgradedVersionSeven, guard, editedPointer,
-                0x0040, 0x0080).LowTable.SequenceEqual(editedOam.LowTable),
+                new(0x0040, 0x0080)).LowTable.SequenceEqual(editedOam.LowTable),
             "version-seven Pirate edit survives the Ceres steam schema update");
 
         var versionEight = new EnemyExtendedFrameDocument
@@ -565,12 +565,12 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionEight = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer inheritedOum = DrawExtendedForBank(upgradedVersionEight, guard,
-            0xa2, 0xcb87, 0x0040, 0x0080);
+            0xa2, 0xcb87, new(0x0040, 0x0080));
         AssertTrue(inheritedOum.LowTable.SequenceEqual(stockOum.LowTable) &&
                    inheritedOum.HighTable.SequenceEqual(stockOum.HighTable),
             "version-eight override inherits verified stock Oum art");
         AssertTrue(DrawExtendedForBank(upgradedVersionEight, guard, 0xa6, 0xf142,
-                0x0040, 0x0080).LowTable.SequenceEqual(movedSteam.LowTable),
+                new(0x0040, 0x0080)).LowTable.SequenceEqual(movedSteam.LowTable),
             "version-eight Ceres steam edit survives the Oum schema update");
 
         var versionNine = new EnemyExtendedFrameDocument
@@ -584,12 +584,12 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionNine = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer inheritedCrocomire = DrawExtendedForBank(upgradedVersionNine, guard,
-            0xa4, 0xc65e, 0x0040, 0x0080);
+            0xa4, 0xc65e, new(0x0040, 0x0080));
         AssertTrue(inheritedCrocomire.LowTable.SequenceEqual(stockCrocomire.LowTable) &&
                    inheritedCrocomire.HighTable.SequenceEqual(stockCrocomire.HighTable),
             "version-nine override inherits verified stock Crocomire tongue art");
         AssertTrue(DrawExtendedForBank(upgradedVersionNine, guard, 0xa2, 0xcb87,
-                0x0040, 0x0080).LowTable.SequenceEqual(movedOum.LowTable),
+                new(0x0040, 0x0080)).LowTable.SequenceEqual(movedOum.LowTable),
             "version-nine Oum edit survives the Crocomire schema update");
 
         var versionTen = new EnemyExtendedFrameDocument
@@ -620,16 +620,16 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionEleven = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockDormantTorizo = DrawExtendedForBank(stock, guard,
-            0xaa, 0x87d0, 0x0040, 0x0080);
+            0xaa, 0x87d0, new(0x0040, 0x0080));
         OamBuffer inheritedDormantTorizo = DrawExtendedForBank(
-            upgradedVersionEleven, guard, 0xaa, 0x87d0, 0x0040, 0x0080);
+            upgradedVersionEleven, guard, 0xaa, 0x87d0, new(0x0040, 0x0080));
         AssertTrue(stockDormantTorizo.LowTable.SequenceEqual(
                        inheritedDormantTorizo.LowTable) &&
                    stockDormantTorizo.HighTable.SequenceEqual(
                        inheritedDormantTorizo.HighTable),
             "version-eleven override inherits verified stock dormant Torizo art");
         AssertTrue(DrawExtended(upgradedVersionEleven, guard,
-                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedPointer, new(0x0040, 0x0080)).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-eleven migration retains an edited Pirate frame");
 
@@ -646,16 +646,16 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionTwelve = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockInitialGoldenTorizo = DrawExtendedForBank(stock, guard,
-            0xaa, 0xaa30, 0x0040, 0x0080);
+            0xaa, 0xaa30, new(0x0040, 0x0080));
         OamBuffer inheritedInitialGoldenTorizo = DrawExtendedForBank(
-            upgradedVersionTwelve, guard, 0xaa, 0xaa30, 0x0040, 0x0080);
+            upgradedVersionTwelve, guard, 0xaa, 0xaa30, new(0x0040, 0x0080));
         AssertTrue(stockInitialGoldenTorizo.LowTable.SequenceEqual(
                        inheritedInitialGoldenTorizo.LowTable) &&
                    stockInitialGoldenTorizo.HighTable.SequenceEqual(
                        inheritedInitialGoldenTorizo.HighTable),
             "version-twelve override inherits verified stock initial Golden Torizo art");
         AssertTrue(DrawExtended(upgradedVersionTwelve, guard,
-                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedPointer, new(0x0040, 0x0080)).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-twelve migration retains an edited Pirate frame");
 
@@ -672,14 +672,14 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionThirteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockKraidArm = DrawExtendedForBank(stock, guard,
-            0xa7, 0x90fd, 0x0040, 0x0080);
+            0xa7, 0x90fd, new(0x0040, 0x0080));
         OamBuffer inheritedKraidArm = DrawExtendedForBank(
-            upgradedVersionThirteen, guard, 0xa7, 0x90fd, 0x0040, 0x0080);
+            upgradedVersionThirteen, guard, 0xa7, 0x90fd, new(0x0040, 0x0080));
         AssertTrue(stockKraidArm.LowTable.SequenceEqual(inheritedKraidArm.LowTable) &&
                    stockKraidArm.HighTable.SequenceEqual(inheritedKraidArm.HighTable),
             "version-thirteen override inherits verified stock Kraid arm art");
         AssertTrue(DrawExtended(upgradedVersionThirteen, guard,
-                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedPointer, new(0x0040, 0x0080)).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-thirteen migration retains an edited Pirate frame");
 
@@ -697,16 +697,16 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionFourteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockAwakeGoldenTorizo = DrawExtendedForBank(stock, guard,
-            0xaa, 0xaa5e, 0x0040, 0x0080);
+            0xaa, 0xaa5e, new(0x0040, 0x0080));
         OamBuffer inheritedAwakeGoldenTorizo = DrawExtendedForBank(
-            upgradedVersionFourteen, guard, 0xaa, 0xaa5e, 0x0040, 0x0080);
+            upgradedVersionFourteen, guard, 0xaa, 0xaa5e, new(0x0040, 0x0080));
         AssertTrue(stockAwakeGoldenTorizo.LowTable.SequenceEqual(
                        inheritedAwakeGoldenTorizo.LowTable) &&
                    stockAwakeGoldenTorizo.HighTable.SequenceEqual(
                        inheritedAwakeGoldenTorizo.HighTable),
             "version-fourteen override inherits verified Golden Torizo awakening art");
         AssertTrue(DrawExtended(upgradedVersionFourteen, guard,
-                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedPointer, new(0x0040, 0x0080)).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-fourteen migration retains an edited Pirate frame");
 
@@ -724,16 +724,16 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionFifteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockWalkingGoldenTorizo = DrawExtendedForBank(stock, guard,
-            0xaa, 0xa4fa, 0x0040, 0x0080);
+            0xaa, 0xa4fa, new(0x0040, 0x0080));
         OamBuffer inheritedWalkingGoldenTorizo = DrawExtendedForBank(
-            upgradedVersionFifteen, guard, 0xaa, 0xa4fa, 0x0040, 0x0080);
+            upgradedVersionFifteen, guard, 0xaa, 0xa4fa, new(0x0040, 0x0080));
         AssertTrue(stockWalkingGoldenTorizo.LowTable.SequenceEqual(
                        inheritedWalkingGoldenTorizo.LowTable) &&
                    stockWalkingGoldenTorizo.HighTable.SequenceEqual(
                        inheritedWalkingGoldenTorizo.HighTable),
             "version-fifteen override inherits Golden Torizo walking art");
         AssertTrue(DrawExtended(upgradedVersionFifteen, guard,
-                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedPointer, new(0x0040, 0x0080)).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-fifteen migration retains an edited Pirate frame");
 
@@ -751,16 +751,16 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionSixteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockRightwardGoldenTorizo = DrawExtendedForBank(stock, guard,
-            0xaa, 0xa4f0, 0x0040, 0x0080);
+            0xaa, 0xa4f0, new(0x0040, 0x0080));
         OamBuffer inheritedRightwardGoldenTorizo = DrawExtendedForBank(
-            upgradedVersionSixteen, guard, 0xaa, 0xa4f0, 0x0040, 0x0080);
+            upgradedVersionSixteen, guard, 0xaa, 0xa4f0, new(0x0040, 0x0080));
         AssertTrue(stockRightwardGoldenTorizo.LowTable.SequenceEqual(
                        inheritedRightwardGoldenTorizo.LowTable) &&
                    stockRightwardGoldenTorizo.HighTable.SequenceEqual(
                        inheritedRightwardGoldenTorizo.HighTable),
             "version-sixteen override inherits Golden Torizo turning-right art");
         AssertTrue(DrawExtended(upgradedVersionSixteen, guard,
-                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedPointer, new(0x0040, 0x0080)).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-sixteen migration retains an edited Pirate frame");
 
@@ -778,16 +778,16 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionSeventeen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockJumpBackTorizo = DrawExtendedForBank(stock, guard,
-            0xaa, 0xb048, 0x0040, 0x0080);
+            0xaa, 0xb048, new(0x0040, 0x0080));
         OamBuffer inheritedJumpBackTorizo = DrawExtendedForBank(
-            upgradedVersionSeventeen, guard, 0xaa, 0xb048, 0x0040, 0x0080);
+            upgradedVersionSeventeen, guard, 0xaa, 0xb048, new(0x0040, 0x0080));
         AssertTrue(stockJumpBackTorizo.LowTable.SequenceEqual(
                        inheritedJumpBackTorizo.LowTable) &&
                    stockJumpBackTorizo.HighTable.SequenceEqual(
                        inheritedJumpBackTorizo.HighTable),
             "version-seventeen override inherits Torizo jump-back art");
         AssertTrue(DrawExtended(upgradedVersionSeventeen, guard,
-                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedPointer, new(0x0040, 0x0080)).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-seventeen migration retains an edited Pirate frame");
 
@@ -805,16 +805,16 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionEighteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockRightOrbTorizo = DrawExtendedForBank(stock, guard,
-            0xaa, 0xac88, 0x0040, 0x0080);
+            0xaa, 0xac88, new(0x0040, 0x0080));
         OamBuffer inheritedRightOrbTorizo = DrawExtendedForBank(
-            upgradedVersionEighteen, guard, 0xaa, 0xac88, 0x0040, 0x0080);
+            upgradedVersionEighteen, guard, 0xaa, 0xac88, new(0x0040, 0x0080));
         AssertTrue(stockRightOrbTorizo.LowTable.SequenceEqual(
                        inheritedRightOrbTorizo.LowTable) &&
                    stockRightOrbTorizo.HighTable.SequenceEqual(
                        inheritedRightOrbTorizo.HighTable),
             "version-eighteen override inherits Golden Torizo right-orb art");
         AssertTrue(DrawExtended(upgradedVersionEighteen, guard,
-                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedPointer, new(0x0040, 0x0080)).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-eighteen migration retains an edited Pirate frame");
 
@@ -832,16 +832,16 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionNineteen = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockRightSonicTorizo = DrawExtendedForBank(stock, guard,
-            0xaa, 0xabec, 0x0040, 0x0080);
+            0xaa, 0xabec, new(0x0040, 0x0080));
         OamBuffer inheritedRightSonicTorizo = DrawExtendedForBank(
-            upgradedVersionNineteen, guard, 0xaa, 0xabec, 0x0040, 0x0080);
+            upgradedVersionNineteen, guard, 0xaa, 0xabec, new(0x0040, 0x0080));
         AssertTrue(stockRightSonicTorizo.LowTable.SequenceEqual(
                        inheritedRightSonicTorizo.LowTable) &&
                    stockRightSonicTorizo.HighTable.SequenceEqual(
                        inheritedRightSonicTorizo.HighTable),
             "version-nineteen override inherits Golden Torizo right-sonic art");
         AssertTrue(DrawExtended(upgradedVersionNineteen, guard,
-                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(
+                editedPointer, new(0x0040, 0x0080)).LowTable.SequenceEqual(
                 editedOam.LowTable),
             "version-nineteen migration retains an edited Pirate frame");
 
@@ -859,14 +859,14 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionTwenty = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockFallingLeft = DrawExtendedForBank(stock, guard,
-            0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, 0x0040, 0x0080);
+            0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, new(0x0040, 0x0080));
         OamBuffer inheritedFallingLeft = DrawExtendedForBank(upgradedVersionTwenty,
-            guard, 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, 0x0040, 0x0080);
+            guard, 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, new(0x0040, 0x0080));
         AssertTrue(stockFallingLeft.LowTable.SequenceEqual(inheritedFallingLeft.LowTable) &&
                    stockFallingLeft.HighTable.SequenceEqual(inheritedFallingLeft.HighTable),
             "version-twenty override inherits the Torizo falling-left frame");
         AssertTrue(DrawExtended(upgradedVersionTwenty, guard,
-                editedPointer, 0x0040, 0x0080).LowTable.SequenceEqual(editedOam.LowTable),
+                editedPointer, new(0x0040, 0x0080)).LowTable.SequenceEqual(editedOam.LowTable),
             "version-twenty migration retains an edited Pirate frame");
 
         EnemyExtendedFrameDocument fallingLeftOverride =
@@ -885,7 +885,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog editedFallingLeft = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedFallingLeft = DrawExtendedForBank(editedFallingLeft,
-            guard, 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, 0x0040, 0x0080);
+            guard, 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockFallingLeft.LowTable[0] + 1)),
             movedFallingLeft.LowTable[0],
             "editable Torizo falling-left component changes live OAM");
@@ -910,15 +910,15 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionTwentyOne = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockLeftFootOrb = DrawExtendedForBank(stock, guard,
-            0xaa, 0xac06, 0x0040, 0x0080);
+            0xaa, 0xac06, new(0x0040, 0x0080));
         OamBuffer inheritedLeftFootOrb = DrawExtendedForBank(
-            upgradedVersionTwentyOne, guard, 0xaa, 0xac06, 0x0040, 0x0080);
+            upgradedVersionTwentyOne, guard, 0xaa, 0xac06, new(0x0040, 0x0080));
         AssertTrue(stockLeftFootOrb.LowTable.SequenceEqual(inheritedLeftFootOrb.LowTable) &&
                    stockLeftFootOrb.HighTable.SequenceEqual(inheritedLeftFootOrb.HighTable),
             "version-twenty-one override inherits Golden Torizo left-foot orb art");
         AssertTrue(DrawExtendedForBank(upgradedVersionTwentyOne, guard,
                 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
-                0x0040, 0x0080).LowTable.SequenceEqual(movedFallingLeft.LowTable),
+                new(0x0040, 0x0080)).LowTable.SequenceEqual(movedFallingLeft.LowTable),
             "version-twenty-one migration retains the edited falling-left frame");
 
         var versionTwentyTwo = new EnemyExtendedFrameDocument
@@ -935,15 +935,15 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionTwentyTwo = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockLeftJumpBack = DrawExtendedForBank(stock, guard,
-            0xaa, 0xaffa, 0x0040, 0x0080);
+            0xaa, 0xaffa, new(0x0040, 0x0080));
         OamBuffer inheritedLeftJumpBack = DrawExtendedForBank(
-            upgradedVersionTwentyTwo, guard, 0xaa, 0xaffa, 0x0040, 0x0080);
+            upgradedVersionTwentyTwo, guard, 0xaa, 0xaffa, new(0x0040, 0x0080));
         AssertTrue(stockLeftJumpBack.LowTable.SequenceEqual(inheritedLeftJumpBack.LowTable) &&
                    stockLeftJumpBack.HighTable.SequenceEqual(inheritedLeftJumpBack.HighTable),
             "version-twenty-two override inherits left-facing jump-back art");
         AssertTrue(DrawExtendedForBank(upgradedVersionTwentyTwo, guard,
                 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
-                0x0040, 0x0080).LowTable.SequenceEqual(movedFallingLeft.LowTable),
+                new(0x0040, 0x0080)).LowTable.SequenceEqual(movedFallingLeft.LowTable),
             "version-twenty-two migration retains the edited falling-left frame");
 
         var versionTwentyThree = new EnemyExtendedFrameDocument
@@ -960,15 +960,15 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionTwentyThree = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer stockLeftOrb = DrawExtendedForBank(stock, guard,
-            0xaa, 0xa6ea, 0x0040, 0x0080);
+            0xaa, 0xa6ea, new(0x0040, 0x0080));
         OamBuffer inheritedLeftOrb = DrawExtendedForBank(
-            upgradedVersionTwentyThree, guard, 0xaa, 0xa6ea, 0x0040, 0x0080);
+            upgradedVersionTwentyThree, guard, 0xaa, 0xa6ea, new(0x0040, 0x0080));
         AssertTrue(stockLeftOrb.LowTable.SequenceEqual(inheritedLeftOrb.LowTable) &&
                    stockLeftOrb.HighTable.SequenceEqual(inheritedLeftOrb.HighTable),
             "version-twenty-three override inherits left-orb art");
         AssertTrue(DrawExtendedForBank(upgradedVersionTwentyThree, guard,
                 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
-                0x0040, 0x0080).LowTable.SequenceEqual(movedFallingLeft.LowTable),
+                new(0x0040, 0x0080)).LowTable.SequenceEqual(movedFallingLeft.LowTable),
             "version-twenty-three migration retains the edited falling-left frame");
 
         EnemyExtendedFrameDocument leftFootOrbOverride =
@@ -987,7 +987,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog editedLeftFootOrb = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedLeftFootOrb = DrawExtendedForBank(
-            editedLeftFootOrb, guard, 0xaa, 0xac06, 0x0040, 0x0080);
+            editedLeftFootOrb, guard, 0xaa, 0xac06, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockLeftFootOrb.LowTable[0] + 1)),
             movedLeftFootOrb.LowTable[0],
             "editable Golden Torizo left-foot orb component changes live OAM");
@@ -1013,7 +1013,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog editedRightSonic = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedRightSonic = DrawExtendedForBank(
-            editedRightSonic, guard, 0xaa, 0xabec, 0x0040, 0x0080);
+            editedRightSonic, guard, 0xaa, 0xabec, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockRightSonicTorizo.LowTable[0] + 1)),
             movedRightSonic.LowTable[0],
             "editable Golden Torizo right-sonic component changes live OAM");
@@ -1039,7 +1039,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog editedRightOrb = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedRightOrb = DrawExtendedForBank(
-            editedRightOrb, guard, 0xaa, 0xac88, 0x0040, 0x0080);
+            editedRightOrb, guard, 0xaa, 0xac88, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockRightOrbTorizo.LowTable[0] + 1)),
             movedRightOrb.LowTable[0],
             "editable Golden Torizo right-orb component changes live OAM");
@@ -1065,7 +1065,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog editedJumpBack = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedJumpBack = DrawExtendedForBank(
-            editedJumpBack, guard, 0xaa, 0xb048, 0x0040, 0x0080);
+            editedJumpBack, guard, 0xaa, 0xb048, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockJumpBackTorizo.LowTable[0] + 1)),
             movedJumpBack.LowTable[0],
             "editable Torizo jump-back component changes live OAM");
@@ -1091,7 +1091,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog editedGoldenRightward = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedGoldenRightward = DrawExtendedForBank(
-            editedGoldenRightward, guard, 0xaa, 0xa4f0, 0x0040, 0x0080);
+            editedGoldenRightward, guard, 0xaa, 0xa4f0, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockRightwardGoldenTorizo.LowTable[0] + 1)),
             movedGoldenRightward.LowTable[0],
             "editable Golden Torizo turning-right component changes live OAM");
@@ -1117,7 +1117,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog editedGoldenWalking = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedGoldenWalking = DrawExtendedForBank(
-            editedGoldenWalking, guard, 0xaa, 0xa4fa, 0x0040, 0x0080);
+            editedGoldenWalking, guard, 0xaa, 0xa4fa, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockWalkingGoldenTorizo.LowTable[0] + 1)),
             movedGoldenWalking.LowTable[0],
             "editable Golden Torizo walking component changes live OAM");
@@ -1143,7 +1143,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog editedGoldenAwakening = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedGoldenAwakening = DrawExtendedForBank(
-            editedGoldenAwakening, guard, 0xaa, 0xaa5e, 0x0040, 0x0080);
+            editedGoldenAwakening, guard, 0xaa, 0xaa5e, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockAwakeGoldenTorizo.LowTable[0] + 1)),
             movedGoldenAwakening.LowTable[0],
             "editable Golden Torizo awakening component changes live OAM");
@@ -1167,7 +1167,7 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog editedKraidArm = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer movedKraidArm = DrawExtendedForBank(editedKraidArm, guard,
-            0xa7, 0x90fd, 0x0040, 0x0080);
+            0xa7, 0x90fd, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockKraidArm.LowTable[0] + 1)),
             movedKraidArm.LowTable[0],
             "editable Kraid arm component changes live OAM without ROM reads");
@@ -1176,7 +1176,7 @@ internal static partial class Program
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         OamBuffer closedSpore = DrawExtendedForBank(stock, guard,
-            0xa5, 0xee65, 0x0040, 0x0080);
+            0xa5, 0xee65, new(0x0040, 0x0080));
         EnemyExtendedFrameDefinition[] visiblyDifferentSporeFrames =
             EnemyExtendedFrameDefinitions.Frames.ToArray()
                 .Where(frame => frame.Name.StartsWith("spore_spawn_oam_",
@@ -1184,7 +1184,7 @@ internal static partial class Program
                 .Where(frame =>
                 {
                     OamBuffer candidate = DrawExtendedForBank(stock, guard,
-                        frame.Bank, frame.Pointer, 0x0040, 0x0080);
+                        frame.Bank, frame.Pointer, new(0x0040, 0x0080));
                     return !candidate.LowTable.SequenceEqual(closedSpore.LowTable) ||
                            !candidate.HighTable.SequenceEqual(closedSpore.HighTable);
                 }).ToArray();
@@ -1198,15 +1198,15 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog swappedSpore = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer openSpore = DrawExtendedForBank(stock, guard,
-            targetSporeFrame.Bank, targetSporeFrame.Pointer, 0x0040, 0x0080);
+            targetSporeFrame.Bank, targetSporeFrame.Pointer, new(0x0040, 0x0080));
         OamBuffer swappedClosedSpore = DrawExtendedForBank(swappedSpore, guard,
-            0xa5, 0xee65, 0x0040, 0x0080);
+            0xa5, 0xee65, new(0x0040, 0x0080));
         AssertTrue(swappedClosedSpore.LowTable.SequenceEqual(openSpore.LowTable) &&
                    swappedClosedSpore.HighTable.SequenceEqual(openSpore.HighTable),
             "Spore Spawn display remap changes live OAM to the selected frame");
         EnemyTileArtworkCatalog reloadedSpore = stock.WithExtendedFrames(LoadExtendedFrameOverride());
         OamBuffer reloadedClosedSpore = DrawExtendedForBank(reloadedSpore, guard,
-            0xa5, 0xee65, 0x0040, 0x0080);
+            0xa5, 0xee65, new(0x0040, 0x0080));
         AssertTrue(reloadedClosedSpore.LowTable.SequenceEqual(openSpore.LowTable) &&
                    reloadedClosedSpore.HighTable.SequenceEqual(openSpore.HighTable),
             "Spore Spawn display remap survives asset reload");
@@ -1227,11 +1227,11 @@ internal static partial class Program
         ushort targetPointer = EnemyExtendedFrameDefinitions.Frames.ToArray()
             .Single(frame => frame.Name == targetName).Pointer;
         OamBuffer sourceOam = DrawExtended(stock, guard, sourcePointer,
-            0x0040, 0x0080);
+            new(0x0040, 0x0080));
         OamBuffer targetOam = DrawExtended(stock, guard, targetPointer,
-            0x0040, 0x0080);
+            new(0x0040, 0x0080));
         OamBuffer remappedOam = DrawExtended(swapped, guard, sourcePointer,
-            0x0040, 0x0080, slot =>
+            new(0x0040, 0x0080), slot =>
             {
                 AssertEqual(sourcePointer, slot.SpritemapPointer,
                     "Pirate visual binding retains the native hitbox-frame pointer");
@@ -1390,7 +1390,7 @@ internal static partial class Program
     // BG2 streams are covered by their dedicated fixture; this comparison owns
     // only component offsets, clipping, and the packed sprite compositions.
     private static OamBuffer DrawReferenceExtendedFrame(
-        ISnesAddressSpace bus, byte bank, ushort pointer, ushort x, ushort y)
+        ISnesAddressSpace bus, byte bank, ushort pointer, Position16<ScreenPixels> origin)
     {
         byte ReadByte(int address) => bus.ReadByte((bank << 16) | (address & 0xffff));
         ushort ReadWord(int address) => (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
@@ -1402,8 +1402,8 @@ internal static partial class Program
             ushort sprite = ReadWord(component + 4);
             if (ReadWord(sprite) == 0xfffe)
                 continue;
-            ushort componentX = unchecked((ushort)(x + ReadWord(component)));
-            ushort componentY = unchecked((ushort)(y + ReadWord(component + 2)));
+            ushort componentX = unchecked((ushort)(origin.X + ReadWord(component)));
+            ushort componentY = unchecked((ushort)(origin.Y + ReadWord(component + 2)));
             if (((componentX + 128) & 0xfe00) != 0 ||
                 ((componentY + 128) & 0xfe00) != 0)
                 continue;
@@ -1415,15 +1415,15 @@ internal static partial class Program
     }
 
     private static OamBuffer DrawExtended(EnemyTileArtworkCatalog art,
-        ISnesAddressSpace bus, ushort pointer, ushort x, ushort y,
+        ISnesAddressSpace bus, ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot>? inspect = null)
     {
         return DrawExtendedForBank(art, bus, EnemyExtendedFrameDefinitions.Bank,
-            pointer, x, y, inspect);
+            pointer, position, inspect);
     }
 
     private static OamBuffer DrawExtendedForBank(EnemyTileArtworkCatalog? art,
-        ISnesAddressSpace bus, byte bank, ushort pointer, ushort x, ushort y,
+        ISnesAddressSpace bus, byte bank, ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot>? inspect = null)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -1445,7 +1445,7 @@ internal static partial class Program
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.SpritemapPointer = pointer;
         slot.InstructionTimer = 7;
-        slot.Position = slot.Position.WithWhole(new(x, y));
+        slot.Position = slot.Position.WithWhole(position);
         var oam = new OamBuffer();
         enemies.DrawLayers(oam, new(0, 0), 0, 0);
         inspect?.Invoke(slot);
@@ -1470,9 +1470,9 @@ internal static partial class Program
             SpacePirateCollisionDefinitions.ComponentsAt(pointer)[0];
         SpacePirateCollisionHitbox hitbox =
             SpacePirateCollisionDefinitions.HitboxesAt(component.HitboxPointer)[0];
-        ushort sampleX = unchecked((ushort)(slot.Position.X.Whole + component.X +
+        ushort sampleX = unchecked((ushort)(slot.Position.X.Whole + component.Offset.X +
             (hitbox.Left + hitbox.Right) / 2));
-        ushort sampleY = unchecked((ushort)(slot.Position.Y.Whole + component.Y +
+        ushort sampleY = unchecked((ushort)(slot.Position.Y.Whole + component.Offset.Y +
             (hitbox.Top + hitbox.Bottom) / 2));
         MethodInfo collision = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;

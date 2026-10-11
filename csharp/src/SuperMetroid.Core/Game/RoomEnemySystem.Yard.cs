@@ -41,18 +41,18 @@ public sealed class YardEnemyState
 
     internal YardEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Native variable A: signed 8.8 horizontal crawl velocity stored as raw bits, used either tangentially or as a normal-axis surface probe according to the movement pointer.</summary>
-    public ushort CrawlingXVelocity
+    /// <summary>
+    /// Native variables A/B: signed 8.8 horizontal and vertical crawl velocity, each axis used
+    /// either tangentially or as a normal-axis surface probe according to the movement pointer.
+    /// </summary>
+    public EightEightVector<RoomPixels> CrawlingVelocity
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
-
-    /// <summary>Native variable B: signed 8.8 vertical crawl velocity stored as raw bits, used either tangentially or as a normal-axis surface probe according to the movement pointer.</summary>
-    public ushort CrawlingYVelocity
-    {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => new(new SnesSignedEightEight(_slot.VariableA), new SnesSignedEightEight(_slot.VariableB));
+        internal set
+        {
+            _slot.VariableA = value.X.RawValue;
+            _slot.VariableB = value.Y.RawValue;
+        }
     }
 
     /// <summary>Native variable C: airborne animation facing, 0 for left or 1 for right, selected from the eight surface-direction records.</summary>
@@ -83,14 +83,13 @@ public sealed class YardEnemyState
         internal set => _slot.VariableF = (ushort)value;
     }
 
-    /// <summary>Native extension offset $00: fractional low word of signed 16.16 airborne Y velocity in pixels per AI update; gravity adds $2000 to the pair and collision negates each word separately.</summary>
-    public ushort AirborneYSubvelocity { get; internal set; }
-    /// <summary>Native extension offset $02: signed whole-pixel high word of airborne Y velocity, stored as raw bits; downward collision lands when this word is 0..2, otherwise it bounces.</summary>
-    public ushort AirborneYVelocity { get; internal set; }
-    /// <summary>Native extension offset $04: fractional low word of signed 16.16 airborne X velocity in pixels per AI update, decaying by $1000 toward zero when not colliding.</summary>
-    public ushort AirborneXSubvelocity { get; internal set; }
-    /// <summary>Native extension offset $06: signed whole-pixel high word of airborne X velocity, stored as raw bits; pure dropped behavior skips horizontal movement and collisions negate both words independently.</summary>
-    public ushort AirborneXVelocity { get; internal set; }
+    /// <summary>
+    /// Native extension offsets $00-$06: signed 16.16 airborne velocity in pixels per AI update
+    /// (Y fraction/whole at $00/$02, X fraction/whole at $04/$06). Gravity adds $2000 to Y,
+    /// horizontal speed decays by $1000 toward zero when not colliding, and collisions negate
+    /// each word separately; downward collision lands when the Y whole word is 0..2.
+    /// </summary>
+    public FixedVector<RoomPixels> AirborneVelocity { get; internal set; }
     /// <summary>Native extension offset $08: slope/turn cooldown counter reset by adjustment or turning; an unadjusted crawl call whose increment reaches 16 reenables transitions without storing that increment.</summary>
     public ushort TurnTransitionDisableCounter { get; internal set; }
     /// <summary>Native extension offset $0A flag selecting the turn-disabled corner-probe definitions, set after slope alignment, a turn, or landing and cleared by the crawl cooldown.</summary>
@@ -228,7 +227,7 @@ public sealed partial class RoomEnemySystem
     {
         ValidateYardSpeedIndex(slot.Parameter1);
         ushort speed = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
-        (state.CrawlingXVelocity, state.CrawlingYVelocity) = YardVelocityDefinitions.Apply(speed, direction);
+        state.CrawlingVelocity = YardVelocityDefinitions.Apply(speed, direction);
     }
 
     private static void ValidateYardSpeedIndex(ushort index)
@@ -358,11 +357,11 @@ public sealed partial class RoomEnemySystem
             ? EnemyHasSolidHighBitHorizontallyAhead(
                 level,
                 slot,
-                Shift8AddMagnitude(state.CrawlingXVelocity, 7))
+                Shift8AddMagnitude(state.CrawlingVelocity.X.RawValue, 7))
             : EnemyHasSolidHighBitVerticallyAhead(
                 level,
                 slot,
-                Shift8AddMagnitude(state.CrawlingYVelocity, 7));
+                Shift8AddMagnitude(state.CrawlingVelocity.Y.RawValue, 7));
         if (!stillAttached)
             DropYard(slot, state);
     }
@@ -391,11 +390,11 @@ public sealed partial class RoomEnemySystem
             ? MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                Shift8AddMagnitude(state.CrawlingXVelocity, 1))
+                Shift8AddMagnitude(state.CrawlingVelocity.X.RawValue, 1))
             : MoveEnemyVertically(
                 level,
                 slot,
-                Shift8AddMagnitude(state.CrawlingYVelocity, 1));
+                Shift8AddMagnitude(state.CrawlingVelocity.Y.RawValue, 1));
         slot.Position -= new Offset16<RoomPixels>(unchecked((short)(lookaheadX)), unchecked((short)(lookaheadY)));
 
         if (!surfaceCollision)
@@ -408,9 +407,9 @@ public sealed partial class RoomEnemySystem
             }
 
             if (movesVertically)
-                state.CrawlingYVelocity = Negate16(state.CrawlingYVelocity);
+                state.CrawlingVelocity = state.CrawlingVelocity.WithY(NegateEightEight(state.CrawlingVelocity.Y));
             else
-                state.CrawlingXVelocity = Negate16(state.CrawlingXVelocity);
+                state.CrawlingVelocity = state.CrawlingVelocity.WithX(NegateEightEight(state.CrawlingVelocity.X));
             SetYardInstructionAndDisableTurn(
                 slot,
                 state,
@@ -423,10 +422,10 @@ public sealed partial class RoomEnemySystem
         {
             bool slopeAdjusted = AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
             HandleYardTurnTransitionDisabling(state, slopeAdjusted);
-            int tangent = unchecked((short)state.CrawlingYVelocity) << 8;
+            int tangent = state.CrawlingVelocity.Y.SignedRawValue << 8;
             if (MoveEnemyVertically(level, slot, tangent))
             {
-                state.CrawlingXVelocity = Negate16(state.CrawlingXVelocity);
+                state.CrawlingVelocity = state.CrawlingVelocity.WithX(NegateEightEight(state.CrawlingVelocity.X));
                 SetYardInstructionAndDisableTurn(
                     slot,
                     state,
@@ -437,12 +436,12 @@ public sealed partial class RoomEnemySystem
 
         int horizontalTangent = GetSurfaceSlopeAdjustedHorizontalDisplacement(
             slot,
-            state.CrawlingXVelocity,
-            state.CrawlingYVelocity,
+            state.CrawlingVelocity.X.RawValue,
+            state.CrawlingVelocity.Y.RawValue,
             level);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalTangent))
         {
-            state.CrawlingYVelocity = Negate16(state.CrawlingYVelocity);
+            state.CrawlingVelocity = state.CrawlingVelocity.WithY(NegateEightEight(state.CrawlingVelocity.Y));
             SetYardInstructionAndDisableTurn(
                 slot,
                 state,
@@ -493,10 +492,7 @@ public sealed partial class RoomEnemySystem
         state.Behavior = YardBehavior.Dropped;
         state.MovementFunction = YardMovementFunction.Airborne;
         SetYardAirborneLists(slot, state);
-        state.AirborneXSubvelocity = 0;
-        state.AirborneXVelocity = 0;
-        state.AirborneYSubvelocity = 0;
-        state.AirborneYVelocity = 0;
+        state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
     }
 
     /// <summary>Ports the complete bounce/gravity/landing loop at $A3:D1B3.</summary>
@@ -508,15 +504,11 @@ public sealed partial class RoomEnemySystem
     {
         if (state.Behavior != YardBehavior.Dropped)
         {
-            int xDisplacement = ComposeSignedFixed(
-                state.AirborneXVelocity,
-                state.AirborneXSubvelocity);
-            if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xDisplacement))
+            if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, state.AirborneVelocity.X.RawValue))
             {
                 // The cartridge negates each word separately. This is intentionally one
                 // whole pixel away from a conventional 32-bit negation when low word is 0.
-                state.AirborneXSubvelocity = Negate16(state.AirborneXSubvelocity);
-                state.AirborneXVelocity = Negate16(state.AirborneXVelocity);
+                state.AirborneVelocity = state.AirborneVelocity.WithX(NegateWordsSeparately(state.AirborneVelocity.X));
                 state.BouncedHorizontally = true;
                 LastYardSoundEffect = 0x0070;
             }
@@ -525,52 +517,40 @@ public sealed partial class RoomEnemySystem
                 // Horizontal velocity decays by 0.1000 toward zero. Native stores the low
                 // word unconditionally but declines to replace the high word when ADC makes
                 // it exactly zero; preserve that observable arithmetic quirk.
-                uint fixedVelocity = ((uint)state.AirborneXVelocity << 16) |
-                    state.AirborneXSubvelocity;
-                uint delta = unchecked((short)state.AirborneXVelocity) < 0
-                    ? 0x00001000u
-                    : 0xfffff000u;
-                uint decelerated = unchecked(fixedVelocity + delta);
-                state.AirborneXSubvelocity = unchecked((ushort)decelerated);
-                ushort nextWhole = unchecked((ushort)(decelerated >> 16));
-                if (nextWhole != 0)
-                    state.AirborneXVelocity = nextWhole;
+                SnesSignedSixteenSixteen velocity = state.AirborneVelocity.X;
+                SnesSignedSixteenSixteen decelerated = velocity + SnesSignedSixteenSixteen.FromRaw(
+                    velocity.WholePixels < 0 ? 0x00001000 : unchecked((int)0xfffff000));
+                state.AirborneVelocity = state.AirborneVelocity.WithX(decelerated.WholePixels != 0
+                    ? decelerated
+                    : velocity.WithFraction(decelerated.Fraction));
             }
         }
 
-        int yDisplacement = ComposeSignedFixed(
-            state.AirborneYVelocity,
-            state.AirborneYSubvelocity);
-        if (MoveEnemyVertically(level, slot, yDisplacement))
+        if (MoveEnemyVertically(level, slot, state.AirborneVelocity.Y.RawValue))
         {
-            short wholeY = unchecked((short)state.AirborneYVelocity);
+            short wholeY = state.AirborneVelocity.Y.WholePixels;
             if (wholeY is >= 0 and < 3)
             {
                 LandYard(slot, state, samus);
                 return;
             }
 
-            state.AirborneYSubvelocity = Negate16(state.AirborneYSubvelocity);
-            state.AirborneYVelocity = Negate16(state.AirborneYVelocity);
+            state.AirborneVelocity = state.AirborneVelocity.WithY(NegateWordsSeparately(state.AirborneVelocity.Y));
             state.BouncedHorizontally = false;
             return;
         }
 
-        uint yVelocity = ((uint)state.AirborneYVelocity << 16) |
-            state.AirborneYSubvelocity;
-        uint accelerated = unchecked(yVelocity + 0x00002000u);
-        state.AirborneYSubvelocity = unchecked((ushort)accelerated);
-        ushort acceleratedWhole = unchecked((ushort)(accelerated >> 16));
-        if (unchecked((short)(acceleratedWhole - 4)) < 0)
-            state.AirborneYVelocity = acceleratedWhole;
+        // Gravity always stores the fraction word but stores the whole word only below four.
+        SnesSignedSixteenSixteen fallingVelocity = state.AirborneVelocity.Y;
+        SnesSignedSixteenSixteen accelerated = fallingVelocity + SnesSignedSixteenSixteen.FromParts(0, 0x2000);
+        state.AirborneVelocity = state.AirborneVelocity.WithY(unchecked((short)(accelerated.WholeWord - 4)) < 0
+            ? accelerated
+            : fallingVelocity.WithFraction(accelerated.Fraction));
     }
 
     private static void LandYard(RoomEnemySlot slot, YardEnemyState state, SamusState samus)
     {
-        state.AirborneXVelocity = 0;
-        state.AirborneXSubvelocity = 0;
-        state.AirborneYVelocity = 0;
-        state.AirborneYSubvelocity = 0;
+        state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
         state.ConsecutiveTurnCounter = 0;
         state.TurnTransitionDisableCounter = 0;
         state.TurnTransitionDisabled = true;
@@ -656,17 +636,13 @@ public sealed partial class RoomEnemySystem
         state.MovementFunction = YardMovementFunction.Airborne;
         SetYardAirborneLists(slot, state);
 
-        uint samusDistance = samus.AbsoluteMovedLastFrameXFixed;
-        state.AirborneXSubvelocity = unchecked((ushort)samusDistance);
-        state.AirborneXVelocity = unchecked((ushort)(samusDistance >> 16));
-        (state.AirborneYSubvelocity, state.AirborneYVelocity) =
-            YardKickDefinitions.ForHorizontalSpeed(state.AirborneXVelocity);
-
+        var horizontal = SnesSignedSixteenSixteen.FromRaw(unchecked((int)samus.AbsoluteMovedLastFrameXFixed));
+        (ushort kickFraction, ushort kickWhole) = YardKickDefinitions.ForHorizontalSpeed(horizontal.WholeWord);
         if ((samus.ReadPoseXDirection(_bus!) & 4) != 0)
-        {
-            state.AirborneXSubvelocity = Negate16(state.AirborneXSubvelocity);
-            state.AirborneXVelocity = Negate16(state.AirborneXVelocity);
-        }
+            horizontal = NegateWordsSeparately(horizontal);
+        state.AirborneVelocity = new FixedVector<RoomPixels>(
+            horizontal,
+            SnesSignedSixteenSixteen.FromParts(unchecked((short)kickWhole), kickFraction));
     }
 
     /// <summary>Ports ordinary-beam launch setup at $A3:D557.</summary>
@@ -678,12 +654,21 @@ public sealed partial class RoomEnemySystem
         state.Behavior = YardBehavior.BeamLaunched;
         state.MovementFunction = YardMovementFunction.Airborne;
         SetYardAirborneLists(slot, state);
-        state.AirborneYVelocity = 0xffff;
-        state.AirborneXVelocity = samus.ReadPoseXDirection(_bus!) ==
-            (byte)SamusFacingDirection.Left
-                ? (ushort)0xffff
-                : (ushort)1;
+        // Only the whole words are stored; both fraction words keep their previous values.
+        state.AirborneVelocity = state.AirborneVelocity.WithWhole(new Offset16<RoomPixels>(
+            samus.ReadPoseXDirection(_bus!) == (byte)SamusFacingDirection.Left ? (short)-1 : (short)1,
+            -1));
     }
+
+    /// <summary>Negates the whole and fraction words independently, as Yard's collision handlers do.</summary>
+    private static SnesSignedSixteenSixteen NegateWordsSeparately(SnesSignedSixteenSixteen velocity) =>
+        SnesSignedSixteenSixteen.FromParts(
+            unchecked((short)Negate16(velocity.WholeWord)),
+            Negate16(velocity.Fraction));
+
+    /// <summary>Negates one raw 8.8 crawl word, wrapping at sixteen bits.</summary>
+    private static SnesSignedEightEight NegateEightEight(SnesSignedEightEight velocity) =>
+        new(Negate16(velocity.RawValue));
 
     /// <summary>Ports Yard's custom touch entry at $A3:D3B0.</summary>
     private void ResolveYardTouch(

@@ -23,7 +23,7 @@ internal static partial class Program
             AssertTrue(KraidFootCollisionDefinitions.TryGetComponents(pointer, out var components), "Native foot components exist");
             AssertEqual(2, components.Length, "Foot has two components");
             var actual = components[component];
-            AssertEqual(expected, vertical ? actual.Y : actual.X, "Foot coordinate through production view");
+            AssertEqual(expected, vertical ? actual.Offset.Y : actual.Offset.X, "Foot coordinate through production view");
         }
         AssertThrows<IndexOutOfRangeException>(() => calculate(-1), "Negative foot coordinate frame");
         AssertThrows<IndexOutOfRangeException>(() => calculate(35), "Past foot coordinate frame");

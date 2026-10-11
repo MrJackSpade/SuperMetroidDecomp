@@ -312,6 +312,62 @@ internal static class DebuggerSpatialFieldMigrations
         Whole<RoomPixels>(typeof(RoomEnemyPopulationRecord).FullName!, BackingField("Position"),
             BackingField("XPosition"), BackingField("YPosition")),
         Radius(typeof(RoomEnemyDefinition).FullName!, BackingField("Radius"), BackingField("XRadius"), BackingField("YRadius")),
+
+        // Enemy family extension words (#628 group 1). A typed view composes each value from the
+        // ordinary slot variables that hold some of its words and the extension fields below.
+        Word(typeof(MamaTurtleEnemyState).FullName!, "_horizontalSubvelocity", BackingField("XSubVelocity")),
+        SignedAxis(typeof(MamaTurtleEnemyState).FullName!, "_verticalVelocity", BackingField("YVelocity"), BackingField("YSubVelocity")),
+        new(typeof(BabyTurtleEnemyState).FullName!, "_verticalVelocity", [BackingField("YVelocity")], Types<ushort>(1),
+            (_, v) => unchecked((short)Word(v[0]))),
+        new(typeof(EvirEnemyState).FullName!, BackingField("ProjectileVelocity"),
+            [BackingField("XVelocity"), BackingField("XSubvelocity"), BackingField("YVelocity"), BackingField("YSubvelocity")],
+            [typeof(short), typeof(ushort), typeof(short), typeof(ushort)],
+            (_, v) => new FixedVector<RoomPixels>(
+                SnesSignedSixteenSixteen.FromParts(Signed(v[0]), Word(v[1])),
+                SnesSignedSixteenSixteen.FromParts(Signed(v[2]), Word(v[3])))),
+        Whole<RoomPixels>(typeof(KiHunterEnemyState).FullName!, BackingField("SpawnPosition"), BackingField("SpawnX"), BackingField("SpawnY")),
+        Radius(typeof(KiHunterEnemyState).FullName!, BackingField("SwoopRadius"),
+            BackingField("SwoopHorizontalRadius"), BackingField("SwoopVerticalRadius")),
+        VectorWords(typeof(KiHunterEnemyState).FullName!, BackingField("Velocity"),
+            BackingField("HorizontalVelocity"), BackingField("HorizontalSubvelocity"),
+            BackingField("VerticalVelocity"), BackingField("VerticalSubvelocity")),
+        Offset<RoomPixels>(typeof(KiHunterEnemyState).FullName!, BackingField("OrbitOffset"), BackingField("OrbitXOffset"), BackingField("OrbitYOffset")),
+        Offset<RoomPixels>(typeof(KiHunterEnemyState).FullName!, BackingField("FallingArcOffset"),
+            BackingField("FallingArcXOffset"), BackingField("FallingArcYOffset")),
+        Whole<RoomPixels>(typeof(KiHunterEnemyState).FullName!, BackingField("OrbitCenter"), BackingField("OrbitCenterX"), BackingField("OrbitCenterY")),
+        Whole<RoomPixels>(typeof(KiHunterEnemyState).FullName!, BackingField("SavedWingPosition"), BackingField("SavedWingX"), BackingField("SavedWingY")),
+        Whole<Bg2Pixels>(typeof(KraidEnemyState).FullName!, BackingField("Bg2Scroll"),
+            BackingField("Bg2HorizontalScroll"), BackingField("Bg2VerticalScroll")),
+        Whole<RoomPixels>(typeof(MaridiaLargeSnailEnemyState).FullName!, BackingField("PreviousPosition"),
+            BackingField("PreviousXPosition"), BackingField("PreviousYPosition")),
+        Whole<RoomPixels>(typeof(YappingMawEnemyState).FullName!, BackingField("Origin"), BackingField("OriginX"), BackingField("OriginY")),
+        Offset<RoomPixels>(typeof(YappingMawEnemyState).FullName!, BackingField("Baseline"), BackingField("BaselineX"), BackingField("BaselineY")),
+        Offset<RoomPixels>(typeof(YappingMawEnemyState).FullName!, BackingField("HeldSamusOffset"),
+            BackingField("HeldSamusXOffset"), BackingField("HeldSamusYOffset")),
+        VectorWords(typeof(YardEnemyState).FullName!, BackingField("AirborneVelocity"),
+            BackingField("AirborneXVelocity"), BackingField("AirborneXSubvelocity"),
+            BackingField("AirborneYVelocity"), BackingField("AirborneYSubvelocity")),
+        Offset<RoomPixels>(typeof(RidleyTailSegment).FullName!, BackingField("Offset"), BackingField("XOffset"), BackingField("YOffset")),
+        Whole<RoomPixels>(typeof(RidleyTailSegment).FullName!, BackingField("Position"), BackingField("XPosition"), BackingField("YPosition")),
+        Whole<RoomPixels>(typeof(RidleyEnemyState).FullName!, BackingField("MovementMinimum"), BackingField("MinimumX"), BackingField("MinimumY")),
+        Whole<RoomPixels>(typeof(RidleyEnemyState).FullName!, BackingField("MovementMaximum"), BackingField("MaximumX"), BackingField("MaximumY")),
+        new(typeof(RidleyEnemyState).FullName!, BackingField("Velocity"),
+            [BackingField("HorizontalVelocity"), BackingField("VerticalVelocity")], Types<ushort>(2), (_, v) => EightEight<RoomPixels>(v)),
+        Whole<RoomPixels>(typeof(RidleyEnemyState).FullName!, BackingField("FireballBasePosition"),
+            BackingField("FireballBaseXPosition"), BackingField("FireballBaseYPosition")),
+        new(typeof(RidleyEnemyState).FullName!, BackingField("FireballVelocity"),
+            [BackingField("FireballXVelocity"), BackingField("FireballYVelocity")], Types<ushort>(2), (_, v) => EightEight<RoomPixels>(v)),
+        Whole<RoomPixels>(typeof(RidleyEnemyState).FullName!, BackingField("Target"), BackingField("TargetX"), BackingField("TargetY")),
+        Offset<RoomPixels>(typeof(RidleyEnemyState).FullName!, BackingField("GrabOffset"), BackingField("GrabXOffset"), BackingField("GrabYOffset")),
+        Whole<RoomPixels>(typeof(RidleyEnemyState).FullName!, BackingField("BabyPosition"), BackingField("BabyXPosition"), BackingField("BabyYPosition")),
+        Offset<Mode7Pixels>(typeof(RidleyEnemyState).FullName!, BackingField("Mode7Offset"),
+            BackingField("Mode7HorizontalOffset"), BackingField("Mode7VerticalOffset")),
+        Whole<Mode7Pixels>(typeof(RidleyEnemyState).FullName!, BackingField("Mode7Center"), BackingField("Mode7CenterX"), BackingField("Mode7CenterY")),
+        Whole<RoomPixels>(typeof(BotwoonDropRequest).FullName!, BackingField("Position"), BackingField("X"), BackingField("Y")),
+        new(typeof(ChozoStatuePlmRequest).FullName!, BackingField("Block"), [BackingField("BlockX"), BackingField("BlockY")], Types<int>(2),
+            (_, v) => new Position16<RoomBlocks>(Length(v[0]), Length(v[1]))),
+        Whole<RoomPixels>(typeof(MotherBrainCorpseDustRequest).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("YPosition")),
     ];
 
     private static readonly Dictionary<(string Type, string Field), DebuggerSpatialFieldMigration> ByLegacyField =
@@ -410,6 +466,15 @@ internal static class DebuggerSpatialFieldMigrations
         string x, string xFraction, string y, string yFraction) =>
         new(type, field, [x, xFraction, y, yFraction], Types<ushort>(4),
             (_, v) => FixedVector<RoomPixels>.FromWords(Word(v[0]), Word(v[1]), Word(v[2]), Word(v[3])));
+
+    // A single extension word that moved behind a typed view under a new field name.
+    private static DebuggerSpatialFieldMigration Word(string type, string field, string legacy) =>
+        new(type, field, [legacy], Types<ushort>(1), (_, v) => Word(v[0]));
+
+    // One signed 16.16 axis whose whole and fraction words were separate fields.
+    private static DebuggerSpatialFieldMigration SignedAxis(string type, string field, string whole, string fraction) =>
+        new(type, field, [whole, fraction], Types<ushort>(2),
+            (_, v) => SnesSignedSixteenSixteen.FromParts(unchecked((short)Word(v[0])), Word(v[1])));
 
     private static DebuggerSpatialFieldMigration Radius(string type, string field, string x, string y) =>
         new(type, field, [x, y], Types<ushort>(2), (_, v) => new Extent16<RoomPixels>(Word(v[0]), Word(v[1])));

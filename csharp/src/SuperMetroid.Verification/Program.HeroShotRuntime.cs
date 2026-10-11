@@ -58,8 +58,8 @@ internal static partial class Program
                     ushort[] actual = [samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction,
                         samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction, (ushort)samus.Pose,
                         runtime.Camera.XPosition, runtime.Camera.YPosition,
-                        shot.XPosition, shot.XSubposition, shot.YPosition, shot.YSubposition,
-                        unchecked((ushort)shot.XVelocity), unchecked((ushort)shot.YVelocity), shot.Type, shot.InstructionPointer];
+                        shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
+                        unchecked((ushort)shot.Velocity.X), unchecked((ushort)shot.Velocity.Y), shot.Type, shot.InstructionPointer];
                     var expected = native[(walkAfterShot ? 1 : 0, frame)];
                     if (!actual.SequenceEqual(expected))
                     {
@@ -91,7 +91,7 @@ internal static partial class Program
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impact = frame;
-                    AssertTrue(shot.XPosition is >= 856 and <= 880,
+                    AssertTrue(shot.Position.X.Whole is >= 856 and <= 880,
                         "Controller-followed shot impacts the constructed world-space target");
                     break;
                 }

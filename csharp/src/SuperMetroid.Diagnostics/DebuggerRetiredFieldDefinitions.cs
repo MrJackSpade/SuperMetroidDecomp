@@ -425,6 +425,25 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Frontend.IntroCinematicState", "fadeDelay")] = Discard,
         [("SuperMetroid.Core.Frontend.IntroRinkaSystem", "rinkas")] = Remember,
         [("SuperMetroid.Core.Frontend.IntroCeresFlightState", "musicQueueTimer")] = Discard,
+        // #628: projectile-trail position words became one position.
+        [(typeof(SamusProjectileTrailSide).FullName!, "<XPosition>k__BackingField")] = Remember,
+        [(typeof(SamusProjectileTrailSide).FullName!, "<YPosition>k__BackingField")] = Remember,
+        // #628: bomb position and radius words became spatial values.
+        [(typeof(SamusBombProjectileSlot).FullName!, "<XPosition>k__BackingField")] = Remember,
+        [(typeof(SamusBombProjectileSlot).FullName!, "<XSubposition>k__BackingField")] = Remember,
+        [(typeof(SamusBombProjectileSlot).FullName!, "<YPosition>k__BackingField")] = Remember,
+        [(typeof(SamusBombProjectileSlot).FullName!, "<YSubposition>k__BackingField")] = Remember,
+        [(typeof(SamusBombProjectileSlot).FullName!, "<XRadius>k__BackingField")] = Remember,
+        [(typeof(SamusBombProjectileSlot).FullName!, "<YRadius>k__BackingField")] = Remember,
+        // #628: Samus projectile position, velocity and radius words became spatial values.
+        [(typeof(SamusProjectileSlot).FullName!, "<XPosition>k__BackingField")] = Remember,
+        [(typeof(SamusProjectileSlot).FullName!, "<XSubposition>k__BackingField")] = Remember,
+        [(typeof(SamusProjectileSlot).FullName!, "<YPosition>k__BackingField")] = Remember,
+        [(typeof(SamusProjectileSlot).FullName!, "<YSubposition>k__BackingField")] = Remember,
+        [(typeof(SamusProjectileSlot).FullName!, "<XVelocity>k__BackingField")] = Remember,
+        [(typeof(SamusProjectileSlot).FullName!, "<YVelocity>k__BackingField")] = Remember,
+        [(typeof(SamusProjectileSlot).FullName!, "<XRadius>k__BackingField")] = Remember,
+        [(typeof(SamusProjectileSlot).FullName!, "<YRadius>k__BackingField")] = Remember,
         // #628: Samus position, external displacement and radius words became spatial values.
         [(typeof(SamusKinematicsState).FullName!, "<XPosition>k__BackingField")] = Remember,
         [(typeof(SamusKinematicsState).FullName!, "<XSubposition>k__BackingField")] = Remember,

@@ -31,7 +31,7 @@ internal static partial class Program
             "all four head replacements survive catalog reload");
         int frames = 0, ticks = 0, callbacks = 0, collisions = 0;
         var shot = new SamusProjectileSystem().Slots[0];
-        shot.XRadius = 2; shot.YRadius = 2;
+        shot.Radius = shot.Radius.WithX(2).WithY(2);
         var commands = new List<KraidHeadInstructionDefinition>();
         foreach (KraidHeadInstructionDefinition command in KraidHeadInstructionDefinitions.All)
         {
@@ -102,9 +102,9 @@ internal static partial class Program
                 for (int x = -8; x <= 48; x += 8)
                 for (int y = -144; y <= -64; y += 8)
                 {
-                    shot.XPosition = (ushort)(baseline.Body.XPosition + x); shot.YPosition = (ushort)(baseline.Body.YPosition + y);
+                    shot.Position = shot.Position.WithWhole(new((ushort)(baseline.Body.XPosition + x), (ushort)(baseline.Body.YPosition + y)));
                     (short left, short top, _, short bottom) = KraidMouthHitboxes.Resolve(hitbox);
-                    bool expected = y - shot.YRadius - 1 < bottom && y + shot.YRadius >= top && x + shot.XRadius >= left;
+                    bool expected = y - shot.Radius.Y - 1 < bottom && y + shot.Radius.Y >= top && x + shot.Radius.X >= left;
                     AssertEqual(expected, baseline.Hit(hitbox, shot), "stock native mouth geometry");
                     AssertEqual(expected, changed.Hit(hitbox, shot), "authored head does not move physical mouth geometry");
                     collisions++;

@@ -493,8 +493,7 @@ internal static partial class Program
         samus.Pose = SamusPoseId.SpringBallMovingLeftPose;
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         samus.SetAnimationFrameFromSpecialHandler(5, 3);
-        samus.Position = samus.Position.WithWholeX(79); samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x8000);
-        samus.Position = samus.Position.WithWholeY(425); samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ushort.MaxValue);
+        samus.Position = new(new(79, 0x8000), new(425, ushort.MaxValue));
         samus.HorizontalSpeed.BaseSpeed = 3; samus.HorizontalSpeed.BaseSubspeed = 0xc000;
         samus.HorizontalSpeed.AccelerationMode = 0;
         runtime.Controller1.Latch(0x0200);
@@ -510,8 +509,7 @@ internal static partial class Program
         // while the hurt mover calculates a fresh fractional base speed.
         samus.Pose = SamusPoseId.SpringBallGroundRightPose;
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
-        samus.Position = samus.Position.WithWholeX(202); samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x8000);
-        samus.Position = samus.Position.WithWholeY(425); samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ushort.MaxValue);
+        samus.Position = new(new(202, 0x8000), new(425, ushort.MaxValue));
         samus.KnockbackActive = true; samus.KnockbackDirection = 2;
         samus.KnockbackXDirection = 1; samus.KnockbackTimer = 4;
         samus.InvincibilityTimer = 95;
@@ -727,8 +725,7 @@ internal static partial class Program
         typeof(SuperMetroidRuntime).GetProperty(nameof(runtime.NmiFrameCounter))!.SetValue(runtime, (ushort)0xa4df);
         var samus = runtime.Samus!;
         samus.InputLocked = false;
-        samus.Position = samus.Position.WithWholeX(20); samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x2000);
-        samus.Position = samus.Position.WithWholeY(111); samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x5bff);
+        samus.Position = new(new(20, 0x2000), new(111, 0x5bff));
         uint xFixed = samus.Kinematics.Position.X.RawValue, yFixed = samus.Kinematics.Position.Y.RawValue;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
@@ -1394,16 +1391,16 @@ internal static partial class Program
                     {
                         Check($"Trail {trail.SlotIndex} Left InstructionPointer", trail.Left.InstructionPointer, NativeSnapshotMemory.TrailLeftInstructionPointer + trail.NativeByteIndex);
                         Check($"Trail {trail.SlotIndex} Left TileNumberAttributes", trail.Left.TileNumberAttributes, NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Left XPosition", trail.Left.XPosition, NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Left YPosition", trail.Left.YPosition, NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Left XPosition", trail.Left.Position.X, NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Left YPosition", trail.Left.Position.Y, NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex);
                     }
                     Check($"Trail {trail.SlotIndex} Right timer", trail.Right.InstructionTimer, NativeSnapshotMemory.TrailRightInstructionTimer + trail.NativeByteIndex);
                     if (trail.Right.InstructionTimer != 0)
                     {
                         Check($"Trail {trail.SlotIndex} Right InstructionPointer", trail.Right.InstructionPointer, NativeSnapshotMemory.TrailRightInstructionPointer + trail.NativeByteIndex);
                         Check($"Trail {trail.SlotIndex} Right TileNumberAttributes", trail.Right.TileNumberAttributes, NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Right XPosition", trail.Right.XPosition, NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex);
-                        Check($"Trail {trail.SlotIndex} Right YPosition", trail.Right.YPosition, NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Right XPosition", trail.Right.Position.X, NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Right YPosition", trail.Right.Position.Y, NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex);
                     }
                 }
                 Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer, NativeSnapshotMemory.ProjectileCooldown);
@@ -1443,15 +1440,15 @@ internal static partial class Program
                 string owner = $"Projectile {projectile.SlotIndex}";
                 Check(owner + " type", projectile.Type, NativeSnapshotMemory.ProjectileType + index);
                 if (projectile.Type == 0 || W(NativeSnapshotMemory.ProjectileType + index) == 0) continue;
-                Check(owner + " X", projectile.XPosition, NativeSnapshotMemory.ProjectileX + index);
-                Check(owner + " Y", projectile.YPosition, NativeSnapshotMemory.ProjectileY + index);
-                Check(owner + " X radius", projectile.XRadius, NativeSnapshotMemory.ProjectileXRadius + index);
-                Check(owner + " Y radius", projectile.YRadius, NativeSnapshotMemory.ProjectileYRadius + index);
+                Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.ProjectileX + index);
+                Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.ProjectileY + index);
+                Check(owner + " X radius", projectile.Radius.X, NativeSnapshotMemory.ProjectileXRadius + index);
+                Check(owner + " Y radius", projectile.Radius.Y, NativeSnapshotMemory.ProjectileYRadius + index);
                 Check(owner + " damage", projectile.Damage, NativeSnapshotMemory.ProjectileDamage + index);
-                Check(owner + " XFraction", unchecked((ushort)projectile.XSubposition), NativeSnapshotMemory.ProjectileXFraction + index);
-                Check(owner + " YFraction", unchecked((ushort)projectile.YSubposition), NativeSnapshotMemory.ProjectileYFraction + index);
-                Check(owner + " XVelocity", unchecked((ushort)projectile.XVelocity), NativeSnapshotMemory.ProjectileXVelocity + index);
-                Check(owner + " YVelocity", unchecked((ushort)projectile.YVelocity), NativeSnapshotMemory.ProjectileYVelocity + index);
+                Check(owner + " XFraction", unchecked((ushort)projectile.Position.X.Fraction), NativeSnapshotMemory.ProjectileXFraction + index);
+                Check(owner + " YFraction", unchecked((ushort)projectile.Position.Y.Fraction), NativeSnapshotMemory.ProjectileYFraction + index);
+                Check(owner + " XVelocity", unchecked((ushort)projectile.Velocity.X), NativeSnapshotMemory.ProjectileXVelocity + index);
+                Check(owner + " YVelocity", unchecked((ushort)projectile.Velocity.Y), NativeSnapshotMemory.ProjectileYVelocity + index);
                 Check(owner + " Direction", unchecked((ushort)projectile.Direction), NativeSnapshotMemory.ProjectileDirection + index);
                 Check(owner + " Instruction", unchecked((ushort)projectile.InstructionPointer), NativeSnapshotMemory.ProjectileInstruction + index);
                 ushort callback = projectile.PreInstruction switch

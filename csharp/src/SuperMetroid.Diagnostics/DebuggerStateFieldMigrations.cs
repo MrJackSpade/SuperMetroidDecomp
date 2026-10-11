@@ -471,6 +471,22 @@ internal static class DebuggerStateFieldMigrations
                 Set(fileSelect, "screenFade", fade);
             }),
 
+        // #628: Samus projectile, bomb and trail spatial values, rebuilt from the retired words.
+        new(typeof(SamusProjectileSlot).FullName!, ["<Position>k__BackingField"], null,
+            slot => Set(slot, "<Position>k__BackingField", DebuggerSpatialFieldMerges.FixedPosition<RoomPixels>(
+                slot, "XPosition", "XSubposition", "YPosition", "YSubposition"))),
+        new(typeof(SamusProjectileSlot).FullName!, ["<Velocity>k__BackingField"], null,
+            slot => Set(slot, "<Velocity>k__BackingField", DebuggerSpatialFieldMerges.Vector88<RoomPixels>(slot, "XVelocity", "YVelocity"))),
+        new(typeof(SamusProjectileSlot).FullName!, ["<Radius>k__BackingField"], null,
+            slot => Set(slot, "<Radius>k__BackingField", DebuggerSpatialFieldMerges.Extent<RoomPixels>(slot, "XRadius", "YRadius"))),
+        new(typeof(SamusBombProjectileSlot).FullName!, ["<Position>k__BackingField"], null,
+            slot => Set(slot, "<Position>k__BackingField", DebuggerSpatialFieldMerges.FixedPosition<RoomPixels>(
+                slot, "XPosition", "XSubposition", "YPosition", "YSubposition"))),
+        new(typeof(SamusBombProjectileSlot).FullName!, ["<Radius>k__BackingField"], null,
+            slot => Set(slot, "<Radius>k__BackingField", DebuggerSpatialFieldMerges.Extent<RoomPixels>(slot, "XRadius", "YRadius"))),
+        new(typeof(SamusProjectileTrailSide).FullName!, ["<Position>k__BackingField"], null,
+            side => Set(side, "<Position>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(side, "XPosition", "YPosition"))),
+
         // #628: Samus kinematics' spatial values, rebuilt from the retired component words.
         new(typeof(SamusKinematicsState).FullName!, ["<Position>k__BackingField"], null,
             body => Set(body, "<Position>k__BackingField", DebuggerSpatialFieldMerges.FixedPosition<RoomPixels>(

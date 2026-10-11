@@ -34,8 +34,8 @@ internal static partial class Program
                 SamusProjectileRomData.Beams.XAccelerations + direction * 2));
             short ay = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
                 SamusProjectileRomData.Beams.YAccelerations + direction * 2));
-            AssertEqual(unchecked((short)(x + ax)), shot.XVelocity, $"beam {combination} direction {direction} native speed-row X");
-            AssertEqual(unchecked((short)(y + ay)), shot.YVelocity, $"beam {combination} direction {direction} native speed-row Y");
+            AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X, $"beam {combination} direction {direction} native speed-row X");
+            AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y, $"beam {combination} direction {direction} native speed-row Y");
         }
         // Unlike the twelve identical authored rows, C..F overread different adjacent
         // words. Exercise the actual initializer to detect a dropped combination index.
@@ -59,9 +59,9 @@ internal static partial class Program
             int speed = unchecked((short)Word(0x90c2d1 + combination * 4 +
                 (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
             AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)),
-                slot.XVelocity, "Actual initializer retains combination-dependent adjacent-table overreads X");
+                slot.Velocity.X, "Actual initializer retains combination-dependent adjacent-table overreads X");
             AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)),
-                slot.YVelocity, "Actual initializer retains combination-dependent adjacent-table overreads Y");
+                slot.Velocity.Y, "Actual initializer retains combination-dependent adjacent-table overreads Y");
         }
         for (ushort weapon = 1; weapon <= 2; weapon++)
         for (byte direction = 0; direction < 10; direction++)
@@ -83,8 +83,8 @@ internal static partial class Program
                     // Anchor the trajectory at the spawn origin: the fire-frame position less
                     // that frame's unaccelerated ignition step, which the update below re-adds.
                     var fired = projectiles.Slots[0];
-                    x = unchecked((((uint)fired.XPosition << 16) | fired.XSubposition) - (uint)(vx << 8));
-                    y = unchecked((((uint)fired.YPosition << 16) | fired.YSubposition) - (uint)(vy << 8));
+                    x = unchecked((((uint)fired.Position.X.Whole << 16) | fired.Position.X.Fraction) - (uint)(vx << 8));
+                    y = unchecked((((uint)fired.Position.Y.Whole << 16) | fired.Position.Y.Fraction) - (uint)(vy << 8));
                 }
                 else
                 {
@@ -98,10 +98,10 @@ internal static partial class Program
                 y = unchecked(y + (uint)(vy << 8));
                 var owner = projectiles.Slots[0];
                 AssertTrue(owner.IsActive, "Motion fixture retains its visible missile owner");
-                AssertEqual((short)vx, owner.XVelocity, "Native missile acceleration X across ignition and movement");
-                AssertEqual((short)vy, owner.YVelocity, "Native missile acceleration Y across ignition and movement");
-                AssertEqual(x, ((uint)owner.XPosition << 16) | owner.XSubposition, "Missile X trajectory retains fixed-point carry");
-                AssertEqual(y, ((uint)owner.YPosition << 16) | owner.YSubposition, "Missile Y trajectory retains fixed-point carry");
+                AssertEqual((short)vx, owner.Velocity.X, "Native missile acceleration X across ignition and movement");
+                AssertEqual((short)vy, owner.Velocity.Y, "Native missile acceleration Y across ignition and movement");
+                AssertEqual(x, ((uint)owner.Position.X.Whole << 16) | owner.Position.X.Fraction, "Missile X trajectory retains fixed-point carry");
+                AssertEqual(y, ((uint)owner.Position.Y.Whole << 16) | owner.Position.Y.Fraction, "Missile Y trajectory retains fixed-point carry");
             }
         }
         Console.WriteLine("Projectile motion definitions: 85 native words, loud non-catalog rejection, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");

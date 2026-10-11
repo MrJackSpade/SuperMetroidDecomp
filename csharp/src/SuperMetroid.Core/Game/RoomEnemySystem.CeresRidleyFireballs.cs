@@ -551,8 +551,8 @@ public sealed partial class RoomEnemySystem
                 // The native path intentionally compares only 32-pixel cells. It does not
                 // run the radius overlap used by ordinary enemies, a coarse quirk preserved
                 // here instead of “fixing” shots near a cell corner.
-                if ((enemyProjectile.XPosition & 0xffe0) != (shot.XPosition & 0xffe0) ||
-                    (enemyProjectile.YPosition & 0xffe0) != (shot.YPosition & 0xffe0))
+                if ((enemyProjectile.XPosition & 0xffe0) != (shot.Position.X.Whole & 0xffe0) ||
+                    (enemyProjectile.YPosition & 0xffe0) != (shot.Position.Y.Whole & 0xffe0))
                 {
                     continue;
                 }

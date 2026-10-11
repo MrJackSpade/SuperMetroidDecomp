@@ -209,10 +209,10 @@ internal static partial class Program
             typeof(SamusProjectileTrailSide).GetProperty("InstructionPointer")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.NativeByteIndex));
             typeof(SamusProjectileTrailSide).GetProperty("TileNumberAttributes")!.SetValue(trail.Left, W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex));
             typeof(SamusProjectileTrailSide).GetProperty("TileNumberAttributes")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("XPosition")!.SetValue(trail.Left, W(NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("XPosition")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("YPosition")!.SetValue(trail.Left, W(NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("YPosition")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty(nameof(SamusProjectileTrailSide.Position))!.SetValue(trail.Left, new Position16<RoomPixels>(
+                W(NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex)));
+            typeof(SamusProjectileTrailSide).GetProperty(nameof(SamusProjectileTrailSide.Position))!.SetValue(trail.Right, new Position16<RoomPixels>(
+                W(NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex)));
         }
 
         for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)

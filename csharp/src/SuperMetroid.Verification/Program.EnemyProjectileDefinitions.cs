@@ -122,7 +122,7 @@ internal static partial class Program
             shot.Type = 1;
             shot.Damage = 1;
             shot.Direction = (ushort)SamusProjectileDirection.Right;
-            shot.XPosition = shot.YPosition = 0x0100;
+            shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
             int hits = enemies.ResolveEnemyProjectileSamusProjectileHits(
                 guard,
                 shots,

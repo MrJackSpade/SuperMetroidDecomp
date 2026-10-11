@@ -86,7 +86,7 @@ internal static partial class Program
         var samus=runtime.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;
         samus.RefreshCollisionRadii(bus);samus.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
-        samus.Position = samus.Position.WithWholeX(240);samus.Position = samus.Position.WithWholeY((ushort)(192-samus.Kinematics.Radius.Y));samus.InputLocked=false;
+        samus.Position = samus.Position.WithWhole(new(240, (ushort)(192-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
         runtime.Camera!.SetPosition(0,0);
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game,SuperMetroidGameState.MainGameplay);
         var renderer=new CartridgeAudioRenderer(installation.LoadAudio());

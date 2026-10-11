@@ -137,7 +137,7 @@ internal static partial class Program
         runtime.ChargeFlareCompositions = stock;
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         var samus = runtime.Samus!;
-        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWholeX((ushort)(runtime.Camera!.XPosition + 100)); samus.Position = samus.Position.WithWholeY((ushort)(runtime.Camera.YPosition + 100));
+        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Camera!.XPosition + 100), (ushort)(runtime.Camera.YPosition + 100)));
         samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.BeamStartX = samus.Position.X.Whole; samus.Grapple.BeamStartY = samus.Position.Y.Whole;

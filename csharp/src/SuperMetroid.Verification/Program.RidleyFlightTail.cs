@@ -81,8 +81,8 @@ internal static partial class Program
         var projectiles = new SamusProjectileSystem();
         typeof(SamusProjectileSystem).GetProperty("ProjectileCounter")!.SetValue(projectiles, (ushort)1);
         projectiles.Slots[0].Type = (ushort)SamusProjectileFamily.Missile;
-        projectiles.Slots[0].XPosition = 96;
-        projectiles.Slots[0].YPosition = 128;
+        projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWholeX(96);
+        projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWholeY(128);
         typeof(RoomEnemySystem).GetField("_samusProjectilesForEnemyFrame", flags)!.SetValue(enemies, projectiles);
         aim(state, samus, 0);
         ushort missileTarget = state.TailWhipTargetClockwiseAngle;

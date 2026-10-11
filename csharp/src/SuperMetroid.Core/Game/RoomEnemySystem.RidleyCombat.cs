@@ -153,16 +153,15 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            int xDistance = Math.Abs(unchecked((short)(projectile.XPosition - joint.XPosition)));
-            int yDistance = Math.Abs(unchecked((short)(projectile.YPosition - joint.YPosition)));
-            if (xDistance >= projectile.XRadius + radius ||
-                yDistance >= projectile.YRadius + radius)
+            int xDistance = Math.Abs(unchecked((short)(projectile.Position.X.Whole - joint.XPosition)));
+            int yDistance = Math.Abs(unchecked((short)(projectile.Position.Y.Whole - joint.YPosition)));
+            if (xDistance >= projectile.Radius.X + radius ||
+                yDistance >= projectile.Radius.Y + radius)
             {
                 continue;
             }
 
-            projectile.XPosition = joint.XPosition;
-            projectile.YPosition = joint.YPosition;
+            projectile.Position = projectile.Position.WithWhole(new(joint.XPosition, joint.YPosition));
             projectile.Direction = unchecked((ushort)(projectile.Direction | 0x0010));
 
             // Missile family one gets the tiny dud and library-one sound $3D. Beams and

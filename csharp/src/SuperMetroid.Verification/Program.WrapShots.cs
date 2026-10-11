@@ -37,7 +37,7 @@ internal static partial class Program
                 shared.StepFrame(bus, level, samus, input, input);
                 projectiles.StepFrame(bus, level, samus, input, input, new((ushort)(left != 0 ? 0 : 768), 0), shared, roomPlms: plms);
                 var shot = projectiles.Slots[0];
-                string actual = $"{left},{beam},{frame},{shot.XPosition:X4},{shot.XSubposition:X4},{shot.YPosition:X4},{shot.YSubposition:X4},{shot.Type:X4},{shot.InstructionPointer:X4},";
+                string actual = $"{left},{beam},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},";
                 for (int row = 0; row < 128; row++)
                 {
                     var block = level.GetCollisionBlock(left != 0 ? 63 : 0, row);

@@ -887,8 +887,8 @@ public sealed partial class RoomEnemySystem
 
         BreakReleasedShitroidFollow(state);
         SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
-            unchecked((short)(slotZeroProjectile.XPosition - slot.XPosition)),
-            unchecked((short)(slotZeroProjectile.YPosition - slot.YPosition)));
+            unchecked((short)(slotZeroProjectile.Position.X.Whole - slot.XPosition)),
+            unchecked((short)(slotZeroProjectile.Position.Y.Whole - slot.YPosition)));
         SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
         ushort magnitude = unchecked((ushort)(8 * collisionDamage));
         if (magnitude >= 0x00f0)

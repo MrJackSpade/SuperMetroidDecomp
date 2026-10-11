@@ -323,9 +323,9 @@ public sealed partial class RoomEnemySystem
             }
         }
         if (projectile is null ||
-            Math.Abs(unchecked((short)(projectile.XPosition - slot.XPosition))) >=
+            Math.Abs(unchecked((short)(projectile.Position.X.Whole - slot.XPosition))) >=
                 NinjaPirateFlinchDistance ||
-            Math.Abs(unchecked((short)(projectile.YPosition - slot.YPosition))) >=
+            Math.Abs(unchecked((short)(projectile.Position.Y.Whole - slot.YPosition))) >=
                 NinjaPirateFlinchDistance)
         {
             return false;

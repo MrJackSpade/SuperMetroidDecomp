@@ -326,9 +326,9 @@ public sealed partial class RoomEnemySystem
             }
         }
         if (firstAllocated is null ||
-            Math.Abs(unchecked((short)(firstAllocated.XPosition - slot.XPosition))) >=
+            Math.Abs(unchecked((short)(firstAllocated.Position.X.Whole - slot.XPosition))) >=
                 WalkingPirateFlinchBoxPixels ||
-            Math.Abs(unchecked((short)(firstAllocated.YPosition - slot.YPosition))) >=
+            Math.Abs(unchecked((short)(firstAllocated.Position.Y.Whole - slot.YPosition))) >=
                 WalkingPirateFlinchBoxPixels)
         {
             return;

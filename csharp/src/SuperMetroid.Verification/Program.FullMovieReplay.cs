@@ -240,7 +240,7 @@ internal static partial class Program
         {
             Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Slots
                 .Where(slot => slot.Type != 0)
-                .Select(slot => $"{slot.SlotIndex}:{slot.Type:X4}@{slot.XPosition:X4}.{slot.XSubposition:X4}/{slot.YPosition:X4} r{slot.XRadius:X}/{slot.YRadius:X} v{slot.XVelocity:X4} d{slot.Direction:X}")));
+                .Select(slot => $"{slot.SlotIndex}:{slot.Type:X4}@{slot.Position.X.Whole:X4}.{slot.Position.X.Fraction:X4}/{slot.Position.Y.Whole:X4} r{slot.Radius.X:X}/{slot.Radius.Y:X} v{slot.Velocity.X:X4} d{slot.Direction:X}")));
             Console.WriteLine("  sproj native " + string.Join(" ", Enumerable.Range(0, 5)
                 .Where(slot => Native(0x0c18 + 2 * slot) != "0000")
                 .Select(slot => $"{slot}:{Native(0x0c18 + 2 * slot)}@{Native(0x0b64 + 2 * slot)}.{Native(0x0b8c + 2 * slot)}/{Native(0x0b78 + 2 * slot)} r{Native(0x0bb4 + 2 * slot)}/{Native(0x0bc8 + 2 * slot)} v{Native(0x0bf0 + 2 * slot)} d{Native(0x0c04 + 2 * slot)}")));

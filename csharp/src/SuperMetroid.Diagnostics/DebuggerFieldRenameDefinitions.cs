@@ -12,6 +12,8 @@ internal static class DebuggerFieldRenameDefinitions
     // An explicit inventory, not permission to remap arbitrary unknown fields.
     private static readonly Dictionary<(Type DeclaringType, string Name), string> Renames = new()
     {
+        // #628: the spread's horizontal word is a direction/magnitude word, not a velocity axis.
+        [(typeof(SamusBombProjectileSlot), "<BombSpreadXVelocity>k__BackingField")] = "<BombSpreadDirectionMagnitude>k__BackingField",
         // The post-Ceres countdown became the NMI-wait count of every $82:8000 load.
         // Its legacy -1 "not started" value reads as no pending wait.
         [(typeof(SuperMetroidGame), "postCeresLoadFramesRemaining")] = "gameLoadingWaitsRemaining",

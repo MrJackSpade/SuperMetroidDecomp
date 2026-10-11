@@ -27,14 +27,14 @@ public sealed partial class SamusProjectileSystem
                 slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ??
                     SamusProjectileInstructionDefinitions.ReadWord(
                         SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
-                slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(
+                slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
                     (int)new SnesAddress(
                         SamusProjectileRomData.Banks.ProjectileNumber,
-                        unchecked((ushort)AddWithinBank(pointer, 4))));
-                slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(
+                        unchecked((ushort)AddWithinBank(pointer, 4)))));
+                slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
                     (int)new SnesAddress(
                         SamusProjectileRomData.Banks.ProjectileNumber,
-                        unchecked((ushort)AddWithinBank(pointer, 5))));
+                        unchecked((ushort)AddWithinBank(pointer, 5)))));
                 slot.AnimationFrame = SamusProjectileInstructionDefinitions.ReadWord(
                     SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 6));
                 slot.InstructionPointer = unchecked((ushort)(pointer + 8));
@@ -75,8 +75,8 @@ public sealed partial class SamusProjectileSystem
         int? horizontalMargin,
         Assets.ProjectileSpriteCatalog? compositions)
     {
-        short screenX = unchecked((short)(slot.XPosition - layer1.X));
-        ushort screenY = unchecked((ushort)(slot.YPosition - layer1.Y));
+        short screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
+        ushort screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
         if (horizontalMargin is int margin && (screenX < -margin || screenX >= 256 + margin) ||
             (screenY & 0xff00) != 0)
         {

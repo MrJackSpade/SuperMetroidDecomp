@@ -24,8 +24,8 @@ internal static partial class AssetTools
                 continue;
             foreach (var bomb in scenario.Runtime.BombProjectiles.Slots)
             {
-                bombInputs.Write(bomb.XPosition); bombInputs.Write(bomb.YPosition);
-                bombInputs.Write(bomb.XRadius); bombInputs.Write(bomb.YRadius);
+                bombInputs.Write(bomb.Position.X.Whole); bombInputs.Write(bomb.Position.Y.Whole);
+                bombInputs.Write(bomb.Radius.X); bombInputs.Write(bomb.Radius.Y);
                 bombInputs.Write(bomb.Direction); bombInputs.Write(bomb.Type);
                 bombInputs.Write(bomb.Damage); bombInputs.Write(bomb.BombTimer);
             }

@@ -825,8 +825,8 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(59, bombs.Slots[0].BombTimer, "placement frame immediately decrements timer 60 to 59");
     AssertEqual(0x001e, bombs.Slots[0].Damage, "bomb damage follows bank-$93 data pointer");
     AssertEqual(0xad45, bombs.Slots[0].SpritemapPointer, "first instruction selects ROM bomb spritemap");
-    AssertEqual(4, bombs.Slots[0].XRadius, "first instruction publishes ROM X radius");
-    AssertEqual(4, bombs.Slots[0].YRadius, "first instruction publishes ROM Y radius");
+    AssertEqual(4, bombs.Slots[0].Radius.X, "first instruction publishes ROM X radius");
+    AssertEqual(4, bombs.Slots[0].Radius.Y, "first instruction publishes ROM Y radius");
 
     // A new edge during the active low-byte cooldown is rejected without incrementing the
     // aggregate. Release is a separate frame so ControllerInputState-like edge semantics
@@ -1024,13 +1024,13 @@ static void VerifySamusMorphBallMovement()
         AssertEqual(0x8500, slot.Type, $"spread slot {index} uses bomb family/type `$8500`");
         AssertEqual(expectedSpreadTimers[index], slot.BombTimer,
             $"spread slot {index} consumes first ROM fuse tick");
-        AssertEqual(expectedSpreadX[index], slot.XPosition,
+        AssertEqual(expectedSpreadX[index], slot.Position.X.Whole,
             $"spread slot {index} applies encoded X velocity");
-        AssertEqual(expectedSpreadXSub[index], slot.XSubposition,
+        AssertEqual(expectedSpreadXSub[index], slot.Position.X.Fraction,
             $"spread slot {index} preserves fractional X motion");
-        AssertEqual(expectedSpreadY[index], slot.YPosition,
+        AssertEqual(expectedSpreadY[index], slot.Position.Y.Whole,
             $"spread slot {index} applies encoded Y velocity");
-        AssertEqual(expectedSpreadYSub[index], slot.YSubposition,
+        AssertEqual(expectedSpreadYSub[index], slot.Position.Y.Fraction,
             $"spread slot {index} preserves fractional Y motion");
     }
 
@@ -1038,17 +1038,14 @@ static void VerifySamusMorphBallMovement()
     // floor. The real pre-instruction must undo penetration and restore its original
     // negative bounce velocity rather than freezing or reusing generic Samus collision.
     SamusBombProjectileSlot bouncingSpread = spreadBombs.Slots[2];
-    bouncingSpread.XPosition = 48;
-    bouncingSpread.XSubposition = 0;
-    bouncingSpread.YPosition = 63;
-    bouncingSpread.YSubposition = 0;
-    bouncingSpread.BombSpreadXVelocity = 0;
+    bouncingSpread.Position = bouncingSpread.Position.WithWholeX(48).WithFractionX(0).WithWholeY(63).WithFractionY(0);
+    bouncingSpread.BombSpreadDirectionMagnitude = 0;
     bouncingSpread.BombSpreadYVelocity = 1;
     bouncingSpread.BombSpreadYSubvelocity = 0;
     bouncingSpread.BombSpreadInitialYSubvelocity = 0x8000;
     bouncingSpread.BombSpreadBounceYVelocity = 0xfffe;
     spreadBombs.StepFrame(bus, floor, spreadSamus, 0, 0);
-    AssertEqual(63, bouncingSpread.YPosition,
+    AssertEqual(63, bouncingSpread.Position.Y.Whole,
         "spread-bomb floor collision undoes penetrating Y movement");
     AssertEqual(0xfffe, bouncingSpread.BombSpreadYVelocity,
         "falling spread bomb restores launch velocity on floor bounce");

@@ -48,8 +48,8 @@ internal static partial class Program
             bool beamRunning = running || pose is 0x75 or 0x76;
             slot.Direction = direction;
             initialize(bus, samus, slot);
-            AssertEqual(unchecked((ushort)(samus.Position.X.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningX : SamusProjectileRomData.Origins.DefaultX) + direction * 2))), slot.XPosition, "Pose art leaves projectile X unchanged");
-            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningY : SamusProjectileRomData.Origins.DefaultY) + direction * 2) - physicalY)), slot.YPosition, "Pose art leaves projectile collision Y unchanged");
+            AssertEqual(unchecked((ushort)(samus.Position.X.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningX : SamusProjectileRomData.Origins.DefaultX) + direction * 2))), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningY : SamusProjectileRomData.Origins.DefaultY) + direction * 2) - physicalY)), slot.Position.Y.Whole, "Pose art leaves projectile collision Y unchanged");
             AssertEqual(unchecked((sbyte)art), samus.ReadGraphicsYOffset(bus), "Visual body offset remains replaceable");
 
             var g = samus.Grapple;

@@ -21,6 +21,23 @@ internal static class DebuggerSpatialFieldMerges
             : throw new InvalidDataException(
                 $"Legacy {instance.GetType().FullName} lacks {property}, which its merged spatial value requires.");
 
+    /// <summary>A retired signed word of <paramref name="instance"/>; its absence is a layout mismatch.</summary>
+    internal static short SignedWord(object instance, string property) =>
+        DebuggerRetiredFieldDefinitions.TryGetLegacyValue(instance, Backing(property), out object? value) && value is short word
+            ? word
+            : throw new InvalidDataException(
+                $"Legacy {instance.GetType().FullName} lacks signed word {property}, which its merged spatial value requires.");
+
+    /// <summary>A whole-pixel position from the two retired axis words.</summary>
+    internal static Position16<TSpace> Position<TSpace>(object instance, string x, string y)
+        where TSpace : ISpatialSpace =>
+        new(Word(instance, x), Word(instance, y));
+
+    /// <summary>A signed 8.8 velocity from the two retired signed axis words.</summary>
+    internal static Vector88<TSpace> Vector88<TSpace>(object instance, string x, string y)
+        where TSpace : ISpatialSpace =>
+        new(SignedWord(instance, x), SignedWord(instance, y));
+
     /// <summary>A 16.16 position from the four retired whole/subpixel words.</summary>
     internal static FixedPosition<TSpace> FixedPosition<TSpace>(
         object instance, string xWhole, string xFraction, string yWhole, string yFraction)

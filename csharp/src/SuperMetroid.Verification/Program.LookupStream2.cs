@@ -1455,7 +1455,7 @@ internal static partial class Program
             {
                 var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.InstructionTimer = 1; side.XPosition = 100; side.YPosition = 100; }
+                { side.InstructionPointer = start; side.InstructionTimer = 1; side.Position = side.Position.WithX(100).WithY(100); }
             }
             for (int frame = 0; frame < 80; frame++)
             {
@@ -1469,7 +1469,7 @@ internal static partial class Program
                 {
                     AssertEqual(sides.Item1.InstructionPointer, sides.Item2.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.Item1.InstructionTimer, sides.Item2.InstructionTimer, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.Item1.YPosition, sides.Item2.YPosition, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.Item1.Position.Y, sides.Item2.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
@@ -1512,12 +1512,12 @@ internal static partial class Program
                         break;
                     }
                     cursor += 2;
-                    if (word == (ushort)ProjectileTrailInstruction.MoveLeftDown) pair.Left.YPosition++;
-                    else if (word == (ushort)ProjectileTrailInstruction.MoveRightDown) pair.Right.YPosition++;
+                    if (word == (ushort)ProjectileTrailInstruction.MoveLeftDown) pair.Left.Position += new Offset16<RoomPixels>(0, 1);
+                    else if (word == (ushort)ProjectileTrailInstruction.MoveRightDown) pair.Right.Position += new Offset16<RoomPixels>(0, 1);
                     else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
                 }
             }
-            oam.AddProjectileTrailSprite((byte)side.XPosition, (byte)side.YPosition, side.TileNumberAttributes);
+            oam.AddProjectileTrailSprite((byte)side.Position.X, (byte)side.Position.Y, side.TileNumberAttributes);
         }
     }
 
@@ -1539,15 +1539,14 @@ internal static partial class Program
             {
                 Type = (ushort)selection,
                 InstructionPointer = 0x86e3,
-                XPosition = 100,
-                YPosition = 200,
+                Position = new(new(100, 0), new(200, 0)),
             };
             spawn.Invoke(projectiles, [new TrailSelectorGuard(start, end), projectile]);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Trails.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");
             AssertEqual(1, trail.Left.InstructionTimer, "Selector extraction leaves allocation timer unchanged");
-            AssertEqual(96, trail.Left.XPosition, "Selector extraction leaves origin offset unchanged");
+            AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
     }
@@ -2181,8 +2180,8 @@ internal static partial class Program
             AssertEqual(ProjectileSpriteDefinitions.NativePointers[0], editedShot.SpritemapPointer, "Independent direction edit overrides calculation in actual handler");
             AssertEqual(shot.InstructionTimer, editedShot.InstructionTimer, "Visual edit preserves duration");
             AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Visual edit preserves control flow");
-            AssertEqual(shot.XRadius, editedShot.XRadius, "Visual edit preserves horizontal radius");
-            AssertEqual(shot.YRadius, editedShot.YRadius, "Visual edit preserves vertical radius");
+            AssertEqual(shot.Radius.X, editedShot.Radius.X, "Visual edit preserves horizontal radius");
+            AssertEqual(shot.Radius.Y, editedShot.Radius.Y, "Visual edit preserves vertical radius");
             document.Frames[key] = original;
         }
         int checkedWaveIce = 0;
@@ -2227,8 +2226,8 @@ internal static partial class Program
             AssertEqual(replacement, editedShot.SpritemapPointer, "Every Wave/Ice supplied edit takes precedence");
             AssertEqual(shot.InstructionTimer, editedShot.InstructionTimer, "Wave/Ice visual edit preserves duration");
             AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Wave/Ice visual edit preserves flow");
-            AssertEqual(shot.XRadius, editedShot.XRadius, "Wave/Ice visual edit preserves X radius");
-            AssertEqual(shot.YRadius, editedShot.YRadius, "Wave/Ice visual edit preserves Y radius");
+            AssertEqual(shot.Radius.X, editedShot.Radius.X, "Wave/Ice visual edit preserves X radius");
+            AssertEqual(shot.Radius.Y, editedShot.Radius.Y, "Wave/Ice visual edit preserves Y radius");
             document.Frames[key] = original;
             checkedWaveIce++;
         }

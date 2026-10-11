@@ -50,8 +50,8 @@ internal static partial class Program
                 {
                     int edge = (raw & 128) != 0 ? 15 - y : y;
                     bool solid = height <= edge;
-                    projectile.XPosition = spread.XPosition = x;
-                    projectile.YPosition = spread.YPosition = y;
+                    spread.Position = spread.Position.WithWhole(new(x, y));
+                    projectile.Position = projectile.Position.WithWhole(new(x, y));
                     AssertEqual(solid, missile(block, projectile, true), "Missile horizontal slope point collision");
                     AssertEqual(solid, missile(block, projectile, false), "Missile vertical slope point collision");
                     AssertEqual(solid, bomb(level, spread), "Bomb spread real slope collision");

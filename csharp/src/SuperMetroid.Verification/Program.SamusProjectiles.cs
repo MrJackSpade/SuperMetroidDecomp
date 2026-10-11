@@ -340,9 +340,9 @@ static void VerifySamusPowerBeamProjectiles()
             $"power beam direction {direction} loads damage");
         AssertEqual(0xa24d, projectiles.Slots[0].SpritemapPointer,
             $"power beam direction {direction} selects first art record");
-        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 4)), projectiles.Slots[0].XRadius,
+        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 4)), projectiles.Slots[0].Radius.X,
             $"power beam direction {direction} loads X radius");
-        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 5)), projectiles.Slots[0].YRadius,
+        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 5)), projectiles.Slots[0].Radius.Y,
             $"power beam direction {direction} loads Y radius");
     }
 
@@ -977,8 +977,8 @@ static void VerifySamusPowerBeamProjectiles()
     chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, new(0, 0), chargeBombs);
     chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
     chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, new(0, 0), chargeBombs);
-    ushort trailSourceX = chargedSlot.XPosition;
-    ushort trailSourceY = chargedSlot.YPosition;
+    ushort trailSourceX = chargedSlot.Position.X.Whole;
+    ushort trailSourceY = chargedSlot.Position.Y.Whole;
     chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
     chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, new(0, 0), chargeBombs);
 
@@ -987,9 +987,9 @@ static void VerifySamusPowerBeamProjectiles()
     SamusProjectileTrailSlot chargedTrail =
         chargeProjectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
     AssertTrue(chargedTrail.IsActive, "trail allocation scans downward from native index $22");
-    AssertEqual(unchecked((ushort)(trailSourceX - 4)), chargedTrail.Left.XPosition,
+    AssertEqual(unchecked((ushort)(trailSourceX - 4)), chargedTrail.Left.Position.X,
         "trail samples projectile X before movement and subtracts four");
-    AssertEqual(unchecked((ushort)(trailSourceY - 4)), chargedTrail.Left.YPosition,
+    AssertEqual(unchecked((ushort)(trailSourceY - 4)), chargedTrail.Left.Position.Y,
         "trail samples projectile Y before movement and subtracts four");
 
     var trailOam = new OamBuffer();
@@ -1017,13 +1017,13 @@ static void VerifySamusPowerBeamProjectiles()
 
     // Five more records reach the inline `$B525` opcode on the sixth call after the first
     // draw. It mutates world Y, then falls through to the following timed tile in one pass.
-    ushort beforeTrailCommandY = chargedTrail.Left.YPosition;
+    ushort beforeTrailCommandY = chargedTrail.Left.Position.Y;
     for (int call = 0; call < 6; call++)
     {
         trailOam.BeginFrame();
         chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: false, artwork: fixtureTrails);
     }
-    AssertEqual(unchecked((ushort)(beforeTrailCommandY + 1)), chargedTrail.Left.YPosition,
+    AssertEqual(unchecked((ushort)(beforeTrailCommandY + 1)), chargedTrail.Left.Position.Y,
         "inline `$B525` command moves the left trail down one pixel");
     AssertEqual(0x039, trailOam.GetEntry(0).TileNumber,
         "position command falls through to the following `$2C39` timed record");
@@ -1039,8 +1039,8 @@ static void VerifySamusPowerBeamProjectiles()
     {
         var commandProjectiles = CreateSyntheticProjectiles();
         var pair = commandProjectiles.TrailSlots[0];
-        pair.Left.YPosition = 100;
-        pair.Right.YPosition = 120;
+        pair.Left.Position = pair.Left.Position.WithY(100);
+        pair.Right.Position = pair.Right.Position.WithY(120);
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
         executingSide.InstructionTimer = 1;
         executingSide.InstructionPointer = 0x0000;
@@ -1051,9 +1051,9 @@ static void VerifySamusPowerBeamProjectiles()
         commandProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: false);
         AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveLeftDown ? 101 :
             command == (ushort)ProjectileTrailInstruction.MoveLeftUp ? 99 : 100,
-            pair.Left.YPosition, "trail command targets named left side regardless of executing stream");
+            pair.Left.Position.Y, "trail command targets named left side regardless of executing stream");
         AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveRightDown ? 121 : 120,
-            pair.Right.YPosition, "trail command targets named right side regardless of executing stream");
+            pair.Right.Position.Y, "trail command targets named right side regardless of executing stream");
         AssertEqual(0x0006, executingSide.InstructionPointer,
             "cross-side command continues the executing stream through its timed record");
     }
@@ -1101,7 +1101,7 @@ static void VerifySamusPowerBeamProjectiles()
         waveReportedExplosion |= beforeWaveFrame.CollisionStartedExplosion(waveWallProjectiles);
     }
     AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
-    AssertTrue(waveWallProjectiles.Slots[0].XPosition > 112,
+    AssertTrue(waveWallProjectiles.Slots[0].Position.X.Whole > 112,
         "wave beam advances completely through the solid column");
     AssertEqual(SamusProjectilePreInstruction.WaveBeamThreeFrameTrail,
         waveWallProjectiles.Slots[0].PreInstruction,
@@ -1127,9 +1127,9 @@ static void VerifySamusPowerBeamProjectiles()
         (ushort)SnesButton.X,
         new(0, 0),
         wallBombs);
-    AssertEqual(79, wallProjectiles.Slots[0].XPosition,
+    AssertEqual(79, wallProjectiles.Slots[0].Position.X.Whole,
         "right beam starts eleven pixels beyond Samus then moves four whole pixels");
-    AssertEqual(0x1000, wallProjectiles.Slots[0].XSubposition,
+    AssertEqual(0x1000, wallProjectiles.Slots[0].Position.X.Fraction,
         "right beam first frame retains one-sixteenth pixel");
 
     bool wallExploded = false;
@@ -1256,7 +1256,7 @@ static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(!waveShotReportedExplosion,
         "Wave remains alive after publishing type-four shot-block reaction");
-    AssertTrue(waveShotProjectiles.Slots[0].XPosition > 112,
+    AssertTrue(waveShotProjectiles.Slots[0].Position.X.Whole > 112,
         "Wave crosses the complete shootable-air column");
     AssertTrue(waveShotPlms.ActiveCount > 0,
         "Wave scan allocates bank-$84 shot-block PLM");
@@ -1313,9 +1313,9 @@ static void VerifySamusPowerBeamProjectiles()
         "missile selects `$90:AF68` pre-instruction family");
     AssertEqual(0x0100, missile.Variable,
         "first alpha pass crosses `$0100` ignition threshold");
-    AssertEqual(0x0100, missile.XVelocity,
+    AssertEqual(0x0100, missile.Velocity.X,
         "right missile begins at one pixel per frame after ignition");
-    AssertEqual(76, missile.XPosition,
+    AssertEqual(76, missile.Position.X.Whole,
         "right missile moves one whole pixel on its ignition frame");
     AssertEqual(0xa25b, missile.SpritemapPointer,
         "missile instruction handler selects first bank-$93 art record");
@@ -1932,7 +1932,7 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(RoomCollisionType.SolidBlock,
         contactDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
         "contact-distance shot synchronously opens the cap origin");
-    AssertEqual(0x006d, contactDoorProjectiles.Slots[0].XPosition,
+    AssertEqual(0x006d, contactDoorProjectiles.Slots[0].Position.X.Whole,
         "fire-time impact anchors its explosion at the native leading edge");
 
     var blueDoorSamus = new SamusState
@@ -2021,7 +2021,7 @@ static void VerifySamusPowerBeamProjectiles()
         "super ignition counts visible owner plus invisible link");
     AssertEqual(0x8200, super.Type, "super owner uses active type `$8200`");
     AssertEqual(0x012c, super.Damage, "super owner reads retail 300 damage");
-    AssertEqual(0x0100, super.XVelocity,
+    AssertEqual(0x0100, super.Velocity.X,
         "super ignition begins at one pixel per frame");
     AssertEqual(0x0102, super.Variable,
         "super variable combines initialized high byte and link byte index two");
@@ -2031,7 +2031,7 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x012c, superLink.Damage, "super link carries native damage sentinel");
     AssertEqual(SamusProjectilePreInstruction.SuperMissileLink, superLink.PreInstruction,
         "super link selects stationary `$90:B075`");
-    AssertEqual(super.XPosition, superLink.XPosition,
+    AssertEqual(super.Position.X.Whole, superLink.Position.X.Whole,
         "slow horizontal link follows owner center after ignition movement");
 
     // The link instruction list is intentionally invisible; only the owner contributes an
@@ -2094,20 +2094,20 @@ static void VerifySamusPowerBeamProjectiles()
         (ushort)SnesButton.X, (ushort)SnesButton.X, new(0, 0), pillarBombs);
     var pillarOwner = pillarProjectiles.Slots[0];
     var pillarLink = pillarProjectiles.Slots[1];
-    pillarOwner.XPosition = 0x12f;
-    pillarOwner.YPosition = pillarLink.YPosition = 0xd1;
-    pillarOwner.XVelocity = 0x1100;
-    pillarOwner.XSubposition = 0;
-    pillarLink.XPosition = 0x128;
-    pillarLink.XRadius = 8;
+    pillarLink.Position = pillarLink.Position.WithWholeY(0xd1);
+    pillarOwner.Position = pillarOwner.Position.WithWhole(new(0x12f, 0xd1));
+    pillarOwner.Velocity = pillarOwner.Velocity.WithX(0x1100);
+    pillarOwner.Position = pillarOwner.Position.WithFractionX(0);
+    pillarLink.Position = pillarLink.Position.WithWholeX(0x128);
+    pillarLink.Radius = pillarLink.Radius.WithX(8);
     // Native explosion timing remains live long enough for this three-frame sequence.
     pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus, 0, 0, new(0x100, 0), pillarBombs);
-    AssertEqual(0x139, pillarLink.XPosition,
+    AssertEqual(0x139, pillarLink.Position.X.Whole,
         "native missile helper impact does not apply the beam leading-edge radius");
     AssertEqual(SamusProjectileFamily.MissileExplosion, pillarLink.PackedType.Family,
         "supplemental pillar collision explodes the helper, not its owner");
     pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus, 0, 0, new(0x100, 0), pillarBombs);
-    AssertEqual(0x14b, pillarLink.XPosition,
+    AssertEqual(0x14b, pillarLink.Position.X.Whole,
         "original ROM repositions an exploded helper over air");
     pillarWords[853] = 0x8119;
     var secondPillarRoom = CreateRoom(64, 16, pillarWords, new byte[pillarWords.Length]);
@@ -2208,9 +2208,9 @@ static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSlot skippedLink = skippedProjectiles.Slots[1];
     AssertTrue(skippedOwner.PackedType.IsFamily(SamusProjectileFamily.SuperMissile) && skippedLink.IsActive,
         "the Super Missile and its link are in flight");
-    skippedOwner.XPosition = skippedLink.XPosition = 0x5c;
-    skippedOwner.XSubposition = 0;
-    skippedOwner.XVelocity = 0x1400;
+    skippedLink.Position = skippedLink.Position.WithWholeX(0x5c);
+    skippedOwner.Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
+    skippedOwner.Velocity = skippedOwner.Velocity.WithX(0x1400);
     skippedBombs.StepFrame(bus, skippedWall, skippedSamus, 0, 0);
     skippedProjectiles.StepFrame(bus, skippedWall, skippedSamus, 0, 0, new(0, 0), skippedBombs, roomPlms: skippedPlms);
     AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.PackedType.Family,

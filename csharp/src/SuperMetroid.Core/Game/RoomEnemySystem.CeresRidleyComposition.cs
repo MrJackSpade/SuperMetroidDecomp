@@ -164,10 +164,10 @@ public sealed partial class RoomEnemySystem
             foreach (var projectile in projectiles.Slots.Take(5))
             {
                 if (projectile.PackedType.Family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)) continue;
-                if (Math.Abs((short)(projectile.XPosition - tip.XPosition)) - projectile.XRadius >= 64 ||
-                    Math.Abs((short)(projectile.YPosition - tip.YPosition)) - projectile.YRadius >= 64) continue;
-                targetX = projectile.XPosition;
-                targetY = projectile.YPosition;
+                if (Math.Abs((short)(projectile.Position.X.Whole - tip.XPosition)) - projectile.Radius.X >= 64 ||
+                    Math.Abs((short)(projectile.Position.Y.Whole - tip.YPosition)) - projectile.Radius.Y >= 64) continue;
+                targetX = projectile.Position.X.Whole;
+                targetY = projectile.Position.Y.Whole;
                 break;
             }
         }

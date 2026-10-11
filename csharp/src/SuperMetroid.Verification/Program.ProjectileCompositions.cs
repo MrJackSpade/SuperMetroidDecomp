@@ -107,11 +107,11 @@ internal static partial class Program
             var bombs = new SamusBombProjectileSystem();
             var shot = shots.Slots[0];
             shot.InstructionPointer = 1; shot.SpritemapPointer = id;
-            shot.Type = type; shot.XPosition = coordinate; shot.YPosition = coordinate;
-            shot.Damage = 123; shot.XRadius = 7; shot.YRadius = 9;
+            shot.Type = type; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
+            shot.Damage = 123; shot.Radius = shot.Radius.WithX(7).WithY(9);
             var bomb = bombs.Slots[0];
             bomb.InstructionPointer = 1; bomb.SpritemapPointer = id;
-            bomb.Type = type; bomb.XPosition = coordinate; bomb.YPosition = coordinate;
+            bomb.Type = type; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
             bomb.BombTimer = 1;
             foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
@@ -126,8 +126,8 @@ internal static partial class Program
                     "Production projectile composition preserves admission, flicker and OAM");
                 AssertEqual(native.NextByteOffset, extracted.NextByteOffset, "Composition owner preserves OAM cursor");
                 AssertEqual((ushort)123, shot.Damage, "Composition does not mutate damage");
-                AssertEqual((ushort)7, shot.XRadius, "Composition does not mutate X radius");
-                AssertEqual((ushort)9, shot.YRadius, "Composition does not mutate Y radius");
+                AssertEqual((ushort)7, shot.Radius.X, "Composition does not mutate X radius");
+                AssertEqual((ushort)9, shot.Radius.Y, "Composition does not mutate Y radius");
                 comparisons++;
             }
             if (type == 0x300)
@@ -180,15 +180,13 @@ internal static partial class Program
             {
                 var slot = runtime.BombProjectiles.Slots[0];
                 slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
-                slot.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-                slot.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Camera!.XPosition + 100), (ushort)(runtime.Camera.YPosition + 100)));
             }
             else
             {
                 var slot = runtime.Projectiles.Slots[0];
                 slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
-                slot.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-                slot.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Camera!.XPosition + 100), (ushort)(runtime.Camera.YPosition + 100)));
             }
             // Actor drawing also updates mutable visual state. Compare identical
             // captured states rather than two sequential draws of one runtime.

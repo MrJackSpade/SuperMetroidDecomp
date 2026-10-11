@@ -158,7 +158,7 @@ internal static partial class Program
                     var samus = runtime.Samus!;
                     samus.InputLocked = false;
                     samus.PoseId = SamusPoseId.FacingRightNormalPose;
-                    samus.Position = samus.Position.WithWholeX((ushort)(x * 16 + 8)); samus.Position = samus.Position.WithWholeY((ushort)(y * 16 + 8));
+                    samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
                     samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
                     runtime.LevelData!.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
                     typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);

@@ -40,7 +40,7 @@ internal static partial class Program
                 var shot = shots.Slots[0];
                 ushort targetWord = level.GetCollisionBlockByIndex(target).LevelWord;
                 if (hit < 0 && targetWord == 0x840c) hit = frame;
-                string actual = $"{room},{beam},{offset},{frame},{shot.XPosition:X4},{shot.XSubposition:X4},{shot.YPosition:X4},{shot.YSubposition:X4},{shot.Type:X4},{shot.InstructionPointer:X4},{shot.XRadius:X4},{shot.YRadius:X4},{targetWord:X4}";
+                string actual = $"{room},{beam},{offset},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},{shot.Radius.X:X4},{shot.Radius.Y:X4},{targetWord:X4}";
                 string expected = native[cursor++];
                 if (actual != expected && mismatches++ < 8) Console.WriteLine($"Width mismatch:\n{actual}\n{expected}");
             }

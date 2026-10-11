@@ -34,12 +34,12 @@ public sealed partial class SamusProjectileSystem
         }
 
         int directionOffset = slot.PackedDirection.DirectionIndex * 2;
-        slot.XVelocity = unchecked((short)(slot.XVelocity +
+        slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.XAccelerations + directionOffset))));
-        slot.YVelocity = unchecked((short)(slot.YVelocity +
+                SamusProjectileRomData.Beams.XAccelerations + directionOffset)))));
+        slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.YAccelerations + directionOffset))));
+                SamusProjectileRomData.Beams.YAccelerations + directionOffset)))));
 
         SamusProjectileDirection direction = slot.PackedDirection.Direction;
         bool collided = direction switch
@@ -127,12 +127,12 @@ public sealed partial class SamusProjectileSystem
         RoomPlmSystem? roomPlms)
     {
         int direction = slot.PackedDirection.DirectionIndex;
-        slot.XVelocity = unchecked((short)(slot.XVelocity +
+        slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.XAccelerations + direction * 2))));
-        slot.YVelocity = unchecked((short)(slot.YVelocity +
+                SamusProjectileRomData.Beams.XAccelerations + direction * 2)))));
+        slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.YAccelerations + direction * 2))));
+                SamusProjectileRomData.Beams.YAccelerations + direction * 2)))));
 
         // `$94:A352/$A3E4` advance the same 16.16 positions and scan every block touched by
         // the projectile radii, but deliberately return carry clear unconditionally. That is
@@ -141,18 +141,12 @@ public sealed partial class SamusProjectileSystem
         // PLMs while intentionally discarding their carry result, matching this fallthrough.
         if (direction is 2 or 7 or 1 or 3 or 6 or 8)
         {
-            (slot.XPosition, slot.XSubposition) = AddVelocity(
-                slot.XPosition,
-                slot.XSubposition,
-                slot.XVelocity);
+            slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X));
             ScanHorizontalWaveShotReactions(level, slot, roomPlms);
         }
         if (direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
         {
-            (slot.YPosition, slot.YSubposition) = AddVelocity(
-                slot.YPosition,
-                slot.YSubposition,
-                slot.YVelocity);
+            slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y));
             ScanVerticalWaveShotReactions(level, slot, roomPlms);
         }
 
@@ -185,12 +179,12 @@ public sealed partial class SamusProjectileSystem
         // Missile pre-instruction `$90:AF8F-$AFA0` first applies the same small directional
         // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
-        slot.XVelocity = unchecked((short)(slot.XVelocity +
+        slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.XAccelerations + direction * 2))));
-        slot.YVelocity = unchecked((short)(slot.YVelocity +
+                SamusProjectileRomData.Beams.XAccelerations + direction * 2)))));
+        slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y +
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.YAccelerations + direction * 2))));
+                SamusProjectileRomData.Beams.YAccelerations + direction * 2)))));
 
         if ((slot.Variable & 0xff00) == 0)
         {
@@ -204,10 +198,10 @@ public sealed partial class SamusProjectileSystem
         else
         {
             int acceleration = SamusProjectileRomData.NonBeam.MissileAccelerations + direction * 4;
-            slot.XVelocity = unchecked((short)(slot.XVelocity +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))));
-            slot.YVelocity = unchecked((short)(slot.YVelocity +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2))));
+            slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X +
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration)))));
+            slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y +
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2)))));
         }
 
         bool collided = direction switch
@@ -273,10 +267,10 @@ public sealed partial class SamusProjectileSystem
         {
             int acceleration =
                 SamusProjectileRomData.NonBeam.SuperMissileAccelerations + direction * 4;
-            slot.XVelocity = unchecked((short)(slot.XVelocity +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration))));
-            slot.YVelocity = unchecked((short)(slot.YVelocity +
-                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2))));
+            slot.Velocity = slot.Velocity.WithX(unchecked((short)(slot.Velocity.X +
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration)))));
+            slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y +
+                unchecked((short)SamusProjectileMotionDefinitions.ReadWord(acceleration + 2)))));
         }
 
         bool collided = false;
@@ -318,8 +312,8 @@ public sealed partial class SamusProjectileSystem
         const int MinimumVisibleCoordinate = -64;
         const int MaximumVisibleCoordinateExclusive = 320;
 
-        short screenX = unchecked((short)(slot.XPosition - layer1.X));
-        short screenY = unchecked((short)(slot.YPosition - layer1.Y));
+        short screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
+        short screenY = unchecked((short)(slot.Position.Y.Whole - layer1.Y));
         bool outside =
             screenX < MinimumVisibleCoordinate ||
             screenX >= MaximumVisibleCoordinateExclusive ||
@@ -344,8 +338,7 @@ public sealed partial class SamusProjectileSystem
         link.ClearFields();
         link.Type = 0x8200;
         link.Direction = owner.Direction;
-        link.XPosition = owner.XPosition;
-        link.YPosition = owner.YPosition;
+        link.Position = link.Position.WithWhole(new(owner.Position.X.Whole, owner.Position.Y.Whole));
 
         // `$90:BF78` deliberately calls the ordinary muzzle initializer again after copying
         // the owner's coordinates. At ignition both positions are equivalent; retaining the
@@ -391,7 +384,7 @@ public sealed partial class SamusProjectileSystem
         if (!link.IsActive)
             return;
 
-        short velocity = vertical ? owner.YVelocity : owner.XVelocity;
+        short velocity = vertical ? owner.Velocity.Y : owner.Velocity.X;
         int wholeMagnitude = (Math.Abs((int)velocity) & 0xff00) >> 8;
         bool ownerExploded = owner.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion);
         if (wholeMagnitude < 11)
@@ -404,9 +397,9 @@ public sealed partial class SamusProjectileSystem
                 return;
             }
             if (vertical)
-                link.YPosition = owner.YPosition;
+                link.Position = link.Position.WithWholeY(owner.Position.Y.Whole);
             else
-                link.XPosition = owner.XPosition;
+                link.Position = link.Position.WithWholeX(owner.Position.X.Whole);
             return;
         }
 
@@ -415,12 +408,12 @@ public sealed partial class SamusProjectileSystem
         // just exploded; only then is it cleared. A missile that skips a door cap and
         // strikes the door behind it still opens the cap through its link.
         int offset = wholeMagnitude - 10;
-        ushort ownerPosition = vertical ? owner.YPosition : owner.XPosition;
+        ushort ownerPosition = vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
         ushort linkPosition = unchecked((ushort)(ownerPosition + (velocity < 0 ? offset : -offset)));
         if (vertical)
-            link.YPosition = linkPosition;
+            link.Position = link.Position.WithWholeY(linkPosition);
         else
-            link.XPosition = linkPosition;
+            link.Position = link.Position.WithWholeX(linkPosition);
         if (MissilePointReaction(
                 level,
                 link,
@@ -446,16 +439,13 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms)
     {
-        (slot.XPosition, slot.XSubposition) = AddVelocity(
-            slot.XPosition,
-            slot.XSubposition,
-            slot.XVelocity);
+        slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X));
 
         // `$94:A46F` tests the projectile center, not its radius-spanning leading edge. Room
         // width is stored in 256-pixel screens; coordinates in/past the first out-of-room
         // high byte skip reaction and are left for the later 64-pixel viewport deletion.
         int roomWidthInScreens = (level.WidthInBlocks + 15) >> 4;
-        if ((slot.XPosition >> 8) >= roomWidthInScreens)
+        if ((slot.Position.X.Whole >> 8) >= roomWidthInScreens)
             return false;
         return MissilePointReaction(
             level, slot, horizontalMovement: true, roomPlms: roomPlms);
@@ -466,13 +456,10 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms)
     {
-        (slot.YPosition, slot.YSubposition) = AddVelocity(
-            slot.YPosition,
-            slot.YSubposition,
-            slot.YVelocity);
+        slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y));
 
         int roomHeightInScreens = (level.HeightInBlocks + 15) >> 4;
-        if ((slot.YPosition >> 8) >= roomHeightInScreens)
+        if ((slot.Position.Y.Whole >> 8) >= roomHeightInScreens)
             return false;
         return MissilePointReaction(
             level, slot, horizontalMovement: false, roomPlms: roomPlms);
@@ -484,8 +471,8 @@ public sealed partial class SamusProjectileSystem
         bool horizontalMovement,
         RoomPlmSystem? roomPlms)
     {
-        int blockX = slot.XPosition >> 4;
-        int blockY = slot.YPosition >> 4;
+        int blockX = slot.Position.X.Whole >> 4;
+        int blockY = slot.Position.Y.Whole >> 4;
         if ((uint)blockX >= (uint)level.WidthInBlocks ||
             (uint)blockY >= (uint)level.HeightInBlocks)
         {
@@ -565,11 +552,11 @@ public sealed partial class SamusProjectileSystem
             // the cartridge table. BTS bit 6 flips X and bit 7 flips Y. A table height at or
             // above the mirrored Y point (the original uses signed `height - y <= 0`) is
             // solid. Values can reach 20 for overhanging shapes, so do not mask to a nibble.
-            int xInBlock = slot.XPosition & 0x000f;
+            int xInBlock = slot.Position.X.Whole & 0x000f;
             if (block.Bts.SlopeFlipsHorizontally)
                 xInBlock ^= 0x000f;
 
-            int yInBlock = slot.YPosition & 0x000f;
+            int yInBlock = slot.Position.Y.Whole & 0x000f;
             if (block.Bts.SlopeFlipsVertically)
                 yInBlock ^= 0x000f;
 
@@ -584,14 +571,14 @@ public sealed partial class SamusProjectileSystem
         int quadrant = slopeShape * 4 + block.Bts.SlopeOrientation;
         if (horizontalMovement)
         {
-            quadrant ^= (slot.XPosition & 8) >> 3;
-            if ((slot.YPosition & 8) != 0)
+            quadrant ^= (slot.Position.X.Whole & 8) >> 3;
+            if ((slot.Position.Y.Whole & 8) != 0)
                 quadrant ^= 2;
         }
         else
         {
-            quadrant ^= (slot.YPosition & 8) >> 2;
-            if ((slot.XPosition & 8) != 0)
+            quadrant ^= (slot.Position.Y.Whole & 8) >> 2;
+            if ((slot.Position.X.Whole & 8) != 0)
                 quadrant ^= 1;
         }
 

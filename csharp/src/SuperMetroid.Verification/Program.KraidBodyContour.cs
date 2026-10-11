@@ -17,14 +17,14 @@ internal static partial class Program
         Expression Field(string name) => Expression.PropertyOrField(shot, name);
         var nativeShot = Expression.New(shotType.GetConstructor(
             Enumerable.Repeat(typeof(ushort), 6).ToArray())!,
-            Field(nameof(SamusProjectileSlot.XPosition)), Field(nameof(SamusProjectileSlot.YPosition)),
-            Field(nameof(SamusProjectileSlot.XRadius)), Field(nameof(SamusProjectileSlot.YRadius)),
+            Field(nameof(SamusProjectileSlot.Position.X.Whole)), Field(nameof(SamusProjectileSlot.Position.Y.Whole)),
+            Field(nameof(SamusProjectileSlot.Radius.X)), Field(nameof(SamusProjectileSlot.Radius.Y)),
             Field(nameof(SamusProjectileSlot.Type)), Field(nameof(SamusProjectileSlot.Damage)));
         // Enter the body-contour branch at its exact Y threshold. The surrounding
         // mouth/body dispatch is covered by the encounter collision fixtures.
         var bottom = Expression.Convert(Expression.Subtract(Expression.Subtract(
-            Expression.Convert(Field(nameof(SamusProjectileSlot.YPosition)), typeof(int)),
-            Expression.Convert(Field(nameof(SamusProjectileSlot.YRadius)), typeof(int))),
+            Expression.Convert(Field(nameof(SamusProjectileSlot.Position.Y.Whole)), typeof(int)),
+            Expression.Convert(Field(nameof(SamusProjectileSlot.Radius.Y)), typeof(int))),
             Expression.Constant(1)), typeof(ushort));
         return Expression.Lambda<Func<RoomEnemySlot, SamusProjectileSlot, bool>>(
             Expression.Block([scratch],
@@ -45,16 +45,16 @@ internal static partial class Program
             short y = unchecked((short)raw);
             short expected = NativeKraidBodyLeftEdge(rom, y);
             body.YPosition = (ushort)raw;
-            shot.YPosition = unchecked((ushort)(raw + y));
+            shot.Position = shot.Position.WithWholeY(unchecked((ushort)(raw + y)));
             foreach (ushort bodyX in new ushort[] { 256, 32768, 65520 })
             foreach (ushort radius in new ushort[] { 0, 4, 16 })
             for (int delta = -1; delta <= 1; delta++)
             {
                 body.XPosition = bodyX;
-                shot.XRadius = radius;
-                shot.XPosition = unchecked((ushort)(bodyX + expected - radius + delta));
+                shot.Radius = shot.Radius.WithX(radius);
+                shot.Position = shot.Position.WithWholeX(unchecked((ushort)(bodyX + expected - radius + delta)));
                 bool reference = unchecked((short)(bodyX + expected -
-                    unchecked((ushort)(shot.XPosition + radius)))) < 0;
+                    unchecked((ushort)(shot.Position.X.Whole + radius)))) < 0;
                 AssertEqual(reference, overlaps(body, shot), "Actual contour collision edge, translation and strict inequality");
             }
         }

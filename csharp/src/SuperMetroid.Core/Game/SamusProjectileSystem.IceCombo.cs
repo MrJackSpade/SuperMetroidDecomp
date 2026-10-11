@@ -23,18 +23,18 @@ public sealed partial class SamusProjectileSystem
             slot.TrailTimer = 4;
             SpawnTrail(bus, slot);
         }
-        ushort distance = outward ? unchecked((ushort)slot.XVelocity) : (ushort)32;
+        ushort distance = outward ? unchecked((ushort)slot.Velocity.X) : (ushort)32;
         var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(slot.Variable, distance);
-        slot.XPosition = unchecked((ushort)(samus.Position.X.Whole + x));
-        if (outward && (unchecked((short)(slot.XPosition - camera.X + 32)) < 0 ||
-                        unchecked((short)(slot.XPosition - camera.X - 288)) >= 0))
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(samus.Position.X.Whole + x)));
+        if (outward && (unchecked((short)(slot.Position.X.Whole - camera.X + 32)) < 0 ||
+                        unchecked((short)(slot.Position.X.Whole - camera.X - 288)) >= 0))
         {
             ClearProjectile(slot);
             return 0;
         }
-        slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + y));
-        if (outward && (unchecked((short)(slot.YPosition - camera.Y - 16)) < 0 ||
-                        unchecked((short)(slot.YPosition - camera.Y - 256)) >= 0))
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole + y)));
+        if (outward && (unchecked((short)(slot.Position.Y.Whole - camera.Y - 16)) < 0 ||
+                        unchecked((short)(slot.Position.Y.Whole - camera.Y - 256)) >= 0))
         {
             ClearProjectile(slot);
             return 0;
@@ -42,15 +42,15 @@ public sealed partial class SamusProjectileSystem
         slot.Variable = unchecked((byte)(slot.Variable + ComboState));
         ushort sound = 0;
         if (outward)
-            slot.XVelocity = unchecked((byte)(slot.XVelocity + 8));
+            slot.Velocity = slot.Velocity.WithX(unchecked((byte)(slot.Velocity.X + 8)));
         else
         {
-            short oldLifetime = slot.YVelocity;
-            slot.YVelocity = unchecked((short)(oldLifetime - 1));
+            short oldLifetime = slot.Velocity.Y;
+            slot.Velocity = slot.Velocity.WithY(unchecked((short)(oldLifetime - 1)));
             if (oldLifetime == 1)
             {
                 slot.PreInstruction = SamusProjectilePreInstruction.IceComboOutward;
-                slot.XVelocity = 40;
+                slot.Velocity = slot.Velocity.WithX(40);
                 sound = 0x24;
             }
         }

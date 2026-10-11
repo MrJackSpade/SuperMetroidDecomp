@@ -17,13 +17,13 @@ public sealed partial class SamusProjectileSystem
             ClearProjectile(slot);
             return SamusComboRomData.WaveRemovalSound;
         }
-        slot.YVelocity = unchecked((short)(slot.YVelocity - 1));
-        if (slot.YVelocity <= 0)
+        slot.Velocity = slot.Velocity.WithY(unchecked((short)(slot.Velocity.Y - 1)));
+        if (slot.Velocity.Y <= 0)
         {
             ClearProjectile(slot);
             return SamusComboRomData.WaveRemovalSound;
         }
-        short oldXSpeed = slot.XVelocity;
+        short oldXSpeed = slot.Velocity.X;
         ushort oldTimer = slot.TrailTimer;
         slot.TrailTimer = unchecked((ushort)(oldTimer - 1));
         if (oldTimer == 1)
@@ -31,16 +31,16 @@ public sealed partial class SamusProjectileSystem
             slot.TrailTimer = 4;
             SpawnTrail(bus, slot);
         }
-        slot.XVelocity = AccelerateWaveAxis(slot.XVelocity, unchecked((short)(samus.Position.X.Whole - slot.XPosition)));
-        uint x = unchecked(((uint)slot.XPosition << 16) + slot.XSubposition + (uint)(slot.XVelocity << 8));
-        slot.XPosition = (ushort)(x >> 16); slot.XSubposition = unchecked((ushort)x);
-        short ySpeed = AccelerateWaveAxis(unchecked((short)slot.Variable), unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
+        slot.Velocity = slot.Velocity.WithX(AccelerateWaveAxis(slot.Velocity.X, unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole))));
+        uint x = unchecked(((uint)slot.Position.X.Whole << 16) + slot.Position.X.Fraction + (uint)(slot.Velocity.X << 8));
+        slot.Position = slot.Position.WithWholeX((ushort)(x >> 16)).WithFractionX(unchecked((ushort)x));
+        short ySpeed = AccelerateWaveAxis(unchecked((short)slot.Variable), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)));
         slot.Variable = unchecked((ushort)ySpeed);
-        uint y = unchecked(((uint)slot.YPosition << 16) + slot.YSubposition + (uint)(ySpeed << 8));
-        slot.YPosition = (ushort)(y >> 16); slot.YSubposition = unchecked((ushort)y);
+        uint y = unchecked(((uint)slot.Position.Y.Whole << 16) + slot.Position.Y.Fraction + (uint)(ySpeed << 8));
+        slot.Position = slot.Position.WithWholeY((ushort)(y >> 16)).WithFractionY(unchecked((ushort)y));
         shared.SetSharedCooldown(2);
         FlareCounter = 0;
-        return slot.SlotIndex == 3 && (oldXSpeed < 0) != (slot.XVelocity < 0) ? SamusComboRomData.WavePulseSound : (ushort)0;
+        return slot.SlotIndex == 3 && (oldXSpeed < 0) != (slot.Velocity.X < 0) ? SamusComboRomData.WavePulseSound : (ushort)0;
     }
 
     private static short AccelerateWaveAxis(short speed, short targetDelta)

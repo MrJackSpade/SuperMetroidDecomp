@@ -723,13 +723,12 @@ false,             CrashSequenceFinished: true);
             4 => _secondReleasedCrashEcho,
             _ => throw new InvalidOperationException("Crash echo requires fixed slot three or four.")
         };
-        echo.Radius = unchecked((ushort)projectile.XVelocity);
+        echo.Radius = unchecked((ushort)projectile.Velocity.X);
         echo.Angle = SnesAngle.FromTableIndex(unchecked((byte)projectile.Variable));
         if (!StepReleasedCrashEcho(samus, layer1,
             echo, projectileOwnsSlot: true)) return false;
-        projectile.XVelocity = unchecked((short)echo.Radius);
-        projectile.XPosition = echo.XPosition;
-        projectile.YPosition = echo.YPosition;
+        projectile.Velocity = projectile.Velocity.WithX(unchecked((short)echo.Radius));
+        projectile.Position = projectile.Position.WithWhole(new(echo.XPosition, echo.YPosition));
         return true;
     }
 

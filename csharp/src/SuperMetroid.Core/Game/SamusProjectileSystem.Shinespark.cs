@@ -17,7 +17,7 @@ public sealed partial class SamusProjectileSystem
         InitializeComboData(slot, ordinary: false, echo: true);
         slot.PreInstruction = SamusProjectilePreInstruction.ShinesparkEcho;
         slot.Variable = angle.TableIndex;
-        slot.XVelocity = 0;
+        slot.Velocity = slot.Velocity.WithX(0);
     }
 
     /// <summary>Runs only the live slot's installed $90:D4D2 handler.</summary>

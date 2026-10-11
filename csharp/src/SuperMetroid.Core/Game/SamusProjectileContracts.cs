@@ -29,22 +29,15 @@ public sealed class SamusProjectileSlot
     /// <summary>Lossless semantic view of <see cref="Direction"/>.</summary>
     public SamusProjectileDirectionWord PackedDirection => new(Direction);
 
-    /// <summary>Integer horizontal position in pixels.</summary>
-    public ushort XPosition { get; internal set; }
-    /// <summary>Integer vertical position in pixels.</summary>
-    public ushort YPosition { get; internal set; }
-    /// <summary>Fractional horizontal position word.</summary>
-    public ushort XSubposition { get; internal set; }
-    /// <summary>Fractional vertical position word.</summary>
-    public ushort YSubposition { get; internal set; }
-    /// <summary>Signed horizontal velocity component.</summary>
-    public short XVelocity { get; internal set; }
-    /// <summary>Signed vertical velocity component.</summary>
-    public short YVelocity { get; internal set; }
-    /// <summary>Horizontal collision radius in pixels.</summary>
-    public ushort XRadius { get; internal set; }
-    /// <summary>Vertical collision radius in pixels.</summary>
-    public ushort YRadius { get; internal set; }
+    /// <summary>Room-pixel 16.16 position: whole words <c>$0B64/$0B78</c>, subpixels <c>$0B8C/$0BA0</c>.</summary>
+    public FixedPosition<RoomPixels> Position { get; internal set; }
+    /// <summary>
+    /// Signed 8.8 per-frame velocity words <c>$0C2C/$0C40</c>. Charge combos reuse the same two
+    /// WRAM words for their own orbit radius, lifetime and phase counters.
+    /// </summary>
+    public Vector88<RoomPixels> Velocity { get; internal set; }
+    /// <summary>Collision half-extents in pixels.</summary>
+    public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>Bank-$93 instruction-list pointer; zero marks the slot inactive for animation.</summary>
     public ushort InstructionPointer { get; internal set; }
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
@@ -83,14 +76,9 @@ public sealed class SamusProjectileSlot
         Damage = 0;
         Type = 0;
         Direction = 0;
-        XPosition = 0;
-        YPosition = 0;
-        XSubposition = 0;
-        YSubposition = 0;
-        XVelocity = 0;
-        YVelocity = 0;
-        XRadius = 0;
-        YRadius = 0;
+        Position = FixedPosition<RoomPixels>.Zero;
+        Velocity = Vector88<RoomPixels>.Zero;
+        Radius = Extent16<RoomPixels>.Zero;
         InstructionPointer = 0;
         InstructionTimer = 0;
         SpritemapPointer = 0;
@@ -107,13 +95,10 @@ public sealed class SamusProjectileSlot
     internal void ClearForProjectileDataReset()
     {
         TrailTimer = 0;
-        XPosition = 0;
-        YPosition = 0;
+        Position = Position.WithWhole(Position16<RoomPixels>.Zero);
         Direction = 0;
-        XVelocity = 0;
-        YVelocity = 0;
-        XRadius = 0;
-        YRadius = 0;
+        Velocity = Vector88<RoomPixels>.Zero;
+        Radius = Extent16<RoomPixels>.Zero;
         Type = 0;
         Damage = 0;
         InstructionPointer = 0;
@@ -197,10 +182,8 @@ public sealed class SamusProjectileTrailSlot
 /// <summary>One side of a two-stream bank-$90 projectile-trail animation.</summary>
 public sealed class SamusProjectileTrailSide
 {
-    /// <summary>Horizontal trail-sprite position in pixels.</summary>
-    public ushort XPosition { get; internal set; }
-    /// <summary>Vertical trail-sprite position in pixels.</summary>
-    public ushort YPosition { get; internal set; }
+    /// <summary>Room-pixel trail-sprite position.</summary>
+    public Position16<RoomPixels> Position { get; internal set; }
     /// <summary>Updates remaining before the current trail instruction advances.</summary>
     public ushort InstructionTimer { get; internal set; }
     /// <summary>Bank-$90 pointer to the current trail instruction.</summary>
@@ -210,8 +193,7 @@ public sealed class SamusProjectileTrailSide
 
     internal void ClearFields()
     {
-        XPosition = 0;
-        YPosition = 0;
+        Position = Position16<RoomPixels>.Zero;
         InstructionTimer = 0;
         InstructionPointer = 0;
         TileNumberAttributes = 0;

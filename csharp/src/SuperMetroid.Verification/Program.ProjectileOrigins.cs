@@ -22,8 +22,8 @@ internal static partial class Program
             short dy = Word((running ? 0x90c240 : 0x90c218) + offset);
             byte correction = rom.ReadByte(0x91b629 + (int)pose * 8 + 4);
             initialize(bus, samus, slot);
-            AssertEqual(unchecked((ushort)(x + dx)), slot.XPosition, "Physical muzzle X follows native direction/table selection");
-            AssertEqual(unchecked((ushort)(y + dy - correction)), slot.YPosition, "Physical muzzle Y follows native signed origin and unsigned pose correction");
+            AssertEqual(unchecked((ushort)(x + dx)), slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
+            AssertEqual(unchecked((ushort)(y + dy - correction)), slot.Position.Y.Whole, "Physical muzzle Y follows native signed origin and unsigned pose correction");
             AssertEqual(direction, slot.Direction, "Origin lookup does not rewrite lifecycle/direction bits");
             AssertEqual(x, samus.Position.X.Whole, "Origin setup leaves Samus X unchanged");
             AssertEqual(y, samus.Position.Y.Whole, "Origin setup leaves Samus Y unchanged");

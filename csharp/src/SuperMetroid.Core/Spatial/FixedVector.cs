@@ -31,6 +31,10 @@ public readonly record struct FixedVector<TSpace>(SnesSignedSixteenSixteen X, Sn
     /// <summary>Replaces the Y axis.</summary>
     public FixedVector<TSpace> WithY(SnesSignedSixteenSixteen y) => this with { Y = y };
 
+    /// <summary>Replaces both whole words, keeping both fraction words.</summary>
+    public FixedVector<TSpace> WithWhole(Offset16<TSpace> whole) =>
+        new(X.WithWholePixels(whole.X), Y.WithWholePixels(whole.Y));
+
     /// <summary>Replaces only the X whole word, as cartridge routines that store one half do.</summary>
     public FixedVector<TSpace> WithWholeX(short wholePixels) => WithX(X.WithWholePixels(wholePixels));
 

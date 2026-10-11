@@ -59,8 +59,7 @@ internal static partial class Program
         var body = new SamusKinematicsState { ExtraDisplacement = FixedVector<RoomPixels>.FromWords(5, 0x1111, 6, 0x2222) };
         body.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
         body.ExtraDisplacement += new Offset16<RoomPixels>(0, 3);
-        body.ExtraDisplacement = body.ExtraDisplacement.WithFractionY(0x8000);
-        body.ExtraDisplacement = body.ExtraDisplacement.WithWholeY(-1);
+        body.ExtraDisplacement = body.ExtraDisplacement.WithFractionY(0x8000).WithWholeY(-1);
         AssertEqual(FixedVector<RoomPixels>.FromWords(0, 0, 0xffff, 0x8000), body.ExtraDisplacement,
             "clear, add, then whole-word assignment keeps the producer's fraction");
     }

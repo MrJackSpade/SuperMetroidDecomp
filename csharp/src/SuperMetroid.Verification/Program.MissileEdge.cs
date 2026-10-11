@@ -29,8 +29,8 @@ internal static partial class Program
                 if (frame == 0) AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
                     "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Slots[0];
-                ushort[] actual = [shot.XPosition, shot.XSubposition, shot.YPosition, shot.YSubposition,
-                    unchecked((ushort)shot.XVelocity), unchecked((ushort)shot.YVelocity), shot.Type, shot.InstructionPointer];
+                ushort[] actual = [shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
+                    unchecked((ushort)shot.Velocity.X), unchecked((ushort)shot.Velocity.Y), shot.Type, shot.InstructionPointer];
                 AssertTrue(actual.SequenceEqual(native[(edge, frame)]),
                     $"Missile edge={edge} frame={frame} native comparison: {string.Join(',', actual.Select(v => v.ToString("X4")))}");
                 compared++;

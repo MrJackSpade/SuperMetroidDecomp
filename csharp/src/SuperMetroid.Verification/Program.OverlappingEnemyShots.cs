@@ -37,8 +37,8 @@ internal static partial class Program
         shot.Type = 0x8100;
         shot.Damage = 100;
         shot.Direction = 2;
-        shot.XPosition = shot.YPosition = 128;
-        shot.XRadius = shot.YRadius = 4;
+        shot.Position = shot.Position.WithWhole(new(128, 128));
+        shot.Radius = new(4, 4);
         shot.InstructionPointer = 0x9000;
         shot.InstructionTimer = 1;
         shot.PreInstruction = SamusProjectilePreInstruction.Missile;

@@ -144,8 +144,8 @@ internal static partial class Program
                     "active-Power-Bomb Chainsaw allocation");
             AssertEqual(nextLists[update], slot.InstructionPointer, $"active Chainsaw next list {update}");
             AssertEqual(spritemaps[update], slot.SpritemapPointer, $"active Chainsaw spritemap {update}");
-            AssertEqual((ushort)8, slot.XRadius, $"active Chainsaw X radius {update}");
-            AssertEqual(yRadii[update], slot.YRadius, $"active Chainsaw Y radius {update}");
+            AssertEqual((ushort)8, slot.Radius.X, $"active Chainsaw X radius {update}");
+            AssertEqual(yRadii[update], slot.Radius.Y, $"active Chainsaw Y radius {update}");
             AssertEqual((byte)inheritedY[update], activeProjectiles.ChainsawWindowRegisters.ReadByte(
                 GameplayWindowRegisterAddresses.Window12Selection), $"active Chainsaw inherited Y low {update}");
             AssertEqual((byte)(inheritedY[update] >> 8), activeProjectiles.ChainsawWindowRegisters.ReadByte(

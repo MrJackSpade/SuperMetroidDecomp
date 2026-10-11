@@ -266,7 +266,7 @@ public sealed partial class RoomEnemySystem
                 // Native writes only the whole displacement words, so preserve both
                 // fractional words exactly as they were before contact.
                 _ = RequireKraidState(slot);
-                samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(4).WithWholeY(-8);
+                samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
                 _slots[4].VariableA = (ushort)KraidAiFunction.LintFire;
                 ResolveNormalEnemyTouch(
                     slot,
@@ -872,10 +872,10 @@ public sealed partial class RoomEnemySystem
                 {
                     overlapsProjectile = TryFindExtendedHitboxCallback(
                         enemy,
-                        projectile.XPosition,
-                        projectile.YPosition,
-                        projectile.XRadius,
-                        projectile.YRadius,
+                        projectile.Position.X.Whole,
+                        projectile.Position.Y.Whole,
+                        projectile.Radius.X,
+                        projectile.Radius.Y,
                         selectShotCallback: true,
                         out hitboxShotAiPointer);
                 }
@@ -886,10 +886,10 @@ public sealed partial class RoomEnemySystem
                         enemy.YPosition,
                         enemy.XRadius,
                         enemy.YRadius,
-                        projectile.XPosition,
-                        projectile.YPosition,
-                        projectile.XRadius,
-                        projectile.YRadius);
+                        projectile.Position.X.Whole,
+                        projectile.Position.Y.Whole,
+                        projectile.Radius.X,
+                        projectile.Radius.Y);
                 }
 
                 EnemyInteractionCallback? hitboxShotAi = HitboxCallback(enemy, hitboxShotAiPointer);
@@ -1123,8 +1123,8 @@ public sealed partial class RoomEnemySystem
                     {
                         SpawnKraidArmShotExplosion(
                             projectileType,
-                            projectile.XPosition,
-                            projectile.YPosition);
+                            projectile.Position.X.Whole,
+                            projectile.Position.Y.Whole);
                     }
                     hitCount++;
                     break;
@@ -1146,8 +1146,8 @@ public sealed partial class RoomEnemySystem
                         markCollision);
                     ResolveCrocomireHitboxShot(
                         projectile.Type,
-                        projectile.XPosition,
-                        projectile.YPosition,
+                        projectile.Position.X.Whole,
+                        projectile.Position.Y.Whole,
                         hitboxShotAiPointer);
                     hitCount++;
                     break;
@@ -1312,8 +1312,8 @@ public sealed partial class RoomEnemySystem
                         enemy,
                         projectile.Type,
                         projectile.Damage,
-                        projectiles.Slots[0].XPosition,
-                        projectiles.Slots[0].YPosition,
+                        projectiles.Slots[0].Position.X.Whole,
+                        projectiles.Slots[0].Position.Y.Whole,
                         samus);
                     hitCount++;
                     break;
@@ -1777,7 +1777,7 @@ public sealed partial class RoomEnemySystem
                     bomb.BombTimer != 0 ||
                     (usesExtendedHitboxes
                         ? family != SamusProjectileFamily.Bomb ||
-                          bomb.XPosition == 0
+                          bomb.Position.X.Whole == 0
                         : family != SamusProjectileFamily.Bomb &&
                           (bomb.Type & 0x8000) == 0))
                 {
@@ -1788,10 +1788,10 @@ public sealed partial class RoomEnemySystem
                 bool overlaps = usesExtendedHitboxes
                     ? TryFindExtendedHitboxCallback(
                         enemy,
-                        bomb.XPosition,
-                        bomb.YPosition,
-                        bomb.XRadius,
-                        bomb.YRadius,
+                        bomb.Position.X.Whole,
+                        bomb.Position.Y.Whole,
+                        bomb.Radius.X,
+                        bomb.Radius.Y,
                         selectShotCallback: true,
                         out selectedShotAiPointer)
                     : RadiusBoxesOverlap(
@@ -1799,10 +1799,10 @@ public sealed partial class RoomEnemySystem
                         enemy.YPosition,
                         enemy.XRadius,
                         enemy.YRadius,
-                        bomb.XPosition,
-                        bomb.YPosition,
-                        bomb.XRadius,
-                        bomb.YRadius);
+                        bomb.Position.X.Whole,
+                        bomb.Position.Y.Whole,
+                        bomb.Radius.X,
+                        bomb.Radius.Y);
                 EnemyInteractionCallback? selectedShotAi = HitboxCallback(enemy, selectedShotAiPointer);
                 if (!overlaps)
                 {
@@ -1835,8 +1835,8 @@ public sealed partial class RoomEnemySystem
                     // no-op counter, dust, or mouth reaction selected by the authored map.
                     ResolveCrocomireHitboxShot(
                         bomb.Type,
-                        bomb.XPosition,
-                        bomb.YPosition,
+                        bomb.Position.X.Whole,
+                        bomb.Position.Y.Whole,
                         selectedShotAiPointer);
                 }
                 else if (enemy.EnemyDefinitionPointer is
@@ -1859,8 +1859,8 @@ public sealed partial class RoomEnemySystem
                     {
                         SpawnKraidArmShotExplosion(
                             bomb.Type,
-                            bomb.XPosition,
-                            bomb.YPosition);
+                            bomb.Position.X.Whole,
+                            bomb.Position.Y.Whole);
                     }
                 }
                 else if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja &&
@@ -1902,8 +1902,8 @@ public sealed partial class RoomEnemySystem
                             enemy,
                             bomb.Type,
                             bomb.Damage,
-                            recoilOrigin.XPosition,
-                            recoilOrigin.YPosition,
+                            recoilOrigin.Position.X.Whole,
+                            recoilOrigin.Position.Y.Whole,
                             samus);
                     }
                 }

@@ -134,9 +134,8 @@ internal static class RetailKraidCaptureTests
         var shot = shots.Slots[0];
         shot.Type = KraidCaptureDefinitions.AuditMissileType;
         shot.Damage = 100; shot.Direction = (ushort)SamusProjectileDirection.Right;
-        shot.XPosition = unchecked((ushort)(body.XPosition + left + 2));
-        shot.YPosition = unchecked((ushort)(body.YPosition + (top + bottom) / 2));
-        shot.XRadius = 2; shot.YRadius = 2;
+        shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.XPosition + left + 2)), unchecked((ushort)(body.YPosition + (top + bottom) / 2))));
+        shot.Radius = shot.Radius.WithX(2).WithY(2);
         shot.InstructionPointer = KraidCaptureDefinitions.AuditLiveInstruction;
         shot.InstructionTimer = 1;
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.

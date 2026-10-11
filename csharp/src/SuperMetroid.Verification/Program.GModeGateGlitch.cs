@@ -104,7 +104,7 @@ internal static partial class Program
                 roomPlms: plms);
 
             SamusProjectileSlot shot = shots.Slots[0];
-            if (shot.Type != 0 && shot.XPosition < 112 && passedGateFrame < 0)
+            if (shot.Type != 0 && shot.Position.X.Whole < 112 && passedGateFrame < 0)
                 passedGateFrame = frame;
 
             if (!samus.Xray.ArePlmsSuspended)

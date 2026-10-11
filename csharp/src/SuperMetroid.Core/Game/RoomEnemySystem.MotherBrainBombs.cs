@@ -100,10 +100,10 @@ public sealed partial class RoomEnemySystem
                     bomb.YPosition,
                     bomb.XRadius,
                     bomb.YRadius,
-                    samusBomb.XPosition,
-                    samusBomb.YPosition,
-                    samusBomb.XRadius,
-                    samusBomb.YRadius))
+                    samusBomb.Position.X.Whole,
+                    samusBomb.Position.Y.Whole,
+                    samusBomb.Radius.X,
+                    samusBomb.Radius.Y))
             {
                 continue;
             }

@@ -118,7 +118,7 @@ internal static partial class Program
                 if (gate.LoopTimer != 0)
                 {
                     SamusProjectileSlot shot = shots.Slots[0];
-                    actual.Add($"{x},{y},{frame},{shot.XPosition},{shot.YPosition}");
+                    actual.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
                     break;
                 }
                 plms.Step(bus, level, streamer, (ushort)cameraX, (ushort)cameraY, 0);
@@ -237,8 +237,8 @@ internal static partial class Program
             // The switch consumes the projectile type in the same frame but, as on the
             // cartridge, slot zero retains the impact coordinates used by this trace.
             SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
-            shotX = shot.XPosition;
-            shotY = shot.YPosition;
+            shotX = shot.Position.X.Whole;
+            shotY = shot.Position.Y.Whole;
             break;
         }
 

@@ -64,8 +64,8 @@ internal static partial class Program
             // Positive control: move only the eligible enemy onto the unchanged
             // live projectile. A real collision proves the negative was spatial,
             // not a dead projectile, inactive enemy or disabled collision path.
-            enemy.XPosition = shots.Slots[0].XPosition;
-            enemy.YPosition = shots.Slots[0].YPosition;
+            enemy.XPosition = shots.Slots[0].Position.X.Whole;
+            enemy.YPosition = shots.Slots[0].Position.Y.Whole;
             AssertEqual(1, runtime.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs), "World-space overlap reaches the same enemy collision dispatcher");
         }
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");

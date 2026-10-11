@@ -31,7 +31,7 @@ internal static partial class Program
         samus.Position = samus.Position.WithWhole(new(0x007f, 0x019a));
         samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = 0;
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(0).WithWholeY(0);
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(0, 0));
         // The header radius box (top $1AF) misses Samus's feet at $1AD; the arm frame does not.
         AssertTrue(!RadiusBoxesOverlapForArm(arm, samus), "the header radius alone does not reach Samus");
 

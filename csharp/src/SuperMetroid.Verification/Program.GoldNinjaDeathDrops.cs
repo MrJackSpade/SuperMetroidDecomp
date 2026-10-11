@@ -33,8 +33,8 @@ internal static partial class Program
 
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;
-        shot.XPosition = target.X; shot.YPosition = target.Y;
-        shot.XRadius = shot.YRadius = 4;
+        shot.Position = shot.Position.WithWhole(new(target.X, target.Y));
+        shot.Radius = new(4, 4);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: pirate.NativeIndex);

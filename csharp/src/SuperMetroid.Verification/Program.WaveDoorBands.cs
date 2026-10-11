@@ -20,11 +20,11 @@ internal static partial class Program
             var plms = new RoomPlmSystem();
             var shot = new SamusProjectileSlot(0)
             {
-                XPosition = 72, YPosition = y, XRadius = 1, YRadius = 0,
-                XVelocity = (short)(left ? -1 : 1), Type = (ushort)SamusBeamFlags.Wave,
+                Position = new(new(72, 0), new(y, 0)), Radius = new(1, 0),
+                Velocity = new((short)(left ? -1 : 1), 0), Type = (ushort)SamusBeamFlags.Wave,
             };
             // A one-pixel span avoids testing adjacent-row aggregation at the boundary.
-            shot.YRadius = 1;
+            shot.Radius = shot.Radius.WithY(1);
             if (inside && (y & 15) == 0 && y > 0)
             {
                 words[target - 16] = words[target];

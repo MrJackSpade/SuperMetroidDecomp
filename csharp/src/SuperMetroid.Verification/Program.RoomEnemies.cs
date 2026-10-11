@@ -328,8 +328,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
     owner.Type = 0x8200;
     owner.Damage = 0x012c;
     owner.Direction = (ushort)SamusProjectileDirection.Right;
-    owner.XPosition = 0x01b7;
-    owner.YPosition = 0x0196;
+    owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
     owner.InstructionPointer = 0x9f3b;
     owner.InstructionTimer = 15;
     owner.SpritemapPointer = 0xae0f;
@@ -339,8 +338,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
     link.Type = 0x8200;
     link.Damage = 0x012c;
     link.Direction = (ushort)SamusProjectileDirection.Right;
-    link.XPosition = 0x01af;
-    link.YPosition = 0x0196;
+    link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
     link.InstructionPointer = 0x9f7b;
     link.InstructionTimer = 1;
     link.SpritemapPointer = 0;
@@ -635,10 +633,8 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         projectile.Type = type;
         projectile.Damage = damage;
         projectile.Direction = 2;
-        projectile.XPosition = target.XPosition;
-        projectile.YPosition = target.YPosition;
-        projectile.XRadius = 4;
-        projectile.YRadius = 4;
+        projectile.Position = projectile.Position.WithWhole(new(target.XPosition, target.YPosition));
+        projectile.Radius = new(4, 4);
         projectile.InstructionPointer = 0x9000;
         projectile.InstructionTimer = 1;
     }
@@ -1412,7 +1408,7 @@ static void VerifyCeresRidleyRoomEntry()
             sharedProjectiles);
         AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
-        AssertTrue(projectiles.Slots[0].XPosition - projectiles.Slots[0].XRadius > ridley.XPosition + 8,
+        AssertTrue(projectiles.Slots[0].Position.X.Whole - projectiles.Slots[0].Radius.X > ridley.XPosition + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
         AssertEqual(1, enemies.ResolveCeresRidleyProjectileHits(
             bus, projectiles, sharedProjectiles),

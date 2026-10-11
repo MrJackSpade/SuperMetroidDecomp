@@ -43,7 +43,7 @@ internal static partial class Program
         {
             var shot = shots.Slots[slot];
             shot.Type = 0x8200; shot.Damage = 300; shot.Direction = 7;
-            shot.XPosition = shot.YPosition = 128; shot.XRadius = shot.YRadius = pair[slot].Radius;
+            shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(pair[slot].Radius, pair[slot].Radius);
             shot.InstructionPointer = pair[slot].List; shot.InstructionTimer = 1;
             shot.PreInstruction = pair[slot].Pre;
         }

@@ -51,9 +51,9 @@ internal static partial class Program
                     3 or 4 or 5 or 6 => baseSpeed + bus.Word(0x0db5),
                     _ => 0,
                 }));
-                if (slot.XVelocity == expectedX && slot.YVelocity == expectedY) continue;
+                if (slot.Velocity.X == expectedX && slot.Velocity.Y == expectedY) continue;
                 failures++;
-                Console.WriteLine($"Snapshot {sample}, direction {direction}: native ({expectedX:X4},{expectedY:X4}), port ({slot.XVelocity:X4},{slot.YVelocity:X4})");
+                Console.WriteLine($"Snapshot {sample}, direction {direction}: native ({expectedX:X4},{expectedY:X4}), port ({slot.Velocity.X:X4},{slot.Velocity.Y:X4})");
             }
         }
         AssertEqual(0, failures, "Projectile initialization must inherit native movement/camera overlapping words");
@@ -140,9 +140,9 @@ internal static partial class Program
         runtime.StepFrame((ushort)((ushort)SnesButton.Right | runtime.ControllerBindings.Shoot));
         restored.StepFrame((ushort)((ushort)SnesButton.Right | restored.ControllerBindings.Shoot));
         var shot = runtime.Projectiles!.Slots.First(slot => slot.IsActive);
-        AssertEqual(expected, shot.XVelocity,
+        AssertEqual(expected, shot.Velocity.X,
             "Next alpha fires using prior beta displacement before reset and this-frame movement");
-        AssertEqual(expected, restored.Projectiles!.Slots.First(slot => slot.IsActive).XVelocity,
+        AssertEqual(expected, restored.Projectiles!.Slots.First(slot => slot.IsActive).Velocity.X,
             "Debugger graph round trip retains native WRAM inheritance for resumed launch");
         AssertEqual(runtime.Camera!.CameraYSubspeed, Word(0x0da8),
             "Runtime publishes camera Y subspeed into the native shared record");

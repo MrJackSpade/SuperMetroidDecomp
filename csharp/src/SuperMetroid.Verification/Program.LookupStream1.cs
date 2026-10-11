@@ -2065,8 +2065,8 @@ internal static partial class Program
             var slot = new SamusProjectileSlot(0) { Type = combination, Direction = direction };
             initialize(guarded, slot);
             int speed = unchecked((short)Word(0x90c2d1 + combination * 4 + (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
-            AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.XVelocity, "stream1 actual initializer X preserves adjacent missile-data overread");
-            AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)), slot.YVelocity, "stream1 actual initializer Y preserves adjacent missile-data overread");
+            AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.Velocity.X, "stream1 actual initializer X preserves adjacent missile-data overread");
+            AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)), slot.Velocity.Y, "stream1 actual initializer Y preserves adjacent missile-data overread");
         }
     }
     private static void VerifyLookupStream1Selection(ISnesAddressSpace rom)
@@ -3169,8 +3169,8 @@ internal static partial class Program
                 AssertTrue(!shots.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
                 AssertEqual(duration, slot.InstructionTimer, "Actual timer unchanged");
                 AssertEqual(sprite, slot.SpritemapPointer, "Independent installed artwork selection");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), slot.XRadius, "Actual X radius independent of art edit");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), slot.YRadius, "Actual Y radius independent of art edit");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius independent of art edit");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius independent of art edit");
                 AssertEqual(Word(0x930000 | (pointer + 6)), slot.AnimationFrame, "Actual trail phase unchanged");
                 AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
                 interpreted++;
@@ -3179,8 +3179,8 @@ internal static partial class Program
                 AssertTrue(!(bool)runBomb.Invoke(bombs, [bomb])!, "Actual bomb timed frame survives");
                 AssertEqual(duration, bomb.InstructionTimer, "Actual bomb timer unchanged");
                 AssertEqual(sprite, bomb.SpritemapPointer, "Independent bomb artwork selection");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), bomb.XRadius, "Actual bomb X radius");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), bomb.YRadius, "Actual bomb Y radius");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), bomb.Radius.X, "Actual bomb X radius");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), bomb.Radius.Y, "Actual bomb Y radius");
                 AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Actual bomb record progression");
                 bombInterpreted++;
             }
@@ -3294,10 +3294,10 @@ internal static partial class Program
                     deletions++; finished = true; break;
                 }
                 AssertEqual((timer, pointer, sprite, x, y, trail),
-                    (slot.InstructionTimer, slot.InstructionPointer, slot.SpritemapPointer, slot.XRadius, slot.YRadius, slot.AnimationFrame),
+                    (slot.InstructionTimer, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame),
                     "Every scheduled projectile exposure/physical envelope/trail phase matches native");
                 AssertEqual((timer, pointer, sprite, x, y),
-                    (bomb.InstructionTimer, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.XRadius, bomb.YRadius),
+                    (bomb.InstructionTimer, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
                     "Every scheduled bomb exposure/physical envelope matches native");
                 slot.AnimationFrame = 0xbeef;
                 AssertEqual(trail, (ushort)readTrail.Invoke(null, [slot])!, "Actual trail consumer reads prior record, not next phase or cached frame");

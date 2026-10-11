@@ -64,7 +64,7 @@ internal static partial class Program
             {
                 // The explosion is anchored at the beam's leading edge: the slope column
                 // or, for a beam that passed it, the wall four blocks further on.
-                int column = shot.XPosition >> 4;
+                int column = shot.Position.X.Whole >> 4;
                 if (column is not (SlopeColumn or WallColumn))
                     throw new InvalidOperationException($"Beam exploded at column {column}, neither the slope nor the wall.");
                 return column == SlopeColumn;

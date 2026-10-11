@@ -47,10 +47,10 @@ internal static partial class Program
                     long expectedX = 512L * 65536 + tick * (encodedX & 0x7fff) * 256L * ((encodedX & 0x8000) == 0 ? 1 : -1);
                     long expectedY = 512L * 65536 + tick * initialY + 0x1c00L * tick * (tick + 1) / 2;
                     string context = $"hold {hold}, down {keepDown}, tick {tick}, slot {slotIndex}";
-                    AssertEqual((ushort)(expectedX >> 16), slot.XPosition, $"spread X: {context}");
-                    AssertEqual((ushort)expectedX, slot.XSubposition, $"spread X fraction: {context}");
-                    AssertEqual((ushort)(expectedY >> 16), slot.YPosition, $"spread Y: {context}");
-                    AssertEqual((ushort)expectedY, slot.YSubposition, $"spread Y fraction: {context}");
+                    AssertEqual((ushort)(expectedX >> 16), slot.Position.X.Whole, $"spread X: {context}");
+                    AssertEqual((ushort)expectedX, slot.Position.X.Fraction, $"spread X fraction: {context}");
+                    AssertEqual((ushort)(expectedY >> 16), slot.Position.Y.Whole, $"spread Y: {context}");
+                    AssertEqual((ushort)expectedY, slot.Position.Y.Fraction, $"spread Y fraction: {context}");
                     AssertEqual((ushort)(Read(SamusBombSpreadRomData.FuseTimers) - tick), slot.BombTimer, $"individual spread fuse: {context}");
                 }
             }

@@ -42,8 +42,8 @@ internal static partial class Program
         {
             SamusProjectileSlot shot = runtime.Projectiles.Slots[index];
             shot.Type = 0x8200; shot.Damage = 300; shot.Direction = 2;
-            shot.XPosition = 0x00c5; shot.YPosition = 0x0164;
-            shot.XRadius = shot.YRadius = 8;
+            shot.Position = shot.Position.WithWhole(new(0x00c5, 0x0164));
+            shot.Radius = new(8, 8);
             shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
         }
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,

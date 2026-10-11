@@ -18,7 +18,7 @@ public sealed partial class RoomEnemySystem
         ushort nextY = unchecked((ushort)(samus.Position.Y.Whole - KraidContactDefinitions.BodyEjection));
         samus.Position = samus.Position.WithWholeY(unchecked((short)(nextY - state.MinimumYPositionForEjection)) < 0
             ? state.MinimumYPositionForEjection : nextY);
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(KraidContactDefinitions.ExtraX).WithWholeY(KraidContactDefinitions.ExtraY);
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(KraidContactDefinitions.ExtraX, KraidContactDefinitions.ExtraY));
         if (samus.InvincibilityTimer == 0)
             ResolveNormalEnemyTouch(body, samus);
     }

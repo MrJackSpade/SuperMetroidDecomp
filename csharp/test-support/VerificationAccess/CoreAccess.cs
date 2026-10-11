@@ -172,7 +172,7 @@ internal static partial class CoreAccess
         {
             object scratch = PrivateState.Invoke(enemies, "LoadKraidCollisionScratch", body, hitboxPointer)!;
             object collision = PrivateState.Construct(PrivateState.Nested(typeof(RoomEnemySystem), "KraidCollisionShot"),
-                shot.XPosition, shot.YPosition, shot.XRadius, shot.YRadius, shot.Type, shot.Damage);
+                shot.Position.X.Whole, shot.Position.Y.Whole, shot.Radius.X, shot.Radius.Y, shot.Type, shot.Damage);
             return (bool)PrivateState.Invoke(scratch, "OverlapsMouth", collision)!;
         }
 

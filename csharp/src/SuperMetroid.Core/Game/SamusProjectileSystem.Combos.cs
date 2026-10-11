@@ -53,17 +53,16 @@ public sealed partial class SamusProjectileSystem
                     : (ushort)0;
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
                 {
-                    slot.XSubposition = slot.YSubposition = 0;
-                    slot.XVelocity = kind == SamusComboKind.Wave ? (short)0 : (short)40;
+                    slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
+                    slot.Velocity = slot.Velocity.WithX(kind == SamusComboKind.Wave ? (short)0 : (short)40);
                 }
                 if (kind == SamusComboKind.Spazer) slot.AuxiliaryPhase = SpazerComboPhase.Circling;
-                if (kind == SamusComboKind.Plasma) slot.XVelocity = 40;
-                slot.YVelocity = kind is SamusComboKind.Wave or SamusComboKind.Ice ? (short)600
-                    : kind == SamusComboKind.Spazer ? (short)((i & 1) == 0 ? 4 : -4) : (short)0;
+                if (kind == SamusComboKind.Plasma) slot.Velocity = slot.Velocity.WithX(40);
+                slot.Velocity = slot.Velocity.WithY(kind is SamusComboKind.Wave or SamusComboKind.Ice ? (short)600
+                    : kind == SamusComboKind.Spazer ? (short)((i & 1) == 0 ? 4 : -4) : (short)0);
                 if (kind == SamusComboKind.Wave)
                 {
-                    slot.XPosition = unchecked((ushort)(samus.Position.X.Whole + (i < 2 ? 128 : -128)));
-                    slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + (i is 0 or 3 ? 128 : -128)));
+                    slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + (i < 2 ? 128 : -128))), unchecked((ushort)(samus.Position.Y.Whole + (i is 0 or 3 ? 128 : -128)))));
                 }
                 if (kind == SamusComboKind.Spazer && i >= 2) slot.Type = SamusComboRomData.SpazerTrailType;
                 InitializeComboData(slot, kind == SamusComboKind.Ice, kind == SamusComboKind.Spazer && i >= 2);
@@ -98,8 +97,7 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionTimer = 1;
         if (ordinary)
         {
-            slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 4));
-            slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 5));
+            slot.Radius = new(SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 4)), SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 5)));
         }
     }
 }

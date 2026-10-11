@@ -28,8 +28,8 @@ internal static partial class Program
         shots.StepFrame(bus, level, samus, input, input, new(0, 224), bombs, roomPlms: plms);
         var shot = shots.Slots[0];
         AssertEqual((ushort)0x8700, shot.Type, "Native beam impacts gate during producer collision");
-        AssertEqual((ushort)113, shot.XPosition, "Native impact X, before any continuing flight");
-        AssertEqual((ushort)329, shot.YPosition, "Native impact Y");
+        AssertEqual((ushort)113, shot.Position.X.Whole, "Native impact X, before any continuing flight");
+        AssertEqual((ushort)329, shot.Position.Y.Whole, "Native impact Y");
         AssertEqual((ushort)0xa00f, shot.InstructionPointer, "Same-frame native impact instruction advancement");
         AssertTrue(plms.PopulationSlots.Where(s => s.HeaderPointer == PlmHeaderId.DownwardGate)
             .All(s => s.LoopTimer == 0), "Beam cannot wake the wrong-side switch through the gate body");
@@ -55,8 +55,8 @@ internal static partial class Program
             if (full)
                 for (int i = 0; i < 40; i++)
                     AssertTrue(plms.TrySpawnProjectileShotBlock(level, first, (byte)0x10, 0, true), "Fill gate probe pool");
-            var shot = new SamusProjectileSlot(0) { XPosition = 33, YPosition = 33,
-                XRadius = 17, YRadius = 17, XVelocity = -1, YVelocity = -1 };
+            var shot = new SamusProjectileSlot(0) { Position = new(new(33, 0), new(33, 0)),
+                Radius = new(17, 17), Velocity = new(-1, -1) };
             string method = $"Scan{(horizontal ? "Horizontal" : "Vertical")}{(wave ? "Wave" : "")}ShotReactions";
             object? result = typeof(SamusProjectileSystem).GetMethod(method,
                 System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!

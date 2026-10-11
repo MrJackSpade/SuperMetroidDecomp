@@ -105,12 +105,11 @@ internal static partial class Program
                 Type = type,
                 Direction = direction,
                 InstructionPointer = unchecked((ushort)(compiledFrameWordAddresses[frame] + 2)),
-                XPosition = origin,
-                YPosition = origin,
+                Position = new(new(origin, 0), new(origin, 0)),
             };
             spawn(new TrailCoordinateGuard(bus), shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
-            AssertEqual(expected, (actual.Left.XPosition, actual.Left.YPosition, actual.Right.XPosition, actual.Right.YPosition), "Real trail spawn matches four native signed positions at coordinate wrap boundaries");
+            AssertEqual(expected, (actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y), "Real trail spawn matches four native signed positions at coordinate wrap boundaries");
             AssertEqual(1, actual.Left.InstructionTimer, "Compiled coordinates retain spawn timing");
             cases++;
         }
@@ -134,7 +133,7 @@ internal static partial class Program
             system.Reset();
             var shot = new SamusProjectileSlot(0)
             {
-                Type = type, Direction = direction, InstructionPointer = listStart, XPosition = 0x0100, YPosition = 0x0100,
+                Type = type, Direction = direction, InstructionPointer = listStart, Position = new(new(0x0100, 0), new(0x0100, 0)),
             };
             (ushort, ushort, ushort, ushort) expected;
             try { expected = (Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y))); }
@@ -148,7 +147,7 @@ internal static partial class Program
             }
             spawn(new TrailCoordinateGuard(bus), shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
-            AssertEqual(expected, (actual.Left.XPosition, actual.Left.YPosition, actual.Right.XPosition, actual.Right.YPosition),
+            AssertEqual(expected, (actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
                 $"reflected type ${type:X4} direction {direction} trail reads the word before its list start");
             cases++;
         }

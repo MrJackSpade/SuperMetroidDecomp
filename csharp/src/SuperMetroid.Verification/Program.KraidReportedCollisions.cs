@@ -40,7 +40,7 @@ internal static partial class Program
                 {
                     spawned = true;
                     marked |= shot.PackedDirection.HasLowByteLifecycleState;
-                    AssertEqual(true, shot.XPosition < 224, "Spazer must impact before crossing through Kraid's head");
+                    AssertEqual(true, shot.Position.X.Whole < 224, "Spazer must impact before crossing through Kraid's head");
                 }
             }
             AssertEqual(true, spawned, "Production firing spawned Spazer");
@@ -55,8 +55,8 @@ internal static partial class Program
             samus.Health = 999; samus.EquippedItems = 0;
             samus.InvincibilityTimer = samus.KnockbackTimer = 0;
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(0).WithWholeY(0);
-            samus.Kinematics.Radius = samus.Kinematics.Radius.WithX(8); samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(16);
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(0, 0));
+            samus.Kinematics.Radius = samus.Kinematics.Radius.WithX(8).WithY(16);
         }
         foreach (int index in new[] { 6, 7 })
         {
@@ -98,8 +98,8 @@ internal static partial class Program
             AssertEqual(KraidHeadInstructionDefinitions.RoarContinuation, body.VariableB, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Slots[0];
             shot.Type = 0x8004; shot.Damage = 40;
-            shot.XPosition = 200; shot.YPosition = (ushort)(body.YPosition - 106);
-            shot.XRadius = shot.YRadius = 8;
+            shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.YPosition - 106)));
+            shot.Radius = new(8, 8);
             typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ProjectileCounter))!
                 .SetValue(runtime.Projectiles, (ushort)1);
             runtime.Enemies.ResolveKraidProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles);

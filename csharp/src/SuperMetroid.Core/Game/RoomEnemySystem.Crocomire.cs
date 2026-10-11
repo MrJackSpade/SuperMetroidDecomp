@@ -325,7 +325,7 @@ public sealed partial class RoomEnemySystem
 
         ResolveNormalEnemyTouch(body, samus);
         samus.Position = samus.Position.WithWholeX(leftEdge);
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(-4).WithWholeY(-1);
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(-4, -1));
     }
 
     /// <summary>Ports Crocomire's eight-color body hurt flash at $A4:8CCB.</summary>

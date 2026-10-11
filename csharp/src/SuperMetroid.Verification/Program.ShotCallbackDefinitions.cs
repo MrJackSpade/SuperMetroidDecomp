@@ -134,9 +134,8 @@ internal static partial class Program
             projectile.Type = 0x8000;
             projectile.Damage = 20;
             projectile.Direction = 2;
-            projectile.XPosition = enemy.XPosition;
-            projectile.YPosition = enemy.YPosition;
-            projectile.XRadius = projectile.YRadius = 4;
+            projectile.Position = projectile.Position.WithWhole(new(enemy.XPosition, enemy.YPosition));
+            projectile.Radius = new(4, 4);
             projectile.InstructionPointer = 0x9000;
             projectile.InstructionTimer = 1;
 

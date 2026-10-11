@@ -69,7 +69,7 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionPointer = fuse.InstructionPointer;
 
         if (fuse.SpawnExplosion)
-            sharedProjectiles.PowerBombExplosion.Spawn(slot.XPosition, slot.YPosition);
+            sharedProjectiles.PowerBombExplosion.Spawn(slot.Position.X.Whole, slot.Position.Y.Whole);
         if (fuse.DeleteProjectile)
             ClearProjectile(slot);
 

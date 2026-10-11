@@ -121,7 +121,7 @@ static void VerifySamusRenderingSlice()
 
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0));
     oam.FinalizeFrame();
 
     // Pose $01's graphics Y offset is six, so world (1152,134) becomes origin (128,128).
@@ -155,7 +155,7 @@ static void VerifySamusRenderingSlice()
 
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0));
     oam.FinalizeFrame();
     AssertEqual(0x00f9, samus.TopSpritemapIndex, "running pose top spritemap index");
     AssertEqual(0x00e3, samus.BottomSpritemapIndex, "running pose bottom spritemap index");
@@ -203,7 +203,7 @@ static void VerifySamusRenderingSlice()
     AssertEqual(0, samus.Kinematics.YSpeed, "forward setup clears Y speed");
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0));
     oam.FinalizeFrame();
     AssertEqual(0x0002, samus.TopSpritemapIndex, "power-suit forward top spritemap index");
     AssertEqual(0x0062, samus.BottomSpritemapIndex, "power-suit forward bottom spritemap index");
@@ -222,7 +222,7 @@ static void VerifySamusRenderingSlice()
     AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0));
     oam.FinalizeFrame();
     AssertEqual(0x00c2, samus.TopSpritemapIndex, "suited forward top spritemap index");
     AssertEqual(0x0122, samus.BottomSpritemapIndex, "suited forward bottom spritemap index");
@@ -236,7 +236,7 @@ static void VerifySamusRenderingSlice()
     samus.TileTransfers.ClearTransferFlags();
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 1);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0), nmiFrameCounter: 1);
     oam.FinalizeFrame();
     AssertEqual(0, oam.LastFinalizedSpriteCount,
         "odd invincibility frame suppresses complete Samus body");
@@ -247,7 +247,7 @@ static void VerifySamusRenderingSlice()
 
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 2);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0), nmiFrameCounter: 2);
     oam.FinalizeFrame();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "even invincibility frame draws complete Samus body");
@@ -257,7 +257,7 @@ static void VerifySamusRenderingSlice()
     samus.KnockbackTimer = 1;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 1);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0), nmiFrameCounter: 1);
     oam.FinalizeFrame();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "knockback overrides odd-frame invincibility blink");
@@ -267,7 +267,7 @@ static void VerifySamusRenderingSlice()
         "test fixture installs nonzero native shine timer");
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 1);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0), nmiFrameCounter: 1);
     oam.FinalizeFrame();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "shine timer overrides odd-frame invincibility blink");
@@ -330,7 +330,7 @@ static void VerifySamusRenderingSlice()
         samus.AnimationFrame = frame;
         oam.BeginFrame();
         BindSyntheticSamusRendering(bus, samus);
-        samus.Draw(bus, oam, layer1X: samus.Position.X.Whole, layer1Y: samus.Position.Y.Whole);
+        samus.Draw(bus, oam, layer1: new(samus.Position.X.Whole, samus.Position.Y.Whole));
         oam.FinalizeFrame();
         AssertEqual(expectedSprites, oam.LastFinalizedSpriteCount, name);
     }
@@ -346,7 +346,7 @@ static void VerifySamusRenderingSlice()
         "movement-type API rejects a discriminator outside the complete retail domain");
     oam.BeginFrame();
     AssertThrows<InvalidDataException>(
-        () => samus.Draw(bus, oam, layer1X: samus.Position.X.Whole, layer1Y: samus.Position.Y.Whole),
+        () => samus.Draw(bus, oam, layer1: new(samus.Position.X.Whole, samus.Position.Y.Whole)),
         "movement type beyond complete bottom-half table is rejected as malformed pose data");
 
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
@@ -357,14 +357,14 @@ static void VerifySamusRenderingSlice()
     samus.AnimationFrame = 0;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: samus.Position.X.Whole, layer1Y: 0);
+    samus.Draw(bus, oam, layer1: new(samus.Position.X.Whole, 0));
     oam.FinalizeFrame();
     AssertEqual(0x0082, samus.SpritemapYPosition,
         "morph transition frame zero reads signed minus-four table byte");
     samus.AnimationFrame = 1;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: samus.Position.X.Whole, layer1Y: 0);
+    samus.Draw(bus, oam, layer1: new(samus.Position.X.Whole, 0));
     oam.FinalizeFrame();
     AssertEqual(0x0084, samus.SpritemapYPosition,
         "morph transition frame one reads signed minus-two table byte");
@@ -379,7 +379,7 @@ static void VerifySamusRenderingSlice()
     samus.AnimationFrame = 0;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: samus.Position.X.Whole, layer1Y: 0);
+    samus.Draw(bus, oam, layer1: new(samus.Position.X.Whole, 0));
     oam.FinalizeFrame();
     AssertEqual(0x0086, samus.SpritemapYPosition,
         "unused transition pose reads native zero instead of generic graphics offset");
@@ -395,7 +395,7 @@ static void VerifySamusRenderingSlice()
     samus.Position = samus.Position.WithWholeY(0x0086);
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0));
     oam.FinalizeFrame();
     AssertEqual(0x0085, samus.SpritemapYPosition,
         "front-facing frame two uses fixed one-pixel graphics offset");
@@ -421,7 +421,7 @@ static void VerifySamusRenderingSlice()
     samus.AnimationFrame = 0;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0));
     oam.FinalizeFrame();
     AssertEqual(0xfa83, samus.SpritemapYPosition,
         "normal-jump landing frame zero preserves unaligned word subtraction");
@@ -431,7 +431,7 @@ static void VerifySamusRenderingSlice()
     samus.AnimationFrame = 1;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    samus.Draw(bus, oam, layer1: new(0x0400, 0));
     oam.FinalizeFrame();
     AssertEqual(0x0080, samus.SpritemapYPosition,
         "normal-jump landing frame one reads overlapping 0006 word");
@@ -454,8 +454,7 @@ static void VerifySamusRenderingSlice()
     samus.Draw(
         bus,
         oam,
-        layer1X: 0x0400,
-        layer1Y: 0,
+        layer1: new(0x0400, 0),
         mode7Transform: quarterTurn);
     oam.FinalizeFrame();
     AssertEqual(0x007a, samus.SpritemapXPosition,
@@ -566,7 +565,7 @@ static void VerifySamusArmCannon()
     var oam = new OamBuffer();
     var vramWrites = new VramWriteQueue();
     oam.BeginFrame();
-    cannon.Draw(bus, oam, vramWrites, samus, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 0);
+    cannon.Draw(bus, oam, vramWrites, samus, layer1: new(0x0400, 0), nmiFrameCounter: 0);
     AssertTrue(oam.NextByteOffset == 4 && vramWrites.Entries.Count == 1,
         "open cover emits one OBJ and queues its tile upload");
     AssertEqual(4, oam.NextByteOffset, "cover consumes exactly one four-byte OAM record");
@@ -591,7 +590,7 @@ static void VerifySamusArmCannon()
     var flickerOam = new OamBuffer();
     var flickerWrites = new VramWriteQueue();
     flickerOam.BeginFrame();
-    cannon.Draw(bus, flickerOam, flickerWrites, samus, 0x0400, 0, nmiFrameCounter: 1);
+    cannon.Draw(bus, flickerOam, flickerWrites, samus, new(0x0400, 0), nmiFrameCounter: 1);
     AssertTrue(flickerOam.NextByteOffset == 0 && flickerWrites.Entries.Count == 0,
         "odd invincibility frame suppresses cover OBJ and DMA");
     AssertEqual(0, flickerWrites.Entries.Count, "flicker return leaves VRAM queue untouched");
@@ -600,7 +599,7 @@ static void VerifySamusArmCannon()
     var clippedOam = new OamBuffer();
     var clippedWrites = new VramWriteQueue();
     clippedOam.BeginFrame();
-    cannon.Draw(bus, clippedOam, clippedWrites, samus, layer1X: 0x0500, layer1Y: 0, nmiFrameCounter: 0);
+    cannon.Draw(bus, clippedOam, clippedWrites, samus, layer1: new(0x0500, 0), nmiFrameCounter: 0);
     AssertTrue(clippedOam.NextByteOffset == 0 && clippedWrites.Entries.Count == 1,
         "off-screen cover omits OAM but retains tile DMA");
     AssertEqual(1, clippedWrites.Entries.Count, "clipped cover still has one VRAM transfer");

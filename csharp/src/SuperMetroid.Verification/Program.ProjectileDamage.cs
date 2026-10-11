@@ -200,11 +200,11 @@ internal static partial class Program
             (ushort X, ushort Y) offset = SamusComboMechanicsDefinitions.GetSineOffset(
                 angle, amplitude);
             if (beam == 2)
-                projectiles.StepIceCombo(guarded, samus, first, shared, 0, 0);
+                projectiles.StepIceCombo(guarded, samus, first, shared, Position16<RoomPixels>.Zero);
             else if (beam == 4)
                 projectiles.StepSpazerCombo(guarded, samus, first, shared, 0);
             else
-                projectiles.StepPlasmaCombo(samus, first, shared, 0, 0);
+                projectiles.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             AssertEqual(unchecked((ushort)(samus.Position.X.Whole + offset.X)), first.XPosition,
                 $"beam {beam:X} production X consumes compiled sine offset");
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + offset.Y)), first.YPosition,

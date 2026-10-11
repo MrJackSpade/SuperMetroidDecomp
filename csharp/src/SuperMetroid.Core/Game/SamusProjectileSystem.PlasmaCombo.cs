@@ -6,7 +6,7 @@ public sealed partial class SamusProjectileSystem
 {
     /// <summary>Original $90:D793 Plasma ring update; phase is stored in the slot's native Y-speed word.</summary>
     internal void StepPlasmaCombo(SamusState samus,
-        SamusProjectileSlot slot, SamusBombProjectileSystem shared, ushort cameraX, ushort cameraY)
+        SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
         if (slot.PreInstruction != SamusProjectilePreInstruction.PlasmaCombo)
             throw new InvalidOperationException("Plasma update requires its own pre-instruction.");
@@ -35,10 +35,10 @@ public sealed partial class SamusProjectileSystem
             case 2:
                 // Only the final expansion checks visibility. The first two phases
                 // intentionally keep rings alive beyond the viewport, unlike Ice.
-                if (unchecked((short)(slot.XPosition - cameraX + 32)) < 0 ||
-                    unchecked((short)(slot.XPosition - cameraX - 288)) >= 0 ||
-                    unchecked((short)(slot.YPosition - cameraY - 16)) < 0 ||
-                    unchecked((short)(slot.YPosition - cameraY - 256)) >= 0)
+                if (unchecked((short)(slot.XPosition - camera.X + 32)) < 0 ||
+                    unchecked((short)(slot.XPosition - camera.X - 288)) >= 0 ||
+                    unchecked((short)(slot.YPosition - camera.Y - 16)) < 0 ||
+                    unchecked((short)(slot.YPosition - camera.Y - 256)) >= 0)
                     ClearProjectile(slot);
                 else slot.XVelocity = unchecked((byte)(slot.XVelocity + SamusComboRomData.PlasmaRadiusStep));
                 break;

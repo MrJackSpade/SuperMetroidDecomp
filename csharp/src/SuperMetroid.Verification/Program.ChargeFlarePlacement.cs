@@ -82,8 +82,8 @@ internal static partial class Program
             subject.HyperBeam = hyper;
             original = new OamBuffer(); changed = new OamBuffer();
             var guarded = new FlarePlacementGuard(bus, subject.Pose, 2, true);
-            originalSystem.HandleChargeFlareAndDraw(guarded, original, subject, 0, 0, placement: stock, compositions: sprites);
-            editedSystem.HandleChargeFlareAndDraw(guarded, changed, subject, 0, 0, placement: edited, compositions: sprites);
+            originalSystem.HandleChargeFlareAndDraw(guarded, original, subject, new(0, 0), placement: stock, compositions: sprites);
+            editedSystem.HandleChargeFlareAndDraw(guarded, changed, subject, new(0, 0), placement: edited, compositions: sprites);
             AssertTrue(original.NextByteOffset > 0, "Public normal/Hyper flare producer emits visible components");
             AssertEqual(original.NextByteOffset, changed.NextByteOffset, "Public flare placement preserves component admission");
             for (int i = 0; i < original.NextByteOffset / 4; i++)

@@ -354,8 +354,8 @@ public sealed partial class SamusProjectileSystem
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
     /// <param name="controllerInput">Held controller word after the runtime's action-binding normalization.</param>
     /// <param name="controllerNewInput">Current normalized press-edge word for firing decisions.</param>
-    /// <param name="layer1X">Horizontal camera origin in whole room pixels, used by projectile offscreen handling.</param>
-    /// <param name="layer1Y">Vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
+    /// <param name="layer1.X">Horizontal camera origin in whole room pixels, used by projectile offscreen handling.</param>
+    /// <param name="layer1.Y">Vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
     /// Bomb-slot owner carrying shared WRAM cooldown <c>$0CCC</c>. The runtime steps that
     /// clock once, immediately before calling this method; this method may replace it after
@@ -371,8 +371,7 @@ public sealed partial class SamusProjectileSystem
         SamusState samus,
         ushort controllerInput,
         ushort controllerNewInput,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         SamusBombProjectileSystem sharedProjectiles,
         bool projectileProducerEnabled = true,
         RoomPlmSystem? roomPlms = null,
@@ -474,7 +473,7 @@ public sealed partial class SamusProjectileSystem
 
             if (slot.PreInstruction == SamusProjectilePreInstruction.ShinesparkEcho)
             {
-                StepShinesparkEcho(samus, slot, layer1X, layer1Y);
+                StepShinesparkEcho(samus, slot, layer1);
                 projectileDeleted |= !slot.IsActive;
             }
             else if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or
@@ -484,12 +483,12 @@ public sealed partial class SamusProjectileSystem
             {
                 ushort comboSound = 0;
                 if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward)
-                    comboSound = StepIceCombo(bus, samus, slot, sharedProjectiles, layer1X, layer1Y);
+                    comboSound = StepIceCombo(bus, samus, slot, sharedProjectiles, layer1);
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.WaveCombo)
                     comboSound = StepWaveCombo(bus, samus, slot, sharedProjectiles);
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.PlasmaCombo)
-                    StepPlasmaCombo(samus, slot, sharedProjectiles, layer1X, layer1Y);
-                else comboSound = StepSpazerCombo(bus, samus, slot, sharedProjectiles, layer1Y);
+                    StepPlasmaCombo(samus, slot, sharedProjectiles, layer1);
+                else comboSound = StepSpazerCombo(bus, samus, slot, sharedProjectiles, layer1.Y);
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound != 0)
                     (comboSounds ??= []).Add(new SamusSoundRequest(
@@ -502,8 +501,7 @@ public sealed partial class SamusProjectileSystem
                     bus,
                     level,
                     slot,
-                    layer1X,
-                    layer1Y,
+                    layer1,
                     roomPlms,
                     sharedProjectiles.PowerBombExplosion);
             }
@@ -511,11 +509,11 @@ public sealed partial class SamusProjectileSystem
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail or
                 SamusProjectilePreInstruction.WaveBeamFourFrameTrail)
             {
-                RunWaveBeamPreInstruction(bus, level, slot, layer1X, layer1Y, roomPlms);
+                RunWaveBeamPreInstruction(bus, level, slot, layer1, roomPlms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.HyperBeam)
             {
-                RunHyperBeamPreInstruction(level, slot, layer1X, layer1Y, roomPlms);
+                RunHyperBeamPreInstruction(level, slot, layer1, roomPlms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.Missile)
             {
@@ -523,8 +521,7 @@ public sealed partial class SamusProjectileSystem
                     bus,
                     level,
                     slot,
-                    layer1X,
-                    layer1Y,
+                    layer1,
                     sharedProjectiles,
                     roomPlms);
             }
@@ -535,8 +532,7 @@ public sealed partial class SamusProjectileSystem
                     level,
                     samus,
                     slot,
-                    layer1X,
-                    layer1Y,
+                    layer1,
                     sharedProjectiles,
                     roomPlms);
             }
@@ -607,8 +603,7 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         OamBuffer oam,
         SamusState samus,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         SamusMode7Transform? mode7Transform = null,
         Assets.ChargeFlarePlacementCatalog? placement = null,
         Assets.ChargeFlareSpriteCatalog? compositions = null)
@@ -646,7 +641,7 @@ public sealed partial class SamusProjectileSystem
                 }
 
                 DrawFlareComponent(
-                    bus, oam, samus, layer1X, layer1Y, component, mode7Transform, placement, compositions);
+                    bus, oam, samus, layer1, component, mode7Transform, placement, compositions);
             }
             return;
         }
@@ -668,7 +663,7 @@ public sealed partial class SamusProjectileSystem
         {
             AdvanceFlareComponent(component);
             DrawFlareComponent(
-                bus, oam, samus, layer1X, layer1Y, component, mode7Transform, placement, compositions);
+                bus, oam, samus, layer1, component, mode7Transform, placement, compositions);
         }
     }
 
@@ -676,8 +671,7 @@ public sealed partial class SamusProjectileSystem
     public void DrawLiveProjectiles(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         ushort nmiFrameCounter,
         Assets.ProjectileSpriteCatalog? compositions = null)
     {
@@ -713,7 +707,7 @@ public sealed partial class SamusProjectileSystem
             // cull by world X. OAM retains the nine-bit X and lets the PPU clip it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if ((slot.SpritemapPointer & 0x8000) != 0)
-                DrawSlot(oam, slot, layer1X, layer1Y, horizontalMargin: null, compositions);
+                DrawSlot(oam, slot, layer1, horizontalMargin: null, compositions);
         }
     }
 
@@ -723,8 +717,8 @@ public sealed partial class SamusProjectileSystem
     /// </summary>
     /// <param name="bus">Address space passed to the trail instruction and draw helpers.</param>
     /// <param name="oam">Mutable OBJ destination appended in descending trail-slot order, left side before right.</param>
-    /// <param name="layer1X">Whole-pixel room camera X origin subtracted from trail coordinates when drawing.</param>
-    /// <param name="layer1Y">Whole-pixel room camera Y origin subtracted from trail coordinates when drawing.</param>
+    /// <param name="layer1.X">Whole-pixel room camera X origin subtracted from trail coordinates when drawing.</param>
+    /// <param name="layer1.Y">Whole-pixel room camera Y origin subtracted from trail coordinates when drawing.</param>
     /// <param name="timeIsFrozen">
     /// WRAM <c>$0A78</c>. Frozen trails retain their current record and are still drawn;
     /// their timers and embedded position commands do not advance.
@@ -733,8 +727,7 @@ public sealed partial class SamusProjectileSystem
     public void HandleTrailsAndDraw(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         bool timeIsFrozen,
         Assets.ProjectileTrailCatalog? artwork = null)
     {
@@ -746,8 +739,8 @@ public sealed partial class SamusProjectileSystem
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileTrailSlot slot = _trailSlots[slotIndex];
-            HandleTrailSideAndDraw(bus, oam, slot, layer1X, layer1Y, timeIsFrozen, isLeft: true, artwork);
-            HandleTrailSideAndDraw(bus, oam, slot, layer1X, layer1Y, timeIsFrozen, isLeft: false, artwork);
+            HandleTrailSideAndDraw(bus, oam, slot, layer1, timeIsFrozen, isLeft: true, artwork);
+            HandleTrailSideAndDraw(bus, oam, slot, layer1, timeIsFrozen, isLeft: false, artwork);
         }
     }
 
@@ -757,8 +750,7 @@ public sealed partial class SamusProjectileSystem
     public void DrawExplosions(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         Assets.ProjectileSpriteCatalog? compositions = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -773,7 +765,7 @@ public sealed partial class SamusProjectileSystem
                     SamusProjectileFamily.MissileExplosion))
                 continue;
 
-            DrawSlot(oam, slot, layer1X, layer1Y, horizontalMargin: 48, compositions);
+            DrawSlot(oam, slot, layer1, horizontalMargin: 48, compositions);
         }
     }
 

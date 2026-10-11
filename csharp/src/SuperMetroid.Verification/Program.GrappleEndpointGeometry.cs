@@ -30,7 +30,7 @@ internal static partial class Program
             };
             grapple.SegmentAnimationTimers[15] = 1;
             var oam = new OamBuffer();
-            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oam, new VramWriteQueue(), camera, camera, samusPose: pose);
+            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oam, new VramWriteQueue(), new(camera, camera), samusPose: pose);
             bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
             ushort relativeY = unchecked((ushort)(endpointY - camera));
             bool visible = swinging || (relativeY & 0xff00) == 0;

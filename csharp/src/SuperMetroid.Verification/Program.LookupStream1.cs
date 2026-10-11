@@ -962,7 +962,7 @@ internal static partial class Program
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
             var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.TileTransfers.BindArtwork(stock);
-            samus.Draw(rom, new OamBuffer(), 0, 0);
+            samus.Draw(rom, new OamBuffer(), new(0, 0));
             AssertEqual(unchecked((ushort)(128 + native[frame])), samus.SpritemapYPosition,
                 "Actual drained drawing uses exact signed native correction");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
@@ -1036,7 +1036,7 @@ internal static partial class Program
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
                 samus.TileTransfers.BindArtwork(stock);
-                samus.Draw(rom, new OamBuffer(), 0, 0);
+                samus.Draw(rom, new OamBuffer(), new(0, 0));
                 AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.SpritemapYPosition,
                     "Actual transition rendering preserves native support correction");
                 AssertEqual((ushort)128, samus.Position.Y.Whole, "Posture art never mutates physical center");
@@ -1119,7 +1119,7 @@ internal static partial class Program
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             samus.TileTransfers.BindArtwork(stock);
-            samus.Draw(rom, new OamBuffer(), layer1X: 0, layer1Y: 0);
+            samus.Draw(rom, new OamBuffer(), layer1: new(0, 0));
             ushort nativeWord = (ushort)(landing[index] | landing[index + 1] << 8);
             AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.SpritemapYPosition, "Actual rendering preserves every bounded native landing word");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
@@ -3403,7 +3403,7 @@ internal static partial class Program
                 int graphics = unchecked((sbyte)rom.ReadByte(0x91b629 + (int)pose * 8 + 4));
                 var cannonOam = new OamBuffer();
                 var cannonWrites = new VramWriteQueue();
-                cannon.Draw(rom, cannonOam, cannonWrites, samus, 0, 0, 0);
+                cannon.Draw(rom, cannonOam, cannonWrites, samus, Position16<RoomPixels>.Zero, 0);
                 AssertTrue(cannonOam.NextByteOffset == 4 && cannonWrites.Entries.Count == 1, "Actual cover draw and DMA publication");
                 OamEntry cannonEntry = cannonOam.GetEntry(0);
                 AssertEqual(128 + x, cannonEntry.X, "Actual native cover X");

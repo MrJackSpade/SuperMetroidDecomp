@@ -71,13 +71,12 @@ public sealed partial class SamusProjectileSystem
     private static void DrawSlot(
         OamBuffer oam,
         SamusProjectileSlot slot,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         int? horizontalMargin,
         Assets.ProjectileSpriteCatalog? compositions)
     {
-        short screenX = unchecked((short)(slot.XPosition - layer1X));
-        ushort screenY = unchecked((ushort)(slot.YPosition - layer1Y));
+        short screenX = unchecked((short)(slot.XPosition - layer1.X));
+        ushort screenY = unchecked((ushort)(slot.YPosition - layer1.Y));
         if (horizontalMargin is int margin && (screenX < -margin || screenX >= 256 + margin) ||
             (screenY & 0xff00) != 0)
         {
@@ -139,8 +138,7 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         OamBuffer oam,
         SamusState samus,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         int component,
         SamusMode7Transform? mode7Transform,
         Assets.ChargeFlarePlacementCatalog? placement,
@@ -150,14 +148,14 @@ public sealed partial class SamusProjectileSystem
         if (direction is 0xff or 0x10 || (direction & 0xf0) != 0)
             return;
 
-        DrawFlareComponentWithMetadata(oam, samus, layer1X, layer1Y, component,
+        DrawFlareComponentWithMetadata(oam, samus, layer1, component,
             mode7Transform, placement, compositions, direction,
             samus.ReadMovementKind(bus) == SamusMovementType.Running,
             unchecked((byte)samus.ReadGraphicsYOffset(bus)), samus.IsFacingLeft(bus));
     }
 
     private void DrawFlareComponentWithMetadata(
-        OamBuffer oam, SamusState samus, ushort layer1X, ushort layer1Y, int component,
+        OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component,
         SamusMode7Transform? mode7Transform, Assets.ChargeFlarePlacementCatalog? placement,
         Assets.ChargeFlareSpriteCatalog? compositions, byte direction,
         bool running, byte poseYOffset, bool facingLeft)
@@ -176,8 +174,8 @@ public sealed partial class SamusProjectileSystem
         SamusMode7Point renderPoint = mode7Transform is { } transform
             ? transform.Transform(samus.Position.X.Whole, samus.Position.Y.Whole)
             : new SamusMode7Point(samus.Position.X.Whole, samus.Position.Y.Whole);
-        ushort screenX = unchecked((ushort)(renderPoint.X + xOffset - layer1X));
-        ushort screenY = unchecked((ushort)(renderPoint.Y + yOffset - poseYOffset - layer1Y));
+        ushort screenX = unchecked((ushort)(renderPoint.X + xOffset - layer1.X));
+        ushort screenY = unchecked((ushort)(renderPoint.Y + yOffset - poseYOffset - layer1.Y));
 
         // `$90:BC98` clips only by the origin's Y high byte. The shared bank-$81 loader
         // deliberately allows individual entries to wrap, matching charge sparks near an

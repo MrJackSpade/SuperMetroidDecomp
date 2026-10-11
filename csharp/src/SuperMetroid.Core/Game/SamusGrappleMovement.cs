@@ -189,8 +189,7 @@ public static partial class SamusGrappleMovement
         ISnesAddressSpace bus,
         SamusState samus,
         OamBuffer oam,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         Assets.ChargeFlareSpriteCatalog? compositions = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -243,8 +242,8 @@ public static partial class SamusGrappleMovement
             grapple.FlareAnimationTimer = delay;
         }
 
-        ushort screenX = unchecked((ushort)(grapple.BeamStartX - layer1X));
-        ushort screenY = unchecked((ushort)(grapple.BeamStartY - layer1Y));
+        ushort screenX = unchecked((ushort)(grapple.BeamStartX - layer1.X));
+        ushort screenY = unchecked((ushort)(grapple.BeamStartY - layer1.Y));
         // The assembly tests only Y's high byte. X is allowed to wrap into high OAM, while
         // any Y outside unsigned screen rows `$00-$FF` suppresses the whole spritemap.
         if ((screenY & 0xff00) != 0)

@@ -977,8 +977,7 @@ public sealed partial class IntroCinematicState
             flashbackSamus!,
             flashbackDemoInput.Held,
             flashbackDemoInput.NewlyPressed,
-            layer1X: 0,
-            layer1Y: 0,
+            layer1: Position16<RoomPixels>.Zero,
             flashbackBombProjectiles,
             controllerPreviousNewInput: flashbackDemoInput.PublishedPreviousNewlyPressed);
         if (flashbackProjectiles.LastFrameResult.QueuedSoundEffect is { } soundEffect)
@@ -1197,10 +1196,10 @@ public sealed partial class IntroCinematicState
         // cinematic objects; once $B842 clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            flashbackSamus!.Draw(bus, oam, layer1X: 0, layer1Y: 0, nmiFrameCounter);
-            flashbackProjectiles.DrawLiveProjectiles(bus, oam, 0, 0, nmiFrameCounter, ProjectileCompositions);
-            flashbackProjectiles.HandleTrailsAndDraw(bus, oam, 0, 0, timeIsFrozen: false, TrailArtwork);
-            flashbackProjectiles.DrawExplosions(bus, oam, 0, 0, ProjectileCompositions);
+            flashbackSamus!.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+            flashbackProjectiles.DrawLiveProjectiles(bus, oam, Position16<RoomPixels>.Zero, nmiFrameCounter, ProjectileCompositions);
+            flashbackProjectiles.HandleTrailsAndDraw(bus, oam, Position16<RoomPixels>.Zero, timeIsFrozen: false, TrailArtwork);
+            flashbackProjectiles.DrawExplosions(bus, oam, Position16<RoomPixels>.Zero, ProjectileCompositions);
         }
         flashbackRinkas?.Draw(oam, characterArtwork?.RinkaSprites);
         flashbackMotherBrainExplosions?.Draw(oam,
@@ -1261,7 +1260,7 @@ public sealed partial class IntroCinematicState
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
         babyDiscovery!.Samus.TileTransfers.TransferToVram(bus, vram);
-        babyDiscovery.Samus.Draw(bus, oam, layer1X: 0, layer1Y: 0, nmiFrameCounter);
+        babyDiscovery.Samus.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
     }
 
     private Rgba32[] RenderScientistCutscene()

@@ -99,8 +99,7 @@ internal static partial class Program
                 samus,
                 input,
                 input,
-                layer1X: 0,
-                layer1Y: 224,
+                layer1: new(0, 224),
                 bombs,
                 roomPlms: plms);
 

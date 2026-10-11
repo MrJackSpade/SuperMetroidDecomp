@@ -18,8 +18,7 @@ public static partial class SamusGrappleMovement
         SamusGrappleState grapple,
         OamBuffer oam,
         VramWriteQueue vramWrites,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         Assets.GrappleTileAtlas? artwork = null,
         SamusPoseId samusPose = 0)
     {
@@ -83,8 +82,8 @@ public static partial class SamusGrappleMovement
         int flipBits = (angleHigh & 0x80) >> 1;
         flipBits |= 2 * ((((angleHigh ^ flipBits) & 0x40) ^ 0x40));
         ushort flipAttributes = unchecked((ushort)(flipBits << 8));
-        int screenXFixed = unchecked((grapple.BeamStartX - layer1X - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
-        int screenYFixed = unchecked((grapple.BeamStartY - layer1Y - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
+        int screenXFixed = unchecked((grapple.BeamStartX - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
+        int screenYFixed = unchecked((grapple.BeamStartY - layer1.Y - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
         // Native enters the loop before decrementing quotient-minus-one: even a
         // positive length whose masked quotient is zero visits one segment.
         int segmentCount = Math.Max(1, (grapple.RopeLength / SamusGrappleRomData.Rendering.SegmentSpacing)
@@ -128,16 +127,16 @@ public static partial class SamusGrappleMovement
             screenYFixed = unchecked(screenYFixed + stepY);
         }
 
-        DrawBeamEndpoint(grapple, oam, layer1X, layer1Y, samusPose,
+        DrawBeamEndpoint(grapple, oam, layer1, samusPose,
             artwork?.Sprites?.Endpoint ?? SamusGrappleRomData.Rendering.EndpointAttributes);
     }
 
     /// <summary>Preserves the pose-selected endpoint routines at $94:B0F9/B14B.</summary>
     private static void DrawBeamEndpoint(SamusGrappleState grapple, OamBuffer oam,
-        ushort layer1X, ushort layer1Y, SamusPoseId samusPose, ushort attributes)
+        Position16<RoomPixels> layer1, SamusPoseId samusPose, ushort attributes)
     {
         bool swinging = (SamusPoseId)samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
-        ushort relativeY = unchecked((ushort)(grapple.AnchorY - layer1Y));
+        ushort relativeY = unchecked((ushort)(grapple.AnchorY - layer1.Y));
         // The ordinary endpoint tests its center before subtracting the sprite
         // half-width. Swinging deliberately bypasses this vertical rejection.
         if (!swinging && (relativeY & SamusGrappleRomData.Rendering.SegmentOutsideViewportMask) != 0)
@@ -146,10 +145,10 @@ public static partial class SamusGrappleMovement
         // Only the swinging routine omits SEC between its two SBC operations.
         // Consequently unsigned camera subtraction can carry a borrow into the
         // half-character offset, even when wrapped coordinates look adjacent.
-        int borrowX = swinging && grapple.AnchorX < layer1X ? 1 : 0;
-        int borrowY = swinging && grapple.AnchorY < layer1Y ? 1 : 0;
+        int borrowX = swinging && grapple.AnchorX < layer1.X ? 1 : 0;
+        int borrowY = swinging && grapple.AnchorY < layer1.Y ? 1 : 0;
         oam.AddRawSmallSprite(
-            unchecked((ushort)(grapple.AnchorX - layer1X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)),
+            unchecked((ushort)(grapple.AnchorX - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)),
             unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY)),
             attributes);
     }

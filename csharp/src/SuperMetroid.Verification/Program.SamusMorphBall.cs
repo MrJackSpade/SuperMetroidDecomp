@@ -1153,7 +1153,7 @@ static void VerifySamusMorphBallMovement()
         "power-bomb timer fifteen enters retail fast list");
     var armedPowerBombOam = new OamBuffer();
     armedPowerBombOam.BeginFrame();
-    powerBombs.Draw(bus, armedPowerBombOam, layer1X: 0, layer1Y: 0, compositions: RepositoryInstallation.Projectiles.Catalog);
+    powerBombs.Draw(bus, armedPowerBombOam, layer1: new(0, 0), compositions: RepositoryInstallation.Projectiles.Catalog);
     AssertTrue(armedPowerBombOam.NextByteOffset > 0,
         "armed Power Bomb draws its fast-list spritemap before detonation");
 
@@ -1175,7 +1175,7 @@ static void VerifySamusMorphBallMovement()
         "power-bomb spawn queues cartridge library-one explosion sound");
     var detonatedPowerBombOam = new OamBuffer();
     detonatedPowerBombOam.BeginFrame();
-    powerBombs.Draw(bus, detonatedPowerBombOam, layer1X: 0, layer1Y: 0, compositions: RepositoryInstallation.Projectiles.Catalog);
+    powerBombs.Draw(bus, detonatedPowerBombOam, layer1: new(0, 0), compositions: RepositoryInstallation.Projectiles.Catalog);
     AssertEqual(0, detonatedPowerBombOam.NextByteOffset,
         "detonation-frame zero variable suppresses the placed Power Bomb sprite");
 

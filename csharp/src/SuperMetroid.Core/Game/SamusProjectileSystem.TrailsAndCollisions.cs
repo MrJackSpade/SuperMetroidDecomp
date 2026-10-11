@@ -320,8 +320,7 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         OamBuffer oam,
         SamusProjectileTrailSlot pair,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         bool timeIsFrozen,
         bool isLeft,
         Assets.ProjectileTrailCatalog? artwork)
@@ -387,8 +386,8 @@ public sealed partial class SamusProjectileSystem
         // `$90:B6F4/$B703` require both complete 16-bit camera-relative coordinates to have
         // a zero high byte. Unlike the generic spritemap path, negative or 256+ coordinates
         // are skipped rather than wrapped or parked.
-        ushort screenX = unchecked((ushort)(side.XPosition - layer1X));
-        ushort screenY = unchecked((ushort)(side.YPosition - layer1Y));
+        ushort screenX = unchecked((ushort)(side.XPosition - layer1.X));
+        ushort screenY = unchecked((ushort)(side.YPosition - layer1.Y));
         if ((screenX & 0xff00) != 0 || (screenY & 0xff00) != 0)
             return;
 

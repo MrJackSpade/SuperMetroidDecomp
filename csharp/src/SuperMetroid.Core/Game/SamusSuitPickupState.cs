@@ -80,8 +80,7 @@ public sealed class SamusSuitPickupState
     public void Begin(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         SamusSuitPickupKind kind,
         bool soundSuppressed = false)
     {
@@ -136,7 +135,7 @@ public sealed class SamusSuitPickupState
 
         // Native writes whole positions but leaves fractional words untouched. These are
         // fixed screen coordinates, not a room-specific item-location approximation.
-        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(layer1X + 120)), unchecked((ushort)(layer1Y + 136))));
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(layer1.X + 120)), unchecked((ushort)(layer1.Y + 136))));
         // $91:D580/$D58D store the same words as the previous position, so this frame's
         // scrolling sees no movement.
         samus.WritePreviousXPosition(samus.Position.X.Whole);

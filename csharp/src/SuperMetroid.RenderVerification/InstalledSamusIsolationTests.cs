@@ -145,8 +145,8 @@ internal sealed partial class InstalledSamusIsolationTests
             a.BeginFrame(); b.BeginFrame();
             ushort cameraX = (ushort)Math.Max(0, Stock.Samus.Position.X.Whole - 128);
             ushort cameraY = (ushort)Math.Max(0, Stock.Samus.Position.Y.Whole - 128);
-            bool visible = Stock.Samus.Draw(Stock.Memory, a, cameraX, cameraY, frame);
-            Require(visible == Edited.Samus.Draw(Edited.Memory, b, cameraX, cameraY, frame),
+            bool visible = Stock.Samus.Draw(Stock.Memory, a, new(cameraX, cameraY), frame);
+            Require(visible == Edited.Samus.Draw(Edited.Memory, b, new(cameraX, cameraY), frame),
                 context + ": visibility changed");
             Stock.Samus.TileTransfers.TransferToVram(Stock.Memory, Stock.Tiles);
             Edited.Samus.TileTransfers.TransferToVram(Edited.Memory, Edited.Tiles);

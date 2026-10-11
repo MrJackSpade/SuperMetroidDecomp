@@ -73,8 +73,7 @@ public sealed class SamusDeathSequenceState
     public SamusDeathSequenceStartResult Begin(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort layer1X,
-        ushort layer1Y)
+        Position16<RoomPixels> layer1)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -111,8 +110,8 @@ public sealed class SamusDeathSequenceState
         // renderer adds layer 1 back before emitting OAM. Retain world coordinates in Samus
         // for this host's shared camera/minimap model and capture the mathematically identical
         // screen-space pair here for the eventual explosion-spritemap path.
-        ScreenX = unchecked((ushort)(samus.Position.X.Whole - layer1X));
-        ScreenY = unchecked((ushort)(samus.Position.Y.Whole - layer1Y));
+        ScreenX = unchecked((ushort)(samus.Position.X.Whole - layer1.X));
+        ScreenY = unchecked((ushort)(samus.Position.Y.Whole - layer1.Y));
 
         PreFlashingTimer = SamusSpecialSequenceRomData.Death.PreFlashFrameCount;
         AnimationTimer = 3;

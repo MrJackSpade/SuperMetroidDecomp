@@ -26,7 +26,7 @@ internal static partial class Program
             var pickup = new SamusSuitPickupState();
             AssertTrue(SamusSuitPickupRenderer.Capture(pickup) is null, "inactive suit emits no operation");
             var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
-            pickup.Begin(bus, samus, 0, 0, kind);
+            pickup.Begin(bus, samus, new(0, 0), kind);
             var phases = new HashSet<byte>();
             for (int tick = 0; tick < 2000 && pickup.IsActive; tick++)
             {

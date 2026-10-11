@@ -64,7 +64,7 @@ internal static partial class Program
                 {
                     shared.StepFrame(bus, room, samus, 0, 0);
                     projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
-                        frame == 0 ? (ushort)SnesButton.X : (ushort)0, 0, 0, shared);
+                        frame == 0 ? (ushort)SnesButton.X : (ushort)0, new(0, 0), shared);
                 }
             }
             projectiles.StepFrame(
@@ -73,8 +73,7 @@ internal static partial class Program
                 samus,
                 charged ? (ushort)0 : (ushort)SnesButton.X,
                 charged ? (ushort)0 : (ushort)SnesButton.X,
-                0,
-                0,
+                new(0, 0),
                 shared);
             AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
                 $"charged={charged} beam {beamType:X1} fires");

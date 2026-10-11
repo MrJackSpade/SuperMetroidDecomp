@@ -46,7 +46,7 @@ internal static partial class Program
                 }
             }
             var oam = new OamBuffer();
-            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oam, new VramWriteQueue(), 0, 0);
+            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oam, new VramWriteQueue(), new(0, 0));
             string context = $"direction {direction}, origin {origin}, length {length}";
             int endpointCount = (short)length < 0 ? 0 : 1;
             AssertEqual((expected.Count + endpointCount) * 4, oam.NextByteOffset, "Native rope culling/count: " + context);

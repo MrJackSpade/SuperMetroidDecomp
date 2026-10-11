@@ -89,8 +89,7 @@ public sealed class SamusArmCannonState
         OamBuffer oam,
         VramWriteQueue vramWrites,
         SamusState samus,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         ushort nmiFrameCounter)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -119,9 +118,9 @@ public sealed class SamusArmCannonState
         sbyte yOffset = unchecked((sbyte)ReadDrawingByte(unchecked((ushort)(offsetAddress + 1))));
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
 
-        short screenX = unchecked((short)(samus.Position.X.Whole + xOffset - layer1X));
+        short screenX = unchecked((short)(samus.Position.X.Whole + xOffset - layer1.X));
         short screenY = unchecked((short)(
-            samus.Position.Y.Whole + yOffset - graphicsYOffset - layer1Y));
+            samus.Position.Y.Whole + yOffset - graphicsYOffset - layer1.Y));
         bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
         SamusArmCannonArtworkCatalog artwork = Artwork ?? throw new InvalidOperationException(
             "Arm cannon requires installed artwork.");

@@ -21,7 +21,7 @@ internal static partial class Program
                 EquippedBeams = combination };
             var projectiles = CreateProjectileFixture();
             projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
-                (ushort)SnesButton.X, 0, 0, CreateBombFixture());
+                (ushort)SnesButton.X, new(0, 0), CreateBombFixture());
             AssertTrue(projectiles.Slots[0].IsActive && projectiles.Slots.Skip(1).All(slot => !slot.IsActive),
                 "speed-row fixture allocates projectile");
             var shot = projectiles.Slots[0];
@@ -77,7 +77,7 @@ internal static partial class Program
             for (int frame = 0; frame < 6; frame++)
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
-                projectiles.StepFrame(bus, room, samus, input, input, 0, 0, bombs);
+                projectiles.StepFrame(bus, room, samus, input, input, new(0, 0), bombs);
                 if (frame == 0)
                 {
                     // Anchor the trajectory at the spawn origin: the fire-frame position less

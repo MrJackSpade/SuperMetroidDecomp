@@ -715,7 +715,7 @@ false,             CrashSequenceFinished: true);
     /// coordinates are separate native words and may survive replacement of that owner.
     /// </summary>
     internal bool StepOwnedReleasedCrashEcho(SamusState samus,
-        ushort layer1X, ushort layer1Y, SamusProjectileSlot projectile)
+        Position16<RoomPixels> layer1, SamusProjectileSlot projectile)
     {
         ReleasedEchoSlot echo = projectile.SlotIndex switch
         {
@@ -725,7 +725,7 @@ false,             CrashSequenceFinished: true);
         };
         echo.Radius = unchecked((ushort)projectile.XVelocity);
         echo.Angle = SnesAngle.FromTableIndex(unchecked((byte)projectile.Variable));
-        if (!StepReleasedCrashEcho(samus, layer1X, layer1Y,
+        if (!StepReleasedCrashEcho(samus, layer1,
             echo, projectileOwnsSlot: true)) return false;
         projectile.XVelocity = unchecked((short)echo.Radius);
         projectile.XPosition = echo.XPosition;
@@ -735,8 +735,7 @@ false,             CrashSequenceFinished: true);
 
     private bool StepReleasedCrashEcho(
         SamusState samus,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         ReleasedEchoSlot slot,
         bool projectileOwnsSlot = false)
     {
@@ -754,7 +753,7 @@ false,             CrashSequenceFinished: true);
         // Native performs the X viewport rejection before calculating/publishing Y. The
         // cleared result is identical either way, but retaining the branch order makes a
         // debugger trace line up with `$90:D4F2-$D51E` instruction for instruction.
-        short screenX = unchecked((short)(slot.XPosition - layer1X));
+        short screenX = unchecked((short)(slot.XPosition - layer1.X));
         if (screenX is < 0 or >= 256)
         {
             LastReleasedCrashEchoClear = new();
@@ -763,7 +762,7 @@ false,             CrashSequenceFinished: true);
         }
 
         slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + offsetY));
-        short screenY = unchecked((short)(slot.YPosition - layer1Y));
+        short screenY = unchecked((short)(slot.YPosition - layer1.Y));
         if (screenY is < 0 or >= 256)
         {
             LastReleasedCrashEchoClear = new();

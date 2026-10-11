@@ -49,7 +49,7 @@ internal static partial class Program
                 .SetValue(samus, (ushort)0x8007);
             SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
             projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
-                0, 0, 0, shared, controllerPreviousNewInput: chargeEquipped ? (ushort)0 : (ushort)SnesButton.X);
+                0, new(0, 0), shared, controllerPreviousNewInput: chargeEquipped ? (ushort)0 : (ushort)SnesButton.X);
             AssertEqual((int?)0, slotsBefore.FiredSlot(projectiles),
                 "native handoff/previous-edge shot is produced");
             AssertEqual((ushort)15, shared.CooldownTimer, "Charge equipment or previous Shoot edge selects ordinary cooldown");
@@ -66,7 +66,7 @@ internal static partial class Program
                 shared.StepFrame(bus, room, samus, (ushort)SnesButton.X,
                     frame == 0 ? (ushort)SnesButton.X : (ushort)0);
                 projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
-                    frame == 0 ? (ushort)SnesButton.X : (ushort)0, 0, 0, shared);
+                    frame == 0 ? (ushort)SnesButton.X : (ushort)0, new(0, 0), shared);
                 if (projectiles.LastFiredProjectileSnapshot is not null) frames.Add(frame);
             }
             int firstDelay = beam == 10 ? 12 : 15;

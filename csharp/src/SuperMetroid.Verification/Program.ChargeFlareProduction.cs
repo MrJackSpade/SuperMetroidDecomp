@@ -31,10 +31,10 @@ internal static partial class Program
             for (int tick = 0; tick < 160 && native.FlareCounter != 0; tick++)
             {
                 var a = new OamBuffer(); var b = new OamBuffer(); var c = new OamBuffer();
-                native.HandleChargeFlareAndDraw(bus, a, samus, 0, 0,
+                native.HandleChargeFlareAndDraw(bus, a, samus, new(0, 0),
                     placement: placement, compositions: stock);
-                compiled.HandleChargeFlareAndDraw(guarded, b, samus, 0, 0, placement: placement, compositions: stock);
-                changed.HandleChargeFlareAndDraw(guarded, c, samus, 0, 0, placement: placement, compositions: edited);
+                compiled.HandleChargeFlareAndDraw(guarded, b, samus, new(0, 0), placement: placement, compositions: stock);
+                changed.HandleChargeFlareAndDraw(guarded, c, samus, new(0, 0), placement: placement, compositions: edited);
                 AssertTrue(a.LowTable.SequenceEqual(b.LowTable) && a.HighTable.SequenceEqual(b.HighTable), "Normal/Hyper flare producer preserves complete native sprite output");
                 AssertEqual(a.NextByteOffset, b.NextByteOffset, "Flare producer preserves OAM cursor");
                 AssertEqual(a.NextByteOffset, c.NextByteOffset, "Edited flare producer preserves component count");
@@ -59,7 +59,7 @@ internal static partial class Program
             subject.TileTransfers.BindArtwork(body);
             var outOfTableOam = new OamBuffer();
             invalidSelector.HandleChargeFlareAndDraw(
-                guarded, outOfTableOam, subject, 0, 0, placement: placement, compositions: stock);
+                guarded, outOfTableOam, subject, new(0, 0), placement: placement, compositions: stock);
             AssertEqual(0, outOfTableOam.NextByteOffset,
                 $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
         }

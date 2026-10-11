@@ -1408,8 +1408,7 @@ static void VerifyCeresRidleyRoomEntry()
             samus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             sharedProjectiles);
         AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
@@ -1432,7 +1431,7 @@ static void VerifyCeresRidleyRoomEntry()
         for (int explosionFrame = 0; explosionFrame < nativeExplosionFrames; explosionFrame++)
         {
             sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
-            projectiles.StepFrame(bus, air, samus, 0, 0, 0, 0, sharedProjectiles);
+            projectiles.StepFrame(bus, air, samus, 0, 0, new(0, 0), sharedProjectiles);
         }
 
         // This focused hit-counter test used to patch the cartridge cooldown to one.
@@ -1441,7 +1440,7 @@ static void VerifyCeresRidleyRoomEntry()
         for (int cooldownFrame = 0; cooldownFrame < 15 && sharedProjectiles.CooldownTimer != 0; cooldownFrame++)
         {
             sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
-            projectiles.StepFrame(bus, air, samus, 0, 0, 0, 0, sharedProjectiles);
+            projectiles.StepFrame(bus, air, samus, 0, 0, new(0, 0), sharedProjectiles);
         }
         AssertEqual((ushort)0, sharedProjectiles.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 

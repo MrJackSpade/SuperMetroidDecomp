@@ -82,7 +82,7 @@ internal static partial class Program
                 effects.SetSlot(0, type, frame, animationTimer: 1, worldX: 100, worldY: drawY);
                 var oam = new OamBuffer();
                 oam.BeginFrame();
-                effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: drawY,
+                effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: drawY,
                     directArtwork: atmosphericArt);
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer,
                     $"production atmospheric type {type} frame {frame} expiry timer");
@@ -94,7 +94,7 @@ internal static partial class Program
                 effects.SetSlot(0, type, frame, animationTimer: 0x8001,
                     worldX: 100, worldY: drawY);
                 oam.BeginFrame();
-                effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: drawY,
+                effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: drawY,
                     directArtwork: atmosphericArt);
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer,
                     $"production atmospheric type {type} frame {frame} delayed timer");
@@ -119,7 +119,7 @@ internal static partial class Program
                 worldX: 100, worldY: 100);
             var oam = new OamBuffer();
             oam.BeginFrame();
-            effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: 100);
+            effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: 100);
             AssertEqual((byte)0x5a, oam.LowTable[2],
                 "null atmospheric pointer reads low OBJ attribute from mirrored WRAM");
             AssertEqual((byte)0x34, oam.LowTable[3],

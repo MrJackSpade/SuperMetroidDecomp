@@ -54,7 +54,7 @@ internal static partial class Program
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
                 bombs.StepFrame(bus, level, samus, input, input);
-                shots.StepFrame(bus, level, samus, input, input, (ushort)(left ? 0 : 768), 0, bombs, roomPlms: plms);
+                shots.StepFrame(bus, level, samus, input, input, new((ushort)(left ? 0 : 768), 0), bombs, roomPlms: plms);
                 AssertEqual(0, runtime.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs), "Tile alias does not redirect the projectile enemy hitbox");
             }
             AssertEqual(0x0052, level.GetCollisionBlockByIndex(target).LevelWord, "Same shot actually triggers the remote tile");

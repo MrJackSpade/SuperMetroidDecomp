@@ -85,16 +85,15 @@ public sealed class SamusAtmosphericEffectsState
     /// </summary>
     /// <param name="bus">Address space providing mirrored WRAM for type two attributes and the Samus spritemap path.</param>
     /// <param name="oam">OAM buffer to which visible sprites are appended, with slot three processed first.</param>
-    /// <param name="cameraX">Room-space camera X origin in whole pixels.</param>
-    /// <param name="cameraY">Room-space camera Y origin in whole pixels.</param>
+    /// <param name="camera.X">Room-space camera X origin in whole pixels.</param>
+    /// <param name="camera.Y">Room-space camera Y origin in whole pixels.</param>
     /// <param name="fxYPosition">Live liquid-surface Y in room pixels, used to anchor the diving splash on each update.</param>
     /// <param name="artwork">Installed Samus spritemaps required when visible diving splashes or bubbles use the spritemap draw path.</param>
     /// <param name="directArtwork">Installed small-sprite attributes required for visible direct effects other than type two's WRAM-backed attributes.</param>
     public void UpdateAndDraw(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         ushort fxYPosition,
         SamusSpritemapArtworkCatalog? artwork = null,
         SamusAtmosphericArtworkCatalog? directArtwork = null)
@@ -143,14 +142,14 @@ public sealed class SamusAtmosphericEffectsState
             {
                 case 1:
                 case 2:
-                    DrawDirectSmallSprite(bus, oam, slot, type, cameraX, cameraY, directArtwork);
+                    DrawDirectSmallSprite(bus, oam, slot, type, camera, directArtwork);
                     break;
 
                 case 3:
                     // Diving splash graphics remain pinned to the live water surface even
                     // if room FX moves it while the nine-frame animation is running.
                     slot.YPosition = fxYPosition;
-                    DrawSamusTableSpritemap(bus, oam, slot, 0x018f, cameraX, cameraY, artwork);
+                    DrawSamusTableSpritemap(bus, oam, slot, 0x018f, camera, artwork);
                     break;
 
                 case 4:
@@ -160,17 +159,17 @@ public sealed class SamusAtmosphericEffectsState
                         ? unchecked((ushort)(slot.XPosition - 1))
                         : unchecked((ushort)(slot.XPosition + 1));
                     slot.YPosition = unchecked((ushort)(slot.YPosition - 1));
-                    DrawDirectSmallSprite(bus, oam, slot, type, cameraX, cameraY, directArtwork);
+                    DrawDirectSmallSprite(bus, oam, slot, type, camera, directArtwork);
                     break;
 
                 case 5:
-                    DrawSamusTableSpritemap(bus, oam, slot, 0x0186, cameraX, cameraY, artwork);
+                    DrawSamusTableSpritemap(bus, oam, slot, 0x0186, camera, artwork);
                     break;
 
                 case 6:
                 case 7:
                     slot.YPosition = unchecked((ushort)(slot.YPosition - 1));
-                    DrawDirectSmallSprite(bus, oam, slot, type, cameraX, cameraY, directArtwork);
+                    DrawDirectSmallSprite(bus, oam, slot, type, camera, directArtwork);
                     break;
 
                 default:
@@ -186,12 +185,11 @@ public sealed class SamusAtmosphericEffectsState
         OamBuffer oam,
         SamusAtmosphericEffectSlot slot,
         byte type,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         SamusAtmosphericArtworkCatalog? directArtwork)
     {
-        short screenX = unchecked((short)(slot.XPosition - cameraX - 4));
-        short screenY = unchecked((short)(slot.YPosition - cameraY - 4));
+        short screenX = unchecked((short)(slot.XPosition - camera.X - 4));
+        short screenY = unchecked((short)(slot.YPosition - camera.Y - 4));
         if (screenX < 0 || screenX >= 0x0100 || screenY < 0 || screenY >= 0x0100)
             return;
 
@@ -229,12 +227,11 @@ public sealed class SamusAtmosphericEffectsState
         OamBuffer oam,
         SamusAtmosphericEffectSlot slot,
         ushort firstSpritemap,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         SamusSpritemapArtworkCatalog? artwork)
     {
-        ushort screenX = unchecked((ushort)(slot.XPosition - cameraX));
-        ushort screenY = unchecked((ushort)(slot.YPosition - cameraY));
+        ushort screenX = unchecked((ushort)(slot.XPosition - camera.X));
+        ushort screenY = unchecked((ushort)(slot.YPosition - camera.Y));
 
         // `$90:8B83` rejects any nonzero high byte of Y. X is deliberately not clipped;
         // AddSamusSpritemap preserves its ninth hardware coordinate bit and wrap behavior.

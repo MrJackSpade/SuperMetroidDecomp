@@ -678,7 +678,7 @@ static void VerifySamusGrappleSwingAndRelease()
     var grappleFlareOam = new OamBuffer();
     grappleFlareOam.BeginFrame();
     AssertTrue(SamusGrappleMovement.DrawFlareBeforeSamus(
-            bus, samus, grappleFlareOam, layer1X: 100, layer1Y: 50, compositions: fixtureFlareSprites),
+            bus, samus, grappleFlareOam, layer1: new(100, 50), compositions: fixtureFlareSprites),
         "connected grapple flare passes unsigned screen-Y gate");
     AssertEqual(1, samus.Grapple.FlareCounter,
         "grapple flare counter increments only in post-Samus tile pass");
@@ -711,8 +711,7 @@ static void VerifySamusGrappleSwingAndRelease()
         samus.Grapple,
         grappleOam,
         grappleVramWrites,
-        layer1X: 100,
-        layer1Y: 50);
+        layer1: new(100, 50));
 
     AssertEqual(2, grappleVramWrites.Entries.Count, "grapple queues endpoint and segment tiles");
     AssertEqual(new VramWriteEntry(0x20, 0x9a8200, 0x6200), grappleVramWrites.Entries[0],
@@ -765,8 +764,7 @@ static void VerifySamusGrappleSwingAndRelease()
         zeroLengthGrapple,
         zeroLengthOam,
         zeroLengthWrites,
-        layer1X: 100,
-        layer1Y: 50);
+        layer1: new(100, 50));
     AssertEqual(2, zeroLengthWrites.Entries.Count,
         "zero-length grapple still queues endpoint and segment tiles");
     AssertEqual(2, zeroLengthGrapple.FlareCounter,

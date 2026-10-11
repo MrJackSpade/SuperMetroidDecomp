@@ -130,8 +130,8 @@ internal sealed partial class InstalledSamusIsolationTests
     {
         Pair pair = Create();
         var stock = new SamusSuitPickupState(); var edited = new SamusSuitPickupState();
-        stock.Begin(pair.Stock.Memory, pair.Stock.Samus, 0, 240, kind);
-        edited.Begin(pair.Edited.Memory, pair.Edited.Samus, 0, 240, kind);
+        stock.Begin(pair.Stock.Memory, pair.Stock.Samus, new(0, 240), kind);
+        edited.Begin(pair.Edited.Memory, pair.Edited.Samus, new(0, 240), kind);
         int frames = 0;
         while (stock.IsActive && frames < 300)
         {
@@ -153,7 +153,7 @@ internal sealed partial class InstalledSamusIsolationTests
     {
         Pair pair = Create(source, suit);
         string context = $"death source {(int)source:X2}, suit {suit:X4}";
-        pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Memory, actor.Samus, 0, 240), draw: false);
+        pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Memory, actor.Samus, new(0, 240)), draw: false);
         var stockQueue = new VramWriteQueue(); var editedQueue = new VramWriteQueue();
         int frames = 0;
         while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)

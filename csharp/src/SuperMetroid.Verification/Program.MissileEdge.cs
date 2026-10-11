@@ -25,7 +25,7 @@ internal static partial class Program
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
                 shared.StepFrame(bus, room, samus, input, input);
                 projectiles.StepFrame(bus, room, samus, input, input,
-                    (ushort)(edge == 1 ? 192 : 384), 0, shared);
+                    new((ushort)(edge == 1 ? 192 : 384), 0), shared);
                 if (frame == 0) AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
                     "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Slots[0];

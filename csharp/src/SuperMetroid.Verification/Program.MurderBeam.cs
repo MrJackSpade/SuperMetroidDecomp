@@ -58,8 +58,7 @@ internal static partial class Program
             samus,
             0,
             0,
-            0,
-            0,
+            new(0, 0),
             shared);
         AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
             "charged-left Murder Beam allocates slot zero");
@@ -90,7 +89,7 @@ internal static partial class Program
         for (int frame = 0; frame < 16; frame++)
         {
             shared.StepFrame(bus, level, samus, 0, 0);
-            projectiles.StepFrame(bus, level, samus, 0, 0, 0, 0, shared);
+            projectiles.StepFrame(bus, level, samus, 0, 0, new(0, 0), shared);
         }
         AssertEqual((ushort)0x901f, shot.Type, "Murder Beam persists without an instruction list");
         AssertEqual((ushort)200, shot.Damage, "persistent Murder Beam retains damage");
@@ -154,7 +153,7 @@ internal static partial class Program
         for (int frame = 0; frame < 120; frame++)
         {
             shared.StepFrame(bus, level, samus, 0, 0);
-            projectiles.StepFrame(bus, level, samus, 0, 0, 0, 0, shared);
+            projectiles.StepFrame(bus, level, samus, 0, 0, new(0, 0), shared);
         }
         AssertEqual((ushort)0x901f, shot.Type,
             "Murder Beam survives the phase-two to phase-three cutscene boundary");
@@ -190,8 +189,7 @@ internal static partial class Program
                 samus,
                 (ushort)SnesButton.X,
                 newlyPressed,
-                0,
-                0,
+                new(0, 0),
                 shared);
         }
         AssertEqual(SamusProjectileRomData.Beams.FullyChargedCounter,
@@ -216,7 +214,7 @@ internal static partial class Program
         AssertThrows<NotSupportedException>(() =>
         {
             shared.StepFrame(bus, level, samus, 0, 0);
-            projectiles.StepFrame(bus, level, samus, 0, 0, 0, 0, shared);
+            projectiles.StepFrame(bus, level, samus, 0, 0, new(0, 0), shared);
         }, "unsafe right-facing Murder Beam does not silently become an ordinary projectile");
     }
 
@@ -249,8 +247,7 @@ internal static partial class Program
             samus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             shared);
         AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
             "auto-cancel setup fires one Missile");
@@ -263,7 +260,7 @@ internal static partial class Program
         shared.StepFrame(bus, level, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeMurder = projectiles.ObserveSlots();
         projectiles.StepFrame(
-            bus, level, samus, 0, 0, 0, 0, shared);
+            bus, level, samus, 0, 0, new(0, 0), shared);
         int? murderSlot = slotsBeforeMurder.FiredSlot(projectiles);
         AssertTrue(murderSlot is not null,
             "missile cooldown suppresses the unsafe uncharged shot and permits charged release");
@@ -287,8 +284,7 @@ internal static partial class Program
             samus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             CreateBombFixture()),
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }

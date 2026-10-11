@@ -867,8 +867,7 @@ public sealed partial class SuperMetroidRuntime
         SamusDeathSequenceStartResult result = Samus.DeathSequence.Begin(
             _addressSpace,
             Samus,
-            Camera.XPosition,
-            Camera.YPosition);
+            new(Camera.XPosition, Camera.YPosition));
 
         // The next accepted NMI must see pose `$D7/$D8` definitions. Native game state 15
         // draws once before setup and state 16 draws the new pose on its following call;
@@ -892,8 +891,7 @@ public sealed partial class SuperMetroidRuntime
         LastSamusBodyDrawn = Samus.Draw(
             _addressSpace,
             Oam,
-            Camera.XPosition,
-            Camera.YPosition,
+            new(Camera.XPosition, Camera.YPosition),
             mode7Transform: ActiveSamusMode7Transform);
         Oam.FinalizeFrame();
     }
@@ -922,8 +920,7 @@ public sealed partial class SuperMetroidRuntime
             LastSamusBodyDrawn = Samus.Draw(
                 _addressSpace,
                 Oam,
-                Camera.XPosition,
-                Camera.YPosition,
+                new(Camera.XPosition, Camera.YPosition),
                 mode7Transform: ActiveSamusMode7Transform);
         }
         else if (LastDeathSequenceStep.Value.DrawExplosion)
@@ -1559,8 +1556,7 @@ public sealed partial class SuperMetroidRuntime
                         Samus,
                         Controller1.Current,
                         Controller1.NewlyPressed,
-                        Camera.XPosition,
-                        Camera.YPosition,
+                        new(Camera.XPosition, Camera.YPosition),
                         BombProjectiles,
                         // Locked alpha advances existing shots without dispatching the
                         // HUD weapon producer (including station command six).
@@ -4259,8 +4255,7 @@ Landed: true, HitCeiling: false);
             SuitPickup.Begin(
                 _addressSpace,
                 Samus,
-                Camera.XPosition,
-                Camera.YPosition,
+                new(Camera.XPosition, Camera.YPosition),
                 pendingSuit,
                 soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
             _pendingSuitPickup = null;

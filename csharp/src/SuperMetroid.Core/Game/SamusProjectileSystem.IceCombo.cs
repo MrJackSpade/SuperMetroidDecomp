@@ -6,7 +6,7 @@ public sealed partial class SamusProjectileSystem
 {
     /// <summary>Runs $90:CF09/$CF7A for one Ice combo slot and returns its optional library-one sound request.</summary>
     internal ushort StepIceCombo(ISnesAddressSpace bus, SamusState samus,
-        SamusProjectileSlot slot, SamusBombProjectileSystem shared, ushort cameraX, ushort cameraY)
+        SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
         bool outward = slot.PreInstruction == SamusProjectilePreInstruction.IceComboOutward;
         if (!outward && slot.PreInstruction != SamusProjectilePreInstruction.IceCombo)
@@ -26,15 +26,15 @@ public sealed partial class SamusProjectileSystem
         ushort distance = outward ? unchecked((ushort)slot.XVelocity) : (ushort)32;
         var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(slot.Variable, distance);
         slot.XPosition = unchecked((ushort)(samus.Position.X.Whole + x));
-        if (outward && (unchecked((short)(slot.XPosition - cameraX + 32)) < 0 ||
-                        unchecked((short)(slot.XPosition - cameraX - 288)) >= 0))
+        if (outward && (unchecked((short)(slot.XPosition - camera.X + 32)) < 0 ||
+                        unchecked((short)(slot.XPosition - camera.X - 288)) >= 0))
         {
             ClearProjectile(slot);
             return 0;
         }
         slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + y));
-        if (outward && (unchecked((short)(slot.YPosition - cameraY - 16)) < 0 ||
-                        unchecked((short)(slot.YPosition - cameraY - 256)) >= 0))
+        if (outward && (unchecked((short)(slot.YPosition - camera.Y - 16)) < 0 ||
+                        unchecked((short)(slot.YPosition - camera.Y - 256)) >= 0))
         {
             ClearProjectile(slot);
             return 0;

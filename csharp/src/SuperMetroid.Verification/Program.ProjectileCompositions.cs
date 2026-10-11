@@ -116,12 +116,12 @@ internal static partial class Program
             foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
                 var native = new OamBuffer(); var extracted = new OamBuffer();
-                shots.DrawLiveProjectiles(rom, native, 0, 0, parity, content);
-                shots.DrawExplosions(rom, native, 0, 0, content);
-                bombs.Draw(rom, native, 0, 0, content);
-                shots.DrawLiveProjectiles(forbidden, extracted, 0, 0, parity, content);
-                shots.DrawExplosions(forbidden, extracted, 0, 0, content);
-                bombs.Draw(forbidden, extracted, 0, 0, content);
+                shots.DrawLiveProjectiles(rom, native, Position16<RoomPixels>.Zero, parity, content);
+                shots.DrawExplosions(rom, native, Position16<RoomPixels>.Zero, content);
+                bombs.Draw(rom, native, Position16<RoomPixels>.Zero, content);
+                shots.DrawLiveProjectiles(forbidden, extracted, Position16<RoomPixels>.Zero, parity, content);
+                shots.DrawExplosions(forbidden, extracted, Position16<RoomPixels>.Zero, content);
+                bombs.Draw(forbidden, extracted, Position16<RoomPixels>.Zero, content);
                 AssertTrue(native.LowTable.SequenceEqual(extracted.LowTable) && native.HighTable.SequenceEqual(extracted.HighTable),
                     "Production projectile composition preserves admission, flicker and OAM");
                 AssertEqual(native.NextByteOffset, extracted.NextByteOffset, "Composition owner preserves OAM cursor");
@@ -134,7 +134,7 @@ internal static partial class Program
             {
                 bomb.BombTimer = 0;
                 var hidden = new OamBuffer();
-                bombs.Draw(forbidden, hidden, 0, 0, content);
+                bombs.Draw(forbidden, hidden, Position16<RoomPixels>.Zero, content);
                 AssertEqual(0, hidden.NextByteOffset, "Detonated power bomb remains hidden with extracted art");
             }
         }

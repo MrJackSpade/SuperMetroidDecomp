@@ -111,8 +111,7 @@ internal static partial class Program
                     samus,
                     input,
                     input,
-                    (ushort)cameraX,
-                    (ushort)cameraY,
+                    new((ushort)cameraX, (ushort)cameraY),
                     bombs,
                     roomPlms: plms);
                 var gate = plms.SinglePopulationSlot(PlmHeaderId.DownwardGate);

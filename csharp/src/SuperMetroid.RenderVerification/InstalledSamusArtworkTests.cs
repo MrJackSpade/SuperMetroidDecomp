@@ -38,8 +38,8 @@ internal static partial class InstalledSamusArtworkTests
             var a = new SnesVram(); var b = new SnesVram();
             var oa = new OamBuffer(); var ob = new OamBuffer();
             oa.BeginFrame(); ob.BeginFrame();
-            bool visible = stock.Draw(memory, oa, 0, 0);
-            Require(visible == edited.Draw(memory, ob, 0, 0), $"pose {pose:X2}: visibility changed");
+            bool visible = stock.Draw(memory, oa, new(0, 0));
+            Require(visible == edited.Draw(memory, ob, new(0, 0)), $"pose {pose:X2}: visibility changed");
             stock.TileTransfers.TransferToVram(memory, a);
             edited.TileTransfers.TransferToVram(memory, b);
             oa.FinalizeFrame(); ob.FinalizeFrame();

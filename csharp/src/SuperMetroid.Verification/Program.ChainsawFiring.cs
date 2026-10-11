@@ -40,7 +40,7 @@ internal static partial class Program
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
         projectiles.StepFrame(bus, level, samus,
-            (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, shared);
+            (ushort)SnesButton.X, (ushort)SnesButton.X, new(0, 0), shared);
 
         // A missing shot also leaves an empty slot, so checking deletion alone would
         // incorrectly pass the existing silent >=12 rejection in HandleBeamInput.
@@ -74,8 +74,7 @@ internal static partial class Program
             reactiveSamus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             CreateBombFixture()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
 
         // Wave collision scans do not kill their owner, but they still run every touched
@@ -109,8 +108,7 @@ internal static partial class Program
             doorSamus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             CreateBombFixture(),
             roomPlms: doorPlms);
         AssertEqual(1, doorPlms.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
@@ -138,8 +136,7 @@ internal static partial class Program
                 samus,
                 update == 0 ? (ushort)SnesButton.X : (ushort)0,
                 update == 0 ? (ushort)SnesButton.X : (ushort)0,
-                0,
-                0,
+                new(0, 0),
                 activeShared);
             SamusProjectileSlot slot = activeProjectiles.Slots[0];
             if (update == 0)
@@ -164,7 +161,7 @@ internal static partial class Program
         combatShared.PowerBombExplosion.Arm();
         var combatProjectiles = CreateProjectileFixture();
         combatProjectiles.StepFrame(bus, level, samus,
-            (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, combatShared);
+            (ushort)SnesButton.X, (ushort)SnesButton.X, new(0, 0), combatShared);
         var combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemySlot target = combat.System.Slots[0];
         target.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
@@ -359,8 +356,7 @@ internal static partial class Program
                 chargedSamus,
                 (ushort)SnesButton.X,
                 frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-                0,
-                0,
+                new(0, 0),
                 chargedShared);
         }
         chargedShared.StepFrame(bus, level, chargedSamus, 0, 0);
@@ -371,8 +367,7 @@ internal static partial class Program
                 chargedSamus,
                 0,
                 0,
-                0,
-                0,
+                new(0, 0),
                 chargedShared),
             "charged Chainsaw reaches mutable low-WRAM execution");
         AssertTrue(chargedFault.Message.Contains("$90:0A0A", StringComparison.Ordinal) &&

@@ -25,7 +25,7 @@ internal static partial class Program
         var bombs = CreateBombFixture();
         ushort input = (ushort)SnesButton.X;
         bombs.StepFrame(bus, level, samus, input, input);
-        shots.StepFrame(bus, level, samus, input, input, 0, 224, bombs, roomPlms: plms);
+        shots.StepFrame(bus, level, samus, input, input, new(0, 224), bombs, roomPlms: plms);
         var shot = shots.Slots[0];
         AssertEqual((ushort)0x8700, shot.Type, "Native beam impacts gate during producer collision");
         AssertEqual((ushort)113, shot.XPosition, "Native impact X, before any continuing flight");

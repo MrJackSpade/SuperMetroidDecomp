@@ -59,7 +59,7 @@ internal static partial class Program
             var shots = new SamusProjectileSystem();
             var bombs = new SamusBombProjectileSystem();
             for (int frame = 0; frame < 10; frame++)
-                shots.StepFrame(bus, level, samus, (ushort)SnesButton.X, 0, 0, 0, bombs);
+                shots.StepFrame(bus, level, samus, (ushort)SnesButton.X, 0, new(0, 0), bombs);
             AssertEqual(10, shots.FlareCounter, "Fixture charge earned through real producer");
             metadata.SourcePose = samus.Pose = pose;
             setTurn(samus, turn);
@@ -67,7 +67,7 @@ internal static partial class Program
             bool ball = pose is >= SamusPoseId.MorphBallGroundRightPose and <= SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.MorphBallFallingRightPose or SamusPoseId.MorphBallFallingLeftPose or SamusPoseId.MorphBallGroundLeftPose or >= SamusPoseId.SpringBallGroundRightPose and <= SamusPoseId.SpringBallJumpLeftPose;
             bool preserves = ball || pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose || handler == 0xddb6 || handler == 0xdd74 && turn == 0 ||
                 handler == 0xdd8c && !Transition(pose, false);
-            shots.StepFrame(bus, level, samus, (ushort)SnesButton.X, 0, 0, 0, bombs);
+            shots.StepFrame(bus, level, samus, (ushort)SnesButton.X, 0, new(0, 0), bombs);
             // An admitted nonzero turn handoff forces release before held-input charge
             // processing; with no new Shoot edge this partial charge emits no projectile.
             AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)pose:X2} turn={turn}");

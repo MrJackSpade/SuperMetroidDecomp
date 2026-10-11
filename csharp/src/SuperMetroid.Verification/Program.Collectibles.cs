@@ -702,7 +702,7 @@ internal static partial class Program
 
         var pickup = new SamusSuitPickupState();
         var curveGuard = new SuitPickupBeamCurveReadGuard(bus);
-        pickup.Begin(bus, samus, layer1X: 0x0100, layer1Y: 0x0200,
+        pickup.Begin(bus, samus, layer1: new(0x0100, 0x0200),
             SamusSuitPickupKind.Varia);
         AssertTrue(pickup.IsActive, "Varia transformation starts after message return");
         AssertTrue(samus.InputLocked, "suit transformation locks Samus input");
@@ -789,7 +789,7 @@ internal static partial class Program
             history.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
             history.LastDifferentDirectionAndMovement = 0x1404;
             var pickup = new SamusSuitPickupState();
-            pickup.Begin(bus, samus, 0, 0, kind);
+            pickup.Begin(bus, samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
             ushort initialMetadata = (ushort)(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8));
             AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");

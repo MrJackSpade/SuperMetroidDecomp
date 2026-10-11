@@ -52,7 +52,7 @@ internal static partial class Program
                 }
                 shared.StepFrame(bus, room, samus, input, input);
                 SamusProjectileSlotObservation beforeStep = projectiles.ObserveSlots();
-                projectiles.StepFrame(bus, room, samus, input, input, cameraX, cameraY, shared);
+                projectiles.StepFrame(bus, room, samus, input, input, new(cameraX, cameraY), shared);
                 if (native is not null)
                 {
                     ushort[] actual = [cameraX, cameraY, shot.XPosition, shot.XSubposition,

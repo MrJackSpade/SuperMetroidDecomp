@@ -30,7 +30,7 @@ internal static class RuntimeOverlayTests
         for (int tick = 0; tick < 50; tick++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int tick = 0; tick < 13; tick++) runtime.MessageBox.Step(0);
-        runtime.SuitPickup.Begin(bus, runtime.Samus!, 0, 0, SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Begin(bus, runtime.Samus!, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(bus, runtime.Samus!, runtime.Cgram);
         var initial = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         if (initial.Layers.Length != 4 || initial.Layers[0] is not OrdinaryGameplayRenderLayer

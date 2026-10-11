@@ -20,7 +20,7 @@ internal static partial class Program
         };
         SamusProjectileSystem projectiles = CreateProjectileFixture();
         SamusBombProjectileSystem bombs = CreateBombFixture();
-        projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, bombs);
+        projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X, (ushort)SnesButton.X, new(0, 0), bombs);
         AssertEqual(SamusProjectileFamily.SuperMissile, projectiles.Slots[0].PackedType.Family, "X fires a Super Missile");
 
         projectiles.ApplyEnemyCollisionPrelude(0, markCollisionState: true);

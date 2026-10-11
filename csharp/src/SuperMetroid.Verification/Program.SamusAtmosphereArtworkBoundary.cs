@@ -29,7 +29,7 @@ internal static partial class Program
                 effects.SetSlot(0, type, frame, 2, 128, 128);
                 var oam = new OamBuffer();
                 oam.BeginFrame();
-                effects.UpdateAndDraw(runtimeBus, oam, 0, 0, 128,
+                effects.UpdateAndDraw(runtimeBus, oam, new(0, 0), 128,
                     directArtwork: artwork);
                 AssertEqual((byte)expected, oam.LowTable[2],
                     $"atmospheric type {type} frame {frame} low attribute uses imported art");
@@ -43,7 +43,7 @@ internal static partial class Program
             {
                 var oam = new OamBuffer();
                 oam.BeginFrame();
-                missing.UpdateAndDraw(runtimeBus, oam, 0, 0, 128);
+                missing.UpdateAndDraw(runtimeBus, oam, new(0, 0), 128);
             }, "authored atmospheric art cannot fall back to ROM");
 
             runtimeBus.WriteByte(SamusMovementRomData.Banks.Movement, 0x5a);
@@ -52,7 +52,7 @@ internal static partial class Program
             mutable.SetSlot(0, 2, 0, 2, 128, 128);
             var mutableOam = new OamBuffer();
             mutableOam.BeginFrame();
-            mutable.UpdateAndDraw(runtimeBus, mutableOam, 0, 0, 128);
+            mutable.UpdateAndDraw(runtimeBus, mutableOam, new(0, 0), 128);
             AssertEqual((byte)0x5a, mutableOam.LowTable[2],
                 "type-two null pointer reads the live mirrored WRAM low byte");
             AssertEqual((byte)0x34, mutableOam.LowTable[3],

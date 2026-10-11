@@ -30,9 +30,9 @@ internal static partial class Program
             {
                 var originalOam = new OamBuffer(); var stockOam = new OamBuffer(); var editedOam = new OamBuffer();
                 var originalQueue = new VramWriteQueue(); var stockQueue = new VramWriteQueue(); var editedQueue = new VramWriteQueue();
-                SamusGrappleMovement.DrawConnectedBeam(bus, originalState, originalOam, originalQueue, 0, 0);
-                SamusGrappleMovement.DrawConnectedBeam(guard, stockState, stockOam, stockQueue, 0, 0, stock);
-                SamusGrappleMovement.DrawConnectedBeam(guard, editedState, editedOam, editedQueue, 0, 0, changed);
+                SamusGrappleMovement.DrawConnectedBeam(bus, originalState, originalOam, originalQueue, new(0, 0));
+                SamusGrappleMovement.DrawConnectedBeam(guard, stockState, stockOam, stockQueue, new(0, 0), stock);
+                SamusGrappleMovement.DrawConnectedBeam(guard, editedState, editedOam, editedQueue, new(0, 0), changed);
                 AssertTrue(originalOam.LowTable.SequenceEqual(stockOam.LowTable) && originalOam.HighTable.SequenceEqual(stockOam.HighTable), "Stock JSON preserves entire native OAM");
                 AssertEqual(stockOam.NextByteOffset, editedOam.NextByteOffset, "Visual edit preserves segment count");
                 AssertTrue(stockOam.HighTable.SequenceEqual(editedOam.HighTable), "Visual edit preserves object size and high-X");

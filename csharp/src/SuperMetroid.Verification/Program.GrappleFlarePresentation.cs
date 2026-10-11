@@ -103,9 +103,9 @@ internal static partial class Program
                 }
             }
             var a = new OamBuffer(); var b = new OamBuffer(); var c = new OamBuffer();
-            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(bus, native, a, 0, 0, stock);
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, actual, b, 0, 0, stock), "Grapple catalog retains native flare visibility");
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, changed, c, 0, 0, edited), "Grapple art edit retains origin visibility gate");
+            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(bus, native, a, Position16<RoomPixels>.Zero, stock);
+            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, actual, b, Position16<RoomPixels>.Zero, stock), "Grapple catalog retains native flare visibility");
+            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, changed, c, Position16<RoomPixels>.Zero, edited), "Grapple art edit retains origin visibility gate");
             AssertEqual((expectedFrame, expectedTimer), (actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.LowTable.SequenceEqual(b.LowTable) && a.HighTable.SequenceEqual(b.HighTable) && a.NextByteOffset == b.NextByteOffset, "Grapple stock parts preserve native complete OAM");
             AssertEqual(a.NextByteOffset, c.NextByteOffset, "Grapple art edit preserves sprite count");

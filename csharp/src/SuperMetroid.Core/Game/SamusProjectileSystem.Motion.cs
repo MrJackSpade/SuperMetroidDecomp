@@ -13,8 +13,7 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         RoomPlmSystem? roomPlms,
         SamusPowerBombExplosionState powerBomb)
     {
@@ -68,7 +67,7 @@ public sealed partial class SamusProjectileSystem
         // when collision changed the beam into an explosion. KillBeam moves its
         // origin to the contact edge, which can put an otherwise retained shot
         // outside that window on this very frame.
-        DeleteIfOutsideMovementWindow(slot, layer1X, layer1Y);
+        DeleteIfOutsideMovementWindow(slot, layer1);
 
         return collided;
     }
@@ -77,8 +76,7 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         RoomPlmSystem? roomPlms)
     {
         if (slot.PackedDirection.HasLowByteLifecycleState)
@@ -101,14 +99,13 @@ public sealed partial class SamusProjectileSystem
             SpawnTrail(bus, slot);
         }
 
-        RunWaveBeamShared(level, slot, layer1X, layer1Y, roomPlms);
+        RunWaveBeamShared(level, slot, layer1, roomPlms);
     }
 
     private void RunHyperBeamPreInstruction(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         RoomPlmSystem? roomPlms)
     {
         if (slot.PackedDirection.HasLowByteLifecycleState)
@@ -120,14 +117,13 @@ public sealed partial class SamusProjectileSystem
         // `$90:B159` falls directly into the shared Wave movement. Hyper deliberately has
         // no projectile-trail timer or SpawnProjectileTrail call; its long beam spritemap
         // and the separately counting muzzle flare provide the complete native presentation.
-        RunWaveBeamShared(level, slot, layer1X, layer1Y, roomPlms);
+        RunWaveBeamShared(level, slot, layer1, roomPlms);
     }
 
     private void RunWaveBeamShared(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         RoomPlmSystem? roomPlms)
     {
         int direction = slot.PackedDirection.DirectionIndex;
@@ -160,15 +156,14 @@ public sealed partial class SamusProjectileSystem
             ScanVerticalWaveShotReactions(level, slot, roomPlms);
         }
 
-        DeleteIfOutsideMovementWindow(slot, layer1X, layer1Y);
+        DeleteIfOutsideMovementWindow(slot, layer1);
     }
 
     private bool RunMissilePreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         SamusBombProjectileSystem sharedProjectiles,
         RoomPlmSystem? roomPlms)
     {
@@ -231,7 +226,7 @@ public sealed partial class SamusProjectileSystem
         // The native missile direction handler may create an explosion just
         // beyond the retention boundary. Its caller still runs the offscreen
         // check on that same frame, after impact sound/cooldown side effects.
-        DeleteIfOutsideMovementWindow(slot, layer1X, layer1Y);
+        DeleteIfOutsideMovementWindow(slot, layer1);
         return collided;
     }
 
@@ -240,8 +235,7 @@ public sealed partial class SamusProjectileSystem
         RoomLevelData level,
         SamusState samus,
         SamusProjectileSlot slot,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         SamusBombProjectileSystem sharedProjectiles,
         RoomPlmSystem? roomPlms)
     {
@@ -303,7 +297,7 @@ public sealed partial class SamusProjectileSystem
                 level, slot, vertical: true, sharedProjectiles, roomPlms);
         }
 
-        if (DeleteIfOutsideMovementWindow(slot, layer1X, layer1Y))
+        if (DeleteIfOutsideMovementWindow(slot, layer1))
         {
             ClearAllSuperMissileLinks();
         }
@@ -319,14 +313,13 @@ public sealed partial class SamusProjectileSystem
     /// <returns>True when the projectile was outside the native movement window and cleared.</returns>
     private bool DeleteIfOutsideMovementWindow(
         SamusProjectileSlot slot,
-        ushort layer1X,
-        ushort layer1Y)
+        Position16<RoomPixels> layer1)
     {
         const int MinimumVisibleCoordinate = -64;
         const int MaximumVisibleCoordinateExclusive = 320;
 
-        short screenX = unchecked((short)(slot.XPosition - layer1X));
-        short screenY = unchecked((short)(slot.YPosition - layer1Y));
+        short screenX = unchecked((short)(slot.XPosition - layer1.X));
+        short screenY = unchecked((short)(slot.YPosition - layer1.Y));
         bool outside =
             screenX < MinimumVisibleCoordinate ||
             screenX >= MaximumVisibleCoordinateExclusive ||

@@ -57,7 +57,7 @@ internal static partial class Program
         AssertTrue(!shots.Slots[1].PackedDirection.HasLowByteLifecycleState, "the pair's second slot is not marked");
 
         var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
-        shots.StepFrame(bus, level, samus, 0, 0, 0, 0, bombs, projectileProducerEnabled: false);
+        shots.StepFrame(bus, level, samus, 0, 0, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
         head.InvincibilityTimer = head.FlashTimer = head.AiHandlerBits = 0;
         AssertEqual(0, enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus), "nothing of the pair is left to hit the glass");
         AssertEqual((ushort)2700, head.Health, "the glass takes no second hit");

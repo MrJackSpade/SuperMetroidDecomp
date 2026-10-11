@@ -90,7 +90,7 @@ internal static partial class Program
         actual = (OamBuffer)Invoke(intro, "PrepareMotherBrainOam")!;
         expected = new OamBuffer();
         expected.BeginFrame();
-        Field<SamusState>(intro, "flashbackSamus").Draw(memory, expected, 0, 0, 0);
+        Field<SamusState>(intro, "flashbackSamus").Draw(memory, expected, new(0, 0), 0);
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, motherBrain.SpriteMapPointer),
             IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition,

@@ -499,8 +499,7 @@ public sealed partial class SamusState
     public bool Draw(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         ushort nmiFrameCounter = 0,
         SamusMode7Transform? mode7Transform = null)
     {
@@ -539,7 +538,7 @@ public sealed partial class SamusState
         // $90:8C94 sign-extends the byte at pose-definition offset four. Pose $01 stores
         // +6, moving the art origin six pixels above Samus's world-space center.
         sbyte graphicsYOffset = ReadGraphicsYOffset(bus);
-        SpritemapXPosition = unchecked((ushort)(renderX - layer1X));
+        SpritemapXPosition = unchecked((ushort)(renderX - layer1.X));
         if (movementType == SamusMovementType.Standing &&
             Pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose &&
             AnimationFrame >= 2)
@@ -547,7 +546,7 @@ public sealed partial class SamusState
             // `$90:8D07-$90:8D27` uses the ordinary pose graphics offset for front-facing
             // frames zero/one, then pins every later frame exactly one pixel above Samus's
             // center. This is independent of `$00`'s extra power-suit chest-cover OBJ.
-            SpritemapYPosition = unchecked((ushort)(renderY - 1 - layer1Y));
+            SpritemapYPosition = unchecked((ushort)(renderY - 1 - layer1.Y));
         }
         else if (movementType == SamusMovementType.Standing && Pose >= SamusPoseId.NormalLandingRightPose &&
             Pose <= SamusPoseId.SpinLandingLeftPose)
@@ -562,7 +561,7 @@ public sealed partial class SamusState
                 !landingArt.TryLandingYOffset(landingOffsetIndex, out ushort landingOffset))
                 throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
             SpritemapYPosition = unchecked((ushort)(
-                renderY - landingOffset - layer1Y));
+                renderY - landingOffset - layer1.Y));
         }
         else if (movementType == SamusMovementType.PostureTransition &&
             Pose >= SamusPoseId.CrouchingTransitionRightPose &&
@@ -577,7 +576,7 @@ public sealed partial class SamusState
             if (TileTransfers.Artwork is not { } postureArt ||
                 !postureArt.TryPostureYOffset(postureIndex, out sbyte transitionOffset))
                 throw new InvalidDataException($"Samus posture offset {postureIndex} lacks installed art.");
-            SpritemapYPosition = unchecked((ushort)(renderY + transitionOffset - layer1Y));
+            SpritemapYPosition = unchecked((ushort)(renderY + transitionOffset - layer1.Y));
         }
         else if (Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
@@ -588,18 +587,18 @@ public sealed partial class SamusState
             if (TileTransfers.Artwork is not { } drainedArt ||
                 !drainedArt.TryDrainedYOffset(AnimationFrame, out sbyte drainedOffset))
                 throw new InvalidDataException($"Samus drained offset {AnimationFrame} lacks installed art.");
-            SpritemapYPosition = unchecked((ushort)(renderY + drainedOffset - layer1Y));
+            SpritemapYPosition = unchecked((ushort)(renderY + drainedOffset - layer1.Y));
         }
         else if ((Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose) &&
                  AnimationFrame >= 5)
         {
             // `$90:8DB1-$8DBC` replaces the usual pose graphics offset with -3 after
             // standing drained art reaches byte index five.
-            SpritemapYPosition = unchecked((ushort)(renderY - 3 - layer1Y));
+            SpritemapYPosition = unchecked((ushort)(renderY - 3 - layer1.Y));
         }
         else
         {
-            SpritemapYPosition = unchecked((ushort)(renderY - graphicsYOffset - layer1Y));
+            SpritemapYPosition = unchecked((ushort)(renderY - graphicsYOffset - layer1.Y));
         }
 
         var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(
@@ -618,8 +617,8 @@ public sealed partial class SamusState
         // not SpritemapYPosition (which has already applied pose graphics offset `$08`).
         if (Pose == SamusPoseId.ForwardFacingPowerSuitPose)
         {
-            ushort chestX = unchecked((ushort)(Position.X.Whole - 7 - layer1X));
-            ushort chestY = unchecked((ushort)(Position.Y.Whole - 0x11 - layer1Y));
+            ushort chestX = unchecked((ushort)(Position.X.Whole - 7 - layer1.X));
+            ushort chestY = unchecked((ushort)(Position.Y.Whole - 0x11 - layer1.Y));
             oam.AddRawSmallSprite(chestX, chestY, attributes: 0x3821);
         }
 
@@ -713,8 +712,7 @@ public sealed partial class SamusState
     public void DrawSpeedBoosterEchoes(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        ushort layer1X,
-        ushort layer1Y)
+        Position16<RoomPixels> layer1)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -734,8 +732,7 @@ public sealed partial class SamusState
                     oam,
                     HorizontalSpeed.SecondSpeedEchoXPosition,
                     HorizontalSpeed.SecondSpeedEchoYPosition,
-                    layer1X,
-                    layer1Y);
+                    layer1);
             }
 
             if (HorizontalSpeed.AdvanceDepartingSpeedEcho(
@@ -748,8 +745,7 @@ public sealed partial class SamusState
                     oam,
                     HorizontalSpeed.FirstSpeedEchoXPosition,
                     HorizontalSpeed.FirstSpeedEchoYPosition,
-                    layer1X,
-                    layer1Y);
+                    layer1);
             }
 
             HorizontalSpeed.FinishDepartingSpeedEchoFrame();
@@ -766,15 +762,13 @@ public sealed partial class SamusState
             oam,
             HorizontalSpeed.SecondSpeedEchoXPosition,
             HorizontalSpeed.SecondSpeedEchoYPosition,
-            layer1X,
-            layer1Y);
+            layer1);
         DrawActiveSpeedBoosterEcho(
             bus,
             oam,
             HorizontalSpeed.FirstSpeedEchoXPosition,
             HorizontalSpeed.FirstSpeedEchoYPosition,
-            layer1X,
-            layer1Y);
+            layer1);
     }
 
     /// <summary>
@@ -784,8 +778,7 @@ public sealed partial class SamusState
     public void DrawShinesparkCrashEchoes(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         ushort nmiFrameCounter)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -801,12 +794,12 @@ public sealed partial class SamusState
             bus, oam,
             HorizontalSpeed.SecondSpeedEchoXPosition,
             HorizontalSpeed.SecondSpeedEchoYPosition,
-            layer1X, layer1Y);
+            layer1);
         DrawActiveSpeedBoosterEcho(
             bus, oam,
             HorizontalSpeed.FirstSpeedEchoXPosition,
             HorizontalSpeed.FirstSpeedEchoYPosition,
-            layer1X, layer1Y);
+            layer1);
     }
 
     /// <summary>
@@ -816,8 +809,7 @@ public sealed partial class SamusState
     public void DrawReleasedShinesparkCrashEchoes(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         ushort nmiFrameCounter)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -831,14 +823,14 @@ public sealed partial class SamusState
         if (second.Active)
         {
             DrawActiveSpeedBoosterEcho(
-                bus, oam, second.XPosition, second.YPosition, layer1X, layer1Y);
+                bus, oam, second.XPosition, second.YPosition, layer1);
         }
 
         ShinesparkReleasedEcho first = Shinespark.FirstReleasedCrashEcho;
         if (first.Active)
         {
             DrawActiveSpeedBoosterEcho(
-                bus, oam, first.XPosition, first.YPosition, layer1X, layer1Y);
+                bus, oam, first.XPosition, first.YPosition, layer1);
         }
     }
 
@@ -847,15 +839,14 @@ public sealed partial class SamusState
         OamBuffer oam,
         ushort echoX,
         ushort echoY,
-        ushort layer1X,
-        ushort layer1Y)
+        Position16<RoomPixels> layer1)
     {
         // Zero X is the cartridge's empty-slot sentinel, not merely an off-screen point.
         if (echoX == 0)
             return;
 
         sbyte graphicsYOffset = ReadGraphicsYOffset(bus);
-        short screenY = unchecked((short)(echoY - graphicsYOffset - layer1Y));
+        short screenY = unchecked((short)(echoY - graphicsYOffset - layer1.Y));
 
         // The original accepts screen Y 0..247. Horizontal clipping remains OAM/PPU work,
         // exactly as it is for the current Samus body.
@@ -864,7 +855,7 @@ public sealed partial class SamusState
 
         var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus speed-booster echo requires installed spritemap artwork.");
-        ushort screenX = unchecked((ushort)(echoX - layer1X));
+        ushort screenX = unchecked((ushort)(echoX - layer1.X));
         oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Samus zero-pointer spritemap requires WRAM."),
             TopSpritemapIndex, screenX, unchecked((ushort)screenY),

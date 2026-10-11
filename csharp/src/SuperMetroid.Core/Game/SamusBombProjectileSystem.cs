@@ -265,8 +265,7 @@ public sealed class SamusBombProjectileSystem
     public void Draw(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         Assets.ProjectileSpriteCatalog? compositions = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -294,8 +293,8 @@ public sealed class SamusBombProjectileSystem
             // $93:837F admits X in [-48,304). Y is admitted only when the high byte of
             // the wrapped room-relative word is zero, i.e. [0,255]. OAM itself clips the
             // bottom 32 scanlines outside this runtime's 224-line rendered viewport.
-            short screenX = unchecked((short)(slot.XPosition - layer1X));
-            ushort screenY = unchecked((ushort)(slot.YPosition - layer1Y));
+            short screenX = unchecked((short)(slot.XPosition - layer1.X));
+            ushort screenY = unchecked((ushort)(slot.YPosition - layer1.Y));
             if (screenX < -48 || screenX >= 304 || (screenY & 0xff00) != 0)
                 continue;
 

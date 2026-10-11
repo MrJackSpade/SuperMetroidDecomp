@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room background tilemaps")]
     private static void VerifyRoomBackgroundTilemapExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -43,7 +44,7 @@ internal static partial class Program
         var nativeVram = new SnesVram();
         var selectedVram = new SnesVram();
         SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeVram, ceresList, activeDoorPointer: 0);
-        LibraryBackgroundLoader.Execute(new BackgroundTilemapReadGuard(bus, ceresSource),
+        LibraryBackgroundLoader.Execute(NewBackgroundTilemapReadGuard(bus, ceresSource),
             selectedVram, ceresList, activeDoorPointer: 0, tilemapArt: catalog);
         AssertTrue(nativeVram.Bytes.SequenceEqual(selectedVram.Bytes),
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
@@ -62,7 +63,7 @@ internal static partial class Program
             "editing one background tile reference changes only its native BG word");
         compiled[ceresSource] = modified;
         var editedVram = new SnesVram();
-        LibraryBackgroundLoader.Execute(new BackgroundTilemapReadGuard(bus, ceresSource),
+        LibraryBackgroundLoader.Execute(NewBackgroundTilemapReadGuard(bus, ceresSource),
             editedVram, ceresList, activeDoorPointer: 0,
             tilemapArt: new RoomBackgroundTilemapCatalog(compiled));
         AssertTrue(nativeVram.ReadWord(0x4800) != editedVram.ReadWord(0x4800) &&
@@ -77,23 +78,11 @@ internal static partial class Program
             "roundtrip byte-exactly; a tile-reference edit changes only its BG word.");
     }
 
-    private sealed class BackgroundTilemapReadGuard(ISnesAddressSpace source, int blockedSource)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static MutableCartridgeReadGuard NewBackgroundTilemapReadGuard(ISnesAddressSpace source, int blockedSource)
     {
-        private ISnesMutableMemory WorkMemory => source as ISnesMutableMemory ??
-            throw new InvalidOperationException("Background tilemap read guard source has no live WRAM.");
-
-        public byte ReadWorkRamByte(int cpuAddress) => WorkMemory.ReadWorkRamByte(cpuAddress);
-
-        public byte ReadSaveRamByte(int cpuAddress) => WorkMemory.ReadSaveRamByte(cpuAddress);
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address == blockedSource
-            ? throw new InvalidOperationException(
-                $"Installed room background reread source ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address == blockedSource,
+            address => $"Installed room background reread source ${address:X6}.");
+        return guard;
     }
 }

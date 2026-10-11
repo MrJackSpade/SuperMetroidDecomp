@@ -11,6 +11,7 @@ internal static partial class Program
     /// Proves the named room-asset definitions remain inside the retail cartridge and that
     /// every graphics set selected by a retail room state resolves to three valid streams.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for tileset definition pointers and compressed graphics streams")]
     static void VerifyRoomAssetRomData()
     {
         ValidateTilemapTransfer(RoomAssetRomData.LibraryBackground.ClearFx, "clear FX");
@@ -107,7 +108,7 @@ internal static partial class Program
         var palettes = installation.LoadRoomPalettes();
         var metatiles = installation.LoadRoomMetatiles();
         var layouts = installation.LoadRoomVisualLayouts();
-        var guardedBus = new TilesetDefinitionReadGuard(bus);
+        var guardedBus = NewTilesetDefinitionReadGuard(bus);
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
@@ -137,6 +138,7 @@ internal static partial class Program
     }
 
     /// <summary>Exercises every distinct room-character PNG against its native 4-bpp source.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room character streams compared with installed character atlases")]
     static void VerifyRoomCharacterAtlases()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -186,7 +188,7 @@ internal static partial class Program
             CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, room);
             int areaSource = native.Tileset.CharacterAddress;
-            var guardedBus = new RoomCharacterReadGuard(bus, areaSource);
+            var guardedBus = NewRoomCharacterReadGuard(bus, areaSource);
             CartridgeRoomAssets installed = LoadFixtureRoomAssets(guardedBus, room, catalog);
             AssertTrue(installed.CreCharacters.AsSpan().SequenceEqual(native.CreCharacters) &&
                 installed.RoomCharacters.AsSpan().SequenceEqual(native.RoomCharacters),
@@ -220,7 +222,7 @@ internal static partial class Program
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
         var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre!, compiledBySource);
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
-            new RoomCharacterReadGuard(bus, landingSource), landing, editedCatalog);
+            NewRoomCharacterReadGuard(bus, landingSource), landing, editedCatalog);
         AssertTrue(!editedRoom.RoomCharacters.AsSpan().SequenceEqual(landingNative),
             "edited installed room PNG changes real room-loader character bytes");
 
@@ -261,80 +263,28 @@ internal static partial class Program
             "and padding edits are rejected.");
     }
 
-    private sealed class RoomCharacterReadGuard(ISnesAddressSpace source, int areaCharacters)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static MutableCartridgeReadGuard NewRoomCharacterReadGuard(ISnesAddressSpace source, int areaCharacters)
     {
-        public byte ReadByte(int address)
-        {
-            RejectCharacterRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectCharacterRead(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Room character guard requires a cartridge import source."))
-                .ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Room character guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Room character guard requires SRAM."))
-            .ReadSaveRamByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private void RejectCharacterRead(int address)
-        {
-            if (address != RoomAssetRomData.Tilesets.CreCharactersAddress &&
-                address != areaCharacters) return;
-            throw new InvalidOperationException(
-                $"Installed room loader reread character source ${address:X6}.");
-        }
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address == RoomAssetRomData.Tilesets.CreCharactersAddress || address == areaCharacters,
+            address => $"Installed room loader reread character source ${address:X6}.");
+        return guard;
     }
 
-    private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    // The guarded range begins at graphics set zero's native definition, located once
+    // through the unguarded source's pointer table.
+    [CpuBusBoundary("exact bus test: retail ROM oracle locating graphics set zero's native tileset definition")]
+    private static MutableCartridgeReadGuard NewTilesetDefinitionReadGuard(ISnesAddressSpace source)
     {
-        // The guarded range begins at graphics set zero's native definition, located once
-        // through the unguarded source's pointer table.
-        private readonly int firstDefinitionAddress = RoomAssetRomData.Tilesets.DefinitionBank |
+        int firstDefinitionAddress = RoomAssetRomData.Tilesets.DefinitionBank |
             RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source),
                 RoomAssetRomData.Tilesets.PointerTableAddress);
-
-        public byte ReadByte(int address)
-        {
-            RejectDefinitionRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectDefinitionRead(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        private void RejectDefinitionRead(int address)
-        {
-            int end = RoomAssetRomData.Tilesets.PointerTableAddress +
-                RoomTilesetDefinitions.Count * sizeof(ushort);
-            if (address >= firstDefinitionAddress && address < end)
-                throw new InvalidOperationException(
-                    $"Room loader reread compiled tileset definition data at ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        // Room scroll storage keeps WRAM bytes across rooms; WRAM is not guarded cartridge data.
-        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
-
-        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+        int end = RoomAssetRomData.Tilesets.PointerTableAddress +
+            RoomTilesetDefinitions.Count * sizeof(ushort);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address >= firstDefinitionAddress && address < end,
+            address => $"Room loader reread compiled tileset definition data at ${address:X6}.");
+        return guard;
     }
 
     private static void ValidateTilemapTransfer(

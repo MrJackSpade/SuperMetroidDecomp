@@ -29,7 +29,7 @@ internal static partial class Program
                 $"Phantoon mechanics word $A7:{definition.Address:X4}");
         }
 
-        var guard = new PhantoonInstructionReadGuard(rom);
+        var guard = NewPhantoonInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
         RoomEnemySystem enemies = CreatePhantoonInstructionSystem(guard);
         RoomEnemySlot body = enemies.Slots[0];
@@ -146,7 +146,7 @@ internal static partial class Program
             PhantoonInstructionProgramDefinitions.InitialMouth,
             calls: 2);
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Enemy presentation performs zero live cartridge reads");
         AssertEqual(PhantoonInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "Every native visual operand executes");
@@ -270,42 +270,10 @@ internal static partial class Program
             source.ReadByte(0xa70000 | address) |
             source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class PhantoonInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (PhantoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Phantoon mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa70000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < PhantoonInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = PhantoonInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewPhantoonInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(PhantoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Phantoon mechanics byte ${address:X6}.")
+            .ObserveWords(0xa70000, PhantoonInstructionProgramDefinitions.PresentationWordCount,
+                PhantoonInstructionProgramDefinitions.PresentationWordAddress);
 }

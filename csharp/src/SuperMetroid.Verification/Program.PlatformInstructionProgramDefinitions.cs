@@ -23,7 +23,7 @@ internal static partial class Program
         Suite(nameof(VerifyPlatformInitialProgramSelection), () => VerifyPlatformInitialProgramSelection(rom));
         Suite(nameof(VerifyPlatformAnimationProgramSelection), () => VerifyPlatformAnimationProgramSelection(rom));
 
-        var guard = new PlatformInstructionProgramReadGuard(rom);
+        var guard = NewPlatformInstructionProgramReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializePlatform", flags)!;
         MethodInfo installMoving = typeof(RoomEnemySystem).GetMethod(
             "InstallPlatformVerticallyMovingForCurrentDirection", flags)!;
@@ -89,7 +89,7 @@ internal static partial class Program
                 $"platform program $A3:{testCase.EntryPoint:X4} loops to first frame");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Tripper/Kamer execution uses compiled spritemap selectors");
         Suite(nameof(VerifyPlatformVisualPointers), () => VerifyPlatformVisualPointers(rom));
         Suite(nameof(VerifyPlatformExportIdentities), () => VerifyPlatformExportIdentities(rom));
@@ -304,42 +304,10 @@ internal static partial class Program
         PlatformHorizontalMovement Direction,
         ushort EntryPoint);
 
-    private sealed class PlatformInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (PlatformInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Tripper/Kamer mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < PlatformInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        PlatformInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewPlatformInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(PlatformInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Tripper/Kamer mechanics byte ${address:X6}.")
+            .ObserveWords(0xa30000, PlatformInstructionProgramDefinitionsTooling.PresentationWordCount,
+                PlatformInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

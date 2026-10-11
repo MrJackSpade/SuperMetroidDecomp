@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     /// <summary>Full stock import, live edit, repair and invalid-override contract for room art.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue ghost and scrolling-sky source bytes")]
     private static void VerifyRoomArtworkInstallation(string sourceRom)
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",

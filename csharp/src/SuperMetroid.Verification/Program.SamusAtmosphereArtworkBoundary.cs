@@ -5,6 +5,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric attribute words")]
+    private static ushort ReadRetailAtmosphericAttribute(CartridgeImportAddressSpace importBus, int source) =>
+        (ushort)(importBus.ReadCartridgeByte(source) | importBus.ReadCartridgeByte(source + 1) << 8);
+
     private static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -23,8 +27,7 @@ internal static partial class Program
                     ? SamusMovementRomData.Environment.TypeOneAtmosphericAttributes
                     : SamusMovementRomData.Environment.SharedAtmosphericAttributes;
                 int source = SamusMovementRomData.Banks.Movement | (list + frame * sizeof(ushort));
-                ushort expected = (ushort)(importBus.ReadCartridgeByte(source) |
-                    importBus.ReadCartridgeByte(source + 1) << 8);
+                ushort expected = ReadRetailAtmosphericAttribute(importBus, source);
                 var effects = new SamusAtmosphericEffectsState();
                 effects.SetSlot(0, type, frame, 2, new(128, 128));
                 var oam = new OamBuffer();

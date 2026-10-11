@@ -202,8 +202,8 @@ static void VerifyHudStateAndBg3Rendering()
         var slopeSystem = new Bank80SystemState();
         int currentAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), 5)) * 2;
         int aboveAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), 4)) * 2;
-        ushort savedCurrent = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), currentAddress);
-        ushort savedAbove = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), aboveAddress);
+        ushort savedCurrent = ReadFixtureMapWord(bus, currentAddress);
+        ushort savedAbove = ReadFixtureMapWord(bus, aboveAddress);
         WriteTestWord(bus, currentAddress, slope);
         WriteTestWord(bus, aboveAddress, 0x0029);
         hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, new((byte)x, 4), new(16, 16), new(128, 128), 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
@@ -218,7 +218,7 @@ static void VerifyHudStateAndBg3Rendering()
     // Character $029 is adjacent in the graphics catalog but must not get the $028
     // exploration side effect; this also rejects indiscriminate upper-cell revealing.
     int ordinaryAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(new(30, 5)) * 2;
-    ushort ordinarySaved = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), ordinaryAddress);
+    ushort ordinarySaved = ReadFixtureMapWord(bus, ordinaryAddress);
     WriteTestWord(bus, ordinaryAddress, 0x0029);
     hud.UpdateMinimap(bus, ordinaryCornerSystem, AreaId.Crateria, new(30, 4), new(16, 16), new(128, 128), 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
     AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, new(30, 4)), "ordinary map character does not explore upper corner");
@@ -341,6 +341,10 @@ static void VerifyHudStateAndBg3Rendering()
 
     Console.WriteLine("  HUD: inventory, live minimap coordinates/blink, WRAM upload, and BG3 pixels agree.");
 }
+
+[CpuBusBoundary("exact bus test: reads a seeded bank-$B5 area-map tilemap word back from the synthetic cartridge fixture to restore it")]
+static ushort ReadFixtureMapWord(TestAddressSpace bus, int address) =>
+    SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
 static void SeedMotherBrainWalkProgram(
     TestAddressSpace bus,

@@ -41,7 +41,7 @@ internal static partial class Program
 
         var source = new TestAddressSpace();
         const SamusPoseId testPose = SamusPoseId.MovingRightNormalPose;
-        var guarded = new SamusAtmosphericPolicyReadGuard(source);
+        var guarded = NewSamusAtmosphericPolicyReadGuard(source);
 
         Suite(nameof(VerifyProductionWaterSplashSelection), () => VerifyProductionWaterSplashSelection());
         Suite(nameof(VerifyProductionRunningContacts), () => VerifyProductionRunningContacts(guarded, testPose));
@@ -174,20 +174,10 @@ internal static partial class Program
             samus.AnimateNoFx(bus);
     }
 
-    private sealed class SamusAtmosphericPolicyReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x9081a4 and < 0x9081c0 or
+    private static CartridgeReadGuard NewSamusAtmosphericPolicyReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0x9081a4 and < 0x9081c0 or
                 >= 0x90a424 and < 0x90a42e or
                 >= 0x90edc9 and < 0x90edd9 or
-                >= 0x91f0f3 and < 0x91f103
-                ? throw new InvalidOperationException(
-                    $"Samus atmospheric policy attempted migrated source read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                >= 0x91f0f3 and < 0x91f103,
+            address => $"Samus atmospheric policy attempted migrated source read ${address:X6}.");
 }

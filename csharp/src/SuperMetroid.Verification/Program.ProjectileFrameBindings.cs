@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for timed projectile records' native sprite references")]
     private static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
@@ -25,7 +26,7 @@ internal static partial class Program
             AssertEqual(native, stock.Resolve(pointer),
                 $"timed projectile $93:{pointer:X4} keeps its native sprite reference");
         }
-        var guard = new ProjectileFrameBindingReadGuard(rom, blocked);
+        var guard = NewProjectileFrameBindingReadGuard(rom, blocked);
         var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
@@ -149,14 +150,7 @@ internal static partial class Program
         Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, observable OAM edit, identity, and malformed resources pass.");
     }
 
-    private sealed class ProjectileFrameBindingReadGuard(ISnesAddressSpace source, HashSet<int> blocked)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => blocked.Contains(address)
-            ? throw new InvalidDataException($"Installed projectile frame read ROM sprite reference ${address:X6}.")
-            : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewProjectileFrameBindingReadGuard(ISnesAddressSpace source, HashSet<int> blocked) =>
+        new CartridgeReadGuard(source).Forbid(blocked.Contains,
+            address => new InvalidDataException($"Installed projectile frame read ROM sprite reference ${address:X6}."));
 }

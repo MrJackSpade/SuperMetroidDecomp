@@ -15,7 +15,7 @@ internal static partial class Program
             new(3, 3), 0x9100, pairs);
         var extension = new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.RightwardsScrollExtension),
             new(4, 3), 0x8000);
-        var second = trigger with { Block = trigger.Block.WithX(5), ScrollProgram = new byte[] { 0x80 } };
+        var second = trigger with { Block = new(5, trigger.Block.Y), ScrollProgram = new byte[] { 0x80 } };
         RoomPlmPlacement[] records = [trigger, extension, second];
         var population = new RoomPlmPopulationDefinition(0xfffa, records);
         pairs[0] = 49;

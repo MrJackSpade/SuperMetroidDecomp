@@ -32,7 +32,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 Pointer: 0,
                 DestinationRoomPointer: roomPointer,
                 Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
-                PlmBlock: Point32<RoomBlocks>.Zero,
+                PlmBlock: default,
                 DestinationScreen: new(camera.X >> 8, camera.Y >> 8),
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);

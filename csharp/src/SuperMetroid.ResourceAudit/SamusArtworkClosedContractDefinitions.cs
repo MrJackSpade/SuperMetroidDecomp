@@ -72,7 +72,7 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyPoseDefinitions.cs", "EBEF3087A9892090B00AB17D5FBC0827B40D6D4344551B60A52C40561A00D184"),
              new("csharp/src/SuperMetroid.Core/Game/SamusPoseProjectileOriginDefinitions.cs", "A4A4E2BC0F3E5D766D117C462636FA81EFC1ABB483637CCAEFCE6652D508311E"),
              new("csharp/src/SuperMetroid.Core/Game/SamusRenderingRomData.cs", "F2C3949295407224792482DD7176681FEDCC7E1F38AD089FA430E307D67A1C61"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "2C71C8210FE457FA1D1FF6FFF05EE71BC9BBB661E562CA156F44A6FDEF7B985C"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "0B54E1A43CF4813B3108E0EFC1F9B985B6FD9BDA6DE021DC6A2355892F091AC9"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyTransferDefinitions.cs", "44FE41A6F5B2C05B8F372C9204C8116F60F984B199A4E6835C83F703BBFB7D2A"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonPlacementDefinitions.cs", "4BA7312382B06BF65CF7F09D96CB9947E58EEBA63E3A01CD68D748E8CECE6804"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs", "B0EF6EB7D1154ADDE345A678959A5FCC97EB94E3555B2633864B1DB7C24B3445"),

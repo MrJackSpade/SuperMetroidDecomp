@@ -55,11 +55,10 @@ types delegate to it and never re-derive it.
   `SnesFixedPosition.WithWhole/WithFraction`.
 - Conversions between spaces (room → screen via the camera, pixels → blocks, room → OAM, ...)
   are named methods/extensions in `SuperMetroid.Core.Spatial` next to the spaces they join:
-  `RoomGridConversions` (room pixel → block, block/screen → room pixel, screen size → block size)
+  `RoomGridConversions` (room pixel → block, screen → room pixel, screen size → block size)
   and `MapScreenConversions` (map tile → map pixel, map pixel → screen under the map scroll).
 - Shape conversions within one space are explicit: `Point32.ToPosition16()` keeps each axis's low
-  word, `Point32.ToExactPosition16()` fails outside 0..65535, `Point32.ToOffset16()` keeps the
-  signed low word. Choose `Position16`/`Offset16` for native words that wrap and `Point32`/`Size32`
+  word and `Point32.ToExactPosition16()` fails outside 0..65535. Choose `Position16`/`Offset16` for native words that wrap and `Point32`/`Size32`
   for host-side values whose arithmetic must not wrap.
 - Never floating-point vectors in cartridge logic: preserve native width, signedness, wrap order,
   origin and truncation exactly.

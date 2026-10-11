@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Spatial;
 /// <summary>Named conversions between room pixels and the room's block and screen grids.</summary>
 public static class RoomGridConversions
 {
-    /// <summary>Pixels per room block on each axis.</summary>
-    public const int PixelsPerBlock = 16;
-
     /// <summary>Blocks per room screen on each axis.</summary>
     public const int BlocksPerScreen = 16;
 
@@ -15,10 +12,6 @@ public static class RoomGridConversions
     /// </summary>
     public static Point32<RoomBlocks> ToRoomBlock(this Position16<RoomPixels> position) =>
         new(position.X >> 4, position.Y >> 4);
-
-    /// <summary>The top-left room pixel of a block, wrapping each axis at the native sixteen-bit word.</summary>
-    public static Position16<RoomPixels> ToRoomPixels(this Point32<RoomBlocks> block) =>
-        new(unchecked((ushort)(block.X << 4)), unchecked((ushort)(block.Y << 4)));
 
     /// <summary>The top-left room pixel of a screen (<c>screen &lt;&lt; 8</c>), wrapping each axis at sixteen bits.</summary>
     public static Position16<RoomPixels> ToRoomPixels(this Point32<RoomScreens> screen) =>

@@ -18,9 +18,6 @@ public readonly record struct EightEightVector<TSpace>(SnesSignedEightEight X, S
     {
     }
 
-    /// <summary>No motion.</summary>
-    public static EightEightVector<TSpace> Zero => default;
-
     /// <summary>Replaces the X axis.</summary>
     public EightEightVector<TSpace> WithX(SnesSignedEightEight x) => this with { X = x };
 

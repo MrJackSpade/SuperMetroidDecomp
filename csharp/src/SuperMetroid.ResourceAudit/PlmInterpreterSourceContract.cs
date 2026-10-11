@@ -10,14 +10,18 @@ internal static class PlmInterpreterSourceContract
     internal static readonly IReadOnlyDictionary<string, string> Methods = new Dictionary<string, string>
     {
         ["TryIdentifyPermanentCollectible/3"] = "3AF5296E2EC554B6736764E7ABD9323557E34CA991464F8336E6C7214B737D4F",
-        ["DrawPlmInstruction/8"] = "73FCC41B9A16992DC0D0D6850B0C46C5B195C2FFE93B78CFFE0039813E2CFD09",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["DrawPlmInstruction/7"] = "2C892713DAF89E6312EB7AA6D0E81288260712F6784EC7FFA9262487B8DFACEF",
         // #1269 adds the compiled escape-passage and shaft-wall clear draws; no program reads.
         // #142 reads the installed visuals through auto-properties; no program reads.
-        ["DrawPlmInstruction/9"] = "B0207746653551A75D5E292F9657536D9A9C6AC40795BBFE0CEC752F6FB69EA0",
-        ["ConvertEyeToBlueDoor/3"] = "C7280ECD02DA2D9EA7C5E36E10FBB3C2613829BE806663CA6E8DAD5E900BD929",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["DrawPlmInstruction/8"] = "4F2D88A249AD470383CADB738C44FD6B5AC3C45D8C467A0925C6B523F948C028",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["ConvertEyeToBlueDoor/3"] = "CBAFD5F7484FA8FA379B53164C7D6DCEB17F1D45700378E88A036959DDC7F145",
         // #1269 adds $84:BB25, a two-byte record with no operands (PlmInstructionFormats).
         // #627 decodes the word into RoomPlmInstruction once; handlers take the typed instruction. No program reads or operand widths change.
-        ["ExecuteInstructionStream/9"] = "59A75859D9B638CD91518A5A3A259F3DB73634744FDC069155854E995443A0A4",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["ExecuteInstructionStream/8"] = "E3C9CAA89BC4200D3E53BEDE936E8691DB0B68BACD5419AD2CBE9073EE1D3182",
         // #1273 drops the verification-only instruction source; the remaining sources are unchanged.
         ["ReadProgramByte/2"] = "22D5078ACAA43B18D75BD7EF992352EB6F635BBC377C35E7EBDDBF42FCEB644E",
         ["ReadProgramWord/2"] = "C8D33F4B5EC309B3DBA0DC288A08F3DBF37522B91CDD00D3194ED7AE7BEF95C6",
@@ -37,12 +41,15 @@ internal static class PlmInterpreterSourceContract
         ["SpawnEyeDoorProjectile/3"] = "0CFBE0699B18063775D047C16BD1F16F32C516BC7A9FBE158592A8C7C19CD2F3",
         ["SpawnEyeDoorProjectile/4"] = "2E19C737A5E889783FC733015EF4262F4B028B45BF9E24E76EA5FF91BD9634F5",
         // #627 typed handlers test membership, then throw on an unhandled member; no program reads or operand widths change.
-        ["TryExecuteBombTorizoHandInstruction/3"] = "38039FAFA28040DB31AC5E080842B0146B50DB494C750E87B7341D11FCD1ECE2",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["TryExecuteBombTorizoHandInstruction/3"] = "A666786B67E88404DC86ED74284AFE118DC26042AB78B025DB79E6DD73B9AF2D",
         ["TryExecuteChozoStatueInstruction/4"] = "5372E7E6D95723C4EC346537A1F49DA015A16AB4B8FF8452336DA5D4E0CC979F",
         ["TryExecuteDraygonCannonInstruction/4"] = "260A37C2A8B309CE9DDDCF395BCE3A49B81DC158CBB6B1641ED9B06B757976D0",
         // #627 passes EyeDoorProjectileDefinition members of equal value; no program reads change.
-        ["TryExecuteEyeDoorInstruction/4"] = "D7F81274817191AD32F210205A433B79F30863AE3695A168F350A5EDF9E13159",
-        ["TryExecuteMotherBrainGlassInstruction/3"] = "8B7C27BE9344830E619C0AB4336C5D248C539753B0C9356DB15AEB2518FCA29A",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["TryExecuteEyeDoorInstruction/4"] = "A6DB1B4417364ABF328F79DDC34D6DE7BDF28BA01A42440A3009DB73EC7605CE",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["TryExecuteMotherBrainGlassInstruction/3"] = "E466C19D1E39415E1BF82DB0E34E5B9AB84A29D7B79BD0D6E6CBE9D1B6D9EF33",
         // #627 re-pin: spawned projectile definitions became NoobTubeProjectileDefinition members of equal value; no program reads change.
         ["TryExecuteNoobTubeInstruction/3"] = "8D68636858EAF7CBD39F30AF108E157B9D3C6903EEF8B3DE012DECCC6F833986",
         // #142 drops the unused Samus accessor; no program reads or operand widths change.
@@ -50,14 +57,18 @@ internal static class PlmInterpreterSourceContract
         ["TryRunRoomPopulationSetup/10"] = "16FFB7D9F7852FAB1370230C9C3D9C97A1B11B816F23DAA07C669B603596914C",
         // #1255 suspends before the existing Empty draw/delete continuation; no new program reads or operand widths;
         // #1269 releases an emptied Chozo slot without reading its program.
-        ["TryStepCollectible/7"] = "E0E560003D363D333D84DF81E009EA6764A487CB0BAC8D58E4B30BB59E37AF28",
-        ["TryStepColoredDoor/7"] = "14CD1F847751E3E06E51CB8F2FC0FC374F56A36CDBFCFDCFF6D241D95637FE50",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["TryStepCollectible/6"] = "4B4119293CF57BA02C13D99A609C2B86742CAC96579ADAD341ED5D48342B6C3D",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["TryStepColoredDoor/6"] = "A1804CBE701F9A57CCAC0C674A6AF5D83D387947C4D0EB4F3A442CB80B8E9F93",
         // #1266 resets LoopTimer for a rejected shot; no program reads or operand widths change.
-        ["TryStepGreyDoor/9"] = "1D39DE376A24C293CBCEA04F7BD7B26563277F20143E268129C5F7067D86BCD8",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["TryStepGreyDoor/8"] = "1E4F9BD5F4A1D1918DDFE1CB71DDE0F0FA0418FEE27E7FCEE8CBC01F211A0F44",
         ["TryStepScrollPlm/3"] = "3E7FD154C88BC9644F274C7B75B77C61B7F1CFC8452913C988415733FB168E2D",
         // #1269 station lock timing; the unpause-release change drops the second lock; no
         // program reads or operand widths change.
-        ["TryStepStation/7"] = "0CE80C17413AC43E1963088603470A6D85DDC15CE7B383EAD31A2678DAF433A7",
+        // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
+        ["TryStepStation/6"] = "E505AED8773B391F24A255F0748524F2E277F6BB74669F9584E99D7CCF899FA3",
         ["TryStepWreckedShipTreadmill/3"] = "ED6CDE07E6C1DEF7DB2187EA0DD41010CFAA5FB9961A34EB61C57893E8486420",
     };
 }

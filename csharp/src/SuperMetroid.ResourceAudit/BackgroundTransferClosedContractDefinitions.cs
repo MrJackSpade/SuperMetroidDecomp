@@ -4,7 +4,7 @@ namespace SuperMetroid.ResourceAudit;
 internal static class BackgroundTransferClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedBg2Loader = new(
-        "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs", "A330767AF6BAC71E0F47A7643ADB32E1B3399168C4DB4DEEBD8736992F48B365");
+        "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs", "EB2ABDE9E4EA09544535C7DA2D0C94DDCA2912B81CC670F729B08AF4F1BBD40F");
     private static readonly ReviewedSource SharedBg2Sequence = new(
         "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameDefinitionSequence.cs", "DC2420942352DB6FB8E1781CDAD188A4FA9F6780401EA22C487F73E02A809AF8");
     private static readonly ReviewedSource SharedBg2Layout = new(

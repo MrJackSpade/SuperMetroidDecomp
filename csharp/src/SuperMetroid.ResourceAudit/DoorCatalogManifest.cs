@@ -23,8 +23,9 @@ internal sealed record NativeDoorManifest(string Revision, string RomSha256,
 /// orientation; decoding happens only when the audit compares against compiled data.
 /// Byte 2 is not recorded: no gameplay reads it (#1273).
 /// </summary>
+[SpatialComponents("External format: native-door-catalog.json stores the PLM block and destination screen as x/y byte pairs.")]
 internal sealed record NativeDoorHeader(ushort Pointer, ushort DestinationRoomPointer,
-    byte Orientation, Point32<RoomBlocks> PlmBlock, Point32<RoomScreens> DestinationScreen,
+    byte Orientation, byte PlmX, byte PlmY, byte DestinationScreenX, byte DestinationScreenY,
     ushort SamusDistance, ushort SetupCodePointer)
 {
     /// <summary>Bit 15 clear in the destination word marks an elevator pseudo-door ($94:938B).</summary>
@@ -35,13 +36,13 @@ internal sealed record NativeDoorHeader(ushort Pointer, ushort DestinationRoomPo
         int address = 0x830000 | pointer;
         byte Byte(int offset) => cartridgeByte(address + offset);
         ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
-        return new(pointer, Word(0), Byte(3), new(Byte(4), Byte(5)), new(Byte(6), Byte(7)), Word(8), Word(10));
+        return new(pointer, Word(0), Byte(3), Byte(4), Byte(5), Byte(6), Byte(7), Word(8), Word(10));
     }
 
     /// <summary>The compiled header these bytes decode to; pseudo-doors have none.</summary>
     internal CartridgeDoorHeader Decode() =>
-        new(Pointer, DestinationRoomPointer, CartridgeDoorOrientation.Decode(Orientation), PlmBlock,
-            DestinationScreen, SamusDistance,
+        new(Pointer, DestinationRoomPointer, CartridgeDoorOrientation.Decode(Orientation), new Point32<RoomBlocks>(PlmX, PlmY),
+            new Point32<RoomScreens>(DestinationScreenX, DestinationScreenY), SamusDistance,
             ClosedNativeWords.Decode<DoorSetupCode>(SetupCodePointer, "door setup routine"));
 }
 

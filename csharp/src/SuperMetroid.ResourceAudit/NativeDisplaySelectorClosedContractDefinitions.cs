@@ -6,6 +6,6 @@ internal static class NativeDisplaySelectorClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EnemyExtendedFrameCatalog", "extended-display-id-projection-no-resource-read", ["GetDisplayPointer"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs", "AF2750A405AA7A46EBE02B59DE263BF6CFA3AA9E820D51B277B96DE25F42DC01")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs", "426B8279AAA9F75DEE5019948A454EA82475A93EBA5DF887FE0F7AC5AB8D9BD1")]),
     ];
 }

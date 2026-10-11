@@ -95,7 +95,7 @@ public static class RoomRenderer
             throw new InvalidDataException("Room palette must contain eight 16-color background palettes.");
 
         var size = new Size32<ImagePixels>(
-            blocks.Width * RoomGridConversions.PixelsPerBlock, blocks.Height * RoomGridConversions.PixelsPerBlock);
+            blocks.Width * 16, blocks.Height * 16);
         // CGRAM color 0 is the backdrop visible wherever every BG layer is transparent.
         var pixels = Enumerable.Repeat(palette[0], size.Area).ToArray();
 

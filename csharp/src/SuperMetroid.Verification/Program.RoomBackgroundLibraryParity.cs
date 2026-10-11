@@ -105,6 +105,41 @@ internal static partial class Program
     }
 
     /// <summary>
+    /// Synthetic cartridge whose library-background command list at <paramref name="listPointer"/>
+    /// is one transfer-to-VRAM ($4800) of <paramref name="byteCount"/> bytes from the long
+    /// <paramref name="sourceAddress"/>, then end.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a one-transfer library-background command list")]
+    private static TestAddressSpace CreateSingleTransferBackgroundCartridge(
+        ushort listPointer, int sourceAddress, ushort byteCount)
+    {
+        var bus = new TestAddressSpace();
+        int commandAddress = RoomAssetRomData.LibraryBackground.CommandBank | listPointer;
+        WriteTestWord(bus, commandAddress, (ushort)LibraryBackgroundCommand.TransferToVram);
+        WriteTestByte(bus, commandAddress + 2, unchecked((byte)sourceAddress));
+        WriteTestByte(bus, commandAddress + 3, unchecked((byte)(sourceAddress >> 8)));
+        WriteTestByte(bus, commandAddress + 4, (byte)(sourceAddress >> 16));
+        WriteTestWord(bus, commandAddress + 5, 0x4800);
+        WriteTestWord(bus, commandAddress + 7, byteCount);
+        WriteTestWord(bus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
+        return bus;
+    }
+
+    /// <summary>
+    /// Synthetic cartridge whose one-transfer command list streams two staged WRAM bytes
+    /// ($12, $34 at $7E:2000) to VRAM.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge and WRAM fixture for a staged library-background transfer")]
+    private static TestAddressSpace CreateStagedWorkRamBackgroundCartridge(ushort listPointer)
+    {
+        const int stagedSource = 0x7e2000;
+        TestAddressSpace bus = CreateSingleTransferBackgroundCartridge(listPointer, stagedSource, 2);
+        WriteTestByte(bus, stagedSource, 0x12);
+        WriteTestByte(bus, stagedSource + 1, 0x34);
+        return bus;
+    }
+
+    /// <summary>
     /// A fully bound installation must never quietly fall back to stock ROM pixels
     /// when a direct-transfer source or size is absent from its presentation assets.
     /// The authored retail lists are covered above; these synthetic command lists
@@ -115,7 +150,6 @@ internal static partial class Program
         HudTileAtlas hud, RoomCharacterAtlasCatalog characters)
     {
         const ushort listPointer = 0xf000;
-        int commandAddress = RoomAssetRomData.LibraryBackground.CommandBank | listPointer;
 
         foreach ((int sourceAddress, ushort byteCount) in new[]
         {
@@ -123,14 +157,7 @@ internal static partial class Program
             (0x8a8000, (ushort)2),
         })
         {
-            var bus = new TestAddressSpace();
-            WriteWord(bus, commandAddress, (ushort)LibraryBackgroundCommand.TransferToVram);
-            WriteTestByte(bus, commandAddress + 2, (byte)sourceAddress);
-            WriteTestByte(bus, commandAddress + 3, (byte)(sourceAddress >> 8));
-            WriteTestByte(bus, commandAddress + 4, (byte)(sourceAddress >> 16));
-            WriteWord(bus, commandAddress + 5, 0x4800);
-            WriteWord(bus, commandAddress + 7, byteCount);
-            WriteWord(bus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
+            TestAddressSpace bus = CreateSingleTransferBackgroundCartridge(listPointer, sourceAddress, byteCount);
             try
             {
                 LibraryBackgroundLoader.ExecuteProgram(bus, new SnesVram(),
@@ -149,18 +176,7 @@ internal static partial class Program
 
         // WRAM staging remains a native streaming operation, not a replacement
         // artwork lookup: it must still transfer when all art catalogs are bound.
-        var stagedBus = new TestAddressSpace();
-        const int stagedSource = 0x7e2000;
-        WriteTestByte(stagedBus, stagedSource, 0x12);
-        WriteTestByte(stagedBus, stagedSource + 1, 0x34);
-        WriteWord(stagedBus, commandAddress,
-            (ushort)LibraryBackgroundCommand.TransferToVram);
-        WriteTestByte(stagedBus, commandAddress + 2, unchecked((byte)stagedSource));
-        WriteTestByte(stagedBus, commandAddress + 3, unchecked((byte)(stagedSource >> 8)));
-        WriteTestByte(stagedBus, commandAddress + 4, (byte)(stagedSource >> 16));
-        WriteWord(stagedBus, commandAddress + 5, 0x4800);
-        WriteWord(stagedBus, commandAddress + 7, 2);
-        WriteWord(stagedBus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
+        TestAddressSpace stagedBus = CreateStagedWorkRamBackgroundCartridge(listPointer);
         var stagedVram = new SnesVram();
         LibraryBackgroundLoader.ExecuteProgram(stagedBus, stagedVram,
             LibraryBackgroundProgramImporter.Read(stagedBus, listPointer), 0,

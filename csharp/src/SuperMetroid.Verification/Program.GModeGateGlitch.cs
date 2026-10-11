@@ -357,7 +357,7 @@ internal static partial class Program
         const int width = 16;
         const int stationX = 6;
         const int stationY = 6;
-        bus.WriteBytes(0x8f0000 | population,
+        SeedRoomPlmPopulation(bus, population,
         [
             0xdf, 0xb6, stationX, stationY, 0x00, 0x00,
             0x00, 0x00,
@@ -440,7 +440,7 @@ internal static partial class Program
         const byte blockY = 2;
         const int width = 16;
         int blockIndex = blockY * width + blockX;
-        bus.WriteBytes(0x8f0000 | population,
+        SeedRoomPlmPopulation(bus, population,
         [
             0x0c, 0xd7, blockX, blockY, 0x00, 0x00,
             0x00, 0x00,

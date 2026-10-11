@@ -29,12 +29,7 @@ internal static partial class Program
             bus,
             (int)SamusPoseId.CrouchingRightPose,
             [0x08, 0x05, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]);
-        WriteTestWord(
-            bus,
-            SamusMovementRomData.Poses.AnimationDelayListPointers +
-                (int)SamusPoseId.CrouchingRightPose * sizeof(ushort),
-            0xc100);
-        bus.WriteBytes(0x91c100, [0x01]);
+        SeedSyntheticAnimationDelay(bus, SamusPoseId.CrouchingRightPose, 0xc100, 0x01);
 
         const int roomWidth = 16;
         const int roomHeight = 16;

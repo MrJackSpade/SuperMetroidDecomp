@@ -73,11 +73,7 @@ internal static partial class Program
         ];
         foreach (ushort[] program in programs)
         {
-            var bus = new TestAddressSpace();
-            WriteTestWords(bus, 0x870000 | (ushort)AnimatedTileObject.Lava, 0x9000,
-                WreckedShipTreadmillRomData.TransferByteCount,
-                WreckedShipTreadmillRomData.EncodedVramDestination);
-            WriteTestWords(bus, 0x879000, program);
+            TestAddressSpace bus = CreateConstructedLavaAnimatedTileCartridge(program);
             var state = new WreckedShipTreadmillAnimatedTilesState();
             var error = AssertThrows<InvalidDataException>(() => state.StartDefinition(
                 bus, WreckedShipTreadmillDirection.Rightwards, AnimatedTileObject.Lava),
@@ -90,6 +86,17 @@ internal static partial class Program
             new TestAddressSpace(), WreckedShipTreadmillDirection.Leftwards,
             AnimatedTileObject.WreckedShipTreadmillRightwards),
             "compiled treadmill definition rejects the opposite direction");
+    }
+
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a constructed bank-$87 lava animated-tile header and program")]
+    private static TestAddressSpace CreateConstructedLavaAnimatedTileCartridge(ushort[] program)
+    {
+        var bus = new TestAddressSpace();
+        WriteTestWords(bus, 0x870000 | (ushort)AnimatedTileObject.Lava, 0x9000,
+            WreckedShipTreadmillRomData.TransferByteCount,
+            WreckedShipTreadmillRomData.EncodedVramDestination);
+        WriteTestWords(bus, 0x879000, program);
+        return bus;
     }
     private static void VerifyRetailTreadmillStream(
         ISnesAddressSpace bus,

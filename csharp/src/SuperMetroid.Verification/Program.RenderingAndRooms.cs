@@ -14,17 +14,22 @@ internal static partial class Program
 {
 
 /// <summary>
-/// Copies a synthetic 50-byte source into the compiled scroll-buffer entry point.
-/// This fixture preserves native padding behavior without giving Core a cartridge reader.
+/// Copies a synthetic explicit scroll table into the compiled scroll-buffer entry point.
+/// The native loader copies a fixed 50 bytes, so a shorter <paramref name="source"/> is
+/// followed by zero bytes, exactly as the cleared sparse cartridge fixture reads past its
+/// seeded bytes. This preserves native padding behavior without a cartridge reader.
 /// </summary>
 private static RoomScrollGrid LoadExplicitScrollFixture(
-    TestAddressSpace bus, int source, Extent16<RoomScreens> size)
+    TestAddressSpace bus, ReadOnlySpan<byte> source, Extent16<RoomScreens> size)
 {
     byte[] storage = new byte[RoomScrollGrid.StorageByteCount];
-    for (int index = 0; index < storage.Length; index++)
-        storage[index] = bus.ReadByte(source + index);
+    source[..Math.Min(source.Length, storage.Length)].CopyTo(storage);
     return RoomScrollGrid.LoadCompiled(bus, storage, size);
 }
+
+/// <summary>An explicit scroll table whose 50 copied bytes are all blue (one).</summary>
+private static byte[] AllBlueExplicitScrollTable() =>
+    Enumerable.Repeat((byte)1, RoomScrollGrid.StorageByteCount).ToArray();
 
 /// <summary>OBJ, HUD, cameras, scrolling, tilemaps, room data, and sky verification.</summary>
 static void VerifyObjRendering()
@@ -36,12 +41,12 @@ static void VerifyObjRendering()
 
     // A single palette-index-1 pixel at the tile's upper-left corner. SNES 4-bpp plane 0
     // uses bit 7 of byte 0 for (0,0); every omitted byte reads as zero in this fixture.
-    WriteTestByte(bus, 0x828000, 0x80);
+    SeedUpperLeftPixelTile(bus);
     ImportedVramOracle.ExecuteQueued(vram, bus, 0x828000, sizeInBytes: 32, encodedDestination: 0x0000);
 
     // One small tile-zero OBJ at (10,20), with caller-selected palette 2. Palette index
     // 128 + 2*16 + 1 is loaded with maximum red in native BGR555.
-    bus.WriteBytes(0x818000, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+    SeedSingleSmallObjSpritemap(bus);
     cgram.SetColor(128 + 2 * 16 + 1, Bgr555.FromWord(0x001f));
     oam.BeginFrame();
     DrawImportedSpritemap(bus, oam, 0x818000, origin: new(10, 20), paletteBits: 0x0400);
@@ -116,13 +121,7 @@ static void VerifyHudStateAndBg3Rendering()
 
     // Seed the three-row ROM template entirely with the canonical blank HUD tile $2C0F.
     // The synthetic digit table uses conspicuous character names $100-$109.
-    for (int tile = 0; tile < HudState.MutableTileCount; tile++)
-        WriteTestWord(bus, 0x8098cb + tile * 2, 0x2c0f);
-    for (int digit = 0; digit < 10; digit++)
-    {
-        WriteTestWord(bus, 0x809dbf + digit * 2, (ushort)(0x2c00 | (0x100 + digit)));
-        WriteTestWord(bus, 0x809dd3 + digit * 2, (ushort)(0x2c00 | (0x100 + digit)));
-    }
+    SeedBlankHudTemplateAndDigitTables(bus);
 
     var hud = new HudState();
     hud.BindPresentation(GameplayHudPresentation.Load(new MemoryStream(
@@ -159,14 +158,7 @@ static void VerifyHudStateAndBg3Rendering()
     // character equal to its SNES-layout index and mark every coordinate as existing; the
     // expected HUD words then prove room origin + Samus screen coordinates, 5x3 centering,
     // exploration palette, and the map-station/unexplored palette independently.
-    WriteTestByte(bus, 0x82964a, 0x00);
-    WriteTestByte(bus, 0x82964b, 0x80);
-    WriteTestByte(bus, 0x82964c, 0xb5);
-    WriteTestWord(bus, 0x829717, 0x9000);
-    for (int index = 0; index < 0x100; index++)
-        WriteTestByte(bus, 0x829000 + index, 0xff);
-    for (int index = 0; index < 0x800; index++)
-        WriteTestWord(bus, 0xb58000 + index * 2, (ushort)(index & 0x03ff));
+    SeedSyntheticCrateriaAreaMap(bus);
 
     var mapSystem = new Bank80SystemState();
     mapSystem.SetAreaMapAcquired(0);
@@ -200,29 +192,29 @@ static void VerifyHudStateAndBg3Rendering()
     foreach (ushort slope in new ushort[] { 0x0028, 0x4228, 0x8028, 0xc228 })
     {
         var slopeSystem = new Bank80SystemState();
-        int currentAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), 5)) * 2;
-        int aboveAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), 4)) * 2;
-        ushort savedCurrent = ReadFixtureMapWord(bus, currentAddress);
-        ushort savedAbove = ReadFixtureMapWord(bus, aboveAddress);
-        WriteTestWord(bus, currentAddress, slope);
-        WriteTestWord(bus, aboveAddress, 0x0029);
+        Position16<MapTiles> currentTile = new(checked((ushort)x), 5);
+        Position16<MapTiles> aboveTile = new(checked((ushort)x), 4);
+        ushort savedCurrent = ReadFixtureMapWord(bus, currentTile);
+        ushort savedAbove = ReadFixtureMapWord(bus, aboveTile);
+        SeedFixtureMapWord(bus, currentTile, slope);
+        SeedFixtureMapWord(bus, aboveTile, 0x0029);
         hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, new((byte)x, 4), new(16, 16), new(128, 128), 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
         AssertTrue(slopeSystem.IsMapTileExplored(0, new(checked((ushort)x), 4)), "sloped hallway explores its upper corner on either map page");
         AssertEqual(0x2c1f, hud.Tiles[28], "upper corner remains blank on native discovery update");
         hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, new((byte)x, 4), new(16, 16), new(128, 128), 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
         AssertEqual(0x2829, hud.Tiles[28], "upper corner displays its explored palette on following update");
-        WriteTestWord(bus, currentAddress, savedCurrent);
-        WriteTestWord(bus, aboveAddress, savedAbove);
+        SeedFixtureMapWord(bus, currentTile, savedCurrent);
+        SeedFixtureMapWord(bus, aboveTile, savedAbove);
     }
     var ordinaryCornerSystem = new Bank80SystemState();
     // Character $029 is adjacent in the graphics catalog but must not get the $028
     // exploration side effect; this also rejects indiscriminate upper-cell revealing.
-    int ordinaryAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(new(30, 5)) * 2;
-    ushort ordinarySaved = ReadFixtureMapWord(bus, ordinaryAddress);
-    WriteTestWord(bus, ordinaryAddress, 0x0029);
+    Position16<MapTiles> ordinaryTile = new(30, 5);
+    ushort ordinarySaved = ReadFixtureMapWord(bus, ordinaryTile);
+    SeedFixtureMapWord(bus, ordinaryTile, 0x0029);
     hud.UpdateMinimap(bus, ordinaryCornerSystem, AreaId.Crateria, new(30, 4), new(16, 16), new(128, 128), 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
     AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, new(30, 4)), "ordinary map character does not explore upper corner");
-    WriteTestWord(bus, ordinaryAddress, ordinarySaved);
+    SeedFixtureMapWord(bus, ordinaryTile, ordinarySaved);
 
     // A reveal override combines with display state only. Remove the station-mask bit from
     // the top-left HUD cell while leaving its cartridge tile nonblank, giving Public and
@@ -230,10 +222,7 @@ static void VerifyHudStateAndBg3Rendering()
     const int secretHudX = 25;
     const int secretHudY = 4;
     const int publicHudX = 26;
-    int secretHudByte = AreaMapLayout.GetBitByteIndex(new(secretHudX, secretHudY));
-    WriteTestByte(bus,
-        0x829000 + secretHudByte,
-        (byte)(bus.ReadByte(0x829000 + secretHudByte) & ~AreaMapLayout.GetBitMask(secretHudX)));
+    ClearFixtureMapStationBit(bus, new(secretHudX, secretHudY));
     var overrideSystem = new Bank80SystemState();
     hud.UpdateMinimap(
         bus,
@@ -293,15 +282,9 @@ static void VerifyHudStateAndBg3Rendering()
     // existence bit. The historical HUD formula counted mapX's page bit twice and read
     // this coordinate from the following row, while pause used the correct byte. A solid
     // map plane cannot expose that disagreement, so retain this deliberately sparse case.
-    for (int index = 0; index < 0x100; index++)
-        WriteTestByte(bus, 0x829000 + index, 0);
     const int rightPageNeighborX = 35;
     const int rightPageCenterY = 19;
-    int rightPageMapByte = AreaMapLayout.GetBitByteIndex(
-        new(rightPageNeighborX, rightPageCenterY));
-    WriteTestByte(bus,
-        0x829000 + rightPageMapByte,
-        AreaMapLayout.GetBitMask(rightPageNeighborX));
+    ResetFixtureMapStationBitsToSingleTile(bus, new(rightPageNeighborX, rightPageCenterY));
     var rightPageSystem = new Bank80SystemState();
     rightPageSystem.SetAreaMapAcquired(AreaId.Crateria);
     hud.UpdateMinimap(
@@ -330,9 +313,9 @@ static void VerifyHudStateAndBg3Rendering()
 
     // Isolate the BG3 renderer at a harmless tilemap base. Entry tile 2 / palette 1 points
     // at a tile whose upper-left plane-0 bit is set; CGRAM 5 is maximum green.
-    bus.WriteBytes(0x818000, [0x02, 0x04]);
+    SeedBg3TilemapEntry(bus);
     ImportedVramOracle.ExecuteQueued(vram, bus, 0x818000, 2, encodedDestination: 0x0100);
-    WriteTestByte(bus, 0x828000, 0x80);
+    SeedUpperLeftPixelTile(bus);
     ImportedVramOracle.ExecuteQueued(vram, bus, 0x828000, 16, encodedDestination: 0x0010);
     var cgram = new SnesCgram();
     cgram.SetColor(5, Bgr555.FromWord(0x03e0));
@@ -343,9 +326,85 @@ static void VerifyHudStateAndBg3Rendering()
 }
 
 [CpuBusBoundary("exact bus test: reads a seeded bank-$B5 area-map tilemap word back from the synthetic cartridge fixture to restore it")]
-static ushort ReadFixtureMapWord(TestAddressSpace bus, int address) =>
-    SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+static ushort ReadFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile) =>
+    SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+        0xb58000 + AreaMapLayout.GetTilemapWordIndex(tile) * 2);
 
+/// <summary>Overwrites the synthetic Crateria bank-$B5 area-map tilemap word at <paramref name="tile"/>.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$B5 area-map tilemap word")]
+static void SeedFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile, ushort word) =>
+    WriteTestWord(bus, 0xb58000 + AreaMapLayout.GetTilemapWordIndex(tile) * 2, word);
+
+/// <summary>
+/// Clears <paramref name="tile"/>'s bit in the synthetic Crateria map-station mask at $82:9000,
+/// leaving its cartridge tilemap word nonblank so reveal modes have an observable difference.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for one cleared area map-station mask bit")]
+static void ClearFixtureMapStationBit(TestAddressSpace bus, Position16<MapTiles> tile)
+{
+    int address = 0x829000 + AreaMapLayout.GetBitByteIndex(tile);
+    WriteTestByte(bus, address, (byte)(bus.ReadByte(address) & ~AreaMapLayout.GetBitMask(tile.X)));
+}
+
+/// <summary>Clears the whole synthetic Crateria map-station mask at $82:9000, then sets only <paramref name="tile"/>'s bit.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for a single-tile area map-station mask")]
+static void ResetFixtureMapStationBitsToSingleTile(TestAddressSpace bus, Position16<MapTiles> tile)
+{
+    for (int index = 0; index < 0x100; index++)
+        WriteTestByte(bus, 0x829000 + index, 0);
+    WriteTestByte(bus, 0x829000 + AreaMapLayout.GetBitByteIndex(tile), AreaMapLayout.GetBitMask(tile.X));
+}
+
+/// <summary>
+/// Seeds area zero's synthetic two-screen-wide Crateria map: the area pointer tables name
+/// mask $82:9000 and tilemap $B5:8000, every mask bit is set, and every tilemap word's
+/// character equals its SNES-layout index.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the synthetic Crateria area map")]
+static void SeedSyntheticCrateriaAreaMap(TestAddressSpace bus)
+{
+    WriteTestByte(bus, 0x82964a, 0x00);
+    WriteTestByte(bus, 0x82964b, 0x80);
+    WriteTestByte(bus, 0x82964c, 0xb5);
+    WriteTestWord(bus, 0x829717, 0x9000);
+    for (int index = 0; index < 0x100; index++)
+        WriteTestByte(bus, 0x829000 + index, 0xff);
+    for (int index = 0; index < 0x800; index++)
+        WriteTestWord(bus, 0xb58000 + index * 2, (ushort)(index & 0x03ff));
+}
+
+/// <summary>
+/// Seeds the three-row HUD ROM template entirely with the canonical blank HUD tile $2C0F, and
+/// both digit tables with conspicuous character names $100-$109.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the blank HUD template and digit tables")]
+static void SeedBlankHudTemplateAndDigitTables(TestAddressSpace bus)
+{
+    for (int tile = 0; tile < HudState.MutableTileCount; tile++)
+        WriteTestWord(bus, 0x8098cb + tile * 2, 0x2c0f);
+    for (int digit = 0; digit < 10; digit++)
+    {
+        WriteTestWord(bus, 0x809dbf + digit * 2, (ushort)(0x2c00 | (0x100 + digit)));
+        WriteTestWord(bus, 0x809dd3 + digit * 2, (ushort)(0x2c00 | (0x100 + digit)));
+    }
+}
+
+/// <summary>A 4-bpp tile at $82:8000 whose only set bit is plane 0's upper-left pixel (palette index 1).</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for a single upper-left-pixel tile at $82:8000")]
+static void SeedUpperLeftPixelTile(TestAddressSpace bus) =>
+    WriteTestByte(bus, 0x828000, 0x80);
+
+/// <summary>A one-entry common spritemap at $81:8000: one small tile-zero OBJ at offset (0, 0).</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for a one-entry OBJ spritemap at $81:8000")]
+static void SeedSingleSmallObjSpritemap(TestAddressSpace bus) =>
+    bus.WriteBytes(0x818000, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+
+/// <summary>One BG3 tilemap entry at $81:8000 naming tile 2 with palette 1.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for one BG3 tilemap entry at $81:8000")]
+static void SeedBg3TilemapEntry(TestAddressSpace bus) =>
+    bus.WriteBytes(0x818000, [0x02, 0x04]);
+
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Mother Brain bank-$A9 walk program")]
 static void SeedMotherBrainWalkProgram(
     TestAddressSpace bus,
     ushort listAddress,
@@ -372,6 +431,7 @@ static void SeedMotherBrainWalkProgram(
         WriteTestWord(bus, 0xa90000 | unchecked((ushort)(listAddress + index * 2)), words[index]);
 }
 
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Mother Brain bank-$A9 fast crouch program")]
 static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
 {
     ushort[] words =
@@ -392,19 +452,17 @@ static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
 static void VerifyRoomScrollGridAndBoundaryCamera()
 {
     var bus = new TestAddressSpace();
-    const int source = 0x808000;
-    for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
-        WriteTestByte(bus, source + index, 1);
+    byte[] source = AllBlueExplicitScrollTable();
 
     // The logical 3x2 grid begins fully blue. Give the five copied padding bytes distinct
     // values to prove LoadExplicit does not synthesize zeroes after the sixth logical cell.
     for (int index = 6; index < RoomScrollGrid.StorageByteCount; index++)
-        WriteTestByte(bus, source + index, (byte)(0x80 + index));
+        source[index] = (byte)(0x80 + index);
 
     RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
     AssertEqual(0x86, grid.Storage[6], "scroll loader retains first nonlogical byte");
     AssertEqual(0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
-    AssertEqual(0x86, bus.ReadByte(RoomScrollGrid.WorkRamAddress + 6), "scroll loader mirrors WRAM padding");
+    AssertEqual(0x86, new RoomScrollMemory(bus).Zones[6], "scroll loader mirrors WRAM padding");
 
     // Single Chamber's neighboring room uses a four-byte explicit table for a 4x2 room.
     // The native fixed-size copy makes the following room header ($1F,$02,$1D,$04) its
@@ -413,11 +471,9 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     // like the conventional green value. Preserve that exact cartridge behavior.
     var shortTableBus = new TestAddressSpace();
     byte[] shortTableAndFollowingHeader = [2, 2, 2, 2, 0x1f, 0x02, 0x1d, 0x04];
-    for (int index = 0; index < shortTableAndFollowingHeader.Length; index++)
-        WriteTestByte(shortTableBus, source + index, shortTableAndFollowingHeader[index]);
     RoomScrollGrid shortTableGrid = LoadExplicitScrollFixture(
         shortTableBus,
-        source,
+        shortTableAndFollowingHeader,
         new Extent16<RoomScreens>(4, 2));
     AssertEqual(0x1f, shortTableGrid.ReadStorage(4),
         "short explicit scroll table preserves following room-header byte");
@@ -501,9 +557,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
 static void VerifyMovedSamusCameraTracking()
 {
     var bus = new TestAddressSpace();
-    const int source = 0x818000;
-    for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
-        WriteTestByte(bus, source + index, 1);
+    byte[] source = AllBlueExplicitScrollTable();
     RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
     var camera = new ScrollBoundaryCamera(grid);
 
@@ -585,8 +639,6 @@ static void VerifyMovedSamusCameraTracking()
     // advances into screen five. Native WRAM continues into ExploredMapTiles at $CD52;
     // a zero byte there makes the blue bottom row clamp to Y=$0400 without an array error.
     var bottomEdgeBus = new TestAddressSpace();
-    for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
-        WriteTestByte(bottomEdgeBus, source + index, 1);
     RoomScrollGrid bottomEdgeGrid = LoadExplicitScrollFixture(
         bottomEdgeBus,
         source,
@@ -602,8 +654,6 @@ static void VerifyMovedSamusCameraTracking()
     // Vertical autoscrolling uses the centered X cell and the same speed+2 drift. This
     // three-row grid leaves the cell below blue so the candidate remains unrounded.
     var verticalBus = new TestAddressSpace();
-    for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
-        WriteTestByte(verticalBus, source + index, 1);
     RoomScrollGrid verticalGrid = LoadExplicitScrollFixture(
         verticalBus,
         source,
@@ -883,24 +933,21 @@ static void VerifyRoomLevelData()
 }
 
 /// <summary>
-/// Exercises bank-$8F's inline room-state selector bytecode without the private cartridge.
+/// Seeds a synthetic bank-$8F room at <paramref name="roomPointer"/>: the fixed eleven-byte
+/// header (only area and door-list values are semantically interesting; zero dimensions are
+/// legal because the test stops before asset construction), then the ordered selector program
+/// event, boss bit, Morph Ball+missiles, power bombs, finish. Finish's following byte is the
+/// inline default state header, so its expected pointer is derived from this exact command
+/// layout instead of fabricated by the production code.
 /// </summary>
-static void VerifyCartridgeRoomStateSelection()
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for a room header and its ordered state-selector program")]
+static void SeedOrderedRoomStateSelectorRoom(TestAddressSpace bus, ushort roomPointer)
 {
-    var bus = new TestAddressSpace();
-    const ushort roomPointer = 0x9000;
-    const int roomAddress = 0x8f0000 | roomPointer;
-
-    // Fixed eleven-byte header. Only area and door-list values are semantically interesting
-    // here; zero dimensions are legal because this test stops before asset construction.
+    int roomAddress = 0x8f0000 | roomPointer;
     bus.WriteBytes(roomAddress,
     [
         0x12, 0x03, 0x00, 0x00, 0x00, 0x00, 0x70, 0xa0, 0x00, 0x00, 0x88,
     ]);
-
-    // Ordered selector program: event, boss bit, Morph Ball+missiles, power bombs, finish.
-    // Finish's following byte is the inline default state header, so its expected pointer is
-    // derived from this exact command layout instead of fabricated by the production code.
     int selector = roomAddress + 11;
     WriteTestWord(bus, selector, (ushort)RoomStateSelectorCode.EventHasBeenSet);
     WriteTestByte(bus, selector + 2, 0x00);
@@ -913,6 +960,25 @@ static void VerifyCartridgeRoomStateSelection()
     WriteTestWord(bus, selector + 14, (ushort)RoomStateSelectorCode.PowerBombs);
     WriteTestWord(bus, selector + 16, 0x9160);
     WriteTestWord(bus, selector + 18, (ushort)RoomStateSelectorCode.Finish);
+}
+
+/// <summary>Overwrites the start of the room's selector program (after its eleven-byte header) with <paramref name="words"/>.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture overwriting a room's leading state-selector words")]
+static void SeedRoomStateSelectorWords(TestAddressSpace bus, ushort roomPointer, params ReadOnlySpan<ushort> words)
+{
+    int selector = (0x8f0000 | roomPointer) + 11;
+    for (int index = 0; index < words.Length; index++)
+        WriteTestWord(bus, selector + index * 2, words[index]);
+}
+
+/// <summary>
+/// Exercises bank-$8F's inline room-state selector bytecode without the private cartridge.
+/// </summary>
+static void VerifyCartridgeRoomStateSelection()
+{
+    var bus = new TestAddressSpace();
+    const ushort roomPointer = 0x9000;
+    SeedOrderedRoomStateSelectorRoom(bus, roomPointer);
     const ushort defaultStatePointer = 0x901f;
 
     // All five state headers may remain zero-filled: State.Pointer alone proves which
@@ -950,9 +1016,8 @@ static void VerifyCartridgeRoomStateSelection()
     // The Tourian-specific routine owns its boss-bit operand in executable code rather
     // than the room stream. Exercise it separately so the catalogued implicit mask cannot
     // accidentally be replaced with the operand-reading behavior of the generic routine.
-    WriteTestWord(bus, selector, (ushort)RoomStateSelectorCode.MainAreaBossIsDead);
-    WriteTestWord(bus, selector + 2, 0x9180);
-    WriteTestWord(bus, selector + 4, (ushort)RoomStateSelectorCode.Finish);
+    SeedRoomStateSelectorWords(bus, roomPointer,
+        (ushort)RoomStateSelectorCode.MainAreaBossIsDead, 0x9180, (ushort)RoomStateSelectorCode.Finish);
     AssertEqual((ushort)0x9180,
         SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(
@@ -965,11 +1030,11 @@ static void VerifyCartridgeRoomStateSelection()
     // Known unused callbacks remain deliberately unsupported, while an arbitrary word is
     // diagnosed as unknown. Both must stop at the cartridge boundary instead of falling
     // through to a fabricated default state.
-    WriteTestWord(bus, selector, (ushort)RoomStateSelectorCode.UnusedDoor);
+    SeedRoomStateSelectorWords(bus, roomPointer, (ushort)RoomStateSelectorCode.UnusedDoor);
     AssertThrows<NotSupportedException>(
         () => SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
         "known unused room selector fails loudly");
-    WriteTestWord(bus, selector, 0xdead);
+    SeedRoomStateSelectorWords(bus, roomPointer, 0xdead);
     AssertThrows<InvalidDataException>(
         () => SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
         "unknown room selector fails loudly");
@@ -1219,13 +1284,16 @@ static int ReadRetailPowerBombPreScaledHalfWidth(SuperMetroid.AssetExtraction.Ca
 /// Proves that desktop power-bomb composition consumes the same bank-$88 radius frame and
 /// half-profile orientation as the original indirect-HDMA window builder.
 /// </summary>
-static void VerifyPowerBombColorMathWindow()
+/// <summary>
+/// Synthetic cartridge with the literal `$88:A266-$88:A2A5` horizontal samples and vertical
+/// band boundaries used by `$88:8CC6/$8D04/$8D46` (kept independent of the production loop so
+/// a transposed table or rounded product cannot self-validate), and all sixteen pre-explosion
+/// fixed-color entries set to one unmistakable color.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for power-bomb window tables and fixed colors")]
+static TestAddressSpace CreatePowerBombColorMathWindowCartridge()
 {
     var bus = new TestAddressSpace();
-
-    // These are the literal `$88:A266-$88:A2A5` horizontal samples and vertical band
-    // boundaries used by `$88:8CC6/$8D04/$8D46`. Keeping the fixture independent of the
-    // production loop ensures a transposed table or rounded product cannot self-validate.
     bus.WriteBytes(0x88a266, [
         0x00, 0x0c, 0x19, 0x25, 0x31, 0x3e, 0x4a, 0x56,
         0x61, 0x6d, 0x78, 0x83, 0x8e, 0x98, 0xa2, 0xab,
@@ -1238,12 +1306,14 @@ static void VerifyPowerBombColorMathWindow()
         0x84, 0x7d, 0x75, 0x6e, 0x66, 0x5e, 0x56, 0x4d,
         0x45, 0x3c, 0x33, 0x2a, 0x20, 0x17, 0x0d, 0x04,
     ]);
-
-    // All sixteen pre-explosion color entries use the same unmistakable fixed color in
-    // this fixture. The state still performs its authentic radius-derived table lookup;
-    // repeating the value merely keeps these geometry assertions focused and readable.
     for (int color = 0; color < 16; color++)
         bus.WriteBytes(0x889079 + color * 3, [0x01, 0x02, 0x03]);
+    return bus;
+}
+
+static void VerifyPowerBombColorMathWindow()
+{
+    TestAddressSpace bus = CreatePowerBombColorMathWindowCartridge();
 
     const ushort centerX = 100;
     const ushort centerY = 100;

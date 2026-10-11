@@ -4,14 +4,22 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Places <paramref name="data"/> at the $7E:0000 A-bus source the queued DMA records name.</summary>
+    [CpuBusBoundary("exact bus test: WRAM A-bus DMA source bytes at $7E:0000 for queued VRAM asset parity")]
+    private static TestAddressSpace CreateWorkRamDmaSource(ReadOnlySpan<byte> data)
+    {
+        var bus = new TestAddressSpace();
+        bus.WriteBytes(0x7e0000, data);
+        return bus;
+    }
+
     private static void VerifyQueuedVramAssets()
     {
         foreach (ushort destination in new ushort[] { 0, 0x7fff, 0x8000, 0xffff })
         foreach (int length in new[] { 1, 2, 3, 8192 })
         {
             byte[] data = Enumerable.Range(0, length).Select(i => (byte)(i * 31 + 7)).ToArray();
-            var bus = new TestAddressSpace();
-            bus.WriteBytes(0x7e0000, data);
+            TestAddressSpace bus = CreateWorkRamDmaSource(data);
             var expected = new SnesVram();
             expected.ExecuteQueuedMemoryWrite(bus, 0x7e0000, (ushort)length, destination);
             var actual = new SnesVram();
@@ -27,8 +35,7 @@ internal static partial class Program
         mixed.Enqueue(2, 0x7e0000, 0);
         mixed.EnqueueAsset(VramAssetId.StandardHudTiles, 3, 0);
         mixed.Enqueue(1, 0x7e0002, 1);
-        var mixedBus = new TestAddressSpace();
-        mixedBus.WriteBytes(0x7e0000, [1, 2, 3]);
+        TestAddressSpace mixedBus = CreateWorkRamDmaSource([1, 2, 3]);
         var mixedVram = new SnesVram();
         mixed.DrainTo(mixedVram, ReferenceMutableMemory.From(mixedBus), new TestVramAssets([7, 8, 9]));
         AssertEqual((byte)7, mixedVram.ReadByte(0), "asset follows earlier bus write");

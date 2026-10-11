@@ -18,8 +18,7 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
 
     // `$86:C272` uses table index angle+$40. Give angle zero a literal +$0100 entry and
     // angle $80 a literal -$0100 entry so the expected $10.00 components are unambiguous.
-    WriteTestWord(bus, 0xa0b443 + 0x40 * 2, 0x0100);
-    WriteTestWord(bus, 0xa0b443 + 0xc0 * 2, 0xff00);
+    SeedSignedSineTable(bus, [(0x40, 0x0100), (0xc0, unchecked((short)0xff00))]);
 
     // The helpers add a signed 8.8 velocity to the whole Y word and only the high
     // subposition byte, so the applied vertical velocity is the delta of that 8.8 view.
@@ -143,91 +142,7 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
 static void VerifyMotherBrainRainbowBeamAttackSequence()
 {
     VerifyMotherBrainBodyInstructionPrograms();
-    var bus = new TestAddressSpace();
-    // Retail $A9:8FE5 transfers start at Baby graphics +$400, not its base address.
-    bus.WriteBytes(0xa98fe5,
-        [0x00, 0x02, 0x00, 0x88, 0xb1, 0x00, 0x7c,
-         0x00, 0x02, 0x00, 0x8a, 0xb1, 0x00, 0x7d,
-         0x00, 0x02, 0x00, 0x8c, 0xb1, 0x00, 0x7e,
-         0x00, 0x02, 0x00, 0x8e, 0xb1, 0x00, 0x7f, 0x00, 0x00]);
-
-    // `$B7:CE00` contains two side-by-side corpse frames in the retail ROM. Give every byte
-    // in the complete source window a deterministic, nonzero-heavy identity pattern so the
-    // shared graphics initializer must select the six exact right-frame slices; sparse zero
-    // memory would let a wrong source, length, or destination pass accidentally.
-    bus.WriteBytes(0xb7ce00, Enumerable.Range(0, 0x0c00)
-        .Select(byteOffset => unchecked((byte)(byteOffset * 37 + 0x5a))).ToArray());
-
-    // The active chain needs only command-five/$18's forced `$54` pose and controller-zero's
-    // later `$E9` pose. These bytes are the retail direction/type/radius metadata and minimal
-    // byte-indexed animation streams already proven by the dedicated drained-controller test.
-    WritePoseDefinition(bus, (int)SamusPoseId.KnockbackLeftPose,
-        [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.DrainedCrouchingLeftPose,
-        [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.KnockbackLeftPose * 2, 0xc020);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DrainedCrouchingLeftPose * 2, 0xb268);
-    bus.WriteBytes(0x91c020, [0x01, 0xfe, 0x01]);
-    bus.WriteBytes(0x91b268, [0x02, 0x02, 0x10, 0xf7, 0x01]);
-
-    // Exact `$A9:9818` and `$A9:993A` command/duration shapes. Spritemap operands are
-    // deliberately small sentinels because this check targets the enemy interpreter; the
-    // private-ROM regression separately reads the retail extended-spritemap pointers.
-    ushort[] forwardReallySlow =
-    [
-        0x9708, 0x000a, 0x1000,
-        0x95fc, 0x000a, 0x1001,
-        0x960c, 0x000a, 0x1002,
-        0x961c, 0x000a, 0x1003,
-        0x9622, 0x000a, 0x1004,
-        0x9638, 0x000a, 0x1005,
-        0x9648, 0x000a, 0x1006,
-        0x9658, 0x000a, 0x1007,
-        0x9668, 0x9700, 0x000a, 0x1008, 0x812f,
-    ];
-    ushort[] backwardReallySlow =
-    [
-        0x9708, 0x000a, 0x1100,
-        0x96f0, 0x000a, 0x1101,
-        0x96e0, 0x000a, 0x1102,
-        0x96d0, 0x000a, 0x1103,
-        0x96ba, 0x000a, 0x1104,
-        0x96aa, 0x000a, 0x1105,
-        0x96a4, 0x000a, 0x1106,
-        0x9694, 0x000a, 0x1107,
-        0x967e, 0x9700, 0x000a, 0x1108, 0x812f,
-    ];
-    for (int index = 0; index < forwardReallySlow.Length; index++)
-    {
-        WriteTestWord(bus, 0xa99818 + index * 2, forwardReallySlow[index]);
-        WriteTestWord(bus, 0xa9993a + index * 2, backwardReallySlow[index]);
-    }
-
-    // Exact command/duration topology for the three posture programs reached by the
-    // finish-off loop. As above, only spritemap operands are synthetic sentinels.
-    ushort[] standUpFast =
-    [
-        0x9718, 0x0008, 0x1200,
-        0x95b6, 0x0008, 0x1201,
-        0x95c0, 0x0008, 0x1202,
-        0x95ca, 0x0008, 0x1203,
-        0x9700, 0x812f,
-    ];
-    ushort[] standUpAfterLeaning =
-    [
-        0x9718, 0x0008, 0x1210,
-        0x95ca, 0x0008, 0x1211,
-        0x9700, 0x812f,
-    ];
-    ushort[] leanDown =
-    [
-        0x9718, 0x0008, 0x1220,
-        0x95de, 0x9728, 0x0008, 0x1221,
-        0x812f,
-    ];
-    WriteTestWords(bus, 0xa999c6, standUpFast);
-    WriteTestWords(bus, 0xa999e2, standUpAfterLeaning);
-    WriteTestWords(bus, 0xa999f2, leanDown);
+    TestAddressSpace bus = CreateRainbowBeamAttackSequenceCartridge();
 
     var samus = new SamusState
     {
@@ -398,4 +313,99 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
 // synthetic sine fixture is generated independently from the table's documented definition.
 // This combination catches timer, angle, multiplication, subposition, collision, and
 // cross-enemy ordering regressions without making the ordinary verifier depend on a ROM.
+
+/// <summary>
+/// Synthetic cartridge for the rainbow-beam attack chain: Baby graphics transfers, corpse
+/// source window, the two forced Samus poses and the exact body-program command shapes.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Mother Brain rainbow-beam attack chain")]
+static TestAddressSpace CreateRainbowBeamAttackSequenceCartridge()
+{
+    var bus = new TestAddressSpace();
+    // Retail $A9:8FE5 transfers start at Baby graphics +$400, not its base address.
+    bus.WriteBytes(0xa98fe5,
+        [0x00, 0x02, 0x00, 0x88, 0xb1, 0x00, 0x7c,
+         0x00, 0x02, 0x00, 0x8a, 0xb1, 0x00, 0x7d,
+         0x00, 0x02, 0x00, 0x8c, 0xb1, 0x00, 0x7e,
+         0x00, 0x02, 0x00, 0x8e, 0xb1, 0x00, 0x7f, 0x00, 0x00]);
+
+    // `$B7:CE00` contains two side-by-side corpse frames in the retail ROM. Give every byte
+    // in the complete source window a deterministic, nonzero-heavy identity pattern so the
+    // shared graphics initializer must select the six exact right-frame slices; sparse zero
+    // memory would let a wrong source, length, or destination pass accidentally.
+    bus.WriteBytes(0xb7ce00, Enumerable.Range(0, 0x0c00)
+        .Select(byteOffset => unchecked((byte)(byteOffset * 37 + 0x5a))).ToArray());
+
+    // The active chain needs only command-five/$18's forced `$54` pose and controller-zero's
+    // later `$E9` pose. These bytes are the retail direction/type/radius metadata and minimal
+    // byte-indexed animation streams already proven by the dedicated drained-controller test.
+    WritePoseDefinition(bus, (int)SamusPoseId.KnockbackLeftPose,
+        [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.DrainedCrouchingLeftPose,
+        [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.KnockbackLeftPose * 2, 0xc020);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.DrainedCrouchingLeftPose * 2, 0xb268);
+    bus.WriteBytes(0x91c020, [0x01, 0xfe, 0x01]);
+    bus.WriteBytes(0x91b268, [0x02, 0x02, 0x10, 0xf7, 0x01]);
+
+    // Exact `$A9:9818` and `$A9:993A` command/duration shapes. Spritemap operands are
+    // deliberately small sentinels because this check targets the enemy interpreter; the
+    // private-ROM regression separately reads the retail extended-spritemap pointers.
+    ushort[] forwardReallySlow =
+    [
+        0x9708, 0x000a, 0x1000,
+        0x95fc, 0x000a, 0x1001,
+        0x960c, 0x000a, 0x1002,
+        0x961c, 0x000a, 0x1003,
+        0x9622, 0x000a, 0x1004,
+        0x9638, 0x000a, 0x1005,
+        0x9648, 0x000a, 0x1006,
+        0x9658, 0x000a, 0x1007,
+        0x9668, 0x9700, 0x000a, 0x1008, 0x812f,
+    ];
+    ushort[] backwardReallySlow =
+    [
+        0x9708, 0x000a, 0x1100,
+        0x96f0, 0x000a, 0x1101,
+        0x96e0, 0x000a, 0x1102,
+        0x96d0, 0x000a, 0x1103,
+        0x96ba, 0x000a, 0x1104,
+        0x96aa, 0x000a, 0x1105,
+        0x96a4, 0x000a, 0x1106,
+        0x9694, 0x000a, 0x1107,
+        0x967e, 0x9700, 0x000a, 0x1108, 0x812f,
+    ];
+    for (int index = 0; index < forwardReallySlow.Length; index++)
+    {
+        WriteTestWord(bus, 0xa99818 + index * 2, forwardReallySlow[index]);
+        WriteTestWord(bus, 0xa9993a + index * 2, backwardReallySlow[index]);
+    }
+
+    // Exact command/duration topology for the three posture programs reached by the
+    // finish-off loop. As above, only spritemap operands are synthetic sentinels.
+    ushort[] standUpFast =
+    [
+        0x9718, 0x0008, 0x1200,
+        0x95b6, 0x0008, 0x1201,
+        0x95c0, 0x0008, 0x1202,
+        0x95ca, 0x0008, 0x1203,
+        0x9700, 0x812f,
+    ];
+    ushort[] standUpAfterLeaning =
+    [
+        0x9718, 0x0008, 0x1210,
+        0x95ca, 0x0008, 0x1211,
+        0x9700, 0x812f,
+    ];
+    ushort[] leanDown =
+    [
+        0x9718, 0x0008, 0x1220,
+        0x95de, 0x9728, 0x0008, 0x1221,
+        0x812f,
+    ];
+    WriteTestWords(bus, 0xa999c6, standUpFast);
+    WriteTestWords(bus, 0xa999e2, standUpAfterLeaning);
+    WriteTestWords(bus, 0xa999f2, leanDown);
+    return bus;
+}
 }

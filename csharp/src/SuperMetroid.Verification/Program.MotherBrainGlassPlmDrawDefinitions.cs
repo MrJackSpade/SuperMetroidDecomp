@@ -60,9 +60,8 @@ internal static partial class Program
         const int height = 16;
         const int originX = 9;
         const int originY = 5;
-        var bus = new TestAddressSpace();
-        bus.WriteBytes(0x848000, bank84);
-        bus.WriteBytes(0x8f9000,
+        TestAddressSpace bus = CreateBank84Cartridge(bank84);
+        SeedRoomPlmPopulation(bus, 0x9000,
         [
             unchecked((byte)PlmHeaderId.MotherBrainGlass),
             unchecked((byte)((ushort)PlmHeaderId.MotherBrainGlass >> 8)),

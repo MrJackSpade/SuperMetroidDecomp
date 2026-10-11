@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Reflection;
 using System.Text;
 using SuperMetroid.Core.Assets;
@@ -69,29 +70,7 @@ internal static partial class Program
 
     private static void VerifyCeresRidleyEjectionHandler()
     {
-        var bus = new TestAddressSpace();
-        SeedPoseOneSamusData(bus);
-
-        // Pose $53 is the right-facing knockback body installed by `$90:E12E`. Only the
-        // definition and first delay byte are consumed by this focused handler fixture.
-        WritePoseDefinition(
-            bus,
-            (int)SamusPoseId.KnockbackRightPose,
-            [0x08, 0x0a, 0xff, 0xff, 0x00, 0x00, 0x15, 0x00]);
-        SeedSyntheticAnimationDelay(bus, SamusPoseId.KnockbackRightPose, 0xc000, 4);
-
-        // `$90:DE57` selects this ordinary falling record when the shove reaches a wall.
-        // Its radius is two pixels shorter than `$53`, making bottom-edge alignment an
-        // observable part of the shared knockback-finish path rather than just a pose ID.
-        WritePoseDefinition(
-            bus,
-            (int)SamusPoseId.FallingRightPose,
-            [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
-        WriteTestWord(
-            bus,
-            0x91b010 + (int)SamusPoseId.FallingRightPose * sizeof(ushort),
-            0xc010);
-        bus.WriteBytes(0x91c010, [0x01, 0xff]);
+        TestAddressSpace bus = CreateCeresRidleyEjectionCartridge();
 
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
@@ -136,12 +115,7 @@ internal static partial class Program
         // The type-$0A air record supplies one pixel/frame after the first acceleration.
         // Put the radius-eight body flush against the room's left boundary so the very next
         // translated `$90:E1FD` call takes its real horizontal-collision termination path.
-        WriteTestWords(
-            bus,
-            SamusMovementRomData.Banks.Movement |
-                (SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable +
-                0x0a * SpeedTableEntry.ByteCount),
-            1, 0, 1, 0, 0, 0);
+        SeedCeresEjectionAirSpeedRecord(bus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(samus.Kinematics.Radius.X);
         // Leftover extra-run speed from before the shove (retail 100% movie: `.4000`).
         samus.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
@@ -266,5 +240,46 @@ internal static partial class Program
         Rgba32[] pixel = [new Rgba32(255, 120, 60, 255)];
         departure.ApplyBrightness(pixel);
         AssertEqual(new Rgba32(0, 0, 0, 255), pixel[0], "forced blank produces black software output");
+    }
+
+    /// <summary>Synthetic cartridge with the knockback and falling poses the Ridley ejection handler installs.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres Ridley ejection poses")]
+    private static TestAddressSpace CreateCeresRidleyEjectionCartridge()
+    {
+        var bus = new TestAddressSpace();
+        SeedPoseOneSamusData(bus);
+
+        // Pose $53 is the right-facing knockback body installed by `$90:E12E`. Only the
+        // definition and first delay byte are consumed by this focused handler fixture.
+        WritePoseDefinition(
+            bus,
+            (int)SamusPoseId.KnockbackRightPose,
+            [0x08, 0x0a, 0xff, 0xff, 0x00, 0x00, 0x15, 0x00]);
+        SeedSyntheticAnimationDelay(bus, SamusPoseId.KnockbackRightPose, 0xc000, 4);
+
+        // `$90:DE57` selects this ordinary falling record when the shove reaches a wall.
+        // Its radius is two pixels shorter than `$53`, making bottom-edge alignment an
+        // observable part of the shared knockback-finish path rather than just a pose ID.
+        WritePoseDefinition(
+            bus,
+            (int)SamusPoseId.FallingRightPose,
+            [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
+        WriteTestWord(
+            bus,
+            0x91b010 + (int)SamusPoseId.FallingRightPose * sizeof(ushort),
+            0xc010);
+        bus.WriteBytes(0x91c010, [0x01, 0xff]);
+        return bus;
+    }
+
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres ejection type-$0A air speed record")]
+    private static void SeedCeresEjectionAirSpeedRecord(TestAddressSpace bus)
+    {
+        WriteTestWords(
+            bus,
+            SamusMovementRomData.Banks.Movement |
+                (SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable +
+                0x0a * SpeedTableEntry.ByteCount),
+            1, 0, 1, 0, 0, 0);
     }
 }

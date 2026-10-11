@@ -75,9 +75,9 @@ internal static partial class Program
         ushort[] pointers = orientation == EyeDoorOrientation.Left
             ? [0x9c03, 0x9c2b, 0x9c3d]
             : [0x9c5b, 0x9c83, 0x9c95];
-        WriteWord(bus, 0x84041a, pointers[0]);
-        WriteWord(bus, 0x84050e, pointers[1]);
-        WriteWord(bus, 0x84060e, pointers[2]);
+        SeedPlmProgramWords(bus, 0x041a, pointers[0]);
+        SeedPlmProgramWords(bus, 0x050e, pointers[1]);
+        SeedPlmProgramWords(bus, 0x060e, pointers[2]);
 
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x55 * 8] = 0x55;
@@ -137,10 +137,9 @@ internal static partial class Program
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
             bank84[offset] = EyeDoorRetailProgramPathRomByte(rom, 0x848000 + offset);
-        var bus = new TestAddressSpace();
-        bus.WriteBytes(0x848000, bank84);
+        TestAddressSpace bus = CreateBank84Cartridge(bank84);
         const ushort population = 0x9000;
-        bus.WriteBytes(0x8f0000 | population,
+        SeedRoomPlmPopulation(bus, population,
         [
             unchecked((byte)headers[0]), unchecked((byte)(headers[0] >> 8)), eyeX, eyeY,
             unchecked((byte)doorBit), 0,

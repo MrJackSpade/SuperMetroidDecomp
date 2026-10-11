@@ -223,9 +223,9 @@ internal static partial class Program
     {
         var bus = new TestAddressSpace();
         SeedRoomPlmPopulationRom(bus);
-        bus.WriteBytes(0x8f9100, [0x80]); // Dormant scroll fixture owns an empty terminated program.
+        SeedDormantScrollPlmProgram(bus);
         const ushort population = 0x9000;
-        bus.WriteBytes(0x8f0000 | population, [
+        SeedRoomPlmPopulation(bus, population, [
             // First resident takes native slot 39.
             0x03, 0xb7, 0x08, 0x04, 0x00, 0x91,
             // Setup deletes this temporary extension synchronously.
@@ -337,19 +337,17 @@ internal static partial class Program
         const ushort initialList = 0xba7f;
         const ushort closingList = 0xba4c;
 
-        WriteWord(bus, 0x840000 | (ushort)PlmHeaderId.BombTorizoGreyDoor, 0xc794);
-        WriteWord(bus,
-            0x840000 | unchecked((ushort)(PlmHeaderId.BombTorizoGreyDoor + 2)),
+        SeedPlmProgramWords(bus, (ushort)PlmHeaderId.BombTorizoGreyDoor, 0xc794);
+        SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.BombTorizoGreyDoor + 2)),
             initialList);
-        WriteWord(bus,
-            0x840000 | unchecked((ushort)(PlmHeaderId.BombTorizoGreyDoor + 4)),
+        SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.BombTorizoGreyDoor + 4)),
             closingList);
 
         // The PLM program and its draw pointers are compiled cartridge data. Do
         // not inject a shortened stand-in at their native addresses: the timing
         // and Bombs callback need to execute the same lists used in gameplay.
 
-        bus.WriteBytes(0x8f0000 | population,
+        SeedRoomPlmPopulation(bus, population,
         [
             0xf4, 0xba, doorX, doorY,
             unchecked((byte)roomArgument), unchecked((byte)(roomArgument >> 8)),
@@ -442,18 +440,16 @@ internal static partial class Program
         const ushort closingDraw = 0xa600;
         const ushort lockedDraw = 0xa610;
 
-        WriteWord(bus, 0x840000 | (ushort)PlmHeaderId.GreyDoorFacingLeft, 0xc794);
-        WriteWord(bus,
-            0x840000 | unchecked((ushort)(PlmHeaderId.GreyDoorFacingLeft + 2)),
+        SeedPlmProgramWords(bus, (ushort)PlmHeaderId.GreyDoorFacingLeft, 0xc794);
+        SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.GreyDoorFacingLeft + 2)),
             initialList);
-        WriteWord(bus,
-            0x840000 | unchecked((ushort)(PlmHeaderId.GreyDoorFacingLeft + 4)),
+        SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.GreyDoorFacingLeft + 4)),
             closingList);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 2)), closedBlueList);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 6)), activationList);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 12)), lockedDraw);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(activationList + 2)), openTriggerList);
-        bus.WriteBytes(0x840000 | unchecked((ushort)(openTriggerList + 2)),
+        SeedPlmProgramWords(bus, unchecked((ushort)(initialList + 2)), closedBlueList);
+        SeedPlmProgramWords(bus, unchecked((ushort)(initialList + 6)), activationList);
+        SeedPlmProgramWords(bus, unchecked((ushort)(initialList + 12)), lockedDraw);
+        SeedPlmProgramWords(bus, unchecked((ushort)(activationList + 2)), openTriggerList);
+        SeedPlmProgramBytes(bus, unchecked((ushort)(openTriggerList + 2)),
         [
             0x01,
             unchecked((byte)openingList),
@@ -463,23 +459,23 @@ internal static partial class Program
         // Preserve the exact byte widths of BE59: five timer/draw pairs with an odd-sized
         // queue-sound instruction between the second and third pair. The final pair ends
         // at BE70, the start of the resident door's ordinary first list.
-        WriteWord(bus, 0x840000 | closingList, 2);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 2)), closingDraw);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 4)), 2);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 6)), closingDraw);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 8)),
+        SeedPlmProgramWords(bus, closingList, 2);
+        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 2)), closingDraw);
+        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 4)), 2);
+        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 6)), closingDraw);
+        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 8)),
             (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6);
-        bus.WriteBytes(0x840000 | unchecked((ushort)(closingList + 10)), [0x08]);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 11)), 2);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 13)), closingDraw);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 15)), 2);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 17)), closingDraw);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 19)), 1);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 21)), closingDraw);
+        SeedPlmProgramBytes(bus, unchecked((ushort)(closingList + 10)), [0x08]);
+        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 11)), 2);
+        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 13)), closingDraw);
+        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 15)), 2);
+        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 17)), closingDraw);
+        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 19)), 1);
+        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 21)), closingDraw);
         WriteOneBlockDraw(bus, closingDraw, 0xc123);
         WriteOneBlockDraw(bus, lockedDraw, 0xc123);
 
-        bus.WriteBytes(0x8f0000 | population,
+        SeedRoomPlmPopulation(bus, population,
         [
             unchecked((byte)PlmHeaderId.GreyDoorFacingLeft),
             unchecked((byte)((ushort)PlmHeaderId.GreyDoorFacingLeft >> 8)),
@@ -551,8 +547,7 @@ internal static partial class Program
         const int blockX = 3;
         const int blockY = 4;
 
-        WriteWord(bus,
-            0x840000 | unchecked((ushort)(PlmHeaderId.WreckedShipAttic + 2)),
+        SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.WreckedShipAttic + 2)),
             RoomPlmInstructionLists.WreckedShipAttic);
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
@@ -570,12 +565,12 @@ internal static partial class Program
                     compiled,
                     $"Wrecked Ship attic list word ${address:X4} matches cartridge");
             }
-            WriteWord(bus, 0x840000 | address, 0xdead);
+            SeedPlmProgramWords(bus, address, 0xdead);
         }
         AssertTrue(!WreckedShipAtticPlmRomData.TryReadInstructionWord(
                 checked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 6)), out _),
             "Wrecked Ship attic list owner excludes its adjacent header");
-        bus.WriteBytes(0x8f0000 | population,
+        SeedRoomPlmPopulation(bus, population,
         [
             0x05, 0xbb, blockX, blockY, 0x34, 0x12,
             0x00, 0x00,
@@ -647,16 +642,15 @@ internal static partial class Program
         const int width = 16;
         const int height = 16;
 
-        WriteWord(bus, 0x84b8ae, RoomPlmInstructionLists.SpeedBoosterEscape);
+        SeedPlmProgramWords(bus, 0xb8ae, RoomPlmInstructionLists.SpeedBoosterEscape);
         // Poison the old cartridge path: all three real handoffs must now use
         // the compiled list even when a synthetic address space disagrees.
         for (int index = 0; index < SpeedBoosterEscapePlmProgramDefinitions.WordCount; index++)
         {
-            WriteWord(bus,
-                0x840000 | SpeedBoosterEscapePlmProgramDefinitions.Start + index * 2,
+            SeedPlmProgramWords(bus, unchecked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start + index * 2)),
                 0xdead);
         }
-        bus.WriteBytes(0x8f0000 | population,
+        SeedRoomPlmPopulation(bus, population,
         [
             0xac, 0xb8, 0x01, 0x01, 0x00, 0x00,
             0x00, 0x00,
@@ -903,26 +897,26 @@ internal static partial class Program
         const ushort halfClosedGateTopWord = 0x830f;
         const ushort closedGateMiddleWord = 0x8ae8;
 
-        WriteWord(bus, 0x84c8ca, 0xb3c1);
-        WriteWord(bus, 0x84c8cc, RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed);
-        WriteWord(bus, 0x84c8ce, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
-        WriteWord(bus, 0x84c8d0, 0xb3c1);
-        bus.WriteBytes(0x8f0000 | population,
+        SeedPlmProgramWords(bus, 0xc8ca, 0xb3c1);
+        SeedPlmProgramWords(bus, 0xc8cc, RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed);
+        SeedPlmProgramWords(bus, 0xc8ce, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
+        SeedPlmProgramWords(bus, 0xc8d0, 0xb3c1);
+        SeedRoomPlmPopulation(bus, population,
         [
             0xca, 0xc8, gateX, gateY, 0x00, 0x80,
             0x00, 0x00,
         ]);
 
-        WriteWord(bus, 0x84bb34, 6);
-        WriteWord(bus, 0x84bb36, 0x948b);
-        WriteWord(bus, 0x84bb38, (ushort)RoomPlmInstruction.Delete);
-        WriteWord(bus, 0x84bb44, 2);
-        WriteWord(bus, 0x84bb46, 0x9473);
-        WriteWord(bus, 0x84bb48, 2);
-        WriteWord(bus, 0x84bb4a, 0x947f);
-        WriteWord(bus, 0x84bb4c, 2);
-        WriteWord(bus, 0x84bb4e, 0x948b);
-        WriteWord(bus, 0x84bb50, (ushort)RoomPlmInstruction.Delete);
+        SeedPlmProgramWords(bus, 0xbb34, 6);
+        SeedPlmProgramWords(bus, 0xbb36, 0x948b);
+        SeedPlmProgramWords(bus, 0xbb38, (ushort)RoomPlmInstruction.Delete);
+        SeedPlmProgramWords(bus, 0xbb44, 2);
+        SeedPlmProgramWords(bus, 0xbb46, 0x9473);
+        SeedPlmProgramWords(bus, 0xbb48, 2);
+        SeedPlmProgramWords(bus, 0xbb4a, 0x947f);
+        SeedPlmProgramWords(bus, 0xbb4c, 2);
+        SeedPlmProgramWords(bus, 0xbb4e, 0x948b);
+        SeedPlmProgramWords(bus, 0xbb50, (ushort)RoomPlmInstruction.Delete);
         WriteVerticalPlmDraw(bus, 0x9473, [0x80ff, 0x80ff, 0x80ff, 0x80ff]);
         WriteVerticalPlmDraw(bus, 0x947f, [0x830f, 0x80ff, 0x80ff, 0x830f]);
         WriteVerticalPlmDraw(bus, 0x948b, [0x830f, 0x8ae8, 0x82e8, 0x830f]);
@@ -1056,10 +1050,10 @@ internal static partial class Program
         ushort pointer,
         ReadOnlySpan<ushort> levelWords)
     {
-        WriteWord(bus, 0x840000 | pointer, unchecked((ushort)(0x8000 | levelWords.Length)));
+        SeedPlmProgramWords(bus, pointer, unchecked((ushort)(0x8000 | levelWords.Length)));
         for (int index = 0; index < levelWords.Length; index++)
-            WriteWord(bus, 0x840000 | unchecked((ushort)(pointer + 2 + index * 2)), levelWords[index]);
-        WriteWord(bus, 0x840000 | unchecked((ushort)(pointer + 2 + levelWords.Length * 2)), 0);
+            SeedPlmProgramWords(bus, unchecked((ushort)(pointer + 2 + index * 2)), levelWords[index]);
+        SeedPlmProgramWords(bus, unchecked((ushort)(pointer + 2 + levelWords.Length * 2)), 0);
     }
 
     /// <summary>
@@ -1069,8 +1063,8 @@ internal static partial class Program
     private static void VerifyMetroidsClearedStatePlm(TestAddressSpace bus)
     {
         const ushort population = 0x9500;
-        WriteWord(bus, 0x84db46, RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired);
-        WriteWord(bus, 0x84db42, 0xdead);
+        SeedPlmProgramWords(bus, 0xdb46, RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired);
+        SeedPlmProgramWords(bus, 0xdb42, 0xdead);
         AssertTrue(MetroidsClearedPlmRomData.TryReadInstructionWord(
                 RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired,
                 out ushort compiledInstruction),
@@ -1090,7 +1084,7 @@ internal static partial class Program
             AssertEqual(nativeInstruction, compiledInstruction,
                 "Metroids-cleared one-word list matches pinned cartridge");
         }
-        bus.WriteBytes(0x8f0000 | population,
+        SeedRoomPlmPopulation(bus, population,
         [
             0x44, 0xdb, 0x01, 0x01, 0x10, 0x00,
             0x44, 0xdb, 0x02, 0x01, 0x12, 0x00,
@@ -1154,7 +1148,7 @@ internal static partial class Program
             "Metroids-cleared observers retain the cartridge sleep list");
 
         const ushort invalidPopulation = 0x9580;
-        bus.WriteBytes(0x8f0000 | invalidPopulation,
+        SeedRoomPlmPopulation(bus, invalidPopulation,
         [
             0x44, 0xdb, 0x01, 0x01, 0x01, 0x00,
             0x00, 0x00,
@@ -1195,14 +1189,14 @@ internal static partial class Program
                     compiled,
                     $"Shaktool room list word ${address:X4} matches pinned cartridge");
             }
-            WriteWord(bus, 0x840000 | address, 0xdead);
+            SeedPlmProgramWords(bus, address, 0xdead);
         }
         AssertTrue(!ShaktoolRoomPlmRomData.TryReadInstructionWord(
                 checked((ushort)(ShaktoolRoomPlmRomData.InstructionList + 6)), out _),
             "Shaktool room list owner excludes adjacent setup code");
 
         const ushort emptyPopulation = 0x9780;
-        WriteWord(bus, 0x8f0000 | emptyPopulation, 0);
+        SeedRoomPlmPopulation(bus, emptyPopulation, [0x00, 0x00]);
         RoomLevelData level = CreateRoom(new(32, 32), new ushort[32 * 32],
             new byte[32 * 32], blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
@@ -1256,7 +1250,7 @@ internal static partial class Program
         RoomPlmStationVisualCatalog? visuals = null)
     {
         const ushort population = 0x9200;
-        bus.WriteBytes(0x8f0000 | population, [
+        SeedRoomPlmPopulation(bus, population, [
             0xd3, 0xb6, 0x06, 0x06, 0x00, 0x00,
             0xeb, 0xb6, 0x0c, 0x06, 0x00, 0x00,
             0x6f, 0xb7, 0x12, 0x06, 0x03, 0x00,
@@ -1408,30 +1402,8 @@ internal static partial class Program
     {
         // The native control stream is compiled. Constructed artwork is supplied by
         // operand identity, rather than shortening a bank-$86 program on a fake bus.
-        bus.WriteBytes(0xa19600, [0xff, 0xff]);
-        bus.WriteBytes(0x86e6d2,
-        [
-            0xad, 0xe6,
-            0xd1, 0xe6,
-            0x83, 0xe6,
-            0x00, 0x00,
-            0x00, 0x30,
-            0x00, 0x00,
-            0xfc, 0x84,
-        ]);
-        bus.WriteBytes(0x86e683,
-        [
-            0xd5, 0x81, 0x14, 0x00,
-            0x01, 0x00, 0x62, 0xb5,
-            0x54, 0x81,
-        ]);
-        // Enemy-projectile animation lists live in bank $86, but their frame maps are
-        // consumed by the shared bank-$8D spritemap writer.
-        bus.WriteBytes(0x8db562,
-        [
-            0x01, 0x00,
-            0x00, 0x00, 0x00, 0x01, 0x20,
-        ]);
+        SeedEmptyRoomEnemyPopulation(bus, 0x9600);
+        SeedSaveStationElectricityProjectile(bus);
 
         var enemies = new RoomEnemySystem();
         enemies.Load(
@@ -1491,9 +1463,9 @@ internal static partial class Program
     {
         const ushort population = 0x9400;
         const ushort unsupportedHeader = 0xb123;
-        WriteWord(bus, 0x840000 | unsupportedHeader, 0x9876);
-        WriteWord(bus, 0x840000 | unsupportedHeader + 2, 0x9abc);
-        bus.WriteBytes(0x8f0000 | population, [
+        SeedPlmProgramWords(bus, unsupportedHeader, 0x9876);
+        SeedPlmProgramWords(bus, unchecked((ushort)(unsupportedHeader + 2)), 0x9abc);
+        SeedRoomPlmPopulation(bus, population, [
             0x23, 0xb1, 0x03, 0x04, 0x55, 0xaa, 0x00, 0x00,
         ]);
         RoomLevelData level = CreateRoom(new(8, 8),
@@ -1552,29 +1524,7 @@ internal static partial class Program
         GameplayMessageNoticePresentation.Write(noticeJson, notices);
         noticeJson.Position = 0;
         GameplayMessageNoticePresentation presentation = GameplayMessageNoticePresentation.Load(noticeJson);
-        const int definitions = 0x85869b;
-        int message23 = definitions + (0x17 - 1) * 6;
-        WriteWord(bus, message23, 0x8436);
-        WriteWord(bus, message23 + 2, 0x8289);
-        WriteWord(bus, message23 + 4, 0x9800);
-        WriteWord(bus, message23 + 6, 0x8436);
-        WriteWord(bus, message23 + 8, 0x8289);
-        WriteWord(bus, message23 + 10, 0x9900);
-        WriteWord(bus, message23 + 12, 0x8436);
-        WriteWord(bus, message23 + 14, 0x8289);
-        WriteWord(bus, message23 + 16, 0x9940);
-        for (int word = 0; word < 32; word++)
-        {
-            WriteWord(bus, 0x858040 + word * 2, 0x3801);
-            WriteWord(bus, 0x859581 + (32 + word) * 2,
-                unchecked((ushort)(0x5100 + word)));
-            WriteWord(bus, 0x859581 + (64 + word) * 2,
-                unchecked((ushort)(0x5200 + word)));
-        }
-        for (int word = 0; word < 128; word++)
-            WriteWord(bus, 0x859800 + word * 2, unchecked((ushort)(0x2800 + word)));
-        for (int word = 0; word < 32; word++)
-            WriteWord(bus, 0x859900 + word * 2, unchecked((ushort)(0x2a00 + word)));
+        SeedSaveConfirmationMessageCartridge(bus);
 
         var message = new GameplayMessageBoxState();
         message.BindPresentation(null, notices: presentation);
@@ -1635,18 +1585,18 @@ internal static partial class Program
     {
         SeedPoseOneSamusData(bus);
         // Header instruction-list fields consumed by the generic allocator.
-        WriteWord(bus, 0x84b705, 0xaf86);
-        WriteWord(bus, 0x84b63d, 0xafa4);
-        WriteWord(bus, 0x84b70d, 0xafb6);
-        WriteWord(bus, 0x84b6e1, 0xadc2);
-        WriteWord(bus, 0x84b6d5, 0xad62);
-        WriteWord(bus, 0x84b6ed, 0xae4c);
-        WriteWord(bus, 0x84b771, 0xafe8);
+        SeedPlmProgramWords(bus, 0xb705, 0xaf86);
+        SeedPlmProgramWords(bus, 0xb63d, 0xafa4);
+        SeedPlmProgramWords(bus, 0xb70d, 0xafb6);
+        SeedPlmProgramWords(bus, 0xb6e1, 0xadc2);
+        SeedPlmProgramWords(bus, 0xb6d5, 0xad62);
+        SeedPlmProgramWords(bus, 0xb6ed, 0xae4c);
+        SeedPlmProgramWords(bus, 0xb771, 0xafe8);
         // Elevator's four synthetic frames. Station timing, pointer selection, and
         // draw payloads are compiled, so this sparse bus carries none of those bytes.
         SeedTimedDrawLoop(bus, 0xafb6, 4, 4, 0xa100);
-        WriteWord(bus, 0x84afc6, 0x8724);
-        WriteWord(bus, 0x84afc8, 0xafb6);
+        SeedPlmProgramWords(bus, 0xafc6, 0x8724);
+        SeedPlmProgramWords(bus, 0xafc8, 0xafb6);
     }
 
     private static void SeedTimedDrawLoop(
@@ -1659,8 +1609,8 @@ internal static partial class Program
         for (int frame = 0; frame < frameCount; frame++)
         {
             ushort draw = unchecked((ushort)(firstDraw + frame * 6));
-            WriteWord(bus, 0x840000 | unchecked((ushort)(list + frame * 4)), timer);
-            WriteWord(bus, 0x840000 | unchecked((ushort)(list + frame * 4 + 2)), draw);
+            SeedPlmProgramWords(bus, unchecked((ushort)(list + frame * 4)), timer);
+            SeedPlmProgramWords(bus, unchecked((ushort)(list + frame * 4 + 2)), draw);
             WriteOneBlockDraw(bus, draw, unchecked((ushort)(0x8000 | frame)));
         }
     }
@@ -1669,4 +1619,69 @@ internal static partial class Program
         new CartridgeReadGuard(source).Forbid(
             address => address is >= 0x84bb34 and <= 0x84bb51 or >= 0x849473 and <= 0x849496,
             address => $"Mother Brain escape gate reread compiled source ${address:X6}.");
+
+    /// <summary>The dormant scroll fixture owns an empty terminated bank-$8F scroll program at $9100.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for an empty bank-$8F scroll PLM program")]
+    private static void SeedDormantScrollPlmProgram(TestAddressSpace bus)
+    {
+        bus.WriteBytes(0x8f9100, [0x80]); // Dormant scroll fixture owns an empty terminated program.
+    }
+
+    /// <summary>Seeds the save-station electricity enemy-projectile definition, animation list and frame map.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the save-station electricity enemy projectile")]
+    private static void SeedSaveStationElectricityProjectile(TestAddressSpace bus)
+    {
+        bus.WriteBytes(0x86e6d2,
+        [
+            0xad, 0xe6,
+            0xd1, 0xe6,
+            0x83, 0xe6,
+            0x00, 0x00,
+            0x00, 0x30,
+            0x00, 0x00,
+            0xfc, 0x84,
+        ]);
+        bus.WriteBytes(0x86e683,
+        [
+            0xd5, 0x81, 0x14, 0x00,
+            0x01, 0x00, 0x62, 0xb5,
+            0x54, 0x81,
+        ]);
+        // Enemy-projectile animation lists live in bank $86, but their frame maps are
+        // consumed by the shared bank-$8D spritemap writer.
+        bus.WriteBytes(0x8db562,
+        [
+            0x01, 0x00,
+            0x00, 0x00, 0x00, 0x01, 0x20,
+        ]);
+    }
+
+    /// <summary>Seeds message $17's bank-$85 definition record and the tilemaps it names.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the save-confirmation message definition and tilemaps")]
+    private static void SeedSaveConfirmationMessageCartridge(TestAddressSpace bus)
+    {
+        const int definitions = 0x85869b;
+        int message23 = definitions + (0x17 - 1) * 6;
+        WriteTestWord(bus, message23, 0x8436);
+        WriteTestWord(bus, message23 + 2, 0x8289);
+        WriteTestWord(bus, message23 + 4, 0x9800);
+        WriteTestWord(bus, message23 + 6, 0x8436);
+        WriteTestWord(bus, message23 + 8, 0x8289);
+        WriteTestWord(bus, message23 + 10, 0x9900);
+        WriteTestWord(bus, message23 + 12, 0x8436);
+        WriteTestWord(bus, message23 + 14, 0x8289);
+        WriteTestWord(bus, message23 + 16, 0x9940);
+        for (int word = 0; word < 32; word++)
+        {
+            WriteTestWord(bus, 0x858040 + word * 2, 0x3801);
+            WriteTestWord(bus, 0x859581 + (32 + word) * 2,
+                unchecked((ushort)(0x5100 + word)));
+            WriteTestWord(bus, 0x859581 + (64 + word) * 2,
+                unchecked((ushort)(0x5200 + word)));
+        }
+        for (int word = 0; word < 128; word++)
+            WriteTestWord(bus, 0x859800 + word * 2, unchecked((ushort)(0x2800 + word)));
+        for (int word = 0; word < 32; word++)
+            WriteTestWord(bus, 0x859900 + word * 2, unchecked((ushort)(0x2a00 + word)));
+    }
 }

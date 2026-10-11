@@ -12,10 +12,8 @@ internal static partial class Program
         {
             var (bus, level, streamer, plms, gateIndex) = CreateDownwardGateFixture(trigger);
             // Use the cartridge's actual gate sprite maps for the observable OAM check.
-            var maps = new byte[0x8000];
-            for (int i = 0; i < maps.Length; i++) maps[i] = GrappleGreenGateVisibilityRomByte(retail, 0x8d8000 + i);
-            bus.WriteBytes(0x8d8000, maps);
-            bus.WriteBytes(0xa19600, [0xff, 0xff]);
+            SeedRetailGateSpriteMaps(bus, retail);
+            SeedEmptyRoomEnemyPopulation(bus, 0x9600);
             var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
             enemies.Load(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), () => 0, level: level, samus: new SamusState());
             enemies.ApplyDownwardGateProjectileRequest(plms.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
@@ -57,4 +55,13 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple green gate visibility")]
     private static byte GrappleGreenGateVisibilityRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    /// <summary>Copies the retail bank-$8D sprite maps into the gate fixture for the observable OAM check.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture copying retail bank $8D sprite maps for green-gate visibility")]
+    private static void SeedRetailGateSpriteMaps(TestAddressSpace bus, ISnesAddressSpace retail)
+    {
+        var maps = new byte[0x8000];
+        for (int i = 0; i < maps.Length; i++) maps[i] = GrappleGreenGateVisibilityRomByte(retail, 0x8d8000 + i);
+        bus.WriteBytes(0x8d8000, maps);
+    }
 }

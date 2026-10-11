@@ -100,16 +100,16 @@ internal static partial class Program
 
     private static void SeedDraygonCannonFixture(TestAddressSpace bus)
     {
-        bus.WriteBytes(0x8f9000, [
+        SeedRoomPlmPopulation(bus, 0x9000, [
             0x65, 0xdf, 2, 11, 0x02, 0x88,
             0x59, 0xdf, 2, 18, 0x04, 0x88,
             0x71, 0xdf, 29, 15, 0x06, 0x88,
             0x71, 0xdf, 29, 21, 0x08, 0x88,
             0, 0,
         ]);
-        WriteWord(bus, 0x840000 | (ushort)PlmHeaderId.DraygonCannonFacingRight + 2, 0x0400);
-        WriteWord(bus, 0x840000 | (ushort)PlmHeaderId.DraygonCannonFacingRightDestroyed + 2, 0x0440);
-        WriteWord(bus, 0x840000 | (ushort)PlmHeaderId.DraygonCannonFacingLeft + 2, 0x0500);
+        SeedPlmProgramWords(bus, unchecked((ushort)((ushort)PlmHeaderId.DraygonCannonFacingRight + 2)), 0x0400);
+        SeedPlmProgramWords(bus, unchecked((ushort)((ushort)PlmHeaderId.DraygonCannonFacingRightDestroyed + 2)), 0x0440);
+        SeedPlmProgramWords(bus, unchecked((ushort)((ushort)PlmHeaderId.DraygonCannonFacingLeft + 2)), 0x0500);
 
         SeedShieldedCannonList(
             bus,
@@ -141,20 +141,20 @@ internal static partial class Program
         ushort hitDraw,
         ushort destroyedDraw)
     {
-        bus.WriteBytes(0x840000 | list, [
+        SeedPlmProgramBytes(bus, list, [
             0x24, 0x8a, unchecked((byte)hitList), unchecked((byte)(hitList >> 8)),
             0xc1, 0x86, 0x64, 0xdb,
             0x01, 0x00, unchecked((byte)idleDraw), unchecked((byte)(idleDraw >> 8)),
             0xb4, 0x86,
         ]);
-        bus.WriteBytes(0x840000 | hitList, [
+        SeedPlmProgramBytes(bus, hitList, [
             0xcd, 0x8a, 0x03,
                 unchecked((byte)destroyedList), unchecked((byte)(destroyedList >> 8)),
             0x01, 0x00, unchecked((byte)hitDraw), unchecked((byte)(hitDraw >> 8)),
             0x24, 0x87, unchecked((byte)list), unchecked((byte)(list >> 8)),
         ]);
-        WriteWord(bus, 0x840000 | destroyedList, damageInstruction);
-        bus.WriteBytes(0x840000 | unchecked((ushort)(destroyedList + 2)), [
+        SeedPlmProgramWords(bus, destroyedList, damageInstruction);
+        SeedPlmProgramBytes(bus, unchecked((ushort)(destroyedList + 2)), [
             0x01, 0x00, unchecked((byte)destroyedDraw), unchecked((byte)(destroyedDraw >> 8)),
             0xb4, 0x86,
         ]);

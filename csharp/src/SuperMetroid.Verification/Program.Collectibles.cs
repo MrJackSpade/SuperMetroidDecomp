@@ -280,7 +280,7 @@ internal static partial class Program
         Extent16<RoomBlocks> size = roomSize ?? new(8, 8);
         Position16<RoomBlocks> itemBlock = block ?? new(3, 3);
         int blockIndex = size.RowMajorIndex(itemBlock);
-        bus.WriteBytes(0x8f0000 | population, [
+        SeedRoomPlmPopulation(bus, population, [
             unchecked((byte)header), unchecked((byte)(header >> 8)),
             unchecked((byte)itemBlock.X), unchecked((byte)itemBlock.Y),
             unchecked((byte)roomArgument), unchecked((byte)(roomArgument >> 8)),
@@ -327,7 +327,7 @@ internal static partial class Program
         // Bomb-special BTS 8 reuses the freed item ID with the retail one-word delete
         // list. Seed that generic instruction because this synthetic item ROM otherwise
         // contains only collectible draw lists.
-        bus.WriteBytes(0x84aae3, [0xbc, 0x86]);
+        SeedPlmDeleteList(bus);
         for (int presentation = 0; presentation < 3; presentation++)
         {
             ushort firstHeader = presentation switch
@@ -342,7 +342,7 @@ internal static partial class Program
                 ushort instruction = kind >= (int)InWorldCollectibleKind.Bombs
                     ? sharedDynamicList
                     : (ushort)0xf000;
-                bus.WriteBytes(0x840000 | unchecked((ushort)(header + 2)), [
+                SeedPlmProgramBytes(bus, unchecked((ushort)(header + 2)), [
                     unchecked((byte)instruction), unchecked((byte)(instruction >> 8)),
                 ]);
             }
@@ -350,7 +350,7 @@ internal static partial class Program
 
         // Item-GFX instruction, bank-$89 source pointer, then four palette words (eight
         // bytes). Zero palette words are intentional fixture data, not omitted operands.
-        bus.WriteBytes(0x840000 | sharedDynamicList, [
+        SeedPlmProgramBytes(bus, sharedDynamicList, [
             0x64, 0x87, 0x00, 0x80,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         ]);
@@ -365,7 +365,7 @@ internal static partial class Program
     }
 
     private static void WriteOneBlockDraw(TestAddressSpace bus, int pointer, ushort levelWord) =>
-        bus.WriteBytes(0x840000 | pointer, [
+        SeedPlmProgramBytes(bus, unchecked((ushort)pointer), [
             0x01, 0x00,
             unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
             0x00, 0x00,
@@ -674,15 +674,7 @@ internal static partial class Program
 
     private static void VerifySuitPickupTransformation()
     {
-        var bus = new TestAddressSpace();
-        for (int i = 0; i < 128; i++)
-            bus.WriteBytes(0x88e3c9 + i, [unchecked((byte)Math.Min(i / 8 + 1, 15))]);
-
-        // Distinct first words prove that the generic suit loader selects from equipment,
-        // and that stage three—not Begin—performs the newly acquired palette reveal.
-        WriteWord(bus, 0x9b9400, 0x001f);
-        WriteWord(bus, 0x9b9520, 0x03e0);
-        WriteWord(bus, 0x9b9800, 0x7c00);
+        TestAddressSpace bus = CreateSuitPickupCartridge();
         SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
         Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory(bus, suitColors));
@@ -814,4 +806,20 @@ internal static partial class Program
         Bank80SystemState System,
         SamusState Samus,
         int BlockIndex);
+
+    /// <summary>Synthetic cartridge with the suit-pickup fade curve and distinct suit palette first words.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for suit pickup fades and suit palettes")]
+    private static TestAddressSpace CreateSuitPickupCartridge()
+    {
+        var bus = new TestAddressSpace();
+        for (int i = 0; i < 128; i++)
+            bus.WriteBytes(0x88e3c9 + i, [unchecked((byte)Math.Min(i / 8 + 1, 15))]);
+
+        // Distinct first words prove that the generic suit loader selects from equipment,
+        // and that stage three—not Begin—performs the newly acquired palette reveal.
+        WriteTestWord(bus, 0x9b9400, 0x001f);
+        WriteTestWord(bus, 0x9b9520, 0x03e0);
+        WriteTestWord(bus, 0x9b9800, 0x7c00);
+        return bus;
+    }
 }

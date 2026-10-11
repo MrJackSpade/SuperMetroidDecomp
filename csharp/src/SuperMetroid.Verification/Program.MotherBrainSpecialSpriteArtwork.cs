@@ -7,13 +7,21 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Plants a distinct cartridge byte at the bank-$A0 alias of the corpse tile source so a
+    /// transfer that wrongly read cartridge data instead of mutable WRAM would be observable.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge sentinel for the Mother Brain corpse tile transfer source")]
+    private static void SeedMotherBrainCorpseCartridgeSentinel(TestAddressSpace source) =>
+        source.WriteBytes(0xa0c000, [0x6b]);
+
     private static void VerifyMotherBrainSpriteTransferSources()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var source = new TestAddressSpace();
         WorkRamByteTable corpseTiles = new EnemyScratchMemory(source).MotherBrainCorpseTiles;
         corpseTiles[0] = 0x5a;
-        source.WriteBytes(0xa0c000, [0x6b]);
+        SeedMotherBrainCorpseCartridgeSentinel(source);
         var enemies = new RoomEnemySystem();
         var vram = new SnesVram();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,

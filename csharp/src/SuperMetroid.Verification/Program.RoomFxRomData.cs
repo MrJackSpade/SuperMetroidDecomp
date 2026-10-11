@@ -140,10 +140,9 @@ internal static partial class Program
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
         const ushort record = 0x9400;
-        int recordAddress = RoomFxRomDataBanksTooling.RoomDefinitions | record;
-        WriteTestWord(bus, recordAddress + RoomFxRomDataRecordTooling.DoorPointerOffset, 0);
-        WriteTestByte(bus,
-            recordAddress + RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
+        SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordTooling.DoorPointerOffset, 0);
+        SeedSyntheticRoomFxByte(bus, record,
+            RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
             (byte)LayerBlendingConfiguration.NormalGameplay);
 
         RoomFxType[] nonLayer3Types =
@@ -155,7 +154,7 @@ internal static partial class Program
         ];
         foreach (RoomFxType type in nonLayer3Types)
         {
-            WriteTestByte(bus, recordAddress + RoomFxRomDataRecordTooling.TypeOffset, (byte)type);
+            SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.TypeOffset, (byte)type);
             LoadSyntheticRoomFx(state, bus, vram, cgram, record);
             AssertEqual(type, state.Type, $"{type} FX record type");
             AssertEqual(
@@ -180,10 +179,7 @@ internal static partial class Program
         ushort record,
         RoomFxType type)
     {
-        WriteTestByte(bus,
-            RoomFxRomDataBanksTooling.RoomDefinitions |
-                unchecked((ushort)(record + RoomFxRomDataRecordTooling.TypeOffset)),
-            (byte)type);
+        SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.TypeOffset, (byte)type);
         LayerBlendingConfiguration layerBlend = type switch
         {
             RoomFxType.Lava or RoomFxType.Acid =>
@@ -193,11 +189,8 @@ internal static partial class Program
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
             _ => throw new InvalidOperationException($"Unexpected renderable room FX {type}."),
         };
-        WriteTestByte(bus,
-            RoomFxRomDataBanksTooling.RoomDefinitions |
-                unchecked((ushort)(record +
-                    RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset)),
-            (byte)layerBlend);
+        SeedSyntheticRoomFxByte(bus, record,
+            RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset, (byte)layerBlend);
 
         LoadSyntheticRoomFx(state, bus, vram, cgram, record);
         Suite(nameof(VerifyRoomFxSharedRandomState), () => VerifyRoomFxSharedRandomState(bus, vram, cgram, state, record, type));
@@ -207,17 +200,11 @@ internal static partial class Program
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
             const ushort surfaceY = 100;
-            WriteTestByte(bus,
-                RoomFxRomDataBanksTooling.RoomDefinitions |
-                    unchecked((ushort)(record + RoomFxRomDataRecordTooling.LiquidOptionsOffset)),
+            SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.LiquidOptionsOffset,
                 type == RoomFxType.Water
                     ? (byte)3
                     : (byte)RoomFxRomData.LavaAcid.VerticalBg2WaveOption);
-            WriteTestWord(
-                bus,
-                RoomFxRomDataBanksTooling.RoomDefinitions |
-                    unchecked((ushort)(record + RoomFxRomDataRecordTooling.BaseYPositionOffset)),
-                surfaceY);
+            SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordTooling.BaseYPositionOffset, surfaceY);
             LoadSyntheticRoomFx(state, bus, vram, cgram, record);
             state.PrimeViewport(new Position16<RoomPixels>(0x0100, 0));
         }
@@ -390,13 +377,27 @@ internal static partial class Program
     // Decode the fixture's literal sixteen-byte record independently of the compiled
     // retail catalog, then exercise the same production initialization and rendering.
     private static void LoadSyntheticRoomFx(RoomLayer3FxState state, TestAddressSpace bus,
-        SnesVram vram, SnesCgram cgram, ushort pointer)
+        SnesVram vram, SnesCgram cgram, ushort pointer) =>
+        state.LoadDefinition(bus, vram, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
+
+    [CpuBusBoundary("exact bus test: decodes the synthetic sixteen-byte bank-$83 room FX record")]
+    private static RoomFxRecordDefinition ReadSyntheticRoomFxRecord(TestAddressSpace bus, ushort pointer)
     {
         int address = 0x830000 | pointer;
         byte Byte(int offset) => bus.ReadByte(address + offset);
         ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
-        state.LoadDefinition(bus, vram, cgram, new RoomFxRecordDefinition(pointer,
+        return new RoomFxRecordDefinition(pointer,
             Word(0), Word(2), Word(4), Word(6), Byte(8), Byte(9), Byte(10), Byte(11),
-            Byte(12), Byte(13), Byte(14), Byte(15)), randomNumber: 0);
+            Byte(12), Byte(13), Byte(14), Byte(15));
     }
+
+    /// <summary>Writes one byte field of the synthetic bank-$83 room FX record at <paramref name="record"/>.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$83 room FX record byte field")]
+    private static void SeedSyntheticRoomFxByte(TestAddressSpace bus, ushort record, int fieldOffset, byte value) =>
+        WriteTestByte(bus, RoomFxRomDataBanksTooling.RoomDefinitions | unchecked((ushort)(record + fieldOffset)), value);
+
+    /// <summary>Writes one little-endian word field of the synthetic bank-$83 room FX record at <paramref name="record"/>.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$83 room FX record word field")]
+    private static void SeedSyntheticRoomFxWord(TestAddressSpace bus, ushort record, int fieldOffset, ushort value) =>
+        WriteTestWord(bus, RoomFxRomDataBanksTooling.RoomDefinitions | unchecked((ushort)(record + fieldOffset)), value);
 }

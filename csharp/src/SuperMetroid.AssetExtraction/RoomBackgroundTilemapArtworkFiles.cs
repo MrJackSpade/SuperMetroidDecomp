@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Hash-checked stock BG tilemaps and persistent editable tile-reference overrides.</summary>
+[CpuBusBoundary("codec: ROM compressed library-background tilemaps → room background tilemap artwork files")]
 public static class RoomBackgroundTilemapArtworkFiles
 {
     /// <summary>Stock manifest filename recording every library-background source address, native transfer length, and JSON hash.</summary>

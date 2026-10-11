@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts the starting gameplay CGRAM image and shared room-sprite palette.</summary>
+[CpuBusBoundary("codec: ROM starting gameplay CGRAM image and room-sprite palette → GameplayBasePaletteCatalog")]
 public static class GameplayBasePaletteFiles
 {
     /// <summary>Writes the initial 256-color CGRAM image and 16 common-sprite colors as RGB5 JSON with a hashed manifest, then validates the resulting stock installation.</summary>

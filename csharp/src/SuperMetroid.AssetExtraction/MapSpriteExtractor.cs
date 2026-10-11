@@ -8,6 +8,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Imports ordered map sprite artwork only, excluding all game collision and navigation data.</summary>
+[CpuBusBoundary("codec: ROM bank-$82 map spritemaps → map sprite artwork")]
 public static class MapSpriteExtractor
 {
     /// <summary>Exports named menu/map OBJ compositions in native part order together with their shared bank-$B6 character atlas.</summary>

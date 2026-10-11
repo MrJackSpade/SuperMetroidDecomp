@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts the two authored direct small-OBJ atmospheric lists as editable JSON.</summary>
+[CpuBusBoundary("codec: ROM Samus atmospheric small-OBJ lists → atmospheric artwork files")]
 public static class SamusAtmosphericArtworkFiles
 {
     /// <summary>Stock/override JSON filename for the four-frame footstep list and shared four-frame lava/dust direct-OBJ list.</summary>

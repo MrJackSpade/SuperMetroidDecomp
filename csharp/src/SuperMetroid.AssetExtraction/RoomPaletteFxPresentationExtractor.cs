@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts authored room and cinematic palette animation colors to RGB5 JSON.</summary>
+[CpuBusBoundary("codec: ROM room and cinematic palette-FX colors → palette-FX presentation")]
 internal static class RoomPaletteFxPresentationExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)

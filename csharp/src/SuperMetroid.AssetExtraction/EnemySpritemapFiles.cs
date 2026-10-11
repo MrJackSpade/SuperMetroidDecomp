@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports named enemy visual frames, leaving instruction control in code.</summary>
+[CpuBusBoundary("codec: ROM enemy spritemap part records → named enemy visual frames")]
 internal static class EnemySpritemapFiles
 {
     internal static byte[] Extract(ISnesAddressSpace bus)

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Imports the timer's visual compositions without exposing its countdown mechanics.</summary>
+[CpuBusBoundary("codec: ROM escape-timer OBJ compositions → escape timer presentation")]
 public static class EscapeTimerPresentationExtractor
 {
     /// <summary>Imports the escape-timer label and ten digit OAM compositions with their compiled visual placement defaults.</summary>

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Installs the complete, indexed 4-bpp standard OBJ sheet as editable artwork.</summary>
+[CpuBusBoundary("codec: ROM standard 4-bpp OBJ sheet → standard object artwork")]
 public static class StandardObjectArtworkFiles
 {
     /// <summary>Exports the selected $2E00-byte standard OBJ span as an indexed PNG, verifies its exact planar-byte round-trip, writes its hashed manifest, and validates stock.</summary>

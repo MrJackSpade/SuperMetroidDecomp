@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Writes stock maps into fresh installation staging; never receives the user override directory.</summary>
+[CpuBusBoundary("codec: ROM map screen tilemaps, sprites and palettes → stock map presentation")]
 public static class MapPresentationExtractor
 {
     /// <summary>Creates the complete stock map family in fresh staging, including area maps, reveal masks, character atlases, palettes, labels, markers, sprites, screens, and a provenance/hash manifest.</summary>

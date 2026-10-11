@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Composes the native frame and area lettering once, at import, into editable tile grids.</summary>
+[CpuBusBoundary("codec: ROM pause frame tilemap and area lettering → pause backdrop tile grids")]
 public static class PauseBackdropExtractor
 {
     /// <summary>Combines the native pause frame with each area label, converts every tile word to semantic atlas coordinates, and serializes the shared button strip.</summary>

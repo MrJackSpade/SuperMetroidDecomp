@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Decodes the native map highlight sequence into colors/durations, not an executable palette program.</summary>
+[CpuBusBoundary("codec: ROM map highlight palette sequence → map palette cycle colors and durations")]
 internal static class MapPaletteCycleExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)

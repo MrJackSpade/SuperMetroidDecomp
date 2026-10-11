@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports visual spritemap operands from all authored timed projectile records.</summary>
+[CpuBusBoundary("codec: ROM timed projectile instruction spritemap operands → projectile frame bindings")]
 public static class ProjectileFrameBindingExtractor
 {
     /// <summary>Imports the spritemap selection for every compiled timed Samus-projectile record in bank $93.</summary>

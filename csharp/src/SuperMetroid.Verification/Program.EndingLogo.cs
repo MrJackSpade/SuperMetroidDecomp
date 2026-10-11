@@ -80,9 +80,9 @@ internal static partial class Program
         for (int i = 0; i < operands.Length; i++)
         {
             int operand = 0x8b0000 | operands[i];
-            ushort pointer = (ushort)(bus.ReadByte(operand) | bus.ReadByte(operand + 1) << 8);
+            ushort pointer = (ushort)(CpuBusRegionRead.Read(bus, operand) | CpuBusRegionRead.Read(bus, operand + 1) << 8);
             int header = 0x8c0000 | pointer;
-            int count = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
+            int count = CpuBusRegionRead.Read(bus, header) | CpuBusRegionRead.Read(bus, header + 1) << 8;
             AssertEqual(pointer, catalog[i].Pointer, "logo frame address from original instruction operand");
             AssertEqual(count, catalog[i].StockPartCount, "logo part count from original OAM header");
             AssertEqual(names[i], catalog[i].Name, "logo published asset key");
@@ -114,7 +114,7 @@ internal static partial class Program
             {
                 ushort nativeCallback = 0, generatedCallback = 0;
                 native.Step((EndingLogoInstruction opcode, ushort cursor) => { nativeCallback = (ushort)opcode; return cursor; },
-                    pointer => (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
+                    pointer => (ushort)(CpuBusRegionRead.Read(bus, 0x8b0000 | pointer) | CpuBusRegionRead.Read(bus, 0x8b0000 | (pointer + 1)) << 8));
                 generated.Step((EndingLogoInstruction opcode, ushort cursor) => { generatedCallback = (ushort)opcode; return cursor; },
                     EndingLogoInstructionDefinitions.ReadWord);
                 AssertEqual(native.InstructionPointer, generated.InstructionPointer, "logo program cursor");

@@ -25,8 +25,8 @@ internal static partial class Program
         for (int index = 0; index < originalOrder.Length; index++)
         {
             int instruction = 0x82ec66 + 17 * index;
-            AssertEqual((byte)0xa9, rom.ReadByte(instruction), "native page bank LDA immediate");
-            AssertEqual((byte)0xa9, rom.ReadByte(instruction + 5), "native page address LDA immediate");
+            AssertEqual((byte)0xa9, CpuBusRegionRead.Read(rom, instruction), "native page bank LDA immediate");
+            AssertEqual((byte)0xa9, CpuBusRegionRead.Read(rom, instruction + 5), "native page address LDA immediate");
             int source = (ReadVerificationWord(rom, instruction + 1) & 0xff00) << 8 |
                 ReadVerificationWord(rom, instruction + 6);
             var expected = originalOrder[index];

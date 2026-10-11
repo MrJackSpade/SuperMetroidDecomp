@@ -10,7 +10,7 @@ internal static partial class Program
     {
         for (int address = 0x90c481; address < 0x90c4b5; address++)
         {
-            AssertEqual(bus.ReadByte(address), ChargeFlareAnimationDefinitions.ReadByte(address), "Compiled flare cadence byte matches cartridge");
+            AssertEqual(CpuBusRegionRead.Read(bus, address), ChargeFlareAnimationDefinitions.ReadByte(address), "Compiled flare cadence byte matches cartridge");
             if (address < 0x90c4b4)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ChargeFlareAnimationDefinitions.ReadWord(address), "Compiled flare cadence word matches cartridge");
         }
@@ -52,7 +52,7 @@ internal static partial class Program
             if ((short)timer >= 0) return;
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x90c481 + component * 2);
             frame = unchecked((ushort)(frame + 1));
-            byte Delay(int selected) => bus.ReadByte(0x900000 | unchecked((ushort)(pointer + selected)));
+            byte Delay(int selected) => CpuBusRegionRead.Read(bus, 0x900000 | unchecked((ushort)(pointer + selected)));
             byte delay = Delay(frame);
             if (delay == 255) { frame = 0; delay = Delay(frame); }
             else if (delay == 254) { frame = unchecked((ushort)(frame - Delay(frame + 1))); delay = Delay(frame); }

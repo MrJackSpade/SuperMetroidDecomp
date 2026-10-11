@@ -38,8 +38,10 @@ sealed class TestAddressSpace : ISnesMemoryBus,
 {
     private readonly Dictionary<int, byte> _bytes = [];
 
+    [CpuBusAccess]
     internal bool HasSeededByte(int address) => _bytes.ContainsKey(address);
 
+    [CpuBusAccess]
     public byte ReadByte(int address)
     {
         if ((uint)address > 0x00ff_ffff)
@@ -72,6 +74,7 @@ sealed class TestAddressSpace : ISnesMemoryBus,
         _bytes[address] = value;
     }
 
+    [CpuBusAccess]
     public void WriteBytes(int startAddress, ReadOnlySpan<byte> values)
     {
         for (int index = 0; index < values.Length; index++)

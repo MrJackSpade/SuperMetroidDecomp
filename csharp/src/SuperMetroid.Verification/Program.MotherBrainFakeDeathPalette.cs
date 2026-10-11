@@ -33,8 +33,8 @@ internal static partial class Program
             for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.GreyFrameCount; frame++)
             {
                 int pointerAddress = table + frame * sizeof(ushort);
-                ushort pointer = (ushort)(rom.ReadByte(pointerAddress) |
-                    rom.ReadByte(pointerAddress + 1) << 8);
+                ushort pointer = (ushort)(CpuBusRegionRead.Read(rom, pointerAddress) |
+                    CpuBusRegionRead.Read(rom, pointerAddress + 1) << 8);
                 AssertTrue(pointer != 0, "native Mother Brain fake-death palette frame exists");
                 SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(expected, rom, MotherBrainRainbowPaletteRomData.SourceBank | pointer,
                     MotherBrainFakeDeathPaletteRomData.ColorCount,

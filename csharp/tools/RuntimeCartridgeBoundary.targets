@@ -9,7 +9,7 @@
                    '%(ReferencePath.Filename)' == 'SuperMetroid.DebugRunner' or
                    '%(ReferencePath.Filename)' == 'SuperMetroid.AssetExtractor'" />
       <ForbiddenCartridgeShim Include="@(Compile)"
-        Condition="'%(Compile.Filename)' == 'ReferenceBusReadExtensions' or
+        Condition="'%(Compile.Filename)' == 'CpuBusRegionRead' or
                    '%(Compile.Filename)' == 'ReferencePaletteFxColorSource' or
                    '%(Compile.Filename)' == 'ImportedVramOracle' or
                    '%(Compile.Filename)' == 'ImportedSpritemapOracle' or

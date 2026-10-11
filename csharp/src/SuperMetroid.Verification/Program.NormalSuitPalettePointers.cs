@@ -23,7 +23,7 @@ internal static partial class Program
         {
             ushort offset = equipment[selection].GetSuitPaletteTableOffset();
             int source = SamusPaletteRomData.Common.NormalSuitPointers + offset;
-            ushort nativePointer = (ushort)(rom.ReadByte(source) | rom.ReadByte(source + 1) << 8);
+            ushort nativePointer = (ushort)(CpuBusRegionRead.Read(rom, source) | CpuBusRegionRead.Read(rom, source + 1) << 8);
             AssertEqual(expectedPointers[selection], nativePointer,
                 $"normal suit pointer selection {selection} matches retail ROM");
             AssertEqual(nativePointer, SamusPaletteRomData.Common.NormalSuitPalettePointer(offset),

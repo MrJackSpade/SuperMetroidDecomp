@@ -49,10 +49,10 @@ internal static partial class Program
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EnemyRomTablePointers.Ceres.DoorTransferPointers + frame * sizeof(ushort));
             int record = 0xa60000 | pointer;
-            AssertEqual((byte)0x80, bus.ReadByte(record),
+            AssertEqual((byte)0x80, CpuBusRegionRead.Read(bus, record),
                 $"Ceres-door Mode-7 transfer {frame} uses the native low-byte DMA");
-            int source = bus.ReadByte(record + 1) |
-                bus.ReadByte(record + 2) << 8 | bus.ReadByte(record + 3) << 16;
+            int source = CpuBusRegionRead.Read(bus, record + 1) |
+                CpuBusRegionRead.Read(bus, record + 2) << 8 | CpuBusRegionRead.Read(bus, record + 3) << 16;
             AssertEqual(frame == 0 ? CeresDoorVisualRomData.Mode7FirstFrameSource :
                     CeresDoorVisualRomData.Mode7SecondFrameSource,
                 source, $"Ceres-door Mode-7 transfer {frame} source");
@@ -62,9 +62,9 @@ internal static partial class Program
             AssertEqual(CeresDoorVisualRomData.Mode7DestinationWord,
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6),
                 $"Ceres-door Mode-7 transfer {frame} destination");
-            AssertEqual((byte)0, bus.ReadByte(record + 8),
+            AssertEqual((byte)0, CpuBusRegionRead.Read(bus, record + 8),
                 $"Ceres-door Mode-7 transfer {frame} increment mode");
-            AssertEqual((byte)0, bus.ReadByte(record + 9),
+            AssertEqual((byte)0, CpuBusRegionRead.Read(bus, record + 9),
                 $"Ceres-door Mode-7 transfer {frame} terminator");
             byte[] nativeFrame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
                 CeresDoorVisualRomData.Mode7FrameByteCount);

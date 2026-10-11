@@ -1,7 +1,8 @@
 <Project>
-  <!-- Shared exact CPU-bus test doubles (#629). CartridgeReadGuard serves reads through ReferenceBusReadExtensions. -->
+  <!-- Shared exact CPU-bus test doubles (#629). CartridgeReadGuard routes reads by region through CpuBusRegionRead. -->
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CpuBusTestDoubles/CartridgeReadGuard.cs" Link="TestSupport/CpuBusTestDoubles/CartridgeReadGuard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CpuBusTestDoubles/CpuBusRegionRead.cs" Link="TestSupport/CpuBusTestDoubles/CpuBusRegionRead.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CpuBusTestDoubles/SyntheticCartridge.cs" Link="TestSupport/CpuBusTestDoubles/SyntheticCartridge.cs" />
   </ItemGroup>
 </Project>

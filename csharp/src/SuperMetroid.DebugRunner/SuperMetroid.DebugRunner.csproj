@@ -9,7 +9,6 @@
     <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <ProjectReference Include="../SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
-    <Compile Include="../../test-support/ReferenceBusReadExtensions.cs" Link="ReferenceBusReadExtensions.cs" />
     <Compile Include="../../test-support/ShutterBombArcScenario.cs" Link="ShutterBombArcScenario.cs" />
     <Compile Include="../../test-support/BombSpreadTransitionScenario.cs" Link="BombSpreadTransitionScenario.cs" />
     <Compile Include="../../test-support/ShallowWaterJumpScenario.cs" Link="ShallowWaterJumpScenario.cs" />

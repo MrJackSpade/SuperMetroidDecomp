@@ -38,8 +38,8 @@ internal static partial class Program
             .Select(pose => new
             {
                 Pose = (SamusPoseId)pose,
-                Movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1),
-                Direction = rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3),
+                Movement = CpuBusRegionRead.Read(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 1),
+                Direction = CpuBusRegionRead.Read(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 3),
             })
             .Where(row => row.Direction < 10)
             .GroupBy(row => (Running: row.Movement == (byte)SamusMovementType.Running, row.Direction))

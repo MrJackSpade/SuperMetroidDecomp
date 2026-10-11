@@ -28,9 +28,9 @@ internal static partial class Program
         for (int page = 0; page < 5; page++)
         {
             int record = 0xa6c4d9 + 7 * page;
-            int count = rom.ReadByte(record) | rom.ReadByte(record + 1) << 8;
-            int source = rom.ReadByte(record + 2) | rom.ReadByte(record + 3) << 8 | rom.ReadByte(record + 4) << 16;
-            int destination = rom.ReadByte(record + 5) | rom.ReadByte(record + 6) << 8;
+            int count = CpuBusRegionRead.Read(rom, record) | CpuBusRegionRead.Read(rom, record + 1) << 8;
+            int source = CpuBusRegionRead.Read(rom, record + 2) | CpuBusRegionRead.Read(rom, record + 3) << 8 | CpuBusRegionRead.Read(rom, record + 4) << 16;
+            int destination = CpuBusRegionRead.Read(rom, record + 5) | CpuBusRegionRead.Read(rom, record + 6) << 8;
             cartridgeVram.LoadBytes(destination * 2, RomDataReader.ReadFixedBank(rom, source, count));
         }
         for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageCount; page++)

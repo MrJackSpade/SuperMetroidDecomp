@@ -123,7 +123,7 @@ internal static partial class Program
                 >= SamusBeamPreInstructionCodesConstants.UnchargedTable and < SamusBeamPreInstructionCodesConstants.UnchargedTable + 32 or
                 >= SamusBeamPreInstructionCodesConstants.ChargedTable and < SamusBeamPreInstructionCodesConstants.ChargedTable + 32)
                 throw new InvalidOperationException($"Compiled projectile mechanics unexpectedly read ROM ${address:X6}.");
-            return _overrides.TryGetValue(address, out byte value) ? value : source.ReadByte(address);
+            return _overrides.TryGetValue(address, out byte value) ? value : CpuBusRegionRead.Read(source, address);
         }
         public void WriteByte(int address, byte value) => _overrides[address] = value;
         public void SetWord(int address, ushort value)

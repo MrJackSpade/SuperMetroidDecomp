@@ -47,7 +47,7 @@ internal static partial class Program
     {
         for (int address = TitleSequenceInstructionDefinitions.StartAddress;
             address < TitleSequenceInstructionDefinitions.EndAddress; address++)
-            AssertEqual(bus.ReadByte(address),
+            AssertEqual(CpuBusRegionRead.Read(bus, address),
                 TitleSequenceInstructionDefinitions.ReadByte(address),
                 $"compiled title-card byte ${address:X6}");
         AssertThrows<InvalidDataException>(() =>
@@ -126,13 +126,13 @@ internal static partial class Program
         {
             var nativeOam = new OamBuffer(); var installedOam = new OamBuffer();
             int address = TitleSequenceRomData.Sprites.Bank << 16 | frame.Pointer;
-            ushort Word(int at) => (ushort)(bus.ReadByte(at) | bus.ReadByte(at + 1) << 8);
+            ushort Word(int at) => (ushort)(CpuBusRegionRead.Read(bus, at) | CpuBusRegionRead.Read(bus, at + 1) << 8);
             int count = Word(address);
             for (int part = 0; part < count; part++)
             {
                 int record = address + 2 + part * 5;
                 nativeOam.AddOnScreenSpritePart(new SnesSpritemapXWord(Word(record)),
-                    bus.ReadByte(record + 2), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
+                    CpuBusRegionRead.Read(bus, record + 2), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
                     new Position16<OamPixels>(128, 112));
             }
             presentation.DrawSprite(checked((ushort)frame.Pointer), installedOam, new(128, 112), 0);

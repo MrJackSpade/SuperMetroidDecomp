@@ -299,7 +299,7 @@ internal static partial class Program
             var installed = new SnesCgram();
             int pointer = MotherBrainRainbowPaletteRomData.PointerTable + frame * sizeof(ushort);
             int palette = MotherBrainRainbowPaletteRomData.SourceBank |
-                bus.ReadByte(pointer) | bus.ReadByte(pointer + 1) << 8;
+                CpuBusRegionRead.Read(bus, pointer) | CpuBusRegionRead.Read(bus, pointer + 1) << 8;
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.BodyColor);
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
@@ -332,7 +332,7 @@ internal static partial class Program
                 MotherBrainDrainedPaletteRomData.RevivalColors;
             int pointer = table + frame * sizeof(ushort);
             int palette = MotherBrainRainbowPaletteRomData.SourceBank |
-                bus.ReadByte(pointer) | bus.ReadByte(pointer + 1) << 8;
+                CpuBusRegionRead.Read(bus, pointer) | CpuBusRegionRead.Read(bus, pointer + 1) << 8;
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BodyColor);
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BrainColor);
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
@@ -344,9 +344,9 @@ internal static partial class Program
             AssertTrue(native.Colors.SequenceEqual(installed.Colors),
                 $"Mother Brain {(draining ? "drain" : "revival")} frame {frame} retains exact native CGRAM and preserved colors");
             int tail = palette + (count + MotherBrainDrainedPaletteRomData.BackLegCount) * sizeof(ushort);
-            AssertEqual(bus.ReadByte(tail), guard.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram],
+            AssertEqual(CpuBusRegionRead.Read(bus, tail), guard.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram],
                 "grey transition publishes native trailing WRAM low byte");
-            AssertEqual(bus.ReadByte(tail + 1), guard.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram + 1],
+            AssertEqual(CpuBusRegionRead.Read(bus, tail + 1), guard.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram + 1],
                 "grey transition publishes native trailing WRAM high byte");
             AssertEqual(2, guard.Writes.Count, "grey transition writes only its two native WRAM bytes");
         }
@@ -369,7 +369,7 @@ internal static partial class Program
         {
             int cursor = frame * MotherBrainBeamRomData.ColorStride;
             int address = MotherBrainBeamRomData.ColorTable + cursor;
-            ushort nativeBeamColor = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            ushort nativeBeamColor = (ushort)(CpuBusRegionRead.Read(bus, address) | CpuBusRegionRead.Read(bus, address + 1) << 8);
             AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(cursor, out Bgr555 beamColor) &&
                 beamColor == Bgr555.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
         }

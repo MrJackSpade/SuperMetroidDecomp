@@ -67,7 +67,7 @@ internal static partial class Program
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
             {
                 int source = IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort);
-                ushort nativeWord = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+                ushort nativeWord = (ushort)(CpuBusRegionRead.Read(bus, source) | CpuBusRegionRead.Read(bus, source + 1) << 8);
                 AssertEqual(nativeWord, stock.FinalLine.Words.Span[index],
                     $"opening divider tile {index} matches cartridge source");
             }
@@ -80,8 +80,8 @@ internal static partial class Program
                 for (int cell = 0; cell < IntroEyeTilemapFormat.CellsPerFrame; cell++)
                 {
                     int wordSource = source + 4 + cell * sizeof(ushort);
-                    ushort nativeWord = (ushort)(bus.ReadByte(wordSource) |
-                        bus.ReadByte(wordSource + 1) << 8);
+                    ushort nativeWord = (ushort)(CpuBusRegionRead.Read(bus, wordSource) |
+                        CpuBusRegionRead.Read(bus, wordSource + 1) << 8);
                     AssertEqual(nativeWord, stock.EyeFrames.FrameWords(frame)[cell],
                         $"opening eye frame {frame} cell {cell} matches cartridge");
                 }

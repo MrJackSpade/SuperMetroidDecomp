@@ -32,7 +32,7 @@ internal static partial class Program
             AssertEqual(GunshipLiftoffTransferDefinitions.ByteCount, pixels.Length,
                 $"gunship frame {index} transfer length");
             for (int offset = 0; offset < pixels.Length; offset++)
-                AssertEqual(bus.ReadByte(transfer.SourceAddress + offset), pixels[offset],
+                AssertEqual(CpuBusRegionRead.Read(bus, transfer.SourceAddress + offset), pixels[offset],
                     $"gunship frame {index} byte {offset} matches cartridge art");
         }
 

@@ -94,7 +94,7 @@ internal static class ReferenceMutableMemory
         {
             if (SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) != kind)
                 throw new InvalidOperationException($"Diagnostic {kind} read rejects ${address:X6}.");
-            return source.ReadByte(address);
+            return CpuBusRegionRead.Read(source, address);
         }
     }
 }

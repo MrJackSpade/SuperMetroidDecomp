@@ -114,7 +114,7 @@ internal static partial class Program
             Add(pointer, 2); Add(bases, 2);
             Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, bases), 2);
             int program = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, pointer);
-            while (source.ReadByte(program) != byte.MaxValue) { Add(program, 3); program += 3; }
+            while (CpuBusRegionRead.Read(source, program) != byte.MaxValue) { Add(program, 3); program += 3; }
             Add(program, 1);
         }
         void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }

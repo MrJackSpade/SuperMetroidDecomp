@@ -185,7 +185,7 @@ internal static partial class Program
         }
 
         ushort ReadReferenceWord(int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(CpuBusRegionRead.Read(bus, address) | CpuBusRegionRead.Read(bus, address + 1) << 8);
 
         static SnesCgram SeedColors()
         {

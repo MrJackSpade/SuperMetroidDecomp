@@ -93,6 +93,7 @@ internal static partial class Program
     /// records and programs field by field.
     /// </summary>
     [CpuBusBoundary("exact bus test: seeds one byte of the sparse synthetic CPU address space fixture")]
+    [CpuBusAccess]
     static void WriteTestByte(TestAddressSpace bus, int address, byte value)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -104,6 +105,7 @@ internal static partial class Program
     /// describe cartridge words as words; repeating two byte stores obscures both width and
     /// byte order.
     /// </summary>
+    [CpuBusAccess]
     static void WriteTestWord(TestAddressSpace bus, int address, ushort value)
     {
         WriteTestByte(bus, address, (byte)value);
@@ -114,6 +116,7 @@ internal static partial class Program
     /// Writes consecutive native words without repeating address-stride arithmetic in every
     /// fixture. Each element still routes through the endian-aware primitive above.
     /// </summary>
+    [CpuBusAccess]
     static void WriteTestWords(TestAddressSpace bus, int address, params ushort[] values)
     {
         ArgumentNullException.ThrowIfNull(values);

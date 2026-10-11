@@ -104,7 +104,7 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     public byte ReadByte(int address)
     {
         Check(address);
-        return Source.ReadByte(address);
+        return CpuBusRegionRead.Read(Source, address);
     }
 
     /// <inheritdoc />

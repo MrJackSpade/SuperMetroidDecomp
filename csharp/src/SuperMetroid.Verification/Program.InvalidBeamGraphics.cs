@@ -14,7 +14,7 @@ internal static partial class Program
             "expansion-to-ROM boundary preserves the low bus byte and reads high ROM byte");
         AssertThrows<InvalidOperationException>(() => SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x2100, 0),
             "untranslated PPU register remains a loud failure");
-        AssertThrows<InvalidOperationException>(() => bus.ReadByte(0x907fff),
+        AssertThrows<InvalidOperationException>(() => CpuBusRegionRead.Read(bus, 0x907fff),
             "plain high-level address reads do not acquire an invented open-bus value");
         AssertSequenceEqual(ChainsawBeamGraphicsDefinitions.InstructionBytes.ToArray(),
             Enumerable.Range(0, ChainsawBeamGraphicsDefinitions.InstructionBytes.Length)
@@ -36,9 +36,9 @@ internal static partial class Program
             var ordinary = new SnesCgram();
             SamusProjectileSystem.LoadBeamTilesAndPalette(bus, new SnesVram(), ordinary, beam, artwork);
             int table = SamusProjectileRomData.Beams.PalettePointers + beam * 2;
-            int source = 0x900000 | bus.ReadByte(table) | bus.ReadByte(table + 1) << 8;
+            int source = 0x900000 | CpuBusRegionRead.Read(bus, table) | CpuBusRegionRead.Read(bus, table + 1) << 8;
             for (int color = 0; color < 16; color++)
-                AssertEqual((bus.ReadByte(source + color * 2) | bus.ReadByte(source + color * 2 + 1) << 8) & 0x7fff,
+                AssertEqual((CpuBusRegionRead.Read(bus, source + color * 2) | CpuBusRegionRead.Read(bus, source + color * 2 + 1) << 8) & 0x7fff,
                     ordinary.Colors[0xe0 + color], $"ordinary beam {beam} palette remains unchanged");
         }
         // Independent AC8D/ACCD CPU trace with bus-latch tracking, recorded in the
@@ -62,7 +62,7 @@ internal static partial class Program
             }
             else SamusProjectileSystem.LoadBeamTilesAndPalette(gameplayBus, vram, cgram, 0x000d, artwork);
             for (int offset = 0; offset < 256; offset++)
-                AssertEqual(bus.ReadByte(0x9ac421 + offset), vram.ReadByte(0xc600 + offset),
+                AssertEqual(CpuBusRegionRead.Read(bus, 0x9ac421 + offset), vram.ReadByte(0xc600 + offset),
                     $"Chainsaw native DMA byte {offset}, queued={queued}");
             for (int color = 0; color < nativePalette.Length; color++)
                 AssertEqual(nativePalette[color] & 0x7fff, cgram.Colors[0xe0 + color],

@@ -88,7 +88,7 @@ internal static partial class Program
     {
         public byte ReadByte(int address)
         {
-            byte original = source.ReadByte(address);
+            byte original = CpuBusRegionRead.Read(source, address);
             foreach (byte id in OriginalFxBlendIds())
             {
                 int delta = address - (0x89aa02 + id);

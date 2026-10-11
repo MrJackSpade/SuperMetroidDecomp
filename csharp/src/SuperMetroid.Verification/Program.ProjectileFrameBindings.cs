@@ -32,13 +32,13 @@ internal static partial class Program
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {
             int record = SamusProjectileRomData.Banks.Projectile | pointer;
-            ushort Word(int offset) => (ushort)(rom.ReadByte(record + offset) |
-                rom.ReadByte(record + offset + 1) << 8);
+            ushort Word(int offset) => (ushort)(CpuBusRegionRead.Read(rom, record + offset) |
+                CpuBusRegionRead.Read(rom, record + offset + 1) << 8);
             var nativeShot = new SamusProjectileSlot(0)
             {
                 InstructionPointer = unchecked((ushort)(pointer + 8)),
                 InstructionTimer = Word(0), SpritemapPointer = Word(2),
-                Radius = new(rom.ReadByte(record + 4), rom.ReadByte(record + 5)),
+                Radius = new(CpuBusRegionRead.Read(rom, record + 4), CpuBusRegionRead.Read(rom, record + 5)),
                 AnimationFrame = Word(6), Damage = 30,
             };
             var nativeBomb = new SamusBombProjectileSlot(0)

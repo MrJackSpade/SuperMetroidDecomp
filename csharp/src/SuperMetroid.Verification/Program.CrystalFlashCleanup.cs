@@ -193,7 +193,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
         offset = address - CrystalFlashContactDefinitions.TilesetAddress;
         if ((uint)offset < tileset.Length * 2)
             return (byte)(tileset[offset / 2] >> ((offset & 1) * 8));
-        return inner.ReadByte(address);
+        return CpuBusRegionRead.Read(inner, address);
     }
     public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
 }

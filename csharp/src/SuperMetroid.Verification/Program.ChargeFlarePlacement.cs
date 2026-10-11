@@ -117,11 +117,11 @@ internal static partial class Program
         {
             int syntheticOffset = address - (SamusMovementRomData.Poses.Definitions + 0xfd * 8);
             if ((uint)syntheticOffset < 8)
-                return syntheticOffset == 3 ? direction : source.ReadByte(SamusMovementRomData.Poses.Definitions + (int)pose * 8 + syntheticOffset);
+                return syntheticOffset == 3 ? direction : CpuBusRegionRead.Read(source, SamusMovementRomData.Poses.Definitions + (int)pose * 8 + syntheticOffset);
             if (address == SamusMovementRomData.Poses.Definitions + (int)pose * 8 + 3) return direction;
             if (forbid && address is >= 0x90c1a8 and < 0x90c210)
                 throw new InvalidDataException("Flare placement still reads origin ROM.");
-            return source.ReadByte(address);
+            return CpuBusRegionRead.Read(source, address);
         }
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

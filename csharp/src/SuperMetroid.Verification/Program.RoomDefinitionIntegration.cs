@@ -99,14 +99,14 @@ internal static partial class Program
             LoadStationRomData.DataEnd - LoadStationRomData.PointerTable);
 
         foreach (ushort doorPointer in EnumerateRetailDoorPointers()
-                     .Append(DoorHeaderRomData.ElevatorPseudoDoorPointer)
+                     .Append((ushort)ElevatorPseudoDoorPointer.Shared)
                      .Distinct())
         {
             AddAddressRange(forbidden,
                 DoorHeaderRomDataTooling.BankAddress | doorPointer,
                 DoorHeaderRomData.RecordByteCount);
             // The pseudo-door's remaining bytes overlap $88FE; it has no setup code of its own.
-            if (doorPointer == DoorHeaderRomData.ElevatorPseudoDoorPointer)
+            if (doorPointer == (ushort)ElevatorPseudoDoorPointer.Shared)
                 continue;
             CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
             if (door.SetupCodePointer != DoorSetupCode.None)

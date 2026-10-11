@@ -131,7 +131,7 @@ internal static partial class Program
         var point = new SamusCameraPoint(639, 0, 128, 0);
         // Runtime currently selects zero here; the cartridge writes six. Check
         // whether that known difference can explain the reported wall overrun.
-        foreach (ushort distance in new ushort[] { 0, 6 })
+        foreach (CameraDistanceMode distance in new[] { CameraDistanceMode.NormalTracking, CameraDistanceMode.RightEdge })
         {
             var context = new HorizontalCameraContext(0, SamusMovementType.Standing, 0, 4, distance);
             camera.SetPosition(544, 0);

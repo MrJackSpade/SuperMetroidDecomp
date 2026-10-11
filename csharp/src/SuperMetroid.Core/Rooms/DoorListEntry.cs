@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// One resolved entry of a room's bank-$8F door list: a physical door header, or one of the
-/// elevator pseudo-doors (<see cref="DoorHeaderRomData.ElevatorPseudoDoorPointer"/>,
-/// <see cref="DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer"/>).
+/// elevator pseudo-doors (<see cref="ElevatorPseudoDoorPointer.Shared"/>,
+/// <see cref="ElevatorPseudoDoorPointer.MaridiaTourian"/>).
 /// </summary>
 /// <remarks>
 /// Native code tells them apart by bit 15 of the entry's destination word (<c>$94:938B</c>,
@@ -36,10 +36,10 @@ public readonly record struct DoorListEntry
     }
 
     /// <summary>An elevator pseudo-door entry.</summary>
-    public static DoorListEntry ElevatorPseudoDoor(ushort pointer)
+    public static DoorListEntry ElevatorPseudoDoor(ElevatorPseudoDoorPointer pointer)
     {
-        if (pointer is not (DoorHeaderRomData.ElevatorPseudoDoorPointer or DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer))
+        if (!Enum.IsDefined(pointer))
             throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Not an elevator pseudo-door pointer.");
-        return new(pointer, null);
+        return new((ushort)pointer, null);
     }
 }

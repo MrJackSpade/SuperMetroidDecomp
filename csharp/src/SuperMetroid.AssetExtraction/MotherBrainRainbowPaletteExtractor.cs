@@ -13,7 +13,7 @@ internal static class MotherBrainRainbowPaletteExtractor
         using var json = new MemoryStream();
         MotherBrainRainbowPalettePresentation.Write(json, new MotherBrainRainbowPaletteDocument
         {
-            Version = MotherBrainRainbowPaletteFormat.Version,
+            Version = (int)MotherBrainRainbowPaletteVersion.Current,
             Rainbow = ReadTable(MotherBrainRainbowPaletteRomData.PointerTable,
                 MotherBrainRainbowPaletteFormat.RainbowFrameCount,
                 MotherBrainRainbowPaletteRomData.ColorCount,

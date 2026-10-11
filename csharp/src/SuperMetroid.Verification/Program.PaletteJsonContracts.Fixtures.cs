@@ -76,7 +76,7 @@ internal static partial class Program
                 BackLegs = PaletteContractColors(legs, frame), TrailingColor = trailing ? PaletteContractColors(1, frame)[0] : null }).ToArray();
         yield return new("Mother Brain rainbow", PaletteContractDocument(new MotherBrainRainbowPaletteDocument
         {
-            Version = MotherBrainRainbowPaletteFormat.Version,
+            Version = (int)MotherBrainRainbowPaletteVersion.Current,
             Rainbow = Frames(MotherBrainRainbowPaletteFormat.RainbowFrameCount, MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.ColorCount, false),
             ToGrey = Frames(MotherBrainRainbowPaletteFormat.GreyFrameCount, MotherBrainDrainedPaletteRomData.DrainedColors,

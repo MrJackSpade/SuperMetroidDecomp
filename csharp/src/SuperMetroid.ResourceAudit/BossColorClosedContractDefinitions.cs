@@ -13,7 +13,7 @@ internal static class BossColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/SpazerCompositionGeometryDefinitions.cs", "1E118EEDF3057E8FD81E575E3133003AB51C9B1D84D1912B198C82EAFC691FF8")]),
         new("SuperMetroid.Core.Assets.CeresRidleyColorCatalog", "ceres-ridley-v3-complete-palette-rows",
             ["ApplyStart", "ApplyEyeFade", "ApplyBodyFade", "ApplyHealth", "ApplyAlarm", "ApplyRetreat", "ApplyBaby"],
-            [new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs", "D4DAEB930BD9F83A76D9353426E668C24AD395F20C577605FA7770ADEF96141D"),
+            [new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs", "79F0D9F63DCF9DF3B80EA62894DFCF1EEB6B7710AB9774C2319497F0BE65BEEB"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyStartColorDefinitions.cs", "376B7176C74E7600C0007C4C7A0029F6FD52B3377E1D7B56BB1EA6EFB6660F36"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresBabyPaintDefinitions.cs", "B49705D01E978F1865839B42DD7AE78F3FFF28A139E2F0A1CA11763D50F7872C"),
              new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidInitialPaintDefinitions.cs", "1D1DF0D115C03DEB5BED584B0701D89C9AE3BF44B04557C5B0C3FD1106A93B13"),

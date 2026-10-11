@@ -24,6 +24,30 @@ public enum GameOverBabyPalette
     OpenCry,
 }
 
+/// <summary>Bounded transitions between the Baby Metroid palette phases.</summary>
+public static class GameOverBabyPalettes
+{
+    /// <summary>The cry palette paired with one animation pose.</summary>
+    public static GameOverBabyPalette CryPalette(GameOverBabyFrame frame) => frame switch
+    {
+        GameOverBabyFrame.Closed => GameOverBabyPalette.ClosedCry,
+        GameOverBabyFrame.Middle => GameOverBabyPalette.MiddleCry,
+        GameOverBabyFrame.Open => GameOverBabyPalette.OpenCry,
+        _ => throw new InvalidOperationException($"Undefined {nameof(GameOverBabyFrame)} {(int)frame}."),
+    };
+
+    /// <summary>The palette whose colors a cry palette brightens: the cry before it, or the idle colors for the first cry.</summary>
+    /// <exception cref="InvalidOperationException">The idle palette has no predecessor.</exception>
+    public static GameOverBabyPalette PreviousCry(GameOverBabyPalette palette) => palette switch
+    {
+        GameOverBabyPalette.ClosedCry => GameOverBabyPalette.Idle,
+        GameOverBabyPalette.MiddleCry => GameOverBabyPalette.ClosedCry,
+        GameOverBabyPalette.OpenCry => GameOverBabyPalette.MiddleCry,
+        GameOverBabyPalette.Idle => throw new InvalidOperationException("The idle Baby palette precedes every cry palette."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(GameOverBabyPalette)} {(int)palette}."),
+    };
+}
+
 /// <summary>Named sound handoffs embedded between native game-over animation records.</summary>
 public enum GameOverBabySound
 {
@@ -136,7 +160,7 @@ public static class GameOverBabyAnimationDefinitions
         int cryStep = step - idleFrames;
         int frame = 2 - Math.Abs(2 - (step & 3));
         ushort duration = (ushort)(cryStep < 0 ? 10 : 2 + Math.Abs(4 - cryStep));
-        var palette = cryStep < 0 ? GameOverBabyPalette.Idle : (GameOverBabyPalette)(frame + 1);
+        var palette = cryStep < 0 ? GameOverBabyPalette.Idle : GameOverBabyPalettes.CryPalette((GameOverBabyFrame)frame);
         GameOverBabySound sound = cryStep == 0 ? cry : GameOverBabySound.None;
         bool restart = pointer == EndMarkerPointer - 6;
         ushort next = restart ? FirstPointer : (ushort)(pointer + (sound == GameOverBabySound.None ? 6 : 8));

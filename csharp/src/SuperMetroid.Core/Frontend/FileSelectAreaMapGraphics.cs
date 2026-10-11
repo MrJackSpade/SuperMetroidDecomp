@@ -73,8 +73,9 @@ public sealed partial class FileSelectAreaMapGraphics
     {
         if ((uint)selectedArea >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(selectedArea));
-        LoadInstalledPalette(selectedArea);
-        LoadBackground(selectedArea);
+        var area = (AreaId)selectedArea;
+        LoadInstalledPalette(area);
+        LoadBackground(area);
         SelectedArea = selectedArea;
     }
 
@@ -84,11 +85,11 @@ public sealed partial class FileSelectAreaMapGraphics
             .LoadTo(Vram, MenuPpuState.Bg1TilemapWord * 2, MapScreenDefinitions.WorldForeground);
     }
 
-    private void LoadBackground(int selectedArea)
+    private void LoadBackground(AreaId selectedArea)
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
             .LoadTo(Vram, FileSelectMapRomData.AreaBackgroundVram * 2,
-                MapScreenDefinitions.WorldBackground((AreaId)selectedArea));
+                MapScreenDefinitions.WorldBackground(selectedArea));
     }
 
     /// <summary>Refresh current layer artwork without selecting another area or restarting its palette fade.</summary>
@@ -97,19 +98,19 @@ public sealed partial class FileSelectAreaMapGraphics
         screens = content;
         ppu.BindWorldArtwork(artwork);
         LoadForeground();
-        LoadBackground(SelectedArea);
+        LoadBackground((AreaId)SelectedArea);
     }
 
     internal void BindPalettes(MapStaticPalettes? content)
     {
         palettes = content;
-        if (content is not null) LoadInstalledPalette(SelectedArea);
+        if (content is not null) LoadInstalledPalette((AreaId)SelectedArea);
     }
     internal void BindSprites(MapSpriteCatalog? content) { sprites = content; ppu.BindMapSprites(content); }
 
-    private void LoadInstalledPalette(int selectedArea)
+    private void LoadInstalledPalette(AreaId selectedArea)
     {
-        var colors = palettes!.World((SuperMetroid.Core.Game.AreaId)selectedArea);
+        var colors = palettes!.World(selectedArea);
         for (int color = 0; color < colors.Length; color++) Cgram.SetColor(color, colors[color]);
     }
 

@@ -128,7 +128,7 @@ public sealed class SbugEnemyState
 
     /// <summary>Parameter two high byte; the activation-table selector.</summary>
     public SbugActivationBehavior ActivationBehavior =>
-        (SbugActivationBehavior)(_slot.Parameter2 >> 8);
+        ClosedNativeWords.Decode<SbugActivationBehavior>(unchecked((byte)(_slot.Parameter2 >> 8)), "Sbug activation behavior");
 
     /// <summary>Spawn-computed unsigned 16.16 horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
     public SbugVelocityWords ForwardXVelocity { get; internal set; }

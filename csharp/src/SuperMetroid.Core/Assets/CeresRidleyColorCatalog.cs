@@ -149,10 +149,9 @@ public sealed class CeresRidleyColorCatalog
         {
             throw new InvalidDataException("Invalid Ceres Ridley color JSON.", error);
         }
-        if (document.Version != CeresRidleyColorFormat.Version &&
-            !(document.Version is CeresRidleyColorFormat.PreBabyVersion or
-                CeresRidleyColorFormat.PreAlarmVersion &&
-              stockForLegacyOverride is not null))
+        var version = (CeresRidleyColorVersion)document.Version;
+        if (!Enum.IsDefined(version) ||
+            version != CeresRidleyColorVersion.Current && stockForLegacyOverride is null)
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
         var compiledBody = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Body, CompileRows(document.BodyFade, CeresRidleyPaletteRomData.BodyFadeRowCount,
                 CeresRidleyPaletteRomData.BodyFadeColorCount, "body fade"));
@@ -162,14 +161,14 @@ public sealed class CeresRidleyColorCatalog
             compiledBody,
             CompileRows(document.Health, CeresRidleyPaletteRomData.HealthRowCount,
                 CeresRidleyPaletteRomData.HealthColorCount, "health"),
-            document.Version < CeresRidleyColorFormat.Version
+            version != CeresRidleyColorVersion.Current
                 ? stockForLegacyOverride!.alarm
                 : new CeresRidleyAlarmColorDefinitions(CompileRows(document.Alarm, CeresRidleyPaletteRomData.AlarmRowCount,
                     CeresRidleyPaletteRomData.AlarmColorCount, "alarm")),
             Compile(document.RetreatBg, CeresRidleyPaletteRomData.RetreatBgColorCount, "retreat BG"),
             Compile(document.RetreatShared, CeresRidleyPaletteRomData.RetreatSharedColorCount,
                 "retreat shared"),
-            document.Version == CeresRidleyColorFormat.PreBabyVersion
+            version == CeresRidleyColorVersion.PreBaby
                 ? stockForLegacyOverride!.baby
                 : new CeresBabyPaintDefinitions(CompileRows(document.Baby, CeresRidleyPaletteRomData.BabyRowCount,
                     CeresRidleyPaletteRomData.BabyColorCount, "Baby"), compiledBody));
@@ -243,10 +242,15 @@ public static class CeresRidleyColorFormat
 {
     /// <summary>Resource-root JSON filename consumed by the presentation catalog's migrating-resource loader.</summary>
     public const string FileName = "ceres-ridley-colors.json";
-    /// <summary>Current schema version three, requiring the complete startup, fade, health, retreat, Baby, and alarm palette families.</summary>
-    public const int Version = 3;
+}
+
+/// <summary>Schema generations of the installed Ridley/Baby RGB5 palette document.</summary>
+public enum CeresRidleyColorVersion
+{
     /// <summary>Legacy schema version one, lacking Baby and alarm rows; loading requires a stock catalog to provide both families.</summary>
-    public const int PreBabyVersion = 1;
+    PreBaby = 1,
     /// <summary>Legacy schema version two, containing Baby rows but lacking alarm rows; loading requires a stock catalog for the alarm family.</summary>
-    public const int PreAlarmVersion = 2;
+    PreAlarm = 2,
+    /// <summary>Current schema version three, requiring the complete startup, fade, health, retreat, Baby, and alarm palette families.</summary>
+    Current = 3,
 }

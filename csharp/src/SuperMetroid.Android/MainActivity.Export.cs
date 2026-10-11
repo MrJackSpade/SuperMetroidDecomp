@@ -21,7 +21,7 @@ public sealed partial class MainActivity
                     intent.SetType("application/zip");
                     intent.PutExtra(Intent.ExtraTitle, $"SuperMetroid-diagnostics-{DateTime.Now:yyyyMMdd-HHmmss}.zip");
 #pragma warning disable CS0618 // Plain Activity host; result is handled explicitly below.
-                    StartActivityForResult(intent, AndroidDocumentRequests.DiagnosticExport);
+                    StartActivityForResult(intent, (int)AndroidDocumentRequest.DiagnosticExport);
 #pragma warning restore CS0618
                 }
                 catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }
@@ -36,21 +36,28 @@ public sealed partial class MainActivity
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
     {
         base.OnActivityResult(requestCode, resultCode, data);
-        if (requestCode == AndroidDocumentRequests.RomImport)
+        if (!Enum.IsDefined((AndroidDocumentRequest)requestCode)) return;
+        var request = (AndroidDocumentRequest)requestCode;
+        if (request == AndroidDocumentRequest.RomImport)
         {
             if (resultCode == Result.Ok && data?.Data is { } romUri) _ = ImportRomDocument(romUri);
             else ShowRomSetup();
             return;
         }
-        if (requestCode is not (AndroidDocumentRequests.DiagnosticExport or AndroidDocumentRequests.StateImport or AndroidDocumentRequests.SaveImport)) return;
         if (resultCode != Result.Ok || data?.Data is not { } uri)
         {
             menuOpen = false;
             ShowTestingMenu();
             return;
         }
-        _ = ShowStateResult(requestCode == AndroidDocumentRequests.DiagnosticExport
-            ? ExportDiagnostics(uri) : ImportDocument(uri, requestCode == AndroidDocumentRequests.StateImport));
+        _ = ShowStateResult(request switch
+        {
+            AndroidDocumentRequest.DiagnosticExport => ExportDiagnostics(uri),
+            AndroidDocumentRequest.StateImport => ImportDocument(uri, true),
+            AndroidDocumentRequest.SaveImport => ImportDocument(uri, false),
+            AndroidDocumentRequest.RomImport => throw new InvalidOperationException("ROM import results are routed to cartridge setup."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(AndroidDocumentRequest)} {(int)request}."),
+        });
     }
 #pragma warning restore CS0672, CS0618
 

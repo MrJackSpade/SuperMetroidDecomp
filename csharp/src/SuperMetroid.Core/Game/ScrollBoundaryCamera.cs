@@ -162,7 +162,7 @@ public sealed class ScrollBoundaryCamera
         HorizontalCameraContext context,
         bool timeIsFrozen = false)
     {
-        if (context.CameraDistanceIndex is not (0 or 2 or 4 or 6))
+        if (!Enum.IsDefined(context.CameraDistanceIndex))
             throw new ArgumentOutOfRangeException(nameof(context), "Camera distance index must be byte offset 0, 2, 4, or 6.");
 
         (CameraXSpeed, CameraXSubspeed) = CalculateDistanceMovedPlusOne(
@@ -634,7 +634,7 @@ public readonly record struct HorizontalCameraContext(
     SamusMovementType MovementType,
     ushort XAccelerationMode,
     byte PoseXDirection,
-    ushort CameraDistanceIndex);
+    CameraDistanceMode CameraDistanceIndex);
 
 /// <summary>Scroller distances used by vertical target selection at <c>$90:9666</c>.</summary>
 public readonly record struct VerticalCameraContext(

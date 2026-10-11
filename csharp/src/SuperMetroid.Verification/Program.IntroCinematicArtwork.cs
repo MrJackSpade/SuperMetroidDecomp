@@ -702,7 +702,7 @@ internal static partial class Program
         {
             IntroCaretSpritePresentation.Write(previousJson, new IntroCaretSpriteDocument
             {
-                Version = IntroCaretSpriteFormat.PreviousVersion,
+                Version = (int)IntroCaretSpriteVersion.Previous,
                 Frames = previousFrames,
             });
             previousJson.Position = 0;

@@ -35,8 +35,24 @@ public static class PauseReserveTankDefinitions
         yield return ("Full", PauseReserveTankVisual.Full);
         yield return ("EndCap", PauseReserveTankVisual.EndCap);
         yield return ("Empty", PauseReserveTankVisual.Empty);
-        for (int fill = 1; fill <= 7; fill++) yield return ($"Fill{fill}", (PauseReserveTankVisual)((int)PauseReserveTankVisual.Empty + fill));
+        for (int fill = 1; fill <= 7; fill++) yield return ($"Fill{fill}", FillLevel(fill));
     }
+
+    /// <summary>The partial-tank spritemap identity for a fill-step count.</summary>
+    /// <param name="steps">Fill steps, 0 (empty) through 7.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The count is outside the eight fill levels.</exception>
+    internal static PauseReserveTankVisual FillLevel(int steps) => steps switch
+    {
+        0 => PauseReserveTankVisual.Empty,
+        1 => PauseReserveTankVisual.Fill1,
+        2 => PauseReserveTankVisual.Fill2,
+        3 => PauseReserveTankVisual.Fill3,
+        4 => PauseReserveTankVisual.Fill4,
+        5 => PauseReserveTankVisual.Fill5,
+        6 => PauseReserveTankVisual.Fill6,
+        7 => PauseReserveTankVisual.Fill7,
+        _ => throw new ArgumentOutOfRangeException(nameof(steps), steps, "A reserve tank has eight fill levels."),
+    };
     /// <summary>Reserve spritemaps $82:C35B/C369/C3D9..C410 are one stationary small sprite.</summary>
     /// <remarks>Partial levels1..6 advance through sheet tiles47..4C; level7 uses
     /// the full tile4E. Tile4D is empty, and4F is the end cap. Palette is caller-owned.</remarks>
@@ -62,5 +78,5 @@ public static class PauseReserveTankDefinitions
     /// <returns>The Empty-through-Fill7 spritemap identity selected by index modulo eight; gameplay computes the index using fourteen energy per step.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The index is outside the sixteen native entries.</exception>
     public static PauseReserveTankVisual PartialMap(int index) => (uint)index < 16
-        ? (PauseReserveTankVisual)((int)PauseReserveTankVisual.Empty + index % 8) : throw new ArgumentOutOfRangeException(nameof(index));
+        ? FillLevel(index % 8) : throw new ArgumentOutOfRangeException(nameof(index));
 }

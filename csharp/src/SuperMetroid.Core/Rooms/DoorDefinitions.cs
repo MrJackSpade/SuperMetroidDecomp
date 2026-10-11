@@ -627,8 +627,8 @@ public static class DoorDefinitions
     {
         DoorListLayout layout = ListLayout(doorListPointer);
         ushort pointer = PointerAt(doorListPointer, layout, behavior & 0x7f);
-        return pointer is DoorHeaderRomData.ElevatorPseudoDoorPointer or DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer
-            ? DoorListEntry.ElevatorPseudoDoor(pointer)
+        return Enum.IsDefined((ElevatorPseudoDoorPointer)pointer)
+            ? DoorListEntry.ElevatorPseudoDoor((ElevatorPseudoDoorPointer)pointer)
             : DoorListEntry.Physical(Get(pointer));
     }
 
@@ -637,8 +637,8 @@ public static class DoorDefinitions
         if ((uint)index >= (uint)layout.Count)
             throw new InvalidDataException($"Door index {index} is outside the {layout.Count}-entry list $8F:{listPointer:X4}.");
         if (index == layout.ElevatorIndex) return listPointer is 0xD332 or 0xDAD5
-            ? DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer
-            : DoorHeaderRomData.ElevatorPseudoDoorPointer;
+            ? (ushort)ElevatorPseudoDoorPointer.MaridiaTourian
+            : (ushort)ElevatorPseudoDoorPointer.Shared;
         int physicalIndex = index - (layout.ElevatorIndex >= 0 && index > layout.ElevatorIndex ? 1 : 0);
         return checked((ushort)(layout.First + layout.Stride * physicalIndex));
     }

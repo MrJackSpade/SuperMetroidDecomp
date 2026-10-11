@@ -61,17 +61,17 @@ internal static partial class Program
             var expected = new OamBuffer(); expected.BeginFrame();
             IntroCinematicSpriteCompiler.Compile(visual, "caret reference").DrawOnScreen(expected, 120, 72, 0x0c00);
             expected.FinalizeFrame();
-            foreach (int version in new[] { IntroCaretSpriteFormat.PreviousVersion, IntroCaretSpriteFormat.Version })
+            foreach (IntroCaretSpriteVersion version in Enum.GetValues<IntroCaretSpriteVersion>())
             {
                 var frames = new Dictionary<string, SpriteVisualPart[]>();
-                if (version == IntroCaretSpriteFormat.PreviousVersion)
+                if (version == IntroCaretSpriteVersion.Previous)
                 {
                     foreach (string name in IntroCaretSpriteDefinitions.PreviousFrameNames) frames.Add(name, []);
                     frames[IntroCaretSpriteDefinitions.PreviousFrameNames[0]] = visual;
                 }
                 else frames.Add("caret-visible", visual);
                 using var json = new MemoryStream();
-                IntroCaretSpritePresentation.Write(json, new() { Version = version, Frames = frames });
+                IntroCaretSpritePresentation.Write(json, new() { Version = (int)version, Frames = frames });
                 json.Position = 0;
                 var presentation = IntroCaretSpritePresentation.Load(json);
                 var actual = new OamBuffer(); actual.BeginFrame();

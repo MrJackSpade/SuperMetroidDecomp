@@ -305,8 +305,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot foot,
         KraidPartState part)
     {
-        part.NextWord = unchecked((ushort)(part.NextWord - 1));
-        if (part.NextWord != 0)
+        part.ThinkTimer = unchecked((ushort)(part.ThinkTimer - 1));
+        if (part.ThinkTimer != 0)
             return;
 
         (ushort targetX, ushort thinkTimer) = KraidMovementChoices.Select(body.XPosition, ReadKraidRandomNumber());
@@ -323,7 +323,7 @@ public sealed partial class RoomEnemySystem
         ushort thinkTimer)
     {
         RequireKraidState(foot).TargetX = targetX;
-        part.NextWord = thinkTimer;
+        part.ThinkTimer = thinkTimer;
         foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseWalkingRight;
         foot.CurrentInstruction = KraidFootWalkBackInstruction;
         foot.InstructionTimer = 1;
@@ -336,7 +336,7 @@ public sealed partial class RoomEnemySystem
         ushort thinkTimer)
     {
         RequireKraidState(foot).TargetX = targetX;
-        part.NextWord = thinkTimer;
+        part.ThinkTimer = thinkTimer;
         foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseWalkingLeft;
         foot.CurrentInstruction = KraidFootInstructionProgramDefinitions.WalkingForward;
         foot.InstructionTimer = 1;

@@ -31,12 +31,12 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     /// </summary>
     internal static bool TryGetWord(ushort pointer, out ushort word)
     {
-        var list = (SporeSpawnCeilingDraw)pointer;
-        if (!Enum.IsDefined(list))
+        if (!Enum.IsDefined((SporeSpawnCeilingDraw)pointer))
         {
             word = 0;
             return false;
         }
+        var list = (SporeSpawnCeilingDraw)pointer;
         word = list switch
         {
             SporeSpawnCeilingDraw.Clear => 0x00ff,

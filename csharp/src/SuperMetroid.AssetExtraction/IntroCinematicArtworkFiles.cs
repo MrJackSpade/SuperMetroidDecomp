@@ -251,7 +251,7 @@ public static class IntroCinematicArtworkFiles
             using var json = new MemoryStream();
             IntroCaretSpritePresentation.Write(json, new IntroCaretSpriteDocument
             {
-                Version = IntroCaretSpriteFormat.Version,
+                Version = (int)IntroCaretSpriteVersion.Current,
                 Frames = frames,
             });
             byte[] encoded = json.ToArray();

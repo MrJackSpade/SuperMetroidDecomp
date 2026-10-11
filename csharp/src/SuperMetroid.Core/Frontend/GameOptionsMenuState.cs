@@ -356,14 +356,14 @@ public sealed class GameOptionsMenuState
         {
             QueueMoveSound();
             SelectedItem++;
-            if (SelectedItem == GameOptionsRomData.Rows.ControllerExit)
-            {
-                Phase = GameOptionsPhase.ScrollControllerDown;
-            }
-            else if (SelectedItem == GameOptionsRomData.Rows.ControllerCount)
+            if (SelectedItem == GameOptionsRomData.Rows.ControllerCount)
             {
                 SelectedItem = 0;
                 Phase = GameOptionsPhase.ScrollControllerUp;
+            }
+            else if (GameOptionsRomData.Rows.ControllerRowKind(SelectedItem) == GameOptionsControllerRowKind.Exit)
+            {
+                Phase = GameOptionsPhase.ScrollControllerDown;
             }
             return;
         }
@@ -373,7 +373,8 @@ public sealed class GameOptionsMenuState
         // Native queues the confirmation sound for any newly pressed word on this page,
         // even when an action row cannot find an assignable button in that word.
         QueueSelectSound();
-        if (SelectedItem < GameOptionsRomData.Rows.ControllerActionCount)
+        GameOptionsControllerRowKind kind = GameOptionsRomData.Rows.ControllerRowKind(SelectedItem);
+        if (kind == GameOptionsControllerRowKind.Action)
         {
             for (int button = Input.ControllerBindings.AssignableButtonCount - 1; button >= 0; button--)
             {
@@ -390,15 +391,20 @@ public sealed class GameOptionsMenuState
 
         if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
             return;
-        if (SelectedItem == GameOptionsRomData.Rows.ControllerExit)
+        switch (kind)
         {
-            BeginDissolveTo(GameOptionsPage.Primary);
-        }
-        else
-        {
-            ControllerBindings = Input.ControllerBindings.Default;
-            ApplyControllerLabels();
-            LoadVisiblePage();
+            case GameOptionsControllerRowKind.Exit:
+                BeginDissolveTo(GameOptionsPage.Primary);
+                break;
+            case GameOptionsControllerRowKind.Reset:
+                ControllerBindings = Input.ControllerBindings.Default;
+                ApplyControllerLabels();
+                LoadVisiblePage();
+                break;
+            case GameOptionsControllerRowKind.Action:
+                throw new InvalidOperationException("Controller action rows are handled before navigation rows.");
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(GameOptionsControllerRowKind)} {(int)kind}.");
         }
     }
 
@@ -429,14 +435,22 @@ public sealed class GameOptionsMenuState
             return;
 
         QueueSelectSound();
-        if (SelectedItem == GameOptionsRomData.Rows.SpecialIconCancel)
-            IconCancelEnabled = !IconCancelEnabled;
-        else if (SelectedItem == GameOptionsRomData.Rows.SpecialMoonwalk)
-            MoonwalkEnabled = !MoonwalkEnabled;
-        else
+        var row = (GameOptionsSpecialRow)SelectedItem;
+        if (!Enum.IsDefined(row))
+            throw new InvalidOperationException($"Special options row {SelectedItem} is outside the three-row page.");
+        switch (row)
         {
-            BeginDissolveTo(GameOptionsPage.Primary);
-            return;
+            case GameOptionsSpecialRow.IconCancel:
+                IconCancelEnabled = !IconCancelEnabled;
+                break;
+            case GameOptionsSpecialRow.Moonwalk:
+                MoonwalkEnabled = !MoonwalkEnabled;
+                break;
+            case GameOptionsSpecialRow.Exit:
+                BeginDissolveTo(GameOptionsPage.Primary);
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(GameOptionsSpecialRow)} {(int)row}.");
         }
         ApplySpecialPaletteBits();
         LoadVisiblePage();

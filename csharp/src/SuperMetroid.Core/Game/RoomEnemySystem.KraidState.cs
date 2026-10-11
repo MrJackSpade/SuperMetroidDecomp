@@ -140,6 +140,13 @@ public sealed class KraidPartState
     /// </summary>
     public ushort NextWord { get; internal set; }
 
+    /// <summary>Gets the second-phase foot's think-timer view of the shared next-word alias.</summary>
+    public ushort ThinkTimer
+    {
+        get => NextWord;
+        internal set => NextWord = value;
+    }
+
     /// <summary>Gets the typed function view of the shared next-word alias when the current part treats it as a bank-$A7 pointer.</summary>
     public KraidAiFunction NextFunction
     {

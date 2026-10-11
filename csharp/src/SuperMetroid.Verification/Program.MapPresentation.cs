@@ -566,7 +566,7 @@ internal static partial class Program
         // the newly introduced fake-death colors supplied by the current stock file.
         byte[] legacy = JsonSerializer.SerializeToUtf8Bytes(document with
         {
-            Version = MotherBrainRainbowPaletteFormat.PreFakeDeathVersion,
+            Version = (int)MotherBrainRainbowPaletteVersion.PreFakeDeath,
             FakeDeathToGrey = null,
         }, MapPresentationFormat.JsonOptions);
         File.WriteAllBytes(replacement, legacy);

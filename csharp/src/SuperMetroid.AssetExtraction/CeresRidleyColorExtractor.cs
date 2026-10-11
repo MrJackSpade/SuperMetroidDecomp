@@ -16,7 +16,7 @@ public static class CeresRidleyColorExtractor
         ArgumentNullException.ThrowIfNull(bus);
         return CeresRidleyColorCatalog.Write(new CeresRidleyColorDocument
         {
-            Version = CeresRidleyColorFormat.Version,
+            Version = (int)CeresRidleyColorVersion.Current,
             Start = ReadColors(CeresRidleyPaletteRomData.StartColors,
                 CeresRidleyPaletteRomData.StartColorCount),
             EyeFade = ReadRows(CeresRidleyPaletteRomData.EyeFadeColors,

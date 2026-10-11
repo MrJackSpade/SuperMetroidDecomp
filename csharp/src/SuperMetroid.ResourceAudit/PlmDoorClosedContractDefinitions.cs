@@ -33,6 +33,6 @@ internal static class PlmDoorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCollectibleDrawDefinitions.cs", "A7459A94768B409116B7902B01252B84FED22E996FED7081A847FF4E5A150996")]),
         new("SuperMetroid.Core.Rooms.RoomPlmGrappleBlockVisualCatalog", "plm-grapple-block-complete-single-words", ["GetWord"],
             [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmGrappleBlockVisualCatalog.cs", "985EDADC1E29EB8DD7FD8BA23D9278B9312C33D7A48F486D69558142EA550755"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmGrappleBlockDrawDefinitions.cs", "FD210C6E13EED1DE1D6E9C7DAD697D0A9FB775C4C091BE91E4E0DE9BB9382A74")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmGrappleBlockDrawDefinitions.cs", "3195804BF8A11E717671DFE230E9E553A9576CFE1A4183B369B75CDBE78EE5F8")]),
     ];
 }

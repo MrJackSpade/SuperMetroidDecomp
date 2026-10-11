@@ -148,7 +148,7 @@ public static class ProjectileSpriteDefinitions
         int recordOffset = offset % cycleBytes;
         if (recordOffset >= 16 * 8 || recordOffset % 8 != 0) return false;
         int phase = recordOffset / 8;
-        WaveTravelAxis axis = (WaveTravelAxis)(offset / cycleBytes);
+        WaveTravelAxis axis = WaveTravelAxisAt(offset / cycleBytes);
         // The last axial pair reverses glyph order in native data. Its independent
         // parity-selection policy remains REQUIRED; only its exact pointer mapping calculates.
         int glyphParity = phase % 2;
@@ -172,6 +172,13 @@ public static class ProjectileSpriteDefinitions
     /// <summary>Native semantic spread phases of each ordinary Spazer list.</summary>
     private enum SpazerSpreadPhase { Seed, Intermediate, Full }
     /// <summary>Selected physical spread stages remain REQUIRED phase-policy inputs: axial2/5, diagonal1/4. Pointer arithmetic does not derive these choices.</summary>
+    private static SpazerSpreadPhase SpazerSpreadPhaseAt(int record) => record switch
+    {
+        0 => SpazerSpreadPhase.Seed,
+        1 => SpazerSpreadPhase.Intermediate,
+        2 => SpazerSpreadPhase.Full,
+        _ => throw new ArgumentOutOfRangeException(nameof(record), record, "Spazer lists have three spread phases."),
+    };
     private static int SpazerSelectedStage(SpazerSpreadPhase phase, bool diagonal) => phase switch
     {
         SpazerSpreadPhase.Seed => 0,
@@ -193,7 +200,7 @@ public static class ProjectileSpriteDefinitions
         int group = (int)direction;
         bool diagonal = group < 4;
         int seedParts = diagonal ? 4 : 2;
-        int stage = SpazerSelectedStage((SpazerSpreadPhase)(within / 8), diagonal);
+        int stage = SpazerSelectedStage(SpazerSpreadPhaseAt(within / 8), diagonal);
         int start = SpazerStart + Math.Min(group, 4) * SpreadGroupBytes(4) + Math.Max(0, group - 4) * SpreadGroupBytes(2);
         sprite = (ushort)(start + (stage == 0 ? 0 : RecordBytes(seedParts) + (stage - 1) * RecordBytes(3 * seedParts)));
         return true;
@@ -226,12 +233,13 @@ public static class ProjectileSpriteDefinitions
             sprite = default;
             return false;
         }
-        int group = (int)SpazerCompassDirection(offset / cycleBytes);
+        SpazerSeedDirection direction = SpazerCompassDirection(offset / cycleBytes);
+        int group = (int)direction;
 
         bool diagonal = group < 4;
         int phase = within / 8;
         int spread = Math.Min(phase, cycleLength - phase);
-        int stage = group == (int)SpazerSeedDirection.DownLeft
+        int stage = direction == SpazerSeedDirection.DownLeft
             ? Math.Min(spread, SpazerDownLeftSelectedCeiling)
             : !diagonal || spread == 0 ? spread : spread == 1 ? SpazerDiagonalNearCenterStage : spread - 1;
         int seedParts = diagonal ? 4 : 2;
@@ -259,7 +267,7 @@ public static class ProjectileSpriteDefinitions
         int within = offset % programBytes;
         if (offset >= 0 && offset < 4 * programBytes && within < 2 * 8 && within % 8 == 0)
         {
-            var axis = (WaveTravelAxis)(offset / programBytes);
+            WaveTravelAxis axis = WaveTravelAxisAt(offset / programBytes);
             int coreGroup = PlasmaCoreGroup(axis);
             if (within == 0) sprite = PlasmaStartupPointer(coreGroup * 4);
             else
@@ -281,7 +289,7 @@ public static class ProjectileSpriteDefinitions
         within = offset % waveBytes;
         if (offset >= 0 && offset < 4 * waveBytes && within < 9 * 8 && within % 8 == 0)
         {
-            var axis = (WaveTravelAxis)(offset / waveBytes);
+            WaveTravelAxis axis = WaveTravelAxisAt(offset / waveBytes);
             if (within == 0) sprite = PlasmaStartupPointer(PlasmaCoreGroup(axis) * 4);
             else
             {
@@ -295,7 +303,7 @@ public static class ProjectileSpriteDefinitions
                 };
                 int phase = within / 8 - 1;
                 int spread = Math.Min(phase, 8 - phase);
-                sprite = PlasmaWavePointer((int)shape * 5 + spread);
+                sprite = PlasmaWavePointer(shape, spread);
             }
             return true;
         }
@@ -315,7 +323,7 @@ public static class ProjectileSpriteDefinitions
         int within = offset % programBytes;
         if (offset >= 0 && offset < 4 * programBytes && within < 8 * 8 && within % 8 == 0)
         {
-            sprite = ChargedPlasmaGrowthSprite((WaveTravelAxis)(offset / programBytes), within / 8);
+            sprite = ChargedPlasmaGrowthSprite(WaveTravelAxisAt(offset / programBytes), within / 8);
             return true;
         }
         const int waveBytes = (6 + 16) * 8 + 4;
@@ -323,7 +331,7 @@ public static class ProjectileSpriteDefinitions
         within = offset % waveBytes;
         if (offset >= 0 && offset < 4 * waveBytes && within < 22 * 8 && within % 8 == 0)
         {
-            var axis = (WaveTravelAxis)(offset / waveBytes);
+            WaveTravelAxis axis = WaveTravelAxisAt(offset / waveBytes);
             int phase = within / 8;
             if (phase < 6) sprite = ChargedPlasmaGrowthSprite(axis, phase);
             else
@@ -345,7 +353,7 @@ public static class ProjectileSpriteDefinitions
                 };
                 int spreadPhase = (phase - 6) / 2;
                 int spread = Math.Min(spreadPhase, 8 - spreadPhase);
-                sprite = PlasmaWavePointer((int)shape * 5 + spread);
+                sprite = PlasmaWavePointer(shape, spread);
             }
             return true;
         }
@@ -451,7 +459,7 @@ public static class ProjectileSpriteDefinitions
             sprite = default;
             return false;
         }
-        var axis = (WaveTravelAxis)(offset / programBytes);
+        WaveTravelAxis axis = WaveTravelAxisAt(offset / programBytes);
         SpazerSeedDirection direction = axis switch
         {
             WaveTravelAxis.Vertical => SpazerSeedDirection.Up,
@@ -471,7 +479,7 @@ public static class ProjectileSpriteDefinitions
         {
             bool alternate = (phase & 1) != 0;
             ChargedSpazerShape shape = alternate ? ChargedSpazerAlternate(direction) : ChargedSpazerBase(direction);
-            int stage = SpazerSelectedStage((SpazerSpreadPhase)((phase - 4) / 2), !alternate && (int)direction < 4);
+            int stage = SpazerSelectedStage(SpazerSpreadPhaseAt((phase - 4) / 2), !alternate && (int)direction < 4);
             sprite = ChargedSpazerPointer((int)shape * 6 + stage);
         }
         return true;
@@ -484,6 +492,18 @@ public static class ProjectileSpriteDefinitions
     private const ushort WaveSpecialBeamProgram = 0xa159;
     /// <summary>$93:A16D: unused Shinespark beam (projectile27h) traverses six beam-explosion visual stages.</summary>
     private const ushort UnusedShinesparkBeamProgram = 0xa16d;
+    /// <summary>The standalone invisible programs whose single record selects the empty composition, by bank-$93 address.</summary>
+    private enum InvisibleSingleRecordProgram : ushort
+    {
+        /// <summary>$93:873B: upward Wave's invisible lead-in.</summary>
+        WaveLeadIn = WaveInvisibleLeadIn,
+        /// <summary>$93:8F17: invisible upward charged-Wave lead-in.</summary>
+        ChargedWaveLeadIn = ProjectileSpriteDefinitions.ChargedWaveLeadIn,
+        /// <summary>$93:9153: invisible upward charged IceWave lead-in.</summary>
+        ChargedIceWaveLeadIn = ProjectileSpriteDefinitions.ChargedIceWaveLeadIn,
+        /// <summary>$93:9F7B: the super-missile link has no visible composition.</summary>
+        SuperMissileLink = SuperMissileLinkProgram,
+    }
     internal static bool TryCalculatedFrameSprite(ushort instructionPointer, out ushort sprite)
     {
         if (TryPowerDirectionSprite(instructionPointer, out sprite)) return true;
@@ -509,7 +529,7 @@ public static class ProjectileSpriteDefinitions
         if (TryChargedPlasmaSprite(instructionPointer, out sprite)) return true;
         if (TryChargedSpazerWaveSprite(instructionPointer, out sprite)) return true;
         if (TryChargedSpazerSprite(instructionPointer, out sprite)) return true;
-        if (instructionPointer is ChargedWaveLeadIn or ChargedIceWaveLeadIn)
+        if (Enum.IsDefined((InvisibleSingleRecordProgram)instructionPointer))
         {
             sprite = NothingStart;
             return true;
@@ -538,11 +558,6 @@ public static class ProjectileSpriteDefinitions
             sprite = MissilePointer(SuperMissileStart, missilePose);
             return true;
         }
-        if (instructionPointer == SuperMissileLinkProgram)
-        {
-            sprite = NothingStart;
-            return true;
-        }
         if (TryTimedPhase(instructionPointer, BeamExplosionProgram, 6, out int explosionPhase))
         {
             sprite = BeamExplosionPointer(explosionPhase);
@@ -569,11 +584,6 @@ public static class ProjectileSpriteDefinitions
             sprite = NothingStart;
             return true;
         }
-        if (instructionPointer == WaveInvisibleLeadIn)
-        {
-            sprite = NothingStart;
-            return true;
-        }
         int offset = instructionPointer - WaveProgramStart;
         const int cycleBytes = 16 * 8 + 4;
         if (offset is >= 0 and < (4 * cycleBytes))
@@ -586,7 +596,7 @@ public static class ProjectileSpriteDefinitions
                 int distanceStage = Math.Min(halfPhase, 8 - halfPhase);
                 // Travel direction chooses the perpendicular displacement axis. Each half-cycle
                 // traverses the same four spatial stages outward and back on opposite sides.
-                WaveTravelAxis travel = (WaveTravelAxis)(offset / cycleBytes);
+                WaveTravelAxis travel = WaveTravelAxisAt(offset / cycleBytes);
                 int directionPair = travel switch
                 {
                     WaveTravelAxis.Vertical => 2,
@@ -631,6 +641,14 @@ public static class ProjectileSpriteDefinitions
 
     /// <summary>Mutually exclusive travel axes of the four native Wave instruction loops at93:8743,87C7,884B,88CF.</summary>
     private enum WaveTravelAxis { Vertical, RisingDiagonal, Horizontal, FallingDiagonal }
+    private static WaveTravelAxis WaveTravelAxisAt(int loop) => loop switch
+    {
+        0 => WaveTravelAxis.Vertical,
+        1 => WaveTravelAxis.RisingDiagonal,
+        2 => WaveTravelAxis.Horizontal,
+        3 => WaveTravelAxis.FallingDiagonal,
+        _ => throw new ArgumentOutOfRangeException(nameof(loop), loop, "Projectile programs have four travel-axis loops."),
+    };
     private static ushort PointerAt(int index)
     {
         if ((uint)index >= 417) throw new IndexOutOfRangeException();
@@ -757,11 +775,28 @@ public static class ProjectileSpriteDefinitions
     private const ushort PlasmaWaveVerticalAlternate = 0xc94d, PlasmaWaveDownLeftAlternate = 0xcc04;
     /// <summary>$93:CE2A/CF42: down-left/up-right diagonal six-part and ten-part cores.</summary>
     private const ushort PlasmaWaveDownLeftShort = 0xce2a, PlasmaWaveDownLeftLong = 0xcf42;
-    private static ushort PlasmaWavePointer(int index)
+    private static PlasmaWaveShape PlasmaWaveShapeAt(int group) => group switch
+    {
+        0 => PlasmaWaveShape.HorizontalShort,
+        1 => PlasmaWaveShape.HorizontalLong,
+        2 => PlasmaWaveShape.DownRightShort,
+        3 => PlasmaWaveShape.DownRightLong,
+        4 => PlasmaWaveShape.VerticalShort,
+        5 => PlasmaWaveShape.VerticalLong,
+        6 => PlasmaWaveShape.HorizontalAlternate,
+        7 => PlasmaWaveShape.DownRightAlternate,
+        8 => PlasmaWaveShape.VerticalAlternate,
+        9 => PlasmaWaveShape.DownLeftAlternate,
+        10 => PlasmaWaveShape.DownLeftShort,
+        11 => PlasmaWaveShape.DownLeftLong,
+        _ => throw new IndexOutOfRangeException(),
+    };
+    private static ushort PlasmaWavePointer(int index) => PlasmaWavePointer(PlasmaWaveShapeAt(index / 5), index % 5);
+    private static ushort PlasmaWavePointer(PlasmaWaveShape shape, int phase)
     {
         // Core part counts describe the native chosen footprints. Their full
         // independent OAM design remains required under ProjectileSpriteCatalog.frames.
-        (ushort start, int coreParts) = (PlasmaWaveShape)(index / 5) switch
+        (ushort start, int coreParts) = shape switch
         {
             PlasmaWaveShape.HorizontalShort => (PlasmaWaveHorizontalShort, 4),
             PlasmaWaveShape.HorizontalLong => (PlasmaWaveHorizontalLong, 7),
@@ -777,7 +812,6 @@ public static class ProjectileSpriteDefinitions
             PlasmaWaveShape.DownLeftLong => (PlasmaWaveDownLeftLong, 10),
             _ => throw new IndexOutOfRangeException(),
         };
-        int phase = index % 5;
         return (ushort)(start + (phase == 0 ? 0 : RecordBytes(coreParts) + (phase - 1) * RecordBytes(2 * coreParts)));
     }
 
@@ -795,7 +829,15 @@ public static class ProjectileSpriteDefinitions
         int diagonalBytes = 5 * sizeof(ushort) + 5 * 2 * (5 * 6 / 2);
         int groupOffset = group / 4 * (2 * axialBytes + 2 * diagonalBytes) +
             Math.Min(localGroup, 2) * axialBytes + Math.Max(0, localGroup - 2) * diagonalBytes;
-        int selectedLength = ((PlasmaGrowthStage)(index % 4), diagonal) switch
+        PlasmaGrowthStage stage = (index % 4) switch
+        {
+            0 => PlasmaGrowthStage.Core,
+            1 => PlasmaGrowthStage.Short,
+            2 => PlasmaGrowthStage.Long,
+            3 => PlasmaGrowthStage.Full,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        int selectedLength = (stage, diagonal) switch
         {
             (PlasmaGrowthStage.Core, false) => 1,
             (PlasmaGrowthStage.Short, false) => 3,
@@ -941,7 +983,19 @@ public static class ProjectileSpriteDefinitions
                 if (phase != 0)
                 {
                     int step = (phase - 1) % 4;
-                    (int dx, int dy) = (WaveDirection)((phase - 1) / 4) switch
+                    WaveDirection direction = ((phase - 1) / 4) switch
+                    {
+                        0 => WaveDirection.Up,
+                        1 => WaveDirection.Down,
+                        2 => WaveDirection.UpRight,
+                        3 => WaveDirection.DownLeft,
+                        4 => WaveDirection.Right,
+                        5 => WaveDirection.Left,
+                        6 => WaveDirection.UpLeft,
+                        7 => WaveDirection.DownRight,
+                        _ => throw new IndexOutOfRangeException(),
+                    };
+                    (int dx, int dy) = direction switch
                     {
                         WaveDirection.Up => (0, -1),
                         WaveDirection.Down => (0, 1),
@@ -1416,11 +1470,11 @@ public static class ProjectileSpriteDefinitions
     {
         for (int variant = 0; variant < 2; variant++)
         {
-            int shape = (int)(variant == 0 ? SpazerStartupShape.FallingAlternate : SpazerStartupShape.RisingAlternate);
+            SpazerStartupShape shape = variant == 0 ? SpazerStartupShape.FallingAlternate : SpazerStartupShape.RisingAlternate;
             for (phase = 0; phase < 2; phase++)
-                if (pointer == SpazerStartupPointer(shape * 2 + phase))
+                if (pointer == SpazerStartupPointer((int)shape * 2 + phase))
                 {
-                    reflected = shape == (int)SpazerStartupShape.RisingAlternate;
+                    reflected = shape == SpazerStartupShape.RisingAlternate;
                     return true;
                 }
         }

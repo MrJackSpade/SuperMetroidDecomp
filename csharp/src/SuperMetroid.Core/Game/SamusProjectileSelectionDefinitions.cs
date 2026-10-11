@@ -125,9 +125,7 @@ internal static class SamusProjectileSelectionDefinitions
         {
             if ((address - (int)SamusProjectileHeader.SuperMissileLink) % 4 == 0) return Read(address);
             // The odd field of each four-byte header is its single program pointer.
-            var fourByteHeader = (SamusProjectileHeader)(address - 2);
-            if (!Enum.IsDefined(fourByteHeader))
-                throw new InvalidDataException($"Projectile selector ${address:X6} is not a four-byte header's program field.");
+            SamusProjectileHeader fourByteHeader = HeaderWithProgramFieldAt(address);
             return fourByteHeader switch
             {
                 SamusProjectileHeader.SuperMissileLink => LinkProgram,
@@ -154,6 +152,15 @@ internal static class SamusProjectileSelectionDefinitions
             return header switch { 0 => Projectile25Program, 1 => SpazerTrailProgram, _ => EchoProgram };
         }
         return address == (int)SamusProjectileHeader.Projectile27 ? Read(address) : Projectile27Program;
+    }
+
+    /// <summary>The header whose program field, two bytes after its start, lies at <paramref name="address"/>.</summary>
+    private static SamusProjectileHeader HeaderWithProgramFieldAt(int address)
+    {
+        foreach (SamusProjectileHeader header in Enum.GetValues<SamusProjectileHeader>())
+            if ((int)header + 2 == address)
+                return header;
+        throw new InvalidDataException($"Projectile selector ${address:X6} is not a four-byte header's program field.");
     }
 
     private static ushort BeamHeader(bool charged, SamusBeamCombination beam)

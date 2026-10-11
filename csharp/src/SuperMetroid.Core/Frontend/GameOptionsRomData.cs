@@ -80,6 +80,14 @@ public static class GameOptionsRomData
         public const int SpecialExit = 2;
         /// <summary>Three special-page rows, bounding selection wrap and the native cursor records at $82:F33F.</summary>
         public const int SpecialCount = 3;
+
+        /// <summary>Classifies a controller-page cursor row: assignable action rows precede Exit, then Reset.</summary>
+        /// <exception cref="IndexOutOfRangeException">The row is outside the nine-row page.</exception>
+        public static GameOptionsControllerRowKind ControllerRowKind(int row) =>
+            row is < 0 or >= ControllerCount ? throw new IndexOutOfRangeException()
+            : row < ControllerActionCount ? GameOptionsControllerRowKind.Action
+            : row < ControllerReset ? GameOptionsControllerRowKind.Exit
+            : GameOptionsControllerRowKind.Reset;
     }
 
     /// <summary>Cursor positions read by <c>OptionsPreInstr_F2A9</c>.</summary>
@@ -336,6 +344,28 @@ public readonly record struct GameOptionsToggleLayout(
     int EnabledBottom,
     int DisabledTop,
     int DisabledBottom);
+
+/// <summary>The three rows of the special-settings page, valued by their cursor index.</summary>
+public enum GameOptionsSpecialRow
+{
+    /// <summary>Special row zero: toggles Icon Cancel.</summary>
+    IconCancel = GameOptionsRomData.Rows.SpecialIconCancel,
+    /// <summary>Special row one: toggles Moonwalk.</summary>
+    Moonwalk = GameOptionsRomData.Rows.SpecialMoonwalk,
+    /// <summary>Special row two: returns to the primary page.</summary>
+    Exit = GameOptionsRomData.Rows.SpecialExit,
+}
+
+/// <summary>The roles of controller-page rows: seven assignable actions, then Exit and Reset.</summary>
+public enum GameOptionsControllerRowKind
+{
+    /// <summary>Rows zero through six assign a physical button to one action.</summary>
+    Action,
+    /// <summary>Row seven exits to the primary page.</summary>
+    Exit,
+    /// <summary>Row eight restores the retail default button permutation.</summary>
+    Reset,
+}
 
 /// <summary>The five rows of the primary options page, valued by their cursor index.</summary>
 public enum GameOptionsPrimaryRow

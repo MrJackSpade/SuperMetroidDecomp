@@ -10,12 +10,19 @@ internal static class RetailRoomPublicationTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        ushort[] rooms = [RoomHeaderPointers.LandingSite, RoomHeaderPointers.ParlorAndAlcatraz,
-            RoomHeaderPointers.BlueBrinstarElevatorRoom, RoomHeaderPointers.GreenBrinstarMainShaft,
-            RoomHeaderPointers.MorphBallRoom, RoomHeaderPointers.CeresDeadScientistRoom,
-            RoomPublicationFixtureDefinitions.BrinstarWater, RoomPublicationFixtureDefinitions.NorfairBusinessCenter];
+        (ushort Room, PublishedFx Fx)[] rooms =
+        [
+            (RoomHeaderPointers.LandingSite, PublishedFx.Unchecked),
+            (RoomHeaderPointers.ParlorAndAlcatraz, PublishedFx.Unchecked),
+            (RoomHeaderPointers.BlueBrinstarElevatorRoom, PublishedFx.Unchecked),
+            (RoomHeaderPointers.GreenBrinstarMainShaft, PublishedFx.Unchecked),
+            (RoomHeaderPointers.MorphBallRoom, PublishedFx.Unchecked),
+            (RoomHeaderPointers.CeresDeadScientistRoom, PublishedFx.Unchecked),
+            (RoomPublicationFixtureDefinitions.BrinstarWater, PublishedFx.Water),
+            (RoomPublicationFixtureDefinitions.NorfairBusinessCenter, PublishedFx.Heat),
+        ];
         long sequence = 0;
-        foreach (ushort room in rooms)
+        foreach ((ushort room, PublishedFx fx) in rooms)
         {
             var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -25,19 +32,29 @@ internal static class RetailRoomPublicationTests
             // Room-local setup, explicitly not an incoming door/elevator transition.
             runtime.LoadCartridgeRoomForDebug(room, 0, 0);
             runtime.RunNmi(0, true);
-            if (room == RoomPublicationFixtureDefinitions.BrinstarWater && runtime.DisplayedRoomLayer3Fx?.Type != RoomFxType.Water)
-                throw new InvalidOperationException("Retail water fixture did not publish water FX.");
-            if (room == RoomPublicationFixtureDefinitions.NorfairBusinessCenter &&
-                (runtime.DisplayedRoomLayer3Fx is not { Type: RoomFxType.Lava } lava ||
-                lava.CurrentYPosition != RoomPublicationFixtureDefinitions.BusinessCenterSurface))
-                throw new InvalidOperationException("Retail heat fixture did not publish its authored lava surface.");
+            switch (fx)
+            {
+                case PublishedFx.Unchecked:
+                    break;
+                case PublishedFx.Water:
+                    if (runtime.DisplayedRoomLayer3Fx?.Type != RoomFxType.Water)
+                        throw new InvalidOperationException("Retail water fixture did not publish water FX.");
+                    break;
+                case PublishedFx.Heat:
+                    if (runtime.DisplayedRoomLayer3Fx is not { Type: RoomFxType.Lava } lava ||
+                        lava.CurrentYPosition != RoomPublicationFixtureDefinitions.BusinessCenterSurface)
+                        throw new InvalidOperationException("Retail heat fixture did not publish its authored lava surface.");
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(PublishedFx)} {(int)fx}.");
+            }
             for (int tick = 0; tick < 13; tick++)
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(++sequence, 1, (ushort)tick),
                     GameplayDisplayCapture.TryCaptureFrame(runtime)!);
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
-                if (room == RoomPublicationFixtureDefinitions.NorfairBusinessCenter &&
+                if (fx == PublishedFx.Heat &&
                     (packet.Layers!.Layers[0] is not OrdinaryGameplayRenderLayer heat ||
                     heat.VerticalScrolls.ToArray().Distinct().Count() != 3))
                     throw new InvalidOperationException("Heat packet lost the three-valued vertical distortion table.");
@@ -49,6 +66,17 @@ internal static class RetailRoomPublicationTests
             }
         }
         Console.WriteLine($"{device.Kind}: {sequence} room publications plus retained checks across {rooms.Length} room-local fixtures match exactly.");
+    }
+
+    /// <summary>The layer-3 FX publication a room-local fixture additionally asserts.</summary>
+    private enum PublishedFx
+    {
+        /// <summary>Only the frame publication itself is compared.</summary>
+        Unchecked,
+        /// <summary>Brinstar water FX is published.</summary>
+        Water,
+        /// <summary>Business Center lava publishes its authored surface and three-valued heat distortion.</summary>
+        Heat,
     }
 }
 

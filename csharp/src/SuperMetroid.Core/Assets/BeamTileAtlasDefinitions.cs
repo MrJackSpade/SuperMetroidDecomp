@@ -61,12 +61,8 @@ public static class BeamTileAtlasDefinitions
     };
     /// <summary>$90:C3B1, BeamTilesPointers; resolves a legacy source to its base selection.
     /// Native shared sheets do not encode the independently editable combination identity.</summary>
-    /// <returns>The base selection, or null when the address is not a beam tile source.</returns>
-    public static SamusBeamCombination? LegacySelectionFor(int sourceAddress)
+    public static SamusBeamCombination LegacySelectionFor(BeamTileSource source)
     {
-        var source = (BeamTileSource)sourceAddress;
-        if (!Enum.IsDefined(source))
-            return null;
         return source switch
         {
             BeamTileSource.Chainsaw => Game.ChainsawBeamGraphicsDefinitions.Selection,
@@ -99,25 +95,88 @@ public static class BeamTileAtlasDefinitions
             throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork.");
         return false;
     }
-    /// <summary>$9A:F240..F25F is the transposed power-beam tile0 at F200..F21F.</summary>
-    private const int PowerTransposedTile = 2;
-    /// <summary>$9A:F860..F87F and FA60..FA7F quarter-turn each family's tile0.</summary>
-    private const int LongBeamVerticalTile = 3;
-    /// <summary>$9A:F2A0..F2FF and F4A0..F4FF are three transparent upload tiles in the power/ice sheets.</summary>
-    private const int TransparentTailFirstTile = 5;
+    /// <summary>The proven within-sheet relationship owned by one upload tile of a canonical beam sheet.</summary>
+    private enum UploadTileRole
+    {
+        /// <summary>Independently required artwork with no derived pixels.</summary>
+        Independent,
+        /// <summary>$9A:F400..F41F: Ice tile0 is horizontally symmetric about its center.</summary>
+        IceSymmetricRibbon,
+        /// <summary>$9A:F200..F21F: Power tile0 reflects its upper rows into its lower rows.</summary>
+        PowerReflectedRibbon,
+        /// <summary>$9A:F240..F25F is the transposed power-beam tile0 at F200..F21F.</summary>
+        PowerTransposed,
+        /// <summary>$9A:F2A0..F2FF and F4A0..F4FF are three transparent upload tiles in the power/ice sheets.</summary>
+        TransparentTail,
+        /// <summary>$9A:F6A0..F6BF and F6E0..F6FF: Wave large and small impact tiles5/7 have half-turn symmetry.</summary>
+        WaveHalfTurnImpact,
+        /// <summary>$9A:F6C0..F6DF: Wave impact tile6 reflects across both central axes.</summary>
+        WaveCenteredImpact,
+        /// <summary>$9A:FA00..FA1F: Spazer tile0 horizontal ribbon.</summary>
+        SpazerRibbon,
+        /// <summary>$9A:FA20..FA5F: the two adjacent Spazer diagonal upload tiles, used together by $93:D10E/D25A spritemaps.</summary>
+        SpazerDiagonal,
+        /// <summary>$9A:F800..F81F: Plasma tile0 ribbon profile.</summary>
+        PlasmaRibbon,
+        /// <summary>$9A:F860..F87F and FA60..FA7F quarter-turn each family's tile0.</summary>
+        LongBeamVertical,
+        /// <summary>$9A:F880..F89F and FA80..FA9F: the wider horizontal ribbon occupies upload tile4.</summary>
+        LongBeamWideRibbon,
+        /// <summary>$9A:F8E0..F8FF and FAE0..FAFF: final Plasma/Spazer upload tile shares repeated rows.</summary>
+        LongBeamImpact,
+    }
 
-    /// <summary>$9A:F6A0..F6BF: Wave impact tile5 has half-turn symmetry.</summary>
-    private const int WaveLargeImpactTile = 5;
-    /// <summary>$9A:F6C0..F6DF: Wave impact tile6 reflects across both central axes.</summary>
-    private const int WaveCenteredImpactTile = 6;
-    /// <summary>$9A:F6E0..F6FF: Wave impact tile7 has half-turn symmetry.</summary>
-    private const int WaveSmallImpactTile = 7;
-    /// <summary>$9A:FA20..FA5F: the two adjacent Spazer diagonal upload tiles, used together by $93:D10E/D25A spritemaps.</summary>
+    /// <summary>$9A:F200..F2FF: upload-tile roles of the Power sheet, in upload order.</summary>
+    private static readonly UploadTileRole[] PowerSheetRoles =
+    [
+        UploadTileRole.PowerReflectedRibbon, UploadTileRole.Independent, UploadTileRole.PowerTransposed,
+        UploadTileRole.Independent, UploadTileRole.Independent, UploadTileRole.TransparentTail,
+        UploadTileRole.TransparentTail, UploadTileRole.TransparentTail,
+    ];
+    /// <summary>$9A:F400..F4FF: upload-tile roles of the Ice sheet, in upload order.</summary>
+    private static readonly UploadTileRole[] IceSheetRoles =
+    [
+        UploadTileRole.IceSymmetricRibbon, UploadTileRole.Independent, UploadTileRole.Independent,
+        UploadTileRole.Independent, UploadTileRole.Independent, UploadTileRole.TransparentTail,
+        UploadTileRole.TransparentTail, UploadTileRole.TransparentTail,
+    ];
+    /// <summary>$9A:F600..F6FF: upload-tile roles of the Wave sheet, in upload order.</summary>
+    private static readonly UploadTileRole[] WaveSheetRoles =
+    [
+        UploadTileRole.Independent, UploadTileRole.Independent, UploadTileRole.Independent,
+        UploadTileRole.Independent, UploadTileRole.Independent, UploadTileRole.WaveHalfTurnImpact,
+        UploadTileRole.WaveCenteredImpact, UploadTileRole.WaveHalfTurnImpact,
+    ];
+    /// <summary>$9A:FA00..FAFF: upload-tile roles of the Spazer sheet, in upload order.</summary>
+    private static readonly UploadTileRole[] SpazerSheetRoles =
+    [
+        UploadTileRole.SpazerRibbon, UploadTileRole.SpazerDiagonal, UploadTileRole.SpazerDiagonal,
+        UploadTileRole.LongBeamVertical, UploadTileRole.LongBeamWideRibbon, UploadTileRole.Independent,
+        UploadTileRole.Independent, UploadTileRole.LongBeamImpact,
+    ];
+    /// <summary>$9A:F800..F8FF: upload-tile roles of the Plasma sheet, in upload order.</summary>
+    private static readonly UploadTileRole[] PlasmaSheetRoles =
+    [
+        UploadTileRole.PlasmaRibbon, UploadTileRole.Independent, UploadTileRole.Independent,
+        UploadTileRole.LongBeamVertical, UploadTileRole.LongBeamWideRibbon, UploadTileRole.Independent,
+        UploadTileRole.Independent, UploadTileRole.LongBeamImpact,
+    ];
+
+    /// <summary>The role of one upload tile within a retail selection's canonical sheet.</summary>
+    private static UploadTileRole RoleOf(SamusBeamCombination selection, int tile) => CanonicalSelection(selection) switch
+    {
+        SamusBeamCombination.Power => PowerSheetRoles[tile],
+        SamusBeamCombination.Ice => IceSheetRoles[tile],
+        SamusBeamCombination.Wave => WaveSheetRoles[tile],
+        SamusBeamCombination.Spazer => SpazerSheetRoles[tile],
+        SamusBeamCombination.Plasma => PlasmaSheetRoles[tile],
+        var canonical => throw new InvalidOperationException($"{canonical} is not a canonical beam sheet."),
+    };
+
+    /// <summary>$9A:FA20: the first of the two adjacent Spazer diagonal upload tiles.</summary>
     private const int SpazerDiagonalFirstTile = 1;
     /// <summary>$9A:FA06/FA08 and FA16/FA18: selected horizontal Spazer ribbon occupies two rows; this base artwork thickness remains REQUIRED.</summary>
     internal const int SpazerRibbonThickness = 2;
-    /// <summary>$9A:F880..F89F and FA80..FA9F: the wider horizontal ribbon occupies upload tile4.</summary>
-    private const int LongBeamWideRibbonTile = 4;
     /// <summary>$9A:F882/F892: required wide-ribbon profile begins its uniform border at row1; row7 shares that border ink.</summary>
     private const int WideRibbonBorderRow = 1;
     /// <summary>$9A:F884/F886/F88A/F88C and second planes: required wide-ribbon side rows repeat a four-pixel pattern.</summary>
@@ -126,8 +185,6 @@ public static class BeamTileAtlasDefinitions
     private const int WideRibbonOppositePhase = 2;
     /// <summary>$9A:F888/F898: required wide-ribbon center repeats two selected inks.</summary>
     private const int WideRibbonCenterPeriod = 2;
-    /// <summary>$9A:F8E0..F8FF and FAE0..FAFF: final Plasma/Spazer upload tile shares repeated rows.</summary>
-    private const int LongBeamImpactTile = 7;
     /// <summary>$9A:F8E0..F8FF and FAE0..FAFF: required long-beam impact pattern repeats its odd rows every four rows; even rows share row0.</summary>
     private const int LongBeamImpactRowPeriod = 4;
     /// <summary>$9A:F806/F80A and F816/F81A: required Plasma ribbon edge profile, one row either side of the center.</summary>
@@ -198,138 +255,132 @@ public static class BeamTileAtlasDefinitions
         int tile = pixel % Width / Height;
         int x = pixel % Height;
         int y = pixel / Width;
-        // $9A:F400..F41F is horizontally symmetric about the first Ice tile's center.
-        if (selection == SamusBeamCombination.Ice && tile == 0 && x >= Height / 2)
+        UploadTileRole role = RoleOf(selection, tile);
+        switch (role)
         {
-            source = y * Width + Height - 1 - x;
-            return true;
-        }
-        // Rotate the same physical ribbon through45 degrees and sample pixel centers.
-        // Native composition origins remain owned/required in the shared catalog;
-        // the base horizontal thickness remains required here. Neither is inferred
-        // from the diagonal mask that this projection produces.
-        if (selection.HasSpazer && tile >= SpazerDiagonalFirstTile && tile <= SpazerDiagonalFirstTile + 1)
-        {
-            int bandX = (tile - SpazerDiagonalFirstTile) * Height + x;
-            double distance = (SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX
-                + SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY
-                + SpazerCompositionGeometryDefinitions.DiagonalStripWidth - bandX + y) / Math.Sqrt(2);
-            bool outside = Math.Abs(distance) >= SpazerRibbonThickness / 2.0;
-            if (outside)
-            {
-                source = -1;
+            case UploadTileRole.IceSymmetricRibbon:
+                // $9A:F400..F41F is horizontally symmetric about the first Ice tile's center.
+                if (x < Height / 2)
+                    break;
+                source = y * Width + Height - 1 - x;
                 return true;
-            }
-            int row = y < SpazerDiagonalPulseRows
-                ? Math.Min(y, SpazerDiagonalPulseRows - 1 - y) : SpazerDiagonalPulseRows;
-            int center = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX
-                + SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY
-                + SpazerCompositionGeometryDefinitions.DiagonalStripWidth;
-            int relativeX = bandX - y;
-            int sourceX;
-            if (row == SpazerDiagonalPulseRows / 2 - 1)
-                sourceX = row + Math.Min(relativeX, 2 * center - relativeX);
-            else
-                sourceX = (int)Math.Floor(row + center - SpazerRibbonThickness / 2.0 * Math.Sqrt(2)) + 1;
-            source = row * Width + SpazerDiagonalFirstTile * Height + sourceX;
-            return source != pixel;
-        }
-        // Native Wave impact sheets are centered shapes: two half-turn pairs and
-        // one shape reflected across both central axes. Keep their source quadrants required.
-        if (CanonicalSelection(selection) == SamusBeamCombination.Wave)
-        {
-            if ((tile == WaveLargeImpactTile || tile == WaveSmallImpactTile) && y >= Height / 2)
+            case UploadTileRole.SpazerDiagonal:
             {
-                source = (Height - 1 - y) * Width + tile * Height + Height - 1 - x;
-                return true;
-            }
-            if (tile == WaveCenteredImpactTile && (x >= Height / 2 || y >= Height / 2))
-            {
-                source = Math.Min(y, Height - 1 - y) * Width + tile * Height + Math.Min(x, Height - 1 - x);
-                return true;
-            }
-        }
-        // These exact wide-ribbon repetitions do not dispose of their selected
-        // profile rows, pattern periods, or independent source inks.
-        if ((selection.HasSpazer || selection.HasPlasma) && tile == LongBeamWideRibbonTile)
-        {
-            if (y is WideRibbonBorderRow or (Height - 1))
-                source = WideRibbonBorderRow * Width + tile * Height;
-            else if (y == Height / 2)
-                source = y * Width + tile * Height + x % WideRibbonCenterPeriod;
-            else if (y > WideRibbonBorderRow)
-            {
-                int row = y > Height / 2 ? Height - y : y;
-                int phase = y > Height / 2 ? WideRibbonOppositePhase : 0;
-                source = row * Width + tile * Height + (x + phase) % WideRibbonSidePeriod;
-            }
-            else
-            {
-                source = 0;
-                return false;
-            }
-            return source != pixel;
-        }
-        if ((selection.HasSpazer || selection.HasPlasma) && tile == LongBeamImpactTile)
-        {
-            int row = (y & 1) == 0 ? 0 : y % LongBeamImpactRowPeriod;
-            source = row * Width + tile * Height + x;
-            return source != pixel;
-        }
-        // These native ribbon profiles remain required artwork choices; calculate only
-        // their exact row reflection/repetition and preserve independently selected inks.
-        if (selection == SamusBeamCombination.Power && tile == 0 && y >= Height / 2)
-        {
-            source = (Height - 1 - y) * Width + x;
-            return true;
-        }
-        if (selection.HasPlasma && tile == 0)
-        {
-            int center = Height / 2;
-            if (y < center - PlasmaEdgeDistance || y > center + PlasmaEdgeDistance)
-            {
-                source = -1;
-                return true;
-            }
-            if (y == center) source = center * Width + x % PlasmaCenterPeriod;
-            else
-            {
-                int phase = (x + (y > center ? PlasmaOppositeEdgePhase : 0)) % PlasmaEdgePeriod;
-                source = (center - PlasmaEdgeDistance) * Width + ((phase & 1) == 0 ? 0 : phase);
-            }
-            return source != pixel;
-        }
-        if (selection.HasSpazer && tile == 0)
-        {
-            double distance = SpazerCompositionGeometryDefinitions.HorizontalStripOriginY + y + 0.5;
-            if (Math.Abs(distance) >= SpazerRibbonThickness / 2.0)
-            {
-                source = -1;
-                return true;
-            }
-            int upper = -SpazerCompositionGeometryDefinitions.HorizontalStripOriginY - SpazerRibbonThickness / 2;
-            if (y == upper)
-            {
-                source = upper * Width + Math.Min(x, (2 * SpazerHighlightPhase - x + Height) % Height);
+                // Rotate the same physical ribbon through45 degrees and sample pixel centers.
+                // Native composition origins remain owned/required in the shared catalog;
+                // the base horizontal thickness remains required here. Neither is inferred
+                // from the diagonal mask that this projection produces.
+                int bandX = (tile - SpazerDiagonalFirstTile) * Height + x;
+                double distance = (SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX
+                    + SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY
+                    + SpazerCompositionGeometryDefinitions.DiagonalStripWidth - bandX + y) / Math.Sqrt(2);
+                bool outside = Math.Abs(distance) >= SpazerRibbonThickness / 2.0;
+                if (outside)
+                {
+                    source = -1;
+                    return true;
+                }
+                int row = y < SpazerDiagonalPulseRows
+                    ? Math.Min(y, SpazerDiagonalPulseRows - 1 - y) : SpazerDiagonalPulseRows;
+                int center = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX
+                    + SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY
+                    + SpazerCompositionGeometryDefinitions.DiagonalStripWidth;
+                int relativeX = bandX - y;
+                int sourceX;
+                if (row == SpazerDiagonalPulseRows / 2 - 1)
+                    sourceX = row + Math.Min(relativeX, 2 * center - relativeX);
+                else
+                    sourceX = (int)Math.Floor(row + center - SpazerRibbonThickness / 2.0 * Math.Sqrt(2)) + 1;
+                source = row * Width + SpazerDiagonalFirstTile * Height + sourceX;
                 return source != pixel;
             }
-            source = upper * Width + (x + Height - SpazerLowerRowShift * (y - upper)) % Height;
-            return true;
-        }
-        if (selection is SamusBeamCombination.Power or SamusBeamCombination.Ice && tile >= TransparentTailFirstTile)
-        {
-            source = -1;
-            return true;
-        }
-        if (selection == SamusBeamCombination.Power && tile == PowerTransposedTile)
-        {
-            source = x * Width + y;
-            return true;
-        }
-        if ((selection.HasSpazer || selection.HasPlasma) && tile == LongBeamVerticalTile)
-        {
-            source = (Height - 1 - x) * Width + y;
-            return true;
+            // Native Wave impact sheets are centered shapes: two half-turn pairs and
+            // one shape reflected across both central axes. Keep their source quadrants required.
+            case UploadTileRole.WaveHalfTurnImpact:
+                if (y < Height / 2)
+                    break;
+                source = (Height - 1 - y) * Width + tile * Height + Height - 1 - x;
+                return true;
+            case UploadTileRole.WaveCenteredImpact:
+                if (x < Height / 2 && y < Height / 2)
+                    break;
+                source = Math.Min(y, Height - 1 - y) * Width + tile * Height + Math.Min(x, Height - 1 - x);
+                return true;
+            case UploadTileRole.LongBeamWideRibbon:
+                // These exact wide-ribbon repetitions do not dispose of their selected
+                // profile rows, pattern periods, or independent source inks.
+                if (y is WideRibbonBorderRow or (Height - 1))
+                    source = WideRibbonBorderRow * Width + tile * Height;
+                else if (y == Height / 2)
+                    source = y * Width + tile * Height + x % WideRibbonCenterPeriod;
+                else if (y > WideRibbonBorderRow)
+                {
+                    int row = y > Height / 2 ? Height - y : y;
+                    int phase = y > Height / 2 ? WideRibbonOppositePhase : 0;
+                    source = row * Width + tile * Height + (x + phase) % WideRibbonSidePeriod;
+                }
+                else
+                    break;
+                return source != pixel;
+            case UploadTileRole.LongBeamImpact:
+            {
+                int row = (y & 1) == 0 ? 0 : y % LongBeamImpactRowPeriod;
+                source = row * Width + tile * Height + x;
+                return source != pixel;
+            }
+            // These native ribbon profiles remain required artwork choices; calculate only
+            // their exact row reflection/repetition and preserve independently selected inks.
+            case UploadTileRole.PowerReflectedRibbon:
+                if (y < Height / 2)
+                    break;
+                source = (Height - 1 - y) * Width + x;
+                return true;
+            case UploadTileRole.PlasmaRibbon:
+            {
+                int center = Height / 2;
+                if (y < center - PlasmaEdgeDistance || y > center + PlasmaEdgeDistance)
+                {
+                    source = -1;
+                    return true;
+                }
+                if (y == center) source = center * Width + x % PlasmaCenterPeriod;
+                else
+                {
+                    int phase = (x + (y > center ? PlasmaOppositeEdgePhase : 0)) % PlasmaEdgePeriod;
+                    source = (center - PlasmaEdgeDistance) * Width + ((phase & 1) == 0 ? 0 : phase);
+                }
+                return source != pixel;
+            }
+            case UploadTileRole.SpazerRibbon:
+            {
+                double distance = SpazerCompositionGeometryDefinitions.HorizontalStripOriginY + y + 0.5;
+                if (Math.Abs(distance) >= SpazerRibbonThickness / 2.0)
+                {
+                    source = -1;
+                    return true;
+                }
+                int upper = -SpazerCompositionGeometryDefinitions.HorizontalStripOriginY - SpazerRibbonThickness / 2;
+                if (y == upper)
+                {
+                    source = upper * Width + Math.Min(x, (2 * SpazerHighlightPhase - x + Height) % Height);
+                    return source != pixel;
+                }
+                source = upper * Width + (x + Height - SpazerLowerRowShift * (y - upper)) % Height;
+                return true;
+            }
+            case UploadTileRole.TransparentTail:
+                source = -1;
+                return true;
+            case UploadTileRole.PowerTransposed:
+                source = x * Width + y;
+                return true;
+            case UploadTileRole.LongBeamVertical:
+                source = (Height - 1 - x) * Width + y;
+                return true;
+            case UploadTileRole.Independent:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(UploadTileRole)} {(int)role}.");
         }
         source = 0;
         return false;

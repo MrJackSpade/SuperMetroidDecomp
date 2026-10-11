@@ -44,7 +44,7 @@ internal static class SamusProjectileOriginDefinitions
         if (offset >= 0 && offset < 40 * sizeof(ushort) && (offset & 1) == 0)
         {
             int word = offset / sizeof(ushort);
-            var muzzle = Muzzle(word >= 20, (SamusProjectileDirection)(word % 10));
+            var muzzle = Muzzle(word >= 20, SamusProjectileDirections.At(word % 10));
             return word % 20 < 10 ? muzzle.X : muzzle.Y;
         }
         // Resolve addresses before table ownership: low-nibble directions ten through

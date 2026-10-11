@@ -161,7 +161,7 @@ internal abstract class PhantoonInstructionProgramDefinitions
         if (index == 6) return PhantoonBg2FrameDefinitions.ClosedEye;
         if (index < 11) return PhantoonBg2FrameDefinitions.OpeningEye(2 - (index - 7) % 2);
         if (index == 11) return PhantoonBg2FrameDefinitions.CenteredEye;
-        if (index < 20) return PhantoonBg2FrameDefinitions.Gaze((PhantoonGazeDirection)(index - 12));
+        if (index < 20) return PhantoonBg2FrameDefinitions.Gaze(PhantoonGazeDirections.At(index - 12));
         if (index < 24) return PhantoonBg2FrameDefinitions.TentaclePose(2 - Math.Abs(index - 22));
         if (index < 26) return PhantoonBg2FrameDefinitions.MouthPose(26 - index);
         return PhantoonBg2FrameDefinitions.MouthPose(0);

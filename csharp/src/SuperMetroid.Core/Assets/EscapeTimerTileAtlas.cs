@@ -86,14 +86,9 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     /// <summary>Restored native queue descriptors resolve the same two installed pages as typed uploads.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
-        if (sourceAddress == EscapeTimerTileRomData.FirstSourceAddress && byteCount == EscapeTimerTileAtlasFormat.FirstByteCount)
+        if (EscapeTimerTilePages.TryMatch(sourceAddress, byteCount, out EscapeTimerTilePage page))
         {
-            data = Resolve(VramAssetId.EscapeTimerFirstTiles);
-            return true;
-        }
-        if (sourceAddress == EscapeTimerTileRomData.SecondSourceAddress && byteCount == EscapeTimerTileAtlasFormat.SecondByteCount)
-        {
-            data = Resolve(VramAssetId.EscapeTimerSecondTiles);
+            data = Resolve(EscapeTimerTilePages.AssetOf(page));
             return true;
         }
         data = default;
@@ -105,25 +100,13 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         ushort destinationWord)
     {
         ArgumentNullException.ThrowIfNull(queue);
-        if (sourceAddress == EscapeTimerTileRomData.FirstSourceAddress &&
-            byteCount == EscapeTimerTileAtlasFormat.FirstByteCount &&
-            destinationWord == EscapeTimerTileAtlasFormat.FirstDestinationWord)
-        {
-            if (Resolve(VramAssetId.EscapeTimerFirstTiles).Length != byteCount)
-                throw new InvalidDataException("Escape timer first page no longer matches its native transfer record.");
-            queue.EnqueueAsset(VramAssetId.EscapeTimerFirstTiles, byteCount, destinationWord);
-            return true;
-        }
-        if (sourceAddress == EscapeTimerTileRomData.SecondSourceAddress &&
-            byteCount == EscapeTimerTileAtlasFormat.SecondByteCount &&
-            destinationWord == EscapeTimerTileAtlasFormat.SecondDestinationWord)
-        {
-            if (Resolve(VramAssetId.EscapeTimerSecondTiles).Length != byteCount)
-                throw new InvalidDataException("Escape timer second page no longer matches its native transfer record.");
-            queue.EnqueueAsset(VramAssetId.EscapeTimerSecondTiles, byteCount, destinationWord);
-            return true;
-        }
-        return false;
+        if (!EscapeTimerTilePages.TryMatch(sourceAddress, byteCount, destinationWord, out EscapeTimerTilePage page))
+            return false;
+        VramAssetId asset = EscapeTimerTilePages.AssetOf(page);
+        if (Resolve(asset).Length != byteCount)
+            throw new InvalidDataException($"Escape timer {page} page no longer matches its native transfer record.");
+        queue.EnqueueAsset(asset, byteCount, destinationWord);
+        return true;
     }
 
     /// <summary>Publishes one native page directly for the Mother Brain sequence's synchronous transfer owner.</summary>
@@ -131,21 +114,87 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         ushort destinationWord)
     {
         ArgumentNullException.ThrowIfNull(vram);
-        VramAssetId asset;
-        if (sourceAddress == EscapeTimerTileRomData.FirstSourceAddress &&
-            byteCount == EscapeTimerTileAtlasFormat.FirstByteCount &&
-            destinationWord == EscapeTimerTileAtlasFormat.FirstDestinationWord)
-            asset = VramAssetId.EscapeTimerFirstTiles;
-        else if (sourceAddress == EscapeTimerTileRomData.SecondSourceAddress &&
-            byteCount == EscapeTimerTileAtlasFormat.SecondByteCount &&
-            destinationWord == EscapeTimerTileAtlasFormat.SecondDestinationWord)
-            asset = VramAssetId.EscapeTimerSecondTiles;
-        else
+        if (!EscapeTimerTilePages.TryMatch(sourceAddress, byteCount, destinationWord, out EscapeTimerTilePage page))
             return false;
 
-        vram.ExecuteQueuedAssetWrite(Resolve(asset).Span, destinationWord);
+        vram.ExecuteQueuedAssetWrite(Resolve(EscapeTimerTilePages.AssetOf(page)).Span, destinationWord);
         return true;
     }
+}
+
+/// <summary>The two native escape-timer character uploads.</summary>
+public enum EscapeTimerTilePage
+{
+    /// <summary>Characters 0..15 from $B0:C000 to VRAM word $7E00.</summary>
+    First,
+    /// <summary>Characters 16..24 from $B0:C200 to VRAM word $7F00.</summary>
+    Second,
+}
+
+/// <summary>Native transfer records of the escape-timer character pages.</summary>
+public static class EscapeTimerTilePages
+{
+    private static readonly EscapeTimerTilePage[] Pages = Enum.GetValues<EscapeTimerTilePage>();
+
+    /// <summary>The page's native long source address.</summary>
+    public static int SourceAddressOf(EscapeTimerTilePage page) => page switch
+    {
+        EscapeTimerTilePage.First => EscapeTimerTileRomData.FirstSourceAddress,
+        EscapeTimerTilePage.Second => EscapeTimerTileRomData.SecondSourceAddress,
+        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
+    };
+
+    /// <summary>The page's native upload size in bytes.</summary>
+    public static ushort ByteCountOf(EscapeTimerTilePage page) => page switch
+    {
+        EscapeTimerTilePage.First => EscapeTimerTileAtlasFormat.FirstByteCount,
+        EscapeTimerTilePage.Second => EscapeTimerTileAtlasFormat.SecondByteCount,
+        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
+    };
+
+    /// <summary>The page's native VRAM word destination.</summary>
+    public static ushort DestinationWordOf(EscapeTimerTilePage page) => page switch
+    {
+        EscapeTimerTilePage.First => EscapeTimerTileAtlasFormat.FirstDestinationWord,
+        EscapeTimerTilePage.Second => EscapeTimerTileAtlasFormat.SecondDestinationWord,
+        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
+    };
+
+    /// <summary>The typed VRAM asset installed for the page.</summary>
+    public static VramAssetId AssetOf(EscapeTimerTilePage page) => page switch
+    {
+        EscapeTimerTilePage.First => VramAssetId.EscapeTimerFirstTiles,
+        EscapeTimerTilePage.Second => VramAssetId.EscapeTimerSecondTiles,
+        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
+    };
+
+    /// <summary>True when a native source address is one of the pages' sources.</summary>
+    public static bool IsSource(int sourceAddress)
+    {
+        foreach (EscapeTimerTilePage page in Pages)
+            if (SourceAddressOf(page) == sourceAddress)
+                return true;
+        return false;
+    }
+
+    /// <summary>Identifies the page a native source/size descriptor uploads.</summary>
+    public static bool TryMatch(int sourceAddress, int byteCount, out EscapeTimerTilePage page)
+    {
+        foreach (EscapeTimerTilePage candidate in Pages)
+        {
+            if (SourceAddressOf(candidate) == sourceAddress && ByteCountOf(candidate) == byteCount)
+            {
+                page = candidate;
+                return true;
+            }
+        }
+        page = default;
+        return false;
+    }
+
+    /// <summary>Identifies the page a complete native transfer record uploads.</summary>
+    public static bool TryMatch(int sourceAddress, int byteCount, ushort destinationWord, out EscapeTimerTilePage page) =>
+        TryMatch(sourceAddress, byteCount, out page) && DestinationWordOf(page) == destinationWord;
 }
 
 /// <summary>Indexed-PNG and native OBJ transfer geometry for editable escape-timer characters.</summary>

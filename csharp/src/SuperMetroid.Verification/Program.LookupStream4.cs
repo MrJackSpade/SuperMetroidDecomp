@@ -3328,7 +3328,7 @@ internal static partial class Program
         }
         foreach (var source in new[] { (Address: 0xa994e6, Color: 9), (Address: 0xa994ea, Color: 11) })
             AssertEqual((ushort)(rom.ReadByte(source.Address) | rom.ReadByte(source.Address + 1) << 8), Native(0, source.Color), "Exact native shared fang source identities");
-        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = CeresRidleyColorFormat.PreBabyVersion, Baby = null }, MapPresentationFormat.JsonOptions);
+        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = (int)CeresRidleyColorVersion.PreBaby, Baby = null }, MapPresentationFormat.JsonOptions);
         var legacy = CeresRidleyColorCatalog.Load(new MemoryStream(legacyJson), stock);
         for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
             AssertEqual(Native(row, color), legacy.ResolveBaby(row, color), "Legacy document preserves the independently installed Baby owner");

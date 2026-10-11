@@ -39,26 +39,39 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
         }
     }
 
+    /// <summary>The five draw-list records, valued by bank-$84 pointer.</summary>
+    private enum DrawRecord : ushort
+    {
+        /// <summary>$84:A4F9, initial Grapple collision/appearance.</summary>
+        Grapple = RoomPlmGrappleBlockDrawDefinitions.Grapple,
+        /// <summary>$84:A4FF, first breakup appearance.</summary>
+        BreakFrame0 = RoomPlmGrappleBlockDrawDefinitions.BreakFrame0,
+        /// <summary>$84:A505, second breakup appearance.</summary>
+        BreakFrame1 = RoomPlmGrappleBlockDrawDefinitions.BreakFrame1,
+        /// <summary>$84:A50B, third breakup appearance.</summary>
+        BreakFrame2 = RoomPlmGrappleBlockDrawDefinitions.BreakFrame2,
+        /// <summary>$84:A511, blank air appearance.</summary>
+        Blank = RoomPlmGrappleBlockDrawDefinitions.Blank,
+    }
+
     internal static bool TryGet(ushort pointer, out DrawList definition)
     {
-        if (pointer == Grapple)
+        if (!Enum.IsDefined((DrawRecord)pointer))
         {
-            definition = new(pointer, 0xe0b7);
-            return true;
+            definition = default;
+            return false;
         }
-        if (pointer == Blank)
+        ushort levelWord = (DrawRecord)pointer switch
         {
-            definition = new(pointer, 0x00ff);
-            return true;
-        }
-        int relative = pointer - BreakFrame0;
-        if ((uint)relative < 3 * 6 && relative % 6 == 0)
-        {
+            DrawRecord.Grapple => 0xe0b7,
             // Three consecutive breakup tiles in six-byte one-block draw records.
-            definition = new(pointer, (ushort)(0x0053 + relative / 6));
-            return true;
-        }
-        definition = default;
-        return false;
+            DrawRecord.BreakFrame0 => 0x0053,
+            DrawRecord.BreakFrame1 => 0x0054,
+            DrawRecord.BreakFrame2 => 0x0055,
+            DrawRecord.Blank => 0x00ff,
+            var record => throw new InvalidOperationException($"Undefined {nameof(DrawRecord)} {(int)record}."),
+        };
+        definition = new(pointer, levelWord);
+        return true;
     }
 }

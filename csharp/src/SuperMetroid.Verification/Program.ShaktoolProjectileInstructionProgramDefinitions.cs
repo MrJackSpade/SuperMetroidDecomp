@@ -40,42 +40,9 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class ShaktoolProjectileInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (ShaktoolProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Shaktool mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < ShaktoolProjectileInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = ShaktoolProjectileInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewShaktoolProjectileInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(ShaktoolProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Shaktool mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, ShaktoolProjectileInstructionProgramDefinitions.PresentationWordCount, ShaktoolProjectileInstructionProgramDefinitions.PresentationWordAddress);
 }

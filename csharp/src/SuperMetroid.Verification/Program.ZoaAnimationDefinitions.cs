@@ -60,7 +60,7 @@ internal static partial class Program
     {
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(enemies, new ZoaAnimationReadGuard(rom));
+            .SetValue(enemies, NewZoaAnimationReadGuard(rom));
         RoomEnemySlot slot = enemies.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
@@ -123,16 +123,7 @@ internal static partial class Program
     private static ushort ReadZoaAnimationWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class ZoaAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa3b40d and < 0xa3b415
-                ? throw new InvalidOperationException(
-                    $"Zoa attempted migrated animation-selector read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewZoaAnimationReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3b40d and < 0xa3b415,
+            address => $"Zoa attempted migrated animation-selector read ${address:X6}.");
 }

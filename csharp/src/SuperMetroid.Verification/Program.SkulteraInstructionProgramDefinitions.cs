@@ -28,7 +28,7 @@ internal static partial class Program
                 $"Skultera instruction mechanics word $A3:{definition.Address:X4}");
         }
 
-        var guard = new SkulteraInstructionProgramReadGuard(rom);
+        var guard = NewSkulteraInstructionProgramReadGuard(rom);
         RoomEnemySystem leftSystem =
             CreateSkulteraProgramSystem(guard, startsLeft: true, out RoomEnemySlot left);
         RoomEnemySystem rightSystem =
@@ -110,7 +110,7 @@ internal static partial class Program
             "twenty-two compiled visual selectors pass with source bytes forbidden.");
 
         static RoomEnemySystem CreateSkulteraProgramSystem(
-            SkulteraInstructionProgramReadGuard guard,
+            CartridgeReadGuard guard,
             bool startsLeft,
             out RoomEnemySlot slot)
         {
@@ -158,45 +158,10 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class SkulteraInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (SkulteraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Skultera mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < SkulteraInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        SkulteraInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read compiled Skultera visual selector " +
-                            $"${address:X6}.");
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewSkulteraInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(SkulteraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Skultera mechanics byte ${address:X6}.")
+            .ForbidWords(0xa30000, SkulteraInstructionProgramDefinitions.PresentationWordCount, SkulteraInstructionProgramDefinitions.PresentationWordAddress,
+                address => $"Production read compiled Skultera visual selector ${address:X6}.");
 }

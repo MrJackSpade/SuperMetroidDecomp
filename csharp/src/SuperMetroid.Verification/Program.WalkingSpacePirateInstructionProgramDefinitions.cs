@@ -25,7 +25,7 @@ internal static partial class Program
                 $"walking Pirate mechanics word $B2:{definition.Address:X4}");
         }
 
-        var guard = new WalkingSpacePirateInstructionReadGuard(rom);
+        var guard = NewWalkingSpacePirateInstructionReadGuard(rom);
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateInstructionProgramDefinitions.WalkingLeft,
             frames: 81,
@@ -182,44 +182,10 @@ internal static partial class Program
     private static ushort ReadWalkingPirateWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class WalkingSpacePirateInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (WalkingSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled walking Pirate mechanics ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xb20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < WalkingSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        WalkingSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read compiled walking Pirate frame selector " +
-                            $"${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewWalkingSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(WalkingSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled walking Pirate mechanics ${address:X6}.")
+            .ForbidWords(0xb20000, WalkingSpacePirateInstructionProgramDefinitions.PresentationWordCount, WalkingSpacePirateInstructionProgramDefinitions.PresentationWordAddress,
+                address => $"Production read compiled walking Pirate frame selector ${address:X6}.");
 }

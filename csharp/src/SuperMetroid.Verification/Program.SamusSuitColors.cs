@@ -74,8 +74,7 @@ internal static partial class Program
                 pointer, $"suit {suit} retains its native diagnostic pointer");
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual(
-                    (ushort)(RomDataReader.ReadWordFixedBank(cartridge,
-                        sourceAddresses[suit] + color * sizeof(ushort)) & 0x7fff),
+                    (ushort)(ReadNativeSuitColor(cartridge, sourceAddresses[suit], color) & 0x7fff),
                     cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
                     $"suit {suit} color {color} is installed without a runtime bus");
         }
@@ -116,7 +115,7 @@ internal static partial class Program
         ushort[] offsets = [0, 2, 4];
         for (int suit = 0; suit < offsets.Length; suit++)
         for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddresses[suit] + color * 2),
+            AssertEqual(ReadNativeSuitColor(CartridgeImportSource.Require(bus), sourceAddresses[suit], color),
                 decoded.Resolve(offsets[suit], color),
                 $"extracted normal suit {suit} color {color} agrees with cartridge");
 
@@ -133,7 +132,7 @@ internal static partial class Program
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Samus suit color override changes installed-content identity");
 
-        var guard = new SuitColorReadGuard(bus);
+        var guard = NewSuitColorReadGuard(bus);
         var cgram = new SnesCgram();
         var samus = new SamusState { SuitColors = edited.SamusSuitColors };
         ushort[] equipment =
@@ -216,50 +215,23 @@ internal static partial class Program
         }
     }
 
-    private sealed class SuitColorReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static readonly int[] SuitColorSources =
+    [
+        SamusRenderingRomData.Body.PowerSuitPalette,
+        SamusRenderingRomData.Body.VariaSuitPalette,
+        SamusRenderingRomData.Body.GravitySuitPalette,
+    ];
+
+    private static MutableCartridgeReadGuard NewSuitColorReadGuard(ISnesAddressSpace source)
     {
-        private static readonly int[] Sources =
-        [
-            SamusRenderingRomData.Body.PowerSuitPalette,
-            SamusRenderingRomData.Body.VariaSuitPalette,
-            SamusRenderingRomData.Body.GravitySuitPalette,
-        ];
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            RejectSuitColorRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectSuitColorRead(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Suit-color verification source requires WRAM.")).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Suit-color verification source requires SRAM.")).ReadSaveRamByte(address);
-
-        private void RejectSuitColorRead(int address)
-        {
-            foreach (int sourceAddress in Sources)
-            {
-                if (address >= sourceAddress &&
-                    address < sourceAddress + SamusSuitColorFormat.ColorsPerSuit * sizeof(ushort))
-                {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException($"Production reread suit color ${address:X6}.");
-                }
-            }
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => SuitColorSources.Any(sourceAddress => address >= sourceAddress &&
+                address < sourceAddress + SamusSuitColorFormat.ColorsPerSuit * sizeof(ushort)),
+            address => $"Production reread suit color ${address:X6}.");
+        return guard;
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus normal-suit palette colors")]
+    private static ushort ReadNativeSuitColor(IImportCartridgeSource cartridge, int sourceAddress, int color) =>
+        RomDataReader.ReadWordFixedBank(cartridge, sourceAddress + color * sizeof(ushort));
 }

@@ -26,7 +26,7 @@ internal static partial class Program
 
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, new ShaktoolSegmentReadGuard(rom));
+            enemies, NewShaktoolSegmentReadGuard(rom));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeShaktool", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         for (int index = 0; index < definitions.Length; index++)
@@ -128,16 +128,7 @@ internal static partial class Program
                 $"Shaktool {label} rejects {invalid}");
     }
 
-    private sealed class ShaktoolSegmentReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xaade95 and < 0xaadf05
-                ? throw new InvalidOperationException(
-                    $"Shaktool attempted migrated segment-definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewShaktoolSegmentReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xaade95 and < 0xaadf05,
+            address => $"Shaktool attempted migrated segment-definition read ${address:X6}.");
 }

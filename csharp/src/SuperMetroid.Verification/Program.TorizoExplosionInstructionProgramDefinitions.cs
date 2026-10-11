@@ -30,7 +30,7 @@ internal static partial class Program
         var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
-        var guard = new TorizoExplosionInstructionReadGuard(rom);
+        var guard = NewTorizoExplosionInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
 
@@ -109,7 +109,7 @@ internal static partial class Program
             secondCycleFrame: 33,
             "smoke"));
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "TorizoExplosion execution performs no live spritemap operand reads");
         AssertEqual(TorizoExplosionInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "TorizoExplosion executes every native visual operand");
@@ -231,42 +231,9 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class TorizoExplosionInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (TorizoExplosionInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Torizo explosion byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < TorizoExplosionInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = TorizoExplosionInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewTorizoExplosionInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(TorizoExplosionInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Torizo explosion byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoExplosionInstructionProgramDefinitions.PresentationWordCount, TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress);
 }

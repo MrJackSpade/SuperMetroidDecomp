@@ -72,7 +72,7 @@ internal static partial class Program
             new MemoryStream(WorkRobotPaletteCycle.Write(visual), writable: false));
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new WorkRobotPaletteTimingReadGuard(rom);
+        var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem
         {
@@ -137,40 +137,26 @@ internal static partial class Program
             bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
     }
 
-    private sealed class WorkRobotPaletteTimingReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int relative = address -
-                WorkRobotPaletteTimingDefinitions.NativeFirstTimerAddress;
-            bool timerByte = relative >= 0 &&
-                relative < WorkRobotPaletteTimingDefinitions.RecordCount *
-                    WorkRobotPaletteTimingDefinitions.RecordByteCount &&
-                relative % WorkRobotPaletteTimingDefinitions.RecordByteCount < 2;
-            bool terminatorByte = address is
-                WorkRobotPaletteTimingDefinitionsConstants.NativeTerminatorAddress or
-                WorkRobotPaletteTimingDefinitionsConstants.NativeTerminatorAddress + 1;
-            int colorRelative = address -
-                EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords;
-            bool colorByte = colorRelative >= 0 &&
-                colorRelative < WorkRobotPaletteTimingDefinitions.RecordCount *
-                    WorkRobotPaletteTimingDefinitions.RecordByteCount &&
-                colorRelative % WorkRobotPaletteTimingDefinitions.RecordByteCount <
-                    WorkRobotPaletteRomData.ColorCount * sizeof(ushort);
-            if (timerByte || terminatorByte || colorByte)
+    private static CartridgeReadGuard NewWorkRobotPaletteTimingReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Work Robot palette handler attempted control read ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                int relative = address -
+                    WorkRobotPaletteTimingDefinitions.NativeFirstTimerAddress;
+                bool timerByte = relative >= 0 &&
+                    relative < WorkRobotPaletteTimingDefinitions.RecordCount *
+                        WorkRobotPaletteTimingDefinitions.RecordByteCount &&
+                    relative % WorkRobotPaletteTimingDefinitions.RecordByteCount < 2;
+                bool terminatorByte = address is
+                    WorkRobotPaletteTimingDefinitionsConstants.NativeTerminatorAddress or
+                    WorkRobotPaletteTimingDefinitionsConstants.NativeTerminatorAddress + 1;
+                int colorRelative = address -
+                    EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords;
+                bool colorByte = colorRelative >= 0 &&
+                    colorRelative < WorkRobotPaletteTimingDefinitions.RecordCount *
+                        WorkRobotPaletteTimingDefinitions.RecordByteCount &&
+                    colorRelative % WorkRobotPaletteTimingDefinitions.RecordByteCount <
+                        WorkRobotPaletteRomData.ColorCount * sizeof(ushort);
+                return timerByte || terminatorByte || colorByte;
+            },
+            address => $"Work Robot palette handler attempted control read ${address:X6}.");
 }

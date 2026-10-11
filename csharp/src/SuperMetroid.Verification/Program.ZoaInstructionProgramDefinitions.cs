@@ -19,7 +19,7 @@ internal static partial class Program
         Suite(nameof(VerifyZoaMechanicsDispatch), () => VerifyZoaMechanicsDispatch(rom));
         Suite(nameof(VerifyZoaPresentationPositions), () => VerifyZoaPresentationPositions(rom));
 
-        var guard = new ZoaInstructionProgramReadGuard(rom);
+        var guard = NewZoaInstructionProgramReadGuard(rom);
         ZoaAnimationSelector[] selectors =
         [
             ZoaAnimationSelector.None,
@@ -54,7 +54,7 @@ internal static partial class Program
                 $"Zoa {selector} loop restarts at speed row four");
         }
 
-        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+        AssertEqual(0, guard.ForbiddenReadAttempts,
             "Zoa production programs never read installed visual selectors");
         for (int index = 0;
              index < ZoaInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -91,7 +91,7 @@ internal static partial class Program
             "visual-selector and mechanics source words forbidden.");
 
         static RoomEnemySystem CreateZoaProgramSystem(
-            ZoaInstructionProgramReadGuard guard,
+            CartridgeReadGuard guard,
             ZoaAnimationSelector selector,
             out RoomEnemySlot slot)
         {
@@ -183,43 +183,10 @@ internal static partial class Program
     private static ushort ReadZoaInstructionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class ZoaInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenPresentationReadAttempts { get; private set; }
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (ZoaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Zoa mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < ZoaInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenPresentationReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read installed Zoa selector ${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewZoaInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(ZoaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Zoa mechanics byte ${address:X6}.")
+            .ForbidWords(0xa30000, ZoaInstructionProgramDefinitionsTooling.PresentationWordCount, ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read installed Zoa selector ${address:X6}.");
 }

@@ -9,7 +9,7 @@ internal static partial class Program
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         var selectedFrames = new HashSet<ushort>();
-        var guard = new WorkRobotInstructionReadGuard(rom, forbidPresentation: true);
+        var guard = NewWorkRobotInstructionReadGuard(rom, forbidPresentation: true);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (int index = 0;
@@ -59,7 +59,7 @@ internal static partial class Program
         }
         AssertEqual(WorkRobotVisualDefinitions.FrameCount, selectedFrames.Count,
             "227 Work Robot selectors choose 27 distinct editable frames");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "all installed Work Robot programs avoid cartridge presentation words");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "all installed Work Robot programs retain compiled control words");

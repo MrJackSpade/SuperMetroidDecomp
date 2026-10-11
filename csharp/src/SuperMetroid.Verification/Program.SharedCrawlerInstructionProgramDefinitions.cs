@@ -35,7 +35,7 @@ internal static partial class Program
             EnemyDefinitionId.Zoomer,
             EnemyDefinitionId.MZoomer,
         ];
-        var guard = new SharedCrawlerInstructionReadGuard(
+        var guard = NewSharedCrawlerInstructionReadGuard(
             rom, forbidPresentation: true);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeCrawler", flags)!;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
@@ -68,7 +68,7 @@ internal static partial class Program
                 $"shared crawler ${(int)enemyDefinition:X4}/{orientation} loops all five frames");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "all shared-crawler loops avoid cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled shared-crawler mechanics byte");
@@ -131,49 +131,13 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class SharedCrawlerInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewSharedCrawlerInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (SharedCrawlerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled shared-crawler mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                        {
-                            ForbiddenReadAttempts++;
-                            throw new InvalidOperationException(
-                                $"Shared crawler read visual-selector byte ${address:X6}.");
-                        }
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new CartridgeReadGuard(source).Forbid(SharedCrawlerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            address => $"Production read compiled shared-crawler mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.ForbidWords(0xa30000, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Shared crawler read visual-selector byte ${address:X6}.")
+            : guard.ObserveWords(0xa30000, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 }

@@ -57,7 +57,7 @@ internal static partial class Program
             () => YardDirectionDefinitions.ForAirborneFacing(2),
             "Yard invalid airborne facing definition");
 
-        var guarded = new YardDirectionReadGuard(rom);
+        var guarded = NewYardDirectionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeYard",
             instanceFlags)!;
@@ -185,21 +185,11 @@ internal static partial class Program
             $"{name} hiding list");
     }
 
-    private sealed class YardDirectionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa3cd42 and < 0xa3cd82 or
+    private static CartridgeReadGuard NewYardDirectionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3cd42 and < 0xa3cd82 or
                 >= 0xa3cdc2 and < 0xa3cde2 or
                 >= 0xa3d1ab and < 0xa3d1b3 or
                 >= 0xa3d50f and < 0xa3d517 or
-                >= 0xa3d5a4 and < 0xa3d5ac
-                ? throw new InvalidOperationException(
-                    $"Yard attempted migrated direction/list read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                >= 0xa3d5a4 and < 0xa3d5ac,
+            address => $"Yard attempted migrated direction/list read ${address:X6}.");
 }

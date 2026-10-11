@@ -31,7 +31,7 @@ internal static partial class Program
 
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, new SporeSpawnProjectileReadGuard(rom));
+            enemies, NewSporeSpawnProjectileReadGuard(rom));
         var spawnStalk = typeof(RoomEnemySystem).GetMethod("SpawnSporeSpawnStalk", flags)!
             .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
         var spawnSpawner = typeof(RoomEnemySystem).GetMethod("SpawnSporeSpawnSpawner", flags)!
@@ -90,18 +90,9 @@ internal static partial class Program
             "Spore Spawn projectile definitions: eight geometry words, 256 movement bytes, all real spawns and 512 movement/mirroring handoffs pass with source tables forbidden.");
     }
 
-    private sealed class SporeSpawnProjectileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x86dcb9 and < 0x86dcc1 or
+    private static CartridgeReadGuard NewSporeSpawnProjectileReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0x86dcb9 and < 0x86dcc1 or
                 >= 0x86dce6 and < 0x86dcee or
-                >= 0x86dd6c and < 0x86de6c
-                ? throw new InvalidOperationException(
-                    $"Spore Spawn attempted migrated projectile-definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                >= 0x86dd6c and < 0x86de6c,
+            address => $"Spore Spawn attempted migrated projectile-definition read ${address:X6}.");
 }

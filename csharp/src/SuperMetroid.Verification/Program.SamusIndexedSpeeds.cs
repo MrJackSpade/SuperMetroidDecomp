@@ -11,7 +11,12 @@ internal static partial class Program
             return new(Word(0), Word(2), Word(4), Word(6), Word(8), Word(10));
         }
         var speed = new SamusHorizontalSpeedState();
-        var guard = new IndexedSpeedReadGuard(rom);
+        // Unaligned/non-catalog spans can overlap known words, so classify each
+        // caller's entry in the test rather than forbidding every byte in a range.
+        bool forbidReads = false;
+        var guard = new CartridgeReadGuard(rom)
+            .Forbid(_ => forbidReads, _ => "Authored indexed speed unexpectedly reads the ROM.")
+            .RejectWrites(_ => "Unexpected indexed-speed write.");
         int compiledCount = 0;
         foreach (SamusLiquidMedium medium in Enum.GetValues<SamusLiquidMedium>())
         {
@@ -26,7 +31,7 @@ internal static partial class Program
                 {
                     AssertEqual(expected, entry, "All six indexed words match native data");
                     compiledCount++;
-                    guard.ForbidReads = true;
+                    forbidReads = true;
                     AssertEqual(expected, speed.ReadEntry(guard, (SamusMovementType)movement), "Actual byte-indexed read preserves adjacent authored tables");
                 }
                 else
@@ -49,7 +54,7 @@ internal static partial class Program
             bool compiled = address >= 0x909f25 && address < 0x90a32d && (address - 0x909f25) % 12 == 0;
             if (compiled)
             {
-                guard.ForbidReads = true;
+                forbidReads = true;
                 AssertEqual(Read(address), speed.ReadEntry(guard, SamusMovementType.Running), "Restored authored ROM base respects exact record alignment");
             }
             else
@@ -67,20 +72,5 @@ internal static partial class Program
             AssertEqual(changed, speed.ReadEntry(mutable, SamusMovementType.Running).Acceleration, "Restored WRAM base remains live");
         }
         Console.WriteLine("Indexed Samus speeds: all 492 authored words and every restored base address preserve authored data/alignment; compiled reads are forbidden, mutable aliases stay live, and ROM overreads fail loudly.");
-    }
-
-    private sealed class IndexedSpeedReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public bool ForbidReads { get; set; }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            // Unaligned/non-catalog spans can overlap known words, so classify each
-            // caller's entry in the test rather than forbidding every byte in a range.
-            if (ForbidReads) throw new InvalidOperationException("Authored indexed speed unexpectedly reads the ROM.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected indexed-speed write.");
     }
 }

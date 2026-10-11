@@ -55,7 +55,7 @@ internal static partial class Program
             SamusSuitColorExtractor.Extract(rom)));
         samus.LiquidPhysics.CinematicFunctionActive = cinematic;
         var cgram = new SnesCgram();
-        var guarded = new ForbiddenHurtColorBus(rom);
+        var guarded = NewForbiddenHurtColorBus(rom);
         // Each call starts from a sentinel palette, so CGRAM shows whether that call wrote
         // colors and, when it did, which native source it selected.
         const ushort sentinel = 0x5a5a;
@@ -81,13 +81,11 @@ internal static partial class Program
                     ? SamusHurtColorFormat.IntroSourceAddress
                     : SamusRenderingRomData.Body.PowerSuitPalette;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                AssertEqual((ushort)(SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(
-                        CartridgeImportSource.Require(rom),
-                        expectedPaletteAddress + index * sizeof(ushort)) & 0x7fff),
+                AssertEqual((ushort)(ReadNativeHurtCycleColor(rom, expectedPaletteAddress, index) & 0x7fff),
                     cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],
                     $"{(cinematic ? "intro" : "ordinary")} hurt call {call} source CGRAM {index}");
         }
-        AssertEqual(0, guarded.ForbiddenReads,
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"installed {(cinematic ? "intro" : "ordinary")} hurt cycle does not read native art");
     }
 
@@ -112,7 +110,7 @@ internal static partial class Program
             var samus = new SamusState { HurtFlashCounter = (ushort)(cinematic ? 2 : 1) };
             samus.LiquidPhysics.CinematicFunctionActive = cinematic;
             var cgram = new SnesCgram();
-            var guarded = new ForbiddenHurtColorBus(rom);
+            var guarded = NewForbiddenHurtColorBus(rom);
             SamusHurtFlashPalette.Update(
                 guarded, cgram, samus, 0, edited.SamusHurtColors);
             SamusHurtColorVariant variant = cinematic
@@ -123,7 +121,7 @@ internal static partial class Program
                     $"edited {variant} path remains selected by native counter (CGRAM {index})");
             AssertEqual(edited.SamusHurtColors.Resolve(variant, 5), cgram.Colors[197],
                 $"edited {variant} color reaches CGRAM");
-            AssertEqual(0, guarded.ForbiddenReads, $"edited {variant} avoids native art");
+            AssertEqual(0, guarded.ForbiddenReadAttempts, $"edited {variant} avoids native art");
         }
         AssertThrows<InvalidDataException>(() => SamusHurtColorCatalog.Write(document with
         {
@@ -136,23 +134,13 @@ internal static partial class Program
         Console.WriteLine("Samus hurt override: edited flash/intro colors reach CGRAM and stock restores.");
     }
 
-    private sealed class ForbiddenHurtColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReads { get; private set; }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= SamusHurtColorFormat.HurtSourceAddress and
+    private static CartridgeReadGuard NewForbiddenHurtColorBus(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= SamusHurtColorFormat.HurtSourceAddress and
                 < (SamusHurtColorFormat.IntroSourceAddress +
-                    SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort)))
-            {
-                ForbiddenReads++;
-                throw new InvalidOperationException($"Installed hurt handler read native artwork ${address:X6}.");
-            }
-            return inner.ReadByte(address);
-        }
+                    SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort)),
+            address => $"Installed hurt handler read native artwork ${address:X6}.");
 
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
-    }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hurt-cycle palette colors")]
+    private static ushort ReadNativeHurtCycleColor(ISnesAddressSpace rom, int paletteAddress, int index) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), paletteAddress + index * sizeof(ushort));
 }

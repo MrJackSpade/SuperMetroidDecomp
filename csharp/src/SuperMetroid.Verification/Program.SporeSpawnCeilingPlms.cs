@@ -146,7 +146,7 @@ internal static partial class Program
                 clear ? PlmHeaderId.ClearSporeSpawnCeiling :
                     PlmHeaderId.CrumbleSporeSpawnCeiling),
             $"Spore Spawn {(clear ? "clear" : "crumble")} PLM allocates");
-        var guarded = new SporeSpawnCeilingSourceGuard(new TestAddressSpace());
+        var guarded = NewSporeSpawnCeilingSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         int soundFrame = -1;
@@ -184,29 +184,15 @@ internal static partial class Program
             "Spore Spawn ceiling reads no migrated program or draw bytes");
     }
 
-    private sealed class SporeSpawnCeilingSourceGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int pointer = address & 0xffff;
-            if ((address >> 16) == 0x84 &&
-                ((pointer >= SporeSpawnCeilingPlmProgramDefinitions.Crumble &&
-                  pointer < SporeSpawnCeilingPlmProgramDefinitions.EndExclusive) ||
-                 (pointer >= (ushort)SporeSpawnCeilingDraw.Clear &&
-                  pointer < SporeSpawnCeilingPlmDrawDefinitions.EndExclusive)))
+    private static CartridgeReadGuard NewSporeSpawnCeilingSourceGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Spore Spawn ceiling reread migrated source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                int pointer = address & 0xffff;
+                return (address >> 16) == 0x84 &&
+                    ((pointer >= SporeSpawnCeilingPlmProgramDefinitions.Crumble &&
+                      pointer < SporeSpawnCeilingPlmProgramDefinitions.EndExclusive) ||
+                     (pointer >= (ushort)SporeSpawnCeilingDraw.Clear &&
+                      pointer < SporeSpawnCeilingPlmDrawDefinitions.EndExclusive));
+            },
+            address => $"Spore Spawn ceiling reread migrated source ${address:X6}.");
 }

@@ -157,6 +157,8 @@ internal static partial class Program
             PrimitiveDomainAnalyzer.PrimitiveInterludeId, "narrowed to int and is then compared");
         Expect(domain + " class C { int field; void Set(Mode m) => field = (int)m; int Get() => field switch { 0 => 1, _ => 2 }; }",
             PrimitiveDomainAnalyzer.PrimitiveInterludeId, "is then switched");
+        // Multipurpose storage written from several sources (a native slot word) is a raw boundary.
+        Expect(domain + " class C { ushort slot; void A(Mode m) => slot = (ushort)m; void B(ushort timer) => slot = timer; bool T() => slot == 3; }");
         // A conversion consumed immediately as an index or arithmetic is a boundary expression.
         Expect(domain + " class C { int[] table = new int[3]; int M(Mode m) { int index = (int)m; return table[index] + index; } }");
     }

@@ -222,14 +222,16 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         private readonly Lock _gate = new();
         private readonly Dictionary<(ISymbol Subject, INamedTypeSymbol Catalog), (HashSet<string> Names, Location First)> _comparisons =
             new(new SubjectCatalogComparer());
-        private readonly Dictionary<ISymbol, (ITypeSymbol Domain, Location Site)> _narrowed = new(SymbolEqualityComparer.Default);
+        // Every write to a symbol: the enum it narrows (null for any other value) and where.
+        private readonly Dictionary<ISymbol, List<(ITypeSymbol? Domain, Location Site)>> _writes = new(SymbolEqualityComparer.Default);
         private readonly Dictionary<ISymbol, string> _domainUses = new(SymbolEqualityComparer.Default);
 
         internal void Register(CompilationStartAnalysisContext context)
         {
             context.RegisterOperationAction(Comparison, OperationKind.Binary);
             context.RegisterOperationAction(IsPattern, OperationKind.IsPattern);
-            context.RegisterOperationAction(Narrowing, OperationKind.VariableDeclarator, OperationKind.SimpleAssignment);
+            context.RegisterOperationAction(Narrowing, OperationKind.VariableDeclarator, OperationKind.SimpleAssignment,
+                OperationKind.CompoundAssignment, OperationKind.Increment, OperationKind.Decrement);
             context.RegisterOperationAction(SwitchUse, OperationKind.Switch, OperationKind.SwitchExpression);
             context.RegisterCompilationEndAction(End);
         }
@@ -288,15 +290,23 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             {
                 IVariableDeclaratorOperation declarator => (declarator.Symbol, declarator.Initializer?.Value),
                 ISimpleAssignmentOperation assignment => (Subject(assignment.Target), assignment.Value),
+                ICompoundAssignmentOperation compound => (Subject(compound.Target), null),
+                IIncrementOrDecrementOperation step => (Subject(step.Target), null),
                 _ => (null, null),
             };
-            if (target is null || value is null || !IsIntegral(TypeOf(target)))
+            if (target is null || !IsIntegral(TypeOf(target)))
                 return;
-            if (value is not IConversionOperation { IsImplicit: false } conversion ||
-                !IsClosedEnum(Unwrap(conversion.Operand).Type))
+            if (context.Operation is IVariableDeclaratorOperation && value is null)
                 return;
+            ITypeSymbol? domain = value is IConversionOperation { IsImplicit: false } conversion &&
+                IsClosedEnum(Unwrap(conversion.Operand).Type) ? Unwrap(conversion.Operand).Type : null;
+            Location site = (value ?? context.Operation).Syntax.GetLocation();
             lock (_gate)
-                _narrowed.TryAdd(target, (Unwrap(conversion.Operand).Type!, value.Syntax.GetLocation()));
+            {
+                if (!_writes.TryGetValue(target, out var writes))
+                    _writes[target] = writes = [];
+                writes.Add((domain, site));
+            }
         }
 
         private void MarkDomainUse(IOperation operation, string how)
@@ -318,12 +328,22 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                         entry.Key.Subject.Name, TypeOf(entry.Key.Subject)!.ToDisplayString(), entry.Value.Names.Count,
                         entry.Key.Catalog.Name));
                 }
-                foreach (var entry in _narrowed)
+                foreach (var entry in _writes)
                 {
                     if (!_domainUses.TryGetValue(entry.Key, out string? how))
                         continue;
-                    context.ReportDiagnostic(Diagnostic.Create(PrimitiveInterludeRule, entry.Value.Site,
-                        entry.Key.Name, entry.Value.Domain.Name, TypeOf(entry.Key)!.ToDisplayString(), how));
+                    var narrowed = entry.Value.Where(write => write.Domain is not null)
+                        .OrderBy(write => write.Site.SourceTree?.FilePath, StringComparer.Ordinal)
+                        .ThenBy(write => write.Site.SourceSpan.Start).ToArray();
+                    if (narrowed.Length == 0)
+                        continue;
+                    // A field or property is the domain's storage only when every write narrows that
+                    // one domain; multipurpose storage (native slot words) is a raw boundary.
+                    if (entry.Key is not ILocalSymbol && (narrowed.Length != entry.Value.Count ||
+                        narrowed.Any(write => !SymbolEqualityComparer.Default.Equals(write.Domain, narrowed[0].Domain))))
+                        continue;
+                    context.ReportDiagnostic(Diagnostic.Create(PrimitiveInterludeRule, narrowed[0].Site,
+                        entry.Key.Name, narrowed[0].Domain!.Name, TypeOf(entry.Key)!.ToDisplayString(), how));
                 }
             }
         }

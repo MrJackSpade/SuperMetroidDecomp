@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape overlay tilemaps")]
     private static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -20,7 +21,7 @@ internal static partial class Program
                     page.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> data),
                 $"Ceres overlay {page.Name} resolves completely");
             for (int offset = 0; offset < data.Length; offset++)
-                AssertEqual(rom.ReadByte(page.SourceAddress + offset),
+                AssertEqual(rom.ReadCartridgeByte(page.SourceAddress + offset),
                     data.Span[offset],
                     $"Ceres overlay {page.Name} native byte {offset:X2}");
         }
@@ -56,9 +57,9 @@ internal static partial class Program
                 break;
             int descriptor = 0xa60000 | transfer.Pointer;
             ushort byteCount = ReadWord(descriptor);
-            int source = rom.ReadByte(descriptor + 2) |
-                rom.ReadByte(descriptor + 3) << 8 |
-                rom.ReadByte(descriptor + 4) << 16;
+            int source = rom.ReadCartridgeByte(descriptor + 2) |
+                rom.ReadCartridgeByte(descriptor + 3) << 8 |
+                rom.ReadCartridgeByte(descriptor + 4) << 16;
             ushort destination = ReadWord(descriptor + 5);
             nativeQueue.Enqueue(byteCount, source, destination);
         }
@@ -132,7 +133,7 @@ internal static partial class Program
             "VRAM; live edit, reload, and missing/corrupt resource rejection pass.");
 
         ushort ReadWord(int address) => (ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         static void ExpectMissing(Action action, string context)
         {

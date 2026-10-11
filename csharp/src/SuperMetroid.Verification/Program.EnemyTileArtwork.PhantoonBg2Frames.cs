@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon BG2 frames")]
     private static void VerifyInstalledPhantoonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
@@ -23,7 +24,7 @@ internal static partial class Program
                 $"installed Phantoon BG2 frame {frame.Name} exists");
             var native = new List<(ushort Destination, ushort[] Tiles)>();
             int root = (PhantoonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
-            int componentCount = rom.ReadByte(root);
+            int componentCount = rom.ReadCartridgeByte(root);
             for (int component = 0; component < componentCount; component++)
             {
                 ushort stream = ReadWord(root + 2 + component * 8 + 4);
@@ -131,22 +132,23 @@ internal static partial class Program
         Console.WriteLine("  Phantoon BG2 frames: all 22 selectors preserve native writes and engine-owned hitboxes; live VRAM edit, collision ROM guard, reload and invalid-data checks passed.");
 
         ushort ReadWord(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon collision definitions")]
     private static void VerifyPhantoonCollisionDefinitions(
         SuperMetroidAddressSpace rom, ISnesAddressSpace guardedBus,
         EnemyTileArtworkCatalog stock, EnemyTileArtworkCatalog edited)
     {
         ushort ReadWord(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var checkedLists = new HashSet<ushort>();
         foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             int root = (PhantoonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
             PhantoonCollisionDefinitions.ComponentSequence components =
                 PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
-            AssertEqual(rom.ReadByte(root), (byte)components.Length,
+            AssertEqual(rom.ReadCartridgeByte(root), (byte)components.Length,
                 $"Phantoon {frame.Name} compiled hitbox component count");
             for (int index = 0; index < components.Length; index++)
             {

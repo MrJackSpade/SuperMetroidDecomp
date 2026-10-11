@@ -40,6 +40,7 @@ internal static partial class Program
     }
 
     /// <summary>Checks every checked-in selector directly against the pinned cartridge.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy visual selectors")]
     private static void VerifyCompiledEnemyVisualSelectors()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -56,8 +57,8 @@ internal static partial class Program
             AssertTrue(entry.Address > previousAddress,
                 "generated visual selectors are distinct and sorted");
             previousAddress = entry.Address;
-            ushort native = (ushort)(rom.ReadByte(entry.Address) |
-                rom.ReadByte((entry.Address & 0xff0000) |
+            ushort native = (ushort)(rom.ReadCartridgeByte(entry.Address) |
+                rom.ReadCartridgeByte((entry.Address & 0xff0000) |
                     unchecked((ushort)(entry.Address + 1))) << 8);
             AssertEqual(native, entry.Pointer,
                 $"compiled visual selector ${entry.Address:X6}");

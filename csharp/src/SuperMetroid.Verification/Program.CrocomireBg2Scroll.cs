@@ -9,9 +9,10 @@ internal static partial class Program
         Suite(nameof(VerifyCrocomireBg2PoseCorrections), () => VerifyCrocomireBg2PoseCorrections(rom));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire BG2 native words")]
     private static ushort CrocomireBg2NativeWord(SuperMetroidAddressSpace rom, int address) =>
-        (ushort)(rom.ReadByte(address) |
-            rom.ReadByte((address & 0xff0000) | unchecked((ushort)(address + 1))) << 8);
+        (ushort)(rom.ReadCartridgeByte(address) |
+            rom.ReadCartridgeByte((address & 0xff0000) | unchecked((ushort)(address + 1))) << 8);
 
     private static void VerifyCrocomireBg2FramePositions(SuperMetroidAddressSpace rom)
     {

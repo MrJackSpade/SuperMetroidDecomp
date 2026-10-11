@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon cannon PLM program")]
     private static void VerifyDraygonCannonPlmProgram()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -24,7 +25,7 @@ internal static partial class Program
         var source = new TestAddressSpace();
         var bank84 = new byte[0x8000];
         for (int index = 0; index < bank84.Length; index++)
-            bank84[index] = rom.ReadByte(0x848000 + index);
+            bank84[index] = rom.ReadCartridgeByte(0x848000 + index);
         source.WriteBytes(0x848000, bank84);
         source.WriteBytes(0x8f9000,
         [

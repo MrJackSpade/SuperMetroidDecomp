@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo attack definitions")]
     private static void VerifyBombTorizoAttackDefinitions(SuperMetroidAddressSpace rom)
     {
         const int swipeXAddress = 0x86a738;
@@ -13,7 +14,7 @@ internal static partial class Program
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         for (ushort index = 0; index < 11; index++)
         {

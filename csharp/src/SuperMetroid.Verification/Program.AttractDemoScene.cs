@@ -62,14 +62,14 @@ internal static partial class Program
         frontend.BindMapPresentation(RetailPresentationFixture());
         if (frontend.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
-        for (int index = 0; index < AttractDemoRomData.CompletionMarker.Length; index++)
-            bus.WriteByte(AttractDemoRomData.CompletionMarkerAddress + index, AttractDemoRomData.CompletionMarker[index]);
+        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        saveRam.SetGameCompleted(true);
         if (frontend.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked set four.");
-        new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
+        saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot());
         if (frontend.AvailableDemoSetCount() != 4)
             throw new InvalidDataException("Valid completed-game save did not unlock the fourth demo set.");
-        bus.WriteByte(AttractDemoRomData.CompletionMarkerAddress, 0);
+        saveRam.SetGameCompleted(false);
         if (frontend.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked set four.");
     }
@@ -99,6 +99,7 @@ internal static partial class Program
         Console.WriteLine($"Compiled attract scenes: {total} records and four sentinels match cartridge data.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for attract demo command definitions and playback")]
     private static void VerifyAttractCommandDefinitionsAndPlayback(
         ISnesAddressSpace retail,
         int[] sceneCounts)
@@ -187,7 +188,7 @@ internal static partial class Program
             }
         }
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadByte(address) | (source.ReadByte(address + 1) << 8)));
+            unchecked((ushort)(source.ReadCartridgeByte(address) | (source.ReadCartridgeByte(address + 1) << 8)));
     }
 
     private static void VerifyCompiledAttractInput(ISnesAddressSpace bus, AttractDemoScene scene)

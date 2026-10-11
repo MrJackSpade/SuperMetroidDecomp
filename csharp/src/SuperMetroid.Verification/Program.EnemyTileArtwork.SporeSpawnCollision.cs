@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Spore Spawn collision")]
     private static void VerifyCompiledSporeSpawnCollision(
         SuperMetroidAddressSpace rom)
     {
@@ -51,7 +52,7 @@ internal static partial class Program
             int root = (frame.Bank << 16) | frame.Pointer;
             SporeSpawnCollisionDefinitions.ComponentSequence components =
                 SporeSpawnCollisionDefinitions.ComponentsAt(frame.Pointer);
-            AssertEqual((int)rom.ReadByte(root), components.Length,
+            AssertEqual((int)rom.ReadCartridgeByte(root), components.Length,
                 $"Spore Spawn frame {frame.Pointer:X4} native component count");
             for (int component = 0; component < components.Length; component++)
             {
@@ -140,7 +141,7 @@ internal static partial class Program
             ushort targetRight = unchecked((ushort)(targetX + 2));
             ushort targetTop = unchecked((ushort)(targetY - 2));
             ushort targetBottom = unchecked((ushort)(targetY + 2));
-            int count = rom.ReadByte(root);
+            int count = rom.ReadCartridgeByte(root);
             for (int component = 0; component < count; component++)
             {
                 int record = root + 2 + 8 * component;
@@ -169,6 +170,6 @@ internal static partial class Program
         }
 
         ushort ReadWord(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 }

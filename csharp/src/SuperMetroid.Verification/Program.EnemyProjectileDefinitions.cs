@@ -8,9 +8,6 @@ internal static partial class Program
     private static void VerifyEnemyProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
-        ushort Word(int address) => unchecked((ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
-
         RoomEnemyProjectileKind[] kinds = Enum.GetValues<RoomEnemyProjectileKind>()
             .Where(kind => kind != RoomEnemyProjectileKind.None)
             .Distinct()
@@ -18,27 +15,7 @@ internal static partial class Program
         // #1269 added Mother Brain's small purple breath and the Climb's fake-wall explosion.
         AssertEqual(123, kinds.Length, "compiled enemy-projectile definition count");
 
-        var forbidden = new HashSet<int>();
-        foreach (RoomEnemyProjectileKind kind in kinds)
-        {
-            int address = 0x860000 | (ushort)kind;
-            for (int index = 0; index < 14; index++)
-                forbidden.Add(address + index);
-
-            EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
-            AssertEqual(Word(address + 2), definition.PreInstruction,
-                $"{kind} pre-instruction");
-            AssertEqual(Word(address + 4), definition.InitialInstructionList,
-                $"{kind} initial list");
-            AssertEqual(Word(address + 6), definition.RadiusWord,
-                $"{kind} radius word");
-            AssertEqual(Word(address + 8), definition.Properties,
-                $"{kind} properties");
-            AssertEqual(Word(address + 10), definition.TouchInstructionList,
-                $"{kind} touch list");
-            AssertEqual(Word(address + 12), definition.ShotInstructionList,
-                $"{kind} shot list");
-        }
+        HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
 
         var initialize = typeof(RoomEnemySystem)
             .GetMethod("InitializeEnemyProjectileFromDefinition", flags)!
@@ -48,10 +25,7 @@ internal static partial class Program
             .CreateDelegate<Func<RoomEnemyProjectileSlot, SamusState, ushort?>>();
 
         const ushort populationPointer = 0x9400;
-        var setupBus = new TestAddressSpace();
-        setupBus.WriteByte(0xa10000 | populationPointer, 0xff);
-        setupBus.WriteByte((0xa10000 | populationPointer) + 1, 0xff);
-        setupBus.WriteByte((0xa10000 | populationPointer) + 2, 0);
+        TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
         var enemies = new RoomEnemySystem();
         enemies.Load(
             setupBus,
@@ -141,6 +115,52 @@ internal static partial class Program
             $"Enemy projectile definitions: {kinds.Length:N0} complete seven-word records, " +
             "common initialization, Samus touch, and projectile-shot consumers pass with " +
             "all definition bytes forbidden.");
+    }
+
+    /// <summary>
+    /// Checks every compiled enemy-projectile definition against its seven-word bank-$86 record
+    /// and returns the record bytes, which the runtime must then never reread.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the bank-$86 enemy-projectile definition records")]
+    private static HashSet<int> VerifyEnemyProjectileDefinitionRecords(
+        SuperMetroidAddressSpace rom, RoomEnemyProjectileKind[] kinds)
+    {
+        ushort Word(int address) => unchecked((ushort)(
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+
+        var forbidden = new HashSet<int>();
+        foreach (RoomEnemyProjectileKind kind in kinds)
+        {
+            int address = 0x860000 | (ushort)kind;
+            for (int index = 0; index < 14; index++)
+                forbidden.Add(address + index);
+
+            EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
+            AssertEqual(Word(address + 2), definition.PreInstruction,
+                $"{kind} pre-instruction");
+            AssertEqual(Word(address + 4), definition.InitialInstructionList,
+                $"{kind} initial list");
+            AssertEqual(Word(address + 6), definition.RadiusWord,
+                $"{kind} radius word");
+            AssertEqual(Word(address + 8), definition.Properties,
+                $"{kind} properties");
+            AssertEqual(Word(address + 10), definition.TouchInstructionList,
+                $"{kind} touch list");
+            AssertEqual(Word(address + 12), definition.ShotInstructionList,
+                $"{kind} shot list");
+        }
+        return forbidden;
+    }
+
+    /// <summary>A sparse cartridge whose bank-$A1 population at <paramref name="populationPointer"/> is empty.</summary>
+    [CpuBusBoundary("exact bus test: seeds an empty synthetic bank-$A1 enemy population")]
+    private static TestAddressSpace CreateEmptyEnemyPopulationCartridge(ushort populationPointer)
+    {
+        var bus = new TestAddressSpace();
+        bus.WriteByte(0xa10000 | populationPointer, 0xff);
+        bus.WriteByte((0xa10000 | populationPointer) + 1, 0xff);
+        bus.WriteByte((0xa10000 | populationPointer) + 2, 0);
+        return bus;
     }
 
     private static CartridgeReadGuard NewEnemyProjectileDefinitionReadGuard(

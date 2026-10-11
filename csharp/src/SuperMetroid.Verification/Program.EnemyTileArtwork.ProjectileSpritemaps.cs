@@ -46,9 +46,7 @@ internal static partial class Program
                          SkreeMetareeParticleVisualDefinitions.MetareeComposition),
                  })
         {
-            ushort nativePointer = unchecked((ushort)(
-                bus.ReadByte(0x860000 | operand) |
-                bus.ReadByte(0x860000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort nativePointer = ReadNativeEnemyProjectileProgramWord(bus, operand);
             AssertEqual(nativePointer, SkreeMetareeParticleVisualDefinitions.Resolve(operand),
                 $"particle visual operand $86:{operand:X4} matches the pinned cartridge");
             AssertEqual(nativePointer, pointer,
@@ -295,9 +293,9 @@ internal static partial class Program
             installedOam.BeginFrame();
             // During the native sixty-frame wait, the pad stays at Y=28 and alternates
             // its two one-tick maps; the concealer stays at Y=97 with one fixed map.
-            int padOperand = (frame & 1) == 0 ? 0x86a28f : 0x86a293;
-            ushort padPointer = (ushort)(bus.ReadByte(padOperand) | bus.ReadByte(padOperand + 1) << 8);
-            ushort platformPointer = (ushort)(bus.ReadByte(0x86a29b) | bus.ReadByte(0x86a29c) << 8);
+            ushort padOperand = (frame & 1) == 0 ? (ushort)0xa28f : (ushort)0xa293;
+            ushort padPointer = ReadNativeEnemyProjectileProgramWord(bus, padOperand);
+            ushort platformPointer = ReadNativeEnemyProjectileProgramWord(bus, 0xa29b);
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, padPointer, new(128, 28), 0, true);
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, platformPointer, new(128, 97), 0, true);
             installedArrival.Draw(installedOam, Position16<RoomPixels>.Zero);
@@ -849,9 +847,7 @@ internal static partial class Program
                 "translated enemy projectile programs expose their complete catalogued visual frame set");
             foreach (EnemyProjectilePresentationFrameDefinition frame in frames)
             {
-                ushort nativePointer = unchecked((ushort)(
-                    bus.ReadByte(0x860000 | frame.OperandAddress) |
-                    bus.ReadByte(0x860000 | unchecked((ushort)(frame.OperandAddress + 1))) << 8));
+                ushort nativePointer = ReadNativeEnemyProjectileProgramWord(bus, frame.OperandAddress);
                 foreach ((ushort originX, ushort originY) in new[]
                          {
                              ((ushort)128, (ushort)96),
@@ -909,8 +905,7 @@ internal static partial class Program
         static OamBuffer DrawReferenceProgramFrame(ushort operand, ISnesAddressSpace source,
             RoomEnemyProjectileKind _ = RoomEnemyProjectileKind.MiscDustExplosion)
         {
-            ushort pointer = (ushort)(source.ReadByte(0x860000 | operand) |
-                source.ReadByte(0x860000 | unchecked((ushort)(operand + 1))) << 8);
+            ushort pointer = ReadNativeEnemyProjectileProgramWord(source, operand);
             var oam = new OamBuffer();
             oam.BeginFrame();
             DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(128, 96),
@@ -920,8 +915,7 @@ internal static partial class Program
 
         static OamBuffer DrawReferenceBurst(ushort program, ISnesAddressSpace source)
         {
-            ushort pointer = (ushort)(source.ReadByte(0x860000 | (program + 2)) |
-                source.ReadByte(0x860000 | (program + 3)) << 8);
+            ushort pointer = ReadNativeEnemyProjectileProgramWord(source, unchecked((ushort)(program + 2)));
             var oam = new OamBuffer();
             oam.BeginFrame();
             // Native Skree/Metaree spawn order: two right particles then two left.

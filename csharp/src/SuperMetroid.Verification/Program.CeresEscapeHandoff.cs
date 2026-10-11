@@ -78,11 +78,7 @@ internal static partial class Program
             bus,
             (int)SamusPoseId.KnockbackRightPose,
             [0x08, 0x0a, 0xff, 0xff, 0x00, 0x00, 0x15, 0x00]);
-        WriteTestWord(
-            bus,
-            0x91b010 + (int)SamusPoseId.KnockbackRightPose * sizeof(ushort),
-            0xc000);
-        bus.WriteByte(0x91c000, 4);
+        SeedSyntheticAnimationDelay(bus, SamusPoseId.KnockbackRightPose, 0xc000, 4);
 
         // `$90:DE57` selects this ordinary falling record when the shove reaches a wall.
         // Its radius is two pixels shorter than `$53`, making bottom-edge alignment an

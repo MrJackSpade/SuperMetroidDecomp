@@ -119,6 +119,7 @@ internal static partial class Program
 
     // Independent palette writes from pinned sm_a7.c. This fixture's zero health
     // thresholds select band eight at 1000 HP; odd hurt frames select the flash band.
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid palette consumer reference")]
     private static ushort[] ReferenceKraidPaletteConsumer(
         ISnesAddressSpace rom, KraidPaletteConsumer consumer)
     {
@@ -160,7 +161,7 @@ internal static partial class Program
         return colors;
 
         ushort Word(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         void Copy(int source, int destination)
         {

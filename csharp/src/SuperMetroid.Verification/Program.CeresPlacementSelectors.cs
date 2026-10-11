@@ -62,10 +62,11 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => CeresDestructionActorDefinitions.InitialPlacementId(i), "initial selector bounds");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres placement operands")]
     private static void VerifyPlacementOperand(ISnesAddressSpace rom, ushort operand, ushort coordinate)
     {
         int address = 0x8b0000 | operand;
-        AssertEqual((byte)0xa9, rom.ReadByte(address - 1), "placement immediate LDA");
-        AssertEqual(coordinate, (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8), "native placement operand");
+        AssertEqual((byte)0xa9, rom.ReadCartridgeByte(address - 1), "placement immediate LDA");
+        AssertEqual(coordinate, (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8), "native placement operand");
     }
 }

@@ -52,6 +52,7 @@ internal static partial class Program
             $"{selected} compiled visual selections, no ROM reads.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres steam collision definitions")]
     private static void VerifyCeresSteamCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -159,7 +160,7 @@ internal static partial class Program
             "native-equivalent touch/shot boundary probes; installed path forbids ROM reads.");
 
         ushort ReadWord(int address) => (ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         // Decode the original cartridge independently: the production ROM fallback no longer exists.
         bool NativeHit(ushort frame, ushort originX, ushort originY, ushort x, ushort y,

@@ -13,6 +13,12 @@ internal static partial class Program
         Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: false));
     }
 
+    /// <summary>The spritemap word of the contact enemy's authored instruction at <paramref name="instruction"/>.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Crystal Flash contact enemy's first authored spritemap")]
+    private static ushort ReadNativeCrystalFlashContactSpritemap(ISnesAddressSpace rom, ushort instruction) =>
+        (ushort)(rom.ReadCartridgeByte(CrystalFlashContactDefinitions.AiBank | (instruction + 2)) |
+            rom.ReadCartridgeByte(CrystalFlashContactDefinitions.AiBank | (instruction + 3)) << 8);
+
     private static void VerifyCrystalFlashRuntimeRoute(ushort capacity, bool refill)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -84,8 +90,7 @@ internal static partial class Program
                 contactEnemy.VariableC = contactEnemy.VariableD = 0;
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.
-                contactEnemy.SpritemapPointer = (ushort)(bus.ReadByte(CrystalFlashContactDefinitions.AiBank | (contactEnemy.CurrentInstruction + 2)) |
-                    bus.ReadByte(CrystalFlashContactDefinitions.AiBank | (contactEnemy.CurrentInstruction + 3)) << 8);
+                contactEnemy.SpritemapPointer = ReadNativeCrystalFlashContactSpritemap(bus, contactEnemy.CurrentInstruction);
             }
             ushort beforeHealth = samus.Health;
             // Later projectile processing can delete the actor and clear its header.

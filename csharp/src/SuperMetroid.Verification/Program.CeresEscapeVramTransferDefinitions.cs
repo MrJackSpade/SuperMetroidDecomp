@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape VRAM transfer definitions")]
     private static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
     {
         IReadOnlyList<CeresEscapeVramTransferDefinition> records =
@@ -18,7 +19,7 @@ internal static partial class Program
                 $"Ceres transfer ${record.Pointer:X4} byte count");
             AssertEqual(record.SourceAddress & 0xffff, ReadWord(address + 2),
                 $"Ceres transfer ${record.Pointer:X4} source offset");
-            AssertEqual(record.SourceAddress >> 16, rom.ReadByte(address + 4),
+            AssertEqual(record.SourceAddress >> 16, rom.ReadCartridgeByte(address + 4),
                 $"Ceres transfer ${record.Pointer:X4} source bank");
             AssertEqual(record.DestinationWord, ReadWord(address + 5),
                 $"Ceres transfer ${record.Pointer:X4} VRAM destination");
@@ -136,7 +137,7 @@ internal static partial class Program
             "both installed timer lists and Japanese overlay execute with descriptor reads blocked.");
 
         ushort ReadWord(int address) => (ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private static CartridgeReadGuard NewCeresEscapeTransferReadGuard(ISnesAddressSpace source) =>

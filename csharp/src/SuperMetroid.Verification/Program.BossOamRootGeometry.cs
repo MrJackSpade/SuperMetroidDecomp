@@ -42,6 +42,7 @@ internal static partial class Program
 
     // Expected roots were captured from the published catalog before conversion;
     // native count words independently confirm the record geometry behind the strides.
+    [CpuBusBoundary("exact bus test: retail ROM oracle for boss OAM roots")]
     private static void VerifyBossOamRoots(SuperMetroidAddressSpace rom, byte bank,
         ushort[] expected, Func<int, ushort> actual, Func<int, int> componentCount)
     {
@@ -49,7 +50,7 @@ internal static partial class Program
         {
             AssertEqual(expected[index], actual(index), "original selected OAM root");
             int address = bank << 16 | expected[index];
-            int count = rom.ReadByte(address) | rom.ReadByte(address + 1) << 8;
+            int count = rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8;
             AssertEqual(componentCount(index), count, "native component count explains record geometry");
         }
         foreach (int invalid in new[] { -1, expected.Length, int.MaxValue })

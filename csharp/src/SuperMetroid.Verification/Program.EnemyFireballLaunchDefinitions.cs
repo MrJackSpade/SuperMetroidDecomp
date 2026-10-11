@@ -36,8 +36,9 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy fireball launch words")]
     private static ushort FireballLaunchOracleWord(SuperMetroidAddressSpace rom, int address) =>
-        (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
     private static void VerifyCompiledEnemyFireballLaunches(SuperMetroidAddressSpace rom)
     {

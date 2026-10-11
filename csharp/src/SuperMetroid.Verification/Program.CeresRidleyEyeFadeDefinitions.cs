@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley eye fade definitions")]
     private static void VerifyCeresRidleyEyeFadeDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0;
@@ -14,13 +15,13 @@ internal static partial class Program
             AssertTrue(!compiled.IsComplete,
                 $"Ceres Ridley eye-fade offset {offset} remains active");
             AssertEqual(
-                rom.ReadByte(CeresRidleyEyeFadeDefinitions.NativeScheduleAddress + offset),
+                rom.ReadCartridgeByte(CeresRidleyEyeFadeDefinitions.NativeScheduleAddress + offset),
                 compiled.PaletteRow,
                 $"Ceres Ridley eye-fade row {offset}");
         }
 
         AssertEqual((byte)0xff,
-            rom.ReadByte(CeresRidleyEyeFadeDefinitions.NativeScheduleAddress +
+            rom.ReadCartridgeByte(CeresRidleyEyeFadeDefinitions.NativeScheduleAddress +
                 CeresRidleyEyeFadeDefinitions.PaletteStepCount),
             "Ceres Ridley eye-fade native terminator");
         AssertTrue(
@@ -65,7 +66,7 @@ internal static partial class Program
                 int source = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows +
                     expected.PaletteRow * 6 + color * 2;
                 ushort expectedColor = unchecked((ushort)(
-                    rom.ReadByte(source) | rom.ReadByte(source + 1) << 8));
+                    rom.ReadCartridgeByte(source) | rom.ReadCartridgeByte(source + 1) << 8));
                 AssertEqual(expectedColor, cgram.Colors[252 + color],
                     $"production Ceres eye-fade offset {offset} color {color}");
             }

@@ -6,10 +6,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon health palette definitions")]
     private static void VerifyDraygonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
         static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-            bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+            bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
         ushort[] thresholds = new ushort[8];
         for (int index = 0; index < thresholds.Length; index++)

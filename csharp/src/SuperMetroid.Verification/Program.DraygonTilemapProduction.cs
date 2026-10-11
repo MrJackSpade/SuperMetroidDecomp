@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     /// <summary>#385: reconstruct fresh-room BG2 staging and native DMA, not merely retained current-command destinations.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon tilemap production")]
     private static void VerifyDraygonTilemapProduction()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -47,8 +48,8 @@ internal static partial class Program
                 var slot = enemies.Slots[nativeIndex / 64];
                 if (((ushort)slot.ExtraProperties & 0x8004) != 0x8004) continue;
                 int bank = slot.Definition.Bank << 16;
-                int Word(int pointer) => bus.ReadByte(bank | (pointer & 65535)) | bus.ReadByte(bank | ((pointer + 1) & 65535)) << 8;
-                int count = bus.ReadByte(bank | slot.SpritemapPointer);
+                int Word(int pointer) => bus.ReadCartridgeByte(bank | (pointer & 65535)) | bus.ReadCartridgeByte(bank | ((pointer + 1) & 65535)) << 8;
+                int count = bus.ReadCartridgeByte(bank | slot.SpritemapPointer);
                 for (int component = 0; component < count; component++)
                 {
                     int stream = Word(slot.SpritemapPointer + 2 + component * 8 + 4);

@@ -9,6 +9,7 @@ internal static partial class Program
     /// duplicate names, or pointers outside mapped cartridge space. With the private
     /// retail ROM present, this also reads both ends of representative multi-byte ranges.
     /// </summary>
+    [CpuBusBoundary("exact bus test: proves representative enemy ROM table ranges map to readable retail cartridge ROM")]
     static void VerifyEnemyRomTablePointerCatalog()
     {
         // Families production reads stay nested in the catalog; oracle-only families live in
@@ -46,8 +47,8 @@ internal static partial class Program
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach ((int start, int byteLength) in RepresentativeEnemyRomRanges())
         {
-            _ = bus.ReadByte(start);
-            _ = bus.ReadByte(start + byteLength - 1);
+            _ = bus.ReadCartridgeByte(start);
+            _ = bus.ReadCartridgeByte(start + byteLength - 1);
         }
         Suite(nameof(VerifyCompiledEnemyInstructionSelectors), () => VerifyCompiledEnemyInstructionSelectors(bus));
 
@@ -76,11 +77,12 @@ internal static partial class Program
         (EnemyRomTablePointers.WorkRobot.InitialInstructionListWords, 4),
     ];
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy instruction selectors")]
     private static void VerifyCompiledEnemyInstructionSelectors(
         SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => unchecked((ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 
         AssertEqual(Word(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
             GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(false),

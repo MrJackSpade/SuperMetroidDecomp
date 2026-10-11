@@ -55,8 +55,9 @@ internal static partial class Program
             "Enemy pickup definitions: six native selectors and all five live pickup initialization paths pass without the pointer table.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy pickup definition words")]
     private static ushort ReadEnemyPickupDefinitionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 }

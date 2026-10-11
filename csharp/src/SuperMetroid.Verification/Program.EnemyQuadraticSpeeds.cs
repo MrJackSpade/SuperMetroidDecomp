@@ -4,10 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled quadratic enemy speeds")]
     private static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int offset) => (ushort)(rom.ReadByte(0xa0838f + offset) | rom.ReadByte(0xa08390 + offset) << 8);
-        ushort ProjectileWord(int offset) => (ushort)(rom.ReadByte(0xa0cbc7 + offset) | rom.ReadByte(0xa0cbc8 + offset) << 8);
+        ushort Word(int offset) => (ushort)(rom.ReadCartridgeByte(0xa0838f + offset) | rom.ReadCartridgeByte(0xa08390 + offset) << 8);
+        ushort ProjectileWord(int offset) => (ushort)(rom.ReadCartridgeByte(0xa0cbc7 + offset) | rom.ReadCartridgeByte(0xa0cbc8 + offset) << 8);
         for (int offset = 0; offset <= 758; offset++)
             AssertEqual(ProjectileWord(offset), EnemyQuadraticSpeedDefinitions.ReadWord(offset), "quadratic projectile table mirror");
         for (int offset = 0; offset <= 758; offset++)

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for elevator input definitions")]
     private static void VerifyElevatorInputDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorDirectionInputMapping), () => VerifyElevatorDirectionInputMapping(rom));
@@ -17,8 +18,8 @@ internal static partial class Program
         for (ushort direction = 0; direction < 2; direction++)
         {
             ushort tableByteOffset = (ushort)(direction * 2);
-            ushort native = (ushort)(rom.ReadByte(inputTable + tableByteOffset) |
-                rom.ReadByte(inputTable + tableByteOffset + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(inputTable + tableByteOffset) |
+                rom.ReadCartridgeByte(inputTable + tableByteOffset + 1) << 8);
 
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
@@ -42,8 +43,8 @@ internal static partial class Program
             AssertEqual(tableByteOffset, enemies.ElevatorStates[0]!.DirectionTableByteOffset,
                 $"elevator doubled direction offset {direction}");
 
-            ushort opposite = (ushort)(rom.ReadByte(inputTable + (direction == 0 ? 2 : 0)) |
-                rom.ReadByte(inputTable + (direction == 0 ? 3 : 1)) << 8);
+            ushort opposite = (ushort)(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)) |
+                rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1)) << 8);
             ElevatorActorStatus before = enemies.ElevatorStatus;
             enemies.PublishElevatorDoorContact();
             wait(slot, enemies.ElevatorStates[0]!, samus, opposite, null);
@@ -63,12 +64,13 @@ internal static partial class Program
             "Elevator input definitions: both native masks and real departure paths pass with table reads forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for elevator direction input mapping")]
     private static void VerifyElevatorDirectionInputMapping(SuperMetroidAddressSpace rom)
     {
         foreach (ushort offset in new ushort[] { 0, 2 })
         {
             int address = 0xa394e2 + offset;
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator named direction matches native mask");
         }
         foreach (ushort offset in new ushort[] { 1, 3, 4, 5, 0x100, 0x102, 0xfffe, 0xffff })

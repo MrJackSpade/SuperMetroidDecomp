@@ -7,6 +7,39 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Collects the Draygon presentation selectors that do not name an installed OAM frame and
+    /// checks each such native frame holds a BG2 command component.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon's bank-$A5 presentation selectors and BG2 frame commands")]
+    private static HashSet<ushort> VerifyNativeDraygonBg2FrameSelectors(
+        ISnesAddressSpace rom, HashSet<ushort> draygonOamPointers)
+    {
+        var draygonBg2Pointers = new HashSet<ushort>();
+        for (int index = 0; index <
+             DraygonInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
+        {
+            ushort operand = DraygonInstructionProgramDefinitionsTooling
+                .PresentationWordAddress(index);
+            ushort pointer = (ushort)(rom.ReadCartridgeByte(0xa50000 | operand) |
+                rom.ReadCartridgeByte(0xa50000 | unchecked((ushort)(operand + 1))) << 8);
+            if (draygonOamPointers.Contains(pointer))
+                continue;
+            draygonBg2Pointers.Add(pointer);
+            int count = rom.ReadCartridgeByte(0xa50000 | pointer);
+            AssertTrue(Enumerable.Range(0, count).Any(component =>
+            {
+                ushort record = unchecked((ushort)(pointer + 2 + component * 8 + 4));
+                ushort sprite = (ushort)(rom.ReadCartridgeByte(0xa50000 | record) |
+                    rom.ReadCartridgeByte(0xa50000 | unchecked((ushort)(record + 1))) << 8);
+                return (rom.ReadCartridgeByte(0xa50000 | sprite) |
+                    rom.ReadCartridgeByte(0xa50000 | unchecked((ushort)(sprite + 1))) << 8)
+                    == 0xfffe;
+            }), $"unextracted Draygon frame $A5:{pointer:X4} is a BG2 command");
+        }
+        return draygonBg2Pointers;
+    }
+
     private static void VerifyInstalledEnemyExtendedFrames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
@@ -147,28 +180,7 @@ internal static partial class Program
             .Where(frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        var draygonBg2Pointers = new HashSet<ushort>();
-        for (int index = 0; index <
-             DraygonInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-        {
-            ushort operand = DraygonInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            ushort pointer = (ushort)(rom.ReadByte(0xa50000 | operand) |
-                rom.ReadByte(0xa50000 | unchecked((ushort)(operand + 1))) << 8);
-            if (draygonOamPointers.Contains(pointer))
-                continue;
-            draygonBg2Pointers.Add(pointer);
-            int count = rom.ReadByte(0xa50000 | pointer);
-            AssertTrue(Enumerable.Range(0, count).Any(component =>
-            {
-                ushort record = unchecked((ushort)(pointer + 2 + component * 8 + 4));
-                ushort sprite = (ushort)(rom.ReadByte(0xa50000 | record) |
-                    rom.ReadByte(0xa50000 | unchecked((ushort)(record + 1))) << 8);
-                return (rom.ReadByte(0xa50000 | sprite) |
-                    rom.ReadByte(0xa50000 | unchecked((ushort)(sprite + 1))) << 8)
-                    == 0xfffe;
-            }), $"unextracted Draygon frame $A5:{pointer:X4} is a BG2 command");
-        }
+        HashSet<ushort> draygonBg2Pointers = VerifyNativeDraygonBg2FrameSelectors(rom, draygonOamPointers);
         AssertEqual(34, draygonBg2Pointers.Count,
             "Draygon presentation selectors partition into 48 OAM and 34 BG2 frames");
 
@@ -1389,10 +1401,11 @@ internal static partial class Program
     // Independent native extended-spritemap OAM walker ($A0: drawing path).
     // BG2 streams are covered by their dedicated fixture; this comparison owns
     // only component offsets, clipping, and the packed sprite compositions.
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the reference extended-frame drawer")]
     private static OamBuffer DrawReferenceExtendedFrame(
         ISnesAddressSpace bus, byte bank, ushort pointer, Position16<ScreenPixels> origin)
     {
-        byte ReadByte(int address) => bus.ReadByte((bank << 16) | (address & 0xffff));
+        byte ReadByte(int address) => bus.ReadCartridgeByte((bank << 16) | (address & 0xffff));
         ushort ReadWord(int address) => (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
         var oam = new OamBuffer();
         int count = ReadByte(pointer); // The high header byte is draw metadata.
@@ -1509,22 +1522,23 @@ internal static partial class Program
             address => $"Installed extended enemy draw read visual ROM byte ${address:X6}.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for extended visual frame layouts the guard blocks")]
     private static void BlockExtendedVisualFrame(
         HashSet<int> blocked, ISnesAddressSpace source, byte bank, ushort pointer)
     {
         int root = (bank << 16) | pointer;
-        int count = source.ReadByte(root);
+        int count = source.ReadCartridgeByte(root);
         Block(bank, pointer, 2 + count * 8);
         for (int index = 0; index < count; index++)
         {
             ushort component = unchecked((ushort)(pointer + 2 + index * 8));
-            ushort sprite = (ushort)(source.ReadByte((bank << 16) |
+            ushort sprite = (ushort)(source.ReadCartridgeByte((bank << 16) |
                     unchecked((ushort)(component + 4))) |
-                source.ReadByte((bank << 16) |
+                source.ReadCartridgeByte((bank << 16) |
                     unchecked((ushort)(component + 5))) << 8);
             int spriteAddress = (bank << 16) | sprite;
-            int parts = source.ReadByte(spriteAddress) |
-                source.ReadByte((bank << 16) |
+            int parts = source.ReadCartridgeByte(spriteAddress) |
+                source.ReadCartridgeByte((bank << 16) |
                     unchecked((ushort)(sprite + 1))) << 8;
             if (parts == EnemyBg2FrameLayout.StreamMarker)
             {
@@ -1556,8 +1570,8 @@ internal static partial class Program
         }
 
         ushort ReadSourceWord(ushort address) => unchecked((ushort)(
-            source.ReadByte((bank << 16) | address) |
-            source.ReadByte((bank << 16) | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte((bank << 16) | address) |
+            source.ReadCartridgeByte((bank << 16) | unchecked((ushort)(address + 1))) << 8));
 
         void Block(byte blockBank, ushort blockPointer, int length)
         {

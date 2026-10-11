@@ -8,11 +8,12 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for colored door PLM draw definitions")]
     private static void VerifyColoredDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyColoredDoorProgramDefinitions), () => VerifyColoredDoorProgramDefinitions(rom));
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             ColoredDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
@@ -42,7 +43,7 @@ internal static partial class Program
         // proves that the actual PLM handler uses the compiled definitions.
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
-            bank84[offset] = rom.ReadByte(0x848000 + offset);
+            bank84[offset] = rom.ReadCartridgeByte(0x848000 + offset);
         ushort[] headers =
         [
             (ushort)PlmHeaderId.YellowDoorFacingLeft,

@@ -133,8 +133,9 @@ internal static partial class Program
             "Choot pattern definitions: five selectors/distances, all 450 physical path frames, twenty initializers, and five complete fall loops pass with every source read forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Choot pattern words")]
     private static ushort ReadChootPatternWord(SuperMetroidAddressSpace source, int address) =>
-        (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+        (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewChootPatternReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

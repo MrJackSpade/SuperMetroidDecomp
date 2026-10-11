@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape tile artwork")]
     private static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -18,7 +19,7 @@ internal static partial class Program
                     page.ByteCount, out ReadOnlyMemory<byte> nativePage),
                 $"Ceres escape page {page.FileName} resolves completely");
             for (int offset = 0; offset < page.ByteCount; offset++)
-                AssertEqual(rom.ReadByte(page.SourceAddress + offset),
+                AssertEqual(rom.ReadCartridgeByte(page.SourceAddress + offset),
                     nativePage.Span[offset],
                     $"Ceres escape page {page.FileName} byte {offset:X4}");
         }
@@ -65,9 +66,9 @@ internal static partial class Program
                 continue;
             int descriptor = 0xa60000 | transfer.Pointer;
             ushort byteCount = ReadWord(descriptor);
-            int source = rom.ReadByte(descriptor + 2) |
-                rom.ReadByte(descriptor + 3) << 8 |
-                rom.ReadByte(descriptor + 4) << 16;
+            int source = rom.ReadCartridgeByte(descriptor + 2) |
+                rom.ReadCartridgeByte(descriptor + 3) << 8 |
+                rom.ReadCartridgeByte(descriptor + 4) << 16;
             ushort destination = ReadWord(descriptor + 5);
             nativeQueue.Enqueue(byteCount, source, destination);
         }
@@ -173,7 +174,7 @@ internal static partial class Program
             "transfers match VRAM without ROM art reads; edit, reload, and rejection pass.");
 
         ushort ReadWord(int address) => (ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private sealed class CeresEscapeArtworkProvider(

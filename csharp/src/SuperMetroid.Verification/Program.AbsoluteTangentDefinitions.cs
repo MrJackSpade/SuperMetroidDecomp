@@ -5,9 +5,10 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled absolute tangent")]
     private static void VerifyCompiledAbsoluteTangent(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        int Native(int index) => rom.ReadByte(0x91c9d4 + index * 2) | rom.ReadByte(0x91c9d5 + index * 2) << 8;
+        int Native(int index) => rom.ReadCartridgeByte(0x91c9d4 + index * 2) | rom.ReadCartridgeByte(0x91c9d5 + index * 2) << 8;
         var guard = NewTangentReadGuard(rom);
         var eye = typeof(EyeBeamWindowBuilder).GetMethod("Tangent", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<int, int>>();

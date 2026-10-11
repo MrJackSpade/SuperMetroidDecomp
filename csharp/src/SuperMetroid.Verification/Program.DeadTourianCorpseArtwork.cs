@@ -19,8 +19,8 @@ internal static partial class Program
             ReferenceDeadTourianCorpseGraphics(nativeBus, EnemyDefinitionId.CorpseSidehopper, parameter / 2);
             InitializeDeadSidehopperArtwork(installedBus, stock, parameter);
             for (int offset = 0; offset < 0x1000; offset++)
-                AssertEqual(nativeBus.ReadByte(0x7e2000 + offset),
-                    installedBus.ReadByte(0x7e2000 + offset),
+                AssertEqual(new EnemyScratchMemory(nativeBus).CorpseTiles[offset],
+                    new EnemyScratchMemory(installedBus).CorpseTiles[offset],
                     $"dead-sidehopper parameter {parameter} installed corpse WRAM parity");
         }
 
@@ -38,8 +38,8 @@ internal static partial class Program
                 ReferenceDeadTourianCorpseGraphics(nativeBus, definition, variant);
                 InitializeDeadTourianCorpseArtwork(installedBus, stock, definition, variant);
                 for (int offset = 0; offset < 0x1000; offset++)
-                    AssertEqual(nativeBus.ReadByte(0x7e2000 + offset),
-                        installedBus.ReadByte(0x7e2000 + offset),
+                    AssertEqual(new EnemyScratchMemory(nativeBus).CorpseTiles[offset],
+                        new EnemyScratchMemory(installedBus).CorpseTiles[offset],
                         $"dead ${(int)definition:X4} variant {variant} installed corpse WRAM parity");
             }
         }
@@ -69,26 +69,27 @@ internal static partial class Program
         InitializeDeadSidehopperArtwork(stockBus, stock, 0);
         InitializeDeadSidehopperArtwork(editedBus,
             EnemyTileArtworkFiles.Load(directory, overrideDirectory), 0);
-        AssertEqual((byte)(stockBus.ReadByte(0x7e2040) ^ 0x80),
-            editedBus.ReadByte(0x7e2040),
+        AssertEqual((byte)(new EnemyScratchMemory(stockBus).CorpseTiles[0x40] ^ 0x80),
+            new EnemyScratchMemory(editedBus).CorpseTiles[0x40],
             "dead-sidehopper PNG pixel edit reaches live corpse staging WRAM");
         for (int offset = 0; offset < 0x1000; offset++)
         {
             if (offset == 0x40)
                 continue;
-            AssertEqual(stockBus.ReadByte(0x7e2000 + offset),
-                editedBus.ReadByte(0x7e2000 + offset),
+            AssertEqual(new EnemyScratchMemory(stockBus).CorpseTiles[offset],
+                new EnemyScratchMemory(editedBus).CorpseTiles[offset],
                 "dead-sidehopper PNG edit leaves other corpse bytes unchanged");
         }
         var reloadedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InitializeDeadSidehopperArtwork(reloadedBus,
             EnemyTileArtworkFiles.Load(directory, overrideDirectory), 0);
-        AssertEqual(editedBus.ReadByte(0x7e2040), reloadedBus.ReadByte(0x7e2040),
+        AssertEqual(new EnemyScratchMemory(editedBus).CorpseTiles[0x40], new EnemyScratchMemory(reloadedBus).CorpseTiles[0x40],
             "dead-sidehopper PNG edit survives catalog reload");
 
         Console.WriteLine("  Tourian corpse artwork: ten guarded sidehopper/Zoomer/Ripper/Skree variants match cartridge WRAM; a PNG edit and reload reach the live buffer.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Tourian corpse visuals")]
     private static void VerifyDeadTourianCorpseVisuals(
         EnemyTileArtworkCatalog stock)
     {
@@ -104,7 +105,7 @@ internal static partial class Program
                 .PresentationWordAddress(index);
             int selectorAddress = (DeadTourianCorpseVisualDefinitions.Bank << 16) | operand;
             ushort nativePointer = unchecked((ushort)(
-                rom.ReadByte(selectorAddress) | rom.ReadByte(selectorAddress + 1) << 8));
+                rom.ReadCartridgeByte(selectorAddress) | rom.ReadCartridgeByte(selectorAddress + 1) << 8));
             AssertEqual(nativePointer,
                 DeadTourianCorpseVisualDefinitions.FrameAt(operand),
                 $"dead Tourian corpse selector {index} matches cartridge");
@@ -139,7 +140,7 @@ internal static partial class Program
                 .PresentationWordAddress(index);
             int selectorAddress = (DeadTourianCorpseVisualDefinitions.Bank << 16) | operand;
             ushort nativePointer = unchecked((ushort)(
-                rom.ReadByte(selectorAddress) | rom.ReadByte(selectorAddress + 1) << 8));
+                rom.ReadCartridgeByte(selectorAddress) | rom.ReadCartridgeByte(selectorAddress + 1) << 8));
             AssertEqual(nativePointer,
                 DeadTourianCorpseVisualDefinitions.SidehopperFrameAt(operand),
                 $"dead Sidehopper selector {index} matches cartridge");
@@ -200,11 +201,15 @@ internal static partial class Program
                 [(448, 0x840, 0x40), (960, 0x880, 0x40), (1472, 0x8c0, 0x40), (1984, 0x900, 0x40)],
             _ => throw new InvalidDataException($"Unknown native corpse fixture {(ushort)definition:X4}/{variant}."),
         };
+        WorkRamByteTable tiles = new EnemyScratchMemory(bus).CorpseTiles;
         foreach (var copy in copies)
             for (int offset = 0; offset < copy.Length; offset++)
-                bus.WriteByte(0x7e2000 + copy.Destination + offset,
-                    bus.ReadByte(0xb7c000 + copy.Source + offset));
+                tiles[copy.Destination + offset] = ReadNativeDeadTourianCorpseSheetByte(bus, copy.Source + offset);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the dead Tourian corpse tile sheet at $B7:C000")]
+    private static byte ReadNativeDeadTourianCorpseSheetByte(ISnesAddressSpace rom, int sheetOffset) =>
+        rom.ReadCartridgeByte(0xb7c000 + sheetOffset);
 
     private static void InitializeDeadSidehopperArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork, ushort parameter)

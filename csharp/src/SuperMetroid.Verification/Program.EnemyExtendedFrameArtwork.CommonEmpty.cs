@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for shared empty extended frames")]
     private static void VerifySharedEmptyExtendedFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -31,12 +32,12 @@ internal static partial class Program
                 $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
             int root = (bank << 16) |
                 CommonEnemyEmptyExtendedFrameDefinitions.Frame;
-            AssertEqual((byte)1, rom.ReadByte(root),
+            AssertEqual((byte)1, rom.ReadCartridgeByte(root),
                 $"bank ${bank:X2} shared empty extended component count");
-            AssertEqual((byte)0, rom.ReadByte(root + 1),
+            AssertEqual((byte)0, rom.ReadCartridgeByte(root + 1),
                 $"bank ${bank:X2} shared empty extended header high byte");
             for (int offset = 2; offset < 6; offset++)
-                AssertEqual((byte)0, rom.ReadByte(root + offset),
+                AssertEqual((byte)0, rom.ReadCartridgeByte(root + offset),
                     $"bank ${bank:X2} shared empty component offset byte {offset}");
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap,
                 ReadWord(root + 6),
@@ -82,7 +83,7 @@ internal static partial class Program
         Console.WriteLine("  Shared empty frames: 12 bank-local ordinary and extended records match the ROM; ordinary draw and extended draw/collision forbid cartridge reads.");
 
         ushort ReadWord(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private static ushort FindSharedEmptyCallback(

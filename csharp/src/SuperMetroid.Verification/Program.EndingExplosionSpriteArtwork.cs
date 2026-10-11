@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion frame catalog")]
     private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingExplosionCalculatedParts), () => VerifyEndingExplosionCalculatedParts(bus));
@@ -24,9 +25,9 @@ internal static partial class Program
         for (int i = 0; i < operands.Length; i++)
         {
             int address = 0x8b0000 | operands[i];
-            ushort pointer = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            ushort pointer = (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
             int header = 0x8c0000 | pointer;
-            int parts = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
+            int parts = bus.ReadCartridgeByte(header) | bus.ReadCartridgeByte(header + 1) << 8;
             AssertEqual(pointer, frames[i].Pointer, $"explosion catalog native pointer {i}");
             AssertEqual(pointer, i < 10 ? EndingExplosionSpriteDefinitions.PlanetPointer(i) :
                 EndingExplosionSpriteDefinitions.Pointer((EndingExplosionSpriteDefinitions.Pose)i),
@@ -50,6 +51,7 @@ internal static partial class Program
             "planet record count");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion calculated parts")]
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
         static SpriteComposition Calculate(ushort pointer, SpriteComposition supplied) =>
@@ -57,16 +59,16 @@ internal static partial class Program
         for (int pose = 0; pose < 16; pose++)
         {
             ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : pose == 13 ? (ushort)0xa28b : pose == 14 ? (ushort)0xa5e2 : (ushort)0xa57c;
-            int count = bus.ReadByte(0x8c0000 | pointer) | bus.ReadByte(0x8c0000 | (pointer + 1)) << 8;
+            int count = bus.ReadCartridgeByte(0x8c0000 | pointer) | bus.ReadCartridgeByte(0x8c0000 | (pointer + 1)) << 8;
             var visual = new SpriteVisualPart[count];
             for (int index = 0; index < count; index++)
             {
                 int address = 0x8c0000 + pointer + 2 + index * 5;
-                var x = new SnesSpritemapXWord((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
-                var attributes = new SnesObjAttributeWord((ushort)(bus.ReadByte(address + 3) | bus.ReadByte(address + 4) << 8));
+                var x = new SnesSpritemapXWord((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
+                var attributes = new SnesObjAttributeWord((ushort)(bus.ReadCartridgeByte(address + 3) | bus.ReadCartridgeByte(address + 4) << 8));
                 visual[index] = new SpriteVisualPart
                 {
-                    OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)bus.ReadByte(address + 2)),
+                    OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)bus.ReadCartridgeByte(address + 2)),
                     TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
                     Size = x.IsLarge ? 16 : 8, Priority = attributes.Priority, Palette = null,
                     FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
@@ -138,14 +140,15 @@ internal static partial class Program
                 (EndingExplosionSpriteDefinitions.Pose)invalid, 0), "quadrant basis role bounds");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion programs")]
     private static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)
     {
         for (int pointer = EndingExplosionInstructionDefinitions.Start;
              pointer < EndingExplosionInstructionDefinitions.End; pointer += sizeof(ushort))
         {
             int address = (int)new SnesAddress(0x8b, (ushort)pointer);
-            ushort nativeWord = (ushort)(bus.ReadByte(address) |
-                bus.ReadByte(address + 1) << 8);
+            ushort nativeWord = (ushort)(bus.ReadCartridgeByte(address) |
+                bus.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(nativeWord, EndingExplosionInstructionDefinitions.ReadWord((ushort)pointer),
                 $"ending explosion instruction $8B:{pointer:X4} matches cartridge");
         }
@@ -169,7 +172,7 @@ internal static partial class Program
                 var nativeCallbacks = new List<ushort>();
                 var generatedCallbacks = new List<ushort>();
                 native.Step((EndingSpriteInstruction opcode, ushort cursor) => { nativeCallbacks.Add((ushort)opcode); return cursor; }, pointer =>
-                    (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
+                    (ushort)(bus.ReadCartridgeByte(0x8b0000 | pointer) | bus.ReadCartridgeByte(0x8b0000 | (pointer + 1)) << 8));
                 installed.Step((EndingSpriteInstruction opcode, ushort cursor) => { generatedCallbacks.Add((ushort)opcode); return cursor; },
                     EndingExplosionInstructionDefinitions.ReadWord);
                 AssertTrue(nativeCallbacks.SequenceEqual(generatedCallbacks),
@@ -188,7 +191,7 @@ internal static partial class Program
         }
 
         for (int frame = 0; frame < 10; frame++)
-            AssertEqual((ushort)4, (ushort)(bus.ReadByte(0x8ca396 + 22 * frame) | bus.ReadByte(0x8ca397 + 22 * frame) << 8),
+            AssertEqual((ushort)4, (ushort)(bus.ReadCartridgeByte(0x8ca396 + 22 * frame) | bus.ReadCartridgeByte(0x8ca397 + 22 * frame) << 8),
                 $"explosion frame {frame} has four OAM parts and a 22-byte record");
     }
 

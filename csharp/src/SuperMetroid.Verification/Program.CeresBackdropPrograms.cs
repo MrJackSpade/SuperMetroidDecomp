@@ -14,13 +14,14 @@ internal static partial class Program
         Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcd9b, 0xcda3, false));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres backdrop program")]
     private static void VerifyCeresBackdropProgram(ISnesAddressSpace rom, ushort start, ushort end, bool title)
     {
-        ushort OriginalWord(ushort p) => (ushort)(rom.ReadByte(0x8b0000 | p) |
-            rom.ReadByte(0x8b0000 | unchecked((ushort)(p + 1))) << 8);
+        ushort OriginalWord(ushort p) => (ushort)(rom.ReadCartridgeByte(0x8b0000 | p) |
+            rom.ReadCartridgeByte(0x8b0000 | unchecked((ushort)(p + 1))) << 8);
         for (int p = start; p < end; p++)
         {
-            AssertEqual(rom.ReadByte(0x8b0000 | p), CeresDestructionSpriteInstructionDefinitions.ReadByte((ushort)p), "original backdrop program byte");
+            AssertEqual(rom.ReadCartridgeByte(0x8b0000 | p), CeresDestructionSpriteInstructionDefinitions.ReadByte((ushort)p), "original backdrop program byte");
             if (p + 1 < end)
                 AssertEqual(OriginalWord((ushort)p), CeresDestructionSpriteInstructionDefinitions.ReadWord((ushort)p), "original aligned or unaligned backdrop word");
         }

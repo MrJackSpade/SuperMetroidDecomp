@@ -11,6 +11,7 @@ internal static partial class Program
     /// cartridge reads. The whole-room census separately checks the fight's
     /// first thirty live frames with pixel and state parity.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire body collision definitions")]
     private static void VerifyCrocomireBodyCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -122,6 +123,6 @@ internal static partial class Program
             "installed path reads no ROM.");
 
         ushort ReadWord(int address) => (ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 }

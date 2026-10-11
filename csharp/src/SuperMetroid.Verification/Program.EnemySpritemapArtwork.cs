@@ -392,8 +392,7 @@ internal static partial class Program
         {
             ushort operand = KiHunterInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa80000 | operand) |
-                rom.ReadByte(0xa80000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa8, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.KihunterGreen, operand, out ushort selected),
                 $"KiHunter visual selector $A8:{operand:X4} is installed");
@@ -419,8 +418,7 @@ internal static partial class Program
         {
             ushort operand = YappingMawInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa80000 | operand) |
-                rom.ReadByte(0xa80000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa8, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.YappingMaw, operand, out ushort selected),
                 $"Yapping Maw visual selector $A8:{operand:X4} is installed");
@@ -449,8 +447,7 @@ internal static partial class Program
         {
             ushort operand = RoomSpriteObjectInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xb40000 | operand) |
-                rom.ReadByte(0xb40000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xb4, operand);
             AssertEqual(native, RoomSpriteObjectVisualDefinitions.FrameAt(operand),
                 $"room sprite-object visual selector $B4:{operand:X4}");
             AssertTrue(installedSpritePointers.Contains(native),
@@ -466,8 +463,7 @@ internal static partial class Program
         {
             ushort operand = ElevatorInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
-                rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa3, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.Elevator, operand, out ushort selected),
                 $"elevator visual selector $A3:{operand:X4} is installed");
@@ -482,8 +478,7 @@ internal static partial class Program
         {
             ushort operand = VerticalShutterInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index + 1);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
-                rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa2, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.Kamer,
                     operand, out ushort selected),
@@ -502,8 +497,7 @@ internal static partial class Program
             EnemyDefinitionId definition = operand < FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft
                 ? EnemyDefinitionId.Fune
                 : EnemyDefinitionId.Namihe;
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa80000 | operand) |
-                rom.ReadByte(0xa80000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa8, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     definition, operand, out ushort selected),
                 $"Fune/Namihe visual selector $A8:{operand:X4} is installed");
@@ -519,8 +513,7 @@ internal static partial class Program
         {
             ushort operand = SbugInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
-                rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa3, operand);
             AssertEqual(native, EnemySpritemapDefinitions.SbugFrameAt(operand),
                 $"Sbug visual selector $A3:{operand:X4} matches native");
         }
@@ -811,8 +804,7 @@ internal static partial class Program
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.Shaktool, operand, out ushort selected),
                 $"Shaktool visual operand $AA:{operand:X4} is compiled");
-            ushort native = unchecked((ushort)(rom.ReadByte(0xaa0000 | operand) |
-                rom.ReadByte(0xaa0000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xaa, operand);
             AssertEqual(native, selected,
                 $"Shaktool visual selector $AA:{operand:X4} matches the cartridge");
             AssertTrue(shaktoolFrames.Remove(selected),
@@ -835,8 +827,7 @@ internal static partial class Program
         {
             ushort operand = PlatformInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
-                rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa3, operand);
             foreach (EnemyDefinitionId definition in new[]
                      { EnemyDefinitionId.Tripper, EnemyDefinitionId.Kamer2 })
             {
@@ -873,8 +864,7 @@ internal static partial class Program
         {
             ushort operand = DragonInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
-                rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa2, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.Dragon, operand, out ushort selected),
                 $"Dragon visual selector $A2:{operand:X4} is installed");
@@ -901,8 +891,7 @@ internal static partial class Program
         {
             ushort operand = MultiviolaInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
-                rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa2, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.Multiviola, operand, out ushort selected),
                 $"Multiviola visual selector $A2:{operand:X4} is installed");
@@ -932,8 +921,7 @@ internal static partial class Program
         {
             ushort operand = NorfairLavaJumperInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
-                rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa2, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.Squeept,
                     operand, out ushort selected),
@@ -961,8 +949,7 @@ internal static partial class Program
         {
             ushort operand = ChozoStatueInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xaa0000 | operand) |
-                rom.ReadByte(0xaa0000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xaa, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.Chozo,
                     operand, out ushort selected),
@@ -988,8 +975,7 @@ internal static partial class Program
              index++)
         {
             ushort operand = ViolaInstructionProgramDefinitions.PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
-                rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa3, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.Viola, operand, out ushort selected),
                 $"Viola visual selector $A3:{operand:X4} is installed");
@@ -1013,8 +999,7 @@ internal static partial class Program
              index++)
         {
             ushort operand = RinkaInstructionProgramDefinitions.PresentationWordAddress(index);
-            ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
-                rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
+            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa2, operand);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.Rinka, operand, out ushort selected),
                 $"Rinka visual selector $A2:{operand:X4} is installed");

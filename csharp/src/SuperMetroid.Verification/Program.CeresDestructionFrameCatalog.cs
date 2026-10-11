@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres destruction frame catalog")]
     private static void VerifyCeresDestructionFrameCatalog(ISnesAddressSpace rom)
     {
         int[] backdropOperands = [0xcc41, 0xccad, 0xccc3, 0xcd85, 0xcd8d, 0xcd95, 0xcd9d];
@@ -16,9 +17,9 @@ internal static partial class Program
             int frame = index < 7 ? index : index < 13 ? index - 7 : index < 17 ? index - 13 : index - 17;
             int operand = index < 7 ? backdropOperands[index] : (index < 13 ? 0xccdd : index < 17 ? 0xcd21 : 0xce1d) + 4 * frame;
             operand |= 0x8b0000;
-            ushort pointer = (ushort)(rom.ReadByte(operand) | rom.ReadByte(operand + 1) << 8);
+            ushort pointer = (ushort)(rom.ReadCartridgeByte(operand) | rom.ReadCartridgeByte(operand + 1) << 8);
             int record = 0x8c0000 | pointer;
-            int count = rom.ReadByte(record) | rom.ReadByte(record + 1) << 8;
+            int count = rom.ReadCartridgeByte(record) | rom.ReadCartridgeByte(record + 1) << 8;
             string name = index < 7 ? backdropNames[index] : $"{(index < 13 ? "small" : index < 17 ? "large" : "station")}-blast-{frame}";
             AssertEqual(pointer, frames[index].Pointer, "native destruction frame operand");
             AssertEqual(count, frames[index].StockPartCount, "native destruction part count");

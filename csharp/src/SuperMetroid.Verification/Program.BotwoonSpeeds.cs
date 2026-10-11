@@ -10,9 +10,10 @@ internal static partial class Program
         Suite(nameof(VerifyBotwoonSpacingAlgorithm), () => VerifyBotwoonSpacingAlgorithm(rom));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon speed algorithm")]
     private static void VerifyBotwoonSpeedAlgorithm(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (byte phase = 0; phase < 3; phase++)
         {
             var speed = BotwoonSpeedDefinitions.ForHealthPhase(phase);
@@ -41,12 +42,13 @@ internal static partial class Program
         Console.WriteLine("Botwoon speed algorithm: both three-word native views and 3,001 real health transitions match; hidden phases remain held.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon spacing algorithm")]
     private static void VerifyBotwoonSpacingAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (byte phase = 0; phase < 3; phase++)
         {
             int address = BotwoonSpeedDefinitions.MovementReferenceAddress + phase * 4 + 2;
-            ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort expected = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(expected, BotwoonSpeedDefinitions.ForHealthPhase(phase).SegmentSpacingBytes,
                 $"Botwoon native body spacing phase {phase}");
         }

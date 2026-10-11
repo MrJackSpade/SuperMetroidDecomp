@@ -57,8 +57,9 @@ internal static partial class Program
             "Bomb Torizo statue fragments: 56 native source words and all sixteen real room-graphics projectile allocations pass with the five physical tables forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo statue fragment words")]
     private static ushort ReadStatueFragmentOracleWord(ISnesAddressSpace rom, int address) =>
-        (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
     private static void VerifyStatueFragmentProgramField(ISnesAddressSpace rom)
     {

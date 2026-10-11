@@ -118,17 +118,18 @@ internal static partial class Program
     private static readonly int[] RewardActorSpawnLoads =
         [0x8be3a1, 0x8be3a7, 0x8be385, 0x8be37f, 0x8be379, 0x8be38d, 0x8bf51e, 0x8bf575, 0x8bf55d, 0x8bf56a];
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward actor definitions")]
     private static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
-            source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+            source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
         // Original LDY operands independently identify all ten records.
         (ushort Pointer, int Load)[] spawns = [.. RewardActorPointers.Zip(RewardActorSpawnLoads)];
         var initializers = new HashSet<ushort>();
         foreach (var spawn in spawns)
         {
-            AssertEqual((byte)0xa0, bus.ReadByte(spawn.Load), "reward native spawn uses LDY immediate");
+            AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn.Load), "reward native spawn uses LDY immediate");
             ushort pointer = ReadWord(bus, spawn.Load + 1);
             AssertEqual(spawn.Pointer, pointer, "named reward record matches native spawn operand");
             EndingRewardActorDefinition actual = EndingRewardActorDefinitions.Get(
@@ -141,7 +142,7 @@ internal static partial class Program
             if (!initializers.Add(initializer)) continue;
             int code = 0x8b0000 | initializer;
             for (int offset = 0; offset <= 12; offset += 6)
-                AssertEqual((byte)0xa9, bus.ReadByte(code + offset), "reward initializer uses LDA immediate");
+                AssertEqual((byte)0xa9, bus.ReadCartridgeByte(code + offset), "reward initializer uses LDA immediate");
             var origin = EndingRewardActorDefinitions.GetInitialization(
                 ClosedNativeWords.Decode<EndingRewardInitialization>(initializer, "reward initialization"));
             AssertEqual((int)ReadWord(bus, code + 1), origin.X, "reward native initial X");

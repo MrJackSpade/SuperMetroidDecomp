@@ -4,9 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boyon speeds")]
     private static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBoyon", BindingFlags.NonPublic | BindingFlags.Instance)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
@@ -31,7 +32,7 @@ internal static partial class Program
         var state = new BoyonEnemyState(new RoomEnemySystem().Slots[0]);
         for (int index = 0; index <= ushort.MaxValue; index++)
         {
-            byte sample = index < 23 ? rom.ReadByte(0xa28701 + index) : (byte)255;
+            byte sample = index < 23 ? rom.ReadCartridgeByte(0xa28701 + index) : (byte)255;
             AssertEqual(sample, BoyonSpeedDefinitions.Sample((ushort)index), "Boyon native curve/saturation");
             state.SpeedTableIndex = (ushort)index;
             for (int multiplier = 0; multiplier < 256; multiplier++)

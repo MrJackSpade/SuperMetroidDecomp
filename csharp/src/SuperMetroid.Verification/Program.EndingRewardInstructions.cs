@@ -6,14 +6,15 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward instructions")]
     private static void VerifyEndingRewardInstructions(ISnesAddressSpace bus)
     {
         for (int pointer = EndingRewardInstructionDefinitions.Start;
              pointer < EndingRewardInstructionDefinitions.End; pointer += sizeof(ushort))
         {
             int address = (int)new SnesAddress(0x8b, (ushort)pointer);
-            ushort nativeWord = (ushort)(bus.ReadByte(address) |
-                bus.ReadByte(address + 1) << 8);
+            ushort nativeWord = (ushort)(bus.ReadCartridgeByte(address) |
+                bus.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(nativeWord, EndingRewardInstructionDefinitions.ReadWord((ushort)pointer),
                 $"ending reward instruction $8B:{pointer:X4} matches cartridge");
         }
@@ -50,9 +51,9 @@ internal static partial class Program
         for (int i = 0; i < catalog.Count; i++)
         {
             int operand = 0x8b0000 | operands[i];
-            ushort pointer = (ushort)(bus.ReadByte(operand) | bus.ReadByte(operand + 1) << 8);
+            ushort pointer = (ushort)(bus.ReadCartridgeByte(operand) | bus.ReadCartridgeByte(operand + 1) << 8);
             int header = 0x8c0000 | pointer;
-            int count = bus.ReadByte(header) | bus.ReadByte(header + 1) << 8;
+            int count = bus.ReadCartridgeByte(header) | bus.ReadCartridgeByte(header + 1) << 8;
             AssertEqual(pointer, catalog[i].Pointer, "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");
@@ -82,7 +83,7 @@ internal static partial class Program
                 var nativeCallbacks = new List<ushort>();
                 var generatedCallbacks = new List<ushort>();
                 native.Step((EndingRewardOpcode opcode, ushort cursor) => { nativeCallbacks.Add((ushort)opcode); return cursor; }, pointer =>
-                    (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
+                    (ushort)(bus.ReadCartridgeByte(0x8b0000 | pointer) | bus.ReadCartridgeByte(0x8b0000 | (pointer + 1)) << 8));
                 installed.Step((EndingRewardOpcode opcode, ushort cursor) => { generatedCallbacks.Add((ushort)opcode); return cursor; },
                     EndingRewardInstructionDefinitions.ReadWord);
                 AssertTrue(nativeCallbacks.SequenceEqual(generatedCallbacks),

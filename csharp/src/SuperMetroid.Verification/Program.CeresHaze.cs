@@ -10,20 +10,21 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres haze phase control")]
     private static void VerifyCeresHazePhaseControl(ISnesAddressSpace rom)
     {
         // Independently transcribed instruction trace from pinned bank_88.asm,
         // checked against the supported cartridge before comparing production state.
         AssertEqual((ushort)0xde2d, ReadVerificationWord(rom, 0x88de28), "Waiting selects fade-in");
-        AssertEqual((byte)0x9d, rom.ReadByte(0x88de2a), "Selection stores pre-instruction");
-        AssertEqual((byte)0xa0, rom.ReadByte(0x88de2d), "Fade-in immediately follows selection, without RTL");
+        AssertEqual((byte)0x9d, rom.ReadCartridgeByte(0x88de2a), "Selection stores pre-instruction");
+        AssertEqual((byte)0xa0, rom.ReadCartridgeByte(0x88de2d), "Fade-in immediately follows selection, without RTL");
         AssertEqual((ushort)16, ReadVerificationWord(rom, 0x88de43), "Native fade-in stop");
-        AssertEqual((byte)0xfe, rom.ReadByte(0x88de69), "Fade-in increments after table write");
+        AssertEqual((byte)0xfe, rom.ReadCartridgeByte(0x88de69), "Fade-in increments after table write");
         AssertEqual((ushort)0xde74, ReadVerificationWord(rom, 0x88de6e), "Counter16 selects holding");
         AssertEqual((ushort)0xde96, ReadVerificationWord(rom, 0x88de90), "Holding selects fade-out");
-        AssertEqual((byte)0x6b, rom.ReadByte(0x88de95), "Fade-out selection returns before writing");
-        AssertEqual((byte)0xf0, rom.ReadByte(0x88deab), "Zero fade-out counter branches before table write");
-        AssertEqual((byte)0xde, rom.ReadByte(0x88decf), "Fade-out decrements after table write");
+        AssertEqual((byte)0x6b, rom.ReadCartridgeByte(0x88de95), "Fade-out selection returns before writing");
+        AssertEqual((byte)0xf0, rom.ReadCartridgeByte(0x88deab), "Zero fade-out counter branches before table write");
+        AssertEqual((byte)0xde, rom.ReadCartridgeByte(0x88decf), "Fade-out decrements after table write");
         // Visible last-written amplitudes, not the next counter. These are original
         // trace evidence; do not replace them with the production counter formula.
         int[] entering = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];

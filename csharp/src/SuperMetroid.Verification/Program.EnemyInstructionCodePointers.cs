@@ -155,20 +155,29 @@ internal static partial class Program
         }
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        int readableEntries = ReadEveryBankLocalInstructionPointer(bus, bankLocalCatalogs);
+
+        Console.WriteLine(
+            $"  Enemy instructions: {codeCatalogs.Length + bankLocalCatalogs.Length} " +
+            $"unique catalogs and {readableEntries} bank-local ROM entries verified.");
+    }
+
+    /// <summary>Reads each named bank-local instruction pointer from the retail cartridge and counts them.</summary>
+    [CpuBusBoundary("exact bus test: proves every bank-local enemy instruction catalog pointer maps to readable retail cartridge ROM")]
+    private static int ReadEveryBankLocalInstructionPointer(
+        SuperMetroidAddressSpace bus, (Type Catalog, byte Bank)[] bankLocalCatalogs)
+    {
         int readableEntries = 0;
         foreach ((Type catalog, byte bank) in bankLocalCatalogs)
         {
             foreach (FieldInfo field in GetUshortConstants(catalog))
             {
                 ushort pointer = (ushort)field.GetRawConstantValue()!;
-                _ = bus.ReadByte((bank << 16) | pointer);
+                _ = bus.ReadCartridgeByte((bank << 16) | pointer);
                 readableEntries++;
             }
         }
-
-        Console.WriteLine(
-            $"  Enemy instructions: {codeCatalogs.Length + bankLocalCatalogs.Length} " +
-            $"unique catalogs and {readableEntries} bank-local ROM entries verified.");
+        return readableEntries;
     }
 
     private static void AssertUniqueMappedInstructionPointers(Type catalog)

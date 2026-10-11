@@ -48,8 +48,9 @@ internal static partial class Program
             "  Baby route definitions: 33 overlapping native words and callback identities agree.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Baby Metroid route definition words")]
     private static ushort ReadRomWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewBabyRouteReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(BabyMetroidRouteDefinitionsConstants.SourceAddress,

@@ -400,12 +400,13 @@ internal static partial class Program
         return new EnemyDropFixture(bus, system, level);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the respawn enemy definition copied into the synthetic pickup cartridge")]
     private static void SeedEnemyPickupRom(TestAddressSpace bus)
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] placeholder = new byte[64];
         for (int i = 0; i < placeholder.Length; i++)
-            placeholder[i] = retail.ReadByte(0xa00000 + (ushort)EnemyDefinitionId.Respawn + i);
+            placeholder[i] = retail.ReadCartridgeByte(0xa00000 + (ushort)EnemyDefinitionId.Respawn + i);
         bus.WriteBytes(0xa00000 + (ushort)EnemyDefinitionId.Respawn, placeholder);
         // Empty enemy population: tests directly exercise the shared projectile subsystem.
         bus.WriteBytes(0xa19000, [0xff, 0xff]);

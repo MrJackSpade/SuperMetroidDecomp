@@ -24,10 +24,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord definition =
                 BombTorizoStatueInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            ushort native = unchecked((ushort)(
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(definition.Address + 1))) << 8));
+            ushort native = ReadNativeEnemyProjectileProgramWord(rom, definition.Address);
             AssertEqual(definition.Value, native,
                 $"Bomb Torizo statue mechanics word $86:{definition.Address:X4}");
         }
@@ -51,8 +48,7 @@ internal static partial class Program
                 throw new InvalidDataException(
                     $"Bomb Torizo statue fragment {index} failed to allocate.");
             ushort program = BombTorizoStatueInstructionProgramDefinitions.Program(index);
-            ushort initialDuration =
-                (ushort)(rom.ReadByte(0x860000 | program) | rom.ReadByte(0x860000 | (program + 1)) << 8);
+            ushort initialDuration = ReadNativeEnemyProjectileProgramWord(rom, program);
             AssertEqual(program, fragment.InstructionPointer,
                 $"Bomb Torizo statue fragment {index} uses compiled program");
 
@@ -64,7 +60,7 @@ internal static partial class Program
                     "shell sound occurs once at release, never during the initial wait or again while falling");
                 if (frame == initialDuration + 1)
                     AssertEqual(new EnemySoundRequest(SoundEffectId.FromCartridge(
-                            SoundEffectLibrary.Library2, rom.ReadByte(0x860000 | (program + 6))), 6),
+                            SoundEffectLibrary.Library2, ReadNativeEnemyProjectileProgramByte(rom, unchecked((ushort)(program + 6)))), 6),
                         enemies.SoundRequests[0], "shell release uses the cartridge sound byte and Max6 queue");
                 AssertEqual((ushort)(program + (frame <= initialDuration ? 2 : 13)), fragment.PresentationOperandAddress,
                     "statue fragment presents the native operand on the exact delay/falling tick" );
@@ -121,6 +117,7 @@ internal static partial class Program
             "and deletions pass with mechanics bytes forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for statue fragment visual mapping")]
     private static void VerifyStatueFragmentVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xa4c5,0xa4d0,0xa4d6,0xa4e1,0xa4e7,0xa4f2,0xa4f8,0xa503,
@@ -130,7 +127,7 @@ internal static partial class Program
         foreach (ushort operand in operands)
         {
             int address = 0x860000 | operand;
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(operand), "statue native sprite selector");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,operand,out ushort shared), "statue shared selector found");
             AssertEqual(native, shared, "statue shared native pointer");
@@ -138,7 +135,7 @@ internal static partial class Program
         }
         foreach (ushort pointer in new ushort[] {0x8dfb,0x8e02,0x8e09,0x8e10,0x8e17,0x8e1e,0x8e25,0x8e2c,
             0x8e33,0x8e3a,0x8e41,0x8e48,0x8e4f,0x8e56,0x8e5d,0x8e64})
-            AssertEqual((ushort)1, (ushort)(rom.ReadByte(0x8d0000 | pointer) | rom.ReadByte(0x8d0000 | (pointer + 1)) << 8), "statue native one-entry sprite record");
+            AssertEqual((ushort)1, (ushort)(rom.ReadCartridgeByte(0x8d0000 | pointer) | rom.ReadCartridgeByte(0x8d0000 | (pointer + 1)) << 8), "statue native one-entry sprite record");
         var known = operands.ToHashSet();
         for (int address = 0xa4c1; address <= 0xa5d4; address++)
             if (!known.Contains((ushort)address))
@@ -150,6 +147,7 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(address), "statue distant invalid visual operand");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for statue program control layout")]
     private static void VerifyStatueProgramControlLayout(SuperMetroidAddressSpace rom)
     {
         ushort[] starts = [0xa4c3,0xa4d4,0xa4e5,0xa4f6,0xa507,0xa518,0xa529,0xa53a,
@@ -166,7 +164,7 @@ internal static partial class Program
         {
             ushort address = (ushort)(start + offset);
             var actual = BombTorizoStatueInstructionProgramDefinitionsTooling.MechanicsWord(index++);
-            ushort native = (ushort)(rom.ReadByte(0x860000 | address) | rom.ReadByte(0x860000 | (address + 1)) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(0x860000 | address) | rom.ReadCartridgeByte(0x860000 | (address + 1)) << 8);
             AssertEqual(address, actual.Address, "statue native control layout order");
             AssertEqual(native, actual.Value, "statue enumerated native control word");
             AssertEqual(native, BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(address), "statue direct native control word");
@@ -200,6 +198,7 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,32,int.MaxValue})
             AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress(index), "statue visual ordinal bounds");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo statue initial durations")]
     private static void VerifyBombTorizoStatueInitialDurations(SuperMetroidAddressSpace rom)
     {
         ushort[] starts = [0xa4c3,0xa4d4,0xa4e5,0xa4f6,0xa507,0xa518,0xa529,0xa53a,
@@ -208,7 +207,7 @@ internal static partial class Program
         for (int i = 0; i < starts.Length; i++)
         {
             int address = 0x860000 | starts[i];
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(starts[i], BombTorizoStatueInstructionProgramDefinitions.Program(i), "statue native start position");
             var enumerated = BombTorizoStatueInstructionProgramDefinitionsTooling.MechanicsWord(i * 6);
             AssertEqual(starts[i], enumerated.Address, "statue delay word position");

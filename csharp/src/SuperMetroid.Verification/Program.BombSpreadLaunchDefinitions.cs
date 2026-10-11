@@ -4,9 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb spread launch definitions")]
     private static void VerifyBombSpreadLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a+1)<<8);
+        ushort Word(int a) => (ushort)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte(a+1)<<8);
         var reference = Enumerable.Range(0,SamusBombSpreadRomData.SlotCount).Select(i =>
             new BombSpreadLaunchDefinition(Word(SamusBombSpreadRomData.FuseTimers+i*2),
                 Word(SamusBombSpreadRomData.XVelocities+i*2), Word(SamusBombSpreadRomData.YSpeeds+i*2),

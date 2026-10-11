@@ -5,22 +5,23 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo drool visual mapping")]
     private static void VerifyBombTorizoDroolVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xa46c,0xa470,0xa47c,0xa484,0xa492,0xa496,0xa49a];
         foreach (ushort operand in operands)
         {
             int address = 0x860000 | operand;
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, EnemyProjectileSpritemapDefinitions.BombTorizoDroolFrameAt(operand), "drool native visual pointer");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,operand,out ushort shared), "drool shared selector found");
             AssertEqual(native, shared, "drool shared native pointer");
             AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(address), "drool excluded from literal regeneration");
         }
         foreach (ushort pointer in new ushort[] {0x8c54,0x8c5b,0x8c62,0x8c69})
-            AssertEqual((ushort)1, (ushort)(rom.ReadByte(0x8d0000 | pointer) | rom.ReadByte(0x8d0000 | (pointer + 1)) << 8), "drool native single-entry sprite record");
-        AssertEqual((byte)0, rom.ReadByte(0x8d8000), "drool blank map count low byte");
-        AssertEqual((byte)0, rom.ReadByte(0x8d8001), "drool blank map count high byte");
+            AssertEqual((ushort)1, (ushort)(rom.ReadCartridgeByte(0x8d0000 | pointer) | rom.ReadCartridgeByte(0x8d0000 | (pointer + 1)) << 8), "drool native single-entry sprite record");
+        AssertEqual((byte)0, rom.ReadCartridgeByte(0x8d8000), "drool blank map count low byte");
+        AssertEqual((byte)0, rom.ReadCartridgeByte(0x8d8001), "drool blank map count high byte");
         var known = operands.ToHashSet();
         for (int address = 0xa468; address <= 0xa49e; address++)
             if (!known.Contains((ushort)address))
@@ -32,6 +33,7 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BombTorizoDroolFrameAt(address), "drool distant invalid visual operand");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo drool mechanics mapping")]
     private static void VerifyBombTorizoDroolMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [0xa46a,0xa46e,0xa472,0xa474,0xa476,0xa478,0xa47a,0xa47e,0xa480,
@@ -43,7 +45,7 @@ internal static partial class Program
             var actual = BombTorizoDroolInstructionProgramDefinitionsTooling.MechanicsWord(i);
             AssertEqual(expected[i], actual.Address, "drool native control order");
             int address = 0x860000 | expected[i];
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, actual.Value, "drool enumerated native control");
             AssertEqual(native, BombTorizoDroolInstructionProgramDefinitions.ReadMechanicsWord(expected[i]), "drool direct native control");
             bytes.Add(expected[i]); bytes.Add(expected[i] + 1);
@@ -75,13 +77,14 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,7,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress(index), "drool operand ordinal bounds");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo drool initial selection")]
     private static void VerifyBombTorizoDroolInitialSelection(SuperMetroidAddressSpace rom)
     {
         for (int random = 0; random <= ushort.MaxValue; random++)
         {
             // Native LSR, AND #000E produces the byte offset, independently of the modulo conversion.
             int address = 0x86a64d + ((random >> 1) & 0x000e);
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, (ushort)BombTorizoDroolInstructionProgramDefinitions.SelectLowHealthInitialProgram((ushort)random),
                 "Bomb Torizo drool native delay selection for all RNG words");
         }
@@ -104,10 +107,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord definition =
                 BombTorizoDroolInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            ushort native = unchecked((ushort)(
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(definition.Address + 1))) << 8));
+            ushort native = ReadNativeEnemyProjectileProgramWord(rom, definition.Address);
             AssertEqual(definition.Value, native,
                 $"Bomb Torizo drool mechanics word $86:{definition.Address:X4}");
         }

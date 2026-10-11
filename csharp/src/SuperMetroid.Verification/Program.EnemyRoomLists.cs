@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy room lists")]
     private static void VerifyCompiledEnemyRoomLists()
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -39,7 +40,7 @@ internal static partial class Program
             }
             AssertEqual(0xffff, ReadVerificationWord(bus, address),
                 $"population $A1:{pointer:X4} length reaches its native terminator");
-            AssertEqual(bus.ReadByte(address + 2), compiled.DeathQuota,
+            AssertEqual(bus.ReadCartridgeByte(address + 2), compiled.DeathQuota,
                 $"population $A1:{pointer:X4} death quota follows its terminator");
             populationRecords += records.Length;
         }

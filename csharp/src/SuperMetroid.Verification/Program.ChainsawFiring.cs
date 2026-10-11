@@ -192,36 +192,9 @@ internal static partial class Program
         // with its beam-family word. The resident actor consumes only the last published
         // hit and rejects it. Reproduce both boundary walkers in that exact order.
         const ushort yellowDoorPopulation = 0x9300;
-        const ushort yellowDoorArgument = 0xffff;
         const int yellowDoorBlock = 1 * 5 + 2;
         const int bombableBlock = 2 * 5 + 1;
-        var interferenceBus = new TestAddressSpace();
-        WriteTestWord(interferenceBus, 0x84c85c, 0x0400);
-        WriteTestWord(interferenceBus, 0x840402, 0x0500);
-        WriteTestWord(interferenceBus, 0x840406, 0x0600);
-        WriteTestWord(interferenceBus, 0x84040e, 0x0700);
-        interferenceBus.WriteByte(0x840602, 1);
-        WriteTestWord(interferenceBus, 0x840603, 0x0800);
-        WriteTestWord(interferenceBus, 0x840605, 1);
-        WriteTestWord(interferenceBus, 0x840607, 0x0720);
-        WriteTestWord(interferenceBus, 0x840800, 12);
-        WriteTestWord(interferenceBus, 0x840802, 0x0740);
-        WriteTestWord(interferenceBus, 0x840505, 0x0760);
-        WriteDoorDrawList(interferenceBus, 0x840700, [0x0001, 0xc000, 0x0000]);
-        WriteDoorDrawList(interferenceBus, 0x840720, [0x0001, 0xc000, 0x0000]);
-        WriteDoorDrawList(interferenceBus, 0x840740, [0x0001, 0xc000, 0x0000]);
-        WriteDoorDrawList(interferenceBus, 0x840760, [0x0001, 0x8000, 0x0000]);
-        WriteTestWord(
-            interferenceBus,
-            0x8f0000 | yellowDoorPopulation,
-            (ushort)PlmHeaderId.YellowDoorFacingLeft);
-        interferenceBus.WriteByte(0x8f0000 | (yellowDoorPopulation + 2), 2);
-        interferenceBus.WriteByte(0x8f0000 | (yellowDoorPopulation + 3), 1);
-        WriteTestWord(
-            interferenceBus,
-            0x8f0000 | (yellowDoorPopulation + 4),
-            yellowDoorArgument);
-        WriteTestWord(interferenceBus, 0x8f0000 | (yellowDoorPopulation + 6), 0);
+        TestAddressSpace interferenceBus = CreateChainsawInterferenceCartridge(yellowDoorPopulation);
 
         ushort[] interferenceWords = new ushort[25];
         byte[] interferenceBts = new byte[25];
@@ -370,6 +343,44 @@ internal static partial class Program
             "charged Chainsaw is fully allocated before unstable callback execution");
 
         Console.WriteLine("Chainsaw firing: native admission, door/enemy reactions, Orange-Door interference, callback stores, Power-Bomb-gated lifetime and charged WRAM execution agree.");
+    }
+
+    /// <summary>
+    /// Builds the Orange-Door interference cartridge: a synthetic bank-$84 yellow-door PLM
+    /// program and its draw lists, plus one bank-$8F population entry at <paramref name="population"/>.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: seeds the synthetic yellow-door PLM program and room population for the Chainsaw interference fixture")]
+    private static TestAddressSpace CreateChainsawInterferenceCartridge(ushort population)
+    {
+        const ushort yellowDoorArgument = 0xffff;
+        var interferenceBus = new TestAddressSpace();
+        WriteTestWord(interferenceBus, 0x84c85c, 0x0400);
+        WriteTestWord(interferenceBus, 0x840402, 0x0500);
+        WriteTestWord(interferenceBus, 0x840406, 0x0600);
+        WriteTestWord(interferenceBus, 0x84040e, 0x0700);
+        interferenceBus.WriteByte(0x840602, 1);
+        WriteTestWord(interferenceBus, 0x840603, 0x0800);
+        WriteTestWord(interferenceBus, 0x840605, 1);
+        WriteTestWord(interferenceBus, 0x840607, 0x0720);
+        WriteTestWord(interferenceBus, 0x840800, 12);
+        WriteTestWord(interferenceBus, 0x840802, 0x0740);
+        WriteTestWord(interferenceBus, 0x840505, 0x0760);
+        WriteDoorDrawList(interferenceBus, 0x840700, [0x0001, 0xc000, 0x0000]);
+        WriteDoorDrawList(interferenceBus, 0x840720, [0x0001, 0xc000, 0x0000]);
+        WriteDoorDrawList(interferenceBus, 0x840740, [0x0001, 0xc000, 0x0000]);
+        WriteDoorDrawList(interferenceBus, 0x840760, [0x0001, 0x8000, 0x0000]);
+        WriteTestWord(
+            interferenceBus,
+            0x8f0000 | population,
+            (ushort)PlmHeaderId.YellowDoorFacingLeft);
+        interferenceBus.WriteByte(0x8f0000 | (population + 2), 2);
+        interferenceBus.WriteByte(0x8f0000 | (population + 3), 1);
+        WriteTestWord(
+            interferenceBus,
+            0x8f0000 | (population + 4),
+            yellowDoorArgument);
+        WriteTestWord(interferenceBus, 0x8f0000 | (population + 6), 0);
+        return interferenceBus;
 
         static void WriteDoorDrawList(
             TestAddressSpace targetBus,

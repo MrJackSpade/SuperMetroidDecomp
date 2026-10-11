@@ -8,14 +8,15 @@ internal static partial class Program
     private static void VerifyCeresFinalWaveProgram(ISnesAddressSpace rom) => VerifyCeresExplosionProgram(rom, 0xcd1b, 0xcd39);
     private static void VerifyCeresStationBlastProgram(ISnesAddressSpace rom) => VerifyCeresExplosionProgram(rom, 0xce1b, 0xce35);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres explosion program")]
     private static void VerifyCeresExplosionProgram(ISnesAddressSpace rom, ushort start, ushort end)
     {
         for (int pointer = start; pointer < end; pointer++)
         {
-            AssertEqual(rom.ReadByte(0x8b0000 | pointer), CeresDestructionSpriteInstructionDefinitions.ReadByte((ushort)pointer), "original explosion program byte");
+            AssertEqual(rom.ReadCartridgeByte(0x8b0000 | pointer), CeresDestructionSpriteInstructionDefinitions.ReadByte((ushort)pointer), "original explosion program byte");
             if (pointer + 1 < end)
             {
-                ushort expected = (ushort)(rom.ReadByte(0x8b0000 | pointer) | rom.ReadByte(0x8b0000 | (pointer + 1)) << 8);
+                ushort expected = (ushort)(rom.ReadCartridgeByte(0x8b0000 | pointer) | rom.ReadCartridgeByte(0x8b0000 | (pointer + 1)) << 8);
                 AssertEqual(expected, CeresDestructionSpriteInstructionDefinitions.ReadWord((ushort)pointer), "original aligned or unaligned explosion word");
             }
         }
@@ -34,8 +35,8 @@ internal static partial class Program
             for (int frame = 0; frame < 256; frame++)
             {
                 native.Step(instructionWord: pointer =>
-                    (ushort)(rom.ReadByte(0x8b0000 | pointer) |
-                    rom.ReadByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8));
+                    (ushort)(rom.ReadCartridgeByte(0x8b0000 | pointer) |
+                    rom.ReadCartridgeByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8));
                 compiled.Step(instructionWord: CeresDestructionSpriteInstructionDefinitions.ReadWord);
                 AssertEqual(native.InstructionPointer, compiled.InstructionPointer, "explosion instruction cursor");
                 AssertEqual(native.SpriteMapPointer, compiled.SpriteMapPointer, "explosion frame and blank interval");

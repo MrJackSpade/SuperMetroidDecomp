@@ -67,8 +67,9 @@ internal static partial class Program
             "Enemy terrain reactions: sixteen native headers, all 32 authored/high-bit selectors and real collision/PLM handoffs pass with the reaction table forbidden; 224 adjacent-code selectors fail explicitly.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy terrain words")]
     private static ushort ReadEnemyTerrainWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewEnemyTerrainReactionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

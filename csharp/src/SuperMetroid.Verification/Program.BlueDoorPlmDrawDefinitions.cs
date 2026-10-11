@@ -8,11 +8,12 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Blue door PLM draw definitions")]
     private static void VerifyBlueDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBlueDoorProgramDefinitions), () => VerifyBlueDoorProgramDefinitions(rom));
         static ushort ReadNativeWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             BlueDoorPlmDrawDefinitionsTooling.All.OrderBy(list => list.Pointer).ToArray();

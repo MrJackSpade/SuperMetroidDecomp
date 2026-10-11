@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Cacatac movement definitions")]
     private static void VerifyCacatacMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int distanceTable = 0xa29f36;
@@ -22,7 +23,7 @@ internal static partial class Program
             for (byte distanceIndex = 0; distanceIndex < 6; distanceIndex++)
             {
                 int address = distanceTable + distanceIndex * 2;
-                ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
                 AssertEqual(native, CacatacMovementDefinitions.TravelDistance(distanceIndex),
                     $"compiled Cacatac travel distance {distanceIndex}");
 

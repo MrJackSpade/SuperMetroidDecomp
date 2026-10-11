@@ -4,14 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire bridge fragment definitions")]
     private static void VerifyCrocomireBridgeFragmentDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa49156;
         for (ushort byteOffset = 0; byteOffset < 22; byteOffset += 2)
         {
             ushort expected = (ushort)(
-                rom.ReadByte(sourceAddress + byteOffset) |
-                rom.ReadByte(sourceAddress + byteOffset + 1) << 8);
+                rom.ReadCartridgeByte(sourceAddress + byteOffset) |
+                rom.ReadCartridgeByte(sourceAddress + byteOffset + 1) << 8);
             AssertEqual(expected, CrocomireBridgeFragmentDefinitions.XPosition(byteOffset),
                 $"Crocomire bridge fragment offset ${byteOffset:X2}");
         }

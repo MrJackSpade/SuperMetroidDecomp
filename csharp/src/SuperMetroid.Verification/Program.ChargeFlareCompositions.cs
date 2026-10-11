@@ -79,11 +79,12 @@ internal static partial class Program
     }
 
     /// <summary>Import-only oracle for the bank-$93 flare selector and part records.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the imported charge-flare spritemap drawer")]
     private static void DrawImportedFlareSpritemap(SuperMetroidAddressSpace bus, OamBuffer oam,
         ushort selector, Position16<OamPixels> origin)
     {
-        ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) |
-            (bus.ReadByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
+        ushort ReadWord(int address) => (ushort)(bus.ReadCartridgeByte(address) |
+            (bus.ReadCartridgeByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
         int table = 0x930000 | ((0xA1A1 + selector * 2) & 0xffff);
         int record = 0x930000 | ReadWord(table);
         ushort partCount = ReadWord(record);
@@ -91,7 +92,7 @@ internal static partial class Program
         for (int part = 0; part < partCount; part++)
         {
             oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
-                bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
+                bus.ReadCartridgeByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
                 new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
                 origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);

@@ -49,8 +49,9 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for door definition words")]
     private static ushort ReadVerificationWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 
     private static CartridgeReadGuard NewDoorNoReadAddressSpace() =>
         CartridgeReadGuard.Unbacked()

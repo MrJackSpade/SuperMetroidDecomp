@@ -6,12 +6,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire rumble definitions")]
     private static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa498ca;
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         var expectedWords = new ushort[32];
         var assigned = new bool[32];
@@ -129,6 +130,7 @@ internal static partial class Program
             $"Crocomire rumble definitions: all 32 native words and {frames} exact production frames pass with the source stream forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Crocomire rumble reference step")]
     private static void StepCrocomireRumbleReference(
         ISnesAddressSpace rom,
         ref ushort index,
@@ -139,7 +141,7 @@ internal static partial class Program
     {
         const int sourceAddress = 0xa498ca;
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         ushort target = ReadWord(rom, sourceAddress + index);
         if (target == 0x8080)

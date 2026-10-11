@@ -5,13 +5,14 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting definitions")]
     private static void VerifyCrocomireMeltingDefinitions(SuperMetroidAddressSpace rom)
     {
         const int columnTable = 0xa49697;
         Suite(nameof(VerifyCrocomireMaskAlgorithm), () => VerifyCrocomireMaskAlgorithm(rom));
         for (int cursor = 0; cursor < CrocomireMeltingDefinitions.ColumnCount; cursor++)
         {
-            AssertEqual(rom.ReadByte(columnTable + cursor),
+            AssertEqual(rom.ReadCartridgeByte(columnTable + cursor),
                 CrocomireMeltingDefinitions.SelectColumn(cursor),
                 $"Crocomire melt column {cursor}");
 
@@ -31,17 +32,19 @@ internal static partial class Program
             "and source-table read guards pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire mask algorithm")]
     private static void VerifyCrocomireMaskAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int cursor = 0; cursor < 49; cursor++)
-            AssertEqual(rom.ReadByte(CrocomireMeltingDefinitions.MaskReferenceAddress + (cursor & 7)),
+            AssertEqual(rom.ReadCartridgeByte(CrocomireMeltingDefinitions.MaskReferenceAddress + (cursor & 7)),
                 CrocomireMeltingDefinitions.SelectMask(cursor), $"Original chronological melt mask {cursor}");
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(-1), "Mask negative cursor");
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(49), "Mask upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(int.MaxValue), "Mask invalid maximum");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt native words")]
     private static ushort CrocomireMeltNativeWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static void VerifyCrocomireMeltingTransferCatalog(SuperMetroidAddressSpace rom)
     {
@@ -51,6 +54,7 @@ internal static partial class Program
         Suite(nameof(VerifyCrocomireMeltingGraphicsProduction), () => VerifyCrocomireMeltingGraphicsProduction(rom));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt headers")]
     private static void VerifyCrocomireMeltHeaders(SuperMetroidAddressSpace rom)
     {
         int index = 0;
@@ -67,7 +71,7 @@ internal static partial class Program
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} distortion end Y");
             AssertEqual(pass.WordsToCopy, CrocomireMeltNativeWord(rom, header + 4),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} copy word count");
-            AssertEqual(pass.SourceBank, rom.ReadByte(header + 6),
+            AssertEqual(pass.SourceBank, rom.ReadCartridgeByte(header + 6),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} source bank");
 
             AssertEqual(pass, CrocomireMeltingTransferDefinitions.Transfers(pass.TransferStartOffset), "melt transfer selector");
@@ -110,6 +114,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt uploads")]
     private static void VerifyCrocomireMeltUploads(SuperMetroidAddressSpace rom)
     {
         foreach (ushort headerOffset in new ushort[] { 0, 0x54 })
@@ -125,7 +130,7 @@ internal static partial class Program
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} size");
                 AssertEqual(upload.DestinationWord, CrocomireMeltNativeWord(rom, source + 2),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} destination");
-                AssertEqual(upload.SourceBank, rom.ReadByte(source + 4),
+                AssertEqual(upload.SourceBank, rom.ReadCartridgeByte(source + 4),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} bank");
                 AssertEqual(upload.SourceWord, CrocomireMeltNativeWord(rom, source + 6),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} source");
@@ -158,6 +163,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(-1, out _), "negative upload cursor");
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(0xb4, out _), "upload after records");
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting graphics production")]
     private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -196,7 +202,7 @@ internal static partial class Program
                 int destination = copy.DestinationWord - 0x4000;
                 for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
                 {
-                    expectedGraphics[destination + index] = rom.ReadByte(
+                    expectedGraphics[destination + index] = rom.ReadCartridgeByte(
                         (pass.SourceBank << 16) | unchecked((ushort)(copy.SourceWord + index)));
                 }
             }
@@ -229,6 +235,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting production sequence")]
     private static void VerifyCrocomireMeltingProductionSequence(
         SuperMetroidAddressSpace rom)
     {
@@ -255,8 +262,8 @@ internal static partial class Program
         var expectedHeights = new byte[CrocomireDeathState.MeltingColumnCount];
         for (int cursor = 0; cursor < CrocomireMeltingDefinitions.ColumnCount; cursor++)
         {
-            int xColumn = rom.ReadByte(0xa49697 + cursor);
-            byte mask = rom.ReadByte(0xa49bbd + (cursor & 7));
+            int xColumn = rom.ReadCartridgeByte(0xa49697 + cursor);
+            byte mask = rom.ReadCartridgeByte(0xa49bbd + (cursor & 7));
             for (int remaining = 48; remaining != 0; remaining--)
             {
                 int y = expectedHeights[xColumn];
@@ -325,6 +332,7 @@ internal static partial class Program
         return scratch;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire melting tilemap")]
     private static ushort[] VerifyInstalledCrocomireMeltingTilemap(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog artwork,
         CrocomireMeltingTilemapAddress source, ushort bodyInstructionList, bool compareRom = true)
@@ -363,8 +371,8 @@ internal static partial class Program
         for (int index = 0; index < result.Length; index++)
         {
             int address = sourceAddress + index * 2;
-            ushort expected = (ushort)(rom.ReadByte(address) |
-                rom.ReadByte(address + 1) << 8);
+            ushort expected = (ushort)(rom.ReadCartridgeByte(address) |
+                rom.ReadCartridgeByte(address + 1) << 8);
             if (compareRom)
                 AssertEqual(expected, result[index],
                     $"installed Crocomire tilemap ${sourceAddress:X6} cell {index}");

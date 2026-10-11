@@ -69,10 +69,11 @@ internal static partial class Program
             "  Ceres elevator: definitions/programs match cartridge data, run without bank-$86 reads, and retain native graphics/landing behavior.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres elevator arrival definitions")]
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
         static ushort Word(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadByte(address) | (source.ReadByte(address + 1) << 8)));
+            unchecked((ushort)(source.ReadCartridgeByte(address) | (source.ReadCartridgeByte(address + 1) << 8)));
 
         foreach (CeresElevatorProjectileDefinition definition in new[]
         {

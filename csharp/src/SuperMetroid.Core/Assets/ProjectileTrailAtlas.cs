@@ -26,9 +26,9 @@ public sealed class ProjectileTrailAtlas : IVramAssetProvider
     public void QueueTo(VramWriteQueue queue)
     {
         queue.EnqueueAsset(VramAssetId.ProjectileIceWaveTrailTiles, checked((ushort)IceAndWave.Length),
-            ProjectileTrailAtlasDefinitions.IceWaveDestinationWord);
+            VramDmaDestination.FromNative(ProjectileTrailAtlasDefinitions.IceWaveDestinationWord));
         queue.EnqueueAsset(VramAssetId.ProjectileMissileTrailTiles, checked((ushort)Missile.Length),
-            ProjectileTrailAtlasDefinitions.MissileDestinationWord);
+            VramDmaDestination.FromNative(ProjectileTrailAtlasDefinitions.MissileDestinationWord));
     }
     /// <summary>Loads the 96-by-8 indexed PNG as twelve left-to-right 8-pixel tiles and encodes their palette indices into four-bit SNES planar character bytes.</summary>
     /// <param name="png">Caller-owned image stream; indices 0..15 are pens rather than final CGRAM colors.</param>

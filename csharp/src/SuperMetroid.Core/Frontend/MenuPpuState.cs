@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class MenuPpuState
 {
-    public const ushort Bg1TilemapWord = SnesPpuLayout.MenuBg1TilemapWord;
-    public const ushort Bg2TilemapWord = SnesPpuLayout.MenuBg2TilemapWord;
+    public const ushort Bg1TilemapWord = MenuVramLayout.Bg1TilemapWord;
+    public const ushort Bg2TilemapWord = MenuVramLayout.Bg2TilemapWord;
     public static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
     public const int SpritemapPointerTableAddress = 0x82c569;
 

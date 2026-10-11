@@ -83,10 +83,10 @@ internal static partial class InstalledSamusArtworkTests
         {
             var a = new SnesVram(); var b = new SnesVram();
             var queue = new VramWriteQueue();
-            queue.Enqueue(length, source, destination);
+            queue.Enqueue(length, source, VramDmaDestination.FromNative(destination));
             VramWriteEntry pending = queue.Entries.Single();
             queue.DrainTo(a, memory, new SamusQueuedArtwork(fixture.Stock));
-            queue.Enqueue(pending.SizeInBytes, pending.SourceAddress, pending.EncodedVramDestination);
+            queue.Enqueue(pending.SizeInBytes, pending.SourceAddress, VramDmaDestination.FromNative(pending.EncodedVramDestination));
             Require(queue.Entries.Single() == pending, $"{name}: replacement changed queued transfer");
             queue.DrainTo(b, memory, new SamusQueuedArtwork(fixture.Edited));
             Require(queue.Entries.Count == 0 && queue.TailInBytes == 0, $"{name}: NMI did not clear queue");

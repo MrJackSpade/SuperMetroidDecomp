@@ -10,7 +10,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var vram = new SnesVram();
         vram.ExecuteWordTransfer(Enumerable.Range(0, XrayTilemapLayout.BufferWords)
-            .Select(i => (ushort)(0x4000 + i)).ToArray(), SnesPpuLayout.GameplayBg1TilemapWord, 1);
+            .Select(i => (ushort)(0x4000 + i)).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);
         var definitions = new byte[1024 * 8];
         for (int i = 0; i < definitions.Length / 2; i++)
         {

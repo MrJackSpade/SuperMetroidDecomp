@@ -181,7 +181,7 @@ internal static partial class Program
             "edited Tourian statue pixels compile to a distinct installed frame");
         var statueVram = new SnesVram();
         var statueWrites = new VramWriteQueue();
-        statueWrites.Enqueue(0x80, statueSource, 0x7800);
+        statueWrites.Enqueue(0x80, statueSource, VramDmaDestination.FromNative(0x7800));
         statueWrites.DrainTo(statueVram, ReferenceMutableMemory.From(guarded),
             new RoomFxArtworkTestProvider(changed.RoomFxAnimatedTiles));
         AssertEqual(editedStatue.Span[0], statueVram.ReadByte(0x7800 * 2),

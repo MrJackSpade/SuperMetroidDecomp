@@ -205,8 +205,8 @@ internal static partial class Program
                 KraidBackgroundRomData.StandardBg3TransferBytes,
                 KraidBackgroundRomData.StandardBg3TilesAddress +
                     quarter * KraidBackgroundRomData.StandardBg3TransferBytes,
-                checked((ushort)(KraidBackgroundRomData.StandardBg3VramWord +
-                    quarter * (KraidBackgroundRomData.StandardBg3TransferBytes / 2))));
+                checked(VramDmaDestination.FromNative((ushort)(KraidBackgroundRomData.StandardBg3VramWord +
+                    quarter * (KraidBackgroundRomData.StandardBg3TransferBytes / 2)))));
         restored.MapPresentation = stock;
         for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)

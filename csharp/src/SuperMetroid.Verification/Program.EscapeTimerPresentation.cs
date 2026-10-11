@@ -72,9 +72,9 @@ internal static partial class Program
         var restoredQueueRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus,
             initialPaletteArt: initialPalettes);
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
-            EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstDestinationWord);
+            EscapeTimerTileRomData.FirstSourceAddress, VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.FirstDestinationWord));
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,
-            EscapeTimerTileRomData.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondDestinationWord);
+            EscapeTimerTileRomData.SecondSourceAddress, VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.SecondDestinationWord));
         restoredQueueRuntime.MapPresentation = original;
         AssertEqual(VramAssetId.EscapeTimerFirstTiles, restoredQueueRuntime.VramWrites.Entries[0].AssetId,
             "content rebind upgrades pending first timer transfer");

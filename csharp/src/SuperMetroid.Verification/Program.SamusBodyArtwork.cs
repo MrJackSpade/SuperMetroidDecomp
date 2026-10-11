@@ -236,7 +236,7 @@ internal static partial class Program
                     $"death tile segment ${segment.SourceAddress:X6} byte {offset:X3}");
             var installedQueue = new VramWriteQueue();
             installedQueue.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-                segment.SourceAddress, segment.EncodedVramDestination);
+                segment.SourceAddress, VramDmaDestination.FromNative(segment.EncodedVramDestination));
             var nativeDeathVram = new SnesVram();
             var installedDeathVram = new SnesVram();
             nativeDeathVram.ExecuteQueuedAssetWrite(
@@ -560,9 +560,9 @@ internal static partial class Program
         var stockDeathTransfer = new VramWriteQueue();
         var editedDeathTransfer = new VramWriteQueue();
         stockDeathTransfer.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-            firstDeathSegment.SourceAddress, firstDeathSegment.EncodedVramDestination);
+            firstDeathSegment.SourceAddress, VramDmaDestination.FromNative(firstDeathSegment.EncodedVramDestination));
         editedDeathTransfer.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-            firstDeathSegment.SourceAddress, firstDeathSegment.EncodedVramDestination);
+            firstDeathSegment.SourceAddress, VramDmaDestination.FromNative(firstDeathSegment.EncodedVramDestination));
         var stockDeathTilesVram = new SnesVram();
         var editedDeathTilesVram = new SnesVram();
         stockDeathTransfer.DrainTo(stockDeathTilesVram, ReferenceMutableMemory.From(guardedBus),

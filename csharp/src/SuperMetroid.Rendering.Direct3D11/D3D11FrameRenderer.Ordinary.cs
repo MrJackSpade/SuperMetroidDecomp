@@ -24,7 +24,7 @@ public sealed partial class D3D11FrameRenderer
             Objects(2); Background2(true); Background1(true); Objects(3);
             first = end;
         }
-        DispatchTile(D3D11TileOperation.Bg2, SnesPpuLayout.GameplayHudTilemapWord,
+        DispatchTile(D3D11TileOperation.Bg2, GameplayVramLayout.HudTilemapWord,
             r.HudCharacterWord, transparentZero: 0, endScanline: SnesPpuLayout.GameplayHudHeightPixels,
             windows: r.Windows, windowMask: r.MainScreenWindowMask, windowTarget: SnesWindowTarget.Bg3);
 
@@ -38,7 +38,7 @@ public sealed partial class D3D11FrameRenderer
         void Background1(bool high)
         {
             if ((activeLayers & SnesMainScreenLayers.Bg1) != 0)
-                DispatchTile(D3D11TileOperation.Bg4, SnesPpuLayout.GameplayBg1TilemapWord,
+                DispatchTile(D3D11TileOperation.Bg4, GameplayVramLayout.Bg1TilemapWord,
                     r.Bg1CharacterWord,
                     r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline),
                     new Extent16<TilemapCells>(64, 32), Priority(high),

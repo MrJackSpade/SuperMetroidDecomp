@@ -28,8 +28,8 @@ internal static partial class Program
             if ((mask & 2) != 0) layers |= SnesMainScreenLayers.Bg2;
             if ((mask & 4) != 0) layers |= SnesMainScreenLayers.Obj;
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
-                mapSize, SnesPpuLayout.GameplayBg2TilemapWord, 0, 0x6000,
-                SnesPpuLayout.GameplayHudCharacterBaseWord, layers);
+                mapSize, GameplayVramLayout.Bg2TilemapWord, 0, 0x6000,
+                GameplayVramLayout.HudCharacterWord, layers);
             Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 live.Vram, live.Cgram, live.Oam, registers.Bg1Scroll, registers.Bg2Scroll,
                 x.Length == 0 ? null : x, y.Length == 0 ? null : y,

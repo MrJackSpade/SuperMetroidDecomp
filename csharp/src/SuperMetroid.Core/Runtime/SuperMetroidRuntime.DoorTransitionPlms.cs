@@ -71,7 +71,7 @@ public sealed partial class SuperMetroidRuntime
             VramWrites.Enqueue(
                 request.SizeInBytes,
                 request.SourceAddress,
-                request.EncodedVramDestination);
+                VramDmaDestination.FromNative(request.EncodedVramDestination));
         }
     }
 }

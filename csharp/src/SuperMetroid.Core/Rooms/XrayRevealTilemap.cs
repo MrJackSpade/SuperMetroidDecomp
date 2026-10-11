@@ -79,7 +79,7 @@ public static class XrayRevealTilemap
         ushort ReadBg1(int x, int y)
         {
             int tile = ((x & 63) / 32) * XrayTilemapLayout.ScreenWords + (y & 31) * 32 + (x & 31);
-            return vram.ReadWord(SnesPpuLayout.GameplayBg1TilemapWord + tile);
+            return vram.ReadWord(GameplayVramLayout.Bg1TilemapWord + tile);
         }
         void CopyMetatile(int destination, ushort metatile)
         {

@@ -70,7 +70,7 @@ internal static partial class Program
                 rom.ReadCartridgeByte(descriptor + 3) << 8 |
                 rom.ReadCartridgeByte(descriptor + 4) << 16;
             ushort destination = ReadWord(descriptor + 5);
-            nativeQueue.Enqueue(byteCount, source, destination);
+            nativeQueue.Enqueue(byteCount, source, VramDmaDestination.FromNative(destination));
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);

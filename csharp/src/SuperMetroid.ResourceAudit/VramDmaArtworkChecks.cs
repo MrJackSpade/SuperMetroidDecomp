@@ -26,14 +26,14 @@ internal static class VramDmaArtworkChecks
         foreach (var pair in pairs)
         {
             var queue = new VramWriteQueue();
-            queue.Enqueue((ushort)pair.Count, pair.Source, 0);
+            queue.Enqueue((ushort)pair.Count, pair.Source, VramDmaDestination.FromNative(0));
             queue.DrainTo(runtime.Vram, memory, runtime);
             ReadOnlySpan<byte> expected = ((IVramAssetProvider)runtime).Resolve(pair.Asset).Span;
             VramDmaContractChecks.Require(expected.Length == pair.Count, "native alias uses the typed length");
             for (int offset = 0; offset < pair.Count; offset++)
                 VramDmaContractChecks.Require(runtime.Vram.ReadByte(offset) == expected[offset], "native alias preserves each compiled byte");
             var invalid = new VramWriteQueue();
-            invalid.Enqueue((ushort)(pair.Count + 1), pair.Source, 0);
+            invalid.Enqueue((ushort)(pair.Count + 1), pair.Source, VramDmaDestination.FromNative(0));
             bool rejected = false;
             try { invalid.DrainTo(runtime.Vram, memory, runtime); }
             catch (InvalidOperationException) { rejected = true; }
@@ -43,7 +43,7 @@ internal static class VramDmaArtworkChecks
         // eager legacy-queue rewriting performed by the Grapple property setter.
         var pending = new VramWriteQueue();
         var first = GrappleTileDefinitions.Transfers[0];
-        pending.Enqueue(first.ByteCount, first.SourceAddress, 0);
+        pending.Enqueue(first.ByteCount, first.SourceAddress, VramDmaDestination.FromNative(0));
         runtime.GrappleArtwork = Grapple(2);
         pending.DrainTo(runtime.Vram, memory, runtime);
         VramDmaContractChecks.Require(runtime.Vram.ReadByte(0) == 0 && runtime.Vram.ReadByte(1) == 255,

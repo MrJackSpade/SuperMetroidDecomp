@@ -289,8 +289,8 @@ internal sealed partial class PauseMenuState
         ushort mapY = unchecked((ushort)((ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
         var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(mapX, mapY), new Extent16<TilemapCells>(64, 32), false);
         var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), new Extent16<TilemapCells>(32, 32), false);
-        var bg3 = new Bg2BppViewportRenderLayer(SnesPpuLayout.GameplayHudTilemapWord,
-            SnesPpuLayout.GameplayHudCharacterBaseWord,
+        var bg3 = new Bg2BppViewportRenderLayer(GameplayVramLayout.HudTilemapWord,
+            GameplayVramLayout.HudCharacterWord,
             SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
         RenderLayer[] layers =
         [

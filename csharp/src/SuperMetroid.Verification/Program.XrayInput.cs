@@ -85,7 +85,7 @@ internal static partial class Program
         var frozenMap = XraySetupMemory.ReadReveal(bus);
         for (int i = 0; i < frozenMap.Length; i++)
         {
-            int offset = (SnesPpuLayout.GameplayBg2TilemapWord + i) * 2;
+            int offset = (GameplayVramLayout.Bg2TilemapWord + i) * 2;
             AssertEqual(frozenMap[i], (ushort)(captured.Memory.Vram[offset] | captured.Memory.Vram[offset + 1] << 8), "captured BG2 is the setup-owned reveal map");
         }
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))

@@ -50,7 +50,7 @@ public static partial class SnesGameplayFrameRenderer
         bool subtract = RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
         return new(atmosphere ? RoomFxRomData.Layer3.FullScreenAtmosphereTilemapBaseWord : RoomFxRomData.Layer3.LiquidTilemapBaseWord,
-            SnesPpuLayout.GameplayHudCharacterBaseWord,
+            GameplayVramLayout.HudCharacterWord,
             ((atmosphere ? RoomFxRomData.Layer3.FullScreenAtmosphereVerticalCoordinateMask : RoomFxRomData.Layer3.LiquidVerticalCoordinateMask) + 1)
                 / SnesPpuLayout.BackgroundTileSizePixels,
             HudHeight, subtract ? ExpandedColorMathOperation.Subtract : ExpandedColorMathOperation.Add, scrolls);

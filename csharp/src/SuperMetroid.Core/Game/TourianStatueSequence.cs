@@ -107,7 +107,7 @@ public sealed class TourianStatueSequence
                     runtime.VramWrites.Enqueue(
                         tile.Definition.TransferByteCount,
                         sourceAddress,
-                        tile.Definition.EncodedVramDestination);
+                        VramDmaDestination.FromNative(tile.Definition.EncodedVramDestination));
                     tile.Pointer += 4;
                     break;
                 }

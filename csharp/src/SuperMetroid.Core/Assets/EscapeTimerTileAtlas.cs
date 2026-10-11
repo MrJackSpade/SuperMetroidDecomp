@@ -104,7 +104,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         VramAssetId asset = EscapeTimerTilePages.AssetOf(page);
         if (Resolve(asset).Length != byteCount)
             throw new InvalidDataException($"Escape timer {page} page no longer matches its native transfer record.");
-        queue.EnqueueAsset(asset, byteCount, destinationWord);
+        queue.EnqueueAsset(asset, byteCount, VramDmaDestination.FromNative(destinationWord));
         return true;
     }
 

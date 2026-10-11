@@ -137,7 +137,7 @@ public sealed partial class RoomEnemySystem
         vramWriteQueue.Enqueue(
             byteCount,
             page.SourceAddress,
-            CeresEscapeOverlayTilemapDefinitions.EmergencyDestination);
+            VramDmaDestination.FromNative(CeresEscapeOverlayTilemapDefinitions.EmergencyDestination));
     }
 
     /// <summary>Ports ProcessSpriteTilesTransfers at $A6:C26E one record per actor call.</summary>
@@ -174,7 +174,7 @@ public sealed partial class RoomEnemySystem
 
         if (EscapeTimerArtwork?.TryQueueNativeTransfer(
             vramWriteQueue, sourceAddress, byteCount, destination) != true)
-            vramWriteQueue.Enqueue(byteCount, sourceAddress, destination);
+            vramWriteQueue.Enqueue(byteCount, sourceAddress, VramDmaDestination.FromNative(destination));
 
         state.CeresEscapeTransferListPointer = unchecked((ushort)(pointer + 7));
         return CeresEscapeVramTransferDefinitions.IsTerminator(
@@ -199,7 +199,7 @@ public sealed partial class RoomEnemySystem
                 throw new InvalidDataException(
                     $"Installed Ceres Japanese overlay ${pointer:X4} has no editable tilemap.");
             vramWriteQueue.Enqueue(transfer.ByteCount, transfer.SourceAddress,
-                transfer.DestinationWord);
+                VramDmaDestination.FromNative(transfer.DestinationWord));
         }
 
         throw new InvalidDataException("Ceres Japanese transfer list exceeded 32 records.");

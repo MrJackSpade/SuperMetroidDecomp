@@ -118,7 +118,7 @@ internal static partial class InstalledSporesTests
                 if (frame is 0 or 10 or 20 or 30 or 44 or 511 or 1024)
                 {
                     var gameplay = new OrdinaryGameplayRenderLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
-                        SnesPpuLayout.GameplayBg2TilemapWord, 0, 0, 0x4000, SnesMainScreenLayers.Bg2));
+                        GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x4000, SnesMainScreenLayers.Bg2));
                     var layer = SnesGameplayFrameRenderer.CaptureSpores(gameplay, replacement.CaptureForDisplay()!.Value);
                     Require(!layer.RevealBlocks && layer.ColorMath == (SnesColorMathControl)0x32 &&
                         layer.Lines.ToArray().All(line => line.Left > line.Right) && layer.Subscreen is not null,

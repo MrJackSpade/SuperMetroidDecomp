@@ -747,7 +747,7 @@ public sealed partial class SuperMetroidRuntime
         ActiveRoomAssets = assets;
         // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
         // A later library-background command eight may override it to $02 for Kraid.
-        GameplayHudCharacterBaseWord = SnesPpuLayout.GameplayHudCharacterBaseWord;
+        GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
         WreckedShipTreadmill.Reset();
         MaridiaElevatube.Reset(
             active: room.State.MainCallback == RoomMainCallback.MaridiaElevatube);

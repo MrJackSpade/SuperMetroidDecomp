@@ -31,7 +31,7 @@ public sealed partial class SuperMetroidRuntime
             bytes[i * 2] = (byte)saved[i];
             bytes[i * 2 + 1] = (byte)(saved[i] >> 8);
         }
-        captured.LoadBytes(SnesPpuLayout.GameplayBg1TilemapWord * 2, bytes);
+        captured.LoadBytes(GameplayVramLayout.Bg1TilemapWord * 2, bytes);
         Position16<RoomPixels> layer1 = BackgroundScroll.Layer1Position;
         Position16<RoomPixels> bg1Scroll = layer1 + BackgroundScroll.Bg1Offset;
         var map = XrayRevealTilemap.Build(level, captured, bg1Scroll, layer1,
@@ -52,9 +52,9 @@ public sealed partial class SuperMetroidRuntime
         (int Source, int SavedScreen)? read = xray.SetupStage switch
         {
             XraySetupStage.ReadBg1FirstScreen => (
-                SnesPpuLayout.GameplayBg1TilemapWord + XrayTilemapLayout.ScreenWords, 1),
+                GameplayVramLayout.Bg1TilemapWord + XrayTilemapLayout.ScreenWords, 1),
             XraySetupStage.BuildRevealReadBg2FirstScreen => (
-                SnesPpuLayout.GameplayBg1TilemapWord, 0),
+                GameplayVramLayout.Bg1TilemapWord, 0),
             XraySetupStage.Complete or XraySetupStage.FreezeTimeBackupBg2Registers or
                 XraySetupStage.ReadBg1SecondScreen or XraySetupStage.ReadBg2SecondScreen or
                 XraySetupStage.TransferRevealFirstScreen or XraySetupStage.InitializeTransferRevealSecondScreen or

@@ -258,14 +258,13 @@ public sealed class OamBuffer
     /// and flips are calculated by the native caller. X remains a nine-bit hardware value;
     /// Y wraps to its low byte exactly like a direct store to OAMLow.
     /// </remarks>
-    [PpuLayoutAccess]
-    public void AddRawSmallSprite(Position16<OamPixels> position, ushort attributes)
+    public void AddRawSmallSprite(Position16<OamPixels> position, SnesObjAttributeWord attributes)
     {
         int spriteIndex = NextByteOffset >> 2;
         int lowOffset = NextByteOffset;
         _lowTable[lowOffset] = unchecked((byte)position.X);
         _lowTable[lowOffset + 1] = unchecked((byte)position.Y);
-        WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
+        WriteAttributes(lowOffset, attributes);
         SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(position.X, isLarge: false));
         NextByteOffset = (NextByteOffset + 4) & 0x01ff;
     }
@@ -281,8 +280,7 @@ public sealed class OamBuffer
     /// coordinates have zero high bytes, so the cleared high-OAM pair already describes a
     /// small object at X 0..255 and is deliberately left untouched.
     /// </remarks>
-    [PpuLayoutAccess]
-    public void AddProjectileTrailSprite(Position16<OamPixels> position, ushort attributes)
+    public void AddProjectileTrailSprite(Position16<OamPixels> position, SnesObjAttributeWord attributes)
     {
         if (NextByteOffset >= LowTableByteCount)
             return;
@@ -291,7 +289,7 @@ public sealed class OamBuffer
         int lowOffset = NextByteOffset;
         _lowTable[lowOffset] = unchecked((byte)position.X);
         _lowTable[lowOffset + 1] = unchecked((byte)position.Y);
-        WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
+        WriteAttributes(lowOffset, attributes);
         NextByteOffset += 4;
     }
 

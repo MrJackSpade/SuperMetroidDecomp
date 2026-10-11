@@ -31,6 +31,6 @@ public readonly struct HudMemory(ISnesMemoryBus bus)
     public static void EnqueueMutableTilemapUpload(VramWriteQueue queue, ushort vramDestination)
     {
         Ensure.NotNull(queue);
-        queue.Enqueue(HudState.MutableByteCount, HudWorkRam.MutableTilemapAddress, vramDestination);
+        queue.Enqueue(HudState.MutableByteCount, HudWorkRam.MutableTilemapAddress, VramDmaDestination.FromNative(vramDestination));
     }
 }

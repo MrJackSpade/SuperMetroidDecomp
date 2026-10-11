@@ -90,7 +90,7 @@ internal static partial class Program
             for (int i = 0; i < bytes.Length; i++) bytes[i] = bus.ReadCartridgeByte(tileSource + i);
             vram.LoadBytes(BeamTileAtlasDefinitions.DestinationWord * 2, bytes);
         }
-        queue?.Enqueue(BeamTileAtlasDefinitions.ByteCount, tileSource, BeamTileAtlasDefinitions.DestinationWord);
+        queue?.Enqueue(BeamTileAtlasDefinitions.ByteCount, tileSource, VramDmaDestination.FromNative(BeamTileAtlasDefinitions.DestinationWord));
         int colors = SamusProjectileRomData.Banks.Movement |
             Word(SamusProjectileRomData.Beams.PalettePointers + selection * 2);
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)

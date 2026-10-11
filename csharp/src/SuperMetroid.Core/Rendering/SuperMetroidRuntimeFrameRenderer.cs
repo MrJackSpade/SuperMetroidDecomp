@@ -162,7 +162,7 @@ public static class SuperMetroidRuntimeFrameRenderer
                         : new Extent16<TilemapCells>(32, 64),
                 bg2TilemapBaseWord: kraidOwnsBg2
                     ? KraidBackgroundRomData.LiveBg2TilemapWord
-                    : SnesPpuLayout.GameplayBg2TilemapWord,
+                    : GameplayVramLayout.Bg2TilemapWord,
                 bg1CharacterBaseWord: bgCharacterBaseWord,
                 bg2CharacterBaseWord: bgCharacterBaseWord,
                 bg3CharacterBaseWord: runtime.GameplayHudCharacterBaseWord,

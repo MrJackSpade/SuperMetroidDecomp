@@ -46,7 +46,7 @@ public sealed partial class RoomEnemySystem
             WorkRamWordTable bg2 = EnemyScratch.EnemyBg2Tilemap;
             for (int i = 0; i < words.Length; i++)
                 bg2[i] = words[i];
-            _vram!.ExecuteWordTransfer(words, SnesPpuLayout.GameplayBg2TilemapWord, wordIncrement: 1);
+            _vram!.ExecuteWordTransfer(words, GameplayVramLayout.Bg2TilemapWord, wordIncrement: 1);
             state.EnemyBg2TilemapSize = MotherBrainDeathRomData.Bg2LastByte;
             state.EnemyBg2TilemapTransferRequested = true;
         }

@@ -21,9 +21,9 @@ internal static partial class Program
         foreach (bool floorEnabled in new[] { false, true })
         {
             var m = new Mode7RenderRegisters(matrix, 17, -33, matrix, new Offset16<Mode7Pixels>(128, 96), new Offset16<Mode7Pixels>(-13, unchecked((short)scroll)));
-            Mode1FloorBand? floor = floorEnabled ? new(208, SnesPpuLayout.GameplayBg2TilemapWord, 0x6000, new Position16<Bg2Pixels>(scroll, scroll), new Extent16<TilemapCells>(64, 32)) : null;
-            var layer = new Mode7GameplayRenderLayer(m, SnesPpuLayout.GameplayHudTilemapWord,
-                SnesPpuLayout.GameplayHudCharacterBaseWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
+            Mode1FloorBand? floor = floorEnabled ? new(208, GameplayVramLayout.Bg2TilemapWord, 0x6000, new Position16<Bg2Pixels>(scroll, scroll), new Extent16<TilemapCells>(64, 32)) : null;
+            var layer = new Mode7GameplayRenderLayer(m, GameplayVramLayout.HudTilemapWord,
+                GameplayVramLayout.HudCharacterWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
             Rgba32[] expected = floorEnabled
                 ? SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Oam,
                     m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.Center, m.Scroll,

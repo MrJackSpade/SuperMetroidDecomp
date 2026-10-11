@@ -255,7 +255,7 @@ public sealed partial class RoomEnemySystem
         if (vramWriteQueue is not null)
             vramWriteQueue.EnqueueAsset(
                 KraidBackgroundRomData.StandardBg3AssetForQuarter(transferIndex),
-                KraidBackgroundRomData.StandardBg3TransferBytes, destinationWord);
+                KraidBackgroundRomData.StandardBg3TransferBytes, VramDmaDestination.FromNative(destinationWord));
         else
             _vram!.ExecuteQueuedAssetWrite(hud.KraidRestoreQuarter(transferIndex).Span,
                 destinationWord);

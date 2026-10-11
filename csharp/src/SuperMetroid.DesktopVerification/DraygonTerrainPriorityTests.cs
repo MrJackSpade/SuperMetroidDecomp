@@ -46,7 +46,7 @@ internal static partial class Program
                 for (int i = 0; i < count; i++)
                 {
                     int expected = Word(cursor + 4 + i * 2);
-                    int actual = runtime.Vram.ReadWord(SnesPpuLayout.GameplayBg2TilemapWord + first + i);
+                    int actual = runtime.Vram.ReadWord(GameplayVramLayout.Bg2TilemapWord + first + i);
                     if (actual != expected)
                         throw new InvalidOperationException($"Draygon map ${stream:X4}, word {i}: ROM ${expected:X4}, VRAM ${actual:X4}.");
                     checkedWords++;
@@ -80,7 +80,7 @@ internal static partial class Program
             {
                 // Mode-1 BG output row y samples physical scanline y + 1 (#516).
                 int physicalY = y + SnesPpuLayout.FirstVisibleBackgroundScanline;
-                var a = ReadDraygonAuditPixel(capture.Memory, SnesPpuLayout.GameplayBg1TilemapWord,
+                var a = ReadDraygonAuditPixel(capture.Memory, GameplayVramLayout.Bg1TilemapWord,
                     r.Bg1CharacterWord, new Extent16<TilemapCells>(64, 32),
                     new Position16<BgPlanePixels>(unchecked((ushort)(x + r.Bg1Scroll.X)), unchecked((ushort)(physicalY + r.Bg1Scroll.Y))));
                 var b = ReadDraygonAuditPixel(capture.Memory, r.Bg2TilemapWord,

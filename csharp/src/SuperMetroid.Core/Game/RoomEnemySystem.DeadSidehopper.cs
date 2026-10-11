@@ -533,7 +533,7 @@ public sealed partial class RoomEnemySystem
             queue.Enqueue(
                 transfer.SizeInBytes,
                 transfer.SourceAddress,
-                transfer.EncodedVramDestination);
+                VramDmaDestination.FromNative(transfer.EncodedVramDestination));
         }
     }
 

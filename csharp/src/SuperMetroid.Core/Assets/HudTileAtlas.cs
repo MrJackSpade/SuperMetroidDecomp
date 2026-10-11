@@ -64,7 +64,7 @@ public static class HudTileAtlasFormat
     /// <summary>$2000-byte native upload: the character data plus the equal-sized all-zero BG2 tilemap-clearing region.</summary>
     public const ushort TransferByteCount = CharacterByteCount * 2;
     /// <summary>VRAM word $4000, the standard BG3 character base; multiply by two for direct byte-addressed loads.</summary>
-    public const ushort DestinationWord = SnesPpuLayout.GameplayHudCharacterBaseWord;
+    public const ushort DestinationWord = GameplayVramLayout.HudCharacterWord;
     /// <summary>$9A:B200, Tiles_Standard_BG3; the installed transfer supplies these characters and the following Clear BG2 tilemap region rather than rereading cartridge bytes.</summary>
     public const int SourceAddress = MapTileAtlasRomData.HudCharacterData;
 }

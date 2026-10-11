@@ -38,7 +38,7 @@ public static partial class SamusGrappleMovement
         {
             vramWrites.Enqueue(SamusGrappleRomData.Rendering.PointTileByteCount,
                 GrapplePointAnimationDefinitions.SourceAddress(grapple.PointAnimationFrame),
-                SamusGrappleRomData.Rendering.PointTileVramDestination);
+                VramDmaDestination.FromNative(SamusGrappleRomData.Rendering.PointTileVramDestination));
         }
 
         // Both installed artwork and legacy bus-backed pixels use the same compiled
@@ -51,7 +51,7 @@ public static partial class SamusGrappleMovement
             var transfer = Assets.GrappleTileDefinitions.TransferFor(
                 Assets.GrappleTileDefinitions.SegmentAssetFor(grapple.Angle.RawValue));
             vramWrites.Enqueue(transfer.ByteCount, transfer.SourceAddress,
-                Assets.GrappleTileDefinitions.SegmentDestination);
+                VramDmaDestination.FromNative(Assets.GrappleTileDefinitions.SegmentDestination));
         }
 
         // `$9B:BFA5` increments the shared flare counter after both tile records, saturating

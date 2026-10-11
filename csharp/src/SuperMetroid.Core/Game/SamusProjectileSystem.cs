@@ -196,7 +196,7 @@ public sealed partial class SamusProjectileSystem
         // beam combinations retain physical adjacent-table reads used by glitch paths.
         _ = artwork ?? throw new InvalidOperationException("Beam tiles require installed artwork.");
         writes.EnqueueAsset(Assets.BeamTileCatalog.AssetFor(beamType),
-            Assets.BeamTileAtlasDefinitions.ByteCount, Assets.BeamTileAtlasDefinitions.DestinationWord);
+            Assets.BeamTileAtlasDefinitions.ByteCount, VramDmaDestination.FromNative(Assets.BeamTileAtlasDefinitions.DestinationWord));
 
         palettes ??= artwork?.Palettes;
         LoadSelectedBeamPalette(bus, cgram, beamType, palettes);

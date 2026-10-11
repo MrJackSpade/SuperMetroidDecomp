@@ -86,7 +86,7 @@ static void VerifyTypedNativeWords()
     AssertEqual(544, SnesPpuLayout.OamUploadByteCount, "PPU OAM upload size");
     AssertEqual(0x0400, SnesPpuLayout.TilemapPageWordCount,
         "PPU 32-by-32 tilemap page size");
-    AssertEqual((ushort)0x5000, SnesPpuLayout.GameplayBg1TilemapWord,
+    AssertEqual((ushort)0x5000, GameplayVramLayout.Bg1TilemapWord,
         "engine gameplay BG1 tilemap placement");
 
     ushort[] translatedPlmInstructionCodes =

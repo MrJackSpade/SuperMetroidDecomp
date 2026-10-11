@@ -91,7 +91,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     public void QueuePoint(VramWriteQueue queue, ushort frame)
     {
         var asset = GrappleTileDefinitions.PointAssetFor(frame);
-        queue.EnqueueAsset(asset, checked((ushort)Resolve(asset).Length), GrappleTileDefinitions.PointDestination);
+        queue.EnqueueAsset(asset, checked((ushort)Resolve(asset).Length), VramDmaDestination.FromNative(GrappleTileDefinitions.PointDestination));
     }
     /// <summary>Queues the four horizontal, diagonal, or vertical rope characters selected by the native angle fold.</summary>
     /// <param name="queue">The deferred VRAM write queue.</param>
@@ -99,7 +99,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     public void QueueSegments(VramWriteQueue queue, ushort angle)
     {
         var asset = GrappleTileDefinitions.SegmentAssetFor(angle);
-        queue.EnqueueAsset(asset, checked((ushort)Resolve(asset).Length), GrappleTileDefinitions.SegmentDestination);
+        queue.EnqueueAsset(asset, checked((ushort)Resolve(asset).Length), VramDmaDestination.FromNative(GrappleTileDefinitions.SegmentDestination));
     }
     /// <summary>Restored legacy transfers keep their order and destination but resolve current artwork at NMI.</summary>
     public void RebindPendingWrites(VramWriteQueue queue)

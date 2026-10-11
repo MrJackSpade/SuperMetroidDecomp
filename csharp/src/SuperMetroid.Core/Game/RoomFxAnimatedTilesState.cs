@@ -111,7 +111,7 @@ internal sealed class RoomFxAnimatedTilesState
                 instructionPointer = unchecked((ushort)(cursor + 4));
                 LastSourceAddress = sourceAddress;
                 if (writes is not null)
-                    writes.Enqueue(transferByteCount, sourceAddress, encodedVramDestination);
+                    writes.Enqueue(transferByteCount, sourceAddress, VramDmaDestination.FromNative(encodedVramDestination));
                 else if (artwork is not null)
                     artwork.LoadFrame(vram, sourceAddress, transferByteCount, encodedVramDestination);
                 else

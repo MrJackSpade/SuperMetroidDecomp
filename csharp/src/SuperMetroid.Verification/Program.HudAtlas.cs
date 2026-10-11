@@ -115,6 +115,6 @@ internal static partial class Program
             runtime.Hud.QueueUpload(guard, runtime.VramWrites);
         }
         static Rgba32[] Render(SuperMetroidRuntime runtime) => SnesBgTilemapRenderer.Render2Bpp(runtime.Vram, runtime.Cgram,
-            SnesPpuLayout.GameplayHudTilemapWord, HudTileAtlasFormat.DestinationWord, 4);
+            GameplayVramLayout.HudTilemapWord, HudTileAtlasFormat.DestinationWord, 4);
     }
 }

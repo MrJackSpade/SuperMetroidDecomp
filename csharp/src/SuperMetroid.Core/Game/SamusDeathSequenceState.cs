@@ -341,7 +341,7 @@ public sealed class SamusDeathSequenceState
         vramWrites.Enqueue(
             sizeInBytes: SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
             sourceAddress: segment.SourceAddress,
-            encodedVramDestination: segment.EncodedVramDestination);
+            destination: VramDmaDestination.FromNative(segment.EncodedVramDestination));
         LastQueuedSegment = segmentIndex;
     }
 

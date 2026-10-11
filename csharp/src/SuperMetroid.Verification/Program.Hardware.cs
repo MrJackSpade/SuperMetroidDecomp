@@ -195,20 +195,20 @@ static void VerifyVramWriteQueue()
     var queue = new VramWriteQueue();
 
     bus.WriteBytes(0x7e1000, [0x10, 0x11, 0x12, 0x13]);
-    queue.Enqueue(sizeInBytes: 4, sourceAddress: 0x7e1000, encodedVramDestination: 0x0001);
+    queue.Enqueue(sizeInBytes: 4, sourceAddress: 0x7e1000, destination: VramDmaDestination.FromNative(0x0001));
     AssertEqual(VramWriteQueue.EntryByteCount, queue.TailInBytes, "one packed VRAM queue tail");
 
     // Setting destination bit 15 selects VMAIN=$81. The physical start remains word one,
     // but the next source pair lands 32 words later at word $0021.
     bus.WriteBytes(0x7e2000, [0x20, 0x21, 0x22, 0x23]);
-    queue.Enqueue(sizeInBytes: 4, sourceAddress: 0x7e2000, encodedVramDestination: 0x8001);
+    queue.Enqueue(sizeInBytes: 4, sourceAddress: 0x7e2000, destination: VramDmaDestination.FromNative(0x8001));
     AssertEqual(VramWriteQueue.EntryByteCount * 2, queue.TailInBytes, "two packed VRAM queue tails");
 
     // This transfer crosses $7E:FFFF. DMA keeps bank $7E fixed, so its second byte
     // comes from $7E:0000 rather than the linear address $7F:0000.
     bus.WriteByte(0x7effff, 0xa0);
     bus.WriteByte(0x7e0000, 0xa1);
-    queue.Enqueue(sizeInBytes: 2, sourceAddress: 0x7effff, encodedVramDestination: 0x0100);
+    queue.Enqueue(sizeInBytes: 2, sourceAddress: 0x7effff, destination: VramDmaDestination.FromNative(0x0100));
 
     queue.DrainTo(vram, ReferenceMutableMemory.From(bus));
 
@@ -225,8 +225,8 @@ static void VerifyVramWriteQueue()
 
     AssertEqual(0, queue.TailInBytes, "drain clears packed tail");
     AssertEqual(0, queue.Entries.Count, "drain clears typed records");
-    AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(0, 0x808000, 0), "zero-size VRAM entry rejected");
-    AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(1, 0x1000000, 0), "25-bit VRAM source rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(0, 0x808000, VramDmaDestination.FromNative(0)), "zero-size VRAM entry rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(1, 0x1000000, VramDmaDestination.FromNative(0)), "25-bit VRAM source rejected");
 
     // A direct channel DAS of zero is not the queue's zero-word terminator. Hardware
     // decrements the sixteen-bit counter through all $10000 values, while A1T and VMADD
@@ -260,8 +260,8 @@ static void VerifyVramWriteQueue()
     // leave insufficient space for the two-byte terminator and must be rejected.
     var fullQueue = new VramWriteQueue();
     while (fullQueue.TailInBytes + VramWriteQueue.EntryByteCount + 2 <= VramWriteQueue.StorageByteCount)
-        fullQueue.Enqueue(1, 0x808000, 0);
-    AssertThrows<InvalidOperationException>(() => fullQueue.Enqueue(1, 0x808000, 0), "VRAM queue overflow rejected");
+        fullQueue.Enqueue(1, 0x808000, VramDmaDestination.FromNative(0));
+    AssertThrows<InvalidOperationException>(() => fullQueue.Enqueue(1, 0x808000, VramDmaDestination.FromNative(0)), "VRAM queue overflow rejected");
 
     Console.WriteLine("  VRAM: write queue, VMAIN stepping, bank/VMADD wrap, DAS zero, and reset agree.");
 }
@@ -501,7 +501,7 @@ static void VerifyFrameRuntime()
     var bus = new TestAddressSpace();
     SeedRuntimeNmiDmaSource(bus);
     var runtime = CreateRetailRuntimeFixture(bus);
-    runtime.VramWrites.Enqueue(2, 0x7e1234, 0x0020);
+    runtime.VramWrites.Enqueue(2, 0x7e1234, VramDmaDestination.FromNative(0x0020));
     runtime.EscapeTimer.RequestCeresStart();
 
     // `$89:ACC3` writes Mode 7 shadow registers during room main. They must become visible

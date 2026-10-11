@@ -532,7 +532,7 @@ public sealed partial class RoomEnemySystem
             queue.Enqueue(
                 unchecked((ushort)entry.TileByteCount),
                 entry.Definition.TileDataAddress,
-                unchecked((ushort)(destinationByteOffset / 2)));
+                unchecked(VramDmaDestination.FromNative((ushort)(destinationByteOffset / 2))));
         }
     }
 
@@ -2513,10 +2513,10 @@ public sealed partial class RoomEnemySystem
             GunshipLiftoffTransferDefinitions.Frames[transferIndex];
         if (TileArtwork?.GunshipLiftoff is not null)
             vramWriteQueue.EnqueueAsset(transfer.Asset,
-                GunshipLiftoffTransferDefinitions.ByteCount, transfer.DestinationWord);
+                GunshipLiftoffTransferDefinitions.ByteCount, VramDmaDestination.FromNative(transfer.DestinationWord));
         else
             vramWriteQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
-                transfer.SourceAddress, transfer.DestinationWord);
+                transfer.SourceAddress, VramDmaDestination.FromNative(transfer.DestinationWord));
 
         top.VariableB++;
         if (top.VariableB >= GunshipLiftoffTransferDefinitions.Frames.Length)

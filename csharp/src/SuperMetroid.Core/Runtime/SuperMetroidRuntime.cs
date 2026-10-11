@@ -427,7 +427,7 @@ public sealed partial class SuperMetroidRuntime
     /// word $4000.
     /// </summary>
     public ushort GameplayHudCharacterBaseWord { get; private set; } =
-        SnesPpuLayout.GameplayHudCharacterBaseWord;
+        GameplayVramLayout.HudCharacterWord;
 
     /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>
     public RoomLayer3FxRenderSnapshot? DisplayedRoomLayer3Fx { get; private set; }
@@ -691,16 +691,16 @@ public sealed partial class SuperMetroidRuntime
         // $1000 bytes; the following $1000-byte clear table intentionally fills the rest of
         // VRAM $4000-$4FFF with zeroes.
         if (MapPresentation is null)
-            VramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.DestinationWord);
+            VramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, VramDmaDestination.FromNative(HudTileAtlasFormat.DestinationWord));
         else
-            VramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.DestinationWord);
+            VramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, VramDmaDestination.FromNative(HudTileAtlasFormat.DestinationWord));
 
         // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
         // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
         // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
         VramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
             sourceAddress: StandardObjectArtworkAddresses.Source,
-            encodedVramDestination: StandardObjectArtworkFormat.EncodedVramDestination);
+            destination: VramDmaDestination.FromNative(StandardObjectArtworkFormat.EncodedVramDestination));
         TrailArtwork?.Tiles?.QueueTo(VramWrites);
 
         // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The
@@ -712,7 +712,7 @@ public sealed partial class SuperMetroidRuntime
         // The immutable first row bypasses WRAM and is DMAed straight from $80:988B.
         VramWrites.Enqueue(sizeInBytes: GameplayHudDefinitions.TopRowByteCount,
             sourceAddress: GameplayHudDefinitions.TopRowAddress,
-            encodedVramDestination: 0x5800);
+            destination: VramDmaDestination.FromNative(0x5800));
 
         Hud.Initialize(_addressSpace, snapshot);
         Hud.QueueUpload(_addressSpace, VramWrites);

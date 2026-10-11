@@ -142,7 +142,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
                 writes.Enqueue(
                     _transferByteCount,
                     LastSourceAddress.Value,
-                    _encodedVramDestination);
+                    VramDmaDestination.FromNative(_encodedVramDestination));
                 NextFrameIndex = (NextFrameIndex + 1) & 3;
                 return;
             }

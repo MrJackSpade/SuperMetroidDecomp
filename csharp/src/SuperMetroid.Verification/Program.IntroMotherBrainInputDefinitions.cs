@@ -17,7 +17,7 @@ internal static partial class Program
                 IntroMotherBrainInputDefinitions.ListEnd),
             "intro Mother Brain demo rejects adjacent bank-$91 code");
 
-        var guarded = new IntroArtworkSourceReadGuard(bus);
+        var guarded = NewIntroArtworkSourceReadGuard(bus);
         var compiled = new DemoInputState();
         var reference = new DemoInputState();
         compiled.Clear();

@@ -130,7 +130,7 @@ internal static partial class Program
         {
             GrappleBlockFixture native = NewGrappleBlockFixture(bts);
             GrappleBlockFixture compiled = NewGrappleBlockFixture(bts);
-            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 300; frame++)
             {
                 native.Plms.Step(rom, native.Level, native.Streamer, new(0, 0), 0);
@@ -190,7 +190,7 @@ internal static partial class Program
             var plms = new RoomPlmSystem { GrappleBlockVisuals = visuals };
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
                 "visual test starts the real respawning Grapple PLM");
-            plms.Step(new ShotBlockProgramReadGuard(rom, forbidden), level,
+            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level,
                 level.CreateBackgroundStreamer(), new(0, 0), 0);
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "first Grapple draw publishes one immediate tile upload");

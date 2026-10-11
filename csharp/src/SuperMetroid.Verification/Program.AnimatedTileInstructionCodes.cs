@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -97,7 +98,7 @@ internal static partial class Program
     {
         WreckedShipTreadmillObjectDefinition definition =
             WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction);
-        var guarded = new WreckedShipTreadmillMechanicsForbiddenBus(bus, definition);
+        var guarded = NewWreckedShipTreadmillMechanicsForbiddenBus(bus, definition, out StrongBox<int> guardedPresentationReads);
         var state = new WreckedShipTreadmillAnimatedTilesState();
         var writes = new VramWriteQueue();
         state.Start(guarded, direction);
@@ -122,7 +123,7 @@ internal static partial class Program
             $"{direction} compiled goto returns to frame zero");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{direction} performs no treadmill mechanics ROM reads");
-        AssertEqual(0, guarded.PresentationReadCount,
+        AssertEqual(0, guardedPresentationReads.Value,
             $"{direction} no longer reads frame-source presentation operands");
     }
 
@@ -152,40 +153,34 @@ internal static partial class Program
             AssertTrue(pointer >= 0x8000, $"{name} pointer ${pointer:X4} is mapped");
     }
 
-    private sealed class WreckedShipTreadmillMechanicsForbiddenBus(
+    private static CartridgeReadGuard NewWreckedShipTreadmillMechanicsForbiddenBus(
         ISnesAddressSpace inner,
-        WreckedShipTreadmillObjectDefinition definition) : ISnesAddressSpace, IImportCartridgeSource
+        WreckedShipTreadmillObjectDefinition definition,
+        out StrongBox<int> presentationReads)
     {
-        public int ForbiddenReadAttempts { get; private set; }
-        public int PresentationReadCount { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            SnesAddress source = SnesAddress.FromBusAddress(address);
-            if (source.Bank == (byte)(RoomFxRomData.Banks.AnimatedTiles >> 16))
-            {
-                if (definition.TryReadMechanicsWord(source.Offset, out _) ||
-                    definition.TryReadMechanicsWord(
-                        unchecked((ushort)(source.Offset - 1)), out _))
+        var reads = new StrongBox<int>();
+        presentationReads = reads;
+        bool InTreadmillBank(int address) =>
+            SnesAddress.FromBusAddress(address).Bank == (byte)(RoomFxRomData.Banks.AnimatedTiles >> 16);
+        return new CartridgeReadGuard(inner)
+            .Forbid(address =>
                 {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Production read compiled treadmill mechanics byte {source}.");
-                }
-
-                if (definition.FrameInstructionPointers.Any(pointer =>
-                        source.Offset == unchecked((ushort)(pointer + 2)) ||
-                        source.Offset == unchecked((ushort)(pointer + 3))))
+                    if (!InTreadmillBank(address))
+                        return false;
+                    ushort offset = SnesAddress.FromBusAddress(address).Offset;
+                    return definition.TryReadMechanicsWord(offset, out _) ||
+                        definition.TryReadMechanicsWord(unchecked((ushort)(offset - 1)), out _);
+                },
+                address => $"Production read compiled treadmill mechanics byte {SnesAddress.FromBusAddress(address)}.")
+            .Observe(address =>
                 {
-                    PresentationReadCount++;
-                }
-            }
-
-            return inner.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
+                    if (!InTreadmillBank(address))
+                        return false;
+                    ushort offset = SnesAddress.FromBusAddress(address).Offset;
+                    return definition.FrameInstructionPointers.Any(pointer =>
+                        offset == unchecked((ushort)(pointer + 2)) ||
+                        offset == unchecked((ushort)(pointer + 3)));
+                },
+                _ => reads.Value++);
     }
 }

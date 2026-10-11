@@ -20,7 +20,7 @@ internal static partial class Program
         Suite(nameof(VerifyFaceBlockPresentationMapping), () => VerifyFaceBlockPresentationMapping());
         Suite(nameof(VerifyFaceBlockVisualMapping), () => VerifyFaceBlockVisualMapping(rom));
 
-        var guard = new BlueBrinstarFaceBlockProgramReadGuard(rom);
+        var guard = NewBlueBrinstarFaceBlockProgramReadGuard(rom);
         Suite(nameof(VerifyBlueBrinstarFaceBlockProgram), () => VerifyBlueBrinstarFaceBlockProgram(
             guard,
             parameter2: 0,
@@ -46,7 +46,7 @@ internal static partial class Program
             frames: 96,
             "Samus-right"));
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "face-block programs use compiled spritemap selectors");
         for (int index = 0;
              index < BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -54,7 +54,7 @@ internal static partial class Program
         {
             ushort address =
                 BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertTrue(!guard.ObservedPresentationWords.Contains(address),
+            AssertTrue(!guard.ObservedWords.Contains(address),
                 $"production execution avoids face-block presentation word $A8:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -81,7 +81,7 @@ internal static partial class Program
             "spritemap selectors pass without instruction or presentation ROM reads.");
 
         static void VerifyBlueBrinstarFaceBlockProgram(
-            BlueBrinstarFaceBlockProgramReadGuard guard,
+            CartridgeReadGuard guard,
             ushort parameter2,
             ushort? samusX,
             ushort expectedProgram,
@@ -220,46 +220,11 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class BlueBrinstarFaceBlockProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
-                    address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled face-block mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling
-                         .PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBlueBrinstarFaceBlockProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled face-block mechanics byte ${address:X6}.")
+            .ObserveWords(0xa80000,
+                BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount,
+                BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

@@ -39,7 +39,7 @@ internal static partial class Program
         AssertEqual(Word(rom, 0x909e91), SamusLiquidDamageDefinitions.Acid.WholeDamage,
             "acid whole damage rate");
 
-        var guarded = new SamusAtmosphericAnimationReadGuard(rom);
+        var guarded = NewSamusAtmosphericAnimationReadGuard(rom);
         Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence(guarded));
         Suite(nameof(VerifyNullAtmosphericPointerReadsMirroredWorkRam), () => VerifyNullAtmosphericPointerReadsMirroredWorkRam(rom, guarded));
         Suite(nameof(VerifyProductionLiquidDamage), () => VerifyProductionLiquidDamage(guarded, RoomFxType.Lava,
@@ -154,23 +154,11 @@ internal static partial class Program
             $"production {fxType} whole damage accumulation");
     }
 
-    private sealed class SamusAtmosphericAnimationReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static MutableCartridgeReadGuard NewSamusAtmosphericAnimationReadGuard(ISnesAddressSpace source)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadWorkRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            ((ISnesMutableMemory)source).ReadSaveRamByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x908b93 and < 0x908bff or >= 0x909e8b and < 0x909e93
-                ? throw new InvalidOperationException(
-                    $"Samus atmosphere attempted migrated mechanics read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is >= 0x908b93 and < 0x908bff or >= 0x909e8b and < 0x909e93,
+            address => $"Samus atmosphere attempted migrated mechanics read ${address:X6}.");
+        return guard;
     }
 }

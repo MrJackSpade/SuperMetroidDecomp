@@ -164,7 +164,7 @@ internal static partial class Program
         {
             BombBlockFixture native = NewBombBlockFixture(behavior, producer);
             BombBlockFixture compiled = NewBombBlockFixture(behavior, producer);
-            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
             {
                 native.Plms.Step(rom, native.Level, native.Streamer, new(0, 0), 0);
@@ -230,7 +230,7 @@ internal static partial class Program
             var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
-            plms.Step(new ShotBlockProgramReadGuard(rom, forbidden), level,
+            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level,
                 level.CreateBackgroundStreamer(), new(0, 0), 0);
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "first bomb-break frame publishes one immediate tile upload");
@@ -268,7 +268,7 @@ internal static partial class Program
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 1),
                 "restored-art test installs linked respawning bomb block");
             var streamer = level.CreateBackgroundStreamer();
-            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
                 plms.Step(guarded, level, streamer, new(0, 0), 0);
             AssertEqual(0, guarded.ForbiddenReadAttempts,

@@ -122,7 +122,7 @@ internal static partial class Program
         Suite(nameof(VerifyAlcoonMechanicsMapping), () => VerifyAlcoonMechanicsMapping(rom));
         Suite(nameof(VerifyAlcoonPresentationAddressMapping), () => VerifyAlcoonPresentationAddressMapping());
 
-        var guard = new AlcoonInstructionReadGuard(rom, forbidPresentation: true);
+        var guard = NewAlcoonInstructionReadGuard(rom, forbidPresentation: true);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(rom, AlcoonInstructionAuditRoom);
         var installation = RepositoryInstallation.Installation;
         CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room,
@@ -199,7 +199,7 @@ internal static partial class Program
         AssertTrue(!selectedPresentationOperands.Contains(0xdc49) &&
                    !selectedPresentationOperands.Contains(0xdcb9),
             "native start-walking callbacks skip the two trailing unreachable frames");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Alcoon reads no cartridge visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Alcoon mechanics byte");
@@ -249,47 +249,30 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class AlcoonInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewAlcoonInstructionReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
+        var guard = new CartridgeReadGuard(source).Forbid(
+            AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            address => $"Production read compiled Alcoon mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.Forbid(address => PresentationWord(address) is not null,
+                address => $"Installed Alcoon read cartridge visual selector $A8:{PresentationWord(address)!.Value:X4}.")
+            : guard.ObserveWords(0xa80000, AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount,
+                AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        static ushort? PresentationWord(int address)
         {
-            if (AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
+            if ((address & 0xff0000) != 0xa80000)
+                return null;
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0; index < AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Alcoon mechanics byte ${address:X6}.");
+                ushort presentation = AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
+                if (bankAddress == presentation || bankAddress == unchecked((ushort)(presentation + 1)))
+                    return presentation;
             }
-
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                            throw new InvalidOperationException(
-                                $"Installed Alcoon read cartridge visual selector $A8:{presentation:X4}.");
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
+            return null;
         }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

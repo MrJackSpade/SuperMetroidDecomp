@@ -152,7 +152,7 @@ internal static partial class Program
         var nativeTransfers = new List<VramWriteEntry>();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            installed, new FrontendCartridgeReadGuard(installedBus));
+            installed, NewFrontendCartridgeReadGuard(installedBus));
         MethodInfo build = typeof(RoomEnemySystem)
             .GetMethod("BuildDeadTorizoVramTransfers", flags)!;
 
@@ -220,7 +220,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        ISnesAddressSpace source = new DeadTorizoArtworkReadGuard(bus);
+        ISnesAddressSpace source = NewDeadTorizoArtworkReadGuard(bus);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
         typeof(RoomEnemySystem).GetMethod("InitializeDeadTorizo", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies)(enemies.Slots[0]);
@@ -241,7 +241,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         RoomEnemySystem enemies = InitializeDeadTorizoArtwork(bus, artwork);
         typeof(RoomEnemySystem).GetField("_bus", flags)!
-            .SetValue(enemies, new DeadTorizoOamReadGuard(bus));
+            .SetValue(enemies, NewDeadTorizoOamReadGuard(bus));
         var oam = new OamBuffer();
         typeof(RoomEnemySystem).GetMethod("DrawDeadTorizoHook", flags)!
             .CreateDelegate<Action<OamBuffer, Position16<RoomPixels>>>(enemies)(
@@ -258,77 +258,19 @@ internal static partial class Program
                 description);
     }
 
-    private sealed class DeadTorizoArtworkReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static MutableCartridgeReadGuard NewDeadTorizoArtworkReadGuard(ISnesAddressSpace source)
     {
-        public byte ReadByte(int address)
-        {
-            RejectArtworkRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectArtworkRead(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Dead Torizo artwork guard requires a cartridge import source."))
-                .ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Dead Torizo artwork guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Dead Torizo artwork guard requires SRAM."))
-            .ReadSaveRamByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private static void RejectArtworkRead(int address)
-        {
-            if (address is >= 0xb7a800 and < 0xb7c000)
-                throw new InvalidOperationException(
-                    $"Dead Torizo read installed artwork from ROM at ${address:X6}.");
-        }
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is >= 0xb7a800 and < 0xb7c000,
+            address => $"Dead Torizo read installed artwork from ROM at ${address:X6}.");
+        return guard;
     }
 
-    private sealed class DeadTorizoOamReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static MutableCartridgeReadGuard NewDeadTorizoOamReadGuard(ISnesAddressSpace source)
     {
-        public byte ReadByte(int address)
-        {
-            RejectOamRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectOamRead(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Dead Torizo OAM guard requires a cartridge import source."))
-                .ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Dead Torizo OAM guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Dead Torizo OAM guard requires SRAM."))
-            .ReadSaveRamByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private static void RejectOamRead(int address)
-        {
-            if (address is >= 0xa9d761 and < 0xa9d77c)
-                throw new InvalidOperationException(
-                    $"Dead Torizo drew native OAM from ROM at ${address:X6}.");
-        }
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is >= 0xa9d761 and < 0xa9d77c,
+            address => $"Dead Torizo drew native OAM from ROM at ${address:X6}.");
+        return guard;
     }
 }

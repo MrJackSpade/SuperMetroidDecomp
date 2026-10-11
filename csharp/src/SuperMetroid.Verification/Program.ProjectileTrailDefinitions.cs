@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail selector words")]
     private static void VerifyProjectileTrailDefinitions(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailCoordinates), () => VerifyProjectileTrailCoordinates(bus));
@@ -25,7 +26,7 @@ internal static partial class Program
                 InstructionPointer = 0x86e3,
                 Position = new(new(100, 0), new(200, 0)),
             };
-            spawn.Invoke(projectiles, [new TrailSelectorGuard(start, end), projectile]);
+            spawn.Invoke(projectiles, [NewTrailSelectorGuard(start, end), projectile]);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Trails.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");
@@ -35,26 +36,17 @@ internal static partial class Program
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
     }
 
-    private sealed class TrailSelectorGuard(int start, int end) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static MutableCartridgeReadGuard NewTrailSelectorGuard(int start, int end)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        // A wrapped trail-coordinate pointer may address the low WRAM mirror.
-        // The constructed fixture leaves that memory zero-filled, as the old
-        // generic read guard did for all unrelated visual offsets.
-        public byte ReadWorkRamByte(int address) => 0;
-
-        public byte ReadSaveRamByte(int address) =>
-            throw new InvalidOperationException("Trail selector fixture cannot read SRAM.");
-
-        public byte ReadByte(int address)
-        {
-            if (address >= start && address < end) throw new InvalidDataException("Trail spawn still reads authored selector ROM.");
-            // Unrelated visual offsets are zero-filled so all low-six-bit combinations
-            // have deterministic origins without weakening the selector guard.
-            return (byte)0;
-        }
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Trail spawn wrote ROM.");
+        // Unrelated visual offsets and a wrapped trail-coordinate pointer into the low WRAM
+        // mirror read the zero-filled sparse fixture, so all low-six-bit combinations have
+        // deterministic origins without weakening the selector guard.
+        var guard = new MutableCartridgeReadGuard(new TestAddressSpace());
+        guard.Forbid(address => address >= start && address < end,
+                _ => new InvalidDataException("Trail spawn still reads authored selector ROM."))
+            .Forbid(address => SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) == SnesDmaSourceKind.SaveRam,
+                _ => "Trail selector fixture cannot read SRAM.")
+            .RejectWrites(_ => "Trail spawn wrote ROM.");
+        return guard;
     }
 }

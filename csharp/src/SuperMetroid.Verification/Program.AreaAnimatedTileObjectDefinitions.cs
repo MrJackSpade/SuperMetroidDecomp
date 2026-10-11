@@ -38,7 +38,7 @@ internal static partial class Program
         // Original compiled default-door FX record with both sand/treadmill bits.
         const ushort fxRecord = 0x9e44;
         AssertEqual(animatedTileBits, rom.ReadByte(0x839e52), "Native fixture animation bitset");
-        var guarded = new AreaAnimatedTileSelectionForbiddenBus(rom);
+        var guarded = NewAreaAnimatedTileSelectionForbiddenBus(rom);
         var sand = new RoomSandAnimatedTilesState();
         var treadmills = new RoomTreadmillAnimatedTilesState();
         sand.LoadRoom(guarded, fxRecord, doorPointer: 0, area);
@@ -54,55 +54,39 @@ internal static partial class Program
     /// <summary>
     /// Delegates allowed reads to the cartridge and rejects the compiled pointer/list bytes.
     /// </summary>
-    private sealed class AreaAnimatedTileSelectionForbiddenBus(
-        ISnesAddressSpace rom) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewAreaAnimatedTileSelectionForbiddenBus(ISnesAddressSpace rom) =>
+        new CartridgeReadGuard(rom)
+            .Forbid(IsCompiledAreaAnimatedTileSource,
+                address => $"Production read compiled area animated-tile byte " +
+                    $"{SnesAddress.FromBusAddress(address)}.")
+            .RejectWrites(_ => "Read-only verification bus.");
+
+    private static bool IsCompiledAreaAnimatedTileSource(int address)
     {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        if (address >= AreaAnimatedTileObjectDefinitions.NativeListPointerTable &&
+            address < AreaAnimatedTileObjectDefinitions.NativeListPointerTable +
+                AreaAnimatedTileObjectDefinitions.NativeAreaCount * sizeof(ushort))
         {
-            if (IsCompiledSource(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled area animated-tile byte " +
-                    $"{SnesAddress.FromBusAddress(address)}.");
-            }
-
-            return rom.ReadByte(address);
+            return true;
         }
 
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Read-only verification bus.");
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        if (source.Bank != (byte)(RoomFxRomDataBanksTooling.RoomDefinitions >> 16))
+            return false;
 
-        private static bool IsCompiledSource(int address)
+        for (int areaIndex = 0;
+             areaIndex < AreaAnimatedTileObjectDefinitions.NativeAreaCount;
+             areaIndex++)
         {
-            if (address >= AreaAnimatedTileObjectDefinitions.NativeListPointerTable &&
-                address < AreaAnimatedTileObjectDefinitions.NativeListPointerTable +
-                    AreaAnimatedTileObjectDefinitions.NativeAreaCount * sizeof(ushort))
+            ushort list = AreaAnimatedTileObjectDefinitions.NativeListPointer(areaIndex);
+            if (source.Offset >= list &&
+                source.Offset < list +
+                    AreaAnimatedTileObjectDefinitions.ObjectsPerArea * sizeof(ushort))
             {
                 return true;
             }
-
-            SnesAddress source = SnesAddress.FromBusAddress(address);
-            if (source.Bank != (byte)(RoomFxRomDataBanksTooling.RoomDefinitions >> 16))
-                return false;
-
-            for (int areaIndex = 0;
-                 areaIndex < AreaAnimatedTileObjectDefinitions.NativeAreaCount;
-                 areaIndex++)
-            {
-                ushort list = AreaAnimatedTileObjectDefinitions.NativeListPointer(areaIndex);
-                if (source.Offset >= list &&
-                    source.Offset < list +
-                        AreaAnimatedTileObjectDefinitions.ObjectsPerArea * sizeof(ushort))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
+
+        return false;
     }
 }

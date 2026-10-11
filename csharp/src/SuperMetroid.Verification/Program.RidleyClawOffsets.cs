@@ -32,8 +32,7 @@ internal static partial class Program
         for (ushort feet = 0; feet < 6; feet++)
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            slot.XPosition = (ushort)raw;
-            slot.YPosition = (ushort)(ushort.MaxValue - raw);
+            slot.Position = slot.Position.WithWhole(new((ushort)raw, (ushort)(ushort.MaxValue - raw)));
             state.FacingDirection = facing;
             state.FeetDistanceIndex = feet;
             state.GrabXOffset = (ushort)raw;
@@ -52,7 +51,7 @@ internal static partial class Program
         for (int dx = -32; dx <= 32; dx++)
         for (int dy = -32; dy <= 32; dy++)
         {
-            slot.XPosition = slot.YPosition = world;
+            slot.Position = slot.Position.WithWhole(new(world, world));
             state.FacingDirection = facing;
             state.FeetDistanceIndex = feet;
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(world + x[(int)facing] + dx)), unchecked((ushort)(world + y[feet >> 1] + dy))));

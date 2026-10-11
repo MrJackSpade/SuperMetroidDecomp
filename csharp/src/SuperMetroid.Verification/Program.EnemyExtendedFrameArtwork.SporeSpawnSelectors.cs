@@ -132,7 +132,7 @@ internal static partial class Program
         SporeSpawnEnemyState state = system.SporeSpawn!;
         return new SporeSpawnProgramFrame(
             slot.CurrentInstruction, slot.InstructionTimer,
-            slot.SpritemapPointer, slot.XPosition, slot.YPosition,
+            slot.SpritemapPointer, slot.Position.X.Whole, slot.Position.Y.Whole,
             slot.Health, slot.Properties, slot.ExtraProperties,
             state.Function, state.Angle, state.MaximumXRadius,
             state.DeathStarted, state.DeathDropRequested);

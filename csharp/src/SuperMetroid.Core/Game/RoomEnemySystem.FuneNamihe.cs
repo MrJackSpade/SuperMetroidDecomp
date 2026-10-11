@@ -212,7 +212,7 @@ public sealed partial class RoomEnemySystem
                 // uses a strict comparison. Equality at the configured distance stays idle.
                 if (!IsWithinStrictModularDistance(
                         samus.Position.Y.Whole,
-                        slot.YPosition,
+                        slot.Position.Y.Whole,
                         state.YProximity))
                 {
                     return;

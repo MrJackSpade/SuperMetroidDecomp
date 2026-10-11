@@ -107,8 +107,8 @@ internal static partial class Program
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, MagdolliteEnemyState state) =
                 CreateSystem(MagdollitePart.TrackingOverlay);
-            state.ThrowOriginX = slot.XPosition;
-            state.ThrowOriginY = slot.YPosition;
+            state.ThrowOriginX = slot.Position.X.Whole;
+            state.ThrowOriginY = slot.Position.Y.Whole;
             Install(slot, program);
             RunFrames(enemies, slot, 80);
             AssertEqual((ushort)0x0061, enemies.LastMagdolliteSoundEffect!.Value,
@@ -176,8 +176,7 @@ internal static partial class Program
                 member.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
                 member.Parameter1 = (ushort)index;
                 member.Parameter2 = 0;
-                member.XPosition = 0x0080;
-                member.YPosition = 0x0080;
+                member.Position = member.Position.WithWhole(new(0x0080, 0x0080));
                 initialize(member, null);
             }
 
@@ -196,7 +195,7 @@ internal static partial class Program
         {
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
-            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
         }

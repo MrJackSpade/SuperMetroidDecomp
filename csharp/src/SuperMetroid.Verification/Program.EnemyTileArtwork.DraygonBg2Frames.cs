@@ -194,14 +194,12 @@ internal static partial class Program
         {
             Bank = DraygonBg2FrameDefinitions.Bank,
         };
-        slot.XPosition = 0x100;
-        slot.YPosition = 0x100;
+        slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
         foreach (ushort pointer in new ushort[] { 0xa31b, 0xa643, 0xa36b })
         {
             slot.SpritemapPointer = pointer;
             object?[] arguments =
-                [slot, (ushort)0x100, (ushort)0x100, (ushort)0,
-                    (ushort)0, true, (ushort)0];
+                [slot, new Position16<RoomPixels>((ushort)0x100, (ushort)0x100), new Extent16<RoomPixels>((ushort)0, (ushort)0), true, (ushort)0];
             bool found = (bool)walker.Invoke(enemies, arguments)!;
             AssertEqual(pointer != 0xa36b, found,
                 $"Draygon frame {pointer:X4} shot overlap without ROM reads");
@@ -243,9 +241,8 @@ internal static partial class Program
             slot.ExtraProperties = slot.ExtraProperties.With(
                 EnemyExtraProperties.NewInstructionFrame);
         slot.SpritemapPointer = pointer;
-        slot.XPosition = 0x0080;
-        slot.YPosition = 0x0080;
-        enemies.DrawLayers(new OamBuffer(), 0, 0, 0, 0);
+        slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
+        enemies.DrawLayers(new OamBuffer(), new(0, 0), 0, 0);
         return vram.Bytes.ToArray();
     }
 }

@@ -289,18 +289,14 @@ public sealed class RoomEnemyProjectileSlot
     public RoomEnemyProjectileKind Kind { get; internal set; }
     /// <summary>Gets whether the slot has a nonzero native definition identity and participates in projectile passes.</summary>
     public bool IsActive => Kind != RoomEnemyProjectileKind.None;
-    /// <summary>Gets the wrapped sixteen-bit whole X coordinate in the coordinate space selected by the projectile's pre-instruction.</summary>
-    public ushort XPosition { get; internal set; }
-    /// <summary>Gets the native sixteen-bit fractional X coordinate; signed 8.8 motion adds into its high byte.</summary>
-    public ushort XSubposition { get; internal set; }
-    /// <summary>Gets the wrapped sixteen-bit whole Y coordinate in the coordinate space selected by the projectile's pre-instruction.</summary>
-    public ushort YPosition { get; internal set; }
-    /// <summary>Gets the native sixteen-bit fractional Y coordinate; signed 8.8 motion adds into its high byte.</summary>
-    public ushort YSubposition { get; internal set; }
-    /// <summary>Gets the unchanged native X velocity word, interpreted as signed 8.8 by the shared movement helpers or reused by family-specific logic.</summary>
-    public ushort XVelocity { get; internal set; }
-    /// <summary>Gets the unchanged native Y velocity word, interpreted as signed 8.8 by the shared movement helpers or reused by family-specific logic.</summary>
-    public ushort YVelocity { get; internal set; }
+    /// <summary>
+    /// Gets the native 16.16 position: wrapped sixteen-bit whole words plus fractional words into
+    /// whose high byte signed 8.8 motion adds. Room pixels for every family except the few
+    /// pre-instructions that deliberately keep screen-relative words here.
+    /// </summary>
+    public FixedPosition<RoomPixels> Position { get; internal set; }
+    /// <summary>Gets the unchanged native velocity words, interpreted as signed 8.8 by the shared movement helpers or reused by family-specific logic.</summary>
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Gets the bank-$86 offset of the next instruction-list word to execute.</summary>
     public ushort InstructionPointer { get; internal set; }
     /// <summary>Gets the native draw-instruction countdown; allocation starts it at one so the initial list runs on its first reached pass.</summary>
@@ -316,10 +312,8 @@ public sealed class RoomEnemyProjectileSlot
     public ushort PreInstruction { get; internal set; }
     /// <summary>Gets the native combined sprite tile-base and palette word used when composing projectile OAM.</summary>
     public ushort GraphicsIndex { get; internal set; }
-    /// <summary>Gets the horizontal collision half-extent in pixels, decoded from the definition's native packed radii.</summary>
-    public ushort XRadius { get; internal set; }
-    /// <summary>Gets the vertical collision half-extent in pixels, decoded from the definition's native packed radii.</summary>
-    public ushort YRadius { get; internal set; }
+    /// <summary>Gets the collision half-extents in pixels, decoded from the definition's native packed radii.</summary>
+    public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>Gets the contact-damage value decoded from the native properties word, before Samus's suit reduction.</summary>
     public ushort Damage { get; internal set; }
     /// <summary>Gets the invincibility timer written to Samus on a damaging collision; definition initialization uses ninety-six frames.</summary>
@@ -393,10 +387,11 @@ public sealed class RoomEnemyProjectileSlot
         Kind = RoomEnemyProjectileKind.None;
         // $86:8016/8154 release identity only. SpawnEprojInner clears fractions,
         // but leaves whole coordinates and velocities for the family initializer.
-        XSubposition = YSubposition = 0;
+        Position = Position.WithFractionX(0).WithFractionY(0);
         InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
         PresentationOperandAddress = 0;
-        GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = GeneralTimer = 0;
+        Radius = Extent16<RoomPixels>.Zero;
+        GraphicsIndex = Damage = InvincibilityFrames = GeneralTimer = 0;
         DrawPriority = EnemyProjectileDrawPriority.Low;
         RemainingAfterburns = NextAfterburnKind = 0;
         DirectionParameter = Variable0 = Variable1 = 0;
@@ -448,10 +443,8 @@ public sealed partial class RoomEnemySystem
             ? RoomEnemyProjectileKind.CeresFallingDebrisDark
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
         InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
-        projectile.XPosition = xPosition;
-        projectile.YPosition = 0x002a;
-        projectile.XVelocity = 0;
-        projectile.YVelocity = 0x0010;
+        projectile.Position = projectile.Position.WithWhole(new(xPosition, 0x002a));
+        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0x0010));
         projectile.Variable0 = 0;
         projectile.Variable1 = 0;
     }
@@ -481,8 +474,7 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0);
         int blockX = plmBlockIndex % roomWidthInBlocks;
         int blockY = plmBlockIndex / roomWidthInBlocks;
-        projectile.XPosition = unchecked((ushort)(16 * (blockX + 1)));
-        projectile.YPosition = unchecked((ushort)(16 * (blockY - 2)));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(16 * (blockX + 1))), unchecked((ushort)(16 * (blockY - 2)))));
     }
 
     /// <summary>
@@ -502,10 +494,8 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
             graphicsIndex: 0);
-        projectile.XPosition = unchecked((ushort)(samus.Position.X.Whole + definition.XOffset));
-        projectile.YPosition = unchecked((ushort)(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset));
-        projectile.XVelocity = 0;
-        projectile.YVelocity = 0;
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + definition.XOffset)), unchecked((ushort)(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset))));
+        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         projectile.Variable0 = parameter;
         projectile.InstructionPointer = definition.Instruction;
         projectile.InstructionTimer = 1;
@@ -551,8 +541,8 @@ public sealed partial class RoomEnemySystem
                 // The native path intentionally compares only 32-pixel cells. It does not
                 // run the radius overlap used by ordinary enemies, a coarse quirk preserved
                 // here instead of “fixing” shots near a cell corner.
-                if ((enemyProjectile.XPosition & 0xffe0) != (shot.Position.X.Whole & 0xffe0) ||
-                    (enemyProjectile.YPosition & 0xffe0) != (shot.Position.Y.Whole & 0xffe0))
+                if ((enemyProjectile.Position.X.Whole & 0xffe0) != (shot.Position.X.Whole & 0xffe0) ||
+                    (enemyProjectile.Position.Y.Whole & 0xffe0) != (shot.Position.Y.Whole & 0xffe0))
                 {
                     continue;
                 }
@@ -597,8 +587,7 @@ public sealed partial class RoomEnemySystem
     public void StepEnemyProjectileInstructions(
         RoomLevelData level,
         SamusState? samus,
-        ushort cameraX = 0,
-        ushort cameraY = 0,
+        Position16<RoomPixels> camera = default,
         byte? nmiFrameCounter8 = null,
         SamusBombProjectileSystem? samusBombs = null,
         BackgroundScrollState? backgroundScroll = null,
@@ -641,14 +630,13 @@ public sealed partial class RoomEnemySystem
                 projectile,
                 level,
                 samus,
-                cameraX,
-                cameraY,
+                camera,
                 projectileFrame,
                 samusBombs);
             if (!projectile.IsActive)
                 continue;
 
-            ProcessEnemyProjectileInstructions(projectile, samus, cameraX, cameraY);
+            ProcessEnemyProjectileInstructions(projectile, samus, camera);
         }
 
     }
@@ -696,8 +684,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public void DrawHighPriorityEnemyProjectiles(
         OamBuffer oam,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         bool timeIsFrozen = false)
     {
         ArgumentNullException.ThrowIfNull(oam);
@@ -705,19 +692,17 @@ public sealed partial class RoomEnemySystem
 
         // Sprite objects precede only the high pass. Repeating them in the low pass would
         // duplicate explosions, dust, and Spark's trail in the same hardware OAM image.
-        DrawRoomSpriteObjects(oam, cameraX, cameraY);
+        DrawRoomSpriteObjects(oam, camera);
         DrawEnemyProjectilePass(
             oam,
-            cameraX,
-            cameraY,
+            camera,
             EnemyProjectileDrawPriority.High, timeIsFrozen);
     }
 
     /// <summary>Ports <c>Draw_LowPriority_EnemyProjectile</c> at <c>$86:83B2</c>.</summary>
     public void DrawLowPriorityEnemyProjectiles(
         OamBuffer oam,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         bool timeIsFrozen = false)
     {
         ArgumentNullException.ThrowIfNull(oam);
@@ -725,19 +710,17 @@ public sealed partial class RoomEnemySystem
 
         DrawEnemyProjectilePass(
             oam,
-            cameraX,
-            cameraY,
+            camera,
             EnemyProjectileDrawPriority.Low, timeIsFrozen);
     }
 
     private void DrawEnemyProjectilePass(
         OamBuffer oam,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         EnemyProjectileDrawPriority priority,
         bool timeIsFrozen)
     {
-        var (shakeX, shakeY) = GetEnemyProjectileShake(timeIsFrozen);
+        Offset16<RoomPixels> shake = GetEnemyProjectileShake(timeIsFrozen);
         // Both cartridge routines scan native indexes $22,$20,...,$00. Physical array
         // index seventeen therefore reaches OAM first and wins equal-priority overlap.
         for (int projectileIndex = _enemyProjectiles.Length - 1;
@@ -751,9 +734,8 @@ public sealed partial class RoomEnemySystem
                 projectile.SpritemapPointer == 0)
                 continue;
 
-            ushort screenX = unchecked((ushort)(projectile.XPosition + shakeX - cameraX));
-            ushort screenY = unchecked((ushort)(projectile.YPosition + shakeY - cameraY));
-            if (((screenX + 128) & 0xfe00) != 0 || ((screenY + 128) & 0xfe00) != 0)
+            Position16<ScreenPixels> screen = (projectile.Position.Whole + shake).ToScreen(camera);
+            if (((screen.X + 128) & 0xfe00) != 0 || ((screen.Y + 128) & 0xfe00) != 0)
                 continue;
 
             var artwork = TileArtwork?.ProjectileSpritemaps ?? throw new InvalidOperationException(
@@ -761,10 +743,10 @@ public sealed partial class RoomEnemySystem
             ReadOnlyMemory<EnemySpritemapPart> parts = projectile.PresentationOperandAddress != 0
                 ? artwork.GetProgramFrame(projectile.PresentationOperandAddress)
                 : artwork.Get(projectile.SpritemapPointer);
-            oam.AddEnemySpritemap(parts.Span, new Position16<OamPixels>(screenX, screenY),
+            oam.AddEnemySpritemap(parts.Span, screen.ToOam(),
                 new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
                 unchecked((byte)projectile.GraphicsIndex),
-                clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);
+                clipVerticalWrap: true, originYIsOnScreen: (screen.Y >> 8) == 0);
         }
     }
 
@@ -772,11 +754,10 @@ public sealed partial class RoomEnemySystem
     private void CalculateRidleyFireballVelocity(RoomEnemySlot ridley, SamusState samus)
     {
         RidleyEnemyState state = RequireRidley(ridley);
-        int muzzleX = ridley.XPosition + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
-        int muzzleY = ridley.YPosition - 43;
+        int muzzleX = ridley.Position.X.Whole + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
+        int muzzleY = ridley.Position.Y.Whole - 43;
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(samus.Position.X.Whole - muzzleX)),
-            unchecked((short)(samus.Position.Y.Whole - muzzleY)));
+            new(unchecked((short)(samus.Position.X.Whole - muzzleX)), unchecked((short)(samus.Position.Y.Whole - muzzleY))));
         byte angle = unchecked((byte)-(cartridgeAngle + 0x80));
 
         if (state.FacingDirection == RidleyFacing.Left)
@@ -824,11 +805,9 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.CeresRidleyFireball,
             FireballGraphicsIndex);
         ApplyRidleyProjectileAreaDamage(projectile);
-        projectile.XPosition = unchecked((ushort)(ridley.XPosition +
-            (state.FacingDirection == RidleyFacing.Left ? -25 : 25)));
-        projectile.YPosition = unchecked((ushort)(ridley.YPosition - 43));
-        projectile.XVelocity = state.FireballXVelocity;
-        projectile.YVelocity = state.FireballYVelocity;
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole +
+            (state.FacingDirection == RidleyFacing.Left ? -25 : 25))), unchecked((ushort)(ridley.Position.Y.Whole - 43))));
+        projectile.Velocity = new(new SnesSignedEightEight(state.FireballXVelocity), new SnesSignedEightEight(state.FireballYVelocity));
         projectile.RemainingAfterburns = spawnAfterburn ? (ushort)3 : (ushort)0;
     }
 
@@ -875,8 +854,7 @@ public sealed partial class RoomEnemySystem
         // SpawnEprojInner initializes the drawable map to $8000 before the first list tick.
         // It is intentionally not the first list map; bank-$86 advances it on its own pass.
         projectile.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
-        projectile.XRadius = definition.XRadius;
-        projectile.YRadius = definition.YRadius;
+        projectile.Radius = definition.Radius;
         projectile.Damage = definition.Damage;
         projectile.InvincibilityFrames = 96;
         projectile.DrawPriority = definition.DrawPriority;
@@ -892,8 +870,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         byte nmiFrameCounter8,
         SamusBombProjectileSystem? samusBombs)
     {
@@ -950,7 +927,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case EnemyProjectilePreInstruction.MotherBrainsTurrets:
-                RunMotherBrainTurretPreInstruction(projectile, cameraX, cameraY);
+                RunMotherBrainTurretPreInstruction(projectile, camera);
                 return;
 
             case EnemyProjectilePreInstruction.MotherBrainsTurretBullets:
@@ -977,7 +954,7 @@ public sealed partial class RoomEnemySystem
                 RunMotherBrainOnionRingPreInstruction(
                     projectile,
                     samus,
-                    cameraX);
+                    camera.X);
                 return;
 
             case EnemyProjectilePreInstruction.MotherBrainsBomb:
@@ -1028,7 +1005,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case EnemyProjectilePreInstruction.BotwoonsSpit:
-                RunBotwoonSpitPreInstruction(projectile, cameraX, cameraY);
+                RunBotwoonSpitPreInstruction(projectile, camera);
                 return;
 
             case EnemyProjectilePreInstruction.BombTorizosChozoOrbs:
@@ -1085,11 +1062,11 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case EnemyProjectilePreInstruction.MiscDust:
-                CullMiscDustOutsideCamera(projectile, cameraX, cameraY);
+                CullMiscDustOutsideCamera(projectile, camera);
                 return;
 
             case EnemyProjectilePreInstruction.DragonFireball:
-                RunDragonFireballPreInstruction(projectile, cameraY);
+                RunDragonFireballPreInstruction(projectile, camera.Y);
                 return;
 
             case EnemyProjectilePreInstruction.RidleyFireball:
@@ -1099,8 +1076,8 @@ public sealed partial class RoomEnemySystem
                     MoveProjectileAxis(projectile, level, horizontal: false);
                 if (horizontalCollision || verticalCollision)
                 {
-                    ushort x = projectile.XPosition;
-                    ushort y = projectile.YPosition;
+                    ushort x = projectile.Position.X.Whole;
+                    ushort y = projectile.Position.Y.Whole;
                     ushort count = projectile.RemainingAfterburns;
                     projectile.Clear();
                     if (count != 0)
@@ -1123,16 +1100,13 @@ public sealed partial class RoomEnemySystem
             case EnemyProjectilePreInstruction.NoobTubeShardFalling:
             case EnemyProjectilePreInstruction.NoobTubeBubbleFalling:
             case EnemyProjectilePreInstruction.NoobTubeBubbleFlying:
-                RunNoobTubeProjectilePreInstruction(projectile, cameraY);
+                RunNoobTubeProjectilePreInstruction(projectile, camera.Y);
                 return;
 
             case EnemyProjectilePreInstruction.HorizontalAfterburn:
                 // $86:950D first uses the raw 8.8 horizontal adder, not the room-collision
                 // helper. Only the perpendicular vertical move may end this afterburn.
-                (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
-                    projectile.XPosition,
-                    projectile.XSubposition,
-                    projectile.XVelocity);
+                projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
                 if (MoveProjectileAxis(projectile, level, horizontal: false))
                     BeginAfterburnFinalAnimation(projectile);
                 return;
@@ -1140,26 +1114,16 @@ public sealed partial class RoomEnemySystem
             case EnemyProjectilePreInstruction.VerticalAfterburn:
                 // $86:9522 is the transposed path: unrestricted vertical travel followed
                 // by a horizontal room-collision test.
-                (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
-                    projectile.YPosition,
-                    projectile.YSubposition,
-                    projectile.YVelocity);
+                projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 if (MoveProjectileAxis(projectile, level, horizontal: true))
                     BeginAfterburnFinalAnimation(projectile);
                 return;
 
             case EnemyProjectilePreInstruction.MetalSkreeParticle:
-                (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
-                    projectile.XPosition,
-                    projectile.XSubposition,
-                    projectile.XVelocity);
-                (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
-                    projectile.YPosition,
-                    projectile.YSubposition,
-                    projectile.YVelocity);
-                projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 0x0050));
-                if (unchecked((ushort)(projectile.XPosition - cameraX)) >= 256 ||
-                    unchecked((ushort)(projectile.YPosition - cameraY)) >= 256)
+                projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
+                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 0x0050))));
+                if (unchecked((ushort)(projectile.Position.X.Whole - camera.X)) >= 256 ||
+                    unchecked((ushort)(projectile.Position.Y.Whole - camera.Y)) >= 256)
                 {
                     projectile.Clear();
                 }
@@ -1251,26 +1215,26 @@ public sealed partial class RoomEnemySystem
 
             case EnemyProjectilePreInstruction.StokeFireball:
                 // Stoke shot: horizontal motion and viewport cull.
-                RunStokeProjectilePreInstruction(projectile, cameraX, cameraY);
+                RunStokeProjectilePreInstruction(projectile, camera);
                 return;
 
             case EnemyProjectilePreInstruction.CacatacSpike:
                 // Cacatac spike: ten direction-table movers.
-                RunCacatacSpikePreInstruction(projectile, cameraX, cameraY);
+                RunCacatacSpikePreInstruction(projectile, camera);
                 return;
 
             case EnemyProjectilePreInstruction.PolypRock:
                 // Polyp rock: quadratic rise/fall and viewport cull.
-                RunPolypRockPreInstruction(projectile, cameraX, cameraY);
+                RunPolypRockPreInstruction(projectile, camera);
                 return;
 
             case EnemyProjectilePreInstruction.NamiFuneFireball:
                 // Fune/Namihe: directional 8.8 flight and cull.
-                RunFuneNamiheFireballPreInstruction(projectile, cameraX, cameraY);
+                RunFuneNamiheFireballPreInstruction(projectile, camera);
                 return;
 
             case EnemyProjectilePreInstruction.MagdolliteLava:
-                RunMagdolliteLavaPreInstruction(projectile, cameraX, cameraY);
+                RunMagdolliteLavaPreInstruction(projectile, camera);
                 return;
 
             case EnemyProjectilePreInstruction.KagoBug_Idle:
@@ -1290,13 +1254,13 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case EnemyProjectilePreInstruction.CeresFallingTile:
-                projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 0x0010));
+                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 0x0010))));
                 if (MoveProjectileAxis(projectile, level, horizontal: false))
                 {
-                    ushort impactX = projectile.XPosition;
-                    ushort impactY = projectile.YPosition;
+                    ushort impactX = projectile.Position.X.Whole;
+                    ushort impactY = projectile.Position.Y.Whole;
                     projectile.Clear();
-                    SpawnRoomGraphicsDustExplosion(impactX, impactY, animationIndex: 9);
+                    SpawnRoomGraphicsDustExplosion(new(impactX, impactY), animationIndex: 9);
                     QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x006d), maximumQueued: 6);
                 }
                 return;
@@ -1313,13 +1277,12 @@ public sealed partial class RoomEnemySystem
             case EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right:
                 RunPirateMotherBrainLaserPreInstruction(
                     projectile,
-                    cameraX,
-                    cameraY);
+                    camera);
                 return;
 
             case EnemyProjectilePreInstruction.PirateClaw_Left:
             case EnemyProjectilePreInstruction.PirateClaw_Right:
-                RunNinjaPirateClawPreInstruction(projectile, cameraX, cameraY);
+                RunNinjaPirateClawPreInstruction(projectile, camera);
                 return;
 
             default:
@@ -1333,21 +1296,21 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level,
         bool horizontal)
     {
-        ushort position = horizontal ? projectile.XPosition : projectile.YPosition;
-        ushort subposition = horizontal ? projectile.XSubposition : projectile.YSubposition;
-        short velocity = unchecked((short)(horizontal ? projectile.XVelocity : projectile.YVelocity));
+        ushort position = horizontal ? projectile.Position.X.Whole : projectile.Position.Y.Whole;
+        ushort subposition = horizontal ? projectile.Position.X.Fraction : projectile.Position.Y.Fraction;
+        short velocity = unchecked((short)(horizontal ? projectile.Velocity.X.RawValue : projectile.Velocity.Y.RawValue));
         int fixedPosition = (position << 16) | subposition;
         fixedPosition = unchecked(fixedPosition + (velocity << 8));
         ushort nextPosition = unchecked((ushort)(fixedPosition >> 16));
         ushort nextSubposition = unchecked((ushort)fixedPosition);
 
-        ushort movementRadius = horizontal ? projectile.XRadius : projectile.YRadius;
+        ushort movementRadius = horizontal ? projectile.Radius.X : projectile.Radius.Y;
         ushort perpendicularPosition = horizontal
-            ? projectile.YPosition
-            : projectile.XPosition;
+            ? projectile.Position.Y.Whole
+            : projectile.Position.X.Whole;
         ushort perpendicularRadius = horizontal
-            ? projectile.YRadius
-            : projectile.XRadius;
+            ? projectile.Radius.Y
+            : projectile.Radius.X;
 
         // Bank $86 checks every room block crossed by the projectile's perpendicular
         // diameter. The positive edge is inclusive, hence radius - 1; using +radius made
@@ -1363,8 +1326,7 @@ public sealed partial class RoomEnemySystem
             if (ProjectileAxisProbeHitsRoom(
                     level,
                     projectile,
-                    blockX,
-                    blockY,
+                    new(unchecked((ushort)(blockX)), unchecked((ushort)(blockY))),
                     horizontal,
                     movingNegative: velocity < 0,
                     targetEdge: movementEdge,
@@ -1384,15 +1346,15 @@ public sealed partial class RoomEnemySystem
 
                 if (horizontal)
                 {
-                    projectile.XSubposition = 0;
+                    projectile.Position = projectile.Position.WithFractionX(0);
                     if (snapDoesNotMoveBackwards)
-                        projectile.XPosition = snappedPosition;
+                        projectile.Position = projectile.Position.WithWholeX(snappedPosition);
                 }
                 else
                 {
-                    projectile.YSubposition = 0;
+                    projectile.Position = projectile.Position.WithFractionY(0);
                     if (snapDoesNotMoveBackwards)
-                        projectile.YPosition = snappedPosition;
+                        projectile.Position = projectile.Position.WithWholeY(snappedPosition);
                 }
                 return true;
             }
@@ -1400,13 +1362,11 @@ public sealed partial class RoomEnemySystem
 
         if (horizontal)
         {
-            projectile.XPosition = nextPosition;
-            projectile.XSubposition = nextSubposition;
+            projectile.Position = projectile.Position.WithX(new(nextPosition, nextSubposition));
         }
         else
         {
-            projectile.YPosition = nextPosition;
-            projectile.YSubposition = nextSubposition;
+            projectile.Position = projectile.Position.WithY(new(nextPosition, nextSubposition));
         }
         return false;
     }
@@ -1414,16 +1374,15 @@ public sealed partial class RoomEnemySystem
     private static bool ProjectileAxisProbeHitsRoom(
         RoomLevelData level,
         RoomEnemyProjectileSlot projectile,
-        int blockX,
-        int blockY,
+        Position16<RoomBlocks> block,
         bool horizontal,
         bool movingNegative,
         ushort targetEdge,
         out ushort? slopeAlignedPosition)
     {
         slopeAlignedPosition = null;
-        if ((uint)blockX >= (uint)level.Size.X ||
-            (uint)blockY >= (uint)level.Size.Y)
+        if ((uint)block.X >= (uint)level.Size.X ||
+            (uint)block.Y >= (uint)level.Size.Y)
         {
             return true;
         }
@@ -1431,7 +1390,7 @@ public sealed partial class RoomEnemySystem
         // Resolve type-$5/$D BTS links before dispatching the final block family, just as
         // the native projectile collision loop does. Type zero is air; type nine is a door
         // and remains a wall to an enemy projectile.
-        int blockIndex = ResolveEnemyCollisionBlockIndex(level, blockX, blockY);
+        int blockIndex = ResolveEnemyCollisionBlockIndex(level, block);
         if (blockIndex < 0)
             return true;
 
@@ -1441,9 +1400,9 @@ public sealed partial class RoomEnemySystem
         {
             // Bank $86 tests only occupied eight-pixel quadrants touched by the
             // leading edge. Empty halves of square slopes are not solid walls.
-            int perpendicularPosition = horizontal ? projectile.YPosition : projectile.XPosition;
-            int perpendicularRadius = horizontal ? projectile.YRadius : projectile.XRadius;
-            int blockStart = (horizontal ? blockY : blockX) << 4;
+            int perpendicularPosition = horizontal ? projectile.Position.Y.Whole : projectile.Position.X.Whole;
+            int perpendicularRadius = horizontal ? projectile.Radius.Y : projectile.Radius.X;
+            int blockStart = (horizontal ? block.Y : block.X) << 4;
             int firstPixel = Math.Max(blockStart, perpendicularPosition - perpendicularRadius);
             int lastPixel = Math.Min(blockStart + 15, perpendicularPosition + perpendicularRadius - 1);
             for (int half = firstPixel >> 3; half <= lastPixel >> 3; half++)
@@ -1458,7 +1417,7 @@ public sealed partial class RoomEnemySystem
 
                 // The square-slope reaction places the projectile at an eight-pixel
                 // boundary before the caller's full-block clamp.
-                int radius = horizontal ? projectile.XRadius : projectile.YRadius;
+                int radius = horizontal ? projectile.Radius.X : projectile.Radius.Y;
                 slopeAlignedPosition = movingNegative
                     ? unchecked((ushort)((targetEdge | 7) + radius + 1))
                     : unchecked((ushort)((targetEdge & 0xfff8) - radius));
@@ -1479,7 +1438,7 @@ public sealed partial class RoomEnemySystem
             // profiles as bank $94. Only the column containing the projectile center owns
             // non-square geometry; neighboring columns touched by its radius do not turn
             // the slope into a full-height wall.
-            if (blockX != projectile.XPosition >> 4)
+            if (block.X != projectile.Position.X.Whole >> 4)
                 return false;
 
             bool movingUp = movingNegative;
@@ -1489,8 +1448,8 @@ public sealed partial class RoomEnemySystem
             int height = ReadNonSquareSlopeHeight(
                 collisionBlock.Bts,
                 (collisionBlock.Bts.SlopeFlipsHorizontally
-                    ? projectile.XPosition ^ 0x000f
-                    : projectile.XPosition) & 0x000f);
+                    ? projectile.Position.X.Whole ^ 0x000f
+                    : projectile.Position.X.Whole) & 0x000f);
             int edgeWithinBlock = movingUp
                 ? (targetEdge & 0x000f) ^ 0x000f
                 : targetEdge & 0x000f;
@@ -1506,8 +1465,8 @@ public sealed partial class RoomEnemySystem
             }
 
             slopeAlignedPosition = movingUp
-                ? unchecked((ushort)((blockY << 4) + 16 - height + projectile.YRadius))
-                : unchecked((ushort)((blockY << 4) + height - projectile.YRadius));
+                ? unchecked((ushort)((block.Y << 4) + 16 - height + projectile.Radius.Y))
+                : unchecked((ushort)((block.Y << 4) + height - projectile.Radius.Y));
             return true;
         }
 
@@ -1534,8 +1493,8 @@ public sealed partial class RoomEnemySystem
     /// <c>CheckForCollisionWithNonAirBlock</c> ($A6:D4F9): any block type other than air,
     /// read directly without following extensions.
     /// </summary>
-    private static bool NonAirBlockAt(RoomLevelData level, ushort x, ushort y) =>
-        level.GetCollisionBlock(new(unchecked((ushort)(x >> 4)), unchecked((ushort)(y >> 4)))).CollisionType != RoomCollisionType.Air;
+    private static bool NonAirBlockAt(RoomLevelData level, Position16<RoomPixels> pixel) =>
+        level.GetCollisionBlock(new(unchecked((ushort)(pixel.X >> 4)), unchecked((ushort)(pixel.Y >> 4)))).CollisionType != RoomCollisionType.Air;
 
     private static ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
@@ -1547,13 +1506,13 @@ public sealed partial class RoomEnemySystem
         // $A0:98C7-98DB skips either zero radius before overlap testing. A zero
         // radius is not a point-shaped hazard: decorative wall shards use it to
         // remain harmless even while passing straight through Samus's body.
-        if (!projectile.CanDamageSamus || projectile.XRadius == 0 || projectile.YRadius == 0)
+        if (!projectile.CanDamageSamus || projectile.Radius.X == 0 || projectile.Radius.Y == 0)
             return null;
 
-        int xDistance = Math.Abs(unchecked((short)(projectile.XPosition - samus.Position.X.Whole)));
-        int yDistance = Math.Abs(unchecked((short)(projectile.YPosition - samus.Position.Y.Whole)));
-        if (xDistance >= projectile.XRadius + samus.Kinematics.Radius.X ||
-            yDistance >= projectile.YRadius + samus.Kinematics.Radius.Y)
+        int xDistance = Math.Abs(unchecked((short)(projectile.Position.X.Whole - samus.Position.X.Whole)));
+        int yDistance = Math.Abs(unchecked((short)(projectile.Position.Y.Whole - samus.Position.Y.Whole)));
+        if (xDistance >= projectile.Radius.X + samus.Kinematics.Radius.X ||
+            yDistance >= projectile.Radius.Y + samus.Kinematics.Radius.Y)
         {
             return null;
         }
@@ -1564,7 +1523,7 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(samus.Health - damage));
         samus.InvincibilityTimer = projectile.InvincibilityFrames;
         ushort knockbackXDirection = unchecked((short)(
-            samus.Position.X.Whole - projectile.XPosition)) >= 0
+            samus.Position.X.Whole - projectile.Position.X.Whole)) >= 0
             ? (ushort)1
             : (ushort)0;
 
@@ -1591,8 +1550,7 @@ public sealed partial class RoomEnemySystem
     private void ProcessEnemyProjectileInstructions(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         ushort oldTimer = projectile.InstructionTimer;
         projectile.InstructionTimer = unchecked((ushort)(projectile.InstructionTimer - 1));
@@ -1691,14 +1649,12 @@ public sealed partial class RoomEnemySystem
                     ushort radii = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
                         unchecked((ushort)(cursor + 2)));
-                    projectile.XRadius = unchecked((byte)radii);
-                    projectile.YRadius = unchecked((byte)(radii >> 8));
+                    projectile.Radius = new(unchecked((byte)radii), unchecked((byte)(radii >> 8)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
                 case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_XYRadius_0:
-                    projectile.XRadius = 0;
-                    projectile.YRadius = 0;
+                    projectile.Radius = new(0, 0);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6
@@ -1757,11 +1713,10 @@ public sealed partial class RoomEnemySystem
                             "Enemy-projectile direction bytecode requires Samus.");
                     }
                     projectile.Variable0 = unchecked((ushort)(2 * CalculateCartridgeAngle(
-                        unchecked((short)(samus.Position.X.Whole - projectile.XPosition)),
-                        unchecked((short)(samus.Position.Y.Whole - projectile.YPosition)))));
+                        new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole))))));
                     int eyeDoorAngle = projectile.Variable0 >> 1;
-                    projectile.XVelocity = unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)eyeDoorAngle));
-                    projectile.YVelocity = unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(eyeDoorAngle - 64)));
+                    projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)eyeDoorAngle))));
+                    projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(eyeDoorAngle - 64)))));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.ClearPreInstruction:
@@ -1776,9 +1731,9 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.DownwardGateSetYVelocityInstruction:
-                    projectile.YVelocity = ReadEnemyProjectileInstructionMechanicsWord(
+                    projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
-                        unchecked((ushort)(cursor + 2)));
+                        unchecked((ushort)(cursor + 2)))));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileInstruction.CallExternalFunctionInY:
@@ -1844,18 +1799,17 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileInstruction.NoobTubeShardAssignFallingAngle:
-                    projectile.XVelocity = unchecked((byte)(_nextRandom!() >> 8));
-                    projectile.YVelocity = NoobTubeProjectileRomData.ShardFallYVelocity;
+                    projectile.Velocity = new(new SnesSignedEightEight(unchecked((byte)(_nextRandom!() >> 8))), new SnesSignedEightEight(NoobTubeProjectileRomData.ShardFallYVelocity));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle:
-                    projectile.XVelocity = unchecked((byte)(_nextRandom!() >> 8));
+                    projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((byte)(_nextRandom!() >> 8))));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.NoobTubeShardReflectFlicker:
-                    projectile.XPosition = (_currentEnemyProjectileFrame8 & 1) != 0
+                    projectile.Position = projectile.Position.WithWholeX((_currentEnemyProjectileFrame8 & 1) != 0
                         ? projectile.Variable1
-                        : unchecked((ushort)(0x0100 - projectile.Variable1));
+                        : unchecked((ushort)(0x0100 - projectile.Variable1)));
                     SetEnemyProjectileVisualOperand(projectile,
                         unchecked((ushort)(cursor +
                             ((_currentEnemyProjectileFrame8 & 1) != 0 ? 2 : 4))));
@@ -1863,9 +1817,9 @@ public sealed partial class RoomEnemySystem
                     projectile.InstructionTimer = 1;
                     return;
                 case EnemyProjectileInstruction.NoobTubeShardFlicker:
-                    projectile.XPosition = (_currentEnemyProjectileFrame8 & 1) != 0
+                    projectile.Position = projectile.Position.WithWholeX((_currentEnemyProjectileFrame8 & 1) != 0
                         ? projectile.Variable1
-                        : NoobTubeProjectileRomData.HiddenXPosition;
+                        : NoobTubeProjectileRomData.HiddenXPosition);
                     SetEnemyProjectileVisualOperand(projectile,
                         unchecked((ushort)(cursor + 2)));
                     projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
@@ -1893,25 +1847,20 @@ public sealed partial class RoomEnemySystem
                     // behind the cartridge for its entire lifetime.
                     RunPirateMotherBrainLaserPreInstruction(
                         projectile,
-                        cameraX,
-                        cameraY);
+                        camera);
                     if (!projectile.IsActive)
                         return;
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileInstruction.Torizo_ResetPosition:
-                    projectile.XPosition = projectile.Variable0;
-                    projectile.YPosition = projectile.Variable1;
+                    projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProj_MoveHorizontally_GotoY_86AD92:
-                    (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
-                        projectile.XPosition,
-                        projectile.XSubposition,
-                        projectile.XVelocity);
+                    projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
                     cursor = ReadEnemyProjectileInstructionMechanicsWord(projectile,
                         unchecked((ushort)(cursor +
-                            (unchecked((short)projectile.XVelocity) < 0 ? 2 : 4))));
+                            (unchecked((short)projectile.Velocity.X.RawValue) < 0 ? 2 : 4))));
                     break;
                 case EnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched:
                     cursor = (projectile.Variable0 & 0x8000) != 0
@@ -1945,8 +1894,7 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
                 case EnemyProjectileInstruction.UNUSED_Instruction_ResetPosition_86B436:
-                    projectile.XPosition = projectile.Variable0;
-                    projectile.YPosition = projectile.Variable1;
+                    projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.MotherBrainsTurretBullets_GotoY when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
@@ -1972,7 +1920,7 @@ public sealed partial class RoomEnemySystem
                     RoomEnemyProjectileKind.MotherBrainDyingDrool:
                     // After changing to the falling pre-instruction, the list lowers the
                     // released sprite by twelve whole pixels before its first falling map.
-                    projectile.YPosition = unchecked((ushort)(projectile.YPosition + 12));
+                    projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 12)));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.GotoY_Probability_1_4:
@@ -2005,13 +1953,13 @@ public sealed partial class RoomEnemySystem
                 case EnemyProjectileInstruction.SpawnEnemyDropsWithDraygonEyeChances:
                     // The native callback allocates the pickup before its caller's goto/
                     // delete tail releases this projectile, preserving shared slot order.
-                    SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, EnemyDefinitionId.DraygonEye);
+                    SpawnEnemyDropFromEnemyHeader(projectile.Position.Whole, EnemyDefinitionId.DraygonEye);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.SpawnEnemyDropsWithCrocomireChances:
                     // Allocate before the following goto/delete frees the impact actor.
                     // There is no inline operand; the next word remains an instruction.
-                    SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, EnemyDefinitionId.Crocomire);
+                    SpawnEnemyDropFromEnemyHeader(projectile.Position.Whole, EnemyDefinitionId.Crocomire);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.KagoBugStartJumpInstruction:
@@ -2068,11 +2016,11 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.SporeSpawner_SpawnSpore:
-                    SpawnSporeSpawnSpore(projectile.XPosition, projectile.YPosition);
+                    SpawnSporeSpawnSpore(projectile.Position.X.Whole, projectile.Position.Y.Whole);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.TorizoLandingDustClouds:
-                    projectile.YPosition = unchecked((ushort)(projectile.YPosition - 4));
+                    projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 4)));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup:
@@ -2438,14 +2386,14 @@ public sealed partial class RoomEnemySystem
     {
         ushort random = _nextRandom!();
         ushort x = unchecked((ushort)(
-            projectile.XPosition + (random & mask) - center));
+            projectile.Position.X.Whole + (random & mask) - center));
         ushort y = unchecked((ushort)(
-            projectile.YPosition + ((random & (mask << 8)) >> 8) - center));
+            projectile.Position.Y.Whole + ((random & (mask << 8)) >> 8) - center));
         RoomSpriteObjectKind kind = (RoomSpriteObjectKind)
             ReadEnemyProjectileInstructionMechanicsWord(
                 projectile,
                 unchecked((ushort)(instructionPointer + 2)));
-        _ = SpawnRoomSpriteObject(x, y, kind, graphicsIndex: 0);
+        _ = SpawnRoomSpriteObject(new(x, y), kind, graphicsIndex: 0);
     }
 
     private void MoveEnemyProjectileRandomlyWithinRadius(
@@ -2477,7 +2425,7 @@ public sealed partial class RoomEnemySystem
         while (xOffset < 0);
         if ((signSample & 0x8000) != 0)
             xOffset = -xOffset;
-        projectile.XPosition = unchecked((ushort)(projectile.XPosition + xOffset));
+        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(projectile.Position.X.Whole + xOffset)));
 
         int yOffset;
         do
@@ -2487,7 +2435,7 @@ public sealed partial class RoomEnemySystem
         while (yOffset < 0);
         if ((signSample & 0x4000) != 0)
             yOffset = -yOffset;
-        projectile.YPosition = unchecked((ushort)(projectile.YPosition + yOffset));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + yOffset)));
     }
 
     private void SpawnAfterburnCenter(
@@ -2500,11 +2448,9 @@ public sealed partial class RoomEnemySystem
         if (center is null)
             return;
         InitializeEnemyProjectileFromDefinition(center, kind, FireballGraphicsIndex);
-        center.XPosition = x;
-        center.YPosition = y;
+        center.Position = center.Position.WithWhole(new(x, y));
         // $86:9499/$949C explicitly stop the center; allocation retains prior velocities.
-        center.XVelocity = 0;
-        center.YVelocity = 0;
+        center.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         center.RemainingAfterburns = remaining;
     }
 
@@ -2533,10 +2479,8 @@ public sealed partial class RoomEnemySystem
             return;
         InitializeEnemyProjectileFromDefinition(afterburn, kind, FireballGraphicsIndex);
         ApplyRidleyProjectileAreaDamage(afterburn);
-        afterburn.XPosition = source.XPosition;
-        afterburn.YPosition = source.YPosition;
-        afterburn.XVelocity = xVelocity;
-        afterburn.YVelocity = yVelocity;
+        afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
+        afterburn.Velocity = new(new SnesSignedEightEight(xVelocity), new SnesSignedEightEight(yVelocity));
         afterburn.RemainingAfterburns = source.RemainingAfterburns;
         afterburn.NextAfterburnKind = (ushort)kind;
     }
@@ -2550,8 +2494,8 @@ public sealed partial class RoomEnemySystem
         SpawnDirectionalAfterburn(
             source,
             (RoomEnemyProjectileKind)source.NextAfterburnKind,
-            source.XVelocity,
-            source.YVelocity);
+            source.Velocity.X.RawValue,
+            source.Velocity.Y.RawValue);
     }
 
     private static void BeginAfterburnFinalAnimation(RoomEnemyProjectileSlot projectile)
@@ -2646,10 +2590,8 @@ public sealed partial class RoomEnemySystem
             particle,
             kind,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
-        particle.XPosition = unchecked((ushort)(source.XPosition + xOffset));
-        particle.YPosition = source.YPosition;
-        particle.XVelocity = xVelocity;
-        particle.YVelocity = yVelocity;
+        particle.Position = particle.Position.WithWhole(new(unchecked((ushort)(source.Position.X.Whole + xOffset)), source.Position.Y.Whole));
+        particle.Velocity = new(new SnesSignedEightEight(xVelocity), new SnesSignedEightEight(yVelocity));
     }
 
 }

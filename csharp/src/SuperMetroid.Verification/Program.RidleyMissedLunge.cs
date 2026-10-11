@@ -15,8 +15,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, bool>>(enemies);
         var slot = enemies.Slots[0];
         slot.Health = 1000;
-        slot.XPosition = 160;
-        slot.YPosition = 400;
+        slot.Position = slot.Position.WithWhole(new(160, 400));
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 420)) };
         var state = new RidleyEnemyState
         {
@@ -28,19 +27,17 @@ internal static partial class Program
         AssertEqual(RidleyAiFunction.NorfairHoverSetup, state.Function,
             "low missed lunge exits immediately when Ridley Y + 35 reaches Samus Y");
         AssertEqual((ushort)1, state.TailWhipRequest, "missed lunge requests native tail whip");
-        ushort lowY = slot.YPosition;
+        ushort lowY = slot.Position.Y.Whole;
         for (int frame = 0; frame < 32; frame++)
         {
             run(slot, state, samus, 0, null);
             move(slot, state, false);
         }
-        AssertTrue(slot.YPosition < lowY, "missed lunge retreats upward instead of chasing Samus at floor level");
+        AssertTrue(slot.Position.Y.Whole < lowY, "missed lunge retreats upward instead of chasing Samus at floor level");
         AssertEqual((ushort)0, state.GrabState, "retreat never falsely grabs Samus");
         void ResetLunge(ushort x, ushort y, RidleyFacing facing = RidleyFacing.Left)
         {
-            slot.XPosition = x;
-            slot.YPosition = y;
-            slot.XSubposition = slot.YSubposition = 0;
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(x, y));
             slot.Health = 1000;
             state.Function = RidleyAiFunction.NorfairGrabApproach;
             state.FacingDirection = facing;

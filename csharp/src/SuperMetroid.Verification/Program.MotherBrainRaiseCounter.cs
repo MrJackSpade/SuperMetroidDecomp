@@ -19,18 +19,17 @@ internal static partial class Program
         MotherBrainEnemyState state = runtime.Enemies.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         state.Function = MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain;
-        state.Body.XPosition = 0x003b;
-        state.Body.YPosition = 0x0117;
+        state.Body.Position = state.Body.Position.WithWhole(new(0x003b, 0x0117));
         var camera = runtime.Camera!;
 
         void Step(byte counter8, ushort counter) => runtime.Enemies.StepFrame(
-            camera.PixelPosition.X, camera.PixelPosition.Y, timeIsFrozen: false, runtime.Samus,
+            camera.PixelPosition, timeIsFrozen: false, runtime.Samus,
             level: runtime.LevelData, nmiFrameCounter8: counter8, nmiFrameCounter: counter);
 
         Step(0x68, 0x01ff);
-        AssertEqual((ushort)0x0117, state.Body.YPosition, "no raise while $05B6 & 3 is nonzero, whatever $05B5 holds");
+        AssertEqual((ushort)0x0117, state.Body.Position.Y.Whole, "no raise while $05B6 & 3 is nonzero, whatever $05B5 holds");
         Step(0x69, 0x0200);
-        AssertEqual((ushort)0x0115, state.Body.YPosition, "the raise follows $05B6 & 3 == 0");
+        AssertEqual((ushort)0x0115, state.Body.Position.Y.Whole, "the raise follows $05B6 & 3 == 0");
         Console.WriteLine("Mother Brain raise counter: the ascent gates on NMI_FrameCounter ($05B6).");
     }
 }

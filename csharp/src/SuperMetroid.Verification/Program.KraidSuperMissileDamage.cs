@@ -144,8 +144,7 @@ internal static partial class Program
             projectiles.Reset();
             typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ProjectileCounter))!
                 .SetValue(projectiles, count);
-            body.XPosition = 176;
-            body.YPosition = 592;
+            body.Position = body.Position.WithWhole(new(176, 592));
             body.Health = 1000;
             body.VariableA = (ushort)KraidAiFunction.MainAttackWithMouthOpen;
             body.VariableB = 0x96f4;
@@ -204,7 +203,7 @@ internal static partial class Program
         AssertEqual(true, new SamusProjectileDirectionWord(bomb.Direction).HasLowByteLifecycleState,
             "Count five reaches and marks the adjacent physical bomb slot");
         AssertEqual(true, runtime.Enemies.RoomSpriteObjects.Any(sprite =>
-            sprite.Kind == RoomSpriteObjectKind.EnemyProjectileDud && sprite.XPosition == 176 && sprite.YPosition == 486),
+            sprite.Kind == RoomSpriteObjectKind.EnemyProjectileDud && sprite.Position.X.Whole == 176 && sprite.Position.Y.Whole == 486),
             "Non-damaging mouth callback emits its native dud sprite");
         Console.WriteLine("Kraid close-range damage, deferred owner/link cleanup, count traversal and adjacent bomb slot verified.");
     }

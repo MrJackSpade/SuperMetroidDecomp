@@ -66,8 +66,6 @@ internal static class MotherBrainFallingTubePopulationDefinitions
             piece * MotherBrainFallingTubeInstructionDefinitions.ListStride);
         EnemyProperties properties = EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions;
         if (main) properties |= EnemyProperties.ProcessOffScreen;
-        return new(EnemyDefinitionId.MotherBrainTubes, x, y, pose,
-            (ushort)properties, (ushort)EnemyExtraProperties.None,
-            (ushort)(piece * sizeof(ushort)), main ? MainFallDelay : (ushort)0);
+        return new(EnemyDefinitionId.MotherBrainTubes, new(x, y), pose, (ushort)properties, (ushort)EnemyExtraProperties.None, (ushort)(piece * sizeof(ushort)), main ? MainFallDelay : (ushort)0);
     }
 }

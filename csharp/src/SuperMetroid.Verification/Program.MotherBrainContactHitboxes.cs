@@ -43,7 +43,7 @@ internal static partial class Program
             }
         }
 
-        var body = new RoomEnemySlot(0) { XPosition = 0x0200, YPosition = 0x0200 };
+        var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
         var state = new MotherBrainEnemyState(body);
         var resolve = typeof(RoomEnemySystem).GetMethod(
                 "ResolveMotherBrainSamusCollisionPart",

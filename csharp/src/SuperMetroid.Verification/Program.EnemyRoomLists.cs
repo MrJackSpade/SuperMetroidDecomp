@@ -33,15 +33,7 @@ internal static partial class Program
                 ushort definitionWord = ReadVerificationWord(bus, address);
                 AssertTrue(definitionWord != 0xffff,
                     $"population $A1:{pointer:X4} has no early terminator");
-                RoomEnemyPopulationRecord native = new(
-                    EnemyDefinitionIds.FromHeaderPointer(definitionWord),
-                    ReadVerificationWord(bus, address + 2),
-                    ReadVerificationWord(bus, address + 4),
-                    ReadVerificationWord(bus, address + 6),
-                    ReadVerificationWord(bus, address + 8),
-                    ReadVerificationWord(bus, address + 10),
-                    ReadVerificationWord(bus, address + 12),
-                    ReadVerificationWord(bus, address + 14));
+                RoomEnemyPopulationRecord native = new(EnemyDefinitionIds.FromHeaderPointer(definitionWord), new(ReadVerificationWord(bus, address + 2), ReadVerificationWord(bus, address + 4)), ReadVerificationWord(bus, address + 6), ReadVerificationWord(bus, address + 8), ReadVerificationWord(bus, address + 10), ReadVerificationWord(bus, address + 12), ReadVerificationWord(bus, address + 14));
                 AssertEqual(native, records[index],
                     $"population $A1:{pointer:X4} ordered slot {index}");
             }

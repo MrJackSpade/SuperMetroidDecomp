@@ -42,12 +42,12 @@ internal static partial class Program
             AssertEqual(expected.InstructionList, projectile.InstructionPointer,
                 $"Bomb Torizo statue fragment {index} production instruction");
             AssertEqual(unchecked((ushort)(10 * 16 + expected.XOffset)),
-                projectile.XPosition,
+                projectile.Position.X.Whole,
                 $"Bomb Torizo statue fragment {index} production X");
             AssertEqual(unchecked((ushort)(20 * 16 + expected.YOffset)),
-                projectile.YPosition,
+                projectile.Position.Y.Whole,
                 $"Bomb Torizo statue fragment {index} production Y");
-            AssertEqual(expected.YVelocity, projectile.YVelocity,
+            AssertEqual(expected.YVelocity, projectile.Velocity.Y.RawValue,
                 $"Bomb Torizo statue fragment {index} production velocity");
             AssertEqual(expected.Acceleration, projectile.Variable1,
                 $"Bomb Torizo statue fragment {index} production acceleration");

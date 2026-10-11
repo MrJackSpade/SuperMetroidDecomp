@@ -6,14 +6,14 @@ public sealed partial class RoomEnemySystem
     private void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
         if (state.HorizontalVelocity == 0)
-            state.HorizontalVelocity = (slot.XPosition & 0x80) == 0 ? (ushort)0x00c0 : unchecked((ushort)-0x00c0);
+            state.HorizontalVelocity = (slot.Position.X.Whole & 0x80) == 0 ? (ushort)0x00c0 : unchecked((ushort)-0x00c0);
         bool negative = (short)state.HorizontalVelocity < 0;
         bool reverse;
-        if ((short)(slot.XPosition - state.MinimumX) < 0) reverse = negative;
-        else if ((short)(slot.XPosition - state.MaximumX) >= 0) reverse = !negative;
+        if ((short)(slot.Position.X.Whole - state.MinimumX) < 0) reverse = negative;
+        else if ((short)(slot.Position.X.Whole - state.MaximumX) >= 0) reverse = !negative;
         else
         {
-            bool oppositeSigns = ((ushort)(slot.XPosition - (samus?.Position.X.Whole ?? 0)) ^ state.HorizontalVelocity) >= 0x8000;
+            bool oppositeSigns = ((ushort)(slot.Position.X.Whole - (samus?.Position.X.Whole ?? 0)) ^ state.HorizontalVelocity) >= 0x8000;
             reverse = oppositeSigns ? RequireRandomNumber() < 0x0555 : RequireRandomNumber() >= 0x0555;
         }
         if (reverse) state.HorizontalVelocity = unchecked((ushort)-state.HorizontalVelocity);
@@ -51,7 +51,7 @@ public sealed partial class RoomEnemySystem
     {
         if (state.TailSegments.All(segment => segment.Active) &&
             ((RequireRandomNumber() & 0xff) >= 0xf0 ||
-             samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.XPosition)) < 128) &&
+             samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 128) &&
             (state.TailWhipTargetClockwiseAngle & state.TailWhipTargetCounterClockwiseAngle & 0x8000) != 0)
         {
             state.TailWhipTargetClockwiseAngle = RidleyTailDefinitions.PogoWhipAngle;

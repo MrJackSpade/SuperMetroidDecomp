@@ -170,8 +170,8 @@ public sealed partial class RoomEnemySystem
         // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
         // on its first DEC rather than triggering immediately.
         state.FallingTargetYPosition = unchecked((ushort)(
-            slot.YPosition + (slot.Parameter2 >> 8)));
-        state.RisingTargetYPosition = slot.YPosition;
+            slot.Position.Y.Whole + (slot.Parameter2 >> 8)));
+        state.RisingTargetYPosition = slot.Position.Y.Whole;
         state.FallWaitTimerResetValue = unchecked((byte)slot.Parameter2);
         state.FallWaitTimer = state.FallWaitTimerResetValue;
     }
@@ -193,8 +193,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException("Kzan bottom cannot occupy enemy slot zero.");
 
         RoomEnemySlot precedingSlot = _slots[bottom.SlotIndex - 1];
-        bottom.XPosition = precedingSlot.XPosition;
-        bottom.YPosition = unchecked((ushort)(precedingSlot.YPosition + 12));
+        bottom.Position = bottom.Position.WithWhole(new(precedingSlot.Position.X.Whole, unchecked((ushort)(precedingSlot.Position.Y.Whole + 12))));
     }
 
     /// <summary>Ports the indirect <c>MainAI_KzanTop</c> dispatcher at <c>$A6:8BAD</c>.</summary>
@@ -246,7 +245,7 @@ public sealed partial class RoomEnemySystem
         KzanEnemyState state,
         SamusState? samus)
     {
-        state.PreviousYPosition = slot.YPosition;
+        state.PreviousYPosition = slot.Position.Y.Whole;
         (short wholeSpeed, ushort fractionalSpeed) =
             ReadLinearEnemySpeed(state.FallingYSpeedTableIndex);
         AddKzanY(slot, wholeSpeed, fractionalSpeed);
@@ -254,11 +253,11 @@ public sealed partial class RoomEnemySystem
         // CMP/BMI tests only the sign bit of the wrapped subtraction. That is intentionally
         // not a host integer >= comparison; coordinates near the word boundary retain the
         // same cartridge behavior.
-        if (!IsNegative16(slot.YPosition - state.FallingTargetYPosition))
+        if (!IsNegative16(slot.Position.Y.Whole - state.FallingTargetYPosition))
         {
             state.RiseWaitTimer = KzanNtscRiseWaitFrames;
             state.Function = KzanEnemyFunction.WaitingToRise;
-            slot.YPosition = state.FallingTargetYPosition;
+            slot.Position = slot.Position.WithWholeY(state.FallingTargetYPosition);
             LastKzanSoundEffect = KzanLandingSoundEffect;
         }
 
@@ -287,15 +286,15 @@ public sealed partial class RoomEnemySystem
         KzanEnemyState state,
         SamusState? samus)
     {
-        state.PreviousYPosition = slot.YPosition;
+        state.PreviousYPosition = slot.Position.Y.Whole;
 
         // The NTSC build rises by exactly 0.8000h pixels per actor frame. Perform the same
         // split SEC/SBC so a fractional borrow decrements the whole position word.
         SubtractKzanY(slot, wholeSpeed: 0, KzanNtscRisingSubspeed);
-        if (IsNegative16(slot.YPosition - state.RisingTargetYPosition))
+        if (IsNegative16(slot.Position.Y.Whole - state.RisingTargetYPosition))
         {
             state.Function = KzanEnemyFunction.WaitingToFall;
-            slot.YPosition = state.RisingTargetYPosition;
+            slot.Position = slot.Position.WithWholeY(state.RisingTargetYPosition);
         }
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
@@ -307,10 +306,10 @@ public sealed partial class RoomEnemySystem
         short wholeSpeed,
         ushort fractionalSpeed)
     {
-        uint fractionalSum = (uint)slot.YSubposition + fractionalSpeed;
-        slot.YSubposition = unchecked((ushort)fractionalSum);
-        slot.YPosition = unchecked((ushort)(
-            slot.YPosition + wholeSpeed + (fractionalSum > ushort.MaxValue ? 1 : 0)));
+        uint fractionalSum = (uint)slot.Position.Y.Fraction + fractionalSpeed;
+        slot.Position = slot.Position.WithFractionY(unchecked((ushort)fractionalSum));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
+            slot.Position.Y.Whole + wholeSpeed + (fractionalSum > ushort.MaxValue ? 1 : 0))));
     }
 
     /// <summary>Subtracts the native <c>[$14].[$12]</c> split pair from enemy Y.</summary>
@@ -319,10 +318,10 @@ public sealed partial class RoomEnemySystem
         ushort wholeSpeed,
         ushort fractionalSpeed)
     {
-        bool borrowed = slot.YSubposition < fractionalSpeed;
-        slot.YSubposition = unchecked((ushort)(slot.YSubposition - fractionalSpeed));
-        slot.YPosition = unchecked((ushort)(
-            slot.YPosition - wholeSpeed - (borrowed ? 1 : 0)));
+        bool borrowed = slot.Position.Y.Fraction < fractionalSpeed;
+        slot.Position = slot.Position.WithFractionY(unchecked((ushort)(slot.Position.Y.Fraction - fractionalSpeed)));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
+            slot.Position.Y.Whole - wholeSpeed - (borrowed ? 1 : 0))));
     }
 
     /// <summary>
@@ -334,12 +333,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         SamusState samus)
     {
-        int xDistance = Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.XPosition)));
-        if (xDistance >= samus.Kinematics.Radius.X + slot.XRadius)
+        int xDistance = Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)));
+        if (xDistance >= samus.Kinematics.Radius.X + slot.Radius.X)
             return false;
 
         short shiftedYDelta = unchecked((short)(
-            unchecked((ushort)(samus.Position.Y.Whole + 5 - slot.YPosition))));
+            unchecked((ushort)(samus.Position.Y.Whole + 5 - slot.Position.Y.Whole))));
         if (shiftedYDelta >= 0)
             return false;
 
@@ -347,7 +346,7 @@ public sealed partial class RoomEnemySystem
         if (yDistance < samus.Kinematics.Radius.Y)
             return true;
 
-        return yDistance - samus.Kinematics.Radius.Y <= slot.YRadius;
+        return yDistance - samus.Kinematics.Radius.Y <= slot.Radius.Y;
     }
 
     /// <summary>
@@ -362,7 +361,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null || !IsKzanTouchingSamusFromBelow(slot, samus))
             return;
 
-        ushort yDelta = unchecked((ushort)(slot.YPosition - state.PreviousYPosition));
+        ushort yDelta = unchecked((ushort)(slot.Position.Y.Whole - state.PreviousYPosition));
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 

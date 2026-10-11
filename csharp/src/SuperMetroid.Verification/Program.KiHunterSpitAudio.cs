@@ -28,7 +28,7 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         var body = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KihunterGreen);
         var state = runtime.Enemies.KiHunterStates[body.NativeIndex / 64]!;
-        body.XPosition = 128; body.YPosition = 128;
+        body.Position = body.Position.WithWhole(new(128, 128));
         state.Function = KiHunterEnemyFunction.NoOp;
         // Stage the real spit opcode; subsequent frames must not replay its one-shot call.
         body.CurrentInstruction = (ushort)(KiHunterInstructionProgramDefinitions.SpitRight + 0x10);

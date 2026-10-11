@@ -21,8 +21,7 @@ internal static partial class Program
         int StepWith(byte counter8, ushort counter16)
         {
             int before = boss.TurretCadenceChecks;
-            runtime.Enemies.StepFrame(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y,
-                timeIsFrozen: false, samus: runtime.Samus, level: runtime.LevelData,
+            runtime.Enemies.StepFrame(new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y),                 timeIsFrozen: false, samus: runtime.Samus, level: runtime.LevelData,
                 nmiFrameCounter8: counter8, nmiFrameCounter: counter16);
             return boss.TurretCadenceChecks - before;
         }
@@ -43,7 +42,7 @@ internal static partial class Program
             spawnGoop.Invoke(runtime.Enemies, [boss, false]);
             RoomEnemyProjectileSlot goop = runtime.Enemies.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
-            var velocity = (goop.XVelocity, goop.Variable0, goop.YVelocity, goop.Variable1, goop.DirectionParameter);
+            var velocity = (goop.Velocity.X.RawValue, goop.Variable0, goop.Velocity.Y.RawValue, goop.Variable1, goop.DirectionParameter);
             goop.Clear();
             return velocity;
         }
@@ -63,17 +62,17 @@ internal static partial class Program
         RoomEnemyProjectileSlot bombed = runtime.Enemies.EnemyProjectiles.Last(p =>
             p.Kind == RoomEnemyProjectileKind.DraygonGoop);
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
-        explosion.Spawn(new(bombed.XPosition, bombed.YPosition));
+        explosion.Spawn(bombed.Position.Whole);
         typeof(SamusPowerBombExplosionState).GetProperty(nameof(SamusPowerBombExplosionState.ExplosionRadius))!
             .SetValue(explosion, (ushort)0x2000);
         typeof(RoomEnemySystem).GetField("_audioPowerBomb", flags)!.SetValue(runtime.Enemies, explosion);
         runtime.Samus!.XSpeedDivisor = 3;
-        ushort bombedX = bombed.XPosition;
+        ushort bombedX = bombed.Position.X.Whole;
         runtime.Enemies.StepEnemyProjectileInstructions(runtime.LevelData!, runtime.Samus,
-            runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y);
+            new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y));
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
         AssertEqual((ushort)0, runtime.Samus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
-        AssertTrue(bombed.XPosition != bombedX, "the goop routine still moves the released slot");
+        AssertTrue(bombed.Position.X.Whole != bombedX, "the goop routine still moves the released slot");
 
         // #1269: DraygonReaction_Common's dead branch ($A5:9618) has no "already dying"
         // test. A later hit on the zero-health body reinstalls the drift function.

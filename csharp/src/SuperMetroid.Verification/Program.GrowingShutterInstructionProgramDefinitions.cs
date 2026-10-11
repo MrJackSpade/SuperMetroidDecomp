@@ -35,12 +35,12 @@ internal static partial class Program
         slot.CurrentInstruction = 0;
         slot.ExtraProperties = 0;
         slot.Parameter2 = 0;
-        slot.YPosition = 0x0100;
+        slot.Position = slot.Position.WithWholeY(0x0100);
         initialize(slot);
         GrowingShutterEnemyState state = enemies.GrowingShutterStates[0]!;
 
         object?[] processArguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int programIndex = 0;
              programIndex < GrowingShutterInstructionProgramDefinitions.ProgramCount;
              programIndex++)

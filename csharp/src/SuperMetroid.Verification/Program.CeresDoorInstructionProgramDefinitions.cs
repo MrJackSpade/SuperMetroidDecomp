@@ -180,8 +180,7 @@ internal static partial class Program
             slot.EnemyDefinitionPointer =
                 EnemyDefinitionId.CeresDoor;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
-            slot.XPosition = 0x0080;
-            slot.YPosition = 0x0080;
+            slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             slot.CurrentInstruction = program;
             slot.InstructionTimer = 1;
             samus = new SamusState();
@@ -190,12 +189,12 @@ internal static partial class Program
 
         static void SetNear(RoomEnemySlot slot, SamusState samus)
         {
-            samus.Position = samus.Position.WithWhole(new(slot.XPosition, slot.YPosition));
+            samus.Position = samus.Position.WithWhole(slot.Position.Whole);
         }
 
         static void SetFar(RoomEnemySlot slot, SamusState samus)
         {
-            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(slot.XPosition + 0x0080)), slot.YPosition));
+            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(slot.Position.X.Whole + 0x0080)), slot.Position.Y.Whole));
         }
 
         static void RunFrames(
@@ -207,7 +206,7 @@ internal static partial class Program
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
             object?[] arguments =
-                [slot, samus, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
         }

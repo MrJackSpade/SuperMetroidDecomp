@@ -20,16 +20,13 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.MotherBrainBomb,
             graphicsIndex: 0x0400);
         RoomEnemySlot head = state.Head!;
-        bomb.XPosition = unchecked((ushort)(head.XPosition + 0x000c));
-        bomb.YPosition = unchecked((ushort)(head.YPosition + 0x0010));
+        bomb.Position = bomb.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 0x000c)), unchecked((ushort)(head.Position.Y.Whole + 0x0010))));
 
         // The initializer's 8-bit store writes parameter LOW into the low byte of X
         // subposition. Every 8.8 motion delta has a zero low byte, so that value naturally
         // survives fractional motion and becomes the terminal Ridley-afterburn count.
-        bomb.XSubposition = unchecked((byte)afterburnCount);
-        bomb.YSubposition = 0;
-        bomb.XVelocity = 0x00e0;
-        bomb.YVelocity = 0x0100;
+        bomb.Position = bomb.Position.WithFractionX(unchecked((byte)afterburnCount)).WithFractionY(0);
+        bomb.Velocity = new(new SnesSignedEightEight(0x00e0), new SnesSignedEightEight(0x0100));
         bomb.Variable0 = 0x0070; // Horizontal speed restored after each floor bounce.
         bomb.Variable1 = 0;      // Byte offset into the ten-word acceleration table.
         bomb.DirectionParameter = afterburnCount;
@@ -51,14 +48,14 @@ public sealed partial class RoomEnemySystem
         {
             // Only the initial fall applies two units of horizontal drag. Native takes the
             // absolute value, subtracts, clamps by the wrapped sign flag, then restores sign.
-            bool movingLeft = (bomb.XVelocity & 0x8000) != 0;
+            bool movingLeft = (bomb.Velocity.X.RawValue & 0x8000) != 0;
             ushort magnitude = movingLeft
-                ? unchecked((ushort)-bomb.XVelocity)
-                : bomb.XVelocity;
+                ? unchecked((ushort)-bomb.Velocity.X.RawValue)
+                : bomb.Velocity.X.RawValue;
             ushort slowed = unchecked((ushort)(magnitude - 2));
             if ((slowed & 0x8000) != 0)
                 slowed = 0;
-            bomb.XVelocity = movingLeft ? unchecked((ushort)-slowed) : slowed;
+            bomb.Velocity = bomb.Velocity.WithX(new SnesSignedEightEight(movingLeft ? unchecked((ushort)-slowed) : slowed));
             acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
         }
         else
@@ -96,10 +93,10 @@ public sealed partial class RoomEnemySystem
             if (samusBomb.PackedType.Family != SamusProjectileFamily.Bomb ||
                 samusBomb.BombTimer != 0 ||
                 !MotherBrainBombStrictOverlap(
-                    bomb.XPosition,
-                    bomb.YPosition,
-                    bomb.XRadius,
-                    bomb.YRadius,
+                    bomb.Position.X.Whole,
+                    bomb.Position.Y.Whole,
+                    bomb.Radius.X,
+                    bomb.Radius.Y,
                     samusBomb.Position.X.Whole,
                     samusBomb.Position.Y.Whole,
                     samusBomb.Radius.X,
@@ -108,14 +105,13 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            ushort x = bomb.XPosition;
-            ushort y = bomb.YPosition;
+            ushort x = bomb.Position.X.Whole;
+            ushort y = bomb.Position.Y.Whole;
             DeleteMotherBrainBomb(bomb, state);
-            SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 9);
+            SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 9);
             state.LastBombDropRequest = new MotherBrainBombDropRequest();
             SpawnEnemyDropFromEnemyHeader(
-                x,
-                y,
+                new(x, y),
                 state.Head!.EnemyDefinitionPointer);
             return true;
         }
@@ -127,28 +123,20 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot bomb,
         ushort acceleration)
     {
-        bomb.YVelocity = unchecked((ushort)(bomb.YVelocity + acceleration));
-        (bomb.XPosition, bomb.XSubposition) = AddEightBitVelocity(
-            bomb.XPosition,
-            bomb.XSubposition,
-            bomb.XVelocity);
-        (bomb.YPosition, bomb.YSubposition) = AddEightBitVelocity(
-            bomb.YPosition,
-            bomb.YSubposition,
-            bomb.YVelocity);
+        bomb.Velocity = bomb.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(bomb.Velocity.Y.RawValue + acceleration))));
+        bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
 
         // Both boundaries are signed CMP/BMI tests. X reflects without clamping; the floor
         // clamps Y to $D0 and resets the two authored bounce velocities.
-        if (unchecked((short)(bomb.XPosition - 0x00f0)) >= 0)
-            bomb.XVelocity = unchecked((ushort)-bomb.XVelocity);
-        if (unchecked((short)(bomb.YPosition - 0x00d0)) < 0)
+        if (unchecked((short)(bomb.Position.X.Whole - 0x00f0)) >= 0)
+            bomb.Velocity = bomb.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-bomb.Velocity.X.RawValue)));
+        if (unchecked((short)(bomb.Position.Y.Whole - 0x00d0)) < 0)
             return false;
 
-        bomb.YPosition = 0x00d0;
-        bomb.XVelocity = (bomb.XVelocity & 0x8000) != 0
+        bomb.Position = bomb.Position.WithWholeY(0x00d0);
+        bomb.Velocity = new(new SnesSignedEightEight((bomb.Velocity.X.RawValue & 0x8000) != 0
             ? unchecked((ushort)-bomb.Variable0)
-            : bomb.Variable0;
-        bomb.YVelocity = 0xfe00;
+            : bomb.Variable0), new SnesSignedEightEight(0xfe00));
         return true;
     }
 
@@ -156,9 +144,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state)
     {
-        ushort x = bomb.XPosition;
-        ushort y = bomb.YPosition;
-        byte afterburnCount = unchecked((byte)bomb.XSubposition);
+        ushort x = bomb.Position.X.Whole;
+        ushort y = bomb.Position.Y.Whole;
+        byte afterburnCount = unchecked((byte)bomb.Position.X.Fraction);
         DeleteMotherBrainBomb(bomb, state);
 
         // `$C50B-$C54B` clears the source slot before both allocations. They therefore use
@@ -169,7 +157,7 @@ public sealed partial class RoomEnemySystem
             x,
             y,
             afterburnCount);
-        SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 3);
+        SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 3);
         state.LastSoundEffectLibrary3 = 0x0013;
     }
 
@@ -178,8 +166,7 @@ public sealed partial class RoomEnemySystem
         MotherBrainEnemyState state)
     {
         state.BombCounter = unchecked((ushort)(state.BombCounter - 1));
-        bomb.XVelocity = 0;
-        bomb.YVelocity = 0;
+        bomb.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         bomb.Clear();
     }
 

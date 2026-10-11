@@ -19,7 +19,7 @@ internal static partial class Program
             var projectile = new RoomEnemyProjectileSlot(0)
             {
                 Kind = RoomEnemyProjectileKind.NoobTubeShard,
-                YPosition = y,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0, y)),
             };
             RoomEnemySystem.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
             AssertEqual(kept, projectile.IsActive, label);

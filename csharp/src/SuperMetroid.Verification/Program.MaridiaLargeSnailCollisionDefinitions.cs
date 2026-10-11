@@ -104,8 +104,10 @@ internal static partial class Program
                          (0x0100, 0x0100), (0x0004, 0x0006), (0xfffc, 0xfffa),
                      })
             {
-                nativeSlot.XPosition = compiledSlot.XPosition = originX;
-                nativeSlot.YPosition = compiledSlot.YPosition = originY;
+                compiledSlot.Position = compiledSlot.Position.WithWholeX(originX);
+                nativeSlot.Position = nativeSlot.Position.WithWholeX(originX);
+                compiledSlot.Position = compiledSlot.Position.WithWholeY(originY);
+                nativeSlot.Position = nativeSlot.Position.WithWholeY(originY);
                 foreach (MaridiaLargeSnailCollisionHitbox box in boxes)
                 {
                     ushort[] xs = BoundaryPoints(originX, box.Left, box.Right);
@@ -115,9 +117,9 @@ internal static partial class Program
                     for (int shot = 0; shot <= 1; shot++)
                     {
                         object?[] nativeArguments =
-                            [nativeSlot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
+                            [nativeSlot, new Position16<RoomPixels>(x, y), Extent16<RoomPixels>.Zero, shot != 0, (ushort)0];
                         object?[] compiledArguments =
-                            [compiledSlot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
+                            [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot != 0, (ushort)0];
                         bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
                         bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                         AssertEqual(nativeHit, compiledHit,

@@ -37,8 +37,8 @@ internal static partial class Program
             ushort x = unchecked((ushort)(state.OrbitCenterX + cosine((ushort)(angle >> 8), radius) - 13));
             ushort y = unchecked((ushort)(state.OrbitCenterY + sine((ushort)(angle >> 8), radius) - 17));
             orbit(slot, state);
-            AssertEqual(x, slot.XPosition, "Actual detached orbit uses native radius and wrapped X");
-            AssertEqual(y, slot.YPosition, "Actual detached orbit uses native radius and wrapped Y");
+            AssertEqual(x, slot.Position.X.Whole, "Actual detached orbit uses native radius and wrapped X");
+            AssertEqual(y, slot.Position.Y.Whole, "Actual detached orbit uses native radius and wrapped Y");
             var actual = add((ushort)(ushort.MaxValue - raw), (ushort)raw,
                 KiHunterMotionDefinitions.GravityWhole, KiHunterMotionDefinitions.GravityFraction);
             uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + ((uint)high << 16 | low));

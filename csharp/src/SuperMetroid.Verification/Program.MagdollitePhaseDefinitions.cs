@@ -41,8 +41,7 @@ internal static partial class Program
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
             slot.Parameter1 = (ushort)index;
             slot.Parameter2 = 0;
-            slot.XPosition = 0x0200;
-            slot.YPosition = 0x0300;
+            slot.Position = slot.Position.WithWhole(new(0x0200, 0x0300));
             initialize(slot, null);
         }
 
@@ -63,9 +62,9 @@ internal static partial class Program
             MagdollitePhaseDefinition phase = MagdollitePhaseDefinitions.Phase(phaseIndex);
             bodyState.BodyReachedApex = false;
             bodyState.BodyPhaseOffset = (ushort)(phaseIndex * 2);
-            body.YPosition = 0x0300;
+            body.Position = body.Position.WithWholeY(0x0300);
             trackRise(overlay, overlayState, null);
-            AssertEqual(unchecked((ushort)(0x0300 - phase.OverlayYOffset)), overlay.YPosition,
+            AssertEqual(unchecked((ushort)(0x0300 - phase.OverlayYOffset)), overlay.Position.Y.Whole,
                 $"Magdollite production overlay Y {phaseIndex}");
 
             bodyState.Function = MagdolliteEnemyFunction.BodyRising;
@@ -74,7 +73,7 @@ internal static partial class Program
             bodyState.VerticalWholeDisplacement = phaseIndex < 8
                 ? unchecked((ushort)-(short)phase.DistanceThreshold)
                 : (ushort)0;
-            body.YPosition = 0x0300;
+            body.Position = body.Position.WithWholeY(0x0300);
             rise(body, bodyState, null);
             if (phase.DistanceThreshold >= MagdollitePhaseDefinitions.MaximumRise && phaseIndex < 8)
             {
@@ -103,7 +102,7 @@ internal static partial class Program
             bodyState.Function = MagdolliteEnemyFunction.BodyFalling;
             bodyState.BodyPhaseOffset = (ushort)((priorPhase + 1) * 2);
             bodyState.VerticalWholeDisplacement = ushort.MaxValue;
-            body.YPosition = 0x0300;
+            body.Position = body.Position.WithWholeY(0x0300);
             fall(body, bodyState);
             AssertEqual((ushort)(priorPhase * 2), bodyState.BodyPhaseOffset,
                 $"Magdollite production fall phase {priorPhase}");

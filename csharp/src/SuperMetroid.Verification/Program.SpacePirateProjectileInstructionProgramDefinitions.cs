@@ -55,8 +55,7 @@ internal static partial class Program
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot source = enemies.Slots[0];
-            source.XPosition = 128;
-            source.YPosition = 96;
+            source.Position = source.Position.WithWhole(new(128, 96));
             source.Parameter1 = 0;
             RoomEnemyProjectileSlot laser = (RoomEnemyProjectileSlot)spawnLaser.Invoke(
                 enemies,
@@ -66,12 +65,12 @@ internal static partial class Program
             AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_86A05B, laser.PreInstruction,
                 "laser initializer keeps muzzle frames stationary");
             RunForcedTicks(enemies, laser, 3);
-            AssertEqual((ushort)128, laser.XPosition,
+            AssertEqual((ushort)128, laser.Position.X.Whole,
                 "three laser muzzle frames remain stationary");
             RunForcedTick(enemies, laser);
             AssertEqual(movement, laser.PreInstruction,
                 "laser program installs its facing movement callback");
-            AssertEqual(expectedX, laser.XPosition,
+            AssertEqual(expectedX, laser.Position.X.Whole,
                 "laser callback executes immediately on installation");
             RunForcedTicks(enemies, laser, 10);
             AssertEqual(unchecked((ushort)(loop + 4)), laser.InstructionPointer,
@@ -92,8 +91,7 @@ internal static partial class Program
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot source = enemies.Slots[0];
-            source.XPosition = 128;
-            source.YPosition = 96;
+            source.Position = source.Position.WithWhole(new(128, 96));
             var state = new NinjaSpacePirateEnemyState(source);
             spawnClaw.Invoke(
                 enemies,
@@ -170,7 +168,7 @@ internal static partial class Program
             RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 

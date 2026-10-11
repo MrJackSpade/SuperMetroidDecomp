@@ -19,25 +19,24 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.DragonFireball,
             unchecked((ushort)(body.PaletteIndex | body.VramTilesIndex)));
-        projectile.YPosition = unchecked((ushort)(body.YPosition - 28));
-        projectile.YSubposition = 0;
-        projectile.YVelocity = DragonFireballInitialYVelocity;
+        projectile.Position = projectile.Position.WithY(new(unchecked((ushort)(body.Position.Y.Whole - 28)), 0));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(DragonFireballInitialYVelocity));
 
         if (unchecked((short)bodyState.DirectionWord) < 0)
         {
-            projectile.XPosition = unchecked((ushort)(body.XPosition - 12));
-            projectile.XVelocity = DragonFireballLeftXVelocity;
+            projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole - 12)));
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(DragonFireballLeftXVelocity));
             projectile.InstructionPointer =
                 DragonFireballInstructionProgramDefinitions.RisingLeft;
         }
         else
         {
-            projectile.XPosition = unchecked((ushort)(body.XPosition + 12));
-            projectile.XVelocity = DragonFireballRightXVelocity;
+            projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole + 12)));
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(DragonFireballRightXVelocity));
             projectile.InstructionPointer =
                 DragonFireballInstructionProgramDefinitions.RisingRight;
         }
-        projectile.XSubposition = 0;
+        projectile.Position = projectile.Position.WithFractionX(0);
     }
 
     /// <summary>Ports projectile pre-instruction $86:B535.</summary>
@@ -45,33 +44,26 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         ushort cameraY)
     {
-        (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
-            projectile.XPosition,
-            projectile.XSubposition,
-            projectile.XVelocity);
-        (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
-            projectile.YPosition,
-            projectile.YSubposition,
-            projectile.YVelocity);
+        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
 
-        if (unchecked((short)projectile.YVelocity) < 0)
+        if (unchecked((short)projectile.Velocity.Y.RawValue) < 0)
         {
-            projectile.YVelocity = unchecked((ushort)(
-                projectile.YVelocity + DragonFireballGravity));
-            if (unchecked((short)projectile.YVelocity) < 0)
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+                projectile.Velocity.Y.RawValue + DragonFireballGravity))));
+            if (unchecked((short)projectile.Velocity.Y.RawValue) < 0)
                 return;
 
             // The exact zero crossing switches from the rising pair of two-frame loops to
             // the falling pair and forces an instruction tick on this same projectile pass.
-            projectile.InstructionPointer = unchecked((short)projectile.XVelocity) < 0
+            projectile.InstructionPointer = unchecked((short)projectile.Velocity.X.RawValue) < 0
                 ? DragonFireballInstructionProgramDefinitions.FallingLeft
                 : DragonFireballInstructionProgramDefinitions.FallingRight;
             projectile.InstructionTimer = 1;
             return;
         }
 
-        projectile.YVelocity = unchecked((ushort)(
-            projectile.YVelocity + DragonFireballGravity));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+            projectile.Velocity.Y.RawValue + DragonFireballGravity))));
 
         // $86:B5B9 retains fireballs above the viewport; horizontal distance is never consulted.
         DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);

@@ -10,10 +10,12 @@ internal static partial class Program
     private static bool ReferenceExtendedCollision(CartridgeImportAddressSpace source, object?[] arguments)
     {
         var enemy = (RoomEnemySlot)arguments[0]!;
-        ushort x = (ushort)arguments[1]!, y = (ushort)arguments[2]!;
-        ushort radiusX = (ushort)arguments[3]!, radiusY = (ushort)arguments[4]!;
-        bool shot = (bool)arguments[5]!;
-        arguments[6] = (ushort)0;
+        var target = (Position16<RoomPixels>)arguments[1]!;
+        var radius = (Extent16<RoomPixels>)arguments[2]!;
+        ushort x = target.X, y = target.Y;
+        ushort radiusX = radius.X, radiusY = radius.Y;
+        bool shot = (bool)arguments[3]!;
+        arguments[4] = (ushort)0;
         int bank = enemy.Definition.Bank << 16;
         byte Byte(int offset) => source.ReadCartridgeByte(bank | (ushort)offset);
         ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
@@ -28,8 +30,8 @@ internal static partial class Program
         for (int componentIndex = 0; componentIndex < count; componentIndex++)
         {
             int component = enemy.SpritemapPointer + 2 + componentIndex * 8;
-            ushort componentX = unchecked((ushort)(enemy.XPosition + Word(component)));
-            ushort componentY = unchecked((ushort)(enemy.YPosition + Word(component + 2)));
+            ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + Word(component)));
+            ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + Word(component + 2)));
             ushort list = Word(component + 6);
             int rectangles = Word(list);
             for (int rectangleIndex = 0; rectangleIndex < rectangles; rectangleIndex++)
@@ -45,7 +47,7 @@ internal static partial class Program
                     : Negative(left - targetRight) && !Negative(right - targetLeft) &&
                       Negative(top - targetBottom) && !Negative(bottom - targetTop);
                 if (!overlaps) continue;
-                arguments[6] = Word(rectangle + (shot ? 10 : 8));
+                arguments[4] = Word(rectangle + (shot ? 10 : 8));
                 return true;
             }
         }

@@ -101,9 +101,7 @@ internal static partial class Program
             ushort[] words = Enumerable.Range(0, 8)
                 .Select(wordIndex => ReadVerificationWord(rom, address + wordIndex * 2))
                 .ToArray();
-            var native = new RoomEnemyPopulationRecord(
-                EnemyDefinitionIds.FromHeaderPointer(words[0]), words[1], words[2], words[3],
-                words[4], words[5], words[6], words[7]);
+            var native = new RoomEnemyPopulationRecord(EnemyDefinitionIds.FromHeaderPointer(words[0]), new(words[1], words[2]), words[3], words[4], words[5], words[6], words[7]);
             AssertEqual(native, MotherBrainFallingTubePopulationDefinitions.Get(pointer),
                 $"Mother Brain falling-tube record $A9:{pointer:X4} matches all eight native words");
 
@@ -111,9 +109,9 @@ internal static partial class Program
             RoomEnemySlot tube = enemies.Slots[index];
             AssertEqual(native, tube.Spawn.Population,
                 $"production tube spawn {index} retains its authored placement and parameters");
-            AssertEqual(native.XPosition, tube.XPosition,
+            AssertEqual(native.Position.X, tube.Position.X.Whole,
                 $"production tube spawn {index} uses its compiled X coordinate");
-            AssertEqual(native.YPosition, tube.YPosition,
+            AssertEqual(native.Position.Y, tube.Position.Y.Whole,
                 $"production tube spawn {index} uses its compiled Y coordinate");
         }
         AssertEqual(5, enemies.EnemyCount,
@@ -140,7 +138,7 @@ internal static partial class Program
         var fixtureEnemies = new RoomEnemySystem();
         busField.SetValue(fixtureEnemies, fixture);
         spawn.Invoke(fixtureEnemies, [MotherBrainFallingTubePopulationDefinitions.BottomLeft]);
-        AssertEqual(0x1234, fixtureEnemies.Slots[0].XPosition,
+        AssertEqual(0x1234, fixtureEnemies.Slots[0].Position.X.Whole,
             "constructed room fixture retains its authored falling-tube X position");
 
         Console.WriteLine(
@@ -154,13 +152,7 @@ internal static partial class Program
         int address = RoomEnemyRomLayout.DefinitionBank | (ushort)pointer;
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
         byte Byte(int offset) => bus.ReadByte(address + offset);
-        return new RoomEnemyDefinition(
-            Word(0), Word(2), Word(4), Word(6), Word(8), Word(10),
-            Byte(12), Byte(13), Word(14), Word(16), Word(18), Word(20),
-            Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32),
-            Word(34), Word(36), Word(38), Word(40), Word(42), Word(44),
-            Word(46), Word(48), Word(50), Word(52),
-            Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60), Word(62));
+        return new RoomEnemyDefinition(Word(0), Word(2), Word(4), Word(6), new(Word(8), Word(10)), Byte(12), Byte(13), Word(14), Word(16), Word(18), Word(20), Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36), Word(38), Word(40), Word(42), Word(44), Word(46), Word(48), Word(50), Word(52), Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60), Word(62));
     }
 
 }

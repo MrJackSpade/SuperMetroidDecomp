@@ -38,15 +38,15 @@ internal static partial class Program
                 TourianStatueUnlockDefinitions.EyePosition(parameter);
             RoomEnemyProjectileSlot projectile =
                 enemies.EnemyProjectiles.Single(candidate => candidate.IsActive);
-            AssertEqual(expected.X, projectile.XPosition,
+            AssertEqual(expected.X, projectile.Position.X.Whole,
                 $"production Tourian unlock X {parameter}/{soul}");
-            AssertEqual(expected.Y, projectile.YPosition,
+            AssertEqual(expected.Y, projectile.Position.Y.Whole,
                 $"production Tourian unlock Y {parameter}/{soul}");
             AssertEqual(soul ? TourianStatueRomData.Soul : TourianStatueRomData.EyeGlow,
                 (ushort)projectile.Kind,
                 $"production Tourian unlock kind {parameter}/{soul}");
             AssertEqual(soul ? 0xfc00 : 0,
-                projectile.YVelocity,
+                projectile.Velocity.Y.RawValue,
                 $"production Tourian unlock velocity {parameter}/{soul}");
         }
 

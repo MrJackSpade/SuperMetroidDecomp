@@ -69,13 +69,12 @@ internal static partial class Program
         for (int angle = 0; angle < 256; angle++)
         foreach (int speed in WordBoundarySamples())
         {
-            bull.XPosition = bull.YPosition = (ushort)(initial >> 16);
-            bull.XSubposition = bull.YSubposition = unchecked((ushort)initial);
+            bull.Position = new(new((ushort)(initial >> 16), unchecked((ushort)initial)), new((ushort)(initial >> 16), unchecked((ushort)initial)));
             bullState.Angle = (ushort)(65280 | angle);
             bullState.Speed = (ushort)speed;
             bullMove(bull, bullState);
-            uint x = ((uint)bull.XPosition << 16) | bull.XSubposition;
-            uint y = ((uint)bull.YPosition << 16) | bull.YSubposition;
+            uint x = bull.Position.X.RawValue;
+            uint y = bull.Position.Y.RawValue;
             if (x != BullReference(initial, native[(angle + 64) & 255], speed) ||
                 y != BullReference(initial, native[angle], speed))
                 throw new InvalidDataException($"Bull movement differs: angle={angle}, speed={speed}, origin={initial:X8}.");
@@ -94,14 +93,13 @@ internal static partial class Program
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
-            previous.XPosition = previous.YPosition = (ushort)(initial >> 16);
-            previous.XSubposition = previous.YSubposition = unchecked((ushort)initial);
+            previous.Position = new(new((ushort)(initial >> 16), unchecked((ushort)initial)), new((ushort)(initial >> 16), unchecked((ushort)initial)));
             segmentState.OrbitAngle = (ushort)angle;
             place(segment, segmentState);
             uint expectedX = unchecked(initial + (uint)(orbit[(angle >> 8) + 64] << 8));
             uint expectedY = unchecked(initial + (uint)(orbit[angle >> 8] << 8));
-            if ((((uint)segment.XPosition << 16) | segment.XSubposition) != expectedX ||
-                (((uint)segment.YPosition << 16) | segment.YSubposition) != expectedY ||
+            if ((segment.Position.X.RawValue) != expectedX ||
+                (segment.Position.Y.RawValue) != expectedY ||
                 segmentState.OrbitAngle != angle)
                 throw new InvalidDataException($"Shaktool placement differs: angle={angle:X4}, origin={initial:X8}.");
         }

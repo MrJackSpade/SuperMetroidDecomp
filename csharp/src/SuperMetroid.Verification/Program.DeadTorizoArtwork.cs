@@ -30,12 +30,12 @@ internal static partial class Program
         var nativeCorpse = new OamBuffer();
         // $A9:D39A draws the fixed corpse map at world (296, 187).
         DrawImportedEnemySpritemap(nativeBus, nativeCorpse, 0xa9, 0xd761, 296, 187, 0, 0);
-        OamBuffer installedCorpse = DrawDeadTorizoCorpseFrame(stock, installedBus, 0, 0);
+        OamBuffer installedCorpse = DrawDeadTorizoCorpseFrame(stock, installedBus, Position16<RoomPixels>.Zero);
         AssertTrue(nativeCorpse.LowTable.SequenceEqual(installedCorpse.LowTable) &&
                    nativeCorpse.HighTable.SequenceEqual(installedCorpse.HighTable) &&
                    nativeCorpse.NextByteOffset == installedCorpse.NextByteOffset,
             "Dead Torizo private corpse hook draws installed native-parity OAM without ROM reads");
-        AssertEqual(0, DrawDeadTorizoCorpseFrame(stock, installedBus, 0, 188).NextByteOffset,
+        AssertEqual(0, DrawDeadTorizoCorpseFrame(stock, installedBus, new(0, 188)).NextByteOffset,
             "Dead Torizo private hook retains its above-screen cull");
 
         var missing = EnemyTileArtworkCatalog.FromArtworkForVerification(
@@ -236,7 +236,7 @@ internal static partial class Program
 
     private static OamBuffer DrawDeadTorizoCorpseFrame(
         EnemyTileArtworkCatalog artwork, SuperMetroidAddressSpace bus,
-        ushort cameraX, ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         RoomEnemySystem enemies = InitializeDeadTorizoArtwork(bus, artwork);
@@ -244,8 +244,8 @@ internal static partial class Program
             .SetValue(enemies, new DeadTorizoOamReadGuard(bus));
         var oam = new OamBuffer();
         typeof(RoomEnemySystem).GetMethod("DrawDeadTorizoHook", flags)!
-            .CreateDelegate<Action<OamBuffer, ushort, ushort>>(enemies)(
-                oam, cameraX, cameraY);
+            .CreateDelegate<Action<OamBuffer, Position16<RoomPixels>>>(enemies)(
+                oam, camera);
         return oam;
     }
 

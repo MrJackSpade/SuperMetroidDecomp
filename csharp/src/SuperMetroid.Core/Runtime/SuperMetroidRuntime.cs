@@ -1243,7 +1243,7 @@ public sealed partial class SuperMetroidRuntime
         // `GameState_8_MainGameplay` begins with Determine_Which_Enemies_to_Process
         // ($82:8B47), before palette FX and Samus. The grapple scan uses this list.
         if (Camera is not null && Enemies.IsLoaded)
-            Enemies.PrepareEnemyProcessingList(Camera.PixelPosition.X, Camera.PixelPosition.Y);
+            Enemies.PrepareEnemyProcessingList(Camera.PixelPosition);
 
         // Gameplay state eight calls `$8D:C527` before `$91:8000` dispatches Samus and
         // before `$A0:868F` processes enemies. Controller function three is invoked by the
@@ -3644,8 +3644,7 @@ Landed: true, HitCeiling: false);
                     BombProjectiles.PowerBombExplosion;
                 Enemies.ResolveOrdinaryPowerBombHits(
                     _addressSpace,
-                    powerBomb.Position.X,
-                    powerBomb.Position.Y,
+                    powerBomb.Position,
                     unchecked((byte)(powerBomb.ExplosionRadius >> 8)),
                     Samus);
             }
@@ -3947,7 +3946,7 @@ Landed: true, HitCeiling: false);
         GameplayWindowRegisters.LatchNmi(mainLoopRequestedNmi: true);
         DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
         var bg2Window = Enemies.Draygon is { } boss
-            ? DraygonMainScreenWindow.Select(boss.Body.XPosition, boss.Body.YPosition,
+            ? DraygonMainScreenWindow.Select(boss.Body.Position.X.Whole, boss.Body.Position.Y.Whole,
                 BackgroundScroll.Layer1Position.X, BackgroundScroll.Layer1Position.Y,
                 boss.Body.Properties.HasAny(EnemyProperties.Deleted))
             : (First: 32, End: 224);
@@ -3995,8 +3994,8 @@ Landed: true, HitCeiling: false);
         RoomEnemySlot body = Enemies.Slots[bodyIndex];
         return new MorphBallEyeBeamRenderSnapshot(
             beam.Phase,
-            body.XPosition,
-            body.YPosition,
+            body.Position.X.Whole,
+            body.Position.Y.Whole,
             eyeState.Angle,
             beam.AngularWidth,
             beam.Red,

@@ -194,7 +194,7 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
         slot.CurrentInstruction = ElevatorInstructionProgramDefinitions.Loop;
         slot.Parameter1 = unchecked((ushort)(slot.Parameter1 * 2));
-        state.RestingYPosition = slot.YPosition;
+        state.RestingYPosition = slot.Position.Y.Whole;
 
         if (ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)
         {
@@ -208,7 +208,7 @@ public sealed partial class RoomEnemySystem
         {
             if (samus is null)
                 throw new InvalidOperationException("Arriving elevator initialization requires Samus state.");
-            slot.YPosition = slot.Parameter2;
+            slot.Position = slot.Position.WithWholeY(slot.Parameter2);
             PinSamusToElevator(slot, samus);
             _arrivalPlacementSlot = slot.SlotIndex;
         }
@@ -320,12 +320,12 @@ public sealed partial class RoomEnemySystem
         if (state.DirectionTableByteOffset != 0)
         {
             AddElevatorYVelocity(slot, ElevatorSpeedFixed);
-            stillReturning = slot.YPosition < state.RestingYPosition;
+            stillReturning = slot.Position.Y.Whole < state.RestingYPosition;
         }
         else
         {
             AddElevatorYVelocity(slot, -ElevatorSpeedFixed);
-            stillReturning = slot.YPosition >= state.RestingYPosition;
+            stillReturning = slot.Position.Y.Whole >= state.RestingYPosition;
         }
 
         if (stillReturning)
@@ -338,7 +338,7 @@ public sealed partial class RoomEnemySystem
         ElevatorFlags = 0;
         LastElevatorSoundEffectLibrary3 = ElevatorArrivalSoundLibrary3;
         QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, ElevatorArrivalSoundLibrary3), maximumQueued: 6);
-        slot.YPosition = state.RestingYPosition;
+        slot.Position = slot.Position.WithWholeY(state.RestingYPosition);
         samus.InputLocked = false;
         PinSamusToElevator(slot, samus);
         LastElevatorEvent = ElevatorFrameEvent.ArrivalCompleted;
@@ -347,18 +347,17 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the direct 16.16 <c>AddToHiLo</c> used by both travel directions.</summary>
     private static void AddElevatorYVelocity(RoomEnemySlot slot, int signedVelocity)
     {
-        uint fixedPosition = ((uint)slot.YPosition << 16) | slot.YSubposition;
+        uint fixedPosition = slot.Position.Y.RawValue;
         fixedPosition = unchecked(fixedPosition + (uint)signedVelocity);
-        slot.YPosition = unchecked((ushort)(fixedPosition >> 16));
-        slot.YSubposition = unchecked((ushort)fixedPosition);
+        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition)));
     }
 
     /// <summary>Ports <c>Elevator_Func_4</c> at $A3:9612.</summary>
     private static void PinSamusToElevator(RoomEnemySlot slot, SamusState samus)
     {
-        samus.Position = samus.Position.WithWholeY(unchecked((ushort)(slot.YPosition - ElevatorActorDefinitions.SamusYOffset)));
+        samus.Position = samus.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - ElevatorActorDefinitions.SamusYOffset)));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
-        samus.Position = samus.Position.WithWholeX(slot.XPosition);
+        samus.Position = samus.Position.WithWholeX(slot.Position.X.Whole);
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
     }

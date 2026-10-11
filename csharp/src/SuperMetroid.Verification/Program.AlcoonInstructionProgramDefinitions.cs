@@ -152,7 +152,7 @@ internal static partial class Program
             Health = 999,
             MaxHealth = 999,
             Pose = SamusPoseId.FacingRightNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.XPosition + 1)), state.LandingYPosition)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), state.LandingYPosition)),
         };
         samus.RefreshCollisionRadii(rom);
         samus.InitializeAnimation(rom);
@@ -165,8 +165,8 @@ internal static partial class Program
               !sawLeftFireball || !sawRightFireball); frame++)
         {
             int maximumX = Math.Max(0, room.Size.X * 256 - 256);
-            ushort cameraX = unchecked((ushort)Math.Clamp(actor.XPosition - 128, 0, maximumX));
-            enemies.StepFrame(cameraX, 0, false, samus, level: assets.LevelData);
+            ushort cameraX = unchecked((ushort)Math.Clamp(actor.Position.X.Whole - 128, 0, maximumX));
+            enemies.StepFrame(new(cameraX, 0), false, samus, level: assets.LevelData);
             foreach (RoomEnemySlot slot in enemies.Slots)
             {
                 if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Alcoon)
@@ -176,16 +176,15 @@ internal static partial class Program
                     selectedPresentationOperands.Add(selectedOperand);
             }
 
-            samus.Position = samus.Position.WithWholeX(unchecked((ushort)(actor.XPosition +
-                (unchecked((short)state.XVelocity) < 0 ? -32 : 32))));
-            samus.Position = samus.Position.WithWholeY(state.LandingYPosition);
+            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
+                (unchecked((short)state.XVelocity) < 0 ? -32 : 32))), state.LandingYPosition));
             foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles.Where(
                          projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball))
             {
-                sawLeftFireball |= unchecked((short)projectile.XVelocity) < 0;
-                sawRightFireball |= unchecked((short)projectile.XVelocity) > 0;
+                sawLeftFireball |= unchecked((short)projectile.Velocity.X.RawValue) < 0;
+                sawRightFireball |= unchecked((short)projectile.Velocity.X.RawValue) > 0;
             }
-            enemies.StepEnemyProjectiles(assets.LevelData, samus: null, cameraX: 0, cameraY: 0);
+            enemies.StepEnemyProjectiles(assets.LevelData, samus: null, camera: Position16<RoomPixels>.Zero);
         }
 
         AssertTrue(sawLeftFireball && sawRightFireball,

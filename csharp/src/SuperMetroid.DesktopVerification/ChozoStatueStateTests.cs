@@ -49,9 +49,9 @@ internal static partial class Program
             int offset = runtime.Enemies.ChozoStatueStates[0]!.MovementTableOffset;
             // Compare the physical position on every carried frame with the native
             // hand-offset tables, not merely the final control-release flag.
-            ushort expectedX = unchecked((ushort)(statue.XPosition +
+            ushort expectedX = unchecked((ushort)(statue.Position.X.Whole +
                 (short)ReadChozoWord(0xaae670 + offset)));
-            ushort expectedY = unchecked((ushort)(statue.YPosition +
+            ushort expectedY = unchecked((ushort)(statue.Position.Y.Whole +
                 (short)ReadChozoWord(0xaae6b0 + offset)));
             if (!runtime.GroundedSamusMovementEnabled &&
                 (samus.Position.X.Whole != expectedX || samus.Position.Y.Whole != expectedY))

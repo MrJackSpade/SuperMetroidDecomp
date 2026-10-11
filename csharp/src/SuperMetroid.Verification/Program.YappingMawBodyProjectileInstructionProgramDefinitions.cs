@@ -49,8 +49,7 @@ internal static partial class Program
             RoomEnemySlot owner = enemies.Slots[0];
             owner.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
             owner.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
-            owner.XPosition = 128;
-            owner.YPosition = 112;
+            owner.Position = owner.Position.WithWhole(new(128, 112));
             owner.Parameter1 = 128;
             owner.Parameter2 = parameter;
             initialize.Invoke(enemies, [owner]);
@@ -90,7 +89,7 @@ internal static partial class Program
                 RoomEnemyProjectileSlot body)
             {
                 body.InstructionTimer = 1;
-                process.Invoke(system, [body, new SamusState(), (ushort)0, (ushort)0]);
+                process.Invoke(system, [body, new SamusState(), Position16<RoomPixels>.Zero]);
                 VerifyExecutedProjectileFrame(rom, body, spriteArtwork, executedOperands);
             }
         }
@@ -100,7 +99,7 @@ internal static partial class Program
         RoomEnemyProjectileSlot deletion = deletionCandidate!;
         deletion.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         deletion.InstructionTimer = 1;
-        process.Invoke(deletionSystem, [deletion, new SamusState(), (ushort)0, (ushort)0]);
+        process.Invoke(deletionSystem, [deletion, new SamusState(), Position16<RoomPixels>.Zero]);
         AssertTrue(!deletion.IsActive,
             "Yapping Maw body shot reaction reaches the compiled shared delete program");
 

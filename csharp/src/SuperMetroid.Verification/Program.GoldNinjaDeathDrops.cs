@@ -28,8 +28,8 @@ internal static partial class Program
         pirate.SpritemapPointer = normalShotFrame;
         pirate.InstructionTimer = 0x7fff;
         pirate.Health = 1;
-        runtime.Enemies.PrepareEnemyProcessingList(pirate.XPosition, pirate.YPosition);
-        (ushort X, ushort Y) target = (pirate.XPosition, (ushort)(pirate.YPosition + 15));
+        runtime.Enemies.PrepareEnemyProcessingList(pirate.Position.Whole);
+        (ushort X, ushort Y) target = (pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
 
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;

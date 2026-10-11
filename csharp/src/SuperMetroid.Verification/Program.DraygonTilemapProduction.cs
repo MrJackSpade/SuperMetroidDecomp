@@ -38,7 +38,7 @@ internal static partial class Program
         var oam = new OamBuffer();
         for (int frame = 0; frame < 4096; frame++)
         {
-            enemies.StepFrame(0, 0, false, samus, level: assets.LevelData, nmiFrameCounter8: unchecked((byte)frame));
+            enemies.StepFrame(new(0, 0), false, samus, level: assets.LevelData, nmiFrameCounter8: unchecked((byte)frame));
             functions.Add(boss.Function);
             bool queuedTransfer = false;
             foreach (var queue in queues)
@@ -73,7 +73,7 @@ internal static partial class Program
                 staging.AsSpan(0, boss.Bg2TilemapSize / 2).CopyTo(expectedVram);
                 transfers++;
             }
-            oam.BeginFrame(); enemies.DrawLayers(oam, 0, 0, 0, 7); oam.FinalizeFrame();
+            oam.BeginFrame(); enemies.DrawLayers(oam, new(0, 0), 0, 7); oam.FinalizeFrame();
             for (int word = 0; word < expectedVram.Length; word++)
             {
                 ushort actual = vram.ReadWord(0x4800 + word);

@@ -33,8 +33,7 @@ internal static partial class Program
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         RoomEnemySlot source = enemies.Slots[0];
-        source.XPosition = 0x1234;
-        source.YPosition = 0x5678;
+        source.Position = source.Position.WithWhole(new(0x1234, 0x5678));
 
         foreach (CacatacSpikeDirection direction in Enum.GetValues<CacatacSpikeDirection>())
         {
@@ -48,7 +47,7 @@ internal static partial class Program
             AssertEqual(program, actual.InstructionPointer,
                 $"Cacatac spike {direction} begins at its named program");
 
-            object?[] arguments = [actual, null, (ushort)0, (ushort)0];
+            object?[] arguments = [actual, null, Position16<RoomPixels>.Zero];
             process.Invoke(enemies, arguments);
             AssertEqual(unchecked((ushort)(program + 4)), actual.InstructionPointer,
                 $"Cacatac spike {direction} installs its live spritemap");

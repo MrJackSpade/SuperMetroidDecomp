@@ -47,10 +47,10 @@ public sealed partial class RoomEnemySystem
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
         short clawOffset = state.FacingRight ? (short)8 : (short)-8;
-        ushort clawX = unchecked((ushort)(body.XPosition + clawOffset));
+        ushort clawX = unchecked((ushort)(body.Position.X.Whole + clawOffset));
         bool insideGrabWindow =
             IsWithinStrictModularDistance(clawX, samus.Position.X.Whole, 8) &&
-            IsWithinStrictModularDistance(body.YPosition, samus.Position.Y.Whole, 8);
+            IsWithinStrictModularDistance(body.Position.Y.Whole, samus.Position.Y.Whole, 8);
         if (!insideGrabWindow)
         {
             MoveDraygonToward(body, samus.Position.X.Whole, samus.Position.Y.Whole, DraygonChaseSpeed);
@@ -109,8 +109,8 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemySlot body = state.Body;
         bool reachedTarget =
-            IsWithinStrictModularDistance(body.XPosition, DraygonSpiralTargetX, 2) &&
-            IsWithinStrictModularDistance(body.YPosition, DraygonSpiralTargetY, 2);
+            IsWithinStrictModularDistance(body.Position.X.Whole, DraygonSpiralTargetX, 2) &&
+            IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonSpiralTargetY, 2);
         if (reachedTarget)
         {
             state.Function = DraygonAiFunction.FlailWithSamus;
@@ -150,22 +150,21 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomEnemySlot body = state.Body;
-        body.XPosition = unchecked((ushort)(
+        body.Position = body.Position.WithWholeX(unchecked((ushort)(
             state.SpiralCenterX +
-            ReadEightBitCosineProduct(state.SpiralAngle, state.SpiralXRadius)));
-        body.YPosition = unchecked((ushort)(
+            ReadEightBitCosineProduct(state.SpiralAngle, state.SpiralXRadius))));
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(
             state.SpiralCenterY +
             ReadEightBitNegativeSineProduct(
                 state.SpiralAngle,
-                unchecked((ushort)(state.SpiralXRadius >> 2)))));
+                unchecked((ushort)(state.SpiralXRadius >> 2))))));
 
         if ((body.FrameCounter & 7) == 0)
         {
             ushort foamX = unchecked((ushort)(
-                body.XPosition + (state.FacingRight ? 0x0020 : -0x0020)));
+                body.Position.X.Whole + (state.FacingRight ? 0x0020 : -0x0020)));
             SpawnRoomSpriteObject(
-                foamX,
-                unchecked((ushort)(body.YPosition - 0x0010)),
+                new(foamX, unchecked((ushort)(body.Position.Y.Whole - 0x0010))),
                 RoomSpriteObjectKind.DraygonSpiralFoam,
                 graphicsIndex: 0);
         }
@@ -271,15 +270,14 @@ public sealed partial class RoomEnemySystem
     {
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
-        body.YPosition = unchecked((ushort)(body.YPosition - 4));
-        if (unchecked((short)body.YPosition) >= 0)
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 4)));
+        if (unchecked((short)body.Position.Y.Whole) >= 0)
             return;
 
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         state.Function = DraygonAiFunction.SwoopRightSetup;
         body.VariableB = 0;
-        body.XPosition = state.LeftSideResetXPosition;
-        body.YPosition = state.ResetYPosition;
+        body.Position = body.Position.WithWhole(new(state.LeftSideResetXPosition, state.ResetYPosition));
     }
 
     /// <summary>
@@ -292,7 +290,7 @@ public sealed partial class RoomEnemySystem
     {
         samus.DraygonGrabbed.ApplyOwnerPosition(
             samus,
-            new Position16<RoomPixels>(state.Body.XPosition, state.Body.YPosition),
+            state.Body.Position.Whole,
             state.FacingRight);
         CapSamusScrollingSpeed(samus);
         if (samus.DraygonGrabbed.ConsumeOwnerReleaseSignal())
@@ -309,9 +307,9 @@ public sealed partial class RoomEnemySystem
         ushort targetY,
         ushort speed)
     {
-        short deltaX = unchecked((short)(targetX - body.XPosition));
-        short deltaY = unchecked((short)(targetY - body.YPosition));
-        byte cartridgeAngle = CalculateCartridgeAngle(deltaX, deltaY);
+        short deltaX = unchecked((short)(targetX - body.Position.X.Whole));
+        short deltaY = unchecked((short)(targetY - body.Position.Y.Whole));
+        byte cartridgeAngle = CalculateCartridgeAngle(new(deltaX, deltaY));
         byte movementAngle = unchecked((byte)(0x40 - cartridgeAngle));
 
         uint xMagnitude = unchecked((uint)ReadUnsignedSineMagnitudeProduct(
@@ -323,31 +321,26 @@ public sealed partial class RoomEnemySystem
             speed,
             angleOffset: 0x80));
 
-        (body.XPosition, body.XSubposition) = AddDraygonAngleMagnitude(
-            body.XPosition,
-            body.XSubposition,
+        body.Position = body.Position.WithX(AddDraygonAngleMagnitude(
+            body.Position.X,
             xMagnitude,
-            subtract: ((movementAngle + 0x40) & 0x80) != 0);
-        (body.YPosition, body.YSubposition) = AddDraygonAngleMagnitude(
-            body.YPosition,
-            body.YSubposition,
+            subtract: ((movementAngle + 0x40) & 0x80) != 0));
+        body.Position = body.Position.WithY(AddDraygonAngleMagnitude(
+            body.Position.Y,
             yMagnitude,
-            subtract: ((movementAngle + 0x80) & 0x80) != 0);
+            subtract: ((movementAngle + 0x80) & 0x80) != 0));
     }
 
-    private static (ushort Position, ushort Subposition) AddDraygonAngleMagnitude(
-        ushort position,
-        ushort subposition,
+    private static SnesFixedPosition AddDraygonAngleMagnitude(
+        SnesFixedPosition position,
         uint magnitude,
         bool subtract)
     {
-        uint fixedPosition = ((uint)position << 16) | subposition;
+        uint fixedPosition = position.RawValue;
         fixedPosition = subtract
             ? unchecked(fixedPosition - magnitude)
             : unchecked(fixedPosition + magnitude);
-        return (
-            unchecked((ushort)(fixedPosition >> 16)),
-            unchecked((ushort)fixedPosition));
+        return SnesFixedPosition.FromRaw(fixedPosition);
     }
 
     private static bool IsDraygonGrappleConnected(SamusState samus) =>
@@ -404,8 +397,7 @@ public sealed partial class RoomEnemySystem
         state.TailWhipHits++;
         state.LastTailWhipDamage = damage;
         SpawnRoomSpriteObject(
-            samus.Position.X.Whole,
-            unchecked((ushort)(samus.Position.Y.Whole + 0x0010)),
+            new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + 0x0010))),
             RoomSpriteObjectKind.DustCloud,
             graphicsIndex: 0);
     }

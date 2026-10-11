@@ -280,8 +280,7 @@ public sealed partial class RoomEnemySystem
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
 
-        state.Body.XPosition = 0x003b;
-        state.Body.YPosition = 0x0117;
+        state.Body.Position = state.Body.Position.WithWhole(new(0x003b, 0x0117));
         PublishMotherBrainBg2Scroll(state, 0xffe5, 0xff27);
         state.HitboxesEnabled = 7;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake;
@@ -292,8 +291,7 @@ public sealed partial class RoomEnemySystem
         SetMotherBrainInstructionList(state.Body, MotherBrainCrouchedInstruction);
         state.Head!.InstructionTimer = 1;
         state.Body.Properties = state.Body.Properties.Without(EnemyProperties.Invisible);
-        state.Body.XPosition = 0x003b;
-        state.Body.YPosition = 0x0117;
+        state.Body.Position = state.Body.Position.WithWhole(new(0x003b, 0x0117));
         PublishMotherBrainBg2Scroll(state, 0xffe5, 0xff27);
         state.RequestMusic(MusicCommand.SelectTrack(5), MusicCommandDelay.EightFrames);
         EarthquakeType = 2;
@@ -314,14 +312,14 @@ public sealed partial class RoomEnemySystem
 
         SpawnMotherBrainAscentDust(state);
         state.Bg2YScroll = unchecked((ushort)(state.Bg2YScroll + 2));
-        state.Body.YPosition = unchecked((ushort)(state.Body.YPosition - 2));
+        state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(state.Body.Position.Y.Whole - 2)));
         PublishMotherBrainBg2Scroll(state, state.Bg2XScroll, state.Bg2YScroll);
-        if (state.Body.YPosition >= 0x00bd)
+        if (state.Body.Position.Y.Whole >= 0x00bd)
             return;
 
         state.EnemyBg2TilemapSize = 0x0140;
         state.EnemyBg2TilemapTransferRequested = true;
-        state.Body.YPosition = 0x00bc;
+        state.Body.Position = state.Body.Position.WithWholeY(0x00bc);
         EarthquakeTimer = 0;
         state.RisingHdmaActive = false;
         SetMotherBrainInstructionList(state.Body, MotherBrainSlowUncrouchInstruction);
@@ -338,7 +336,7 @@ public sealed partial class RoomEnemySystem
         ushort x = MotherBrainAscentDustXPositions[state.BodySubFunctionTimer];
         ushort random = RequireRandomNumber();
         ushort animation = (random & 0x0100) == 0 ? (ushort)9 : (ushort)0x12;
-        SpawnRoomGraphicsDustExplosion(x, 0x00d4, animation);
+        SpawnRoomGraphicsDustExplosion(new(x, 0x00d4), animation);
         state.LastSoundEffect = 0x0029;
     }
 
@@ -542,7 +540,7 @@ public sealed partial class RoomEnemySystem
         }
 
         ushort verticalDistance = WrappedMagnitude(unchecked((ushort)(
-            state.Head!.YPosition + 4 - samus.Position.Y.Whole)));
+            state.Head!.Position.Y.Whole + 4 - samus.Position.Y.Whole)));
         ReadOnlySpan<byte> thresholds = verticalDistance < 0x20
             ? [0x10, 0x20, 0xd0]
             : [0x40, 0x80, 0xc0];
@@ -602,7 +600,7 @@ public sealed partial class RoomEnemySystem
         if (random < 0xff80)
         {
             ushort targetX = random >= 0x6000 ? (ushort)0x0040 : (ushort)0x0060;
-            ushort targetMinusBody = unchecked((ushort)(targetX - state.Body.XPosition));
+            ushort targetMinusBody = unchecked((ushort)(targetX - state.Body.Position.X.Whole));
             if ((targetMinusBody & 0x8000) != 0)
             {
                 state.BodyTargetXPosition = targetX;
@@ -692,12 +690,12 @@ public sealed partial class RoomEnemySystem
         MotherBrainEnemyState state,
         ushort targetX)
     {
-        ushort targetMinusBody = unchecked((ushort)(targetX - state.Body.XPosition));
+        ushort targetMinusBody = unchecked((ushort)(targetX - state.Body.Position.X.Whole));
         if ((targetMinusBody & 0x8000) == 0)
             return true;
         if (state.Pose != MotherBrainBodyPose.Standing)
             return false;
-        if (unchecked((short)(state.Body.XPosition - 0x0030)) < 0)
+        if (unchecked((short)(state.Body.Position.X.Whole - 0x0030)) < 0)
             return true;
 
         SetMotherBrainInstructionList(state.Body, 0x9900); // Backwards, medium.
@@ -756,7 +754,7 @@ public sealed partial class RoomEnemySystem
         // CMP/BPL tests the sign bit of the wrapped 16-bit subtraction. Normal arena
         // coordinates cannot overflow signed range, but expressing the native flag test
         // explicitly keeps debugger-edited/wrapped coordinates cartridge-faithful too.
-        ushort headMinusSamus = unchecked((ushort)(head.YPosition - samus.Position.Y.Whole));
+        ushort headMinusSamus = unchecked((ushort)(head.Position.Y.Whole - samus.Position.Y.Whole));
         MotherBrainNeckMovement targetIndex = (headMinusSamus & 0x8000) == 0
             ? MotherBrainNeckMovement.Raise
             : MotherBrainNeckMovement.Lower;
@@ -813,7 +811,7 @@ public sealed partial class RoomEnemySystem
         if (state.WalkCounter == 0)
         {
             state.WalkCounter = 1;
-            if (state.Body.XPosition >= 0x0030)
+            if (state.Body.Position.X.Whole >= 0x0030)
             {
                 SetMotherBrainInstructionList(state.Body, MotherBrainBodyInstructionLists.WalkBackwardsFast);
                 return;
@@ -827,7 +825,7 @@ public sealed partial class RoomEnemySystem
                 StartMotherBrainForwardWalk(state);
                 return;
             }
-            if (state.Body.XPosition >= 0x0030)
+            if (state.Body.Position.X.Whole >= 0x0030)
                 return;
         }
 
@@ -840,7 +838,7 @@ public sealed partial class RoomEnemySystem
     private static void StartMotherBrainForwardWalk(MotherBrainEnemyState state)
     {
         state.WalkCounter = 0x0080;
-        if (state.Body.XPosition < 0x0080)
+        if (state.Body.Position.X.Whole < 0x0080)
             SetMotherBrainInstructionList(state.Body, MotherBrainBodyInstructionLists.WalkForwardsMedium);
     }
 
@@ -854,11 +852,10 @@ public sealed partial class RoomEnemySystem
     {
         MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain body bytecode ran without its multipart encounter state.");
-        state.Body.XPosition = unchecked((ushort)(state.Body.XPosition + xDisplacement));
-        state.Body.YPosition = unchecked((ushort)(state.Body.YPosition + yDisplacement));
+        state.Body.Position += new Offset16<RoomPixels>(xDisplacement, yDisplacement);
         PublishMotherBrainBg2Scroll(
             state,
-            unchecked((ushort)(0x0022 - state.Body.XPosition)),
+            unchecked((ushort)(0x0022 - state.Body.Position.X.Whole)),
             unchecked((ushort)(state.Bg2YScroll - yDisplacement)));
     }
 
@@ -872,10 +869,10 @@ public sealed partial class RoomEnemySystem
     {
         MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain posture bytecode ran without its multipart encounter state.");
-        state.Body.YPosition = unchecked((ushort)(state.Body.YPosition + yDisplacement));
+        state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(state.Body.Position.Y.Whole + yDisplacement)));
         PublishMotherBrainBg2Scroll(
             state,
-            unchecked((ushort)(0x0022 + horizontalScrollBias - state.Body.XPosition)),
+            unchecked((ushort)(0x0022 + horizontalScrollBias - state.Body.Position.X.Whole)),
             unchecked((ushort)(state.Bg2YScroll - yDisplacement)));
     }
 

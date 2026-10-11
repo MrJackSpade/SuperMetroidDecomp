@@ -133,7 +133,7 @@ public sealed partial class RoomEnemySystem
                 bool canAttack = samus is not null && (random & 0x0101) != 0 &&
                     IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
-                        slot.XPosition,
+                        slot.Position.X.Whole,
                         LowerNorfairRioHorizontalTriggerDistance);
                 if (!canAttack)
                 {
@@ -150,7 +150,7 @@ public sealed partial class RoomEnemySystem
 
                 state.YVelocity = RioLaunchDefinitions.LowerNorfairYVelocity;
                 state.XVelocity = RioLaunchDefinitions.LowerNorfairXVelocity;
-                if (unchecked((short)(samus!.Position.X.Whole - slot.XPosition)) < 0)
+                if (unchecked((short)(samus!.Position.X.Whole - slot.Position.X.Whole)) < 0)
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                 InstallLowerNorfairRioInstructionList(
                     slot,
@@ -284,8 +284,7 @@ public sealed partial class RoomEnemySystem
         // extra word $02. Here it is Boolean rather than a signed offset. The drawing-queue
         // X/Y aliases supply the live parent origin and this variant adds a literal 12 px.
         follower.Properties = follower.Properties.Without(EnemyProperties.Invisible);
-        follower.XPosition = parent.XPosition;
-        follower.YPosition = unchecked((ushort)(parent.YPosition + 12));
+        follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, unchecked((ushort)(parent.Position.Y.Whole + 12))));
     }
 
     private void BeginLowerNorfairRioReturn(

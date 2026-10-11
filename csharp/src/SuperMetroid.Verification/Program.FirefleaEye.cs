@@ -18,10 +18,10 @@ internal static partial class Program
         var eye = runtime.Enemies.Slots[0];
         AssertEqual(EnemyDefinitionId.Fune, eye.EnemyDefinitionPointer, "reported rock eye is retail Fune/Namihe family");
         ushort cameraX = 368, cameraY = 608;
-        runtime.Enemies.StepFrame(cameraX, cameraY, false, runtime.Samus, level: runtime.LevelData);
+        runtime.Enemies.StepFrame(new(cameraX, cameraY), false, runtime.Samus, level: runtime.LevelData);
         var oam = new OamBuffer();
         oam.BeginFrame();
-        runtime.Enemies.DrawLayers(oam, cameraX, cameraY, 0, 7);
+        runtime.Enemies.DrawLayers(oam, new(cameraX, cameraY), 0, 7);
         oam.FinalizeFrame();
         AssertTrue(oam.LastFinalizedSpriteCount > 0, "retail rock eye emits sprites");
         var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, oam);

@@ -24,10 +24,8 @@ public sealed partial class RoomEnemySystem
             flame,
             RoomEnemyProjectileKind.PhantoonStartingFlame,
             unchecked((ushort)(body.PaletteIndex | body.VramTilesIndex)));
-        flame.XSubposition = 0;
-        flame.YSubposition = 0;
-        flame.XVelocity = 0;
-        flame.YVelocity = 0;
+        flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
+        flame.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         flame.Variable0 = unchecked((byte)(directionIndex * 0x20));
         PositionPhantoonFlameAroundBody(flame, body, flame.Variable0, radius: 0x30);
         flame.PreInstruction = PhantoonStartingFlameWaitingPreInstruction;
@@ -48,15 +46,13 @@ public sealed partial class RoomEnemySystem
             flame,
             RoomEnemyProjectileKind.PhantoonDestroyableFlame,
             unchecked((ushort)(body.PaletteIndex | body.VramTilesIndex)));
-        flame.XSubposition = 0;
-        flame.YSubposition = 0;
-        flame.YVelocity = 0;
+        flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(0));
         switch (type)
         {
             case PhantoonFlameSpawnType.Casual:
-                flame.XVelocity = 0;
-                flame.XPosition = body.XPosition;
-                flame.YPosition = unchecked((ushort)(body.YPosition + 32));
+                flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight(0));
+                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
                 flame.InstructionPointer =
                     PhantoonProjectileInstructionProgramDefinitions.CasualFalling;
                 flame.PreInstruction =
@@ -70,11 +66,10 @@ public sealed partial class RoomEnemySystem
                 break;
 
             case PhantoonFlameSpawnType.Enraged:
-                flame.XVelocity = unchecked((ushort)(index >= 8
-                    ? -PhantoonFlameMotionRomData.RageAngleStep : PhantoonFlameMotionRomData.RageAngleStep));
+                flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(index >= 8
+                    ? -PhantoonFlameMotionRomData.RageAngleStep : PhantoonFlameMotionRomData.RageAngleStep))));
                 flame.Variable0 = PhantoonFlameSpawnDefinitions.RageAngle(index);
-                flame.XPosition = body.XPosition;
-                flame.YPosition = unchecked((ushort)(body.YPosition + 32));
+                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
                 flame.PreInstruction =
                     (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged;
                 break;
@@ -85,9 +80,9 @@ public sealed partial class RoomEnemySystem
                 byte column = unchecked((byte)(index & 0x0f));
                 if (column > 8)
                     throw new InvalidDataException($"Phantoon rain column {column} exceeds eight.");
-                flame.XVelocity = unchecked((ushort)((index & 0xf0) >> 1));
-                flame.XPosition = PhantoonFlameSpawnDefinitions.RainX(column);
-                flame.YPosition = 40;
+                flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)((index & 0xf0) >> 1))));
+                flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawnDefinitions.RainX(column));
+                flame.Position = flame.Position.WithWholeY(40);
                 flame.PreInstruction =
                     (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain;
                 break;
@@ -95,10 +90,9 @@ public sealed partial class RoomEnemySystem
             case PhantoonFlameSpawnType.Spiral:
                 if (index > 7)
                     throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
-                flame.XVelocity = 128;
+                flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight(128));
                 flame.Variable0 = PhantoonFlameSpawnDefinitions.SpiralAngle(index);
-                flame.XPosition = body.XPosition;
-                flame.YPosition = unchecked((ushort)(body.YPosition + 16));
+                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 16))));
                 flame.PreInstruction =
                     (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral;
                 break;
@@ -115,8 +109,7 @@ public sealed partial class RoomEnemySystem
         if (state is null || state.Body.VariableB == 0)
             return;
         flame.PreInstruction = PhantoonStartingFlameOrbitPreInstruction;
-        flame.XVelocity = 180;
-        flame.YVelocity = 48;
+        flame.Velocity = new(new SnesSignedEightEight(180), new SnesSignedEightEight(48));
     }
 
     private void RunPhantoonStartingFlameOrbit(RoomEnemyProjectileSlot flame)
@@ -127,18 +120,17 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        if (flame.XVelocity != 0)
+        if (flame.Velocity.X.RawValue != 0)
         {
-            flame.XVelocity = unchecked((ushort)(flame.XVelocity - 1));
+            flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.X.RawValue - 1))));
         }
         // $86:9B4C reads the 16-bit NMI_FrameCounter.
         else if ((_currentEnemyProjectileFrame16 & 1) != 0)
         {
-            flame.YVelocity = unchecked((ushort)(flame.YVelocity - 1));
-            if (flame.YVelocity == 0)
+            flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue - 1))));
+            if (flame.Velocity.Y.RawValue == 0)
             {
-                flame.XPosition = state.Body.XPosition;
-                flame.YPosition = unchecked((ushort)(state.Body.YPosition + 16));
+                flame.Position = flame.Position.WithWhole(new(state.Body.Position.X.Whole, unchecked((ushort)(state.Body.Position.Y.Whole + 16))));
                 flame.InstructionPointer =
                     PhantoonProjectileInstructionProgramDefinitions.Delete;
                 flame.InstructionTimer = 1;
@@ -151,14 +143,14 @@ public sealed partial class RoomEnemySystem
             flame,
             state.Body,
             flame.Variable0,
-            unchecked((byte)flame.YVelocity));
+            unchecked((byte)flame.Velocity.Y.RawValue));
     }
 
     private static void RunPhantoonCasualFlameFalling(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
-        flame.YVelocity = unchecked((ushort)(flame.YVelocity + 0x10));
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 0x10))));
         if (!MoveProjectileAxis(flame, level, horizontal: false))
             return;
 
@@ -170,7 +162,7 @@ public sealed partial class RoomEnemySystem
             PhantoonProjectileInstructionProgramDefinitions.CasualHitGround;
         flame.InstructionTimer = 1;
         flame.Variable0 = 8;
-        flame.YPosition = unchecked((ushort)(flame.YPosition + 8));
+        flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
     }
 
     private static void RunPhantoonCasualFlameImpactPause(
@@ -187,24 +179,24 @@ public sealed partial class RoomEnemySystem
         flame.InstructionPointer =
             PhantoonProjectileInstructionProgramDefinitions.CasualBouncing;
         flame.InstructionTimer = 1;
-        flame.YPosition = unchecked((ushort)(flame.YPosition - 8));
-        flame.YVelocity = 0xfd00;
+        flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole - 8)));
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(0xfd00));
         flame.Variable0 = 0;
         // $86:99EB reads the 16-bit NMI_FrameCounter.
-        flame.XVelocity = (nmiFrameCounter & 1) == 0 ? (ushort)0x0080 : (ushort)0xff80;
+        flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight((nmiFrameCounter & 1) == 0 ? (ushort)0x0080 : (ushort)0xff80));
     }
 
     private static void RunPhantoonCasualFlameBouncing(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
-        flame.YVelocity = unchecked((ushort)(flame.YVelocity + 0x10));
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 0x10))));
         if (MoveProjectileAxis(flame, level, horizontal: false))
         {
             flame.Variable0 = unchecked((ushort)(flame.Variable0 + 1));
             if (flame.Variable0 < 3)
             {
-                flame.YVelocity = flame.Variable0 == 1 ? (ushort)0xfe00 : (ushort)0xff00;
+                flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(flame.Variable0 == 1 ? (ushort)0xfe00 : (ushort)0xff00));
                 return;
             }
             RestPhantoonCasualFlame(flame);
@@ -231,13 +223,13 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        flame.YVelocity = unchecked((ushort)(flame.YVelocity + PhantoonFlameMotionRomData.RageRadiusStep));
-        flame.Variable0 = unchecked((byte)(flame.Variable0 + (byte)flame.XVelocity));
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionRomData.RageRadiusStep))));
+        flame.Variable0 = unchecked((byte)(flame.Variable0 + (byte)flame.Velocity.X.RawValue));
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
             flame.Variable0,
-            unchecked((byte)flame.YVelocity));
+            unchecked((byte)flame.Velocity.Y.RawValue));
         DeletePhantoonFlameOutsideRoom(flame);
     }
 
@@ -245,22 +237,22 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
-        if (flame.XVelocity != 0)
+        if (flame.Velocity.X.RawValue != 0)
         {
-            flame.XVelocity = unchecked((ushort)(flame.XVelocity - 1));
-            if (flame.XVelocity != 0 && unchecked((short)flame.XVelocity) >= 0)
+            flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.X.RawValue - 1))));
+            if (flame.Velocity.X.RawValue != 0 && unchecked((short)flame.Velocity.X.RawValue) >= 0)
                 return;
             // Expiry falls through to movement on this call, including signed
             // underflow. Keep each actor's native queue call rather than a last-SFX latch.
             QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
         }
 
-        flame.YVelocity = unchecked((ushort)(flame.YVelocity + 16));
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
         if (!MoveProjectileAxis(flame, level, horizontal: false))
             return;
         flame.InstructionPointer = PhantoonProjectileInstructionProgramDefinitions.RainImpact;
         flame.InstructionTimer = 1;
-        flame.YPosition = unchecked((ushort)(flame.YPosition + 8));
+        flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
         flame.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_869A44;
         QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
     }
@@ -273,13 +265,13 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        flame.YVelocity = unchecked((ushort)(flame.YVelocity + PhantoonFlameMotionRomData.SpiralRadiusStep));
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionRomData.SpiralRadiusStep))));
         flame.Variable0 = unchecked((byte)(flame.Variable0 + PhantoonFlameMotionRomData.SpiralAngleStep));
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
             flame.Variable0,
-            unchecked((byte)flame.YVelocity));
+            unchecked((byte)flame.Velocity.Y.RawValue));
         DeletePhantoonFlameOutsideRoom(flame);
     }
 
@@ -293,8 +285,7 @@ public sealed partial class RoomEnemySystem
         // word sample. Its high byte preserves the exact full radius at cardinal angles.
         int xOffset = ReadPhantoonFlameComponent(angle, radius);
         int yOffset = ReadPhantoonFlameComponent(unchecked((byte)(angle - 64)), radius);
-        flame.XPosition = unchecked((ushort)(body.XPosition + xOffset));
-        flame.YPosition = unchecked((ushort)(body.YPosition + 16 + yOffset));
+        flame.Position = flame.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + xOffset)), unchecked((ushort)(body.Position.Y.Whole + 16 + yOffset))));
     }
 
     /// <summary>Ports $86:9BA2/$9BF3: unsigned half-wave multiplication followed by whole-result negation.</summary>
@@ -308,8 +299,8 @@ public sealed partial class RoomEnemySystem
 
     private static void DeletePhantoonFlameOutsideRoom(RoomEnemyProjectileSlot flame)
     {
-        if (unchecked((short)flame.XPosition) < 0 || flame.XPosition >= 256 ||
-            unchecked((short)flame.YPosition) < 0 || flame.YPosition >= 256)
+        if (unchecked((short)flame.Position.X.Whole) < 0 || flame.Position.X.Whole >= 256 ||
+            unchecked((short)flame.Position.Y.Whole) < 0 || flame.Position.Y.Whole >= 256)
         {
             flame.InstructionPointer = PhantoonProjectileInstructionProgramDefinitions.Delete;
             flame.InstructionTimer = 1;
@@ -333,8 +324,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemyDefinition eye = ResolveRoomEnemyDefinition(_bus!, EnemyDefinitionId.PhantoonEye);
         _phantoonFlameDropRequests.Add(new PhantoonFlameDropRequest());
         SpawnEnemyDropFromChanceTable(
-            flame.XPosition,
-            flame.YPosition,
+            flame.Position.Whole,
             eye.ItemDropChancesPointer);
     }
 }

@@ -25,17 +25,16 @@ internal static partial class Program
         AssertEqual((ushort)0x9c21, state.BrainInstructionPointer, "the brain list starts at InstList_MotherBrainHead_Initial");
 
         typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!
-            .Invoke(runtime.Enemies, [head, null, null, (ushort)0, (ushort)0, (ushort)0]);
+            .Invoke(runtime.Enemies, [head, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
         AssertEqual((ushort)0xa320, head.SpritemapPointer, "the head enemy carries the dummy list's hitbox frame");
 
         // The movie's frame: second form, head at ($7C,$58) when the beam at ($9E,$81) reaches
         // it. A 16-pixel radius test misses by one pixel (41 > 40); the hitbox overlaps.
         state.Form = 2;
         head.Health = 18000;
-        head.XPosition = 0x007c;
-        head.YPosition = 0x0058;
+        head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
         head.InvincibilityTimer = 0;
-        runtime.Enemies.PrepareEnemyProcessingList(0x0000, 0x0000);
+        runtime.Enemies.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x901b; shot.Damage = 900; shot.Direction = 8;
         shot.Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.Radius = new(24, 24);

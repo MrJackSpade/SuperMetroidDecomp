@@ -19,8 +19,8 @@ internal static partial class Program
             var enemies = CreateMiscDustEnemySystem(rom);
             var spawn = typeof(RoomEnemySystem).GetMethod(
                     "SpawnRoomGraphicsDustExplosion", flags)!
-                .CreateDelegate<Action<ushort, ushort, ushort>>(enemies);
-            spawn(0x1234, 0x5678, index);
+                .CreateDelegate<Action<Position16<RoomPixels>, ushort>>(enemies);
+            spawn(new(0x1234, 0x5678), index);
             RoomEnemyProjectileSlot roomSlot = enemies.EnemyProjectiles.Single(slot => slot.IsActive);
             AssertEqual(native, roomSlot.InstructionPointer,
                 $"room-graphics misc-dust production selector {index}");
@@ -54,10 +54,10 @@ internal static partial class Program
             AssertEqual(MiscDustProjectileDefinitions.InstructionList(10), smoke.InstructionPointer,
                 $"eye-door smoke production instruction {index}");
             AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.XBase +
-                (random & definition.XMask))), smoke.XPosition,
+                (random & definition.XMask))), smoke.Position.X.Whole,
                 $"eye-door smoke production X {index}");
             AssertEqual(unchecked((ushort)(9 * 16 + 8 + definition.YBase +
-                ((random >> 8) & definition.YMask))), smoke.YPosition,
+                ((random >> 8) & definition.YMask))), smoke.Position.Y.Whole,
                 $"eye-door smoke production Y {index}");
             AssertEqual(1, advances, $"eye-door smoke RNG advance {index}");
         }
@@ -73,9 +73,9 @@ internal static partial class Program
         var invalidRoom = CreateMiscDustEnemySystem(rom);
         var spawnInvalidRoom = typeof(RoomEnemySystem).GetMethod(
                 "SpawnRoomGraphicsDustExplosion", flags)!
-            .CreateDelegate<Action<ushort, ushort, ushort>>(invalidRoom);
+            .CreateDelegate<Action<Position16<RoomPixels>, ushort>>(invalidRoom);
         AssertThrows<ArgumentOutOfRangeException>(
-            () => spawnInvalidRoom(0, 0, 30),
+            () => spawnInvalidRoom(Position16<RoomPixels>.Zero, 30),
             "room-graphics selector beyond authored table");
         AssertEqual(0, invalidRoom.ActiveEnemyProjectileCount,
             "invalid room-graphics misc dust does not partially allocate a slot");

@@ -266,7 +266,7 @@ public sealed partial class RoomEnemySystem
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.VerticallyMovingArtInstalled = false;
         state.VerticallyStillArtInstalled = false;
-        state.TargetYPosition = unchecked((ushort)(slot.YPosition + 1));
+        state.TargetYPosition = unchecked((ushort)(slot.Position.Y.Whole + 1));
         state.YSpeedTableIndex = 0;
         state.MaximumYSpeedTableIndex = unchecked((ushort)(slot.Parameter2 >> 8));
     }
@@ -304,7 +304,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Exact wrapped-word port of <c>$A0:ABE7-$AC28</c>.</summary>
     private static bool IsSamusRidingPlatform(RoomEnemySlot slot, SamusState samus)
     {
-        ushort xDistance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
+        ushort xDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (unchecked((short)xDistance) < 0)
             xDistance = unchecked((ushort)-xDistance);
 
@@ -313,20 +313,20 @@ public sealed partial class RoomEnemySystem
         if (xDistance >= samus.Kinematics.Radius.X)
         {
             ushort remainder = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
-            if (remainder >= slot.XRadius)
+            if (remainder >= slot.Radius.X)
                 return false;
         }
 
         // The +3 bias requires Samus's center to remain above the enemy center. After taking
         // the wrapped magnitude, Y accepts equality with the enemy radius (unlike X).
-        ushort yDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - slot.YPosition));
+        ushort yDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - slot.Position.Y.Whole));
         if (unchecked((short)yDifference) >= 0)
             return false;
         ushort yDistance = unchecked((ushort)-yDifference);
         if (yDistance < samus.Kinematics.Radius.Y)
             return true;
         ushort yRemainder = unchecked((ushort)(yDistance - samus.Kinematics.Radius.Y));
-        return yRemainder <= slot.YRadius;
+        return yRemainder <= slot.Radius.Y;
     }
 
     private void MovePlatformHorizontally(
@@ -334,7 +334,7 @@ public sealed partial class RoomEnemySystem
         PlatformEnemyState state,
         RoomLevelData level)
     {
-        state.PreviousPosition = slot.XPosition;
+        state.PreviousPosition = slot.Position.X.Whole;
         bool movingLeft = state.XMovement switch
         {
             PlatformHorizontalMovement.Left => true,
@@ -382,7 +382,7 @@ public sealed partial class RoomEnemySystem
     {
         // Signed BMI comparison is intentional. Normal platforms stop once they have risen
         // from their depressed position to one pixel below their original spawn center.
-        if (unchecked((short)(slot.YPosition - state.TargetYPosition)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - state.TargetYPosition)) < 0)
         {
             state.YSpeedTableIndex = 0;
             SetPlatformVerticallyStillInstruction(slot, state);
@@ -414,10 +414,10 @@ public sealed partial class RoomEnemySystem
         // Horizontal movement saved the pre-move X position in the aliased word. Add the
         // wrapped whole-pixel delta to the shared producer word; fractional displacement is
         // deliberately untouched because this enemy writes only `$0B58`.
-        ushort xDelta = unchecked((ushort)(slot.XPosition - state.PreviousPosition));
+        ushort xDelta = unchecked((ushort)(slot.Position.X.Whole - state.PreviousPosition));
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(xDelta)), 0);
 
-        state.PreviousPosition = slot.YPosition;
+        state.PreviousPosition = slot.Position.Y.Whole;
         int displacement = ReadQuadraticEnemySpeed(
             state.YSpeedTableIndex,
             negative: false);
@@ -429,7 +429,7 @@ public sealed partial class RoomEnemySystem
 
         // This delta is measured after collision clipping, so Samus follows the platform's
         // accepted motion rather than the requested quadratic speed.
-        ushort yDelta = unchecked((ushort)(slot.YPosition - state.PreviousPosition));
+        ushort yDelta = unchecked((ushort)(slot.Position.Y.Whole - state.PreviousPosition));
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 

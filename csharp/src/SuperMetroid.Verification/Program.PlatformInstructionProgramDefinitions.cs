@@ -62,7 +62,7 @@ internal static partial class Program
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.Parameter1 = (ushort)testCase.Direction;
             slot.Parameter2 = 0x0101;
-            slot.YPosition = 0x0100;
+            slot.Position = slot.Position.WithWholeY(0x0100);
             initialize.Invoke(enemies, [slot]);
 
             PlatformEnemyState state = enemies.PlatformStates[0]!;
@@ -125,7 +125,7 @@ internal static partial class Program
         int callCount)
     {
         object?[] arguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = 1;

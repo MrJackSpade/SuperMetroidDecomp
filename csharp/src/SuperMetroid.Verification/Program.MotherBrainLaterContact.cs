@@ -16,7 +16,7 @@ internal static partial class Program
         body.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
         body.Definition = RoomEnemyDefinitionCatalog.Get(body.EnemyDefinitionPointer);
         var state = new MotherBrainEnemyState(body) { Head = enemies.Slots[1], Form = 2, HitboxesEnabled = 7 };
-        state.Head.XPosition = state.Head.YPosition = 500;
+        state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.NeckSegment1 = new(250, 80);
         state.NeckSegment2 = state.NeckSegment3 = new(500, 500);
         typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!.SetValue(enemies, state);
@@ -24,7 +24,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, SamusState?, byte, SamusBombProjectileSystem?>>(enemies);
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {
-            body.XPosition = body.YPosition = 128;
+            body.Position = body.Position.WithWhole(new(128, 128));
             state.Function = MotherBrainBodyFunction.FakeDeathAscentContinuePausing;
             state.FunctionTimer = contact == "post-dispatch position" ? (ushort)0 : (ushort)100;
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(158, 128)), Health = 500 };
@@ -43,8 +43,8 @@ internal static partial class Program
         }
         // Isolate the actual body callback in the ordinary radius collision pass.
         // Shot blocking is native behavior and must remain a dud, not body damage.
-        body.XPosition = body.YPosition = 128;
-        body.XRadius = body.YRadius = 16;
+        body.Position = body.Position.WithWhole(new(128, 128));
+        body.Radius = new(16, 16);
         body.SpritemapPointer = 1;
         body.Health = 1000;
         var interactive = (List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!;

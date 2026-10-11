@@ -292,6 +292,26 @@ internal static class DebuggerSpatialFieldMigrations
             BackingField("OwnerXPosition"), BackingField("OwnerYPosition")),
         new(typeof(MotherBrainRainbowBeamSamusMovement).FullName!, BackingField("CustomVelocity"),
             [BackingField("CustomXVelocity"), BackingField("CustomYVelocity")], Types<ushort>(2), (_, v) => EightEight<RoomPixels>(v)),
+
+        // The shared enemy core: the 64-byte enemy slot's 16.16 position (+$02..+$08), hitbox
+        // radii (+$0A/+$0C) and spawn graphical offset; the enemy-projectile and sprite-object
+        // pools' 16.16 positions, projectile 8.8 velocity words and radii; and the immutable
+        // population position and header radii retained beside each slot.
+        FixedWords<RoomPixels>(typeof(RoomEnemySlot).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("XSubposition"), BackingField("YPosition"), BackingField("YSubposition")),
+        Radius(typeof(RoomEnemySlot).FullName!, BackingField("Radius"), BackingField("XRadius"), BackingField("YRadius")),
+        Offset<RoomPixels>(typeof(RoomEnemySlot).FullName!, BackingField("SpawnOffset"),
+            BackingField("SpawnXOffset"), BackingField("SpawnYOffset")),
+        FixedWords<RoomPixels>(typeof(RoomEnemyProjectileSlot).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("XSubposition"), BackingField("YPosition"), BackingField("YSubposition")),
+        new(typeof(RoomEnemyProjectileSlot).FullName!, BackingField("Velocity"),
+            [BackingField("XVelocity"), BackingField("YVelocity")], Types<ushort>(2), (_, v) => EightEight<RoomPixels>(v)),
+        Radius(typeof(RoomEnemyProjectileSlot).FullName!, BackingField("Radius"), BackingField("XRadius"), BackingField("YRadius")),
+        FixedWords<RoomPixels>(typeof(RoomSpriteObjectSlot).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("XSubposition"), BackingField("YPosition"), BackingField("YSubposition")),
+        Whole<RoomPixels>(typeof(RoomEnemyPopulationRecord).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("YPosition")),
+        Radius(typeof(RoomEnemyDefinition).FullName!, BackingField("Radius"), BackingField("XRadius"), BackingField("YRadius")),
     ];
 
     private static readonly Dictionary<(string Type, string Field), DebuggerSpatialFieldMigration> ByLegacyField =

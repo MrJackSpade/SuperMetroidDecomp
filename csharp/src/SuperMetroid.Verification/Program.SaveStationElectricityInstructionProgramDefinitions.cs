@@ -42,9 +42,9 @@ internal static partial class Program
         AssertEqual(SaveStationElectricityInstructionProgramDefinitions.Initial,
             electricity.InstructionPointer,
             "real save-station producer selects the named initial program");
-        AssertEqual((ushort)0x00b0, electricity.XPosition,
+        AssertEqual((ushort)0x00b0, electricity.Position.X.Whole,
             "save-station producer derives X from one block right of its PLM");
-        AssertEqual((ushort)0x0000, electricity.YPosition,
+        AssertEqual((ushort)0x0000, electricity.Position.Y.Whole,
             "save-station producer derives Y from two blocks above its PLM");
 
         RunForcedTick();
@@ -130,7 +130,7 @@ internal static partial class Program
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }

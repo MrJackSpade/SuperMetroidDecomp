@@ -306,8 +306,8 @@ public sealed partial class RoomEnemySystem
     private static void RunSbugWait(RoomEnemySlot slot, SbugEnemyState state, SamusState samus)
     {
         int threshold = state.ActivationRadius;
-        int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole)));
-        int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.Position.Y.Whole)));
+        int xDistance = Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)));
+        int yDistance = Math.Abs(unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)));
         if (xDistance >= threshold || yDistance >= threshold)
             return;
 
@@ -324,8 +324,7 @@ public sealed partial class RoomEnemySystem
         // $40 converts to Sbug's zero-right/counter-clockwise mathematical convention;
         // adding $80 selects the exact opposite direction for behavior six.
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
-            unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
+            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
         state.CustomAngle = unchecked((byte)(0x40 - cartridgeAngle + (away ? 0x80 : 0)));
         RecalculateSbugCustomDirection(slot, state);
         state.Function = away
@@ -407,8 +406,8 @@ public sealed partial class RoomEnemySystem
 
             // The native branch reverses only when both coordinate differences are at
             // least six blocks. This is a rectangular test, not Euclidean distance.
-            int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole)));
-            int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.Position.Y.Whole)));
+            int xDistance = Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)));
+            int yDistance = Math.Abs(unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)));
             if (xDistance >= SbugReverseDistance && yDistance >= SbugReverseDistance)
                 ReverseSbugCustomDirection(slot, state);
         }
@@ -473,16 +472,14 @@ public sealed partial class RoomEnemySystem
         // testing the original mathematical angle independently for X and Y.
         bool subtractX = ((state.InitialAngle + 0x40) & 0x80) != 0;
         bool subtractY = ((state.InitialAngle + 0x80) & 0x80) != 0;
-        (slot.XPosition, slot.XSubposition) = AddRawSbugVelocity(
-            slot.XPosition,
-            slot.XSubposition,
+        slot.Position = slot.Position.WithX(AddRawSbugVelocity(
+            slot.Position.X,
             state.ForwardXVelocity.RawFixed,
-            subtractX);
-        (slot.YPosition, slot.YSubposition) = AddRawSbugVelocity(
-            slot.YPosition,
-            slot.YSubposition,
+            subtractX));
+        slot.Position = slot.Position.WithY(AddRawSbugVelocity(
+            slot.Position.Y,
             state.ForwardYVelocity.RawFixed,
-            subtractY);
+            subtractY));
     }
 
     private static void AddSbugVelocity(
@@ -490,31 +487,26 @@ public sealed partial class RoomEnemySystem
         SbugVelocityWords xVelocity,
         SbugVelocityWords yVelocity)
     {
-        (slot.XPosition, slot.XSubposition) = AddRawSbugVelocity(
-            slot.XPosition,
-            slot.XSubposition,
+        slot.Position = slot.Position.WithX(AddRawSbugVelocity(
+            slot.Position.X,
             xVelocity.RawFixed,
-            subtract: false);
-        (slot.YPosition, slot.YSubposition) = AddRawSbugVelocity(
-            slot.YPosition,
-            slot.YSubposition,
+            subtract: false));
+        slot.Position = slot.Position.WithY(AddRawSbugVelocity(
+            slot.Position.Y,
             yVelocity.RawFixed,
-            subtract: false);
+            subtract: false));
     }
 
-    private static (ushort Position, ushort Subposition) AddRawSbugVelocity(
-        ushort position,
-        ushort subposition,
+    private static SnesFixedPosition AddRawSbugVelocity(
+        SnesFixedPosition position,
         uint velocity,
         bool subtract)
     {
-        uint fixedPosition = ((uint)position << 16) | subposition;
+        uint fixedPosition = position.RawValue;
         fixedPosition = subtract
             ? unchecked(fixedPosition - velocity)
             : unchecked(fixedPosition + velocity);
-        return (
-            unchecked((ushort)(fixedPosition >> 16)),
-            unchecked((ushort)fixedPosition));
+        return SnesFixedPosition.FromRaw(fixedPosition);
     }
 
     private static SbugVelocityWords CalculateUnsignedSbugMagnitude(

@@ -18,10 +18,9 @@ public sealed partial class RoomEnemySystem
         if ((body.FrameCounter & 0x000f) == 0)
         {
             ushort foamX = unchecked((ushort)(
-                body.XPosition + (state.FacingRight ? 0x0020 : -0x0020)));
+                body.Position.X.Whole + (state.FacingRight ? 0x0020 : -0x0020)));
             SpawnRoomSpriteObject(
-                foamX,
-                unchecked((ushort)(body.YPosition - 0x0010)),
+                new(foamX, unchecked((ushort)(body.Position.Y.Whole - 0x0010))),
                 RoomSpriteObjectKind.DraygonSpiralFoam,
                 graphicsIndex: 0);
         }
@@ -29,15 +28,15 @@ public sealed partial class RoomEnemySystem
         // Retail quarters both coordinates before calculating this angle. That is not an
         // algebraic simplification: logical shifts discard low coordinate bits and thereby
         // select slightly different table vectors near the destination.
-        short deltaX = unchecked((short)(0x0040 - (body.XPosition >> 2)));
-        short deltaY = unchecked((short)(0x0078 - (body.YPosition >> 2)));
-        byte cartridgeAngle = CalculateCartridgeAngle(deltaX, deltaY);
+        short deltaX = unchecked((short)(0x0040 - (body.Position.X.Whole >> 2)));
+        short deltaY = unchecked((short)(0x0078 - (body.Position.Y.Whole >> 2)));
+        byte cartridgeAngle = CalculateCartridgeAngle(new(deltaX, deltaY));
         byte movementAngle = unchecked((byte)(0x40 - cartridgeAngle));
         state.DeathMovementAngle = movementAngle;
         MoveDraygonAtMovementAngle(body, movementAngle, speed: 1);
 
-        if (!IsWithinStrictModularDistance(body.XPosition, DraygonDeathTargetX, 4) ||
-            !IsWithinStrictModularDistance(body.YPosition, DraygonDeathTargetY, 4))
+        if (!IsWithinStrictModularDistance(body.Position.X.Whole, DraygonDeathTargetX, 4) ||
+            !IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonDeathTargetY, 4))
         {
             return;
         }
@@ -82,8 +81,8 @@ public sealed partial class RoomEnemySystem
         SpawnDyingDraygonSmoke(state, frameCounterLow);
         MoveDraygonDeathEvirs();
         RoomEnemySlot body = state.Body;
-        body.YPosition = unchecked((ushort)(body.YPosition + 1));
-        if (unchecked((short)(body.YPosition - DraygonBurialFinishedY)) < 0)
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
+        if (unchecked((short)(body.Position.Y.Whole - DraygonBurialFinishedY)) < 0)
             return;
 
         InstallDraygonInstruction(body, DraygonInstructionProgramDefinitions.Delete);
@@ -118,7 +117,7 @@ public sealed partial class RoomEnemySystem
         ushort random = _nextRandom!();
         ushort x = unchecked((ushort)((random & 0x007f) + 0x00c0));
         ushort y = unchecked((ushort)(((random & 0x3f00) >> 8) + 0x0190));
-        if (SpawnRoomSpriteObject(x, y, RoomSpriteObjectKind.DustCloud, graphicsIndex: 0) is not null)
+        if (SpawnRoomSpriteObject(new(x, y), RoomSpriteObjectKind.DustCloud, graphicsIndex: 0) is not null)
             state.DeathSmokeObjectsSpawned++;
     }
 
@@ -130,8 +129,7 @@ public sealed partial class RoomEnemySystem
         short xOffset = unchecked((short)((random & 0x007f) - 0x0040));
         short yOffset = unchecked((short)(((random & 0x7f00) >> 8) - 0x0040));
         if (SpawnRoomSpriteObject(
-                unchecked((ushort)(state.Body.XPosition + xOffset)),
-                unchecked((ushort)(state.Body.YPosition + yOffset)),
+                new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(state.Body.Position.Y.Whole + yOffset))),
                 kind,
                 graphicsIndex: 0) is not null)
         {
@@ -159,8 +157,7 @@ public sealed partial class RoomEnemySystem
         DraygonBurialEvirDefinition definition =
             DraygonBurialEvirDefinitions.ForEntry(entry);
         RoomSpriteObjectSlot? sprite = SpawnRoomSpriteObject(
-            definition.InitialX,
-            definition.InitialY,
+            new(definition.InitialX, definition.InitialY),
             kind,
             graphicsIndex: EnemyPaletteBits.Palette7);
         if (sprite is null)
@@ -187,16 +184,14 @@ public sealed partial class RoomEnemySystem
 
             DraygonBurialEvirDefinition definition =
                 DraygonBurialEvirDefinitions.ForEntry(entry);
-            (sprite.XPosition, sprite.XSubposition) = AddSpriteObjectSubspeed(
-                sprite.XPosition,
-                sprite.XSubposition,
+            sprite.Position = sprite.Position.WithX(AddSpriteObjectSubspeed(
+                sprite.Position.X,
                 definition.XSubspeed,
-                add: ((definition.Angle + 0x0040) & 0x0080) != 0);
-            (sprite.YPosition, sprite.YSubposition) = AddSpriteObjectSubspeed(
-                sprite.YPosition,
-                sprite.YSubposition,
+                add: ((definition.Angle + 0x0040) & 0x0080) != 0));
+            sprite.Position = sprite.Position.WithY(AddSpriteObjectSubspeed(
+                sprite.Position.Y,
                 definition.YSubspeed,
-                add: ((definition.Angle + 0x0080) & 0x0080) != 0);
+                add: ((definition.Angle + 0x0080) & 0x0080) != 0));
         }
     }
 
@@ -210,31 +205,26 @@ public sealed partial class RoomEnemySystem
             movementAngle,
             speed,
             angleOffset: 0x80));
-        (body.XPosition, body.XSubposition) = AddDraygonAngleMagnitude(
-            body.XPosition,
-            body.XSubposition,
+        body.Position = body.Position.WithX(AddDraygonAngleMagnitude(
+            body.Position.X,
             xMagnitude,
-            subtract: ((movementAngle + 0x40) & 0x80) != 0);
-        (body.YPosition, body.YSubposition) = AddDraygonAngleMagnitude(
-            body.YPosition,
-            body.YSubposition,
+            subtract: ((movementAngle + 0x40) & 0x80) != 0));
+        body.Position = body.Position.WithY(AddDraygonAngleMagnitude(
+            body.Position.Y,
             yMagnitude,
-            subtract: ((movementAngle + 0x80) & 0x80) != 0);
+            subtract: ((movementAngle + 0x80) & 0x80) != 0));
     }
 
-    private static (ushort Position, ushort Subposition) AddSpriteObjectSubspeed(
-        ushort position,
-        ushort subposition,
+    private static SnesFixedPosition AddSpriteObjectSubspeed(
+        SnesFixedPosition position,
         ushort magnitude,
         bool add)
     {
-        uint fixedPosition = ((uint)position << 16) | subposition;
+        uint fixedPosition = position.RawValue;
         fixedPosition = add
             ? unchecked(fixedPosition + magnitude)
             : unchecked(fixedPosition - magnitude);
-        return (
-            unchecked((ushort)(fixedPosition >> 16)),
-            unchecked((ushort)fixedPosition));
+        return SnesFixedPosition.FromRaw(fixedPosition);
     }
 
     private void ClearRoomSpriteObjectPool()

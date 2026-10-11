@@ -37,9 +37,9 @@ internal static partial class Program
                 AssertEqual(MotherBrainGlassShardDefinitions.InstructionPointer(animationIndex),
                     shard.InstructionPointer,
                     $"production Mother Brain glass-shard instruction {parameter}/{animationIndex}");
-                AssertEqual(unchecked((ushort)(0x0200 + unchecked((short)ReadMotherBrainGlassShardWord(rom, 0x86ce61 + parameter)))), shard.XPosition,
+                AssertEqual(unchecked((ushort)(0x0200 + unchecked((short)ReadMotherBrainGlassShardWord(rom, 0x86ce61 + parameter)))), shard.Position.X.Whole,
                     $"production Mother Brain glass-shard X {parameter}/{animationIndex}");
-                AssertEqual(unchecked((ushort)(0x0080 + unchecked((short)ReadMotherBrainGlassShardWord(rom, 0x86ce67 + parameter)))), shard.YPosition,
+                AssertEqual(unchecked((ushort)(0x0080 + unchecked((short)ReadMotherBrainGlassShardWord(rom, 0x86ce67 + parameter)))), shard.Position.Y.Whole,
                     $"production Mother Brain glass-shard Y {parameter}/{animationIndex}");
                 AssertEqual(unchecked((ushort)(animationIndex << 5)), shard.Variable0,
                     $"production Mother Brain glass-shard angle offset {parameter}/{animationIndex}");

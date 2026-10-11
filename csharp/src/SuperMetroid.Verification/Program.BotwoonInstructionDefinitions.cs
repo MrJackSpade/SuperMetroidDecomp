@@ -62,8 +62,7 @@ internal static partial class Program
             busField.SetValue(movementEnemies, guarded);
             RoomEnemySlot movementHead = movementEnemies.Slots[0];
             var movementState = new BotwoonEnemyState(movementHead);
-            movementHead.XPosition = unchecked((ushort)(1000 + dx));
-            movementHead.YPosition = unchecked((ushort)(1000 + dy));
+            movementHead.Position = movementHead.Position.WithWhole(new(unchecked((ushort)(1000 + dx)), unchecked((ushort)(1000 + dy))));
             movementState.HeadHistoryX[3] = 1000;
             movementState.HeadHistoryY[3] = 1000;
             animateHead(movementHead, movementState);
@@ -77,8 +76,7 @@ internal static partial class Program
             {
                 Function = BotwoonEnemyFunction.SpitWhileHidden,
             };
-            spitHead.XPosition = 1000;
-            spitHead.YPosition = 1000;
+            spitHead.Position = spitHead.Position.WithWhole(new(1000, 1000));
             var samus = new SamusState
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(1000 + dx)), unchecked((ushort)(1000 + dy)))),
@@ -164,7 +162,7 @@ internal static partial class Program
             (RoomEnemySystem enemies, RoomEnemySlot head, _) =
                 CreateBotwoonProgramSystem(guard, program);
             RunBotwoonProgram(enemies, head, frames: 3);
-            AssertTrue(head.XRadius != 0 && head.YRadius != 0,
+            AssertTrue(head.Radius.X != 0 && head.Radius.Y != 0,
                 $"Botwoon movement program ${program:X4} installs a physical radius");
             AssertEqual((ushort)CommonEnemyInstruction.Sleep,
                 BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
@@ -193,7 +191,7 @@ internal static partial class Program
                 $"Botwoon spit program ${program:X4} publishes its attack frame");
             AssertEqual((ushort?)0x007c, enemies.LastBotwoonSoundEffect,
                 $"Botwoon spit program ${program:X4} publishes its sound");
-            AssertTrue(head.XRadius != 0 && head.YRadius != 0,
+            AssertTrue(head.Radius.X != 0 && head.Radius.Y != 0,
                 $"Botwoon spit program ${program:X4} installs a physical radius");
             AssertEqual((ushort)CommonEnemyInstruction.Sleep,
                 BotwoonInstructionProgramDefinitions.ReadMechanicsWord(
@@ -272,7 +270,7 @@ internal static partial class Program
             MethodInfo process =
                 typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
-                [head, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [head, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
         }

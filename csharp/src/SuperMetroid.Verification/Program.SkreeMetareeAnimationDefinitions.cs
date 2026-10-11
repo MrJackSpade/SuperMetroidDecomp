@@ -78,8 +78,7 @@ internal static partial class Program
     {
         var enemies = NewSkreeMetareeGuardedSystem(rom);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.XPosition = 0x0100;
-        slot.YPosition = 0x0080;
+        slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeMetaree", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -91,7 +90,7 @@ internal static partial class Program
         MetareeEnemyState state = enemies.MetareeStates[0]!;
         var samus = new SamusState
         {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(slot.XPosition, unchecked((ushort)(slot.YPosition + 0x60)))),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
         };
 
         idle.Invoke(null, [slot, state, samus]);
@@ -118,8 +117,7 @@ internal static partial class Program
     {
         var enemies = NewSkreeMetareeGuardedSystem(rom);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.XPosition = 0x0100;
-        slot.YPosition = 0x0080;
+        slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeSkree", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -129,7 +127,7 @@ internal static partial class Program
         SkreeEnemyState state = enemies.SkreeStates[0]!;
         var samus = new SamusState
         {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(slot.XPosition, unchecked((ushort)(slot.YPosition + 0x60)))),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
         };
 
         runMain.Invoke(enemies, [slot, samus, null]);

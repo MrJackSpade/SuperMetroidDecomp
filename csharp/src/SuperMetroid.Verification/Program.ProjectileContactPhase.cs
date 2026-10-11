@@ -29,8 +29,8 @@ internal static partial class Program
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
         projectile.InstructionTimer = 2;
-        projectile.XPosition = 128; projectile.YPosition = 235;
-        projectile.XRadius = projectile.YRadius = 8;
+        projectile.Position = projectile.Position.WithWhole(new(128, 235));
+        projectile.Radius = new(8, 8);
         projectile.Damage = 20; projectile.InvincibilityFrames = 96;
         projectile.CanDamageSamus = true;
 
@@ -75,8 +75,8 @@ internal static partial class Program
             projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
             projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
             projectile.InstructionTimer = 2;
-            projectile.XPosition = projectile.YPosition = 120;
-            projectile.XRadius = projectile.YRadius = 8;
+            projectile.Position = projectile.Position.WithWhole(new(120, 120));
+            projectile.Radius = new(8, 8);
             projectile.Damage = 20;
             projectile.InvincibilityFrames = 96;
             projectile.CanDamageSamus = true;

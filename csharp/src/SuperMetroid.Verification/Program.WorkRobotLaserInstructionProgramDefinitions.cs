@@ -36,10 +36,8 @@ internal static partial class Program
 
         var robot = new RoomEnemySlot(0)
         {
-            XPosition = 128,
-            YPosition = 112,
-            XRadius = 12,
-            YRadius = 16,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
+            Radius = new(12, 16),
             VramTilesIndex = 0x0200,
             PaletteIndex = 0x0c00,
         };
@@ -56,7 +54,7 @@ internal static partial class Program
         foreach ((WorkRobotLaser definition, ushort xVelocity) in definitions)
         {
             state.LaserXVelocity = xVelocity;
-            spawn.Invoke(enemies, [robot, state, definition, (ushort)0, (ushort)0]);
+            spawn.Invoke(enemies, [robot, state, definition, Position16<RoomPixels>.Zero]);
         }
 
         RoomEnemyProjectileSlot[] lasers = enemies.EnemyProjectiles
@@ -128,7 +126,7 @@ internal static partial class Program
                 if (ReadWorkRobotLaserInstructionWord(rom, nativeCursor) == (ushort)EnemyProjectileInstruction.GotoY)
                     nativeCursor = ReadWorkRobotLaserInstructionWord(rom, (ushort)(nativeCursor + 2));
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
                 if (projectile.IsActive)
                 {
                     ushort expectedOperand = (ushort)(nativeCursor + 2);

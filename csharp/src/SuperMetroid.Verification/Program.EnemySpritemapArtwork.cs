@@ -131,7 +131,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot>>(enemies)(bull);
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
         object?[] arguments =
-            [bull, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [bull, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int frame = 0; frame < 41; frame++)
             process.Invoke(enemies, arguments);
         AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
@@ -186,7 +186,7 @@ internal static partial class Program
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;
         object?[] arguments =
-            [puyo, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [puyo, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         foreach (ushort program in PuyoGroundedInstructionPrograms)
         {
             puyo.CurrentInstruction = program;
@@ -559,7 +559,7 @@ internal static partial class Program
         MethodInfo rioProcess = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;
         object?[] rioArguments =
-            [rioSlot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [rioSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
             RioInstructionProgramDefinitions.Idle, callCount: 13);
         ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
@@ -604,7 +604,7 @@ internal static partial class Program
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
                 NewLowerNorfairRioInstructionSystem(lowerRioGuard, flags, entry, stock);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunLowerNorfairRioInstructionFrames(
                 lowerRioProcess, enemies, arguments, slot, calls);
         }
@@ -644,7 +644,7 @@ internal static partial class Program
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
                 NewNorfairRioInstructionSystem(norfairRioGuard, flags, entry, stock);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunNorfairRioInstructionFrames(
                 norfairRioProcess, enemies, arguments, slot, calls);
         }
@@ -1986,8 +1986,8 @@ internal static partial class Program
             "Mother Brain head artwork edit changes live OAM X without ROM reads");
         AssertEqual(stockBrain.LowTable[1], editedBrain.LowTable[1],
             "Mother Brain head artwork edit leaves physical Y placement unchanged");
-        OamBuffer stockDeadTorizo = DrawDeadTorizoCorpseFrame(stock, rom, 0, 0);
-        OamBuffer editedDeadTorizo = DrawDeadTorizoCorpseFrame(edited, rom, 0, 0);
+        OamBuffer stockDeadTorizo = DrawDeadTorizoCorpseFrame(stock, rom, Position16<RoomPixels>.Zero);
+        OamBuffer editedDeadTorizo = DrawDeadTorizoCorpseFrame(edited, rom, Position16<RoomPixels>.Zero);
         AssertEqual(unchecked((byte)(stockDeadTorizo.LowTable[0] + 1)),
             editedDeadTorizo.LowTable[0],
             "Dead Torizo corpse composition edit changes live OAM X without ROM reads");
@@ -3671,10 +3671,9 @@ internal static partial class Program
             slot.SpritemapPointer = pointer;
             slot.InstructionTimer = 7;
             slot.Timer = 9;
-            slot.XPosition = 0x0040;
-            slot.YPosition = 0x0080;
+            slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
             var oam = new OamBuffer();
-            enemies.DrawLayers(oam, 0, 0, 0, 0);
+            enemies.DrawLayers(oam, new(0, 0), 0, 0);
             inspect?.Invoke(slot);
             return oam;
         }
@@ -3713,8 +3712,7 @@ internal static partial class Program
         var oam = new OamBuffer();
         typeof(RoomEnemySystem).GetMethod("DrawMotherBrainWorldSpritemap", flags)!
             .Invoke(enemies,
-                [oam, pointer, worldX, worldY,
-                    (ushort)0x0400, (ushort)0x0010, (ushort)0x0100, (ushort)0x0010]);
+                [oam, pointer, worldX, worldY, (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010)]);
         return oam;
     }
 
@@ -3725,14 +3723,14 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = art };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", flags)!
-            .CreateDelegate<Func<RoomEnemySystem, ushort, ushort, RoomSpriteObjectKind,
+            .CreateDelegate<Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind,
                 ushort, RoomSpriteObjectSlot?>>();
         var draw = typeof(RoomEnemySystem).GetMethod("DrawRoomSpriteObjects", flags)!
-            .CreateDelegate<Action<RoomEnemySystem, OamBuffer, ushort, ushort>>();
-        AssertTrue(spawn(enemies, 0x0040, 0x0080, kind, 0x0e00) is not null,
+            .CreateDelegate<Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>>>();
+        AssertTrue(spawn(enemies, new(0x0040, 0x0080), kind, 0x0e00) is not null,
             "installed room sprite object allocated");
         var oam = new OamBuffer();
-        draw(enemies, oam, 0, 0);
+        draw(enemies, oam, Position16<RoomPixels>.Zero);
         AssertTrue(oam.NextByteOffset > 0, "installed room sprite object drew OAM");
         return oam;
     }

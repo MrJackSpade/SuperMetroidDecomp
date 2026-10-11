@@ -45,10 +45,10 @@ internal static partial class Program
         AssertEqual(DownwardGateProjectileInstructionProgramDefinitions.Moving,
             closing.InstructionPointer,
             "real downward-moving gate producer selects the named program");
-        AssertEqual((ushort)32, closing.YPosition,
+        AssertEqual((ushort)32, closing.Position.Y.Whole,
             "downward-moving gate begins at its PLM row");
         Process(closingSystem, closing);
-        AssertEqual((ushort)0x0100, closing.YVelocity,
+        AssertEqual((ushort)0x0100, closing.Velocity.Y.RawValue,
             "downward-moving gate installs positive one-pixel velocity");
         AssertEqual((ushort)EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction,
             closing.PreInstruction,
@@ -56,7 +56,7 @@ internal static partial class Program
         RunMovementFrames(closingSystem, closing, 64);
         AssertTrue(closing.IsActive,
             "downward-moving gate remains resident after reaching the closed position");
-        AssertEqual((ushort)96, closing.YPosition,
+        AssertEqual((ushort)96, closing.Position.Y.Whole,
             "downward-moving gate traverses exactly four sixteen-pixel stages");
         AssertEqual(DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep,
             closing.InstructionPointer,
@@ -71,7 +71,7 @@ internal static partial class Program
         AssertEqual(DownwardGateProjectileInstructionProgramDefinitions.Closed,
             opening.InstructionPointer,
             "real closed-gate producer selects the named program");
-        AssertEqual((ushort)96, opening.YPosition,
+        AssertEqual((ushort)96, opening.Position.Y.Whole,
             "closed gate begins four blocks below its PLM row");
         Process(openingSystem, opening);
         AssertEqual(DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep,
@@ -84,7 +84,7 @@ internal static partial class Program
                 42),
             roomWidthInBlocks: 16);
         Process(openingSystem, opening);
-        AssertEqual(unchecked((ushort)-0x0100), opening.YVelocity,
+        AssertEqual(unchecked((ushort)-0x0100), opening.Velocity.Y.RawValue,
             "woken gate retains its authored upward velocity");
         AssertEqual((ushort)EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction,
             opening.PreInstruction,
@@ -92,7 +92,7 @@ internal static partial class Program
         RunMovementFrames(openingSystem, opening, 63);
         AssertTrue(opening.IsActive,
             "opening gate remains active one pixel before its fourth stage completes");
-        AssertEqual((ushort)33, opening.YPosition,
+        AssertEqual((ushort)33, opening.Position.Y.Whole,
             "opening gate reaches the final pixel before deletion");
         RunMovementFrames(openingSystem, opening, 1);
         AssertTrue(!opening.IsActive,
@@ -168,7 +168,7 @@ internal static partial class Program
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 

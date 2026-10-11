@@ -50,7 +50,7 @@ internal static partial class Program
 
             for (int frame = 1; frame <= 86; frame++)
             {
-                process.Invoke(enemies, [orb, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [orb, null, Position16<RoomPixels>.Zero]);
                 AssertTrue(orb.IsActive,
                     $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} orb loop frame {frame}");
             }
@@ -68,14 +68,14 @@ internal static partial class Program
         wall.InstructionTimer = 1;
         for (int frame = 1; frame <= 20; frame++)
         {
-            process.Invoke(wallEnemies, [wall, null, (ushort)0, (ushort)0]);
+            process.Invoke(wallEnemies, [wall, null, Position16<RoomPixels>.Zero]);
             AssertTrue(wall.IsActive, $"Torizo orb wall impact frame {frame}");
             AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, wall.PreInstruction,
                 $"Torizo orb wall impact clears callback on frame {frame}");
             AssertTrue(wall.PersistsOnSamusContact,
                 $"Torizo orb wall impact persists on Samus contact on frame {frame}");
         }
-        process.Invoke(wallEnemies, [wall, null, (ushort)0, (ushort)0]);
+        process.Invoke(wallEnemies, [wall, null, Position16<RoomPixels>.Zero]);
         AssertTrue(!wall.IsActive,
             "Torizo orb wall impact deletes after five four-frame poses");
 
@@ -89,7 +89,7 @@ internal static partial class Program
         floor.InstructionTimer = 1;
         for (int frame = 1; frame <= 39; frame++)
         {
-            process.Invoke(floorEnemies, [floor, null, (ushort)0, (ushort)0]);
+            process.Invoke(floorEnemies, [floor, null, Position16<RoomPixels>.Zero]);
             AssertTrue(floor.IsActive, $"Torizo orb floor impact frame {frame}");
             AssertTrue(floor.CanDamageSamus,
                 $"Torizo orb floor impact clears no-contact bit on frame {frame}");
@@ -98,7 +98,7 @@ internal static partial class Program
             AssertEqual(EnemyProjectileDrawPriority.High, floor.DrawPriority,
                 $"Torizo orb floor impact remains high priority on frame {frame}");
         }
-        process.Invoke(floorEnemies, [floor, null, (ushort)0, (ushort)0]);
+        process.Invoke(floorEnemies, [floor, null, Position16<RoomPixels>.Zero]);
         AssertTrue(!floor.IsActive,
             "Torizo orb floor impact deletes after exact 4/5/6/7/8/9-frame poses");
 
@@ -152,17 +152,16 @@ internal static partial class Program
             }
 
             RoomEnemyProjectileSlot orb = enemies.EnemyProjectiles[^1];
-            orb.XPosition = 0x0350;
-            orb.YPosition = 0x0260;
+            orb.Position = orb.Position.WithWhole(new(0x0350, 0x0260));
             orb.InstructionPointer = TorizoChozoOrbInstructionProgramDefinitions.Shot;
             orb.InstructionTimer = 1;
             for (int frame = 1; frame <= 20; frame++)
             {
-                process.Invoke(enemies, [orb, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [orb, null, Position16<RoomPixels>.Zero]);
                 AssertTrue(orb.IsActive,
                     $"{(golden ? "Golden" : "Bomb")} Torizo orb shot frame {frame}");
             }
-            process.Invoke(enemies, [orb, null, (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [orb, null, Position16<RoomPixels>.Zero]);
             AssertTrue(!orb.IsActive,
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot deletes after drop callback");
             AssertEqual(1, enemies.TorizoOrbDropRequests.Count,
@@ -181,9 +180,9 @@ internal static partial class Program
             AssertEqual(expectedDefinition.ItemDropChancesPointer,
                 pickup.ItemDropChancesPointerOverride,
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot drop header");
-            AssertEqual((ushort)0x0350, pickup.XPosition,
+            AssertEqual((ushort)0x0350, pickup.Position.X.Whole,
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot drop X");
-            AssertEqual((ushort)0x0260, pickup.YPosition,
+            AssertEqual((ushort)0x0260, pickup.Position.Y.Whole,
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot drop Y");
         }
 
@@ -203,8 +202,7 @@ internal static partial class Program
         static RoomEnemySlot CreateTorizo(RoomEnemySystem enemies, bool facingRight)
         {
             RoomEnemySlot torizo = enemies.Slots[0];
-            torizo.XPosition = 1000;
-            torizo.YPosition = 500;
+            torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
             return torizo;
         }

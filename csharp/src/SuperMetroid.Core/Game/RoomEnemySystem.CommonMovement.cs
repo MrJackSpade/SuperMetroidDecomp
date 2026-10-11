@@ -48,16 +48,16 @@ public sealed partial class RoomEnemySystem
         if (displacement == 0)
             return false;
 
-        uint oldPosition = ((uint)slot.XPosition << 16) | slot.XSubposition;
+        uint oldPosition = slot.Position.X.RawValue;
         uint newPosition = unchecked(oldPosition + (uint)displacement);
         ushort targetCenter = unchecked((ushort)(newPosition >> 16));
         bool movingLeft = displacement < 0;
         ushort targetEdge = movingLeft
-            ? unchecked((ushort)(targetCenter - slot.XRadius))
-            : unchecked((ushort)(targetCenter + slot.XRadius - 1));
+            ? unchecked((ushort)(targetCenter - slot.Radius.X))
+            : unchecked((ushort)(targetCenter + slot.Radius.X - 1));
 
-        ushort topPixel = unchecked((ushort)(slot.YPosition - slot.YRadius));
-        ushort bottomPixel = unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
+        ushort topPixel = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
+        ushort bottomPixel = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int spanMinusOne = unchecked((ushort)(bottomPixel - (topPixel & 0xfff0))) >> 4;
         // $A0:C6E2-$C716: the 8-bit multiplier forms (top row & $FF) * width, the target
         // column is added unbounded, and each scanned row adds the width again.
@@ -82,8 +82,7 @@ public sealed partial class RoomEnemySystem
 
         if (!collided)
         {
-            slot.XPosition = targetCenter;
-            slot.XSubposition = unchecked((ushort)newPosition);
+            slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(newPosition));
             return false;
         }
 
@@ -91,17 +90,17 @@ public sealed partial class RoomEnemySystem
         // center. That prevents a large corrupt displacement from snapping through a wall.
         if (movingLeft)
         {
-            ushort aligned = unchecked((ushort)((targetEdge | 0x000f) + slot.XRadius + 1));
-            if (aligned <= slot.XPosition)
-                slot.XPosition = aligned;
-            slot.XSubposition = 0;
+            ushort aligned = unchecked((ushort)((targetEdge | 0x000f) + slot.Radius.X + 1));
+            if (aligned <= slot.Position.X.Whole)
+                slot.Position = slot.Position.WithWholeX(aligned);
+            slot.Position = slot.Position.WithFractionX(0);
         }
         else
         {
-            ushort aligned = unchecked((ushort)((targetEdge & 0xfff0) - slot.XRadius));
-            if (aligned >= slot.XPosition)
-                slot.XPosition = aligned;
-            slot.XSubposition = 0xffff;
+            ushort aligned = unchecked((ushort)((targetEdge & 0xfff0) - slot.Radius.X));
+            if (aligned >= slot.Position.X.Whole)
+                slot.Position = slot.Position.WithWholeX(aligned);
+            slot.Position = slot.Position.WithFractionX(0xffff);
         }
         return true;
     }
@@ -115,16 +114,16 @@ public sealed partial class RoomEnemySystem
         if (displacement == 0)
             return false;
 
-        uint oldPosition = ((uint)slot.YPosition << 16) | slot.YSubposition;
+        uint oldPosition = slot.Position.Y.RawValue;
         uint newPosition = unchecked(oldPosition + (uint)displacement);
         ushort targetCenter = unchecked((ushort)(newPosition >> 16));
         bool movingUp = displacement < 0;
         ushort targetEdge = movingUp
-            ? unchecked((ushort)(targetCenter - slot.YRadius))
-            : unchecked((ushort)(targetCenter + slot.YRadius - 1));
+            ? unchecked((ushort)(targetCenter - slot.Radius.Y))
+            : unchecked((ushort)(targetCenter + slot.Radius.Y - 1));
 
-        ushort leftPixel = unchecked((ushort)(slot.XPosition - slot.XRadius));
-        ushort rightPixel = unchecked((ushort)(slot.XPosition + slot.XRadius - 1));
+        ushort leftPixel = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
+        ushort rightPixel = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
         int spanMinusOne = unchecked((ushort)(rightPixel - (leftPixel & 0xfff0))) >> 4;
         // $A0:C7D0-$C7F0: (target row & $FF) * width plus the left column, then each
         // scanned column steps to the next native block index.
@@ -150,8 +149,7 @@ public sealed partial class RoomEnemySystem
 
         if (!collided)
         {
-            slot.YPosition = targetCenter;
-            slot.YSubposition = unchecked((ushort)newPosition);
+            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(newPosition));
             return false;
         }
 
@@ -159,17 +157,17 @@ public sealed partial class RoomEnemySystem
         // The native outer helper performs this conditional coarse alignment afterward.
         if (movingUp)
         {
-            ushort aligned = unchecked((ushort)((targetEdge | 0x000f) + slot.YRadius + 1));
-            if (aligned <= slot.YPosition)
-                slot.YPosition = aligned;
-            slot.YSubposition = 0;
+            ushort aligned = unchecked((ushort)((targetEdge | 0x000f) + slot.Radius.Y + 1));
+            if (aligned <= slot.Position.Y.Whole)
+                slot.Position = slot.Position.WithWholeY(aligned);
+            slot.Position = slot.Position.WithFractionY(0);
         }
         else
         {
-            ushort aligned = unchecked((ushort)((targetEdge & 0xfff0) - slot.YRadius));
-            if (aligned >= slot.YPosition)
-                slot.YPosition = aligned;
-            slot.YSubposition = 0xffff;
+            ushort aligned = unchecked((ushort)((targetEdge & 0xfff0) - slot.Radius.Y));
+            if (aligned >= slot.Position.Y.Whole)
+                slot.Position = slot.Position.WithWholeY(aligned);
+            slot.Position = slot.Position.WithFractionY(0xffff);
         }
         return true;
     }
@@ -184,17 +182,17 @@ public sealed partial class RoomEnemySystem
         int unsignedDistance,
         bool movingDown)
     {
-        uint position = ((uint)slot.YPosition << 16) | slot.YSubposition;
+        uint position = slot.Position.Y.RawValue;
         uint target = movingDown
             ? unchecked(position + (uint)unsignedDistance)
             : unchecked(position - (uint)unsignedDistance);
         ushort targetCenter = unchecked((ushort)(target >> 16));
         ushort targetEdge = movingDown
-            ? unchecked((ushort)(targetCenter + slot.YRadius - 1))
-            : unchecked((ushort)(targetCenter - slot.YRadius));
+            ? unchecked((ushort)(targetCenter + slot.Radius.Y - 1))
+            : unchecked((ushort)(targetCenter - slot.Radius.Y));
         int row = targetEdge >> 4;
-        int firstColumn = unchecked((ushort)(slot.XPosition - slot.XRadius)) >> 4;
-        int lastColumn = unchecked((ushort)(slot.XPosition + slot.XRadius - 1)) >> 4;
+        int firstColumn = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
+        int lastColumn = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
         for (int column = firstColumn; column <= lastColumn; column++)
         {
             if ((uint)column >= (uint)level.Size.X ||
@@ -217,15 +215,15 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         int displacement)
     {
-        uint position = ((uint)slot.XPosition << 16) | slot.XSubposition;
+        uint position = slot.Position.X.RawValue;
         ushort targetCenter = unchecked((ushort)((position + (uint)displacement) >> 16));
         bool movingLeft = displacement < 0;
         ushort targetEdge = movingLeft
-            ? unchecked((ushort)(targetCenter - slot.XRadius))
-            : unchecked((ushort)(targetCenter + slot.XRadius - 1));
+            ? unchecked((ushort)(targetCenter - slot.Radius.X))
+            : unchecked((ushort)(targetCenter + slot.Radius.X - 1));
 
-        ushort topPixel = unchecked((ushort)(slot.YPosition - slot.YRadius));
-        ushort bottomPixel = unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
+        ushort topPixel = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
+        ushort bottomPixel = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int firstRow = topPixel >> 4;
         int lastRow = bottomPixel >> 4;
         int column = targetEdge >> 4;
@@ -248,14 +246,14 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static bool EnemyHasSolidHighBitVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, int displacement)
     {
-        uint position = ((uint)slot.YPosition << 16) | slot.YSubposition;
+        uint position = slot.Position.Y.RawValue;
         ushort center = unchecked((ushort)((position + (uint)displacement) >> 16));
         ushort edge = displacement < 0
-            ? unchecked((ushort)(center - slot.YRadius))
-            : unchecked((ushort)(center + slot.YRadius - 1));
+            ? unchecked((ushort)(center - slot.Radius.Y))
+            : unchecked((ushort)(center + slot.Radius.Y - 1));
         int blockY = edge >> 4;
-        int firstBlockX = unchecked((ushort)(slot.XPosition - slot.XRadius)) >> 4;
-        int lastBlockX = unchecked((ushort)(slot.XPosition + slot.XRadius - 1)) >> 4;
+        int firstBlockX = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
+        int lastBlockX = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
         if ((uint)blockY >= (uint)level.Size.Y) return true;
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
@@ -426,16 +424,12 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static int ResolveEnemyCollisionBlockIndex(
         RoomLevelData level,
-        int blockX,
-        int blockY)
+        Position16<RoomBlocks> start)
     {
-        if ((uint)blockX >= (uint)level.Size.X ||
-            (uint)blockY >= (uint)level.Size.Y)
-        {
+        if (!level.Size.Contains(start))
             return -1;
-        }
 
-        int blockIndex = blockY * level.Size.X + blockX;
+        int blockIndex = level.Size.RowMajorIndex(start);
         int maximumLinks = level.Size.X * level.Size.Y;
         for (int link = 0; link <= maximumLinks; link++)
         {
@@ -464,7 +458,7 @@ public sealed partial class RoomEnemySystem
         }
 
         throw new InvalidDataException(
-            $"Enemy collision BTS chain from block ({blockX},{blockY}) is cyclic.");
+            $"Enemy collision BTS chain from block ({start.X},{start.Y}) is cyclic.");
     }
 
     private static bool SquareHorizontalSlopeIsSolid(
@@ -478,11 +472,11 @@ public sealed partial class RoomEnemySystem
             (bts.SlopeOrientation ^ ((targetEdge & 8) >> 3));
         if (remaining == 0)
         {
-            if (((slot.YRadius + slot.YPosition - 1) & 8) == 0)
+            if (((slot.Radius.Y + slot.Position.Y.Whole - 1) & 8) == 0)
                 return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) != 0;
         }
         else if (remaining == spanMinusOne &&
-                 ((slot.YPosition - slot.YRadius) & 8) != 0)
+                 ((slot.Position.Y.Whole - slot.Radius.Y) & 8) != 0)
         {
             return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 2) & 0x80) != 0;
         }
@@ -503,11 +497,11 @@ public sealed partial class RoomEnemySystem
             (bts.SlopeOrientation ^ ((targetEdge & 8) >> 2));
         if (remaining == 0)
         {
-            if (((slot.XRadius + slot.XPosition - 1) & 8) == 0)
+            if (((slot.Radius.X + slot.Position.X.Whole - 1) & 8) == 0)
                 return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) != 0;
         }
         else if (remaining == spanMinusOne &&
-                 ((slot.XPosition - slot.XRadius) & 8) != 0)
+                 ((slot.Position.X.Whole - slot.Radius.X) & 8) != 0)
         {
             return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 1) & 0x80) != 0;
         }
@@ -524,35 +518,33 @@ public sealed partial class RoomEnemySystem
         ushort targetCenter,
         bool movingUp)
     {
-        if (block.Index % level.Size.X != slot.XPosition >> 4)
+        if (block.Index % level.Size.X != slot.Position.X.Whole >> 4)
             return false;
 
         RoomBlockBehavior bts = block.Bts;
         int xWithinBlock = (bts.SlopeFlipsHorizontally
-            ? slot.XPosition ^ 0x000f
-            : slot.XPosition) & 0x000f;
+            ? slot.Position.X.Whole ^ 0x000f
+            : slot.Position.X.Whole) & 0x000f;
         int height = ReadNonSquareSlopeHeight(bts, xWithinBlock);
         if (movingUp)
         {
             if (!bts.SlopeFlipsVertically)
                 return false;
-            int edgeWithinBlock = ((targetCenter - slot.YRadius) & 0x000f) ^ 0x000f;
+            int edgeWithinBlock = ((targetCenter - slot.Radius.Y) & 0x000f) ^ 0x000f;
             int adjustment = height - edgeWithinBlock - 1;
             if (adjustment > 0)
                 return false;
-            slot.YPosition = unchecked((ushort)(targetCenter - adjustment));
-            slot.YSubposition = 0;
+            slot.Position = slot.Position.WithY(new(unchecked((ushort)(targetCenter - adjustment)), 0));
             return true;
         }
 
         if (bts.SlopeFlipsVertically)
             return false;
-        int bottomWithinBlock = (slot.YRadius + targetCenter - 1) & 0x000f;
+        int bottomWithinBlock = (slot.Radius.Y + targetCenter - 1) & 0x000f;
         int downwardAdjustment = height - bottomWithinBlock - 1;
         if (height - bottomWithinBlock != 1 && downwardAdjustment >= 0)
             return false;
-        slot.YPosition = unchecked((ushort)(targetCenter + downwardAdjustment));
-        slot.YSubposition = 0xffff;
+        slot.Position = slot.Position.WithY(new(unchecked((ushort)(targetCenter + downwardAdjustment)), 0xffff));
         return true;
     }
 
@@ -572,14 +564,12 @@ public sealed partial class RoomEnemySystem
         bool adjustedFloor = AlignAgainstSlopeAtPixel(
             level,
             slot,
-            slot.XPosition,
-            unchecked((ushort)(slot.YPosition + slot.YRadius - 1)),
+            new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1))),
             underside: false);
         bool adjustedCeiling = AlignAgainstSlopeAtPixel(
             level,
             slot,
-            slot.XPosition,
-            unchecked((ushort)(slot.YPosition - slot.YRadius)),
+            new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))),
             underside: true);
         return adjustedFloor || adjustedCeiling;
     }
@@ -587,12 +577,11 @@ public sealed partial class RoomEnemySystem
     private static bool AlignAgainstSlopeAtPixel(
         RoomLevelData level,
         RoomEnemySlot slot,
-        ushort x,
-        ushort y,
+        Position16<RoomPixels> pixel,
         bool underside)
     {
-        int blockX = x >> 4;
-        int blockY = y >> 4;
+        int blockX = pixel.X >> 4;
+        int blockY = pixel.Y >> 4;
         if ((uint)blockX >= (uint)level.Size.X ||
             (uint)blockY >= (uint)level.Size.Y)
         {
@@ -606,15 +595,15 @@ public sealed partial class RoomEnemySystem
         if (underside != block.Bts.SlopeFlipsVertically)
             return false;
 
-        int xWithinBlock = (block.Bts.SlopeFlipsHorizontally ? x ^ 0x000f : x) & 0x000f;
+        int xWithinBlock = (block.Bts.SlopeFlipsHorizontally ? pixel.X ^ 0x000f : pixel.X) & 0x000f;
         int height = ReadNonSquareSlopeHeight(block.Bts, xWithinBlock);
-        int edgeWithinBlock = underside ? (y & 0x000f) ^ 0x000f : y & 0x000f;
+        int edgeWithinBlock = underside ? (pixel.Y & 0x000f) ^ 0x000f : pixel.Y & 0x000f;
         int adjustment = height - edgeWithinBlock - 1;
         if (adjustment >= 0)
             return false;
-        slot.YPosition = underside
-            ? unchecked((ushort)(slot.YPosition - adjustment))
-            : unchecked((ushort)(slot.YPosition + adjustment));
+        slot.Position = slot.Position.WithWholeY(underside
+            ? unchecked((ushort)(slot.Position.Y.Whole - adjustment))
+            : unchecked((ushort)(slot.Position.Y.Whole + adjustment)));
         return true;
     }
 

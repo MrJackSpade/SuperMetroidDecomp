@@ -27,16 +27,14 @@ internal static partial class Program
         // properties $3800 (tangible); the head well clear.
         state.Form = 4;
         body.Properties = 0x3800;
-        body.XPosition = 0x003e;
-        body.YPosition = 0x0090;
+        body.Position = body.Position.WithWhole(new(0x003e, 0x0090));
         body.SpritemapPointer = 0xa174;
-        head.XPosition = 0x0058;
-        head.YPosition = 0x0021;
+        head.Position = head.Position.WithWhole(new(0x0058, 0x0021));
         head.Health = 0x8020;
-        runtime.Enemies.PrepareEnemyProcessingList(0x0000, 0x0000);
+        runtime.Enemies.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x9018; shot.Damage = 1000; shot.Direction = 7;
-        shot.Position = shot.Position.WithWhole(new(0x008e, 0x0061)); shot.Radius = shot.Radius.WithX(0x1c).WithY(8);
+        shot.Position = shot.Position.WithWhole(new(0x008e, 0x0061)); shot.Radius = new(0x1c, 8);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Samus!);
         AssertTrue((shot.Direction & 0x0010) != 0, "the beam stops on the body's arm rectangle");

@@ -131,7 +131,7 @@ internal static partial class Program
             "bank-$86 pool owns the closed gate actor");
         AssertEqual((ushort)(gateBlockIndex * 2), actor.Variable0,
             "gate actor variable E retains native PLM byte index");
-        AssertEqual((ushort)96, actor.YPosition,
+        AssertEqual((ushort)96, actor.Position.Y.Whole,
             "closed gate actor begins four tiles beneath a row-two PLM origin");
         enemies.StepEnemyProjectiles(level, samus: null);
         enemies.StepEnemyProjectiles(level, samus: null);
@@ -200,7 +200,7 @@ internal static partial class Program
         for (int frame = 0; frame < 80; frame++)
             enemies.StepEnemyProjectiles(level, samus: null);
         RoomEnemyProjectileSlot closedActor = enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);
-        AssertEqual((ushort)96, closedActor.YPosition,
+        AssertEqual((ushort)96, closedActor.Position.Y.Whole,
             "moving gate travels four tiles down and remains parked closed");
     }
 

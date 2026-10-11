@@ -27,7 +27,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         var enemy = enemies.Slots[0];
         var align = typeof(RoomEnemySystem).GetMethod("AlignAgainstSlopeAtPixel", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<RoomLevelData, RoomEnemySlot, ushort, ushort, bool, bool>>();
+            .CreateDelegate<Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, bool, bool>>();
         var missile = typeof(SamusProjectileSystem).GetMethod("MissileSlopePointReaction", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>>();
         var bomb = typeof(SamusBombProjectileSystem).GetMethod("BombSpreadCollides", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -56,14 +56,13 @@ internal static partial class Program
                     AssertEqual(solid, missile(block, projectile, true), "Missile horizontal slope point collision");
                     AssertEqual(solid, missile(block, projectile, false), "Missile vertical slope point collision");
                     AssertEqual(solid, bomb(level, spread), "Bomb spread real slope collision");
-                    enemy.YPosition = 128;
-                    enemy.YSubposition = 0x1234;
+                    enemy.Position = enemy.Position.WithY(new(128, 0x1234));
                     int adjustment = height - edge - 1;
-                    bool changed = align(level, enemy, x, y, (raw & 128) != 0);
+                    bool changed = align(level, enemy, new(x, y), (raw & 128) != 0);
                     AssertEqual(adjustment < 0, changed, "Enemy real slope alignment admission");
                     int expectedY = 128 + (adjustment < 0 ? (raw & 128) != 0 ? -adjustment : adjustment : 0);
-                    AssertEqual((ushort)expectedY, enemy.YPosition, "Enemy exact floor/ceiling alignment Y");
-                    AssertEqual((ushort)0x1234, enemy.YSubposition, "Enemy alignment preserves fractional Y");
+                    AssertEqual((ushort)expectedY, enemy.Position.Y.Whole, "Enemy exact floor/ceiling alignment Y");
+                    AssertEqual((ushort)0x1234, enemy.Position.Y.Fraction, "Enemy alignment preserves fractional Y");
                     collisionCases++;
                 }
             }

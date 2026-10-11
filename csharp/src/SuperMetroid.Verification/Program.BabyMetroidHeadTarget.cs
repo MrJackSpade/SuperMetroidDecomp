@@ -27,18 +27,17 @@ internal static partial class Program
         RoomEnemySlot slot = state.BabyMetroidSlot!;
         BabyMetroidCutsceneState baby = state.BabyMetroid!;
 
-        head.XPosition = 0x007d;
-        head.YPosition = 0x005d;
+        head.Position = head.Position.WithWhole(new(0x007d, 0x005d));
         void Set(string name, object value) => typeof(BabyMetroidCutsceneState).GetProperty(name)!.SetValue(baby, value);
         Set(nameof(baby.Phase), BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody);
         Set(nameof(baby.XPosition), (ushort)0x007d);
         Set(nameof(baby.YPosition), (ushort)0x0045);
 
         typeof(RoomEnemySystem).GetMethod("RunMotherBrainBabyMetroidMain", flags)!
-            .Invoke(runtime.Enemies, [slot, runtime.Samus, (ushort)0, (ushort)0]);
+            .Invoke(runtime.Enemies, [slot, runtime.Samus, Position16<RoomPixels>.Zero]);
         AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase, "the Baby reaches the head");
-        AssertEqual((ushort)0x007d, slot.XPosition, "the Baby pins to the head enemy's current X");
-        AssertEqual((ushort)0x0045, slot.YPosition, "the Baby pins $18 above the head enemy's current Y");
+        AssertEqual((ushort)0x007d, slot.Position.X.Whole, "the Baby pins to the head enemy's current X");
+        AssertEqual((ushort)0x0045, slot.Position.Y.Whole, "the Baby pins $18 above the head enemy's current Y");
         Console.WriteLine("Baby Metroid head target: the Baby reads the head enemy's current position.");
     }
 }

@@ -34,7 +34,7 @@ internal static partial class Program
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        samus.Position = samus.Position.WithWhole(new(support.XPosition, (ushort)(support.YPosition - support.YRadius - samus.Kinematics.Radius.Y)));
+        samus.Position = samus.Position.WithWhole(new(support.Position.X.Whole, (ushort)(support.Position.Y.Whole - support.Radius.Y - samus.Kinematics.Radius.Y)));
         runtime.StepFrame(0);
         AssertTrue(samus.Xray.TryBegin(bus, samus, samus.ReadMovementType(bus)), "setup fixture activates X-ray");
         ushort held = runtime.ControllerBindings.Dash;

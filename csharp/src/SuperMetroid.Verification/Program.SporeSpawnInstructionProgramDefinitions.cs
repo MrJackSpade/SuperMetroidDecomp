@@ -137,8 +137,7 @@ internal static partial class Program
         RoomEnemySlot body = enemies.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 };
-        body.XPosition = 128;
-        body.YPosition = 624;
+        body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         body.CurrentInstruction = initialPointer;
         body.InstructionTimer = 1;
@@ -146,8 +145,8 @@ internal static partial class Program
         var state = new SporeSpawnEnemyState(body)
         {
             Function = SporeSpawnFunction.Idle,
-            MovementCenterX = body.XPosition,
-            MovementCenterY = body.YPosition,
+            MovementCenterX = body.Position.X.Whole,
+            MovementCenterY = body.Position.Y.Whole,
             MaximumXRadius = 48,
             AngleDelta = 1,
         };
@@ -162,7 +161,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_sporeSpawn", flags)!.SetValue(enemies, state);
 
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-        object?[] arguments = [body, null, null, (ushort)0, (ushort)0, (ushort)0];
+        object?[] arguments = [body, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int frame = 0; frame < frames; frame++)
         {
             process.Invoke(enemies, arguments);

@@ -60,8 +60,8 @@ internal static partial class Program
         (ushort X, ushort Y)[] expected = [(0x03e7, 0x0026), (0x03e7, 0x00a6), (0x0337, 0x0036)];
         for (int index = 0; index < rinkas.Length; index++)
         {
-            AssertEqual(expected[index].X, rinkas[index].XPosition, $"Rinka {index} X follows the loader's camera");
-            AssertEqual(expected[index].Y, rinkas[index].YPosition, $"Rinka {index} Y follows the loader's camera");
+            AssertEqual(expected[index].X, rinkas[index].Position.X.Whole, $"Rinka {index} X follows the loader's camera");
+            AssertEqual(expected[index].Y, rinkas[index].Position.Y.Whole, $"Rinka {index} Y follows the loader's camera");
         }
         Console.WriteLine("Mother Brain Rinka door spawn: spawn points are chosen against the loader's scrolling camera.");
     }

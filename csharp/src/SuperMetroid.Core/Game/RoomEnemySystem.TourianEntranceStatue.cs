@@ -81,8 +81,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
-        projectile.XPosition = x;
-        projectile.YPosition = y;
+        projectile.Position = projectile.Position.WithWhole(new(x, y));
         projectile.Variable0 = x;
         projectile.Variable1 = y;
     }
@@ -97,11 +96,11 @@ public sealed partial class RoomEnemySystem
             TourianEntranceStatueFinished = true;
         }
 
-        projectile.XPosition = projectile.Variable0;
+        projectile.Position = projectile.Position.WithWholeX(projectile.Variable0);
 
         // $86:BA42 adds layer1_y_pos and subtracts HDMA's layer1_y_pos + displacement.
         // The camera terms cancel here; ordinary OBJ drawing subtracts the camera once.
         // This keeps all sprite pieces attached to the descending BG2 statue artwork.
-        projectile.YPosition = unchecked((ushort)(projectile.Variable1 - TourianEntranceStatueVerticalOffset));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Variable1 - TourianEntranceStatueVerticalOffset)));
     }
 }

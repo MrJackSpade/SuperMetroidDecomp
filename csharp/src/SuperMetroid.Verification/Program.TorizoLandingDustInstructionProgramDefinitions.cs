@@ -40,8 +40,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, bool>>(enemies);
 
         RoomEnemySlot torizo = enemies.Slots[0];
-        torizo.XPosition = 300;
-        torizo.YPosition = 120;
+        torizo.Position = torizo.Position.WithWhole(new(300, 120));
         spawn(torizo, true);
         spawn(torizo, false);
         RoomEnemyProjectileSlot right = enemies.EnemyProjectiles.First(
@@ -49,10 +48,10 @@ internal static partial class Program
         RoomEnemyProjectileSlot left = enemies.EnemyProjectiles.First(
             projectile => projectile.Kind == RoomEnemyProjectileKind.BombTorizoLeftFootDust);
 
-        AssertEqual((ushort)324, right.XPosition, "right-foot dust producer X position");
-        AssertEqual((ushort)276, left.XPosition, "left-foot dust producer X position");
-        AssertEqual((ushort)168, right.YPosition, "right-foot dust producer Y position");
-        AssertEqual((ushort)168, left.YPosition, "left-foot dust producer Y position");
+        AssertEqual((ushort)324, right.Position.X.Whole, "right-foot dust producer X position");
+        AssertEqual((ushort)276, left.Position.X.Whole, "left-foot dust producer X position");
+        AssertEqual((ushort)168, right.Position.Y.Whole, "right-foot dust producer Y position");
+        AssertEqual((ushort)168, left.Position.Y.Whole, "left-foot dust producer Y position");
         AssertEqual(TorizoLandingDustInstructionProgramDefinitions.RightFoot,
             right.InstructionPointer, "right-foot dust program selection");
         AssertEqual(TorizoLandingDustInstructionProgramDefinitions.LeftFoot,
@@ -60,9 +59,9 @@ internal static partial class Program
 
         Run(right, 4);
         Run(left, 4);
-        AssertEqual((ushort)156, right.YPosition,
+        AssertEqual((ushort)156, right.Position.Y.Whole,
             "right-foot dust rises exactly twelve pixels across its four poses");
-        AssertEqual((ushort)156, left.YPosition,
+        AssertEqual((ushort)156, left.Position.Y.Whole,
             "left-foot dust rises exactly twelve pixels across its four poses");
         Run(right, 1);
         Run(left, 1);
@@ -109,7 +108,7 @@ internal static partial class Program
             for (int step = 0; step < steps; step++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }

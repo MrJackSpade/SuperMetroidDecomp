@@ -104,8 +104,7 @@ internal static partial class Program
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             slot.Parameter1 = 0x0040;
             slot.Parameter2 = parameter2;
-            slot.XPosition = 0x0100;
-            slot.YPosition = 0x0100;
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             initialize(slot, null);
 
             if (samusX is ushort x)
@@ -113,7 +112,7 @@ internal static partial class Program
                 var samus = new SamusState
                 {
                     CollectedItems = 0x0004,
-                    Position = FixedPosition<RoomPixels>.FromWhole(new(x, slot.YPosition)),
+                    Position = FixedPosition<RoomPixels>.FromWhole(new(x, slot.Position.Y.Whole)),
                 };
                 runMain(slot, enemies.BlueBrinstarFaceBlockStates[0]!, samus);
                 AssertTrue(enemies.BlueBrinstarFaceBlockStates[0]!.Activated,
@@ -123,7 +122,7 @@ internal static partial class Program
             AssertEqual(expectedProgram, slot.CurrentInstruction,
                 $"face-block {description} program selection");
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
             AssertEqual(terminal, slot.CurrentInstruction,

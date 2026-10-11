@@ -40,8 +40,7 @@ internal static partial class Program
         RoomEnemySlot owner = enemies.Slots[0];
         owner.Parameter1 = 0x2001;
         owner.Parameter2 = 0x2000;
-        owner.XPosition = 0x0180;
-        owner.YPosition = 0x0200;
+        owner.Position = owner.Position.WithWhole(new(0x0180, 0x0200));
         initialize(owner);
 
         RoomEnemyProjectileSlot[] projectiles = enemies.NuclearWaffleStates[0]!
@@ -113,7 +112,7 @@ internal static partial class Program
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
                 if (projectile.IsActive)
                 {

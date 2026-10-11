@@ -50,14 +50,13 @@ internal static partial class Program
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         };
         fixture.Bus.WriteBytes(0xb48014, [2]);
-        enemy.XPosition = samus.Position.X.Whole;
-        enemy.YPosition = samus.Position.Y.Whole;
-        enemy.XRadius = enemy.YRadius = 8;
+        enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
+        enemy.Radius = new(8, 8);
         enemy.Health = 1;
         enemy.SpritemapPointer = 0x8000;
         enemy.Properties = (ushort)EnemyProperties.RespawnIfKilled;
         var projectiles = new SamusProjectileSystem();
-        fixture.System.StepFrame(0, 0, false, samus, level: fixture.Level,
+        fixture.System.StepFrame(new(0, 0), false, samus, level: fixture.Level,
             samusProjectiles: projectiles, resolveSamusContactBeforeAi: true);
         AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.EnemiesKilled, "contact death counted once");
@@ -65,7 +64,7 @@ internal static partial class Program
         AssertEqual((int)EnemyAiRoutine.RTL_A3804C,
             (enemy.Definition.Bank << 16) | enemy.Definition.MainAiPointer,
             "cached header follows replacement identity into native no-op AI");
-        fixture.System.StepFrame(0, 0, false, samus, level: fixture.Level,
+        fixture.System.StepFrame(new(0, 0), false, samus, level: fixture.Level,
             samusProjectiles: projectiles, resolveSamusContactBeforeAi: true);
         AssertEqual(0, fixture.System.ActiveEnemyIndexes.Count, "placeholder remains excluded next frame");
         AssertEqual(1, fixture.System.EnemiesKilled, "placeholder cannot be killed twice");
@@ -155,8 +154,7 @@ internal static partial class Program
         };
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [random]);
         RoomEnemyProjectileSlot pickup = fixture.System.SpawnEnemyDropFromChanceTable(
-            samus.Position.X.Whole,
-            samus.Position.Y.Whole,
+            samus.Position.Whole,
             NativeDropChancePointer) ??
             throw new InvalidOperationException($"Could not allocate {kind} test pickup.");
 
@@ -183,7 +181,7 @@ internal static partial class Program
         rerollSamus.Health = 50;
         EnemyDropFixture reroll = CreateEnemyDropFixture(rerollSamus, randomValues: [0, 1]);
         RoomEnemyProjectileSlot rerolled = reroll.System.SpawnEnemyDropFromChanceTable(
-            50, 50, NativeDropChancePointer)!;
+            new(50, 50), NativeDropChancePointer)!;
         AssertEqual((ushort)2, rerolled.Variable0,
             "zero RNG sample rerolls before selecting small energy");
 
@@ -198,19 +196,19 @@ internal static partial class Program
         const ushort biasDropChancePointer = 0xf1fa;
 
         RoomEnemyProjectileSlot belowThirty =
-            bias.System.SpawnEnemyDropFromChanceTable(10, 10, biasDropChancePointer)!;
+            bias.System.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChancePointer)!;
         AssertEqual((ushort)4, belowThirty.Variable0,
             "critical energy suppresses no-drop and renormalizes energy weights");
 
         biasSamus.Health = 40;
         RoomEnemyProjectileSlot graceBand =
-            bias.System.SpawnEnemyDropFromChanceTable(20, 20, biasDropChancePointer)!;
+            bias.System.SpawnEnemyDropFromChanceTable(new(20, 20), biasDropChancePointer)!;
         AssertEqual((ushort)4, graceBand.Variable0,
             "30..49 energy retains the previous critical-drop bias");
 
         biasSamus.Health = 50;
         RoomEnemyProjectileSlot clearedBias =
-            bias.System.SpawnEnemyDropFromChanceTable(30, 30, biasDropChancePointer)!;
+            bias.System.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChancePointer)!;
         AssertEqual((ushort)0xefdf, clearedBias.PreInstruction,
             "50 energy clears critical bias and permits the table's no-drop weight");
 
@@ -221,7 +219,7 @@ internal static partial class Program
         fullSamus.PowerBombs = fullSamus.MaxPowerBombs = 5;
         EnemyDropFixture full = CreateEnemyDropFixture(fullSamus, randomValues: [1]);
         RoomEnemyProjectileSlot ineligible =
-            full.System.SpawnEnemyDropFromChanceTable(40, 40, NativeDropChancePointer)!;
+            full.System.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChancePointer)!;
         AssertEqual((ushort)0xefdf, ineligible.PreInstruction,
             "full resources make the native record's ammo weights ineligible");
     }
@@ -233,7 +231,7 @@ internal static partial class Program
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1, 1]);
 
         RoomEnemyProjectileSlot expiring =
-            fixture.System.SpawnEnemyDropFromChanceTable(300, 300, NativeDropChancePointer)!;
+            fixture.System.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropChancePointer)!;
         expiring.Variable1 = 1;
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual((ushort)0, expiring.Variable1,
@@ -244,10 +242,9 @@ internal static partial class Program
             "expiry does not apply a pickup effect");
 
         RoomEnemyProjectileSlot boundary =
-            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;
-        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(
-            boundary.XPosition + boundary.XRadius + samus.Kinematics.Radius.X)));
-        samus.Position = samus.Position.WithWholeY(boundary.YPosition);
+            fixture.System.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer)!;
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(
+            boundary.Position.X.Whole + boundary.Radius.X + samus.Kinematics.Radius.X)), boundary.Position.Y.Whole));
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual<EnemyPickupKind?>(null, fixture.System.LastCollectedEnemyPickup,
             "radius equality is not Samus/pickup contact");
@@ -268,7 +265,7 @@ internal static partial class Program
         samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(100);
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
         RoomEnemyProjectileSlot pickup =
-            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;
+            fixture.System.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer)!;
 
         for (int frame = 0; frame < 16; frame++)
         {
@@ -300,7 +297,7 @@ internal static partial class Program
         for (int allocation = 0; allocation < 17; allocation++)
         {
             RoomEnemyProjectileSlot pickup =
-                fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;
+                fixture.System.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer)!;
             AssertEqual(17 - allocation, pickup.SlotIndex,
                 $"enemy projectile allocation {allocation} descends from native $22");
             AssertEqual((ushort)0xefe0, pickup.PreInstruction,
@@ -308,12 +305,12 @@ internal static partial class Program
         }
 
         RoomEnemyProjectileSlot slotZero =
-            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;
+            fixture.System.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer)!;
         AssertEqual(0, slotZero.SlotIndex, "eighteenth allocation reaches physical slot zero");
         AssertEqual((ushort)0xefe0, slotZero.PreInstruction,
             "a directly spawned drop in physical slot zero becomes a pickup");
         AssertEqual<RoomEnemyProjectileSlot?>(null,
-            fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer),
+            fixture.System.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChancePointer),
             "nineteenth allocation observes the shared eighteen-slot pool as full");
     }
 
@@ -327,8 +324,7 @@ internal static partial class Program
         WriteWord(fixture.Bus, 0xa00000 | enemyHeader | 58, NativeDropChancePointer);
         RoomEnemySlot enemy = fixture.System.Slots[0];
         enemy.EnemyDefinitionPointer = (EnemyDefinitionId)enemyHeader;
-        enemy.XPosition = 321;
-        enemy.YPosition = 123;
+        enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.VramTilesIndex = 0x0200;
         enemy.PaletteIndex = 0x0c00;
         enemy.Properties = (ushort)EnemyProperties.RespawnIfKilled;
@@ -348,9 +344,9 @@ internal static partial class Program
             "generic death allocates projectile definition F345");
         AssertEqual((EnemyDefinitionId)enemyHeader, explosion.EnemyHeaderPointer,
             "death actor retains killed enemy header for later chance lookup");
-        AssertEqual((ushort)321, explosion.XPosition,
+        AssertEqual((ushort)321, explosion.Position.X.Whole,
             "death actor retains killed enemy X position");
-        AssertEqual((ushort)123, explosion.YPosition,
+        AssertEqual((ushort)123, explosion.Position.Y.Whole,
             "death actor retains killed enemy Y position");
         AssertEqual((ushort)0x8000, explosion.KilledEnemyNativeIndex,
             "respawning slot zero is retained as high-bit native enemy index");

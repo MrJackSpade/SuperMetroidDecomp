@@ -40,12 +40,12 @@ internal static partial class Program
             AssertEqual(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, fragment.Kind,
                 $"production Mother Brain door fragment kind {parameter}");
             AssertEqual(unchecked((ushort)(MotherBrainDeathRomData.DoorX + definition.XOffset)),
-                fragment.XPosition, $"production Mother Brain door fragment X {parameter}");
+                fragment.Position.X.Whole, $"production Mother Brain door fragment X {parameter}");
             AssertEqual(unchecked((ushort)(MotherBrainDeathRomData.DoorY + definition.YOffset)),
-                fragment.YPosition, $"production Mother Brain door fragment Y {parameter}");
-            AssertEqual(unchecked((ushort)definition.XVelocity), fragment.XVelocity,
+                fragment.Position.Y.Whole, $"production Mother Brain door fragment Y {parameter}");
+            AssertEqual(unchecked((ushort)definition.XVelocity), fragment.Velocity.X.RawValue,
                 $"production Mother Brain door fragment X velocity {parameter}");
-            AssertEqual(unchecked((ushort)definition.YVelocity), fragment.YVelocity,
+            AssertEqual(unchecked((ushort)definition.YVelocity), fragment.Velocity.Y.RawValue,
                 $"production Mother Brain door fragment Y velocity {parameter}");
             AssertEqual(MotherBrainDeathRomData.DoorFragmentLifetime, fragment.Variable0,
                 $"production Mother Brain door fragment lifetime {parameter}");

@@ -19,10 +19,10 @@ public sealed partial class RoomEnemySystem
         state.Function = GrowingShutterDefinitions.InitialFunction(initialFunctionIndex);
 
         bool growsUp = slot.ExtraProperties != 0;
-        state.GrowthLevel0OriginY = slot.YPosition;
-        state.GrowthLevel1OriginY = unchecked((ushort)(slot.YPosition + (growsUp ? -8 : 8)));
-        state.GrowthLevel2OriginY = unchecked((ushort)(slot.YPosition + (growsUp ? -16 : 16)));
-        state.GrowthLevel3OriginY = unchecked((ushort)(slot.YPosition + (growsUp ? -24 : 24)));
+        state.GrowthLevel0OriginY = slot.Position.Y.Whole;
+        state.GrowthLevel1OriginY = unchecked((ushort)(slot.Position.Y.Whole + (growsUp ? -8 : 8)));
+        state.GrowthLevel2OriginY = unchecked((ushort)(slot.Position.Y.Whole + (growsUp ? -16 : 16)));
+        state.GrowthLevel3OriginY = unchecked((ushort)(slot.Position.Y.Whole + (growsUp ? -24 : 24)));
         state.GrowthLevel = 0;
 
         (state.GrowthVelocity, state.GrowthSubvelocity) = GrowingShutterDefinitions.Speed(slot.Parameter2);
@@ -39,33 +39,32 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         switch (state.Function)
         {
             case GrowingShutterFunction.WaitToGrowDownForTimer:
                 if (AdvanceGrowingShutterTimer(slot))
-                    ActivateGrowingShutter(slot, state, growsUp: false, cameraX, cameraY);
+                    ActivateGrowingShutter(slot, state, growsUp: false, camera);
                 return;
 
             case GrowingShutterFunction.WaitToGrowUpForTimer:
                 if (AdvanceGrowingShutterTimer(slot))
-                    ActivateGrowingShutter(slot, state, growsUp: true, cameraX, cameraY);
+                    ActivateGrowingShutter(slot, state, growsUp: true, camera);
                 return;
 
             case GrowingShutterFunction.WaitToGrowDownForProximity:
                 if (samus is null)
                     throw new InvalidOperationException("Growing-shutter proximity AI requires Samus state.");
                 if (IsSamusWithinShutterHorizontalDistance(slot, samus, slot.Parameter1))
-                    ActivateGrowingShutter(slot, state, growsUp: false, cameraX, cameraY);
+                    ActivateGrowingShutter(slot, state, growsUp: false, camera);
                 return;
 
             case GrowingShutterFunction.WaitToGrowUpForProximity:
                 if (samus is null)
                     throw new InvalidOperationException("Growing-shutter proximity AI requires Samus state.");
                 if (IsSamusWithinShutterHorizontalDistance(slot, samus, slot.Parameter1))
-                    ActivateGrowingShutter(slot, state, growsUp: true, cameraX, cameraY);
+                    ActivateGrowingShutter(slot, state, growsUp: true, camera);
                 return;
 
             case GrowingShutterFunction.GrowDown:
@@ -100,13 +99,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
         bool growsUp,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         state.Function = growsUp
             ? GrowingShutterFunction.GrowUp
             : GrowingShutterFunction.GrowDown;
-        QueueShutterActivationSoundIfOnScreen(slot, cameraX, cameraY);
+        QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
     /// <summary>Ports the four growth stages at $A2:EB11-$EC12.</summary>
@@ -115,16 +113,15 @@ public sealed partial class RoomEnemySystem
         if (state.GrowthLevel >= 4)
             return;
 
-        (slot.YPosition, slot.YSubposition) = AddShutterVelocity(
-            slot.YPosition,
-            slot.YSubposition,
+        slot.Position = slot.Position.WithY(AddShutterVelocity(
+            slot.Position.Y,
             state.GrowthVelocity,
-            state.GrowthSubvelocity);
+            state.GrowthSubvelocity));
         ushort target = unchecked((ushort)(state.OriginForLevel() + GrowingShutterSectionLength));
 
         // BPL returns at equality. A section advances only after its center has passed the
         // full sixteen-pixel threshold, after which the first three sections are inset seven.
-        if (unchecked((short)(target - slot.YPosition)) >= 0)
+        if (unchecked((short)(target - slot.Position.Y.Whole)) >= 0)
             return;
         FinishGrowingShutterSection(slot, state, target, growsUp: false);
     }
@@ -138,14 +135,13 @@ public sealed partial class RoomEnemySystem
         if (state.GrowthLevel >= 4)
             return;
 
-        state.PreviousYPosition = slot.YPosition;
-        (slot.YPosition, slot.YSubposition) = AddShutterVelocity(
-            slot.YPosition,
-            slot.YSubposition,
+        state.PreviousYPosition = slot.Position.Y.Whole;
+        slot.Position = slot.Position.WithY(AddShutterVelocity(
+            slot.Position.Y,
             unchecked((short)(-state.GrowthVelocity - (state.GrowthSubvelocity == 0 ? 0 : 1))),
-            unchecked((ushort)-state.GrowthSubvelocity));
+            unchecked((ushort)-state.GrowthSubvelocity)));
         ushort target = unchecked((ushort)(state.OriginForLevel() - GrowingShutterSectionLength));
-        if (unchecked((short)(target - slot.YPosition)) < 0)
+        if (unchecked((short)(target - slot.Position.Y.Whole)) < 0)
         {
             CarrySamusWithGrowingShutter(slot, state, samus);
             return;
@@ -163,7 +159,7 @@ public sealed partial class RoomEnemySystem
         if (!IsSamusRidingPlatform(slot, samus))
             return;
 
-        short wholeDelta = unchecked((short)(slot.YPosition - state.PreviousYPosition));
+        short wholeDelta = unchecked((short)(slot.Position.Y.Whole - state.PreviousYPosition));
         if (wholeDelta < 0)
         {
             samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(wholeDelta)));
@@ -177,11 +173,11 @@ public sealed partial class RoomEnemySystem
         bool growsUp)
     {
         bool finalSection = state.GrowthLevel == 3;
-        slot.YPosition = finalSection
+        slot.Position = slot.Position.WithWholeY(finalSection
             ? target
             : unchecked((ushort)(target + (growsUp
                 ? GrowingShutterIntermediateInset
-                : -GrowingShutterIntermediateInset)));
+                : -GrowingShutterIntermediateInset))));
         state.GrowthLevel = unchecked((ushort)(state.GrowthLevel + 1));
 
         if (finalSection)
@@ -207,6 +203,6 @@ public sealed partial class RoomEnemySystem
         slot.CurrentInstruction = instruction;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.YRadius = yRadius;
+        slot.Radius = slot.Radius.WithY(yRadius);
     }
 }

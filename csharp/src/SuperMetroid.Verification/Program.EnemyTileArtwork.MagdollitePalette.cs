@@ -76,7 +76,7 @@ internal static partial class Program
         const int destination = (0x100 >> 1) + MagdollitePaletteRomData.FirstAnimatedColor;
         RoomEnemySlot untouched = enemies.Slots[0];
         ushort healthBefore = untouched.Health;
-        ushort xBefore = untouched.XPosition;
+        ushort xBefore = untouched.Position.X.Whole;
         for (int tick = 0; tick < 32; tick++)
         {
             Bgr555[] before = cgram.Colors.Slice(destination,
@@ -99,7 +99,7 @@ internal static partial class Program
         }
         AssertEqual(healthBefore, untouched.Health,
             "Magdollite visual-cycle edit does not change enemy health");
-        AssertEqual(xBefore, untouched.XPosition,
+        AssertEqual(xBefore, untouched.Position.X.Whole,
             "Magdollite visual-cycle edit does not change enemy position");
         AssertEqual((ushort)8,
             (ushort)typeof(RoomEnemySystem).GetField("_magdollitePaletteAnimationTimer", flags)!

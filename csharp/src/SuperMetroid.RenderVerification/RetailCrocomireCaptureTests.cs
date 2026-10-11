@@ -35,7 +35,7 @@ internal static class RetailCrocomireCaptureTests
         }
         // Reuse the cartridge audit's bridge threshold, then let the complete
         // runtime execute every death state, PLM, DMA and scanline publication.
-        boss.Body.XPosition = CrocomireCaptureFixture.BridgeThreshold;
+        boss.Body.Position = boss.Body.Position.WithWholeX(CrocomireCaptureFixture.BridgeThreshold);
         var phases = new HashSet<CrocomireDeathPhase>();
         bool distorted = false, complete = false;
         int samples = 0;

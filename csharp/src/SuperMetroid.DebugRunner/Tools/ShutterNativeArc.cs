@@ -73,12 +73,12 @@ internal static partial class AssetTools
             for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
             {
                 scenario.Runtime.StepFrame(scenario.Input(frame));
-                int gap = platform.YPosition - platform.YRadius - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
-                if (Math.Abs(samus.Position.X.Whole - platform.XPosition) < platform.XRadius + samus.Kinematics.Radius.X &&
-                    samus.Position.Y.Whole < platform.YPosition && gap < worstGap)
+                int gap = platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
+                if (Math.Abs(samus.Position.X.Whole - platform.Position.X.Whole) < platform.Radius.X + samus.Kinematics.Radius.X &&
+                    samus.Position.Y.Whole < platform.Position.Y.Whole && gap < worstGap)
                 {
                     worstGap = gap;
-                    Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)samus.Pose:X2} platformY={platform.YPosition}");
+                    Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)samus.Pose:X2} platformY={platform.Position.Y.Whole}");
                 }
                 if (samus.Kinematics.Radius.Y != 7)
                     throw new InvalidOperationException(
@@ -130,9 +130,9 @@ internal static partial class AssetTools
             Word(0xF78 + offset, (ushort)slot.EnemyDefinitionPointer);
             Word(0xF8E + offset, slot.SpritemapPointer);
             ram[0xFA6 + offset] = slot.Definition.Bank;
-            Word(0xF7A + offset, slot.XPosition); Word(0xF7E + offset, slot.YPosition);
-            Word(0xF80 + offset, slot.YSubposition); Word(0xF82 + offset, slot.XRadius);
-            Word(0xF84 + offset, slot.YRadius); Word(0xF86 + offset, 0x8000);
+            Word(0xF7A + offset, slot.Position.X.Whole); Word(0xF7E + offset, slot.Position.Y.Whole);
+            Word(0xF80 + offset, slot.Position.Y.Fraction); Word(0xF82 + offset, slot.Radius.X);
+            Word(0xF84 + offset, slot.Radius.Y); Word(0xF86 + offset, 0x8000);
         }
         var shutter = runtime.Enemies.VerticalShutterStates[0]!;
         Word(0xFA8, (ushort)shutter.Function);

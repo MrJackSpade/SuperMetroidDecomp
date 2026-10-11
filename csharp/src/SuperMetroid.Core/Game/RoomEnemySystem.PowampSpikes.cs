@@ -35,12 +35,8 @@ public sealed partial class RoomEnemySystem
                 spike,
                 RoomEnemyProjectileKind.PowampSpike,
                 unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
-            spike.XPosition = body.XPosition;
-            spike.YPosition = body.YPosition;
-            spike.XSubposition = 0;
-            spike.YSubposition = 0;
-            spike.XVelocity = 0;
-            spike.YVelocity = 0;
+            spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
+            spike.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
             spike.DirectionParameter = unchecked((ushort)direction);
             accumulator = unchecked((ushort)(spike.SlotIndex * 2));
         }
@@ -59,16 +55,16 @@ public sealed partial class RoomEnemySystem
                 $"Powamp spike direction {direction} exceeds the eight-entry ROM table.");
         }
 
-        spike.XVelocity = unchecked((ushort)(
-            unchecked((short)spike.XVelocity) + PowampMotionDefinitions.SpikeXAcceleration(direction)));
+        spike.Velocity = spike.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(
+            unchecked((short)spike.Velocity.X.RawValue) + PowampMotionDefinitions.SpikeXAcceleration(direction)))));
         if (MoveProjectileAxis(spike, level, horizontal: true))
         {
             BeginPowampSpikeDeletion(spike);
             return;
         }
 
-        spike.YVelocity = unchecked((ushort)(
-            unchecked((short)spike.YVelocity) + PowampMotionDefinitions.SpikeYAcceleration(direction)));
+        spike.Velocity = spike.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+            unchecked((short)spike.Velocity.Y.RawValue) + PowampMotionDefinitions.SpikeYAcceleration(direction)))));
         if (MoveProjectileAxis(spike, level, horizontal: false))
             BeginPowampSpikeDeletion(spike);
     }

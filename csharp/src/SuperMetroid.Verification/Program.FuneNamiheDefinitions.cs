@@ -23,7 +23,7 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.Parameter1 = (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0));
             slot.Parameter2 = 0x1000;
-            slot.YPosition = 0x0200;
+            slot.Position = slot.Position.WithWholeY(0x0200);
             initialize(slot);
             FuneNamiheEnemyState state = enemies.FuneNamiheStates[0]!;
             ushort idleCursor = (ushort)((namihe
@@ -33,7 +33,7 @@ internal static partial class Program
             AssertEqual(FuneNamiheDefinitions.InstructionList(idleCursor), slot.CurrentInstruction,
                 $"Fune/Namihe production idle list {variant}");
 
-            runMain(slot, state, namihe ? new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.YPosition)) } : null);
+            runMain(slot, state, namihe ? new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheDefinitions.ActiveCursorDelta);
             AssertEqual(FuneNamiheDefinitions.InstructionList(activeCursor), slot.CurrentInstruction,
                 $"Fune/Namihe production active list {variant}");

@@ -26,13 +26,12 @@ public sealed partial class RoomEnemySystem
     {
         KraidEnemyState state = RequireKraidState(arm);
         RoomEnemySlot body = _slots[0];
-        arm.YPosition = unchecked((ushort)(body.YPosition - 44));
-        arm.XPosition = body.XPosition;
+        arm.Position = arm.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole - 44))));
 
         // `$B7D3-$B7F0` hides only the arm when its anchor leaves the 224-line gameplay
         // viewport. This is actor visibility, not BG priority, so preserve property $0100.
-        bool onScreen = unchecked((short)(arm.YPosition - cameraY)) >= 0 &&
-            unchecked((short)(arm.YPosition - cameraY - 224)) < 0;
+        bool onScreen = unchecked((short)(arm.Position.Y.Whole - cameraY)) >= 0 &&
+            unchecked((short)(arm.Position.Y.Whole - cameraY - 224)) < 0;
         arm.Properties = onScreen
             ? arm.Properties.Without(EnemyProperties.Invisible)
             : arm.Properties.With(EnemyProperties.Invisible);
@@ -75,7 +74,7 @@ public sealed partial class RoomEnemySystem
 
     private void AlignKraidPart(RoomEnemySlot partSlot, KraidPartState part)
     {
-        partSlot.XPosition = unchecked((ushort)(_slots[0].XPosition - partSlot.XRadius));
+        partSlot.Position = partSlot.Position.WithWholeX(unchecked((ushort)(_slots[0].Position.X.Whole - partSlot.Radius.X)));
         TickKraidFunctionTimer(partSlot, part);
     }
 
@@ -83,8 +82,8 @@ public sealed partial class RoomEnemySystem
     {
         lint.Properties = lint.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
-        lint.XPosition = unchecked((ushort)(
-            lint.VariableC + _slots[0].XPosition - lint.VariableB));
+        lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
+            lint.VariableC + _slots[0].Position.X.Whole - lint.VariableB)));
         lint.VariableB = unchecked((ushort)(lint.VariableB + 1));
         if (unchecked((short)(lint.VariableB - 32)) >= 0)
         {
@@ -96,8 +95,8 @@ public sealed partial class RoomEnemySystem
     private void ChargeKraidLint(RoomEnemySlot lint)
     {
         lint.PaletteIndex = (lint.VariableF & 1) != 0 ? (ushort)3584 : (ushort)0;
-        lint.XPosition = unchecked((ushort)(
-            lint.VariableC + _slots[0].XPosition - lint.VariableB));
+        lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
+            lint.VariableC + _slots[0].Position.X.Whole - lint.VariableB)));
         ushort oldTimer = lint.VariableF;
         lint.VariableF = unchecked((ushort)(lint.VariableF - 1));
         if (oldTimer == 1)
@@ -110,9 +109,9 @@ public sealed partial class RoomEnemySystem
     private static void FireKraidLint(RoomEnemySlot lint, KraidPartState part, SamusState? samus)
     {
         AddSignedKraidHorizontalDisplacement(lint, KraidPlatformMovement.FiringDisplacement);
-        if (unchecked((short)(lint.XPosition - 56)) < 0)
+        if (unchecked((short)(lint.Position.X.Whole - 56)) < 0)
             lint.Properties = lint.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        if (unchecked((short)(lint.XPosition - 32)) < 0)
+        if (unchecked((short)(lint.Position.X.Whole - 32)) < 0)
         {
             lint.Properties = lint.Properties.With(EnemyProperties.Invisible);
             lint.VariableA = (ushort)KraidAiFunction.AlignPartToKraid;
@@ -139,10 +138,9 @@ public sealed partial class RoomEnemySystem
     {
         KraidEnemyState state = RequireKraidState(foot);
         RoomEnemySlot body = _slots[0];
-        foot.XPosition = body.XPosition;
-        foot.YPosition = unchecked((ushort)(body.YPosition + 100));
-        bool onScreen = unchecked((short)(foot.YPosition - cameraY)) >= 0 &&
-            unchecked((short)(foot.YPosition - 224 - cameraY)) < 0;
+        foot.Position = foot.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 100))));
+        bool onScreen = unchecked((short)(foot.Position.Y.Whole - cameraY)) >= 0 &&
+            unchecked((short)(foot.Position.Y.Whole - 224 - cameraY)) < 0;
         foot.Properties = onScreen
             ? foot.Properties.Without(EnemyProperties.Invisible)
             : foot.Properties.With(EnemyProperties.Invisible);
@@ -216,11 +214,11 @@ public sealed partial class RoomEnemySystem
     {
         if (TryBeginKraidGrowth(body, RequireKraidState(body)))
             return;
-        if (unchecked((short)(body.XPosition - 92)) < 0)
-            body.XPosition = 92;
+        if (unchecked((short)(body.Position.X.Whole - 92)) < 0)
+            body.Position = body.Position.WithWholeX(92);
         if (foot.CurrentInstruction != KraidFootLungeFinishedInstruction)
             return;
-        if (body.XPosition == 92)
+        if (body.Position.X.Whole == 92)
         {
             part.NextFunction = KraidAiFunction.FootFirstPhaseRetreat;
             foot.VariableA = (ushort)KraidAiFunction.DecrementFunctionTimerAndStartWalk;
@@ -255,11 +253,11 @@ public sealed partial class RoomEnemySystem
     {
         if (TryBeginKraidGrowth(body, RequireKraidState(body)))
             return;
-        if (unchecked((short)(body.XPosition - 176)) >= 0)
-            body.XPosition = 176;
+        if (unchecked((short)(body.Position.X.Whole - 176)) >= 0)
+            body.Position = body.Position.WithWholeX(176);
         if (unchecked((short)(foot.CurrentInstruction - KraidFootWalkBackLoopInstruction)) < 0)
             return;
-        if (body.XPosition == 176)
+        if (body.Position.X.Whole == 176)
         {
             RoomEnemySlot arm = _slots[1];
             arm.CurrentInstruction = KraidArmNormalInstruction;
@@ -283,11 +281,11 @@ public sealed partial class RoomEnemySystem
         KraidPartState part)
     {
         ushort targetX = RequireKraidState(body).TargetX;
-        if (targetX != body.XPosition)
+        if (targetX != body.Position.X.Whole)
         {
-            if (unchecked((short)(targetX - body.XPosition)) >= 0)
+            if (unchecked((short)(targetX - body.Position.X.Whole)) >= 0)
                 return;
-            body.XPosition = targetX;
+            body.Position = body.Position.WithWholeX(targetX);
         }
         if (unchecked((short)(foot.CurrentInstruction - KraidFootWalkBackLoopInstruction)) < 0)
             return;
@@ -307,8 +305,8 @@ public sealed partial class RoomEnemySystem
         if (part.ThinkTimer != 0)
             return;
 
-        (ushort targetX, ushort thinkTimer) = KraidMovementChoices.Select(body.XPosition, ReadKraidRandomNumber());
-        if (unchecked((short)(targetX - body.XPosition)) >= 0)
+        (ushort targetX, ushort thinkTimer) = KraidMovementChoices.Select(body.Position.X.Whole, ReadKraidRandomNumber());
+        if (unchecked((short)(targetX - body.Position.X.Whole)) >= 0)
             SetKraidWalkingRight(foot, part, targetX, thinkTimer);
         else
             SetKraidWalkingLeft(foot, part, targetX, thinkTimer);
@@ -343,11 +341,11 @@ public sealed partial class RoomEnemySystem
     private void RunKraidSecondPhaseWalkingRight(RoomEnemySlot body, RoomEnemySlot foot)
     {
         ushort targetX = RequireKraidState(body).TargetX;
-        if (targetX != body.XPosition)
+        if (targetX != body.Position.X.Whole)
         {
-            if (unchecked((short)(targetX - body.XPosition)) >= 0)
+            if (unchecked((short)(targetX - body.Position.X.Whole)) >= 0)
                 return;
-            body.XPosition = targetX;
+            body.Position = body.Position.WithWholeX(targetX);
         }
         if (unchecked((short)(foot.CurrentInstruction - KraidFootWalkBackLoopInstruction)) >= 0)
         {
@@ -360,7 +358,7 @@ public sealed partial class RoomEnemySystem
     private void RunKraidSecondPhaseWalkingLeft(RoomEnemySlot body, RoomEnemySlot foot)
     {
         ushort targetX = RequireKraidState(body).TargetX;
-        if (unchecked((short)(targetX - body.XPosition)) < 0)
+        if (unchecked((short)(targetX - body.Position.X.Whole)) < 0)
         {
             if (foot.CurrentInstruction ==
                 KraidFootInstructionProgramDefinitions.WalkingForwardFinished)
@@ -371,7 +369,7 @@ public sealed partial class RoomEnemySystem
             }
             return;
         }
-        body.XPosition = targetX;
+        body.Position = body.Position.WithWholeX(targetX);
         if (foot.CurrentInstruction ==
             KraidFootInstructionProgramDefinitions.WalkingForwardFinished)
         {
@@ -385,9 +383,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         int displacement)
     {
-        uint position = ((uint)slot.XPosition << 16) | slot.XSubposition;
+        uint position = slot.Position.X.RawValue;
         position = unchecked(position + (uint)displacement);
-        slot.XPosition = unchecked((ushort)(position >> 16));
-        slot.XSubposition = unchecked((ushort)position);
+        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 }

@@ -49,7 +49,7 @@ internal sealed class ShutterBombArcScenario
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        samus.Position = samus.Position.WithWhole(new((ushort)(platform.XPosition - (approach ? Toward * 32 : 0)), (ushort)(platform.YPosition - platform.YRadius - samus.Kinematics.Radius.Y)));
+        samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole - (approach ? Toward * 32 : 0)), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
         Runtime.StepFrame(0);
     }
 
@@ -74,5 +74,5 @@ internal sealed class ShutterBombArcScenario
 
     /// <summary>One native-comparison row after <paramref name="frame"/> has run.</summary>
     internal string ArcRow(int frame) =>
-        $"{frame},{Samus.Kinematics.Position.X.RawValue},{Samus.Kinematics.Position.Y.RawValue},{Samus.Kinematics.VerticalSpeedFixed},{Samus.BombJumpDirection},{Platform.YPosition},{Platform.YSubposition}";
+        $"{frame},{Samus.Kinematics.Position.X.RawValue},{Samus.Kinematics.Position.Y.RawValue},{Samus.Kinematics.VerticalSpeedFixed},{Samus.BombJumpDirection},{Platform.Position.Y.Whole},{Platform.Position.Y.Fraction}";
 }

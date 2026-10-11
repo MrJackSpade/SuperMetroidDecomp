@@ -169,10 +169,10 @@ public sealed partial class RoomEnemySystem
         var state = new SporeSpawnEnemyState(body)
         {
             Function = SporeSpawnFunction.Idle,
-            StalkAnchorX = body.XPosition,
-            StalkAnchorY = unchecked((ushort)(body.YPosition - 72)),
-            MovementCenterX = body.XPosition,
-            MovementCenterY = body.YPosition,
+            StalkAnchorX = body.Position.X.Whole,
+            StalkAnchorY = unchecked((ushort)(body.Position.Y.Whole - 72)),
+            MovementCenterX = body.Position.X.Whole,
+            MovementCenterY = body.Position.Y.Whole,
         };
         _sporeSpawn = state;
 
@@ -203,7 +203,7 @@ public sealed partial class RoomEnemySystem
         }
 
         body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.InitialAlive;
-        body.YPosition = unchecked((ushort)(body.YPosition - 128));
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 128)));
 
         // `flag_process_all_enemies = FFFF` is a global bank-$A0 activity override, not an
         // enemy property. Preserve that distinction so all room actors use the same scan.
@@ -250,8 +250,8 @@ public sealed partial class RoomEnemySystem
     private void RunSporeSpawnDescent(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(state);
-        body.YPosition = unchecked((ushort)(body.YPosition + 1));
-        if (unchecked((short)(body.YPosition - SporeSpawnDeathCenterY)) >= 0)
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
+        if (unchecked((short)(body.Position.Y.Whole - SporeSpawnDeathCenterY)) >= 0)
         {
             body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.FightStarted;
             body.InstructionTimer = 1;
@@ -266,14 +266,14 @@ public sealed partial class RoomEnemySystem
     private void RunSporeSpawnMovement(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(state);
-        body.XPosition = unchecked((ushort)(
+        body.Position = body.Position.WithWholeX(unchecked((ushort)(
             state.MovementCenterX +
-            ReadEightBitCosineProduct(state.Angle, state.MaximumXRadius)));
-        body.YPosition = unchecked((ushort)(
+            ReadEightBitCosineProduct(state.Angle, state.MaximumXRadius))));
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(
             state.MovementCenterY +
             ReadEightBitNegativeSineProduct(
                 unchecked((ushort)(2 * (state.Angle - 64))),
-                unchecked((ushort)(state.MaximumXRadius - 16)))));
+                unchecked((ushort)(state.MaximumXRadius - 16))))));
 
         // Only the low byte of the signed delta participates, and the resulting angle is
         // truncated to a byte before being stored back to the native word.
@@ -284,8 +284,7 @@ public sealed partial class RoomEnemySystem
     private static void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         byte direction = unchecked((byte)(64 - CalculateCartridgeAngle(
-            unchecked((short)(SporeSpawnDeathCenterX - body.XPosition)),
-            unchecked((short)(SporeSpawnDeathCenterY - body.YPosition)))));
+            new(unchecked((short)(SporeSpawnDeathCenterX - body.Position.X.Whole)), unchecked((short)(SporeSpawnDeathCenterY - body.Position.Y.Whole))))));
         state.DeathAngle = direction;
         state.DeathXVelocityMagnitude = ReadUnsignedSineMagnitudeProduct(direction, 1, 0x40);
         state.DeathYVelocityMagnitude = ReadUnsignedSineMagnitudeProduct(direction, 1, 0x80);
@@ -302,17 +301,11 @@ public sealed partial class RoomEnemySystem
         int yDisplacement = ((state.DeathAngle + 128) & 0x80) != 0
             ? -state.DeathYVelocityMagnitude
             : state.DeathYVelocityMagnitude;
-        (body.XPosition, body.XSubposition) = AddSporeSpawnFixed(
-            body.XPosition,
-            body.XSubposition,
-            xDisplacement);
-        (body.YPosition, body.YSubposition) = AddSporeSpawnFixed(
-            body.YPosition,
-            body.YSubposition,
-            yDisplacement);
+        body.Position = body.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
+        body.Position = body.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
 
-        if (WrappedMagnitude(unchecked((ushort)(body.XPosition - SporeSpawnDeathCenterX))) < 8 &&
-            WrappedMagnitude(unchecked((ushort)(body.YPosition - SporeSpawnDeathCenterY))) < 8)
+        if (WrappedMagnitude(unchecked((ushort)(body.Position.X.Whole - SporeSpawnDeathCenterX))) < 8 &&
+            WrappedMagnitude(unchecked((ushort)(body.Position.Y.Whole - SporeSpawnDeathCenterY))) < 8)
         {
             state.Function = SporeSpawnFunction.Idle;
         }
@@ -323,8 +316,7 @@ public sealed partial class RoomEnemySystem
         {
             ushort random = _nextRandom!();
             _ = SpawnRoomSpriteObject(
-                unchecked((ushort)((random & 0x003f) + 96)),
-                unchecked((ushort)(((random & 0x0f00) >> 8) + 480)),
+                new(unchecked((ushort)((random & 0x003f) + 96)), unchecked((ushort)(((random & 0x0f00) >> 8) + 480))),
                 RoomSpriteObjectKind.DustCloud,
                 graphicsIndex: 0);
         }
@@ -337,12 +329,12 @@ public sealed partial class RoomEnemySystem
         WriteSporeSpawnStalkAxis(
             firstPosition: SporeSpawnDeathCenterX,
             anchor: state.StalkAnchorX,
-            end: body.XPosition,
+            end: body.Position.X.Whole,
             horizontal: true);
         WriteSporeSpawnStalkAxis(
             firstPosition: SporeSpawnCeilingY,
             anchor: state.StalkAnchorY,
-            end: unchecked((ushort)(body.YPosition - 40)),
+            end: unchecked((ushort)(body.Position.Y.Whole - 40)),
             horizontal: false);
     }
 
@@ -374,22 +366,13 @@ public sealed partial class RoomEnemySystem
         {
             RoomEnemyProjectileSlot stalk = _enemyProjectiles[14 + segment];
             if (horizontal)
-                stalk.XPosition = positions[segment];
+                stalk.Position = stalk.Position.WithWholeX(positions[segment]);
             else
-                stalk.YPosition = positions[segment];
+                stalk.Position = stalk.Position.WithWholeY(positions[segment]);
         }
     }
 
     private void PublishSporeSpawnPlm(PlmHeaderId header) =>
         LastSporeSpawnPlm = new SporeSpawnPlmRequest(7, 30, header);
 
-    private static (ushort Position, ushort Subposition) AddSporeSpawnFixed(
-        ushort position,
-        ushort subposition,
-        int displacement)
-    {
-        int fixedPosition = unchecked((position << 16) | subposition);
-        fixedPosition = unchecked(fixedPosition + displacement);
-        return (unchecked((ushort)(fixedPosition >> 16)), unchecked((ushort)fixedPosition));
-    }
 }

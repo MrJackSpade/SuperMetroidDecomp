@@ -15,5 +15,5 @@ internal static class MotherBrainBabyMetroidDefinitions
     /// physical spawn snapshot and supplies the native property word.
     /// </summary>
     internal static readonly RoomEnemyPopulationRecord SpawnPopulation =
-        new(EnemyDefinitionId.BabyMetroidCutscene, 0x0180, 0x0040, 0xcfa2, 0x2800, 0, 0, 0);
+        new(EnemyDefinitionId.BabyMetroidCutscene, new(0x0180, 0x0040), 0xcfa2, 0x2800, 0, 0, 0);
 }

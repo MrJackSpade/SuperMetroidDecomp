@@ -141,7 +141,7 @@ internal static partial class Program
     {
         process.Invoke(
             enemies,
-            [arm, null, null, (ushort)0, (ushort)0, (ushort)0]);
+            [arm, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
         Suite(nameof(VerifyExecutedEnemySelector), () => VerifyExecutedEnemySelector(rom, arm, executedOperands));
     }
 

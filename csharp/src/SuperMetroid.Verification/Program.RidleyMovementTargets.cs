@@ -68,15 +68,14 @@ internal static partial class Program
             state.HealthStage = (ushort)raw;
             state.FacingDirection = Enum.GetValues<RidleyFacing>()[Math.Min(raw, 2)];
             state.HorizontalVelocity = state.VerticalVelocity = 0;
-            slot.XPosition = (ushort)(ushort.MaxValue - raw);
-            slot.YPosition = (ushort)raw;
+            slot.Position = slot.Position.WithWhole(new((ushort)(ushort.MaxValue - raw), (ushort)raw));
             beginCarry(slot, state);
             ushort x = carry[Math.Min(raw, 2)];
             ushort y = unchecked((short)(raw - 320)) < 0 ? (ushort)256 : unchecked((ushort)(raw - 64));
             AssertEqual(x, state.TargetX, "Real carry anchor facing selection");
             AssertEqual(y, state.TargetY, "Real carry height selection");
-            AssertEqual(Expected(slot.XPosition, x, 0), state.HorizontalVelocity, "Carry target drives exact X acceleration");
-            AssertEqual(Expected(slot.YPosition, y, 0), state.VerticalVelocity, "Carry target drives exact Y acceleration");
+            AssertEqual(Expected(slot.Position.X.Whole, x, 0), state.HorizontalVelocity, "Carry target drives exact X acceleration");
+            AssertEqual(Expected(slot.Position.Y.Whole, y, 0), state.VerticalVelocity, "Carry target drives exact Y acceleration");
             // Setup stores 32 and then falls through into the shared timer decrement.
             AssertEqual((ushort)31, state.FunctionTimer, "Carry setup timer");
             AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "Carry setup phase");
@@ -86,8 +85,7 @@ internal static partial class Program
         foreach (ushort x in new ushort[] { 0, 128, 0xffff })
         for (ushort health = 0; health < 4; health++)
         {
-            slot.XPosition = x;
-            slot.YPosition = 352;
+            slot.Position = slot.Position.WithWhole(new(x, 352));
             state.FacingDirection = facing;
             state.HealthStage = health;
             foreach (bool down in new[] { false, true })
@@ -119,8 +117,7 @@ internal static partial class Program
             state.HorizontalVelocity = state.VerticalVelocity = 0;
             // Start ahead of the lunge stopping boundary for each facing.
             ushort startX = state.FacingDirection == RidleyFacing.Right ? (ushort)128 : (ushort)384;
-            slot.XPosition = startX;
-            slot.YPosition = 128;
+            slot.Position = slot.Position.WithWhole(new(startX, 128));
             state.HitRoomBoundary = false;
             approach(slot, state, samus);
             ushort targetX = (ushort)(state.FacingDirection == RidleyFacing.Left ? 240 : 272);

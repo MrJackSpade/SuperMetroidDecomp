@@ -23,7 +23,7 @@ internal static partial class Program
                 {
                     var slot = runtime.Enemies.Slots[index++];
                     if (entry is null) continue;
-                    Console.WriteLine($"slot={index-1} function={entry.Function} pc={slot.CurrentInstruction:X4} x={slot.XPosition} midpoint={entry.PostsMidpointX} claws={entry.SpawnedClawCount}");
+                    Console.WriteLine($"slot={index-1} function={entry.Function} pc={slot.CurrentInstruction:X4} x={slot.Position.X.Whole} midpoint={entry.PostsMidpointX} claws={entry.SpawnedClawCount}");
                 }
             }
             loaded.Game.Step(0);

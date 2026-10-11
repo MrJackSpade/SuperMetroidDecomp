@@ -253,8 +253,7 @@ internal static partial class Program
             };
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
             slot.SpritemapPointer = pointer;
-            slot.XPosition = x;
-            slot.YPosition = y;
+            slot.Position = slot.Position.WithWhole(new(x, y));
             return (enemies, slot);
         }
 
@@ -263,11 +262,11 @@ internal static partial class Program
             ushort radiusY, bool shot)
         {
             object?[] arguments =
-                [slot, x, y, radiusX, radiusY, shot, (ushort)0];
+                [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, (ushort)0];
             bool hit = slot.EnemyDefinitionPointer == (EnemyDefinitionId)0xffff
                 ? ReferenceExtendedCollision(rom, arguments)
                 : (bool)walker.Invoke(enemies, arguments)!;
-            return (hit, (ushort)arguments[6]!);
+            return (hit, (ushort)arguments[4]!);
         }
     }
 

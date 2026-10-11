@@ -61,10 +61,10 @@ public sealed partial class RoomEnemySystem
             case KraidFootInstruction.Instruction_Kraid_NOP_A7B633:
                 return;
             case KraidFootInstruction.Instruction_Kraid_DecrementYPosition:
-                body.YPosition = unchecked((ushort)(body.YPosition - 1));
+                body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 1)));
                 return;
             case KraidFootInstruction.Instruction_Kraid_IncrementYPosition_SetScreenShaking:
-                body.YPosition = unchecked((ushort)(body.YPosition + 1));
+                body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
                 EarthquakeType = 1;
                 EarthquakeTimer = 10;
                 return;
@@ -73,17 +73,17 @@ public sealed partial class RoomEnemySystem
                 return;
             case KraidFootInstruction.Instruction_Kraid_XPositionMinus3:
             case KraidFootInstruction.Instruction_Kraid_XPositionMinus3_duplicate:
-                body.XPosition = unchecked((ushort)(body.XPosition - 3));
+                body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole - 3)));
                 return;
             case KraidFootInstruction.Instruction_Kraid_XPositionPlus3:
-                body.XPosition = unchecked((ushort)(body.XPosition + 3));
+                body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole + 3)));
                 return;
             case KraidFootInstruction.UNUSED_Instruction_Kraid_MoveRight_A7B683:
                 if (level is null)
                     throw new InvalidOperationException(
                         "Kraid's move-right foot instruction requires room collision data.");
                 KraidEnemyState state = RequireKraidState(body);
-                bool shouldMove = unchecked((short)(body.XPosition - 320)) < 0;
+                bool shouldMove = unchecked((short)(body.Position.X.Whole - 320)) < 0;
                 if (!shouldMove)
                 {
                     state.TargetX = unchecked((ushort)(state.TargetX - 1));
@@ -94,7 +94,7 @@ public sealed partial class RoomEnemySystem
                 {
                     EarthquakeType = 0;
                     EarthquakeTimer = 7;
-                    _slots[5].XPosition = body.XPosition;
+                    _slots[5].Position = _slots[5].Position.WithWholeX(body.Position.X.Whole);
                 }
                 return;
             default:

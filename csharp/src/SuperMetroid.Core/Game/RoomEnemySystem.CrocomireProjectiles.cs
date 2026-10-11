@@ -16,13 +16,10 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.CrocomireProjectile,
             graphicsIndex: EnemyPaletteBits.Palette5);
-        projectile.XVelocity = 0xfe00;
-        projectile.YVelocity = 1;
-        projectile.XPosition = unchecked((ushort)(body.XPosition - 32));
-        projectile.YPosition = unchecked((ushort)(body.YPosition - 16));
+        projectile.Velocity = new(new SnesSignedEightEight(0xfe00), new SnesSignedEightEight(1));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole - 32)), unchecked((ushort)(body.Position.Y.Whole - 16))));
         projectile.GeneralTimer = 0;
-        projectile.XSubposition = 0;
-        projectile.YSubposition = 0;
+        projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         projectile.DirectionParameter = spawnParameter;
     }
 
@@ -37,16 +34,15 @@ public sealed partial class RoomEnemySystem
         MoveProjectileAxis(projectile, level, horizontal: true);
         _enemyProjectiles[0].GraphicsIndex = EnemyPaletteBits.Palette5;
         projectile.GeneralTimer = unchecked((ushort)(
-            projectile.GeneralTimer + projectile.XVelocity));
+            projectile.GeneralTimer + projectile.Velocity.X.RawValue));
 
         // Spawn parameters are 2,4,...,18. The last index reads one word beyond the declared
         // nine-word gradient table. The compiled definition includes those exact setup
         // instruction bytes; do not clamp the final shot to the last authored gradient.
         short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(projectile.DirectionParameter);
-        byte angle = CalculateCartridgeAngle(-64, gradient);
+        byte angle = CalculateCartridgeAngle(new(-64, gradient));
         // The native angle starts at up, not right: Y uses negative cosine.
-        (projectile.XVelocity, projectile.YVelocity) =
-            CalculateCrocomireProjectileVelocity(angle);
+        projectile.Velocity = CalculateCrocomireProjectileVelocity(angle);
         projectile.PreInstruction =
             (ushort)EnemyProjectilePreInstruction.CrocomiresProjectile_Fired;
     }
@@ -63,13 +59,13 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static (ushort X, ushort Y) CalculateCrocomireProjectileVelocity(byte angle)
+    private static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(byte angle)
     {
         // Preserve the two native word shifts, including negative two's-complement bits.
-        return (
-            unchecked((ushort)(EnemyTrigonometryTables.SignedSine(angle) *
+        return new(
+            unchecked((short)(EnemyTrigonometryTables.SignedSine(angle) *
                 CrocomireProjectileRomData.VelocityMultiplier)),
-            unchecked((ushort)(EnemyTrigonometryTables.SignedNegativeCosineWord(angle) *
+            unchecked((short)(EnemyTrigonometryTables.SignedNegativeCosineWord(angle) *
                 CrocomireProjectileRomData.VelocityMultiplier)));
     }
 
@@ -93,13 +89,11 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling,
             graphicsIndex: 0);
-        projectile.XPosition = CrocomireBridgeFragmentDefinitions.XPosition(cursor);
-        projectile.YPosition = 187;
-        projectile.XSubposition = 0;
-        projectile.YSubposition = 0;
-        projectile.XVelocity = 0;
+        projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(cursor));
+        projectile.Position = projectile.Position.WithWholeY(187).WithFractionX(0).WithFractionY(0);
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
         // $86:92A5 reads RandomNumberSeed; it does not advance it.
-        projectile.YVelocity = unchecked((ushort)((RequireRandomNumber() & 0x003f) + 64));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((RequireRandomNumber() & 0x003f) + 64))));
         projectile.GraphicsIndex = 0x0400;
     }
 
@@ -138,14 +132,11 @@ public sealed partial class RoomEnemySystem
                     $"Crocomire spike wall occupied unexpected projectile slot {projectile.SlotIndex}.");
             }
 
-            projectile.XPosition = 528;
-            projectile.YPosition = unchecked((ushort)(0x0038 + yTableIndex * 0x0010));
-            projectile.XVelocity = 0;
-            projectile.YVelocity = 0xfffb;
+            projectile.Position = projectile.Position.WithWhole(new(528, unchecked((ushort)(0x0038 + yTableIndex * 0x0010))));
+            projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0xfffb));
             projectile.Variable0 = 0;
             projectile.Variable1 = 0x8800;
-            projectile.XSubposition = 0;
-            projectile.YSubposition = 0;
+            projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         }
     }
 
@@ -167,43 +158,42 @@ public sealed partial class RoomEnemySystem
         // The 65816 switches to 8-bit A here. The high acceleration byte is added to the
         // fractional velocity byte; carry advances the signed integral velocity byte, which
         // is then capped by this physical slot's maximum.
-        int velocityFractionSum = (projectile.XVelocity & 0x00ff) + (acceleration >> 8);
+        int velocityFractionSum = (projectile.Velocity.X.RawValue & 0x00ff) + (acceleration >> 8);
         byte velocityFraction = unchecked((byte)velocityFractionSum);
         byte velocityWhole = unchecked((byte)(
-            (projectile.XVelocity >> 8) + (velocityFractionSum >> 8)));
+            (projectile.Velocity.X.RawValue >> 8) + (velocityFractionSum >> 8)));
         byte maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
-        projectile.XVelocity = unchecked((ushort)((velocityWhole << 8) | velocityFraction));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)((velocityWhole << 8) | velocityFraction))));
 
         // Move X with the same split-byte math. Only the high subposition byte participates;
         // its low byte remains untouched, exactly like EnemyProjectile_XSubPositions+1,X.
-        int subpositionSum = (projectile.XSubposition >> 8) + velocityFraction;
-        projectile.XSubposition = unchecked((ushort)(
-            (projectile.XSubposition & 0x00ff) | ((subpositionSum & 0xff) << 8)));
+        int subpositionSum = (projectile.Position.X.Fraction >> 8) + velocityFraction;
+        projectile.Position = projectile.Position.WithFractionX(unchecked((ushort)(
+            (projectile.Position.X.Fraction & 0x00ff) | ((subpositionSum & 0xff) << 8))));
         int wholeDelta = unchecked((sbyte)velocityWhole) + (subpositionSum >> 8);
-        projectile.XPosition = unchecked((ushort)(projectile.XPosition + wholeDelta));
+        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(projectile.Position.X.Whole + wholeDelta)));
 
         // Y velocity and position are ordinary signed 16.16 pairs, with $3000 acceleration.
-        uint velocity = unchecked(((uint)projectile.YVelocity << 16) | projectile.Variable1);
+        uint velocity = unchecked(((uint)projectile.Velocity.Y.RawValue << 16) | projectile.Variable1);
         velocity = unchecked(velocity + 0x00003000u);
-        projectile.YVelocity = unchecked((ushort)(velocity >> 16));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(velocity >> 16))));
         projectile.Variable1 = unchecked((ushort)velocity);
-        uint position = unchecked(((uint)projectile.YPosition << 16) | projectile.YSubposition);
+        uint position = unchecked(projectile.Position.Y.RawValue);
         position = unchecked(position + velocity);
-        projectile.YPosition = unchecked((ushort)(position >> 16));
-        projectile.YSubposition = unchecked((ushort)position);
+        projectile.Position = projectile.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
 
-        if (projectile.YPosition < 0x00a8)
+        if (projectile.Position.Y.Whole < 0x00a8)
             return;
 
-        ushort impactX = projectile.XPosition;
-        ushort impactY = projectile.YPosition;
+        ushort impactX = projectile.Position.X.Whole;
+        ushort impactY = projectile.Position.Y.Whole;
         int nativeIndex = projectile.SlotIndex * 2;
         projectile.Clear();
         if ((nativeIndex & 2) == 0)
             LastCrocomireSoundEffect = 0x0029;
-        SpawnRoomGraphicsDustExplosion(impactX, impactY, animationIndex: 0x0015);
+        SpawnRoomGraphicsDustExplosion(new(impactX, impactY), animationIndex: 0x0015);
         LastCrocomireSoundEffect = 0x0025;
     }
 
@@ -218,7 +208,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        projectile.YVelocity = unchecked((ushort)(
-            (projectile.YVelocity + 24) & 0x3fff));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+            (projectile.Velocity.Y.RawValue + 24) & 0x3fff))));
     }
 }

@@ -58,8 +58,7 @@ internal static partial class Program
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
         };
-        slot.XPosition = samus.Position.X.Whole;
-        slot.YPosition = samus.Position.Y.Whole;
+        slot.Position = slot.Position.WithWhole(samus.Position.Whole);
         for (byte behavior = 0; behavior <= (byte)SbugActivationBehavior.MoveAwayFromSamus; behavior++)
         {
             SbugEnemyState state = enemies.SbugStates[0]!;
@@ -121,7 +120,7 @@ internal static partial class Program
             programSlot.CurrentInstruction = entries[entryIndex];
             programSlot.InstructionTimer = 1;
             object?[] arguments =
-                [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [programSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
             // Four five-frame entries total 20 frames; the margin proves the terminal
             // goto restarts the production stream rather than merely reaching its target.

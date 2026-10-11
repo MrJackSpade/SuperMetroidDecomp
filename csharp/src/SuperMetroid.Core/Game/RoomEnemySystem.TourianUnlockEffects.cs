@@ -32,9 +32,8 @@ public sealed partial class RoomEnemySystem
                 ? RoomEnemyProjectileKind.TourianStatueSoul
                 : RoomEnemyProjectileKind.TourianStatueEyeGlow,
             0);
-        projectile.XPosition = position.X;
-        projectile.YPosition = position.Y;
-        if (soul) projectile.YVelocity = unchecked((ushort)-1024);
+        projectile.Position = projectile.Position.WithWhole(new(position.X, position.Y));
+        if (soul) projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-1024)));
         else
             (TileArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
                 "Tourian statue eye requires installed colors."))
@@ -49,15 +48,14 @@ public sealed partial class RoomEnemySystem
         var projectile = AllocateEnemyProjectile();
         if (projectile is null) return;
         InitializeEnemyProjectileFromDefinition(projectile, kind, 0);
-        projectile.XPosition = parent.XPosition;
-        projectile.YPosition = parent.YPosition;
+        projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
-            projectile.YPosition = unchecked((ushort)(TourianStatueWaterY - 4));
+            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(TourianStatueWaterY - 4)));
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
         byte angle = unchecked((byte)((_nextRandom!() & 63) - 32));
         projectile.Variable0 = (ushort)(angle * 2);
-        projectile.XVelocity = unchecked((ushort)EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64));
-        projectile.YVelocity = unchecked((ushort)(4 * EnemyTrigonometryTables.SignedNegativeCosineWord(angle)));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(4 * EnemyTrigonometryTables.SignedNegativeCosineWord(angle)))));
     }
 
     private bool TryStepTourianUnlockEffect(RoomEnemyProjectileSlot projectile)
@@ -67,29 +65,28 @@ public sealed partial class RoomEnemySystem
         switch ((TourianStatuePreInstruction)projectile.PreInstruction)
         {
             case TourianStatuePreInstruction.SplashMotion:
-                projectile.YPosition = unchecked((ushort)(TourianStatueWaterY - 4));
+                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(TourianStatueWaterY - 4)));
                 return true;
             case TourianStatuePreInstruction.SoulMotion:
-                (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(projectile.YPosition, projectile.YSubposition, projectile.YVelocity);
-                if ((projectile.YPosition & 0x100) != 0)
+                projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+                if ((projectile.Position.Y.Whole & 0x100) != 0)
                 {
                     projectile.InstructionPointer = TourianStatueRomData.DeleteProjectile;
                     projectile.InstructionTimer = 1;
                 }
-                projectile.YVelocity = unchecked((ushort)(projectile.YVelocity - 128));
+                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue - 128))));
                 return true;
             case TourianStatuePreInstruction.ParticleMotion:
-                ushort before = unchecked((ushort)(TourianStatueWaterY - projectile.YPosition));
-                (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(projectile.XPosition, projectile.XSubposition, projectile.XVelocity);
-                (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(projectile.YPosition, projectile.YSubposition, projectile.YVelocity);
-                if (((before ^ (TourianStatueWaterY - projectile.YPosition)) & 0x8000) != 0)
+                ushort before = unchecked((ushort)(TourianStatueWaterY - projectile.Position.Y.Whole));
+                projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
+                if (((before ^ (TourianStatueWaterY - projectile.Position.Y.Whole)) & 0x8000) != 0)
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash);
-                if ((projectile.YPosition & 0xff00) == 0x100)
+                if ((projectile.Position.Y.Whole & 0xff00) == 0x100)
                 {
                     projectile.InstructionPointer = TourianStatueRomData.DeleteProjectile;
                     projectile.InstructionTimer = 1;
                 }
-                else projectile.YVelocity += 16;
+                else projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + (16)))));
                 return true;
             default:
                 throw new InvalidOperationException(
@@ -112,8 +109,7 @@ public sealed partial class RoomEnemySystem
         switch ((TourianStatueInstruction)code)
         {
             case TourianStatueInstruction.ResetDustPosition:
-                projectile.XPosition = projectile.Variable0;
-                projectile.YPosition = projectile.Variable1;
+                projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
                 break;
             case TourianStatueInstruction.SpawnParticle:
                 SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);
@@ -126,9 +122,9 @@ public sealed partial class RoomEnemySystem
                 EarthquakeTimer |= 0x20;
                 break;
             case TourianStatueInstruction.AddY:
-                projectile.YPosition += ReadEnemyProjectileInstructionMechanicsWord(
+                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + (ReadEnemyProjectileInstructionMechanicsWord(
                     projectile,
-                    unchecked((ushort)(cursor + 2)));
+                    unchecked((ushort)(cursor + 2)))))));
                 cursor += 2;
                 break;
             default:

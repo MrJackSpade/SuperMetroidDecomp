@@ -66,7 +66,7 @@ internal static partial class Program
                 slot.InstructionTimer = 1;
                 process.Invoke(
                     enemies,
-                    [slot, null, null, (ushort)0, (ushort)0, (ushort)0]);
+                    [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
             }
             AssertEqual(unchecked((ushort)(KraidNailInstructionProgramDefinitions.Loop + 4)),
                 slot.CurrentInstruction,

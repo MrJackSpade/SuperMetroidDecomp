@@ -150,14 +150,13 @@ internal static partial class Program
             slot.InstructionTimer = 1;
             slot.Parameter1 = parameter1;
             slot.Parameter2 = 0x0108;
-            slot.XPosition = 0x0100;
-            slot.YPosition = 0x0200;
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));
             initialize(slot);
 
             AssertEqual(expectedProgram, slot.CurrentInstruction,
                 $"Boulder {description} initializer program selection");
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
             // Eight eight-frame entries consume 64 actor frames. The margin crosses the
             // terminal goto and proves the production stream restarted its first frame.

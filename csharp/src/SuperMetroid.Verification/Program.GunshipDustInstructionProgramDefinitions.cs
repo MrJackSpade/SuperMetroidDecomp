@@ -115,7 +115,7 @@ internal static partial class Program
             RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
         }
     }
 

@@ -39,23 +39,23 @@ public sealed partial class RoomEnemySystem
         {
             // $86:A66D-$A683 chain the carry: CLC; ADC Y; ADC #$FFFB, then the Y velocity's
             // ADC #$0030 adds that second addition's carry (set whenever Y + jitter >= 5).
-            int jitteredY = (random & 3) + torizo.YPosition;
+            int jitteredY = (random & 3) + torizo.Position.Y.Whole;
             int yWithOffset = jitteredY + 0xfffb;
-            projectile.YPosition = unchecked((ushort)yWithOffset);
-            projectile.YVelocity = unchecked((ushort)((random & 0x001f) + 0x30 + (yWithOffset >> 16)));
+            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)yWithOffset));
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((random & 0x001f) + 0x30 + (yWithOffset >> 16)))));
             // $86:A68D-$A6C3: the X offset's ADC carries out of CLC; ADC X. Every branch
             // stores a zero X velocity.
-            int jitteredX = (_nextRandom!() & 3) + torizo.XPosition;
+            int jitteredX = (_nextRandom!() & 3) + torizo.Position.X.Whole;
             int carry = jitteredX >> 16;
-            projectile.XPosition = (torizo.Parameter1 & 0x4000) != 0
+            projectile.Position = projectile.Position.WithWholeX((torizo.Parameter1 & 0x4000) != 0
                 ? unchecked((ushort)jitteredX)
                 : (torizo.Parameter1 & 0x8000) != 0
                     ? unchecked((ushort)(jitteredX + 8 + carry))
-                    : unchecked((ushort)(jitteredX + 0xfff8 + carry));
-            projectile.XVelocity = 0;
+                    : unchecked((ushort)(jitteredX + 0xfff8 + carry)));
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
             return;
         }
-        projectile.YPosition = unchecked((ushort)(torizo.YPosition - 5));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(torizo.Position.Y.Whole - 5)));
 
         // The recurring low-health drool chooses a random direction ($86:A5F9-$A62C). The
         // turning branch's word index is random & $1FE; the X velocity is the sign-extended
@@ -70,13 +70,13 @@ public sealed partial class RoomEnemySystem
             int baseAngle = (torizo.Parameter1 & 0x8000) != 0 ? 32 : 224;
             angle = unchecked((byte)(baseAngle + (random & 0x000f) - 8));
         }
-        projectile.XVelocity = unchecked((ushort)
-            EnemyTrigonometryTables.SignedSine(unchecked((byte)angle)));
-        projectile.YVelocity = unchecked((ushort)
-            EnemyTrigonometryTables.SignedNegativeCosineWord(angle));
-        projectile.XPosition = (torizo.Parameter1 & 0x8000) != 0
-            ? unchecked((ushort)(torizo.XPosition + 8))
-            : unchecked((ushort)(torizo.XPosition - 8));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)
+            EnemyTrigonometryTables.SignedSine(unchecked((byte)angle)))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)
+            EnemyTrigonometryTables.SignedNegativeCosineWord(angle))));
+        projectile.Position = projectile.Position.WithWholeX((torizo.Parameter1 & 0x8000) != 0
+            ? unchecked((ushort)(torizo.Position.X.Whole + 8))
+            : unchecked((ushort)(torizo.Position.X.Whole - 8)));
     }
 
     private void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, ushort parameter)
@@ -92,11 +92,10 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
             graphicsIndex: 0);
 
-        projectile.XPosition = (torizo.Parameter1 & 0x8000) != 0
-            ? unchecked((ushort)(torizo.XPosition - definition.XOffset))
-            : unchecked((ushort)(torizo.XPosition + definition.XOffset));
-        projectile.YPosition = unchecked((ushort)(
-            torizo.YPosition + definition.YOffset));
+        projectile.Position = projectile.Position.WithWhole(new((torizo.Parameter1 & 0x8000) != 0
+            ? unchecked((ushort)(torizo.Position.X.Whole - definition.XOffset))
+            : unchecked((ushort)(torizo.Position.X.Whole + definition.XOffset)), unchecked((ushort)(
+            torizo.Position.Y.Whole + definition.YOffset))));
     }
 
     private void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, ushort parameter)
@@ -113,12 +112,11 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
             graphicsIndex: 0);
-        projectile.XPosition = unchecked((ushort)(
-            torizo.XPosition + definition.XOffset));
-        projectile.YPosition = unchecked((ushort)(
-            torizo.YPosition + definition.YOffset));
-        projectile.Variable0 = projectile.XPosition;
-        projectile.Variable1 = projectile.YPosition;
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
+            torizo.Position.X.Whole + definition.XOffset)), unchecked((ushort)(
+            torizo.Position.Y.Whole + definition.YOffset))));
+        projectile.Variable0 = projectile.Position.X.Whole;
+        projectile.Variable1 = projectile.Position.Y.Whole;
     }
 
     private void SpawnBombTorizoDeathExplosion(RoomEnemySlot torizo)
@@ -130,10 +128,9 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.BombTorizoDeathExplosion,
             graphicsIndex: 0);
-        projectile.XPosition = torizo.XPosition;
-        projectile.YPosition = torizo.YPosition;
-        projectile.Variable0 = torizo.XPosition;
-        projectile.Variable1 = torizo.YPosition;
+        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole);
+        projectile.Variable0 = torizo.Position.X.Whole;
+        projectile.Variable1 = torizo.Position.Y.Whole;
     }
 
     private void SpawnBombTorizoChozoOrb(RoomEnemySlot torizo)
@@ -179,19 +176,19 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
 
         projectile.DirectionParameter = parameter;
-        projectile.YPosition = unchecked((ushort)(
-            torizo.YPosition + ((_nextRandom!() & 1) != 0 ? -12 : 20)));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
+            torizo.Position.Y.Whole + ((_nextRandom!() & 1) != 0 ? -12 : 20))));
         if ((torizo.Parameter1 & 0x8000) != 0)
         {
-            projectile.XPosition = unchecked((ushort)(torizo.XPosition + 32));
-            projectile.XVelocity = 624;
+            projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(torizo.Position.X.Whole + 32)));
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(624));
             projectile.InstructionPointer =
                 TorizoSonicBoomInstructionProgramDefinitions.FiredRight;
         }
         else
         {
-            projectile.XPosition = unchecked((ushort)(torizo.XPosition - 32));
-            projectile.XVelocity = unchecked((ushort)-624);
+            projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(torizo.Position.X.Whole - 32)));
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-624)));
             projectile.InstructionPointer =
                 TorizoSonicBoomInstructionProgramDefinitions.FiredLeft;
         }
@@ -248,8 +245,7 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
         bool facingRight = (torizo.Parameter1 & 0x8000) != 0;
         projectile.Variable0 = unchecked((ushort)(torizo.SlotIndex * 2));
-        projectile.XPosition = unchecked((ushort)(torizo.XPosition + (facingRight ? 30 : -30)));
-        projectile.YPosition = unchecked((ushort)(torizo.YPosition - 52));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(torizo.Position.X.Whole + (facingRight ? 30 : -30))), unchecked((ushort)(torizo.Position.Y.Whole - 52))));
         projectile.InstructionPointer =
             GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(facingRight);
     }
@@ -275,10 +271,10 @@ public sealed partial class RoomEnemySystem
         int sineIndex = angle >> 1;
         // The native combined table starts at negative cosine, not sine. Its
         // quarter-turn offset selects sine for X; the unshifted sample gives Y.
-        projectile.XVelocity = unchecked((ushort)(8 *
-            EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex + 64)));
-        projectile.YVelocity = unchecked((ushort)(8 *
-            EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex)));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(8 *
+            EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex + 64)))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(8 *
+            EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex)))));
     }
 
     private void InitializeTorizoRandomizedProjectile(
@@ -287,16 +283,16 @@ public sealed partial class RoomEnemySystem
         TorizoRandomizedProjectileDefinition definition)
     {
         projectile.InstructionPointer = definition.InstructionList;
-        projectile.XPosition = unchecked((ushort)(torizo.XPosition +
-            definition.XOffset));
-        projectile.XVelocity = unchecked((ushort)(
+        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(torizo.Position.X.Whole +
+            definition.XOffset)));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(
             definition.BaseXVelocity +
-            unchecked((byte)_nextRandom!()) - 128));
-        projectile.YPosition = unchecked((ushort)(torizo.YPosition +
-            definition.YOffset));
-        projectile.YVelocity = unchecked((ushort)(
+            unchecked((byte)_nextRandom!()) - 128))));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(torizo.Position.Y.Whole +
+            definition.YOffset)));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
             definition.BaseYVelocity +
-            unchecked((byte)_nextRandom!()) - 128));
+            unchecked((byte)_nextRandom!()) - 128))));
     }
 
     private void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, bool rightFoot)
@@ -308,8 +304,7 @@ public sealed partial class RoomEnemySystem
             ? RoomEnemyProjectileKind.BombTorizoRightFootDust
             : RoomEnemyProjectileKind.BombTorizoLeftFootDust;
         InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
-        projectile.XPosition = unchecked((ushort)(torizo.XPosition + (rightFoot ? 24 : -24)));
-        projectile.YPosition = unchecked((ushort)(torizo.YPosition + 48));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(torizo.Position.X.Whole + (rightFoot ? 24 : -24))), unchecked((ushort)(torizo.Position.Y.Whole + 48))));
     }
 
     private static void RunBombTorizoChozoOrbPreInstruction(
@@ -326,10 +321,10 @@ public sealed partial class RoomEnemySystem
         }
 
         bool verticalCollision = MoveProjectileAxis(projectile, level, horizontal: false);
-        if (unchecked((short)projectile.YVelocity) >= 0 && verticalCollision)
+        if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0 && verticalCollision)
         {
-            projectile.YPosition = unchecked((ushort)(
-                (projectile.YPosition & 0xfff0) + 6));
+            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
+                (projectile.Position.Y.Whole & 0xfff0) + 6)));
             projectile.InstructionPointer =
                 TorizoChozoOrbInstructionProgramDefinitions.FloorImpact;
             projectile.InstructionTimer = 1;
@@ -337,8 +332,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 18));
-        if ((projectile.YVelocity & 0xf000) == 0x1000)
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 18))));
+        if ((projectile.Velocity.Y.RawValue & 0xf000) == 0x1000)
             projectile.Clear();
     }
 
@@ -351,15 +346,15 @@ public sealed partial class RoomEnemySystem
             projectile.InstructionPointer =
                 TorizoSonicBoomInstructionProgramDefinitions.WallImpact;
             projectile.InstructionTimer = 1;
-            projectile.Variable0 = projectile.XPosition;
-            projectile.Variable1 = projectile.YPosition;
+            projectile.Variable0 = projectile.Position.X.Whole;
+            projectile.Variable1 = projectile.Position.Y.Whole;
             projectile.CanDamageSamus = false;
             return;
         }
 
-        projectile.XVelocity = unchecked((ushort)(projectile.XVelocity +
-            (unchecked((short)projectile.XVelocity) < 0 ? -16 : 16)));
-        if ((projectile.XVelocity & 0xf000) == 0x1000)
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
+            (unchecked((short)projectile.Velocity.X.RawValue) < 0 ? -16 : 16)))));
+        if ((projectile.Velocity.X.RawValue & 0xf000) == 0x1000)
             projectile.Clear();
     }
 
@@ -380,30 +375,30 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        short xVelocity = unchecked((short)projectile.XVelocity);
+        short xVelocity = unchecked((short)projectile.Velocity.X.RawValue);
         if (xVelocity < 0)
         {
             int dragged = xVelocity + 4;
-            projectile.XVelocity = unchecked((ushort)(short)(dragged < 0 ? dragged : 3));
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(short)(dragged < 0 ? dragged : 3))));
         }
         else
         {
             int dragged = xVelocity - 4;
-            projectile.XVelocity = unchecked((ushort)(short)(dragged >= 0 ? dragged : 3));
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(short)(dragged >= 0 ? dragged : 3))));
         }
 
         bool verticalCollision = MoveProjectileAxis(projectile, level, horizontal: false);
-        if (unchecked((short)projectile.YVelocity) >= 0 && verticalCollision)
+        if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0 && verticalCollision)
         {
-            projectile.YPosition = unchecked((ushort)(projectile.YPosition - 3));
+            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 3)));
             projectile.InstructionPointer =
                 (ushort)BombTorizoDroolProgram.FloorImpact;
             projectile.InstructionTimer = 1;
             return;
         }
 
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 16));
-        if ((projectile.YVelocity & 0xf000) == 0x1000)
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 16))));
+        if ((projectile.Velocity.Y.RawValue & 0xf000) == 0x1000)
             projectile.Clear();
     }
 
@@ -412,20 +407,20 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         if (MoveProjectileAxis(projectile, level, horizontal: true))
-            projectile.XVelocity = unchecked((ushort)-unchecked((short)projectile.XVelocity));
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.X.RawValue))));
 
         bool verticalCollision = MoveProjectileAxis(projectile, level, horizontal: false);
-        if (verticalCollision && unchecked((short)projectile.YVelocity) >= 0)
+        if (verticalCollision && unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
         {
-            short xVelocity = unchecked((short)projectile.XVelocity);
-            projectile.XVelocity = unchecked((ushort)(xVelocity >= 0
+            short xVelocity = unchecked((short)projectile.Velocity.X.RawValue);
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(xVelocity >= 0
                 ? xVelocity - 64
-                : xVelocity + 64));
-            projectile.YVelocity = unchecked((ushort)-(projectile.YVelocity >> 1));
-            if ((projectile.YVelocity & 0xff80) == 0xff80)
+                : xVelocity + 64))));
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-(projectile.Velocity.Y.RawValue >> 1))));
+            if ((projectile.Velocity.Y.RawValue & 0xff80) == 0xff80)
             {
-                projectile.YPosition = unchecked((ushort)(
-                    (projectile.YPosition & 0xfff0) + 6));
+                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
+                    (projectile.Position.Y.Whole & 0xfff0) + 6)));
                 projectile.InstructionPointer =
                     TorizoChozoOrbInstructionProgramDefinitions.FloorImpact;
                 projectile.InstructionTimer = 1;
@@ -434,7 +429,7 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 24));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 24))));
     }
 
     private static void RunGoldenTorizoEggPreInstruction(
@@ -446,28 +441,28 @@ public sealed partial class RoomEnemySystem
         {
             projectile.InstructionPointer = unchecked((ushort)(projectile.InstructionPointer + 2));
             projectile.InstructionTimer = 1;
-            projectile.XVelocity = (projectile.Variable0 & 0x8000) != 0
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight((projectile.Variable0 & 0x8000) != 0
                 ? (ushort)256
-                : unchecked((ushort)-256);
+                : unchecked((ushort)-256)));
             return;
         }
 
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
-            projectile.XVelocity = unchecked((ushort)-unchecked((short)projectile.XVelocity));
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.X.RawValue))));
             projectile.Variable0 ^= 0x8000;
         }
 
         if (MoveProjectileAxis(projectile, level, horizontal: false) &&
-            unchecked((short)projectile.YVelocity) >= 0)
+            unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
         {
-            short xVelocity = unchecked((short)projectile.XVelocity);
-            projectile.XVelocity = unchecked((ushort)(xVelocity + (xVelocity < 0 ? 32 : -32)));
-            projectile.YVelocity = unchecked((ushort)-unchecked((short)projectile.YVelocity));
+            short xVelocity = unchecked((short)projectile.Velocity.X.RawValue);
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(xVelocity + (xVelocity < 0 ? 32 : -32)))));
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.Y.RawValue))));
         }
 
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 48));
-        if ((projectile.YVelocity & 0xf000) == 0x1000)
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 48))));
+        if ((projectile.Velocity.Y.RawValue & 0xf000) == 0x1000)
             projectile.Clear();
     }
 
@@ -479,12 +474,12 @@ public sealed partial class RoomEnemySystem
         {
             projectile.PreInstruction =
                 (ushort)EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall;
-            projectile.YVelocity = 0;
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0));
             return;
         }
 
-        projectile.XVelocity = unchecked((ushort)(projectile.XVelocity +
-            ((projectile.Variable0 & 0x8000) != 0 ? 48 : -48)));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
+            ((projectile.Variable0 & 0x8000) != 0 ? 48 : -48)))));
     }
 
     private static void RunGoldenTorizoEggFall(
@@ -500,7 +495,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 48));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 48))));
     }
 
     private void RunGoldenTorizoSuperMissilePreInstruction(RoomEnemyProjectileSlot projectile)
@@ -513,9 +508,8 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomEnemySlot torizo = state.Slot;
-        projectile.XPosition = unchecked((ushort)(torizo.XPosition +
-            ((torizo.Parameter1 & 0x8000) != 0 ? 32 : -32)));
-        projectile.YPosition = unchecked((ushort)(torizo.YPosition - 52));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(torizo.Position.X.Whole +
+            ((torizo.Parameter1 & 0x8000) != 0 ? 32 : -32))), unchecked((ushort)(torizo.Position.Y.Whole - 52))));
     }
 
     private static void RunGoldenTorizoSuperMissileFlight(
@@ -526,7 +520,7 @@ public sealed partial class RoomEnemySystem
         if (!impact)
         {
             bool verticalCollision = MoveProjectileAxis(projectile, level, horizontal: false);
-            impact = verticalCollision && unchecked((short)projectile.YVelocity) >= 0;
+            impact = verticalCollision && unchecked((short)projectile.Velocity.Y.RawValue) >= 0;
         }
 
         if (impact)
@@ -537,8 +531,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 16));
-        if ((projectile.YVelocity & 0xf000) == 0x1000)
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 16))));
+        if ((projectile.Velocity.Y.RawValue & 0xf000) == 0x1000)
             projectile.Clear();
     }
 
@@ -548,18 +542,17 @@ public sealed partial class RoomEnemySystem
         bool awayFromSamus)
     {
         byte angle = CalculateCartridgeAngle(
-            unchecked((short)(samus.Position.X.Whole - projectile.XPosition)),
-            unchecked((short)(samus.Position.Y.Whole - projectile.YPosition)));
+            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole))));
         angle = awayFromSamus
             ? unchecked((byte)(angle | 0x80))
             : unchecked((byte)(angle & 0x7f));
 
         // Preserve the native up-zero angle convention: X is sine, Y is
         // negative cosine. Starting both reads at sine rotates the shot.
-        projectile.XVelocity = unchecked((ushort)(4 *
-            EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64)));
-        projectile.YVelocity = unchecked((ushort)(4 *
-            EnemyTrigonometryTables.SignedNegativeCosineWord(angle)));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(4 *
+            EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64)))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(4 *
+            EnemyTrigonometryTables.SignedNegativeCosineWord(angle)))));
     }
 
     private static void RunGoldenTorizoEyeBeamPreInstruction(
@@ -576,8 +569,8 @@ public sealed partial class RoomEnemySystem
 
         if (MoveProjectileAxis(projectile, level, horizontal: false))
         {
-            projectile.YPosition = unchecked((ushort)(
-                (projectile.YPosition & 0xfff0) + 6));
+            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
+                (projectile.Position.Y.Whole & 0xfff0) + 6)));
             projectile.InstructionPointer =
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.FloorImpact;
             projectile.InstructionTimer = 1;
@@ -620,8 +613,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!, header);
         _torizoOrbDropRequests.Add(new TorizoOrbDropRequest());
         SpawnEnemyDropFromChanceTable(
-            projectile.XPosition,
-            projectile.YPosition,
+            projectile.Position.Whole,
             definition.ItemDropChancesPointer);
     }
 }

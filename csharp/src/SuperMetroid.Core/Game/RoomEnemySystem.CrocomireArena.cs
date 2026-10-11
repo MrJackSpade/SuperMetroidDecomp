@@ -15,7 +15,7 @@ public sealed partial class RoomEnemySystem
     private void HandleCrocomireBridgeApproach(RoomEnemySlot body)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        if (unchecked((short)(body.XPosition - 1536)) < 0)
+        if (unchecked((short)(body.Position.X.Whole - 1536)) < 0)
         {
             death.BridgeDustAt1536Spawned = false;
             death.BridgeBlockAt1568Crumbling = false;
@@ -23,12 +23,12 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        if (unchecked((short)(body.XPosition - 1552)) < 0)
+        if (unchecked((short)(body.Position.X.Whole - 1552)) < 0)
         {
             if (!death.BridgeDustAt1536Spawned)
             {
                 death.BridgeDustAt1536Spawned = true;
-                SpawnRoomGraphicsDustExplosion(1536, 176, animationIndex: 0x0015);
+                SpawnRoomGraphicsDustExplosion(new(1536, 176), animationIndex: 0x0015);
             }
             return;
         }
@@ -36,20 +36,20 @@ public sealed partial class RoomEnemySystem
         // $A4:8DA4-8DDB: one block deep crumbles the first bridge block. The flag
         // resets at $8DDC and $8E2D sit behind comparisons these ranges already passed
         // and never execute.
-        if (unchecked((short)(body.XPosition - 1568)) < 0)
+        if (unchecked((short)(body.Position.X.Whole - 1568)) < 0)
         {
             if (!death.BridgeBlockAt1568Crumbling)
             {
                 death.BridgeBlockAt1568Crumbling = true;
                 PublishCrocomirePlm(
                     0x61, 0x0b, PlmHeaderId.CrumbleCrocomireBridgeBlock);
-                SpawnRoomGraphicsDustExplosion(1568, 176, animationIndex: 0x0015);
+                SpawnRoomGraphicsDustExplosion(new(1568, 176), animationIndex: 0x0015);
             }
             return;
         }
 
         // $A4:8DED-8E2C: two blocks deep crumbles the next pair.
-        if (unchecked((short)(body.XPosition - 1584)) < 0 &&
+        if (unchecked((short)(body.Position.X.Whole - 1584)) < 0 &&
             !death.BridgeBlocksAt1584Crumbling)
         {
             death.BridgeBlocksAt1584Crumbling = true;
@@ -57,7 +57,7 @@ public sealed partial class RoomEnemySystem
                 0x62, 0x0b, PlmHeaderId.CrumbleCrocomireBridgeBlock);
             PublishCrocomirePlm(
                 0x63, 0x0b, PlmHeaderId.CrumbleCrocomireBridgeBlock);
-            SpawnRoomGraphicsDustExplosion(1584, 176, animationIndex: 0x0015);
+            SpawnRoomGraphicsDustExplosion(new(1584, 176), animationIndex: 0x0015);
         }
     }
 
@@ -82,7 +82,7 @@ public sealed partial class RoomEnemySystem
         for (int puff = 0; puff < CrocomireBridgeDustCount; puff++)
         {
             (ushort x, ushort y) = CrocomireBridgeDustPosition(puff);
-            SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 0x0015);
+            SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 0x0015);
         }
 
         PublishCrocomirePlm(0x4e, 0x03, PlmHeaderId.CreateCrocomireInvisibleWall);

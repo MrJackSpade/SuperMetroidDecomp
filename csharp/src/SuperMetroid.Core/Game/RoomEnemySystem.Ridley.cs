@@ -93,16 +93,16 @@ public sealed partial class RoomEnemySystem
                 return true;
             }
             case RidleyInstruction.MoveWithArgsInY:
-                slot.XPosition = unchecked((ushort)(
-                    slot.XPosition +
+                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+                    slot.Position.X.Whole +
                     ReadEnemyInstructionMechanicsWord(
                         slot,
-                        unchecked((ushort)(cursor + 2)))));
-                slot.YPosition = unchecked((ushort)(
-                    slot.YPosition +
+                        unchecked((ushort)(cursor + 2))))));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
+                    slot.Position.Y.Whole +
                     ReadEnemyInstructionMechanicsWord(
                         slot,
-                        unchecked((ushort)(cursor + 4)))));
+                        unchecked((ushort)(cursor + 4))))));
                 cursor = unchecked((ushort)(cursor + 6));
                 return true;
             case RidleyInstruction.FlipLeft:
@@ -196,8 +196,7 @@ public sealed partial class RoomEnemySystem
         // only for this boss, so preserve the raw bit instead of widening the shared enum.
         slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        slot.XPosition = 96;
-        slot.YPosition = 394;
+        slot.Position = slot.Position.WithWhole(new(96, 394));
         slot.Layer = 5;
 
         Ridley = new RidleyEnemyState
@@ -252,15 +251,14 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level = null,
         SamusProjectileSystem? samusProjectiles = null,
         SamusBombProjectileSystem? sharedProjectiles = null,
-        ushort cameraX = 0,
-        ushort cameraY = 0)
+        Position16<RoomPixels> camera = default)
     {
         RidleyEnemyState state = RequireNorfairRidley(slot);
         state.HurtMovementClamp = unchecked((ushort)Math.Max(
             0,
             unchecked((short)state.HurtMovementClamp) - 4));
 
-        UpdateNorfairRidleyIntangibility(slot, state, cameraX, cameraY);
+        UpdateNorfairRidleyIntangibility(slot, state, camera);
         PrepareNorfairRidleyCombatFrame(state, sharedProjectiles ?? throw new InvalidOperationException(
             "Ridley's power-bomb check ($A6:BD2C) requires the shared projectile owner."));
 
@@ -730,7 +728,7 @@ public sealed partial class RoomEnemySystem
         RidleyEnemyState state,
         SamusState? samus)
     {
-        if (unchecked((short)(slot.YPosition - 288)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - 288)) < 0)
         {
             SelectNorfairRidleyFacingInstruction(slot, state);
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
@@ -748,7 +746,7 @@ public sealed partial class RoomEnemySystem
         RidleyEnemyState state,
         SamusState? samus)
     {
-        MoveNorfairRidleyToward(slot, state, slot.XPosition, 288, divisorIndex: 0);
+        MoveNorfairRidleyToward(slot, state, slot.Position.X.Whole, 288, divisorIndex: 0);
         if (!TickRidleyFunctionTimer(state))
             return;
 
@@ -886,11 +884,11 @@ public sealed partial class RoomEnemySystem
 
         // The native lunge is a passing attack, not indefinite pursuit. Test the
         // previous movement's boundary result before applying another acceleration.
-        short deltaX = unchecked((short)(slot.XPosition - samus.Position.X.Whole));
+        short deltaX = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
         bool passedSamus = state.FacingDirection == RidleyFacing.Right ? deltaX >= 0 : deltaX < 0;
         if (state.HitRoomBoundary ||
             (passedSamus && unchecked((short)(Math.Abs((int)deltaX) - RidleyLungeDefinitions.PassDistance)) >= 0) ||
-            unchecked((short)(slot.YPosition + RidleyLungeDefinitions.ClawHeight - samus.Position.Y.Whole)) >= 0)
+            unchecked((short)(slot.Position.Y.Whole + RidleyLungeDefinitions.ClawHeight - samus.Position.Y.Whole)) >= 0)
         {
             HandleNorfairRidleyMissedLunge(slot, state);
             return;
@@ -940,9 +938,9 @@ public sealed partial class RoomEnemySystem
     private static void BeginNorfairRidleyCarry(RoomEnemySlot slot, RidleyEnemyState state)
     {
         state.TargetX = RidleyMovementTargets.CarryAnchorX(state.FacingDirection);
-        state.TargetY = unchecked((short)(slot.YPosition - 320)) < 0
+        state.TargetY = unchecked((short)(slot.Position.Y.Whole - 320)) < 0
             ? (ushort)256
-            : unchecked((ushort)(slot.YPosition - 64));
+            : unchecked((ushort)(slot.Position.Y.Whole - 64));
         state.Function = RidleyAiFunction.NorfairCarryMoveToAnchor;
         state.FunctionTimer = 32;
         MoveNorfairRidleyToward(slot, state, state.TargetX, state.TargetY, 0);
@@ -998,10 +996,10 @@ public sealed partial class RoomEnemySystem
             samus.Kinematics.Radius.Y + radiusY;
 
     private static ushort GetNorfairRidleyClawX(RoomEnemySlot slot, RidleyEnemyState state) =>
-        unchecked((ushort)(slot.XPosition + RidleyClawOffsets.ReadX(state.FacingDirection)));
+        unchecked((ushort)(slot.Position.X.Whole + RidleyClawOffsets.ReadX(state.FacingDirection)));
 
     private static ushort GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state) =>
-        unchecked((ushort)(slot.YPosition + RidleyClawOffsets.ReadY(state.FeetDistanceIndex)));
+        unchecked((ushort)(slot.Position.Y.Whole + RidleyClawOffsets.ReadY(state.FeetDistanceIndex)));
 
     private static bool TickRidleyFunctionTimer(RidleyEnemyState state)
     {
@@ -1016,7 +1014,7 @@ public sealed partial class RoomEnemySystem
         // D955 reads the word at Enemy.XPosition-1: its sign is bit 7 of
         // the low X byte, not the sign of the full coordinate. Keep an inward
         // facing actor's current animation and timer untouched.
-        bool rightHalf = (slot.XPosition & 0x0080) != 0;
+        bool rightHalf = (slot.Position.X.Whole & 0x0080) != 0;
         if (state.FacingDirection == RidleyFacing.Left ? rightHalf : !rightHalf)
             return;
         SetRidleyInstruction(
@@ -1066,12 +1064,12 @@ public sealed partial class RoomEnemySystem
 
         state.HorizontalVelocity = AccelerateNorfairRidleyAxis(
             state.HorizontalVelocity,
-            slot.XPosition, targetX,
+            slot.Position.X.Whole, targetX,
             divisor,
             reversalBoost);
         state.VerticalVelocity = AccelerateNorfairRidleyAxis(
             state.VerticalVelocity,
-            slot.YPosition, targetY,
+            slot.Position.Y.Whole, targetY,
             divisor,
             reversalBoost);
     }

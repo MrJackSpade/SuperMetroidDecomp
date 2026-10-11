@@ -25,7 +25,7 @@ internal static partial class Program
             var spawn = typeof(RoomEnemySystem).GetMethod("SpawnPhantoonDestroyableFlame", BindingFlags.NonPublic | BindingFlags.Instance)!
                 .CreateDelegate<Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool>>(enemies);
             var body = enemies.Slots[0];
-            body.XPosition = body.YPosition = origin;
+            body.Position = body.Position.WithWhole(new(origin, origin));
             PhantoonFlameSpawnType type = ClosedNativeWords.Decode<PhantoonFlameSpawnType>(
                 (byte)(parameter >> 8), "Phantoon flame spawn type");
             int index = parameter & 255;
@@ -50,12 +50,12 @@ internal static partial class Program
                 _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {(int)type}."),
             };
             AssertEqual(angle, flame.Variable0, "Actual flame initial angle");
-            AssertEqual(x, flame.XPosition, "Actual flame initial X");
-            AssertEqual(y, flame.YPosition, "Actual flame initial wrapped Y");
-            AssertEqual(speed, flame.XVelocity, "Actual flame direction or packed delay");
-            AssertEqual((ushort)0, flame.YVelocity, "Actual flame initial radius/vertical speed");
-            AssertEqual((ushort)0, flame.XSubposition, "Actual flame initial fractional X");
-            AssertEqual((ushort)0, flame.YSubposition, "Actual flame initial fractional Y");
+            AssertEqual(x, flame.Position.X.Whole, "Actual flame initial X");
+            AssertEqual(y, flame.Position.Y.Whole, "Actual flame initial wrapped Y");
+            AssertEqual(speed, flame.Velocity.X.RawValue, "Actual flame direction or packed delay");
+            AssertEqual((ushort)0, flame.Velocity.Y.RawValue, "Actual flame initial radius/vertical speed");
+            AssertEqual((ushort)0, flame.Position.X.Fraction, "Actual flame initial fractional X");
+            AssertEqual((ushort)0, flame.Position.Y.Fraction, "Actual flame initial fractional Y");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => PhantoonFlameSpawnDefinitions.RageAngle(16), "Rage angle bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => PhantoonFlameSpawnDefinitions.RainX(9), "Rain column bounds");

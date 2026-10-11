@@ -259,15 +259,20 @@ internal static partial class Program
         typeof(RoomLayer3FxState).GetField("baseYSubposition", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, W(NativeSnapshotMemory.LiquidBaseFraction));
         typeof(RoomLayer3FxState).GetProperty(nameof(RoomLayer3FxState.CurrentYPosition))!.SetValue(runtime.RoomLayer3Fx, W(NativeSnapshotMemory.AcidSurface));
         runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
-        string[] slotWords = ["EnemyDefinitionPointer", "XPosition", "XSubposition", "YPosition", "YSubposition", "XRadius", "YRadius", "Properties", "ExtraProperties", "AiHandlerBits", "Health", "SpritemapPointer", "Timer", "CurrentInstruction", "InstructionTimer", "PaletteIndex", "VramTilesIndex", "Layer", "FlashTimer", "FrozenTimer", "InvincibilityTimer", "ShakeTimer", "FrameCounter"];
+        // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
+        // +$0A/+$0C the radii, each imported as one typed value below.
+        string[] slotWords = ["Properties", "ExtraProperties", "AiHandlerBits", "Health", "SpritemapPointer", "Timer", "CurrentInstruction", "InstructionTimer", "PaletteIndex", "VramTilesIndex", "Layer", "FlashTimer", "FrozenTimer", "InvincibilityTimer", "ShakeTimer", "FrameCounter"];
         for (int index = 0; index < runtime.Enemies.Slots.Count; index++)
         {
             var slot = runtime.Enemies.Slots[index];
             int address = NativeSnapshotMemory.EnemyBase + index * 64;
             if (W(address) != 0)
                 AssertTrue((ushort)slot.EnemyDefinitionPointer == W(address), "initial enemy species agrees with room population");
+            typeof(RoomEnemySlot).GetProperty(nameof(RoomEnemySlot.EnemyDefinitionPointer))!.SetValue(slot, W(address));
+            slot.Position = FixedPosition<RoomPixels>.FromWords(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
+            slot.Radius = new(W(address + 10), W(address + 12));
             for (int word = 0; word < slotWords.Length; word++)
-                typeof(RoomEnemySlot).GetProperty(slotWords[word])!.SetValue(slot, W(address + word * 2));
+                typeof(RoomEnemySlot).GetProperty(slotWords[word])!.SetValue(slot, W(address + 14 + word * 2));
             for (int word = 0; word < 6; word++)
                 typeof(RoomEnemySlot).GetProperty("Variable" + (char)('A' + word))!.SetValue(slot, W(address + 48 + word * 2));
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
@@ -336,15 +341,16 @@ internal static partial class Program
             PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.InstructionPointer), W(NativeSnapshotMemory.EnemyProjectileInstruction + index));
             PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.InstructionTimer), W(NativeSnapshotMemory.EnemyProjectileInstructionTimer + index));
             PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.GeneralTimer), W(NativeSnapshotMemory.EnemyProjectileTimer + index));
-            PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.XSubposition), W(NativeSnapshotMemory.EnemyProjectileXFraction + index));
-            PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.YSubposition), W(NativeSnapshotMemory.EnemyProjectileYFraction + index));
+            projectile.Position = projectile.Position
+                .WithFractionX(W(NativeSnapshotMemory.EnemyProjectileXFraction + index))
+                .WithFractionY(W(NativeSnapshotMemory.EnemyProjectileYFraction + index));
             PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.Variable0), W(NativeSnapshotMemory.EnemyProjectileVariableE + index));
             PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.Variable1), W(NativeSnapshotMemory.EnemyProjectileVariableF + index));
             PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.CollidedProjectileType), W(NativeSnapshotMemory.EnemyProjectileVariableG + index));
             // The current frame record is [timer][operand]; the list pointer already follows it.
             PrivateState.InvokeStatic(typeof(RoomEnemySystem), "SetEnemyProjectileVisualOperand",
                 projectile, unchecked((ushort)(projectile.InstructionPointer - 2)));
-            AssertEqual(W(NativeSnapshotMemory.EnemyProjectileRadius + index), (ushort)(projectile.XRadius | projectile.YRadius << 8),
+            AssertEqual(W(NativeSnapshotMemory.EnemyProjectileRadius + index), (ushort)(projectile.Radius.X | projectile.Radius.Y << 8),
                 $"initial enemy projectile {projectile.SlotIndex} radii");
             ushort properties = projectile.Damage;
             if (projectile.DrawPriority == EnemyProjectileDrawPriority.High) properties |= NativeSnapshotMemory.EnemyProjectileHighDraw;
@@ -354,11 +360,10 @@ internal static partial class Program
             AssertEqual(W(NativeSnapshotMemory.EnemyProjectileProperties + index), properties,
                 $"initial enemy projectile {projectile.SlotIndex} properties");
         }
-        foreach (var (property, address) in new[] {
-            (nameof(RoomEnemyProjectileSlot.XPosition), NativeSnapshotMemory.EnemyProjectileX),
-            (nameof(RoomEnemyProjectileSlot.YPosition), NativeSnapshotMemory.EnemyProjectileY),
-            (nameof(RoomEnemyProjectileSlot.XVelocity), NativeSnapshotMemory.EnemyProjectileXVelocity),
-            (nameof(RoomEnemyProjectileSlot.YVelocity), NativeSnapshotMemory.EnemyProjectileYVelocity) })
-            PrivateState.SetProperty(projectile, property, W(address + index));
+        projectile.Position = projectile.Position.WithWhole(new(
+            W(NativeSnapshotMemory.EnemyProjectileX + index), W(NativeSnapshotMemory.EnemyProjectileY + index)));
+        projectile.Velocity = new(
+            new SnesSignedEightEight(W(NativeSnapshotMemory.EnemyProjectileXVelocity + index)),
+            new SnesSignedEightEight(W(NativeSnapshotMemory.EnemyProjectileYVelocity + index)));
     }
 }

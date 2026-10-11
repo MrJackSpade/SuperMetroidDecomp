@@ -31,25 +31,25 @@ internal static partial class Program
         RoomEnemySlot dachora = enemies.Slots[0];
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
 
-        ushort initialX = dachora.XPosition;
+        ushort initialX = dachora.Position.X.Whole;
         dachora.CurrentInstruction =
             EscapeDachoraInstructionProgramDefinitions.RunningAroundLowTide;
         RunForcedEscapeDachoraInstructions(rom, executedOperands, process, enemies, dachora, 70);
-        AssertTrue(dachora.XPosition != initialX,
+        AssertTrue(dachora.Position.X.Whole != initialX,
             "escape Dachora low-tide pacing runs movement callbacks");
 
-        initialX = dachora.XPosition;
+        initialX = dachora.Position.X.Whole;
         dachora.CurrentInstruction =
             EscapeDachoraInstructionProgramDefinitions.RunningAroundHighTide;
         RunForcedEscapeDachoraInstructions(rom, executedOperands, process, enemies, dachora, 70);
-        AssertTrue(dachora.XPosition != initialX,
+        AssertTrue(dachora.Position.X.Whole != initialX,
             "escape Dachora high-tide pacing runs movement callbacks");
 
-        initialX = dachora.XPosition;
+        initialX = dachora.Position.X.Whole;
         dachora.CurrentInstruction =
             EscapeDachoraInstructionProgramDefinitions.RunningForEscape;
         RunForcedEscapeDachoraInstructions(rom, executedOperands, process, enemies, dachora, 30);
-        AssertTrue(unchecked((short)(dachora.XPosition - initialX)) > 0,
+        AssertTrue(unchecked((short)(dachora.Position.X.Whole - initialX)) > 0,
             "escape Dachora departure moves right through its accelerating callbacks");
         AssertTrue(dachora.CurrentInstruction is
                 >= EscapeDachoraInstructionProgramDefinitions.RunningForEscapeMaximumSpeed and
@@ -105,8 +105,7 @@ internal static partial class Program
         RoomEnemySlot dachora = enemies.Slots[0];
         dachora.EnemyDefinitionPointer = EnemyDefinitionId.DachoraEscape;
         dachora.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
-        dachora.XPosition = 0x0100;
-        dachora.YPosition = 0x00c8;
+        dachora.Position = dachora.Position.WithWhole(new(0x0100, 0x00c8));
         typeof(RoomEnemySystem).GetMethod("InitializeEscapeDachora", flags)!
             .Invoke(enemies, [dachora]);
         return enemies;
@@ -121,7 +120,7 @@ internal static partial class Program
         int steps)
     {
         object?[] arguments =
-            [dachora, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [dachora, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int step = 0; step < steps; step++)
         {
             dachora.InstructionTimer = 1;

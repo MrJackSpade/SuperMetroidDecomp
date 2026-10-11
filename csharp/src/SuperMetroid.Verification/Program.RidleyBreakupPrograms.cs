@@ -17,7 +17,7 @@ internal static partial class Program
         var death = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyDeathExplosions", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
         var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort>>(enemies);
+            .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort>>(enemies);
         var body = enemies.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
         var state = new RidleyEnemyState
@@ -35,7 +35,7 @@ internal static partial class Program
         {
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, fragment.SpritemapPointer,
                 "native breakup spawn installs empty frame before instruction processing");
-            process(fragment, null, null, 0, 0, 0);
+            process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertTrue(fragment.SpritemapPointer is not CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap and
                 not 0, "first breakup instruction replaces empty frame");
         }
@@ -75,12 +75,12 @@ internal static partial class Program
             var fragment = fragments[0];
             fragment.CurrentInstruction = start;
             fragment.InstructionTimer = 1;
-            process(fragment, null, null, 0, 0, 0);
+            process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
-            process(fragment, null, null, 0, 0, 0);
+            process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual((ushort)(start + 4), fragment.CurrentInstruction, "breakup sleeps after its one frame");
             var actual = new OamBuffer();
-            draw.Invoke(enemies, [actual, (byte)0xa6, expectedPointer, (ushort)128, (ushort)112, (ushort)0x0e00, (ushort)0, false, true]);
+            draw.Invoke(enemies, [actual, (byte)0xa6, expectedPointer, new Position16<OamPixels>((ushort)128, (ushort)112), (ushort)0x0e00, (ushort)0, false, true]);
             var expected = new OamBuffer();
             ImportedSpritemapOracle.DrawEnemy(rom, expected, 0xa6, expectedPointer, 128, 112, 0x0e00, 0);
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "breakup OAM count");
@@ -88,14 +88,14 @@ internal static partial class Program
             AssertTrue(expected.HighTable.SequenceEqual(actual.HighTable), "breakup exact OAM size/X bits");
         }
         var expiring = fragments[0];
-        ushort deathX = expiring.XPosition, deathY = expiring.YPosition;
+        ushort deathX = expiring.Position.X.Whole, deathY = expiring.Position.Y.Whole;
         expiring.VariableF = 0; expiring.VariableB = 0; expiring.VariableC = 0;
-        expiring.XSubposition = 0; expiring.YSubposition = 0;
+        expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);
         typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyExplosionMain", flags)!.Invoke(enemies, [expiring]);
         AssertEqual(EnemyDefinitionId.None, expiring.EnemyDefinitionPointer, "native breakup expiry clears the actor immediately");
         var explosion = enemies.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
-        AssertEqual(deathX, explosion.XPosition, "fragment death effect retains final X");
-        AssertEqual(deathY, explosion.YPosition, "fragment death effect retains final Y");
+        AssertEqual(deathX, explosion.Position.X.Whole, "fragment death effect retains final X");
+        AssertEqual(deathY, explosion.Position.Y.Whole, "fragment death effect retains final Y");
         AssertEqual(EnemyDefinitionId.RidleyExplosion, explosion.EnemyHeaderPointer, "fragment drop retains native header");
         AssertEqual(EnemyDeathExplosionDefinitions.InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion),
             explosion.InstructionPointer, "fragment expiry selects native small death animation");

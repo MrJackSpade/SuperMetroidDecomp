@@ -129,10 +129,10 @@ public sealed partial class RoomEnemySystem
 
         ZebetiteGenerationDefinition definition = ZebetiteDefinitions.Generation(generation);
         state.GenerationFlags = definition.GenerationFlags;
-        slot.YRadius = definition.YRadius;
+        slot.Radius = slot.Radius.WithY(definition.YRadius);
         slot.CurrentInstruction = definition.InstructionList;
-        slot.XPosition = definition.XPosition;
-        slot.YPosition = definition.YPosition(state.IsSecondaryHalf);
+        slot.Position = slot.Position.WithWholeX(definition.XPosition);
+        slot.Position = slot.Position.WithWholeY(definition.YPosition(state.IsSecondaryHalf));
     }
 
     /// <summary>Ports the indirect main dispatcher at <c>$A6:FC33</c>.</summary>
@@ -291,8 +291,7 @@ public sealed partial class RoomEnemySystem
                 projectile,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
                 graphicsIndex: 0);
-            projectile.XPosition = slot.XPosition;
-            projectile.YPosition = slot.YPosition;
+            projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.EnemyHeaderPointer = slot.EnemyDefinitionPointer;
             projectile.KilledEnemyNativeIndex = slot.NativeIndex;
             projectile.InstructionPointer = EnemyDeathExplosionDefinitions

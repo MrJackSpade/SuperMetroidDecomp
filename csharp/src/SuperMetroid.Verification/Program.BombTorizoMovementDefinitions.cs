@@ -72,15 +72,14 @@ internal static partial class Program
                 BombTorizoMovementDefinitions.Posture(tableOffset);
             var slot = new RoomEnemySlot(0)
             {
-                XPosition = 1000,
-                YPosition = 500,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
 
             applyPosture.Invoke(null, [slot, tableOffset, subtract]);
             int sign = subtract ? -1 : 1;
-            AssertEqual(unchecked((ushort)(1000 + sign * expected.X)), slot.XPosition,
+            AssertEqual(unchecked((ushort)(1000 + sign * expected.X)), slot.Position.X.Whole,
                 $"Bomb Torizo posture X ${tableOffset:X2} subtract {subtract}");
-            AssertEqual(unchecked((ushort)(500 + sign * expected.Y)), slot.YPosition,
+            AssertEqual(unchecked((ushort)(500 + sign * expected.Y)), slot.Position.Y.Whole,
                 $"Bomb Torizo posture Y ${tableOffset:X2} subtract {subtract}");
         }
 
@@ -102,10 +101,8 @@ internal static partial class Program
         {
             var slot = new RoomEnemySlot(0)
             {
-                XPosition = 512,
-                YPosition = 512,
-                XRadius = 8,
-                YRadius = 8,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
+                Radius = new(8, 8),
             };
             var state = new TorizoEnemyState(slot, isGolden: false);
             const ushort cursor = 0x9000;

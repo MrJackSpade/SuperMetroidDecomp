@@ -296,8 +296,7 @@ public sealed partial class RoomEnemySystem
         state.LastFinishedEntryIndex = entryIndex;
         ushort random = RequireRandomNumber();
         SpawnRoomGraphicsDustExplosion(
-            unchecked((ushort)(slot.XPosition + (random & 0x001a) - 14)),
-            unchecked((ushort)(slot.YPosition + 16)),
+            new(unchecked((ushort)(slot.Position.X.Whole + (random & 0x001a) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
             animationIndex: 10);
         state.DustSpawnCount++;
         if ((_randomEnemyCounter & 7) == 0)

@@ -19,7 +19,7 @@ internal static partial class Program
         for (int y = 32; y < 224; y++)
             AssertEqual((ushort)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05),
                 captured.MainScreenLayersByLine[y - 32], $"Native $88:E73D main-screen value at line {y}");
-        state.Body.YPosition = 0xbd;
+        state.Body.Position = state.Body.Position.WithWholeY(0xbd);
         typeof(RoomEnemySystem).GetMethod("RaiseMotherBrain", flags)!
             .Invoke(runtime.Enemies, [state, (byte)0]);
         AssertTrue(!state.RisingHdmaActive, "Production ascent completion removes HDMA");

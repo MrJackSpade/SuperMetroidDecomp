@@ -133,8 +133,7 @@ internal static partial class Program
                 [unchecked((ushort)(selection << 2)), 0x0037]);
             RoomEnemySystem enemies = CreateSystem(guard, random);
             RoomEnemySlot torizo = enemies.Slots[0];
-            torizo.XPosition = 0x0400;
-            torizo.YPosition = 0x0200;
+            torizo.Position = torizo.Position.WithWhole(new(0x0400, 0x0200));
             torizo.Parameter1 = 0x8000;
             typeof(RoomEnemySystem).GetMethod(
                 "SpawnBombTorizoLowHealthDrool", flags)!.Invoke(enemies, [torizo]);
@@ -144,9 +143,9 @@ internal static partial class Program
                 $"drool selector {selection} initial program");
             AssertEqual(0, random.Count,
                 $"drool selector {selection} consumes selection and trajectory RNG");
-            AssertEqual((ushort)0x0408, drool.XPosition,
+            AssertEqual((ushort)0x0408, drool.Position.X.Whole,
                 $"drool selector {selection} X origin");
-            AssertEqual((ushort)0x01fb, drool.YPosition,
+            AssertEqual((ushort)0x01fb, drool.Position.Y.Whole,
                 $"drool selector {selection} Y origin");
 
             int delay = expectedPrograms[selection] switch
@@ -158,13 +157,13 @@ internal static partial class Program
             };
             for (int frame = 0; frame < delay; frame++)
             {
-                process.Invoke(enemies, [drool, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [drool, null, Position16<RoomPixels>.Zero]);
                 AssertEqual((ushort)(delay == 4 && frame < 2 ? 0xa46c : 0xa470), drool.PresentationOperandAddress,
                     "drool delay installs its original presentation operand" );
                 AssertEqual(EnemyProjectileDrawPriority.High, drool.DrawPriority,
                     $"drool selector {selection} stays high priority during delay {frame + 1}");
             }
-            process.Invoke(enemies, [drool, null, (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [drool, null, Position16<RoomPixels>.Zero]);
             AssertEqual((ushort)0xa47c, drool.PresentationOperandAddress, "drool first falling pose operand" );
             AssertEqual(BombTorizoDroolInstructionProgramDefinitions.FallingPreInstruction,
                 drool.PreInstruction,
@@ -173,10 +172,10 @@ internal static partial class Program
                 $"drool selector {selection} first five-frame pose is high priority");
 
             for (int frame = 1; frame < 5; frame++)
-                process.Invoke(enemies, [drool, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [drool, null, Position16<RoomPixels>.Zero]);
             AssertEqual(EnemyProjectileDrawPriority.High, drool.DrawPriority,
                 $"drool selector {selection} keeps priority through five visible frames");
-            process.Invoke(enemies, [drool, null, (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [drool, null, Position16<RoomPixels>.Zero]);
             AssertEqual(EnemyProjectileDrawPriority.Low, drool.DrawPriority,
                 $"drool selector {selection} clears priority before 64-frame loop");
             AssertEqual((ushort)0xa484, drool.PresentationOperandAddress, "drool loop pose operand" );
@@ -187,31 +186,29 @@ internal static partial class Program
         var initialRandom = new Queue<ushort>([0x001f, 0x0003]);
         RoomEnemySystem initialEnemies = CreateSystem(guard, initialRandom);
         RoomEnemySlot initialTorizo = initialEnemies.Slots[0];
-        initialTorizo.XPosition = 0x0500;
-        initialTorizo.YPosition = 0x0300;
+        initialTorizo.Position = initialTorizo.Position.WithWhole(new(0x0500, 0x0300));
         initialTorizo.Parameter1 = 0x4000;
         typeof(RoomEnemySystem).GetMethod(
             "SpawnBombTorizoInitialDrool", flags)!.Invoke(initialEnemies, [initialTorizo]);
         RoomEnemyProjectileSlot initial = initialEnemies.EnemyProjectiles[^1];
         AssertEqual((ushort)BombTorizoDroolProgram.NoDelay,
             initial.InstructionPointer, "initial gut-break drool bypasses delay selector");
-        AssertEqual((ushort)0x02fe, initial.YPosition, "initial drool random Y origin");
+        AssertEqual((ushort)0x02fe, initial.Position.Y.Whole, "initial drool random Y origin");
         // $86:A674 ADC #$FFFB carries out for any Y >= 5, and $86:A680 ADC #$0030 adds it.
-        AssertEqual((ushort)(0x1f + 0x30 + 1), initial.YVelocity, "initial drool random Y velocity");
-        AssertEqual((ushort)0x0503, initial.XPosition, "initial drool turning X origin");
-        AssertEqual((ushort)0, initial.XVelocity, "initial drool stores a zero X velocity");
+        AssertEqual((ushort)(0x1f + 0x30 + 1), initial.Velocity.Y.RawValue, "initial drool random Y velocity");
+        AssertEqual((ushort)0x0503, initial.Position.X.Whole, "initial drool turning X origin");
+        AssertEqual((ushort)0, initial.Velocity.X.RawValue, "initial drool stores a zero X velocity");
         AssertEqual(0, initialRandom.Count, "initial drool consumes exactly two RNG words");
 
         initial.InstructionPointer = (ushort)BombTorizoDroolProgram.WallImpact;
         initial.InstructionTimer = 1;
-        process.Invoke(initialEnemies, [initial, null, (ushort)0, (ushort)0]);
+        process.Invoke(initialEnemies, [initial, null, Position16<RoomPixels>.Zero]);
         AssertTrue(!initial.IsActive, "drool wall impact clears callback and deletes immediately");
 
         var floorRandom = new Queue<ushort>([0, 0]);
         RoomEnemySystem floorEnemies = CreateSystem(guard, floorRandom);
         RoomEnemySlot floorTorizo = floorEnemies.Slots[0];
-        floorTorizo.XPosition = 0x0500;
-        floorTorizo.YPosition = 0x0300;
+        floorTorizo.Position = floorTorizo.Position.WithWhole(new(0x0500, 0x0300));
         typeof(RoomEnemySystem).GetMethod(
             "SpawnBombTorizoInitialDrool", flags)!.Invoke(floorEnemies, [floorTorizo]);
         RoomEnemyProjectileSlot floor = floorEnemies.EnemyProjectiles[^1];
@@ -220,14 +217,14 @@ internal static partial class Program
         floor.InstructionTimer = 1;
         for (int frame = 0; frame < 24; frame++)
         {
-            process.Invoke(floorEnemies, [floor, null, (ushort)0, (ushort)0]);
+            process.Invoke(floorEnemies, [floor, null, Position16<RoomPixels>.Zero]);
             AssertEqual((ushort)(0xa492 + 4 * (frame / 8)), floor.PresentationOperandAddress, "drool impact pose follows native eight-tick sequence" );
             AssertTrue(floor.IsActive,
                 $"drool floor impact remains active through frame {frame + 1}");
             AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, floor.PreInstruction,
                 $"drool floor impact callback is clear on frame {frame + 1}");
         }
-        process.Invoke(floorEnemies, [floor, null, (ushort)0, (ushort)0]);
+        process.Invoke(floorEnemies, [floor, null, Position16<RoomPixels>.Zero]);
         AssertTrue(!floor.IsActive,
             "drool floor impact deletes on the tick after three eight-frame poses");
 

@@ -40,14 +40,11 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.AlcoonFireball,
             unchecked((ushort)(alcoon.VramTilesIndex | alcoon.PaletteIndex)));
-        projectile.XPosition = unchecked((ushort)(alcoon.XPosition + (movingLeft ? -16 : 16)));
-        projectile.YPosition = unchecked((ushort)(alcoon.YPosition - 12));
-        projectile.XSubposition = 0;
-        projectile.YSubposition = 0;
-        projectile.XVelocity = movingLeft
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(alcoon.Position.X.Whole + (movingLeft ? -16 : 16))), unchecked((ushort)(alcoon.Position.Y.Whole - 12))));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(movingLeft
             ? unchecked((ushort)-AlcoonFireballGraphicsHorizontalSpeed)
-            : AlcoonFireballGraphicsHorizontalSpeed;
-        projectile.YVelocity = EnemyFireballLaunchDefinitions.AlcoonYVelocity(yVelocityTableByteOffset);
+            : AlcoonFireballGraphicsHorizontalSpeed));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(EnemyFireballLaunchDefinitions.AlcoonYVelocity(yVelocityTableByteOffset)));
     }
 
     /// <summary>Ports Alcoon fireball pre-instruction <c>$86:9EFF-$9F40</c>.</summary>
@@ -65,7 +62,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        short velocity = unchecked((short)projectile.XVelocity);
+        short velocity = unchecked((short)projectile.Velocity.X.RawValue);
         if (velocity < 0)
         {
             velocity = unchecked((short)(velocity + AlcoonFireballHorizontalDeceleration));
@@ -78,6 +75,6 @@ public sealed partial class RoomEnemySystem
             if (velocity < AlcoonFireballTerminalHorizontalSpeed)
                 velocity = unchecked((short)AlcoonFireballTerminalHorizontalSpeed);
         }
-        projectile.XVelocity = unchecked((ushort)velocity);
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)velocity)));
     }
 }

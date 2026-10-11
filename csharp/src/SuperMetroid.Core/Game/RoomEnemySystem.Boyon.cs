@@ -257,7 +257,7 @@ public sealed partial class RoomEnemySystem
 
         // XBA/AND #$00FF discards the product's fractional byte. Boyon has no Y subposition
         // integration here: each frame moves by exactly the product's high byte.
-        slot.YPosition = unchecked((ushort)(slot.YPosition + (state.Speed >> 8)));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + (state.Speed >> 8))));
         if (IsNegative16(state.SpeedTableIndex - state.InitialBounceSpeedTableIndex))
             return;
 
@@ -270,7 +270,7 @@ public sealed partial class RoomEnemySystem
     private static void MoveBoyonRising(RoomEnemySlot slot, BoyonEnemyState state)
     {
         state.Speed = MultiplyBoyonCurveEntry(state);
-        slot.YPosition = unchecked((ushort)(slot.YPosition - (state.Speed >> 8)));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (state.Speed >> 8))));
         state.SpeedTableIndex = unchecked((ushort)(state.SpeedTableIndex - 1));
         if ((state.SpeedTableIndex & 0x8000) != 0)
             state.BounceMovement = BoyonBounceMovement.Falling;
@@ -290,7 +290,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         _ = state; // Retains a symmetric family-helper signature for debugger inspection.
-        int distance = Math.Abs((int)unchecked((short)(samus.Position.X.Whole - slot.XPosition)));
+        int distance = Math.Abs((int)unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)));
         return IsNegative16(distance - slot.Parameter2);
     }
 

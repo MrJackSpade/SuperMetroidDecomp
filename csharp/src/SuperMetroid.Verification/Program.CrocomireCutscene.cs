@@ -17,7 +17,7 @@ internal static partial class Program
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa4 };
         slot.SpritemapPointer = 0xe6bc;
         var walker = typeof(RoomEnemySystem).GetMethod("TryFindExtendedHitboxCallback", flags)!;
-        object?[] arguments = [slot, (ushort)0, (ushort)0, (ushort)8, (ushort)8, false, (ushort)0];
+        object?[] arguments = [slot, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>((ushort)8, (ushort)8), false, (ushort)0];
         AssertTrue(!(bool)walker.Invoke(enemies, arguments)!, "river corpse has native empty collision");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => (ushort)(rom.ReadByte(0xa40000 | address) | rom.ReadByte(0xa40000 | (address + 1)) << 8);
@@ -26,7 +26,7 @@ internal static partial class Program
             var components = CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer);
             AssertEqual((int)Word(frame.Pointer), components.Length, "corpse native component count");
             slot.SpritemapPointer = frame.Pointer;
-            slot.XPosition = slot.YPosition = 4096;
+            slot.Position = slot.Position.WithWhole(new(4096, 4096));
             bool anyHitbox = false;
             for (int index = 0; index < components.Length; index++)
             {
@@ -52,7 +52,7 @@ internal static partial class Program
                     ushort y = (ushort)(4096 + component.Y + (box.Top + box.Bottom) / 2);
                     foreach (bool shot in new[] { false, true })
                     {
-                        object?[] hit = [slot, x, y, (ushort)0, (ushort)0, shot, (ushort)0];
+                        object?[] hit = [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot, (ushort)0];
                         AssertTrue((bool)walker.Invoke(enemies, hit)!, "corpse physical component is visited");
                         AssertEqual(shot ? box.ShotAi : box.TouchAi, (ushort)hit[^1]!, "corpse selects native callback");
                     }
@@ -61,7 +61,7 @@ internal static partial class Program
             }
             if (!anyHitbox)
             {
-                object?[] empty = [slot, slot.XPosition, slot.YPosition, (ushort)100, (ushort)100, true, (ushort)0];
+                object?[] empty = [slot, slot.Position.Whole, new Extent16<RoomPixels>((ushort)100, (ushort)100), true, (ushort)0];
                 AssertTrue(!(bool)walker.Invoke(enemies, empty)!, "native empty corpse geometry remains non-colliding");
             }
         }
@@ -83,8 +83,7 @@ internal static partial class Program
                 crocomireColors: CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorExtractor.Extract(rom)))),
         };
         var body = enemies.Slots[0];
-        body.XPosition = 1480;
-        body.YPosition = 144;
+        body.Position = body.Position.WithWhole(new(1480, 144));
         var state = new CrocomireEnemyState(body);
         typeof(RoomEnemySystem).GetField("<Crocomire>k__BackingField", flags)!.SetValue(enemies, state);
         typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, new CrocomireDeathState());
@@ -107,7 +106,7 @@ internal static partial class Program
         camera.MoveLeft(1);
         AssertEqual((ushort)1279, camera.PixelPosition.X, "before threshold camera remains free to move left");
         samus.Position = samus.Position.WithWholeX(1312);
-        body.XPosition = 1600;
+        body.Position = body.Position.WithWholeX(1600);
         run(body, samus, 1280);
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex, "real bridge collapse begins");
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
@@ -121,7 +120,7 @@ internal static partial class Program
         camera = new ScrollBoundaryCamera(scrolls);
         typeof(RoomEnemySystem).GetField("_setRoomScrollState", flags)!.SetValue(enemies, (Action<int, RoomScrollState>)scrolls.SetStorage);
         state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;
-        body.XPosition = 480;
+        body.Position = body.Position.WithWholeX(480);
         samus.Position = samus.Position.WithWholeX(639);
         run(body, samus, 544);
         AssertEqual(CrocomireDeathPhase.RumbleHiddenWall, state.DeathSequenceIndex, "left cutscene starts at native Samus threshold");

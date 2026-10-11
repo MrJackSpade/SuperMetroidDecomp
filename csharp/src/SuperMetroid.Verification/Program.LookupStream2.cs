@@ -1236,7 +1236,7 @@ internal static partial class Program
         var align = typeof(RoomEnemySystem).GetMethod("AlignKraidPart", flags)!
             .CreateDelegate<Action<RoomEnemySlot, KraidPartState>>(enemies);
         var body = enemies.Slots[0];
-        body.XPosition = 200; body.YPosition = 300;
+        body.Position = body.Position.WithWhole(new(200, 300));
         for (int slot = 2; slot <= 4; slot++) enemies.Slots[slot].VariableB = 17;
         finish(body, state);
         for (int slot = 2; slot <= 4; slot++)
@@ -1253,7 +1253,7 @@ internal static partial class Program
                 AssertEqual((ushort)remaining, lint.VariableF, "Actual per-part countdown");
                 AssertEqual((ushort)(remaining == 0 ? KraidAiFunction.LintProduce : KraidAiFunction.AlignPartToKraid),
                     lint.VariableA, "Actual lint transition occurs on its own final tick");
-                AssertEqual(unchecked((ushort)(body.XPosition - lint.XRadius)), lint.XPosition, "Alignment continues during delay");
+                AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");
             }
         }
         foreach (KraidLintPart invalid in new[] { (KraidLintPart)0, (KraidLintPart)1, (KraidLintPart)5 })
@@ -1333,7 +1333,7 @@ internal static partial class Program
             {
                 var slot = enemies.Slots[member];
                 slot.EnemyDefinitionPointer = EnemyDefinitionId.Gamet;
-                slot.XPosition = 128; slot.YPosition = 128; slot.Parameter2 = 64;
+                slot.Position = slot.Position.WithWhole(new(128, 128)); slot.Parameter2 = 64;
                 initialize.Invoke(enemies, [slot]);
                 slot.InstructionTimer = (ushort)(member + 4);
                 slot.Timer = (ushort)(member + 8);
@@ -1862,8 +1862,8 @@ internal static partial class Program
             state.HorizontalMovementClass = (ushort)(4 * (index % 3));
             state.VerticalMovementClass = (ushort)(12 * (index / 3));
             spawn(slot, state, 32, 65520);
-            AssertEqual(unchecked((ushort)(32 + originalX)), slot.XPosition, "Ghost actual wrapped spawn X");
-            AssertEqual(unchecked((ushort)(65520 + originalY)), slot.YPosition, "Ghost actual wrapped spawn Y");
+            AssertEqual(unchecked((ushort)(32 + originalX)), slot.Position.X.Whole, "Ghost actual wrapped spawn X");
+            AssertEqual(unchecked((ushort)(65520 + originalY)), slot.Position.Y.Whole, "Ghost actual wrapped spawn Y");
             AssertEqual(WreckedShipGhostAiFunction.BrighteningAndFlickering, state.Function, "Ghost appearance phase");
             AssertEqual((ushort)64, state.StablePositionTimer, "Ghost appearance position timer");
             AssertEqual((ushort)16, state.StableDirectionTimer, "Ghost appearance direction timer");

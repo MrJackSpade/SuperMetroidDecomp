@@ -18,18 +18,17 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, ushort>>(enemies);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new ushort[1024], new byte[1024], new ushort[1024], new byte[8]);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.XRadius = slot.YRadius = 8;
+        slot.Radius = new(8, 8);
         var torizo = new TorizoEnemyState(slot, true);
         var statue = new ChozoStatueState(slot);
         var samus = new SamusState();
         for (ushort offset = 0; offset < 40; offset += 2)
         {
-            slot.XPosition = slot.YPosition = 256;
-            slot.XSubposition = 123;
+            slot.Position = slot.Position.WithWholeY(256).WithWholeX(256).WithFractionX(123);
             ushort next = walk(slot, torizo, null, level, 0x1000, offset);
             AssertEqual(Word(0xaad59a + offset), torizo.HorizontalVelocity, "Torizo actual walking velocity without bus");
-            AssertEqual(unchecked((ushort)(256 + (short)Word(0xaad59a + offset))), slot.XPosition, "Torizo real whole-pixel movement");
-            AssertEqual((ushort)123, slot.XSubposition, "Torizo preserves subpixel state");
+            AssertEqual(unchecked((ushort)(256 + (short)Word(0xaad59a + offset))), slot.Position.X.Whole, "Torizo real whole-pixel movement");
+            AssertEqual((ushort)123, slot.Position.X.Fraction, "Torizo preserves subpixel state");
             AssertEqual((ushort)0x1004, next, "Torizo instruction operand handoff");
         }
         for (ushort offset = 0; offset < 64; offset += 2)
@@ -41,18 +40,17 @@ internal static partial class Program
             AssertEqual(velocity, data.Velocity, "Chozo native movement velocity");
             AssertEqual(xOffset, data.SamusX, "Chozo native hand X");
             AssertEqual(yOffset, data.SamusY, "Chozo native hand Y");
-            slot.XPosition = slot.YPosition = 256;
-            slot.XSubposition = slot.YSubposition = 0x8123;
+            slot.Position = new(new(256, 0x8123), new(256, 0x8123));
             uint start = 0x01008123;
             carry(slot, statue, samus, level, offset);
             uint x = unchecked(start + (uint)(velocity << 8));
             uint y = start + (uint)(Math.Abs((int)velocity) << 8);
-            AssertEqual((ushort)(x >> 16), slot.XPosition, "Chozo real signed X movement");
-            AssertEqual((ushort)x, slot.XSubposition, "Chozo real fractional X");
-            AssertEqual((ushort)(y >> 16), slot.YPosition, "Chozo real absolute Y movement");
-            AssertEqual((ushort)y, slot.YSubposition, "Chozo real fractional Y");
-            AssertEqual(unchecked((ushort)(slot.XPosition + xOffset)), samus.Position.X.Whole, "Chozo actual carried Samus X");
-            AssertEqual(unchecked((ushort)(slot.YPosition + yOffset)), samus.Position.Y.Whole, "Chozo actual carried Samus Y");
+            AssertEqual((ushort)(x >> 16), slot.Position.X.Whole, "Chozo real signed X movement");
+            AssertEqual((ushort)x, slot.Position.X.Fraction, "Chozo real fractional X");
+            AssertEqual((ushort)(y >> 16), slot.Position.Y.Whole, "Chozo real absolute Y movement");
+            AssertEqual((ushort)y, slot.Position.Y.Fraction, "Chozo real fractional Y");
+            AssertEqual(unchecked((ushort)(slot.Position.X.Whole + xOffset)), samus.Position.X.Whole, "Chozo actual carried Samus X");
+            AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + yOffset)), samus.Position.Y.Whole, "Chozo actual carried Samus Y");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalkDefinitions.Velocity(39), "Torizo incomplete byte window");
         AssertThrows<InvalidDataException>(() => ChozoCarryMotionDefinitions.Read(1), "Chozo odd selector remains invalid");

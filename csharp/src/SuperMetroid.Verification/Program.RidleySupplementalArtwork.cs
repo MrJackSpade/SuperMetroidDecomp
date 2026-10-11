@@ -74,8 +74,7 @@ internal static partial class Program
             .SetValue(enemies, new RidleySupplementReadGuard(rom));
         RoomEnemySlot slot = enemies.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
-        slot.XPosition = 200;
-        slot.YPosition = 100;
+        slot.Position = slot.Position.WithWhole(new(200, 100));
         var state = new RidleyEnemyState
         {
             MovementAnimationEnabled = 1,
@@ -93,8 +92,8 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, state);
         var oam = new OamBuffer();
         typeof(RoomEnemySystem).GetMethod("DrawRidleySupplementalSprites", flags)!
-            .CreateDelegate<Action<OamBuffer, RoomEnemySlot, ushort, ushort>>(enemies)(
-                oam, slot, 0, 0);
+            .CreateDelegate<Action<OamBuffer, RoomEnemySlot, Position16<RoomPixels>>>(enemies)(
+                oam, slot, Position16<RoomPixels>.Zero);
         return oam;
     }
 

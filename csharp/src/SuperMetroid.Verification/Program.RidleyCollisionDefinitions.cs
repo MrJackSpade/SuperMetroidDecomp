@@ -66,8 +66,7 @@ internal static partial class Program
                          (0x0100, 0x0100), (0x0004, 0x0006), (0xfffc, 0xfffa),
                      })
             {
-                compiledSlot.XPosition = originX;
-                compiledSlot.YPosition = originY;
+                compiledSlot.Position = compiledSlot.Position.WithWhole(new(originX, originY));
                 foreach (RidleyCollisionComponent component in components)
                 foreach (RidleyCollisionHitbox hitbox in
                          RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
@@ -99,8 +98,7 @@ internal static partial class Program
                         ushort radiusX = unchecked((ushort)((xi + yi) & 1));
                         ushort radiusY = unchecked((ushort)((xi + yi * 2) & 1));
                         object?[] compiledArguments =
-                        [compiledSlot, xs[xi], ys[yi], radiusX, radiusY,
-                            shot != 0, (ushort)0];
+                        [compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY), shot != 0, (ushort)0];
                         bool nativeHit = NativeCallback(frame, originX, originY, xs[xi], ys[yi], radiusX, radiusY, shot != 0, out ushort nativeCallback);
                         bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                         AssertEqual(nativeHit, compiledHit,

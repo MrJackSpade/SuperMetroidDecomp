@@ -25,21 +25,21 @@ internal static partial class Program
             var actor = enemies.Slots[focus];
             var state = enemies.YardStates[focus]!;
             var samus = new SamusState { Health = 999, MaxHealth = 999,
-                Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.XPosition - 64)), actor.YPosition)) };
+                Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole - 64)), actor.Position.Y.Whole)) };
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             int largest = 0;
             for (int frame = 0; frame < 1200; frame++)
             {
-                ushort x = actor.XPosition, y = actor.YPosition;
+                ushort x = actor.Position.X.Whole, y = actor.Position.Y.Whole;
                 var function = state.MovementFunction;
                 ushort cameraX = unchecked((ushort)Math.Max(0, x - 128)), cameraY = unchecked((ushort)Math.Max(0, y - 112));
-                enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
-                int distance = Math.Max(Math.Abs(unchecked((short)(actor.XPosition - x))), Math.Abs(unchecked((short)(actor.YPosition - y))));
+                enemies.StepFrame(new(cameraX, cameraY), false, samus, level: assets.LevelData);
+                int distance = Math.Max(Math.Abs(unchecked((short)(actor.Position.X.Whole - x))), Math.Abs(unchecked((short)(actor.Position.Y.Whole - y))));
                 if (distance > largest)
                 {
                     largest = distance;
-                    Console.WriteLine($"Yard {focus}, frame {frame}, {function}: ({x},{y})->({actor.XPosition},{actor.YPosition}), crawl={state.CrawlingXVelocity:X4}/{state.CrawlingYVelocity:X4}, airborne={state.AirborneXVelocity:X4}.{state.AirborneXSubvelocity:X4}/{state.AirborneYVelocity:X4}.{state.AirborneYSubvelocity:X4}");
+                    Console.WriteLine($"Yard {focus}, frame {frame}, {function}: ({x},{y})->({actor.Position.X.Whole},{actor.Position.Y.Whole}), crawl={state.CrawlingXVelocity:X4}/{state.CrawlingYVelocity:X4}, airborne={state.AirborneXVelocity:X4}.{state.AirborneXSubvelocity:X4}/{state.AirborneYVelocity:X4}.{state.AirborneYSubvelocity:X4}");
                 }
             }
             Console.WriteLine($"Yard {focus}: maximum axis step {largest}");
@@ -59,9 +59,7 @@ internal static partial class Program
                 new SnesVram(), new SnesCgram(), () => 0);
             var actor = enemies.Slots[0];
             var state = enemies.YardStates[0]!;
-            actor.XPosition = 256;
-            actor.YPosition = unchecked((ushort)(256 - actor.YRadius));
-            actor.XSubposition = actor.YSubposition = 0;
+            actor.Position = FixedPosition<RoomPixels>.FromWhole(new(256, unchecked((ushort)(256 - actor.Radius.Y))));
             state.Direction = direction;
             state.AirborneFacingDirection = facing;
             state.MovementFunction = YardMovementFunction.Airborne;
@@ -70,7 +68,7 @@ internal static partial class Program
             var samus = new SamusState { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)) };
             samus.RefreshCollisionRadii(bus);
-            enemies.StepFrame(128, 128, false, samus, level: floor);
+            enemies.StepFrame(new(128, 128), false, samus, level: floor);
             AssertEqual(YardBehavior.NormalCrawling, state.Behavior, "dropped Yard lands without becoming aggressive");
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,
             // not the still-stale eight-way direction used before falling.

@@ -16,14 +16,13 @@ internal static partial class Program
             .CreateDelegate<Func<RoomEnemySlot, bool>>(enemies);
         var body = enemies.Slots[0];
         var nail = enemies.Slots[6];
-        nail.XRadius = 4;
+        nail.Radius = nail.Radius.WithX(4);
         int overreadCases = 0;
         var histogram = new int[6];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            body.XPosition = (ushort)raw;
-            body.YPosition = 0x1234;
-            nail.YPosition = unchecked((ushort)(body.YPosition + raw));
+            body.Position = body.Position.WithWhole(new((ushort)raw, 0x1234));
+            nail.Position = nail.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + raw)));
             int record = 0;
             // Follow the native ROM walk independently, not the compiled span bound.
             while (unchecked((short)(Word(0xa7bf1f + record * 4) - raw)) >= 0)
@@ -36,13 +35,13 @@ internal static partial class Program
             if (record >= 4) overreadCases++;
             ushort nativeLeft = Word(0xa7bf1d + record * 4);
 
-            ushort edge = unchecked((ushort)(body.XPosition + nativeLeft));
+            ushort edge = unchecked((ushort)(body.Position.X.Whole + nativeLeft));
             foreach (ushort velocity in new ushort[] { 0, 1, 0x7fff, 0x8000, 0xffff })
             for (int delta = -1; delta <= 1; delta++)
             {
-                nail.XPosition = unchecked((ushort)(edge - nail.XRadius + delta));
+                nail.Position = nail.Position.WithWholeX(unchecked((ushort)(edge - nail.Radius.X + delta)));
                 nail.VariableC = velocity;
-                bool expected = unchecked((short)(nail.XPosition + nail.XRadius - edge)) >= 0 && (short)velocity >= 0;
+                bool expected = unchecked((short)(nail.Position.X.Whole + nail.Radius.X - edge)) >= 0 && (short)velocity >= 0;
                 AssertEqual(expected, reflect(nail), "Actual contour reflection retains signed edge and velocity gates");
             }
         }

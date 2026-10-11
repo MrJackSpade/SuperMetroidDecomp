@@ -28,13 +28,9 @@ public sealed partial class RoomEnemySystem
         projectile.Variable0 = rawDirection;
         var direction = (CacatacSpikeDirection)rawDirection;
         projectile.InstructionPointer = CacatacProjectileDefinitions.InstructionList(direction);
-        projectile.XPosition = source.XPosition;
-        projectile.XSubposition = source.XSubposition;
-        projectile.YPosition = source.YPosition;
-        projectile.YSubposition = source.YSubposition;
+        projectile.Position = source.Position;
         CacatacSpikeSpeedPair speeds = CacatacProjectileDefinitions.SpeedPair(direction);
-        projectile.YVelocity = speeds.Negative;
-        projectile.XVelocity = speeds.Positive;
+        projectile.Velocity = new(new SnesSignedEightEight(speeds.Positive), new SnesSignedEightEight(speeds.Negative));
     }
 
     /// <summary>
@@ -49,68 +45,61 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static void RunCacatacSpikePreInstruction(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         CacatacSpikeDirection direction = (CacatacSpikeDirection)projectile.Variable0;
         switch (direction)
         {
             case CacatacSpikeDirection.LeftFacingUp:
             case CacatacSpikeDirection.LeftFacingDown:
-                MoveCacatacSpikeX(projectile, projectile.YVelocity);
+                MoveCacatacSpikeX(projectile, projectile.Velocity.Y.RawValue);
                 break;
             case CacatacSpikeDirection.Up:
-                MoveCacatacSpikeY(projectile, projectile.YVelocity);
+                MoveCacatacSpikeY(projectile, projectile.Velocity.Y.RawValue);
                 break;
             case CacatacSpikeDirection.RightFacingUp:
             case CacatacSpikeDirection.RightFacingDown:
-                MoveCacatacSpikeX(projectile, projectile.XVelocity);
+                MoveCacatacSpikeX(projectile, projectile.Velocity.X.RawValue);
                 break;
             case CacatacSpikeDirection.Down:
-                MoveCacatacSpikeY(projectile, projectile.XVelocity);
+                MoveCacatacSpikeY(projectile, projectile.Velocity.X.RawValue);
                 break;
             case CacatacSpikeDirection.UpLeft:
-                MoveCacatacSpikeX(projectile, projectile.YVelocity);
-                MoveCacatacSpikeY(projectile, projectile.YVelocity);
+                MoveCacatacSpikeX(projectile, projectile.Velocity.Y.RawValue);
+                MoveCacatacSpikeY(projectile, projectile.Velocity.Y.RawValue);
                 break;
             case CacatacSpikeDirection.UpRight:
-                MoveCacatacSpikeX(projectile, projectile.XVelocity);
-                MoveCacatacSpikeY(projectile, projectile.YVelocity);
+                MoveCacatacSpikeX(projectile, projectile.Velocity.X.RawValue);
+                MoveCacatacSpikeY(projectile, projectile.Velocity.Y.RawValue);
                 break;
             case CacatacSpikeDirection.DownLeft:
-                MoveCacatacSpikeX(projectile, projectile.YVelocity);
-                MoveCacatacSpikeY(projectile, projectile.XVelocity);
+                MoveCacatacSpikeX(projectile, projectile.Velocity.Y.RawValue);
+                MoveCacatacSpikeY(projectile, projectile.Velocity.X.RawValue);
                 break;
             case CacatacSpikeDirection.DownRight:
-                MoveCacatacSpikeX(projectile, projectile.XVelocity);
-                MoveCacatacSpikeY(projectile, projectile.XVelocity);
+                MoveCacatacSpikeX(projectile, projectile.Velocity.X.RawValue);
+                MoveCacatacSpikeY(projectile, projectile.Velocity.X.RawValue);
                 break;
             default:
                 throw new InvalidDataException(
                     $"Cacatac spike direction ${projectile.Variable0:X4} is not translated.");
         }
 
-        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, cameraX, cameraY);
+        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
 
     private static void MoveCacatacSpikeX(
         RoomEnemyProjectileSlot projectile,
         ushort velocity)
     {
-        (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
-            projectile.XPosition,
-            projectile.XSubposition,
-            velocity);
+        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(velocity).ToSixteenSixteenDelta());
     }
 
     private static void MoveCacatacSpikeY(
         RoomEnemyProjectileSlot projectile,
         ushort velocity)
     {
-        (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
-            projectile.YPosition,
-            projectile.YSubposition,
-            velocity);
+        projectile.Position = projectile.Position.AdvanceY(new SnesSignedEightEight(velocity).ToSixteenSixteenDelta());
     }
 
     /// <summary>
@@ -119,15 +108,14 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static void DeleteEnemyProjectileIfOutsideInclusiveViewport(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
-        ushort right = unchecked((ushort)(cameraX + 0x0100));
-        ushort bottom = unchecked((ushort)(cameraY + 0x0100));
-        bool outside = unchecked((short)(projectile.XPosition - cameraX)) < 0 ||
-            unchecked((short)(right - projectile.XPosition)) < 0 ||
-            unchecked((short)(projectile.YPosition - cameraY)) < 0 ||
-            unchecked((short)(bottom - projectile.YPosition)) < 0;
+        ushort right = unchecked((ushort)(camera.X + 0x0100));
+        ushort bottom = unchecked((ushort)(camera.Y + 0x0100));
+        bool outside = unchecked((short)(projectile.Position.X.Whole - camera.X)) < 0 ||
+            unchecked((short)(right - projectile.Position.X.Whole)) < 0 ||
+            unchecked((short)(projectile.Position.Y.Whole - camera.Y)) < 0 ||
+            unchecked((short)(bottom - projectile.Position.Y.Whole)) < 0;
         if (outside)
             projectile.Clear();
     }

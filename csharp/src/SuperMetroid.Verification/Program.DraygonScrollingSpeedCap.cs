@@ -40,8 +40,7 @@ internal static partial class Program
         var samus = new SamusState { Position = new(new(checkpoint.X.Whole, 0), new(checkpoint.Y.Whole, 0))};
         samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
         var state = new DraygonEnemyState(enemies.Slots[0]);
-        state.Body.XPosition = bodyX;
-        state.Body.YPosition = bodyY;
+        state.Body.Position = state.Body.Position.WithWhole(new(bodyX, bodyY));
         state.FacingRight = true;
         typeof(RoomEnemySystem).GetMethod("MoveSamusWithDraygon", flags)!.Invoke(enemies, [state, samus]);
         return samus.PeekPreviousPositionWords(checkpoint);

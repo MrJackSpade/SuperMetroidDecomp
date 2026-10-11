@@ -37,7 +37,7 @@ internal static partial class Program
             () => MamaTurtleShellContourDefinitions.GetOffset(24),
             "Mama Turtle shell contour rejects right distance twenty-four");
 
-        var mama = new RoomEnemySlot(0) { XPosition = 0x0200, YPosition = 0x0200 };
+        var mama = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
         var state = new MamaTurtleEnemyState(mama) { AsleepFlag = 1 };
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0)) };
         var runAsleep = typeof(RoomEnemySystem).GetMethod(
@@ -47,14 +47,14 @@ internal static partial class Program
         int productionCases = 0;
         for (short difference = -30; difference <= 30; difference++)
         {
-            mama.YRadius = 0xffff;
+            mama.Radius = mama.Radius.WithY(0xffff);
             mama.Properties = 0;
-            samus.Position = samus.Position.WithWholeX(unchecked((ushort)(mama.XPosition - difference)));
+            samus.Position = samus.Position.WithWholeX(unchecked((ushort)(mama.Position.X.Whole - difference)));
             runAsleep(mama, state, samus);
 
             if (Math.Abs((int)difference) >= MamaTurtleShellContourDefinitions.HalfWidth)
             {
-                AssertEqual((ushort)0, mama.YRadius,
+                AssertEqual((ushort)0, mama.Radius.Y,
                     $"sleeping Mama ignores out-of-contour difference {difference}");
                 AssertEqual((ushort)0, mama.Properties,
                     $"sleeping Mama remains nonsolid outside contour at {difference}");
@@ -62,7 +62,7 @@ internal static partial class Program
             else
             {
                 short offset = MamaTurtleShellContourDefinitions.GetOffset(difference);
-                AssertEqual(unchecked((ushort)-offset), mama.YRadius,
+                AssertEqual(unchecked((ushort)-offset), mama.Radius.Y,
                     $"sleeping Mama production radius at difference {difference}");
                 AssertTrue((mama.Properties & 0x8000) != 0,
                     $"sleeping Mama production solidity at difference {difference}");

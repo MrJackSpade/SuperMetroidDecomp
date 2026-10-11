@@ -70,7 +70,7 @@ internal static partial class Program
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
             slot.InstructionTimer = 1;
             process.Invoke(enemies,
-                [slot, samus, level, (ushort)0, (ushort)0, (ushort)0]);
+                [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(ReadWallPirateWord(rom, 0xb20000 | address),
                 slot.SpritemapPointer,
                 $"production execution selects wall Pirate frame $B2:{address:X4}");
@@ -128,7 +128,7 @@ internal static partial class Program
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
-            ushort initialY = slot.YPosition;
+            ushort initialY = slot.Position.Y.Whole;
             slot.CurrentInstruction = program;
             slot.InstructionTimer = 1;
             RunFrames(enemies, slot, samus, level, frames);
@@ -136,7 +136,7 @@ internal static partial class Program
                 $"wall Pirate program $B2:{program:X4} climb function");
             if (frames > 12)
             {
-                AssertTrue(slot.YPosition != initialY,
+                AssertTrue(slot.Position.Y.Whole != initialY,
                     $"wall Pirate program $B2:{program:X4} applies climb displacement");
             }
         }
@@ -178,10 +178,8 @@ internal static partial class Program
                 Bank = 0xb2,
                 Damage = 20,
             };
-            slot.XPosition = 0x0100;
-            slot.YPosition = 0x0100;
-            slot.XRadius = 8;
-            slot.YRadius = 16;
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
+            slot.Radius = new(8, 16);
             slot.Parameter2 = 0x0080;
             typeof(RoomEnemySystem).GetMethod("InitializeWallSpacePirate", flags)!
                 .Invoke(enemies, [slot]);
@@ -202,7 +200,7 @@ internal static partial class Program
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
             object?[] arguments =
-                [slot, samus, level, (ushort)0, (ushort)0, (ushort)0];
+                [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
                 process.Invoke(enemies, arguments);
         }

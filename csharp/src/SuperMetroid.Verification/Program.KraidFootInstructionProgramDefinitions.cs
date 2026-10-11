@@ -36,16 +36,15 @@ internal static partial class Program
         AssertEqual((ushort)0x86f1, foot.CurrentInstruction,
             "neutral Kraid foot program reaches terminal sleep");
 
-        body.XPosition = 500;
-        body.YPosition = 500;
+        body.Position = body.Position.WithWhole(new(500, 500));
         RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
             KraidFootInstructionProgramDefinitions.WalkingForward, calls: 36);
         AssertEqual(KraidFootInstructionProgramDefinitions.WalkingForwardFinished,
             foot.CurrentInstruction,
             "walking-forward Kraid foot reaches terminal sleep command");
-        AssertEqual((ushort)458, body.XPosition,
+        AssertEqual((ushort)458, body.Position.X.Whole,
             "walking-forward callbacks move Kraid left fourteen times");
-        AssertEqual((ushort)500, body.YPosition,
+        AssertEqual((ushort)500, body.Position.Y.Whole,
             "walking-forward callbacks balance vertical movement");
         AssertKraidFootSoundAndQuake(enemies, "walking-forward");
         RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
@@ -54,16 +53,15 @@ internal static partial class Program
             foot.CurrentInstruction,
             "walking-forward terminal sleep retains its cursor");
 
-        body.XPosition = 500;
-        body.YPosition = 500;
+        body.Position = body.Position.WithWhole(new(500, 500));
         RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
             KraidFootInstructionProgramDefinitions.LungeForward, calls: 36);
         AssertEqual(KraidFootInstructionProgramDefinitions.LungeForwardFinished,
             foot.CurrentInstruction,
             "lunge Kraid foot reaches terminal sleep command");
-        AssertEqual((ushort)458, body.XPosition,
+        AssertEqual((ushort)458, body.Position.X.Whole,
             "lunge callbacks move Kraid left fourteen times");
-        AssertEqual((ushort)500, body.YPosition,
+        AssertEqual((ushort)500, body.Position.Y.Whole,
             "lunge callbacks balance vertical movement");
         AssertKraidFootSoundAndQuake(enemies, "lunge");
         RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
@@ -72,23 +70,22 @@ internal static partial class Program
             foot.CurrentInstruction,
             "lunge terminal sleep retains its cursor");
 
-        body.XPosition = 500;
-        body.YPosition = 500;
+        body.Position = body.Position.WithWhole(new(500, 500));
         RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
             KraidFootInstructionProgramDefinitions.WalkingBackward, calls: 32);
         AssertEqual(KraidFootInstructionProgramDefinitions.WalkingBackwardLoop,
             foot.CurrentInstruction,
             "walking-backward Kraid foot reaches loop command");
-        AssertEqual((ushort)542, body.XPosition,
+        AssertEqual((ushort)542, body.Position.X.Whole,
             "walking-backward callbacks move Kraid right fourteen times");
-        AssertEqual((ushort)500, body.YPosition,
+        AssertEqual((ushort)500, body.Position.Y.Whole,
             "walking-backward callbacks balance vertical movement");
         AssertKraidFootSoundAndQuake(enemies, "walking-backward");
         foot.InstructionTimer = 1;
         InvokeKraidFootInstructionProcessor(rom, executedOperands, process, enemies, foot);
         AssertEqual((ushort)0x888f, foot.CurrentInstruction,
             "walking-backward goto begins the next real frame");
-        AssertEqual((ushort)545, body.XPosition,
+        AssertEqual((ushort)545, body.Position.X.Whole,
             "walking-backward goto executes the next loop's first movement callback");
 
         AssertEqual(106, executedOperands.Count,
@@ -172,7 +169,7 @@ internal static partial class Program
         RoomEnemySlot foot)
     {
         ushort previousSprite = foot.SpritemapPointer;
-        process.Invoke(enemies, [foot, null, null, (ushort)0, (ushort)0, (ushort)0]);
+        process.Invoke(enemies, [foot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
         ushort record = unchecked((ushort)(foot.CurrentInstruction - 4));
         if ((ReadKraidFootInstructionWord(rom, record) & 0x8000) == 0)
             VerifyExecutedEnemySelector(rom, foot, executedOperands);

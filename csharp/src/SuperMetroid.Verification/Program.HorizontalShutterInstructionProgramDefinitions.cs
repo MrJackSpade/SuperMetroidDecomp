@@ -37,7 +37,7 @@ internal static partial class Program
             "horizontal-shutter real initializer program");
 
         object?[] processArguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         process.Invoke(enemies, processArguments);
         AssertEqual(unchecked((ushort)(
                 HorizontalShutterInstructionProgramDefinitions.Stationary + 4)),

@@ -24,8 +24,8 @@ internal static partial class Program
             ?? throw new InvalidOperationException("Botwoon's room did not initialize its state.");
         AssertTrue(state.HistoryX.All(x => x == 0) && state.HistoryY.All(y => y == 0),
             "Botwoon's position history starts as Initialise_Enemies' zeroed RAM");
-        AssertTrue(state.HeadHistoryX.All(x => x == head.XPosition) &&
-            state.HeadHistoryY.All(y => y == head.YPosition),
+        AssertTrue(state.HeadHistoryX.All(x => x == head.Position.X.Whole) &&
+            state.HeadHistoryY.All(y => y == head.Position.Y.Whole),
             "InitAI_Botwoon seeds its four delayed head positions with the spawn position");
 
         // $B3:961B and $B3:96F5 are ORA #$0400 (ignore Samus collision), never $8000. The

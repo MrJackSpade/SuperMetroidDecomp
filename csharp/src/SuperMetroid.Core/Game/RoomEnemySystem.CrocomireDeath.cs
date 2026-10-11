@@ -215,7 +215,7 @@ public sealed partial class RoomEnemySystem
         UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
         RoomEnemySlot body = state.Body;
 
-        if (unchecked((short)(body.YPosition - 280)) >= 0)
+        if (unchecked((short)(body.Position.Y.Whole - 280)) >= 0)
         {
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             state.StepCounter = 48;
@@ -246,7 +246,7 @@ public sealed partial class RoomEnemySystem
         state.ProjectileCounter = unchecked((ushort)(
             (state.ProjectileCounter & 0x00ff) | (subpositionHigh << 8)));
         int yDelta = speedWhole + (subpositionSum > 0xff ? 1 : 0);
-        body.YPosition = unchecked((ushort)(body.YPosition + yDelta));
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + yDelta)));
     }
 
     /// <summary>Byte-for-byte fixed-point rise from $A4:92D8.</summary>
@@ -255,7 +255,7 @@ public sealed partial class RoomEnemySystem
         CrocomireDeathState death = RequireCrocomireDeath();
         FillCrocomireBg2ScrollTable(CrocomireBg2VerticalScroll);
         RoomEnemySlot body = state.Body;
-        if (unchecked((short)(body.YPosition - 218)) < 0)
+        if (unchecked((short)(body.Position.Y.Whole - 218)) < 0)
         {
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             return;
@@ -283,7 +283,7 @@ public sealed partial class RoomEnemySystem
         state.ProjectileCounter = unchecked((ushort)(
             (state.ProjectileCounter & 0x00ff) | (subpositionHigh << 8)));
         int yDelta = speedWhole + (subpositionBorrow ? 1 : 0);
-        body.YPosition = unchecked((ushort)(body.YPosition - yDelta));
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - yDelta)));
     }
 
     private void SpawnCrocomireAcidSmoke(CrocomireEnemyState state, SamusState? samus)
@@ -300,19 +300,18 @@ public sealed partial class RoomEnemySystem
             xOffset = unchecked((ushort)~xOffset);
         ushort acidY = samus?.LiquidPhysics.LavaAcidYPosition ?? 0x00e0;
         SpawnRoomSpriteObject(
-            unchecked((ushort)(state.Body.XPosition + xOffset)),
-            unchecked((ushort)(acidY + 16 - ((random & 0x1f00) >> 8))),
+            new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(acidY + 16 - ((random & 0x1f00) >> 8)))),
             RoomSpriteObjectKind.CrocomireAcidSmoke,
             graphicsIndex: 0);
     }
 
     private static void SelectCrocomireRisingInstruction(RoomEnemySlot body)
     {
-        ushort pointer = body.YPosition < 248
+        ushort pointer = body.Position.Y.Whole < 248
             ? CrocomireInstructionProgramDefinitions.MeltingTwoTopFourRows
-            : body.YPosition < 264
+            : body.Position.Y.Whole < 264
                 ? CrocomireInstructionProgramDefinitions.MeltingTwoTopThreeRows
-                : body.YPosition < 280
+                : body.Position.Y.Whole < 280
                     ? CrocomireInstructionProgramDefinitions.MeltingTwoTopTwoRows
                     : CrocomireInstructionProgramDefinitions.MeltingTwoTopRow;
         InstallCrocomireInstructionList(body, pointer);
@@ -345,16 +344,15 @@ public sealed partial class RoomEnemySystem
     private static void RunCrocomireSkeletonRiver(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        body.XPosition = unchecked((ushort)(body.XPosition - 2));
-        if (unchecked((short)(body.XPosition - 480)) < 0)
+        body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole - 2)));
+        if (unchecked((short)(body.Position.X.Whole - 480)) < 0)
         {
-            body.XPosition = 480;
-            body.YPosition = 54;
+            body.Position = body.Position.WithWhole(new(480, 54));
             state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;
         }
         else
         {
-            body.YPosition = 220;
+            body.Position = body.Position.WithWholeY(220);
         }
     }
 
@@ -384,7 +382,7 @@ public sealed partial class RoomEnemySystem
         death.RumbleCooldown = 10;
         death.RumbleDelta = 1;
         state.FightFlags = 0;
-        body.YRadius = 56;
+        body.Radius = body.Radius.WithY(56);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
@@ -439,8 +437,7 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomEnemySlot body = state.Body;
-        body.XPosition = 480;
-        body.YPosition = 54;
+        body.Position = body.Position.WithWhole(new(480, 54));
         death.RumbleCooldown = 80;
         state.ReactionTimer = 0;
         state.ProjectileCounter = 0;
@@ -465,18 +462,17 @@ public sealed partial class RoomEnemySystem
     private void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        if (unchecked((short)(state.Body.XPosition - 224)) < 0)
+        if (unchecked((short)(state.Body.Position.X.Whole - 224)) < 0)
         {
             (state.ReactionTimer, state.ProjectileCounter) = CalculateCrocomireVelocity(
                 state.ReactionTimer,
                 state.ProjectileCounter,
                 0x00008000,
                 2);
-            (state.Body.XPosition, state.Body.XSubposition) = CalculateCrocomirePosition(
-                state.Body.XPosition,
-                state.Body.XSubposition,
+            state.Body.Position = state.Body.Position.WithX(CalculateCrocomirePosition(
+                state.Body.Position.X,
                 state.ReactionTimer,
-                state.ProjectileCounter);
+                state.ProjectileCounter));
         }
 
         if (death.RumbleCooldown == 0)
@@ -498,17 +494,15 @@ public sealed partial class RoomEnemySystem
             state.ProjectileCounter,
             0x00000800,
             5);
-        (state.Body.YPosition, state.Body.YSubposition) = CalculateCrocomirePosition(
-            state.Body.YPosition,
-            state.Body.YSubposition,
+        state.Body.Position = state.Body.Position.WithY(CalculateCrocomirePosition(
+            state.Body.Position.Y,
             fraction: 0xe000,
-            whole: 0);
-        (state.Body.XPosition, state.Body.XSubposition) = CalculateCrocomirePosition(
-            state.Body.XPosition,
-            state.Body.XSubposition,
+            whole: 0));
+        state.Body.Position = state.Body.Position.WithX(CalculateCrocomirePosition(
+            state.Body.Position.X,
             state.ReactionTimer,
-            state.ProjectileCounter);
-        if (unchecked((short)(state.Body.XPosition - 576)) < 0)
+            state.ProjectileCounter));
+        if (unchecked((short)(state.Body.Position.X.Whole - 576)) < 0)
             return;
 
         LastCrocomireSoundEffect = 0x0025;
@@ -537,10 +531,8 @@ public sealed partial class RoomEnemySystem
         InstallCrocomireInstructionList(
             state.Body,
             CrocomireInstructionProgramDefinitions.Dead);
-        state.Body.XPosition += 64;
-        state.Body.YPosition += 21;
-        state.Body.YRadius = 28;
-        state.Body.XRadius = 40;
+        state.Body.Position += new Offset16<RoomPixels>(64, 21);
+        state.Body.Radius = new(40, 28);
         PublishCrocomirePlm(0x30, 0x03, PlmHeaderId.ClearCrocomireInvisibleWall);
         LastCrocomireDropRequest = new CrocomireDropRequest();
 
@@ -607,15 +599,14 @@ public sealed partial class RoomEnemySystem
         return ((ushort)fixedValue, (ushort)(fixedValue >> 16));
     }
 
-    private static (ushort Position, ushort Subposition) CalculateCrocomirePosition(
-        ushort position,
-        ushort subposition,
+    private static SnesFixedPosition CalculateCrocomirePosition(
+        SnesFixedPosition position,
         ushort fraction,
         ushort whole)
     {
-        uint fixedPosition = ((uint)position << 16) | subposition;
+        uint fixedPosition = position.RawValue;
         uint delta = ((uint)whole << 16) | fraction;
         fixedPosition = unchecked(fixedPosition + delta);
-        return ((ushort)(fixedPosition >> 16), (ushort)fixedPosition);
+        return SnesFixedPosition.FromRaw(fixedPosition);
     }
 }

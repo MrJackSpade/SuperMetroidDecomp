@@ -5,8 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// <param name="PalettePointer">Header +$02 bank-relative pointer to the sixteen-color palette in the enemy's code/data bank.</param>
 /// <param name="Health">Header +$04 initial health in enemy damage units.</param>
 /// <param name="Damage">Header +$06 contact-damage value before Samus damage-reduction rules.</param>
-/// <param name="XRadius">Header +$08 horizontal collision half-extent in room pixels.</param>
-/// <param name="YRadius">Header +$0A vertical collision half-extent in room pixels.</param>
+/// <param name="Radius">Header +$08/+$0A horizontal and vertical collision half-extents in room pixels.</param>
 /// <param name="Bank">Header +$0C bank used to resolve the enemy's AI, palette, and animation pointers.</param>
 /// <param name="HurtAiTime">Header +$0D native hurt-AI duration byte, retained separately from mutable flash timers.</param>
 /// <param name="HurtSoundEffect">Header +$0E native enemy cry sound selector.</param>
@@ -39,8 +38,7 @@ public readonly record struct RoomEnemyDefinition(
     ushort PalettePointer,
     ushort Health,
     ushort Damage,
-    ushort XRadius,
-    ushort YRadius,
+    Extent16<RoomPixels> Radius,
     byte Bank,
     byte HurtAiTime,
     ushort HurtSoundEffect,
@@ -71,8 +69,7 @@ public readonly record struct RoomEnemyDefinition(
 
 /// <summary>One literal 16-byte bank-$A1 room-population record.</summary>
 /// <param name="DefinitionPointer">Record +$00 bank-$A0 enemy header pointer; population list terminator $FFFF is not a spawn record.</param>
-/// <param name="XPosition">Record +$02 initial horizontal room position in pixels, retaining its native sixteen-bit representation.</param>
-/// <param name="YPosition">Record +$04 initial vertical room position in pixels, retaining its native sixteen-bit representation.</param>
+/// <param name="Position">Record +$02/+$04 initial room position in whole pixels, retaining both native sixteen-bit words.</param>
 /// <param name="InitializationParameter">Record +$06 actor-specific initialization word, initially copied to the slot's instruction-list field.</param>
 /// <param name="Properties">Record +$08 primary native enemy properties governing interaction, processing, and visibility.</param>
 /// <param name="ExtraProperties">Record +$0A additional native properties, including extended-spritemap selection.</param>
@@ -80,8 +77,7 @@ public readonly record struct RoomEnemyDefinition(
 /// <param name="Parameter2">Record +$0E second actor-specific spawn parameter; units and meaning belong to the selected enemy AI.</param>
 public readonly record struct RoomEnemyPopulationRecord(
     EnemyDefinitionId DefinitionPointer,
-    ushort XPosition,
-    ushort YPosition,
+    Position16<RoomPixels> Position,
     ushort InitializationParameter,
     ushort Properties,
     ushort ExtraProperties,
@@ -132,18 +128,13 @@ public sealed class RoomEnemySlot
     public RoomEnemyDefinition Definition { get; internal set; }
     /// <summary>Original population and character-offset values retained independently of mutable live slot fields.</summary>
     public RoomEnemySpawnSnapshot Spawn { get; internal set; }
-    /// <summary>Enemy.XPosition at +$02: whole-pixel horizontal room position, wrapping at sixteen bits.</summary>
-    public ushort XPosition { get; internal set; }
-    /// <summary>Enemy.XSubPosition at +$04: low sixteen-bit fraction paired with XPosition for native 16.16 motion.</summary>
-    public ushort XSubposition { get; internal set; }
-    /// <summary>Enemy.YPosition at +$06: whole-pixel vertical room position, wrapping at sixteen bits.</summary>
-    public ushort YPosition { get; internal set; }
-    /// <summary>Enemy.YSubPosition at +$08: low sixteen-bit fraction paired with YPosition for native 16.16 motion.</summary>
-    public ushort YSubposition { get; internal set; }
-    /// <summary>Enemy.XHitboxRadius at +$0A: horizontal collision half-extent in pixels, initially copied from the header.</summary>
-    public ushort XRadius { get; internal set; }
-    /// <summary>Enemy.YHitboxRadius at +$0C: vertical collision half-extent in pixels, initially copied from the header.</summary>
-    public ushort YRadius { get; internal set; }
+    /// <summary>
+    /// Enemy.XPosition/XSubPosition/YPosition/YSubPosition at +$02..+$08: the native 16.16 room
+    /// position, each whole word wrapping at sixteen bits.
+    /// </summary>
+    public FixedPosition<RoomPixels> Position { get; internal set; }
+    /// <summary>Enemy.XHitboxRadius/YHitboxRadius at +$0A/+$0C: collision half-extents in pixels, initially copied from the header.</summary>
+    public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>Enemy.properties at +$0E: mutable primary native property bits controlling collision, drawing, and instruction processing.</summary>
     public ushort Properties { get; internal set; }
     /// <summary>Enemy.properties2 at +$10: mutable additional properties, including extended-spritemap selection.</summary>
@@ -196,25 +187,24 @@ public sealed class RoomEnemySlot
     public ushort VariableE { get; internal set; }
     /// <summary>Enemy.var5 at +$3A: sixth actor-owned working word; some actors store their current function pointer here.</summary>
     public ushort VariableF { get; internal set; }
-    /// <summary>Native spawn-data graphical X offset, added to live XPosition before camera subtraction; wrapped words may represent negative pixel offsets.</summary>
-    public ushort SpawnXOffset { get; internal set; }
-    /// <summary>Native spawn-data graphical Y offset, added to live YPosition before camera subtraction; wrapped words may represent negative pixel offsets.</summary>
-    public ushort SpawnYOffset { get; internal set; }
+    /// <summary>Native spawn-data graphical offset, added to the live whole position before camera subtraction.</summary>
+    public Offset16<RoomPixels> SpawnOffset { get; internal set; }
 
     internal void Clear()
     {
         EnemyDefinitionPointer = 0;
         Definition = default;
         Spawn = default;
-        XPosition = XSubposition = YPosition = YSubposition = 0;
-        XRadius = YRadius = Properties = ExtraProperties = AiHandlerBits = Health = 0;
+        Position = FixedPosition<RoomPixels>.Zero;
+        Radius = Extent16<RoomPixels>.Zero;
+        Properties = ExtraProperties = AiHandlerBits = Health = 0;
         SpritemapPointer = Timer = CurrentInstruction = InstructionTimer = 0;
         PaletteIndex = VramTilesIndex = Layer = FlashTimer = FrozenTimer = 0;
         InvincibilityTimer = ShakeTimer = FrameCounter = 0;
         AiBank = HurtAiTime = 0;
         Parameter1 = Parameter2 = 0;
         VariableA = VariableB = VariableC = VariableD = VariableE = VariableF = 0;
-        SpawnXOffset = SpawnYOffset = 0;
+        SpawnOffset = Offset16<RoomPixels>.Zero;
     }
 
     /// <summary>
@@ -226,12 +216,12 @@ public sealed class RoomEnemySlot
     internal ushort ReadNativeWord(int offset) => offset switch
     {
         0x00 => (ushort)EnemyDefinitionPointer,
-        0x02 => XPosition,
-        0x04 => XSubposition,
-        0x06 => YPosition,
-        0x08 => YSubposition,
-        0x0a => XRadius,
-        0x0c => YRadius,
+        0x02 => Position.X.Whole,
+        0x04 => Position.X.Fraction,
+        0x06 => Position.Y.Whole,
+        0x08 => Position.Y.Fraction,
+        0x0a => Radius.X,
+        0x0c => Radius.Y,
         0x0e => Properties,
         0x10 => ExtraProperties,
         0x12 => AiHandlerBits,

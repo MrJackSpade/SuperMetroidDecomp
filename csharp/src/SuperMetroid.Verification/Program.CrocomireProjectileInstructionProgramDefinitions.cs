@@ -29,8 +29,7 @@ internal static partial class Program
         MethodInfo spawnMouth = typeof(RoomEnemySystem).GetMethod(
             "SpawnCrocomireProjectile", flags)!;
         RoomEnemySlot mouthOwner = mouthSystem.Slots[0];
-        mouthOwner.XPosition = 224;
-        mouthOwner.YPosition = 128;
+        mouthOwner.Position = mouthOwner.Position.WithWhole(new(224, 128));
         spawnMouth.Invoke(mouthSystem, [mouthOwner, (ushort)2]);
         RoomEnemyProjectileSlot mouth = mouthSystem.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
@@ -166,7 +165,7 @@ internal static partial class Program
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }

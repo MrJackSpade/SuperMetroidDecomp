@@ -16,7 +16,7 @@ internal static partial class Program
         {
             string[] fields = row.Split(',');
             short x = short.Parse(fields[0]), y = short.Parse(fields[1]);
-            byte actual = (byte)angle.Invoke(null, [x, y])!;
+            byte actual = (byte)angle.Invoke(null, [new Offset16<RoomPixels>(x, y)])!;
             AssertEqual(byte.Parse(fields[2]), actual, $"Native enemy angle ({x},{y})");
         }
     }

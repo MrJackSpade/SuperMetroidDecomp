@@ -40,19 +40,17 @@ internal static partial class Program
                 $"room shake type {type} alternating production frame");
 
             enemies.EarthquakeTimer = 1;
-            var positiveProjectile = ((short X, short Y))projectileShake.Invoke(
+            var positiveProjectile = (Offset16<RoomPixels>)projectileShake.Invoke(
                 enemies,
                 [false])!;
-            AssertEqual((definition.Projectile.X, definition.Projectile.Y), positiveProjectile,
+            AssertEqual(definition.Projectile, positiveProjectile,
                 $"room shake type {type} positive projectile displacement");
 
             enemies.EarthquakeTimer = 2;
-            var negativeProjectile = ((short X, short Y))projectileShake.Invoke(
+            var negativeProjectile = (Offset16<RoomPixels>)projectileShake.Invoke(
                 enemies,
                 [false])!;
-            AssertEqual((
-                    unchecked((short)-definition.Projectile.X),
-                    unchecked((short)-definition.Projectile.Y)),
+            AssertEqual(-definition.Projectile,
                 negativeProjectile,
                 $"room shake type {type} alternating projectile displacement");
         }
@@ -67,15 +65,15 @@ internal static partial class Program
             "non-rendered earthquake type does not access compiled definitions");
         AssertEqual((ushort)4, enemies.EarthquakeTimer,
             "non-rendered earthquake type preserves timer");
-        AssertEqual(((short)0, (short)0),
-            ((short X, short Y))projectileShake.Invoke(enemies, [false])!,
+        AssertEqual(Offset16<RoomPixels>.Zero,
+            (Offset16<RoomPixels>)projectileShake.Invoke(enemies, [false])!,
             "non-rendered earthquake type has no projectile displacement");
 
         enemies.EarthquakeType = 0;
         AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: true),
             "frozen room shake does not access compiled definitions");
-        AssertEqual(((short)0, (short)0),
-            ((short X, short Y))projectileShake.Invoke(enemies, [true])!,
+        AssertEqual(Offset16<RoomPixels>.Zero,
+            (Offset16<RoomPixels>)projectileShake.Invoke(enemies, [true])!,
             "frozen projectile shake does not access compiled definitions");
 
         Console.WriteLine(

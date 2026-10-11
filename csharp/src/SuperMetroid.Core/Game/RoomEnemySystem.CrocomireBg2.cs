@@ -57,30 +57,29 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = state.Body;
         if (includeVerticalPosition)
             CrocomireBg2VerticalScroll = CrocomireBg2ScrollDefinitions.VerticalScroll(
-                body.YPosition, body.SpritemapPointer);
+                body.Position.Y.Whole, body.SpritemapPointer);
 
         // The tongue is a normal second enemy actor whose var A is the body-relative X
         // offset. $8BA4 updates it even while the body's bulk is represented by BG2.
         if (state.Tongue is { } tongue)
         {
-            tongue.XPosition = unchecked((ushort)(body.XPosition + tongue.VariableA));
-            tongue.YPosition = body.YPosition;
+            tongue.Position = tongue.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + tongue.VariableA)), body.Position.Y.Whole));
         }
 
         ushort horizontal;
-        if (unchecked((short)(body.XPosition - _crocomireCameraX)) >= 0)
+        if (unchecked((short)(body.Position.X.Whole - _crocomireCameraX)) >= 0)
         {
             horizontal = unchecked((short)(
-                body.XPosition - 128 - (_crocomireCameraX + 256))) < 0
-                ? CalculateOnScreenCrocomireBg2Horizontal(body.XPosition)
+                body.Position.X.Whole - 128 - (_crocomireCameraX + 256))) < 0
+                ? CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole)
                 : (ushort)256;
         }
         else
         {
             horizontal = unchecked((short)(
-                body.XPosition + 128 - _crocomireCameraX)) < 0
+                body.Position.X.Whole + 128 - _crocomireCameraX)) < 0
                 ? (ushort)256
-                : CalculateOnScreenCrocomireBg2Horizontal(body.XPosition);
+                : CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole);
         }
         CrocomireBg2HorizontalScroll = horizontal;
     }

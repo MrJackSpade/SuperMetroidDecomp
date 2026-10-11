@@ -43,17 +43,16 @@ internal static partial class Program
 
         var statue = new RoomEnemySlot(0)
         {
-            XPosition = 0x0100,
-            YPosition = 0x0080,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0080)),
         };
         spawnFootstep.Invoke(enemies, [statue, (ushort)0]);
         RoomEnemyProjectileSlot footstep = enemies.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep);
         Run(footstep, 1);
-        AssertEqual((ushort)0x0104, footstep.XPosition,
+        AssertEqual((ushort)0x0104, footstep.Position.X.Whole,
             "real Chozo footstep applies the compiled X mask and center");
-        AssertEqual((ushort)0x009d, footstep.YPosition,
+        AssertEqual((ushort)0x009d, footstep.Position.Y.Whole,
             "real Chozo footstep applies the compiled Y mask and center");
         AssertEqual((ushort)0xaece, footstep.InstructionPointer,
             "real Chozo footstep reaches its second authored pose");
@@ -71,12 +70,11 @@ internal static partial class Program
             RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate,
             (ushort)0,
         ]);
-        alternate.XPosition = 0x0100;
-        alternate.YPosition = 0x0080;
+        alternate.Position = alternate.Position.WithWhole(new(0x0100, 0x0080));
         Run(alternate, 1);
-        AssertEqual((ushort)0x0104, alternate.XPosition,
+        AssertEqual((ushort)0x0104, alternate.Position.X.Whole,
             "alternate spike explosion applies the compiled X mask and center");
-        AssertEqual((ushort)0x0081, alternate.YPosition,
+        AssertEqual((ushort)0x0081, alternate.Position.Y.Whole,
             "alternate spike explosion applies the compiled Y mask and center");
         Run(alternate, 5);
         AssertEqual((ushort)0xaefa, alternate.InstructionPointer,
@@ -89,9 +87,9 @@ internal static partial class Program
         RoomEnemyProjectileSlot dust = enemies.EnemyProjectiles.First(
             projectile => projectile.Kind == RoomEnemyProjectileKind.TourianStatueDescentDust);
         Run(dust, 1);
-        AssertEqual((ushort)132, dust.XPosition,
+        AssertEqual((ushort)132, dust.Position.X.Whole,
             "Tourian dust resets to its producer origin before applying random X");
-        AssertEqual((ushort)188, dust.YPosition,
+        AssertEqual((ushort)188, dust.Position.Y.Whole,
             "Tourian dust resets to its producer origin before applying random Y");
         AssertEqual((ushort)64, dust.GeneralTimer,
             "Tourian dust initializes its exact native loop count");
@@ -101,9 +99,9 @@ internal static partial class Program
         Run(dust, 1);
         AssertEqual((ushort)63, dust.GeneralTimer,
             "Tourian dust decrements its native loop count once per four-pose cycle");
-        AssertEqual((ushort)132, dust.XPosition,
+        AssertEqual((ushort)132, dust.Position.X.Whole,
             "Tourian dust resets and randomizes X again at the next cycle");
-        AssertEqual((ushort)188, dust.YPosition,
+        AssertEqual((ushort)188, dust.Position.Y.Whole,
             "Tourian dust resets and randomizes Y again at the next cycle");
         Run(dust, 251);
         AssertTrue(dust.IsActive,
@@ -150,7 +148,7 @@ internal static partial class Program
             for (int frame = 0; frame < frames; frame++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
             }
         }
     }

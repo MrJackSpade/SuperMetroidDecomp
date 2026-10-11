@@ -134,8 +134,7 @@ internal static partial class Program
                 .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
 
             RoomEnemySlot body = enemies.Slots[0];
-            body.XPosition = 0xfff8;
-            body.YPosition = 0x0008;
+            body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
             var state = new RidleyEnemyState
             {
                 DeathExplosionTimer = 0,
@@ -155,9 +154,9 @@ internal static partial class Program
                 $"Ridley death explosion {selectedIndex} cyclic index");
             AssertEqual((ushort)4, state.DeathExplosionTimer,
                 $"Ridley death explosion {selectedIndex} timer reload");
-            AssertEqual(unchecked((ushort)(body.XPosition + xOffset)), effect.XPosition,
+            AssertEqual(unchecked((ushort)(body.Position.X.Whole + xOffset)), effect.Position.X.Whole,
                 $"Ridley death explosion {selectedIndex} production X");
-            AssertEqual(unchecked((ushort)(body.YPosition + yOffset)), effect.YPosition,
+            AssertEqual(unchecked((ushort)(body.Position.Y.Whole + yOffset)), effect.Position.Y.Whole,
                 $"Ridley death explosion {selectedIndex} production Y");
             AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, effect.Kind,
                 $"Ridley death explosion {selectedIndex} actor kind");
@@ -183,8 +182,7 @@ internal static partial class Program
 
         RoomEnemySlot fragment = enemies.Slots[1];
         RoomEnemySlot body = enemies.Slots[0];
-        body.XPosition = 0xfff8;
-        body.YPosition = 0x0008;
+        body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
         var state = new RidleyEnemyState
         {
             TailSegments = Enumerable.Range(0, 7)
@@ -226,9 +224,9 @@ internal static partial class Program
                 if (parameter <= (ushort)RidleyExplosionPart.TailTip)
                 {
                     int tailIndex = parameter >> 1;
-                    AssertEqual(state.TailSegments[tailIndex].XPosition, fragment.XPosition,
+                    AssertEqual(state.TailSegments[tailIndex].XPosition, fragment.Position.X.Whole,
                         $"Ridley breakup production tail X ${parameter:X2}");
-                    AssertEqual(state.TailSegments[tailIndex].YPosition, fragment.YPosition,
+                    AssertEqual(state.TailSegments[tailIndex].YPosition, fragment.Position.Y.Whole,
                         $"Ridley breakup production tail Y ${parameter:X2}");
                     ushort expectedInstruction = parameter == (ushort)RidleyExplosionPart.TailTip
                         ? ReadRidleyExplosionWord(rom, 0xa6c7ba + orientation * 2)
@@ -251,9 +249,9 @@ internal static partial class Program
                     short yOffset = unchecked((short)ReadRidleyExplosionWord(
                         rom,
                         yOperands[bodyIndex]));
-                    AssertEqual(unchecked((ushort)(body.XPosition + xOffset)), fragment.XPosition,
+                    AssertEqual(unchecked((ushort)(body.Position.X.Whole + xOffset)), fragment.Position.X.Whole,
                         $"Ridley breakup production body X ${parameter:X2}/{facingIndex}");
-                    AssertEqual(unchecked((ushort)(body.YPosition + yOffset)), fragment.YPosition,
+                    AssertEqual(unchecked((ushort)(body.Position.Y.Whole + yOffset)), fragment.Position.Y.Whole,
                         $"Ridley breakup production body Y ${parameter:X2}/{facingIndex}");
                     AssertEqual(
                         ReadRidleyExplosionWord(

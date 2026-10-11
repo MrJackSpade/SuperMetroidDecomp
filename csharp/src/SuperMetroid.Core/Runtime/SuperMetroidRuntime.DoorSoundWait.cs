@@ -66,8 +66,7 @@ public sealed partial class SuperMetroidRuntime
         if (Samus?.Xray.AreEnemyProjectilesSuspended == true || LevelData is null || Camera is null)
             return;
         Enemies.StepEnemyProjectileInstructions(
-            LevelData, Samus, Camera.PixelPosition.X, Camera.PixelPosition.Y,
-            NmiFrameCounter8, BombProjectiles, BackgroundScroll, NmiFrameCounter);
+            LevelData, Samus, Camera.PixelPosition,             NmiFrameCounter8, BombProjectiles, BackgroundScroll, NmiFrameCounter);
     }
 
     /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>

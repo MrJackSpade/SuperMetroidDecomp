@@ -266,8 +266,7 @@ public sealed partial class RoomEnemySystem
 
     private static ushort CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         unchecked((byte)(CalculateCartridgeAngle(
-            unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
-            unchecked((short)(samus.Position.Y.Whole - slot.YPosition))) - 0x40));
+            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))) - 0x40));
 
     private static void AccelerateBull(BullEnemyState state)
     {
@@ -320,24 +319,21 @@ public sealed partial class RoomEnemySystem
 
     private static void MoveBull(RoomEnemySlot slot, BullEnemyState state)
     {
-        (slot.XPosition, slot.XSubposition) = AddBullComponent(
-            slot.XPosition,
-            slot.XSubposition,
+        slot.Position = slot.Position.WithX(AddBullComponent(
+            slot.Position.X,
             ReadBullSignedSine(unchecked((byte)(state.Angle + 0x40))),
-            state.Speed);
-        (slot.YPosition, slot.YSubposition) = AddBullComponent(
-            slot.YPosition,
-            slot.YSubposition,
+            state.Speed));
+        slot.Position = slot.Position.WithY(AddBullComponent(
+            slot.Position.Y,
             ReadBullSignedSine(unchecked((byte)state.Angle)),
-            state.Speed);
+            state.Speed));
     }
 
     private static short ReadBullSignedSine(byte angle) =>
         EnemyTrigonometryTables.SignedSixteenBitSine(angle);
 
-    private static (ushort Position, ushort Subposition) AddBullComponent(
-        ushort position,
-        ushort subposition,
+    private static SnesFixedPosition AddBullComponent(
+        SnesFixedPosition position,
         short sine,
         ushort speed)
     {
@@ -359,10 +355,10 @@ public sealed partial class RoomEnemySystem
             whole = unchecked((ushort)~whole);
         }
 
-        uint fractionalSum = (uint)subposition + fraction;
-        subposition = unchecked((ushort)fractionalSum);
-        position = unchecked((ushort)(position + whole + (fractionalSum >> 16)));
-        return (position, subposition);
+        uint fractionalSum = (uint)position.Fraction + fraction;
+        return new(
+            unchecked((ushort)(position.Whole + whole + (fractionalSum >> 16))),
+            unchecked((ushort)fractionalSum));
     }
 
     /// <summary>Ports the no-damage tail of <c>EnemyShot_Bull</c> at $A8:DB2C.</summary>

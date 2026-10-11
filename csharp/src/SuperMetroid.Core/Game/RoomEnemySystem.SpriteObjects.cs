@@ -71,18 +71,14 @@ public sealed class RoomSpriteObjectSlot
     public RoomSpriteObjectKind Kind { get; internal set; } = RoomSpriteObjectKind.None;
     /// <summary>Whether the native instruction-list pointer is nonzero; this alone determines occupancy, even for hidden or update-disabled objects.</summary>
     public bool IsActive => InstructionPointer != 0;
-    /// <summary>Native $7E:F0F8 plus the slot offset: whole-pixel room X, converted to screen X by subtracting layer-one camera X when drawn.</summary>
-    public ushort XPosition { get; internal set; }
-    /// <summary>Native $7E:F1F8 plus the slot offset: whole-pixel room Y, converted to screen Y by subtracting layer-one camera Y when drawn.</summary>
-    public ushort YPosition { get; internal set; }
     /// <summary>
-    /// Fractional halves of the native 16.16 world coordinates. Most sprite objects move
-    /// only in whole pixels and leave these zero; Draygon's six burial Evirs consume the
-    /// exact ROM subspeed table, so discarding these words visibly changes their fan-in.
+    /// Native $7E:F0F8/$7E:F1F8 whole words and their fractional words (Y fraction at $7E:F278)
+    /// plus the slot offset: the 16.16 room position, converted to screen coordinates by
+    /// subtracting the layer-one camera when drawn. Most sprite objects move only in whole pixels
+    /// and leave the fractions zero; Draygon's six burial Evirs consume the exact ROM subspeed
+    /// table, so discarding these words visibly changes their fan-in.
     /// </summary>
-    public ushort XSubposition { get; internal set; }
-    /// <summary>Native $7E:F278 plus the slot offset: fractional low word paired with <see cref="YPosition"/> for 16.16 room coordinates; drawing uses only the whole word.</summary>
-    public ushort YSubposition { get; internal set; }
+    public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Native $7E:F078 plus the slot offset: packed OBJ attribute base; drawing extracts palette bits $0E00 and base tile number $01FF.</summary>
     public ushort GraphicsIndex { get; internal set; }
     /// <summary>Native $7E:EF78 plus the slot offset: bank-$B4 program cursor; timed records occupy four bytes, and zero marks a free slot.</summary>
@@ -97,7 +93,8 @@ public sealed class RoomSpriteObjectSlot
     internal void Clear()
     {
         Kind = RoomSpriteObjectKind.None;
-        XPosition = YPosition = XSubposition = YSubposition = GraphicsIndex = 0;
+        Position = FixedPosition<RoomPixels>.Zero;
+        GraphicsIndex = 0;
         InstructionPointer = InstructionTimer = SpritemapPointer = DisableFlags = 0;
     }
 }
@@ -117,8 +114,7 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Ports <c>CreateSpriteAtPos</c> at <c>$B4:BC26</c>.</summary>
     private RoomSpriteObjectSlot? SpawnRoomSpriteObject(
-        ushort x,
-        ushort y,
+        Position16<RoomPixels> position,
         RoomSpriteObjectKind kind,
         ushort graphicsIndex)
     {
@@ -132,8 +128,7 @@ public sealed partial class RoomEnemySystem
 
             slot.Clear();
             slot.Kind = kind;
-            slot.XPosition = x;
-            slot.YPosition = y;
+            slot.Position = slot.Position.WithWhole(position);
             slot.GraphicsIndex = graphicsIndex;
             slot.InstructionPointer = RoomSpriteObjectDefinitions.InstructionPointer(kind);
             LoadRoomSpriteObjectFrame(slot);
@@ -236,7 +231,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>DrawSpriteObjects</c> at <c>$B4:BD32</c>.</summary>
-    private void DrawRoomSpriteObjects(OamBuffer oam, ushort cameraX, ushort cameraY)
+    private void DrawRoomSpriteObjects(OamBuffer oam, Position16<RoomPixels> camera)
     {
         for (int index = _roomSpriteObjects.Length - 1; index >= 0; index--)
         {
@@ -244,15 +239,14 @@ public sealed partial class RoomEnemySystem
             if (!slot.IsActive)
                 continue;
 
-            ushort screenX = unchecked((ushort)(slot.XPosition - cameraX));
-            ushort screenY = unchecked((ushort)(slot.YPosition - cameraY));
+            Position16<ScreenPixels> screen = slot.Position.Whole.ToScreen(camera);
             // The 65816 uses signed branch tests on `(x + 16)`, `(x - 272)`, `y`, and
             // `(y - 272)`. Unsigned host comparisons incorrectly discarded partially visible
             // objects whose wrapped screen coordinate represented a small negative offset.
-            if (unchecked((short)(screenX + 16)) < 0 ||
-                unchecked((short)(screenX - 0x0110)) >= 0 ||
-                unchecked((short)screenY) < 0 ||
-                unchecked((short)(screenY - 0x0110)) >= 0)
+            if (unchecked((short)(screen.X + 16)) < 0 ||
+                unchecked((short)(screen.X - 0x0110)) >= 0 ||
+                unchecked((short)screen.Y) < 0 ||
+                unchecked((short)(screen.Y - 0x0110)) >= 0)
             {
                 continue;
             }
@@ -270,7 +264,7 @@ public sealed partial class RoomEnemySystem
                     $"Installed room sprite-object artwork lacks " +
                     $"$B4:{slot.SpritemapPointer:X4} for {slot.Kind}.");
             }
-            oam.AddEnemySpritemap(installed, new Position16<OamPixels>(screenX, screenY),
+            oam.AddEnemySpritemap(installed, screen.ToOam(),
                 paletteBits, baseTileIndex);
         }
     }

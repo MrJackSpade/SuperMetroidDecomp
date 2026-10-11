@@ -237,7 +237,7 @@ internal static partial class Program
             ushort previousSprite = slot.SpritemapPointer;
             process.Invoke(
                 enemies,
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0]);
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
             ushort record = unchecked((ushort)(slot.CurrentInstruction - 4));
             ushort nativeWord = (ushort)(rom.ReadByte(0xa70000 | record) |
                 rom.ReadByte(0xa70000 | unchecked((ushort)(record + 1))) << 8);

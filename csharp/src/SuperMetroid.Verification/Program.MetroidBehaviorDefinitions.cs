@@ -45,8 +45,7 @@ internal static partial class Program
         {
             var slot = new RoomEnemySlot(0)
             {
-                XPosition = 0x0001,
-                YPosition = 0xffff,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0x0001, 0xffff)),
                 CurrentInstruction = 0x7777,
             };
             var state = new MetroidEnemyState(
@@ -61,9 +60,9 @@ internal static partial class Program
             MetroidEscapeDisplacement expected =
                 MetroidBehaviorDefinitions.EscapeDisplacement((ushort)timer);
             runEscape.Invoke(enemies, [slot, state]);
-            AssertEqual(unchecked((ushort)(1 + expected.X)), slot.XPosition,
+            AssertEqual(unchecked((ushort)(1 + expected.X)), slot.Position.X.Whole,
                 $"production Metroid escape X timer {timer}");
-            AssertEqual(unchecked((ushort)(0xffff + expected.Y)), slot.YPosition,
+            AssertEqual(unchecked((ushort)(0xffff + expected.Y)), slot.Position.Y.Whole,
                 $"production Metroid escape Y timer {timer}");
             AssertEqual(unchecked((ushort)(timer - 1)), state.EscapeTimer,
                 $"production Metroid escape countdown {timer}");
@@ -103,7 +102,7 @@ internal static partial class Program
             slot.CurrentInstruction =
                 MetroidInstructionProgramDefinitions.ChasingSoundCallback;
 
-            process.Invoke(enemies, [slot, null, null, (ushort)0, (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
 
             AssertEqual(MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
                 enemies.LastMetroidSoundEffectLibrary2 ?? ushort.MaxValue,

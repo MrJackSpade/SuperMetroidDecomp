@@ -28,7 +28,7 @@ internal static partial class Program
 
                 slot.Parameter1 = 0;
                 slot.Parameter2 = distanceIndex;
-                slot.XPosition = spawnX;
+                slot.Position = slot.Position.WithWholeX(spawnX);
                 initialize(slot);
                 CacatacEnemyState state = enemies.CacatacStates[0]!;
                 AssertEqual(unchecked((ushort)(spawnX - native)), state.MinimumXPosition,

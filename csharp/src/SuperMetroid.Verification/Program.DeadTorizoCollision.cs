@@ -15,10 +15,8 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
             var slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.CorpseTorizo;
-            slot.XPosition = 120;
-            slot.YPosition = 100;
-            slot.XRadius = 16;
-            slot.YRadius = 32;
+            slot.Position = slot.Position.WithWhole(new(120, 100));
+            slot.Radius = new(16, 32);
             Call("InitializeDeadTorizo", slot);
             Require(IsInteractive(), "The intact corpse must initially be interactive.");
             Require(slot.Properties.HasAny(EnemyProperties.SolidToSamus),
@@ -68,7 +66,7 @@ internal static partial class Program
                     .GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!).Contains(slot.NativeIndex);
             }
             SolidEnemyCollisionResult Probe() => SamusSolidEnemyCollision.Probe(samus.Kinematics,
-                IsInteractive() ? [new SolidEnemyCollisionBody(slot.NativeIndex, new(slot.XPosition, slot.YPosition), new(slot.XRadius, slot.YRadius), slot.FrozenTimer, slot.Properties)] : [],
+                IsInteractive() ? [new SolidEnemyCollisionBody(slot.NativeIndex, slot.Position.Whole, new(slot.Radius.X, slot.Radius.Y), slot.FrozenTimer, slot.Properties)] : [],
                 SamusCollisionDirection.Right, 16, 0);
         }
         Console.WriteLine("Dead Torizo: contact, shot, power bomb and delayed solid contact release collision correctly.");

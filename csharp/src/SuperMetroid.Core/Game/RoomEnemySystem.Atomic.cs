@@ -163,29 +163,27 @@ public sealed partial class RoomEnemySystem
         // The cartridge treats equality as the positive direction: down for Y and right for
         // X. Compare the wrapped 16-bit subtraction as signed, matching BMI rather than a host
         // integer comparison that would disagree across the $0000/$FFFF coordinate boundary.
-        state.VerticalMovement = unchecked((short)(samus.Position.Y.Whole - slot.YPosition)) < 0
+        state.VerticalMovement = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)) < 0
             ? AtomicVerticalMovement.MoveUp
             : AtomicVerticalMovement.MoveDown;
-        state.HorizontalMovement = unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0
+        state.HorizontalMovement = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
             ? AtomicHorizontalMovement.MoveLeft
             : AtomicHorizontalMovement.MoveRight;
 
         switch (state.VerticalMovement)
         {
             case AtomicVerticalMovement.MoveUp:
-                (slot.YPosition, slot.YSubposition) = AddAtomicVelocity(
-                    slot.YPosition,
-                    slot.YSubposition,
+                slot.Position = slot.Position.WithY(AddAtomicVelocity(
+                    slot.Position.Y,
                     state.NegativeSpeedWhole,
-                    state.NegativeSpeedFraction);
+                    state.NegativeSpeedFraction));
                 break;
 
             case AtomicVerticalMovement.MoveDown:
-                (slot.YPosition, slot.YSubposition) = AddAtomicVelocity(
-                    slot.YPosition,
-                    slot.YSubposition,
+                slot.Position = slot.Position.WithY(AddAtomicVelocity(
+                    slot.Position.Y,
                     state.SpeedWhole,
-                    state.SpeedFraction);
+                    state.SpeedFraction));
                 break;
 
             default:
@@ -196,19 +194,17 @@ public sealed partial class RoomEnemySystem
         switch (state.HorizontalMovement)
         {
             case AtomicHorizontalMovement.MoveLeft:
-                (slot.XPosition, slot.XSubposition) = AddAtomicVelocity(
-                    slot.XPosition,
-                    slot.XSubposition,
+                slot.Position = slot.Position.WithX(AddAtomicVelocity(
+                    slot.Position.X,
                     state.NegativeSpeedWhole,
-                    state.NegativeSpeedFraction);
+                    state.NegativeSpeedFraction));
                 break;
 
             case AtomicHorizontalMovement.MoveRight:
-                (slot.XPosition, slot.XSubposition) = AddAtomicVelocity(
-                    slot.XPosition,
-                    slot.XSubposition,
+                slot.Position = slot.Position.WithX(AddAtomicVelocity(
+                    slot.Position.X,
                     state.SpeedWhole,
-                    state.SpeedFraction);
+                    state.SpeedFraction));
                 break;
 
             default:
@@ -221,18 +217,16 @@ public sealed partial class RoomEnemySystem
     /// Reproduces each movement target's unusual ordering: add the signed whole word first,
     /// then add the fractional word and increment the already-updated whole on carry.
     /// </summary>
-    private static (ushort Position, ushort Subposition) AddAtomicVelocity(
-        ushort position,
-        ushort subposition,
+    private static SnesFixedPosition AddAtomicVelocity(
+        SnesFixedPosition position,
         ushort wholeVelocity,
         ushort fractionalVelocity)
     {
-        position = unchecked((ushort)(position + wholeVelocity));
-        uint fractionalSum = (uint)subposition + fractionalVelocity;
-        subposition = unchecked((ushort)fractionalSum);
+        ushort whole = unchecked((ushort)(position.Whole + wholeVelocity));
+        uint fractionalSum = (uint)position.Fraction + fractionalVelocity;
         if (fractionalSum > ushort.MaxValue)
-            position = unchecked((ushort)(position + 1));
-        return (position, subposition);
+            whole = unchecked((ushort)(whole + 1));
+        return new(whole, unchecked((ushort)fractionalSum));
     }
 
     private AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>

@@ -16,8 +16,7 @@ internal static partial class Program
             runtime.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Draygon);
             var eye = runtime.Enemies.Draygon!.Eye!;
-            typeof(RoomEnemySlot).GetProperty(nameof(eye.XPosition))!.SetValue(eye, (ushort)128);
-            typeof(RoomEnemySlot).GetProperty(nameof(eye.YPosition))!.SetValue(eye, (ushort)128);
+            eye.Position = eye.Position.WithWhole(new(128, 128));
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 256)) };
             var track = typeof(RoomEnemySystem).GetMethod("TrackSamusWithDraygonEye",
                 BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -30,8 +29,8 @@ internal static partial class Program
                 AssertEqual(frame == 127 ? 0 : 1, particles.Length, "Eye particle cadence with unchanged target angle");
                 if (particles.Length == 1)
                 {
-                    AssertEqual((ushort)(facingRight ? 152 : 104), particles[0].XPosition, "Eye particle facing-relative X");
-                    AssertEqual((ushort)96, particles[0].YPosition, "Eye particle vertical origin");
+                    AssertEqual((ushort)(facingRight ? 152 : 104), particles[0].Position.X.Whole, "Eye particle facing-relative X");
+                    AssertEqual((ushort)96, particles[0].Position.Y.Whole, "Eye particle vertical origin");
                 }
             }
         }

@@ -23,7 +23,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         var shoot = typeof(RoomEnemySystem).GetMethod(
                 "RunZoaShooting", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Action<RoomEnemySlot, ZoaEnemyState, ushort, ushort>>();
+            .CreateDelegate<Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>>>();
         RoomEnemySlot actor = enemies.Slots[0];
         var state = new ZoaEnemyState(actor);
         for (ushort offset = 0; offset <= 16; offset += 4)
@@ -39,16 +39,13 @@ internal static partial class Program
                 int displacement = direction == 0 ? -magnitude : magnitude;
                 for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
                 {
-                    actor.XPosition = 128;
-                    actor.XSubposition = (ushort)fraction;
-                    actor.YPosition = 128;
-                    actor.YSubposition = 123;
-                    shoot(actor, state, 0, 0);
+                    actor.Position = new(new(128, (ushort)fraction), new(128, 123));
+                    shoot(actor, state, Position16<RoomPixels>.Zero);
                     uint expected = unchecked(0x00800000u + (uint)fraction + (uint)displacement);
-                    AssertEqual((ushort)(expected >> 16), actor.XPosition, "Zoa real signed whole displacement");
-                    AssertEqual((ushort)expected, actor.XSubposition, "Zoa real fractional carry/borrow");
-                    AssertEqual((ushort)128, actor.YPosition, "Zoa shooting preserves Y");
-                    AssertEqual((ushort)123, actor.YSubposition, "Zoa shooting preserves sub-Y");
+                    AssertEqual((ushort)(expected >> 16), actor.Position.X.Whole, "Zoa real signed whole displacement");
+                    AssertEqual((ushort)expected, actor.Position.X.Fraction, "Zoa real fractional carry/borrow");
+                    AssertEqual((ushort)128, actor.Position.Y.Whole, "Zoa shooting preserves Y");
+                    AssertEqual((ushort)123, actor.Position.Y.Fraction, "Zoa shooting preserves sub-Y");
                 }
             }
         }
@@ -60,17 +57,14 @@ internal static partial class Program
             ZoaAnimationSelector.None;
         state.SpawnXPosition = 0x560;
         state.SpawnYPosition = 0xd8;
-        actor.XPosition = 128;
-        actor.XSubposition = 0x8000;
-        actor.YPosition = 128;
-        actor.YSubposition = 0x4000;
+        actor.Position = new(new(128, 0x8000), new(128, 0x4000));
         int resetDisplacement = -unchecked((Word(0xa3b415) << 16) | Word(0xa3b417));
         uint movedX = unchecked(0x00808000u + (uint)resetDisplacement);
-        shoot(actor, state, 0x1000, 0x1000);
-        AssertEqual((ushort)0x560, actor.XPosition, "off-screen Zoa returns to its spawn X");
-        AssertEqual((ushort)0xd8, actor.YPosition, "off-screen Zoa returns to its spawn Y");
-        AssertEqual((ushort)movedX, actor.XSubposition, "the spawn reset keeps the moved sub-X");
-        AssertEqual((ushort)0x4000, actor.YSubposition, "the spawn reset keeps sub-Y");
+        shoot(actor, state, new(0x1000, 0x1000));
+        AssertEqual((ushort)0x560, actor.Position.X.Whole, "off-screen Zoa returns to its spawn X");
+        AssertEqual((ushort)0xd8, actor.Position.Y.Whole, "off-screen Zoa returns to its spawn Y");
+        AssertEqual((ushort)movedX, actor.Position.X.Fraction, "the spawn reset keeps the moved sub-X");
+        AssertEqual((ushort)0x4000, actor.Position.Y.Fraction, "the spawn reset keeps sub-Y");
         Console.WriteLine("Zoa compiled speeds: all 17 native byte windows and 655360 real signed/subpixel integrations match without a speed-table bus.");
     }
 }

@@ -69,10 +69,8 @@ internal static partial class Program
         type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
         RoomEnemySlot slot = enemies.Slots[0];
         slot.PaletteIndex = 0x0200;
-        slot.XPosition = 96;
-        slot.YPosition = 96;
-        slot.XRadius = 8;
-        slot.YRadius = 8;
+        slot.Position = slot.Position.WithWhole(new(96, 96));
+        slot.Radius = new(8, 8);
         var state = new DachoraEnemyState(slot);
         MethodInfo load = type.GetMethod("LoadDachoraPalette", flags)!;
         load.Invoke(enemies, [slot, DachoraPalettePhase.Default, 0]);

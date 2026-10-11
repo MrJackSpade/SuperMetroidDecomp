@@ -319,8 +319,7 @@ public sealed partial class RoomEnemySystem
         }
 
         (short xOffset, short yOffset) = WreckedShipGhostAppearanceDefinitions.SpawnOffset(byteOffset / 4);
-        slot.XPosition = unchecked((ushort)(samusX + xOffset));
-        slot.YPosition = unchecked((ushort)(samusY + yOffset));
+        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samusX + xOffset)), unchecked((ushort)(samusY + yOffset))));
         state.Function = WreckedShipGhostAiFunction.BrighteningAndFlickering;
         state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
         state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
@@ -372,7 +371,7 @@ public sealed partial class RoomEnemySystem
         slot.Properties = slot.Properties.Without(
             EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
         state.Function = WreckedShipGhostAiFunction.BobbingWhileVisible;
-        state.BobbingOriginY = slot.YPosition;
+        state.BobbingOriginY = slot.Position.Y.Whole;
         state.PhaseTimer = WreckedShipGhostVisibleDuration;
         state.FlickerTableOffset = 2;
         state.VerticalVelocityFraction = 0;
@@ -394,13 +393,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {
-        uint position = ((uint)slot.YPosition << 16) | slot.YSubposition;
+        uint position = slot.Position.Y.RawValue;
         uint velocity = ((uint)state.VerticalVelocityWhole << 16) | state.VerticalVelocityFraction;
         position = unchecked(position + velocity);
-        slot.YPosition = unchecked((ushort)(position >> 16));
-        slot.YSubposition = unchecked((ushort)position);
+        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
 
-        int acceleration = unchecked((short)(slot.YPosition - state.BobbingOriginY)) < 0
+        int acceleration = unchecked((short)(slot.Position.Y.Whole - state.BobbingOriginY)) < 0
             ? WreckedShipGhostVerticalAccelerationFraction
             : -WreckedShipGhostVerticalAccelerationFraction;
         velocity = unchecked((uint)(velocity + acceleration));

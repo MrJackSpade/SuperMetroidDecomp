@@ -14,7 +14,7 @@ internal static partial class Program
         var capBody = capEnemies.Slots[0];
         var capTentacles = capEnemies.Slots[2];
         var capState = new PhantoonEnemyState(capBody) { Tentacles = capTentacles };
-        capBody.XPosition = capBody.YPosition = 128;
+        capBody.Position = capBody.Position.WithWhole(new(128, 128));
         capTentacles.VariableC = 0xf800;
         capTentacles.VariableD = 0xfa00;
         typeof(RoomEnemySystem).GetMethod("MovePhantoonInSwoop",
@@ -22,8 +22,8 @@ internal static partial class Program
             .Invoke(null, [capBody, capState, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, false]);
         AssertEqual((ushort)0xf800, capTentacles.VariableC, "Native NTSC negative swoop X cap");
         AssertEqual((ushort)0xfa00, capTentacles.VariableD, "Native NTSC negative swoop Y cap");
-        AssertEqual((ushort)120, capBody.XPosition, "Native capped swoop X displacement");
-        AssertEqual((ushort)122, capBody.YPosition, "Native capped swoop Y displacement");
+        AssertEqual((ushort)120, capBody.Position.X.Whole, "Native capped swoop X displacement");
+        AssertEqual((ushort)122, capBody.Position.Y.Whole, "Native capped swoop Y displacement");
         foreach (ushort timer in new ushort[] { 2, 1, 0 })
         {
             var boundary = CreateRetailRuntimeFixture(bus);
@@ -54,8 +54,8 @@ internal static partial class Program
             var phantoon = runtime.Enemies.Phantoon!;
             ushort displayedX = phantoon.Bg2HorizontalScroll;
             ushort displayedY = phantoon.Bg2VerticalScroll;
-            ushort displayedBodyX = (ushort)(phantoon.Body.XPosition - runtime.Camera!.PixelPosition.X);
-            ushort displayedBodyY = (ushort)(phantoon.Body.YPosition - runtime.Camera.PixelPosition.Y);
+            ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Camera!.PixelPosition.X);
+            ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Camera.PixelPosition.Y);
             runtime.StepFrame(0);
             AssertEqual(phantoon.Bg2HorizontalScroll, runtime.BackgroundScroll.Bg2Scroll.X,
                 $"Phantoon live BG2 horizontal handoff frame {frame}");
@@ -74,7 +74,7 @@ internal static partial class Program
                 AssertEqual(displayedBodyY, unchecked((ushort)(40 - layer.Registers.Bg2Scroll.Y)),
                     "Phantoon displayed BG2 anchor shares the collision body's vertical position");
             }
-            positions.Add((phantoon.Body.XPosition, phantoon.Body.YPosition));
+            positions.Add((phantoon.Body.Position.X.Whole, phantoon.Body.Position.Y.Whole));
         }
         AssertTrue(positions.Count > 20, "Phantoon test includes moving body positions, not only stationary introduction");
         Console.WriteLine($"  Phantoon: 1400 live/NMI/capture frames follow {positions.Count} distinct body positions.");

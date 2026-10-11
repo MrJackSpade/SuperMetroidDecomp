@@ -32,9 +32,9 @@ internal static partial class Program
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects.Single(slot => slot.IsActive);
             AssertEqual(expected.SpriteKind, sprite.Kind,
                 $"production escape sprite choice {choice}, inherited {inherited}");
-            AssertEqual(0x1234, sprite.XPosition,
+            AssertEqual(0x1234, sprite.Position.X.Whole,
                 $"production escape X choice {choice}, inherited {inherited}");
-            AssertEqual(0x5678, sprite.YPosition,
+            AssertEqual(0x5678, sprite.Position.Y.Whole,
                 $"production escape Y choice {choice}, inherited {inherited}");
 
             bool queuesSound = choice < 8 && expected.SoundEffect != 0;

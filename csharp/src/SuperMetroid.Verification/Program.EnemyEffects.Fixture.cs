@@ -24,9 +24,8 @@ internal static partial class Program
                     new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
                     new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), crocomireMelting: art);
             Actor = new CrocomireEnemyState(Enemies.Slots[0]) { Tongue = Enemies.Slots[1] };
-            Actor.Body.XPosition = 400;
-            Actor.Body.YPosition = 144;
-            Actor.Tongue.YPosition = 160;
+            Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
+            Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             Effect.AcidSmokeTimer = 1;
             Effect.MutableMeltingGraphics.Fill(0x39);
             Effect.MutableBg2WorkingTilemap.Fill(0x137);

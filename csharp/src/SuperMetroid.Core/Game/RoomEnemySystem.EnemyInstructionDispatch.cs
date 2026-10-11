@@ -92,8 +92,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level,
         ushort word,
         ref ushort cursor,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         ushort controllerInput,
         out bool yieldInterpreter)
     {
@@ -117,7 +116,7 @@ public sealed partial class RoomEnemySystem
             TryProcessDraygonInstruction(slot, samus, word, ref cursor) ||
             TryProcessWallSpacePirateInstruction(slot, level, word, ref cursor) ||
             TryProcessNinjaSpacePirateInstruction(slot, samus, word, ref cursor) ||
-            TryProcessWorkRobotInstruction(slot, samus, level, word, ref cursor, cameraX, cameraY) ||
+            TryProcessWorkRobotInstruction(slot, samus, level, word, ref cursor, camera) ||
             TryProcessBeetomInstruction(slot, word, ref cursor) ||
             TryProcessYappingMawInstruction(slot, word, ref cursor) ||
             TryProcessCacatacInstruction(slot, word, ref cursor) ||
@@ -139,7 +138,7 @@ public sealed partial class RoomEnemySystem
             TryProcessKiHunterInstruction(slot, word, ref cursor) ||
             TryProcessSparkInstruction(slot, word, ref cursor) ||
             TryProcessHibashiInstruction(slot, word, ref cursor) ||
-            TryProcessFakeKraidInstruction(slot, samus, level, word, ref cursor, cameraX, cameraY) ||
+            TryProcessFakeKraidInstruction(slot, samus, level, word, ref cursor, camera) ||
             TryProcessWalkingSpacePirateInstruction(slot, samus, word, ref cursor) ||
             TryProcessRidleyInstruction(slot, samus, word, ref cursor) ||
             TryProcessCeresSteamInstruction(slot, word, ref cursor) ||
@@ -147,14 +146,14 @@ public sealed partial class RoomEnemySystem
             TryProcessDeadSidehopperInstruction(slot, word, ref cursor) ||
             TryProcessShitroidInstruction(slot, word, ref cursor) ||
             TryProcessSporeSpawnInstruction(slot, word, ref cursor) ||
-            TryProcessCrocomireInstruction(slot, samus, level, word, ref cursor, cameraX) ||
+            TryProcessCrocomireInstruction(slot, samus, level, word, ref cursor, camera.X) ||
             TryProcessRinkaInstruction(slot, word, ref cursor) ||
             TryProcessRioInstruction(slot, word, ref cursor) ||
             TryProcessNorfairLavaJumpingEnemyInstruction(slot, word, ref cursor) ||
             TryProcessNorfairRioInstruction(slot, word, ref cursor) ||
             TryProcessLowerNorfairRioInstruction(slot, word, ref cursor) ||
             TryProcessMaridiaLargeSnailInstruction(slot, word, ref cursor) ||
-            TryProcessMagdolliteInstruction(slot, word, ref cursor, cameraX, cameraY) ||
+            TryProcessMagdolliteInstruction(slot, word, ref cursor, camera) ||
             TryProcessBotwoonInstruction(slot, word, ref cursor) ||
             TryProcessShaktoolInstruction(slot, word, ref cursor) ||
             TryProcessChozoStatueInstruction(slot, samus, level, word, ref cursor) ||

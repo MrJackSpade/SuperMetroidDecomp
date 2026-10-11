@@ -26,8 +26,7 @@ internal static partial class Program
                 ? EnemyDefinitionId.Zebbo
                 : EnemyDefinitionId.Zeb;
             initializedSlot.Parameter1 = strong ? (ushort)1 : (ushort)0;
-            initializedSlot.XPosition = 0x0100;
-            initializedSlot.YPosition = 0x0080;
+            initializedSlot.Position = initializedSlot.Position.WithWhole(new(0x0100, 0x0080));
             initialize.Invoke(initializedEnemies, [initializedSlot]);
             AssertEqual(PipeBugDefinitions.BrinstarInstructionList(
                     strong,

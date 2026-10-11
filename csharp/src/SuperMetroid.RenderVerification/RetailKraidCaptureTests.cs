@@ -135,7 +135,7 @@ internal static class RetailKraidCaptureTests
         var shot = shots.Slots[0];
         shot.Type = KraidCaptureDefinitions.AuditMissileType;
         shot.Damage = 100; shot.Direction = (ushort)SamusProjectileDirection.Right;
-        shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.XPosition + left + 2)), unchecked((ushort)(body.YPosition + (top + bottom) / 2))));
+        shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + left + 2)), unchecked((ushort)(body.Position.Y.Whole + (top + bottom) / 2))));
         shot.Radius = new(2, 2);
         shot.InstructionPointer = KraidCaptureDefinitions.AuditLiveInstruction;
         shot.InstructionTimer = 1;

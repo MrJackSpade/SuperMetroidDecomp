@@ -36,11 +36,11 @@ internal static partial class Program
         if (enemy.SpritemapPointer == 0x804d)
             enemy.SpritemapPointer = 0xe80c;
         enemy.InstructionTimer = 0x7fff;
-        runtime.Enemies.PrepareEnemyProcessingList(enemy.XPosition, enemy.YPosition);
+        runtime.Enemies.PrepareEnemyProcessingList(enemy.Position.Whole);
 
         SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;
-        shot.Position = shot.Position.WithWhole(new(enemy.XPosition, enemy.YPosition));
+        shot.Position = shot.Position.WithWhole(enemy.Position.Whole);
         shot.Radius = new(4, 4);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,

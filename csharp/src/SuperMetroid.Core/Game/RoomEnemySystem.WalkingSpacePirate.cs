@@ -175,8 +175,8 @@ public sealed partial class RoomEnemySystem
 
         // Native ADC/SBC wrap at 16 bits. A modded patrol radius can therefore straddle the
         // world-coordinate seam; keeping ushort arithmetic preserves its signed CMP behavior.
-        state.RightPostXPosition = unchecked((ushort)(slot.XPosition + slot.Parameter2));
-        state.LeftPostXPosition = unchecked((ushort)(slot.XPosition - slot.Parameter2));
+        state.RightPostXPosition = unchecked((ushort)(slot.Position.X.Whole + slot.Parameter2));
+        state.LeftPostXPosition = unchecked((ushort)(slot.Position.X.Whole - slot.Parameter2));
     }
 
     /// <summary>Ports <c>MainAI_PirateWalking</c> at <c>$B2:FD32</c>.</summary>
@@ -240,11 +240,11 @@ public sealed partial class RoomEnemySystem
         // Left and right are not mirrors in the cartridge. Left probes a point 17 pixels
         // away, then walks by -$3801 subpixels; right probes +16 and walks by +$3800.
         // Preserve that one-subpixel/one-pixel asymmetry instead of normalizing the speed.
-        ushort originalX = slot.XPosition;
-        slot.XPosition = unchecked((ushort)(
-            slot.XPosition - WalkingPirateLeftLedgeProbePixels));
+        ushort originalX = slot.Position.X.Whole;
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+            slot.Position.X.Whole - WalkingPirateLeftLedgeProbePixels)));
         bool floorAhead = MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown);
-        slot.XPosition = originalX;
+        slot.Position = slot.Position.WithWholeX(originalX);
 
         if (floorAhead)
         {
@@ -256,7 +256,7 @@ public sealed partial class RoomEnemySystem
                 slot,
                 displacement: WalkingPirateLeftStepDisplacement);
             if (!hitWall &&
-                unchecked((short)(slot.XPosition - state.LeftPostXPosition)) >= 0)
+                unchecked((short)(slot.Position.X.Whole - state.LeftPostXPosition)) >= 0)
             {
                 return;
             }
@@ -283,18 +283,18 @@ public sealed partial class RoomEnemySystem
         if (!MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown))
             return;
 
-        ushort originalX = slot.XPosition;
-        slot.XPosition = unchecked((ushort)(
-            slot.XPosition + WalkingPirateRightLedgeProbePixels));
+        ushort originalX = slot.Position.X.Whole;
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+            slot.Position.X.Whole + WalkingPirateRightLedgeProbePixels)));
         bool floorAhead = MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown);
-        slot.XPosition = originalX;
+        slot.Position = slot.Position.WithWholeX(originalX);
 
         if (floorAhead &&
             !MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
                 displacement: WalkingPirateRightStepDisplacement) &&
-            unchecked((short)(slot.XPosition - state.RightPostXPosition)) < 0)
+            unchecked((short)(slot.Position.X.Whole - state.RightPostXPosition)) < 0)
         {
             return;
         }
@@ -326,15 +326,15 @@ public sealed partial class RoomEnemySystem
             }
         }
         if (firstAllocated is null ||
-            Math.Abs(unchecked((short)(firstAllocated.Position.X.Whole - slot.XPosition))) >=
+            Math.Abs(unchecked((short)(firstAllocated.Position.X.Whole - slot.Position.X.Whole))) >=
                 WalkingPirateFlinchBoxPixels ||
-            Math.Abs(unchecked((short)(firstAllocated.Position.Y.Whole - slot.YPosition))) >=
+            Math.Abs(unchecked((short)(firstAllocated.Position.Y.Whole - slot.Position.Y.Whole))) >=
                 WalkingPirateFlinchBoxPixels)
         {
             return;
         }
 
-        ushort list = unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0
+        ushort list = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
             ? WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingRight
             : WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingLeft;
         InstallWalkingSpacePirateInstruction(slot, list);
@@ -352,7 +352,7 @@ public sealed partial class RoomEnemySystem
         }
 
         bool samusIsRightOrAligned =
-            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0;
+            unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0;
         if (WalkingSpacePirateIsVerticallyClose(slot, samus))
         {
             return samusIsRightOrAligned
@@ -370,7 +370,7 @@ public sealed partial class RoomEnemySystem
     private static bool WalkingSpacePirateIsVerticallyClose(
         RoomEnemySlot slot,
         SamusState samus) =>
-        Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.YPosition))) <
+        Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))) <
             WalkingPirateFiringBandPixels;
 
     private static void InstallWalkingSpacePirateAttack(
@@ -378,7 +378,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus) =>
         InstallWalkingSpacePirateInstruction(
             slot,
-            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0
+            unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0
                 ? WalkingSpacePirateInstructionProgramDefinitions.FireLasersRight
                 : WalkingSpacePirateInstructionProgramDefinitions.FireLasersLeft);
 
@@ -416,9 +416,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot? projectile = SpawnPirateMotherBrainLaser(
             source,
             unchecked((ushort)(
-                source.XPosition +
+                source.Position.X.Whole +
                 (movingRight ? WalkingPirateLaserMuzzleXOffset : -WalkingPirateLaserMuzzleXOffset))),
-            unchecked((ushort)(source.YPosition - yOffset)),
+            unchecked((ushort)(source.Position.Y.Whole - yOffset)),
             movingRight);
         if (projectile is null)
             return false;
@@ -448,10 +448,7 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.PirateMotherBrainLaser,
             graphicsIndex: 0);
 
-        projectile.XPosition = xPosition;
-        projectile.YPosition = yPosition;
-        projectile.XSubposition = 0;
-        projectile.YSubposition = 0;
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, yPosition));
         projectile.InstructionPointer = movingRight
             ? SpacePirateProjectileInstructionProgramDefinitions.LaserRight
             : SpacePirateProjectileInstructionProgramDefinitions.LaserLeft;
@@ -486,8 +483,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Runs pre-instructions $86:A05C/$A07A and exact 256x256 camera deletion.</summary>
     private static void RunPirateMotherBrainLaserPreInstruction(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         int pixels = (((WalkingSpacePirateParameterFlags)projectile.Variable0 &
                 WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) == 0)
@@ -495,19 +491,19 @@ public sealed partial class RoomEnemySystem
             : WalkingPirateSlowLaserPixelsPerFrame;
         PirateLaserPreInstruction direction = ClosedNativeWords.Decode<PirateLaserPreInstruction>(
             projectile.PreInstruction, $"{projectile.Kind} laser pre-instruction");
-        projectile.XPosition = direction switch
+        projectile.Position = projectile.Position.WithWholeX(direction switch
         {
-            PirateLaserPreInstruction.Left => unchecked((ushort)(projectile.XPosition - pixels)),
-            PirateLaserPreInstruction.Right => unchecked((ushort)(projectile.XPosition + pixels)),
+            PirateLaserPreInstruction.Left => unchecked((ushort)(projectile.Position.X.Whole - pixels)),
+            PirateLaserPreInstruction.Right => unchecked((ushort)(projectile.Position.X.Whole + pixels)),
             _ => throw new InvalidOperationException($"Undefined laser pre-instruction {direction}."),
-        };
+        });
 
-        ushort right = unchecked((ushort)(cameraX + 256));
-        ushort bottom = unchecked((ushort)(cameraY + 256));
-        bool offScreen = unchecked((short)(projectile.XPosition - cameraX)) < 0 ||
-            unchecked((short)(projectile.XPosition - right)) >= 0 ||
-            unchecked((short)(projectile.YPosition - cameraY)) < 0 ||
-            unchecked((short)(projectile.YPosition - bottom)) >= 0;
+        ushort right = unchecked((ushort)(camera.X + 256));
+        ushort bottom = unchecked((ushort)(camera.Y + 256));
+        bool offScreen = unchecked((short)(projectile.Position.X.Whole - camera.X)) < 0 ||
+            unchecked((short)(projectile.Position.X.Whole - right)) >= 0 ||
+            unchecked((short)(projectile.Position.Y.Whole - camera.Y)) < 0 ||
+            unchecked((short)(projectile.Position.Y.Whole - bottom)) >= 0;
         if (offScreen)
             projectile.Clear();
     }

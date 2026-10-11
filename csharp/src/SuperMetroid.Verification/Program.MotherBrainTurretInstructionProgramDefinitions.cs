@@ -77,9 +77,7 @@ internal static partial class Program
             RoomEnemySystem bulletSystem = NewSystem();
             var source = new RoomEnemyProjectileSlot(0)
             {
-                XPosition = 0x0400,
-                YPosition = 0x0200,
-                YSubposition = directionValue,
+                Position = new(new(0x0400, 0), new(0x0200, directionValue)),
             };
             spawnBullet.Invoke(bulletSystem, [source]);
             RoomEnemyProjectileSlot bullet = bulletSystem.EnemyProjectiles.Single(
@@ -104,9 +102,7 @@ internal static partial class Program
         RoomEnemySystem contactSystem = NewSystem();
         var contactSource = new RoomEnemyProjectileSlot(0)
         {
-            XPosition = 0x0400,
-            YPosition = 0x0200,
-            YSubposition = (ushort)MotherBrainTurretDirection.Left,
+            Position = new(new(0x0400, 0), new(0x0200, (ushort)MotherBrainTurretDirection.Left)),
         };
         spawnBullet.Invoke(contactSystem, [contactSource]);
         RoomEnemyProjectileSlot contact = contactSystem.EnemyProjectiles.Single(
@@ -191,7 +187,7 @@ internal static partial class Program
         void RunForcedTick(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
         }
     }
 

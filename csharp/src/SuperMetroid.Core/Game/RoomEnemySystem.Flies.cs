@@ -134,7 +134,7 @@ public sealed partial class RoomEnemySystem
         {
             state.RetreatTimer = unchecked((ushort)(state.RetreatTimer - 1));
         }
-        else if (Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole))) <
+        else if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) <
             FlyAttackHorizontalRange)
         {
             SetFlyToAttackSamus(slot, state, samus);
@@ -157,8 +157,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         byte angle = CalculateCartridgeAngle(
-            unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
-            unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
+            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
         state.XVelocity = unchecked((ushort)(ReadSignedSineCosine(angle + 64) * 2));
         state.YVelocity = unchecked((ushort)(ReadSignedSineCosine(angle) * 4));
         state.TargetYPosition = samus.Position.Y.Whole;
@@ -171,8 +170,8 @@ public sealed partial class RoomEnemySystem
         state.RetreatTimer = unchecked((ushort)(state.RetreatTimer + 1));
 
         bool crossedTarget = (short)state.YVelocity < 0
-            ? slot.YPosition < state.TargetYPosition
-            : slot.YPosition >= state.TargetYPosition;
+            ? slot.Position.Y.Whole < state.TargetYPosition
+            : slot.Position.Y.Whole >= state.TargetYPosition;
         if (!crossedTarget)
             return;
 
@@ -183,26 +182,13 @@ public sealed partial class RoomEnemySystem
     private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
         int tableIndex = state.Angle >> 1;
-        (slot.XPosition, slot.XSubposition) = AddEightBitVelocity(
-            slot.XPosition,
-            slot.XSubposition,
-            unchecked((ushort)ReadSignedSineCosine(tableIndex + 64)));
-        (slot.YPosition, slot.YSubposition) = AddEightBitVelocity(
-            slot.YPosition,
-            slot.YSubposition,
-            unchecked((ushort)ReadSignedSineCosine(tableIndex)));
+        slot.Position = slot.Position.AdvanceX(new SnesSignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex + 64))).ToSixteenSixteenDelta());
+        slot.Position = slot.Position.AdvanceY(new SnesSignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex))).ToSixteenSixteenDelta());
     }
 
     private static void MoveFlyAccordingToVelocities(RoomEnemySlot slot, FlyEnemyState state)
     {
-        (slot.XPosition, slot.XSubposition) = AddEightBitVelocity(
-            slot.XPosition,
-            slot.XSubposition,
-            state.XVelocity);
-        (slot.YPosition, slot.YSubposition) = AddEightBitVelocity(
-            slot.YPosition,
-            slot.YSubposition,
-            state.YVelocity);
+        slot.Position = slot.Position.Advance(new(new SnesSignedEightEight(state.XVelocity).ToSixteenSixteenDelta(), new SnesSignedEightEight(state.YVelocity).ToSixteenSixteenDelta()));
     }
 
     private static short ReadSignedSineCosine(int index)

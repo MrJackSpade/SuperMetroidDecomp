@@ -78,8 +78,7 @@ internal static partial class Program
             seed = (ushort)raw;
             reads = advances = 0;
             var state = new RidleyEnemyState { Function = RidleyAiFunction.NorfairPogoSetup };
-            slot.XPosition = 128;
-            slot.YPosition = 288;
+            slot.Position = slot.Position.WithWhole(new(128, 288));
             // Null Samus deliberately takes the non-spin handoff after the timer write;
             // it avoids consuming a timer tick while exercising the real setup dispatcher.
             run(slot, state, null, 0, null);

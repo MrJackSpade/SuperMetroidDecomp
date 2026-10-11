@@ -54,15 +54,15 @@ public sealed partial class RoomEnemySystem
             // Decapitation transfers position ownership from the articulated neck to the
             // death sequence. Otherwise the next head AI call overwrites falling Y again.
             state.BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn;
-            state.Head!.XPosition = sequence.BrainXPosition;
-            state.Head.YPosition = sequence.BrainYPosition;
+            state.Head!.Position = state.Head!.Position.WithWholeX(sequence.BrainXPosition);
+            state.Head.Position = state.Head.Position.WithWholeY(sequence.BrainYPosition);
         }
         if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey && step.PaletteRequested)
             LoadMotherBrainDeathCorpseFade(sequence.GreyTransitionCounter - 1);
         foreach (var transfer in step.CorpseRottingVramTransfers) ApplyMotherBrainRainbowTileTransfer(transfer);
         foreach (var dust in step.CorpseDustRequests)
         {
-            SpawnRoomGraphicsDustExplosion(dust.XPosition, dust.YPosition, dust.ProjectileParameter);
+            SpawnRoomGraphicsDustExplosion(new(dust.XPosition, dust.YPosition), dust.ProjectileParameter);
             // $A9:B252 queues the rot dust through QueueSound_Lib2_Max3.
             if (dust.SoundEffectQueued)
                 QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, dust.SoundEffect), maximumQueued: 3);
@@ -86,7 +86,7 @@ public sealed partial class RoomEnemySystem
             LoadMotherBrainDeathDoorPalette();
         if (step.EscapeDoorExplosion is { } doorDust)
         {
-            SpawnRoomGraphicsDustExplosion(doorDust.XPosition, doorDust.YPosition, doorDust.ProjectileParameter);
+            SpawnRoomGraphicsDustExplosion(new(doorDust.XPosition, doorDust.YPosition), doorDust.ProjectileParameter);
             // $A9:B346 queues the door explosion through QueueSound_Lib2_Max3.
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, doorDust.SoundEffect), maximumQueued: 3);
         }
@@ -161,16 +161,14 @@ public sealed partial class RoomEnemySystem
         InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphicsIndex: 0);
         projectile.InstructionPointer = instructionList;
         projectile.InstructionTimer = 1;
-        projectile.XVelocity = unchecked((ushort)request.XOffset);
-        projectile.YVelocity = unchecked((ushort)request.YOffset);
+        projectile.Velocity = new(new SnesSignedEightEight(unchecked((ushort)request.XOffset)), new SnesSignedEightEight(unchecked((ushort)request.YOffset)));
         RunMotherBrainDeathExplosion(projectile);
     }
 
     private void RunMotherBrainDeathExplosion(RoomEnemyProjectileSlot projectile)
     {
         var body = MotherBrain?.Body ?? throw new InvalidOperationException("Body-relative death explosion has no Mother Brain owner.");
-        projectile.XPosition = unchecked((ushort)(body.XPosition + projectile.XVelocity));
-        projectile.YPosition = unchecked((ushort)(body.YPosition + projectile.YVelocity));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + projectile.Velocity.X.RawValue)), unchecked((ushort)(body.Position.Y.Whole + projectile.Velocity.Y.RawValue))));
     }
 
     private void SpawnMotherBrainDoorFragment(ushort parameter)
@@ -180,34 +178,30 @@ public sealed partial class RoomEnemySystem
         var fragment = AllocateEnemyProjectile();
         if (fragment is null) return;
         InitializeEnemyProjectileFromDefinition(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, graphicsIndex: 0);
-        fragment.XPosition = unchecked((ushort)(MotherBrainDeathRomData.DoorX + definition.XOffset));
-        fragment.YPosition = unchecked((ushort)(MotherBrainDeathRomData.DoorY + definition.YOffset));
-        fragment.XVelocity = unchecked((ushort)definition.XVelocity);
-        fragment.YVelocity = unchecked((ushort)definition.YVelocity);
+        fragment.Position = fragment.Position.WithWhole(new(unchecked((ushort)(MotherBrainDeathRomData.DoorX + definition.XOffset)), unchecked((ushort)(MotherBrainDeathRomData.DoorY + definition.YOffset))));
+        fragment.Velocity = new(new SnesSignedEightEight(unchecked((ushort)definition.XVelocity)), new SnesSignedEightEight(unchecked((ushort)definition.YVelocity)));
         fragment.Variable0 = MotherBrainDeathRomData.DoorFragmentLifetime;
     }
 
     private void RunMotherBrainDoorFragment(RoomEnemyProjectileSlot fragment)
     {
-        bool negative = unchecked((short)fragment.XVelocity) < 0;
-        ushort magnitude = negative ? unchecked((ushort)-fragment.XVelocity) : fragment.XVelocity;
+        bool negative = unchecked((short)fragment.Velocity.X.RawValue) < 0;
+        ushort magnitude = negative ? unchecked((ushort)-fragment.Velocity.X.RawValue) : fragment.Velocity.X.RawValue;
         short slowed = unchecked((short)(magnitude - MotherBrainDeathRomData.DoorFragmentDrag));
         int speed = Math.Max(0, (int)slowed);
-        fragment.XVelocity = unchecked((ushort)(negative ? -speed : speed));
-        fragment.YVelocity = unchecked((ushort)(fragment.YVelocity + MotherBrainDeathRomData.DoorFragmentGravity));
-        (fragment.XPosition, fragment.XSubposition) = AddEightBitVelocity(fragment.XPosition, fragment.XSubposition, fragment.XVelocity);
-        (fragment.YPosition, fragment.YSubposition) = AddEightBitVelocity(fragment.YPosition, fragment.YSubposition, fragment.YVelocity);
+        fragment.Velocity = fragment.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(negative ? -speed : speed))));
+        fragment.Velocity = fragment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(fragment.Velocity.Y.RawValue + MotherBrainDeathRomData.DoorFragmentGravity))));
+        fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
         fragment.Variable0--;
         if (unchecked((short)fragment.Variable0) >= 0) return;
-        ushort x = fragment.XPosition, y = unchecked((ushort)(fragment.YPosition - MotherBrainDeathRomData.DoorDustYOffset));
+        ushort x = fragment.Position.X.Whole, y = unchecked((ushort)(fragment.Position.Y.Whole - MotherBrainDeathRomData.DoorDustYOffset));
         fragment.Clear();
-        SpawnRoomGraphicsDustExplosion(x, y, MotherBrainDeathRomData.DoorDustParameter);
+        SpawnRoomGraphicsDustExplosion(new(x, y), MotherBrainDeathRomData.DoorDustParameter);
     }
 
     private static void PinMotherBrainEscapeSubtitle(RoomEnemyProjectileSlot subtitle)
     {
-        subtitle.XVelocity = subtitle.YVelocity = 0;
-        subtitle.XPosition = MotherBrainDeathRomData.SubtitleX;
-        subtitle.YPosition = MotherBrainDeathRomData.SubtitleY;
+        subtitle.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathRomData.SubtitleX, MotherBrainDeathRomData.SubtitleY));
     }
 }

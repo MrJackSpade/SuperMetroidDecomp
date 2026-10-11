@@ -224,12 +224,12 @@ public sealed partial class RoomEnemySystem
         state.InstalledInstructionList = 0;
         state.FacingMarker = 0;
         state.HeadWaitsForBodyLanding = false;
-        state.OriginY = slot.YPosition;
+        state.OriginY = slot.Position.Y.Whole;
 
         // The initializer's marker convention is briefly opposite main function $B11A's
         // convention. Preserve that one-frame oddity; the first main tick normalizes it.
         bool samusIsLeft = samus is not null &&
-            IsNegative16(unchecked((ushort)(samus.Position.X.Whole - slot.XPosition)));
+            IsNegative16(unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole)));
         if (samusIsLeft)
             state.FacingMarker = 1;
         state.DesiredInstructionList = state.FacingMarker != 0
@@ -243,13 +243,13 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
     {
-        state.OriginY = slot.YPosition;
+        state.OriginY = slot.Position.Y.Whole;
         state.InstalledInstructionList = 0;
         state.BodyReachedApex = false;
         state.BodyWakeRequested = true;
         state.DesiredInstructionList = MagdollitePhaseDefinitions.Phase(0).BodyInstructionList;
         InstallMagdolliteInstructionList(slot, state);
-        slot.YPosition = unchecked((ushort)(slot.YPosition + 32));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 32)));
         state.Function = MagdolliteEnemyFunction.BodyDormant;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
@@ -258,13 +258,13 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
     {
-        state.OriginY = slot.YPosition;
-        state.InitializationOriginX = slot.XPosition;
+        state.OriginY = slot.Position.Y.Whole;
+        state.InitializationOriginX = slot.Position.X.Whole;
         state.InstalledInstructionList = 0;
         state.AttackTimer = 0;
         state.DesiredInstructionList = MagdolliteInstructionProgramDefinitions.PillarCap;
         InstallMagdolliteInstructionList(slot, state);
-        slot.YPosition = unchecked((ushort)(slot.YPosition + 32));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 32)));
         state.Function = MagdolliteEnemyFunction.OverlayWaitingForAttack;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
@@ -327,7 +327,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             return;
 
-        bool samusIsRight = !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.XPosition)));
+        bool samusIsRight = !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.Position.X.Whole)));
         state.FacingMarker = samusIsRight ? (ushort)1 : (ushort)0;
         state.DesiredInstructionList = samusIsRight
             ? MagdolliteInstructionProgramDefinitions.RightIdle
@@ -341,7 +341,7 @@ public sealed partial class RoomEnemySystem
 
         overlayState.AttackTimer = 0;
         ushort range = unchecked((byte)head.Parameter2);
-        if (!IsWithinStrictModularDistance(head.XPosition, samus.Position.X.Whole, range))
+        if (!IsWithinStrictModularDistance(head.Position.X.Whole, samus.Position.X.Whole, range))
             return;
 
         state.DesiredInstructionList = samusIsRight
@@ -373,7 +373,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         bool samusIsRight = samus is not null &&
-            !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.XPosition)));
+            !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.Position.X.Whole)));
         state.DesiredInstructionList = samusIsRight
             ? MagdolliteInstructionProgramDefinitions.RightEmerge
             : MagdolliteInstructionProgramDefinitions.LeftEmerge;
@@ -390,7 +390,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         bool samusIsRight = samus is not null &&
-            !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.XPosition)));
+            !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.Position.X.Whole)));
         state.DesiredInstructionList = samusIsRight
             ? MagdolliteInstructionProgramDefinitions.RightIdle
             : MagdolliteInstructionProgramDefinitions.LeftIdle;
@@ -409,7 +409,7 @@ public sealed partial class RoomEnemySystem
         state.VerticalWholeDisplacement = 0;
         state.BodyWakeRequested = false;
         state.BodyPhaseOffset = 2;
-        body.YPosition = state.OriginY;
+        body.Position = body.Position.WithWholeY(state.OriginY);
     }
 
     private void RunMagdolliteBodyRising(
@@ -434,7 +434,7 @@ public sealed partial class RoomEnemySystem
         bool roseMaximum = !IsNegative16(
             upwardDistance - MagdollitePhaseDefinitions.MaximumRise);
         bool rosePastSamus = samus is not null && IsNegative16(unchecked((ushort)(
-            body.YPosition - phase.OverlayYOffset - samus.Position.Y.Whole)));
+            body.Position.Y.Whole - phase.OverlayYOffset - samus.Position.Y.Whole)));
         // The maximum-rise branch skips the growth-index load, so its threshold is the
         // overread at the main loop's enemy index; the Samus test loads the phase's own.
         ushort threshold = roseMaximum
@@ -454,7 +454,7 @@ public sealed partial class RoomEnemySystem
         }
 
         state.BodyPhaseOffset = unchecked((ushort)(state.BodyPhaseOffset + 2));
-        body.YPosition = unchecked((ushort)(body.YPosition + 8));
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 8)));
         state.DesiredInstructionList = MagdollitePhaseDefinitions
             .Phase(state.BodyPhaseOffset >> 1).BodyInstructionList;
         InstallMagdolliteInstructionList(body, state);
@@ -489,7 +489,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.BodyPhaseOffset = unchecked((ushort)(state.BodyPhaseOffset - 2));
-        body.YPosition = unchecked((ushort)(body.YPosition - 8));
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 8)));
         state.DesiredInstructionList = MagdollitePhaseDefinitions
             .Phase(state.BodyPhaseOffset >> 1).BodyInstructionList;
         InstallMagdolliteInstructionList(body, state);
@@ -520,8 +520,7 @@ public sealed partial class RoomEnemySystem
             bodyState.Function = MagdolliteEnemyFunction.BodyFalling;
             state.Function = MagdolliteEnemyFunction.OverlayTrackingFallingBody;
             bodyState.BodyReachedApex = false;
-            overlay.XPosition = state.ThrowOriginX;
-            overlay.YPosition = state.ThrowOriginY;
+            overlay.Position = overlay.Position.WithWhole(new(state.ThrowOriginX, state.ThrowOriginY));
         }
 
         UpdateMagdolliteHeadRadius(overlay);
@@ -537,21 +536,21 @@ public sealed partial class RoomEnemySystem
         if (bodyState.BodyReachedApex)
         {
             bool samusIsRight = samus is not null &&
-                !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - overlay.XPosition)));
+                !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - overlay.Position.X.Whole)));
             state.DesiredInstructionList = samusIsRight
                 ? MagdolliteInstructionProgramDefinitions.RightThrow
                 : MagdolliteInstructionProgramDefinitions.LeftThrow;
             state.BodyPhaseOffset = samusIsRight ? (ushort)1 : (ushort)0;
             InstallMagdolliteInstructionList(overlay, state);
             state.Function = MagdolliteEnemyFunction.OverlayWaitingForThrowAnimation;
-            state.ThrowOriginX = overlay.XPosition;
-            state.ThrowOriginY = overlay.YPosition;
+            state.ThrowOriginX = overlay.Position.X.Whole;
+            state.ThrowOriginY = overlay.Position.Y.Whole;
         }
         else
         {
             ushort offset = MagdollitePhaseDefinitions
                 .Phase(bodyState.BodyPhaseOffset >> 1).OverlayYOffset;
-            overlay.YPosition = unchecked((ushort)(body.YPosition - offset));
+            overlay.Position = overlay.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - offset)));
         }
 
         UpdateMagdolliteHeadRadius(overlay);
@@ -572,7 +571,7 @@ public sealed partial class RoomEnemySystem
         {
             ushort offset = MagdollitePhaseDefinitions
                 .Phase(bodyState.BodyPhaseOffset >> 1).OverlayYOffset;
-            overlay.YPosition = unchecked((ushort)(body.YPosition - offset));
+            overlay.Position = overlay.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - offset)));
         }
 
         UpdateMagdolliteHeadRadius(overlay);
@@ -586,8 +585,8 @@ public sealed partial class RoomEnemySystem
     private void UpdateMagdolliteHeadRadius(RoomEnemySlot overlay)
     {
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(overlay);
-        ushort radius = unchecked((ushort)(head.YPosition - overlay.YPosition + 2));
-        head.YRadius = IsNegative16(radius - 8) ? (ushort)8 : radius;
+        ushort radius = unchecked((ushort)(head.Position.Y.Whole - overlay.Position.Y.Whole + 2));
+        head.Radius = head.Radius.WithY(IsNegative16(radius - 8) ? (ushort)8 : radius);
     }
 
     private static int AddMagdolliteY(
@@ -595,11 +594,11 @@ public sealed partial class RoomEnemySystem
         ushort wholeVelocity,
         ushort fractionalVelocity)
     {
-        uint fractionalSum = (uint)slot.YSubposition + fractionalVelocity;
-        slot.YSubposition = unchecked((ushort)fractionalSum);
+        uint fractionalSum = (uint)slot.Position.Y.Fraction + fractionalVelocity;
+        slot.Position = slot.Position.WithFractionY(unchecked((ushort)fractionalSum));
         int wholeDelta = unchecked((short)wholeVelocity) +
             (fractionalSum > ushort.MaxValue ? 1 : 0);
-        slot.YPosition = unchecked((ushort)(slot.YPosition + wholeDelta));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + wholeDelta)));
         return wholeDelta;
     }
 
@@ -671,8 +670,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         ushort opcode,
         ref ushort cursor,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite)
             return false;
@@ -684,10 +682,10 @@ public sealed partial class RoomEnemySystem
         {
             case MagdolliteInstruction.Instruction_Magdollite_QueueSFXInY_Lib2_Max6_IfOnScreen:
             {
-                bool offScreen = IsNegative16(slot.XPosition - cameraX) ||
-                    IsNegative16(cameraX + 256 - slot.XPosition) ||
-                    IsNegative16(slot.YPosition - cameraY) ||
-                    IsNegative16(cameraY + 256 - slot.YPosition);
+                bool offScreen = IsNegative16(slot.Position.X.Whole - camera.X) ||
+                    IsNegative16(camera.X + 256 - slot.Position.X.Whole) ||
+                    IsNegative16(slot.Position.Y.Whole - camera.Y) ||
+                    IsNegative16(camera.Y + 256 - slot.Position.Y.Whole);
                 if (!offScreen)
                 {
                     LastMagdolliteSoundEffect = ReadEnemyInstructionMechanicsWord(
@@ -698,10 +696,10 @@ public sealed partial class RoomEnemySystem
                 return true;
             }
             case MagdolliteInstruction.Instruction_Magdollite_MoveDown2Pixels:
-                slot.YPosition = unchecked((ushort)(slot.YPosition + 2));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 2)));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_MoveUp2Pixels:
-                slot.YPosition = unchecked((ushort)(slot.YPosition - 2));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 2)));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_SetWaitingFlag:
                 state.AnimationBusy = true;
@@ -712,23 +710,23 @@ public sealed partial class RoomEnemySystem
             case MagdolliteInstruction.Instruction_Magdollite_MoveBaseAndPillarUp1Pixel:
             {
                 RoomEnemySlot next = NextMagdolliteSlot(slot);
-                slot.YPosition = unchecked((ushort)(slot.YPosition - 1));
-                next.YPosition = unchecked((ushort)(next.YPosition - 1));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 1)));
+                next.Position = next.Position.WithWholeY(unchecked((ushort)(next.Position.Y.Whole - 1)));
                 break;
             }
             case MagdolliteInstruction.Instruction_Magdollite_MoveBaseAndPillarDown1Pixel:
             {
                 RoomEnemySlot next = NextMagdolliteSlot(slot);
-                slot.YPosition = unchecked((ushort)(slot.YPosition + 1));
-                next.YPosition = unchecked((ushort)(next.YPosition + 1));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
+                next.Position = next.Position.WithWholeY(unchecked((ushort)(next.Position.Y.Whole + 1)));
                 break;
             }
             case MagdolliteInstruction.Instruction_Magdollite_MoveDownBy18Pixels_SetSlavesAsVisible:
             {
                 (_, RoomEnemySlot body, RoomEnemySlot overlay) = RequireMagdolliteComposite(slot);
                 ushort y = unchecked((ushort)(state.OriginY + 24));
-                slot.YPosition = y;
-                body.YPosition = y;
+                slot.Position = slot.Position.WithWholeY(y);
+                body.Position = body.Position.WithWholeY(y);
                 body.Properties = body.Properties.Without(EnemyProperties.Invisible);
                 overlay.Properties = overlay.Properties.Without(EnemyProperties.Invisible);
                 break;
@@ -736,16 +734,16 @@ public sealed partial class RoomEnemySystem
             case MagdolliteInstruction.Instruction_Magdollite_RestoreInitialYPositions:
             {
                 (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(slot);
-                slot.YPosition = state.OriginY;
-                body.YPosition = state.OriginY;
+                slot.Position = slot.Position.WithWholeY(state.OriginY);
+                body.Position = body.Position.WithWholeY(state.OriginY);
                 break;
             }
             case MagdolliteInstruction.Instruction_Magdollite_MoveDown4Pixels_SetSlavesAsInvisible:
             {
                 (_, RoomEnemySlot body, RoomEnemySlot overlay) = RequireMagdolliteComposite(slot);
                 ushort y = unchecked((ushort)(state.OriginY + 4));
-                slot.YPosition = y;
-                body.YPosition = y;
+                slot.Position = slot.Position.WithWholeY(y);
+                body.Position = body.Position.WithWholeY(y);
                 body.Properties = body.Properties.With(EnemyProperties.Invisible);
                 overlay.Properties = overlay.Properties.With(EnemyProperties.Invisible);
                 break;
@@ -754,20 +752,16 @@ public sealed partial class RoomEnemySystem
                 SpawnMagdolliteLava(slot, state.BodyPhaseOffset);
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_ShiftRight8Pixels_Up4Pixels_FaceRight:
-                slot.XPosition = unchecked((ushort)(state.ThrowOriginX + 8));
-                slot.YPosition = unchecked((ushort)(state.ThrowOriginY - 4));
+                slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(state.ThrowOriginX + 8)), unchecked((ushort)(state.ThrowOriginY - 4))));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_ShiftLeft8Pixels_Up4Pixels_FacingLeft:
-                slot.XPosition = unchecked((ushort)(state.ThrowOriginX - 8));
-                slot.YPosition = unchecked((ushort)(state.ThrowOriginY - 4));
+                slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(state.ThrowOriginX - 8)), unchecked((ushort)(state.ThrowOriginY - 4))));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_ShiftRight8Pixels_Up4Pixels_Right_dup:
-                slot.XPosition = unchecked((ushort)(state.ThrowOriginX + 8));
-                slot.YPosition = unchecked((ushort)(state.ThrowOriginY - 8));
+                slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(state.ThrowOriginX + 8)), unchecked((ushort)(state.ThrowOriginY - 8))));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_ShiftLeft8Pixels_Up4Pixels_Left_dup:
-                slot.XPosition = unchecked((ushort)(state.ThrowOriginX - 8));
-                slot.YPosition = unchecked((ushort)(state.ThrowOriginY - 4));
+                slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(state.ThrowOriginX - 8)), unchecked((ushort)(state.ThrowOriginY - 4))));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_SetCooldownTimerTo100:
                 state.AttackTimer = 256;

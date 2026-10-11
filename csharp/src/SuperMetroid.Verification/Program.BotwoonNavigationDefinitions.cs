@@ -13,10 +13,10 @@ internal static partial class Program
             ushort native = ReadBotwoonInstructionWord(rom, 0xb3949d + offset);
             AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).Right, "Botwoon native right boundary");
             var head = new RoomEnemySystem().Slots[0];
-            head.YPosition = ReadBotwoonInstructionWord(rom, 0xb3949f + offset);
+            head.Position = head.Position.WithWholeY(ReadBotwoonInstructionWord(rom, 0xb3949f + offset));
             foreach (int x in new[] {native - 1, native})
             {
-                head.XPosition = (ushort)x;
+                head.Position = head.Position.WithWholeX((ushort)x);
                 var state = new BotwoonEnemyState(head);
                 detect(head, state);
                 AssertEqual(x < native, state.InsideHole, "Botwoon right boundary is exclusive");
@@ -36,10 +36,10 @@ internal static partial class Program
             ushort native = ReadBotwoonInstructionWord(rom, 0xb394a1 + offset);
             AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).Bottom, "Botwoon native bottom boundary");
             var head = new RoomEnemySystem().Slots[0];
-            head.XPosition = ReadBotwoonInstructionWord(rom, 0xb3949b + offset);
+            head.Position = head.Position.WithWholeX(ReadBotwoonInstructionWord(rom, 0xb3949b + offset));
             foreach (int y in new[] {native - 1, native})
             {
-                head.YPosition = (ushort)y;
+                head.Position = head.Position.WithWholeY((ushort)y);
                 var state = new BotwoonEnemyState(head);
                 detect(head, state);
                 AssertEqual(y < native, state.InsideHole, "Botwoon bottom boundary is exclusive");
@@ -184,8 +184,7 @@ internal static partial class Program
 
             foreach (short direction in new short[] { 0, -1 })
             {
-                movementHead.XPosition = 0x8000;
-                movementHead.YPosition = 0x8000;
+                movementHead.Position = movementHead.Position.WithWhole(new(0x8000, 0x8000));
                 var state = new BotwoonEnemyState(movementHead)
                 {
                     MovementFunction = BotwoonMovementFunction.FollowAuthoredPath,
@@ -202,19 +201,19 @@ internal static partial class Program
                 {
                     AssertEqual((ushort)pointer, state.PathPointer,
                         $"Botwoon terminating movement ${pointer:X4}/{direction} pointer");
-                    AssertEqual((ushort)0x8000, movementHead.XPosition,
+                    AssertEqual((ushort)0x8000, movementHead.Position.X.Whole,
                         $"Botwoon terminating movement ${pointer:X4}/{direction} X");
-                    AssertEqual((ushort)0x8000, movementHead.YPosition,
+                    AssertEqual((ushort)0x8000, movementHead.Position.Y.Whole,
                         $"Botwoon terminating movement ${pointer:X4}/{direction} Y");
                     continue;
                 }
 
                 int sign = direction < 0 ? -1 : 1;
                 AssertEqual(unchecked((ushort)(0x8000 + sign * expectedX)),
-                    movementHead.XPosition,
+                    movementHead.Position.X.Whole,
                     $"Botwoon production movement ${pointer:X4}/{direction} X");
                 AssertEqual(unchecked((ushort)(0x8000 + sign * expectedY)),
-                    movementHead.YPosition,
+                    movementHead.Position.Y.Whole,
                     $"Botwoon production movement ${pointer:X4}/{direction} Y");
                 AssertEqual(unchecked((ushort)(pointer + (direction < 0 ? -2 : 2))),
                     state.PathPointer,
@@ -231,8 +230,7 @@ internal static partial class Program
             BotwoonHoleDefinition hole = holes[byteOffset >> 3];
             var head = new RoomEnemySystem().Slots[0];
             var state = new BotwoonEnemyState(head) { RingByteOffset = 0x0234 };
-            head.XPosition = hole.Left;
-            head.YPosition = hole.Top;
+            head.Position = head.Position.WithWhole(new(hole.Left, hole.Top));
             detectHole(head, state);
             AssertTrue(state.InsideHole, $"Botwoon hole {byteOffset:X2} includes left/top");
             AssertTrue(state.HoleLatch, $"Botwoon hole {byteOffset:X2} latches");
@@ -241,13 +239,12 @@ internal static partial class Program
 
             state.HoleLatch = false;
             state.InsideHole = false;
-            head.XPosition = hole.Right;
+            head.Position = head.Position.WithWholeX(hole.Right);
             detectHole(head, state);
             AssertTrue(!state.InsideHole,
                 $"Botwoon hole {byteOffset:X2} excludes right boundary");
             state.HoleLatch = false;
-            head.XPosition = hole.Left;
-            head.YPosition = hole.Bottom;
+            head.Position = head.Position.WithWhole(new(hole.Left, hole.Bottom));
             detectHole(head, state);
             AssertTrue(!state.InsideHole,
                 $"Botwoon hole {byteOffset:X2} excludes bottom boundary");
@@ -260,8 +257,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies, new BotwoonNavigationReadGuard(rom));
             RoomEnemySlot head = enemies.Slots[0];
-            head.XPosition = hole.TargetX;
-            head.YPosition = hole.TargetY;
+            head.Position = head.Position.WithWhole(new(hole.TargetX, hole.TargetY));
             var state = new BotwoonEnemyState(head)
             {
                 MovementFunction = BotwoonMovementFunction.MoveTowardHole,
@@ -273,9 +269,9 @@ internal static partial class Program
                 $"Botwoon hole {byteOffset:X2} exact-target cartridge angle");
             AssertEqual((byte)191, state.MovementAngle,
                 $"Botwoon hole {byteOffset:X2} exact-target movement angle");
-            AssertEqual(hole.TargetX, head.XPosition,
+            AssertEqual(hole.TargetX, head.Position.X.Whole,
                 $"Botwoon hole {byteOffset:X2} exact-target X");
-            AssertEqual(hole.TargetY, head.YPosition,
+            AssertEqual(hole.TargetY, head.Position.Y.Whole,
                 $"Botwoon hole {byteOffset:X2} exact-target Y");
         }
 

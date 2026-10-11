@@ -46,12 +46,12 @@ public sealed partial class RoomEnemySystem
         state.HorizontalProximityOrWaitTime = slot.Parameter2;
         state.FunctionTimer = slot.Parameter2;
 
-        state.MinimumYPosition = slot.YPosition;
-        state.MaximumYPosition = unchecked((ushort)(slot.YPosition + state.TravelDistance));
+        state.MinimumYPosition = slot.Position.Y.Whole;
+        state.MaximumYPosition = unchecked((ushort)(slot.Position.Y.Whole + state.TravelDistance));
         if (state.PrimaryDirection == 0)
         {
-            state.MaximumYPosition = slot.YPosition;
-            state.MinimumYPosition = unchecked((ushort)(slot.YPosition - state.TravelDistance));
+            state.MaximumYPosition = slot.Position.Y.Whole;
+            state.MinimumYPosition = unchecked((ushort)(slot.Position.Y.Whole - state.TravelDistance));
         }
 
         state.Function = VerticalShutterFunction.Initial;
@@ -70,8 +70,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         // The initial function JSRs through its parameter table during this very AI
         // call; it does not spend a frame installing the selected wait function.
@@ -84,7 +83,7 @@ public sealed partial class RoomEnemySystem
                 if (state.FunctionTimer == 0)
                 {
                     state.FunctionTimer = state.HorizontalProximityOrWaitTime;
-                    ActivateVerticalShutter(slot, state, cameraX, cameraY);
+                    ActivateVerticalShutter(slot, state, camera);
                 }
                 break;
 
@@ -96,12 +95,12 @@ public sealed partial class RoomEnemySystem
                     samus,
                     state.HorizontalProximityOrWaitTime))
                 {
-                    ActivateVerticalShutter(slot, state, cameraX, cameraY);
+                    ActivateVerticalShutter(slot, state, camera);
                 }
                 break;
 
             case VerticalShutterFunction.Activate:
-                ActivateVerticalShutter(slot, state, cameraX, cameraY);
+                ActivateVerticalShutter(slot, state, camera);
                 break;
 
             case VerticalShutterFunction.InitialNoOp:
@@ -121,11 +120,11 @@ public sealed partial class RoomEnemySystem
                 break;
 
             case VerticalShutterFunction.StoppedAfterMovingUp:
-                RunVerticalShutterStoppedAfterUp(slot, state, cameraX, cameraY);
+                RunVerticalShutterStoppedAfterUp(slot, state, camera);
                 break;
 
             case VerticalShutterFunction.StoppedAfterMovingDown:
-                RunVerticalShutterStoppedAfterDown(slot, state, cameraX, cameraY);
+                RunVerticalShutterStoppedAfterDown(slot, state, camera);
                 break;
 
             default:
@@ -139,7 +138,7 @@ public sealed partial class RoomEnemySystem
             SamusContactsIdleShutter(slot, samus ?? throw new InvalidOperationException(
                 "Vertical-shutter AI requires Samus state for its contact reaction.")))
         {
-            ReactVerticalShutter(slot, cameraX, cameraY);
+            ReactVerticalShutter(slot, camera);
         }
     }
 
@@ -159,13 +158,12 @@ public sealed partial class RoomEnemySystem
     private void ActivateVerticalShutter(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         state.Function = state.PrimaryDirection == 0
             ? VerticalShutterFunction.MovingUp
             : VerticalShutterFunction.MovingDown;
-        QueueShutterActivationSoundIfOnScreen(slot, cameraX, cameraY);
+        QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
     private static void MoveVerticalShutterUp(
@@ -173,16 +171,15 @@ public sealed partial class RoomEnemySystem
         VerticalShutterEnemyState state,
         SamusState samus)
     {
-        state.PreviousYPosition = slot.YPosition;
+        state.PreviousYPosition = slot.Position.Y.Whole;
         state.MovingSamus = IsSamusRidingPlatform(slot, samus);
-        (slot.YPosition, slot.YSubposition) = AddShutterVelocity(
-            slot.YPosition,
-            slot.YSubposition,
+        slot.Position = slot.Position.WithY(AddShutterVelocity(
+            slot.Position.Y,
             state.UpVelocity,
-            state.UpSubvelocity);
+            state.UpSubvelocity));
         CarrySamusVertically(slot, state, samus);
 
-        if (unchecked((short)(state.MinimumYPosition - slot.YPosition)) < 0)
+        if (unchecked((short)(state.MinimumYPosition - slot.Position.Y.Whole)) < 0)
             return;
         StopVerticalShutterAfterUp(state);
     }
@@ -192,16 +189,15 @@ public sealed partial class RoomEnemySystem
         VerticalShutterEnemyState state,
         SamusState samus)
     {
-        state.PreviousYPosition = slot.YPosition;
+        state.PreviousYPosition = slot.Position.Y.Whole;
         state.MovingSamus = IsSamusRidingPlatform(slot, samus);
-        (slot.YPosition, slot.YSubposition) = AddShutterVelocity(
-            slot.YPosition,
-            slot.YSubposition,
+        slot.Position = slot.Position.WithY(AddShutterVelocity(
+            slot.Position.Y,
             state.DownVelocity,
-            state.DownSubvelocity);
+            state.DownSubvelocity));
         CarrySamusVertically(slot, state, samus);
 
-        if (unchecked((short)(state.MaximumYPosition - slot.YPosition)) > 0)
+        if (unchecked((short)(state.MaximumYPosition - slot.Position.Y.Whole)) > 0)
             return;
         StopVerticalShutterAfterDown(state);
     }
@@ -214,7 +210,7 @@ public sealed partial class RoomEnemySystem
         if (!state.MovingSamus)
             return;
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(unchecked((short)(
-            slot.YPosition - state.PreviousYPosition)));
+            slot.Position.Y.Whole - state.PreviousYPosition)));
     }
 
     private static void StopVerticalShutterAfterUp(VerticalShutterEnemyState state)
@@ -242,8 +238,7 @@ public sealed partial class RoomEnemySystem
     private void RunVerticalShutterStoppedAfterUp(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
         state.FunctionTimer = timer.Value;
@@ -253,14 +248,13 @@ public sealed partial class RoomEnemySystem
         state.Function = state.TriggerMode == 1 && state.PrimaryDirection != 0
             ? VerticalShutterFunction.WaitForHorizontalProximity
             : VerticalShutterFunction.MovingDown;
-        QueueShutterActivationSoundIfOnScreen(slot, cameraX, cameraY);
+        QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
     private void RunVerticalShutterStoppedAfterDown(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
         state.FunctionTimer = timer.Value;
@@ -270,7 +264,7 @@ public sealed partial class RoomEnemySystem
         state.Function = state.TriggerMode == 1 && state.PrimaryDirection == 0
             ? VerticalShutterFunction.WaitForHorizontalProximity
             : VerticalShutterFunction.MovingUp;
-        QueueShutterActivationSoundIfOnScreen(slot, cameraX, cameraY);
+        QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
     /// <summary>
@@ -279,13 +273,12 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void ReactVerticalShutter(
         RoomEnemySlot slot,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         VerticalShutterEnemyState state = RequireVerticalShutterState(slot);
         if (state.InitialFunctionTableOffset < 6)
         {
-            QueueShutterActivationSoundIfOnScreen(slot, cameraX, cameraY);
+            QueueShutterActivationSoundIfOnScreen(slot, camera);
             return;
         }
 
@@ -303,7 +296,7 @@ public sealed partial class RoomEnemySystem
             ? VerticalShutterFunction.MovingUp
             : VerticalShutterFunction.MovingDown;
         state.ReactionDirection ^= 1;
-        QueueShutterActivationSoundIfOnScreen(slot, cameraX, cameraY);
+        QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
     private static void InstallVerticalShutterInstruction(RoomEnemySlot slot, ushort instruction)

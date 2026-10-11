@@ -62,8 +62,7 @@ public sealed partial class RoomEnemySystem
         state.HurtFrame = 0;
         state.HurtFrameTimer = 0;
 
-        body.XPosition = 176;
-        body.YPosition = 592;
+        body.Position = body.Position.WithWhole(new(176, 592));
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
         body.VariableA = (ushort)KraidAiFunction.RestrictSamusToFirstScreen;
         body.VariableF = 300;
@@ -185,8 +184,7 @@ public sealed partial class RoomEnemySystem
     private void RunKraidBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         VramWriteQueue? vramWriteQueue,
         SamusProjectileSystem? samusProjectiles,
         SamusBombProjectileSystem? sharedProjectiles)
@@ -205,8 +203,8 @@ public sealed partial class RoomEnemySystem
         // `$A7:AC21` makes BG2 follow Kraid rather than the room. X radius is the native
         // body's right-edge origin adjustment; 152 is the authored vertical anchor.
         state.Bg2HorizontalScroll = unchecked((ushort)(
-            cameraX - body.XPosition + body.XRadius));
-        state.Bg2VerticalScroll = unchecked((ushort)(cameraY - body.YPosition + 152));
+            camera.X - body.Position.X.Whole + body.Radius.X));
+        state.Bg2VerticalScroll = unchecked((ushort)(camera.Y - body.Position.Y.Whole + 152));
         KraidAiFunction function = (KraidAiFunction)body.VariableA;
         if (function is >= KraidAiFunction.RestrictSamusToFirstScreen and
             <= KraidAiFunction.RaiseBody)
@@ -214,7 +212,7 @@ public sealed partial class RoomEnemySystem
             RunKraidRiseFunction(body, state, samus);
             return;
         }
-        RunKraidCombatFunction(body, state, vramWriteQueue, cameraX);
+        RunKraidCombatFunction(body, state, vramWriteQueue, camera.X);
     }
 
     private void RunKraidPaletteHandling(RoomEnemySlot body, KraidEnemyState state)

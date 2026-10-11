@@ -69,8 +69,7 @@ internal static partial class Program
             (Func<ushort>)(new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue));
 
         RoomEnemySlot torizo = enemies.Slots[0];
-        torizo.XPosition = 0x0400;
-        torizo.YPosition = 0x0200;
+        torizo.Position = torizo.Position.WithWhole(new(0x0400, 0x0200));
         torizo.Parameter1 = parameter1;
 
         spawn.Invoke(enemies, [torizo]);
@@ -82,15 +81,15 @@ internal static partial class Program
         // same word offset: X is the sine and Y the negative cosine of the drool angle.
         AssertEqual(
             ReadBombTorizoDroolWord(rom, EnemyMathReferenceData.SignedSine, expectedIndex),
-            projectile.XVelocity,
+            projectile.Velocity.X.RawValue,
             $"Bomb Torizo {scenario} random {random:X2} X velocity");
         AssertEqual(
             ReadBombTorizoDroolWord(rom, EnemyMathReferenceData.SignedNegativeCosine, expectedIndex),
-            projectile.YVelocity,
+            projectile.Velocity.Y.RawValue,
             $"Bomb Torizo {scenario} random {random:X2} Y velocity");
         AssertEqual(
             (parameter1 & 0x8000) != 0 ? (ushort)0x0408 : (ushort)0x03f8,
-            projectile.XPosition,
+            projectile.Position.X.Whole,
             $"Bomb Torizo {scenario} random {random:X2} X origin");
     }
 

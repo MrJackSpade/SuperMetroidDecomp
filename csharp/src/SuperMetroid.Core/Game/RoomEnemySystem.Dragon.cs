@@ -233,7 +233,7 @@ public sealed partial class RoomEnemySystem
         // $E666-$E672 rotates the sign of (Samus X - body X) into bit 15 of variable A,
         // preserving its other fifteen bits. The following byte-sized list edits use that
         // sign to select even/odd left/right table entries for both physical records.
-        bool facingLeft = unchecked((short)(samus.Position.X.Whole - body.XPosition)) < 0;
+        bool facingLeft = unchecked((short)(samus.Position.X.Whole - body.Position.X.Whole)) < 0;
         bodyState.DirectionWord = unchecked((ushort)(
             (bodyState.DirectionWord & 0x7fff) | (facingLeft ? 0x8000 : 0)));
         bodyState.RequestedInstructionListIndex = DragonAnimationDefinitions.WithFacing(
@@ -262,8 +262,8 @@ public sealed partial class RoomEnemySystem
         // The native 16.16 constant is exactly -$0001:0000 in the NTSC build, so both
         // subpositions remain untouched while body and wing rise one whole pixel.
         RoomEnemySlot wing = GetDragonWing(body);
-        body.YPosition = unchecked((ushort)(body.YPosition - 1));
-        wing.YPosition = unchecked((ushort)(wing.YPosition - 1));
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 1)));
+        wing.Position = wing.Position.WithWholeY(unchecked((ushort)(wing.Position.Y.Whole - 1)));
     }
 
     /// <summary>Ports Dragon function $A2:E6F1.</summary>
@@ -317,8 +317,8 @@ public sealed partial class RoomEnemySystem
 
         // As with rising, the native regionalized 16.16 displacement is exactly one pixel.
         RoomEnemySlot wing = GetDragonWing(body);
-        body.YPosition = unchecked((ushort)(body.YPosition + 1));
-        wing.YPosition = unchecked((ushort)(wing.YPosition + 1));
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
+        wing.Position = wing.Position.WithWholeY(unchecked((ushort)(wing.Position.Y.Whole + 1)));
     }
 
     /// <summary>Ports instruction opcode $A2:E5FB.</summary>

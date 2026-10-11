@@ -33,8 +33,7 @@ internal static partial class Program
             var enemies = NewFakeKraidProjectileSystem(guarded, instanceFlags);
             var source = new RoomEnemySlot(0)
             {
-                XPosition = 0x1234,
-                YPosition = 0x5678,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 VramTilesIndex = 0x0200,
                 PaletteIndex = 0x0c00,
             };
@@ -55,15 +54,15 @@ internal static partial class Program
                     FakeKraidProjectileDefinitions.SpitLaunch(movingRight, projectile);
                 AssertEqual(RoomEnemyProjectileKind.FakeKraidSpit, spawned[projectile].Kind,
                     $"Fake Kraid spit {projectile} kind");
-                AssertEqual(unchecked((ushort)(source.XPosition + (movingRight ? 4 : -4))),
-                    spawned[projectile].XPosition,
+                AssertEqual(unchecked((ushort)(source.Position.X.Whole + (movingRight ? 4 : -4))),
+                    spawned[projectile].Position.X.Whole,
                     $"Fake Kraid spit {projectile} X origin");
-                AssertEqual(unchecked((ushort)(source.YPosition - 16)),
-                    spawned[projectile].YPosition,
+                AssertEqual(unchecked((ushort)(source.Position.Y.Whole - 16)),
+                    spawned[projectile].Position.Y.Whole,
                     $"Fake Kraid spit {projectile} Y origin");
-                AssertEqual(launch.XVelocity, spawned[projectile].XVelocity,
+                AssertEqual(launch.XVelocity, spawned[projectile].Velocity.X.RawValue,
                     $"Fake Kraid spit {projectile} production X velocity");
-                AssertEqual(launch.YVelocity, spawned[projectile].YVelocity,
+                AssertEqual(launch.YVelocity, spawned[projectile].Velocity.Y.RawValue,
                     $"Fake Kraid spit {projectile} production Y velocity");
             }
         }
@@ -74,8 +73,7 @@ internal static partial class Program
             var enemies = NewFakeKraidProjectileSystem(guarded, instanceFlags);
             var source = new RoomEnemySlot(0)
             {
-                XPosition = 0x1234,
-                YPosition = 0x5678,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 VramTilesIndex = 0x0200,
                 PaletteIndex = 0x0c00,
             };
@@ -88,14 +86,14 @@ internal static partial class Program
                 ? RoomEnemyProjectileKind.FakeKraidSpikeLeft
                 : RoomEnemyProjectileKind.FakeKraidSpikeRight;
             AssertEqual(expectedKind, spike.Kind, $"Fake Kraid spike row {row} kind");
-            AssertEqual(source.XPosition, spike.XPosition,
+            AssertEqual(source.Position.X.Whole, spike.Position.X.Whole,
                 $"Fake Kraid spike row {row} X origin");
-            AssertEqual(unchecked((ushort)(source.YPosition +
+            AssertEqual(unchecked((ushort)(source.Position.Y.Whole +
                     FakeKraidProjectileDefinitions.SpikeYOffset(row))),
-                spike.YPosition,
+                spike.Position.Y.Whole,
                 $"Fake Kraid spike row {row} Y origin");
             AssertEqual(facingDelta < 0 ? (ushort)0xfe00 : (ushort)0x0200,
-                spike.XVelocity,
+                spike.Velocity.X.RawValue,
                 $"Fake Kraid spike row {row} X velocity");
         }
 

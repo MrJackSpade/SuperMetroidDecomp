@@ -202,8 +202,12 @@ public sealed partial class RoomEnemySystem
         // These are four physical enemy records, but Draygon_Main makes the body coordinate
         // authoritative after its function returns. Copying here preserves that ordering for
         // the eye AI and each part's later instruction tick in the same enemy frame.
-        state.Eye!.XPosition = state.Tail!.XPosition = state.Arms!.XPosition = body.XPosition;
-        state.Eye.YPosition = state.Tail.YPosition = state.Arms.YPosition = body.YPosition;
+        state.Arms!.Position = state.Arms!.Position.WithWholeX(body.Position.X.Whole);
+        state.Tail!.Position = state.Tail!.Position.WithWholeX(body.Position.X.Whole);
+        state.Eye!.Position = state.Eye!.Position.WithWholeX(body.Position.X.Whole);
+        state.Arms.Position = state.Arms.Position.WithWholeY(body.Position.Y.Whole);
+        state.Tail.Position = state.Tail.Position.WithWholeY(body.Position.Y.Whole);
+        state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
     }
 
     /// <summary>Ports the no-op tail/arms main AI and the active eye dispatcher.</summary>
@@ -262,8 +266,7 @@ public sealed partial class RoomEnemySystem
                 for (int actor = 0; actor < 4; actor++)
                 {
                     if (SpawnRoomSpriteObject(
-                            0x0010,
-                            0x0180,
+                            new(0x0010, 0x0180),
                             RoomSpriteObjectKind.DraygonIntroEvir,
                             0x0e00) is not null)
                     {
@@ -277,11 +280,10 @@ public sealed partial class RoomEnemySystem
 
         state.Function = DraygonAiFunction.IntroDance;
         state.FunctionTimer = 0;
-        state.LeftSideResetXPosition = state.Body.XPosition;
-        state.RightSideResetXPosition = unchecked((ushort)(state.Body.XPosition + 0x02a0));
-        state.ResetYPosition = state.Body.YPosition;
-        state.Body.XPosition = state.LeftSideResetXPosition;
-        state.Body.YPosition = state.ResetYPosition;
+        state.LeftSideResetXPosition = state.Body.Position.X.Whole;
+        state.RightSideResetXPosition = unchecked((ushort)(state.Body.Position.X.Whole + 0x02a0));
+        state.ResetYPosition = state.Body.Position.Y.Whole;
+        state.Body.Position = state.Body.Position.WithWhole(new(state.LeftSideResetXPosition, state.ResetYPosition));
         state.SwoopYAcceleration = 0x0018;
     }
 
@@ -320,8 +322,7 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            sprite.XPosition = unchecked((ushort)(sprite.XPosition + movement.XDelta));
-            sprite.YPosition = unchecked((ushort)(sprite.YPosition + movement.YDelta));
+            sprite.Position += new Offset16<RoomPixels>(unchecked((short)(movement.XDelta)), unchecked((short)(movement.YDelta)));
         }
 
         state.FightIntroDanceIndex = unchecked((ushort)(
@@ -371,7 +372,7 @@ public sealed partial class RoomEnemySystem
         if (frameCount == 0)
             throw new InvalidDataException("Draygon generated an empty swoop path.");
         state.SwoopPathEntryCount = frameCount;
-        state.SwoopYPositions[frameCount] = state.Body.YPosition;
+        state.SwoopYPositions[frameCount] = state.Body.Position.Y.Whole;
 
         // UnsignedDivision_32bit divides the absolute whole-pixel distance promoted to
         // 16.16 by the number of path entries. Split the quotient into the same var_D/E
@@ -400,7 +401,7 @@ public sealed partial class RoomEnemySystem
         if (body.VariableB == 0x0068)
             InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.ArmsFacingRightNearSwoopApex);
 
-        body.YPosition = state.SwoopYPositions[pathIndex];
+        body.Position = body.Position.WithWholeY(state.SwoopYPositions[pathIndex]);
         body.VariableB = unchecked((ushort)(body.VariableB - 4));
         if (body.VariableB == 0)
         {
@@ -421,7 +422,7 @@ public sealed partial class RoomEnemySystem
         int frameCount = body.VariableC / 4;
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the apex.");
-        ushort distance = unchecked((ushort)(0x02a0 - body.XPosition));
+        ushort distance = unchecked((ushort)(0x02a0 - body.Position.X.Whole));
         uint velocity = ((uint)distance << 16) / (uint)frameCount;
         body.VariableD = unchecked((ushort)(velocity >> 16));
         body.VariableE = unchecked((ushort)velocity);
@@ -442,7 +443,7 @@ public sealed partial class RoomEnemySystem
         if (body.VariableB == 0x0068)
             InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.ArmsFacingRightIdle);
 
-        body.YPosition = state.SwoopYPositions[pathIndex];
+        body.Position = body.Position.WithWholeY(state.SwoopYPositions[pathIndex]);
         body.VariableB = unchecked((ushort)(body.VariableB + 4));
         if (body.VariableB == body.VariableC)
         {
@@ -495,7 +496,7 @@ public sealed partial class RoomEnemySystem
         if (body.VariableB == 0x0068)
             InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.ArmsFacingLeftNearSwoopApex);
 
-        body.YPosition = state.SwoopYPositions[pathIndex];
+        body.Position = body.Position.WithWholeY(state.SwoopYPositions[pathIndex]);
         body.VariableB = unchecked((ushort)(body.VariableB - 4));
         if (body.VariableB == 0)
         {
@@ -522,8 +523,8 @@ public sealed partial class RoomEnemySystem
         // from the current point back to X=$FFB0.
         ushort distance = state.LeftSideResetXPosition >= 0x8000
             ? unchecked((ushort)(
-                unchecked((ushort)-state.LeftSideResetXPosition) + body.XPosition))
-            : unchecked((ushort)(body.XPosition - state.LeftSideResetXPosition));
+                unchecked((ushort)-state.LeftSideResetXPosition) + body.Position.X.Whole))
+            : unchecked((ushort)(body.Position.X.Whole - state.LeftSideResetXPosition));
         uint velocity = ((uint)distance << 16) / (uint)frameCount;
         body.VariableD = unchecked((ushort)(velocity >> 16));
         body.VariableE = unchecked((ushort)velocity);
@@ -545,16 +546,16 @@ public sealed partial class RoomEnemySystem
         if (body.VariableB == 0x0068)
             InstallDraygonInstruction(state.Arms!, DraygonInstructionProgramDefinitions.ArmsFacingLeftIdle);
 
-        body.YPosition = state.SwoopYPositions[pathIndex];
+        body.Position = body.Position.WithWholeY(state.SwoopYPositions[pathIndex]);
         body.VariableB = unchecked((ushort)(body.VariableB + 4));
         if (body.VariableB == body.VariableC)
         {
             ushort random = RequireRandomNumber();
-            body.XPosition = state.LeftSideResetXPosition;
+            body.Position = body.Position.WithWholeX(state.LeftSideResetXPosition);
             if ((random & 1) != 0)
             {
                 body.VariableB = 0;
-                body.YPosition = state.ResetYPosition;
+                body.Position = body.Position.WithWholeY(state.ResetYPosition);
                 state.Function = DraygonAiFunction.SwoopRightSetup;
             }
             else
@@ -568,20 +569,18 @@ public sealed partial class RoomEnemySystem
 
     private static void AddDraygonHorizontalVelocity(RoomEnemySlot body)
     {
-        uint position = ((uint)body.XPosition << 16) | body.XSubposition;
+        uint position = body.Position.X.RawValue;
         uint velocity = ((uint)body.VariableD << 16) | body.VariableE;
         position = unchecked(position + velocity);
-        body.XPosition = unchecked((ushort)(position >> 16));
-        body.XSubposition = unchecked((ushort)position);
+        body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 
     private static void SubtractDraygonHorizontalVelocity(RoomEnemySlot body)
     {
-        uint position = ((uint)body.XPosition << 16) | body.XSubposition;
+        uint position = body.Position.X.RawValue;
         uint velocity = ((uint)body.VariableD << 16) | body.VariableE;
         position = unchecked(position - velocity);
-        body.XPosition = unchecked((ushort)(position >> 16));
-        body.XSubposition = unchecked((ushort)position);
+        body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 
     /// <summary>Ports the two mirrored goop setup functions at $A5:8B0A/$8C8E.</summary>
@@ -597,8 +596,7 @@ public sealed partial class RoomEnemySystem
             ObserveDraygonTurretCadence(state, samus, frameCounterLow);
 
         RoomEnemySlot body = state.Body;
-        body.XPosition = movingRight ? (ushort)0xffb0 : state.RightSideResetXPosition;
-        body.YPosition = 0x0180;
+        body.Position = body.Position.WithWhole(new(movingRight ? (ushort)0xffb0 : state.RightSideResetXPosition, 0x0180));
         body.VariableD = 1;
         body.VariableE = 0;
         state.GoopYOscillationAngle = 0;
@@ -628,7 +626,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot position a goop pass without Samus.");
 
-        if (WrappedMagnitude(unchecked((ushort)(state.Body.XPosition - samus.Position.X.Whole))) < 0x00d0)
+        if (WrappedMagnitude(unchecked((ushort)(state.Body.Position.X.Whole - samus.Position.X.Whole))) < 0x00d0)
         {
             state.Function = movingRight
                 ? DraygonAiFunction.GoopRightTail
@@ -672,7 +670,7 @@ public sealed partial class RoomEnemySystem
         }
 
         MoveDraygonAlongGoopPath(state, movingRight);
-        ushort x = state.Body.XPosition;
+        ushort x = state.Body.Position.X.Whole;
         bool crossedExit = movingRight
             ? unchecked((short)x) >= 0 && x >= 0x02a0
             : unchecked((short)x) < 0 && unchecked((short)(x - 0xffb0)) < 0;
@@ -707,7 +705,7 @@ public sealed partial class RoomEnemySystem
         }
 
         MoveDraygonAlongGoopPath(state, movingRight);
-        ushort x = state.Body.XPosition;
+        ushort x = state.Body.Position.X.Whole;
         bool offScreen = movingRight
             ? unchecked((short)x) >= 0 && x >= 0x02a0
             : unchecked((short)x) < 0 && unchecked((short)(x - 0xffb0)) < 0;
@@ -718,20 +716,20 @@ public sealed partial class RoomEnemySystem
         if (movingRight)
         {
             state.Function = DraygonAiFunction.SwoopLeftSetup;
-            state.Body.XPosition = 0x0250;
+            state.Body.Position = state.Body.Position.WithWholeX(0x0250);
         }
         else
         {
             state.Function = DraygonAiFunction.SwoopRightSetup;
-            state.Body.XPosition = 0xffb0;
+            state.Body.Position = state.Body.Position.WithWholeX(0xffb0);
         }
-        state.Body.YPosition = 0xffb0;
+        state.Body.Position = state.Body.Position.WithWholeY(0xffb0);
     }
 
     private static void MoveDraygonAlongGoopPath(DraygonEnemyState state, bool movingRight)
     {
-        state.Body.YPosition = unchecked((ushort)(
-            0x0180 + ReadEightBitCosineProduct(state.GoopYOscillationAngle, 0x0020)));
+        state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(
+            0x0180 + ReadEightBitCosineProduct(state.GoopYOscillationAngle, 0x0020))));
         state.GoopYOscillationAngle = unchecked((ushort)(
             (state.GoopYOscillationAngle + 1) & 0x00ff));
         if (movingRight)
@@ -745,8 +743,7 @@ public sealed partial class RoomEnemySystem
         if ((state.Body.FrameCounter & 0x007f) != 0)
             return;
         if (SpawnRoomSpriteObject(
-                unchecked((ushort)(state.Body.XPosition - 16)),
-                unchecked((ushort)(state.Body.YPosition - 16)),
+                new(unchecked((ushort)(state.Body.Position.X.Whole - 16)), unchecked((ushort)(state.Body.Position.Y.Whole - 16))),
                 RoomSpriteObjectKind.DraygonBreathBubble,
                 graphicsIndex: 0) is not null)
         {
@@ -783,17 +780,16 @@ public sealed partial class RoomEnemySystem
         // target must not suppress the periodic particle. It shares the real pool.
         if ((eye.FrameCounter & DraygonEyeEffects.CadenceMask) == 0)
             SpawnRoomGraphicsDustExplosion(
-                unchecked((ushort)(eye.XPosition + (facingRight
-                    ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset))),
-                unchecked((ushort)(eye.YPosition + DraygonEyeEffects.VerticalOffset)),
+                new(unchecked((ushort)(eye.Position.X.Whole + (facingRight
+                    ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset))), unchecked((ushort)(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset))),
                 DraygonEyeEffects.DustVariant);
         if (samus is null)
             return;
 
         short deltaX = unchecked((short)(samus.Position.X.Whole - unchecked((ushort)(
-            eye.XPosition + (facingRight ? 0x0018 : -0x0018)))));
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - unchecked((ushort)(eye.YPosition - 0x0020))));
-        byte angle = CalculateCartridgeAngle(deltaX, deltaY);
+            eye.Position.X.Whole + (facingRight ? 0x0018 : -0x0018)))));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - unchecked((ushort)(eye.Position.Y.Whole - 0x0020))));
+        byte angle = CalculateCartridgeAngle(new(deltaX, deltaY));
         if (angle == (byte)eye.VariableF)
             return;
 

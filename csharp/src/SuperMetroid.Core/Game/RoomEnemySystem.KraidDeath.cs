@@ -178,8 +178,8 @@ public sealed partial class RoomEnemySystem
             state.DeathSoundTimer = 30;
         }
         ProcessKraidSinkTable(body, state);
-        body.YPosition = unchecked((ushort)(body.YPosition + 1));
-        if (unchecked((short)(body.YPosition - 608)) < 0)
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
+        if (unchecked((short)(body.Position.Y.Whole - 608)) < 0)
             return;
 
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
@@ -214,7 +214,7 @@ public sealed partial class RoomEnemySystem
 
     private void ProcessKraidSinkTable(RoomEnemySlot body, KraidEnemyState state)
     {
-        if (KraidSinkSchedule.CallbackAt(body.YPosition) is KraidSinkCallback function)
+        if (KraidSinkSchedule.CallbackAt(body.Position.Y.Whole) is KraidSinkCallback function)
         {
             state.SinkTableEventCount++;
             // Every eight-pixel sinking row invokes its cartridge callback, including the

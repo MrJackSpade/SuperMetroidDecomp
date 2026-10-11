@@ -34,43 +34,32 @@ public sealed partial class RoomEnemySystem
             : (ushort)NamiFuneFireballFunction.MovingLeft;
         projectile.DirectionParameter = movingRight ? (ushort)1 : (ushort)0;
 
-        projectile.XPosition = source.XPosition;
-        projectile.XSubposition = source.XSubposition;
-        projectile.YPosition = source.YPosition;
-        projectile.YSubposition = source.YSubposition;
+        projectile.Position = source.Position;
 
         // The initializer tests the actor parameter's species nibble, not the projectile
         // definition. Namihe's mouth is four pixels lower than Fune's in the shared art.
         if ((source.Parameter1 & 0x000f) != 0)
-            projectile.YPosition = unchecked((ushort)(projectile.YPosition + 4));
+            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
 
         var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(source.Parameter2);
-        projectile.YVelocity = velocities.Left;
-        projectile.XVelocity = velocities.Right;
+        projectile.Velocity = new(new SnesSignedEightEight(velocities.Right), new SnesSignedEightEight(velocities.Left));
     }
 
     /// <summary>Ports pre-instruction $86:DF39 and both directional movers.</summary>
     private static void RunFuneNamiheFireballPreInstruction(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         switch (ClosedNativeWords.Decode<NamiFuneFireballFunction>(projectile.Variable0, "Fune/Namihe fireball function"))
         {
             case NamiFuneFireballFunction.MovingLeft:
                 // Yes, this is YVelocity. The retail initializer and mover agree on this
                 // unconventional storage, so normalizing it would make debugger state lie.
-                (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
-                    projectile.XPosition,
-                    projectile.XSubposition,
-                    projectile.YVelocity);
+                projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 break;
 
             case NamiFuneFireballFunction.MovingRight:
-                (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
-                    projectile.XPosition,
-                    projectile.XSubposition,
-                    projectile.XVelocity);
+                projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
                 break;
 
             default:
@@ -80,7 +69,7 @@ public sealed partial class RoomEnemySystem
 
         // The shared native cull treats both camera edges as inclusive: an origin exactly
         // at camera+256 survives this frame and is deleted only after crossing beyond it.
-        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, cameraX, cameraY);
+        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
 }
 

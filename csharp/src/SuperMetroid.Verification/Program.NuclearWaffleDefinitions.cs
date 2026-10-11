@@ -41,8 +41,7 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.Parameter1 = 0x2001;
             slot.Parameter2 = (ushort)(0x2000 | direction);
-            slot.XPosition = 0x0180;
-            slot.YPosition = 0x0200;
+            slot.Position = slot.Position.WithWhole(new(0x0180, 0x0200));
             initialize(slot);
 
             NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0]!;
@@ -98,7 +97,7 @@ internal static partial class Program
         programSlot.InstructionTimer = 1;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments =
-            [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [programSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
         // Twelve three-frame entries total 36 frames; the margin proves the terminal goto
         // restarts the production stream rather than merely reaching its target.

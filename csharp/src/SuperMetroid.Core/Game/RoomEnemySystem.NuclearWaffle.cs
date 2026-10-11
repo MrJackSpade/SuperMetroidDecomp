@@ -151,11 +151,11 @@ public sealed partial class RoomEnemySystem
         state.AngularSpeedWhole = speedWhole;
         state.AngularSpeedFraction = speedFraction;
 
-        state.OriginX = slot.XPosition;
-        state.OriginY = slot.YPosition;
+        state.OriginX = slot.Position.X.Whole;
+        state.OriginY = slot.Position.Y.Whole;
         PositionNuclearWaffleHead(slot, state, state.SweepStartAngle);
-        state.InitialHeadX = slot.XPosition;
-        state.InitialHeadY = slot.YPosition;
+        state.InitialHeadX = slot.Position.X.Whole;
+        state.InitialHeadY = slot.Position.Y.Whole;
         state.GraphicsIndex = unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex));
 
         SpawnNuclearWaffleProjectileSegments(slot, state);
@@ -209,8 +209,8 @@ public sealed partial class RoomEnemySystem
         if (headOrientation.State != state.HeadOrientationState)
         {
             SpawnNuclearWaffleTurnObjects(
-                slot.XPosition,
-                slot.YPosition,
+                slot.Position.X.Whole,
+                slot.Position.Y.Whole,
                 state.GraphicsIndex,
                 headOrientation);
             state.HeadOrientationState = headOrientation.State;
@@ -250,10 +250,7 @@ public sealed partial class RoomEnemySystem
                 segment,
                 RoomEnemyProjectileKind.NuclearWaffleBody,
                 state.GraphicsIndex);
-            segment.XPosition = state.InitialHeadX;
-            segment.XSubposition = owner.XSubposition;
-            segment.YPosition = state.InitialHeadY;
-            segment.YSubposition = owner.YSubposition;
+            segment.Position = new(new(state.InitialHeadX, owner.Position.X.Fraction), new(state.InitialHeadY, owner.Position.Y.Fraction));
             // Initializer $BB92 writes collision option one for these four links. Property
             // $8000 admits the beam overlap; this independent flag selects the persistent
             // dud response rather than the definition's delete-on-shot instruction list.
@@ -269,8 +266,7 @@ public sealed partial class RoomEnemySystem
         for (int segmentIndex = 0; segmentIndex < state.SpriteSegments.Length; segmentIndex++)
         {
             RoomSpriteObjectSlot? segment = SpawnRoomSpriteObject(
-                slot.XPosition,
-                slot.YPosition,
+                slot.Position.Whole,
                 RoomSpriteObjectKind.NuclearWaffleBody,
                 state.GraphicsIndex);
             if (segment is null)
@@ -294,18 +290,18 @@ public sealed partial class RoomEnemySystem
             if (orientation.State != state.ProjectileOrientationStates[index])
             {
                 SpawnNuclearWaffleTurnObjects(
-                    segment.XPosition,
-                    segment.YPosition,
+                    segment.Position.X.Whole,
+                    segment.Position.Y.Whole,
                     state.GraphicsIndex,
                     orientation);
                 state.ProjectileOrientationStates[index] = orientation.State;
             }
 
             (ushort clampedAngle, bool linkFinished) = ClampNuclearWaffleAngle(state, angle);
-            segment.XPosition = unchecked((ushort)(
-                state.OriginX + ReadEightBitCosineProduct(clampedAngle, state.OrbitRadius)));
-            segment.YPosition = unchecked((ushort)(
-                state.OriginY + ReadEightBitNegativeSineProduct(clampedAngle, state.OrbitRadius)));
+            segment.Position = segment.Position.WithWholeX(unchecked((ushort)(
+                state.OriginX + ReadEightBitCosineProduct(clampedAngle, state.OrbitRadius))));
+            segment.Position = segment.Position.WithWholeY(unchecked((ushort)(
+                state.OriginY + ReadEightBitNegativeSineProduct(clampedAngle, state.OrbitRadius))));
             // `$A6:97C8` tests the flag left by the final link's second clamp call. It is
             // deliberately not an OR across the chain: the head and leading links can sit
             // at the endpoint while the final projectile link is still unfurling.
@@ -328,18 +324,18 @@ public sealed partial class RoomEnemySystem
             if (orientation.State != state.SpriteOrientationStates[index])
             {
                 SpawnNuclearWaffleTurnObjects(
-                    segment.XPosition,
-                    segment.YPosition,
+                    segment.Position.X.Whole,
+                    segment.Position.Y.Whole,
                     state.GraphicsIndex,
                     orientation);
                 state.SpriteOrientationStates[index] = orientation.State;
             }
 
             (ushort clampedAngle, _) = ClampNuclearWaffleAngle(state, angle);
-            segment.XPosition = unchecked((ushort)(
-                state.OriginX + ReadEightBitCosineProduct(clampedAngle, state.OrbitRadius)));
-            segment.YPosition = unchecked((ushort)(
-                state.OriginY + ReadEightBitNegativeSineProduct(clampedAngle, state.OrbitRadius)));
+            segment.Position = segment.Position.WithWholeX(unchecked((ushort)(
+                state.OriginX + ReadEightBitCosineProduct(clampedAngle, state.OrbitRadius))));
+            segment.Position = segment.Position.WithWholeY(unchecked((ushort)(
+                state.OriginY + ReadEightBitNegativeSineProduct(clampedAngle, state.OrbitRadius))));
         }
     }
 
@@ -394,13 +390,11 @@ public sealed partial class RoomEnemySystem
         NuclearWaffleOrientation orientation)
     {
         _ = SpawnRoomSpriteObject(
-            x,
-            y,
+            new(x, y),
             RoomSpriteObjectKind.NuclearWaffleTurnOverlay,
             graphicsIndex);
         _ = SpawnRoomSpriteObject(
-            x,
-            y,
+            new(x, y),
             orientation.TurnSpriteVariant == 0
                 ? RoomSpriteObjectKind.NuclearWaffleTurnClockwise
                 : RoomSpriteObjectKind.NuclearWaffleTurnCounterClockwise,
@@ -416,10 +410,10 @@ public sealed partial class RoomEnemySystem
         NuclearWaffleEnemyState state,
         ushort angle)
     {
-        slot.XPosition = unchecked((ushort)(
-            state.OriginX + ReadEightBitCosineProduct(angle, state.OrbitRadius)));
-        slot.YPosition = unchecked((ushort)(
-            state.OriginY + ReadEightBitNegativeSineProduct(angle, state.OrbitRadius)));
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+            state.OriginX + ReadEightBitCosineProduct(angle, state.OrbitRadius))));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
+            state.OriginY + ReadEightBitNegativeSineProduct(angle, state.OrbitRadius))));
     }
 
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state)

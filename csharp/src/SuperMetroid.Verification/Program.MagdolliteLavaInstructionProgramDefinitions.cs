@@ -60,8 +60,7 @@ internal static partial class Program
             "ProcessEnemyProjectileInstructions",
             instanceFlags)!;
         RoomEnemySlot source = enemies.Slots[0];
-        source.XPosition = 0x0120;
-        source.YPosition = 0x0080;
+        source.Position = source.Position.WithWhole(new(0x0120, 0x0080));
         source.VramTilesIndex = 0x0200;
         source.PaletteIndex = 0x0c00;
 
@@ -89,7 +88,7 @@ internal static partial class Program
 
         left.InstructionPointer = MagdolliteLavaInstructionProgramDefinitions.Shot;
         left.InstructionTimer = 1;
-        process.Invoke(enemies, [left, null, (ushort)0, (ushort)0]);
+        process.Invoke(enemies, [left, null, Position16<RoomPixels>.Zero]);
         AssertTrue(!left.IsActive,
             "Magdollite shot program follows its native goto into shared delete");
         AssertTrue(enemies.LastMagdolliteLavaDropRequest is not null,
@@ -99,10 +98,10 @@ internal static partial class Program
             projectile =>
                 projectile.IsActive &&
                 projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
-        AssertEqual(source.XPosition, drop.XPosition,
+        AssertEqual(source.Position.X.Whole, drop.Position.X.Whole,
             "Magdollite drop preserves projectile X");
-        AssertEqual(unchecked((ushort)(source.YPosition + 2)),
-            drop.YPosition,
+        AssertEqual(unchecked((ushort)(source.Position.Y.Whole + 2)),
+            drop.Position.Y.Whole,
             "Magdollite drop preserves projectile Y");
 
         AssertEqual(
@@ -166,12 +165,12 @@ internal static partial class Program
             string direction)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
             ObserveFrame(projectile);
             AssertEqual(unchecked((ushort)(program + 4)), projectile.InstructionPointer,
                 $"{direction} Magdollite-lava pose reaches terminal sleep");
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
             ObserveFrame(projectile);
             AssertEqual((ushort)0, projectile.InstructionTimer,
                 $"{direction} Magdollite-lava terminal sleep parks the program");

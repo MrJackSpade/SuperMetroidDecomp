@@ -108,7 +108,7 @@ internal static partial class Program
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Health = 99,
-                Position = FixedPosition<RoomPixels>.FromWhole(new(enemy.XPosition, enemy.YPosition)),
+                Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole),
             };
 
             AssertTrue(enemies.ResolveOrdinarySamusContact(samus, 0),
@@ -134,7 +134,7 @@ internal static partial class Program
             projectile.Type = 0x8000;
             projectile.Damage = 20;
             projectile.Direction = 2;
-            projectile.Position = projectile.Position.WithWhole(new(enemy.XPosition, enemy.YPosition));
+            projectile.Position = projectile.Position.WithWhole(enemy.Position.Whole);
             projectile.Radius = new(4, 4);
             projectile.InstructionPointer = 0x9000;
             projectile.InstructionTimer = 1;
@@ -160,8 +160,8 @@ internal static partial class Program
             interactive.Add(enemy.NativeIndex);
             enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x1234;
             enemy.SpritemapPointer = 1;
-            enemy.XPosition = enemy.YPosition = 0x0100;
-            enemy.XRadius = enemy.YRadius = 8;
+            enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));
+            enemy.Radius = new(8, 8);
             enemy.Health = 100;
             return (enemies, enemy);
         }

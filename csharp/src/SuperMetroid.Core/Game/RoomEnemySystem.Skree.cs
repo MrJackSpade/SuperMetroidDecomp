@@ -111,7 +111,7 @@ public sealed partial class RoomEnemySystem
         switch (state.Function)
         {
             case SkreeEnemyFunction.Idling:
-                if (Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole))) < 0x30)
+                if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) < 0x30)
                 {
                     state.RequestedInstructionIndex =
                         SkreeMetareeAnimationPhase.PreparingAttack;
@@ -171,9 +171,9 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        slot.YPosition = unchecked((ushort)(slot.YPosition + 6));
-        slot.XPosition = unchecked((ushort)(slot.XPosition +
-            (unchecked((short)(slot.XPosition - samus.Position.X.Whole)) >= 0 ? -1 : 1)));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 6)));
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
+            (unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) >= 0 ? -1 : 1))));
     }
 
     private void RunSkreeBurrow(RoomEnemySlot slot, SkreeEnemyState state)
@@ -189,7 +189,7 @@ public sealed partial class RoomEnemySystem
 
         if (state.BurrowTimer == 8)
             SpawnSkreeParticleBurst(slot);
-        slot.YPosition = unchecked((ushort)(slot.YPosition + 1));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
     }
 
     private static void InstallRequestedSkreeInstruction(

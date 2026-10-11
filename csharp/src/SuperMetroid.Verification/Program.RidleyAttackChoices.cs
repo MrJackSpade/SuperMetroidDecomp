@@ -65,8 +65,7 @@ internal static partial class Program
             foreach (var slot in new[] { actual.Slots[0], reference.Slots[0] })
             {
                 slot.Health = sample.Health;
-                slot.XPosition = 128;
-                slot.YPosition = 352;
+                slot.Position = slot.Position.WithWhole(new(128, 352));
             }
             runReference(reference.Slots[0], expected, sample.Samus, 0, null);
             select(actual.Slots[0], state, sample.Samus, 0, null);

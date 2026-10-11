@@ -62,8 +62,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(enemies, new ZoaAnimationReadGuard(rom));
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.XPosition = 0x0100;
-        slot.YPosition = 0x0080;
+        slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeZoa", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -76,7 +75,7 @@ internal static partial class Program
 
         var samus = new SamusState
         {
-            Position = new(new(unchecked((ushort)(slot.XPosition + (facingRight ? 0x10 : -0x10))), 0), new(slot.YPosition, 0)),
+            Position = new(new(unchecked((ushort)(slot.Position.X.Whole + (facingRight ? 0x10 : -0x10))), 0), new(slot.Position.Y.Whole, 0)),
         };
         wait.Invoke(null, [slot, state, samus]);
         ZoaAnimationSelector direction = facingRight

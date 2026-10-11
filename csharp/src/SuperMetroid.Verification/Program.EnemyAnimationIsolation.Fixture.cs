@@ -50,11 +50,9 @@ internal static partial class Program
             Actor.Definition = RoomEnemyDefinitionCatalog.Get(Actor.EnemyDefinitionPointer);
             Actor.AiBank = Actor.Definition.Bank;
             Actor.Health = Actor.Definition.Health;
-            Actor.XRadius = Actor.Definition.XRadius;
-            Actor.YRadius = Actor.Definition.YRadius;
+            Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Layer = Actor.Definition.Layer;
-            Actor.XPosition = 128;
-            Actor.YPosition = (ushort)(FloorY - Actor.YRadius - 12);
+            Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
             Actor.Properties = (ushort)(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen);
             Actor.InstructionTimer = 1;
             if (golden)
@@ -75,7 +73,7 @@ internal static partial class Program
                 // Choose valid nonzero bounce-height and multiplier indexes; these are
                 // fixture inputs, not authored animation/gameplay tuning.
                 Actor.Parameter1 = (3 << 8) | 2;
-                Actor.Parameter2 = Actor.YPosition;
+                Actor.Parameter2 = Actor.Position.Y.Whole;
                 typeof(RoomEnemySystem).GetMethod("InitializeBoyon", PrivateInstance)!
                     .CreateDelegate<Action<RoomEnemySlot>>(Enemies)(Actor);
             }
@@ -84,15 +82,15 @@ internal static partial class Program
         internal void Step(int frame)
         {
             Enemies.StepEnemyProjectiles(Level, Samus, nmiFrameCounter8: unchecked((byte)frame));
-            Enemies.StepFrame(0, 0, false, Samus, level: Level, nmiFrameCounter8: unchecked((byte)frame));
+            Enemies.StepFrame(new(0, 0), false, Samus, level: Level, nmiFrameCounter8: unchecked((byte)frame));
         }
 
         internal OamBuffer Draw()
         {
             var oam = new OamBuffer();
             oam.BeginFrame();
-            Enemies.DrawLayers(oam, 0, 0, 0, 7);
-            Enemies.DrawEnemyProjectiles(oam, 0, 0);
+            Enemies.DrawLayers(oam, new(0, 0), 0, 7);
+            Enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
         }
 

@@ -136,7 +136,7 @@ public sealed partial class RoomEnemySystem
                 bool canAttack = samus is not null && (random & 0x0101) != 0 &&
                     IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
-                        slot.XPosition,
+                        slot.Position.X.Whole,
                         NorfairRioHorizontalTriggerDistance);
                 if (!canAttack)
                 {
@@ -155,7 +155,7 @@ public sealed partial class RoomEnemySystem
                 // expression is already the byte offset into the word table.
                 state.YVelocity = RioLaunchDefinitions.NorfairYVelocity(random);
                 state.XVelocity = RioLaunchDefinitions.NorfairXVelocity;
-                if (unchecked((short)(samus!.Position.X.Whole - slot.XPosition)) < 0)
+                if (unchecked((short)(samus!.Position.X.Whole - slot.Position.X.Whole)) < 0)
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                 InstallNorfairRioInstructionList(
                     slot,
@@ -308,9 +308,8 @@ public sealed partial class RoomEnemySystem
             : NorfairRioInstructionProgramDefinitions.FlamesAscending;
         InstallNorfairRioInstructionList(follower, followerState, followerList);
         follower.Properties = follower.Properties.Without(EnemyProperties.Invisible);
-        follower.XPosition = parent.XPosition;
-        follower.YPosition = unchecked((ushort)(
-            parent.YPosition + (short)parentState.FollowerYOffset));
+        follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, unchecked((ushort)(
+            parent.Position.Y.Whole + (short)parentState.FollowerYOffset))));
     }
 
     private static void BeginNorfairRioReturn(

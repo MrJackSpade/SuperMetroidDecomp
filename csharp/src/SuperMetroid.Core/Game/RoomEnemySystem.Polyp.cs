@@ -87,8 +87,8 @@ public sealed partial class RoomEnemySystem
                         "Polyp proximity AI requires the active Samus actor.");
                 }
 
-                if (IsWithinPolypAxis(samus.Position.X.Whole, slot.XPosition) &&
-                    IsWithinPolypAxis(samus.Position.Y.Whole, slot.YPosition))
+                if (IsWithinPolypAxis(samus.Position.X.Whole, slot.Position.X.Whole) &&
+                    IsWithinPolypAxis(samus.Position.Y.Whole, slot.Position.Y.Whole))
                 {
                     // Native AI only installs the shoot function here. The rock is emitted
                     // on the next enemy frame, a one-frame tell preserved deliberately.

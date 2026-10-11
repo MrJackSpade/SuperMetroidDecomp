@@ -53,8 +53,7 @@ internal static partial class Program
             IReadOnlyList<RoomEnemyPopulationRecord> records =
                 populations.TryGetValue(definitionPointer, out List<RoomEnemyPopulationRecord>? found)
                     ? found
-                    : [new RoomEnemyPopulationRecord(
-                        definitionPointer, 128, 128, 0, 0, 0, 0, 0)];
+                    : [new RoomEnemyPopulationRecord(definitionPointer, new(128, 128), 0, 0, 0, 0, 0)];
 
             bool definitionTranslated = false;
             bool definitionNeedsOwner = false;
@@ -71,12 +70,10 @@ internal static partial class Program
                 RoomEnemySlot slot = enemies.Slots[0];
                 slot.EnemyDefinitionPointer = definitionPointer;
                 slot.Definition = definition;
-                slot.XRadius = definition.XRadius;
-                slot.YRadius = definition.YRadius;
+                slot.Radius = new(definition.Radius.X, definition.Radius.Y);
                 slot.Health = definition.Health;
                 slot.Layer = definition.Layer;
-                slot.XPosition = population.XPosition;
-                slot.YPosition = population.YPosition;
+                slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
                 slot.CurrentInstruction = population.InitializationParameter;
                 slot.Properties = population.Properties;
                 slot.ExtraProperties = population.ExtraProperties;
@@ -257,15 +254,7 @@ internal static partial class Program
                     break;
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(definitionPointerWord);
 
-                var record = new RoomEnemyPopulationRecord(
-                    definitionPointer,
-                    ReadEnemyOwnerAuditWord(rom, cursor + 2),
-                    ReadEnemyOwnerAuditWord(rom, cursor + 4),
-                    ReadEnemyOwnerAuditWord(rom, cursor + 6),
-                    ReadEnemyOwnerAuditWord(rom, cursor + 8),
-                    ReadEnemyOwnerAuditWord(rom, cursor + 10),
-                    ReadEnemyOwnerAuditWord(rom, cursor + 12),
-                    ReadEnemyOwnerAuditWord(rom, cursor + 14));
+                var record = new RoomEnemyPopulationRecord(definitionPointer, new(ReadEnemyOwnerAuditWord(rom, cursor + 2), ReadEnemyOwnerAuditWord(rom, cursor + 4)), ReadEnemyOwnerAuditWord(rom, cursor + 6), ReadEnemyOwnerAuditWord(rom, cursor + 8), ReadEnemyOwnerAuditWord(rom, cursor + 10), ReadEnemyOwnerAuditWord(rom, cursor + 12), ReadEnemyOwnerAuditWord(rom, cursor + 14));
                 if (!records.TryGetValue(
                     definitionPointer,
                     out List<RoomEnemyPopulationRecord>? definitionRecords))

@@ -18,8 +18,8 @@ public sealed partial class RoomEnemySystem
                 state,
                 samus,
                 MotherBrainContactPart.Body,
-                state.Body.XPosition,
-                state.Body.YPosition))
+                state.Body.Position.X.Whole,
+                state.Body.Position.Y.Whole))
         {
             return true;
         }
@@ -30,8 +30,8 @@ public sealed partial class RoomEnemySystem
                 state,
                 samus,
                 MotherBrainContactPart.Brain,
-                head.XPosition,
-                head.YPosition))
+                head.Position.X.Whole,
+                head.Position.Y.Whole))
         {
             return true;
         }
@@ -94,7 +94,7 @@ public sealed partial class RoomEnemySystem
 
             // Only contact to the right of body X+24 calls MotherBrain_HurtSamus. Contact
             // elsewhere still installs the displacement and timers above without damage.
-            if (unchecked((short)(state.Body.XPosition + 24 - samus.Position.X.Whole)) < 0)
+            if (unchecked((short)(state.Body.Position.X.Whole + 24 - samus.Position.X.Whole)) < 0)
                 DamageSamusFromMotherBrainBody(state.Body, samus);
             return true;
         }
@@ -113,7 +113,7 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(samus.Health - damage));
         samus.InvincibilityTimer = 96;
         samus.KnockbackTimer = 5;
-        samus.KnockbackXDirection = samus.Position.X.Whole >= body.XPosition ? (ushort)1 : (ushort)0;
+        samus.KnockbackXDirection = samus.Position.X.Whole >= body.Position.X.Whole ? (ushort)1 : (ushort)0;
     }
 
     /// <summary>

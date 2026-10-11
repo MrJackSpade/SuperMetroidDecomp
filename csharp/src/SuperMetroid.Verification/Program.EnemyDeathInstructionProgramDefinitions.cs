@@ -69,8 +69,7 @@ internal static partial class Program
             var enemy = new RoomEnemySlot(0)
             {
                 EnemyDefinitionPointer = EnemyDefinitionId.HZoomer,
-                XPosition = 0x0080,
-                YPosition = 0x0070,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0070)),
             };
             enemies.StartGenericEnemyDeath(enemy, program.Variant);
             RoomEnemyProjectileSlot death = enemies.EnemyProjectiles.Single(
@@ -149,7 +148,7 @@ internal static partial class Program
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }

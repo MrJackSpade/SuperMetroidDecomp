@@ -44,8 +44,7 @@ internal static partial class Program
                 member.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
                 member.Parameter1 = (ushort)part;
                 member.Parameter2 = 0;
-                member.XPosition = 0x01d8;
-                member.YPosition = 0x02a0;
+                member.Position = member.Position.WithWhole(new(0x01d8, 0x02a0));
                 initialize(member, null);
             }
             MagdolliteEnemyState head = enemies.MagdolliteStates[headSlot]!;
@@ -54,14 +53,14 @@ internal static partial class Program
             MagdolliteEnemyState state = enemies.MagdolliteStates[headSlot + 1]!;
             state.Function = MagdolliteEnemyFunction.BodyRising;
             state.BodyPhaseOffset = 14;
-            body.YPosition = 0x02a0;
+            body.Position = body.Position.WithWholeY(0x02a0);
             state.VerticalWholeDisplacement = unchecked((ushort)-MagdollitePhaseDefinitions.MaximumRise);
 
             rise(body, state, null);
             string context = $"Magdollite body in slot {body.SlotIndex}";
             AssertEqual(MagdolliteEnemyFunction.NoOpAtApex, state.Function, $"{context} reaches its apex");
             AssertEqual((ushort)(grows ? 16 : 14), state.BodyPhaseOffset, $"{context} apex phase");
-            AssertEqual((ushort)(grows ? 0x02a8 : 0x02a0), body.YPosition, $"{context} apex Y");
+            AssertEqual((ushort)(grows ? 0x02a8 : 0x02a0), body.Position.Y.Whole, $"{context} apex Y");
         }
     }
 

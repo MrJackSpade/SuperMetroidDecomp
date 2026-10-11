@@ -35,7 +35,7 @@ internal static partial class Program
         var shaktool = Reader<Func<int, ushort>>(typeof(RoomEnemySystem), "ReadShaktoolCommonSineSample");
         var phantoon = Reader<Func<ushort, ushort, int>>(typeof(RoomEnemySystem), "ReadPhantoonFlameComponent");
         var arc = Reader<Action<RoomEnemyProjectileSlot, ushort>>(typeof(RoomEnemySystem), "MoveNoobTubeProjectileHorizontallyAlongArc");
-        var crocomire = Reader<Func<byte, (ushort X, ushort Y)>>(
+        var crocomire = Reader<Func<byte, EightEightVector<RoomPixels>>>(
             typeof(RoomEnemySystem), "CalculateCrocomireProjectileVelocity");
         var echo = Reader<Func<SnesAngle, byte, Offset16<RoomPixels>>>(
             typeof(SamusShinesparkState), "ProjectileSinLookup");
@@ -84,8 +84,8 @@ internal static partial class Program
         }
         for (int angle = 0; angle < 256; angle++)
         {
-            AssertEqual((unchecked((ushort)(native[angle + 64] << 2)),
-                    unchecked((ushort)(native[angle] << 2))), crocomire((byte)angle),
+            AssertEqual(new EightEightVector<RoomPixels>(unchecked((short)(native[angle + 64] << 2)),
+                    unchecked((short)(native[angle] << 2))), crocomire((byte)angle),
                 "Crocomire projectile signed X/Y shifts and negative-cosine origin");
             AssertEqual(unchecked((ushort)native[angle + 64]), rio((byte)angle), "Rio signed word bits");
             for (int radius = 0; radius < 256; radius++)
@@ -108,12 +108,12 @@ internal static partial class Program
             int sampleIndex = (((phase & 510) | 128) / 2) + 64;
             short velocity = (short)(native[sampleIndex] >> 2);
             uint expected = unchecked(initial + (uint)(velocity * 256));
-            projectile.XVelocity = (ushort)phase;
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight((ushort)phase));
             projectile.Variable1 = (ushort)(initial >> 16);
             projectile.Variable0 = unchecked((ushort)initial);
             arc(projectile, step);
             if (projectile.Variable1 != expected >> 16 || projectile.Variable0 != (expected & 65535) ||
-                projectile.XVelocity != unchecked((ushort)(phase + step)))
+                projectile.Velocity.X.RawValue != unchecked((ushort)(phase + step)))
                 throw new InvalidDataException($"N00b tube arc differs: phase={phase}, step={step}, initial={initial:X8}.");
         }
         Console.WriteLine("Compiled projectile math: every signed sample times every speed-word boundary class across five production readers, all sample/index variants, 65,536 Phantoon vectors, 256 Crocomire vectors, every Shinespark angle byte and radius, and 393,216 N00b-tube arc steps match without a production bus.");

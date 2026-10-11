@@ -239,8 +239,7 @@ public sealed partial class RoomEnemySystem
         SamusState? samus = null,
         ushort controllerInput = 0,
         Func<bool>? isAreaBossDefeated = null,
-        ushort cameraX = 0,
-        ushort cameraY = 0,
+        Position16<RoomPixels> camera = default,
         Func<EventNumber, bool>? hasEvent = null,
         Action<EventNumber>? setEvent = null,
         Action<EventNumber>? clearEvent = null,
@@ -340,7 +339,7 @@ public sealed partial class RoomEnemySystem
         ResetEscapeAnimalRoomState();
         ResetCrocomireRoomState();
         ResetSporeSpawnRoomState();
-        ResetRinkaRoomState(cameraX, cameraY);
+        ResetRinkaRoomState(camera);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
         ResetNorfairRioRoomState();
@@ -356,7 +355,7 @@ public sealed partial class RoomEnemySystem
         ResetDeadSidehopperRoomState();
         ResetDeadTourianCorpseRoomState();
         ResetShitroidRoomState();
-        ResetShutterRoomState(cameraX, cameraY);
+        ResetShutterRoomState(camera);
         ResetElevatorRoomActors();
         EnemyDoorTransitionActive = false;
         LastKzanSoundEffect = null;
@@ -513,7 +512,7 @@ public sealed partial class RoomEnemySystem
             level,
             samus,
             controllerInput,
-            cameraX);
+            camera.X);
     }
 
     /// <summary>
@@ -554,21 +553,19 @@ public sealed partial class RoomEnemySystem
     /// initialization) and shutdown (the full beam sees the body's cleared activation word on
     /// the following frame).
     /// </remarks>
-    /// <param name="cameraX">Horizontal viewport origin in whole room pixels for native active and interactive selection.</param>
-    /// <param name="cameraY">Vertical viewport origin in whole room pixels for native active and interactive selection.</param>
-    public void PrepareEnemyProcessingList(ushort cameraX, ushort cameraY)
+    /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
+    public void PrepareEnemyProcessingList(Position16<RoomPixels> camera)
     {
         EnsureLoaded();
         StepMorphBallEyeBeam();
-        DetermineWhichEnemiesToProcess(cameraX, cameraY);
+        DetermineWhichEnemiesToProcess(camera);
     }
 
     /// <summary>
     /// Runs one native enemy pass: executes selected AI and instruction lists, publishes
     /// live collision bodies and frame requests, and builds queues for the later draw phase.
     /// </summary>
-    /// <param name="cameraX">Horizontal viewport origin in whole room pixels.</param>
-    /// <param name="cameraY">Vertical viewport origin in whole room pixels.</param>
+    /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="timeIsFrozen">Whether time-freeze gating suppresses actor AI and instructions; this does not suppress every timer, palette hook, or frame publication.</param>
     /// <param name="samus">Active player state required by player-dependent enemy paths.</param>
     /// <param name="newlyPressedControllerInput">Raw SNES button-edge mask for this update, distinct from held buttons.</param>
@@ -585,8 +582,7 @@ public sealed partial class RoomEnemySystem
     /// <param name="processingListPrepared">True when <see cref="PrepareEnemyProcessingList"/> already ran at the native pre-Samus boundary; false prepares the lists here for standalone callers.</param>
     /// <param name="samusPreviousPositionCheckpoint">The camera's frame-start Samus checkpoint under the live previous-position words that Draygon and Yapping Maw cap; null when no camera owns them.</param>
     public void StepFrame(
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         bool timeIsFrozen,
         SamusState? samus = null,
         ushort newlyPressedControllerInput = 0,
@@ -684,11 +680,11 @@ public sealed partial class RoomEnemySystem
         LastLowerNorfairRioSoundEffect = null;
         LastMaridiaLargeSnailSoundEffect = null;
         LastDragonSoundEffect = null;
-        BeginShutterFrame(cameraX, cameraY);
+        BeginShutterFrame(camera);
         BeginElevatorFrame();
-        SetRinkaCamera(cameraX, cameraY);
+        SetRinkaCamera(camera);
         if (!processingListPrepared)
-            PrepareEnemyProcessingList(cameraX, cameraY);
+            PrepareEnemyProcessingList(camera);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
 
@@ -736,8 +732,7 @@ public sealed partial class RoomEnemySystem
                     newlyPressedControllerInput,
                     controllerInput,
                     level,
-                    cameraX,
-                    cameraY,
+                    camera,
                     enemyNmiFrameCounter8);
                 if (!ranActorAi &&
                     (slot.AiHandlerBits & 0x0002) != 0 &&
@@ -773,7 +768,7 @@ public sealed partial class RoomEnemySystem
                         samusProjectiles,
                         sharedProjectiles ?? throw new InvalidOperationException(
                             "Ridley's power-bomb check ($A6:BD2C) requires the shared projectile owner."),
-                        cameraX, cameraY);
+                        camera);
                     ranActorAi = true;
                 }
                 if (!ranActorAi &&
@@ -851,8 +846,7 @@ public sealed partial class RoomEnemySystem
                         newlyPressedControllerInput,
                         controllerInput,
                         level,
-                        cameraX,
-                        cameraY,
+                        camera,
                         samusProjectiles,
                         enemyNmiFrameCounter8,
                         mode7Transform,
@@ -875,8 +869,7 @@ public sealed partial class RoomEnemySystem
                             slot,
                             samus,
                             level,
-                            cameraX,
-                            cameraY,
+                            camera,
                             controllerInput);
                 }
             }
@@ -886,7 +879,7 @@ public sealed partial class RoomEnemySystem
             // force an otherwise off-screen actor into the queue. Gunship uses the normal
             // radius-aware visibility test.
             bool visible = slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) ||
-                !EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY);
+                !EnemyWithNormalSpritesIsOffScreen(slot, camera);
             if (visible && !slot.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
                 _drawQueues[slot.Layer & 7].Add(nativeIndex);
 
@@ -913,8 +906,8 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
                 nativeIndex,
-                new(slot.XPosition, slot.YPosition),
-                new(slot.XRadius, slot.YRadius),
+                slot.Position.Whole,
+                new(slot.Radius.X, slot.Radius.Y),
                 slot.FrozenTimer,
                 slot.Properties));
         }
@@ -959,16 +952,14 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     /// <remarks>Drawing consumes each emitted actor's shake timer and may apply installed extended-frame BG2 presentation changes; it is a native draw phase, not a side-effect-free snapshot render.</remarks>
     /// <param name="oam">OAM buffer receiving the selected actors' ordinary, extended, and supplemental sprites.</param>
-    /// <param name="cameraX">Horizontal viewport origin in whole room pixels, subtracted from world draw positions.</param>
-    /// <param name="cameraY">Vertical viewport origin in whole room pixels, subtracted from world draw positions.</param>
+    /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="firstLayer">First native draw layer, inclusively, in the range 0..7.</param>
     /// <param name="lastLayer">Last native draw layer, inclusively, in the range 0..7 and not below firstLayer.</param>
     /// <exception cref="ArgumentNullException">The OAM buffer is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The inclusive layer range is invalid.</exception>
     public void DrawLayers(
         OamBuffer oam,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         int firstLayer,
         int lastLayer)
     {
@@ -991,8 +982,7 @@ public sealed partial class RoomEnemySystem
                 // Enemy spawn-point offsets are zero for ordinary room-population entries.
                 // WriteEnemyOams nevertheless performs the additions before subtracting
                 // layer-1 position, so preserve modular 16-bit arithmetic here.
-                ushort originX = unchecked((ushort)(slot.SpawnXOffset + slot.XPosition - cameraX));
-                ushort originY = unchecked((ushort)(slot.SpawnYOffset + slot.YPosition - cameraY));
+                Position16<ScreenPixels> origin = (slot.Position.Whole + slot.SpawnOffset).ToScreen(camera);
 
                 // `WriteEnemyOAM` `$A0:947B-$9494` consumes one shake tick while forming
                 // the shared origin for both ordinary and extended spritemaps. Bit one of
@@ -1002,8 +992,8 @@ public sealed partial class RoomEnemySystem
                 // with the station instead of remaining pinned to host screen space.
                 if (slot.ShakeTimer != 0)
                 {
-                    originX = unchecked((ushort)(originX +
-                        ((slot.FrameCounter & 2) != 0 ? -1 : 1)));
+                    origin = origin.WithX(unchecked((ushort)(origin.X +
+                        ((slot.FrameCounter & 2) != 0 ? -1 : 1))));
                     slot.ShakeTimer--;
                 }
                 ushort drawPaletteIndex = SelectCommonEnemyDrawPalette(slot);
@@ -1012,14 +1002,13 @@ public sealed partial class RoomEnemySystem
                     // Both Ridley mains call DrawRidleyTail/DrawRidleyWings before the
                     // common WriteEnemyOams pass emits the extended body. Appending these
                     // here preserves both that OAM order and the enemy's normal layer queue.
-                    DrawRidleySupplementalSprites(oam, slot, cameraX, cameraY);
+                    DrawRidleySupplementalSprites(oam, slot, camera);
                 }
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
                     DrawEnemySpritemap(oam, slot.Definition.Bank,
                         slot.SpritemapPointer,
-                        originX,
-                        originY,
+                        origin.ToOam(),
                         drawPaletteIndex,
                         slot.VramTilesIndex);
                     continue;
@@ -1040,14 +1029,13 @@ public sealed partial class RoomEnemySystem
                     // extended hitbox records, never the editable JSON geometry.
                     foreach (EnemyExtendedDrawComponent component in installed.Span)
                     {
-                        ushort componentX = unchecked((ushort)(originX + component.Offset.X));
-                        ushort componentY = unchecked((ushort)(originY + component.Offset.Y));
-                        if (((componentX + 128) & 0xfe00) != 0 ||
-                            ((componentY + 128) & 0xfe00) != 0)
+                        Position16<OamPixels> componentOrigin = origin.ToOam() + component.Offset;
+                        if (((componentOrigin.X + 128) & 0xfe00) != 0 ||
+                            ((componentOrigin.Y + 128) & 0xfe00) != 0)
                             continue;
-                        oam.AddEnemySpritemap(component.Parts, new Position16<OamPixels>(componentX, componentY), drawPaletteIndex, slot.VramTilesIndex,
+                        oam.AddEnemySpritemap(component.Parts, componentOrigin, drawPaletteIndex, slot.VramTilesIndex,
                             clipVerticalWrap: true,
-                            originYIsOnScreen: (componentY >> 8) == 0);
+                            originYIsOnScreen: (componentOrigin.Y >> 8) == 0);
                     }
                     continue;
                 }
@@ -1063,8 +1051,8 @@ public sealed partial class RoomEnemySystem
             // the frontend's disjoint low/high-priority layer ranges.
             if (layer == 5)
             {
-                DrawMotherBrainHook(oam, cameraX, cameraY);
-                DrawDeadTorizoHook(oam, cameraX, cameraY);
+                DrawMotherBrainHook(oam, camera);
+                DrawDeadTorizoHook(oam, camera);
             }
         }
     }
@@ -1222,12 +1210,10 @@ public sealed partial class RoomEnemySystem
 
         slot.EnemyDefinitionPointer = population.DefinitionPointer;
         slot.Definition = definition;
-        slot.XRadius = definition.XRadius;
-        slot.YRadius = definition.YRadius;
+        slot.Radius = new(definition.Radius.X, definition.Radius.Y);
         slot.Health = definition.Health;
         slot.Layer = definition.Layer;
-        slot.XPosition = population.XPosition;
-        slot.YPosition = population.YPosition;
+        slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
         slot.CurrentInstruction = population.InitializationParameter;
         _ = population.Properties.ReadFlagsChecked();
         slot.Properties = population.Properties;
@@ -1663,13 +1649,13 @@ public sealed partial class RoomEnemySystem
                     "Post-Ceres gunship initialization requires the loader's Samus actor.");
             // `$A2:A669-$A678` attaches the top hull seventeen pixels above Samus and
             // enters function three, the high-altitude descent used only after Ceres.
-            slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole - 17));
+            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole - 17)));
             slot.VariableF = (ushort)GunshipFunction.DescendAfterCeres;
         }
         else
         {
-            slot.YPosition = unchecked((ushort)(slot.YPosition - 25));
-            slot.VariableE = slot.YPosition;
+            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 25)));
+            slot.VariableE = slot.Position.Y.Whole;
             slot.VariableF = (ushort)GunshipFunction.Idle;
         }
         slot.VariableD = 1;
@@ -1701,7 +1687,7 @@ public sealed partial class RoomEnemySystem
             // Y-position word. The opening pad sits one pixel above the top hull origin.
             if (slot.SlotIndex < 2)
                 throw new InvalidDataException("Gunship entrance pad requires two preceding enemy slots.");
-            slot.YPosition = unchecked((ushort)(_slots[slot.SlotIndex - 2].YPosition - 1));
+            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(_slots[slot.SlotIndex - 2].Position.Y.Whole - 1)));
         }
         else
         {
@@ -1710,11 +1696,11 @@ public sealed partial class RoomEnemySystem
                 SamusState samus = _samusAtEnemyInitialization
                     ?? throw new InvalidOperationException(
                         "Post-Ceres gunship bottom initialization requires Samus.");
-                slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + 23));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole + 23)));
             }
             else
             {
-                slot.YPosition = unchecked((ushort)(slot.YPosition + 15));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 15)));
                 slot.VariableD = 71;
             }
         }
@@ -1727,8 +1713,7 @@ public sealed partial class RoomEnemySystem
         ushort newlyPressedControllerInput,
         ushort controllerInput,
         RoomLevelData? level,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         SamusProjectileSystem? samusProjectiles,
         byte nmiFrameCounter8,
         SamusMode7Transform? mode7Transform = null,
@@ -1766,22 +1751,22 @@ public sealed partial class RoomEnemySystem
                 RunMotherBrainFallingTubeMain(slot);
                 return;
             case EnemyAiRoutine.MainAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene:
-                RunMotherBrainBabyMetroidMain(slot, samus, cameraX, cameraY);
+                RunMotherBrainBabyMetroidMain(slot, samus, camera);
                 return;
             case EnemyAiRoutine.MainAI_CorpseTorizo when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo:
                 RunDeadTorizoMain(slot, samus);
                 return;
             case EnemyAiRoutine.MainAI_HurtAI_CorpseEnemies when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper:
-                RunDeadSidehopperMain(slot, samus, level, cameraX);
+                RunDeadSidehopperMain(slot, samus, level, camera.X);
                 return;
             case EnemyAiRoutine.MainAI_HurtAI_CorpseEnemies when IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer):
                 RunDeadTourianCorpseMain(slot, samus);
                 return;
             case EnemyAiRoutine.MainAI_BabyMetroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid:
-                RunShitroidMain(slot, samus, cameraX, cameraY, sharedProjectiles);
+                RunShitroidMain(slot, samus, camera, sharedProjectiles);
                 return;
             case EnemyAiRoutine.MainAI_Crocomire when slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire:
-                RunCrocomireMain(slot, samus, cameraX);
+                RunCrocomireMain(slot, samus, camera.X);
                 return;
             case EnemyAiRoutine.MainAI_SporeSpawn when slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn:
                 RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
@@ -1841,8 +1826,7 @@ public sealed partial class RoomEnemySystem
                     RequireRioState(slot),
                     samus,
                     level,
-                    cameraX,
-                    cameraY);
+                    camera);
                 return;
             case EnemyAiRoutine.MainAI_Squeept when slot.EnemyDefinitionPointer == EnemyDefinitionId.Squeept:
                 RunNorfairLavaJumpingEnemyMain(
@@ -1885,16 +1869,14 @@ public sealed partial class RoomEnemySystem
                     slot,
                     RequireGrowingShutterState(slot),
                     samus,
-                    cameraX,
-                    cameraY);
+                    camera);
                 return;
             case EnemyAiRoutine.MainAI_ShutterShootable_ShutterDestroyable_Kamer when IsVerticalShutterDefinition(slot.EnemyDefinitionPointer):
                 RunVerticalShutterMain(
                     slot,
                     RequireVerticalShutterState(slot),
                     samus,
-                    cameraX,
-                    cameraY);
+                    camera);
                 return;
             case EnemyAiRoutine.MainAI_ShutterHorizShootable when slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable:
                 RunHorizontalShutterMain(
@@ -1941,7 +1923,7 @@ public sealed partial class RoomEnemySystem
                     level,
                     samusProjectiles,
                     sharedProjectiles,
-                    cameraX, cameraY);
+                    camera);
                 return;
             case EnemyAiRoutine.MainAI_RidleyExplosion when slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion:
                 RunNorfairRidleyExplosionMain(slot);
@@ -1971,8 +1953,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     RequireEvirState(slot),
                     samus,
-                    cameraX,
-                    cameraY);
+                    camera);
                 return;
             case EnemyAiRoutine.MainAI_Eye when slot.EnemyDefinitionPointer == EnemyDefinitionId.Eye:
                 RunMorphBallEyeMain(slot, RequireMorphBallEyeState(slot), samus);
@@ -1985,8 +1966,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     RequireYappingMawState(slot),
                     samus,
-                    cameraX,
-                    cameraY);
+                    camera);
                 return;
             case EnemyAiRoutine.MainAI_Ripper when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper:
                 RunRipperMain(slot, level);
@@ -2021,7 +2001,7 @@ public sealed partial class RoomEnemySystem
                 RunHopperMain(slot, samus, level);
                 return;
             case EnemyAiRoutine.MainAI_Zoa when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zoa:
-                RunZoaMain(slot, RequireZoaState(slot), samus, cameraX, cameraY);
+                RunZoaMain(slot, RequireZoaState(slot), samus, camera);
                 return;
             case EnemyAiRoutine.MainAI_Yard when slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard:
                 RunYardMain(slot, samus, level);
@@ -2082,8 +2062,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     RequirePipeBugState(slot),
                     samus,
-                    cameraX,
-                    cameraY);
+                    camera);
                 return;
             case EnemyAiRoutine.MainAI_Botwoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon:
                 RunBotwoonMain(slot, RequireBotwoonState(slot), samus);
@@ -2114,8 +2093,7 @@ public sealed partial class RoomEnemySystem
                 RunFakeKraidMain(
                     slot,
                     RequireFakeKraidState(slot),
-                    cameraX,
-                    cameraY);
+                    camera);
                 return;
             case EnemyAiRoutine.MainAI_PirateWalking when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 RunWalkingSpacePirateMain(
@@ -2150,10 +2128,10 @@ public sealed partial class RoomEnemySystem
                     level);
                 return;
             case EnemyAiRoutine.MainAI_Kraid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid:
-                RunKraidBodyMain(slot, samus, cameraX, cameraY, vramWriteQueue, samusProjectiles, sharedProjectiles);
+                RunKraidBodyMain(slot, samus, camera, vramWriteQueue, samusProjectiles, sharedProjectiles);
                 return;
             case EnemyAiRoutine.MainAI_KraidArm when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm:
-                RunKraidArmMain(slot, cameraY);
+                RunKraidArmMain(slot, camera.Y);
                 return;
             case EnemyAiRoutine.MainAI_KraidLintTop when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintTop:
             case EnemyAiRoutine.MainAI_KraidLintMiddle when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintMiddle:
@@ -2161,14 +2139,14 @@ public sealed partial class RoomEnemySystem
                 RunKraidLintMain(slot, samus);
                 return;
             case EnemyAiRoutine.MainAI_KraidFoot when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot:
-                RunKraidFootMain(slot, cameraY);
+                RunKraidFootMain(slot, camera.Y);
                 return;
             case EnemyAiRoutine.MainAI_KraidNail when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail:
             case EnemyAiRoutine.MainAI_KraidNailBad when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNailBad:
                 RunKraidNailMain(slot, level);
                 return;
             case EnemyAiRoutine.MainAI_Phantoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody:
-                RunPhantoonMain(slot, samus, cameraX, cameraY);
+                RunPhantoonMain(slot, samus, camera);
                 return;
             case EnemyAiRoutine.RTL_A7E011
                 when slot.EnemyDefinitionPointer is
@@ -2314,16 +2292,16 @@ public sealed partial class RoomEnemySystem
         // $4.8000 pixels per call; below that threshold it slows to $2.8000 and clamps the
         // top hull to $045F before beginning the cartridge's seventeen-entry bounce table.
         // The clamp ($A2:A8B2) writes only whole positions; subpixels keep this call's sum.
-        uint delta = top.YPosition < 0x0300 ? 0x0004_8000u : 0x0002_8000u;
+        uint delta = top.Position.Y.Whole < 0x0300 ? 0x0004_8000u : 0x0002_8000u;
         AddGunshipYFixed(samus, top, delta);
-        if (top.YPosition < 0x045f)
+        if (top.Position.Y.Whole < 0x045f)
             return;
 
         RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-        top.YPosition = 0x045f;
-        bottom.YPosition = 0x0487;
-        pad.YPosition = 0x045e;
+        top.Position = top.Position.WithWholeY(0x045f);
+        bottom.Position = bottom.Position.WithWholeY(0x0487);
+        pad.Position = pad.Position.WithWholeY(0x045e);
         top.VariableF = (ushort)GunshipFunction.ApplyLandingBrakes;
         top.VariableE = 0;
     }
@@ -2338,7 +2316,7 @@ public sealed partial class RoomEnemySystem
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slots[top.SlotIndex + component];
-            slot.YPosition = unchecked((ushort)(slot.YPosition + yDelta));
+            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + yDelta)));
         }
 
         top.VariableE++;
@@ -2347,10 +2325,10 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
         top.VariableF = (ushort)GunshipFunction.WaitForLandingEntranceToOpen;
-        top.VariableE = top.YPosition;
+        top.VariableE = top.Position.Y.Whole;
         top.VariableD = 1;
         top.VariableC = 0;
-        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.XPosition + 1)));
+        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.Position.X.Whole + 1)));
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         pad.InstructionTimer = 1;
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
@@ -2387,10 +2365,9 @@ public sealed partial class RoomEnemySystem
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slots[top.SlotIndex + component];
-            uint fixedPosition = ((uint)slot.YPosition << 16) | slot.YSubposition;
+            uint fixedPosition = slot.Position.Y.RawValue;
             fixedPosition = unchecked(fixedPosition + delta);
-            slot.YPosition = unchecked((ushort)(fixedPosition >> 16));
-            slot.YSubposition = unchecked((ushort)fixedPosition);
+            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition)));
         }
     }
 
@@ -2408,7 +2385,7 @@ public sealed partial class RoomEnemySystem
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slots[top.SlotIndex + component];
-            slot.YPosition = unchecked((ushort)(slot.YPosition + yDelta));
+            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + yDelta)));
         }
         top.VariableC = unchecked((ushort)((top.VariableC + 1) & 3));
     }
@@ -2425,10 +2402,10 @@ public sealed partial class RoomEnemySystem
             return;
 
         bool insideEntrance =
-            (short)unchecked((ushort)(top.XPosition - 8 - samus.Position.X.Whole)) < 0 &&
-            (short)unchecked((ushort)(top.XPosition + 8 - samus.Position.X.Whole)) >= 0 &&
-            (short)unchecked((ushort)(top.YPosition - 64 - samus.Position.Y.Whole)) < 0 &&
-            (short)unchecked((ushort)(top.YPosition - samus.Position.Y.Whole)) >= 0;
+            (short)unchecked((ushort)(top.Position.X.Whole - 8 - samus.Position.X.Whole)) < 0 &&
+            (short)unchecked((ushort)(top.Position.X.Whole + 8 - samus.Position.X.Whole)) >= 0 &&
+            (short)unchecked((ushort)(top.Position.Y.Whole - 64 - samus.Position.Y.Whole)) < 0 &&
+            (short)unchecked((ushort)(top.Position.Y.Whole - samus.Position.Y.Whole)) >= 0;
         if (insideEntrance && samus.ReadMovementKind(_bus!) == SamusMovementType.Standing)
         {
             RoomEnemySlot pad = _slots[top.SlotIndex + 2];
@@ -2437,13 +2414,13 @@ public sealed partial class RoomEnemySystem
             // no horizontal motion from this alignment.
             if (samus.Position.X.Whole != 0x0480)
             {
-                samus.Position = samus.Position.WithWholeX(top.XPosition);
+                samus.Position = samus.Position.WithWholeX(top.Position.X.Whole);
                 samus.WritePreviousXPosition(samus.Position.X.Whole);
             }
             samus.ApplyForwardFacingPoseSetup(_bus!);
             samus.InputLocked = true;
             samus.PrimeGraphics(_bus!);
-            pad.YPosition = unchecked((ushort)(top.YPosition - 1));
+            pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
             pad.InstructionTimer = 1;
             pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
             top.VariableA = 144;
@@ -2566,9 +2543,9 @@ public sealed partial class RoomEnemySystem
             ? (rumbleFrame < 64 ? 1 : 2)
             : (rumbleFrame < 64 ? -1 : -2);
         samus.Position += new Offset16<RoomPixels>(0, unchecked((short)shake));
-        top.YPosition = unchecked((ushort)(samus.Position.Y.Whole - 17));
-        pad.YPosition = unchecked((ushort)(top.YPosition - 1));
-        bottom.YPosition = unchecked((ushort)(samus.Position.Y.Whole + 23));
+        top.Position = top.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole - 17)));
+        pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
+        bottom.Position = bottom.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole + 23)));
 
         bottom.VariableE++;
         if (bottom.VariableE == 64)
@@ -2592,7 +2569,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             throw new InvalidOperationException("Gunship liftoff lost Samus.");
         MoveGunshipAndSamusToY(top, samus, unchecked((ushort)(samus.Position.Y.Whole - 2)));
-        if (IsNegative16(top.YPosition - 896))
+        if (IsNegative16(top.Position.Y.Whole - 896))
         {
             top.VariableF = (ushort)GunshipFunction.AcceleratingLiftoff;
             _slots[top.SlotIndex + 1].VariableF = 0x0200;
@@ -2603,7 +2580,7 @@ public sealed partial class RoomEnemySystem
     private void AccelerateEscapingGunship(RoomEnemySlot top, SamusState? samus)
     {
         MoveEscapingGunship(top, samus);
-        if (IsNegative16(top.YPosition - 256))
+        if (IsNegative16(top.Position.Y.Whole - 256))
         {
             top.VariableF = (ushort)GunshipFunction.MoveAccelerating;
             LastGunshipEvent = GunshipFrameEvent.EscapeTakeoffCompleted;
@@ -2634,9 +2611,9 @@ public sealed partial class RoomEnemySystem
         samus.Position = samus.Position.WithWholeY(samusY);
         RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-        top.YPosition = unchecked((ushort)(samusY - 17));
-        pad.YPosition = unchecked((ushort)(top.YPosition - 1));
-        bottom.YPosition = unchecked((ushort)(samusY + 23));
+        top.Position = top.Position.WithWholeY(unchecked((ushort)(samusY - 17)));
+        pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
+        bottom.Position = bottom.Position.WithWholeY(unchecked((ushort)(samusY + 23)));
     }
 
     private static ushort RestoreTwo(ushort current, ushort maximum)
@@ -2647,13 +2624,13 @@ public sealed partial class RoomEnemySystem
     }
 
     private void DrawEnemySpritemap(OamBuffer oam, byte bank, ushort pointer,
-        ushort originX, ushort originY, ushort paletteBits, ushort baseTileIndex,
+        Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap = false, bool originYIsOnScreen = true)
     {
         if (TileArtwork?.Spritemaps?.TryGetDisplay(bank, pointer,
                 out EnemySpritemapParts installed) == true)
         {
-            oam.AddEnemySpritemap(installed, new Position16<OamPixels>(originX, originY),
+            oam.AddEnemySpritemap(installed, new Position16<OamPixels>(origin.X, origin.Y),
                 paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
             return;
         }
@@ -2701,8 +2678,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         SamusState? samus,
         RoomLevelData? level,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         ushort controllerInput)
     {
         ushort oldTimer = slot.InstructionTimer;
@@ -2747,8 +2723,7 @@ public sealed partial class RoomEnemySystem
                     level,
                     word,
                     ref cursor,
-                    cameraX,
-                    cameraY,
+                    camera,
                     controllerInput,
                     out bool yieldAfterOwned))
             {
@@ -3151,7 +3126,7 @@ public sealed partial class RoomEnemySystem
             $"${slot.Definition.Bank:X2}:{address:X4} has no compiled owner.");
     }
 
-    private void DetermineWhichEnemiesToProcess(ushort cameraX, ushort cameraY)
+    private void DetermineWhichEnemiesToProcess(Position16<RoomPixels> camera)
     {
         _activeEnemyIndexes.Clear();
         _interactiveEnemyIndexes.Clear();
@@ -3168,7 +3143,7 @@ public sealed partial class RoomEnemySystem
             bool active = _processAllEnemies ||
                 slot.Properties.HasAny(EnemyProperties.ProcessOffScreen) ||
                 (slot.AiHandlerBits & EnemyAiHandlerMasks.Frozen) != 0 ||
-                EnemyIsWithinProcessingWindow(slot, cameraX, cameraY);
+                EnemyIsWithinProcessingWindow(slot, camera);
             if (!active)
                 continue;
 
@@ -3180,22 +3155,21 @@ public sealed partial class RoomEnemySystem
 
     private static bool EnemyIsWithinProcessingWindow(
         RoomEnemySlot slot,
-        ushort cameraX,
-        ushort cameraY) =>
-        !IsNegative16(slot.XRadius + slot.XPosition - cameraX) &&
-        !IsNegative16(slot.XRadius + cameraX + 256 - slot.XPosition) &&
-        !IsNegative16(slot.YPosition + 8 - cameraY) &&
-        !IsNegative16(cameraY + 248 - slot.YPosition);
+        Position16<RoomPixels> camera) =>
+        !IsNegative16(slot.Radius.X + slot.Position.X.Whole - camera.X) &&
+        !IsNegative16(slot.Radius.X + camera.X + 256 - slot.Position.X.Whole) &&
+        !IsNegative16(slot.Position.Y.Whole + 8 - camera.Y) &&
+        !IsNegative16(camera.Y + 248 - slot.Position.Y.Whole);
 
     /// <summary>
     /// <c>CheckIfEnemyCenterIsOnScreen</c> ($A0:AD70): the center lies within $100 pixels
     /// right of and below the camera on both axes.
     /// </summary>
-    private static bool EnemyCenterIsOnScreen(RoomEnemySlot slot, ushort cameraX, ushort cameraY) =>
-        !IsNegative16(slot.XPosition - cameraX) &&
-        !IsNegative16(cameraX + 0x0100 - slot.XPosition) &&
-        !IsNegative16(slot.YPosition - cameraY) &&
-        !IsNegative16(cameraY + 0x0100 - slot.YPosition);
+    private static bool EnemyCenterIsOnScreen(RoomEnemySlot slot, Position16<RoomPixels> camera) =>
+        !IsNegative16(slot.Position.X.Whole - camera.X) &&
+        !IsNegative16(camera.X + 0x0100 - slot.Position.X.Whole) &&
+        !IsNegative16(slot.Position.Y.Whole - camera.Y) &&
+        !IsNegative16(camera.Y + 0x0100 - slot.Position.Y.Whole);
 
     /// <summary>
     /// <c>CheckIfEnemyIsHorizontallyOffScreen</c> ($A0:C18E): a negative X, a right edge
@@ -3203,20 +3177,19 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static bool EnemyIsHorizontallyOffScreen(RoomEnemySlot slot, ushort cameraX)
     {
-        if (IsNegative16(slot.XPosition))
+        if (IsNegative16(slot.Position.X.Whole))
             return true;
-        ushort fromCamera = unchecked((ushort)(slot.XPosition + slot.XRadius - cameraX));
-        return IsNegative16(fromCamera) || !IsNegative16(fromCamera - 0x100 - slot.XRadius);
+        ushort fromCamera = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - cameraX));
+        return IsNegative16(fromCamera) || !IsNegative16(fromCamera - 0x100 - slot.Radius.X);
     }
 
     private static bool EnemyWithNormalSpritesIsOffScreen(
         RoomEnemySlot slot,
-        ushort cameraX,
-        ushort cameraY) =>
-        IsNegative16(slot.XRadius + slot.XPosition - cameraX) ||
-        IsNegative16(slot.XRadius + cameraX + 256 - slot.XPosition) ||
-        IsNegative16(slot.YPosition + 8 - cameraY) ||
-        IsNegative16(cameraY + 248 - slot.YPosition);
+        Position16<RoomPixels> camera) =>
+        IsNegative16(slot.Radius.X + slot.Position.X.Whole - camera.X) ||
+        IsNegative16(slot.Radius.X + camera.X + 256 - slot.Position.X.Whole) ||
+        IsNegative16(slot.Position.Y.Whole + 8 - camera.Y) ||
+        IsNegative16(camera.Y + 248 - slot.Position.Y.Whole);
 
     private RoomEnemySlot SlotFromNativeIndex(ushort nativeIndex)
     {

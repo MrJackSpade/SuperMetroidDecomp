@@ -191,8 +191,8 @@ public sealed partial class RoomEnemySystem
         var state = new YappingMawEnemyState(slot)
         {
             Function = YappingMawAiFunction.WaitingForSamus,
-            OriginX = slot.XPosition,
-            OriginY = slot.YPosition,
+            OriginX = slot.Position.X.Whole,
+            OriginY = slot.Position.Y.Whole,
             ActivationDistance = slot.Parameter1,
             RetractedDelayTimer = YappingMawRetractedDelayFrames,
             OriginalPaletteBits = new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits,
@@ -222,8 +222,7 @@ public sealed partial class RoomEnemySystem
                 body,
                 RoomEnemyProjectileKind.YappingMawBody,
                 unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex)));
-            body.XPosition = slot.XPosition;
-            body.YPosition = slot.YPosition;
+            body.Position = body.Position.WithWhole(slot.Position.Whole);
             body.InstructionPointer = slot.Parameter2 == 0
                 ? YappingMawBodyProjectileInstructionProgramDefinitions.FacingDown
                 : YappingMawBodyProjectileInstructionProgramDefinitions.FacingUp;
@@ -233,8 +232,7 @@ public sealed partial class RoomEnemySystem
         // CreateSpriteAtPos uses object number 56 for parameter zero and 57 otherwise. Its
         // returned native index is represented by the retained physical slot reference.
         state.RootSpriteObject = SpawnRoomSpriteObject(
-            slot.XPosition,
-            unchecked((ushort)(slot.YPosition + (slot.Parameter2 == 0 ? -8 : 8))),
+            new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + (slot.Parameter2 == 0 ? -8 : 8)))),
             slot.Parameter2 == 0
                 ? RoomSpriteObjectKind.YappingMawRootVariantZero
                 : RoomSpriteObjectKind.YappingMawRootVariantOne,
@@ -252,11 +250,10 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         YappingMawEnemyState state,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         state.GrabCooldown = unchecked((ushort)(state.GrabCooldown - 1));
-        state.IsOffScreen = IsYappingMawPointOffScreen(slot, cameraX, cameraY);
+        state.IsOffScreen = IsYappingMawPointOffScreen(slot, camera);
 
         if (samus is null)
         {
@@ -408,8 +405,7 @@ public sealed partial class RoomEnemySystem
             state.SegmentYOffsets[segment] = AddWithCarry(rawY, correctionY, ref carry);
         }
 
-        slot.XPosition = unchecked((ushort)(state.OriginX + state.SegmentXOffsets[3]));
-        slot.YPosition = unchecked((ushort)(state.OriginY + state.SegmentYOffsets[3]));
+        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(state.OriginX + state.SegmentXOffsets[3])), unchecked((ushort)(state.OriginY + state.SegmentYOffsets[3]))));
         AddYappingMawQuadraticSpeed(state);
 
         if (unchecked((short)state.ExtensionWhole) >= 0)
@@ -532,7 +528,7 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(slot.XPosition + state.HeldSamusXOffset)), unchecked((ushort)(slot.YPosition + state.HeldSamusYOffset))));
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(slot.Position.X.Whole + state.HeldSamusXOffset)), unchecked((ushort)(slot.Position.Y.Whole + state.HeldSamusYOffset))));
         CapSamusScrollingSpeed(samus);
     }
 
@@ -646,18 +642,16 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile = state.BodyProjectiles[index] ??
             throw new InvalidOperationException(
                 $"Yapping Maw slot {state.Owner.SlotIndex} lost body projectile {index}.");
-        projectile.XPosition = x;
-        projectile.YPosition = y;
+        projectile.Position = projectile.Position.WithWhole(new(x, y));
     }
 
     private static bool IsYappingMawPointOffScreen(
         RoomEnemySlot slot,
-        ushort cameraX,
-        ushort cameraY) =>
-        unchecked((short)(slot.XPosition - cameraX)) < 0 ||
-        unchecked((short)(cameraX + 256 - slot.XPosition)) < 0 ||
-        unchecked((short)(slot.YPosition - cameraY)) < 0 ||
-        unchecked((short)(cameraY + 256 - slot.YPosition)) < 0;
+        Position16<RoomPixels> camera) =>
+        unchecked((short)(slot.Position.X.Whole - camera.X)) < 0 ||
+        unchecked((short)(camera.X + 256 - slot.Position.X.Whole)) < 0 ||
+        unchecked((short)(slot.Position.Y.Whole - camera.Y)) < 0 ||
+        unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) < 0;
 
     /// <summary>Ports EnemyFunc_ACA8 at $A0:ACA8 for the one family that consumes it.</summary>
     private static (ushort Distance, ushort Angle) CalculateYappingMawTarget(
@@ -677,8 +671,7 @@ public sealed partial class RoomEnemySystem
             return (absoluteY, 0);
 
         ushort positiveQuadrantAngle = CalculateCartridgeAngle(
-            unchecked((short)absoluteX),
-            unchecked((short)absoluteY));
+            new(unchecked((short)absoluteX), unchecked((short)absoluteY)));
         ushort distance = unchecked((ushort)(
             WrappedMagnitude(unchecked((ushort)ReadEightBitNegativeSineProduct(
                 positiveQuadrantAngle,
@@ -687,8 +680,7 @@ public sealed partial class RoomEnemySystem
                 positiveQuadrantAngle,
                 absoluteY)))));
         ushort signedAngle = CalculateCartridgeAngle(
-            unchecked((short)deltaX),
-            unchecked((short)deltaY));
+            new(unchecked((short)deltaX), unchecked((short)deltaY)));
         return (distance, signedAngle);
     }
 

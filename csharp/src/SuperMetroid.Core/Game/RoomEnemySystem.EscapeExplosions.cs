@@ -18,6 +18,6 @@ public sealed partial class RoomEnemySystem
         }
         RoomSpriteObjectKind kind =
             ZebesEscapeExplosionDefinitions.ForIndex(inheritedX & 7).SpriteKind;
-        SpawnRoomSpriteObject(x, y, kind, 0);
+        SpawnRoomSpriteObject(new(x, y), kind, 0);
     }
 }

@@ -494,7 +494,8 @@ internal static class GameplayMessageIdsAccess
         /// </summary>
         internal static GameplayMessageId FromCartridge(byte value, string sourceContext)
         {
-            if (                value is (< (byte)GameplayMessageId.EnergyTank or > (byte)GameplayMessageId.GravitySuit) and
+            if (
+                value is (< (byte)GameplayMessageId.EnergyTank or > (byte)GameplayMessageId.GravitySuit) and
                 not ((byte)GameplayMessageId.GunshipSaveConfirmation))
             {
                 throw new NotSupportedException(
@@ -845,8 +846,7 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         PalettePointer: 0x8b60,
         Health: 0x4e20,
         Damage: 0x00c8,
-        XRadius: 0x0014,
-        YRadius: 0x0010,
+        Radius: new(0x0014, 0x0010),
         Bank: 0xa2,
         HurtAiTime: 0x00,
         HurtSoundEffect: 0x0000,
@@ -881,8 +881,7 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         PalettePointer: 0x8b60,
         Health: 0x4e20,
         Damage: 0x0000,
-        XRadius: 0x0008,
-        YRadius: 0x0005,
+        Radius: new(0x0008, 0x0005),
         Bank: 0xa2,
         HurtAiTime: 0x00,
         HurtSoundEffect: 0x0000,
@@ -1577,12 +1576,11 @@ internal static class RoomEnemySystemAccess
         internal void StepEnemyProjectiles(
             RoomLevelData level,
             SamusState? samus,
-            ushort cameraX = 0,
-            ushort cameraY = 0,
+            Position16<RoomPixels> camera = default,
             byte? nmiFrameCounter8 = null,
             SamusBombProjectileSystem? samusBombs = null)
         {
-            self.StepEnemyProjectileInstructions(level, samus, cameraX, cameraY, nmiFrameCounter8, samusBombs);
+            self.StepEnemyProjectileInstructions(level, samus, camera, nmiFrameCounter8, samusBombs);
             self.ResolveEnemyProjectileSamusHits(samus);
         }
 
@@ -1591,14 +1589,14 @@ internal static class RoomEnemySystemAccess
         /// not draw Samus between them. Gameplay must call the two phase-specific methods so
         /// property bit <c>$1000</c> determines which side of Samus owns each OAM record.
         /// </summary>
-        internal void DrawEnemyProjectiles(OamBuffer oam, ushort cameraX, ushort cameraY, bool timeIsFrozen = false)
+        internal void DrawEnemyProjectiles(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false)
         {
             ArgumentNullException.ThrowIfNull(oam);
             PrivateState.Invoke(self, "EnsureLoaded");
 
-            PrivateState.Invoke(self, "DrawRoomSpriteObjects", (OamBuffer)(oam), (ushort)(cameraX), (ushort)(cameraY));
-            PrivateState.Invoke(self, "DrawEnemyProjectilePass", (OamBuffer)(oam), (ushort)(cameraX), (ushort)(cameraY), (EnemyProjectileDrawPriority)(EnemyProjectileDrawPriority.High), (bool)(timeIsFrozen));
-            PrivateState.Invoke(self, "DrawEnemyProjectilePass", (OamBuffer)(oam), (ushort)(cameraX), (ushort)(cameraY), (EnemyProjectileDrawPriority)(EnemyProjectileDrawPriority.Low), (bool)(timeIsFrozen));
+            PrivateState.Invoke(self, "DrawRoomSpriteObjects", oam, camera);
+            PrivateState.Invoke(self, "DrawEnemyProjectilePass", oam, camera, EnemyProjectileDrawPriority.High, timeIsFrozen);
+            PrivateState.Invoke(self, "DrawEnemyProjectilePass", oam, camera, EnemyProjectileDrawPriority.Low, timeIsFrozen);
         }
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>

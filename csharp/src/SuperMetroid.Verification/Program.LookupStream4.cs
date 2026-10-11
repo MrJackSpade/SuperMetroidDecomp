@@ -1584,7 +1584,7 @@ internal static partial class Program
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var spriteSpawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<RoomEnemySystem, ushort, ushort, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?>>();
+            .CreateDelegate<Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?>>();
         FieldInfo spriteBus = typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (ushort objectNumber = 0; objectNumber < 62; objectNumber++)
         {
@@ -1593,14 +1593,14 @@ internal static partial class Program
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = new RoomEnemySystem();
             spriteBus.SetValue(enemies, new FrontendCartridgeReadGuard(rom));
-            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, 0x1234, 0x5678, kind, 0x0600);
+            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, 0x0600);
             AssertTrue(spawned is not null, "room sprite native case allocates real slot");
             AssertEqual(entry, spawned!.InstructionPointer, "room sprite actual initial program");
             AssertEqual(Word(0xb40000 | entry), spawned.InstructionTimer, "room sprite actual initial native duration");
             AssertEqual(Word(0xb40000 | (entry + 2)), spawned.SpritemapPointer, "room sprite actual initial native visual");
             AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
-            AssertEqual((ushort)0x1234, spawned.XPosition, "room sprite spawn X preserved");
-            AssertEqual((ushort)0x5678, spawned.YPosition, "room sprite spawn Y preserved");
+            AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
+            AssertEqual((ushort)0x5678, spawned.Position.Y.Whole, "room sprite spawn Y preserved");
             AssertEqual((ushort)0x0600, spawned.GraphicsIndex, "room sprite graphics argument preserved");
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
@@ -2136,14 +2136,14 @@ internal static partial class Program
         for (int frame = 0; frame < 160; frame++)
         {
             electricity.InstructionTimer = 1;
-            process.Invoke(electricitySystem, [electricity, null, (ushort)0, (ushort)0]);
+            process.Invoke(electricitySystem, [electricity, null, Position16<RoomPixels>.Zero]);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
             AssertEqual((ushort)(0xe68b + 4 * (frame % 8)), electricity.InstructionPointer, "stream4 electricity exact frame order");
             AssertEqual((ushort)1, electricity.InstructionTimer, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
         electricity.InstructionTimer = 1;
-        process.Invoke(electricitySystem, [electricity, null, (ushort)0, (ushort)0]);
+        process.Invoke(electricitySystem, [electricity, null, Position16<RoomPixels>.Zero]);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
         foreach (bool metaree in new[] { false, true })
@@ -2152,7 +2152,7 @@ internal static partial class Program
             var system = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(system, guard);
             var spawn = typeof(RoomEnemySystem).GetMethod(metaree ? "SpawnMetareeParticleBurst" : "SpawnSkreeParticleBurst", flags)!.CreateDelegate<Action<RoomEnemySlot>>(system);
-            spawn(new RoomEnemySlot(0) { XPosition = 128, YPosition = 96 });
+            spawn(new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96))});
             ushort start = metaree ? (ushort)0x8ac5 : (ushort)0x8abd;
             int active = 0;
             foreach (var particle in system.EnemyProjectiles)
@@ -2162,7 +2162,7 @@ internal static partial class Program
                 for (int loop = 0; loop < 2; loop++)
                 {
                     particle.InstructionTimer = 1;
-                    process.Invoke(system, [particle, null, (ushort)0, (ushort)0]);
+                    process.Invoke(system, [particle, null, Position16<RoomPixels>.Zero]);
                     AssertEqual((ushort)(start + 4), particle.InstructionPointer, "stream4 debris goto-self loop pointer");
                     AssertEqual((ushort)16, particle.InstructionTimer, "stream4 debris sixteen-frame duration");
                     ushort nativeSprite = (ushort)(rom.ReadByte(0x860000 | (start + 2)) | rom.ReadByte(0x860000 | (start + 3)) << 8);

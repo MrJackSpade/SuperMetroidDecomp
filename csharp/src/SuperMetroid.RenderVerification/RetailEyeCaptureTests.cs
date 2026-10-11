@@ -19,7 +19,7 @@ internal static class RetailEyeCaptureTests
         var body = runtime.Enemies.Slots[1];
         var samus = runtime.Samus!;
         samus.CollectedItems = (ushort)SamusEquipmentFlags.MorphBall;
-        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(body.XPosition + 64)), body.YPosition));
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + 64)), body.Position.Y.Whole));
         samus.InputLocked = true;
         bool firstBeam = false, fullBeam = false;
         for (int tick = 0; tick < 96; tick++)

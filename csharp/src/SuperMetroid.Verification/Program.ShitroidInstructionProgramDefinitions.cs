@@ -57,7 +57,7 @@ internal static partial class Program
             "real Shitroid initializer installs compiled normal program");
 
         object?[] processArguments =
-            [shitroid, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [shitroid, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         ExecuteShitroidProgram(
             rom, executedOperands, enemies,
             process,

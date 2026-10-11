@@ -127,8 +127,7 @@ internal static partial class Program
             var torizo = new RoomEnemySlot(0)
             {
                 Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0,
-                XPosition = 128,
-                YPosition = 128,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             spawnReflectedSuper.Invoke(system, [torizo]);
             RoomEnemyProjectileSlot projectile = system.EnemyProjectiles.Single(

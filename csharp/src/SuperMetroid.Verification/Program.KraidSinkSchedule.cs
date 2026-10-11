@@ -62,7 +62,7 @@ internal static partial class Program
             foreach (var occupied in enemies.EnemyProjectiles) occupied.Clear();
             requests.Clear();
             state.SinkTableEventCount = 0;
-            enemies.Slots[0].YPosition = entry.Key;
+            enemies.Slots[0].Position = enemies.Slots[0].Position.WithWholeY(entry.Key);
             step(enemies.Slots[0], state);
             int code = 0xa70000 | entry.Value;
             bool empty = rom.ReadByte(code) == 0x60;
@@ -72,7 +72,7 @@ internal static partial class Program
                 "Sinking callback rock count");
             if (empty) continue;
             ushort expectedX = (ushort)(rom.ReadByte(code + 1) | rom.ReadByte(code + 2) << 8);
-            AssertEqual(expectedX, enemies.EnemyProjectiles[^1].XPosition, "Production sinking rock matches native immediate");
+            AssertEqual(expectedX, enemies.EnemyProjectiles[^1].Position.X.Whole, "Production sinking rock matches native immediate");
         }
     }
 
@@ -110,7 +110,7 @@ internal static partial class Program
             foreach (var occupied in enemies.EnemyProjectiles) occupied.Clear();
             requests.Clear();
             state.SinkTableEventCount = 0;
-            body.YPosition = (ushort)raw;
+            body.Position = body.Position.WithWholeY((ushort)raw);
             ushort? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? callback : null;
             step(body, state);
             AssertEqual(expected.HasValue ? 1 : 0, state.SinkTableEventCount, "Only scheduled rows count, including empty RTS");

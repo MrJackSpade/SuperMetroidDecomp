@@ -52,8 +52,7 @@ public sealed partial class SuperMetroidRuntime
         if (Camera is not null && Enemies.IsLoaded)
         {
             Enemies.StepFrame(
-                Camera.PixelPosition.X,
-                Camera.PixelPosition.Y,
+                Camera.PixelPosition,
                 TimeIsFrozen,
                 Samus,
                 Controller1.NewlyPressed,
@@ -94,7 +93,7 @@ public sealed partial class SuperMetroidRuntime
             {
                 rainbowBrain.RainbowBeamHdma.PresentationColors = Enemies.MotherBrainRainbowColors;
                 rainbowBrain.RainbowBeamHdma.Step(_addressSpace, rainbowBrain.RainbowBeamHdmaActive,
-                    rainbowHead.XPosition, rainbowHead.YPosition,
+                    rainbowHead.Position.X.Whole, rainbowHead.Position.Y.Whole,
                     rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
             }
             if (Enemies.Phantoon is { } phantoon)
@@ -135,8 +134,7 @@ public sealed partial class SuperMetroidRuntime
             // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
             Enemies.DrawCeresRidleyImmediateBabyAndDoor(
                 Oam,
-                Camera.PixelPosition.X,
-                Camera.PixelPosition.Y);
+                Camera.PixelPosition);
             if (Samus is not null)
             {
                 Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;

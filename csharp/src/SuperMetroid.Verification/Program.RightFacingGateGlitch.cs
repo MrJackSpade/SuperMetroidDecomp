@@ -205,8 +205,7 @@ internal static partial class Program
             if (!ReferenceEquals(enemy, frozen))
                 enemy.EnemyDefinitionPointer = 0;
         }
-        frozen.XPosition = checked((ushort)frozenEnemyX);
-        frozen.YPosition = 139;
+        frozen.Position = frozen.Position.WithWhole(new(checked((ushort)frozenEnemyX), 139));
         frozen.FrozenTimer = 1000;
         frozen.AiHandlerBits |= 4;
 

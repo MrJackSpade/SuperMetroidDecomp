@@ -43,7 +43,7 @@ internal static partial class Program
                     return 5;
                 });
         object?[] chasingArguments =
-            [chasing, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [chasing, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         RunMetroidInstructionFrames(
             process,
             chasingEnemies,
@@ -67,7 +67,7 @@ internal static partial class Program
                 () => throw new InvalidOperationException(
                     "Draining Metroid animation must not advance the random generator."));
         object?[] drainingArguments =
-            [draining, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [draining, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         RunMetroidInstructionFrames(
             process,
             drainingEnemies,
@@ -117,8 +117,7 @@ internal static partial class Program
         RoomEnemySlot slot = enemies.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
-        slot.XPosition = 128;
-        slot.YPosition = 128;
+        slot.Position = slot.Position.WithWhole(new(128, 128));
         typeof(RoomEnemySystem).GetMethod("InitializeMetroid", flags)!.Invoke(enemies, [slot]);
         AssertEqual(MetroidInstructionProgramDefinitions.ChasingSamus,
             slot.CurrentInstruction,

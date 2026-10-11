@@ -38,7 +38,7 @@ internal static partial class Program
         var run = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(enemies);
         var slot = enemies.Slots[0];
-        slot.XPosition = slot.YPosition = 128;
+        slot.Position = slot.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
         {
             Function = RidleyAiFunction.NorfairFireballMoveToHeight, FunctionTimer = 0,
@@ -81,8 +81,7 @@ internal static partial class Program
         var projectiles = new SamusProjectileSystem();
         typeof(SamusProjectileSystem).GetProperty("ProjectileCounter")!.SetValue(projectiles, (ushort)1);
         projectiles.Slots[0].Type = (ushort)SamusProjectileFamily.Missile;
-        projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWholeX(96);
-        projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWholeY(128);
+        projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWhole(new(96, 128));
         typeof(RoomEnemySystem).GetField("_samusProjectilesForEnemyFrame", flags)!.SetValue(enemies, projectiles);
         aim(state, samus, 0);
         ushort missileTarget = state.TailWhipTargetClockwiseAngle;
@@ -107,15 +106,15 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
         state.MinimumX = 64;
         state.MaximumX = 192;
-        slot.XPosition = 128;
+        slot.Position = slot.Position.WithWholeX(128);
         state.HorizontalVelocity = 0x100;
         seed = 0x1000;
         direction(slot, state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 0)) });
         AssertEqual(unchecked((ushort)-0x100), state.HorizontalVelocity, "pogo bounce turns toward Samus for ordinary seed");
-        slot.XPosition = 32;
+        slot.Position = slot.Position.WithWholeX(32);
         direction(slot, state, samus);
         AssertEqual((ushort)0x100, state.HorizontalVelocity, "pogo left boundary forces rightward bounce");
-        slot.XPosition = 192;
+        slot.Position = slot.Position.WithWholeX(192);
         direction(slot, state, samus);
         AssertEqual(unchecked((ushort)-0x100), state.HorizontalVelocity, "pogo right boundary forces leftward bounce");
         AssertEqual(0, advances, "pogo direction does not advance RNG");

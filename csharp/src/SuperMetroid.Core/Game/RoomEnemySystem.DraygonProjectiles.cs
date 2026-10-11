@@ -26,16 +26,13 @@ public sealed partial class RoomEnemySystem
             turret,
             RoomEnemyProjectileKind.DraygonWallTurret,
             graphicsIndex: EnemyPaletteBits.Palette5);
-        (turret.XPosition, turret.YPosition) = (target.X, target.Y);
-        turret.XSubposition = 0;
-        turret.YSubposition = 0;
+        turret.Position = FixedPosition<RoomPixels>.FromWhole(new(target.X, target.Y));
 
         // PlaceAndAim negates the common zero-up angle, then adds $40 before retaining the
         // low byte. ConvertAngleToXy stores unsigned magnitudes; the pre-instruction applies
         // signs from this retained angle on every frame.
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(samus.Position.X.Whole - turret.XPosition)),
-            unchecked((short)(samus.Position.Y.Whole - turret.YPosition)));
+            new(unchecked((short)(samus.Position.X.Whole - turret.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - turret.Position.Y.Whole))));
         byte flightAngle = unchecked((byte)(-cartridgeAngle + 0x40));
         SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
@@ -77,10 +74,7 @@ public sealed partial class RoomEnemySystem
             goop,
             RoomEnemyProjectileKind.DraygonGoop,
             graphicsIndex: 0x0400);
-        goop.XPosition = unchecked((ushort)(state.Body.XPosition + (movingRight ? 24 : -28)));
-        goop.YPosition = unchecked((ushort)(state.Body.YPosition - 16));
-        goop.XSubposition = 0;
-        goop.YSubposition = 0;
+        goop.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + (movingRight ? 24 : -28))), unchecked((ushort)(state.Body.Position.Y.Whole - 16))));
 
         ushort random = _nextRandom!();
         byte angle = unchecked((byte)((random & 0x003f) + (movingRight ? 0x00c0 : 0x0080)));
@@ -96,30 +90,24 @@ public sealed partial class RoomEnemySystem
         projectile.DirectionParameter = angle;
         int xMagnitude = ReadUnsignedSineMagnitudeProduct(angle, speed, 0x40);
         int yMagnitude = ReadUnsignedSineMagnitudeProduct(angle, speed, 0x80);
-        projectile.XVelocity = unchecked((ushort)(xMagnitude >> 16));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(xMagnitude >> 16))));
         projectile.Variable0 = unchecked((ushort)xMagnitude);
-        projectile.YVelocity = unchecked((ushort)(yMagnitude >> 16));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(yMagnitude >> 16))));
         projectile.Variable1 = unchecked((ushort)yMagnitude);
     }
 
     private static void RunDraygonProjectileFlight(RoomEnemyProjectileSlot projectile)
     {
-        int xMagnitude = unchecked((projectile.XVelocity << 16) | projectile.Variable0);
-        int yMagnitude = unchecked((projectile.YVelocity << 16) | projectile.Variable1);
+        int xMagnitude = unchecked((projectile.Velocity.X.RawValue << 16) | projectile.Variable0);
+        int yMagnitude = unchecked((projectile.Velocity.Y.RawValue << 16) | projectile.Variable1);
         int xDisplacement = ((projectile.DirectionParameter + 64) & 0x80) != 0
             ? -xMagnitude
             : xMagnitude;
         int yDisplacement = ((projectile.DirectionParameter + 128) & 0x80) != 0
             ? -yMagnitude
             : yMagnitude;
-        (projectile.XPosition, projectile.XSubposition) = AddDraygonProjectileFixed(
-            projectile.XPosition,
-            projectile.XSubposition,
-            xDisplacement);
-        (projectile.YPosition, projectile.YSubposition) = AddDraygonProjectileFixed(
-            projectile.YPosition,
-            projectile.YSubposition,
-            yDisplacement);
+        projectile.Position = projectile.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
+        projectile.Position = projectile.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
 
         if (IsOutsideDraygonRoom(projectile))
             projectile.Clear();
@@ -137,8 +125,8 @@ public sealed partial class RoomEnemySystem
         if (!releasedByPowerBomb && !goop.IsActive || samus is null)
             return;
 
-        ushort xDistance = WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - goop.XPosition)));
-        ushort yDistance = WrappedMagnitude(unchecked((ushort)(samus.Position.Y.Whole - goop.YPosition)));
+        ushort xDistance = WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - goop.Position.X.Whole)));
+        ushort yDistance = WrappedMagnitude(unchecked((ushort)(samus.Position.Y.Whole - goop.Position.Y.Whole)));
         if (xDistance < 0x0010 && yDistance < 0x0014)
         {
             goop.InstructionPointer = DraygonProjectileInstructionProgramDefinitions.GoopTouch;
@@ -184,8 +172,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        goop.XPosition = samus.Position.X.Whole;
-        goop.YPosition = unchecked((ushort)(samus.Position.Y.Whole + goop.Variable1 * 4 - 12));
+        goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + goop.Variable1 * 4 - 12))));
         goop.Variable0 = unchecked((ushort)(goop.Variable0 - 1));
         if (goop.Variable0 == 0)
             RemoveAttachedDraygonGoop(goop, samus);
@@ -216,8 +203,8 @@ public sealed partial class RoomEnemySystem
             return;
         // `LSR; ADC $12; LSR` carries the first shift's low bit into the addition.
         int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + (horizontalRadius & 1)) >> 1;
-        int xDistance = Math.Abs(unchecked((short)(powerBomb.Position.X - projectile.XPosition)));
-        int yDistance = Math.Abs(unchecked((short)(powerBomb.Position.Y - projectile.YPosition)));
+        int xDistance = Math.Abs(unchecked((short)(powerBomb.Position.X - projectile.Position.X.Whole)));
+        int yDistance = Math.Abs(unchecked((short)(powerBomb.Position.Y - projectile.Position.Y.Whole)));
         if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
             return;
         projectile.ReleaseIdentityOnly();
@@ -226,16 +213,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private static bool IsOutsideDraygonRoom(RoomEnemyProjectileSlot projectile) =>
-        unchecked((short)projectile.XPosition) < 0 || projectile.XPosition >= 0x0200 ||
-        unchecked((short)projectile.YPosition) < 0 || projectile.YPosition >= 0x0200;
+        unchecked((short)projectile.Position.X.Whole) < 0 || projectile.Position.X.Whole >= 0x0200 ||
+        unchecked((short)projectile.Position.Y.Whole) < 0 || projectile.Position.Y.Whole >= 0x0200;
 
-    private static (ushort Position, ushort Subposition) AddDraygonProjectileFixed(
-        ushort position,
-        ushort subposition,
-        int displacement)
-    {
-        uint fixedPosition = ((uint)position << 16) | subposition;
-        fixedPosition = unchecked(fixedPosition + (uint)displacement);
-        return (unchecked((ushort)(fixedPosition >> 16)), unchecked((ushort)fixedPosition));
-    }
 }

@@ -71,9 +71,9 @@ internal static partial class Program
             AssertTrue(projectile.IsActive,
                 $"Bomb Torizo swipe {index} facing {facingRight} allocation");
             short facingX = facingRight ? unchecked((short)-expected.XOffset) : expected.XOffset;
-            AssertEqual(unchecked((ushort)(1000 + facingX)), projectile.XPosition,
+            AssertEqual(unchecked((ushort)(1000 + facingX)), projectile.Position.X.Whole,
                 $"Bomb Torizo swipe {index} facing {facingRight} X");
-            AssertEqual(unchecked((ushort)(500 + expected.YOffset)), projectile.YPosition,
+            AssertEqual(unchecked((ushort)(500 + expected.YOffset)), projectile.Position.Y.Whole,
                 $"Bomb Torizo swipe {index} facing {facingRight} Y");
         }
 
@@ -91,13 +91,13 @@ internal static partial class Program
 
                 AssertTrue(projectile.IsActive,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} allocation");
-                AssertEqual(unchecked((ushort)(1000 + expected.XOffset)), projectile.XPosition,
+                AssertEqual(unchecked((ushort)(1000 + expected.XOffset)), projectile.Position.X.Whole,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} X");
-                AssertEqual(unchecked((ushort)(500 + expected.YOffset)), projectile.YPosition,
+                AssertEqual(unchecked((ushort)(500 + expected.YOffset)), projectile.Position.Y.Whole,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} Y");
-                AssertEqual(projectile.XPosition, projectile.Variable0,
+                AssertEqual(projectile.Position.X.Whole, projectile.Variable0,
                     $"Bomb Torizo explosion {parameter} retained X");
-                AssertEqual(projectile.YPosition, projectile.Variable1,
+                AssertEqual(projectile.Position.Y.Whole, projectile.Variable1,
                     $"Bomb Torizo explosion {parameter} retained Y");
             }
         }
@@ -120,8 +120,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, bus);
         RoomEnemySlot torizo = enemies.Slots[0];
-        torizo.XPosition = 1000;
-        torizo.YPosition = 500;
+        torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
         return (enemies, torizo);
     }

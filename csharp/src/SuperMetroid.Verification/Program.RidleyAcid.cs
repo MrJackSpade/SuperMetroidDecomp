@@ -24,8 +24,8 @@ internal static partial class Program
         expectedEmptyOam.FinalizeFrame();
         var ridleyOam = new OamBuffer();
         ridleyOam.BeginFrame();
-        runtime.Enemies.DrawCeresRidleyImmediateBabyAndDoor(ridleyOam, 0, 256);
-        runtime.Enemies.DrawCeresRidleyPostEnemyHook(ridleyOam, 0, 256);
+        runtime.Enemies.DrawCeresRidleyImmediateBabyAndDoor(ridleyOam, new(0, 256));
+        runtime.Enemies.DrawCeresRidleyPostEnemyHook(ridleyOam, new(0, 256));
         ridleyOam.FinalizeFrame();
         AssertTrue(ridleyOam.LowTable.SequenceEqual(expectedEmptyOam.LowTable) &&
             ridleyOam.HighTable.SequenceEqual(expectedEmptyOam.HighTable),
@@ -38,7 +38,7 @@ internal static partial class Program
         state.FunctionTimer = 0;
         state.FadePaletteOffset = 0;
         for (int frame = 0; frame < 200 && state.Function == RidleyAiFunction.WaitBeforeLiftoff; frame++)
-            runtime.Enemies.StepFrame(0, 256, false, runtime.Samus, level: runtime.LevelData);
+            runtime.Enemies.StepFrame(new(0, 256), false, runtime.Samus, level: runtime.LevelData);
         AssertEqual((ushort)440, fx.TargetYPosition, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.PackedYVelocity, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.Timer, "native reveal writes rise delay once");
@@ -47,7 +47,7 @@ internal static partial class Program
         AssertAcidVisible(true);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
         state.FunctionTimer = 0;
-        runtime.Enemies.StepFrame(0, 256, false, runtime.Samus, level: runtime.LevelData);
+        runtime.Enemies.StepFrame(new(0, 256), false, runtime.Samus, level: runtime.LevelData);
         AssertEqual((ushort)528, fx.TargetYPosition, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.PackedYVelocity, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.Timer, "native death writes drain delay once");

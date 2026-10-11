@@ -27,19 +27,19 @@ internal static partial class Program
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
-            samus.Position = samus.Position.WithWhole(new((ushort)(platform.XPosition + offset), (ushort)(platform.YPosition - platform.YRadius - samus.Kinematics.Radius.Y)));
+            samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole + offset), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
             runtime.StepFrame(0);
             for (int frame = 0; frame < 320; frame++)
             {
                 ushort input = frame < 220 && frame % interval == 0 ? runtime.ControllerBindings.Shoot : (ushort)0;
                 if (frame == unmorphAt) input |= (ushort)SnesButton.Up;
                 runtime.StepFrame(input);
-                int gap = platform.YPosition - platform.YRadius - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
-                if (Math.Abs(samus.Position.X.Whole - platform.XPosition) < platform.XRadius + samus.Kinematics.Radius.X &&
-                    samus.Position.Y.Whole < platform.YPosition && gap < worstGap)
+                int gap = platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
+                if (Math.Abs(samus.Position.X.Whole - platform.Position.X.Whole) < platform.Radius.X + samus.Kinematics.Radius.X &&
+                    samus.Position.Y.Whole < platform.Position.Y.Whole && gap < worstGap)
                 {
                     worstGap = gap;
-                    Console.WriteLine($"Repeated bomb overlap: slot={slotIndex} offset={offset} interval={interval} unmorph={unmorphAt} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)samus.Pose:X2} platformY={platform.YPosition} carry={samus.Kinematics.ExtraDisplacement.Y.RawValue}");
+                    Console.WriteLine($"Repeated bomb overlap: slot={slotIndex} offset={offset} interval={interval} unmorph={unmorphAt} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)samus.Pose:X2} platformY={platform.Position.Y.Whole} carry={samus.Kinematics.ExtraDisplacement.Y.RawValue}");
                 }
             }
             cases++;

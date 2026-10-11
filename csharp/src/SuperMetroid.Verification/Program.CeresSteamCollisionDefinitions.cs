@@ -31,7 +31,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetMethod("InitializeCeresSteam", flags)!
                 .Invoke(enemies, [slot]);
             object?[] arguments =
-                [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < 90; frame++)
             {
                 process.Invoke(enemies, arguments);
@@ -99,8 +99,7 @@ internal static partial class Program
                          (0x0100, 0x0100), (0x0004, 0x0006), (0xfffc, 0xfffa),
                      })
             {
-                compiledSlot.XPosition = originX;
-                compiledSlot.YPosition = originY;
+                compiledSlot.Position = compiledSlot.Position.WithWhole(new(originX, originY));
                 // Probe every rectangle boundary and the fully hidden frames.
                 // Shot and touch use different strict/inclusive comparisons.
                 ReadOnlySpan<CeresSteamCollisionHitbox> boxes =
@@ -116,7 +115,7 @@ internal static partial class Program
                 for (int shot = 0; shot <= 1; shot++)
                 {
                     object?[] compiledArguments =
-                        [compiledSlot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
+                        [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot != 0, (ushort)0];
                     bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
                     bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                     AssertEqual(nativeHit, compiledHit,

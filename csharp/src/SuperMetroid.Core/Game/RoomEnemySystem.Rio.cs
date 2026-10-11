@@ -116,8 +116,7 @@ public sealed partial class RoomEnemySystem
         RioEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         // Rio_Main advances the global enemy RNG even though this particular family never
         // consumes the returned word. Omitting that apparently-useless call changes every
@@ -129,7 +128,7 @@ public sealed partial class RoomEnemySystem
             case RioEnemyFunction.WaitingForSamus:
                 if (samus is null || !IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
-                        slot.XPosition,
+                        slot.Position.X.Whole,
                         RioTriggerDistance))
                 {
                     return;
@@ -137,7 +136,7 @@ public sealed partial class RoomEnemySystem
 
                 state.YVelocity = RioLaunchDefinitions.RioYVelocity;
                 state.XVelocity = RioLaunchDefinitions.RioXVelocity;
-                if (unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0)
+                if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                 InstallRioInstructionList(
                     slot,
@@ -147,7 +146,7 @@ public sealed partial class RoomEnemySystem
 
                 // CheckIfEnemyIsOnScreen returns zero for an on-screen origin. The native
                 // branch consequently queues sound $65 only for the visible attack start.
-                if (!EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY))
+                if (!EnemyWithNormalSpritesIsOffScreen(slot, camera))
                     LastRioSoundEffect = RioDiveSound;
                 return;
 
@@ -233,7 +232,7 @@ public sealed partial class RoomEnemySystem
 
                 // Once Rio reaches Samus's Y coordinate from above, it restores the saved
                 // horizontal dive speed and starts the upward/bounce phase at -1/256 px.
-                if (unchecked((short)(slot.YPosition - samus.Position.Y.Whole)) >= 0)
+                if (unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= 0)
                 {
                     state.XVelocity = state.SavedHorizontalVelocity;
                     state.YVelocity = 0xffff;
@@ -242,8 +241,7 @@ public sealed partial class RoomEnemySystem
                 }
 
                 byte angle = CalculateCartridgeAngle(
-                    unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
-                    unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
+                    new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
                 state.XVelocity = ReadRioSignedSineCosineSample(
                     unchecked((byte)(angle + 0x40)));
                 state.YVelocity = ReadRioSignedSineCosineSample(angle);

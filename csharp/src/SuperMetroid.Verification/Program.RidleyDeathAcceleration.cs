@@ -25,16 +25,14 @@ internal static partial class Program
         foreach (int distance in distances)
         foreach (int velocity in velocities)
         {
-            slot.XPosition = unchecked((ushort)(128 + distance));
-            slot.YPosition = unchecked((ushort)(328 - distance));
-            slot.XSubposition = slot.YSubposition = 0x8123;
+            slot.Position = new(new(unchecked((ushort)(128 + distance)), 0x8123), new(unchecked((ushort)(328 - distance)), 0x8123));
             state.HorizontalVelocity = state.VerticalVelocity = unchecked((ushort)velocity);
             state.FunctionTimer = 20;
             step(slot, state);
-            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.XPosition, 128, 16, 16), state.HorizontalVelocity, "Death phase native X acceleration");
-            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.YPosition, 328, 16, 16), state.VerticalVelocity, "Death phase native Y acceleration");
-            AssertEqual(unchecked((ushort)(128 + distance)), slot.XPosition, "Death phase leaves integration to shared movement");
-            AssertEqual((ushort)0x8123, slot.XSubposition, "Death phase preserves fractional position");
+            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.Position.X.Whole, 128, 16, 16), state.HorizontalVelocity, "Death phase native X acceleration");
+            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.Position.Y.Whole, 328, 16, 16), state.VerticalVelocity, "Death phase native Y acceleration");
+            AssertEqual(unchecked((ushort)(128 + distance)), slot.Position.X.Whole, "Death phase leaves integration to shared movement");
+            AssertEqual((ushort)0x8123, slot.Position.X.Fraction, "Death phase preserves fractional position");
         }
         Console.WriteLine("Ridley death acceleration: both phase callers match native index 0 / reversal boost 16 across 126 cases.");
 

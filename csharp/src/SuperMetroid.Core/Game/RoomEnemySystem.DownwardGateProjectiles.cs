@@ -46,13 +46,12 @@ public sealed partial class RoomEnemySystem
         InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
         int blockX = request.PlmBlockIndex % roomWidthInBlocks;
         int blockY = request.PlmBlockIndex / roomWidthInBlocks;
-        projectile.XPosition = unchecked((ushort)(
-            blockX * DownwardGateEnemyProjectileRomData.PixelsPerRoomBlock));
-        projectile.YPosition = unchecked((ushort)(
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
+            blockX * DownwardGateEnemyProjectileRomData.PixelsPerRoomBlock)), unchecked((ushort)(
             blockY * DownwardGateEnemyProjectileRomData.PixelsPerRoomBlock +
             (kind == RoomEnemyProjectileKind.DownwardGateClosed
                 ? DownwardGateEnemyProjectileRomData.ClosedPositionOffsetPixels
-                : 0)));
+                : 0)))));
 
         // Native eproj_E stores PLM_BlockIndices[x], whose unit is bytes. This association
         // is later searched by $84:BBF0 when the gate needs to open again.
@@ -90,7 +89,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>$86:E605</c>'s one-block-at-a-time signed 8.8 motion.</summary>
     private static void RunDownwardGateProjectileMovement(RoomEnemyProjectileSlot projectile)
     {
-        int speedMagnitude = Math.Abs(unchecked((short)projectile.YVelocity));
+        int speedMagnitude = Math.Abs(unchecked((short)projectile.Velocity.Y.RawValue));
         int accumulated = projectile.GeneralTimer + speedMagnitude;
         if (accumulated >= DownwardGateEnemyProjectileRomData.OneBlockDistance)
         {
@@ -101,9 +100,6 @@ public sealed partial class RoomEnemySystem
             accumulated = 0;
         }
         projectile.GeneralTimer = unchecked((ushort)accumulated);
-        (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
-            projectile.YPosition,
-            projectile.YSubposition,
-            projectile.YVelocity);
+        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 }

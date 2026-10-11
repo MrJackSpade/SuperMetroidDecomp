@@ -21,13 +21,12 @@ internal static partial class Program
         ridley.FunctionTimer = 100;
         ridley.MovementAnimationEnabled = 1;
         ridley.HorizontalVelocity = unchecked((ushort)-768);
-        body.XPosition = 41;
-        body.YPosition = 100;
+        body.Position = body.Position.WithWhole(new(41, 100));
         runtime.Samus!.Position = runtime.Samus!.Position.WithWholeX(20);
         runtime.Samus.Position = runtime.Samus.Position.WithWholeY(168);
         runtime.StepFrame(0);
         runtime.RunNmi(0, true);
-        AssertEqual(40, body.XPosition, "Ceres lunge clips at native left bound");
+        AssertEqual(40, body.Position.X.Whole, "Ceres lunge clips at native left bound");
         AssertEqual(33, runtime.Enemies.EarthquakeType, "Ceres left impact requests native quake type");
         AssertEqual(11, runtime.Enemies.EarthquakeTimer, "first draw consumes one of twelve quake frames");
         AssertTrue(runtime.Enemies.LastRoomShake != default, "impact reaches room shaking consumer");

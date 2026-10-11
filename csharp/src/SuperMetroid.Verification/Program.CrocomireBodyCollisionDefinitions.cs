@@ -30,8 +30,10 @@ internal static partial class Program
         // installed side selects Crocomire's compiled physical data.
         nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
         compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
-        nativeSlot.XPosition = compiledSlot.XPosition = 0x1000;
-        nativeSlot.YPosition = compiledSlot.YPosition = 0x1000;
+        compiledSlot.Position = compiledSlot.Position.WithWholeX(0x1000);
+        nativeSlot.Position = nativeSlot.Position.WithWholeX(0x1000);
+        compiledSlot.Position = compiledSlot.Position.WithWholeY(0x1000);
+        nativeSlot.Position = nativeSlot.Position.WithWholeY(0x1000);
 
         var frames = CrocomireBodyVisualDefinitions.Frames;
         AssertEqual(50, frames.Length,
@@ -67,9 +69,9 @@ internal static partial class Program
                 ushort x = unchecked((ushort)(0x1000 + dx));
                 ushort y = unchecked((ushort)(0x1000 + dy));
                 object?[] nativeArguments =
-                    [nativeSlot, x, y, (ushort)8, (ushort)8, shot, (ushort)0];
+                    [nativeSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
                 object?[] compiledArguments =
-                    [compiledSlot, x, y, (ushort)8, (ushort)8, shot, (ushort)0];
+                    [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)8, (ushort)8), shot, (ushort)0];
                 bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
                 bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                 AssertEqual(nativeHit, compiledHit,

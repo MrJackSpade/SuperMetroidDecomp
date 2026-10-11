@@ -16,15 +16,14 @@ internal static partial class Program
         var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), blocks, new byte[64], new ushort[64], new byte[8]);
         RoomEnemySlot actor = enemies.Slots[0];
         var state = new BoulderEnemyState(actor);
-        actor.XPosition = 40;
-        actor.XRadius = actor.YRadius = 8;
+        actor.Position = actor.Position.WithWholeX(40);
+        actor.Radius = new(8, 8);
         for (ushort counter = 0; counter <= 2; counter++)
         {
             int address = 0xa686f1 + (counter - 1) * 2;
             ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
             AssertEqual(expected, BoulderBounceDefinitions.SpeedIndex(counter), "Boulder native leading-zero/bounce word");
-            actor.YPosition = 55;
-            actor.YSubposition = 0;
+            actor.Position = actor.Position.WithY(new(55, 0));
             state.BounceCounter = counter;
             state.VerticalSpeedAccumulator = 0x2000;
             state.Function = BoulderAiFunction.Falling;
@@ -35,8 +34,8 @@ internal static partial class Program
                 state.Function, "Boulder last collision enters rolling");
             if (counter == 0)
             {
-                AssertEqual(actor.YPosition, state.PreviousYPosition, "Boulder rolling Y handoff");
-                AssertEqual(actor.YSubposition, state.PreviousYSubposition, "Boulder rolling subpixel handoff");
+                AssertEqual(actor.Position.Y.Whole, state.PreviousYPosition, "Boulder rolling Y handoff");
+                AssertEqual(actor.Position.Y.Fraction, state.PreviousYSubposition, "Boulder rolling subpixel handoff");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => BoulderBounceDefinitions.SpeedIndex(3), "Boulder unsupported bounce count");

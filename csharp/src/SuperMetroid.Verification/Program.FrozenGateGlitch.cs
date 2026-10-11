@@ -65,8 +65,8 @@ internal static partial class Program
             .ToArray();
         AssertEqual(3, zeros.Length, "Caterpillar retains its three retail Zero enemies");
         RoomEnemySlot zero = zeros[0];
-        AssertEqual((ushort)8, zero.XRadius, "retail Zero horizontal collision radius");
-        AssertEqual((ushort)8, zero.YRadius, "retail Zero vertical collision radius");
+        AssertEqual((ushort)8, zero.Radius.X, "retail Zero horizontal collision radius");
+        AssertEqual((ushort)8, zero.Radius.Y, "retail Zero vertical collision radius");
         AssertTrue(!zero.Properties.HasAny(EnemyProperties.SolidToSamus),
             "unfrozen retail Zero does not use the always-solid property route");
 
@@ -102,7 +102,7 @@ internal static partial class Program
             new SolidEnemyCollisionBody(
                 zero.NativeIndex,
                 new(expected.EnemyX, FrozenGateY),
-                new(zero.XRadius, zero.YRadius),
+                new(zero.Radius.X, zero.Radius.Y),
                 expected.Frozen ? (ushort)1 : (ushort)0,
                 zero.Properties),
         ];

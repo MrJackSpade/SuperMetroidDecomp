@@ -8,8 +8,8 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort RinkaDustAnimationIndex = 3;
     /// <summary>Allocates <c>SpawnEprojWithRoomGfx($E509, 3)</c>.</summary>
-    private void SpawnRinkaDustExplosion(ushort xPosition, ushort yPosition)
-        => SpawnRoomGraphicsDustExplosion(xPosition, yPosition, RinkaDustAnimationIndex);
+    private void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
+        => SpawnRoomGraphicsDustExplosion(position, RinkaDustAnimationIndex);
 
     /// <summary>
     /// Allocates the shared room-graphics dust/explosion actor at <c>$86:E509</c>.
@@ -18,8 +18,7 @@ public sealed partial class RoomEnemySystem
     /// that invoke the same engine primitive.
     /// </summary>
     private void SpawnRoomGraphicsDustExplosion(
-        ushort xPosition,
-        ushort yPosition,
+        Position16<RoomPixels> position,
         ushort animationIndex)
     {
         ushort instructionList =
@@ -32,8 +31,7 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.MiscDustExplosion,
             graphicsIndex: 0);
-        projectile.XPosition = xPosition;
-        projectile.YPosition = yPosition;
+        projectile.Position = projectile.Position.WithWhole(position);
 
         // EprojInit_DustCloudOrExplosion ignores the definition's placeholder list and
         // indexes this literal thirty-word table with the spawn parameter. Parameter three
@@ -59,8 +57,7 @@ public sealed partial class RoomEnemySystem
                 projectile,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
                 graphicsIndex: 0);
-            projectile.XPosition = slot.XPosition;
-            projectile.YPosition = slot.YPosition;
+            projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.EnemyHeaderPointer = slot.EnemyDefinitionPointer;
             projectile.KilledEnemyNativeIndex = respawns
                 ? unchecked((ushort)(slot.NativeIndex | 0x8000))
@@ -113,15 +110,14 @@ public sealed partial class RoomEnemySystem
     /// <summary>Runs $86:E4FE's strict 256x256 camera cull for dust/explosion actors.</summary>
     private static void CullMiscDustOutsideCamera(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         // $86:E6E0 compares the position against camera + $100 and culls on BPL, so
         // a projectile exactly $100 past the camera is already off-screen.
-        if (unchecked((short)(projectile.XPosition - cameraX)) < 0 ||
-            unchecked((short)(projectile.XPosition - (cameraX + 256))) >= 0 ||
-            unchecked((short)(projectile.YPosition - cameraY)) < 0 ||
-            unchecked((short)(projectile.YPosition - (cameraY + 256))) >= 0)
+        if (unchecked((short)(projectile.Position.X.Whole - camera.X)) < 0 ||
+            unchecked((short)(projectile.Position.X.Whole - (camera.X + 256))) >= 0 ||
+            unchecked((short)(projectile.Position.Y.Whole - camera.Y)) < 0 ||
+            unchecked((short)(projectile.Position.Y.Whole - (camera.Y + 256))) >= 0)
         {
             projectile.Clear();
         }

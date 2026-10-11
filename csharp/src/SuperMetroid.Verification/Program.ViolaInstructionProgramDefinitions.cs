@@ -105,7 +105,7 @@ internal static partial class Program
         int callCount)
     {
         object?[] arguments =
-            [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
+            [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = 1;

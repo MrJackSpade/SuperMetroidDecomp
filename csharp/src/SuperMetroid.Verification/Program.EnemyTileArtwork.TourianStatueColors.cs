@@ -56,10 +56,10 @@ internal static partial class Program
             AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                 $"Tourian eye parameter {parameter} preserves full native CGRAM");
             AssertEqual(new ushort[] { 0x84, 0x7a, 0x9e, 0x68 }[parameter / 2],
-                installed.EnemyProjectiles.Single(x => x.IsActive).XPosition,
+                installed.EnemyProjectiles.Single(x => x.IsActive).Position.X.Whole,
                 $"Tourian eye parameter {parameter} keeps physical X");
             AssertEqual(new ushort[] { 0x90, 0x51, 0x80, 0x72 }[parameter / 2],
-                installed.EnemyProjectiles.Single(x => x.IsActive).YPosition,
+                installed.EnemyProjectiles.Single(x => x.IsActive).Position.Y.Whole,
                 $"Tourian eye parameter {parameter} keeps physical Y");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,

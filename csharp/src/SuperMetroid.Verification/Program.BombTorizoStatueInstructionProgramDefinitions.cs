@@ -59,7 +59,7 @@ internal static partial class Program
             int visibleFrames = initialDuration + 0x0070;
             for (int frame = 1; frame <= visibleFrames; frame++)
             {
-                process.Invoke(enemies, [fragment, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [fragment, null, Position16<RoomPixels>.Zero]);
                 AssertEqual(frame <= initialDuration ? 0 : 1, enemies.SoundRequests.Count,
                     "shell sound occurs once at release, never during the initial wait or again while falling");
                 if (frame == initialDuration + 1)
@@ -82,7 +82,7 @@ internal static partial class Program
                         $"Bomb Torizo statue fragment {index} advances to deletion");
                 }
             }
-            process.Invoke(enemies, [fragment, null, (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [fragment, null, Position16<RoomPixels>.Zero]);
             AssertTrue(!fragment.IsActive,
                 $"Bomb Torizo statue fragment {index} deletes after {visibleFrames} visible frames");
         }

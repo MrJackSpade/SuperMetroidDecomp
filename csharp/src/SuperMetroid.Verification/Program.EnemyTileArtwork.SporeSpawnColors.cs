@@ -82,8 +82,7 @@ internal static partial class Program
         RoomEnemySlot body = enemies.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 };
-        body.XPosition = 128;
-        body.YPosition = 624;
+        body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         type.GetMethod("InitializeSporeSpawn", flags)!.Invoke(enemies, [body]);
         SporeSpawnEnemyState state = enemies.SporeSpawn ??

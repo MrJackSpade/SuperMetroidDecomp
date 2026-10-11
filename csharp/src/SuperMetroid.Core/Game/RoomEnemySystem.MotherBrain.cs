@@ -287,8 +287,8 @@ public sealed partial class RoomEnemySystem
                 // MotherBrain_SealWall at `$AD:E396` creates both dust puffs before its
                 // two identical hardcoded PLMs. Requests remain ordered because the bank
                 // $84 allocator searches the same descending pool for each call.
-                SpawnRoomGraphicsDustExplosion(248, 72, animationIndex: 9);
-                SpawnRoomGraphicsDustExplosion(248, 152, animationIndex: 9);
+                SpawnRoomGraphicsDustExplosion(new(248, 72), animationIndex: 9);
+                SpawnRoomGraphicsDustExplosion(new(248, 152), animationIndex: 9);
                 state.RequestPlm(
                     blockX: 15,
                     blockY: 4,
@@ -330,8 +330,7 @@ public sealed partial class RoomEnemySystem
                     state,
                     samus ?? throw new InvalidOperationException(
                         "Mother Brain's articulated neck requires the live Samus actor."));
-                head.XPosition = state.NeckSegment4.X;
-                head.YPosition = unchecked((ushort)(state.NeckSegment4.Y - 21));
+                head.Position = head.Position.WithWhole(new(state.NeckSegment4.X, unchecked((ushort)(state.NeckSegment4.Y - 21))));
                 state.DrawBrain = true;
                 state.DrawNeck = true;
                 return;
@@ -347,7 +346,7 @@ public sealed partial class RoomEnemySystem
     /// record carries extended-spritemap bit <c>$0004</c>; routing it through the generic
     /// extended parser is precisely the corruption the cartridge hook avoids.
     /// </summary>
-    private void DrawMotherBrainHook(OamBuffer oam, ushort cameraX, ushort cameraY)
+    private void DrawMotherBrainHook(OamBuffer oam, Position16<RoomPixels> camera)
     {
         MotherBrainEnemyState? state = MotherBrain;
         RoomEnemySlot? head = state?.Head;
@@ -366,19 +365,18 @@ public sealed partial class RoomEnemySystem
         (short brainShakeX, short brainShakeY) = GetMotherBrainBrainShake(state, head);
         // The caller must cull before the nine-bit OAM coordinate loses world-space bits.
         // Otherwise a brain half a room to the left reappears in the approach hallway.
-        if (unchecked((short)(head.XPosition + brainShakeX +
-                MotherBrainDrawData.BrainLeftCullMargin - cameraX)) >= 0)
+        if (unchecked((short)(head.Position.X.Whole + brainShakeX +
+                MotherBrainDrawData.BrainLeftCullMargin - camera.X)) >= 0)
         DrawMotherBrainWorldSpritemap(
             oam,
             brainSpritemap,
-            unchecked((ushort)(head.XPosition + brainShakeX)),
-            unchecked((ushort)(head.YPosition + brainShakeY)),
+            unchecked((ushort)(head.Position.X.Whole + brainShakeX)),
+            unchecked((ushort)(head.Position.Y.Whole + brainShakeY)),
             // The custom draw hook bypasses ordinary enemy palette selection. Retail
             // still selects the shared white hurt palette on odd flash-timer frames.
             (head.FlashTimer & 1) != 0 ? (ushort)0 : state.BrainPaletteIndex,
             head.VramTilesIndex,
-            cameraX,
-            cameraY);
+            camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
             return;
@@ -406,8 +404,7 @@ public sealed partial class RoomEnemySystem
                 unchecked((ushort)(segment.Y + neckShakeY)),
                 state.NeckPaletteIndex,
                 head.VramTilesIndex,
-                cameraX,
-                cameraY);
+                camera);
         }
     }
 
@@ -421,13 +418,12 @@ public sealed partial class RoomEnemySystem
         ushort worldY,
         ushort paletteIndex,
         ushort vramTilesIndex,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         // Mother Brain's private `$A9:93EE` writer rejects an entire map whose center begins
         // above the screen. The generic writer intentionally wraps, so preserve that unique
         // vertical gate here before sharing its byte-exact map decoder.
-        ushort screenY = unchecked((ushort)(worldY - cameraY));
+        ushort screenY = unchecked((ushort)(worldY - camera.Y));
         if (unchecked((short)screenY) < 0)
             return;
 
@@ -435,8 +431,7 @@ public sealed partial class RoomEnemySystem
             oam,
             MotherBrainVisualDefinitions.Bank,
             spritemapPointer,
-            unchecked((ushort)(worldX - cameraX)),
-            screenY,
+            new(unchecked((ushort)(worldX - camera.X)), screenY),
             paletteIndex,
             vramTilesIndex);
     }
@@ -474,7 +469,7 @@ public sealed partial class RoomEnemySystem
                 ref lowerIndex,
                 ref upperIndex,
                 state.NeckAngleDelta,
-                state.Head!.YPosition,
+                state.Head!.Position.Y.Whole,
                 samus.Position.Y.Whole);
             state.LowerNeckAngle = lowerAngle;
             state.UpperNeckAngle = upperAngle;
@@ -483,8 +478,8 @@ public sealed partial class RoomEnemySystem
         }
 
         MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
-            state.Body.XPosition,
-            state.Body.YPosition,
+            state.Body.Position.X.Whole,
+            state.Body.Position.Y.Whole,
             state.LowerNeckAngle,
             state.UpperNeckAngle,
             state.NeckSegment0Distance,
@@ -750,8 +745,7 @@ public sealed partial class RoomEnemySystem
                     MotherBrainHandBeamBodyInstructionDefinitions.ReadMechanicsWord(
                         unchecked((ushort)(cursor + 6)));
                 SpawnRoomGraphicsDustExplosion(
-                    unchecked((ushort)(state.Body.XPosition + xOffset)),
-                    unchecked((ushort)(state.Body.YPosition + yOffset)),
+                    new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(state.Body.Position.Y.Whole + yOffset))),
                     animationIndex);
                 cursor = unchecked((ushort)(cursor + 8));
                 return true;
@@ -869,8 +863,8 @@ public sealed partial class RoomEnemySystem
                 // her parameter-one speed flag without any encounter-specific substitute.
                 RoomEnemyProjectileSlot? laser = SpawnPirateMotherBrainLaser(
                     head,
-                    unchecked((ushort)(head.XPosition + 0x0010)),
-                    unchecked((ushort)(head.YPosition + 0x0004)),
+                    unchecked((ushort)(head.Position.X.Whole + 0x0010)),
+                    unchecked((ushort)(head.Position.Y.Whole + 0x0004)),
                     movingRight: true);
                 if (laser is not null)
                     state.LastSoundEffect = PirateMotherBrainLaserSound;
@@ -909,9 +903,9 @@ public sealed partial class RoomEnemySystem
         ushort targetY)
     {
         RoomEnemySlot head = state.Head!;
-        short deltaX = unchecked((short)(targetX - head.XPosition - 0x000a));
-        short deltaY = unchecked((short)(targetY - head.YPosition - 0x0010));
-        byte angle = unchecked((byte)(0x80 - CalculateCartridgeAngle(deltaX, deltaY)));
+        short deltaX = unchecked((short)(targetX - head.Position.X.Whole - 0x000a));
+        short deltaY = unchecked((short)(targetY - head.Position.Y.Whole - 0x0010));
+        byte angle = unchecked((byte)(0x80 - CalculateCartridgeAngle(new(deltaX, deltaY))));
 
         // `$9E86-$9E98` performs two signed-flag comparisons in 8-bit mode. The
         // wraparound half maps $C0..FF and $00..0F to $10; the opposite half maps

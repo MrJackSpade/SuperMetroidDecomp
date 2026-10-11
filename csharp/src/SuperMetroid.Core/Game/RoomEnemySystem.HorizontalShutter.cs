@@ -44,12 +44,12 @@ public sealed partial class RoomEnemySystem
         state.HorizontalProximityOrWaitTime = slot.Parameter2;
         state.FunctionTimer = slot.Parameter2;
 
-        state.MinimumXPosition = slot.XPosition;
-        state.MaximumXPosition = unchecked((ushort)(slot.XPosition + state.TravelDistance));
+        state.MinimumXPosition = slot.Position.X.Whole;
+        state.MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + state.TravelDistance));
         if (state.PrimaryDirection == 0)
         {
-            state.MaximumXPosition = slot.XPosition;
-            state.MinimumXPosition = unchecked((ushort)(slot.XPosition - state.TravelDistance));
+            state.MaximumXPosition = slot.Position.X.Whole;
+            state.MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - state.TravelDistance));
         }
 
         state.Function = HorizontalShutterFunction.Initial;
@@ -164,14 +164,13 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort controllerInput)
     {
-        state.PreviousXPosition = slot.XPosition;
+        state.PreviousXPosition = slot.Position.X.Whole;
         state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) &&
-            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0;
-        (slot.XPosition, slot.XSubposition) = AddShutterVelocity(
-            slot.XPosition,
-            slot.XSubposition,
+            unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
+        slot.Position = slot.Position.WithX(AddShutterVelocity(
+            slot.Position.X,
             state.LeftVelocity,
-            state.LeftSubvelocity);
+            state.LeftSubvelocity));
         if (state.MovingSamus)
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(
@@ -183,7 +182,7 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        if (unchecked((short)(state.MinimumXPosition - slot.XPosition)) < 0)
+        if (unchecked((short)(state.MinimumXPosition - slot.Position.X.Whole)) < 0)
             return;
         if (state.MovedLeftRestTime == PermanentStopRestTime)
         {
@@ -200,14 +199,13 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort controllerInput)
     {
-        state.PreviousXPosition = slot.XPosition;
+        state.PreviousXPosition = slot.Position.X.Whole;
         state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) &&
-            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0;
-        (slot.XPosition, slot.XSubposition) = AddShutterVelocity(
-            slot.XPosition,
-            slot.XSubposition,
+            unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0;
+        slot.Position = slot.Position.WithX(AddShutterVelocity(
+            slot.Position.X,
             state.RightVelocity,
-            state.RightSubvelocity);
+            state.RightSubvelocity));
         if (state.MovingSamus)
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(
@@ -219,7 +217,7 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        if (unchecked((short)(state.MaximumXPosition - slot.XPosition)) > 0)
+        if (unchecked((short)(state.MaximumXPosition - slot.Position.X.Whole)) > 0)
             return;
         if (state.MovedRightRestTime == PermanentStopRestTime)
         {
@@ -254,14 +252,10 @@ public sealed partial class RoomEnemySystem
 
     private static bool HorizontalShutterOverlapsSamus(RoomEnemySlot slot, SamusState samus) =>
         RadiusBoxesOverlap(
-            slot.XPosition,
-            slot.YPosition,
-            slot.XRadius,
-            slot.YRadius,
-            samus.Position.X.Whole,
-            samus.Position.Y.Whole,
-            samus.Kinematics.Radius.X,
-            samus.Kinematics.Radius.Y);
+            slot.Position.Whole,
+            slot.Radius,
+            samus.Position.Whole,
+            samus.Kinematics.Radius);
 
     /// <summary>Ports the stationary/manual ejection portion of touch AI $A2:F3D8.</summary>
     private void TouchHorizontalShutter(
@@ -273,7 +267,7 @@ public sealed partial class RoomEnemySystem
         if (state.Function != HorizontalShutterFunction.PermanentNoOp)
             return;
 
-        bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0;
+        bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
         if (samusIsLeft && (controllerInput & (ushort)SnesButton.Right) != 0)
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(-HorizontalShutterManualPushPixels).WithFractionY(0);

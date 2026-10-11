@@ -76,7 +76,7 @@ public readonly record struct FakeKraidDropRequest();
 public sealed partial class RoomEnemySystem
 {
     /// <summary>Executes Mini-Kraid's private animation instructions.</summary>
-    private bool TryProcessFakeKraidInstruction(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level, ushort word, ref ushort cursor, ushort cameraX, ushort cameraY)
+    private bool TryProcessFakeKraidInstruction(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level, ushort word, ref ushort cursor, Position16<RoomPixels> camera)
     {
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.MiniKraid ||
             !Enum.IsDefined((FakeKraidInstruction)word))
@@ -98,7 +98,7 @@ public sealed partial class RoomEnemySystem
             case FakeKraidInstruction.PlayCrySFX:
                 // `$A6:9BB2` queues sound $16 only while the actor origin is inside the
                 // inclusive 256x256 native screen rectangle.
-                if (FakeKraidOriginIsOnScreen(slot, cameraX, cameraY))
+                if (FakeKraidOriginIsOnScreen(slot, camera))
                     LastFakeKraidSoundEffect = FakeKraidSpitSound;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
@@ -160,7 +160,7 @@ public sealed partial class RoomEnemySystem
         state.FacingDelta = -4;
         slot.CurrentInstruction =
             FakeKraidInstructionProgramDefinitions.StepForwardsFacingLeft;
-        if (unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0)
+        if (unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0)
         {
             state.WalkDelta = 4;
             state.FacingDelta = 4;
@@ -173,8 +173,7 @@ public sealed partial class RoomEnemySystem
     private void RunFakeKraidMain(
         RoomEnemySlot slot,
         FakeKraidEnemyState state,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         // Main AI stores the next selector before acting on the old value. Because the old
         // value is passed as a byte offset into scratch RAM, offsets zero/two/four alias the
@@ -197,7 +196,7 @@ public sealed partial class RoomEnemySystem
             (ReadFakeKraidRandomNumber() & 0x003f) + 16));
         state.LastSpikeRow = timerIndex;
         if (SpawnFakeKraidSpike(slot, state, timerIndex) &&
-            FakeKraidOriginIsOnScreen(slot, cameraX, cameraY))
+            FakeKraidOriginIsOnScreen(slot, camera))
         {
             LastFakeKraidSoundEffect = FakeKraidSpikeSound;
         }
@@ -243,7 +242,7 @@ public sealed partial class RoomEnemySystem
         if (reverse)
             state.WalkDelta = unchecked((short)-state.WalkDelta);
 
-        state.FacingDelta = unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0
+        state.FacingDelta = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
             ? (short)4
             : (short)-4;
     }
@@ -307,12 +306,8 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.FakeKraidSpit,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
-        projectile.XPosition = unchecked((ushort)(source.XPosition + xOffset));
-        projectile.YPosition = unchecked((ushort)(source.YPosition - 16));
-        projectile.XSubposition = 0;
-        projectile.YSubposition = 0;
-        projectile.XVelocity = xVelocity;
-        projectile.YVelocity = yVelocity;
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(source.Position.X.Whole + xOffset)), unchecked((ushort)(source.Position.Y.Whole - 16))));
+        projectile.Velocity = new(new SnesSignedEightEight(xVelocity), new SnesSignedEightEight(yVelocity));
         return true;
     }
 
@@ -333,14 +328,10 @@ public sealed partial class RoomEnemySystem
             kind,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
         short yOffset = FakeKraidProjectileDefinitions.SpikeYOffset(row);
-        projectile.XPosition = source.XPosition;
-        projectile.YPosition = unchecked((ushort)(source.YPosition + yOffset));
-        projectile.XSubposition = 0;
-        projectile.YSubposition = 0;
-        projectile.XVelocity = kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(source.Position.X.Whole, unchecked((ushort)(source.Position.Y.Whole + yOffset))));
+        projectile.Velocity = new(new SnesSignedEightEight(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
             ? unchecked((ushort)-0x0200)
-            : (ushort)0x0200;
-        projectile.YVelocity = 0;
+            : (ushort)0x0200), new SnesSignedEightEight(0));
         state.SpawnedSpikeCount++;
         return true;
     }
@@ -357,11 +348,11 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        short oldVelocity = unchecked((short)projectile.YVelocity);
+        short oldVelocity = unchecked((short)projectile.Velocity.Y.RawValue);
         short nextVelocity = unchecked((short)(oldVelocity + 64));
         if (nextVelocity >= 0 && oldVelocity >= 960)
             nextVelocity = 1024;
-        projectile.YVelocity = unchecked((ushort)nextVelocity);
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)nextVelocity)));
     }
 
     /// <summary>Ports <c>EprojPreInstr_MiniKraidSpikes</c> at <c>$86:9E83</c>.</summary>
@@ -378,12 +369,11 @@ public sealed partial class RoomEnemySystem
 
     private static bool FakeKraidOriginIsOnScreen(
         RoomEnemySlot slot,
-        ushort cameraX,
-        ushort cameraY) =>
-        unchecked((short)(slot.XPosition - cameraX)) >= 0 &&
-        unchecked((short)(cameraX + 256 - slot.XPosition)) >= 0 &&
-        unchecked((short)(slot.YPosition - cameraY)) >= 0 &&
-        unchecked((short)(cameraY + 256 - slot.YPosition)) >= 0;
+        Position16<RoomPixels> camera) =>
+        unchecked((short)(slot.Position.X.Whole - camera.X)) >= 0 &&
+        unchecked((short)(camera.X + 256 - slot.Position.X.Whole)) >= 0 &&
+        unchecked((short)(slot.Position.Y.Whole - camera.Y)) >= 0 &&
+        unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) >= 0;
 
     private FakeKraidEnemyState RequireFakeKraidState(RoomEnemySlot slot) =>
         _fakeKraidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
@@ -397,8 +387,8 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void KillFakeKraid(RoomEnemySlot slot)
     {
-        ushort originX = slot.XPosition;
-        ushort originY = slot.YPosition;
+        ushort originX = slot.Position.X.Whole;
+        ushort originY = slot.Position.Y.Whole;
         ushort chancePointer = slot.Definition.ItemDropChancesPointer;
         StartGenericEnemyDeath(slot, deathAnimation: 3);
         SpawnFakeKraidDeathDrops(originX, originY);
@@ -410,7 +400,6 @@ public sealed partial class RoomEnemySystem
         SpawnEnemyDropScatterAround(
             EnemyDefinitionId.MiniKraid,
             count: 4,
-            originX,
-            originY);
+            new(originX, originY));
     }
 }

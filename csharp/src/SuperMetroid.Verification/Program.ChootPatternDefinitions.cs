@@ -50,8 +50,7 @@ internal static partial class Program
                     enemies, new ChootPatternReadGuard(rom));
                 var initialize = initializeMethod.CreateDelegate<Action<RoomEnemySlot>>(enemies);
                 RoomEnemySlot slot = enemies.Slots[0];
-                slot.XPosition = 0x3456;
-                slot.YPosition = 0x789a;
+                slot.Position = slot.Position.WithWhole(new(0x3456, 0x789a));
                 slot.Parameter1 = (ushort)((patternIndex << 8) | loopCount);
                 initialize(slot);
 
@@ -62,7 +61,7 @@ internal static partial class Program
                     $"Choot production pattern pointer {patternIndex}/{loopCount}");
                 AssertEqual(definition.FallingPatternYDistance, state.FallingPatternYDistance,
                     $"Choot production pattern distance {patternIndex}/{loopCount}");
-                AssertEqual(slot.XPosition, state.InitialFallingXPosition,
+                AssertEqual(slot.Position.X.Whole, state.InitialFallingXPosition,
                     $"Choot production initial falling X {patternIndex}/{loopCount}");
                 AssertEqual(unchecked((ushort)(0x789a - jumpHeight)),
                     state.InitialFallingYPosition,
@@ -74,10 +73,7 @@ internal static partial class Program
                 fallEnemies, new ChootPatternReadGuard(rom));
             var initializeFall = initializeMethod.CreateDelegate<Action<RoomEnemySlot>>(fallEnemies);
             RoomEnemySlot fallSlot = fallEnemies.Slots[0];
-            fallSlot.XPosition = 0x3456;
-            fallSlot.XSubposition = 0x1111;
-            fallSlot.YPosition = 0x789a;
-            fallSlot.YSubposition = 0x2222;
+            fallSlot.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
             fallSlot.Parameter1 = (ushort)((patternIndex << 8) | 2);
             initializeFall(fallSlot);
             ChootEnemyState fallState = fallEnemies.ChootStates[0]!;
@@ -93,10 +89,10 @@ internal static partial class Program
                     frameIndex);
                 runFall(fallSlot, fallState);
                 AssertEqual(unchecked((ushort)(0x4000 + unchecked((short)point.XOffset))),
-                    fallSlot.XPosition,
+                    fallSlot.Position.X.Whole,
                     $"Choot production fall X {patternIndex}/{frameIndex}");
                 AssertEqual(unchecked((ushort)(0x5000 + unchecked((short)point.YOffset))),
-                    fallSlot.YPosition,
+                    fallSlot.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
                 AssertEqual(unchecked((ushort)((frameIndex + 1) << 8)),
                     fallState.FallingPatternIndex,
@@ -115,13 +111,13 @@ internal static partial class Program
             fallState.FallingPatternIndex = unchecked((ushort)(
                 (frameCounts[patternIndex] - 1) << 8));
             runFall(fallSlot, fallState);
-            AssertEqual((ushort)0x3456, fallSlot.XPosition,
+            AssertEqual((ushort)0x3456, fallSlot.Position.X.Whole,
                 $"Choot production final spawn X {patternIndex}");
-            AssertEqual((ushort)0x789a, fallSlot.YPosition,
+            AssertEqual((ushort)0x789a, fallSlot.Position.Y.Whole,
                 $"Choot production final spawn Y {patternIndex}");
-            AssertEqual((ushort)0, fallSlot.XSubposition,
+            AssertEqual((ushort)0, fallSlot.Position.X.Fraction,
                 $"Choot production final spawn X fraction {patternIndex}");
-            AssertEqual((ushort)0, fallSlot.YSubposition,
+            AssertEqual((ushort)0, fallSlot.Position.Y.Fraction,
                 $"Choot production final spawn Y fraction {patternIndex}");
         }
 

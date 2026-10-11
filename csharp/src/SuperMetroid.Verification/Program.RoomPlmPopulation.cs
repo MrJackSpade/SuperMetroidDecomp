@@ -1514,9 +1514,9 @@ internal static partial class Program
 
         RoomEnemyProjectileSlot electricity = enemies.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
-        AssertEqual(0x0130, electricity.XPosition,
+        AssertEqual(0x0130, electricity.Position.X.Whole,
             "save electricity starts one block right of the station PLM");
-        AssertEqual(0x0040, electricity.YPosition,
+        AssertEqual(0x0040, electricity.Position.Y.Whole,
             "save electricity starts two blocks above the station PLM");
 
         enemies.StepEnemyProjectiles(level, samus: null);
@@ -1526,7 +1526,7 @@ internal static partial class Program
             "installed program artwork does not retain a cartridge spritemap pointer");
         var oam = new OamBuffer();
         oam.BeginFrame();
-        enemies.DrawEnemyProjectiles(oam, cameraX: 0x0100, cameraY: 0);
+        enemies.DrawEnemyProjectiles(oam, new(0x0100, 0));
         oam.FinalizeFrame();
         AssertTrue(Enumerable.Range(0, oam.LastFinalizedSpriteCount)
             .Select(oam.GetEntry)

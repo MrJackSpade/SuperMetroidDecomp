@@ -37,24 +37,23 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
 
         RoomEnemySlot torizo = enemies.Slots[0];
-        torizo.XPosition = 1000;
-        torizo.YPosition = 500;
+        torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.Parameter1 = 0;
         spawn(torizo, 0);
         RoomEnemyProjectileSlot swipe = enemies.EnemyProjectiles.First(
             projectile => projectile.Kind == RoomEnemyProjectileKind.BombTorizoExplosiveSwipe);
         AssertEqual(TorizoExplosiveSwipeInstructionProgramDefinitions.Initial,
             swipe.InstructionPointer, "real Torizo swipe selects compiled program");
-        AssertEqual((ushort)970, swipe.XPosition, "real Torizo swipe initial X");
-        AssertEqual((ushort)448, swipe.YPosition, "real Torizo swipe initial Y");
+        AssertEqual((ushort)970, swipe.Position.X.Whole, "real Torizo swipe initial X");
+        AssertEqual((ushort)448, swipe.Position.Y.Whole, "real Torizo swipe initial Y");
 
         for (int frame = 0; frame < 25; frame++)
         {
-            process.Invoke(enemies, [swipe, null, (ushort)0, (ushort)0]);
+            process.Invoke(enemies, [swipe, null, Position16<RoomPixels>.Zero]);
             AssertTrue(swipe.IsActive,
                 $"Torizo explosive swipe remains active through frame {frame + 1}");
         }
-        process.Invoke(enemies, [swipe, null, (ushort)0, (ushort)0]);
+        process.Invoke(enemies, [swipe, null, Position16<RoomPixels>.Zero]);
         AssertTrue(!swipe.IsActive,
             "Torizo explosive swipe deletes on the tick after five five-frame poses");
 

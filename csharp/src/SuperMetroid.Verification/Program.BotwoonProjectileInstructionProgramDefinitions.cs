@@ -46,8 +46,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemyProjectileSlot, byte>>(enemies);
 
         RoomEnemySlot head = enemies.Slots[0];
-        head.XPosition = 128;
-        head.YPosition = 96;
+        head.Position = head.Position.WithWhole(new(128, 96));
         var state = new BotwoonEnemyState(head);
         typeof(RoomEnemySystem).GetField("_botwoonState", flags)!.SetValue(enemies, state);
         spawnBody(head, state, 2);
@@ -56,14 +55,14 @@ internal static partial class Program
         AssertEqual(BotwoonProjectileInstructionProgramDefinitions.Hidden,
             body.InstructionPointer,
             "real Botwoon body producer starts a non-tail segment hidden");
-        body.YPosition = 200;
-        body.XVelocity = (ushort)BotwoonBodyFunction.Falling;
+        body.Position = body.Position.WithWholeY(200);
+        body.Velocity = body.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Falling));
         runBodyPreInstruction(body, 0);
-        AssertEqual((ushort)BotwoonBodyFunction.Landed, body.XVelocity,
+        AssertEqual((ushort)BotwoonBodyFunction.Landed, body.Velocity.X.RawValue,
             "landed Botwoon body installs the cartridge RTS state");
-        body.XVelocity = (ushort)BotwoonBodyFunction.LegacyLanded;
+        body.Velocity = body.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.LegacyLanded));
         runBodyPreInstruction(body, 0);
-        AssertEqual((ushort)BotwoonBodyFunction.LegacyLanded, body.XVelocity,
+        AssertEqual((ushort)BotwoonBodyFunction.LegacyLanded, body.Velocity.X.RawValue,
             "older debugger-state Botwoon landed sentinel remains restorable");
 
         for (int index = 0;
@@ -114,7 +113,7 @@ internal static partial class Program
             for (int step = 0; step < steps; step++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
                 AssertEqual((ushort)(program + 4 * (step % frames) + 2), projectile.PresentationOperandAddress,
                     "Botwoon projectile exact frame order including loop and sleep");
                 AssertEqual(frames == 1 && step > 0 ? (ushort)0 : duration, projectile.InstructionTimer,

@@ -118,8 +118,7 @@ public sealed partial class RoomEnemySystem
 
         EscapeEtecoonInitialization initialization =
             EscapeEtecoonDefinitions.Initialization(slot.Parameter1);
-        slot.XPosition = initialization.XPosition;
-        slot.YPosition = initialization.YPosition;
+        slot.Position = slot.Position.WithWhole(new(initialization.XPosition, initialization.YPosition));
         state.PreInstruction = initialization.PreInstruction;
         slot.CurrentInstruction = initialization.InstructionList;
         state.HorizontalSpeed = initialization.HorizontalSpeed;
@@ -247,8 +246,8 @@ public sealed partial class RoomEnemySystem
                     return true;
 
                 case EscapeEtecoonInstruction.AddXPosition:
-                    slot.XPosition = unchecked((ushort)(
-                        slot.XPosition + ReadEscapeAnimalOperand(slot, cursor)));
+                    slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+                        slot.Position.X.Whole + ReadEscapeAnimalOperand(slot, cursor))));
                     cursor = unchecked((ushort)(cursor + 4));
                     return true;
 
@@ -275,14 +274,14 @@ public sealed partial class RoomEnemySystem
                     return true;
 
                 case EscapeDachoraInstruction.MoveLeft:
-                    slot.XPosition = unchecked((ushort)(
-                        slot.XPosition - EscapeDachoraPixelsPerCallback));
+                    slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+                        slot.Position.X.Whole - EscapeDachoraPixelsPerCallback)));
                     cursor = unchecked((ushort)(cursor + 2));
                     return true;
 
                 case EscapeDachoraInstruction.MoveRight:
-                    slot.XPosition = unchecked((ushort)(
-                        slot.XPosition + EscapeDachoraPixelsPerCallback));
+                    slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+                        slot.Position.X.Whole + EscapeDachoraPixelsPerCallback)));
                     cursor = unchecked((ushort)(cursor + 2));
                     return true;
 
@@ -306,10 +305,9 @@ public sealed partial class RoomEnemySystem
 
     private static void AddEscapeAnimalX(RoomEnemySlot slot, int displacement)
     {
-        uint fixedPosition = ((uint)slot.XPosition << 16) | slot.XSubposition;
+        uint fixedPosition = slot.Position.X.RawValue;
         fixedPosition = unchecked(fixedPosition + (uint)displacement);
-        slot.XPosition = unchecked((ushort)(fixedPosition >> 16));
-        slot.XSubposition = unchecked((ushort)fixedPosition);
+        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition)));
     }
 
     private EscapeEtecoonEnemyState RequireEscapeEtecoonState(RoomEnemySlot slot) =>

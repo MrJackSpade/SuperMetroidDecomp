@@ -73,7 +73,7 @@ public sealed partial class RoomEnemySystem
         }
 
         var baby = new BabyMetroidCutsceneState();
-        baby.Initialize(slot.XSubposition, slot.YSubposition, slot.Properties);
+        baby.Initialize(slot.Position.X.Fraction, slot.Position.Y.Fraction, slot.Properties);
         state.BabyMetroidSlot = slot;
         state.BabyMetroid = baby;
         state.BabyAppliedInstructionList = baby.InstructionList;
@@ -101,8 +101,7 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainBabyMetroidMain(
         RoomEnemySlot slot,
         SamusState? samus,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         MotherBrainEnemyState state = MotherBrain ?? throw new InvalidOperationException(
             "The cutscene Baby lost Mother Brain's encounter state.");
@@ -134,9 +133,9 @@ public sealed partial class RoomEnemySystem
             _bus!,
             target,
             sequence,
-            new MotherBrainHeadPosition(state.Head!.XPosition, state.Head.YPosition),
-            layer1X: cameraX,
-            layer1Y: cameraY,
+            new MotherBrainHeadPosition(state.Head!.Position.X.Whole, state.Head.Position.Y.Whole),
+            layer1X: camera.X,
+            layer1Y: camera.Y,
             enemyFrameCounter: slot.FrameCounter,
             randomNumber: RequireRandomNumber());
         state.LastBabyMetroidStep = step;
@@ -179,10 +178,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         BabyMetroidCutsceneState baby)
     {
-        slot.XPosition = baby.XPosition;
-        slot.XSubposition = baby.XSubposition;
-        slot.YPosition = baby.YPosition;
-        slot.YSubposition = baby.YSubposition;
+        slot.Position = new(new(baby.XPosition, baby.XSubposition), new(baby.YPosition, baby.YSubposition));
         slot.Properties = baby.Properties;
         slot.PaletteIndex = baby.Palette;
         slot.VramTilesIndex = baby.GraphicsOffset;
@@ -212,13 +208,12 @@ public sealed partial class RoomEnemySystem
             state.LastSoundEffect = 0x0052;
 
         foreach (BabyMetroidReleaseDustRequest dust in step.ReleaseDustClouds)
-            SpawnRoomGraphicsDustExplosion(dust.XPosition, dust.YPosition, dust.ProjectileParameter);
+            SpawnRoomGraphicsDustExplosion(new(dust.XPosition, dust.YPosition), dust.ProjectileParameter);
 
         if (step.DeathExplosion is { } explosion)
         {
             SpawnRoomGraphicsDustExplosion(
-                explosion.XPosition,
-                explosion.YPosition,
+                new(explosion.XPosition, explosion.YPosition),
                 explosion.ProjectileParameter);
             // $A9:CDF4 queues the explosion through QueueSound_Lib3_Max3.
             state.LastSoundEffectLibrary3 = explosion.SoundEffect;

@@ -103,7 +103,7 @@ public sealed partial class RoomEnemySystem
             case CrocomireInstruction.MoveRight4PixelsIfOnScreen:
                 RequireCrocomireLevel(level);
                 if (unchecked((short)(
-                        slot.XPosition - slot.XRadius - 260 - cameraX)) < 0)
+                        slot.Position.X.Whole - slot.Radius.X - 260 - cameraX)) < 0)
                 {
                     MoveCrocomire(slot, level!, 4);
                 }
@@ -118,7 +118,7 @@ public sealed partial class RoomEnemySystem
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
                 if (unchecked((short)(
-                        slot.XPosition - slot.XRadius - 260 - cameraX)) < 0)
+                        slot.Position.X.Whole - slot.Radius.X - 260 - cameraX)) < 0)
                 {
                     MoveCrocomire(slot, level!, 4);
                 }
@@ -189,7 +189,7 @@ public sealed partial class RoomEnemySystem
 
             case CrocomireFightFunction.Sleeping:
                 if (samus is not null && WrappedMagnitude(unchecked((ushort)(
-                        state.Body.XPosition - samus.Position.X.Whole))) < 224)
+                        state.Body.Position.X.Whole - samus.Position.X.Whole))) < 224)
                 {
                     state.FightFlags |= 0x8000;
                     state.FightFunction = CrocomireFightFunction.WaitingForFirstDamage;
@@ -208,7 +208,7 @@ public sealed partial class RoomEnemySystem
                     }
                 }
                 if (unchecked((short)(
-                        state.Body.XPosition - CrocomireSpikeWallThreshold)) < 0)
+                        state.Body.Position.X.Whole - CrocomireSpikeWallThreshold)) < 0)
                 {
                     state.FightFunction = CrocomireFightFunction.NearSpikeWallCharge;
                     return CrocomireInstructionProgramDefinitions.NearSpikeWallCharge;
@@ -254,7 +254,7 @@ public sealed partial class RoomEnemySystem
 
             case CrocomireFightFunction.BackingOffSpikeWall:
                 if (unchecked((short)(
-                        state.Body.XPosition - CrocomireSpikeWallThreshold)) >= 0)
+                        state.Body.Position.X.Whole - CrocomireSpikeWallThreshold)) >= 0)
                 {
                     state.FightFunction = CrocomireFightFunction.SteppingForward;
                     return CrocomireInstructionProgramDefinitions.StepForward;
@@ -330,7 +330,7 @@ public sealed partial class RoomEnemySystem
                 return CrocomireInstructionProgramDefinitions.Initial;
 
             case CrocomireFightFunction.MoveUntilSamusUnused:
-                if (unchecked((short)(state.Body.XPosition - 672)) < 0)
+                if (unchecked((short)(state.Body.Position.X.Whole - 672)) < 0)
                 {
                     state.FightFunction = CrocomireFightFunction.MoveClawsUnused;
                     state.StepCounter = 3;
@@ -428,8 +428,7 @@ public sealed partial class RoomEnemySystem
     {
         ushort random = ReadCrocomireRandom();
         SpawnRoomGraphicsDustExplosion(
-            unchecked((ushort)(state.Body.XPosition + xOffset + (random & 7))),
-            unchecked((ushort)(state.Body.YPosition + state.Body.YRadius - 16)),
+            new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset + (random & 7))), unchecked((ushort)(state.Body.Position.Y.Whole + state.Body.Radius.Y - 16))),
             animationIndex: 0x15);
     }
 

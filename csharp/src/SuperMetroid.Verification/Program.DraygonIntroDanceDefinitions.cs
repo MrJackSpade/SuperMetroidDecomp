@@ -106,8 +106,10 @@ internal static partial class Program
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects[slotIndex];
             sprite.Kind = RoomSpriteObjectKind.DraygonIntroEvir;
             sprite.InstructionPointer = 1;
-            sprite.XPosition = expectedX[slotIndex - 28] = 0x0100;
-            sprite.YPosition = expectedY[slotIndex - 28] = 0x0180;
+            expectedX[slotIndex - 28] = 0x0100;
+            sprite.Position = sprite.Position.WithWholeX(0x0100);
+            expectedY[slotIndex - 28] = 0x0180;
+            sprite.Position = sprite.Position.WithWholeY(0x0180);
             expectedActive[slotIndex - 28] = true;
         }
 
@@ -153,9 +155,9 @@ internal static partial class Program
                 RoomSpriteObjectSlot actual = enemies.RoomSpriteObjects[slotIndex];
                 AssertEqual(expectedActive[actor], actual.IsActive,
                     $"Draygon intro frame {frame} slot {slotIndex} active state");
-                AssertEqual(expectedX[actor], actual.XPosition,
+                AssertEqual(expectedX[actor], actual.Position.X.Whole,
                     $"Draygon intro frame {frame} slot {slotIndex} X");
-                AssertEqual(expectedY[actor], actual.YPosition,
+                AssertEqual(expectedY[actor], actual.Position.Y.Whole,
                     $"Draygon intro frame {frame} slot {slotIndex} Y");
             }
         }

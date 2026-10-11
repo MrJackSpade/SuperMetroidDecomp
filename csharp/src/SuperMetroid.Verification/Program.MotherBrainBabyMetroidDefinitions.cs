@@ -18,8 +18,8 @@ internal static partial class Program
         ushort[] actual =
         [
             (ushort)population.DefinitionPointer,
-            population.XPosition,
-            population.YPosition,
+            population.Position.X,
+            population.Position.Y,
             population.InitializationParameter,
             population.Properties,
             population.ExtraProperties,

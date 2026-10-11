@@ -2,6 +2,7 @@ using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -28,10 +29,9 @@ internal static partial class Program
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
         RoomEnemyProjectileSlot ring = runtime.Enemies.EnemyProjectiles[16];
         ring.Kind = RoomEnemyProjectileKind.MotherBrainOnionRing;
-        ring.XPosition = 0x00ae;
-        ring.YPosition = 0x008c;
-        ring.XRadius = ring.YRadius = 1;
-        ring.XVelocity = ring.YVelocity = 0;
+        ring.Position = ring.Position.WithWhole(new(0x00ae, 0x008c));
+        ring.Radius = new(1, 1);
+        ring.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         ring.Variable0 = 0;
         typeof(BabyMetroidCutsceneState).GetProperty(nameof(BabyMetroidCutsceneState.XPosition))!
             .SetValue(state.BabyMetroid, (ushort)0x00ce);

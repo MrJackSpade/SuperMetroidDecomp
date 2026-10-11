@@ -112,10 +112,10 @@ public sealed partial class RoomEnemySystem
         state.HorizontalSpeedAccumulator = 0;
         state.BounceCounter = 2;
         state.Function = BoulderAiFunction.WaitingForSamus;
-        state.InitialXPosition = slot.XPosition;
-        state.InitialYPosition = slot.YPosition;
-        state.PreviousYPosition = slot.YPosition;
-        state.PreviousYSubposition = slot.YSubposition;
+        state.InitialXPosition = slot.Position.X.Whole;
+        state.InitialYPosition = slot.Position.Y.Whole;
+        state.PreviousYPosition = slot.Position.Y.Whole;
+        state.PreviousYSubposition = slot.Position.Y.Fraction;
 
         byte initialYOffset = unchecked((byte)(slot.Parameter2 >> 8));
         if (initialYOffset == 0)
@@ -125,7 +125,7 @@ public sealed partial class RoomEnemySystem
             initialYOffset = 1;
             state.StartsRollingWithoutBounce = true;
         }
-        slot.YPosition = unchecked((ushort)(state.InitialYPosition - initialYOffset));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.InitialYPosition - initialYOffset)));
 
         state.HorizontalTriggerLimit = unchecked((short)-(byte)slot.Parameter2);
 
@@ -182,11 +182,11 @@ public sealed partial class RoomEnemySystem
 
     private static void RunBoulderWaiting(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus)
     {
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.YPosition));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
         if (deltaY < 0 || unchecked((short)(deltaY - state.VerticalTriggerLimit)) >= 0)
             return;
 
-        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.XPosition));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
         bool enteredHorizontalWindow = state.DirectionSelector != 0
             ? deltaX < 0 && unchecked((short)(deltaX - state.HorizontalTriggerLimit)) >= 0
             : deltaX >= 0 && unchecked((short)(deltaX - state.HorizontalTriggerLimit)) < 0;
@@ -201,7 +201,7 @@ public sealed partial class RoomEnemySystem
     private static void RunBoulderInitialFall(RoomEnemySlot slot, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(slot, state.VerticalSpeedAccumulator, negative: false);
-        if (unchecked((short)(slot.YPosition - state.InitialYPosition)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - state.InitialYPosition)) < 0)
         {
             state.VerticalSpeedAccumulator = AddAndCapUnsigned(
                 state.VerticalSpeedAccumulator,
@@ -210,7 +210,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        slot.YPosition = state.InitialYPosition;
+        slot.Position = slot.Position.WithWholeY(state.InitialYPosition);
         state.Function = BoulderAiFunction.Rebound;
         state.VerticalSpeedAccumulator = 0x2000;
     }
@@ -245,8 +245,7 @@ public sealed partial class RoomEnemySystem
             {
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 SpawnRoomGraphicsDustExplosion(
-                    slot.XPosition,
-                    slot.YPosition,
+                    slot.Position.Whole,
                     BoulderDustAnimationIndex);
                 LastBoulderSoundEffect = BoulderBreakSound;
                 return;
@@ -260,8 +259,8 @@ public sealed partial class RoomEnemySystem
             state.BounceCounter = unchecked((ushort)(state.BounceCounter - 1));
             if ((state.BounceCounter & 0x8000) != 0)
             {
-                state.PreviousYPosition = slot.YPosition;
-                state.PreviousYSubposition = slot.YSubposition;
+                state.PreviousYPosition = slot.Position.Y.Whole;
+                state.PreviousYSubposition = slot.Position.Y.Fraction;
                 state.Function = BoulderAiFunction.Rolling;
             }
             return;
@@ -284,7 +283,7 @@ public sealed partial class RoomEnemySystem
                 negative: false) +
             (state.VerticalCompensation << 16));
         MoveEnemyVertically(level, slot, verticalDisplacement);
-        slot.YPosition = unchecked((ushort)(slot.YPosition - state.VerticalCompensation));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - state.VerticalCompensation)));
 
         int horizontalDisplacement = ReadBoulderHorizontalDisplacement(state);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
@@ -296,8 +295,7 @@ public sealed partial class RoomEnemySystem
             state.Function = BoulderAiFunction.Inert;
             LastBoulderSoundEffect = BoulderImpactSound;
             SpawnRoomGraphicsDustExplosion(
-                slot.XPosition,
-                slot.YPosition,
+                slot.Position.Whole,
                 BoulderDustAnimationIndex);
             LastBoulderSoundEffect = BoulderBreakSound;
         }
@@ -307,24 +305,23 @@ public sealed partial class RoomEnemySystem
                 state.HorizontalSpeedAccumulator,
                 0x0040,
                 0x4000);
-            if (slot.YPosition == state.PreviousYPosition &&
-                slot.YSubposition == state.PreviousYSubposition)
+            if (slot.Position.Y.Whole == state.PreviousYPosition &&
+                slot.Position.Y.Fraction == state.PreviousYSubposition)
             {
                 state.VerticalCompensation = 0;
             }
         }
 
-        state.PreviousYPosition = slot.YPosition;
-        state.PreviousYSubposition = slot.YSubposition;
+        state.PreviousYPosition = slot.Position.Y.Whole;
+        state.PreviousYSubposition = slot.Position.Y.Fraction;
     }
 
     private static void AddBoulderHorizontalVelocity(RoomEnemySlot slot, BoulderEnemyState state)
     {
         int displacement = ReadBoulderHorizontalDisplacement(state);
-        uint position = ((uint)slot.XPosition << 16) | slot.XSubposition;
+        uint position = slot.Position.X.RawValue;
         position = unchecked(position + (uint)displacement);
-        slot.XPosition = unchecked((ushort)(position >> 16));
-        slot.XSubposition = unchecked((ushort)position);
+        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 
     private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
@@ -337,10 +334,9 @@ public sealed partial class RoomEnemySystem
         int displacement = ReadQuadraticEnemySpeed(
             unchecked((byte)(accumulator >> 8)),
             negative);
-        uint position = ((uint)slot.YPosition << 16) | slot.YSubposition;
+        uint position = slot.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
-        slot.YPosition = unchecked((ushort)(position >> 16));
-        slot.YSubposition = unchecked((ushort)position);
+        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 
     private static ushort AddAndCapUnsigned(ushort value, ushort increment, ushort maximum)

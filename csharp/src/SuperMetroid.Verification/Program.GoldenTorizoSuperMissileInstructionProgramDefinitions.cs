@@ -43,8 +43,7 @@ internal static partial class Program
         {
             RoomEnemySystem enemies = CreateSystem(guard);
             RoomEnemySlot torizo = enemies.Slots[0];
-            torizo.XPosition = 1000;
-            torizo.YPosition = 500;
+            torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
             spawn.Invoke(enemies, [torizo]);
             RoomEnemyProjectileSlot missile = enemies.EnemyProjectiles[^1];
@@ -57,9 +56,9 @@ internal static partial class Program
             AssertEqual(initial, missile.InstructionPointer,
                 $"Golden Torizo {facingRight} Super Missile initial program");
             AssertEqual(unchecked((ushort)(1000 + (facingRight ? 30 : -30))),
-                missile.XPosition,
+                missile.Position.X.Whole,
                 $"Golden Torizo {facingRight} Super Missile X origin");
-            AssertEqual((ushort)448, missile.YPosition,
+            AssertEqual((ushort)448, missile.Position.Y.Whole,
                 $"Golden Torizo {facingRight} Super Missile Y origin");
 
             var samus = new SamusState
@@ -81,8 +80,8 @@ internal static partial class Program
             AssertEqual(unchecked((ushort)(loop + 4)), missile.InstructionPointer,
                 $"Golden Torizo {facingRight} Super Missile loop cursor");
             AssertTrue(facingRight
-                    ? unchecked((short)missile.XVelocity) > 0
-                    : unchecked((short)missile.XVelocity) < 0,
+                    ? unchecked((short)missile.Velocity.X.RawValue) > 0
+                    : unchecked((short)missile.Velocity.X.RawValue) < 0,
                 $"Golden Torizo {facingRight} Super Missile aim direction");
 
             for (int frame = 1; frame <= 16; frame++)
@@ -108,16 +107,12 @@ internal static partial class Program
             new byte[wallWords.Length]);
         RoomEnemySystem impactEnemies = CreateSystem(guard);
         RoomEnemySlot impactTorizo = impactEnemies.Slots[0];
-        impactTorizo.XPosition = 1000;
-        impactTorizo.YPosition = 500;
+        impactTorizo.Position = impactTorizo.Position.WithWhole(new(1000, 500));
         impactTorizo.Parameter1 = 0x8000;
         spawn.Invoke(impactEnemies, [impactTorizo]);
         RoomEnemyProjectileSlot impact = impactEnemies.EnemyProjectiles[^1];
-        impact.XPosition = 156;
-        impact.YPosition = 128;
-        impact.XSubposition = 0;
-        impact.XVelocity = 256;
-        impact.YVelocity = 0;
+        impact.Position = impact.Position.WithWholeX(156).WithWholeY(128).WithFractionX(0);
+        impact.Velocity = new(new SnesSignedEightEight(256), new SnesSignedEightEight(0));
         runFlight.Invoke(impactEnemies, [impact, wallRoom]);
         AssertEqual(GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact,
             impact.InstructionPointer,
@@ -134,9 +129,9 @@ internal static partial class Program
             Process(impactEnemies, impact, null);
             AssertTrue(impact.IsActive,
                 $"Golden Torizo Super Missile impact frame {frame}");
-            AssertEqual((ushort)16, impact.XRadius,
+            AssertEqual((ushort)16, impact.Radius.X,
                 $"Golden Torizo Super Missile impact X radius frame {frame}");
-            AssertEqual((ushort)16, impact.YRadius,
+            AssertEqual((ushort)16, impact.Radius.Y,
                 $"Golden Torizo Super Missile impact Y radius frame {frame}");
             AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, impact.PreInstruction,
                 $"Golden Torizo Super Missile impact clears movement frame {frame}");
@@ -193,7 +188,7 @@ internal static partial class Program
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile, SamusState? samus)
         {
-            process.Invoke(system, [projectile, samus, (ushort)0, (ushort)0]);
+            process.Invoke(system, [projectile, samus, Position16<RoomPixels>.Zero]);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
         RoomEnemySystem CreateSystem(ISnesAddressSpace bus)

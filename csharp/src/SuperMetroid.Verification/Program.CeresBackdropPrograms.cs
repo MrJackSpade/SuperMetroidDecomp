@@ -25,8 +25,8 @@ internal static partial class Program
                 AssertEqual(OriginalWord((ushort)p), CeresDestructionSpriteInstructionDefinitions.ReadWord((ushort)p), "original aligned or unaligned backdrop word");
         }
         AssertThrows<InvalidDataException>(() => CeresDestructionSpriteInstructionDefinitions.ReadWord((ushort)(end - 1)), "word cannot cross backdrop list boundary");
-        var native = new IntroDiscoverySprite(0, 0, 0, start);
-        var compiled = new IntroDiscoverySprite(0, 0, 0, start);
+        var native = new IntroDiscoverySprite(new(0, 0), 0, start);
+        var compiled = new IntroDiscoverySprite(new(0, 0), 0, start);
         var nativeCalls = new List<(ushort Opcode, ushort Cursor)>();
         var compiledCalls = new List<(ushort Opcode, ushort Cursor)>();
         for (int frame = 0; frame < (title ? 400 : 32); frame++)

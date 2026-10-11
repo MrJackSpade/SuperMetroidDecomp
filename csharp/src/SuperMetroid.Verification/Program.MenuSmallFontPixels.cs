@@ -8,7 +8,7 @@ internal static partial class Program
     {
         var files = MapSpriteExtractor.Extract(rom);
         byte[] json = files[MapSpriteFormat.JsonFile];
-        var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
+        var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), new(128, 128));
         var font = new MenuSmallFontArtwork(image);
         AssertEqual(328, font.StoredFaceByteCount, "one-bit authored silhouettes only");
         AssertEqual(3, font.StoredEditCount, "three independently reviewed B/K drawing choices");
@@ -38,7 +38,7 @@ internal static partial class Program
             int expected = 0;
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            AssertEqual((byte)expected, font.Pixel(tile, x, y), "original glyph foreground, shadow, retouch and transparency");
+            AssertEqual((byte)expected, font.Pixel(tile, new(x, y)), "original glyph foreground, shadow, retouch and transparency");
             byte[] pixels = (byte[])image.Pixels.Clone();
             int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
             pixels[position] = (byte)((expected + 1) % 16);
@@ -60,18 +60,18 @@ internal static partial class Program
         }
         CheckEdited(all);
         foreach (int invalid in new[] { -1, 0x5f, 0x89, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(invalid, 0, 0), "invalid small font tile");
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(invalid, new(0, 0)), "invalid small font tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x60, invalid, 0), "invalid glyph X");
-            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x60, 0, invalid), "invalid glyph Y");
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x60, new(invalid, 0)), "invalid glyph X");
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0x60, new(0, invalid)), "invalid glyph Y");
         }
         void CheckEdited(byte[] pixels)
         {
-            using var png = new MemoryStream(); IndexedPng.Write(png, 128, 128, pixels, image.Palette); png.Position = 0;
+            using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Palette); png.Position = 0;
             var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
             var vram = new SnesVram(); edited.LoadArtworkTo(vram, 0x4000);
-            byte[] expected = SnesPlanarTileEncoder.Encode(pixels, 128, 128, 4);
+            byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
             AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring shadows or glyphs");
         }
     }

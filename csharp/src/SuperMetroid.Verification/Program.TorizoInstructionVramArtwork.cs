@@ -104,11 +104,11 @@ internal static partial class Program
             int tiles = golden.ByteCount / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(tiles, RoomCharacterAtlasFormat.TileColumns);
             int rows = (tiles + columns - 1) / columns;
-            IndexedPngImage image = IndexedPng.Read(input, columns * 8, rows * 8);
+            IndexedPngImage image = IndexedPng.Read(input, new(columns * 8, rows * 8));
             image.Pixels[0] ^= 1;
             using var output = File.Create(Path.Combine(overrideDirectory,
                 golden.FileName));
-            IndexedPng.Write(output, image.Width, image.Height,
+            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height),
                 image.Pixels, image.Palette);
         }
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(

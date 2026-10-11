@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -69,10 +70,10 @@ internal sealed partial class EndingCreditsState
             matrixB,
             unchecked((short)-matrixB),
             matrixA,
-            centerX: CurrentMode7CenterX,
-            centerY: CurrentMode7CenterY,
-            horizontalOffset: unchecked((short)mode7X),
-            verticalOffset: unchecked((short)mode7Y), wrapOutsideMap: AtmosphericMapWraps);
+            centerX: CurrentMode7Center.X,
+            centerY: CurrentMode7Center.Y,
+            horizontalOffset: unchecked((short)mode7.X.Whole),
+            verticalOffset: unchecked((short)mode7.Y.Whole), wrapOutsideMap: AtmosphericMapWraps);
     }
 
     private byte CurrentEscapeObjectSelection => Phase < EndingCreditsPhase.FadeInZebesExplosion
@@ -89,10 +90,10 @@ internal sealed partial class EndingCreditsState
     private bool EndingObjectsEnabled => !ExplosionWhiteout && Phase is not
         (EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsBlank);
 
-    private short CurrentMode7CenterX => Phase < EndingCreditsPhase.PlanetEscapeFast
-        ? EndingCreditsRomData.Rendering.AtmosphericMode7Center : EndingCreditsRomData.Rendering.Mode7CenterX;
-    private short CurrentMode7CenterY => Phase < EndingCreditsPhase.PlanetEscapeFast
-        ? EndingCreditsRomData.Rendering.AtmosphericMode7Center : EndingCreditsRomData.Rendering.Mode7CenterY;
+    // The Mode 7 matrix centre: the atmospheric scenes rotate about one shared point.
+    private Offset16<Mode7Pixels> CurrentMode7Center => Phase < EndingCreditsPhase.PlanetEscapeFast
+        ? new(EndingCreditsRomData.Rendering.AtmosphericMode7Center, EndingCreditsRomData.Rendering.AtmosphericMode7Center)
+        : new(EndingCreditsRomData.Rendering.Mode7CenterX, EndingCreditsRomData.Rendering.Mode7CenterY);
 
     private void RenderPostCreditsBackground(Span<Rgba32> pixels)
     {

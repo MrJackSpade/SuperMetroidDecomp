@@ -103,7 +103,7 @@ internal static partial class Program
                 visibleFrames[actor]++;
                 visiblePositions[actor].Add((heads[actor].XPosition, heads[actor].YPosition));
             }
-            PngWriterTooling.WriteRgba(Path.Combine(output, $"frame-{frame:D3}.png"), 256, 224, pixels);
+            PngWriterTooling.WriteRgba(Path.Combine(output, $"frame-{frame:D3}.png"), new(256, 224), pixels);
         }
         for (int actor = 0; actor < 2; actor++)
         {

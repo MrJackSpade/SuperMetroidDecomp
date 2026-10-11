@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -231,9 +232,8 @@ public sealed partial class FileSelectMenuState
             mapPresentation.FileSelect.DrawBorder(oam, borderName);
             if (ShouldDrawSelectionMissile)
             {
-                (ushort missileX, ushort missileY) = GetSelectionMissilePosition();
                 mapPresentation.FileSelect.DrawCursor(oam, missileAnimationFrame,
-                    new(missileX, missileY));
+                    GetSelectionMissilePosition());
             }
             for (int slot = 0; mainScreen && slot < 3; slot++)
             {
@@ -258,14 +258,12 @@ public sealed partial class FileSelectMenuState
                 ? FileSelectLayout.ClearBorderSpritemap
                 : FileSelectLayout.NormalBorderSpritemap;
         ushort borderX = IsClearPhase ? (ushort)124 : (ushort)128;
-        DrawMenuSpritemap(border, borderX, 16);
+        DrawMenuSpritemap(border, new(borderX, 16));
         if (ShouldDrawSelectionMissile)
         {
-            (ushort missileX, ushort missileY) = GetSelectionMissilePosition();
             DrawMenuSpritemap(
                 MenuMissileAnimationDefinitions.SpritemapId(missileAnimationFrame),
-                missileX,
-                missileY);
+                GetSelectionMissilePosition());
         }
         for (int slot = 0; mainScreen && slot < 3; slot++)
         {
@@ -278,8 +276,7 @@ public sealed partial class FileSelectMenuState
                 : 0;
             DrawMenuSpritemap(
                 FileSelectHelmetAnimation.SpritemapId(Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1)),
-                100,
-                FileSelectLayout.HelmetY(slot));
+                new(100, FileSelectLayout.HelmetY(slot)));
         }
         oam.FinalizeFrame();
 
@@ -380,7 +377,7 @@ public sealed partial class FileSelectMenuState
             "File-select tilemaps require installed menu presentation assets.");
     }
 
-    private static void DrawMenuSpritemap(ushort spritemapId, ushort x, ushort y)
+    private static void DrawMenuSpritemap(ushort spritemapId, Position16<ScreenPixels> position)
     {
         // `DrawMenuSpritemap` indexes a word-pointer array, so the displayed spritemap ID
         // is doubled before following bank $82. AddOnScreenSpritemap then applies the same

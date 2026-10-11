@@ -29,7 +29,7 @@ static void VerifyCeresDestructionCinematic()
     // Ceres' five initial explosions share $CCDB but seed instruction timers 1/16/32/48/64.
     // Prove the reusable object keeps that timer distinct from GeneralTimer, which belongs
     // to the list's decrement-and-goto opcode and must remain untouched.
-    var delayedExplosion = new IntroDiscoverySprite(0, 0, 0, 0xccdb);
+    var delayedExplosion = new IntroDiscoverySprite(new(0, 0), 0, 0xccdb);
     delayedExplosion.DelayFirstInstruction(3);
     delayedExplosion.Step(instructionWord: ReadFixtureWord);
     delayedExplosion.Step(instructionWord: ReadFixtureWord);

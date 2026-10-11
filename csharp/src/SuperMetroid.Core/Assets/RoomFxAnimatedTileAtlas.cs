@@ -28,8 +28,8 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
         try
         {
             IndexedPngImage image = IndexedPng.Read(png,
-                RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height);
-            return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height,
+                new(RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height));
+            return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size,
                 RoomFxAnimatedTileAtlasFormat.BitsPerPixel));
         }
         catch (InvalidDataException) when (stockForLegacyOverride is not null && png.CanSeek)
@@ -47,10 +47,9 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
                 png.Position = start;
                 try
                 {
-                    IndexedPngImage legacy = IndexedPng.Read(png, width,
-                        RoomFxAnimatedTileAtlasFormat.Height);
+                    IndexedPngImage legacy = IndexedPng.Read(png, new(width, RoomFxAnimatedTileAtlasFormat.Height));
                     byte[] legacyPlanar = SnesPlanarTileEncoder.Encode(legacy.Pixels,
-                        legacy.Width, legacy.Height, RoomFxAnimatedTileAtlasFormat.BitsPerPixel);
+                        legacy.Size, RoomFxAnimatedTileAtlasFormat.BitsPerPixel);
                     var combined = new byte[RoomFxAnimatedTileAtlasFormat.TotalByteCount];
                     legacyPlanar.CopyTo(combined, 0);
                     stockForLegacyOverride.transfer.AsSpan(legacyPlanar.Length).CopyTo(

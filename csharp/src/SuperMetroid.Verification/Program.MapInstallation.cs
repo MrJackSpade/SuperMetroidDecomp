@@ -35,10 +35,10 @@ internal static partial class Program
         string beamOverride = Path.Combine(installation.ProjectileOverrideDirectory, beamName);
         IndexedPngImage beamImage;
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, beamName)))
-            beamImage = IndexedPng.Read(input, BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height);
+            beamImage = IndexedPng.Read(input, new(BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height));
         beamImage.Pixels[0] ^= 1;
         using (var output = File.Create(beamOverride))
-            IndexedPng.Write(output, beamImage.Width, beamImage.Height, beamImage.Pixels, beamImage.Palette);
+            IndexedPng.Write(output, new(beamImage.Size.Width, beamImage.Size.Height), beamImage.Pixels, beamImage.Palette);
         string beamPaletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName);
         var beamColors = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName)))!;
         beamColors["palettes"]![BeamPaletteDefinitions.Key(0)]![0]!["red"] = 17;
@@ -50,10 +50,10 @@ internal static partial class Program
         string trailPngOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName);
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName)))
         {
-            var trailImage = IndexedPng.Read(input, ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
+            var trailImage = IndexedPng.Read(input, new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
             trailImage.Pixels[0] ^= 1;
             using var output = File.Create(trailPngOverride);
-            IndexedPng.Write(output, trailImage.Width, trailImage.Height, trailImage.Pixels, trailImage.Palette);
+            IndexedPng.Write(output, new(trailImage.Size.Width, trailImage.Size.Height), trailImage.Pixels, trailImage.Palette);
         }
         var projectileEdited = installation.LoadProjectiles();
         string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName);
@@ -67,10 +67,10 @@ internal static partial class Program
         string grappleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName);
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName)))
         {
-            var grappleImage = IndexedPng.Read(input, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
+            var grappleImage = IndexedPng.Read(input, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
             grappleImage.Pixels[0] ^= 1;
             using var output = File.Create(grappleOverride);
-            IndexedPng.Write(output, grappleImage.Width, grappleImage.Height, grappleImage.Pixels, grappleImage.Palette);
+            IndexedPng.Write(output, new(grappleImage.Size.Width, grappleImage.Size.Height), grappleImage.Pixels, grappleImage.Palette);
         }
         string grappleStyleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName);
         var grappleStyle = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName)))!;
@@ -96,10 +96,10 @@ internal static partial class Program
                    RoomFxAnimatedTileAtlasFormat.FileName)))
         {
             IndexedPngImage image = IndexedPng.Read(input,
-                RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height);
+                new(RoomFxAnimatedTileAtlasFormat.Width, RoomFxAnimatedTileAtlasFormat.Height));
             image.Pixels[0] = (byte)((image.Pixels[0] + 1) % RoomFxAnimatedTileAtlasFormat.ColorCount);
             using var output = File.Create(roomFxArtworkOverride);
-            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
         }
         string roomFxTilemapOverride = Path.Combine(installation.MapOverrideDirectory,
             RoomFxLayer3TilemapFormat.FileName);
@@ -204,10 +204,10 @@ internal static partial class Program
             installation.MapDirectory, EscapeTimerTileAtlasFormat.FileName)))
         {
             var timerImage = IndexedPng.Read(input,
-                EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height);
+                new(EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height));
             timerImage.Pixels[0] ^= 1;
             using var output = File.Create(escapeTimerTileOverride);
-            IndexedPng.Write(output, timerImage.Width, timerImage.Height,
+            IndexedPng.Write(output, new(timerImage.Size.Width, timerImage.Size.Height),
                 timerImage.Pixels, timerImage.Palette);
         }
         string gameplayHudOverride = Path.Combine(installation.MapOverrideDirectory, GameplayHudDefinitions.FileName);
@@ -238,10 +238,10 @@ internal static partial class Program
         {
             IndexedPngImage image;
             using (var input = File.OpenRead(Path.Combine(installation.MapDirectory, atlas.Item1)))
-                image = IndexedPng.Read(input, atlas.Item4, atlas.Item2);
+                image = IndexedPng.Read(input, new(atlas.Item4, atlas.Item2));
             image.Pixels[0] = (byte)((image.Pixels[0] + 1) % atlas.Item3);
             string path = Path.Combine(installation.MapOverrideDirectory, atlas.Item1);
-            using (var output = File.Create(path)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
             artworkOverrides.Add(path);
         }
         var edited = installation.LoadMaps();

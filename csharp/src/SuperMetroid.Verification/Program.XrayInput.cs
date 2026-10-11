@@ -66,7 +66,7 @@ internal static partial class Program
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))
         {
             Directory.CreateDirectory("csharp/test-temp/issue-348-xray");
-            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/horizontal.png", 256, 224, horizontalPixels);
+            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/horizontal.png", new(256, 224), horizontalPixels);
             File.WriteAllBytes("csharp/test-temp/issue-348-xray/horizontal.smframe",
                 RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), horizontal)));
         }
@@ -90,7 +90,7 @@ internal static partial class Program
             AssertEqual(frozenMap[i], (ushort)(captured.Memory.Vram[offset] | captured.Memory.Vram[offset + 1] << 8), "captured BG2 is the setup-owned reveal map");
         }
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))
-            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/aimed.png", 256, 224, pixels);
+            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/aimed.png", new(256, 224), pixels);
         var beforeRelease = RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), captured));
         runtime.StepFrame(0);
         var releaseEdge = GameplayDisplayCapture.TryCaptureFrame(runtime)!;

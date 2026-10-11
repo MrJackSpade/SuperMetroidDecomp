@@ -1214,7 +1214,7 @@ public sealed partial class IntroCinematicState
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro Mother Brain sprites require installed character artwork.")).MotherBrainSprites.Draw(
                 flashbackMotherBrain.SpriteMapPointer, oam,
-                new(IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition),
+                IntroMotherBrainSpriteState.Position,
                 IntroMotherBrainSpriteState.PaletteBits);
         }
         oam.FinalizeFrame();
@@ -1301,8 +1301,8 @@ public sealed partial class IntroCinematicState
             tilemapBaseWord: scientistCutscene?.TilemapBaseWord ??
                 IntroCinematicRomData.Layers.ScientistTilemapWord,
             characterBaseWord: 0,
-            horizontalScroll: scientistCutscene?.BackgroundX ?? 0,
-            verticalScroll: scientistCutscene?.BackgroundY ?? 0,
+            horizontalScroll: scientistCutscene?.Background.X ?? 0,
+            verticalScroll: scientistCutscene?.Background.Y ?? 0,
             width: ScreenWidth,
             height: ScreenHeight,
             tilemapWidthInTiles: 32,
@@ -1393,7 +1393,7 @@ public sealed partial class IntroCinematicState
             // the OBJ character base, matching the initial $9A:D200 -> VMADD $6000 DMA.
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro caret sprites require installed character artwork.")).CaretSprites.Draw(
-                objects.SpriteMapPointer, oam, new(objects.CaretX, objects.CaretY),
+                objects.SpriteMapPointer, oam, objects.Caret,
                 IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }
         oam.FinalizeFrame();

@@ -17,7 +17,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
             int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles);
             int rows = (tiles + columns - 1) / columns;
             using var png = new MemoryStream();
-            IndexedPng.Write(png, columns * 8, rows * 8, new byte[columns * rows * 64],
+            IndexedPng.Write(png, new(columns * 8, rows * 8), new byte[columns * rows * 64],
                 Enumerable.Range(0, 16).Select(_ => new Rgba32(0, 0, 0, 255)).ToArray());
             png.Position = 0;
             return RoomCharacterAtlas.Load(png, count);

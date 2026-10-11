@@ -27,15 +27,15 @@ internal static partial class Program
         string replacement = Path.Combine(overrides, MapTileAtlasFormat.FileName);
         IndexedPngImage image;
         using (var input = File.OpenRead(Path.Combine(stock, MapTileAtlasFormat.FileName)))
-            image = IndexedPng.Read(input, MapTileAtlasFormat.Width, MapTileAtlasFormat.Height);
+            image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         for (int i = 0; i < image.Pixels.Length; i++) image.Pixels[i] = (byte)((image.Pixels[i] + 1) % MapTileAtlasFormat.ColorCount);
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
         byte[] replacementBytes = File.ReadAllBytes(replacement);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "PNG edit changes selected catalog identity");
         edited.Tiles.LoadTo(vram, 0);
         byte[] planar = Enumerable.Range(0, source.Length).Select(vram.ReadByte).ToArray();
-        byte[] decoded = SnesGraphics.DecodePlanarTiles(planar, 4, MapTileAtlasFormat.TileColumns, out _, out _);
+        byte[] decoded = SnesGraphics.DecodePlanarTiles(planar, 4, MapTileAtlasFormat.TileColumns, out _);
         AssertTrue(decoded.AsSpan().SequenceEqual(image.Pixels), "every edited PNG pixel reaches compiled tile data");
         menu.BindMapPresentation(edited);
         pause.BindMapPresentation(edited);
@@ -60,12 +60,12 @@ internal static partial class Program
         File.WriteAllText(replacement, "invalid PNG");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad PNG override fails without stock fallback");
         AssertEqual("invalid PNG", File.ReadAllText(replacement), "bad PNG override retained for repair");
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, 1, 1, [0], image.Palette);
+        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(1, 1), [0], image.Palette);
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "wrong native atlas dimensions rejected");
         File.WriteAllBytes(replacement, replacementBytes);
         var tooManyColors = SnesGraphics.DiagnosticPalette(17);
         image.Pixels[0] = 16;
-        using (var output = File.Create(replacement)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, tooManyColors);
+        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, tooManyColors);
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "PNG index outside 4-bpp atlas rejected");
         File.WriteAllBytes(replacement, replacementBytes);
         string rebuiltAtlas = Path.Combine(rebuilt, MapTileAtlasFormat.FileName);

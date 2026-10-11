@@ -131,7 +131,7 @@ internal static partial class Program
             var stream = new MemoryStream();
             var pixels = new byte[width * height];
             if (changed) pixels[^1] = 1;
-            IndexedPng.Write(stream, width, height, pixels, [new Rgba32(0, 0, 0), new Rgba32(255, 255, 255)]);
+            IndexedPng.Write(stream, new(width, height), pixels, [new Rgba32(0, 0, 0), new Rgba32(255, 255, 255)]);
             stream.Position = 0;
             return stream;
         }

@@ -191,10 +191,9 @@ internal static partial class Program
 
         IndexedPngImage mode7 = IndexedPng.Read(
             new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
-            TitleGraphicsFormat.Mode7Width,
-            TitleGraphicsFormat.Mode7Height);
+            new(TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height));
         using var wrong = new MemoryStream();
-        IndexedPng.Write(wrong, 8, 8, new byte[64], mode7.Palette);
+        IndexedPng.Write(wrong, new(8, 8), new byte[64], mode7.Palette);
         wrong.Position = 0;
         AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
             wrong,

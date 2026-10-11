@@ -178,10 +178,10 @@ internal static partial class Program
                     IndexedPngImage image;
                     using (var input = File.OpenRead(Path.Combine(
                                installation.EndingObjectDirectory, fileName)))
-                        image = IndexedPng.Read(input, columns * 8, rows * 8);
+                        image = IndexedPng.Read(input, new(columns * 8, rows * 8));
                     Array.Fill(image.Pixels, (byte)0);
                     using var output = File.Create(overridePath);
-                    IndexedPng.Write(output, image.Width, image.Height, image.Pixels,
+                    IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels,
                         image.Palette);
                 }
                 EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();

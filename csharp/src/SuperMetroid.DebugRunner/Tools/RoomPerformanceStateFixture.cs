@@ -64,7 +64,7 @@ internal static class RoomPerformanceStateFixture
         }
         if (data.Game.GameState != SuperMetroidGameState.MainGameplay)
             throw new InvalidDataException($"Performance fixture unexpectedly left gameplay: {data.Game.GameState}");
-        PngWriterTooling.WriteRgba(Path.Combine(root, "room.png"), FrontendFrame.Width, FrontendFrame.Height, pixels!);
+        PngWriterTooling.WriteRgba(Path.Combine(root, "room.png"), new(FrontendFrame.Width, FrontendFrame.Height), pixels!);
         Console.WriteLine(data.SaveSlot(9));
         Console.WriteLine($"{scene}: room ${(byte?)data.Game.GameplayActiveAreaIndex:X2}/${data.Game.GameplayActiveRoomIndex:X2}; " +
             $"600 measured Windows frames: step={stepMs / 600:F3}ms render={renderMs / 600:F3}ms audio={audioMs / 600:F3}ms.");

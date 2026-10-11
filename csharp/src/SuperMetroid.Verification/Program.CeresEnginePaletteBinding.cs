@@ -73,8 +73,8 @@ internal static partial class Program
                     $"#1150 restored scene uses rebound edited colors, tick {frame}");
                 AssertEqual(scene.Phase, restoredScene.Phase, "palette rebind preserves cinematic phase");
                 AssertEqual(scene.Zoom, restoredScene.Zoom, "palette rebind preserves camera scale");
-                AssertEqual(scene.BackgroundX, restoredScene.BackgroundX, "palette rebind preserves camera X");
-                AssertEqual(scene.BackgroundY, restoredScene.BackgroundY, "palette rebind preserves camera Y");
+                AssertEqual(scene.Background.X.Whole, restoredScene.Background.X.Whole, "palette rebind preserves camera X");
+                AssertEqual(scene.Background.Y.Whole, restoredScene.Background.Y.Whole, "palette rebind preserves camera Y");
                 AssertEqual(game.FrameNumber, restored.FrameNumber, "palette rebind preserves frame clock");
             }
 

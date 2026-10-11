@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -32,10 +33,9 @@ public static class IntroFontAtlasExtractor
             decoded.AsSpan(0, IntroFontAtlasFormat.ByteCount),
             IntroFontAtlasFormat.BitsPerPixel,
             IntroFontAtlasFormat.TilesPerRow,
-            out int width,
-            out int height);
+            out Size32<ImagePixels> size);
         using var output = new MemoryStream();
-        IndexedPng.Write(output, width, height, pixels,
+        IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(IntroFontAtlasFormat.ColorCount));
         return output.ToArray();
     }

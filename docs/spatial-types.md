@@ -22,6 +22,7 @@ different types; moving between spaces is always a named conversion.
 | `Mode7Pixels` | Mode 7 plane coordinates and matrix centre. |
 | `TilemapCells` | VRAM tilemap cells. |
 | `ImagePixels` | Host raster pixels: decoded images, artwork atlases, tile bitmaps and rendered frames. |
+| `GamepadStick` | Normalized host analog-stick deflection (signed 16-bit axes, X right, Y down). |
 
 Add a space only when values in it must not mix with an existing space; document it here and in
 `SpatialSpaces.cs`.
@@ -35,6 +36,7 @@ Add a space only when values in it must not mix with an existing space; document
 | `Extent16<TSpace>` | `ushort X, Y` | Sizes and half-extents (radii). The owning member name says which. |
 | `FixedPosition<TSpace>` | `SnesFixedPosition X, Y` (whole + subpixel word per axis) | Native 16.16 positions such as Samus and enemy positions with subpixels. |
 | `FixedVector<TSpace>` | `SnesSignedSixteenSixteen X, Y` | Native signed 16.16 displacements and per-frame velocities. |
+| `EightEightVector<TSpace>` | `SnesSignedEightEight X, Y` | Native signed 8.8 velocities and accelerations; `ToSixteenSixteen()` promotes them for `FixedPosition.Advance`. |
 | `Point32<TSpace>` | `int X, Y`, ordinary non-wrapping arithmetic | Host-side coordinates and displacements that are not native WRAM words: bounds-checked grid cells (room blocks, room screens, map tiles, tilemap cells), image pixels and authored JSON anchors. |
 | `Size32<TSpace>` | `int Width, Height` | Host-side grid, image and rectangle sizes; `Contains`, `RowMajorIndex` and `Area` own the row-major indexing. |
 
@@ -46,7 +48,8 @@ types delegate to it and never re-derive it.
 
 - Natural operators only where the meaning is unambiguous and lossless:
   `Position16 ± Offset16 → Position16`, `Position16 - Position16 → Offset16`,
-  `Offset16 ± Offset16`, `FixedVector ± FixedVector`, `FixedPosition.Advance(FixedVector)`.
+  `Offset16 ± Offset16`, `FixedVector ± FixedVector`, `FixedPosition.Advance(FixedVector)`,
+  `EightEightVector + EightEightVector` and `EightEightVector * int` (both wrapping the raw words).
 - Axis replacement: `WithX` / `WithY`. Half-word replacement where a cartridge routine stores only
   one word: `SnesSignedSixteenSixteen.WithWholePixels/WithFraction`,
   `SnesFixedPosition.WithWhole/WithFraction`.

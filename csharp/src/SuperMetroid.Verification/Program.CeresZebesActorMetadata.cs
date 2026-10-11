@@ -21,9 +21,9 @@ internal static partial class Program
             AssertEqual(0, actor.HorizontalDelta, "reveal actor has no horizontal motion");
             AssertEqual(false, actor.WrapX, "reveal actor has no horizontal wrap");
             AssertEqual(index == 4, actor.CompletesScene, "only native star5 callback at C8F2 loads game");
-            AssertEqual(ReadWord(retail, xAddresses[index]), actor.X,
+            AssertEqual(ReadWord(retail, xAddresses[index]), actor.Position.X,
                 $"Zebes reveal actor {index} X");
-            AssertEqual(ReadWord(retail, yAddresses[index]), actor.Y,
+            AssertEqual(ReadWord(retail, yAddresses[index]), actor.Position.Y,
                 $"Zebes reveal actor {index} Y");
             AssertEqual(ReadWord(retail, attributeAddresses[index]), actor.Attributes,
                 $"Zebes reveal actor {index} attributes");

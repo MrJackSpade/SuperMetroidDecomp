@@ -1,6 +1,7 @@
 ﻿using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Text;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -11,13 +12,12 @@ internal static class PngWriterTooling
     /// <summary>Expands palette indexes to RGBA and writes them as a PNG.</summary>
     public static void WriteIndexedAsRgba(
         string path,
-        int width,
-        int height,
+        Size32<ImagePixels> size,
         ReadOnlySpan<byte> indexes,
         IReadOnlyList<Rgba32> palette,
         int scale = 1)
     {
-        if (indexes.Length != width * height)
+        if (indexes.Length != size.Area)
             throw new ArgumentException("Pixel count does not match dimensions.", nameof(indexes));
         if (palette.Count == 0)
             throw new ArgumentException("Palette is empty.", nameof(palette));
@@ -25,22 +25,22 @@ internal static class PngWriterTooling
         var pixels = new Rgba32[indexes.Length];
         for (int i = 0; i < indexes.Length; i++)
             pixels[i] = palette[indexes[i] % palette.Count];
-        WriteRgba(path, width, height, pixels, scale);
+        WriteRgba(path, size, pixels, scale);
     }
     /// <summary>Writes an RGBA buffer, optionally nearest-neighbor scaled by an integer.</summary>
     public static void WriteRgba(
         string path,
-        int width,
-        int height,
+        Size32<ImagePixels> size,
         ReadOnlySpan<Rgba32> pixels,
         int scale = 1)
     {
-        if (pixels.Length != width * height)
+        if (pixels.Length != size.Area)
             throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
         ArgumentOutOfRangeException.ThrowIfLessThan(scale, 1);
 
+        int width = size.Width;
         int outputWidth = width * scale;
-        int outputHeight = height * scale;
+        int outputHeight = size.Height * scale;
         int scanlineBytes = checked(outputHeight * (1 + outputWidth * 4));
         // Stored DEFLATE blocks add five bytes per 64 KiB; zlib adds six. Leave far more than
         // that, so incompressible art still fits and the fixed stream never needs to grow.

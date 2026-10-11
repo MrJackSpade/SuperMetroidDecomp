@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -191,9 +192,9 @@ public static class SamusBodyArtworkFiles
                 sets[set][position] = new DefinitionEntry(sourceAddress, firstSize, secondSize);
             }
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, TileWidth / 8,
-                out int width, out int height);
+                out Size32<ImagePixels> size);
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             string name = FileName(upperHalf, set);
             byte[] bytes = png.ToArray();
             File.WriteAllBytes(Path.Combine(directory, name), bytes);
@@ -250,8 +251,8 @@ public static class SamusBodyArtworkFiles
 
             SamusBodyTileDefinition[] DecodeSet(Stream stream)
             {
-                IndexedPngImage image = IndexedPng.Read(stream, TileWidth, height);
-                byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, TileWidth, height, 4);
+                IndexedPngImage image = IndexedPng.Read(stream, new(TileWidth, height));
+                byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, new(TileWidth, height), 4);
                 var definitions = new SamusBodyTileDefinition[metadata[set].Length];
                 for (int position = 0; position < definitions.Length; position++)
                 {

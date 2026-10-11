@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -27,10 +28,9 @@ public static class EndingFontAtlasExtractor
             decoded.AsSpan(0, EndingFontAtlasFormat.ByteCount),
             EndingFontAtlasFormat.BitsPerPixel,
             EndingFontAtlasFormat.TilesPerRow,
-            out int width,
-            out int height);
+            out Size32<ImagePixels> size);
         using var output = new MemoryStream();
-        IndexedPng.Write(output, width, height, pixels,
+        IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(EndingFontAtlasFormat.ColorCount));
         return output.ToArray();
     }

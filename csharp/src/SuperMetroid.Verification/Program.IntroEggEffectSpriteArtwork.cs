@@ -78,7 +78,7 @@ internal static partial class Program
                 stockOam.LowTable.Slice(0, 2).SequenceEqual(editedOam.LowTable.Slice(0, 2)),
             "egg-fragment art edit changes OAM palette without moving its particle");
 
-        var slime = new IntroEggSlimeDrop(0x0070, 0x00b8, index: 0);
+        var slime = new IntroEggSlimeDrop(new(0x0070, 0x00b8), index: 0);
         for (int frame = 0; frame < 31; frame++)
         {
             slime.Step();

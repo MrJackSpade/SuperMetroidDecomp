@@ -88,7 +88,7 @@ internal static partial class Program
                 else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[(source, frame)]),
                     $"pause/equipment history leaves identical transition pixels at {phase}, frame {frame}");
                 PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-transition-{frame:D3}-{phase}.png",
-                    256, 224, pixels);
+                    new(256, 224), pixels);
                 transitionFrames++;
             }
             AssertTrue(!transition.IsActive, "staged first-entry door transition completes");
@@ -101,7 +101,7 @@ internal static partial class Program
                 if (!pauseBeforeEntry) unpausedFrames[(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedFrames[(source, frame)]),
                     "pause/equipment history leaves identical first-entry water and scene pixels");
-                PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-frame-{frame}.png", 256, 224,
+                PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-frame-{frame}.png", new(256, 224),
                     pixels);
             }
             Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");

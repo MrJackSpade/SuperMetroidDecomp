@@ -68,7 +68,7 @@ internal static partial class Program
         using var png = new MemoryStream();
         var pixels = new byte[64];
         if (edit == "sprite-pixel") pixels[^1] = 1;
-        IndexedPng.Write(png, 8, 8, pixels, [new Rgba32(0, 0, 0),
+        IndexedPng.Write(png, new(8, 8), pixels, [new Rgba32(0, 0, 0),
             edit == "png-colors" ? new Rgba32(255, 0, 0) : new Rgba32(255, 255, 255)]);
         png.Position = 0;
         RoomCharacterAtlas sprites = RoomCharacterAtlas.Load(png, RoomCharacterAtlasFormat.BytesPerTile);

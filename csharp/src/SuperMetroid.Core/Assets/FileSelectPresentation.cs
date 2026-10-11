@@ -132,9 +132,9 @@ public sealed class FileSelectPresentation
             PaletteBits(document.ObjectPalette));
     }
 
-    internal void DrawCursor(OamBuffer oam, int frame, Point32<ScreenPixels> anchor) =>
+    internal void DrawCursor(OamBuffer oam, int frame, Position16<ScreenPixels> anchor) =>
         sprites[FileSelectPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
-            oam, anchor.ToExactPosition16(),
+            oam, anchor,
             PaletteBits(document.ObjectPalette));
 
     internal void DrawHelmet(OamBuffer oam, int frame, int slot)

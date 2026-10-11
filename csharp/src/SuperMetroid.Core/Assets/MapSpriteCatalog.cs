@@ -147,7 +147,7 @@ public sealed class MapSpriteCatalog
                 throw new InvalidDataException($"Map sprite {name} requires an ordered array of at most 128 parts.");
             return WorldMapLabelComposition.Compile(id, parts, name);
         }
-        var image = IndexedPng.Read(png, MapSpriteFormat.Width, MapSpriteFormat.Height);
+        var image = IndexedPng.Read(png, new(MapSpriteFormat.Width, MapSpriteFormat.Height));
         return new(frames, new MapObjectTileArtwork(image));
     }
 }

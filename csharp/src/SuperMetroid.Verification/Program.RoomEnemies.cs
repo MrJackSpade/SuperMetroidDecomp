@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -97,9 +98,9 @@ static void VerifyRoomEnemyLoading()
             .Select(index => bus.ReadByte(source + index)).ToArray();
         int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, tiles,
-            out int width, out int height);
+            out Size32<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         stockSheets.Add(pointer, RoomCharacterAtlas.Load(new MemoryStream(png.ToArray()), byteCount));
         var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
         for (int color = 0; color < palette.Length; color++)
@@ -471,7 +472,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     };
     // Installed artwork requires complete tiles; one blank tile replaces the old omitted art.
     using var tilePng = new MemoryStream();
-    IndexedPng.Write(tilePng, 8, 8, new byte[64], SnesGraphics.DiagnosticPalette(16));
+    IndexedPng.Write(tilePng, new(8, 8), new byte[64], SnesGraphics.DiagnosticPalette(16));
     tilePng.Position = 0;
     var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
     {
@@ -1126,9 +1127,9 @@ static void VerifyCeresRidleyRoomEntry()
     byte[] fixturePlanar = Enumerable.Range(0, 0x20)
         .Select(offset => bus.ReadByte(0xa69000 + offset)).ToArray();
     byte[] fixturePixels = SnesGraphics.DecodePlanarTiles(fixturePlanar, 4, 1,
-        out int fixtureWidth, out int fixtureHeight);
+        out Size32<ImagePixels> fixtureSize);
     using var fixtureTilePng = new MemoryStream();
-    IndexedPng.Write(fixtureTilePng, fixtureWidth, fixtureHeight, fixturePixels,
+    IndexedPng.Write(fixtureTilePng, fixtureSize, fixturePixels,
         SnesGraphics.DiagnosticPalette(16));
     var fixtureSpriteFrames = EnemySpritemapDefinitions.Frames.ToArray();
     var fixtureSprites = new EnemySpritemapDocument
@@ -1498,8 +1499,7 @@ static void VerifyCeresRidleyRoomEntry()
     using (var timerPng = new MemoryStream())
     {
         IndexedPng.Write(timerPng,
-            EscapeTimerTileAtlasFormat.Width,
-            EscapeTimerTileAtlasFormat.Height,
+            new(EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height),
             new byte[EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height],
             SnesGraphics.DiagnosticPalette(EscapeTimerTileAtlasFormat.ColorCount));
         timerPng.Position = 0;

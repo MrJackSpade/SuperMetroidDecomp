@@ -161,6 +161,7 @@ public sealed record EscapeTimerPresentationDocument
 }
 
 /// <summary>One ordered OAM part using the timer's full nine-bit gameplay OBJ tile number.</summary>
+[SpatialComponents("External format: the escape-timer JSON stores each OAM part displacement as offsetX/offsetY.")]
 public sealed record EscapeTimerVisualPart
 {
     /// <summary>Signed horizontal pixel offset from the composition's anchor, from -256 through 255, encoded in the native nine-bit spritemap X field.</summary>

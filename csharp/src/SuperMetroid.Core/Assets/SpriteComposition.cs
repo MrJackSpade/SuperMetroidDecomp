@@ -58,6 +58,7 @@ public sealed class SpriteComposition
 internal readonly record struct CompiledSpritePart(SnesSpritemapXWord X, byte Y, SnesObjAttributeWord Attributes, bool InheritPalette);
 
 /// <summary>One ordered region in an indexed tile sheet. Null palette inherits its drawing owner's current palette.</summary>
+[SpatialComponents("External format: sprite composition JSON stores each OAM part displacement as offsetX/offsetY.")]
 public sealed record SpriteVisualPart
 {
     /// <summary>Gets the signed horizontal pixel offset from the composition origin.</summary>

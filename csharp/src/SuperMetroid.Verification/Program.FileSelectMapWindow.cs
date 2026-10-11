@@ -149,11 +149,11 @@ internal static partial class Program
             AssertTrue(frame.All(pixel => pixel.A == 255), "area map backdrop is opaque");
             AssertTrue(frame.Distinct().Count() > 16, "area map renders tile graphics, not a flat background");
             Directory.CreateDirectory("csharp/test-temp/file-select-map");
-            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}.png", 256, 224, frame);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}.png", new(256, 224), frame);
             ushort[] used = [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
             Rgba32[] labelled = graphics.Render(used).ToArray();
             AssertTrue(!labelled.SequenceEqual(graphics.Render(new ushort[6])), "visited-station masks control map labels");
-            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}-labels.png", 256, 224, labelled);
+            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}-labels.png", new(256, 224), labelled);
         }
     }
 }

@@ -356,12 +356,11 @@ internal static partial class Program
         string stockPng = Path.Combine(installation.SamusBodyDirectory, "top-00.png");
         string overridePng = Path.Combine(installation.SamusBodyOverrideDirectory, "top-00.png");
         byte[] original = File.ReadAllBytes(stockPng);
-        IndexedPngImage image = IndexedPng.Read(new MemoryStream(original, false), 64,
-            stock.TopSet(0).Count * 16);
+        IndexedPngImage image = IndexedPng.Read(new MemoryStream(original, false), new(64, stock.TopSet(0).Count * 16));
         byte[] pixels = (byte[])image.Pixels.Clone();
         pixels[0] = (byte)((pixels[0] + 1) & 15);
         using (var output = File.Create(overridePng))
-            IndexedPng.Write(output, image.Width, image.Height, pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), pixels, image.Palette);
         string selectedManifest = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusBodyArtworkFiles.ManifestFileName);
         JsonNode document = JsonNode.Parse(File.ReadAllText(Path.Combine(
@@ -408,11 +407,11 @@ internal static partial class Program
         IndexedPngImage deathTileImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(
             Path.Combine(installation.SamusBodyDirectory,
                 SamusDeathTileAtlasFormat.ArtworkFileName)), writable: false),
-            SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height);
+            new(SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height));
         byte[] editedDeathPixels = (byte[])deathTileImage.Pixels.Clone();
         editedDeathPixels[0] = (byte)((editedDeathPixels[0] + 1) & 15);
         using (var output = File.Create(deathTileOverride))
-            IndexedPng.Write(output, deathTileImage.Width, deathTileImage.Height,
+            IndexedPng.Write(output, new(deathTileImage.Size.Width, deathTileImage.Size.Height),
                 editedDeathPixels, deathTileImage.Palette);
         string armJsonOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusArmCannonArtworkFormat.JsonFileName);
@@ -431,7 +430,7 @@ internal static partial class Program
         IndexedPngImage armImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(
             Path.Combine(installation.SamusBodyDirectory,
                 SamusArmCannonArtworkFormat.TileFileName)), writable: false),
-            SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8, 8);
+            new(SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8, 8));
         ushort selectedArmTileSource = stock.ArmCannon.TileSource(armSelector & 0x7f, 3);
         int selectedArmTileIndex = SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(selectedArmTileSource);
         AssertTrue(selectedArmTileIndex >= 0,
@@ -440,7 +439,7 @@ internal static partial class Program
         int selectedArmPixel = selectedArmTileIndex * 8;
         armPixels[selectedArmPixel] = (byte)((armPixels[selectedArmPixel] + 1) & 15);
         using (var output = File.Create(armPngOverride))
-            IndexedPng.Write(output, armImage.Width, armImage.Height, armPixels,
+            IndexedPng.Write(output, new(armImage.Size.Width, armImage.Size.Height), armPixels,
                 armImage.Palette);
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
         AssertTrue(stock.ArmCannon.ReadDrawingByte(armXAddress) !=

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
@@ -8,12 +10,11 @@ internal sealed partial class EndingCreditsState
         switch (wrapper.Role)
         {
             case EndingSpriteRole.AnimalEscape:
-                uint y = ((uint)sprite.YPosition << 16) | sprite.YSubPosition;
-                y += EndingAnimalEscapeDefinitions.YFractionVelocity;
-                sprite.YPosition = (ushort)(y >> 16);
-                sprite.YSubPosition = (ushort)y;
-                sprite.XPosition += EndingAnimalEscapeDefinitions.XVelocity;
-                if (sprite.XPosition >= EndingAnimalEscapeDefinitions.DeleteX)
+                uint y = IntroCinematicMotion.Packed(sprite.Position.Y) + EndingAnimalEscapeDefinitions.YFractionVelocity;
+                sprite.Position = new(
+                    sprite.Position.X.WithWhole(unchecked((ushort)(sprite.Position.X.Whole + EndingAnimalEscapeDefinitions.XVelocity))),
+                    IntroCinematicMotion.Unpacked(y));
+                if (sprite.Position.X.Whole >= EndingAnimalEscapeDefinitions.DeleteX)
                     sprite.Delete();
                 break;
             case EndingSpriteRole.ExplosionGlow:
@@ -67,18 +68,18 @@ internal sealed partial class EndingCreditsState
                 if (Phase == EndingCreditsPhase.PlanetEscapeFast)
                 {
                     sprite.PreInstructionPointerForDiscovery((ushort)EndingSpritePreInstruction.MoveFlyawayStars);
-                    sprite.YSubPosition = 0x4000;
+                    // The Y subposition word doubles as the low velocity word.
+                    sprite.Position = sprite.Position.WithY(sprite.Position.Y.WithFraction(0x4000));
                     sprite.GeneralTimer = 0;
                 }
                 break;
             case EndingSpritePreInstruction.MoveFlyawayStars:
-                int velocity = unchecked((int)(((uint)sprite.GeneralTimer << 16) | sprite.YSubPosition)) - 32;
+                int velocity = unchecked((int)(((uint)sprite.GeneralTimer << 16) | sprite.Position.Y.Fraction)) - 32;
                 sprite.GeneralTimer = unchecked((ushort)(velocity >> 16));
-                sprite.YSubPosition = unchecked((ushort)velocity);
-                uint position = unchecked(((uint)sprite.XPosition << 16) | sprite.XSubPosition);
-                position = unchecked(position + (uint)velocity);
-                sprite.XPosition = (ushort)(position >> 16);
-                sprite.XSubPosition = (ushort)position;
+                uint position = unchecked(IntroCinematicMotion.Packed(sprite.Position.X) + (uint)velocity);
+                sprite.Position = new(
+                    IntroCinematicMotion.Unpacked(position),
+                    sprite.Position.Y.WithFraction(unchecked((ushort)velocity)));
                 break;
             default:
                 throw new InvalidOperationException(

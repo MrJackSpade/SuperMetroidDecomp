@@ -46,8 +46,8 @@ public sealed class HudTileAtlas : IInstalledArtworkTransferSource
     /// <exception cref="InvalidDataException">PNG is malformed, has unsupported features or incorrect dimensions, or uses a pixel index outside the 2-bpp range.</exception>
     public static HudTileAtlas Load(Stream png)
     {
-        var image = IndexedPng.Read(png, MapTileAtlasFormat.Width, MapTileAtlasFormat.Height);
-        byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 2);
+        var image = IndexedPng.Read(png, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
+        byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 2);
         var transfer = new byte[HudTileAtlasFormat.TransferByteCount];
         planar.CopyTo(transfer, 0);
         return new(transfer);

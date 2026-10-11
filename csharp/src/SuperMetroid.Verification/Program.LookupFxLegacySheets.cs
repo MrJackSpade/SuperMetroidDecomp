@@ -40,7 +40,7 @@ internal static partial class Program
         {
             var png = new MemoryStream();
             png.Write(new byte[7]); // Loading must rewind to the caller's initial offset.
-            IndexedPng.Write(png, width, 8, Enumerable.Repeat(pixel, width * 8).ToArray(),
+            IndexedPng.Write(png, new(width, 8), Enumerable.Repeat(pixel, width * 8).ToArray(),
                 new[] { new Rgba32(0, 0, 0, 255), new Rgba32(85, 85, 85, 255),
                     new Rgba32(170, 170, 170, 255), new Rgba32(255, 255, 255, 255) });
             png.Position = 7;

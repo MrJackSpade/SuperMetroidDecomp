@@ -7,6 +7,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -53,9 +54,9 @@ public static class EnemyTileArtworkFiles
                 byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
                 int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
                 byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, columns,
-                    out int width, out int height);
+                    out Size32<ImagePixels> size);
                 using var png = new MemoryStream();
-                IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+                IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
                 byte[] encoded = png.ToArray();
                 RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
                     new MemoryStream(encoded, writable: false), byteCount);
@@ -122,9 +123,9 @@ public static class EnemyTileArtworkFiles
             CrocomireSkeletonTransferDefinitions.TotalByteCount);
         byte[] skeletonPixels = SnesGraphics.DecodePlanarTiles(skeletonPlanar, 4,
             RoomCharacterAtlasFormat.TileColumns,
-            out int skeletonWidth, out int skeletonHeight);
+            out Size32<ImagePixels> skeletonSize);
         using var skeletonImage = new MemoryStream();
-        IndexedPng.Write(skeletonImage, skeletonWidth, skeletonHeight,
+        IndexedPng.Write(skeletonImage, skeletonSize,
             skeletonPixels, SnesGraphics.DiagnosticPalette(16));
         byte[] skeletonPng = skeletonImage.ToArray();
         CrocomireSkeletonArtwork skeletonRoundtrip = CrocomireSkeletonArtwork.Load(
@@ -192,9 +193,9 @@ public static class EnemyTileArtworkFiles
             for (int offset = 0; offset < planar.Length; offset++)
                 planar[offset] = bus.ReadCartridgeByte(transfer.SourceAddress + offset);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
-                RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+                RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
             using var image = new MemoryStream();
-            IndexedPng.Write(image, width, height, pixels,
+            IndexedPng.Write(image, size, pixels,
                 SnesGraphics.DiagnosticPalette(16));
             byte[] png = image.ToArray();
             RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
@@ -214,9 +215,9 @@ public static class EnemyTileArtworkFiles
             MotherBrainCorpseArtworkDefinitions.SourceAddress,
             MotherBrainCorpseArtworkDefinitions.ByteCount);
         byte[] corpsePixels = SnesGraphics.DecodePlanarTiles(corpsePlanar, 4,
-            RoomCharacterAtlasFormat.TileColumns, out int corpseWidth, out int corpseHeight);
+            RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> corpseSize);
         using var corpseStream = new MemoryStream();
-        IndexedPng.Write(corpseStream, corpseWidth, corpseHeight, corpsePixels,
+        IndexedPng.Write(corpseStream, corpseSize, corpsePixels,
             SnesGraphics.DiagnosticPalette(16));
         byte[] corpsePng = corpseStream.ToArray();
         RoomCharacterAtlas corpseRoundtrip = RoomCharacterAtlas.Load(
@@ -233,9 +234,9 @@ public static class EnemyTileArtworkFiles
             MotherBrainEscapeTextArtworkDefinitions.ByteCount);
         byte[] escapeTextPixels = SnesGraphics.DecodePlanarTiles(escapeTextPlanar, 4,
             RoomCharacterAtlasFormat.TileColumns,
-            out int escapeTextWidth, out int escapeTextHeight);
+            out Size32<ImagePixels> escapeTextSize);
         using var escapeTextStream = new MemoryStream();
-        IndexedPng.Write(escapeTextStream, escapeTextWidth, escapeTextHeight,
+        IndexedPng.Write(escapeTextStream, escapeTextSize,
             escapeTextPixels, SnesGraphics.DiagnosticPalette(16));
         byte[] escapeTextPng = escapeTextStream.ToArray();
         RoomCharacterAtlas escapeTextRoundtrip = RoomCharacterAtlas.Load(
@@ -1176,9 +1177,9 @@ public static class EnemyTileArtworkFiles
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(encodedByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount),
-            out int width, out int height);
+            out Size32<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] encoded = png.ToArray();
         RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
             new MemoryStream(encoded, writable: false), encodedByteCount);
@@ -1203,9 +1204,9 @@ public static class EnemyTileArtworkFiles
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             KraidBackgroundRomData.RoomBackgroundTileBytes /
                 RoomCharacterAtlasFormat.BytesPerTile,
-            out int width, out int height);
+            out Size32<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] encoded = png.ToArray();
         RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
             new MemoryStream(encoded, writable: false),
@@ -1221,9 +1222,9 @@ public static class EnemyTileArtworkFiles
         byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             sheet.SourceAddress, sheet.ByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
-            RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+            RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
         using var output = new MemoryStream();
-        IndexedPng.Write(output, width, height, pixels,
+        IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(16));
         byte[] png = output.ToArray();
         RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(

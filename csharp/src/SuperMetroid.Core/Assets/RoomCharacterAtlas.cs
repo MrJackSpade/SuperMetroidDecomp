@@ -28,7 +28,7 @@ public sealed class RoomCharacterAtlas
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         int rows = (tileCount + columns - 1) / columns;
-        IndexedPngImage image = IndexedPng.Read(png, columns * 8, rows * 8);
+        IndexedPngImage image = IndexedPng.Read(png, new(columns * 8, rows * 8));
 
         // The last PNG row may contain unused display cells. Reject edits there rather
         // than silently throwing them away when compiling only native characters.
@@ -38,11 +38,11 @@ public sealed class RoomCharacterAtlas
             int y = (tile / columns) * 8;
             for (int row = 0; row < 8; row++)
             for (int column = 0; column < 8; column++)
-                if (image.Pixels[(y + row) * image.Width + x + column] != 0)
+                if (image.Pixels[(y + row) * image.Size.Width + x + column] != 0)
                     throw new InvalidDataException($"Room atlas has artwork in unused tile {tile}.");
         }
 
-        byte[] encoded = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4);
+        byte[] encoded = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4);
         return new(encoded.AsSpan(0, nativeByteCount).ToArray());
     }
 

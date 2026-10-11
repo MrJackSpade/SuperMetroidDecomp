@@ -7,6 +7,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Verification access to <see cref="AttractDemoRomData"/> members production does not use.</summary>
 internal static class AttractDemoRomDataAccess
@@ -38,9 +39,7 @@ internal static class CeresDestructionCinematicStateAccess
     {
         internal ushort Zoom => PrivateState.Field<ushort>(self, "zoom");
 
-        internal ushort BackgroundX => PrivateState.Field<ushort>(self, "backgroundX");
-
-        internal ushort BackgroundY => PrivateState.Field<ushort>(self, "backgroundY");
+        internal FixedPosition<Mode7Pixels> Background => PrivateState.Field<FixedPosition<Mode7Pixels>>(self, "background");
 
         internal int ActiveActorCount => PrivateState.Field<List<IntroDiscoverySprite>>(self, "actors").Count;
 

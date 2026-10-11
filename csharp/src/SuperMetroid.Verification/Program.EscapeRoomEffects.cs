@@ -58,7 +58,7 @@ internal static partial class Program
                     if (visibleExplosion && visibleShake)
                     {
                         Directory.CreateDirectory("csharp/test-temp/escape-effects");
-                        PngWriterTooling.WriteRgba($"csharp/test-temp/escape-effects/{room:X4}.png", 256, 224, actual);
+                        PngWriterTooling.WriteRgba($"csharp/test-temp/escape-effects/{room:X4}.png", new(256, 224), actual);
                     }
                 }
             }

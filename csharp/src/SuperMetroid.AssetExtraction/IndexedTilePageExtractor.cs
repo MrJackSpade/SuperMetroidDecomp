@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -18,9 +19,9 @@ internal static class IndexedTilePageExtractor
         _ = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
         byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress, byteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
-            RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+            RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
         using var output = new MemoryStream();
-        IndexedPng.Write(output, width, height, pixels,
+        IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(16));
         byte[] png = output.ToArray();
         RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(

@@ -43,7 +43,7 @@ internal static class LiveGamepadProbe
             {
                 var sample = pad.LastSnapshot;
                 Console.WriteLine($"{clock.ElapsedMilliseconds},{pad.DeviceName ?? "disconnected"}," +
-                    $"{sample.HorizontalAxis},{sample.VerticalAxis},{sample.PointOfView}," +
+                    $"{sample.Stick.X},{sample.Stick.Y},{sample.PointOfView}," +
                     $"{sample.Buttons:X8},{(ushort)mapped:X4}");
                 previous = current;
             }

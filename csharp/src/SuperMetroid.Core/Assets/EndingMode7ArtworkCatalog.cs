@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -44,12 +45,11 @@ public sealed class EndingMode7SceneArtwork
         ArgumentNullException.ThrowIfNull(charactersPng);
         EndingMode7MapDocument document = ReadMap(mapJson);
         IndexedPngImage image = IndexedPng.Read(charactersPng,
-            EndingMode7ArtworkFormat.CharacterWidth,
-            EndingMode7ArtworkFormat.CharacterHeight);
+            new(EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight));
         if (image.Palette.Length != 256)
             throw new InvalidDataException("Ending Mode-7 characters require a 256-color indexed PNG.");
         byte[] characters = SnesMode7TileEncoder.Encode(image.Pixels,
-            image.Width, image.Height);
+            image.Size);
         if (characters.Length != EndingMode7ArtworkFormat.CharacterByteCount)
             throw new InvalidDataException("Ending Mode-7 PNG has the wrong native transfer length.");
         return new EndingMode7SceneArtwork(
@@ -178,12 +178,11 @@ public sealed class EndingRewardIconArtwork
         }
         ValidateMap(map);
         IndexedPngImage image = IndexedPng.Read(charactersPng,
-            EndingMode7ArtworkFormat.CharacterWidth,
-            EndingMode7ArtworkFormat.CharacterHeight);
+            new(EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight));
         if (image.Palette.Length != 256)
             throw new InvalidDataException("Reward icon characters require a 256-color indexed PNG.");
         byte[] characters = SnesMode7TileEncoder.Encode(image.Pixels,
-            image.Width, image.Height);
+            image.Size);
         var transfer = new byte[EndingRewardIconArtworkFormat.TransferBytes];
         for (int index = 0; index < EndingRewardIconArtworkFormat.MapBytes; index++)
         {
@@ -235,6 +234,7 @@ public static class EndingRewardIconArtworkFormat
 }
 
 /// <summary>Editable eight-bit Mode-7 tilemap schema shared by 128x64 ending backdrops and the full 128x128 post-credits beam/icon map.</summary>
+[SpatialComponents("External format: the ending Mode 7 map JSON stores its declared grid dimensions as width/height integers.")]
 public sealed record EndingMode7MapDocument
 {
     /// <summary>Schema revision, currently 1 for both ending backdrop and reward-icon maps.</summary>

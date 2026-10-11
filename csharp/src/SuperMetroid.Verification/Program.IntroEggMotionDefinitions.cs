@@ -39,11 +39,11 @@ internal static partial class Program
             {
                 bool fragment = index < 6;
                 byte actorIndex = fragment ? index : (byte)(index - 6);
-                object actor = fragment ? new IntroEggParticle(actorIndex) : new IntroEggSlimeDrop(128, 96, actorIndex);
+                object actor = fragment ? new IntroEggParticle(actorIndex) : new IntroEggSlimeDrop(new(128, 96), actorIndex);
                 var sprite = (IntroDiscoverySprite)actor.GetType().GetField("sprite", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(actor)!;
-                sprite.XSubPosition = sprite.YSubPosition = fraction;
-                uint x = ((uint)sprite.XPosition << 16) | fraction;
-                uint y = ((uint)sprite.YPosition << 16) | fraction;
+                sprite.Position = new(sprite.Position.X.WithFraction(fraction), sprite.Position.Y.WithFraction(fraction));
+                uint x = ((uint)sprite.WholePosition.X << 16) | fraction;
+                uint y = ((uint)sprite.WholePosition.Y << 16) | fraction;
                 bool motion = true;
                 int motionFrame = 0;
                 int frames = 0;
@@ -59,10 +59,10 @@ internal static partial class Program
                     }
                     if (actor is IntroEggParticle particle) particle.Step();
                     else ((IntroEggSlimeDrop)actor).Step();
-                    AssertEqual((ushort)(x >> 16), sprite.XPosition, "Egg actor whole X each frame");
-                    AssertEqual((ushort)x, sprite.XSubPosition, "Egg actor fraction X each frame");
-                    AssertEqual((ushort)(y >> 16), sprite.YPosition, "Egg actor whole Y each frame");
-                    AssertEqual((ushort)y, sprite.YSubPosition, "Egg actor fraction Y each frame");
+                    AssertEqual((ushort)(x >> 16), sprite.WholePosition.X, "Egg actor whole X each frame");
+                    AssertEqual((ushort)x, sprite.Position.X.Fraction, "Egg actor fraction X each frame");
+                    AssertEqual((ushort)(y >> 16), sprite.WholePosition.Y, "Egg actor whole Y each frame");
+                    AssertEqual((ushort)y, sprite.Position.Y.Fraction, "Egg actor fraction Y each frame");
                     checkedFrames++;
                 }
                 AssertTrue(!sprite.IsActive && !motion, "Egg actor reaches ground and deletes within its native curve");

@@ -94,8 +94,7 @@ internal static partial class Program
             }
             PngWriterTooling.WriteRgba(
                 Path.Combine(output, $"destination-{destinationFrames:D3}-{phase}.png"),
-                256,
-                224,
+                new(256, 224),
                 pixels);
             destinationFrames++;
         }
@@ -118,7 +117,7 @@ internal static partial class Program
             trace.WriteLine($"{500 + frame},Gameplay,{runtime.ActiveRoom!.Pointer:X4},{runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid)},{runtime.RoomLayer3Fx.Type},{runtime.RoomLayer3Fx.CurrentYPosition:X4},{runtime.DisplayedRoomLayer3Fx?.Type},{runtime.DisplayedRoomLayer3Fx?.CurrentYPosition:X4}");
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(
                 GameplayDisplayCapture.TryCaptureFrame(runtime)!);
-            PngWriterTooling.WriteRgba(Path.Combine(output, $"gameplay-{frame:D3}.png"), 256, 224, pixels);
+            PngWriterTooling.WriteRgba(Path.Combine(output, $"gameplay-{frame:D3}.png"), new(256, 224), pixels);
         }
         AssertEqual(drainedAcidY, runtime.RoomLayer3Fx.CurrentYPosition,
             $"completed Chozo event restores the drained acid height (transition ended at ${transitionEndY:X4})");

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -82,11 +83,9 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>The bank-$8C spritemap selected by the current sprite timing record.</summary>
     public ushort SpriteMapPointer { get; private set; }
 
-    /// <summary>Current native X coordinate of the persistent text caret object.</summary>
-    public ushort CaretX { get; private set; } = IntroCinematicRomData.ObjectSystem.CaretLeftX;
-
-    /// <summary>Current native Y coordinate; $F8 deliberately hides it below the viewport.</summary>
-    public ushort CaretY { get; private set; } = IntroCinematicRomData.ObjectSystem.CaretFirstTextY;
+    /// <summary>Current native screen position of the persistent text caret object; Y=$F8 deliberately hides it below the viewport.</summary>
+    public Position16<ScreenPixels> Caret { get; private set; } =
+        new(IntroCinematicRomData.ObjectSystem.CaretLeftX, IntroCinematicRomData.ObjectSystem.CaretFirstTextY);
 
     /// <summary>Reapply the active eye rectangle after restoring a state or changing art.</summary>
     public void BindEyeArtwork(IntroEyeTilemapPresentation? value)
@@ -95,10 +94,8 @@ internal sealed class IntroCinematicObjectSystem
         if (value is not null &&
             IntroEyeAnimationDefinitions.TryFrameIndex(currentEyeFramePointer, out int index))
             CopyRectangleToPortrait(
-                currentEyePackedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask,
-                currentEyePackedPosition >> 8,
-                IntroEyeAnimationDefinitions.FrameColumns,
-                IntroEyeAnimationDefinitions.FrameRows,
+                UnpackCell(currentEyePackedPosition),
+                IntroEyeAnimationDefinitions.FrameSize,
                 value.FrameWords(index));
     }
 
@@ -109,8 +106,7 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void PlaceCaretOffScreen()
     {
-        CaretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
-        CaretY = IntroCinematicRomData.ObjectSystem.CaretInitialY;
+        Caret = new(IntroCinematicRomData.ObjectSystem.CaretLeftX, IntroCinematicRomData.ObjectSystem.CaretInitialY);
     }
 
     /// <summary>
@@ -258,20 +254,22 @@ internal sealed class IntroCinematicObjectSystem
             IntroNarrationCharacter? next = narrationCharacterIndex + 1 < program.Length
                 ? program[narrationCharacterIndex + 1]
                 : null;
-            (textGlow ??= new()).Spawn(character.Column, character.Row, 1, 1);
+            (textGlow ??= new()).Spawn(new(character.Column, character.Row), new(1, 1));
             if (next is { } following)
             {
-                CaretX = unchecked((ushort)(following.Column *
-                    IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
-                CaretY = unchecked((ushort)(following.Row *
-                    IntroCinematicRomData.ObjectSystem.CharacterPixelSize -
-                    IntroCinematicRomData.ObjectSystem.CharacterBaselineOffset));
+                Caret = new(
+                    unchecked((ushort)(following.Column *
+                        IntroCinematicRomData.ObjectSystem.CharacterPixelSize)),
+                    unchecked((ushort)(following.Row *
+                        IntroCinematicRomData.ObjectSystem.CharacterPixelSize -
+                        IntroCinematicRomData.ObjectSystem.CharacterBaselineOffset)));
             }
             else
             {
-                CaretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
-                CaretY = unchecked((ushort)((character.Row + 1) *
-                    IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
+                Caret = new(
+                    IntroCinematicRomData.ObjectSystem.CaretLeftX,
+                    unchecked((ushort)((character.Row + 1) *
+                        IntroCinematicRomData.ObjectSystem.CharacterPixelSize)));
             }
 
             typewriterSoundToggle = !typewriterSoundToggle;
@@ -491,11 +489,9 @@ internal sealed class IntroCinematicObjectSystem
             currentEyePackedPosition = packedPosition;
             IntroEyeTilemapPresentation content = eyeArtwork ?? throw new InvalidOperationException(
                 "Intro eye animation requires installed eye artwork.");
-            int x = packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask;
-            int y = packedPosition >> 8;
-            CopyRectangleToPortrait(x, y,
-                IntroEyeAnimationDefinitions.FrameColumns,
-                IntroEyeAnimationDefinitions.FrameRows,
+            CopyRectangleToPortrait(
+                UnpackCell(packedPosition),
+                IntroEyeAnimationDefinitions.FrameSize,
                 content.FrameWords(eyeFrame));
             return;
         }
@@ -505,19 +501,23 @@ internal sealed class IntroCinematicObjectSystem
             $"Cinematic tile data $8C:{dataPointer:X4} has no installed definition.");
     }
 
-    private void CopyRectangleToPortrait(int destinationX, int destinationY, int width, int height,
+    // A native BG record packs the tile column in the low byte and the row in the high byte.
+    private static Point32<TilemapCells> UnpackCell(ushort packedPosition) =>
+        new(packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask, packedPosition >> 8);
+
+    private void CopyRectangleToPortrait(Point32<TilemapCells> destination, Size32<TilemapCells> size,
         ReadOnlySpan<ushort> source)
     {
-        ValidateRectangle(destinationX, destinationY, width, height);
-        if (source.Length != width * height)
+        ValidateRectangle(destination, size);
+        if (source.Length != size.Area)
             throw new InvalidDataException("Opening eye frame does not match its native rectangle size.");
-        for (int row = 0; row < height; row++)
+        for (int row = 0; row < size.Height; row++)
         {
             ushort destinationWord = (ushort)(
                 IntroCinematicRomData.Layers.PortraitTilemapWord +
-                (destinationY + row) * IntroCinematicRomData.Layers.TilemapWidth +
-                destinationX);
-            vram.ExecuteWordTransfer(source.Slice(row * width, width), destinationWord, 1);
+                (destination.Y + row) * IntroCinematicRomData.Layers.TilemapWidth +
+                destination.X);
+            vram.ExecuteWordTransfer(source.Slice(row * size.Width, size.Width), destinationWord, 1);
         }
     }
 
@@ -525,8 +525,7 @@ internal sealed class IntroCinematicObjectSystem
     {
         // RestIntroTextCaret ($8B:ADEE) moves the persistent slot back from Y=$F8 before
         // restoring its non-blinking list. Position is state, not a renderer constant.
-        CaretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
-        CaretY = IntroCinematicRomData.ObjectSystem.CaretFirstTextY;
+        Caret = new(IntroCinematicRomData.ObjectSystem.CaretLeftX, IntroCinematicRomData.ObjectSystem.CaretFirstTextY);
         spriteInstructionPointer = CinematicCodePointers.Lists.IntroTextCaret;
         spriteInstructionTimer = 1;
     }
@@ -539,11 +538,12 @@ internal sealed class IntroCinematicObjectSystem
         spriteInstructionTimer = 1;
     }
 
-    private static void ValidateRectangle(int x, int y, int width, int height)
+    private static void ValidateRectangle(Point32<TilemapCells> origin, Size32<TilemapCells> size)
     {
-        if (x + width > IntroCinematicRomData.Layers.TilemapWidth ||
-            y + height > IntroCinematicRomData.Layers.TilemapWidth)
-            throw new InvalidDataException($"Cinematic rectangle ({x},{y}) {width}x{height} leaves its 32x32 tilemap.");
+        if (origin.X + size.Width > IntroCinematicRomData.Layers.TilemapWidth ||
+            origin.Y + size.Height > IntroCinematicRomData.Layers.TilemapWidth)
+            throw new InvalidDataException(
+                $"Cinematic rectangle ({origin.X},{origin.Y}) {size.Width}x{size.Height} leaves its 32x32 tilemap.");
     }
 
     private static ushort ReadBank8B(ushort pointer) =>

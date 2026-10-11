@@ -220,10 +220,10 @@ internal static partial class Program
         string stockPng = Path.Combine(mapDirectory, HudTileAtlasFormat.FileName);
         using var input = new MemoryStream(File.ReadAllBytes(stockPng), writable: false);
         IndexedPngImage image = IndexedPng.Read(input,
-            MapTileAtlasFormat.Width, MapTileAtlasFormat.Height);
+            new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(overrides, HudTileAtlasFormat.FileName)))
-            IndexedPng.Write(output, image.Width, image.Height,
+            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height),
                 image.Pixels, image.Palette);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
         SnesVram changed = RunKraidBg3Restoration(enemyArtwork,
@@ -305,11 +305,11 @@ internal static partial class Program
         string overrides = Path.Combine(directory, "kraid-room-background-override");
         Directory.CreateDirectory(overrides);
         using var input = new MemoryStream(original, writable: false);
-        IndexedPngImage image = IndexedPng.Read(input, 16 * 8, 8);
+        IndexedPngImage image = IndexedPng.Read(input, new(16 * 8, 8));
         image.Pixels[0] ^= 1;
         string overridePath = Path.Combine(overrides, fileName);
         using (var output = File.Create(overridePath))
-            IndexedPng.Write(output, image.Width, image.Height,
+            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height),
                 image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
         SnesVram changed = UploadKraidRoomBackground(edited);

@@ -34,6 +34,7 @@ internal static class DebuggerSpatialFieldMerges
     private const string PauseMapScroll = "SuperMetroid.Core.Frontend.PauseMapScroll";
     private const string MapArrow = "SuperMetroid.Core.Frontend.FileSelectMapAnimations+Arrow";
     private const string PlmSlot = "SuperMetroid.Core.Rooms.RoomPlmSystem+PlmSlot";
+    private const string Frontend = "SuperMetroid.Core.Frontend.";
 
     /// <summary>Every merged field, by declaring type.</summary>
     internal static readonly DebuggerSpatialFieldMerge[] Merges =
@@ -80,6 +81,41 @@ internal static class DebuggerSpatialFieldMerges
         },
         Bytes(typeof(BombTorizoStatueProjectileRequest), "PlmBlock", "PlmBlockX", "PlmBlockY", (x, y) => new Point32<RoomBlocks>(x, y)),
         Bytes(typeof(MotherBrainGlassProjectileRequest), "PlmBlock", "PlmBlockX", "PlmBlockY", (x, y) => new Point32<RoomBlocks>(x, y)),
+        // Cinematic sprites and backgrounds: whole and subpixel words of both axes.
+        FixedWords<ScreenPixels>(Frontend + "IntroDiscoverySprite", BackingField("Position"),
+            BackingField("XPosition"), BackingField("XSubPosition"), BackingField("YPosition"), BackingField("YSubPosition")),
+        FixedWords<Mode7Pixels>(Frontend + "CeresDestructionCinematicState", "background",
+            "backgroundX", "backgroundXSubPosition", "backgroundY", "backgroundYSubPosition"),
+        FixedWords<Mode7Pixels>(Frontend + "IntroCeresFlightState", "background",
+            "backgroundX", "backgroundXSubPosition", "backgroundY", "backgroundYSubPosition"),
+        FixedWords<ScreenPixels>(Frontend + "EndingShootingStar", "Position", "X", "XSubposition", "Y", "YSubposition"),
+        // The ending's Mode 7 Y never had a subpixel word; its restored fraction is zero.
+        new(Frontend + "EndingCreditsState", "mode7", ["mode7X", "mode7XSubposition", "mode7Y"],
+            [typeof(ushort), typeof(ushort), typeof(ushort)],
+            v => new FixedPosition<Mode7Pixels>(new((ushort)v[0]!, (ushort)v[1]!), new((ushort)v[2]!, 0))),
+        // The title state kept sign-extended whole words and zero-extended fractions in ints.
+        new(Frontend + "TitleSequenceState", "mode7", ["mode7X", "mode7XSubposition", "mode7Y", "mode7YSubposition"],
+            [typeof(int), typeof(int), typeof(int), typeof(int)],
+            v => new FixedPosition<Mode7Pixels>(
+                new(unchecked((ushort)(int)v[0]!), checked((ushort)(int)v[1]!)),
+                new(unchecked((ushort)(int)v[2]!), checked((ushort)(int)v[3]!)))),
+        Fields(Frontend + "TitleSequenceState", "activeOrigin", "activeOriginX", "activeOriginY", typeof(ushort),
+            v => new Position16<ScreenPixels>((ushort)v[0]!, (ushort)v[1]!)),
+        Fields(Frontend + "IntroScientistCutsceneState", BackingField("Background"), BackingField("BackgroundX"), BackingField("BackgroundY"),
+            typeof(ushort), v => new Position16<RoomPixels>((ushort)v[0]!, (ushort)v[1]!)),
+        Fields(Frontend + "IntroCinematicObjectSystem", BackingField("Caret"), BackingField("CaretX"), BackingField("CaretY"),
+            typeof(ushort), v => new Position16<ScreenPixels>((ushort)v[0]!, (ushort)v[1]!)),
+        Fields(Frontend + "IntroMotherBrainExplosionSystem+ExplosionActor", BackingField("Position"),
+            BackingField("XPosition"), BackingField("YPosition"), typeof(ushort),
+            v => new Position16<ScreenPixels>((ushort)v[0]!, (ushort)v[1]!)),
+        Fields(Frontend + "CinematicTextGlowSystem+GlowSlot", "Cell", "X", "Y", typeof(int),
+            v => new Point32<TilemapCells>((int)v[0]!, (int)v[1]!)),
+        Fields(Frontend + "CinematicTextGlowSystem+GlowSlot", "Size", "Width", "Height", typeof(int),
+            v => new Size32<TilemapCells>((int)v[0]!, (int)v[1]!)),
+        // Native signed 8.8 velocity words, kept bit for bit.
+        Fields(Frontend + "IntroBabyDiscoveryState", BackingField("BabyVelocity"),
+            BackingField("BabyXVelocity"), BackingField("BabyYVelocity"), typeof(ushort), EightEightWords),
+        Fields(Frontend + "EndingShootingStar", "Velocity", "XVelocity", "YVelocity", typeof(ushort), EightEightWords),
     ];
 
     /// <summary>The current spatial fields, introduced for layouts that stored their components.</summary>
@@ -109,6 +145,19 @@ internal static class DebuggerSpatialFieldMerges
         new(typeName, field, [x, y], [componentType, componentType], compose);
 
     private static string BackingField(string property) => $"<{property}>k__BackingField";
+
+    // Legacy layouts stored X whole, X subpixel, Y whole and Y subpixel words, in that order.
+    private static DebuggerSpatialFieldMerge FixedWords<TSpace>(string typeName, string field,
+        string xWhole, string xFraction, string yWhole, string yFraction)
+        where TSpace : ISpatialSpace =>
+        new(typeName, field, [xWhole, xFraction, yWhole, yFraction],
+            [typeof(ushort), typeof(ushort), typeof(ushort), typeof(ushort)],
+            v => new FixedPosition<TSpace>(new((ushort)v[0]!, (ushort)v[1]!), new((ushort)v[2]!, (ushort)v[3]!)));
+
+    private static object EightEightWords(object?[] v) =>
+        new EightEightVector<ScreenPixels>(
+            new SuperMetroid.Core.Hardware.SnesSignedEightEight((ushort)v[0]!),
+            new SuperMetroid.Core.Hardware.SnesSignedEightEight((ushort)v[1]!));
 
     // Warnings for layouts that predate a field's components, each reported once per process.
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, bool> ReportedWarnings = new();

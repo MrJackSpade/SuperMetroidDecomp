@@ -107,10 +107,10 @@ internal static class InstalledSamusFileContractTests
                 // input for constructing a valid PNG of the wrong dimensions.
                 int width = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(originals[name].AsSpan(16, 4));
                 int height = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(originals[name].AsSpan(20, 4));
-                IndexedPngImage image = IndexedPng.Read(stream, width, height);
+                IndexedPngImage image = IndexedPng.Read(stream, new(width, height));
                 string path = Path.Combine(overrides, name);
                 using (var output = File.Create(path))
-                    IndexedPng.Write(output, width + 8, height, new byte[(width + 8) * height], image.Palette);
+                    IndexedPng.Write(output, new(width + 8, height), new byte[(width + 8) * height], image.Palette);
                 Reject("PNG geometry", path, requireInner: true);
                 Restore();
                 if (!(name.StartsWith("top-", StringComparison.Ordinal) || name.StartsWith("bottom-", StringComparison.Ordinal))) continue;
@@ -124,7 +124,7 @@ internal static class InstalledSamusFileContractTests
                 int unusedTile = definitions[position].Planar.Length / 32;
                 image.Pixels[(position * 16 + unusedTile / 8 * 8) * width + unusedTile % 8 * 8] = 1;
                 using (var output = File.Create(path))
-                    IndexedPng.Write(output, width, height, image.Pixels, image.Palette);
+                    IndexedPng.Write(output, new(width, height), image.Pixels, image.Palette);
                 Reject("painted unused body character", path, requireInner: true);
                 Restore();
             }

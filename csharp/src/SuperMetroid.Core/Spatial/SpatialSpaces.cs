@@ -46,6 +46,12 @@ public sealed class TilemapCells : ISpatialSpace;
 public sealed class ImagePixels : ISpatialSpace;
 
 /// <summary>
+/// Normalized analog-stick deflection of a host gamepad: signed sixteen-bit axes, X positive to the
+/// right and Y positive downwards, centred on zero.
+/// </summary>
+public sealed class GamepadStick : ISpatialSpace;
+
+/// <summary>
 /// Marks a spatial value type, or a narrow storage/hardware/serialization adapter, that may declare
 /// paired X/Y, width/height or horizontal/vertical scalar components (#628).
 /// </summary>

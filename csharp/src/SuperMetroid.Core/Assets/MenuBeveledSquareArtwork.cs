@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Menu atlas98/99 atB6:D300..D33F are two colorways of a6x6 beveled
@@ -17,22 +19,22 @@ internal sealed class MenuBeveledSquareArtwork
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
-            if (pixel != Basis(tile, x, y)) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.Width + tile % 16 * 8 + x];
+            if (pixel != Basis(tile, new(x, y))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
         }
     }
 
-    internal byte Pixel(int tile, int x, int y)
+    internal byte Pixel(int tile, Point32<ImagePixels> point)
     {
-        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
+        if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
-    private static byte Basis(int tile, int x, int y)
+    private static byte Basis(int tile, Point32<ImagePixels> point)
     {
-        if (x is 0 or 7 || y is 0 or 7) return 0;
+        if (point.X is 0 or 7 || point.Y is 0 or 7) return 0;
         (byte face, byte highlight, byte shadow) = tile == 0x98 ? ((byte)11, (byte)14, (byte)12) : ((byte)10, (byte)9, (byte)7);
-        if (x == 6 || y == 6) return shadow;
-        return x == 1 || y == 1 ? highlight : face;
+        if (point.X == 6 || point.Y == 6) return shadow;
+        return point.X == 1 || point.Y == 1 ? highlight : face;
     }
 }

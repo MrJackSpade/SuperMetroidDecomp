@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -92,9 +93,9 @@ public static class IntroCinematicArtworkFiles
                 throw new InvalidDataException(
                     $"Intro sheet {name} has {planar.Length} tile bytes, expected {expectedByteCount}.");
             byte[] indexes = SnesGraphics.DecodePlanarTiles(planar, 4,
-                IntroCinematicArtworkFormat.TileColumns, out int width, out int height);
+                IntroCinematicArtworkFormat.TileColumns, out Size32<ImagePixels> size);
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, indexes, SnesGraphics.DiagnosticPalette(16));
+            IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
             RoomCharacterAtlas roundTrip = RoomCharacterAtlas.Load(
                 new MemoryStream(encoded, writable: false), expectedByteCount);

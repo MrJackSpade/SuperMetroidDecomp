@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -20,9 +21,7 @@ internal sealed class IntroMotherBrainSpriteState
     private bool pageTwoInstructionStarted;
     private bool crossfadingToPageTwo;
 
-    public static ushort XPosition => IntroMotherBrainDefinitions.MotherBrainOrigin.X;
-
-    public static ushort YPosition => IntroMotherBrainDefinitions.MotherBrainOrigin.Y;
+    public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
 
     public static ushort PaletteBits => IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
 

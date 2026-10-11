@@ -79,7 +79,7 @@ internal static partial class Program
             AssertTrue(retailOam.LastFinalizedSpriteCount < OamBuffer.SpriteCount,
                 $"area {areaIndex} retail map-icon lists fit OAM");
             if (downloaded)
-                PngWriterTooling.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), 256, 224, pixels);
+                PngWriterTooling.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), new(256, 224), pixels);
         }
     }
 
@@ -340,7 +340,7 @@ internal static partial class Program
         frame = game.Step(0x1000);
         Until(() => frame.Phase == "Room", 80);
         for (int i = 0; i < 15; i++) frame = game.Step(0);
-        PngWriterTooling.WriteRgba(Path.GetFullPath("csharp/test-temp/file-select-map/live-maridia-room.png"), 256, 224, frame.Pixels);
+        PngWriterTooling.WriteRgba(Path.GetFullPath("csharp/test-temp/file-select-map/live-maridia-room.png"), new(256, 224), frame.Pixels);
         AssertTrue(game.RuntimeForVerification is null, "room map does not implicitly load the save");
         frame = game.Step(0x8000);
         Until(() => frame.Phase == "Area", 80);
@@ -361,7 +361,7 @@ internal static partial class Program
             AssertTrue(predicate(), $"saved map frontend reached requested boundary; current {frame.GameState}/{frame.Phase}");
         }
         void Capture(string name) => PngWriterTooling.WriteRgba(
-            Path.GetFullPath($"csharp/test-temp/file-select-map/{name}.png"), 256, 224, frame.Pixels);
+            Path.GetFullPath($"csharp/test-temp/file-select-map/{name}.png"), new(256, 224), frame.Pixels);
     }
 
     private static void VerifyFileSelectMapNavigation()

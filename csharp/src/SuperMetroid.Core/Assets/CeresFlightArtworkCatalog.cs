@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -68,9 +69,9 @@ public sealed class CeresFlightArtworkCatalog
         ArgumentNullException.ThrowIfNull(spritesJson);
         ArgumentNullException.ThrowIfNull(actorsJson);
         IndexedPngImage mode7 = IndexedPng.Read(mode7Png,
-            CeresFlightArtworkFormat.Mode7Width, CeresFlightArtworkFormat.Mode7Height);
+            new(CeresFlightArtworkFormat.Mode7Width, CeresFlightArtworkFormat.Mode7Height));
         IndexedPngImage objects = IndexedPng.Read(objectPng,
-            CeresFlightArtworkFormat.ObjectWidth, CeresFlightArtworkFormat.ObjectHeight);
+            new(CeresFlightArtworkFormat.ObjectWidth, CeresFlightArtworkFormat.ObjectHeight));
         if (mode7.Palette.Length != 256 || objects.Palette.Length != 16)
             throw new InvalidDataException("Ceres flight requires 256-color Mode-7 and 16-color OBJ PNGs.");
 
@@ -82,9 +83,9 @@ public sealed class CeresFlightArtworkCatalog
             map[CeresFlightArtworkFormat.MapCellsPerView + index] =
                 checked((byte)document.RearTiles[index]);
         }
-        byte[] characters = SnesMode7TileEncoder.Encode(mode7.Pixels, mode7.Width, mode7.Height);
+        byte[] characters = SnesMode7TileEncoder.Encode(mode7.Pixels, mode7.Size);
         byte[] objectCharacters = SnesPlanarTileEncoder.Encode(objects.Pixels,
-            objects.Width, objects.Height, 4);
+            objects.Size, 4);
         if (characters.Length != CeresFlightArtworkFormat.Mode7ByteCount ||
             objectCharacters.Length != CeresFlightArtworkFormat.ObjectByteCount)
             throw new InvalidDataException("Ceres flight PNGs compile to unexpected DMA lengths.");
@@ -136,6 +137,7 @@ public sealed class CeresFlightArtworkCatalog
 
 /// <summary>Editable front/rear map slices from <c>Gunship_Ceres_Tilemap</c> at <c>$96:FE69</c>, preserving native transfer order.</summary>
 /// <remarks>The 32-by-24 dimensions describe the host editing arrays, not a replacement for the hardware's full Mode-7 map geometry. Arrays are caller-owned mutable document data and are copied into byte transfers when loaded.</remarks>
+[SpatialComponents("External format: the flight-maps JSON stores its declared grid dimensions as width/height integers.")]
 public sealed record CeresFlightMapDocument
 {
     /// <summary>Schema revision; loading requires <see cref="CeresFlightArtworkFormat.Version"/>.</summary>

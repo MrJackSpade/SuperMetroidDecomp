@@ -87,11 +87,11 @@ internal static partial class Program
         using (var input = new MemoryStream(File.ReadAllBytes(
                    Path.Combine(stockDirectory, warning.FileName)), writable: false))
         {
-            IndexedPngImage image = IndexedPng.Read(input, columns * 8, rows * 8);
+            IndexedPngImage image = IndexedPng.Read(input, new(columns * 8, rows * 8));
             image.Pixels[0] ^= 1;
             using var output = File.Create(Path.Combine(overrideDirectory,
                 warning.FileName));
-            IndexedPng.Write(output, image.Width, image.Height,
+            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height),
                 image.Pixels, image.Palette);
         }
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(

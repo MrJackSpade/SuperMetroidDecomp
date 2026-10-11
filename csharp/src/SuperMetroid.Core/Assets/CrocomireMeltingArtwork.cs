@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -178,6 +179,7 @@ public static class CrocomireMeltingArtworkFormat
 }
 
 /// <summary>One ordered 16x16 visual tile layout; mechanics are not configurable.</summary>
+[SpatialComponents("External format: the melting tilemap JSON stores its declared grid dimensions as width/height integers.")]
 public sealed record CrocomireMeltingTilemapDocument
 {
     /// <summary>Visual tile-layout revision; loading currently requires version 1.</summary>

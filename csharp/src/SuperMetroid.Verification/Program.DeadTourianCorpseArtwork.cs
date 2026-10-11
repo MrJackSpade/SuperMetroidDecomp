@@ -56,14 +56,14 @@ internal static partial class Program
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(0x0e00);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         int rows = (tileCount + columns - 1) / columns;
-        IndexedPngImage image = IndexedPng.Read(source, columns * 8, rows * 8);
+        IndexedPngImage image = IndexedPng.Read(source, new(columns * 8, rows * 8));
         // The first copy starts at source offset $0040, tile 2. Its first
         // pixel becomes the high bit at WRAM $7E:2040.
         image.Pixels[2 * 8] ^= 1;
         string overrideDirectory = Path.Combine(directory, "dead-sidehopper-overrides");
         Directory.CreateDirectory(overrideDirectory);
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
-            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
         var stockBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var editedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InitializeDeadSidehopperArtwork(stockBus, stock, 0);

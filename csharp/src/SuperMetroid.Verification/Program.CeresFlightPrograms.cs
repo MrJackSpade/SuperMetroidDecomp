@@ -40,8 +40,8 @@ internal static partial class Program
         }
         if (!crossesIntoNext)
             AssertThrows<InvalidDataException>(() => CeresFlightSpriteInstructionDefinitions.ReadWord((ushort)(end - 1)), "flight region boundary");
-        var native = new IntroDiscoverySprite(0, 0, 0, start);
-        var compiled = new IntroDiscoverySprite(0, 0, 0, start);
+        var native = new IntroDiscoverySprite(new(0, 0), 0, start);
+        var compiled = new IntroDiscoverySprite(new(0, 0), 0, start);
         for (int frame = 0; frame < 32; frame++)
         {
             native.Step(instructionWord: OriginalWord);

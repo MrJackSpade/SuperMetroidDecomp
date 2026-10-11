@@ -1210,11 +1210,11 @@ internal static partial class Program
         string name = TitleGraphicsFormat.Mode7TilesFile;
         IndexedPngImage image;
         using (var input = File.OpenRead(Path.Combine(stock, name)))
-            image = IndexedPng.Read(input, TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height);
+            image = IndexedPng.Read(input, new(TitleGraphicsFormat.Mode7Width, TitleGraphicsFormat.Mode7Height));
         byte[] pixels = image.Pixels.Select(value => unchecked((byte)(value + 1))).ToArray();
         string replacement = Path.Combine(overrides, name);
         using (var output = File.Create(replacement))
-            IndexedPng.Write(output, image.Width, image.Height, pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), pixels, image.Palette);
 
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,

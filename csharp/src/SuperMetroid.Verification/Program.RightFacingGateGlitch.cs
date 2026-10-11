@@ -62,7 +62,7 @@ internal static partial class Program
         // One pristine level and one working level restored from it per position. The
         // field-by-field check proves no state from the previous position survives.
         RoomLevelData NewLevel() => new RoomLevelData(
-            new(original.Size.Width, original.Size.Height),
+            original.Size,
             original.ForegroundEntries.Span,
             original.BehaviorBytes.Span,
             original.BackgroundEntries.Span,

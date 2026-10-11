@@ -12,7 +12,7 @@ internal static partial class Program
         foreach (int reseedFrame in new[] { 1, 211, 273 })
         foreach (int departure in new[] { 1, 209, 210, 222, 273, int.MaxValue })
         {
-            var native = new IntroDiscoverySprite(0, 0, 0, 0xce35);
+            var native = new IntroDiscoverySprite(new(0, 0), 0, 0xce35);
             ushort countdown = 0;
             ushort actualCountdown = 0;
             bool disabled = false;

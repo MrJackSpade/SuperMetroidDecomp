@@ -47,7 +47,7 @@ internal static partial class Program
         runtime.RunNmi(0, true);
         var frame = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         Directory.CreateDirectory("csharp/test-temp/issue-374-floor");
-        PngWriterTooling.WriteRgba("csharp/test-temp/issue-374-floor/entry.png", 256, 224,
+        PngWriterTooling.WriteRgba("csharp/test-temp/issue-374-floor/entry.png", new(256, 224),
             SoftwareLayeredSnapshotRenderer.Render(frame));
         AssertTrue(samus.YPosition > 1000, "fixture breaks through the actual speed floor and falls down the shaft");
         AssertTrue(runtime.Camera!.YPosition > 900,

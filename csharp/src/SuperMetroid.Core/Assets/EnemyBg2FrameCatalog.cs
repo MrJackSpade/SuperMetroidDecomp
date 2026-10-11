@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -113,6 +114,7 @@ public sealed record EnemyBg2FrameDocument
 }
 
 /// <summary>A horizontal BG2 tile run in 32-by-64 tilemap coordinates.</summary>
+[SpatialComponents("External format: the BG2 frame JSON stores each write destination as x/y tilemap cells.")]
 public sealed record EnemyBg2WriteDocument
 {
     /// <summary>Gets the zero-based destination column in the 32-tile-wide BG2 map.</summary>

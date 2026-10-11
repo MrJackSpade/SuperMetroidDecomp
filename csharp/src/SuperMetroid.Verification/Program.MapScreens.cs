@@ -81,9 +81,9 @@ internal static partial class Program
         {
             string path = Path.Combine(overrides, atlas.Item1);
             IndexedPngImage image;
-            using (var input = File.OpenRead(Path.Combine(stock, atlas.Item1))) image = IndexedPng.Read(input, WorldMapArtworkFormat.Width, atlas.Item2);
+            using (var input = File.OpenRead(Path.Combine(stock, atlas.Item1))) image = IndexedPng.Read(input, new(WorldMapArtworkFormat.Width, atlas.Item2));
             for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % atlas.Item3);
-            using (var output = File.Create(path)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
             var artEdit = AreaMapPresentationCatalog.Load(stock, overrides);
             AssertTrue(artEdit.ContentIdentity != original.ContentIdentity, "each world PNG affects identity independently");
             var changedWorld = World(guard, artEdit, (int)AreaId.Maridia);
@@ -92,10 +92,10 @@ internal static partial class Program
             AssertTrue(worldBefore.RenderBackgrounds().AsSpan().SequenceEqual(changedWorld.RenderBackgrounds()), "world artwork rebind restores exact stock pixels");
             File.WriteAllText(path, "invalid PNG");
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt world PNG override cannot silently select stock");
-            using (var output = File.Create(path)) IndexedPng.Write(output, 1, 1, [0], image.Palette);
+            using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Palette);
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "wrong world PNG dimensions rejected");
             image.Pixels[0] = (byte)atlas.Item3;
-            using (var output = File.Create(path)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, SnesGraphics.DiagnosticPalette(atlas.Item3 + 1));
+            using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, SnesGraphics.DiagnosticPalette(atlas.Item3 + 1));
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "world PNG index outside native depth rejected");
             File.WriteAllBytes(path, File.ReadAllBytes(Path.Combine(stock, atlas.Item1)));
         }

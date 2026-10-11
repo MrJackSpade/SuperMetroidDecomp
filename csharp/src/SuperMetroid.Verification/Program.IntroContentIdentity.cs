@@ -77,7 +77,7 @@ internal static partial class Program
             var pixels = new byte[width * height];
             if (edit == name) pixels[^1] = 1;
             var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, pixels, Enumerable.Range(0, colors).Select(index =>
+            IndexedPng.Write(png, new(width, height), pixels, Enumerable.Range(0, colors).Select(index =>
                 new Rgba32((byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
             png.Position = 0;
             return png;

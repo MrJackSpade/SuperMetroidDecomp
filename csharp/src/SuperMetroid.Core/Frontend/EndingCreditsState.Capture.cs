@@ -68,8 +68,8 @@ internal sealed partial class EndingCreditsState
                 short a = Scale(ReadSine(mode7Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), mode7Zoom);
                 short b = Scale(ReadSine(mode7Angle.TableIndex), mode7Zoom);
                 layers.Add(new Mode7RenderLayer(new(a, b, unchecked((short)-b), a,
-                    CurrentMode7CenterX, CurrentMode7CenterY,
-                    unchecked((short)mode7X), unchecked((short)mode7Y), WrapOutsideMap: AtmosphericMapWraps),
+                    CurrentMode7Center.X, CurrentMode7Center.Y,
+                    unchecked((short)mode7.X.Whole), unchecked((short)mode7.Y.Whole), WrapOutsideMap: AtmosphericMapWraps),
                     AddBg1Subscreen: AtmosphericMapWraps));
             }
             oam = PrepareSprites();

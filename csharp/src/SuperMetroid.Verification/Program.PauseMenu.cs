@@ -196,9 +196,9 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         byte[] wavePlanar = Enumerable.Range(0, 256).Select(index => unchecked((byte)(0x40 + index))).ToArray();
         byte[] wavePixels = SnesGraphics.DecodePlanarTiles(wavePlanar, 4,
-            BeamTileAtlasDefinitions.Width / 8, out int waveWidth, out int waveHeight);
+            BeamTileAtlasDefinitions.Width / 8, out Size32<ImagePixels> waveSize);
         using var wavePng = new MemoryStream();
-        IndexedPng.Write(wavePng, waveWidth, waveHeight, wavePixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(wavePng, waveSize, wavePixels, SnesGraphics.DiagnosticPalette(16));
         beamFiles[BeamTileAtlasDefinitions.FileName(SamusBeamCombination.Wave)] = wavePng.ToArray();
         var colors = Enumerable.Range(0, 12).Select(_ => new ushort[16]).ToArray();
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();

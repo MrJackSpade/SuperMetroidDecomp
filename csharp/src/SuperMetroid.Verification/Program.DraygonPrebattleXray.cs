@@ -48,7 +48,7 @@ internal static partial class Program
         const string output = "csharp/test-temp/issue-1260-draygon-xray";
         Directory.CreateDirectory(output);
         File.WriteAllBytes(Path.Combine(output, "frame-000.smframe"), RenderFrameSnapshotCodec.Serialize(new(new(1, 1, runtime.NmiFrameCounter), scene)));
-        PngWriterTooling.WriteRgba(Path.Combine(output, "prebattle.png"), 256, 224, pixels);
+        PngWriterTooling.WriteRgba(Path.Combine(output, "prebattle.png"), new(256, 224), pixels);
         AssertTrue(wrapped > 0, "the reported corner visibly exposes repeated body art without native clipping");
         AssertEqual(0, exposed, "pre-battle X-Ray hides the offscreen body exactly like native TM HDMA");
 

@@ -92,8 +92,8 @@ internal static partial class Program
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = grid[invalid], "cloud grid part bounds");
             ushort list = unchecked((ushort)(EndingCloudInstructionDefinitions.Start + index * 8));
-            var nativeActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
-            var installedActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
+            var nativeActor = new IntroDiscoverySprite(new(120, 72), 0x0800, list);
+            var installedActor = new IntroDiscoverySprite(new(120, 72), 0x0800, list);
             for (int frame = 0; frame < 120; frame++)
             {
                 nativeActor.Step(instructionWord: pointer => (ushort)(
@@ -345,10 +345,10 @@ internal static partial class Program
             IndexedPngImage image;
             using (var input = File.OpenRead(Path.Combine(installation.EndingObjectDirectory, name)))
                 image = IndexedPng.Read(input,
-                    RoomCharacterAtlasFormat.TileColumns * 8, rows * 8);
+                    new(RoomCharacterAtlasFormat.TileColumns * 8, rows * 8));
             Array.Fill(image.Pixels, (byte)0);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             scene.BindObjectArtwork(edited);
             LayeredRenderSnapshot changed = scene.CaptureRenderSnapshot();
@@ -393,10 +393,10 @@ internal static partial class Program
         IndexedPngImage persistentClouds;
         using (var input = File.OpenRead(Path.Combine(installation.EndingObjectDirectory,
                    EndingObjectArtworkFormat.CloudFileName)))
-            persistentClouds = IndexedPng.Read(input, 256, 128);
+            persistentClouds = IndexedPng.Read(input, new(256, 128));
         persistentClouds.Pixels[0] = (byte)((persistentClouds.Pixels[0] + 1) & 15);
         using (var output = File.Create(invalidPath))
-            IndexedPng.Write(output, persistentClouds.Width, persistentClouds.Height,
+            IndexedPng.Write(output, new(persistentClouds.Size.Width, persistentClouds.Size.Height),
                 persistentClouds.Pixels, persistentClouds.Palette);
         byte[] editedClouds = installation.LoadEndingObjectArt().Clouds.Transfer.ToArray();
         string stockExplosion = Path.Combine(installation.EndingObjectDirectory,

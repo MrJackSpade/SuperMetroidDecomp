@@ -13,8 +13,8 @@ public sealed class MapTileAtlas
     /// <returns>The immutable 8192-byte planar character atlas.</returns>
     public static MapTileAtlas Load(Stream png)
     {
-        var image = IndexedPng.Read(png, MapTileAtlasFormat.Width, MapTileAtlasFormat.Height);
-        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4));
+        var image = IndexedPng.Read(png, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
+        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4));
     }
 
     /// <summary>Copies compiled characters to the screen's own VRAM; source storage cannot be mutated by callers.</summary>

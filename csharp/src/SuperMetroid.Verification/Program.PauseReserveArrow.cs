@@ -30,7 +30,7 @@ internal static partial class Program
                 AssertTrue(Enumerable.Range(32, 64).Any(y => Enumerable.Range(8, 8).Any(x => pixels[y * 256 + x] != first![y * 256 + x])),
                     "arrow itself visibly changes color, not only a palette entry");
                 Directory.CreateDirectory("csharp/test-temp/pause-reserve-arrow-527");
-                PngWriterTooling.WriteRgba("csharp/test-temp/pause-reserve-arrow-527/auto.png", 256, 224, pixels);
+                PngWriterTooling.WriteRgba("csharp/test-temp/pause-reserve-arrow-527/auto.png", new(256, 224), pixels);
             }
         }
         pause.Step(0, (ushort)SnesButton.A);

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -15,7 +16,7 @@ internal sealed class EndingRewardJump
     private int uploads;
     public bool ShotRequested { get; private set; }
     public byte ObjectSelection { get; private set; }
-    public short BodyY => unchecked((short)body.YPosition);
+    public short BodyY => unchecked((short)body.WholePosition.Y);
 
     public EndingRewardJump(ISnesAddressSpace bus, EndingReward reward, Action<int> queueGraphicsUpload)
     {
@@ -36,7 +37,7 @@ internal sealed class EndingRewardJump
             if (InstalledPreInstruction(head) == EndingRewardJumpPreInstruction.HeadFlight)
             {
                 Move(head);
-                if (unchecked((short)head.YPosition) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
+                if (unchecked((short)head.WholePosition.Y) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
             }
             head.Step<EndingRewardJumpInstruction>(Instruction, instructionWord);
         }
@@ -58,7 +59,7 @@ internal sealed class EndingRewardJump
             Move(body);
             if (BodyY >= EndingRewardJumpDefinitions.LandingY)
             {
-                body.YPosition = EndingRewardJumpDefinitions.LandingY;
+                body.WholePosition = body.WholePosition.WithY(EndingRewardJumpDefinitions.LandingY);
                 body.Redirect(EndingRewardJumpDefinitions.LandedList);
                 body.PreInstructionPointerForDiscovery(0);
             }
@@ -79,10 +80,8 @@ internal sealed class EndingRewardJump
     private void Move(IntroDiscoverySprite actor)
     {
         velocity = unchecked(velocity + EndingRewardJumpDefinitions.Gravity);
-        uint position = ((uint)actor.YPosition << 16) | actor.YSubPosition;
-        position = unchecked(position + (uint)velocity);
-        actor.YPosition = (ushort)(position >> 16);
-        actor.YSubPosition = (ushort)position;
+        uint position = unchecked(IntroCinematicMotion.Packed(actor.Position.Y) + (uint)velocity);
+        actor.Position = actor.Position.WithY(IntroCinematicMotion.Unpacked(position));
     }
 
     private ushort Instruction(EndingRewardJumpInstruction instruction, ushort cursor)
@@ -93,12 +92,10 @@ internal sealed class EndingRewardJump
                 velocity = EndingRewardJumpDefinitions.LaunchVelocity;
                 return cursor;
             case EndingRewardJumpInstruction.PrepareHead:
-                RequireHead().XPosition = (ushort)(helmeted ? 118 : 120);
-                RequireHead().YPosition = 120;
+                RequireHead().WholePosition = new((ushort)(helmeted ? 118 : 120), 120);
                 return cursor;
             case EndingRewardJumpInstruction.LaunchHead:
-                RequireHead().XPosition = (ushort)(helmeted ? 120 : 121);
-                RequireHead().YPosition = (ushort)(helmeted ? 114 : 116);
+                RequireHead().WholePosition = new((ushort)(helmeted ? 120 : 121), (ushort)(helmeted ? 114 : 116));
                 return cursor;
             case EndingRewardJumpInstruction.Shoot:
                 body.SetAttributes(SnesObjPalettes.Index7);
@@ -121,8 +118,7 @@ internal sealed class EndingRewardJump
         var (x, y, palette) =
             EndingRewardActorDefinitions.GetInitialization(record.Initialization);
         var actor = new IntroDiscoverySprite(
-            (ushort)x,
-            (ushort)y,
+            new((ushort)x, (ushort)y),
             (ushort)palette,
             record.InstructionList);
         actor.PreInstructionPointerForDiscovery(record.PreInstruction);

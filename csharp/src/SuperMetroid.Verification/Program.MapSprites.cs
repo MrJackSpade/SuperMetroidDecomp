@@ -76,9 +76,9 @@ internal static partial class Program
         string pngPath = Path.Combine(overrides, MapSpriteFormat.PngFile);
         IndexedPngImage image;
         using (var input = File.OpenRead(Path.Combine(stock, MapSpriteFormat.PngFile)))
-            image = IndexedPng.Read(input, MapSpriteFormat.Width, MapSpriteFormat.Height);
+            image = IndexedPng.Read(input, new(MapSpriteFormat.Width, MapSpriteFormat.Height));
         for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % 16);
-        using (var output = File.Create(pngPath)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+        using (var output = File.Create(pngPath)) IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
         var pngEdit = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(pngEdit.ContentIdentity != original.ContentIdentity, "PNG alone changes selected content identity");
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(pngEdit));

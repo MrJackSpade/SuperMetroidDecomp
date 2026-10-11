@@ -5,32 +5,34 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Exact fixed-point additions shared by translated opening-cinematic actors.</summary>
 internal static class IntroCinematicMotion
 {
-    public static void AddSixteenSixteen(
-        ref ushort wholePosition,
-        ref ushort subPosition,
+    /// <summary>One axis as the native 32-bit whole:fraction value (whole word in the high half).</summary>
+    public static uint Packed(SnesFixedPosition position) => ((uint)position.Whole << 16) | position.Fraction;
+
+    /// <summary>One axis from a native 32-bit whole:fraction value.</summary>
+    public static SnesFixedPosition Unpacked(uint value) => new(unchecked((ushort)(value >> 16)), unchecked((ushort)value));
+
+    /// <summary>Adds a native whole/fraction velocity pair to one axis.</summary>
+    public static SnesFixedPosition AddSixteenSixteen(
+        SnesFixedPosition position,
         ushort wholeVelocity,
-        ushort fractionalVelocity)
-    {
+        ushort fractionalVelocity) =>
         // Native 16-bit ADC first adds the fractional words, then propagates its carry into
         // the signed whole-word sum. Packing them produces precisely that wrap/carry model.
-        SnesFixedPosition result = SnesSignedSixteenSixteen
+        SnesSignedSixteenSixteen
             .FromParts(unchecked((short)wholeVelocity), fractionalVelocity)
-            .AddTo(wholePosition, subPosition);
-        wholePosition = result.Whole;
-        subPosition = result.Fraction;
-    }
+            .AddTo(position.Whole, position.Fraction);
 
-    public static void AddEightEight(
-        ref ushort wholePosition,
-        ref ushort subPosition,
-        ushort velocity)
-    {
+    /// <summary>Adds a packed signed 16.16 delta (whole word in the high half) to one axis.</summary>
+    public static SnesFixedPosition AddSignedSixteenSixteen(SnesFixedPosition position, int fixedDelta) =>
+        AddSixteenSixteen(position, unchecked((ushort)(fixedDelta >> 16)), unchecked((ushort)fixedDelta));
+
+    /// <summary>Adds a signed 8.8 velocity to one axis.</summary>
+    public static SnesFixedPosition AddEightEight(
+        SnesFixedPosition position,
+        SnesSignedEightEight velocity) =>
         // The 65c816 XBA sequence places the velocity fraction in subposition byte +1.
         // Its eight-bit carry then feeds the sign-extended integer byte.
-        SnesFixedPosition result = new SnesSignedEightEight(velocity)
+        velocity
             .ToSixteenSixteenDelta()
-            .AddTo(wholePosition, subPosition);
-        wholePosition = result.Whole;
-        subPosition = result.Fraction;
-    }
+            .AddTo(position.Whole, position.Fraction);
 }

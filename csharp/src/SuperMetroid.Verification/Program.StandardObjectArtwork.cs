@@ -42,12 +42,12 @@ internal static partial class Program
             int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles);
             int rows = (tiles + columns - 1) / columns;
             IndexedPngImage image = IndexedPng.Read(new MemoryStream(originalPng),
-                columns * 8, rows * 8);
+                new(columns * 8, rows * 8));
             image.Pixels[0] = (byte)(image.Pixels[0] == 1 ? 2 : 1);
             Directory.CreateDirectory(overrides);
             string overridePath = Path.Combine(overrides, StandardObjectArtworkFormat.FileName);
             using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
             RoomCharacterAtlas edited = StandardObjectArtworkFiles.Load(stock, overrides);
             AssertTrue(!edited.Transfer.Span.SequenceEqual(baseline.Transfer.Span),
                 "selected indexed PNG changes the native standard OBJ transfer");

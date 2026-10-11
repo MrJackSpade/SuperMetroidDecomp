@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -17,14 +18,13 @@ public sealed partial class IntroCinematicState
             IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
         {
             oam = PrepareMotherBrainOam();
-            room = Plane(IntroCinematicRomData.Layers.SceneBg1TilemapWord, 0,
-                flashbackMotherBrain?.BackgroundVerticalScroll ?? GameplayFlashbackBg1VerticalScroll);
+            room = Plane(IntroCinematicRomData.Layers.SceneBg1TilemapWord, new(0, flashbackMotherBrain?.BackgroundVerticalScroll ?? GameplayFlashbackBg1VerticalScroll));
         }
         else if (Phase is IntroCinematicPhase.BabyDiscoveryCrossfade or
             IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
         {
             oam = PrepareBabyDiscoveryOam();
-            room = Plane(IntroCinematicRomData.Layers.SceneBg2TilemapWord, 0, GameplayFlashbackBg1VerticalScroll);
+            room = Plane(IntroCinematicRomData.Layers.SceneBg2TilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
         }
         else if (Phase is IntroCinematicPhase.BabyMetroidDeliveryCrossfade or
             IntroCinematicPhase.BabyMetroidDelivery or IntroCinematicPhase.PageFourCrossfade or
@@ -32,7 +32,7 @@ public sealed partial class IntroCinematicState
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             oam = PrepareScientistOam();
-            room = Plane(scientistCutscene!.TilemapBaseWord, scientistCutscene.BackgroundX, scientistCutscene.BackgroundY);
+            room = Plane(scientistCutscene!.TilemapBaseWord, scientistCutscene.Background);
         }
         else if (objects is null)
         {
@@ -50,7 +50,7 @@ public sealed partial class IntroCinematicState
         else
         {
             oam = PrepareIllustratedPageOam();
-            room = Plane(IntroCinematicRomData.Layers.PortraitTilemapWord, 0, GameplayFlashbackBg1VerticalScroll);
+            room = Plane(IntroCinematicRomData.Layers.PortraitTilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
         }
 
         var text = new Bg2BppViewportRenderLayer(IntroCinematicRomData.Layers.NarrationTilemapWord,
@@ -65,6 +65,6 @@ public sealed partial class IntroCinematicState
         }, MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(inidisp));
     }
 
-    private static Bg4BppRenderLayer Plane(ushort tilemap, ushort x, ushort y) =>
-        new(tilemap, 0, x, y, 32, 32, false);
+    private static Bg4BppRenderLayer Plane(ushort tilemap, Position16<RoomPixels> scroll) =>
+        new(tilemap, 0, scroll.X, scroll.Y, 32, 32, false);
 }

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -951,9 +952,9 @@ internal static partial class Program
         byte[] planar = Enumerable.Range(0, DeadTorizoArtworkDefinitions.ByteCount)
             .Select(index => rom.ReadByte(DeadTorizoArtworkDefinitions.SourceAddress + index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns,
-            out int width, out int height);
+            out Size32<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         png.Position = 0;
         // An independently edited display composition is deliberately unrelated to
         // stock tile coverage. Native staging must still copy the same artwork rows.
@@ -1177,9 +1178,9 @@ internal static partial class Program
             AssertEqual(page, TorizoInstructionVramArtworkDefinitions.All[ordinal], "Torizo page enumeration/index agreement");
             native[ordinal] = Enumerable.Range(0, page.ByteCount).Select(offset => rom.ReadByte(page.SourceAddress + offset)).ToArray();
             byte[] pixels = SnesGraphics.DecodePlanarTiles(native[ordinal], 4,
-                Math.Min(RoomCharacterAtlasFormat.TileColumns, page.ByteCount / RoomCharacterAtlasFormat.BytesPerTile), out int width, out int height);
+                Math.Min(RoomCharacterAtlasFormat.TileColumns, page.ByteCount / RoomCharacterAtlasFormat.BytesPerTile), out Size32<ImagePixels> size);
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             png.Position = 0;
             pages[ordinal++] = RoomCharacterAtlas.Load(png, page.ByteCount);
         }
@@ -2307,8 +2308,8 @@ internal static partial class Program
                     var wanted = expected[component];
                     var found = actual.Span[component];
                     var parts = EnemySpritemapCatalog.CompileParts(wanted.Parts, frame.Name);
-                    AssertEqual((short)wanted.OffsetX, found.OffsetX, "Golden Torizo independent component X");
-                    AssertEqual((short)wanted.OffsetY, found.OffsetY, "Golden Torizo independent component Y");
+                    AssertEqual((short)wanted.OffsetX, found.Offset.X, "Golden Torizo independent component X");
+                    AssertEqual((short)wanted.OffsetY, found.Offset.Y, "Golden Torizo independent component Y");
                     AssertTrue(found.Parts.SequenceEqual(parts), "Golden Torizo exact supplied part order and fields");
                     ushort x = unchecked((ushort)(128 + wanted.OffsetX)), y = unchecked((ushort)(96 + wanted.OffsetY));
                     expectedOam.AddEnemySpritemap(parts.AsSpan(), x, y, 0, 0);

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -9,7 +10,7 @@ internal sealed class IntroEggSlimeDrop
     private readonly IntroDiscoverySprite sprite;
     private bool motionEnabled = true;
 
-    public IntroEggSlimeDrop(ushort babyX, ushort babyY, byte index)
+    public IntroEggSlimeDrop(Position16<ScreenPixels> babyPosition, byte index)
     {
         if (index >= IntroEggEffectDefinitions.SlimeDropCount)
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -19,8 +20,7 @@ internal sealed class IntroEggSlimeDrop
         // $AA9A copies the confused baby's slot coordinates rather than using a separate
         // literal position table. Its low timer byte remains the horizontal trajectory ID.
         sprite = new IntroDiscoverySprite(
-            babyX,
-            babyY,
+            babyPosition,
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
             instructionPointer: definition.InstructionList)
         {
@@ -48,7 +48,7 @@ internal sealed class IntroEggSlimeDrop
             AddVelocity(horizontal: false, IntroEggMotionDefinitions.SlimeY(
                 sprite.GeneralTimer >> 8, odd: (sprite.GeneralTimer & 1) != 0));
 
-            if (unchecked((short)(sprite.YPosition - 0x00a8)) >= 0)
+            if (unchecked((short)(sprite.WholePosition.Y - 0x00a8)) >= 0)
             {
                 // $AAB3 changes both list and pre-instruction, freezing the impact point
                 // while CD71 plays four ten-frame puddle frames and deletes the actor.
@@ -73,23 +73,8 @@ internal sealed class IntroEggSlimeDrop
     private void AddVelocity(bool horizontal, (ushort Whole, ushort Fraction) velocity)
     {
         (ushort wholeVelocity, ushort fractionVelocity) = velocity;
-        if (horizontal)
-        {
-            ushort whole = sprite.XPosition;
-            ushort fraction = sprite.XSubPosition;
-            IntroCinematicMotion.AddSixteenSixteen(
-                ref whole, ref fraction, wholeVelocity, fractionVelocity);
-            sprite.XPosition = whole;
-            sprite.XSubPosition = fraction;
-        }
-        else
-        {
-            ushort whole = sprite.YPosition;
-            ushort fraction = sprite.YSubPosition;
-            IntroCinematicMotion.AddSixteenSixteen(
-                ref whole, ref fraction, wholeVelocity, fractionVelocity);
-            sprite.YPosition = whole;
-            sprite.YSubPosition = fraction;
-        }
+        sprite.Position = horizontal
+            ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, wholeVelocity, fractionVelocity))
+            : sprite.Position.WithY(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.Y, wholeVelocity, fractionVelocity));
     }
 }

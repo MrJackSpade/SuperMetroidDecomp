@@ -160,8 +160,8 @@ internal static partial class Program
         ushort[] starts = [0xeb0f, 0xeb3d, 0xeb51, 0xeb59, 0xeb69, 0xeb71, 0xeb81, 0xeb89];
         foreach (ushort start in starts)
         {
-            var native = new IntroDiscoverySprite(120, 72, 0x0800, start);
-            var installed = new IntroDiscoverySprite(120, 72, 0x0800, start);
+            var native = new IntroDiscoverySprite(new(120, 72), 0x0800, start);
+            var installed = new IntroDiscoverySprite(new(120, 72), 0x0800, start);
             for (int frame = 0; frame < 500; frame++)
             {
                 // Private opcodes affect the containing ending scene. This actor-level

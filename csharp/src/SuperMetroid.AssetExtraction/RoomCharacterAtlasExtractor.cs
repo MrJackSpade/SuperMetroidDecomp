@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -40,9 +41,9 @@ public static class RoomCharacterAtlasExtractor
                     RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount);
             int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(planar.Length);
             byte[] indexes = SnesGraphics.DecodePlanarTiles(planar, 4,
-                RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+                RoomCharacterAtlasFormat.TileColumns, out Size32<ImagePixels> size);
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, indexes, SnesGraphics.DiagnosticPalette(16));
+            IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
             RoomCharacterAtlas loaded = RoomCharacterAtlas.Load(new MemoryStream(encoded), planar.Length);
             if (!loaded.Transfer.Span.SequenceEqual(planar))

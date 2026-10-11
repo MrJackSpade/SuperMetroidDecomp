@@ -39,12 +39,12 @@ internal static partial class Program
                 InWorldCollectibleKind.Bombs);
             IndexedPngImage image = IndexedPng.Read(
                 new MemoryStream(File.ReadAllBytes(Path.Combine(stockDirectory, name))),
-                64, 8);
+                new(64, 8));
             image.Pixels[0] ^= 1;
             using (var editedPng = new FileStream(
                        Path.Combine(overrideDirectory, name), FileMode.CreateNew,
                        FileAccess.Write))
-                IndexedPng.Write(editedPng, image.Width, image.Height,
+                IndexedPng.Write(editedPng, new(image.Size.Width, image.Size.Height),
                     image.Pixels, image.Palette);
 
             JsonNode paletteDocument = JsonNode.Parse(File.ReadAllText(

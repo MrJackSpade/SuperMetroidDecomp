@@ -44,8 +44,7 @@ internal static class MapAssetExtractor
 
             PngWriterTooling.WriteIndexedAsRgba(
                 stem + ".coverage.png",
-                AreaMapLayout.WidthInTiles,
-                AreaMapLayout.HeightInTiles,
+                new(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles),
                 coverage,
                 [
                     new Rgba32(8, 8, 16, 255),

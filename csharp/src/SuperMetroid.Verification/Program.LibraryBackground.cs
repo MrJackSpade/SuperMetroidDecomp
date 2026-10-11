@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -68,14 +69,14 @@ static void VerifyKraidLibraryHudArtwork(
     byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress,
         HudTileAtlasFormat.CharacterByteCount);
     byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 2, MapTileAtlasFormat.TileColumns,
-        out int width, out int height);
-    AssertEqual(MapTileAtlasFormat.Width, width, "Kraid HUD atlas width");
-    AssertEqual(MapTileAtlasFormat.Height, height, "Kraid HUD atlas height");
+        out Size32<ImagePixels> size);
+    AssertEqual(MapTileAtlasFormat.Width, size.Width, "Kraid HUD atlas width");
+    AssertEqual(MapTileAtlasFormat.Height, size.Height, "Kraid HUD atlas height");
 
     HudTileAtlas Compile(ReadOnlySpan<byte> selectedPixels)
     {
         using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, selectedPixels, SnesGraphics.DiagnosticPalette(4));
+        IndexedPng.Write(png, size, selectedPixels, SnesGraphics.DiagnosticPalette(4));
         png.Position = 0;
         return HudTileAtlas.Load(png);
     }

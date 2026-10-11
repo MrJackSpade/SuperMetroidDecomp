@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -25,19 +26,16 @@ internal sealed class IntroScientistCutsceneState
 
         // Definitions $CE61/$CE67 use separate laboratory pages and mirrored pan axes.
         baby = new IntroDiscoverySprite(
-            definition.X,
-            definition.Y,
+            definition.Position,
             definition.PaletteBits,
             definition.InstructionList);
         baby.PreInstructionPointerForDiscovery(definition.PreInstruction);
         TilemapBaseWord = delivery ? (ushort)0x5800 : (ushort)0x5c00;
-        BackgroundX = delivery ? (ushort)0x0020 : (ushort)0;
-        BackgroundY = delivery ? (ushort)0x0008 : unchecked((ushort)0xffe8);
+        Background = delivery ? new(0x0020, 0x0008) : new(0, 0xffe8);
     }
 
-    public ushort BackgroundX { get; private set; }
-
-    public ushort BackgroundY { get; private set; }
+    /// <summary>The laboratory page's BG1 scroll.</summary>
+    public Position16<RoomPixels> Background { get; private set; }
 
     public ushort TilemapBaseWord { get; }
 
@@ -69,20 +67,20 @@ internal sealed class IntroScientistCutsceneState
         }
         else if ((cinematicFunctionTimer & 3) == 0)
         {
-            if (kind == ScientistSceneKind.Delivery && BackgroundX != 0)
+            if (kind == ScientistSceneKind.Delivery && Background.X != 0)
             {
                 // AD68 moves the camera left while keeping the delivered baby fixed
                 // relative to the laboratory subjects.
-                BackgroundX--;
-                baby.XPosition++;
+                Background += new Offset16<RoomPixels>(-1, 0);
+                baby.WholePosition += new Offset16<ScreenPixels>(1, 0);
             }
             else if (kind == ScientistSceneKind.Examination &&
-                unchecked((short)(BackgroundY - 0x0008)) < 0)
+                unchecked((short)(Background.Y - 0x0008)) < 0)
             {
                 // ADA6 moves the second laboratory page down from -24 to +8 while the
                 // examined baby rises by the same 32 pixels.
-                BackgroundY++;
-                baby.YPosition--;
+                Background += new Offset16<RoomPixels>(0, 1);
+                baby.WholePosition += new Offset16<ScreenPixels>(0, -1);
             }
         }
 

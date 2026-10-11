@@ -12,10 +12,10 @@ internal static partial class Program
         Suite(nameof(VerifyGrappleFlarePlacement), () => VerifyGrappleFlarePlacement(bus));
         byte[] png = GrappleTileExtractor.Extract(bus);
         var stock = GrappleTileAtlas.Load(new MemoryStream(png));
-        var image = IndexedPng.Read(new MemoryStream(png), GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
+        var image = IndexedPng.Read(new MemoryStream(png), new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
         for (int tile = 0; tile < 16; tile++) image.Pixels[tile * 8] ^= 1;
         using var changedPng = new MemoryStream();
-        IndexedPng.Write(changedPng, image.Width, image.Height, image.Pixels, image.Palette);
+        IndexedPng.Write(changedPng, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
         var edited = GrappleTileAtlas.Load(new MemoryStream(changedPng.ToArray()));
         foreach (var transfer in GrappleTileDefinitions.Transfers)
             AssertTrue(stock.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
@@ -71,11 +71,11 @@ internal static partial class Program
         }
         Suite(nameof(VerifyGrappleTileBinding), () => VerifyGrappleTileBinding(bus, stock, edited));
         using var wrong = new MemoryStream();
-        IndexedPng.Write(wrong, 8, 8, new byte[64], SnesGraphics.DiagnosticPalette(16)); wrong.Position = 0;
+        IndexedPng.Write(wrong, new(8, 8), new byte[64], SnesGraphics.DiagnosticPalette(16)); wrong.Position = 0;
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(wrong), "Wrong Grapple PNG dimensions rejected");
         var invalid = new byte[GrappleTileDefinitions.Width * GrappleTileDefinitions.Height]; invalid[0] = 16;
         using var invalidPng = new MemoryStream();
-        IndexedPng.Write(invalidPng, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height, invalid, SnesGraphics.DiagnosticPalette(32)); invalidPng.Position = 0;
+        IndexedPng.Write(invalidPng, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height), invalid, SnesGraphics.DiagnosticPalette(32)); invalidPng.Position = 0;
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(invalidPng), "Grapple PNG out-of-range palette index rejected");
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(new MemoryStream(new byte[8])), "Malformed Grapple PNG rejected");
         AssertThrows<InvalidDataException>(() => stock.Resolve(VramAssetId.StandardHudTiles), "Grapple provider rejects unrelated identity");

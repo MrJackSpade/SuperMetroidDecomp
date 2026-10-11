@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>$95:D089: 144 intro font tiles uploaded by $8B:A485-A491. Authored one-bit strokes and precise contour choices remain typography content; dilation and atlas packing calculate.</summary>
@@ -18,7 +20,7 @@ internal static class IntroFontGlyphDefinitions
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
-                int ink = Pixel(glyph, x, y + rowOffset);
+                int ink = Pixel(glyph, new(x, y + rowOffset));
                 int address = tile * 16 + y * 2;
                 output[address] |= (byte)((ink & 1) << (7 - x));
                 output[address + 1] |= (byte)((ink >> 1) << (7 - x));
@@ -27,19 +29,19 @@ internal static class IntroFontGlyphDefinitions
         return output;
     }
 
-    private static int Pixel(int glyph, int x, int y)
+    private static int Pixel(int glyph, Point32<ImagePixels> point)
     {
-        if (glyph == Period + 2) return x == 0 ? 0 : Pixel(Period, x - 1, y);
+        if (glyph == Period + 2) return point.X == 0 ? 0 : Pixel(Period, new(point.X - 1, point.Y));
         int background = glyph is SubtitleBlank or >= 0x5a and <= 0x5f or >= 0x70 ? 2 : 0;
         UInt128 stroke = Stroke(glyph);
         int height = glyph < 48 ? 8 : 16;
         bool Filled(int px, int py) => (uint)px < 8 && (uint)py < height &&
             ((stroke >> (py * 8 + px)) & 1) != 0;
-        if (Filled(x, y)) return 1;
-        if (AddedContour(glyph, x, y)) return 3;
-        if (RemovedContour(glyph, x, y)) return background;
-        for (int ny = y - 1; ny <= y + 1; ny++)
-        for (int nx = x - 1; nx <= x + 1; nx++)
+        if (Filled(point.X, point.Y)) return 1;
+        if (AddedContour(glyph, point)) return 3;
+        if (RemovedContour(glyph, point)) return background;
+        for (int ny = point.Y - 1; ny <= point.Y + 1; ny++)
+        for (int nx = point.X - 1; nx <= point.X + 1; nx++)
             if (Filled(nx, ny)) return 3;
         return background;
     }
@@ -140,51 +142,51 @@ internal static class IntroFontGlyphDefinitions
     };
 
     /// <summary>$95:D089: four authored contour extensions beyond dilation: small C bottom-left, large G's two bar joins, and Japanese $7E's lower diagonal join.</summary>
-    private static bool AddedContour(int glyph, int x, int y) => glyph switch
+    private static bool AddedContour(int glyph, Point32<ImagePixels> point) => glyph switch
     {
-        0x02 => x == 0 && y == 7,
-        0x36 => x == 4 && y is 6 or 10,
-        0x7e => x == 4 && y == 11,
+        0x02 => point.X == 0 && point.Y == 7,
+        0x36 => point.X == 4 && point.Y is 6 or 10,
+        0x7e => point.X == 4 && point.Y == 11,
         _ => false,
     };
 
     /// <summary>$95:D089: 91 omitted dilation pixels, four derived through the shifted period. Only chosen bevel/corner details remain, with repeated/symmetric coordinates shared; no whole contour plane is stored.</summary>
-    private static bool RemovedContour(int glyph, int x, int y) => glyph switch
+    private static bool RemovedContour(int glyph, Point32<ImagePixels> point) => glyph switch
     {
-        0x01 => x == 0 && y == 0,
-        0x05 => x is 0 or 3 && y == 7,
-        0x06 => x == 7 && y is 2 or 7,
-        0x07 => x is 0 or 3 or 4 or 7 && y is 0 or 7,
-        0x0a => x == 3 && y == 0 || x == 4 && y == 7 ||
-            x == 7 && y is 2 or 5 || x == 6 && y is 3 or 4,
-        0x0b => x == 7 && y is 5 or 7,
-        0x0c => x is 3 or 4 && y == 6,
-        0x0d => x == 3 && y is 6 or 7,
-        0x12 => (x, y) is (7, 0) or (0, 7),
-        0x19 => x is 1 or 7 && y == 3 || x == 0 && y == 4,
-        0x1a => x == 7 && y == 1,
-        0x1c => x == 0 && y is 1 or 4,
-        0x1e => (x, y) is (2, 1) or (1, 2) || x is 0 or 7 && y == 4,
-        0x20 => (x, y) is (6, 0) or (0, 1),
-        0x22 => x == 0 && y == 1,
-        0x24 => x is 1 or 4 && y is 4 or 7,
-        0x25 => x is 1 or 4 && y == 3 || x == 4 && y == 7,
-        0x27 => (x, y) is (4, 3) or (3, 4),
-        0x31 => x == 5 && y == 2 || x == 6 && y is 3 or 14 || x == 7 && y is 4 or 7 or 8 or 13,
-        0x33 => x == 6 && y is 3 or 13 || x == 7 && y is 5 or 11 || x == 5 && y == 14,
-        0x39 => x is 0 or 7 && y == 13 || x is 1 or 6 && y == 14,
-        0x3a => (x, y) is (5, 2) or (4, 3) or (5, 8) or (6, 9) or (7, 10),
-        0x50 => x == 7 && y == 3,
-        0x51 => x == 7 && y is 10 or 11,
-        0x52 => x == 7 && y == 13 || x is 1 or 6 && y == 14,
-        0x55 => (x, y) is (6, 11) or (2, 14),
-        0x5c => (x, y) is (4, 11) or (3, 12),
-        0x72 => x == 0 && y == 9,
-        0x74 => x == 0 && y == 8,
-        0x77 => x == 6 && y == 14,
-        0x78 => x == 1 && y == 10,
-        0x7b => x == 2 && y is 9 or 14,
-        0x7d => x == 3 && y == 10,
+        0x01 => point.X == 0 && point.Y == 0,
+        0x05 => point.X is 0 or 3 && point.Y == 7,
+        0x06 => point.X == 7 && point.Y is 2 or 7,
+        0x07 => point.X is 0 or 3 or 4 or 7 && point.Y is 0 or 7,
+        0x0a => point.X == 3 && point.Y == 0 || point.X == 4 && point.Y == 7 ||
+            point.X == 7 && point.Y is 2 or 5 || point.X == 6 && point.Y is 3 or 4,
+        0x0b => point.X == 7 && point.Y is 5 or 7,
+        0x0c => point.X is 3 or 4 && point.Y == 6,
+        0x0d => point.X == 3 && point.Y is 6 or 7,
+        0x12 => point is (7, 0) or (0, 7),
+        0x19 => point.X is 1 or 7 && point.Y == 3 || point.X == 0 && point.Y == 4,
+        0x1a => point.X == 7 && point.Y == 1,
+        0x1c => point.X == 0 && point.Y is 1 or 4,
+        0x1e => point is (2, 1) or (1, 2) || point.X is 0 or 7 && point.Y == 4,
+        0x20 => point is (6, 0) or (0, 1),
+        0x22 => point.X == 0 && point.Y == 1,
+        0x24 => point.X is 1 or 4 && point.Y is 4 or 7,
+        0x25 => point.X is 1 or 4 && point.Y == 3 || point.X == 4 && point.Y == 7,
+        0x27 => point is (4, 3) or (3, 4),
+        0x31 => point.X == 5 && point.Y == 2 || point.X == 6 && point.Y is 3 or 14 || point.X == 7 && point.Y is 4 or 7 or 8 or 13,
+        0x33 => point.X == 6 && point.Y is 3 or 13 || point.X == 7 && point.Y is 5 or 11 || point.X == 5 && point.Y == 14,
+        0x39 => point.X is 0 or 7 && point.Y == 13 || point.X is 1 or 6 && point.Y == 14,
+        0x3a => point is (5, 2) or (4, 3) or (5, 8) or (6, 9) or (7, 10),
+        0x50 => point.X == 7 && point.Y == 3,
+        0x51 => point.X == 7 && point.Y is 10 or 11,
+        0x52 => point.X == 7 && point.Y == 13 || point.X is 1 or 6 && point.Y == 14,
+        0x55 => point is (6, 11) or (2, 14),
+        0x5c => point is (4, 11) or (3, 12),
+        0x72 => point.X == 0 && point.Y == 9,
+        0x74 => point.X == 0 && point.Y == 8,
+        0x77 => point.X == 6 && point.Y == 14,
+        0x78 => point.X == 1 && point.Y == 10,
+        0x7b => point.X == 2 && point.Y is 9 or 14,
+        0x7d => point.X == 3 && point.Y == 10,
         _ => false,
     };
 }

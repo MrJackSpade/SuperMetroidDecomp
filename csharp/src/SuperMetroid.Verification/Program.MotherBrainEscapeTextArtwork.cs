@@ -53,13 +53,13 @@ internal static partial class Program
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         int rows = (tileCount + columns - 1) / columns;
         using var input = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
-        IndexedPngImage image = IndexedPng.Read(input, columns * 8, rows * 8);
+        IndexedPngImage image = IndexedPng.Read(input, new(columns * 8, rows * 8));
         image.Pixels[0] ^= 1;
         string overrideDirectory = Path.Combine(directory, "mother-brain-escape-text-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string overridePath = Path.Combine(overrideDirectory, fileName);
         using (var output = File.Create(overridePath))
-            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+            IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited,
             new MotherBrainEscapeTextReadGuard(

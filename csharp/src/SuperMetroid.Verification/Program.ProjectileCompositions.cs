@@ -278,10 +278,10 @@ internal static partial class Program
         string beamStock = Path.Combine(installation.ProjectileDirectory, beamName);
         string beamOverride = Path.Combine(installation.ProjectileOverrideDirectory, beamName);
         IndexedPngImage beamImage;
-        using (var input = File.OpenRead(beamStock)) beamImage = IndexedPng.Read(input, 64, 8);
+        using (var input = File.OpenRead(beamStock)) beamImage = IndexedPng.Read(input, new(64, 8));
         beamImage.Pixels[0] ^= 1;
         using (var output = File.Create(beamOverride))
-            IndexedPng.Write(output, 64, 8, beamImage.Pixels, beamImage.Palette);
+            IndexedPng.Write(output, new(64, 8), beamImage.Pixels, beamImage.Palette);
         var beamEdited = installation.LoadProjectiles();
         AssertTrue(beamEdited.SelectedSha256 != edited.SelectedSha256, "PNG-only change updates aggregate content identity");
         AssertEqual((byte)(stock.BeamTiles.Resolve(BeamTileCatalog.AssetFor(0)).Span[0] ^ 0x80),
@@ -357,10 +357,10 @@ internal static partial class Program
         File.WriteAllText(trailOverride, trailDocument.ToJsonString());
         string trailPngStock = Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName);
         string trailPngOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName);
-        var trailImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(trailPngStock)), ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
+        var trailImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(trailPngStock)), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
         trailImage.Pixels[0] ^= 1;
         using var trailPng = new MemoryStream();
-        IndexedPng.Write(trailPng, trailImage.Width, trailImage.Height, trailImage.Pixels, trailImage.Palette);
+        IndexedPng.Write(trailPng, new(trailImage.Size.Width, trailImage.Size.Height), trailImage.Pixels, trailImage.Palette);
         File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
         var pngEdited = installation.LoadProjectiles();
         AssertTrue(pngEdited.SelectedSha256 != trailEdited.SelectedSha256, "Trail PNG-only edit changes identity");
@@ -413,10 +413,10 @@ internal static partial class Program
         File.WriteAllText(compositionOverride, compositionDocument.ToJsonString());
         string grappleStock = Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName);
         string grappleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName);
-        var grappleImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(grappleStock)), GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
+        var grappleImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(grappleStock)), new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
         grappleImage.Pixels[0] ^= 1;
         using var grapplePng = new MemoryStream();
-        IndexedPng.Write(grapplePng, grappleImage.Width, grappleImage.Height, grappleImage.Pixels, grappleImage.Palette);
+        IndexedPng.Write(grapplePng, new(grappleImage.Size.Width, grappleImage.Size.Height), grappleImage.Pixels, grappleImage.Palette);
         File.WriteAllBytes(grappleOverride, grapplePng.ToArray());
         var grappleEdited = installation.LoadProjectiles();
         AssertTrue(grappleEdited.SelectedSha256 != compositionEdited.SelectedSha256, "Grapple PNG-only edit changes content identity");

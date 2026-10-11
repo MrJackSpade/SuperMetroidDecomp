@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Menu OBJ cells57..5A atB6:CAE0..CB5F form a sixteen-row panel edge:
@@ -15,25 +17,25 @@ internal sealed class MenuPanelTileArtwork
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
-            if (pixel != Basis(tile, x, y)) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+            byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.Width + tile % 16 * 8 + x];
+            if (pixel != Basis(tile, new(x, y))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
         }
     }
 
-    internal byte Pixel(int tile, int x, int y)
+    internal byte Pixel(int tile, Point32<ImagePixels> point)
     {
-        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
+        if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
-    private static byte Basis(int tile, int x, int y)
+    private static byte Basis(int tile, Point32<ImagePixels> point)
     {
-        int row = y + (tile >= 0x59 ? 8 : 0);
+        int row = point.Y + (tile >= 0x59 ? 8 : 0);
         if (row is 0 or 15) return 0;
         if (row is 1 or 2 or 14) return 3;
         bool leftCorner = ((tile - 0x57) & 1) == 0;
-        if (leftCorner && x == 0) return 3;
-        if (leftCorner && x == 1 || row is 3 or 13) return 6;
+        if (leftCorner && point.X == 0) return 3;
+        if (leftCorner && point.X == 1 || row is 3 or 13) return 6;
         return row == 12 ? (byte)8 : (byte)0;
     }
 }

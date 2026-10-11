@@ -12,11 +12,11 @@ internal static partial class Program
     private static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
     {
         if (!actor.IsActive || actor.SpriteMapPointer == 0) return;
-        ushort y = actor.YPosition;
+        ushort y = actor.WholePosition.Y;
         if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >= CinematicSpriteDrawDefinitions.BiasedOriginYLimit) return;
         DrawImportedSpritemap(bus, oam,
             IntroCinematicRomData.Banks.Spritemaps << 16 | actor.SpriteMapPointer,
-            actor.XPosition, y, actor.PaletteBits,
+            actor.WholePosition.X, y, actor.PaletteBits,
             originIsOnScreen: (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0);
     }
     private static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,

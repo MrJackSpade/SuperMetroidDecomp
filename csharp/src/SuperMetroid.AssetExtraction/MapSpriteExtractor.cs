@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -23,9 +24,9 @@ public static class MapSpriteExtractor
         foreach (var definition in MapSpriteDefinitions.Frames)
             frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, (ushort)definition.NativeId));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount),
-            4, MapSpriteFormat.TileColumns, out int width, out int height);
+            4, MapSpriteFormat.TileColumns, out Size32<ImagePixels> size);
         using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new MapSpriteDocument { Version = MapSpriteFormat.Version, Frames = frames },
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
         byte[] pngBytes = png.ToArray();

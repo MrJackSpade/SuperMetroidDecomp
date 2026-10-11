@@ -334,8 +334,7 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException($"Replay did not produce capture '{fileName}'.");
         PngWriterTooling.WriteRgba(
             Path.Combine(directory, fileName),
-            FrontendFrame.Width,
-            FrontendFrame.Height,
+            new(FrontendFrame.Width, FrontendFrame.Height),
             pixels);
     }
 }

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -28,19 +29,19 @@ internal static class TitleGraphicsExtractor
             TitleSequenceRomData.Vram.BabyCharacterByteCount,
             "Baby Metroid characters");
 
-        byte[] mode7Pixels = SnesGraphics.DecodeMode7Tiles(mode7, 16, out int mode7Width, out int mode7Height);
-        byte[] objectPixels = SnesGraphics.DecodePlanarTiles(objects, 4, 32, out int objectWidth, out int objectHeight);
-        byte[] babyPixels = SnesGraphics.DecodeMode7Tiles(baby, 4, out int babyWidth, out int babyHeight);
-        if (mode7Width != TitleGraphicsFormat.Mode7Width || mode7Height != TitleGraphicsFormat.Mode7Height ||
-            objectWidth != TitleGraphicsFormat.ObjectWidth || objectHeight != TitleGraphicsFormat.ObjectHeight ||
-            babyWidth != TitleGraphicsFormat.BabyWidth || babyHeight != TitleGraphicsFormat.BabyHeight)
+        byte[] mode7Pixels = SnesGraphics.DecodeMode7Tiles(mode7, 16, out Size32<ImagePixels> mode7Size);
+        byte[] objectPixels = SnesGraphics.DecodePlanarTiles(objects, 4, 32, out Size32<ImagePixels> objectSize);
+        byte[] babyPixels = SnesGraphics.DecodeMode7Tiles(baby, 4, out Size32<ImagePixels> babySize);
+        if (mode7Size.Width != TitleGraphicsFormat.Mode7Width || mode7Size.Height != TitleGraphicsFormat.Mode7Height ||
+            objectSize.Width != TitleGraphicsFormat.ObjectWidth || objectSize.Height != TitleGraphicsFormat.ObjectHeight ||
+            babySize.Width != TitleGraphicsFormat.BabyWidth || babySize.Height != TitleGraphicsFormat.BabyHeight)
             throw new InvalidDataException("Title graphics decoded to unexpected atlas dimensions.");
 
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {
-            [TitleGraphicsFormat.Mode7TilesFile] = Png(mode7Width, mode7Height, mode7Pixels, 256),
-            [TitleGraphicsFormat.ObjectTilesFile] = Png(objectWidth, objectHeight, objectPixels, 16),
-            [TitleGraphicsFormat.BabyTilesFile] = Png(babyWidth, babyHeight, babyPixels, 256),
+            [TitleGraphicsFormat.Mode7TilesFile] = Png(mode7Size, mode7Pixels, 256),
+            [TitleGraphicsFormat.ObjectTilesFile] = Png(objectSize, objectPixels, 16),
+            [TitleGraphicsFormat.BabyTilesFile] = Png(babySize, babyPixels, 256),
         };
         using var mapJson = new MemoryStream();
         TitleGraphicsPresentation.WriteMap(mapJson, new TitleMode7MapDocument
@@ -62,10 +63,10 @@ internal static class TitleGraphicsExtractor
             return decompressed.AsSpan(0, count).ToArray();
         }
 
-        static byte[] Png(int width, int height, byte[] pixels, int colors)
+        static byte[] Png(Size32<ImagePixels> size, byte[] pixels, int colors)
         {
             using var output = new MemoryStream();
-            IndexedPng.Write(output, width, height, pixels, SnesGraphics.DiagnosticPalette(colors));
+            IndexedPng.Write(output, size, pixels, SnesGraphics.DiagnosticPalette(colors));
             return output.ToArray();
         }
     }

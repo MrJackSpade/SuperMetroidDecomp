@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Native82:C465 builds the32x16 L/R highlight from corner3C/51 and
@@ -19,22 +21,22 @@ internal sealed class MenuShoulderHighlightArtwork
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
-                byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
-                if (pixel != Basis(tile, x, y)) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+                byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.Width + tile % 16 * 8 + x];
+                if (pixel != Basis(tile, new(x, y))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
             }
         }
     }
 
-    internal byte Pixel(int tile, int x, int y)
+    internal byte Pixel(int tile, Point32<ImagePixels> point)
     {
-        if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
+        if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
-    private static byte Basis(int tile, int x, int y)
+    private static byte Basis(int tile, Point32<ImagePixels> point)
     {
-        int row = y + (tile is 0x43 or 0x51 ? 8 : 0);
-        int column = x + (tile is 0x3d or 0x43 ? 8 : 0);
+        int row = point.Y + (tile is 0x43 or 0x51 ? 8 : 0);
+        int column = point.X + (tile is 0x3d or 0x43 ? 8 : 0);
         if (row is 0 or 15 || column == 0) return 0;
         if (row is < 4 or > 12) return 6;
         int distance = row - 8;

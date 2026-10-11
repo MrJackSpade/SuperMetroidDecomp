@@ -471,7 +471,7 @@ public sealed partial class FileSelectMenuState
             "Data-management screen requires at least one nonempty save slot.");
     }
 
-    private (ushort X, ushort Y) GetSelectionMissilePosition()
+    private Position16<ScreenPixels> GetSelectionMissilePosition()
     {
         if (mapPresentation is not null)
         {
@@ -482,13 +482,13 @@ public sealed partial class FileSelectMenuState
                 : confirmation ? confirmationSelection : submenuSelection;
             Point32<ScreenPixels> point = mapPresentation.FileSelect.CursorPosition(
                 IsMainScreenPhase, confirmation, selected);
-            return (checked((ushort)point.X), checked((ushort)point.Y));
+            return point.ToExactPosition16();
         }
         if (!showDataManagementScreen)
-            return (14, FileSelectLayout.MainSelectionY(SelectedItem));
+            return new(14, FileSelectLayout.MainSelectionY(SelectedItem));
         if (Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm)
-            return (94, confirmationSelection == 0 ? (ushort)184 : (ushort)208);
-        return (22, FileSelectLayout.DataSelectionY(submenuSelection));
+            return new(94, confirmationSelection == 0 ? (ushort)184 : (ushort)208);
+        return new(22, FileSelectLayout.DataSelectionY(submenuSelection));
     }
 
     private void UploadBg1Tilemap() =>

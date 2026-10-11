@@ -83,7 +83,7 @@ internal sealed partial class WindowsGamepadInput
                 $"raw X/Y={initialPosition.X}/{initialPosition.Y} in " +
                 $"{capabilities.XMinimum}..{capabilities.XMaximum}/" +
                 $"{capabilities.YMinimum}..{capabilities.YMaximum}, " +
-                $"normalized X/Y={LastSnapshot.HorizontalAxis}/{LastSnapshot.VerticalAxis}, " +
+                $"normalized X/Y={LastSnapshot.Stick.X}/{LastSnapshot.Stick.Y}, " +
                 $"face layout={ResolveFaceButtonLayout(capabilities)}.");
             return;
         }
@@ -143,10 +143,11 @@ internal sealed partial class WindowsGamepadInput
         return new GenericGamepadSnapshot(
             // Drivers can expose buttons without axes while leaving X/Y zero-filled.
             // Zero is a full negative deflection only for an axis that actually exists.
-            HorizontalAxis: capabilities.AxisCount >= 1
-                ? NormalizeAxis(position.X, capabilities.XMinimum, capabilities.XMaximum) : (short)0,
-            VerticalAxis: capabilities.AxisCount >= 2
-                ? NormalizeAxis(position.Y, capabilities.YMinimum, capabilities.YMaximum) : (short)0,
+            Stick: new(
+                capabilities.AxisCount >= 1
+                    ? NormalizeAxis(position.X, capabilities.XMinimum, capabilities.XMaximum) : (short)0,
+                capabilities.AxisCount >= 2
+                    ? NormalizeAxis(position.Y, capabilities.YMinimum, capabilities.YMaximum) : (short)0),
             PointOfView: pointOfView,
             Buttons: position.Buttons);
     }

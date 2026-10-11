@@ -1,6 +1,7 @@
 using System.Collections;
 using SuperMetroid.Core.Hardware;
 using Pose = SuperMetroid.Core.Assets.EndingRewardSpriteFrame;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -10,19 +11,18 @@ namespace SuperMetroid.Core.Assets;
 /// Shoulder geometry and the split-pose grid are calculated separately.</summary>
 internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
 {
-    private readonly record struct Piece(int X, int Y);
-    private readonly Piece[]? arm;
-    private readonly Piece splitOrigin;
+    private readonly Point32<OamPixels>[]? arm;
+    private readonly Point32<OamPixels> splitOrigin;
     private readonly int[]? editedTiles;
     private readonly Pose pose;
-    private readonly int shoulderX, shoulderY;
+    private readonly Point32<OamPixels> shoulder;
     private readonly bool splitArm;
     private EndingRewardArmParts(SpriteComposition supplied, Pose pose)
     {
         this.pose = pose;
         splitArm = pose == Pose.SamusArmFromEndingFrame2;
         int count = splitArm ? 3 : 2;
-        var positions = new Piece[count];
+        var positions = new Point32<OamPixels>[count];
         var tiles = new int[count];
         bool stock = true;
         for (int index = 0; index < count; index++)
@@ -38,22 +38,20 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
             splitOrigin = positions[1];
             for (int index = 0; grid && index < count; index++)
             {
-                var offset = SplitOffset(index);
-                grid = positions[index] == new Piece(splitOrigin.X + offset.X, splitOrigin.Y + offset.Y);
+                grid = positions[index] == splitOrigin + SplitOffset(index);
             }
         }
         arm = grid ? null : positions;
         editedTiles = stock ? null : tiles;
-        CompiledSpritePart shoulder = supplied.Part(count);
-        shoulderX = shoulder.X.SignedOffset;
-        shoulderY = unchecked((sbyte)shoulder.Y);
+        CompiledSpritePart shoulderPart = supplied.Part(count);
+        shoulder = new(shoulderPart.X.SignedOffset, unchecked((sbyte)shoulderPart.Y));
     }
 
-    internal static (int X, int Y) SplitOffset(int index)
+    internal static Point32<OamPixels> SplitOffset(int index)
     {
         if ((uint)index >= 3) throw new ArgumentOutOfRangeException(nameof(index));
         // Small column bottom-to-top, then the adjacent large piece.
-        return (index == 2 ? 8 : 0, index == 0 ? 8 : 0);
+        return new(index == 2 ? 8 : 0, index == 0 ? 8 : 0);
     }
 
     internal static int StockTile(Pose pose, int index)
@@ -90,19 +88,13 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         get
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-            int tile, x, y;
+            int tile;
+            Point32<OamPixels> position;
             bool large;
             if (index < ArmCount)
             {
-                Piece piece;
-                if (arm is null)
-                {
-                    var offset = SplitOffset(index);
-                    piece = new(splitOrigin.X + offset.X, splitOrigin.Y + offset.Y);
-                }
-                else piece = arm[index];
+                position = arm is null ? splitOrigin + SplitOffset(index) : arm[index];
                 tile = editedTiles is null ? StockTile(pose, index) : editedTiles[index];
-                x = piece.X; y = piece.Y;
                 large = !splitArm || index == 2;
             }
             else
@@ -111,9 +103,9 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
                 large = piece == 0;
                 int column = piece == 1 ? 1 : 0;
                 tile = EndingRewardArmAtlas.ShoulderCap + (large ? 16 : column);
-                x = shoulderX + 8 * column; y = shoulderY - (large ? 0 : 8);
+                position = shoulder + new Point32<OamPixels>(8 * column, large ? 0 : -8);
             }
-            return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(position.X, large), unchecked((byte)position.Y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }

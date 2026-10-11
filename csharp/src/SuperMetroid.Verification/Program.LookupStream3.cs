@@ -338,9 +338,9 @@ internal static partial class Program
             .Select(index => rom.ReadByte(transfer.SourceAddress + index))).ToArray();
         GrappleTileAtlas Load()
         {
-            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 16, out int width, out int height);
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 16, out Size32<ImagePixels> size);
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             return GrappleTileAtlas.Load(new MemoryStream(png.ToArray()));
         }
         void Check(GrappleTileAtlas atlas)

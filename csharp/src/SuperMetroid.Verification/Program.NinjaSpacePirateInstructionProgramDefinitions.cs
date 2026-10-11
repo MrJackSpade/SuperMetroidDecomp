@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -37,9 +38,9 @@ internal static partial class Program
         // This instruction-only fixture never renders character graphics, but the
         // artwork catalog requires a matching tile sheet for its palette key.
         byte[] pixels = SnesGraphics.DecodePlanarTiles(new byte[RoomCharacterAtlasFormat.BytesPerTile], 4, 1,
-            out int width, out int height);
+            out Size32<ImagePixels> size);
         using var tilePng = new MemoryStream();
-        IndexedPng.Write(tilePng, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        IndexedPng.Write(tilePng, size, pixels, SnesGraphics.DiagnosticPalette(16));
         tilePng.Position = 0;
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>

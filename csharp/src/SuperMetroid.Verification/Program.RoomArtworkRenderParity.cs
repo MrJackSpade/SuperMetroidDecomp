@@ -68,7 +68,7 @@ internal static partial class Program
                 int rows = (tileCount + columns - 1) / columns;
                 IndexedPngImage characterImage;
                 using (var stockPng = File.OpenRead(stockCharacterPath))
-                    characterImage = IndexedPng.Read(stockPng, columns * 8, rows * 8);
+                    characterImage = IndexedPng.Read(stockPng, new(columns * 8, rows * 8));
                 for (int index = 0; index < characterImage.Pixels.Length; index++)
                     characterImage.Pixels[index] = (byte)((characterImage.Pixels[index] + 1) & 15);
                 Directory.CreateDirectory(installation.RoomCharacterOverrideDirectory);
@@ -79,7 +79,7 @@ internal static partial class Program
                 try
                 {
                     using (var editedPng = File.Create(characterOverridePath))
-                        IndexedPng.Write(editedPng, characterImage.Width, characterImage.Height,
+                        IndexedPng.Write(editedPng, new(characterImage.Size.Width, characterImage.Size.Height),
                             characterImage.Pixels, characterImage.Palette);
                     SuperMetroidRuntime changed = LoadRoom(installedArt: true);
                     Rgba32[] changedFrame = SuperMetroidRuntimeFrameRenderer.Render(changed);

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -53,12 +54,12 @@ public static class EndingMode7ArtworkFiles
 
             byte[] pixels = SnesGraphics.DecodeMode7Tiles(
                 characters.AsSpan(0, EndingMode7ArtworkFormat.CharacterByteCount).ToArray(),
-                16, out int width, out int height);
-            if (width != EndingMode7ArtworkFormat.CharacterWidth ||
-                height != EndingMode7ArtworkFormat.CharacterHeight)
+                16, out Size32<ImagePixels> size);
+            if (size.Width != EndingMode7ArtworkFormat.CharacterWidth ||
+                size.Height != EndingMode7ArtworkFormat.CharacterHeight)
                 throw new InvalidDataException($"Ending {id} Mode-7 characters have unexpected dimensions.");
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(256));
+            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(256));
             byte[] mapFile = mapJson.ToArray();
             byte[] pngFile = png.ToArray();
             EndingMode7SceneArtwork compiled = EndingMode7SceneArtwork.Load(
@@ -92,9 +93,9 @@ public static class EndingMode7ArtworkFiles
             Tiles = rewardMap,
         });
         byte[] rewardPixels = SnesGraphics.DecodeMode7Tiles(rewardCharacters, 16,
-            out int rewardWidth, out int rewardHeight);
+            out Size32<ImagePixels> rewardSize);
         using var rewardPng = new MemoryStream();
-        IndexedPng.Write(rewardPng, rewardWidth, rewardHeight, rewardPixels,
+        IndexedPng.Write(rewardPng, rewardSize, rewardPixels,
             SnesGraphics.DiagnosticPalette(256));
         byte[] rewardMapFile = rewardJson.ToArray();
         byte[] rewardCharacterFile = rewardPng.ToArray();

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Native $8E:8000/D600 menu character geometry; independent supplied artwork remains separate.</summary>
@@ -61,39 +63,39 @@ internal static class WorldMapTileDefinitions
     /// <summary>Selected pen-two digit footprint, surrounded by a one-pixel eight-neighbor pen-one outline.</summary>
     /// <remarks>The ten selected typeface footprints and five original edge choices are narrowly retained font design;
     /// the surrounding outline calculates rather than storing another bitmap.</remarks>
-    internal static bool TryOutlinedPixel(int tile, int x, int y, ulong footprint, out byte value)
+    internal static bool TryOutlinedPixel(int tile, Point32<ImagePixels> point, ulong footprint, out byte value)
     {
-        if (!IsOutlinedDigit(tile) || (uint)x >= Side || (uint)y >= Side)
+        if (!IsOutlinedDigit(tile) || (uint)point.X >= Side || (uint)point.Y >= Side)
             throw new ArgumentOutOfRangeException(nameof(tile));
         value = Outside;
-        if (tile == 0x3d && x == 0 && y == 2 || tile == 0x40 && x == Side - 1 && y <= 1 ||
-            tile == 0x45 && y == Side - 1 && x is 1 or 2) return false;
+        if (tile == 0x3d && point.X == 0 && point.Y == 2 || tile == 0x40 && point.X == Side - 1 && point.Y <= 1 ||
+            tile == 0x45 && point.Y == Side - 1 && point.X is 1 or 2) return false;
         bool Inside(int px, int py) => (uint)px < Side && (uint)py < Side &&
             (footprint & (1UL << (py * Side + px))) != 0;
-        if (Inside(x, y)) { value = Edge; return true; }
+        if (Inside(point.X, point.Y)) { value = Edge; return true; }
         for (int dy = -1; dy <= 1; dy++)
         for (int dx = -1; dx <= 1; dx++)
-            if (Inside(x + dx, y + dy)) { value = Fill; return true; }
+            if (Inside(point.X + dx, point.Y + dy)) { value = Fill; return true; }
         return true;
     }
 
     /// <summary>Calculates the native solid, guide, room-edge, arrow, panel and binary wedge cells. Font/icon contours return false.</summary>
-    internal static bool TryBackgroundPixel(int tile, int x, int y, out byte value)
+    internal static bool TryBackgroundPixel(int tile, Point32<ImagePixels> point, out byte value)
     {
-        if ((uint)tile >= WorldMapArtworkFormat.BackgroundTileCount || (uint)x >= Side || (uint)y >= Side)
+        if ((uint)tile >= WorldMapArtworkFormat.BackgroundTileCount || (uint)point.X >= Side || (uint)point.Y >= Side)
             throw new ArgumentOutOfRangeException(nameof(tile));
         value = Outside;
         // Slanted numeral/percent baseline padding, shared label underlines,
         // and the matching end caps of four two-cell panel glyphs.
-        if (tile <= 0x0a && y == Side - 1) return true;
-        if (tile is >= 0x0b and <= 0x0d && y >= Side - 2)
+        if (tile <= 0x0a && point.Y == Side - 1) return true;
+        if (tile is >= 0x0b and <= 0x0d && point.Y >= Side - 2)
         {
-            value = y == Side - 2 ? Edge : Fill;
+            value = point.Y == Side - 2 ? Edge : Fill;
             return true;
         }
-        if (tile is >= 0x34 and <= 0x3b && y == (tile % 2 == 0 ? 0 : Side - 1))
+        if (tile is >= 0x34 and <= 0x3b && point.Y == (tile % 2 == 0 ? 0 : Side - 1))
         {
-            value = x == 0 ? Outside : Fill;
+            value = point.X == 0 ? Outside : Fill;
             return true;
         }
         switch (tile)
@@ -102,58 +104,58 @@ internal static class WorldMapTileDefinitions
             case 0x0f or >= 0x59 and <= 0x5f: value = 0; return true;
             case 0x1b or 0x53: value = Fill; return true;
             case 0x10:
-                value = x == 0 || x == Side - 1 || y == Side - 2 && x >= 2 && x < Side - 2 ||
-                    y == Side - 1 && (x == 1 || x == Side - 2) ? Edge : Fill;
+                value = point.X == 0 || point.X == Side - 1 || point.Y == Side - 2 && point.X >= 2 && point.X < Side - 2 ||
+                    point.Y == Side - 1 && (point.X == 1 || point.X == Side - 2) ? Edge : Fill;
                 return true;
             case 0x11:
                 // Down arrow: central two-pixel stem and a narrowing lower head.
-                int inset = y - Side / 2;
-                bool arrow = y >= 1 && (y < 5 ? x is >= 3 and <= 4 : x >= inset && x < Side - inset);
+                int inset = point.Y - Side / 2;
+                bool arrow = point.Y >= 1 && (point.Y < 5 ? point.X is >= 3 and <= 4 : point.X >= inset && point.X < Side - inset);
                 value = arrow ? Edge : Outside; return true;
             case 0x12:
-                value = x == 0 && y % 2 == 0 || y == Side - 1 && x >= 2 && x % 2 == 0 ? Edge : Outside;
+                value = point.X == 0 && point.Y % 2 == 0 || point.Y == Side - 1 && point.X >= 2 && point.X % 2 == 0 ? Edge : Outside;
                 return true;
             case 0x1c:
-                value = x == 0 && y == Side - 1 ? Edge : Outside; return true;
+                value = point.X == 0 && point.Y == Side - 1 ? Edge : Outside; return true;
             case 0x1d:
-                value = y == Side - 1 && x % 2 == 0 ? Edge : Outside; return true;
+                value = point.Y == Side - 1 && point.X % 2 == 0 ? Edge : Outside; return true;
             case 0x1e:
-                value = x == 0 && y % 2 != 0 ? Edge : Outside; return true;
+                value = point.X == 0 && point.Y % 2 != 0 ? Edge : Outside; return true;
             case 0x1f:
-                value = x == 0 && y % 2 != 0 || y == Side - 1 && x % 2 == 0 ? Edge : Outside;
+                value = point.X == 0 && point.Y % 2 != 0 || point.Y == Side - 1 && point.X % 2 == 0 ? Edge : Outside;
                 return true;
             case >= 0x20 and <= 0x27:
-                value = RoomBorder(tile, x, y); return true;
+                value = RoomBorder(tile, point); return true;
             case >= 0x13 and <= 0x1a:
             case >= 0x28 and <= 0x2f:
-                value = DiagonalRoom(tile, x, y); return true;
+                value = DiagonalRoom(tile, point); return true;
             case 0x30 or 0x31:
-                if (x >= 1 && x < Side - 1 && y >= 1 && y < Side - 2)
+                if (point.X >= 1 && point.X < Side - 1 && point.Y >= 1 && point.Y < Side - 2)
                 {
-                    value = x == 1 || y == 1 ? Fill : Edge;
+                    value = point.X == 1 || point.Y == 1 ? Fill : Edge;
                     if (tile == 0x31) value = (byte)(Fill + Edge - value);
                 }
                 return true;
             case 0x4b:
-                value = y == 0 ? x == 0 ? Outside : Fill : x == 0 || x == 1 && y == 1 ? Fill : Edge;
+                value = point.Y == 0 ? point.X == 0 ? Outside : Fill : point.X == 0 || point.X == 1 && point.Y == 1 ? Fill : Edge;
                 return true;
             case 0x4c:
-                value = y == Side - 1 ? x == 0 ? Outside : Fill : x == 0 || x == 1 && y == Side - 2
-                    ? Fill : x == Side - 1 && y >= 2 ? Outside : Edge;
+                value = point.Y == Side - 1 ? point.X == 0 ? Outside : Fill : point.X == 0 || point.X == 1 && point.Y == Side - 2
+                    ? Fill : point.X == Side - 1 && point.Y >= 2 ? Outside : Edge;
                 return true;
-            case 0x4d: value = x + y != Side - 1 ? Fill : (byte)0; return true;
-            case 0x4e: value = y == 0 ? (byte)0 : Fill; return true;
+            case 0x4d: value = point.X + point.Y != Side - 1 ? Fill : (byte)0; return true;
+            case 0x4e: value = point.Y == 0 ? (byte)0 : Fill; return true;
             case >= 0x50 and <= 0x58:
                 bool filled = tile switch
                 {
-                    0x50 => x > y && x + y != Side - 1,
-                    0x51 => x + y >= Side,
-                    0x52 => x + y >= Side && x > y,
-                    0x54 => x > y && x + y < Side - 1,
-                    0x55 => y > 0 && x > y,
-                    0x56 => x + y >= Side - 1,
-                    0x57 => x + y >= Side - 1 && x > y,
-                    0x58 => x >= y && x + y != Side - 1,
+                    0x50 => point.X > point.Y && point.X + point.Y != Side - 1,
+                    0x51 => point.X + point.Y >= Side,
+                    0x52 => point.X + point.Y >= Side && point.X > point.Y,
+                    0x54 => point.X > point.Y && point.X + point.Y < Side - 1,
+                    0x55 => point.Y > 0 && point.X > point.Y,
+                    0x56 => point.X + point.Y >= Side - 1,
+                    0x57 => point.X + point.Y >= Side - 1 && point.X > point.Y,
+                    0x58 => point.X >= point.Y && point.X + point.Y != Side - 1,
                     _ => throw new InvalidOperationException("Unknown binary wedge."),
                 };
                 value = filled ? Fill : (byte)0; return true;
@@ -162,7 +164,7 @@ internal static class WorldMapTileDefinitions
     }
 
     /// <summary>$8E:D800..D87F: complete cell, horizontal/vertical corridor and named open-side variants.</summary>
-    private static byte RoomBorder(int tile, int x, int y)
+    private static byte RoomBorder(int tile, Point32<ImagePixels> point)
     {
         (bool top, bool bottom, bool left, bool right) = tile switch
         {
@@ -176,11 +178,11 @@ internal static class WorldMapTileDefinitions
             0x27 => (false, false, false, true),
             _ => throw new ArgumentOutOfRangeException(nameof(tile)),
         };
-        return top && y == 0 || bottom && y == Side - 1 || left && x == 0 || right && x == Side - 1 ? Edge : Fill;
+        return top && point.Y == 0 || bottom && point.Y == Side - 1 || left && point.X == 0 || right && point.X == Side - 1 ? Edge : Fill;
     }
 
     /// <summary>$8E:D730..D7AF/D880..D8FF: half-cell slopes and their chosen wall/guide joins.</summary>
-    private static byte DiagonalRoom(int tile, int x, int y)
+    private static byte DiagonalRoom(int tile, Point32<ImagePixels> point)
     {
         (bool mirror, int offset, bool below, bool left, bool right, bool dashLeft, bool dashBottom) = tile switch
         {
@@ -202,15 +204,15 @@ internal static class WorldMapTileDefinitions
             0x2f => (true, 0, false, true, false, true, true),
             _ => throw new ArgumentOutOfRangeException(nameof(tile)),
         };
-        int boundary = (mirror ? Side - 1 - x : x) / 2 + offset;
-        if (y == boundary) return Edge;
-        if ((y > boundary) == below)
-            return left && x == 0 || right && x == Side - 1 ? Edge : Fill;
+        int boundary = (mirror ? Side - 1 - point.X : point.X) / 2 + offset;
+        if (point.Y == boundary) return Edge;
+        if ((point.Y > boundary) == below)
+            return left && point.X == 0 || right && point.X == Side - 1 ? Edge : Fill;
         // Both selected descending upper triangles continue their boundary at
         // left y=3 through y=4 to the dotted guide at y=5. This exact continuous
         // wall/guide join is retained icon topology, shared by both variants.
-        if (tile is 0x2a or 0x2f && x == 0 && y == Side / 2) return Edge;
-        return dashLeft && x == 0 && y % 2 != 0 || dashBottom && y == Side - 1 && x % 2 == 0 ? Edge : Outside;
+        if (tile is 0x2a or 0x2f && point.X == 0 && point.Y == Side / 2) return Edge;
+        return dashLeft && point.X == 0 && point.Y % 2 != 0 || dashBottom && point.Y == Side - 1 && point.X % 2 == 0 ? Edge : Outside;
     }
     /// <summary>$8E:8000..D5FF: exact foreground cell geometry and identified glyph-piece reuse.</summary>
     /// <remarks>Returns an independently supplied source-pixel identity, or -1 for blank padding.

@@ -51,7 +51,7 @@ internal static partial class Program
                 AssertComponents(display, actualDisplay.Span, prefix + frame.Name + " exact display selection");
             }
             AssertTrue(merged.TryGetDisplay(native.Bank, native.Pointer, out var remapped), prefix + "explicit remap exists");
-            AssertEqual((short)(hasBindings ? 23 : 19), remapped.Span[0].OffsetX, prefix + "exact remap or inherited stock binding");
+            AssertEqual((short)(hasBindings ? 23 : 19), remapped.Span[0].Offset.X, prefix + "exact remap or inherited stock binding");
             AssertTrue(stockIdentity != merged.ContentIdentity, prefix + "edits change content identity");
             AssertEqual(merged.ContentIdentity, Load(document, stock).ContentIdentity, prefix + "reload preserves identity");
             AssertEqual(stockIdentity, stock.ContentIdentity, prefix + "override does not mutate stock");
@@ -94,8 +94,8 @@ internal static partial class Program
             AssertEqual(expected.Length, actual.Length, context + " component count");
             for (int index = 0; index < expected.Length; index++)
             {
-                AssertEqual((short)expected[index].OffsetX, actual[index].OffsetX, context + " component X");
-                AssertEqual((short)expected[index].OffsetY, actual[index].OffsetY, context + " component Y");
+                AssertEqual((short)expected[index].OffsetX, actual[index].Offset.X, context + " component X");
+                AssertEqual((short)expected[index].OffsetY, actual[index].Offset.Y, context + " component Y");
                 AssertTrue(actual[index].Parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(expected[index].Parts, context)),
                     context + " exact ordered OAM parts");
             }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Spatial;
 
 internal static class EndingShootingStarsTests
 {
@@ -16,8 +17,8 @@ internal static class EndingShootingStarsTests
         for (int index = 0; index < 40; index++)
         {
             var definition = EndingShootingStarDefinitions.Records[index];
-            Require(unchecked((ushort)definition.XAcceleration) == Word(0x8be9cf + index * 8), "Native X acceleration");
-            Require(unchecked((ushort)definition.YAcceleration) == Word(0x8be9d1 + index * 8), "Native Y acceleration");
+            Require(definition.Acceleration.X.RawValue == Word(0x8be9cf + index * 8), "Native X acceleration");
+            Require(definition.Acceleration.Y.RawValue == Word(0x8be9d1 + index * 8), "Native Y acceleration");
             Require(definition.Period == Word(0x8be9d3 + index * 8), "Native animation period");
             Require(definition.Delay == Word(0x8be9d5 + index * 8), "Native start delay");
         }
@@ -33,11 +34,11 @@ internal static class EndingShootingStarsTests
                 // Closed-form sums: native star 1 accelerates once until frame 38,
                 // then twice. This independently checks fixed-point integration.
                 int sum = frame * (frame + 1) / 2 + Math.Max(0, frame - 38) * Math.Max(0, frame - 37) / 2;
-                Require(((uint)star.X << 16 | star.XSubposition) == (128u << 16) + (uint)(12 * sum * 256), "Star X trajectory");
-                Require(((uint)star.Y << 16 | star.YSubposition) == (128u << 16) - (uint)(sum * 256), "Star Y trajectory");
+                Require(((uint)star.Position.X.Whole << 16 | star.Position.X.Fraction) == (128u << 16) + (uint)(12 * sum * 256), "Star X trajectory");
+                Require(((uint)star.Position.Y.Whole << 16 | star.Position.Y.Fraction) == (128u << 16) - (uint)(sum * 256), "Star Y trajectory");
             }
             if (frame == 9)
-                Require(stars.Stars[0].X == 128 && stars.Stars[0].XVelocity == 0 && stars.Stars[0].Timer == 31,
+                Require(stars.Stars[0].Position.X.Whole == 128 && stars.Stars[0].Velocity.X.RawValue == 0 && stars.Stars[0].Timer == 31,
                     "Delay expires on underflow, skips motion, and joins the drawing timer on that call");
             if (frame == 32)
             {
@@ -46,7 +47,7 @@ internal static class EndingShootingStarsTests
                 Require(oam.LowTable[..4].SequenceEqual(new byte[] {148,121,0xf0,0x09}), "First star's exact native position and attributes");
             }
         }
-        Require(stars.Stars[1].X == 128 && stars.Stars[1].Y == 128 && stars.Stars[1].XVelocity == 0 &&
+        Require(stars.Stars[1].Position.Whole == new Position16<ScreenPixels>(128, 128) && stars.Stars[1].Velocity.X.RawValue == 0 &&
             stars.Stars[1].IndexAndFrame == 1 && stars.Stars[1].Timer == 32, "Offscreen reset restarts animation without its initial delay");
         using (var saved = new MemoryStream())
         {

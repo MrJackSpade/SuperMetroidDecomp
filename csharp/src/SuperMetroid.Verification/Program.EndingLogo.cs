@@ -106,8 +106,8 @@ internal static partial class Program
             "logo instruction reader rejects an unaligned address");
         foreach (ushort start in new ushort[] { 0xee5d, 0xee65, 0xee6d, 0xee87 })
         {
-            var native = new IntroDiscoverySprite(0, 0, 0, start);
-            var generated = new IntroDiscoverySprite(0, 0, 0, start);
+            var native = new IntroDiscoverySprite(new(0, 0), 0, start);
+            var generated = new IntroDiscoverySprite(new(0, 0), 0, start);
             for (int frame = 0; frame < 200; frame++)
             {
                 ushort nativeCallback = 0, generatedCallback = 0;

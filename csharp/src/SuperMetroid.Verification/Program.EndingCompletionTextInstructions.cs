@@ -85,8 +85,8 @@ internal static partial class Program
         ];
         foreach (ushort start in starts)
         {
-            var native = new IntroDiscoverySprite(120, 72, 0x0800, start);
-            var installed = new IntroDiscoverySprite(120, 72, 0x0800, start);
+            var native = new IntroDiscoverySprite(new(120, 72), 0x0800, start);
+            var installed = new IntroDiscoverySprite(new(120, 72), 0x0800, start);
             for (int frame = 0; frame < 480; frame++)
             {
                 // The scene owns private callbacks; here both actor interpreters

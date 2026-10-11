@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -47,16 +48,16 @@ public static class TitleSequenceRomData
     {
         /// <summary>$8B:9CBC initializes the $8B:A03D Year text at (129,112) with OBJ palette 1 ($0200).</summary>
         public static readonly TitleTextSequenceDefinition Year =
-            new(TitleSequencePhase.YearText, 0x8ba03d, 129, 112, SnesObjPalettes.Index1.Raw);
+            new(TitleSequencePhase.YearText, 0x8ba03d, new(129, 112), SnesObjPalettes.Index1.Raw);
         /// <summary>$8B:A055 Nintendo scrolling-text list, initialized by $8B:9D4A at (129,112) screen pixels with OBJ palette one.</summary>
         public static readonly TitleTextSequenceDefinition Nintendo =
-            new(TitleSequencePhase.NintendoText, 0x8ba055, 129, 112, 0x0200);
+            new(TitleSequencePhase.NintendoText, 0x8ba055, new(129, 112), 0x0200);
         /// <summary>$8B:A079 Presents scrolling-text list, initialized by $8B:9DC3 at (129,112) screen pixels with OBJ palette one.</summary>
         public static readonly TitleTextSequenceDefinition Presents =
-            new(TitleSequencePhase.PresentsText, 0x8ba079, 129, 112, 0x0200);
+            new(TitleSequencePhase.PresentsText, 0x8ba079, new(129, 112), 0x0200);
         /// <summary>$8B:A09D Metroid 3 scrolling-text list, initialized by $8B:9E45 at (129,112) screen pixels with OBJ palette one.</summary>
         public static readonly TitleTextSequenceDefinition MetroidThree =
-            new(TitleSequencePhase.MetroidThreeText, 0x8ba09d, 129, 112, 0x0200);
+            new(TitleSequencePhase.MetroidThreeText, 0x8ba09d, new(129, 112), 0x0200);
         /// <summary>Byte length of a title text-list timed entry: one duration word followed by one bank-$8C spritemap-pointer word.</summary>
         public const int TimedEntryByteCount = 4;
         /// <summary>Byte length of a command word in a bank-$8B title text instruction list.</summary>
@@ -70,17 +71,16 @@ public static class TitleSequenceRomData
     {
         /// <summary>$8B:9CE1, Instruction_TriggerTitleSequenceScene0: lower pan setup with scale $0048 and background offsets (315,225) pixels.</summary>
         public static readonly TitleMode7SceneDefinition SceneZero =
-            new(TitleSequencePhase.SceneZeroPan, 0x0048, 0x013b, 0x00e1);
+            new(TitleSequencePhase.SceneZeroPan, 0x0048, new(0x013b, 0x00e1));
         /// <summary>$8B:9D5D upper scene-one pan setup: scale $0060 and signed background offsets (44,-155) pixels.</summary>
         public static readonly TitleMode7SceneDefinition SceneOne =
-            new(TitleSequencePhase.SceneOnePan, 0x0060, 0x002c, unchecked((short)0xff65));
+            new(TitleSequencePhase.SceneOnePan, 0x0060, new(0x002c, 0xff65));
         /// <summary>$8B:9DD6 downward scene-two pan setup: scale $0060 and signed background offsets (-177,-160) pixels.</summary>
         public static readonly TitleMode7SceneDefinition SceneTwo =
-            new(TitleSequencePhase.SceneTwoPan, 0x0060,
-                unchecked((short)0xff4f), unchecked((short)0xff60));
+            new(TitleSequencePhase.SceneTwoPan, 0x0060, new(0xff4f, 0xff60));
         /// <summary>$8B:9E58 final scene-three zoom setup: scale $0043 with both background offsets zero.</summary>
         public static readonly TitleMode7SceneDefinition SceneThree =
-            new(TitleSequencePhase.SceneThreeZoom, 0x0043, 0, 0);
+            new(TitleSequencePhase.SceneThreeZoom, 0x0043, new(0, 0));
         /// <summary>Pan-speed magnitude in signed 16.16 pixels per title update: 1.5 pixels; scenes zero and one negate it, while scene two pans downward.</summary>
         public const int PanVelocity16Point16 = 0x0001_8000;
         /// <summary>$8B:9D2A lower-pan signed X threshold -7 pixels; crossing below it starts the Nintendo title card.</summary>
@@ -108,14 +108,10 @@ public static class TitleSequenceRomData
         public const ushort NintendoCopyright = 0x8103;
         /// <summary>$8B:A0C7 spritemap operand in the title-logo instruction list; stores the bank-$8C logo pointer rather than the spritemap itself.</summary>
         public const int LogoPointerAddress = 0x8ba0c7;
-        /// <summary>Horizontal title-logo drawing origin in screen pixels.</summary>
-        public const ushort LogoX = 128;
-        /// <summary>Vertical title-logo drawing origin in screen pixels.</summary>
-        public const ushort LogoY = 48;
-        /// <summary>Horizontal Nintendo copyright drawing origin in screen pixels.</summary>
-        public const ushort CopyrightX = 128;
-        /// <summary>Vertical Nintendo copyright drawing origin in screen pixels, below the title logo.</summary>
-        public const ushort CopyrightY = 196;
+        /// <summary>Title-logo drawing origin in screen pixels.</summary>
+        public static Position16<ScreenPixels> LogoOrigin => new(128, 48);
+        /// <summary>Nintendo copyright drawing origin in screen pixels, below the title logo.</summary>
+        public static Position16<ScreenPixels> CopyrightOrigin => new(128, 196);
         /// <summary>OBJ palette-two attribute bits passed as the logo's legacy character-offset argument; this value is not a character count.</summary>
         public static readonly SnesObjAttributeWord TitleCharacterOffset = SnesObjPalettes.Index2;
         /// <summary>OBJ palette-four attribute bits applied when drawing the Nintendo copyright composition.</summary>
@@ -213,23 +209,19 @@ public static class TitleSequenceRomData
 /// <summary>One bank-$8B title-card object definition.</summary>
 /// <param name="Phase">Runtime title-card phase entered when this instruction list starts.</param>
 /// <param name="InstructionAddress">Full 24-bit address of the bank-$8B text-object instruction list.</param>
-/// <param name="OriginX">Horizontal drawing origin in screen pixels.</param>
-/// <param name="OriginY">Vertical drawing origin in screen pixels.</param>
+/// <param name="Origin">Drawing origin in screen pixels.</param>
 /// <param name="CharacterOffset">Native OBJ attribute/palette word applied to the composition; the legacy name does not denote a tile-count offset.</param>
 public readonly record struct TitleTextSequenceDefinition(
     TitleSequencePhase Phase,
     int InstructionAddress,
-    ushort OriginX,
-    ushort OriginY,
+    Position16<ScreenPixels> Origin,
     ushort CharacterOffset);
 
 /// <summary>Initial Mode-7 transform installed by one title-scene command.</summary>
 /// <param name="Phase">Pan or zoom phase entered by the scene-trigger command.</param>
 /// <param name="Scale">Initial native 8.8 transform scale, with $0100 representing unity.</param>
-/// <param name="HorizontalOffset">Signed background horizontal position in pixels, before fixed-point pan updates.</param>
-/// <param name="VerticalOffset">Signed background vertical position in pixels, before fixed-point pan updates.</param>
+/// <param name="Position">Background position in pixels as two's-complement words, before fixed-point pan updates.</param>
 public readonly record struct TitleMode7SceneDefinition(
     TitleSequencePhase Phase,
     int Scale,
-    short HorizontalOffset,
-    short VerticalOffset);
+    Position16<Mode7Pixels> Position);

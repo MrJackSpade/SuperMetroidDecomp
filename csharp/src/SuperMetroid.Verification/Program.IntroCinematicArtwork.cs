@@ -341,10 +341,10 @@ internal static partial class Program
                 int tileRows = nativeByteCount / 32 / IntroCinematicArtworkFormat.TileColumns;
                 IndexedPngImage image;
                 using (var input = File.OpenRead(stockPath))
-                    image = IndexedPng.Read(input, 256, tileRows * 8);
+                    image = IndexedPng.Read(input, new(256, tileRows * 8));
                 image.Pixels[0] = (byte)((image.Pixels[0] + 1) & 15);
                 using (var output = File.Create(overridePath))
-                    IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+                    IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
 
                 IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
                 var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
@@ -517,10 +517,10 @@ internal static partial class Program
             string backgroundOverridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, names[0]);
             using (var input = File.OpenRead(backgroundStockPath))
             {
-                IndexedPngImage image = IndexedPng.Read(input, 256, 256);
+                IndexedPngImage image = IndexedPng.Read(input, new(256, 256));
                 image.Pixels[0] = (byte)((image.Pixels[0] + 1) & 15);
                 using var output = File.Create(backgroundOverridePath);
-                IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+                IndexedPng.Write(output, new(image.Size.Width, image.Size.Height), image.Pixels, image.Palette);
             }
             IntroCinematicArtworkCatalog selected = installation.LoadIntroCinematicArt();
             File.WriteAllBytes(backgroundStockPath, [0]);
@@ -820,14 +820,14 @@ internal static partial class Program
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                     definition.Pointer),
-                IntroMotherBrainSpriteState.XPosition,
-                IntroMotherBrainSpriteState.YPosition,
+                IntroMotherBrainSpriteState.Position.X,
+                IntroMotherBrainSpriteState.Position.Y,
                 IntroMotherBrainSpriteState.PaletteBits);
             native.FinalizeFrame();
             var installed = new OamBuffer();
             installed.BeginFrame();
             stock.MotherBrainSprites.Draw(definition.Pointer, installed,
-                new(IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition),
+                IntroMotherBrainSpriteState.Position,
                 IntroMotherBrainSpriteState.PaletteBits);
             installed.FinalizeFrame();
             AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
@@ -850,13 +850,13 @@ internal static partial class Program
         var stockOam = new OamBuffer();
         stockOam.BeginFrame();
         stock.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, stockOam,
-            new(IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition),
+            IntroMotherBrainSpriteState.Position,
             IntroMotherBrainSpriteState.PaletteBits);
         stockOam.FinalizeFrame();
         var editedOam = new OamBuffer();
         editedOam.BeginFrame();
         edited.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, editedOam,
-            new(IntroMotherBrainSpriteState.XPosition, IntroMotherBrainSpriteState.YPosition),
+            IntroMotherBrainSpriteState.Position,
             IntroMotherBrainSpriteState.PaletteBits);
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) &&

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -67,9 +68,9 @@ public static class RoomPlmDynamicCollectibleArtFiles
                         $"Native item {graphic.Kind} tile {offset} differs from the compiled definition.");
             }
             byte[] pixels = SnesGraphics.DecodePlanarTiles(graphic.Tiles.Span,
-                4, Width / 8, out int width, out int height);
+                4, Width / 8, out Size32<ImagePixels> size);
             using var png = new MemoryStream();
-            IndexedPng.Write(png, width, height, pixels,
+            IndexedPng.Write(png, size, pixels,
                 SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
             if (!ReadTiles(encoded, FileName(graphic.Kind)).AsSpan()
@@ -189,9 +190,8 @@ public static class RoomPlmDynamicCollectibleArtFiles
         try
         {
             IndexedPngImage image = IndexedPng.Read(
-                new MemoryStream(png, writable: false), Width, Height);
-            return SnesPlanarTileEncoder.Encode(image.Pixels,
-                image.Width, image.Height, 4);
+                new MemoryStream(png, writable: false), new(Width, Height));
+            return SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4);
         }
         catch (InvalidDataException error)
         {

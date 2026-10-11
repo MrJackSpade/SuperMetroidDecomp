@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class CeresDestructionCinematicState
@@ -86,16 +88,15 @@ internal sealed partial class CeresDestructionCinematicState
 
     private void SpawnFinalCeresExplosion()
     {
-        ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - backgroundX));
-        ushort y = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY - backgroundY));
+        ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - background.X.Whole));
+        ushort y = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY - background.Y.Whole));
         // C345 calls the ordinary bank-$88 explosion with screen-space coordinates,
         // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
         stationExplosion.Spawn(x, y);
         audio?.QueueSound(SuperMetroid.Core.Audio.SoundEffectLibrary1Sounds.PowerBombExplosion,
             maximumQueued: 15);
         var cinematicExplosion = new IntroDiscoverySprite(
-            x,
-            y,
+            new(x, y),
             CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
             CeresExplosionDefinitions.StationBlastActor.InstructionList);
         cinematicExplosion.PreInstructionPointerForDiscovery(
@@ -109,13 +110,11 @@ internal sealed partial class CeresDestructionCinematicState
         CeresExplosionActorDefinition definition,
         CeresExplosionPlacement placement)
     {
-        ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX -
-            unchecked((short)backgroundX) + placement.X));
-        ushort y = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY -
-            unchecked((short)backgroundY) + placement.Y));
         var actor = new IntroDiscoverySprite(
-            x,
-            y,
+            new(unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX -
+                    unchecked((short)background.X.Whole) + placement.Offset.X)),
+                unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY -
+                    unchecked((short)background.Y.Whole) + placement.Offset.Y))),
             CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
             definition.InstructionList);
         actor.PreInstructionPointerForDiscovery(definition.PreInstruction);
@@ -149,24 +148,15 @@ internal sealed partial class CeresDestructionCinematicState
 
     private static void MoveExplosion(IntroDiscoverySprite actor)
     {
-        ushort x = actor.XPosition;
-        ushort xSub = actor.XSubPosition;
-        ushort y = actor.YPosition;
-        ushort ySub = actor.YSubPosition;
-        IntroCinematicMotion.AddSixteenSixteen(
-            ref x,
-            ref xSub,
-            0,
-            CeresDestructionRomData.Motion.GunshipXSubvelocity);
-        IntroCinematicMotion.AddSixteenSixteen(
-            ref y,
-            ref ySub,
-            CeresDestructionRomData.Motion.GunshipYVelocity,
-            CeresDestructionRomData.Motion.GunshipYSubvelocity);
-        actor.XPosition = x;
-        actor.XSubPosition = xSub;
-        actor.YPosition = y;
-        actor.YSubPosition = ySub;
+        actor.Position = new(
+            IntroCinematicMotion.AddSixteenSixteen(
+                actor.Position.X,
+                0,
+                CeresDestructionRomData.Motion.GunshipXSubvelocity),
+            IntroCinematicMotion.AddSixteenSixteen(
+                actor.Position.Y,
+                CeresDestructionRomData.Motion.GunshipYVelocity,
+                CeresDestructionRomData.Motion.GunshipYSubvelocity));
     }
 
     private void StepZebesActors(bool slidingAway)
@@ -196,7 +186,7 @@ internal sealed partial class CeresDestructionCinematicState
                 ushort acceleration = definition.SlideAcceleration;
                 actor.GeneralTimer = unchecked((ushort)(actor.GeneralTimer + acceleration));
                 SubtractEightEightY(actor, actor.GeneralTimer);
-                if (unchecked((short)actor.YPosition) < -128)
+                if (unchecked((short)actor.WholePosition.Y) < -128)
                 {
                     // `$8B:C885/$C8F2/$C95D/$C987` delete each object before its 8-bit
                     // OAM Y coordinate can wrap below the screen. Only star sheet five
@@ -232,8 +222,8 @@ internal sealed partial class CeresDestructionCinematicState
             case ZebesTitleInstruction.StartFlyingToZebes:
                 // The title actor, not a host timer, publishes the camera flight exactly
                 // where its cartridge instruction list reaches C9C7.
-                backgroundX = CeresDestructionRomData.Motion.Mode7ExitX;
-                backgroundY = unchecked((ushort)-112);
+                background = new(background.X.WithWhole(CeresDestructionRomData.Motion.Mode7ExitX),
+                    background.Y.WithWhole(unchecked((ushort)-112)));
                 angle = CeresDestructionRomData.Motion.ApproachAngle;
                 zoom = CeresDestructionRomData.Motion.MinimumScale;
                 Phase = CeresDestructionPhase.FlyingTowardZebesA;
@@ -246,21 +236,17 @@ internal sealed partial class CeresDestructionCinematicState
 
     private static void AddWrappedX(IntroDiscoverySprite actor, ushort fractionalDelta)
     {
-        ushort x = actor.XPosition;
-        ushort sub = actor.XSubPosition;
-        IntroCinematicMotion.AddSixteenSixteen(ref x, ref sub, 0, fractionalDelta);
-        actor.XPosition = (ushort)(x & CeresDestructionRomData.Rendering.WorldXMask);
-        actor.XSubPosition = sub;
+        SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
+        actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole & CeresDestructionRomData.Rendering.WorldXMask)));
     }
 
     private static void SubtractEightEightY(IntroDiscoverySprite actor, ushort velocity)
     {
         // The bank-$8B pre-instructions use XBA to split an unsigned 8.8 velocity into
         // whole/subposition words before a 16-bit subtraction with borrow.
-        uint fixedPosition = ((uint)actor.YPosition << 16) | actor.YSubPosition;
+        uint fixedPosition = ((uint)actor.Position.Y.Whole << 16) | actor.Position.Y.Fraction;
         uint fixedVelocity = (uint)velocity << 8;
         fixedPosition = unchecked(fixedPosition - fixedVelocity);
-        actor.YPosition = unchecked((ushort)(fixedPosition >> 16));
-        actor.YSubPosition = unchecked((ushort)fixedPosition);
+        actor.Position = actor.Position.WithY(new(unchecked((ushort)(fixedPosition >> 16)), unchecked((ushort)fixedPosition)));
     }
 }

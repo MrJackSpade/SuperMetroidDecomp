@@ -73,8 +73,8 @@ internal static partial class Program
         ];
         foreach (ushort start in starts)
         {
-            var native = new IntroDiscoverySprite(120, 120, 0x0a00, start);
-            var installed = new IntroDiscoverySprite(120, 120, 0x0a00, start);
+            var native = new IntroDiscoverySprite(new(120, 120), 0x0a00, start);
+            var installed = new IntroDiscoverySprite(new(120, 120), 0x0a00, start);
             for (int frame = 0; frame < 480; frame++)
             {
                 // Scene callbacks own actor allocation and velocity; the

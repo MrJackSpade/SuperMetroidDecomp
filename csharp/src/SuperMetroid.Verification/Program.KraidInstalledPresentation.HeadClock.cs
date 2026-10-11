@@ -31,7 +31,7 @@ internal static partial class Program
             "all four head replacements survive catalog reload");
         int frames = 0, ticks = 0, callbacks = 0, collisions = 0;
         var shot = new SamusProjectileSystem().Slots[0];
-        shot.Radius = shot.Radius.WithX(2).WithY(2);
+        shot.Radius = new(2, 2);
         var commands = new List<KraidHeadInstructionDefinition>();
         foreach (KraidHeadInstructionDefinition command in KraidHeadInstructionDefinitions.All)
         {

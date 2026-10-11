@@ -29,14 +29,12 @@ public static partial class SamusGrappleMovement
             grapple,
             grapple.Angle.TableIndex,
             grapple.RopeLength);
-        grapple.RopeStartX = ropeStart.X;
-        grapple.RopeStartY = ropeStart.Y;
+        grapple.RopeStart = ropeStart.Pixel;
 
         // $9B:BD95 copies native Start to native Flare during swinging. BeamStart retains
         // the older public name because the renderer and debugger already consume it, but
         // it semantically represents the Flare/draw origin throughout this translation.
-        grapple.BeamStartX = ropeStart.X;
-        grapple.BeamStartY = ropeStart.Y;
+        grapple.BeamStart = ropeStart.Pixel;
 
         // Native shares a selector between physical body placement and displayed art.
         // Keep the authored physical mapping compiled so a visual-frame override cannot
@@ -48,7 +46,7 @@ public static partial class SamusGrappleMovement
             SamusState.IsFacingLeft(bus, samus.Pose));
 
         samus.SetGrappleSwingAnimationFrame(artFrame);
-        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ropeStart.X + offset.X)), unchecked((ushort)(ropeStart.Y + offset.Y))));
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ropeStart.Pixel.X + offset.X)), unchecked((ushort)(ropeStart.Pixel.Y + offset.Y))));
     }
 
     private static void PropelSamusFromSwing(

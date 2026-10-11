@@ -67,14 +67,14 @@ internal static partial class Program
             int visualCorrection = held ? 6 : unchecked((sbyte)art);
             short originY = Word((running ? 0x9bc186 : 0x9bc136) + firingDirection * 2);
             short flareY = Word((running ? 0x9bc1ae : 0x9bc15e) + firingDirection * 2);
-            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalCorrection)), g.AnchorY, "Grapple physical endpoint ignores art correction");
-            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - visualCorrection)), g.BeamStartY, "Grapple flare retains visual correction");
-            ushort endpoint = g.AnchorY;
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalCorrection)), g.Anchor.Y, "Grapple physical endpoint ignores art correction");
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - visualCorrection)), g.BeamStart.Y, "Grapple flare retains visual correction");
+            ushort endpoint = g.Anchor.Y;
             samus.Position = samus.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole + 5)));
             refresh(bus, samus, g);
-            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalY)), g.RopeStartY, "Late Grapple physical start ignores art correction");
-            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)art))), g.BeamStartY, "Late Grapple flare uses current artwork");
-            AssertEqual(endpoint, g.AnchorY, "Late draw does not move collision endpoint");
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalY)), g.RopeStart.Y, "Late Grapple physical start ignores art correction");
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)art))), g.BeamStart.Y, "Late Grapple flare uses current artwork");
+            AssertEqual(endpoint, g.Anchor.Y, "Late draw does not move collision endpoint");
         }
         Console.WriteLine("Pose projectile origins: every pose and direction with each signed graphics-Y class, and authored Grapple launch/cancellation checks, preserve physics while replacing the graphics-Y byte.");
     }

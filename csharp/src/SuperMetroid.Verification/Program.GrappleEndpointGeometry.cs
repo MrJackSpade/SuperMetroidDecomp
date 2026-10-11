@@ -25,8 +25,8 @@ internal static partial class Program
             var grapple = new SamusGrappleState
             {
                 Phase = GrapplePhase.Firing, RopeLength = 8,
-                BeamStartX = camera, BeamStartY = camera,
-                AnchorX = endpointX, AnchorY = endpointY, PointAnimationTimer = 5,
+                BeamStart = new(camera, camera),
+                Anchor = new(endpointX, endpointY), PointAnimationTimer = 5,
             };
             grapple.SegmentAnimationTimers[15] = 1;
             var oam = new OamBuffer();
@@ -65,10 +65,10 @@ internal static partial class Program
             samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.RopeLength = 8;
-            samus.Grapple.AnchorX = samus.Position.X.Whole;
-            samus.Grapple.AnchorY = unchecked((ushort)(runtime.Camera.YPosition - 1));
-            samus.Grapple.BeamStartX = samus.Position.X.Whole;
-            samus.Grapple.BeamStartY = samus.Position.Y.Whole;
+            samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(samus.Position.X.Whole);
+            samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(unchecked((ushort)(runtime.Camera.YPosition - 1)));
+            samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole);
+            samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
             samus.Grapple.SegmentAnimationTimers[15] = 1;
             runtime.Oam.BeginFrame();
             typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", BindingFlags.Instance | BindingFlags.NonPublic)!

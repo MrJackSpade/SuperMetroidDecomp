@@ -455,9 +455,11 @@ internal static class DebuggerStateFieldMigrations
             "Legacy room FX predates lava's ambient sound timer; it restarts a full period.",
             fx => Set(fx, "lavaSoundTimer", RoomFxRomData.LavaAcid.AmbientSoundPeriod)),
         // The quarter words are rebuilt from zero by the next firing; a capture taken
-        // mid-extension resumes with the clean quarter of its velocity.
-        new(typeof(SamusGrappleState).FullName!, ["<XQuarterSubVelocity>k__BackingField", "<XQuarterVelocity>k__BackingField",
-            "<YQuarterSubVelocity>k__BackingField", "<YQuarterVelocity>k__BackingField"], null),
+        // mid-extension before they existed resumes with the clean quarter of its velocity.
+        // #628 merged the four words into one displacement, rebuilt from them when present.
+        new(typeof(SamusGrappleState).FullName!, ["<QuarterVelocity>k__BackingField"], null,
+            grapple => Set(grapple, "<QuarterVelocity>k__BackingField", DebuggerSpatialFieldMerges.OptionalFixedVector<RoomPixels>(
+                grapple, "XQuarterVelocity", "XQuarterSubVelocity", "YQuarterVelocity", "YQuarterSubVelocity"))),
         // False is the slow-scroll state of every non-swinging grapple; a swing sets it again.
         new(typeof(SamusGrappleState).FullName!, ["<SlowScrolling>k__BackingField"], null),
         // Older builds applied the release pose immediately; nothing is pending.
@@ -470,6 +472,22 @@ internal static class DebuggerStateFieldMigrations
                 fade.SetTiming(1, 1);
                 Set(fileSelect, "screenFade", fade);
             }),
+
+        // #628: grapple spatial values, rebuilt from the retired component words.
+        new(typeof(SamusGrappleState).FullName!, ["<Anchor>k__BackingField"], null,
+            grapple => Set(grapple, "<Anchor>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(grapple, "AnchorX", "AnchorY"))),
+        new(typeof(SamusGrappleState).FullName!, ["<RopeStart>k__BackingField"], null,
+            grapple => Set(grapple, "<RopeStart>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(grapple, "RopeStartX", "RopeStartY"))),
+        new(typeof(SamusGrappleState).FullName!, ["<BeamStart>k__BackingField"], null,
+            grapple => Set(grapple, "<BeamStart>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(grapple, "BeamStartX", "BeamStartY"))),
+        new(typeof(SamusGrappleState).FullName!, ["<ExtensionVelocity>k__BackingField"], null,
+            grapple => Set(grapple, "<ExtensionVelocity>k__BackingField", DebuggerSpatialFieldMerges.Vector88<RoomPixels>(grapple, "ExtensionXVelocity", "ExtensionYVelocity"))),
+        new(typeof(SamusGrappleState).FullName!, ["<OriginOffset>k__BackingField"], null,
+            grapple => Set(grapple, "<OriginOffset>k__BackingField", DebuggerSpatialFieldMerges.Offset<RoomPixels>(grapple, "OriginXOffset", "OriginYOffset"))),
+        new(typeof(SamusGrappleState).FullName!, ["<FlareOffset>k__BackingField"], null,
+            grapple => Set(grapple, "<FlareOffset>k__BackingField", DebuggerSpatialFieldMerges.Offset<RoomPixels>(grapple, "FlareXOffset", "FlareYOffset"))),
+        new(typeof(SamusGrappleState).FullName!, ["<EndpointOffset>k__BackingField"], null,
+            grapple => Set(grapple, "<EndpointOffset>k__BackingField", DebuggerSpatialFieldMerges.FixedVectorFromRaw<RoomPixels>(grapple, "EndpointXOffsetFixed", "EndpointYOffsetFixed"))),
 
         // #628: Samus projectile, bomb and trail spatial values, rebuilt from the retired words.
         new(typeof(SamusProjectileSlot).FullName!, ["<Position>k__BackingField"], null,

@@ -78,8 +78,7 @@ public static partial class SamusGrappleMovement
         grapple.FireDirection = direction;
         grapple.PoseChangeAutoFireTimer = SamusGrappleRomData.Firing.PoseChangeAutoFireFrames;
         var launch = GrappleFiringDefinitions.Launch(direction);
-        grapple.ExtensionXVelocity = launch.XVelocity;
-        grapple.ExtensionYVelocity = launch.YVelocity;
+        grapple.ExtensionVelocity = new(launch.XVelocity, launch.YVelocity);
         grapple.Angle = SnesAngle.FromRaw(launch.Angle);
         grapple.MirroredAngle = grapple.Angle;
 
@@ -93,20 +92,14 @@ public static partial class SamusGrappleMovement
         int physicalYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset :
             SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
 
-        grapple.OriginXOffset = origin.X;
-        grapple.OriginYOffset = unchecked((short)(origin.Y - physicalYOffset));
-        grapple.FlareXOffset = flare.X;
-        grapple.FlareYOffset = unchecked((short)(flare.Y - graphicsYOffset));
+        grapple.OriginOffset = new(origin.X, unchecked((short)(origin.Y - physicalYOffset)));
+        grapple.FlareOffset = new(flare.X, unchecked((short)(flare.Y - graphicsYOffset)));
 
-        // The endpoint-offset pair is a signed 16.16 displacement from Samus plus the
-        // origin table. $9B:C51E clears all four words, not merely their whole halves.
-        grapple.EndpointXOffsetFixed = 0;
-        grapple.EndpointYOffsetFixed = 0;
+        // The endpoint offset is a signed 16.16 displacement from Samus plus the origin
+        // table. $9B:C51E clears all four words, not merely their whole halves.
+        grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         // $9B:C651-C65A.
-        grapple.XQuarterSubVelocity = 0;
-        grapple.XQuarterVelocity = 0;
-        grapple.YQuarterSubVelocity = 0;
-        grapple.YQuarterVelocity = 0;
+        grapple.QuarterVelocity = FixedVector<RoomPixels>.Zero;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 12;
         grapple.AngularVelocity = 0;
@@ -130,12 +123,9 @@ public static partial class SamusGrappleMovement
         // Native WRAM has two easily conflated coordinate pairs. Start is the hand/rope
         // origin used by connection positioning; Flare is the small-OBJ draw origin used
         // by $94:AFBA. They coincide while swinging but can differ while firing or locked.
-        grapple.RopeStartX = unchecked((ushort)(samus.Position.X.Whole + grapple.OriginXOffset));
-        grapple.RopeStartY = unchecked((ushort)(samus.Position.Y.Whole + grapple.OriginYOffset));
-        grapple.BeamStartX = unchecked((ushort)(samus.Position.X.Whole + grapple.FlareXOffset));
-        grapple.BeamStartY = unchecked((ushort)(samus.Position.Y.Whole + grapple.FlareYOffset));
-        grapple.AnchorX = unchecked((ushort)(samus.Position.X.Whole + grapple.OriginXOffset));
-        grapple.AnchorY = unchecked((ushort)(samus.Position.Y.Whole + grapple.OriginYOffset));
+        grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;
+        grapple.BeamStart = samus.Position.Whole + grapple.FlareOffset;
+        grapple.Anchor = samus.Position.Whole + grapple.OriginOffset;
     }
 
     /// <summary>
@@ -144,17 +134,17 @@ public static partial class SamusGrappleMovement
     /// and high bytes are last frame's, and the second rotate carries the low bit into the
     /// top. A negative velocity then sets the top ten bits.
     /// </summary>
-    private static (ushort Sub, ushort Whole) QuarterExtensionVelocity(
-        short velocity, ushort previousSub, ushort previousWhole)
+    private static SnesSignedSixteenSixteen QuarterExtensionVelocity(
+        short velocity, SnesSignedSixteenSixteen previous)
     {
-        uint pair = ((uint)(previousWhole & 0xff00) << 16) |
+        uint pair = ((uint)((ushort)previous.WholePixels & 0xff00) << 16) |
             ((uint)(ushort)velocity << 8) |
-            (uint)(previousSub & 0x00ff);
+            (uint)(previous.Fraction & 0x00ff);
         uint rotated = (pair >> 2) | ((pair & 1) << 31);
         ushort whole = unchecked((ushort)(rotated >> 16));
         if (velocity < 0)
             whole |= 0xffc0;
-        return (unchecked((ushort)rotated), whole);
+        return SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), unchecked((ushort)rotated));
     }
 
     /// <summary>
@@ -242,8 +232,8 @@ public static partial class SamusGrappleMovement
             grapple.FlareAnimationTimer = delay;
         }
 
-        ushort screenX = unchecked((ushort)(grapple.BeamStartX - layer1.X));
-        ushort screenY = unchecked((ushort)(grapple.BeamStartY - layer1.Y));
+        ushort screenX = unchecked((ushort)(grapple.BeamStart.X - layer1.X));
+        ushort screenY = unchecked((ushort)(grapple.BeamStart.Y - layer1.Y));
         // The assembly tests only Y's high byte. X is allowed to wrap into high OAM, while
         // any Y outside unsigned screen rows `$00-$FF` suppresses the whole spritemap.
         if ((screenY & 0xff00) != 0)
@@ -269,7 +259,7 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         ushort controllerInput,
         RoomPlmSystem? plms = null,
-        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision = null,
+        Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null,
         bool deferConnectionPoseChange = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -285,8 +275,7 @@ public static partial class SamusGrappleMovement
         // The common pose-command tail clamps the camera's previous-position words after
         // command 9/10 snaps Samus to the accepted rope geometry. Retain the pre-snap body
         // position even though most firing frames return without consuming this sample.
-        ushort previousXPosition = samus.Position.X.Whole;
-        ushort previousYPosition = samus.Position.Y.Whole;
+        Position16<RoomPixels> previousPosition = samus.Position.Whole;
 
         // $9B:C703 treats release of Shoot as cancellation before length or collision work.
         if ((controllerInput & (ushort)SnesButton.X) == 0)
@@ -303,20 +292,18 @@ public static partial class SamusGrappleMovement
         // terrain, exactly like the native zero return from their reaction functions.
         if (enemyCollision is not null)
         {
-            GrappleEnemyCollision enemy = enemyCollision(grapple.AnchorX, grapple.AnchorY);
+            GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
             switch (enemy.Reaction)
             {
                 case GrappleEnemyReaction.Attach:
                 case GrappleEnemyReaction.AttachWithoutInvincibility:
                 case GrappleEnemyReaction.AttachAndParalyze:
-                    grapple.AnchorX = enemy.AnchorX;
-                    grapple.AnchorY = enemy.AnchorY;
+                    grapple.Anchor = enemy.Anchor;
                     return ConnectAcceptedFiringCore(
                         bus,
                         samus,
                         grapple,
-                        previousXPosition,
-                        previousYPosition,
+                        previousPosition,
                         validateAnchorBlock: false,
                         validateAnchorEnemy: true,
                         deferConnectionPoseChange: deferConnectionPoseChange);
@@ -343,26 +330,19 @@ public static partial class SamusGrappleMovement
         // $94:A85B quarters each velocity and performs four identical probes. The quarter
         // keeps stale bytes from the previous frame, so the four steps need not add up to
         // exactly one authored per-frame velocity.
-        (ushort xSub, ushort xWhole) = QuarterExtensionVelocity(
-            grapple.ExtensionXVelocity, grapple.XQuarterSubVelocity, grapple.XQuarterVelocity);
-        (grapple.XQuarterSubVelocity, grapple.XQuarterVelocity) = (xSub, xWhole);
-        (ushort ySub, ushort yWhole) = QuarterExtensionVelocity(
-            grapple.ExtensionYVelocity, grapple.YQuarterSubVelocity, grapple.YQuarterVelocity);
-        (grapple.YQuarterSubVelocity, grapple.YQuarterVelocity) = (ySub, yWhole);
-        int xSubstep = unchecked((int)(((uint)xWhole << 16) | xSub));
-        int ySubstep = unchecked((int)(((uint)yWhole << 16) | ySub));
+        grapple.QuarterVelocity = new(
+            QuarterExtensionVelocity(grapple.ExtensionVelocity.X, grapple.QuarterVelocity.X),
+            QuarterExtensionVelocity(grapple.ExtensionVelocity.Y, grapple.QuarterVelocity.Y));
         GrappleBlockReaction finalReaction = default;
         for (int substep = 0; substep < 4; substep++)
         {
-            grapple.EndpointXOffsetFixed = unchecked(grapple.EndpointXOffsetFixed + xSubstep);
-            grapple.EndpointYOffsetFixed = unchecked(grapple.EndpointYOffsetFixed + ySubstep);
+            grapple.EndpointOffset += grapple.QuarterVelocity;
             PublishFiringGeometry(samus, grapple);
 
             GrappleBlockReaction reaction = ReactAtEndpoint(
                 level,
                 samus,
-                grapple.AnchorX,
-                grapple.AnchorY,
+                grapple.Anchor,
                 plms);
             finalReaction = reaction;
             if (!reaction.Carry || !reaction.Overflow)
@@ -370,14 +350,14 @@ public static partial class SamusGrappleMovement
 
             // Carry+overflow is the native connected result. $94:A8DA centers the point in
             // the accepted 16x16 block before bank $9B chooses the swing/locked pose.
-            grapple.AnchorX = unchecked((ushort)((grapple.AnchorX & 0xfff0) | 8));
-            grapple.AnchorY = unchecked((ushort)((grapple.AnchorY & 0xfff0) | 8));
+            grapple.Anchor = new(
+                unchecked((ushort)((grapple.Anchor.X & 0xfff0) | 8)),
+                unchecked((ushort)((grapple.Anchor.Y & 0xfff0) | 8)));
             return ConnectAcceptedFiringCore(
                 bus,
                 samus,
                 grapple,
-                previousXPosition,
-                previousYPosition,
+                previousPosition,
                 validateAnchorBlock: true,
                 validateAnchorEnemy: false,
                 deferConnectionPoseChange: deferConnectionPoseChange);
@@ -429,7 +409,7 @@ public static partial class SamusGrappleMovement
         ushort controllerInput,
         ushort newlyPressedInput,
         ushort nmiFrameCounter = 0,
-        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision = null,
+        Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null,
         RoomPlmSystem? plms = null,
         bool deferDropPoseChange = false)
     {
@@ -465,8 +445,7 @@ public static partial class SamusGrappleMovement
         // `$9B:BAD5` clamps the camera's previous-position words against the position from
         // the start of this frame after a special-angle snap. Retain that exact sample now;
         // the host runtime consumes the optional corrected values returned below.
-        ushort previousXPosition = samus.Position.X.Whole;
-        ushort previousYPosition = samus.Position.Y.Whole;
+        Position16<RoomPixels> previousPosition = samus.Position.Whole;
 
         // $9B:C79D first checks Shoot. Releasing it does not immediately install jumping
         // art: it computes velocity and queues the release function for the following frame.
@@ -506,8 +485,7 @@ public static partial class SamusGrappleMovement
                 bus,
                 samus,
                 grapple,
-                previousXPosition,
-                previousYPosition,
+                previousPosition,
                 out GrappleMovementResult special))
         {
             return special with
@@ -562,7 +540,7 @@ public static partial class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
 
@@ -598,19 +576,18 @@ public static partial class SamusGrappleMovement
     /// </summary>
     private static bool TryRetainEnemyAnchor(
         SamusGrappleState grapple,
-        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision)
     {
         if (enemyCollision is null)
             return false;
 
-        GrappleEnemyCollision enemy = enemyCollision(grapple.AnchorX, grapple.AnchorY);
+        GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
         if (enemy.Reaction == GrappleEnemyReaction.None)
             return false;
 
         if (enemy.Attaches)
         {
-            grapple.AnchorX = enemy.AnchorX;
-            grapple.AnchorY = enemy.AnchorY;
+            grapple.Anchor = enemy.Anchor;
             grapple.ValidateAnchorBlock = false;
             grapple.ValidateAnchorEnemy = true;
         }
@@ -656,7 +633,7 @@ public static partial class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
         bool shootHeld = (controllerInput & (ushort)SnesButton.X) != 0;
@@ -797,8 +774,7 @@ public static partial class SamusGrappleMovement
         ISnesAddressSpace bus,
         SamusState samus,
         SamusGrappleState grapple,
-        ushort previousXPosition,
-        ushort previousYPosition,
+        Position16<RoomPixels> previousPosition,
         out GrappleMovementResult result)
     {
         // Preserve the native reverse scan and exact angle equality, not a tolerance
@@ -820,19 +796,17 @@ public static partial class SamusGrappleMovement
             };
 
             samus.Pose = special.Pose;
-            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(grapple.AnchorX + special.X)), unchecked((ushort)(grapple.AnchorY + special.Y))));
+            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(grapple.Anchor.X + special.X)), unchecked((ushort)(grapple.Anchor.Y + special.Y))));
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus, initialFrame: 0);
             grapple.Phase = phase;
             grapple.WallJumpTimer = 0;
             grapple.SlowScrolling = false; // $9B:BB0D
 
-            ushort cameraPreviousX = ClampPreviousPosition(samus.Position.X.Whole, previousXPosition);
-            ushort cameraPreviousY = ClampPreviousPosition(samus.Position.Y.Whole, previousYPosition);
+            Position16<RoomPixels> cameraPrevious = ClampPreviousPosition(samus.Position.Whole, previousPosition);
             result = new GrappleMovementResult(
                 phase,
-                CameraPreviousX: cameraPreviousX,
-                CameraPreviousY: cameraPreviousY);
+                CameraPrevious: cameraPrevious);
             return true;
         }
 
@@ -840,7 +814,11 @@ public static partial class SamusGrappleMovement
         return false;
     }
 
-    private static ushort ClampPreviousPosition(ushort current, ushort previous)
+    private static Position16<RoomPixels> ClampPreviousPosition(
+        Position16<RoomPixels> current, Position16<RoomPixels> previous) =>
+        new(ClampPreviousAxis(current.X, previous.X), ClampPreviousAxis(current.Y, previous.Y));
+
+    private static ushort ClampPreviousAxis(ushort current, ushort previous)
     {
         short displacement = unchecked((short)(current - previous));
         if (displacement >= 13)

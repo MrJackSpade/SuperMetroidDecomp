@@ -32,7 +32,7 @@ internal static partial class Program
         enemy.XRadius = enemy.YRadius = 8;
         enemy.Health = 500;
         fixture.System.StepFrame(0, 0, timeIsFrozen: true, samus, level: fixture.Level);
-        var contact = fixture.System.ResolveGrappleEndpoint(100, 100);
+        var contact = fixture.System.ResolveGrappleEndpoint(new(100, 100));
         AssertEqual(GrappleEnemyReaction.Kill, contact.Reaction, "header selects grapple kill independently of enemy health");
         samus.Grapple.Phase = GrapplePhase.Firing;
         fixture.System.StepFrame(0, 0, timeIsFrozen: false, samus, level: fixture.Level);
@@ -95,7 +95,7 @@ internal static partial class Program
             enemy.XRadius = enemy.YRadius = 8;
             enemy.Health = 500;
             fixture.System.StepFrame(0, 0, timeIsFrozen: true, samus, level: fixture.Level);
-            fixture.System.ResolveGrappleEndpoint(100, 100);
+            fixture.System.ResolveGrappleEndpoint(new(100, 100));
             samus.Grapple.Phase = GrapplePhase.Firing;
             fixture.System.StepFrame(0, 0, timeIsFrozen: false, samus, level: fixture.Level);
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");

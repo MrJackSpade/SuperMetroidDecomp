@@ -840,9 +840,9 @@ public sealed partial class RoomEnemySystem
         {
             // The native expression `$80-angle+$80`, truncated to a byte, is simply the
             // negated source angle. Magnitude $40 is added to the current 8.8 velocity.
-            SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
+            SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
                 unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
-                unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
+                unchecked((short)(samus.Position.Y.Whole - slot.YPosition))));
             SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
             state.XVelocity = unchecked((ushort)(
                 state.XVelocity + MultiplyCartridgeSinCos(0x0040, angle.TableIndex)));
@@ -886,9 +886,9 @@ public sealed partial class RoomEnemySystem
             return;
 
         BreakReleasedShitroidFollow(state);
-        SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
+        SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
             unchecked((short)(slotZeroProjectile.Position.X.Whole - slot.XPosition)),
-            unchecked((short)(slotZeroProjectile.Position.Y.Whole - slot.YPosition)));
+            unchecked((short)(slotZeroProjectile.Position.Y.Whole - slot.YPosition))));
         SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
         ushort magnitude = unchecked((ushort)(8 * collisionDamage));
         if (magnitude >= 0x00f0)

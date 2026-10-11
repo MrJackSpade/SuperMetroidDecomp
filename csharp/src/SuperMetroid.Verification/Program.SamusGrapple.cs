@@ -147,17 +147,17 @@ static void VerifySamusGrappleSwingAndRelease()
     firingSamus.Kinematics.YSpeed = 1; // selects moving-vertically connection table $C3EE
     SamusGrappleMovement.BeginFiring(bus, firingSamus);
     AssertEqual(GrapplePhase.Firing, firingSamus.Grapple.Phase, "grapple firing phase");
-    AssertEqual(0x0bf4, firingSamus.Grapple.ExtensionXVelocity,
+    AssertEqual(0x0bf4, firingSamus.Grapple.ExtensionVelocity.X,
         "grapple X extension velocity comes from ROM");
-    AssertEqual(34, firingSamus.Grapple.AnchorX, "grapple initial endpoint X");
-    AssertEqual(50, firingSamus.Grapple.AnchorY, "grapple initial endpoint Y");
+    AssertEqual(34, firingSamus.Grapple.Anchor.X, "grapple initial endpoint X");
+    AssertEqual(50, firingSamus.Grapple.Anchor.Y, "grapple initial endpoint Y");
 
     GrappleMovementResult extending = SamusGrappleMovement.StepFiring(
         bus, firingLevel, firingSamus, (ushort)SnesButton.X);
     AssertTrue(extending.Fired && extending.Phase == GrapplePhase.Firing && !extending.OwnsMovement,
         "unobstructed firing remains live without stealing ordinary body movement");
     AssertEqual(12, firingSamus.Grapple.RopeLength, "firing length grows by twelve");
-    AssertEqual(45, firingSamus.Grapple.AnchorX,
+    AssertEqual(45, firingSamus.Grapple.Anchor.X,
         "four fractional collision substeps publish the exact first-frame endpoint");
 
     GrappleMovementResult connected = SamusGrappleMovement.StepFiring(
@@ -166,27 +166,27 @@ static void VerifySamusGrappleSwingAndRelease()
         "persistent grapple block establishes connected movement");
     AssertEqual(GrapplePhase.ConnectedSwinging, firingSamus.Grapple.Phase,
         "block acquisition installs swinging function");
-    AssertEqual(55, firingSamus.Grapple.AnchorX,
+    AssertEqual(55, firingSamus.Grapple.Anchor.X,
         "accepted grapple block centers X then applies negative-rope side bias");
-    AssertEqual(56, firingSamus.Grapple.AnchorY, "accepted grapple block applies nonnegative Y side bias");
+    AssertEqual(56, firingSamus.Grapple.Anchor.Y, "accepted grapple block applies nonnegative Y side bias");
     AssertEqual(0xc000, firingSamus.Grapple.Angle.RawValue,
         "connection angle uses bank-$A0 integer octant calculation");
     AssertEqual(SamusPoseId.GrappleSwingRightPose, firingSamus.Pose,
         "right-half airborne shot selects clockwise grapple pose $B2");
-    AssertEqual(31, firingSamus.Grapple.RopeStartX,
+    AssertEqual(31, firingSamus.Grapple.RopeStart.X,
         "accepted connection publishes native rope Start X");
-    AssertEqual(56, firingSamus.Grapple.RopeStartY,
+    AssertEqual(56, firingSamus.Grapple.RopeStart.Y,
         "accepted connection publishes native rope Start Y");
-    AssertEqual(firingSamus.Grapple.RopeStartX, firingSamus.Grapple.BeamStartX,
+    AssertEqual(firingSamus.Grapple.RopeStart.X, firingSamus.Grapple.BeamStart.X,
         "swing command copies rope Start X into flare/draw X");
-    AssertEqual(firingSamus.Grapple.RopeStartY, firingSamus.Grapple.BeamStartY,
+    AssertEqual(firingSamus.Grapple.RopeStart.Y, firingSamus.Grapple.BeamStart.Y,
         "swing command copies rope Start Y into flare/draw Y");
     AssertEqual(0, firingSamus.Kinematics.YSpeed,
         "connection common tail clears whole Y speed");
     AssertEqual(0, firingSamus.Position.X.Whole, "native frame $18 offsets body thirty-one pixels left of rope start");
-    AssertEqual(12, connected.CameraPreviousX!.Value,
+    AssertEqual(12, connected.CameraPrevious!.Value.X,
         "connection common tail clamps previous X to twelve pixels from native body");
-    AssertEqual(59, connected.CameraPreviousY!.Value,
+    AssertEqual(59, connected.CameraPrevious!.Value.Y,
         "connection common tail clamps previous Y to twelve pixels from native body");
 
     // The Grapple-speedkeep movie connects on the same frame that hit-interruption
@@ -243,8 +243,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertTrue(deferredConnection.PendingConnection is
         { Pose: SamusPoseId.GrappleSwingLeftPose, Swinging: true },
         "connection exposes the lower-priority command-nine pose for late dispatch");
-    AssertTrue(!deferredConnection.CameraPreviousX.HasValue &&
-        !deferredConnection.CameraPreviousY.HasValue,
+    AssertTrue(!deferredConnection.CameraPrevious.HasValue,
         "suppressed connection does not run command-nine camera correction");
 
     // BTS one must use the same accepted-connection path, but setup CFB5 also creates an
@@ -302,7 +301,7 @@ static void VerifySamusGrappleSwingAndRelease()
         bus, horizontalExtensionLevel, horizontalExtensionSamus, (ushort)SnesButton.X);
     AssertTrue(horizontalExtensionConnection.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked,
         "horizontal extension BTS dispatches its referenced grapple block");
-    AssertEqual(55, horizontalExtensionSamus.Grapple.AnchorX,
+    AssertEqual(55, horizontalExtensionSamus.Grapple.Anchor.X,
         "horizontal extension keeps physical endpoint block X");
 
     // Type $D uses the same signed byte but multiplies it by RoomWidthBlocks. A +1 BTS at
@@ -325,7 +324,7 @@ static void VerifySamusGrappleSwingAndRelease()
         bus, verticalExtensionLevel, verticalExtensionSamus, (ushort)SnesButton.X);
     AssertTrue(verticalExtensionConnection.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked,
         "vertical extension BTS dispatches its referenced grapple block");
-    AssertEqual(56, verticalExtensionSamus.Grapple.AnchorY,
+    AssertEqual(56, verticalExtensionSamus.Grapple.Anchor.Y,
         "vertical extension keeps physical endpoint block Y");
 
     // Ordinary solid-family blocks return carry with overflow clear. That is not a rope
@@ -427,12 +426,12 @@ static void VerifySamusGrappleSwingAndRelease()
     }
     AssertEqual(120, rangeLimitedSamus.Grapple.RopeLength,
         "last collision-tested grapple firing length");
-    ushort endpointBeforeRangeCancellation = rangeLimitedSamus.Grapple.AnchorX;
+    ushort endpointBeforeRangeCancellation = rangeLimitedSamus.Grapple.Anchor.X;
     GrappleMovementResult rangeCancellation = SamusGrappleMovement.StepFiring(
         bus, emptyWideLevel, rangeLimitedSamus, (ushort)SnesButton.X);
     AssertTrue(rangeCancellation.Phase == GrapplePhase.CancelPending,
         "grapple queues cancellation when pre-collision length reaches 128");
-    AssertEqual(endpointBeforeRangeCancellation, rangeLimitedSamus.Grapple.AnchorX,
+    AssertEqual(endpointBeforeRangeCancellation, rangeLimitedSamus.Grapple.Anchor.X,
         "range cancellation performs no endpoint substep");
 
     // Release-of-Shoot is checked before extension. Cancellation remains queued for one
@@ -536,7 +535,7 @@ static void VerifySamusGrappleSwingAndRelease()
                 $"connection family {family} direction {direction} function phase");
             AssertEqual(expectedLocked, tableConnection.Phase == GrapplePhase.ConnectedLocked,
                 $"connection family {family} direction {direction} locked result");
-            AssertTrue(tableConnection.CameraPreviousX.HasValue && tableConnection.CameraPreviousY.HasValue,
+            AssertTrue(tableConnection.CameraPrevious.HasValue,
                 $"connection family {family} direction {direction} publishes camera clamp");
 
             AssertEqual(0, connectionSamus.HorizontalSpeed.BaseSpeed,
@@ -561,27 +560,27 @@ static void VerifySamusGrappleSwingAndRelease()
                 short rawFlareX = unchecked((short)(direction + 20));
                 short rawFlareY = unchecked((short)(direction + 30));
                 AssertEqual(
-                    unchecked((ushort)(connectionSamus.Grapple.RopeStartX - rawOriginX)),
+                    unchecked((ushort)(connectionSamus.Grapple.RopeStart.X - rawOriginX)),
                     connectionSamus.Position.X.Whole,
                     "locked command positions Samus X from physical rope Start");
                 AssertEqual(
-                    unchecked((ushort)(connectionSamus.Grapple.RopeStartY - rawOriginY)),
+                    unchecked((ushort)(connectionSamus.Grapple.RopeStart.Y - rawOriginY)),
                     connectionSamus.Position.Y.Whole,
                     "locked command positions Samus Y from physical rope Start");
                 AssertEqual(
                     unchecked((ushort)(connectionSamus.Position.X.Whole + rawFlareX)),
-                    connectionSamus.Grapple.BeamStartX,
+                    connectionSamus.Grapple.BeamStart.X,
                     "locked command independently publishes flare/draw X");
                 AssertEqual(
                     unchecked((ushort)(connectionSamus.Position.Y.Whole + rawFlareY)),
-                    connectionSamus.Grapple.BeamStartY,
+                    connectionSamus.Grapple.BeamStart.Y,
                     "locked command independently publishes flare/draw Y");
             }
             else
             {
-                AssertEqual(connectionSamus.Grapple.RopeStartX, connectionSamus.Grapple.BeamStartX,
+                AssertEqual(connectionSamus.Grapple.RopeStart.X, connectionSamus.Grapple.BeamStart.X,
                     "swing command aliases physical Start and flare X");
-                AssertEqual(connectionSamus.Grapple.RopeStartY, connectionSamus.Grapple.BeamStartY,
+                AssertEqual(connectionSamus.Grapple.RopeStart.Y, connectionSamus.Grapple.BeamStart.Y,
                     "swing command aliases physical Start and flare Y");
             }
         }
@@ -625,8 +624,8 @@ static void VerifySamusGrappleSwingAndRelease()
         SamusMovementType.Grappling,
         samus.ReadMovementType(bus),
         "grapple movement type from pose record");
-    AssertEqual(200, samus.Grapple.BeamStartX, "initial grapple beam-start X");
-    AssertEqual(154, samus.Grapple.BeamStartY, "initial grapple beam-start Y");
+    AssertEqual(200, samus.Grapple.BeamStart.X, "initial grapple beam-start X");
+    AssertEqual(154, samus.Grapple.BeamStart.Y, "initial grapple beam-start Y");
     AssertEqual(200, samus.Position.X.Whole, "initial grapple native body X");
     AssertEqual(200, samus.Position.Y.Whole, "initial grapple native body Y");
     AssertEqual(3, samus.AnimationFrame, "initial grapple angle art frame");
@@ -642,8 +641,8 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(GrapplePhase.ConnectedSwinging, swung.Phase, "held-shot grapple phase");
     AssertEqual(0x010c, samus.Grapple.AngularVelocity, "bottom kick plus input acceleration");
     AssertEqual(0x810c, samus.Grapple.Angle.RawValue, "unobstructed angle integration");
-    AssertEqual(198, samus.Grapple.BeamStartX, "advanced grapple beam-start X");
-    AssertEqual(153, samus.Grapple.BeamStartY, "advanced grapple beam-start Y");
+    AssertEqual(198, samus.Grapple.BeamStart.X, "advanced grapple beam-start X");
+    AssertEqual(153, samus.Grapple.BeamStart.Y, "advanced grapple beam-start Y");
     AssertEqual(198, samus.Position.X.Whole, "advanced grapple native body X");
     AssertEqual(199, samus.Position.Y.Whole, "advanced grapple native body Y");
     AssertEqual(4, samus.AnimationFrame, "advanced grapple angle art frame");
@@ -1052,7 +1051,7 @@ static void VerifySamusGrappleSwingAndRelease()
         wallGrabSamus,
         (ushort)SnesButton.X,
         newlyPressedInput: 0);
-    AssertTrue(wallGrab.TerrainCollided && wallGrab.CameraPreviousX.HasValue && wallGrab.Phase == GrapplePhase.WallGrab,
+    AssertTrue(wallGrab.TerrainCollided && wallGrab.CameraPrevious.HasValue && wallGrab.Phase == GrapplePhase.WallGrab,
         "close grapple collision enters ROM-selected wall-grab function");
     AssertEqual(6, wallGrab.CollisionDistanceFromFeet,
         "wall-grab special route requires nearest radial probe");
@@ -1064,9 +1063,9 @@ static void VerifySamusGrappleSwingAndRelease()
         "wall-grab snap applies anchor-relative +24 X");
     AssertEqual(152, wallGrabSamus.Position.Y.Whole,
         "wall-grab snap applies anchor-relative +16 Y");
-    AssertEqual(156, wallGrab.CameraPreviousX,
+    AssertEqual(156, wallGrab.CameraPrevious?.X,
         "special snap retains native pre-snap body X within twelve pixels");
-    AssertEqual(164, wallGrab.CameraPreviousY,
+    AssertEqual(164, wallGrab.CameraPrevious?.Y,
         "special snap clamps native pre-snap body Y to twelve pixels");
 
     GrappleMovementResult heldWall = SamusGrappleMovement.Step(
@@ -1191,7 +1190,7 @@ static void VerifySamusGrappleSwingAndRelease()
         faceRight: true);
     GrappleMovementResult locked = SamusGrappleMovement.Step(
         bus, lockedLevel, lockedSamus, (ushort)SnesButton.X, newlyPressedInput: 0);
-    AssertTrue(locked.CameraPreviousX.HasValue && locked.Phase == GrapplePhase.ConnectedLocked,
+    AssertTrue(locked.CameraPrevious.HasValue && locked.Phase == GrapplePhase.ConnectedLocked,
         "close collision enters ROM-selected locked function");
     AssertEqual(GrapplePhase.ConnectedLocked, lockedSamus.Grapple.Phase,
         "special record installs `$C77E` locked phase");

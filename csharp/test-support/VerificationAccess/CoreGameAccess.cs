@@ -1938,8 +1938,8 @@ internal static class SamusGrappleMovementAccess
 
             SamusGrappleState grapple = samus.Grapple;
             grapple.Phase = GrapplePhase.ConnectedSwinging;
-            grapple.AnchorX = anchorX;
-            grapple.AnchorY = anchorY;
+            grapple.Anchor = grapple.Anchor.WithX(anchorX);
+            grapple.Anchor = grapple.Anchor.WithY(anchorY);
             grapple.RopeLength = ropeLength;
             grapple.RopeLengthDelta = 0;
             grapple.Angle = angle;

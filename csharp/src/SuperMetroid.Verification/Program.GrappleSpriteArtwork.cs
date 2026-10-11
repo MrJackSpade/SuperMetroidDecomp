@@ -53,7 +53,7 @@ internal static partial class Program
                 var state = new SamusGrappleState
                 {
                     Phase = GrapplePhase.ConnectedSwinging, RopeLength = 120,
-                    BeamStartX = 100, BeamStartY = 100, AnchorX = 200, AnchorY = 60,
+                    BeamStart = new(100, 100), Anchor = new(200, 60),
                     Angle = SnesAngle.FromRaw((ushort)(angle << 8)), PointAnimationTimer = 5,
                 };
                 for (int i = 0; i < 16; i++) { state.SegmentAnimationTimers[i] = 1; state.SegmentAnimationFrames[i] = (byte)(i & 3); }

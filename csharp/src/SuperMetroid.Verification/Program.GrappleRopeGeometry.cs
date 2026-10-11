@@ -17,8 +17,8 @@ internal static partial class Program
             var grapple = new SamusGrappleState
             {
                 Phase = GrapplePhase.Firing, RopeLength = length,
-                BeamStartX = (ushort)origin, BeamStartY = 128,
-                AnchorX = (ushort)(origin + direction * 100), AnchorY = 28,
+                BeamStart = new((ushort)origin, 128),
+                Anchor = new((ushort)(origin + direction * 100), 28),
                 PointAnimationTimer = 5,
             };
             for (int slot = 0; slot < 16; slot++)

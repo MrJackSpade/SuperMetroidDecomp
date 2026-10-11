@@ -539,7 +539,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // rainbow beam's anti-clockwise-down convention with `-$angle + $80`.
         short deltaX = unchecked((short)(samus.Position.X.Whole - BrainXPosition - 0x0010));
         short deltaY = unchecked((short)(samus.Position.Y.Whole - BrainYPosition - 0x0004));
-        SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(deltaX, deltaY);
+        SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(deltaX, deltaY));
         _movement.RainbowBeamAngle = SnesAngle.HalfTurn.AddRaw(-sourceAngle.RawValue);
     }
 

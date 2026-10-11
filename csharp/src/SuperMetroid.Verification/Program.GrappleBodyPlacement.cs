@@ -27,7 +27,7 @@ internal static partial class Program
             g.SwingFrames = replaceArt ? edited : installed ? RepositoryInstallation.Projectiles.GrappleTiles.SwingFrames : stock;
             bus.ForbidArt = true;
             samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
-            g.AnchorX = (ushort)raw; g.AnchorY = unchecked((ushort)~raw);
+            g.Anchor = g.Anchor.WithX((ushort)raw); g.Anchor = g.Anchor.WithY(unchecked((ushort)~raw));
             g.RopeLength = (ushort)(raw & 127);
             g.ValidateAnchorBlock = (raw & 1) != 0;
             // The physical rope uses Angle; the body mapping uses the remembered mirror.
@@ -39,12 +39,12 @@ internal static partial class Program
             sbyte y = unchecked((sbyte)rom.ReadByte(table + nativeFrame * 2 + 1));
             bus.ReplaceArt = replaceArt;
             position(bus, samus, g);
-            AssertEqual(unchecked((ushort)(g.RopeStartX + x)), samus.Position.X.Whole, "Art override cannot move Grapple collision-body X");
-            AssertEqual(unchecked((ushort)(g.RopeStartY + y)), samus.Position.Y.Whole, "Art override cannot move Grapple collision-body Y");
+            AssertEqual(unchecked((ushort)(g.RopeStart.X + x)), samus.Position.X.Whole, "Art override cannot move Grapple collision-body X");
+            AssertEqual(unchecked((ushort)(g.RopeStart.Y + y)), samus.Position.Y.Whole, "Art override cannot move Grapple collision-body Y");
             AssertEqual(replaceArt ? (nativeFrame + 11) & 31 : nativeFrame, samus.AnimationFrame, "Visual frame override still applies");
             AssertEqual(15, samus.AnimationFrameTimer, "Native swing animation timer");
-            AssertEqual(g.RopeStartX, g.BeamStartX, "Swing Flare follows physical Start X");
-            AssertEqual(g.RopeStartY, g.BeamStartY, "Swing Flare follows physical Start Y");
+            AssertEqual(g.RopeStart.X, g.BeamStart.X, "Swing Flare follows physical Start X");
+            AssertEqual(g.RopeStart.Y, g.BeamStart.Y, "Swing Flare follows physical Start Y");
         }
         foreach (string invalid in new[] { "null", "{}", "{", "{\"version\":1,\"version\":1,\"frames\":[]}" })
             AssertThrows<InvalidDataException>(() => GrappleSwingFrameCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid))), "Invalid swing-frame JSON rejected");

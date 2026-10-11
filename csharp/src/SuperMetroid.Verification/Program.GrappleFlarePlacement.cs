@@ -91,14 +91,14 @@ internal static partial class Program
                 var a = native.Grapple; var b = changed.Grapple;
                 if (checkVisibleOffset)
                 {
-                    AssertEqual(unchecked((ushort)(a.BeamStartX + 7)), b.BeamStartX, "Edited Grapple flare X is visible");
-                    AssertEqual(unchecked((ushort)(a.BeamStartY - 9)), b.BeamStartY, "Edited Grapple flare Y is visible");
+                    AssertEqual(unchecked((ushort)(a.BeamStart.X + 7)), b.BeamStart.X, "Edited Grapple flare X is visible");
+                    AssertEqual(unchecked((ushort)(a.BeamStart.Y - 9)), b.BeamStart.Y, "Edited Grapple flare Y is visible");
                 }
-                var saved = (b.FlareXOffset, b.FlareYOffset, b.BeamStartX, b.BeamStartY);
-                b.FlareXOffset = a.FlareXOffset; b.FlareYOffset = a.FlareYOffset;
-                b.BeamStartX = a.BeamStartX; b.BeamStartY = a.BeamStartY;
+                var saved = (b.FlareOffset, b.BeamStart);
+                b.FlareOffset = a.FlareOffset;
+                b.BeamStart = a.BeamStart;
                 AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Edited flare changes only four presentation words, not full-body/anchor/trajectory state");
-                (b.FlareXOffset, b.FlareYOffset, b.BeamStartX, b.BeamStartY) = saved;
+                (b.FlareOffset, b.BeamStart) = saved;
             }
         }
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");

@@ -1651,17 +1651,15 @@ public sealed partial class SuperMetroidRuntime
                     grappleOwnsMovement = true;
                 }
 
-                if (LastGrappleMovement is
-                    { CameraPreviousX: ushort grapplePreviousX,
-                      CameraPreviousY: ushort grapplePreviousY })
+                if (LastGrappleMovement is { CameraPrevious: { } grapplePrevious })
                 {
                     // `$9B:BAD5-$BB5F` clamps native previous-position words to twelve
                     // pixels after a close-collision snap. Feed those corrected whole words
                     // to bank-$90 tracking while preserving the pre-frame subpositions.
                     previousCameraPoint = new SamusCameraPoint(
-                        grapplePreviousX,
+                        grapplePrevious.X,
                         previousCameraPoint.XSubposition,
-                        grapplePreviousY,
+                        grapplePrevious.Y,
                         previousCameraPoint.YSubposition);
                 }
 
@@ -2558,15 +2556,15 @@ Landed: true, HitCeiling: false);
                 if (!animationTransitionApplied &&
                     LastGrappleMovement is { PendingConnection: { } pendingConnection })
                 {
-                    (ushort grapplePreviousX, ushort grapplePreviousY) =
+                    Position16<RoomPixels> grapplePrevious =
                         SamusGrappleMovement.ApplyPendingConnectionPose(
                             _addressSpace,
                             Samus,
                             pendingConnection);
                     previousCameraPoint = new SamusCameraPoint(
-                        grapplePreviousX,
+                        grapplePrevious.X,
                         previousCameraPoint.XSubposition,
-                        grapplePreviousY,
+                        grapplePrevious.Y,
                         previousCameraPoint.YSubposition);
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;

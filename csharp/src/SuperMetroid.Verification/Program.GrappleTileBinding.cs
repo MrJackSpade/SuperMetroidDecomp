@@ -18,7 +18,7 @@ internal static partial class Program
         samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = 4;
-        samus.Grapple.BeamStartX = samus.Position.X.Whole; samus.Grapple.BeamStartY = samus.Position.Y.Whole;
+        samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.Angle = SnesAngle.FromRaw(0x6000);
         var game = CreateRetailGameFixture(bus);
         var runtimeField = typeof(SuperMetroidGame).GetField("runtime", flags)!;

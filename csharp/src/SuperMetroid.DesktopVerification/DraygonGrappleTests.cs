@@ -25,7 +25,7 @@ internal static partial class Program
         // Acquisition semantics are shared with the room-block path; no pose is fabricated.
         SamusGrappleMovement.StepFiring(loaded.AddressSpace, runtime.LevelData!, samus,
             (ushort)SnesButton.X, runtime.Plms,
-            (x, y) => new GrappleEnemyCollision(GrappleEnemyReaction.Attach, x, y, 0));
+            anchor => new GrappleEnemyCollision(GrappleEnemyReaction.Attach, anchor, 0));
         if (samus.Grapple.Phase != GrapplePhase.ConnectedLocked)
             throw new InvalidOperationException("Held grapple did not select the native locked connection.");
         CheckHeldBody();

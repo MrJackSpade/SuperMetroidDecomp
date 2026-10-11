@@ -264,8 +264,8 @@ internal static partial class Program
         samus.Health = 50;
         samus.Position = samus.Position.WithWhole(new(500, 500));
         samus.Grapple.Phase = GrapplePhase.Firing;
-        samus.Grapple.AnchorX = 100;
-        samus.Grapple.AnchorY = 100;
+        samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(100);
+        samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(100);
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
         RoomEnemyProjectileSlot pickup =
             fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;

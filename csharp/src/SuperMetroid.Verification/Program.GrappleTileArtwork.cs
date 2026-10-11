@@ -66,7 +66,7 @@ internal static partial class Program
             {
                 Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = timer,
                 Angle = SnesAngle.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),
-                BeamStartX = 100, BeamStartY = 100, AnchorX = 200, AnchorY = 60, FlareCounter = 1,
+                BeamStart = new(100, 100), Anchor = new(200, 60), FlareCounter = 1,
             };
         }
         Suite(nameof(VerifyGrappleTileBinding), () => VerifyGrappleTileBinding(bus, stock, edited));

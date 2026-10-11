@@ -43,7 +43,7 @@ internal static partial class Program
             }
             if (samus.Grapple.Phase == GrapplePhase.ConnectedSwinging &&
                 previousPhase != GrapplePhase.ConnectedSwinging)
-                connectedColumns.Add(samus.Grapple.AnchorX >> 4);
+                connectedColumns.Add(samus.Grapple.Anchor.X >> 4);
             previousPhase = samus.Grapple.Phase;
         }
         AssertEqual(6, scriptedShots, "unmodified basic demo authors six grapple shots");

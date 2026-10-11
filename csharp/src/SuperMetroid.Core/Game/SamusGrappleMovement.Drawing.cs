@@ -66,9 +66,7 @@ public static partial class SamusGrappleMovement
         // $94:AFCF recalculates the draw vector from endpoint-minus-flare geometry. This
         // is observably different from merely reversing EndAngle while firing, and it also
         // keeps the rope visually attached after pose-specific art-origin correction.
-        int beamDeltaX = unchecked((short)(grapple.AnchorX - grapple.BeamStartX));
-        int beamDeltaY = unchecked((short)(grapple.AnchorY - grapple.BeamStartY));
-        SnesAngle drawAngle = CalculateAngleFromXY(beamDeltaX, beamDeltaY);
+        SnesAngle drawAngle = CalculateAngleFromXY(grapple.Anchor - grapple.BeamStart);
         // Preserve the fractional word across segments. Rounding each individual
         // displacement shortens diagonals and rounds negative steps incorrectly.
         int stepX = ReadSignedSine(drawAngle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)
@@ -82,8 +80,8 @@ public static partial class SamusGrappleMovement
         int flipBits = (angleHigh & 0x80) >> 1;
         flipBits |= 2 * ((((angleHigh ^ flipBits) & 0x40) ^ 0x40));
         ushort flipAttributes = unchecked((ushort)(flipBits << 8));
-        int screenXFixed = unchecked((grapple.BeamStartX - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
-        int screenYFixed = unchecked((grapple.BeamStartY - layer1.Y - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
+        int screenXFixed = unchecked((grapple.BeamStart.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
+        int screenYFixed = unchecked((grapple.BeamStart.Y - layer1.Y - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
         // Native enters the loop before decrementing quotient-minus-one: even a
         // positive length whose masked quotient is zero visits one segment.
         int segmentCount = Math.Max(1, (grapple.RopeLength / SamusGrappleRomData.Rendering.SegmentSpacing)
@@ -136,7 +134,7 @@ public static partial class SamusGrappleMovement
         Position16<RoomPixels> layer1, SamusPoseId samusPose, ushort attributes)
     {
         bool swinging = (SamusPoseId)samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
-        ushort relativeY = unchecked((ushort)(grapple.AnchorY - layer1.Y));
+        ushort relativeY = unchecked((ushort)(grapple.Anchor.Y - layer1.Y));
         // The ordinary endpoint tests its center before subtracting the sprite
         // half-width. Swinging deliberately bypasses this vertical rejection.
         if (!swinging && (relativeY & SamusGrappleRomData.Rendering.SegmentOutsideViewportMask) != 0)
@@ -145,10 +143,10 @@ public static partial class SamusGrappleMovement
         // Only the swinging routine omits SEC between its two SBC operations.
         // Consequently unsigned camera subtraction can carry a borrow into the
         // half-character offset, even when wrapped coordinates look adjacent.
-        int borrowX = swinging && grapple.AnchorX < layer1.X ? 1 : 0;
-        int borrowY = swinging && grapple.AnchorY < layer1.Y ? 1 : 0;
+        int borrowX = swinging && grapple.Anchor.X < layer1.X ? 1 : 0;
+        int borrowY = swinging && grapple.Anchor.Y < layer1.Y ? 1 : 0;
         oam.AddRawSmallSprite(
-            unchecked((ushort)(grapple.AnchorX - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)),
+            unchecked((ushort)(grapple.Anchor.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)),
             unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY)),
             attributes);
     }
@@ -203,10 +201,8 @@ public static partial class SamusGrappleMovement
         grapple.PoseChangeAutoFireTimer = 0;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;
-        grapple.ExtensionXVelocity = 0;
-        grapple.ExtensionYVelocity = 0;
-        grapple.EndpointXOffsetFixed = 0;
-        grapple.EndpointYOffsetFixed = 0;
+        grapple.ExtensionVelocity = Vector88<RoomPixels>.Zero;
+        grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         grapple.CancelFromConnectedPose = false;
         ClearFlareAnimation(grapple);
         return new GrappleMovementResult(

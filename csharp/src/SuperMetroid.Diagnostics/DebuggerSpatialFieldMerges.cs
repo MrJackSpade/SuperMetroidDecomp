@@ -52,6 +52,42 @@ internal static class DebuggerSpatialFieldMerges
         Core.Spatial.FixedVector<TSpace>.FromWords(
             Word(instance, xWhole), Word(instance, xFraction), Word(instance, yWhole), Word(instance, yFraction));
 
+    /// <summary>
+    /// A signed 16.16 displacement from four retired words that were themselves a later
+    /// addition: a capture predating them names none and restores zero, while a capture naming
+    /// only some of them is rejected.
+    /// </summary>
+    internal static FixedVector<TSpace> OptionalFixedVector<TSpace>(
+        object instance, string xWhole, string xFraction, string yWhole, string yFraction)
+        where TSpace : ISpatialSpace
+    {
+        string[] names = [xWhole, xFraction, yWhole, yFraction];
+        int present = names.Count(name => DebuggerRetiredFieldDefinitions.TryGetLegacyValue(instance, Backing(name), out _));
+        return present switch
+        {
+            0 => Core.Spatial.FixedVector<TSpace>.Zero,
+            4 => FixedVector<TSpace>(instance, xWhole, xFraction, yWhole, yFraction),
+            _ => throw new InvalidDataException(
+                $"Legacy {instance.GetType().FullName} names only {present} of the four words of one displacement."),
+        };
+    }
+
+    /// <summary>A signed 16.16 displacement from two retired signed raw 16.16 values.</summary>
+    internal static FixedVector<TSpace> FixedVectorFromRaw<TSpace>(object instance, string x, string y)
+        where TSpace : ISpatialSpace =>
+        new(SnesSignedSixteenSixteen.FromRaw(Int(instance, x)), SnesSignedSixteenSixteen.FromRaw(Int(instance, y)));
+
+    /// <summary>A signed whole-pixel offset from the two retired signed axis words.</summary>
+    internal static Offset16<TSpace> Offset<TSpace>(object instance, string x, string y)
+        where TSpace : ISpatialSpace =>
+        new(SignedWord(instance, x), SignedWord(instance, y));
+
+    private static int Int(object instance, string property) =>
+        DebuggerRetiredFieldDefinitions.TryGetLegacyValue(instance, Backing(property), out object? value) && value is int raw
+            ? raw
+            : throw new InvalidDataException(
+                $"Legacy {instance.GetType().FullName} lacks 32-bit value {property}, which its merged spatial value requires.");
+
     /// <summary>An extent from the two retired axis words.</summary>
     internal static Extent16<TSpace> Extent<TSpace>(object instance, string x, string y)
         where TSpace : ISpatialSpace =>

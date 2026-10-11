@@ -56,7 +56,7 @@ internal static partial class Program
             samus.InvincibilityTimer = samus.KnockbackTimer = 0;
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(0, 0));
-            samus.Kinematics.Radius = samus.Kinematics.Radius.WithX(8).WithY(16);
+            samus.Kinematics.Radius = new(8, 16);
         }
         foreach (int index in new[] { 6, 7 })
         {

@@ -35,9 +35,9 @@ internal static partial class Program
                 samus.Grapple.FlareCounter = counter;
                 samus.Grapple.FlareAnimationFrame = 29;
                 samus.Grapple.FlareAnimationTimer = 0;
-                samus.Grapple.BeamStartX = coordinate; samus.Grapple.BeamStartY = coordinate;
-                samus.Grapple.RopeStartX = 70; samus.Grapple.RopeStartY = 80;
-                samus.Grapple.AnchorX = 200; samus.Grapple.AnchorY = 100;
+                samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(coordinate); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(coordinate);
+                samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithX(70); samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithY(80);
+                samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(200); samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(100);
                 samus.Grapple.RopeLength = 40; samus.Grapple.AngularVelocity = 123;
                 return samus;
             }
@@ -70,7 +70,7 @@ internal static partial class Program
             samus.Grapple.FlareCounter = 2;
             samus.Grapple.FlareAnimationFrame = frame;
             samus.Grapple.FlareAnimationTimer = timer;
-            samus.Grapple.BeamStartY = 256;
+            samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(256);
             Check(samus, Clone(samus), Clone(samus));
         }
         Suite(nameof(VerifyGrappleFlareActorBinding), () => VerifyGrappleFlareActorBinding(bus, stock, edited, body, roomAssets, maps,
@@ -140,7 +140,7 @@ internal static partial class Program
         samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Camera!.XPosition + 100), (ushort)(runtime.Camera.YPosition + 100)));
         samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
-        samus.Grapple.BeamStartX = samus.Position.X.Whole; samus.Grapple.BeamStartY = samus.Position.Y.Whole;
+        samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = 100;
         var game = new SuperMetroidGame(bus);
         var field = typeof(SuperMetroidGame).GetField("runtime", flags)!;

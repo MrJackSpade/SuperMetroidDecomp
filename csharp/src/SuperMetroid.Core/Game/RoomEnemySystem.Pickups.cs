@@ -442,8 +442,8 @@ public sealed partial class RoomEnemySystem
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
             projectile.Variable1 < EnemyPickupLifetime - EnemyPickupGrappleDelay &&
-            AbsoluteWrappedDelta(projectile.XPosition, samus.Grapple.AnchorX) < 16 &&
-            AbsoluteWrappedDelta(projectile.YPosition, samus.Grapple.AnchorY) < 16)
+            AbsoluteWrappedDelta(projectile.XPosition, samus.Grapple.Anchor.X) < 16 &&
+            AbsoluteWrappedDelta(projectile.YPosition, samus.Grapple.Anchor.Y) < 16)
         {
             CollectEnemyPickup(projectile, samus);
             return;

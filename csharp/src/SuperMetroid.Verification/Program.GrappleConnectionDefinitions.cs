@@ -69,7 +69,7 @@ internal static partial class Program
             samus.Kinematics.YSpeed = vertical == 1 ? (ushort)1 : (ushort)0;
             samus.Kinematics.YSubspeed = vertical == 2 ? (ushort)1 : (ushort)0;
             var g = samus.Grapple;
-            g.FireDirection = direction; g.AnchorX = 536; g.AnchorY = 520; g.RopeLength = 32;
+            g.FireDirection = direction; g.Anchor = g.Anchor.WithX(536); g.Anchor = g.Anchor.WithY(520); g.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             var result = connect(guard, samus, g, 512, 512, !enemy, enemy);
             AssertEqual(!enemy, g.ValidateAnchorBlock, "Connection preserves block owner");
@@ -118,7 +118,7 @@ internal static partial class Program
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new(100, 200));
-            g.Phase = GrapplePhase.ConnectedSwinging; g.AnchorX = g.AnchorY = 512;
+            g.Phase = GrapplePhase.ConnectedSwinging; g.Anchor = g.Anchor.WithY(512).WithX(512);
             g.Angle = SnesAngle.FromRaw((ushort)angle);
             int index = Array.FindLastIndex(native, row => row.Angle == angle);
             AssertEqual(index >= 0, special(guard, samus, g, 100, 200, out _), "Exact native special angle, no tolerance");
@@ -133,17 +133,17 @@ internal static partial class Program
         foreach (var row in native)
         for (int coordinate = 0; coordinate <= ushort.MaxValue; coordinate++)
         {
-            g.AnchorX = (ushort)coordinate; g.AnchorY = unchecked((ushort)~coordinate);
+            g.Anchor = g.Anchor.WithX((ushort)coordinate); g.Anchor = g.Anchor.WithY(unchecked((ushort)~coordinate));
             g.Angle = SnesAngle.FromRaw(row.Angle); g.WallJumpTimer = 77;
             AssertTrue(special(guard, samus, g, 0, ushort.MaxValue, out var result), "Native special record dispatch");
-            ushort x = unchecked((ushort)(g.AnchorX + row.X)), y = unchecked((ushort)(g.AnchorY + row.Y));
+            ushort x = unchecked((ushort)(g.Anchor.X + row.X)), y = unchecked((ushort)(g.Anchor.Y + row.Y));
             AssertEqual(x, samus.Position.X.Whole, "Special wrapped body X");
             AssertEqual(y, samus.Position.Y.Whole, "Special wrapped body Y");
             AssertEqual(row.Pose, samus.Pose, "Special body pose");
             AssertEqual(row.Function == GrappleConnectionFunction.LockedInPlace ? GrapplePhase.ConnectedLocked : GrapplePhase.WallGrab, g.Phase, "Special next phase");
             AssertEqual(0, g.WallJumpTimer, "Special resets wall-jump timer");
-            AssertEqual(Clamp(x, 0), result.CameraPreviousX!.Value, "Special previous-camera X clamp");
-            AssertEqual(Clamp(y, ushort.MaxValue), result.CameraPreviousY!.Value, "Special previous-camera Y clamp");
+            AssertEqual(Clamp(x, 0), result.CameraPrevious!.Value.X, "Special previous-camera X clamp");
+            AssertEqual(Clamp(y, ushort.MaxValue), result.CameraPrevious!.Value.Y, "Special previous-camera Y clamp");
         }
         static ushort Clamp(ushort current, ushort previous)
         {

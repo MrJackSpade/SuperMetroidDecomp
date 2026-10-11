@@ -37,10 +37,10 @@ internal static partial class Program
         // #1269: game state eight rebuilds the interactive list ($A0:8EB6) before Samus's
         // grapple runs. The list built during the respawn frame still excluded the $DAFF
         // placeholder; only the next frame's prologue admits the respawned actor.
-        AssertTrue(runtime.Enemies.ResolveGrappleEndpoint(enemy.XPosition, enemy.YPosition).Reaction == GrappleEnemyReaction.None,
+        AssertTrue(runtime.Enemies.ResolveGrappleEndpoint(new(enemy.XPosition, enemy.YPosition)).Reaction == GrappleEnemyReaction.None,
             "the respawn frame's interactive list does not yet contain the respawned actor");
         runtime.Enemies.PrepareEnemyProcessingList(runtime.Camera!.XPosition, runtime.Camera.YPosition);
-        AssertTrue(runtime.Enemies.ResolveGrappleEndpoint(enemy.XPosition, enemy.YPosition).Reaction != GrappleEnemyReaction.None,
+        AssertTrue(runtime.Enemies.ResolveGrappleEndpoint(new(enemy.XPosition, enemy.YPosition)).Reaction != GrappleEnemyReaction.None,
             "the next frame's prologue list lets the grapple reach the respawned actor");
         enemy.AiHandlerBits = 0;
         // $A0:A08C rejects Samus contact while this word is zero; the first instruction

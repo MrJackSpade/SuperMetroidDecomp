@@ -124,8 +124,8 @@ internal static partial class Program
             samus.Kinematics.Position.X.Fraction,
             samus.Position.Y.Whole,
             (int)samus.Pose,
-            samus.Grapple.AnchorX,
-            samus.Grapple.AnchorY,
+            samus.Grapple.Anchor.X,
+            samus.Grapple.Anchor.Y,
             samus.Grapple.Phase == GrapplePhase.Firing ? (ushort)0xc703 : (ushort)0xc4f0);
 
         if (openFrame >= 0)

@@ -42,7 +42,7 @@ internal static partial class Program
             if (paused) Step((ushort)SnesButton.Start);
             for (int warmup = 0; warmup < 120; warmup++) Step(0);
             using var window = new Form { ClientSize = new(900, 672), ShowInTaskbar = false };
-            var worker = new D3D11RenderWorker(window.Handle, 900, 672, 1, D3D11DeviceKind.Hardware);
+            var worker = new D3D11RenderWorker(window.Handle, new Extent16<DisplayPixels>(900, 672), 1, D3D11DeviceKind.Hardware);
             try
             {
                 string adapter = await worker.Ready;

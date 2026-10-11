@@ -44,7 +44,7 @@ internal static partial class Program
         var unmasked = RenderWithRegisters(r with { Bg2FirstScanline = 32, Bg2EndScanline = 224 });
         int exposed = pixels.Zip(hidden).Count(pair => pair.First != pair.Second);
         int wrapped = unmasked.Zip(hidden).Count(pair => pair.First != pair.Second);
-        Console.WriteLine($"Pre-battle Draygon: body={boss.Body.XPosition:X4}/{boss.Body.YPosition:X4}, Samus={samus.XPosition}/{samus.YPosition}, camera={r.Bg1X}/{r.Bg1Y}; exposed={exposed}, unmasked={wrapped} pixels.");
+        Console.WriteLine($"Pre-battle Draygon: body={boss.Body.XPosition:X4}/{boss.Body.YPosition:X4}, Samus={samus.XPosition}/{samus.YPosition}, camera={r.Bg1Scroll.X}/{r.Bg1Scroll.Y}; exposed={exposed}, unmasked={wrapped} pixels.");
         const string output = "csharp/test-temp/issue-1260-draygon-xray";
         Directory.CreateDirectory(output);
         File.WriteAllBytes(Path.Combine(output, "frame-000.smframe"), RenderFrameSnapshotCodec.Serialize(new(new(1, 1, runtime.NmiFrameCounter), scene)));

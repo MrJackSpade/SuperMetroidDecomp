@@ -37,15 +37,15 @@ public static partial class SnesGameplayFrameRenderer
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
         if (liquid && unchecked((short)fx.CurrentYPosition) < 0) return null;
         bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
-        var scrolls = new BackgroundLineScroll[Height];
+        var scrolls = new Position16<BgPlanePixels>[Height];
         int firstSurfaceLine = fx.WaterSurfaceScreenY - (SnesPpuLayout.BackgroundTileSizePixels - 1);
         for (int y = HudHeight; y < Height; y++)
         {
-            ushort vertical = liquid && y < firstSurfaceLine ? (ushort)0 : fx.VerticalScroll;
+            ushort vertical = liquid && y < firstSurfaceLine ? (ushort)0 : fx.Scroll.Y;
             int wave = RoomFxTypes.UsesWater(fx.Type) && y > fx.WaterSurfaceScreenY
                 ? RoomFxRomData.Water.WaveDisplacement((y - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
                     RoomFxRomData.Water.WaveDisplacementCount) % RoomFxRomData.Water.WaveDisplacementCount) : 0;
-            scrolls[y] = new(unchecked((ushort)(fx.HorizontalScroll + wave)), vertical);
+            scrolls[y] = new(unchecked((ushort)(fx.Scroll.X + wave)), vertical);
         }
         bool subtract = RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;

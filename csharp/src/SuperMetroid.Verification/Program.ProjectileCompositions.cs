@@ -25,8 +25,8 @@ internal static partial class Program
             var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
             {
-                native.AddProjectileSpritePart(new(0), 0, new(0), 0, 0);
-                authored.AddProjectileSpritePart(new(0), 0, new(0), 0, 0);
+                native.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
+                authored.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
             }
             DrawImportedProjectileSpritemap(rom, native, id, origin, origin);
             content.Draw(id, authored, origin, origin);
@@ -90,7 +90,7 @@ internal static partial class Program
             oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 source.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
                 new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
-                originX, originY);
+                new Position16<OamPixels>(originX, originY));
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }

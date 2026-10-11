@@ -34,12 +34,10 @@ internal sealed partial class CeresDestructionCinematicState
                 matrixB,
                 matrixC,
                 matrixD,
-                centerX: Phase <= CeresDestructionPhase.FadeOutCeres
-                    ? CeresDestructionRomData.Rendering.CeresCenterX : CeresDestructionRomData.Rendering.ZebesCenterX,
-                centerY: Phase <= CeresDestructionPhase.FadeOutCeres
-                    ? CeresDestructionRomData.Rendering.CeresCenterY : CeresDestructionRomData.Rendering.ZebesCenterY,
-                horizontalOffset: unchecked((short)backgroundX),
-                verticalOffset: unchecked((short)backgroundY));
+                center: new Offset16<Mode7Pixels>(Phase <= CeresDestructionPhase.FadeOutCeres
+                    ? CeresDestructionRomData.Rendering.CeresCenterX : CeresDestructionRomData.Rendering.ZebesCenterX, Phase <= CeresDestructionPhase.FadeOutCeres
+                    ? CeresDestructionRomData.Rendering.CeresCenterY : CeresDestructionRomData.Rendering.ZebesCenterY),
+                scroll: new Offset16<Mode7Pixels>(unchecked((short)backgroundX), unchecked((short)backgroundY)));
             CompositeObjPriority(pixels, oam, 1);
             CompositeObjPriority(pixels, oam, 2);
             CompositeObjPriority(pixels, oam, 3);
@@ -56,12 +54,9 @@ internal sealed partial class CeresDestructionCinematicState
                 cgram,
                 tilemapBaseWord: CeresDestructionRomData.Rendering.Mode1TilemapWord,
                 characterBaseWord: CeresDestructionRomData.Rendering.Mode1CharacterWord,
-                horizontalScroll: 0,
-                verticalScroll: 0,
-                width: 256,
-                height: 224,
-                tilemapWidthInTiles: 32,
-                tilemapHeightInTiles: 32);
+                scroll: new Position16<BgPlanePixels>(0, 0),
+                size: SnesPpuLayout.ScreenSize,
+                tilemapSize: new Extent16<TilemapCells>(32, 32));
         }
 
         if (CaptureStationExplosion() is { } blast)
@@ -85,10 +80,9 @@ internal sealed partial class CeresDestructionCinematicState
             var (a, b, c, d) = CalculateMatrix();
             var mode7 = new Mode7RenderRegisters(a, b, c, d,
                 Phase <= CeresDestructionPhase.FadeOutCeres
-                    ? CeresDestructionRomData.Rendering.CeresCenterX : CeresDestructionRomData.Rendering.ZebesCenterX,
-                Phase <= CeresDestructionPhase.FadeOutCeres
-                    ? CeresDestructionRomData.Rendering.CeresCenterY : CeresDestructionRomData.Rendering.ZebesCenterY,
-                unchecked((short)backgroundX), unchecked((short)backgroundY));
+                    ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
+                    : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY),
+                new Offset16<Mode7Pixels>(unchecked((short)backgroundX), unchecked((short)backgroundY)));
             layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
         }
@@ -97,7 +91,7 @@ internal sealed partial class CeresDestructionCinematicState
             // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
             // is a cartridge-correctness change, not an implicit part of this extraction.
             layers = [new Bg4BppRenderLayer(CeresDestructionRomData.Rendering.Mode1TilemapWord,
-                CeresDestructionRomData.Rendering.Mode1CharacterWord, 0, 0, 32, 32, null)];
+                CeresDestructionRomData.Rendering.Mode1CharacterWord, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null)];
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
@@ -107,7 +101,7 @@ internal sealed partial class CeresDestructionCinematicState
 
     private ScanlineColorAddRenderLayer? CaptureStationExplosion() =>
         SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, stationExplosion,
-            layer1X: 0, layer1Y: 0, firstVisibleScanline: 0);
+            layer1: Position16<RoomPixels>.Zero, firstVisibleScanline: 0);
 
     private OamBuffer PrepareRenderOam()
     {

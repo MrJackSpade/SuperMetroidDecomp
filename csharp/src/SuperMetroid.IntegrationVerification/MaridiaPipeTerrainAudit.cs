@@ -20,8 +20,8 @@ internal static class MaridiaPipeTerrainAudit
             // The audit compares wrapped register words, so take each offset as its native word.
             int offsetX = unchecked((ushort)(background ? scroll.Bg2Offset.X : scroll.Bg1Offset.X));
             int offsetY = unchecked((ushort)(background ? scroll.Bg2Offset.Y : scroll.Bg1Offset.Y));
-            int registerX = background ? r.Bg2X : r.Bg1X;
-            int registerY = background ? r.Bg2Y : r.Bg1Y;
+            int registerX = background ? r.Bg2Scroll.X : r.Bg1Scroll.X;
+            int registerY = background ? r.Bg2Scroll.Y : r.Bg1Scroll.Y;
             int tilemap = background ? r.Bg2TilemapWord : SnesPpuLayout.GameplayBg1TilemapWord;
             var source = background ? level.BackgroundEntries.Span : level.ForegroundEntries.Span;
             int differences = 0;

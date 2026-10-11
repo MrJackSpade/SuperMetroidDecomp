@@ -132,7 +132,7 @@ internal static partial class Program
                 int record = address + 2 + part * 5;
                 nativeOam.AddOnScreenSpritePart(new SnesSpritemapXWord(Word(record)),
                     bus.ReadByte(record + 2), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
-                    128, 112);
+                    new Position16<OamPixels>(128, 112));
             }
             presentation.DrawSprite(checked((ushort)frame.Pointer), installedOam, 128, 112, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
@@ -497,8 +497,8 @@ internal static partial class Program
         for (byte palette = 0; palette < 8; palette++)
         {
             oam.BeginFrame();
-            oam.AddRawSmallSprite(0, 0, (ushort)(palette << 9));
-            oam.AddRawSmallSprite(0, 0, (ushort)((7 - palette) << 9));
+            oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)(palette << 9));
+            oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)((7 - palette) << 9));
             oam.FinalizeFrame();
             SnesObjRenderer.RenderResolved(oam, vram, cgram, 0, pixels, priorities, palettes: palettes);
             AssertEqual(palette, palettes[0], "winning OBJ palette survives equal-color overlap");

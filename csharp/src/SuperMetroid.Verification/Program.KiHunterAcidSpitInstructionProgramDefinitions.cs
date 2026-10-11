@@ -164,7 +164,7 @@ internal static partial class Program
                     DrawImportedEnemyProjectileSpritemap(rom, expected,
                         ReadKiHunterAcidSpitInstructionWord(rom, operand), 128, 112, 0, true);
                     actual.AddEnemySpritemap(spriteArtwork.GetProgramFrame(operand).Span,
-                        128, 112, 0, 0, clipVerticalWrap: true, originYIsOnScreen: true);
+                        new Position16<OamPixels>(128, 112), 0, 0, clipVerticalWrap: true, originYIsOnScreen: true);
                     AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
                         $"KiHunter frame $86:{operand:X4} native sprite part count");
                     AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) &&

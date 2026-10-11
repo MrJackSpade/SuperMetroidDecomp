@@ -17,12 +17,12 @@ internal static partial class Program
 /// This fixture preserves native padding behavior without giving Core a cartridge reader.
 /// </summary>
 private static RoomScrollGrid LoadExplicitScrollFixture(
-    TestAddressSpace bus, int source, int widthInScreens, int heightInScreens)
+    TestAddressSpace bus, int source, Extent16<RoomScreens> size)
 {
     byte[] storage = new byte[RoomScrollGrid.StorageByteCount];
     for (int index = 0; index < storage.Length; index++)
         storage[index] = bus.ReadByte(source + index);
-    return RoomScrollGrid.LoadCompiled(bus, storage, widthInScreens, heightInScreens);
+    return RoomScrollGrid.LoadCompiled(bus, storage, size);
 }
 
 /// <summary>OBJ, HUD, cameras, scrolling, tilemaps, room data, and sky verification.</summary>
@@ -58,8 +58,8 @@ static void VerifyObjRendering()
     // art; both entries deliberately use the same one-pixel tile and screen coordinate.
     cgram.SetColor(128 + 3 * 16 + 1, Bgr555.FromWord(0x03e0));
     oam.BeginFrame();
-    oam.AddRawSmallSprite(x: 10, y: 20, attributes: 0x2400); // OAM 0: OBJ2, palette 2.
-    oam.AddRawSmallSprite(x: 10, y: 20, attributes: 0x3600); // OAM 1: OBJ3, palette 3.
+    oam.AddRawSmallSprite(position: new Position16<OamPixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
+    oam.AddRawSmallSprite(position: new Position16<OamPixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
     oam.FinalizeFrame();
     Rgba32[] obj2Plane = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0, priority: 2);
     Rgba32[] obj3Plane = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0, priority: 3);
@@ -420,7 +420,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     for (int index = 6; index < RoomScrollGrid.StorageByteCount; index++)
         bus.WriteByte(source + index, (byte)(0x80 + index));
 
-    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, widthInScreens: 3, heightInScreens: 2);
+    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
     AssertEqual(0x86, grid.Storage[6], "scroll loader retains first nonlogical byte");
     AssertEqual(0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
     AssertEqual(0x86, bus.ReadByte(RoomScrollGrid.WorkRamAddress + 6), "scroll loader mirrors WRAM padding");
@@ -437,8 +437,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     RoomScrollGrid shortTableGrid = LoadExplicitScrollFixture(
         shortTableBus,
         source,
-        widthInScreens: 4,
-        heightInScreens: 2);
+        new Extent16<RoomScreens>(4, 2));
     AssertEqual(0x1f, shortTableGrid.ReadStorage(4),
         "short explicit scroll table preserves following room-header byte");
     AssertEqual(0x04, shortTableGrid.ReadStorage(7),
@@ -448,7 +447,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
 
     // Right: the screen to the right is red, so the attempted +16 is rejected and the
     // routine's deliberate extra two-pixel retreat clamps the signed underflow to zero.
-    grid.SetLogicalState(1, 0, RoomScrollState.RedBoundary);
+    grid.SetLogicalState(new(1, 0), RoomScrollState.RedBoundary);
     camera.SetPosition(new Position16<RoomPixels>(0, 0));
     camera.MoveRight(16);
     AssertEqual(0, camera.PixelPosition.X, "$80:A641 red boundary moving right");
@@ -461,8 +460,8 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
 
     // Down: a blue current cell over a red lower cell rejects the move and retreats two
     // pixels above the pre-move position (224 -> proposed 240 -> result 222).
-    grid.SetLogicalState(0, 0, RoomScrollState.Blue);
-    grid.SetLogicalState(0, 1, RoomScrollState.RedBoundary);
+    grid.SetLogicalState(new(0, 0), RoomScrollState.Blue);
+    grid.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
     camera.SetPosition(new Position16<RoomPixels>(0, 224));
     camera.MoveDown(16);
     AssertEqual(222, camera.PixelPosition.Y, "$80:A893 red boundary moving down");
@@ -473,7 +472,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     AssertEqual(274, camera.PixelPosition.Y, "$80:A936 red boundary moving up");
 
     // Physical right edge is (width-1)*$100 regardless of the scroll padding bytes.
-    grid.SetLogicalState(1, 0, RoomScrollState.Blue);
+    grid.SetLogicalState(new(1, 0), RoomScrollState.Blue);
     camera.SetPosition(new Position16<RoomPixels>(0x01f8, 0));
     camera.MoveRight(16);
     AssertEqual(0x0200, camera.PixelPosition.X, "scroll camera physical room maximum");
@@ -481,8 +480,8 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     // Issue #12's slot-one capture is Construction Zone immediately after returning from
     // First Missile. Its room header starts `[blue, red]`; the incoming door points at
     // `$8F:BE25`, which must replace that pair with `[green, blue]` before camera tracking.
-    grid.SetLogicalState(0, 0, RoomScrollState.Blue);
-    grid.SetLogicalState(0, 1, RoomScrollState.RedBoundary);
+    grid.SetLogicalState(new(0, 0), RoomScrollState.Blue);
+    grid.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorSetupCode.DoorASM_Scroll_0_Green_1_Blue,
         DoorPointers.ConstructionZoneFromFirstMissile,
@@ -524,7 +523,7 @@ static void VerifyMovedSamusCameraTracking()
     const int source = 0x818000;
     for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
         bus.WriteByte(source + index, 1);
-    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, widthInScreens: 3, heightInScreens: 2);
+    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
     var camera = new ScrollBoundaryCamera(grid);
 
     // Facing right, normal forward movement, distance slot zero targets Samus X-$60.
@@ -570,8 +569,8 @@ static void VerifyMovedSamusCameraTracking()
     // Equal integer coordinates take $80:A528/$80:A731. With identical fixed-point
     // samples, the bank-$90 distance routine still produces speed 1; autoscroll then adds
     // its own two pixels. A red current cell with a blue neighbor therefore drifts +3.
-    grid.SetLogicalState(0, 0, RoomScrollState.RedBoundary);
-    grid.SetLogicalState(1, 0, RoomScrollState.Blue);
+    grid.SetLogicalState(new(0, 0), RoomScrollState.RedBoundary);
+    grid.SetLogicalState(new(1, 0), RoomScrollState.Blue);
     camera.SetPosition(new Position16<RoomPixels>(0x0020, 0));
     var stationary = FixedPosition<RoomPixels>.FromWords(200, 0, 200, 0);
     camera.TrackMovedSamusHorizontally(
@@ -582,7 +581,7 @@ static void VerifyMovedSamusCameraTracking()
     AssertEqual(0x0023, camera.PixelPosition.X, "$80:A528 red-cell rightward drift");
 
     // Red on both sides cancels that drift by rounding back to the current screen edge.
-    grid.SetLogicalState(1, 0, RoomScrollState.RedBoundary);
+    grid.SetLogicalState(new(1, 0), RoomScrollState.RedBoundary);
     camera.SetPosition(new Position16<RoomPixels>(0x0020, 0));
     camera.TrackMovedSamusHorizontally(
         stationary,
@@ -592,7 +591,7 @@ static void VerifyMovedSamusCameraTracking()
 
     // The time-frozen flag short-circuits autoscrolling after bank $90 has calculated the
     // speed. It is intentionally not a blanket prohibition on moved-axis handling.
-    grid.SetLogicalState(1, 0, RoomScrollState.Blue);
+    grid.SetLogicalState(new(1, 0), RoomScrollState.Blue);
     camera.SetPosition(new Position16<RoomPixels>(0x0020, 0));
     camera.TrackMovedSamusHorizontally(
         stationary,
@@ -610,8 +609,7 @@ static void VerifyMovedSamusCameraTracking()
     RoomScrollGrid bottomEdgeGrid = LoadExplicitScrollFixture(
         bottomEdgeBus,
         source,
-        widthInScreens: 9,
-        heightInScreens: 5);
+        new Extent16<RoomScreens>(9, 5));
     var bottomEdgeCamera = new ScrollBoundaryCamera(bottomEdgeGrid);
     bottomEdgeCamera.SetPosition(new Position16<RoomPixels>(0x0492, 0x0415));
     bottomEdgeCamera.TrackMovedSamusVertically(
@@ -628,10 +626,9 @@ static void VerifyMovedSamusCameraTracking()
     RoomScrollGrid verticalGrid = LoadExplicitScrollFixture(
         verticalBus,
         source,
-        widthInScreens: 3,
-        heightInScreens: 3);
-    verticalGrid.SetLogicalState(0, 0, RoomScrollState.RedBoundary);
-    verticalGrid.SetLogicalState(0, 1, RoomScrollState.Blue);
+        new Extent16<RoomScreens>(3, 3));
+    verticalGrid.SetLogicalState(new(0, 0), RoomScrollState.RedBoundary);
+    verticalGrid.SetLogicalState(new(0, 1), RoomScrollState.Blue);
     var verticalCamera = new ScrollBoundaryCamera(verticalGrid);
     verticalCamera.SetPosition(new Position16<RoomPixels>(0, 0x0020));
     verticalCamera.TrackMovedSamusVertically(
@@ -1100,14 +1097,14 @@ static void VerifyFourBitBackgroundRendering()
     ushort[] mapEntry = [0x0800]; // Character zero, palette two, no flips.
     vram.ExecuteWordTransfer(mapEntry, destinationWord: 0x5000, wordIncrement: 1);
     Rgba32[] pixels = SnesBgTilemapRenderer.Render4BppViewport(
-        vram, cgram, 0x5000, 0, 0, 0, width: 8, height: 8);
+        vram, cgram, 0x5000, 0, new Position16<BgPlanePixels>(0, 0), size: new Extent16<ScreenPixels>(8, 8));
     AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BG palette pixel");
     AssertEqual(0, pixels[1].A, "4-bpp BG color zero transparency");
 
     mapEntry[0] |= 0x4000;
     vram.ExecuteWordTransfer(mapEntry, destinationWord: 0x5000, wordIncrement: 1);
     pixels = SnesBgTilemapRenderer.Render4BppViewport(
-        vram, cgram, 0x5000, 0, 0, 0, width: 8, height: 1);
+        vram, cgram, 0x5000, 0, new Position16<BgPlanePixels>(0, 0), size: new Extent16<ScreenPixels>(8, 1));
     AssertEqual(0, pixels[0].A, "4-bpp H-flip old pixel becomes transparent");
     AssertEqual(new Rgba32(255, 0, 0), pixels[7], "4-bpp H-flip mirrored pixel");
 
@@ -1116,8 +1113,8 @@ static void VerifyFourBitBackgroundRendering()
     // into the first screen. Landing Site relies on this exact vertical arrangement.
     vram.ExecuteWordTransfer([0x0800], destinationWord: 0x4c00, wordIncrement: 1);
     pixels = SnesBgTilemapRenderer.Render4BppViewport(
-        vram, cgram, 0x4800, 0, 0, 0x0100, width: 8, height: 1,
-        tilemapWidthInTiles: 32, tilemapHeightInTiles: 64);
+        vram, cgram, 0x4800, 0, new Position16<BgPlanePixels>(0, 0x0100), size: new Extent16<ScreenPixels>(8, 1),
+        tilemapSize: new Extent16<TilemapCells>(32, 64));
     AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BGSC vertical second screen");
 
     // Exercise that same BGSC geometry through the production priority compositor. Its
@@ -1144,13 +1141,10 @@ static void VerifyFourBitBackgroundRendering()
         gameplayVram,
         gameplayCgram,
         gameplayOam,
-        bg1HorizontalScroll: 0,
-        bg1VerticalScroll: 0,
-        bg2HorizontalScroll: 0,
-        bg2VerticalScroll: 0x00e0,
+        bg1Scroll: new Position16<RoomPixels>(0, 0),
+        bg2Scroll: new Position16<Bg2Pixels>(0, 0x00e0),
         bg2HorizontalScrollByLine: horizontalByLine,
-        bg2TilemapWidthInTiles: 32,
-        bg2TilemapHeightInTiles: 64);
+        bg2TilemapSize: new Extent16<TilemapCells>(32, 64));
     AssertEqual(new Rgba32(0, 0, 255),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");
@@ -1169,12 +1163,9 @@ static void VerifyFourBitBackgroundRendering()
         gameplayVram,
         gameplayCgram,
         gameplayOam,
-        bg1HorizontalScroll: 0,
-        bg1VerticalScroll: 0,
-        bg2HorizontalScroll: 0,
-        bg2VerticalScroll: 0,
-        bg2TilemapWidthInTiles: 64,
-        bg2TilemapHeightInTiles: 64,
+        bg1Scroll: new Position16<RoomPixels>(0, 0),
+        bg2Scroll: new Position16<Bg2Pixels>(0, 0),
+        bg2TilemapSize: new Extent16<TilemapCells>(64, 64),
         bg2TilemapBaseWord: kraidBg2BaseWord);
     AssertEqual(new Rgba32(255, 0, 0),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
@@ -1223,10 +1214,8 @@ static void VerifyHostRoomViewportAlignment()
         cgram,
         oam,
         room,
-        roomWidth,
-        roomHeight,
-        cameraX,
-        cameraY);
+        new Extent16<RoomPixels>(roomWidth, roomHeight),
+        new Position16<RoomPixels>(cameraX, cameraY));
 
     AssertEqual(
         room[(cameraY + SnesGameplayFrameRenderer.HudHeight) * roomWidth + cameraX],
@@ -1279,7 +1268,7 @@ static void VerifyPowerBombColorMathWindow()
     // Spawn happens after the native HDMA pass. Even though status is already `$8000`,
     // the host must not invent an explosion table on this frame.
     Rgba32[] spawnFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(spawnFrame, bus, explosion, 0, 0);
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(spawnFrame, bus, explosion, new Position16<RoomPixels>(0, 0));
     AssertEqual(new Rgba32(0, 0, 0, 255),
         spawnFrame[centerY * SnesGameplayFrameRenderer.Width + centerX],
         "power-bomb spawn frame has no premature HDMA window");
@@ -1297,7 +1286,7 @@ static void VerifyPowerBombColorMathWindow()
     AssertEqual(0x3400, explosion.PreExplosionRadius,
         "power-bomb logic advances next-frame radius");
     Rgba32[] scaledFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(scaledFrame, bus, explosion, 0, 0);
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(scaledFrame, bus, explosion, new Position16<RoomPixels>(0, 0));
     Rgba32 fixedColor = new(8, 16, 24, 255);
     AssertEqual(fixedColor,
         scaledFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 3],
@@ -1318,7 +1307,7 @@ static void VerifyPowerBombColorMathWindow()
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
     Rgba32[] shapeFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(shapeFrame, bus, explosion, 0, 0);
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(shapeFrame, bus, explosion, new Position16<RoomPixels>(0, 0));
     AssertEqual(0x9f06, explosion.RenderedShapeDefinitionPointer,
         "first yellow frame selects the native profile");
     for (int y = 0; y < SnesGameplayFrameRenderer.Height; y++)

@@ -223,8 +223,7 @@ public sealed class CartridgeRoomAssets
         => RoomScrollDefinitions.CreateGrid(
             bus,
             header.State.ScrollPointer,
-            header.WidthInScreens,
-            header.HeightInScreens);
+            new Extent16<RoomScreens>(header.WidthInScreens, header.HeightInScreens));
 
     private static ushort[] ReadWords(ReadOnlySpan<byte> bytes)
     {

@@ -23,10 +23,8 @@ public sealed class RenderFrameSnapshot
     public Mode7ObjRenderSnapshot? Mode7 { get; }
     /// <summary>RGBA color filling every output pixel when this is a solid-color packet; otherwise <see langword="null"/>. Outer brightness passes are still applied.</summary>
     public Rgba32? SolidColor { get; }
-    /// <summary>Native visible output width of 256 pixels, before any host presentation scaling.</summary>
-    public int Width { get; } = SnesPpuLayout.ScreenWidthPixels;
-    /// <summary>Native visible output height of 224 physical scanlines, including the HUD where present.</summary>
-    public int Height { get; } = SnesPpuLayout.ScreenHeightPixels;
+    /// <summary>Native visible output size of 256 pixels by 224 physical scanlines, including the HUD where present, before any host presentation scaling.</summary>
+    public Extent16<ScreenPixels> Size { get; } = SnesPpuLayout.ScreenSize;
     private readonly byte[] brightnessPasses;
 
     /// <summary>

@@ -62,7 +62,7 @@ internal sealed class PauseSelectorVisual
         for (int index = 0; index < Count(group); index++)
         {
             var part = Part(group, index);
-            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), x, y);
+            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), new Position16<OamPixels>(x, y));
         }
     }
 }

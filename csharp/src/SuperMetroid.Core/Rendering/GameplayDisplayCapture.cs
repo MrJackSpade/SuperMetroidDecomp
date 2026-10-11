@@ -48,14 +48,14 @@ public static partial class GameplayDisplayCapture
                 AddLayer(SnesGameplayFrameRenderer.CaptureCeresHaze(runtime.CeresHaze.IsRed,
                     runtime.CeresHaze.Intensity, runtime.MapPresentation?.RoomFxPaletteBlends));
             if (runtime.DisplayedMorphBallEyeBeam is { } eye)
-                AddLayer(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(runtime.AddressSpace, eye, ppu.Layer1Position.X, ppu.Layer1Position.Y));
+                AddLayer(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(runtime.AddressSpace, eye, ppu.Layer1Position));
             if (runtime.Enemies.MotherBrain is { } motherBrain)
                 AddLayer(SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(motherBrain.RainbowBeamHdma));
         }
         // Preserve the reference ordering, including the effects which remain enabled
         // during the door IRQ. Message glyphs precede the suit's final color window.
         AddLayer(SnesGameplayFrameRenderer.CapturePowerBombColorMath(runtime.AddressSpace,
-            runtime.BombProjectiles.PowerBombExplosion, ppu.Layer1Position.X, ppu.Layer1Position.Y));
+            runtime.BombProjectiles.PowerBombExplosion, ppu.Layer1Position));
         AddLayer(GameplayMessageBoxRenderer.Capture(runtime.MessageBox));
         AddLayer(SamusSuitPickupRenderer.Capture(runtime.SuitPickup));
         return new(basis.Memory, layers.ToArray(), basis.ObjectSelection, basis.Brightness);
@@ -78,28 +78,26 @@ public static partial class GameplayDisplayCapture
 
         GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
         RoomShakeFrameResult shake = ppu.RoomShake;
-        ushort bg1X = Add(ppu.Bg1Scroll.X, shake.Bg1X);
-        ushort bg1Y = Add(ppu.Bg1Scroll.Y, shake.Bg1Y);
-        ushort bg2X = Add(ppu.Bg2Scroll.X, shake.Bg2X);
-        ushort bg2Y = Add(ppu.Bg2Scroll.Y, shake.Bg2Y);
+        Position16<RoomPixels> bg1Scroll = ppu.Bg1Scroll + shake.Bg1;
+        Position16<Bg2Pixels> bg2Scroll = ppu.Bg2Scroll + shake.Bg2;
         if (runtime.TourianStatues.Enabled)
             // $88:DBCB supplies BG2VOFS through HDMA after the ordinary scroll
             // register upload. It replaces, rather than adds to, the quake-adjusted
             // register. Type 13 also gives the statue OBJ zero quake displacement.
-            bg2Y = unchecked((ushort)(ppu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset));
+            bg2Scroll = bg2Scroll.WithY(unchecked((ushort)(ppu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)));
         RoomLayer3FxRenderSnapshot? fx = runtime.DisplayedRoomLayer3Fx;
         ScrollingSkyState? sky = runtime.ScrollingSky;
         ushort[]? skyX = sky is { HorizontalHdmaConfigured: true } ? sky.BuildGameplayHorizontalScrolls(runtime.Camera?.PixelPosition.Y
             ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")) : null;
         if (skyX is not null)
-            for (int line = 0; line < skyX.Length; line++) skyX[line] = Add(skyX[line], shake.Bg2X);
+            for (int line = 0; line < skyX.Length; line++) skyX[line] = Add(skyX[line], shake.Bg2.X);
 
         ushort[]? waterX = fx is { } water
-            ? SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(water, bg2X, bg2Y) : null;
+            ? SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(water, bg2Scroll) : null;
         ushort[]? lavaX = fx is { } lava
-            ? SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(lava, bg2X, bg2Y) : null;
+            ? SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(lava, bg2Scroll) : null;
         ushort[]? lavaY = fx is { } vertical
-            ? SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(vertical, bg2Y) : null;
+            ? SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(vertical, bg2Scroll.Y) : null;
         KraidEnemyState? kraid = runtime.Enemies.Kraid;
         bool kraidBg = kraid is { OwnsBg2Tilemap: true };
         bool crocomireBg = runtime.Enemies.Crocomire is not null;
@@ -111,14 +109,15 @@ public static partial class GameplayDisplayCapture
             runtime.DisplayedGameplayWindowRegisters;
         SnesMainScreenLayers displayedMainScreen =
             (SnesMainScreenLayers)(displayedWindows.MainScreen & 0x1f);
-        var registers = new OrdinaryGameplayRegisters(bg1X, bg1Y,
-            kraidBg ? Add(kraid!.Bg2HorizontalScroll, shake.Bg2X)
-                : crocomireBg ? Add(runtime.Enemies.CrocomireBg2HorizontalScroll, shake.Bg2X) : bg2X,
-            kraidBg ? Add(kraid!.Bg2VerticalScroll, shake.Bg2Y)
-                : crocomireBg ? Add(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2Y)
-                : sky is not null ? Add(sky.VerticalScroll, shake.Bg2Y) : bg2Y,
-            kraidBg ? KraidBackgroundRomData.TilemapWidthInTiles : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? 64 : 32,
-            kraidBg ? KraidBackgroundRomData.TilemapHeightInTiles : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? 32 : 64,
+        var registers = new OrdinaryGameplayRegisters(bg1Scroll,
+            new Position16<Bg2Pixels>(kraidBg ? Add(kraid!.Bg2HorizontalScroll, shake.Bg2.X)
+                : crocomireBg ? Add(runtime.Enemies.CrocomireBg2HorizontalScroll, shake.Bg2.X) : bg2Scroll.X, kraidBg ? Add(kraid!.Bg2VerticalScroll, shake.Bg2.Y)
+                : crocomireBg ? Add(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2.Y)
+                : sky is not null ? Add(sky.VerticalScroll, shake.Bg2.Y) : bg2Scroll.Y),
+            kraidBg ? new Extent16<TilemapCells>(KraidBackgroundRomData.TilemapWidthInTiles, KraidBackgroundRomData.TilemapHeightInTiles)
+                : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? new Extent16<TilemapCells>(32, 32)
+                : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
+                : new Extent16<TilemapCells>(32, 64),
             kraidBg ? KraidBackgroundRomData.LiveBg2TilemapWord : SnesPpuLayout.GameplayBg2TilemapWord,
             character, character, runtime.GameplayHudCharacterBaseWord,
             runtime.DoorTransitionMainScreenLayers ??

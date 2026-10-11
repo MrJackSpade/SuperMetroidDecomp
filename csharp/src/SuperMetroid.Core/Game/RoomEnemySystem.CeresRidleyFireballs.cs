@@ -761,7 +761,7 @@ public sealed partial class RoomEnemySystem
             ReadOnlyMemory<EnemySpritemapPart> parts = projectile.PresentationOperandAddress != 0
                 ? artwork.GetProgramFrame(projectile.PresentationOperandAddress)
                 : artwork.Get(projectile.SpritemapPointer);
-            oam.AddEnemySpritemap(parts.Span, screenX, screenY,
+            oam.AddEnemySpritemap(parts.Span, new Position16<OamPixels>(screenX, screenY),
                 new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
                 unchecked((byte)projectile.GraphicsIndex),
                 clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);

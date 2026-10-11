@@ -357,10 +357,8 @@ public sealed class TitleSequenceState
                 TitleSequenceRomData.Scenes.Rotation.TableIndex,
                 0,
                 matrixScale,
-                128,
-                128,
-                unchecked((short)mode7X),
-                unchecked((short)mode7Y));
+                new Offset16<Mode7Pixels>(128, 128),
+                new Offset16<Mode7Pixels>(unchecked((short)mode7X), unchecked((short)mode7Y)));
         }
 
         PrepareRenderOam();
@@ -399,7 +397,7 @@ public sealed class TitleSequenceState
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam),
             mode7BackgroundEnabled
                 ? new Mode7RenderRegisters(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
-                    0, scale, 128, 128, unchecked((short)mode7X), unchecked((short)mode7Y))
+                    0, scale, new Offset16<Mode7Pixels>(128, 128), new Offset16<Mode7Pixels>(unchecked((short)mode7X), unchecked((short)mode7Y)))
                 : null,
             TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector,
             checked((byte)brightness), gradientEnabled ? ResolveTitleGradient() : default);

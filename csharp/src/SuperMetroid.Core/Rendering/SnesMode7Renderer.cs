@@ -31,19 +31,19 @@ public static class SnesMode7Renderer
         short matrixB,
         short matrixC,
         short matrixD,
-        short centerX,
-        short centerY,
-        short horizontalOffset,
-        short verticalOffset,
-        int width = SnesPpuLayout.ScreenWidthPixels,
-        int height = SnesPpuLayout.ScreenHeightPixels,
+        Offset16<Mode7Pixels> center,
+        Offset16<Mode7Pixels> scroll,
+        Extent16<ScreenPixels>? size = null,
         bool fillOutsideWithCharacterZero = false, bool wrapOutsideMap = false)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-        if (output.Length != checked(width * height))
+        Extent16<ScreenPixels> viewport = size ?? SnesPpuLayout.ScreenSize;
+        int width = viewport.X;
+        int height = viewport.Y;
+        if (width == 0 || height == 0)
+            throw new ArgumentOutOfRangeException(nameof(size), viewport, "A Mode 7 viewport must have positive dimensions.");
+        if (output.Length != width * height)
         {
             throw new ArgumentException(
                 "A Mode 7 destination must contain exactly width*height pixels.",
@@ -59,10 +59,11 @@ public static class SnesMode7Renderer
         for (int color = 0; color < palette.Length; color++)
             palette[color] = cgramColors[color].ToRgba32();
 
-        int signedCenterX = (centerX << 19) >> 19;
-        int signedCenterY = (centerY << 19) >> 19;
-        int clippedH = ((horizontalOffset << 19) >> 19) - signedCenterX;
-        int clippedV = ((verticalOffset << 19) >> 19) - signedCenterY;
+        // The PPU reads the low thirteen bits of each register as a signed value.
+        int signedCenterX = SignExtend13(center.X);
+        int signedCenterY = SignExtend13(center.Y);
+        int clippedH = SignExtend13(scroll.X) - signedCenterX;
+        int clippedV = SignExtend13(scroll.Y) - signedCenterY;
         clippedH = (clippedH & 0x2000) != 0 ? clippedH | ~1023 : clippedH & 1023;
         clippedV = (clippedV & 0x2000) != 0 ? clippedV | ~1023 : clippedV & 1023;
         for (int screenY = 0; screenY < height; screenY++)
@@ -104,4 +105,6 @@ public static class SnesMode7Renderer
             }
         }
     }
+
+    private static int SignExtend13(short register) => (register << 19) >> 19;
 }

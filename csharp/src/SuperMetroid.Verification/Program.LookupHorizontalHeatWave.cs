@@ -19,11 +19,11 @@ internal static partial class Program
         foreach (ushort baseScroll in new ushort[] { 0, ushort.MaxValue })
         {
             var fx = new RoomLayer3FxRenderSnapshot(RoomFxType.Lava,
-                LayerBlendingConfiguration.WaterSubtractive, baseScroll, 0,
+                LayerBlendingConfiguration.WaterSubtractive, new Position16<Bg3Pixels>(baseScroll, 0),
                 CurrentYPosition: 100, LiquidOptions: RoomFxRomData.LavaAcid.HorizontalBg2WaveOption)
                 { LavaAcidBg2WavePhase = phase };
             ushort[] scrolls = SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(fx,
-                baseScroll, (ushort)cameraPhase)!;
+                new Position16<Bg2Pixels>(baseScroll, (ushort)cameraPhase))!;
             for (int line = 0; line < scrolls.Length; line++)
                 AssertEqual(unchecked((ushort)(baseScroll + Original((phase + cameraPhase + line) & 15))),
                     scrolls[line], "Production horizontal wave phase, camera nibble, signed addition and wrap");

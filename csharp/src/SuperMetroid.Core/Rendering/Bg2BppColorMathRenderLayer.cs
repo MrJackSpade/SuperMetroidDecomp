@@ -11,17 +11,16 @@ public enum ExpandedColorMathOperation : byte
     Subtract
 }
 
-/// <summary>Literal BG scroll registers for one physical output scanline.</summary>
-/// <param name="X">Horizontal scroll register in pixels, added to the output X coordinate before tilemap wrapping.</param>
-/// <param name="Y">Vertical scroll register in pixels, added to the physical output Y coordinate before tilemap wrapping.</param>
-public readonly record struct BackgroundLineScroll(ushort X, ushort Y);
-
 /// <summary>Owned 2-bpp BG color-math plane with a physical-line scroll table.</summary>
 public sealed record Bg2BppColorMathRenderLayer : RenderLayer
 {
-    private readonly BackgroundLineScroll[] scrolls;
-    /// <summary>The owned 224 register pairs indexed by physical output scanline, including HUD lines rather than starting at the gameplay viewport.</summary>
-    public ReadOnlySpan<BackgroundLineScroll> Scrolls => scrolls;
+    private readonly Position16<BgPlanePixels>[] scrolls;
+    /// <summary>
+    /// The owned 224 literal scroll-register pairs indexed by physical output scanline, including HUD
+    /// lines rather than starting at the gameplay viewport; each is added to the output coordinate
+    /// before tilemap wrapping.
+    /// </summary>
+    public ReadOnlySpan<Position16<BgPlanePixels>> Scrolls => scrolls;
     /// <summary>VRAM word address of the 32-column background tilemap, not a byte address.</summary>
     public ushort TilemapWord { get; }
     /// <summary>VRAM word address of the 2-bpp character data; each 8-by-8 character occupies eight words.</summary>
@@ -41,7 +40,7 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
     /// <param name="operation">Addition or subtraction for the standalone expanded-byte compositor.</param>
     /// <param name="scrolls">Exactly 224 register pairs, indexed by physical output scanline; the constructor takes an owned copy.</param>
     public Bg2BppColorMathRenderLayer(ushort tilemapWord, ushort characterWord, int mapHeightTiles,
-        int firstScanline, ExpandedColorMathOperation operation, ReadOnlySpan<BackgroundLineScroll> scrolls)
+        int firstScanline, ExpandedColorMathOperation operation, ReadOnlySpan<Position16<BgPlanePixels>> scrolls)
     {
         if (mapHeightTiles is not (32 or 64)) throw new ArgumentOutOfRangeException(nameof(mapHeightTiles));
         if (firstScanline is < 0 or > SnesPpuLayout.ScreenHeightPixels)

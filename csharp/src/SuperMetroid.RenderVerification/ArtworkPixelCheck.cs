@@ -25,7 +25,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
             // crop/flip mistakes and edits which never reach visible output.
             if (!substitutions.TryGetValue(first[pixel], out Rgba32 expected) || second[pixel] != expected)
                 throw new InvalidOperationException($"{context}: PNG index substitution differs at " +
-                    $"({pixel % a.Width},{pixel / a.Width}): {first[pixel]} -> {second[pixel]}.");
+                    $"({pixel % a.Size.X},{pixel / a.Size.X}): {first[pixel]} -> {second[pixel]}.");
             if (first[pixel] != second[pixel]) ChangedPixels++;
         }
         Compare(a, first, context + " stock");

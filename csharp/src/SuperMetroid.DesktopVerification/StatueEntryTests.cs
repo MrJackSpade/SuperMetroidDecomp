@@ -2,6 +2,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -17,11 +18,11 @@ internal static partial class Program
                 Console.WriteLine($"BG2={runtime.DisplayedGameplayPpu.Bg2Scroll.X},{runtime.DisplayedGameplayPpu.Bg2Scroll.Y} background={runtime.ActiveRoom!.State.BackgroundDataPointer:X4} FX={runtime.RoomLayer3Fx.Type}");
                 var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
                 var registers = ((OrdinaryGameplayRenderLayer)capture.Layers[0]).Registers;
-                if (registers.Bg2WidthTiles != 32 || registers.Bg2HeightTiles != 64)
+                if (registers.Bg2MapSize.X != 32 || registers.Bg2MapSize.Y != 64)
                     throw new InvalidOperationException("Statue FX did not apply native BG2SC=$4A vertical tilemap layout.");
                 var correct = SoftwareLayeredSnapshotRenderer.Render(capture);
                 var bad = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(capture.Memory,
-                    [new OrdinaryGameplayRenderLayer(registers with { Bg2WidthTiles = 64, Bg2HeightTiles = 32 })],
+                    [new OrdinaryGameplayRenderLayer(registers with { Bg2MapSize = new Extent16<TilemapCells>(64, 32) })],
                     capture.ObjectSelection, capture.Brightness));
                 int restoredPixels = 0;
                 for (int y = 80; y < 180; y++)

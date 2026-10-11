@@ -14,8 +14,8 @@ internal static class MenuRenderSnapshotCapture
         // gameplay priority ladder while moving composition to another backend.
         RenderLayer[] layers =
         [
-            new Bg4BppRenderLayer(MenuPpuState.Bg2TilemapWord, 0, 0, 0, 32, 32, null),
-            new Bg4BppRenderLayer(MenuPpuState.Bg1TilemapWord, 0, 0, bg1VerticalScroll, 32, 32, null),
+            new Bg4BppRenderLayer(MenuPpuState.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null),
+            new Bg4BppRenderLayer(MenuPpuState.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, bg1VerticalScroll), new Extent16<TilemapCells>(32, 32), null),
             new ObjRenderLayer(),
         ];
         return new(PpuMemorySnapshot.Capture(ppu.Vram, ppu.Cgram, oam), layers,

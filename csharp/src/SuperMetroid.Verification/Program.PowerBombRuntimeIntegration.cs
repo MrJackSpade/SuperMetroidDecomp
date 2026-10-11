@@ -67,8 +67,7 @@ internal static partial class Program
             expected,
             bus,
             explosion,
-            ppu.Layer1Position.X,
-            ppu.Layer1Position.Y);
+            ppu.Layer1Position);
         Rgba32[] actual = SuperMetroidRuntimeFrameRenderer.Render(runtime);
 
         int expectedChangedPixels = CountPowerBombFrameDifferences(baseline, expected);

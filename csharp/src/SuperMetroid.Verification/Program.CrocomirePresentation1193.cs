@@ -139,7 +139,7 @@ internal static partial class Program
                     AssertEqual(previousScroll, runtime.DisplayedGameplayPpu.Bg1Scroll.Y,
                         "Rumble becomes visible at the following accepted NMI");
                     var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
-                    AssertEqual(previousScroll, layer.Registers.Bg1Y,
+                    AssertEqual(previousScroll, layer.Registers.Bg1Scroll.Y,
                         "Production foreground composition receives the displayed rumble scroll");
                 }
                 previousScroll = expected;

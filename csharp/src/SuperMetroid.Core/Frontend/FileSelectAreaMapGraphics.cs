@@ -134,7 +134,7 @@ public sealed partial class FileSelectAreaMapGraphics
         Rgba32[] foreground = foregroundScratch ??= new Rgba32[256 * 224];
         foreground.AsSpan().Clear();
         SnesBgTilemapRenderer.Composite4BppViewport(
-            foreground, ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0, 256, 224, 32, 32);
+            foreground, ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
         SnesLayerCompositor.Composite(pixels, foreground);
         Rgba32[] subscreen = subscreenScratch ??= new Rgba32[256 * 28 * 8];
         subscreen.AsSpan().Clear();

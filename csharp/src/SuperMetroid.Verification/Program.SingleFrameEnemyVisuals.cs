@@ -82,7 +82,7 @@ internal static partial class Program
             "old projectile stock requests reimport");
         var rockParts = projectileMerged.GetProgramFrame(PolypRockInstructionProgramDefinitions.PresentationWord);
         var rockActual = new OamBuffer();
-        rockActual.AddEnemySpritemap(rockParts.Span, 128, 112, 0x0c00, 0x20);
+        rockActual.AddEnemySpritemap(rockParts.Span, new Position16<OamPixels>(128, 112), 0x0c00, 0x20);
         ushort rockPointer = ReadPolypRockInstructionWord(rom, PolypRockInstructionProgramDefinitions.PresentationWord);
         var rockExpected = new OamBuffer();
         ImportedSpritemapOracle.DrawEnemy(rom, rockExpected, 0x8d, rockPointer, 128, 112, 0x0c00, 0x20);

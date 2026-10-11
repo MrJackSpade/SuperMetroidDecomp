@@ -618,7 +618,7 @@ static void VerifySamusPowerBeamProjectiles()
         rotatedMode7Samus,
         0,
         0,
-        new SamusMode7Transform(0, 0x0100, 0xff00, 120, 96), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
+        new SamusMode7Transform(0, 0x0100, 0xff00, new Position16<RoomPixels>(120, 96)), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
     AssertTrue(baselineMode7FlareOam.NextByteOffset != 0,
         "Mode 7 flare fixture reaches visible central component");
     AssertEqual(baselineMode7FlareOam.NextByteOffset, rotatedMode7FlareOam.NextByteOffset,

@@ -1,8 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One cartridge earthquake type's background and enemy-projectile displacement.</summary>
+/// <param name="Bg1">BG1 scroll displacement.</param>
+/// <param name="Bg2">BG2 scroll displacement.</param>
+/// <param name="Projectile">Enemy-projectile draw displacement.</param>
 internal readonly record struct RoomShakeDefinition(
-    short Bg1X, short Bg1Y, short Bg2X, short Bg2Y, short ProjectileX, short ProjectileY);
+    Offset16<RoomPixels> Bg1, Offset16<Bg2Pixels> Bg2, Offset16<RoomPixels> Projectile);
 
 /// <summary>Exact bounded geometry and recipient policy for the 36 rendered earthquake types.</summary>
 internal static class RoomShakeDefinitions
@@ -29,8 +32,8 @@ internal static class RoomShakeDefinitions
         short x = direction == 1 ? (short)0 : magnitude;
         short y = direction == 0 ? (short)0 : magnitude;
         return new(
-            group == 3 ? (short)0 : x, group == 3 ? (short)0 : y,
-            group == 0 ? (short)0 : x, group == 0 ? (short)0 : y,
-            group < 2 ? (short)0 : x, group < 2 ? (short)0 : y);
+            group == 3 ? Offset16<RoomPixels>.Zero : new(x, y),
+            group == 0 ? Offset16<Bg2Pixels>.Zero : new(x, y),
+            group < 2 ? Offset16<RoomPixels>.Zero : new(x, y));
     }
 }

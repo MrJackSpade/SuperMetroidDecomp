@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class HardwareWindowTests
 {
@@ -20,7 +21,7 @@ internal static class HardwareWindowTests
             var admission = (SnesMainScreenLayers)((mask & 7) | ((mask & 8) << 1));
             var windows = new SnesWindowRegisters(0x3a, 0x0a, 0x0b, empty ? (byte)120 : (byte)32, 96,
                 64, 128, (byte)(operation * 0x55), (byte)operation);
-            var registers = new OrdinaryGameplayRegisters(3, 5, 7, 11, 64, 32,
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11), new Extent16<TilemapCells>(64, 32),
                 SnesPpuLayout.GameplayBg2TilemapWord, 0, 0, SnesPpuLayout.GameplayHudCharacterBaseWord,
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var frame = new RenderFrameSnapshot(new(++sequence, 1, 0), new LayeredRenderSnapshot(memory,

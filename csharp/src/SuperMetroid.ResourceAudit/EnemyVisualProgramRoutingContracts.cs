@@ -13,7 +13,8 @@ internal static class EnemyVisualProgramRoutingContracts
         ["ReadEnemyProjectileInstructionMechanicsWord"] = "F334DE86B660B79F3AE5D9A073534C75BE4D6550182A30627B79E3703E318BC7",
         ["ReadEnemyVisualSelector"] = "DDCA6A13A4F9F6278F5B19F1790A73E509DB240F1266136A88F5847EDB95D360",
         ["SetEnemyProjectileVisualOperand"] = "EE891D65133B250AE6404621D0F69587B2B0F4246BBFE0962D66C44C9F71C4D1",
-        ["DrawEnemySpritemap"] = "48A6E01227A86D44E60F98951E91F536A27E8C76ECCCAE5832CDC2D0073FBB75",
+        // #628 re-pin: the OAM origin is passed as one typed Position16<OamPixels>; spritemap routing unchanged.
+        ["DrawEnemySpritemap"] = "E37C021B9CA1D51D6DA7106CA127CA8EC88BDB3F23E0DC6FCF77290B938BE533",
         // #1275 re-pin: $A6:E4D2's low-energy branch also stores the Ridley timer; routing unchanged.
         // #627 re-pin: enemy identity aliases became EnemyDefinitionId members of equal value; routing unchanged.
         // #627 types the Baby Metroid goto opcodes; same cases and guards, typed call replaces the discarded bool.

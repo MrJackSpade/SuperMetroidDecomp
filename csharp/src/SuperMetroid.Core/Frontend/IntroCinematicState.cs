@@ -1302,12 +1302,9 @@ public sealed partial class IntroCinematicState
             tilemapBaseWord: scientistCutscene?.TilemapBaseWord ??
                 IntroCinematicRomData.Layers.ScientistTilemapWord,
             characterBaseWord: 0,
-            horizontalScroll: scientistCutscene?.BackgroundX ?? 0,
-            verticalScroll: scientistCutscene?.BackgroundY ?? 0,
-            width: ScreenWidth,
-            height: ScreenHeight,
-            tilemapWidthInTiles: 32,
-            tilemapHeightInTiles: 32,
+            scroll: new Position16<BgPlanePixels>(scientistCutscene?.BackgroundX ?? 0, scientistCutscene?.BackgroundY ?? 0),
+            size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
+            tilemapSize: new Extent16<TilemapCells>(32, 32),
             priority: priority);
     }
 
@@ -1320,12 +1317,9 @@ public sealed partial class IntroCinematicState
             cgram,
             tilemapBaseWord: IntroCinematicRomData.Layers.SceneBg2TilemapWord,
             characterBaseWord: 0,
-            horizontalScroll: 0,
-            verticalScroll: GameplayFlashbackBg1VerticalScroll,
-            width: ScreenWidth,
-            height: ScreenHeight,
-            tilemapWidthInTiles: 32,
-            tilemapHeightInTiles: 32,
+            scroll: new Position16<BgPlanePixels>(0, GameplayFlashbackBg1VerticalScroll),
+            size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
+            tilemapSize: new Extent16<TilemapCells>(32, 32),
             priority: priority);
     }
 
@@ -1338,13 +1332,10 @@ public sealed partial class IntroCinematicState
             cgram,
             tilemapBaseWord: IntroCinematicRomData.Layers.SceneBg1TilemapWord,
             characterBaseWord: 0,
-            horizontalScroll: 0,
-            verticalScroll: flashbackMotherBrain?.BackgroundVerticalScroll ??
-                GameplayFlashbackBg1VerticalScroll,
-            width: ScreenWidth,
-            height: ScreenHeight,
-            tilemapWidthInTiles: 32,
-            tilemapHeightInTiles: 32,
+            scroll: new Position16<BgPlanePixels>(0, flashbackMotherBrain?.BackgroundVerticalScroll ??
+                GameplayFlashbackBg1VerticalScroll),
+            size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
+            tilemapSize: new Extent16<TilemapCells>(32, 32),
             priority: priority);
     }
 
@@ -1411,12 +1402,9 @@ public sealed partial class IntroCinematicState
             cgram,
             tilemapBaseWord: IntroCinematicRomData.Layers.PortraitTilemapWord,
             characterBaseWord: 0,
-            horizontalScroll: 0,
-            verticalScroll: 8,
-            width: ScreenWidth,
-            height: ScreenHeight,
-            tilemapWidthInTiles: 32,
-            tilemapHeightInTiles: 32,
+            scroll: new Position16<BgPlanePixels>(0, 8),
+            size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
+            tilemapSize: new Extent16<TilemapCells>(32, 32),
             priority: priority);
     }
 
@@ -1450,8 +1438,7 @@ public sealed partial class IntroCinematicState
             vram,
             cgram,
             obsel: 3,
-            width: ScreenWidth,
-            height: ScreenHeight,
+            size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
             priority: priority);
         SnesLayerCompositor.Composite(pixels, sprites);
     }

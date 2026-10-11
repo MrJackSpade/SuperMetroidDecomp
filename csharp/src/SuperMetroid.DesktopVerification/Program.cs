@@ -215,7 +215,7 @@ internal static partial class Program
                 await Until(() => !worker.IsSurfaceSuspended, worker);
                 var canvas = Field<RuntimeCanvas>(control, "canvas");
                 await Until(() => worker.LastDrawnSize
-                    == (canvas.ClientSize.Width, canvas.ClientSize.Height), worker);
+                    == DisplayViewport.ClientSize(canvas.ClientSize.Width, canvas.ClientSize.Height), worker);
             }
             if (renderer != RendererSelection.Software)
                 await VerifyAsyncLoadBoundary(control, restart: true);

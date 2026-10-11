@@ -20,6 +20,11 @@ different types; moving between spaces is always a named conversion.
 | `OamPixels` | OAM sprite coordinates (nine-bit signed X, eight-bit Y). |
 | `Mode7Pixels` | Mode 7 plane coordinates and matrix centre. |
 | `TilemapCells` | VRAM tilemap cells. |
+| `TilemapBlocks` | The sixteen-pixel block grid of a wrapping BG tilemap (bank-$80 `BG1/BG2 X/Y block`), distinct from room blocks. |
+| `BgPlanePixels` | The scroll words of whichever background plane a generic render layer samples. |
+| `Bg3Subpixels` | BG3 room-FX texture drift in 1/256 pixels (the 8.8 rain, fog and spores accumulators). |
+| `CharacterPixels` | Pixels inside one eight-by-eight character cell. |
+| `DisplayPixels` | Host window/swapchain pixels after presentation scaling. |
 
 Add a space only when values in it must not mix with an existing space; document it here and in
 `SpatialSpaces.cs`.
@@ -47,7 +52,15 @@ types delegate to it and never re-derive it.
   one word: `SnesSignedSixteenSixteen.WithWholePixels/WithFraction`,
   `SnesFixedPosition.WithWhole/WithFraction`.
 - Conversions between spaces (room → screen via the camera, pixels → blocks, room → OAM, ...)
-  are named methods/extensions in `SuperMetroid.Core.Spatial` next to the spaces they join.
+  are named methods/extensions in `SuperMetroid.Core.Spatial` next to the spaces they join:
+  - `ScreenConversions.RelativeToCamera`: room position minus camera, as a screen offset.
+  - `BackgroundBlockConversions.ToTilemapBlocks` / `ToSourceBlocks`: layer pixels to the wrapping
+    tilemap block and to the room source block (sign-extended), as the bank-$80 streamer does.
+  - `RoomGridConversions.ToRoomPixels`: a scroll-zone screen to its top-left room pixel.
+  - `BgPlaneConversions.AsBgPlaneScroll`: a BG1 or BG2 scroll as the generic plane's scroll words.
+  - `Bg3FxConversions.AsBg3Scroll` / `WholePixels`: the layer-one anchor of a BG3 effect plane and
+    the signed high bytes of its 8.8 drift.
+  - `Mode7Conversions.AsMode7Register`: a layer-one room point as signed Mode 7 register words.
 - Never floating-point vectors in cartridge logic: preserve native width, signedness, wrap order,
   origin and truncation exactly.
 

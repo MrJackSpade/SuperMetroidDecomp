@@ -110,7 +110,7 @@ internal static partial class Program
             nativeOam.BeginFrame();
             installedOam.BeginFrame();
             DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, 127, 131);
-            installedOam.AddSamusSpritemap(spritemapGuard, (ushort)index, 127, 131, sprites);
+            installedOam.AddSamusSpritemap(spritemapGuard, (ushort)index, new Position16<OamPixels>(127, 131), sprites);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                 nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
                 nativeOam.NextByteOffset == installedOam.NextByteOffset,
@@ -125,7 +125,7 @@ internal static partial class Program
             mutableSpriteMemory.WriteByte(0x920000 + offset, mutableRecord[offset]);
         var mutableOam = new OamBuffer();
         mutableOam.BeginFrame();
-        mutableOam.AddSamusSpritemap(mutableSpriteMemory, (ushort)zeroIndex, 127, 131, sprites);
+        mutableOam.AddSamusSpritemap(mutableSpriteMemory, (ushort)zeroIndex, new Position16<OamPixels>(127, 131), sprites);
         AssertEqual(4, mutableOam.NextByteOffset, "zero Samus pointer emits its WRAM-authored part");
         AssertTrue(mutableOam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }),
             "zero Samus pointer reads mutable WRAM rather than cartridge art");
@@ -507,9 +507,9 @@ internal static partial class Program
         stockSpritemapOam.BeginFrame();
         editedSpritemapOam.BeginFrame();
         ushort poseOneIndex = stock.Spritemaps.TopBase(SamusPoseId.FacingRightNormalPose);
-        stockSpritemapOam.AddSamusSpritemap(guardedBus, poseOneIndex, 128, 128,
+        stockSpritemapOam.AddSamusSpritemap(guardedBus, poseOneIndex, new Position16<OamPixels>(128, 128),
             stock.Spritemaps);
-        editedSpritemapOam.AddSamusSpritemap(guardedBus, poseOneIndex, 128, 128,
+        editedSpritemapOam.AddSamusSpritemap(guardedBus, poseOneIndex, new Position16<OamPixels>(128, 128),
             replacement.Spritemaps);
         AssertEqual(unchecked((byte)(stockSpritemapOam.LowTable[0] + 1)),
             editedSpritemapOam.LowTable[0],
@@ -764,7 +764,7 @@ internal static partial class Program
         {
             oam.AddSamusSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3)), originX, originY);
+                ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3)), new Position16<OamPixels>(originX, originY));
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }

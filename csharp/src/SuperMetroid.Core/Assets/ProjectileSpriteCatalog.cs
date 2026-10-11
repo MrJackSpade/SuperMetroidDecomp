@@ -22,7 +22,7 @@ public sealed class ProjectileSpriteCatalog
         for (int index = 0; index < parts.PartCount; index++)
         {
             var part = parts.Part(index);
-            oam.AddProjectileSpritePart(part.X, part.Y, part.Attributes, x, y);
+            oam.AddProjectileSpritePart(part.X, part.Y, part.Attributes, new Position16<OamPixels>(x, y));
         }
     }
 

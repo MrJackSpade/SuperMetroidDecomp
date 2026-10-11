@@ -123,8 +123,7 @@ public sealed class CeresElevatorShaftRoomMainState
             MatrixA: cosine,
             MatrixB: sine,
             MatrixC: unchecked((ushort)-sine),
-            CenterX: 0x0080,
-            CenterY: 0x03f0);
+            Center: CeresShaftMode7Center);
 
         // Values 0..67 sweep forward. The comparison occurs after INC, so 67 becomes
         // encoded negative phase $8044. Negative phases decrement until $8001 maps to
@@ -164,8 +163,10 @@ public sealed class CeresElevatorShaftRoomMainState
         MatrixA: 0x0100,
         MatrixB: 0,
         MatrixC: 0,
-        CenterX: 0x0080,
-        CenterY: 0x03f0);
+        Center: CeresShaftMode7Center);
+
+    /// <summary>The shaft's fixed M7X/M7Y rotation centre, written by both <c>$8F:E4E0</c> and room main.</summary>
+    internal static readonly Position16<RoomPixels> CeresShaftMode7Center = new(0x0080, 0x03f0);
 }
 
 /// <summary>Debugger-visible result of one Ceres elevator shaft room-main call.</summary>

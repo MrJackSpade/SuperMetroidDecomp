@@ -27,7 +27,7 @@ internal static partial class Program
         foreach (ushort baseScroll in new ushort[] { 0, ushort.MaxValue })
         {
             var water = new RoomLayer3FxRenderSnapshot(RoomFxType.Water,
-                LayerBlendingConfiguration.WaterSubtractive, baseScroll, 0,
+                LayerBlendingConfiguration.WaterSubtractive, new Position16<Bg3Pixels>(baseScroll, 0),
                 CurrentYPosition: 100, LiquidOptions: 2, WaterBg3WavePhase: phase,
                 WaterBg2WavePhase: phase, WaterSurfaceScreenY: 100);
             var captured = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(water)!;
@@ -41,7 +41,7 @@ internal static partial class Program
             {
                 ushort cameraY = (ushort)((baseScroll & 0xfff0) | cameraPhase);
                 ushort[] bg2 = SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(water,
-                    baseScroll, cameraY)!;
+                    new Position16<Bg2Pixels>(baseScroll, cameraY))!;
                 var heat = water with { Type = RoomFxType.Lava, LavaAcidBg2WavePhase = phase };
                 ushort[] heatScroll = SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(heat, cameraY)!;
                 for (int line = 0; line < bg2.Length; line++)

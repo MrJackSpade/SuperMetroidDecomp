@@ -1047,7 +1047,7 @@ internal static partial class Program
                 var installed = new OamBuffer();
                 DrawImportedEnemySpritemap(rom, native, frame.Bank, frame.Pointer,
                     x, y, palette, baseTile);
-                installed.AddEnemySpritemap(parts, x, y, palette, baseTile);
+                installed.AddEnemySpritemap(parts, new Position16<OamPixels>(x, y), palette, baseTile);
                 AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) &&
                            native.HighTable.SequenceEqual(installed.HighTable) &&
                            native.NextByteOffset == installed.NextByteOffset,

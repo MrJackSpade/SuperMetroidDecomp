@@ -197,10 +197,10 @@ public sealed partial class FileSelectMenuState
         Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
         SnesBgTilemapRenderer.Composite4BppViewport(
             background,
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, 0, 0, 256, 224, 32, 32);
+            ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
         SnesBgTilemapRenderer.Composite4BppViewport(
             background,
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0, 256, 224, 32, 32);
+            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
 
         PrepareRenderOam();
         Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
@@ -247,7 +247,7 @@ public sealed partial class FileSelectMenuState
             {
                 (int shape, ushort y) = FileCopyArrowDefinitions.Select(operationSourceSlot, operationDestinationSlot);
                 foreach (CompiledSpritePart part in FileCopyArrowDefinitions.Parts(shape))
-                    oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes, FileCopyArrowDefinitions.OriginX, y);
+                    oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes, new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, y));
             }
             oam.FinalizeFrame();
             return;

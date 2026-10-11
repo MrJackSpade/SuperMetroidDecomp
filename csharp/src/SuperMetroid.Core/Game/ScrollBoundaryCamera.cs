@@ -85,12 +85,12 @@ public sealed class ScrollBoundaryCamera
     public void SetPosition(Position16<RoomPixels> requested)
     {
         PreviousSamusPoint = null;
-        int maxX = (Scrolls.WidthInScreens - 1) << 8;
+        int maxX = (Scrolls.Size.X - 1) << 8;
 
         // The vertical maximum depends on blue/green scroll alignment. Starting with the
         // room-wide conservative +$1F allowance matches $80:A731's largest legal result;
         // the first vertical movement applies the cell-specific exact maximum.
-        int maxY = ((Scrolls.HeightInScreens - 1) << 8) + 0x1f;
+        int maxY = ((Scrolls.Size.Y - 1) << 8) + 0x1f;
         var clamped = new Position16<RoomPixels>(
             (ushort)Math.Clamp(requested.X, 0, maxX),
             (ushort)Math.Clamp(requested.Y, 0, maxY));
@@ -298,11 +298,11 @@ public sealed class ScrollBoundaryCamera
         if ((short)Position.X.Whole < 0)
             SetWholeX(0);
 
-        ushort roomMaximum = (ushort)((Scrolls.WidthInScreens - 1) << 8);
+        ushort roomMaximum = (ushort)((Scrolls.Size.X - 1) << 8);
         if (Position.X.Whole > roomMaximum)
             SetWholeX(roomMaximum);
 
-        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.WidthInScreens;
+        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.Size.X;
         int currentCell = row + (Position.X.Whole >> 8);
 
         if (Scrolls.ReadNativeState(currentCell) == RoomScrollState.RedBoundary)
@@ -310,7 +310,7 @@ public sealed class ScrollBoundaryCamera
             // In a red current cell, drift right by camera speed + 2 toward its right edge.
             // If the next cell is also red, discard the fractional screen position and stay
             // on this cell's left edge instead of allowing the viewport to enter it.
-            ushort rightBoundary = unchecked((ushort)((Position.X.Whole & 0xff00) + 0x0100));
+            ushort rightBoundary = NextScreenStart(Position.X.Whole);
             ushort candidate = unchecked((ushort)(proposed + Speed.X.WholeWord + 2));
             if (candidate >= rightBoundary)
             {
@@ -322,7 +322,7 @@ public sealed class ScrollBoundaryCamera
             int candidateRightCell = row + (proposed >> 8) + 1;
             SetWholeX(Scrolls.ReadNativeState(candidateRightCell) != RoomScrollState.RedBoundary
                 ? proposed
-                : (ushort)(proposed & 0xff00));
+                : ScreenStart(proposed));
             return;
         }
 
@@ -332,7 +332,7 @@ public sealed class ScrollBoundaryCamera
         // A legal current cell with a red cell to its right is the mirror case: drift left
         // toward the current cell's left edge. If the candidate itself lands in red, round
         // up to the next screen boundary. Signed comparison reproduces BMI at $80:A5F9.
-        ushort leftBoundary = (ushort)(Position.X.Whole & 0xff00);
+        ushort leftBoundary = ScreenStart(Position.X.Whole);
         ushort leftCandidate = unchecked((ushort)(proposed - Speed.X.WholeWord - 2));
         if (SignedDifference(leftCandidate, leftBoundary) < 0)
         {
@@ -344,7 +344,7 @@ public sealed class ScrollBoundaryCamera
         int candidateCell = row + (proposed >> 8);
         SetWholeX(Scrolls.ReadNativeState(candidateCell) != RoomScrollState.RedBoundary
             ? proposed
-            : unchecked((ushort)((proposed & 0xff00) + 0x0100)));
+            : NextScreenStart(proposed));
     }
 
     /// <summary>
@@ -356,7 +356,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int centeredXScreen = (ushort)(Position.X.Whole + 0x0080) >> 8;
-        int preClampCell = (Position.Y.Whole >> 8) * Scrolls.WidthInScreens + centeredXScreen;
+        int preClampCell = (Position.Y.Whole >> 8) * Scrolls.Size.X + centeredXScreen;
 
         // Blue scroll cells align the 224-line gameplay viewport to the top of the screen;
         // red and green cells permit the ROM's $1F-pixel lower alignment. Crucially, the
@@ -369,16 +369,16 @@ public sealed class ScrollBoundaryCamera
         if ((short)Position.Y.Whole < 0)
             SetWholeY(0);
 
-        ushort roomMaximum = unchecked((ushort)(((Scrolls.HeightInScreens - 1) << 8) + verticalAlignment));
+        ushort roomMaximum = unchecked((ushort)(((Scrolls.Size.Y - 1) << 8) + verticalAlignment));
         if (Position.Y.Whole > roomMaximum)
             SetWholeY(roomMaximum);
 
-        int currentCell = (Position.Y.Whole >> 8) * Scrolls.WidthInScreens + centeredXScreen;
+        int currentCell = (Position.Y.Whole >> 8) * Scrolls.Size.X + centeredXScreen;
         if (Scrolls.ReadNativeState(currentCell) == RoomScrollState.RedBoundary)
         {
             // A red current cell pushes downward toward its bottom boundary. As in the X
             // routine, a second red cell beyond the candidate causes screen-edge rounding.
-            ushort bottomBoundary = unchecked((ushort)((Position.Y.Whole & 0xff00) + 0x0100));
+            ushort bottomBoundary = NextScreenStart(Position.Y.Whole);
             ushort candidate = unchecked((ushort)(proposed + Speed.Y.WholeWord + 2));
             if (candidate >= bottomBoundary)
             {
@@ -387,18 +387,18 @@ public sealed class ScrollBoundaryCamera
             }
 
             proposed = candidate;
-            int belowCandidate = ((candidate >> 8) + 1) * Scrolls.WidthInScreens + centeredXScreen;
+            int belowCandidate = ((candidate >> 8) + 1) * Scrolls.Size.X + centeredXScreen;
             SetWholeY(Scrolls.ReadNativeState(belowCandidate) != RoomScrollState.RedBoundary
                 ? proposed
-                : (ushort)(proposed & 0xff00));
+                : ScreenStart(proposed));
             return;
         }
 
-        if (Scrolls.ReadNativeState(currentCell + Scrolls.WidthInScreens) !=
+        if (Scrolls.ReadNativeState(currentCell + Scrolls.Size.X) !=
             RoomScrollState.RedBoundary)
             return;
 
-        ushort topBoundary = unchecked((ushort)((Position.Y.Whole & 0xff00) + verticalAlignment));
+        ushort topBoundary = unchecked((ushort)(ScreenStart(Position.Y.Whole) + verticalAlignment));
 
         // CMP/BCC at $80:A82D only pulls the camera upward when it is strictly below the
         // aligned boundary. Equality intentionally does nothing.
@@ -413,10 +413,10 @@ public sealed class ScrollBoundaryCamera
         }
 
         proposed = upwardCandidate;
-        int candidateCell = (upwardCandidate >> 8) * Scrolls.WidthInScreens + centeredXScreen;
+        int candidateCell = (upwardCandidate >> 8) * Scrolls.Size.X + centeredXScreen;
         SetWholeY(Scrolls.ReadNativeState(candidateCell) != RoomScrollState.RedBoundary
             ? proposed
-            : unchecked((ushort)((proposed & 0xff00) + 0x0100)));
+            : NextScreenStart(proposed));
     }
 
     private void HandleScrollingRight()
@@ -431,7 +431,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithX(new SnesFixedPosition(IdealPosition.X, 0));
         }
 
-        ushort roomMaximum = (ushort)((Scrolls.WidthInScreens - 1) << 8);
+        ushort roomMaximum = (ushort)((Scrolls.Size.X - 1) << 8);
         if (Position.X.Whole > roomMaximum)
         {
             SetWholeX(roomMaximum);
@@ -440,12 +440,12 @@ public sealed class ScrollBoundaryCamera
 
         // The horizontal routines sample the row containing the screen's vertical center
         // (Y+$80), then the screen immediately to the right of the camera's high X byte.
-        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.WidthInScreens;
+        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.Size.X;
         int rightCell = row + (Position.X.Whole >> 8) + 1;
         if (Scrolls.ReadNativeState(rightCell) != RoomScrollState.RedBoundary)
             return;
 
-        ushort boundary = (ushort)(Position.X.Whole & 0xff00);
+        ushort boundary = ScreenStart(Position.X.Whole);
         ushort candidate = unchecked((ushort)(proposed - Speed.X.WholeWord - 2));
         if (SignedDifference(candidate, boundary) < 0)
             candidate = boundary;
@@ -467,12 +467,12 @@ public sealed class ScrollBoundaryCamera
             return;
         }
 
-        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.WidthInScreens;
+        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.Size.X;
         int currentCell = row + (Position.X.Whole >> 8);
         if (Scrolls.ReadNativeState(currentCell) != RoomScrollState.RedBoundary)
             return;
 
-        ushort boundary = unchecked((ushort)((Position.X.Whole & 0xff00) + 0x0100));
+        ushort boundary = NextScreenStart(Position.X.Whole);
         ushort candidate = unchecked((ushort)(proposed + Speed.X.WholeWord + 2));
         if (candidate >= boundary)
             candidate = boundary;
@@ -496,7 +496,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithY(new SnesFixedPosition(IdealPosition.Y, 0));
         }
 
-        ushort boundary = unchecked((ushort)(((Scrolls.HeightInScreens - 1) << 8) + verticalAlignment));
+        ushort boundary = unchecked((ushort)(((Scrolls.Size.Y - 1) << 8) + verticalAlignment));
         bool beyondRoomBottom = boundary < Position.Y.Whole;
         bool blockedBelow = false;
         if (!beyondRoomBottom)
@@ -504,11 +504,11 @@ public sealed class ScrollBoundaryCamera
             // Preserve the assembly branch order: if the physical room maximum was already
             // exceeded, $80:A8F2 branches before reading the cell below. This also prevents
             // a legitimate bottom-row/right-edge camera from indexing beyond $7E:CD51.
-            blockedBelow = Scrolls.ReadNativeState(currentCell + Scrolls.WidthInScreens) ==
+            blockedBelow = Scrolls.ReadNativeState(currentCell + Scrolls.Size.X) ==
                 RoomScrollState.RedBoundary;
             if (blockedBelow)
             {
-                boundary = unchecked((ushort)((Position.Y.Whole & 0xff00) + verticalAlignment));
+                boundary = unchecked((ushort)(ScreenStart(Position.Y.Whole) + verticalAlignment));
                 blockedBelow = boundary < Position.Y.Whole;
             }
         }
@@ -541,7 +541,7 @@ public sealed class ScrollBoundaryCamera
         if (Scrolls.ReadNativeState(currentCell) != RoomScrollState.RedBoundary)
             return;
 
-        ushort boundary = unchecked((ushort)((Position.Y.Whole & 0xff00) + 0x0100));
+        ushort boundary = NextScreenStart(Position.Y.Whole);
         ushort candidate = unchecked((ushort)(proposed + Speed.Y.WholeWord + 2));
         if (candidate >= boundary)
             candidate = boundary;
@@ -552,10 +552,16 @@ public sealed class ScrollBoundaryCamera
     {
         int xScreenAtCenter = (ushort)(Position.X.Whole + 0x0080) >> 8;
         int yScreen = Position.Y.Whole >> 8;
-        return yScreen * Scrolls.WidthInScreens + xScreenAtCenter;
+        return yScreen * Scrolls.Size.X + xScreenAtCenter;
     }
 
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
+
+    /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the AND #$FF00 alignment).</summary>
+    private static ushort ScreenStart(ushort pixel) => (ushort)(pixel & 0xff00);
+
+    /// <summary>The first pixel of the following scroll screen, wrapping at sixteen bits.</summary>
+    private static ushort NextScreenStart(ushort pixel) => unchecked((ushort)(ScreenStart(pixel) + 0x0100));
 
     /// <summary>
     /// $90:96C3/$90:9702: compares only the integer words as signed 16-bit values, then

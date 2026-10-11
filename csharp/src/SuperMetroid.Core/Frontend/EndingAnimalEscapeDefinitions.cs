@@ -46,7 +46,7 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
         int offset = pointer - FrameStart;
         if (offset < 0 || offset % FrameStride != 0 || offset / FrameStride >= FrameCount)
             throw new InvalidDataException($"Animal escape sprite $8C:{pointer:X4} is outside its four frames.");
-        oam.AddRawSmallSprite(unchecked((ushort)(x - SpriteOffset)), unchecked((ushort)(y - SpriteOffset)),
+        oam.AddRawSmallSprite(new Position16<OamPixels>(unchecked((ushort)(x - SpriteOffset)), unchecked((ushort)(y - SpriteOffset))),
             (ushort)(FirstAttributes + offset / FrameStride));
     }
 }

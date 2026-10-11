@@ -50,9 +50,9 @@ static void VerifyMode7Rendering()
         vram, cgram,
         matrixA: 0x0100, matrixB: 0,
         matrixC: 0, matrixD: 0x0100,
-        centerX: 0, centerY: 0,
-        horizontalOffset: 0, verticalOffset: 0,
-        width: 8, height: 8);
+        center: new Offset16<Mode7Pixels>(0, 0),
+        scroll: new Offset16<Mode7Pixels>(0, 0),
+        size: new Extent16<ScreenPixels>(8, 8));
     AssertEqual(64, identity.Length, "Mode 7 identity dimensions");
     AssertTrue(identity.Take(56).All(pixel => pixel.R == 255 && pixel.G == 0 && pixel.B == 0),
         "Mode 7 identity reads character rows one through seven on physical scanlines one through seven");
@@ -65,9 +65,9 @@ static void VerifyMode7Rendering()
         vram, cgram,
         matrixA: 0x0100, matrixB: 0,
         matrixC: 0, matrixD: 0x0100,
-        centerX: 1024, centerY: 0,
-        horizontalOffset: 1024, verticalOffset: 0,
-        width: 1, height: 1);
+        center: new Offset16<Mode7Pixels>(1024, 0),
+        scroll: new Offset16<Mode7Pixels>(1024, 0),
+        size: new Extent16<ScreenPixels>(1, 1));
     AssertEqual(0, outside[0].A, "Mode 7 transparent outside fill");
 
     // A non-identity transform is essential here: applying HOFS after the matrix gives
@@ -91,9 +91,9 @@ static void VerifyMode7Rendering()
         vram, cgram,
         matrixA: 0, matrixB: 0x0100,
         matrixC: -0x0100, matrixD: 0,
-        centerX: 16, centerY: 16,
-        horizontalOffset: 8, verticalOffset: 0,
-        width: 17, height: 17);
+        center: new Offset16<Mode7Pixels>(16, 16),
+        scroll: new Offset16<Mode7Pixels>(8, 0),
+        size: new Extent16<ScreenPixels>(17, 17));
     AssertEqual(cgram.GetRgba(5), rotatedScroll[16 * 17 + 16],
         "Mode 7 transforms scroll before adding pivot");
 
@@ -128,12 +128,9 @@ static void VerifyMode7Rendering()
         matrixB: 0,
         matrixC: 0,
         matrixD: 0x0100,
-        centerX: 0,
-        centerY: 0,
-        horizontalOffset: 0,
-        verticalOffset: 0,
-        bg2HorizontalScroll: 0,
-        bg2VerticalScroll: 0,
+        center: new Offset16<Mode7Pixels>(0, 0),
+        scroll: new Offset16<Mode7Pixels>(0, 0),
+        bg2Scroll: new Position16<Bg2Pixels>(0, 0),
         bg2CharacterBaseWord: 0x6000);
     AssertEqual(splitCgram.GetRgba(2), split[207 * 256],
         "Ceres Ridley scanline 207 remains Mode 7");

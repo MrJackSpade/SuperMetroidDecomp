@@ -1262,7 +1262,7 @@ internal static partial class Program
             new byte[32 * 32], blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(bus,
-            new byte[RoomScrollGrid.StorageByteCount], 2, 2);
+            new byte[RoomScrollGrid.StorageByteCount], new Extent16<RoomScreens>(2, 2));
         var samus = new SamusState();
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();

@@ -112,14 +112,14 @@ internal static partial class Program
         var direct = dryPixels.ToArray();
         SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(direct, runtime.Vram, runtime.Cgram, displayed);
         AssertTrue(direct.SequenceEqual(wetPixels), "Immediate and captured composition agree for the actual water room");
-        AssertEqual<ushort[]?>(null, SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(displayed, 0, 0),
+        AssertEqual<ushort[]?>(null, SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(displayed, new Position16<Bg2Pixels>(0, 0)),
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
         typeof(TourianStatueSequence).GetField("descent", flags)!.SetValue(runtime.TourianStatues, 64 << 16);
         runtime.TourianStatues.LatchDisplay();
         runtime.RunNmi(0, true);
         var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
         AssertEqual(unchecked((ushort)(runtime.DisplayedGameplayPpu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)),
-            descending.Registers.Bg2Y, "Statue descent retains its independent BG2 vertical scroll");
+            descending.Registers.Bg2Scroll.Y, "Statue descent retains its independent BG2 vertical scroll");
         AssertEqual((short)0xb0, runtime.DisplayedRoomLayer3Fx!.Value.WaterSurfaceScreenY,
             "Statue motion does not move its water surface");
         runtime.RoomLayer3Fx.ApplyCartridgeMotionWrites(targetYPosition: 0xb4,
@@ -134,7 +134,7 @@ internal static partial class Program
         AssertEqual<RoomFxEarthquakeRequest?>(null, runtime.RoomLayer3Fx.EarthquakeRequest,
             "Water motion does not invoke the lava/acid earthquake branch");
         AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
-        runtime.RoomLayer3Fx.Step(bus, runtime.Vram, 0, 0, timeIsFrozen: true, mainGameLoopCarry: true);
+        runtime.RoomLayer3Fx.Step(bus, runtime.Vram, Position16<RoomPixels>.Zero, timeIsFrozen: true, mainGameLoopCarry: true);
         AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.CurrentYPosition, "Frozen HDMA retains the current water surface");
         Console.WriteLine("Four-statues water: actual FX, liquid publication, visible BG3 pixels and independent statue descent verified.");
         return 0;

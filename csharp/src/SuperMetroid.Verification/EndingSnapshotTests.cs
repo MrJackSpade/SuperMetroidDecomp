@@ -178,7 +178,7 @@ internal static partial class Program
                     AssertEqual((byte)Math.Max(0, 31 - elapsed), add.Red, "native post-shot white fade component");
                     var textPlane = flash.Layers.ToArray().OfType<Bg4BppRenderLayer>().Single();
                     AssertEqual((ushort)0x4c00, textPlane.TilemapWord, "final text uses native upper screen");
-                    AssertEqual(64, textPlane.MapHeightTiles, "final text map is two screens tall");
+                    AssertEqual(64, textPlane.MapSize.Y, "final text map is two screens tall");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)), "post-shot flash begins fully white");
                 }
@@ -192,10 +192,10 @@ internal static partial class Program
                     var shotFrame = legacy.CaptureRenderSnapshot();
                     var mode = shotFrame.Layers.ToArray().OfType<Mode7RenderLayer>().Single();
                     AssertTrue(mode.SubtractObjSubscreen, "live shot enables native BG1 minus OBJ blending");
-                    AssertEqual((short)104, mode.Registers.CenterX, "post-shot matrix horizontal origin");
-                    AssertEqual((short)112, mode.Registers.CenterY, "post-shot matrix vertical origin");
-                    AssertEqual((short)-4, mode.Registers.HorizontalOffset, "post-shot horizontal scroll");
-                    AssertEqual((short)-8, mode.Registers.VerticalOffset, "post-shot vertical scroll");
+                    AssertEqual((short)104, mode.Registers.Center.X, "post-shot matrix horizontal origin");
+                    AssertEqual((short)112, mode.Registers.Center.Y, "post-shot matrix vertical origin");
+                    AssertEqual((short)-4, mode.Registers.Scroll.X, "post-shot horizontal scroll");
+                    AssertEqual((short)-8, mode.Registers.Scroll.Y, "post-shot vertical scroll");
                     if (hours == 2 && elapsed == 16)
                     {
                         File.WriteAllBytes("csharp/test-temp/ending-504/live-shot.smframe",

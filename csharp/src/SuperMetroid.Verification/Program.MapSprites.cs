@@ -20,7 +20,7 @@ internal static partial class Program
         {
             installed.BeginFrame();
             installed.AddOnScreenSpritePart(SnesSpritemapXWord.Create(-1, true), (byte)offset,
-                SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), 0, (ushort)origin);
+                SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(0, (ushort)origin));
             int sum = origin + offset;
             int signedY = origin + unchecked((sbyte)offset);
             bool hidden = signedY is < -32 or >= 224;

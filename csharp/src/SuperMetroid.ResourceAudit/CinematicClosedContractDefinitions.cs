@@ -42,7 +42,7 @@ internal static class CinematicClosedContractDefinitions
         new("SuperMetroid.Core.Assets.EscapeTimerPresentation", "escape-timer-complete-decimal-and-label-art", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs", "DF047C887E48BB384C3942387CF3DD4E9318422127C29015CFC2E422E53BF170"),
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs", "30F7334020242A55B8ADBDF202A292BF7D5DADBE54D28C47B76EA22DBFFAEEC1"),
-             new("csharp/src/SuperMetroid.Core/Assets/SpriteComposition.cs", "3F3074531262CCFDEA29EAED4A0F601E25465DF5F7C7C7E76EE3E96078A29E28"),
+             new("csharp/src/SuperMetroid.Core/Assets/SpriteComposition.cs", "7FC528CFE510BDE260308EE80813980B1B50B98BAED86A80063427D3FDBA9247"),
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs", "535C19B6CD3747971C1CAD94F70A759F1F37F2A167CE6D874DFC35C76F24E74A"),
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs", "51FECBBD9AD31F43F011A5EA407A0F4398ADBC33FB1EA2797A1BC9A1B11687B5")]),
         new("SuperMetroid.Core.Assets.CeresEscapeOverlayTilemapCatalog", "ceres-overlay-complete-owned-membership-query", ["TryResolve"],

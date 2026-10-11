@@ -449,8 +449,7 @@ static void VerifySamusRenderingSlice()
         MatrixA: 0x0000,
         MatrixB: 0x0100,
         MatrixC: 0xff00,
-        CenterX: 0x0480,
-        CenterY: 0x0080);
+        Center: new Position16<RoomPixels>(0x0480, 0x0080));
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Draw(
@@ -476,9 +475,8 @@ static void VerifySamusRenderingSlice()
         MatrixA: 0xff80,
         MatrixB: 0x0180,
         MatrixC: 0xfe80,
-        CenterX: 0xfff0,
-        CenterY: 0x0010);
-    SamusMode7Point wrapped = wrappedMatrix.Transform(0x0010, 0xffe0);
+        Center: new Position16<RoomPixels>(0xfff0, 0x0010));
+    Position16<RoomPixels> wrapped = wrappedMatrix.Transform(new Position16<RoomPixels>(0x0010, 0xffe0));
     AssertEqual(0x0028, wrapped.X,
         "Mode 7 transform preserves signed-product and center-X word wrap");
     AssertEqual(0x0058, wrapped.Y,

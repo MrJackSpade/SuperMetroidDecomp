@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class ObjectSmokeTests
 {
@@ -23,9 +24,9 @@ internal static class ObjectSmokeTests
             Check(memory, obsel, new RenderLayer[] { new ObjRenderLayer() });
             Check(memory, obsel, new RenderLayer[] {
                 new ObjPriorityRenderLayer(0),
-                new Bg4BppRenderLayer(0x4000, 0x6000, 3, 11, 32, 32, false),
+                new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), false),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2),
-                new Bg4BppRenderLayer(0x4000, 0x6000, 3, 11, 32, 32, true),
+                new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), true),
                 new ObjPriorityRenderLayer(3) });
         }
         // Earlier OAM wins even when the later entry has greater display priority.

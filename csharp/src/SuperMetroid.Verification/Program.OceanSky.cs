@@ -21,12 +21,12 @@ internal static partial class Program
         runtime.RunNmi(0, mainLoopRequestedNmi: true);
         var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
         var ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-        Console.WriteLine($"Ocean room: main={runtime.ActiveRoom!.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2WidthTiles}x{ordinary.Registers.Bg2HeightTiles}, sky={runtime.ScrollingSky is not null}");
+        Console.WriteLine($"Ocean room: main={runtime.ActiveRoom!.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2MapSize.X}x{ordinary.Registers.Bg2MapSize.Y}, sky={runtime.ScrollingSky is not null}");
         Directory.CreateDirectory("csharp/test-temp/issue-349-ocean");
         PngWriterTooling.WriteRgba("csharp/test-temp/issue-349-ocean/current.png", 256, 224,
             SoftwareLayeredSnapshotRenderer.Render(scene));
-        AssertEqual(32, ordinary.Registers.Bg2WidthTiles, "Ocean setup $88:A800 writes BG2SC=$4A: 32 tiles wide");
-        AssertEqual(64, ordinary.Registers.Bg2HeightTiles, "Ocean setup uses two vertically stacked BG2 pages");
+        AssertEqual(32, ordinary.Registers.Bg2MapSize.X, "Ocean setup $88:A800 writes BG2SC=$4A: 32 tiles wide");
+        AssertEqual(64, ordinary.Registers.Bg2MapSize.Y, "Ocean setup uses two vertically stacked BG2 pages");
         AssertTrue(runtime.ScrollingSky is not null, "Ocean main installs scrolling-sky row streaming");
         var writes = new VramWriteQueue();
         // Travel down in one-tile increments. After the first screen, every visible row
@@ -57,11 +57,11 @@ internal static partial class Program
             ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
         var background = SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { bgOnly }, scene.ObjectSelection, scene.Brightness));
         // Force the native BG2SC=$4A layout independently of the capture's selected dimensions.
-        var nativeLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2WidthTiles = 32, Bg2HeightTiles = 64 },
+        var nativeLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2MapSize = new Extent16<TilemapCells>(32, 64) },
             ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
         var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { nativeLayout }, scene.ObjectSelection, scene.Brightness));
         AssertTrue(background.SequenceEqual(expectedPixels), "ocean background has no horizontal insertion of the vertical page");
-        var wrongLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2WidthTiles = 64, Bg2HeightTiles = 32 },
+        var wrongLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2MapSize = new Extent16<TilemapCells>(64, 32) },
             ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
         var wrongPixels = SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { wrongLayout }, scene.ObjectSelection, scene.Brightness));
         AssertEqual(32, bgOnly.Registers.Bg2FirstScanline, "accepted ocean NMI exposes BG2 below the HUD");

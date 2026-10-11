@@ -98,7 +98,7 @@ internal static partial class Program
         foreach (int occupied in new[] { 0, 127, 128 })
         {
             var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
-            for (int i = 0; i < occupied; i++) { expected.AddRawSmallSprite(12, 34, 56); actual.AddRawSmallSprite(12, 34, 56); }
+            for (int i = 0; i < occupied; i++) { expected.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56); actual.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56); }
             ushort x = ReadVerificationWord(rom, 0x82c1d6 + index * 2);
             ushort y = (ushort)(ReadVerificationWord(rom, 0x82c1e2) - 1);
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);

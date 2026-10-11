@@ -121,8 +121,7 @@ public static partial class SamusGrappleMovement
                 ?? unchecked((ushort)(SamusGrappleRomData.Rendering.FirstSegmentAttributes + grapple.SegmentAnimationFrames[instructionSlot]));
             ushort segmentAttributes = unchecked((ushort)(appearance | flipAttributes));
             oam.AddRawSmallSprite(
-                unchecked((ushort)screenX),
-                unchecked((ushort)screenY),
+                new Position16<OamPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
                 segmentAttributes);
             screenXFixed = unchecked(screenXFixed + stepX);
             screenYFixed = unchecked(screenYFixed + stepY);
@@ -149,8 +148,7 @@ public static partial class SamusGrappleMovement
         int borrowX = swinging && grapple.AnchorX < layer1X ? 1 : 0;
         int borrowY = swinging && grapple.AnchorY < layer1Y ? 1 : 0;
         oam.AddRawSmallSprite(
-            unchecked((ushort)(grapple.AnchorX - layer1X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)),
-            unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY)),
+            new Position16<OamPixels>(unchecked((ushort)(grapple.AnchorX - layer1X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)), unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY))),
             attributes);
     }
 

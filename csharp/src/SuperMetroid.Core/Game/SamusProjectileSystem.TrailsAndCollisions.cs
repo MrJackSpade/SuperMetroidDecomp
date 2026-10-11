@@ -393,8 +393,7 @@ public sealed partial class SamusProjectileSystem
             return;
 
         oam.AddProjectileTrailSprite(
-            unchecked((byte)screenX),
-            unchecked((byte)screenY),
+            new Position16<OamPixels>(unchecked((byte)screenX), unchecked((byte)screenY)),
             artwork is null ? side.TileNumberAttributes : artwork.ResolveCurrent(side.InstructionPointer, side.TileNumberAttributes));
     }
 

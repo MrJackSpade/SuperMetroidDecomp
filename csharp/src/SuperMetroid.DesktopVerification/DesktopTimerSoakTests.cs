@@ -45,8 +45,8 @@ internal static partial class Program
             {
                 // The bounded five-minute run fits completely in this history.
                 // Normal desktop workers retain their smaller rolling window.
-                await control.InitializeRendererAsync((window, width, height, generation) =>
-                    new D3D11RenderWorker(window, width, height, generation, D3D11DeviceKind.Hardware,
+                await control.InitializeRendererAsync((window, clientSize, generation) =>
+                    new D3D11RenderWorker(window, clientSize, generation, D3D11DeviceKind.Hardware,
                         RenderTelemetryLimits.MaximumHistoryCapacity));
                 var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
                 string adapter = await worker.Ready;

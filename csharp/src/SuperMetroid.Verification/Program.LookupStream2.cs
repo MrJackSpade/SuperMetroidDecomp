@@ -970,7 +970,7 @@ internal static partial class Program
         AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out EnemySpritemapParts selectedDisplay),
             "Edited Dead Torizo display is selected");
         var editedOam = new OamBuffer();
-        editedOam.AddEnemySpritemap(selectedDisplay, 128, 128, 0, 0);
+        editedOam.AddEnemySpritemap(selectedDisplay, new Position16<OamPixels>(128, 128), 0, 0);
         AssertEqual(4, editedOam.NextByteOffset, "Edited display draws one small part instead of25stock parts");
         AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
@@ -1136,7 +1136,7 @@ internal static partial class Program
     {
         var storage = new byte[RoomScrollGrid.StorageByteCount];
         Array.Fill(storage, (byte)1);
-        var grid = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), storage, 3, 2);
+        var grid = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), storage, new Extent16<RoomScreens>(3, 2));
         foreach (CameraDistanceMode mode in Enum.GetValues<CameraDistanceMode>())
         foreach (byte facing in new byte[] { 4, 8 })
         for (int reversal = 0; reversal < 4; reversal++)
@@ -1519,7 +1519,7 @@ internal static partial class Program
                     else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
                 }
             }
-            oam.AddProjectileTrailSprite((byte)side.XPosition, (byte)side.YPosition, side.TileNumberAttributes);
+            oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.XPosition, (byte)side.YPosition), side.TileNumberAttributes);
         }
     }
 
@@ -2313,8 +2313,8 @@ internal static partial class Program
                     AssertEqual((short)wanted.OffsetY, found.OffsetY, "Golden Torizo independent component Y");
                     AssertTrue(found.Parts.SequenceEqual(parts), "Golden Torizo exact supplied part order and fields");
                     ushort x = unchecked((ushort)(128 + wanted.OffsetX)), y = unchecked((ushort)(96 + wanted.OffsetY));
-                    expectedOam.AddEnemySpritemap(parts.AsSpan(), x, y, 0, 0);
-                    actualOam.AddEnemySpritemap(found.Parts, x, y, 0, 0);
+                    expectedOam.AddEnemySpritemap(parts.AsSpan(), new Position16<OamPixels>(x, y), 0, 0);
+                    actualOam.AddEnemySpritemap(found.Parts, new Position16<OamPixels>(x, y), 0, 0);
                 }
                 AssertEqual(expectedOam.NextByteOffset, actualOam.NextByteOffset, "Golden Torizo packed OBJ count");
                 AssertTrue(expectedOam.LowTable.SequenceEqual(actualOam.LowTable) && expectedOam.HighTable.SequenceEqual(actualOam.HighTable),

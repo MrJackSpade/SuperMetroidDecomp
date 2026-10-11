@@ -40,7 +40,7 @@ public sealed class SpriteComposition
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         foreach (var part in parts)
             oam.AddOnScreenSpritePart(part.X, part.Y,
-                part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, x, y);
+                part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, new Position16<OamPixels>(x, y));
     }
 
     /// <summary>Preserves the cartridge's opposite Y-wrap clipping for negative origins.</summary>
@@ -50,7 +50,7 @@ public sealed class SpriteComposition
         foreach (var part in parts)
             oam.AddOffScreenSpritePart(part.X, part.Y,
                 part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes,
-                x, y);
+                new Position16<OamPixels>(x, y));
     }
 }
 

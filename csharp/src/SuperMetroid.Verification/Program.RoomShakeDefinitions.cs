@@ -25,11 +25,7 @@ internal static partial class Program
             enemies.EarthquakeType = type;
             enemies.EarthquakeTimer = 1;
             RoomShakeFrameResult positive = enemies.HandleRoomShaking(timeIsFrozen: false);
-            AssertEqual(new RoomShakeFrameResult(
-                    definition.Bg1X,
-                    definition.Bg1Y,
-                    definition.Bg2X,
-                    definition.Bg2Y),
+            AssertEqual(new RoomShakeFrameResult(definition.Bg1, definition.Bg2),
                 positive,
                 $"room shake type {type} positive production frame");
             AssertEqual((ushort)0, enemies.EarthquakeTimer,
@@ -38,10 +34,8 @@ internal static partial class Program
             enemies.EarthquakeTimer = 2;
             RoomShakeFrameResult negative = enemies.HandleRoomShaking(timeIsFrozen: false);
             AssertEqual(new RoomShakeFrameResult(
-                    unchecked((short)-definition.Bg1X),
-                    unchecked((short)-definition.Bg1Y),
-                    unchecked((short)-definition.Bg2X),
-                    unchecked((short)-definition.Bg2Y)),
+                    new(unchecked((short)-definition.Bg1.X), unchecked((short)-definition.Bg1.Y)),
+                    new(unchecked((short)-definition.Bg2.X), unchecked((short)-definition.Bg2.Y))),
                 negative,
                 $"room shake type {type} alternating production frame");
 
@@ -49,7 +43,7 @@ internal static partial class Program
             var positiveProjectile = ((short X, short Y))projectileShake.Invoke(
                 enemies,
                 [false])!;
-            AssertEqual((definition.ProjectileX, definition.ProjectileY), positiveProjectile,
+            AssertEqual((definition.Projectile.X, definition.Projectile.Y), positiveProjectile,
                 $"room shake type {type} positive projectile displacement");
 
             enemies.EarthquakeTimer = 2;
@@ -57,8 +51,8 @@ internal static partial class Program
                 enemies,
                 [false])!;
             AssertEqual((
-                    unchecked((short)-definition.ProjectileX),
-                    unchecked((short)-definition.ProjectileY)),
+                    unchecked((short)-definition.Projectile.X),
+                    unchecked((short)-definition.Projectile.Y)),
                 negativeProjectile,
                 $"room shake type {type} alternating projectile displacement");
         }
@@ -90,15 +84,15 @@ internal static partial class Program
 
     private static void VerifyRoomShakeBg1Algorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg1ReferenceAddress, 8,
-            definition => (definition.Bg1X, definition.Bg1Y), "BG1"));
+            definition => (definition.Bg1.X, definition.Bg1.Y), "BG1"));
 
     private static void VerifyRoomShakeBg2Algorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg2ReferenceAddress, 8,
-            definition => (definition.Bg2X, definition.Bg2Y), "BG2"));
+            definition => (definition.Bg2.X, definition.Bg2.Y), "BG2"));
 
     private static void VerifyRoomShakeProjectileAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.ProjectileReferenceAddress, 4,
-            definition => (definition.ProjectileX, definition.ProjectileY), "projectile"));
+            definition => (definition.Projectile.X, definition.Projectile.Y), "projectile"));
 
     private static void VerifyRoomShakeVector(SuperMetroidAddressSpace rom, int source, int stride,
         Func<RoomShakeDefinition, (short X, short Y)> select, string label)

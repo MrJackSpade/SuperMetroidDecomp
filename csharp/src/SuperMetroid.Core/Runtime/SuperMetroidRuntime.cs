@@ -1214,8 +1214,7 @@ public sealed partial class SuperMetroidRuntime
             RoomLayer3Fx.Step(
                 _addressSpace,
                 Vram,
-                Camera.PixelPosition.X,
-                Camera.PixelPosition.Y,
+                Camera.PixelPosition,
                 TimeIsFrozen,
                 System.MainGameLoopCarry,
                 System.RandomNumber,

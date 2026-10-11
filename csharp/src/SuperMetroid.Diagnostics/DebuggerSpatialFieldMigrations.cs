@@ -112,6 +112,46 @@ internal static class DebuggerSpatialFieldMigrations
             "<InheritedLayer1XSubposition>k__BackingField", "<InheritedLayer1YSubposition>k__BackingField"),
         Fractions(typeof(SuperMetroidGame).FullName!, "retainedLayer1Position",
             "retainedLayer1XSubposition", "retainedLayer1YSubposition"),
+
+        // The scroll-zone grid's room size, the BG3 room-FX scroll state and the Ceres shaft pivot.
+        Size<RoomScreens>(typeof(RoomScrollGrid).FullName!, "<Size>k__BackingField",
+            "<WidthInScreens>k__BackingField", "<HeightInScreens>k__BackingField"),
+        Whole<Bg3Pixels>(typeof(RoomLayer3FxState).FullName!, "<Scroll>k__BackingField",
+            "<HorizontalScroll>k__BackingField", "<VerticalScroll>k__BackingField"),
+        Offset<Bg3Subpixels>(typeof(RoomLayer3FxState).FullName!, "drift",
+            "horizontalAccumulator", "verticalAccumulator"),
+        Whole<RoomPixels>(typeof(RoomLayer3FxState).FullName!, "previousCamera",
+            "previousCameraX", "previousCameraY"),
+        Whole<Bg3Pixels>(typeof(RoomLayer3FxRenderSnapshot).FullName!, "<Scroll>k__BackingField",
+            "<HorizontalScroll>k__BackingField", "<VerticalScroll>k__BackingField"),
+        Whole<RoomPixels>(typeof(SamusMode7Transform).FullName!, "<Center>k__BackingField",
+            "<CenterX>k__BackingField", "<CenterY>k__BackingField"),
+        Signed<RoomPixels>(typeof(RoomShakeFrameResult).FullName!, "<Bg1>k__BackingField",
+            "<Bg1X>k__BackingField", "<Bg1Y>k__BackingField"),
+        Signed<Bg2Pixels>(typeof(RoomShakeFrameResult).FullName!, "<Bg2>k__BackingField",
+            "<Bg2X>k__BackingField", "<Bg2Y>k__BackingField"),
+
+        // Captured display packets retained by the frontend: PPU register pairs and map sizes.
+        Size<ScreenPixels>(typeof(SuperMetroid.Core.Rendering.RenderFrameSnapshot).FullName!, "<Size>k__BackingField",
+            "<Width>k__BackingField", "<Height>k__BackingField"),
+        Whole<BgPlanePixels>(typeof(SuperMetroid.Core.Rendering.Bg4BppRenderLayer).FullName!, "<Scroll>k__BackingField",
+            "<HorizontalScroll>k__BackingField", "<VerticalScroll>k__BackingField"),
+        Size<TilemapCells>(typeof(SuperMetroid.Core.Rendering.Bg4BppRenderLayer).FullName!, "<MapSize>k__BackingField",
+            "<MapWidthTiles>k__BackingField", "<MapHeightTiles>k__BackingField"),
+        Whole<Bg2Pixels>(typeof(SuperMetroid.Core.Rendering.Mode1FloorBand).FullName!, "<Scroll>k__BackingField",
+            "<HorizontalScroll>k__BackingField", "<VerticalScroll>k__BackingField"),
+        Size<TilemapCells>(typeof(SuperMetroid.Core.Rendering.Mode1FloorBand).FullName!, "<MapSize>k__BackingField",
+            "<MapWidthTiles>k__BackingField", "<MapHeightTiles>k__BackingField"),
+        Signed<Mode7Pixels>(typeof(SuperMetroid.Core.Rendering.Mode7RenderRegisters).FullName!, "<Center>k__BackingField",
+            "<CenterX>k__BackingField", "<CenterY>k__BackingField"),
+        Signed<Mode7Pixels>(typeof(SuperMetroid.Core.Rendering.Mode7RenderRegisters).FullName!, "<Scroll>k__BackingField",
+            "<HorizontalOffset>k__BackingField", "<VerticalOffset>k__BackingField"),
+        Whole<RoomPixels>(typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters).FullName!, "<Bg1Scroll>k__BackingField",
+            "<Bg1X>k__BackingField", "<Bg1Y>k__BackingField"),
+        Whole<Bg2Pixels>(typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters).FullName!, "<Bg2Scroll>k__BackingField",
+            "<Bg2X>k__BackingField", "<Bg2Y>k__BackingField"),
+        Size<TilemapCells>(typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters).FullName!, "<Bg2MapSize>k__BackingField",
+            "<Bg2WidthTiles>k__BackingField", "<Bg2HeightTiles>k__BackingField"),
     ];
 
     private static readonly Dictionary<(string Type, string Field), DebuggerSpatialFieldMigration> ByLegacyField =
@@ -153,6 +193,14 @@ internal static class DebuggerSpatialFieldMigrations
         where TSpace : ISpatialSpace =>
         new(type, field, [x, y], (_, v) => new Offset16<TSpace>(unchecked((short)Word(v[0])), unchecked((short)Word(v[1]))));
 
+    private static DebuggerSpatialFieldMigration Signed<TSpace>(string type, string field, string x, string y)
+        where TSpace : ISpatialSpace =>
+        new(type, field, [x, y], (_, v) => new Offset16<TSpace>(Signed(v[0]), Signed(v[1])));
+
+    private static DebuggerSpatialFieldMigration Size<TSpace>(string type, string field, string width, string height)
+        where TSpace : ISpatialSpace =>
+        new(type, field, [width, height], (_, v) => new Extent16<TSpace>(Length(v[0]), Length(v[1])));
+
     private static DebuggerSpatialFieldMigration Fixed(string type, string field, string x, string xFraction, string y, string yFraction) =>
         new(type, field, [x, xFraction, y, yFraction],
             (_, v) => FixedPosition<RoomPixels>.FromWords(Word(v[0]), Word(v[1]), Word(v[2]), Word(v[3])));
@@ -182,6 +230,13 @@ internal static class DebuggerSpatialFieldMigrations
 
     private static ushort Word(object? value) => value as ushort? ??
         throw new InvalidDataException($"Legacy spatial component {value?.GetType().Name ?? "null"} is not a word.");
+
+    private static short Signed(object? value) => value as short? ??
+        throw new InvalidDataException($"Legacy signed register {value?.GetType().Name ?? "null"} is not a signed word.");
+
+    private static ushort Length(object? value) => value is int length and >= 0 and <= ushort.MaxValue
+        ? (ushort)length
+        : throw new InvalidDataException($"Legacy size component {value ?? "null"} is not a 16-bit length.");
 
     private static uint Raw(object? value) => value as uint? ??
         throw new InvalidDataException($"Legacy 16.16 component {value?.GetType().Name ?? "null"} is not a 32-bit word.");

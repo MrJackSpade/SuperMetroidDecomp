@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static partial class InstalledSporesTests
@@ -83,17 +84,17 @@ internal static partial class InstalledSporesTests
             for (int frame = 0; frame < 1050; frame++)
             {
                 bool frozen = frame is >= 37 and < 45;
-                ushort cameraX = unchecked((ushort)(frame * 79)), cameraY = unchecked((ushort)(65520 + frame * 3));
+                var camera = new Position16<RoomPixels>(unchecked((ushort)(frame * 79)), unchecked((ushort)(65520 + frame * 3)));
                 RoomLayer3FxRenderSnapshot before = baseline.CaptureForDisplay()!.Value;
-                baseline.Step(memory, baselineVram, cameraX, cameraY, frozen, mainGameLoopCarry: false);
-                replacement.Step(memory, editedVram, cameraX, cameraY, frozen, mainGameLoopCarry: false);
+                baseline.Step(memory, baselineVram, camera, frozen, mainGameLoopCarry: false);
+                replacement.Step(memory, editedVram, camera, frozen, mainGameLoopCarry: false);
                 var capture = baseline.CaptureForDisplay()!.Value;
                 if (frozen) Require(capture == before, "Frozen spores changed scroll or phase.");
                 else
                 {
                     ushort accumulator = unchecked((ushort)(-tick * 64));
-                    Require(capture.HorizontalScroll == cameraX && capture.VerticalScroll ==
-                        unchecked((ushort)(cameraY + (sbyte)(accumulator >> 8))), "Spores lost native signed 8.8 camera anchoring.");
+                    Require(capture.Scroll == new Position16<Bg3Pixels>(camera.X,
+                        unchecked((ushort)(camera.Y + (sbyte)(accumulator >> 8)))), "Spores lost native signed 8.8 camera anchoring.");
                     int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics,
                         mechanics.Frames[tick / 10 % 3].InstructionPointer);
                     Require(stock.RoomFxAnimatedTiles.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
@@ -116,7 +117,7 @@ internal static partial class InstalledSporesTests
                     "Spore presentation produced audio or earthquake side effects.");
                 if (frame is 0 or 10 or 20 or 30 or 44 or 511 or 1024)
                 {
-                    var gameplay = new OrdinaryGameplayRenderLayer(new(0, 0, 0, 0, 64, 32,
+                    var gameplay = new OrdinaryGameplayRenderLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
                         SnesPpuLayout.GameplayBg2TilemapWord, 0, 0, 0x4000, SnesMainScreenLayers.Bg2));
                     var layer = SnesGameplayFrameRenderer.CaptureSpores(gameplay, replacement.CaptureForDisplay()!.Value);
                     Require(!layer.RevealBlocks && layer.ColorMath == (SnesColorMathControl)0x32 &&

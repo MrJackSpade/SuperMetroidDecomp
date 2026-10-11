@@ -26,7 +26,7 @@ internal static partial class Program
                 runtime.StepFrame(0);
                 if (runtime.Enemies.RoomSpriteObjects.Any(s => s.IsActive && s.SpritemapPointer != 0)) explosionFrames++;
                 var shake = runtime.Enemies.LastRoomShake;
-                offsets.Add((shake.Bg1X, shake.Bg1Y));
+                offsets.Add((shake.Bg1.X, shake.Bg1.Y));
                 if (frame % 10 == 9)
                 {
                     var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
@@ -49,8 +49,7 @@ internal static partial class Program
                     var displayedShake = runtime.DisplayedGameplayPpu.RoomShake;
                     var stationary = new OrdinaryGameplayRenderLayer(noObjects.Registers with
                     {
-                        Bg1X = unchecked((ushort)(layer.Registers.Bg1X - displayedShake.Bg1X)),
-                        Bg1Y = unchecked((ushort)(layer.Registers.Bg1Y - displayedShake.Bg1Y))
+                        Bg1Scroll = layer.Registers.Bg1Scroll - displayedShake.Bg1
                     }, layer.HorizontalScrolls, layer.VerticalScrolls);
                     var unshaken = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [stationary], capture.ObjectSelection, capture.Brightness));
                     visibleShake |= baseline.Where((pixel, index) => index >= 32 * 256 && pixel != unshaken[index]).Count() > 500;

@@ -258,7 +258,7 @@ internal sealed partial class PauseMenuState
         objScratchPixels ??= new Rgba32[256 * 224];
         objScratchPriorities ??= new byte[256 * 224];
         SnesObjRenderer.RenderResolved(oam, vram, cgram, PauseMenuLayout.ObjectSelection,
-            objScratchPixels, objScratchPriorities, 256, 224);
+            objScratchPixels, objScratchPriorities);
         var objects = new ResolvedObjFrame(objScratchPixels, objScratchPriorities);
 
         // Back to front for BGMODE=$09:
@@ -291,8 +291,8 @@ internal sealed partial class PauseMenuState
         // BG fetches start on physical scanline one; OBJ coordinates already use
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
         ushort mapY = unchecked((ushort)((ScreenMode == 0 ? mapVerticalScroll : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
-        var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, mapX, mapY, 64, 32, false);
-        var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, 0, SnesPpuLayout.FirstVisibleBackgroundScanline, 32, 32, false);
+        var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(mapX, mapY), new Extent16<TilemapCells>(64, 32), false);
+        var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), new Extent16<TilemapCells>(32, 32), false);
         var bg3 = new Bg2BppViewportRenderLayer(SnesPpuLayout.GameplayHudTilemapWord,
             SnesPpuLayout.GameplayHudCharacterBaseWord,
             SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
@@ -344,12 +344,9 @@ internal sealed partial class PauseMenuState
             cgram,
             tilemapBaseWord,
             characterBaseWord: 0,
-            horizontalScroll: isMapLayer && ScreenMode == 0 ? mapHorizontalScroll : (ushort)0,
-            verticalScroll: unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapVerticalScroll : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline)),
-            width: 256,
-            height: 224,
-            tilemapWidthInTiles: tilemapWidthInTiles,
-            tilemapHeightInTiles: 32,
+            scroll: new Position16<BgPlanePixels>(isMapLayer && ScreenMode == 0 ? mapHorizontalScroll : (ushort)0, unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapVerticalScroll : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline))),
+            size: SnesPpuLayout.ScreenSize,
+            tilemapSize: new Extent16<TilemapCells>(checked((ushort)tilemapWidthInTiles), 32),
             priority: priority);
     }
 

@@ -20,16 +20,16 @@ internal static partial class Program
         foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
         foreach (bool floorEnabled in new[] { false, true })
         {
-            var m = new Mode7RenderRegisters(matrix, 17, -33, matrix, 128, 96, -13, unchecked((short)scroll));
-            Mode1FloorBand? floor = floorEnabled ? new(208, SnesPpuLayout.GameplayBg2TilemapWord, 0x6000, scroll, scroll, 64, 32) : null;
+            var m = new Mode7RenderRegisters(matrix, 17, -33, matrix, new Offset16<Mode7Pixels>(128, 96), new Offset16<Mode7Pixels>(-13, unchecked((short)scroll)));
+            Mode1FloorBand? floor = floorEnabled ? new(208, SnesPpuLayout.GameplayBg2TilemapWord, 0x6000, new Position16<Bg2Pixels>(scroll, scroll), new Extent16<TilemapCells>(64, 32)) : null;
             var layer = new Mode7GameplayRenderLayer(m, SnesPpuLayout.GameplayHudTilemapWord,
                 SnesPpuLayout.GameplayHudCharacterBaseWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
             Rgba32[] expected = floorEnabled
                 ? SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Oam,
-                    m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.CenterX, m.CenterY, m.HorizontalOffset, m.VerticalOffset,
-                    scroll, scroll, 0x6000)
+                    m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.Center, m.Scroll,
+                    new Position16<Bg2Pixels>(scroll, scroll), 0x6000)
                 : SnesGameplayFrameRenderer.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Oam,
-                    m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.CenterX, m.CenterY, m.HorizontalOffset, m.VerticalOffset);
+                    m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.Center, m.Scroll);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
             var restored = RoundTripRenderPacket(packet);
             AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(restored)),
@@ -67,7 +67,7 @@ internal static partial class Program
         AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, 0, 0, 31), "HUD must cover complete tile rows");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, 0, 0, 32,
-            new Mode1FloorBand(31, 0, 0, 0, 0, 64, 32)), "floor cannot overlap HUD");
+            new Mode1FloorBand(31, 0, 0, new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32))), "floor cannot overlap HUD");
         Console.WriteLine($"  Mode-7 gameplay snapshots: {samples} full-frame matrix/scroll/floor comparisons match.");
     }
 }

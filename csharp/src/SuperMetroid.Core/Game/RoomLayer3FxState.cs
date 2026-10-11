@@ -29,11 +29,12 @@ public sealed class RoomLayer3FxState
     /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
     [field: NonSerialized]
     public RoomFxPaletteBlendCatalog? PaletteBlendColors { get; set; }
-    private ushort verticalAccumulator;
-    private ushort horizontalAccumulator;
+    // The rain/fog/spores texture drift: one 8.8 accumulator per axis, whose signed high
+    // byte is added to the BG3 scroll before each axis's velocity is applied.
+    private Offset16<Bg3Subpixels> drift;
     private ushort horizontalVelocity;
-    private ushort previousCameraY;
-    private ushort previousCameraX;
+    // Rain scrolls by the layer-one movement since its previous frame.
+    private Position16<RoomPixels> previousCamera;
     private ushort baseYSubposition;
     private ushort tidePhase;
     private int tideFixedOffset;
@@ -83,11 +84,8 @@ public sealed class RoomLayer3FxState
     /// <summary>FX B layer-blending selector installed by the effect pre-instruction.</summary>
     public LayerBlendingConfiguration LayerBlendConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
 
-    /// <summary>Live BG3 horizontal-scroll register shadow.</summary>
-    public ushort HorizontalScroll { get; private set; }
-
-    /// <summary>Live BG3 vertical-scroll register shadow.</summary>
-    public ushort VerticalScroll { get; private set; }
+    /// <summary>Live BG3 scroll-register shadows (BG3HOFS/BG3VOFS).</summary>
+    public Position16<Bg3Pixels> Scroll { get; private set; }
 
     /// <summary>Whether the translated effect supplies a gameplay-region BG3 plane.</summary>
     public bool IsRenderable => Type is
@@ -274,8 +272,7 @@ public sealed class RoomLayer3FxState
     public void Step(
         ISnesAddressSpace bus,
         SnesVram vram,
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         bool timeIsFrozen,
         bool mainGameLoopCarry,
         ushort randomNumber = 0,
@@ -312,28 +309,23 @@ public sealed class RoomLayer3FxState
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            StepLavaAcid(cameraX, cameraY, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
+            StepLavaAcid(camera, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
             return;
         }
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            StepWater(cameraX, cameraY, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
+            StepWater(camera, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
             return;
         }
 
         if (Type == RoomFxType.Rain)
         {
-            VerticalScroll = unchecked((ushort)(
-                previousCameraY - cameraY + SignedHighByte(verticalAccumulator)));
-            verticalAccumulator = unchecked((ushort)(
-                verticalAccumulator - RoomFxRomData.Rain.VerticalVelocity));
-            previousCameraY = cameraY;
-            HorizontalScroll = unchecked((ushort)(
-                previousCameraX - cameraX + SignedHighByte(horizontalAccumulator)));
-            horizontalAccumulator = unchecked((ushort)(
-                horizontalAccumulator + horizontalVelocity));
-            previousCameraX = cameraX;
+            Offset16<Bg3Pixels> cameraDelta = previousCamera.AsBg3Scroll() - camera.AsBg3Scroll();
+            Scroll = Position16<Bg3Pixels>.Zero + cameraDelta + drift.WholePixels();
+            drift = new(unchecked((short)(drift.X + horizontalVelocity)),
+                unchecked((short)(drift.Y - RoomFxRomData.Rain.VerticalVelocity)));
+            previousCamera = camera;
             return;
         }
 
@@ -341,19 +333,15 @@ public sealed class RoomLayer3FxState
         {
             // $88:DA47 samples each signed accumulator before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
-            VerticalScroll = unchecked((ushort)(cameraY + SignedHighByte(verticalAccumulator)));
-            verticalAccumulator = unchecked((ushort)(verticalAccumulator - RoomFxRomData.Spores.VerticalVelocity));
-            HorizontalScroll = unchecked((ushort)(cameraX + SignedHighByte(horizontalAccumulator)));
+            Scroll = camera.AsBg3Scroll() + drift.WholePixels();
+            drift = drift.WithY(unchecked((short)(drift.Y - RoomFxRomData.Spores.VerticalVelocity)));
             return;
         }
 
         // `$88:DB36` anchors fog to layer one and moves its texture by -$40/+50 in 8.8.
-        VerticalScroll = unchecked((ushort)(cameraY + SignedHighByte(verticalAccumulator)));
-        verticalAccumulator = unchecked((ushort)(
-            verticalAccumulator - RoomFxRomData.Fog.VerticalVelocity));
-        HorizontalScroll = unchecked((ushort)(cameraX + SignedHighByte(horizontalAccumulator)));
-        horizontalAccumulator = unchecked((ushort)(
-            horizontalAccumulator + RoomFxRomData.Fog.HorizontalVelocity));
+        Scroll = camera.AsBg3Scroll() + drift.WholePixels();
+        drift = new(unchecked((short)(drift.X + RoomFxRomData.Fog.HorizontalVelocity)),
+            unchecked((short)(drift.Y - RoomFxRomData.Fog.VerticalVelocity)));
     }
 
     /// <summary>
@@ -361,14 +349,13 @@ public sealed class RoomLayer3FxState
     /// a wave clock. Destination rendering can therefore show the correct surface on its
     /// first accepted NMI instead of waiting for the first gameplay handler call.
     /// </summary>
-    public void PrimeViewport(ushort cameraX, ushort cameraY)
+    public void PrimeViewport(Position16<RoomPixels> camera)
     {
         if (Type is not (RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid))
             return;
         CurrentYPosition = BaseYPosition;
-        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
-        HorizontalScroll = cameraX;
-        VerticalScroll = ComputeLiquidVerticalScroll(CurrentYPosition, cameraY);
+        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - camera.Y));
+        Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(CurrentYPosition, camera.Y));
     }
 
     /// <summary>Captures values visible alongside the current accepted NMI's OAM upload.</summary>
@@ -376,8 +363,7 @@ public sealed class RoomLayer3FxState
         ? new RoomLayer3FxRenderSnapshot(
             Type,
             LayerBlendConfiguration,
-            HorizontalScroll,
-            VerticalScroll,
+            Scroll,
             CurrentYPosition,
             LiquidOptions,
             waterBg3WavePhase,
@@ -492,18 +478,16 @@ public sealed class RoomLayer3FxState
     /// room has zero velocity and therefore exercises the cartridge's normal static branch.
     /// </summary>
     private void StepWater(
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         ushort randomNumber,
         bool mainGameLoopCarry,
         bool liquidMotionAlreadyAdvanced)
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, mainGameLoopCarry);
-        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
-        HorizontalScroll = unchecked((ushort)(
-            cameraX + unchecked((sbyte)(waterHorizontalSubscroll >> 8))));
-        VerticalScroll = ComputeLiquidVerticalScroll(CurrentYPosition, cameraY);
+        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - camera.Y));
+        var subscroll = new Offset16<Bg3Pixels>(unchecked((sbyte)(waterHorizontalSubscroll >> 8)), 0);
+        Scroll = (camera.AsBg3Scroll() + subscroll).WithY(ComputeLiquidVerticalScroll(CurrentYPosition, camera.Y));
 
         waterBg3WaveTimer = unchecked((ushort)(waterBg3WaveTimer - 1));
         if (waterBg3WaveTimer == 0)
@@ -545,20 +529,18 @@ public sealed class RoomLayer3FxState
     /// waveforms rotates at the cadence selected by the record's liquid-options byte.
     /// </summary>
     private void StepLavaAcid(
-        ushort cameraX,
-        ushort cameraY,
+        Position16<RoomPixels> camera,
         ushort randomNumber,
         bool mainGameLoopCarry,
         bool liquidMotionAlreadyAdvanced)
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, mainGameLoopCarry);
-        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
-        HorizontalScroll = cameraX;
+        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - camera.Y));
         // Lava/acid $88:B3B0 uses the same surface-relative BG3VOFS equation as water
         // $88:C48E. Zeroing it anchored the animated characters to the screen instead of
         // beginning their first texture row immediately below the liquid boundary.
-        VerticalScroll = ComputeLiquidVerticalScroll(CurrentYPosition, cameraY);
+        Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(CurrentYPosition, camera.Y));
 
         if (!UsesLavaAcidVerticalWave && !UsesLavaAcidHorizontalWave)
             return;
@@ -779,9 +761,10 @@ public sealed class RoomLayer3FxState
         PackedYVelocity = 0;
         Timer = 0;
         LayerBlendConfiguration = default;
-        HorizontalScroll = VerticalScroll = 0;
-        verticalAccumulator = horizontalAccumulator = horizontalVelocity = 0;
-        previousCameraY = previousCameraX = 0;
+        Scroll = Position16<Bg3Pixels>.Zero;
+        drift = Offset16<Bg3Subpixels>.Zero;
+        horizontalVelocity = 0;
+        previousCamera = Position16<RoomPixels>.Zero;
         baseYSubposition = 0x8000;
         tidePhase = 0;
         tideFixedOffset = 0;
@@ -810,8 +793,6 @@ public sealed class RoomLayer3FxState
     /// </summary>
     public void DeleteLiquidHdmaObjects() => liquidHdmaObjectsDeleted = true;
 
-    private static short SignedHighByte(ushort value) => unchecked((sbyte)(value >> 8));
-
     /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>
     private enum LiquidRisePhase
     {
@@ -836,8 +817,7 @@ public readonly record struct RoomFxEarthquakeRequest(
 public readonly record struct RoomLayer3FxRenderSnapshot(
     RoomFxType Type,
     LayerBlendingConfiguration LayerBlendConfiguration,
-    ushort HorizontalScroll,
-    ushort VerticalScroll,
+    Position16<Bg3Pixels> Scroll,
     ushort CurrentYPosition = ushort.MaxValue,
     ushort LiquidOptions = 0,
     int WaterBg3WavePhase = 0,

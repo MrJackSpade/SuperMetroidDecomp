@@ -784,8 +784,7 @@ public sealed partial class SuperMetroidRuntime
                 MatrixA: 0x0100,
                 MatrixB: 0,
                 MatrixC: 0,
-                CenterX: 0x0080,
-                CenterY: 0x03f0)
+                Center: CeresElevatorShaftRoomMainState.CeresShaftMode7Center)
             : null;
         ActiveSamusMode7Transform = initialMode7Transform;
         // `$8F:E4E0` writes the initial matrix as part of door setup before the shaft is
@@ -857,7 +856,7 @@ public sealed partial class SuperMetroidRuntime
             door.Pointer,
             System.RandomNumber,
             room.Pointer);
-        RoomLayer3Fx.PrimeViewport(Camera.PixelPosition.X, Camera.PixelPosition.Y);
+        RoomLayer3Fx.PrimeViewport(Camera.PixelPosition);
         CeresHaze.Load(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
             System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
@@ -1154,8 +1153,8 @@ public sealed partial class SuperMetroidRuntime
             // The already-defeated branch performs this 16-bit `$0101` store directly in
             // `$B3:959E`; unlike the live crumble PLM, it does not wait for instruction
             // `$84:AB51` during the first handler pass.
-            Camera.Scrolls.SetLogicalState(0, 0, RoomScrollState.Blue);
-            Camera.Scrolls.SetLogicalState(1, 0, RoomScrollState.Blue);
+            Camera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
+            Camera.Scrolls.SetLogicalState(new(1, 0), RoomScrollState.Blue);
         }
     }
 

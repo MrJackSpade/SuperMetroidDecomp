@@ -129,8 +129,7 @@ public sealed class SamusArmCannonState
         if (spriteWritten)
         {
             oam.AddRawSmallSprite(
-                unchecked((ushort)screenX),
-                unchecked((ushort)screenY),
+                new Position16<OamPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
                 attributes);
         }
 

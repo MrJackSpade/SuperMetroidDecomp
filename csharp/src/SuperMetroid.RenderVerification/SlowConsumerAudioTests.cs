@@ -79,7 +79,7 @@ internal static partial class SwapchainTests
         D3D11RenderWorker? worker = null;
         try
         {
-            worker = new(window, 640, 480, 1, selection.Kind, () =>
+            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, selection.Kind, () =>
             {
                 entered.Set();
                 if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Slow-consumer release missing.");

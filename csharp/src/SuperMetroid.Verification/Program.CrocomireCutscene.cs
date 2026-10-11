@@ -73,7 +73,7 @@ internal static partial class Program
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] storage = Enumerable.Range(0, RoomScrollGrid.StorageByteCount).Select(index => rom.ReadByte(0x8fa9d7 + index)).ToArray();
-        var scrolls = RoomScrollGrid.LoadCompiled(rom, storage, 8, 1);
+        var scrolls = RoomScrollGrid.LoadCompiled(rom, storage, new Extent16<RoomScreens>(8, 1));
         var camera = new ScrollBoundaryCamera(scrolls);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem
@@ -117,7 +117,7 @@ internal static partial class Program
 
         // Revised interpretation: the later skeleton scene on the left. Begin at its
         // native wait-for-Samus handoff using the retail room's original scrolls.
-        scrolls = RoomScrollGrid.LoadCompiled(rom, storage, 8, 1);
+        scrolls = RoomScrollGrid.LoadCompiled(rom, storage, new Extent16<RoomScreens>(8, 1));
         camera = new ScrollBoundaryCamera(scrolls);
         typeof(RoomEnemySystem).GetField("_setRoomScrollState", flags)!.SetValue(enemies, (Action<int, RoomScrollState>)scrolls.SetStorage);
         state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;

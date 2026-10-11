@@ -45,7 +45,7 @@ internal static partial class Program
                 var actual = scene.CaptureRenderSnapshot().Layers.ToArray()
                     .OfType<ScanlineColorAddRenderLayer>().SingleOrDefault();
                 var expected = SnesGameplayFrameRenderer.CapturePowerBombColorMath(
-                    bus, reference, 0, 0, firstVisibleScanline: 0);
+                    bus, reference, new Position16<RoomPixels>(0, 0), firstVisibleScanline: 0);
                 AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");
                 if (expected is not null && actual is not null)
                 {

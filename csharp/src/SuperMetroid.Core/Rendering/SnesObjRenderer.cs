@@ -37,16 +37,14 @@ public static class SnesObjRenderer
         SnesVram vram,
         SnesCgram cgram,
         byte obsel,
-        int width = SnesPpuLayout.ScreenWidthPixels,
-        int height = SnesPpuLayout.ScreenHeightPixels,
+        Extent16<ScreenPixels>? size = null,
         int? priority = null)
     {
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-        if (output.Length != checked(width * height))
+        Extent16<ScreenPixels> frame = RequireFrame(size);
+        if (output.Length != frame.X * frame.Y)
             throw new ArgumentException("OBJ output buffer has the wrong size.", nameof(output));
         output.Clear();
 
@@ -64,7 +62,7 @@ public static class SnesObjRenderer
         for (int spriteIndex = oam.LastFinalizedSpriteCount - 1; spriteIndex >= 0; spriteIndex--)
         {
             OamEntry entry = oam.GetEntry(spriteIndex);
-            DrawSprite(output, width, height, entry, vram, cgram, obsel, priority);
+            DrawSprite(output, frame, entry, vram, cgram, obsel, priority);
         }
     }
 
@@ -76,18 +74,17 @@ public static class SnesObjRenderer
     /// </summary>
     public static void CompositeUnfiltered(OamBuffer oam, SnesVram vram, SnesCgram cgram,
         byte obsel, Span<Rgba32> pixels, Span<byte> palettes = default,
-        int width = SnesPpuLayout.ScreenWidthPixels, int height = SnesPpuLayout.ScreenHeightPixels)
+        Extent16<ScreenPixels>? size = null)
     {
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-        if (pixels.Length != checked(width * height) || (!palettes.IsEmpty && palettes.Length != pixels.Length))
+        Extent16<ScreenPixels> frame = RequireFrame(size);
+        if (pixels.Length != frame.X * frame.Y || (!palettes.IsEmpty && palettes.Length != pixels.Length))
             throw new ArgumentException("Unexpected OBJ composition buffer dimensions.");
         palettes.Fill(TransparentPriority);
         for (int spriteIndex = oam.LastFinalizedSpriteCount - 1; spriteIndex >= 0; spriteIndex--)
-            DrawSprite(pixels, width, height, oam.GetEntry(spriteIndex), vram, cgram, obsel,
+            DrawSprite(pixels, frame, oam.GetEntry(spriteIndex), vram, cgram, obsel,
                 selectedPriority: null, resolvedPalettes: palettes);
     }
 
@@ -104,16 +101,14 @@ public static class SnesObjRenderer
         byte obsel,
         Span<Rgba32> pixels,
         Span<byte> priorities,
-        int width = SnesPpuLayout.ScreenWidthPixels,
-        int height = SnesPpuLayout.ScreenHeightPixels,
+        Extent16<ScreenPixels>? size = null,
         Span<byte> palettes = default)
     {
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-        int pixelCount = checked(width * height);
+        Extent16<ScreenPixels> frame = RequireFrame(size);
+        int pixelCount = frame.X * frame.Y;
         if (pixels.Length != pixelCount)
             throw new ArgumentException("OBJ color scratch buffer has the wrong size.", nameof(pixels));
         if (priorities.Length != pixelCount)
@@ -134,8 +129,7 @@ public static class SnesObjRenderer
             OamEntry entry = oam.GetEntry(spriteIndex);
             DrawSprite(
                 pixels,
-                width,
-                height,
+                frame,
                 entry,
                 vram,
                 cgram,
@@ -150,8 +144,7 @@ public static class SnesObjRenderer
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void DrawSprite(
         Span<Rgba32> output,
-        int frameWidth,
-        int frameHeight,
+        Extent16<ScreenPixels> frame,
         OamEntry entry,
         SnesVram vram,
         SnesCgram cgram,
@@ -160,6 +153,8 @@ public static class SnesObjRenderer
         Span<byte> resolvedPriorities = default,
         Span<byte> resolvedPalettes = default)
     {
+        int frameWidth = frame.X;
+        int frameHeight = frame.Y;
         var mode = SizeModes[(obsel >> 5) & 7];
         int objectWidth = entry.IsLarge ? mode.LargeWidth : mode.SmallWidth;
         int objectHeight = entry.IsLarge ? mode.LargeHeight : mode.SmallHeight;
@@ -195,8 +190,7 @@ public static class SnesObjRenderer
                 byte colorIndex = Decode4BppPixel(
                     vram,
                     ResolveTileByteAddress(tileNumber, obsel),
-                    sourceX & 7,
-                    sourceY & 7);
+                    new Position16<CharacterPixels>((ushort)(sourceX & 7), (ushort)(sourceY & 7)));
 
                 if (colorIndex == 0)
                     continue;
@@ -258,13 +252,22 @@ public static class SnesObjRenderer
         return (tileWord & 0x7fff) * 2;
     }
 
-    private static byte Decode4BppPixel(SnesVram vram, int tileByteAddress, int x, int y)
+    /// <summary>The requested raster, which must be non-empty; the visible screen when omitted.</summary>
+    private static Extent16<ScreenPixels> RequireFrame(Extent16<ScreenPixels>? size)
+    {
+        Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
+        if (frame.X == 0 || frame.Y == 0)
+            throw new ArgumentOutOfRangeException(nameof(size), frame, "An OBJ raster must have positive dimensions.");
+        return frame;
+    }
+
+    private static byte Decode4BppPixel(SnesVram vram, int tileByteAddress, Position16<CharacterPixels> pixel)
     {
         // Planes 0/1 are interleaved in bytes 0-15; planes 2/3 repeat that layout in
         // bytes 16-31. The left pixel is bit 7, exactly as in SnesGraphics' bulk decoder.
-        int mask = 1 << (7 - x);
-        int plane01 = tileByteAddress + y * 2;
-        int plane23 = tileByteAddress + 16 + y * 2;
+        int mask = 1 << (7 - pixel.X);
+        int plane01 = tileByteAddress + pixel.Y * 2;
+        int plane23 = tileByteAddress + 16 + pixel.Y * 2;
         return (byte)(
             ((vram.ReadByte(plane01) & mask) != 0 ? 1 : 0)
             | ((vram.ReadByte(plane01 + 1) & mask) != 0 ? 2 : 0)

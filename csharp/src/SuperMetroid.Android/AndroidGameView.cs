@@ -80,19 +80,20 @@ internal sealed class AndroidGameView : View
         canvas.DrawColor(Color.Black);
         if (frames.Consume(uploadFrame))
             Interlocked.Increment(ref paintCount);
-        DisplayViewport viewport = DisplayViewport.IntegerPixels(Width, Height);
-        if (viewport.Width != 0)
+        DisplayViewport viewport = DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(Width, Height));
+        int left = viewport.Offset.X, top = viewport.Offset.Y;
+        int right = left + viewport.Size.X, bottom = top + viewport.Size.Y;
+        if (viewport.Size.X != 0)
         {
-            using var destination = new Rect(viewport.Left, viewport.Top,
-                viewport.Left + viewport.Width, viewport.Top + viewport.Height);
+            using var destination = new Rect(left, top, right, bottom);
             canvas.DrawBitmap(bitmap, null, destination, pixels);
         }
         // Diagnostic text is an overlay: changes cannot shift or resize the game picture.
         canvas.Save();
-        canvas.ClipRect(viewport.Left, viewport.Top, viewport.Left + viewport.Width, viewport.Top + viewport.Height);
-        canvas.DrawText(Volatile.Read(ref status), viewport.Left + 8, viewport.Top + 28, text);
-        canvas.DrawText($"{Volatile.Read(ref roomIdentity)} | {Width}x{Height}; integer {viewport.Width / FrontendFrame.Width}x",
-            viewport.Left + 8, viewport.Top + 56, text);
+        canvas.ClipRect(left, top, right, bottom);
+        canvas.DrawText(Volatile.Read(ref status), left + 8, top + 28, text);
+        canvas.DrawText($"{Volatile.Read(ref roomIdentity)} | {Width}x{Height}; integer {viewport.Size.X / FrontendFrame.Width}x",
+            left + 8, top + 56, text);
         canvas.Restore();
         Interlocked.Add(ref drawTicks, Stopwatch.GetTimestamp() - drawStart);
         // Rearm from the display traversal, independently of producer arrival phase.

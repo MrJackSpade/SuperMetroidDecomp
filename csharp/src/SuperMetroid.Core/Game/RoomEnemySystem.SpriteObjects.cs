@@ -270,7 +270,7 @@ public sealed partial class RoomEnemySystem
                     $"Installed room sprite-object artwork lacks " +
                     $"$B4:{slot.SpritemapPointer:X4} for {slot.Kind}.");
             }
-            oam.AddEnemySpritemap(installed, screenX, screenY,
+            oam.AddEnemySpritemap(installed, new Position16<OamPixels>(screenX, screenY),
                 paletteBits, baseTileIndex);
         }
     }

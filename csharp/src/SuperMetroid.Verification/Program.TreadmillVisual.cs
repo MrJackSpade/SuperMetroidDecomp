@@ -48,7 +48,7 @@ internal static partial class Program
                 var tileView = new SnesVram();
                 tileView.LoadBytes(0, runtime.Vram.Bytes);
                 tileView.ExecuteWordTransfer([(ushort)(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);
-                var pixels = SnesBgTilemapRenderer.Render4BppViewport(tileView, palette, 0x7000, 0, 0, 0, 8, 8);
+                var pixels = SnesBgTilemapRenderer.Render4BppViewport(tileView, palette, 0x7000, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<ScreenPixels>(8, 8));
                 renderedFrames.Add(string.Join(',', pixels.Select(pixel => pixel.R)));
                 if (frame > 0)
                 {
@@ -58,7 +58,7 @@ internal static partial class Program
                         WreckedShipTreadmillRomData.EncodedVramDestination);
                     expected.ExecuteWordTransfer([(ushort)(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);
                     AssertTrue(pixels.SequenceEqual(SnesBgTilemapRenderer.Render4BppViewport(expected,
-                        palette, 0x7000, 0, 0, 0, 8, 8)), $"{room.Identity} native direction/cadence pixels frame {frame}");
+                        palette, 0x7000, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<ScreenPixels>(8, 8))), $"{room.Identity} native direction/cadence pixels frame {frame}");
                 }
             }
             AssertEqual(4, images.Count, $"{room.Identity} powered floor uploads all four graphics frames");

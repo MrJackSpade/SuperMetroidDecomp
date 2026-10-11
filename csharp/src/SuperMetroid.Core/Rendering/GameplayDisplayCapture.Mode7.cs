@@ -16,12 +16,14 @@ public static partial class GameplayDisplayCapture
         {
             registers = new(unchecked((short)getaway.Mode7MatrixA), unchecked((short)getaway.Mode7MatrixB),
                 unchecked((short)getaway.Mode7MatrixC), unchecked((short)getaway.Mode7MatrixD),
-                unchecked((short)getaway.Mode7CenterX), unchecked((short)getaway.Mode7CenterY),
-                unchecked((short)(getaway.Mode7HorizontalOffset + shake.Bg1X)),
-                unchecked((short)(getaway.Mode7VerticalOffset + shake.Bg1Y)));
+                new Offset16<Mode7Pixels>(unchecked((short)getaway.Mode7CenterX), unchecked((short)getaway.Mode7CenterY)),
+                new Offset16<Mode7Pixels>(
+                    unchecked((short)(getaway.Mode7HorizontalOffset + shake.Bg1.X)),
+                    unchecked((short)(getaway.Mode7VerticalOffset + shake.Bg1.Y))));
             floor = new(GameplayRenderDefinitions.CeresFloorFirstScanline, SnesPpuLayout.GameplayBg2TilemapWord,
-                GameplayRenderDefinitions.CeresCharacterWord, Add(ppu.Bg2Scroll.X, shake.Bg2X),
-                Add(ppu.Bg2Scroll.Y, shake.Bg2Y), 64, 32);
+                GameplayRenderDefinitions.CeresCharacterWord,
+                ppu.Bg2Scroll + shake.Bg2,
+                new Extent16<TilemapCells>(64, 32));
         }
         else
         {
@@ -29,9 +31,10 @@ public static partial class GameplayDisplayCapture
                 ?? throw new InvalidOperationException("The Ceres elevator shaft has no NMI-published Mode 7 matrix.");
             registers = new(unchecked((short)m.MatrixA), unchecked((short)m.MatrixB),
                 unchecked((short)m.MatrixC), unchecked((short)m.MatrixA),
-                unchecked((short)m.CenterX), unchecked((short)m.CenterY),
-                unchecked((short)Add(ppu.Bg1Scroll.X, shake.Bg1X)),
-                unchecked((short)Add(ppu.Bg1Scroll.Y, shake.Bg1Y)));
+                m.Center.AsMode7Register(),
+                new Offset16<Mode7Pixels>(
+                    unchecked((short)Add(ppu.Bg1Scroll.X, shake.Bg1.X)),
+                    unchecked((short)Add(ppu.Bg1Scroll.Y, shake.Bg1.Y))));
         }
         var layer = new Mode7GameplayRenderLayer(registers, SnesPpuLayout.GameplayHudTilemapWord,
             SnesPpuLayout.GameplayHudCharacterBaseWord, SnesPpuLayout.GameplayHudHeightPixels, floor);

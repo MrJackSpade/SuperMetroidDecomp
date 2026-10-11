@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Rendering.Direct3D11;
 
@@ -38,9 +39,9 @@ public sealed partial class D3D11FrameRenderer
         {
             if ((activeLayers & SnesMainScreenLayers.Bg1) != 0)
                 DispatchTile(D3D11TileOperation.Bg4, SnesPpuLayout.GameplayBg1TilemapWord,
-                    r.Bg1CharacterWord, r.Bg1X,
-                    unchecked((ushort)(r.Bg1Y + SnesPpuLayout.FirstVisibleBackgroundScanline)),
-                    64, 32, Priority(high),
+                    r.Bg1CharacterWord,
+                    r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline),
+                    new Extent16<TilemapCells>(64, 32), Priority(high),
                     firstScanline: (uint)first, endScanline: (uint)end,
                     windows: r.Windows, windowMask: r.MainScreenWindowMask, windowTarget: SnesWindowTarget.Bg1);
         }
@@ -56,7 +57,7 @@ public sealed partial class D3D11FrameRenderer
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Bg4;
         data[1] = r.Bg2TilemapWord; data[2] = r.Bg2CharacterWord;
-        data[5] = (uint)r.Bg2WidthTiles; data[6] = (uint)r.Bg2HeightTiles;
+        data[5] = (uint)r.Bg2MapSize.X; data[6] = (uint)r.Bg2MapSize.Y;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
         data[25] = (uint)Math.Max(r.Bg2FirstScanline, first); data[26] = (uint)Math.Min(r.Bg2EndScanline, end);
         // Header word 27 is the BG4 gameplay mosaic width (zero elsewhere).
@@ -66,8 +67,8 @@ public sealed partial class D3D11FrameRenderer
         {
             int line = y - SnesPpuLayout.GameplayHudHeightPixels;
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            data[offset] = layer.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.HorizontalScrolls[line];
-            ushort verticalScroll = layer.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.VerticalScrolls[line];
+            data[offset] = layer.HorizontalScrolls.IsEmpty ? r.Bg2Scroll.X : layer.HorizontalScrolls[line];
+            ushort verticalScroll = layer.VerticalScrolls.IsEmpty ? r.Bg2Scroll.Y : layer.VerticalScrolls[line];
             data[offset + 1] = unchecked((ushort)(verticalScroll + SnesPpuLayout.FirstVisibleBackgroundScanline));
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));

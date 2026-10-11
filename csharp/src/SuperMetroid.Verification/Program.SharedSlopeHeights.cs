@@ -6,12 +6,13 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for slope heights")]
     private static void VerifyCompiledSlopeHeights(SuperMetroidAddressSpace rom)
     {
         byte[] native = new byte[512];
         for (int i = 0; i < native.Length; i++)
         {
-            native[i] = rom.ReadByte(SlopeHeightDefinitions.ReferenceAddress + i);
+            native[i] = rom.ReadCartridgeByte(SlopeHeightDefinitions.ReferenceAddress + i);
             AssertEqual((byte)(native[i] & 31), SlopeHeightDefinitions.Read(i / 16, i % 16), "All native slope height samples");
         }
         foreach (int invalid in new[] { -1, int.MinValue, int.MaxValue })

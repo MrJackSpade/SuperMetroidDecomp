@@ -86,8 +86,9 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
         return new(keyed, unresolved);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle words for the enemy visual-selector inventory")]
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) |
-            bus.ReadByte((address & 0xff0000) |
+        (ushort)(bus.ReadCartridgeByte(address) |
+            bus.ReadCartridgeByte((address & 0xff0000) |
                 unchecked((ushort)(address + 1))) << 8);
 }

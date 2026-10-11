@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room state selection definitions")]
     private static void VerifyCompiledRoomStateSelectionDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -33,7 +34,7 @@ internal static partial class Program
             // room importer: it delegates selection to the production implementation.
             var native = new List<(ushort Code, byte Operand, ushort Target)>();
             int address = 0x8f0000 | (room + 11);
-            ushort Word(int at) => (ushort)(rom.ReadByte(at) | rom.ReadByte(at + 1) << 8);
+            ushort Word(int at) => (ushort)(rom.ReadCartridgeByte(at) | rom.ReadCartridgeByte(at + 1) << 8);
             while (Word(address) != 0xe5e6)
             {
                 AssertTrue(native.Count < 8, "Native selector has a bounded terminator");
@@ -41,7 +42,7 @@ internal static partial class Program
                 address += 2;
                 byte operand = code switch
                 {
-                    0xe612 or 0xe629 => rom.ReadByte(address++),
+                    0xe612 or 0xe629 => rom.ReadCartridgeByte(address++),
                     0xe5ff => 1,
                     0xe652 or 0xe669 => 0,
                     _ => throw new InvalidDataException($"Unexpected native selector {code:X4}"),

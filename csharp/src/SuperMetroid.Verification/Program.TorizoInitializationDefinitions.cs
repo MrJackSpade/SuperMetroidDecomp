@@ -4,11 +4,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo initialization")]
     private static void VerifyCompiledTorizoInitialization(SuperMetroidAddressSpace rom)
     {
         for (int variant = 0; variant < 2; variant++)
         {
-            ushort Word(int address) => (ushort)(rom.ReadByte(address + variant * 2) | rom.ReadByte(address + variant * 2 + 1) << 8);
+            ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address + variant * 2) | rom.ReadCartridgeByte(address + variant * 2 + 1) << 8);
             ushort[] native = [Word(EnemyRomTablePointersTorizo.WakeXPositions), Word(EnemyRomTablePointersTorizo.WakeYPositions),
                 Word(EnemyRomTablePointersTorizo.WakeInstructionLists), Word(EnemyRomTablePointersTorizo.WakePropertyMasks),
                 Word(EnemyRomTablePointersTorizo.WakeXRadii), Word(EnemyRomTablePointersTorizo.WakeYRadii)];

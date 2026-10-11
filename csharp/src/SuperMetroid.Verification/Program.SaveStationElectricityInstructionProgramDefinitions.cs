@@ -9,6 +9,7 @@ internal static partial class Program
         Suite(nameof(VerifySaveStationElectricityInstructionProgramDefinitions), () => VerifySaveStationElectricityInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for save station electricity instruction program definitions")]
     private static void VerifySaveStationElectricityInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -20,8 +21,8 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase |
+                rom.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
+                rom.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase |
                     unchecked((ushort)(definition.Address + 1))) << 8));
             AssertEqual(definition.Value, native,
                 $"save-station electricity mechanics word $86:{definition.Address:X4}");

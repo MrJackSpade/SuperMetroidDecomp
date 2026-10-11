@@ -4,11 +4,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus standalone speeds")]
     private static void VerifySamusStandaloneSpeeds(SuperMetroidAddressSpace rom)
     {
-        SpeedTableEntry Read(ISnesAddressSpace source, int a)
+        static SpeedTableEntry Read(Func<int, byte> readByte, int a)
         {
-            ushort Word(int offset) => (ushort)(source.ReadByte(a + offset) | source.ReadByte(a + offset + 1) << 8);
+            ushort Word(int offset) => (ushort)(readByte(a + offset) | readByte(a + offset + 1) << 8);
             return new(Word(0), Word(2), Word(4), Word(6), Word(8), Word(10));
         }
         var actual = new SamusHorizontalSpeedState();
@@ -20,7 +21,7 @@ internal static partial class Program
         int cases = 0;
         foreach (int address in new[] { 0x909f25, 0x909f31, 0x909f3d, 0x909f49 })
         {
-            SpeedTableEntry native = Read(rom, address);
+            SpeedTableEntry native = Read(rom.ReadCartridgeByte, address);
             AssertTrue(SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out var compiled), "Authored standalone record recognized");
             AssertEqual(native, compiled, "All six native standalone words match");
             foreach (ushort mode in new ushort[] { 0, 1, 2, ushort.MaxValue })
@@ -54,7 +55,7 @@ internal static partial class Program
             actual.BaseSpeed = reference.BaseSpeed = 0;
             actual.BaseSubspeed = reference.BaseSubspeed = 0;
             actual.AccelerationMode = reference.AccelerationMode = 0;
-            AssertEqual(calculate(Read(mutable, mutableAddress)), actual.CalculateBaseSpeedAtAddress(mutable, mutableAddress), "Mutable low-bank record observes live changed data");
+            AssertEqual(calculate(Read(mutable.ReadByte, mutableAddress)), actual.CalculateBaseSpeedAtAddress(mutable, mutableAddress), "Mutable low-bank record observes live changed data");
         }
         foreach (int invalidAddress in new[] { 0x909f26, 0x90a32d, 0x919f25 })
             AssertThrows<InvalidDataException>(

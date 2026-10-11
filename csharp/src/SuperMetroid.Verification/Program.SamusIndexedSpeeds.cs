@@ -3,11 +3,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus indexed speeds")]
     private static void VerifySamusIndexedSpeeds(SuperMetroidAddressSpace rom)
     {
         SpeedTableEntry Read(int a)
         {
-            ushort Word(int offset) => (ushort)(rom.ReadByte(a + offset) | rom.ReadByte(a + offset + 1) << 8);
+            ushort Word(int offset) => (ushort)(rom.ReadCartridgeByte(a + offset) | rom.ReadCartridgeByte(a + offset + 1) << 8);
             return new(Word(0), Word(2), Word(4), Word(6), Word(8), Word(10));
         }
         var speed = new SamusHorizontalSpeedState();

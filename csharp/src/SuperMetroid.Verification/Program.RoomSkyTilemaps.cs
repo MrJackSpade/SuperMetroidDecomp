@@ -154,7 +154,7 @@ internal static partial class Program
                 RoomMainCallback.ScrollingSkyOcean);
             VramWriteEntry wrappedRow = nativeOceanRows.Entries[0];
             if (cameraY == 0)
-                bus.WriteByte(0x7e0000 | (wrappedRow.SourceAddress & 0xffff), 0x5a);
+                MarkWrappedSkyRowWram(bus, wrappedRow);
             var nativeOceanVram = new SnesVram();
             var installedOceanVram = new SnesVram();
             ImportedVramOracle.Drain(nativeOceanRows, nativeOceanVram, bus);
@@ -191,6 +191,11 @@ internal static partial class Program
         Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +
             "per-frame NMI transfers use installed art and native wrapped WRAM, and an edit reaches the queued row.");
     }
+
+    /// <summary>Marks the bank-$7E byte an ocean sky row's wrapped NMI source reads, so its live WRAM is observable.</summary>
+    [CpuBusBoundary("exact bus test: seeds the live WRAM byte a wrapped ocean sky-row transfer reads")]
+    private static void MarkWrappedSkyRowWram(SuperMetroidAddressSpace bus, VramWriteEntry wrappedRow) =>
+        bus.WriteByte(0x7e0000 | (wrappedRow.SourceAddress & 0xffff), 0x5a);
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky tilemap pages and Landing Site transfers")]
     private static byte[] ReadRetailSkyBytes(ISnesAddressSpace bus, int address, int count) =>

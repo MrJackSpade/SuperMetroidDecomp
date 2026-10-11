@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for reserve tile pixels")]
     private static void VerifyReserveTilePixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);
@@ -13,7 +14,7 @@ internal static partial class Program
         AssertEqual(0, stock.StoredReservePixelCount, "stock reserve pixel table eliminated");
         AssertEqual(8192 - 151 * 32, stock.StoredArtworkByteCount, "reserve planar bytes absent from stored atlas");
         var native = new byte[8192];
-        for (int i = 0; i < native.Length; i++) native[i] = rom.ReadByte(0xb6c000 + i);
+        for (int i = 0; i < native.Length; i++) native[i] = rom.ReadCartridgeByte(0xb6c000 + i);
         foreach (int destination in new[] { 0x4000, 0xc000 })
         {
             var vram = new SnesVram(); stock.LoadArtworkTo(vram, destination);

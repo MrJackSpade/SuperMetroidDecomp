@@ -60,6 +60,7 @@ internal static partial class Program
     private static void VerifyRoomHeaderCreBitset(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 8, header => (int)header.CreBitset);
     private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => (int)header.DoorListPointer);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room header field")]
     private static void VerifyRoomHeaderField(SuperMetroidAddressSpace rom, ushort[] rooms,
         int offset, Func<RoomHeaderDefinition, int> field)
     {
@@ -68,8 +69,8 @@ internal static partial class Program
         {
             ushort pointer = rooms[index];
             int address = 0x8f0000 | pointer;
-            int expected = rom.ReadByte(address + offset);
-            if (offset == 9) expected |= rom.ReadByte(address + 10) << 8;
+            int expected = rom.ReadCartridgeByte(address + offset);
+            if (offset == 9) expected |= rom.ReadCartridgeByte(address + 10) << 8;
             AssertEqual(expected, field(RoomHeaderDefinitions.Get(pointer)), $"Room {pointer:X4} native field {offset}");
             AssertEqual(expected, field(enumerated[index]), $"Room {pointer:X4} enumerated field {offset}");
             if (offset == 1)

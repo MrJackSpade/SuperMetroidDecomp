@@ -54,13 +54,13 @@ static void VerifyRoomEnemyLoading()
 
     for (int colorByte = 0; colorByte < 32; colorByte++)
     {
-        bus.WriteByte(0xa29000 + colorByte, unchecked((byte)(0x20 + colorByte)));
-        bus.WriteByte(0xa39300 + colorByte, unchecked((byte)(0x60 + colorByte)));
+        WriteTestByte(bus, 0xa29000 + colorByte, unchecked((byte)(0x20 + colorByte)));
+        WriteTestByte(bus, 0xa39300 + colorByte, unchecked((byte)(0x60 + colorByte)));
     }
     for (int tileByte = 0; tileByte < 0x40; tileByte++)
-        bus.WriteByte(0xa29100 + tileByte, unchecked((byte)(0x80 + tileByte)));
+        WriteTestByte(bus, 0xa29100 + tileByte, unchecked((byte)(0x80 + tileByte)));
     for (int tileByte = 0; tileByte < 0x20; tileByte++)
-        bus.WriteByte(0xa39320 + tileByte, unchecked((byte)(0xc0 + tileByte)));
+        WriteTestByte(bus, 0xa39320 + tileByte, unchecked((byte)(0xc0 + tileByte)));
 
     // RecordEnemySpawnData copies source words 0-4 and 6. Word 5 is a real retail omission,
     // so give it a distinct sentinel and prove the managed snapshot does not normalize it.
@@ -83,7 +83,7 @@ static void VerifyRoomEnemyLoading()
     WriteWord(bus, populationAddress + 12, 0x1357);
     WriteWord(bus, populationAddress + 14, 0x2468);
     WriteWord(bus, populationAddress + 16, 0xffff);
-    bus.WriteByte(populationAddress + 18, 1);
+    WriteTestByte(bus, populationAddress + 18, 1);
 
     // Import the explicitly seeded fixture art before exercising the installed-only loader.
     var stockSheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
@@ -210,7 +210,7 @@ static void VerifyRoomEnemyLoading()
     const ushort emptyPopulationPointer = 0x9400;
     int emptyPopulationAddress = 0xa10000 | emptyPopulationPointer;
     WriteWord(bus, emptyPopulationAddress, 0xffff);
-    bus.WriteByte(emptyPopulationAddress + 2, 0x7f);
+    WriteTestByte(bus, emptyPopulationAddress + 2, 0x7f);
     cgram.SetColor(128, Bgr555.FromWord(0x4567));
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
     enemies.Load(bus, emptyPopulationPointer, 0xffff, vram, cgram, () => 0);
@@ -276,7 +276,13 @@ private static void VerifyEnemyMappedSourceRouting()
     foreach (string removed in new[] { "ReadEnemySourceByte", "ReadWord", "ReadLong" })
         AssertTrue(typeof(RoomEnemySystem).GetMethod(removed, flags) is null,
             $"enemy subsystem has no generic {removed} source reader");
-    var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+    VerifyEnemyWorkRamWordMapping(SuperMetroidAddressSpace.CreateWithoutCartridge());
+    Console.WriteLine("Enemy memory boundary: generic source readers are absent; explicit WRAM wrap, mirror and region rejection pass.");
+}
+
+[CpuBusBoundary("exact bus test: enemy WRAM word bank wrap, low-window mirror and ROM/SRAM/hardware rejection")]
+private static void VerifyEnemyWorkRamWordMapping(SuperMetroidAddressSpace memory)
+{
     memory.WriteByte(0x7effff, 0x34);
     memory.WriteByte(0x7e0000, 0x12);
     memory.WriteByte(0x7f0000, 0xee);
@@ -289,7 +295,6 @@ private static void VerifyEnemyMappedSourceRouting()
     foreach (int address in new[] { 0xa08000, 0x702000, 0x804000 })
         AssertThrows<ArgumentOutOfRangeException>(() => SnesWorkRam.ReadWord(memory, address),
             "typed enemy WRAM reader rejects ROM, SRAM and hardware windows");
-    Console.WriteLine("Enemy memory boundary: generic source readers are absent; explicit WRAM wrap, mirror and region rejection pass.");
 }
 
 /// <summary>
@@ -303,7 +308,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
     const ushort populationPointer = 0x9400;
     var bus = new TestAddressSpace();
     WriteWord(bus, 0xa10000 | populationPointer, 0xffff);
-    bus.WriteByte((0xa10000 | populationPointer) + 2, 0);
+    WriteTestByte(bus, (0xa10000 | populationPointer) + 2, 0);
 
     var enemies = new RoomEnemySystem();
     enemies.Load(
@@ -404,7 +409,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     WriteWord(bus, header + 6, 5);
     WriteWord(bus, header + 8, 8);
     WriteWord(bus, header + 10, 4);
-    bus.WriteByte(header + 13, 0);
+    WriteTestByte(bus, header + 13, 0);
     WriteWord(bus, header + 14, 0x003e);
     WriteWord(bus, header + 18, 0xe49f);
     WriteWord(bus, header + 24, 0xe4da);
@@ -441,7 +446,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     WriteWord(bus, population + 12, 16);
     WriteWord(bus, population + 14, 1);
     WriteWord(bus, population + 16, 0xffff);
-    bus.WriteByte(population + 18, 1);
+    WriteTestByte(bus, population + 18, 1);
 
     const int roomWidth = 16;
     const int roomHeight = 8;
@@ -726,7 +731,7 @@ static void VerifyCeresElevatorPlatformAnimation()
         fieldSeed: 0x4300);
     WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 18), 0xf6c5);
     WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 24), 0xf765);
-    bus.WriteByte(0xa00000 | ((ushort)definitionPointer + 57), 2);
+    WriteTestByte(bus, 0xa00000 | ((ushort)definitionPointer + 57), 2);
 
     // Parameter one equals two, selecting main function $F850. This focused population
     // omits ProcessInstructions because only the independently executing main AI owns the
@@ -741,7 +746,7 @@ static void VerifyCeresElevatorPlatformAnimation()
     WriteWord(bus, population + 12, 2);
     WriteWord(bus, population + 14, 0);
     WriteWord(bus, population + 16, 0xffff);
-    bus.WriteByte(population + 18, 0);
+    WriteTestByte(bus, population + 18, 0);
     WriteWord(bus, 0xb40000 | tilesetPointer, 0xffff);
     WriteWord(bus, 0xa6f72f, 0xf850);
     WriteWord(bus, 0xa6f530, 0xfac7);
@@ -750,24 +755,24 @@ static void VerifyCeresElevatorPlatformAnimation()
     // four low map bytes to Mode-7 word $060E, alternating by NMI bit one.
     WriteWord(bus, 0xa6f900, 0xf904);
     WriteWord(bus, 0xa6f902, 0xf90e);
-    bus.WriteByte(0xa6f904, 0x80);
+    WriteTestByte(bus, 0xa6f904, 0x80);
     WriteLong(bus, 0xa6f905, 0xa6f918);
     WriteWord(bus, 0xa6f908, 4);
     WriteWord(bus, 0xa6f90a, 0x060e);
-    bus.WriteByte(0xa6f90c, 0);
-    bus.WriteByte(0xa6f90d, 0);
-    bus.WriteByte(0xa6f90e, 0x80);
+    WriteTestByte(bus, 0xa6f90c, 0);
+    WriteTestByte(bus, 0xa6f90d, 0);
+    WriteTestByte(bus, 0xa6f90e, 0x80);
     WriteLong(bus, 0xa6f90f, 0xa6f91c);
     WriteWord(bus, 0xa6f912, 4);
     WriteWord(bus, 0xa6f914, 0x060e);
-    bus.WriteByte(0xa6f916, 0);
-    bus.WriteByte(0xa6f917, 0);
+    WriteTestByte(bus, 0xa6f916, 0);
+    WriteTestByte(bus, 0xa6f917, 0);
     byte[] light = [0x68, 0x69, 0x69, 0x78];
     byte[] dark = [0x8d, 0x8e, 0x8e, 0x79];
     for (int index = 0; index < 4; index++)
     {
-        bus.WriteByte(0xa6f918 + index, light[index]);
-        bus.WriteByte(0xa6f91c + index, dark[index]);
+        WriteTestByte(bus, 0xa6f918 + index, light[index]);
+        WriteTestByte(bus, 0xa6f91c + index, dark[index]);
     }
     for (int color = 0; color < 6; color++)
         WriteWord(bus, 0xa6f871 + color * 2, unchecked((ushort)(0x4400 + color)));
@@ -814,7 +819,7 @@ static void VerifyCeresDoorBossBranch()
         fieldSeed: 0x4380);
     WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 18), 0xf6c5);
     WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 24), 0xf765);
-    bus.WriteByte(0xa00000 | ((ushort)definitionPointer + 57), 2);
+    WriteTestByte(bus, 0xa00000 | ((ushort)definitionPointer + 57), 2);
 
     int population = 0xa10000 | populationPointer;
     WriteWord(bus, population, (ushort)definitionPointer);
@@ -828,7 +833,7 @@ static void VerifyCeresDoorBossBranch()
     WriteWord(bus, population + 12, 3);
     WriteWord(bus, population + 14, 0);
     WriteWord(bus, population + 16, 0xffff);
-    bus.WriteByte(population + 18, 0);
+    WriteTestByte(bus, population + 18, 0);
     WriteWord(bus, 0xb40000 | tilesetPointer, 0xffff);
 
     // Start directly at the retail Ridley-room closed-door loop. Its mechanics deliberately
@@ -881,6 +886,29 @@ static void VerifyCeresDoorBossBranch()
     Console.WriteLine("  Ceres door: area-boss branch opens the physical Ridley-room actor.");
 }
 
+/// <summary>The native spritemap word Ceres Ridley's left-facing initial instruction list selects at $A6:E53E.</summary>
+[CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley's initial spritemap operand")]
+static ushort ReadRetailCeresRidleyInitialSpritemap(ISnesAddressSpace rom) =>
+    (ushort)(rom.ReadCartridgeByte(0xa6e53e) | rom.ReadCartridgeByte(0xa6e53f) << 8);
+
+/// <summary>Reads a native seven-byte Ceres escape VRAM transfer list (size, 24-bit source, destination) up to its zero terminator.</summary>
+[CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres escape VRAM transfer lists in bank $A6")]
+static List<VramWriteEntry> ReadRetailCeresEscapeTransfers(ISnesAddressSpace rom, int pointer)
+{
+    ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) |
+        rom.ReadCartridgeByte(address + 1) << 8);
+    var records = new List<VramWriteEntry>();
+    for (int record = 0; record < 32; record++, pointer += 7)
+    {
+        ushort size = Word(pointer);
+        if (size == 0) return records;
+        records.Add(new VramWriteEntry(size,
+            Word(pointer + 2) | rom.ReadCartridgeByte(pointer + 4) << 16,
+            Word(pointer + 5)));
+    }
+    throw new InvalidDataException("Native Ceres transfer fixture lacks a terminator.");
+}
+
 /// <summary>
 /// Regresses the exact enemy $E13F failure reported when the second normal Ceres door loads
 /// room $E0B5. This fixture uses native $A0/$A1/$A6/$B4 layouts and follows the translated
@@ -927,7 +955,7 @@ static void VerifyCeresRidleyRoomEntry()
         fieldSeed: 0x4100);
     WriteWord(bus, 0xa00000 | ((ushort)ceresDoorDefinitionPointer + 18), 0xf6c5);
     WriteWord(bus, 0xa00000 | ((ushort)ceresDoorDefinitionPointer + 24), 0xf765);
-    bus.WriteByte(0xa00000 | ((ushort)ceresDoorDefinitionPointer + 57), 2);
+    WriteTestByte(bus, 0xa00000 | ((ushort)ceresDoorDefinitionPointer + 57), 2);
     WriteWord(bus, 0xa6f735, 0xf7a5);
     WriteWord(bus, 0xa6f737, 0xf7a5);
     WriteWord(bus, 0xa6f536, 0xf62a);
@@ -964,7 +992,7 @@ static void VerifyCeresRidleyRoomEntry()
     WriteWord(bus, population + 12, 0);
     WriteWord(bus, population + 14, 0);
     WriteWord(bus, population + 16, 0xffff);
-    bus.WriteByte(population + 18, 0);
+    WriteTestByte(bus, population + 18, 0);
 
     // $E538 selects the left-facing initial frame and then sleeps. Supplying the literal
     // list catches the custom $E517 branch rather than letting a generic timed frame mask it.
@@ -996,8 +1024,8 @@ static void VerifyCeresRidleyRoomEntry()
     for (int color = 0; color < 32; color++)
         WriteWord(bus, 0xa6e16f + color * 2, unchecked((ushort)(0x2000 + color)));
     for (int index = 0; index < 64; index++)
-        bus.WriteByte(0xa6e269 + index, index < 16 ? unchecked((byte)(15 - index)) : (byte)0);
-    bus.WriteByte(0xa6e2a9, 0xff);
+        WriteTestByte(bus, 0xa6e269 + index, index < 16 ? unchecked((byte)(15 - index)) : (byte)0);
+    WriteTestByte(bus, 0xa6e2a9, 0xff);
     for (int word = 0; word < (0xe30a - 0xe2aa) / 2; word++)
         WriteWord(bus, 0xa6e2aa + word * 2, unchecked((ushort)(0x3000 + word)));
     for (int word = 0; word < 0x160 / 2; word++)
@@ -1027,7 +1055,7 @@ static void VerifyCeresRidleyRoomEntry()
     WriteWord(bus, 0xa6e921, 0x9000);
     WriteWord(bus, 0xa6e923, 0x812f);
     for (int divisor = 0; divisor < 16; divisor++)
-        bus.WriteByte(0xa6d712 + divisor, unchecked((byte)(16 - divisor)));
+        WriteTestByte(bus, 0xa6d712 + divisor, unchecked((byte)(16 - divisor)));
 
     // The tail position solver reads the shared signed 8.8 sine table at $A0:B443.
     // Populate the sixteen cardinal/intercardinal samples touched by the initialized
@@ -1054,20 +1082,20 @@ static void VerifyCeresRidleyRoomEntry()
     // The later assertions cover the first-list yield and second-list handoff separately.
     WriteWord(bus, 0xa6c4cb, EscapeTimerTileAtlasFormat.FirstByteCount);
     WriteWord(bus, 0xa6c4cd, 0xc000);
-    bus.WriteByte(0xa6c4cf, 0xb0);
+    WriteTestByte(bus, 0xa6c4cf, 0xb0);
     WriteWord(bus, 0xa6c4d0, EscapeTimerTileAtlasFormat.FirstDestinationWord);
     WriteWord(bus, 0xa6c4d2, EscapeTimerTileAtlasFormat.SecondByteCount);
     WriteWord(bus, 0xa6c4d4, 0xc200);
-    bus.WriteByte(0xa6c4d6, 0xb0);
+    WriteTestByte(bus, 0xa6c4d6, 0xb0);
     WriteWord(bus, 0xa6c4d7, EscapeTimerTileAtlasFormat.SecondDestinationWord);
     WriteWord(bus, 0xa6c4d9, 0);
     WriteWord(bus, 0xa6c4fe, 2);
     WriteWord(bus, 0xa6c500, 0x9204);
-    bus.WriteByte(0xa6c502, 0xb0);
+    WriteTestByte(bus, 0xa6c502, 0xb0);
     WriteWord(bus, 0xa6c503, 0x7802);
     WriteWord(bus, 0xa6c505, 2);
     WriteWord(bus, 0xa6c507, 0x9206);
-    bus.WriteByte(0xa6c509, 0xb0);
+    WriteTestByte(bus, 0xa6c509, 0xb0);
     WriteWord(bus, 0xa6c50a, 0x7803);
     WriteWord(bus, 0xa6c50c, 0);
     WriteWord(bus, 0xb09200, 0x1234);
@@ -1094,16 +1122,16 @@ static void VerifyCeresRidleyRoomEntry()
     WriteWord(bus, 0x938437, 0x9000); // Direction two is data-pointer word three.
     WriteWord(bus, 0x939000, 1);
     WriteWord(bus, 0x939002, 0x9000);
-    bus.WriteByte(0x939004, 8);
-    bus.WriteByte(0x939005, 8);
+    WriteTestByte(bus, 0x939004, 8);
+    WriteTestByte(bus, 0x939005, 8);
     WriteWord(bus, 0x939006, 0);
     WriteWord(bus, 0x939008, 0x8239);
     WriteWord(bus, 0x93900a, 0x9000);
     WriteWord(bus, 0x93867b, 0x9100);
     WriteWord(bus, 0x939100, 1);
     WriteWord(bus, 0x939102, 0x9000);
-    bus.WriteByte(0x939104, 8);
-    bus.WriteByte(0x939105, 8);
+    WriteTestByte(bus, 0x939104, 8);
+    WriteTestByte(bus, 0x939105, 8);
     WriteWord(bus, 0x939106, 0);
     WriteWord(bus, 0x939108, 0x822f);
     WriteWord(bus, 0x90c28f, 0x000b);
@@ -1167,7 +1195,7 @@ static void VerifyCeresRidleyRoomEntry()
     for (int address = EscapeTypewriterDefinitions.CeresSourceAddress;
          address < 0xa6c4cb;
          address++)
-        bus.WriteByte(address, 0);
+        WriteTestByte(bus, address, 0);
     bool ceresBossDefeated = false;
     ushort generatedRandom = 0x1234;
     ushort currentRandom = 0x1234;
@@ -1198,12 +1226,12 @@ static void VerifyCeresRidleyRoomEntry()
     // $FC and displaces the door four pixels left.
     WriteWord(bus, 0xa6a329, 1);
     WriteWord(bus, 0xa6a32b, 0);
-    bus.WriteByte(0xa6a32d, 0);
+    WriteTestByte(bus, 0xa6a32d, 0);
     WriteWord(bus, 0xa6a32e, 0);
-    bus.WriteByte(0xa6a321, 0x00);
-    bus.WriteByte(0xa6a322, 0x00);
-    bus.WriteByte(0xa6a323, 0xfc);
-    bus.WriteByte(0xa6a324, 0xff);
+    WriteTestByte(bus, 0xa6a321, 0x00);
+    WriteTestByte(bus, 0xa6a322, 0x00);
+    WriteTestByte(bus, 0xa6a323, 0xfc);
+    WriteTestByte(bus, 0xa6a324, 0xff);
     RoomEnemySlot overlayDoor = enemies.Slots[1];
     overlayDoor.EnemyDefinitionPointer = ceresDoorDefinitionPointer;
     overlayDoor.VariableB = 1;
@@ -1234,8 +1262,7 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
     var nativeRidleyRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
-    ushort initialRidleyMap = (ushort)(nativeRidleyRom.ReadByte(0xa6e53e) |
-        nativeRidleyRom.ReadByte(0xa6e53f) << 8);
+    ushort initialRidleyMap = ReadRetailCeresRidleyInitialSpritemap(nativeRidleyRom);
     AssertEqual(initialRidleyMap, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
     AssertEqual(0xe540, ridley.CurrentInstruction, "Ceres Ridley initial list sleeps");
 
@@ -1523,23 +1550,8 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0, escapeWrites.Entries.Count,
         "Mode-7 terminator does not run the new actor function in the same enemy frame");
 
-    List<VramWriteEntry> ReadNativeTransfers(int pointer)
-    {
-        ushort Word(int address) => (ushort)(nativeRidleyRom.ReadByte(address) |
-            nativeRidleyRom.ReadByte(address + 1) << 8);
-        var records = new List<VramWriteEntry>();
-        for (int record = 0; record < 32; record++, pointer += 7)
-        {
-            ushort size = Word(pointer);
-            if (size == 0) return records;
-            records.Add(new VramWriteEntry(size,
-                Word(pointer + 2) | nativeRidleyRom.ReadByte(pointer + 4) << 16,
-                Word(pointer + 5)));
-        }
-        throw new InvalidDataException("Native Ceres transfer fixture lacks a terminator.");
-    }
-    var spriteTransfers = ReadNativeTransfers(0xa6c4cb);
-    var backgroundTransfers = ReadNativeTransfers(0xa6c4fe);
+    var spriteTransfers = ReadRetailCeresEscapeTransfers(nativeRidleyRom, 0xa6c4cb);
+    var backgroundTransfers = ReadRetailCeresEscapeTransfers(nativeRidleyRom, 0xa6c4fe);
     AssertEqual(7, spriteTransfers.Count, "native Ceres sprite transfer count");
     AssertEqual(8, backgroundTransfers.Count, "native Ceres background transfer count");
     for (int record = 0; record < spriteTransfers.Count; record++)
@@ -1647,7 +1659,7 @@ static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)
     void Text(string value)
     {
         foreach (char character in value)
-            bus.WriteByte(cursor++, checked((byte)character));
+            WriteTestByte(bus, cursor++, checked((byte)character));
     }
 
     Word(1);
@@ -1677,7 +1689,7 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
     void Text(string value)
     {
         foreach (char character in value)
-            bus.WriteByte(cursor++, checked((byte)character));
+            WriteTestByte(bus, cursor++, checked((byte)character));
     }
 
     Word(EscapeTypewriterRomData.Delay);
@@ -1709,28 +1721,28 @@ static void WriteEnemyDefinition(
 
     WriteWord(bus, address, tileDataSize);
     WriteWord(bus, address + 2, palettePointer);
-    bus.WriteByte(address + 12, bank);
-    bus.WriteByte(address + 13, 0x5a);
+    WriteTestByte(bus, address + 12, bank);
+    WriteTestByte(bus, address + 13, 0x5a);
     WriteWord(bus, address + 16, bossId);
     WriteWord(bus, address + 18, 0x804c); // Bank-local no-op initialization AI.
     WriteWord(bus, address + 24, 0x804c); // Bank-local no-op main AI.
     WriteWord(bus, address + 26, (ushort)GrappleAiRoutine.Cancel); // Grapple AI must be a real routine.
     WriteLong(bus, address + 54, tileDataAddress);
-    bus.WriteByte(address + 57, 5);
+    WriteTestByte(bus, address + 57, 5);
     WriteWord(bus, address + 62, namePointer);
 }
 
 static void WriteWord(TestAddressSpace bus, int address, ushort value)
 {
-    bus.WriteByte(address, unchecked((byte)value));
-    bus.WriteByte(address + 1, unchecked((byte)(value >> 8)));
+    WriteTestByte(bus, address, unchecked((byte)value));
+    WriteTestByte(bus, address + 1, unchecked((byte)(value >> 8)));
 }
 
 static void WriteLong(TestAddressSpace bus, int address, int value)
 {
-    bus.WriteByte(address, unchecked((byte)value));
-    bus.WriteByte(address + 1, unchecked((byte)(value >> 8)));
-    bus.WriteByte(address + 2, unchecked((byte)(value >> 16)));
+    WriteTestByte(bus, address, unchecked((byte)value));
+    WriteTestByte(bus, address + 1, unchecked((byte)(value >> 8)));
+    WriteTestByte(bus, address + 2, unchecked((byte)(value >> 16)));
 }
 
 }

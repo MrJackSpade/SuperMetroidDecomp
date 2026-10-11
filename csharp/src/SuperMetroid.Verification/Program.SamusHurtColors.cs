@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hurt colors")]
     private static void VerifySamusHurtColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -27,8 +28,8 @@ internal static partial class Program
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
             {
                 int wordAddress = address + index * sizeof(ushort);
-                ushort native = unchecked((ushort)(rom.ReadByte(wordAddress) |
-                    rom.ReadByte(wordAddress + 1) << 8));
+                ushort native = unchecked((ushort)(rom.ReadCartridgeByte(wordAddress) |
+                    rom.ReadCartridgeByte(wordAddress + 1) << 8));
                 AssertEqual(native, catalog.Resolve(variant, index),
                     $"native {variant} color {index}");
             }

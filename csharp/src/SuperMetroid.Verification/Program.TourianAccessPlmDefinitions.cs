@@ -50,6 +50,7 @@ internal static partial class Program
     private static void VerifyTourianAccessInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom, true));
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access spawn field")]
     private static void VerifyTourianAccessSpawnField(SuperMetroidAddressSpace rom, bool instruction)
     {
         // Native spawn operands: completed descent crumbles; already-unlocked room clears.
@@ -61,11 +62,12 @@ internal static partial class Program
             AssertEqual(instruction ? ReadTourianAccessWord(rom, 0x840000 | (header + 2)) : header,
                 instruction ? actual.InstructionListPointer : (ushort)actual.HeaderPointer,
                 $"Tourian native spawn selection clear={item.Clear} instruction={instruction}");
-            AssertEqual((byte)6, rom.ReadByte(item.SpawnOperand - 2), "Tourian native spawn column");
-            AssertEqual((byte)12, rom.ReadByte(item.SpawnOperand - 1), "Tourian native spawn row");
+            AssertEqual((byte)6, rom.ReadCartridgeByte(item.SpawnOperand - 2), "Tourian native spawn column");
+            AssertEqual((byte)12, rom.ReadCartridgeByte(item.SpawnOperand - 1), "Tourian native spawn row");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access words")]
     private static ushort ReadTourianAccessWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

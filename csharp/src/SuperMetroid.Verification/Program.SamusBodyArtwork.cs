@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus body artwork")]
     private static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
         SamusBodyArtworkCatalog stock = installation.LoadSamusBodyArt();
@@ -15,21 +16,21 @@ internal static partial class Program
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
             int address = 0x92D94E + pose * 2;
-            ushort native = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, stock.PosePointers[pose], $"Samus body pose pointer {pose:X2}");
             int graphicsAddress = SamusMovementRomData.Poses.Definitions +
                 pose * SamusMovementRomData.Poses.DefinitionByteCount + 4;
-            AssertEqual(unchecked((sbyte)bus.ReadByte(graphicsAddress)),
+            AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
                 stock.GraphicsYOffset((SamusPoseId)pose), $"Samus pose {pose:X2} visual Y origin");
         }
         for (int index = 0; index < SamusBodyArtworkCatalog.FrameCount; index++)
         {
             int address = SamusBodyArtworkCatalog.FirstFrameAddress + index * 4;
             SamusBodyFrameSelection frame = stock.Frames[index];
-            AssertEqual(bus.ReadByte(address), frame.TopSet, $"Samus frame {index} upper set");
-            AssertEqual(bus.ReadByte(address + 1), frame.TopPosition, $"Samus frame {index} upper position");
-            AssertEqual(bus.ReadByte(address + 2), frame.BottomSet, $"Samus frame {index} lower set");
-            AssertEqual(bus.ReadByte(address + 3), frame.BottomPosition, $"Samus frame {index} lower position");
+            AssertEqual(bus.ReadCartridgeByte(address), frame.TopSet, $"Samus frame {index} upper set");
+            AssertEqual(bus.ReadCartridgeByte(address + 1), frame.TopPosition, $"Samus frame {index} upper position");
+            AssertEqual(bus.ReadCartridgeByte(address + 2), frame.BottomSet, $"Samus frame {index} lower set");
+            AssertEqual(bus.ReadCartridgeByte(address + 3), frame.BottomPosition, $"Samus frame {index} lower position");
         }
         for (int half = 0; half < 2; half++)
         {
@@ -38,8 +39,8 @@ internal static partial class Program
             int pointerTable = upper ? 0x92D91E : 0x92D938;
             for (int set = 0; set < setCount; set++)
             {
-                ushort nativePointer = (ushort)(bus.ReadByte(pointerTable + set * 2) |
-                    bus.ReadByte(pointerTable + set * 2 + 1) << 8);
+                ushort nativePointer = (ushort)(bus.ReadCartridgeByte(pointerTable + set * 2) |
+                    bus.ReadCartridgeByte(pointerTable + set * 2 + 1) << 8);
                 AssertEqual(nativePointer,
                     upper ? stock.TopSetPointers[set] : stock.BottomSetPointers[set],
                     $"Samus {(upper ? "top" : "bottom")} set {set} pointer");
@@ -48,18 +49,18 @@ internal static partial class Program
                 {
                     SamusBodyTileDefinition entry = entries[position];
                     int definitionAddress = stock.DefinitionAddress(upper, (byte)set, (byte)position);
-                    int source = bus.ReadByte(definitionAddress) |
-                        bus.ReadByte(definitionAddress + 1) << 8 |
-                        bus.ReadByte(definitionAddress + 2) << 16;
-                    ushort first = (ushort)(bus.ReadByte(definitionAddress + 3) |
-                        bus.ReadByte(definitionAddress + 4) << 8);
-                    ushort second = (ushort)(bus.ReadByte(definitionAddress + 5) |
-                        bus.ReadByte(definitionAddress + 6) << 8);
+                    int source = bus.ReadCartridgeByte(definitionAddress) |
+                        bus.ReadCartridgeByte(definitionAddress + 1) << 8 |
+                        bus.ReadCartridgeByte(definitionAddress + 2) << 16;
+                    ushort first = (ushort)(bus.ReadCartridgeByte(definitionAddress + 3) |
+                        bus.ReadCartridgeByte(definitionAddress + 4) << 8);
+                    ushort second = (ushort)(bus.ReadCartridgeByte(definitionAddress + 5) |
+                        bus.ReadCartridgeByte(definitionAddress + 6) << 8);
                     AssertEqual(source, entry.SourceAddress, $"Samus definition {definitionAddress:X6} source");
                     AssertEqual(first, entry.FirstSize, $"Samus definition {definitionAddress:X6} first size");
                     AssertEqual(second, entry.SecondSize, $"Samus definition {definitionAddress:X6} second size");
                     for (int i = 0; i < entry.Planar.Length; i++)
-                        AssertEqual(bus.ReadByte(source + i), entry.Planar.Span[i],
+                        AssertEqual(bus.ReadCartridgeByte(source + i), entry.Planar.Span[i],
                             $"Samus definition {definitionAddress:X6} tile byte {i:X3}");
                     definitions++;
                 }
@@ -72,9 +73,9 @@ internal static partial class Program
         {
             int topAddress = SamusSpritemapArtworkCatalog.TopBaseAddress + pose * 2;
             int bottomAddress = SamusSpritemapArtworkCatalog.BottomBaseAddress + pose * 2;
-            AssertEqual((ushort)(bus.ReadByte(topAddress) | bus.ReadByte(topAddress + 1) << 8),
+            AssertEqual((ushort)(bus.ReadCartridgeByte(topAddress) | bus.ReadCartridgeByte(topAddress + 1) << 8),
                 sprites.TopBase((SamusPoseId)pose), $"Samus pose {pose:X2} top OAM base");
-            AssertEqual((ushort)(bus.ReadByte(bottomAddress) | bus.ReadByte(bottomAddress + 1) << 8),
+            AssertEqual((ushort)(bus.ReadCartridgeByte(bottomAddress) | bus.ReadCartridgeByte(bottomAddress + 1) << 8),
                 sprites.BottomBase((SamusPoseId)pose), $"Samus pose {pose:X2} bottom OAM base");
         }
         var spritemapGuard = NewFrontendCartridgeReadGuard(bus);
@@ -82,7 +83,7 @@ internal static partial class Program
         for (int index = 0; index < SamusSpritemapArtworkCatalog.PointerCount; index++)
         {
             int tableAddress = SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2;
-            ushort pointer = (ushort)(bus.ReadByte(tableAddress) | bus.ReadByte(tableAddress + 1) << 8);
+            ushort pointer = (ushort)(bus.ReadCartridgeByte(tableAddress) | bus.ReadCartridgeByte(tableAddress + 1) << 8);
             AssertEqual(pointer, sprites.Pointers[index], $"Samus OAM pointer index {index}");
             if (!sprites.TryGet((ushort)index, out SamusSpritemapDefinition? record))
             {
@@ -92,16 +93,16 @@ internal static partial class Program
             nonzeroSpritemaps++;
             AssertEqual(pointer, record!.Pointer, $"Samus OAM index {index} record identity");
             int address = 0x920000 | pointer;
-            AssertEqual((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8),
+            AssertEqual((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8),
                 (ushort)record.Parts.Length, $"Samus OAM record ${pointer:X4} part count");
             for (int part = 0; part < record.Parts.Length; part++)
             {
                 int at = address + 2 + part * 5;
-                AssertEqual((ushort)(bus.ReadByte(at) | bus.ReadByte(at + 1) << 8),
+                AssertEqual((ushort)(bus.ReadCartridgeByte(at) | bus.ReadCartridgeByte(at + 1) << 8),
                     record.Parts[part].X, $"Samus OAM ${pointer:X4} part {part} X/size");
-                AssertEqual(bus.ReadByte(at + 2), record.Parts[part].Y,
+                AssertEqual(bus.ReadCartridgeByte(at + 2), record.Parts[part].Y,
                     $"Samus OAM ${pointer:X4} part {part} Y");
-                AssertEqual((ushort)(bus.ReadByte(at + 3) | bus.ReadByte(at + 4) << 8),
+                AssertEqual((ushort)(bus.ReadCartridgeByte(at + 3) | bus.ReadCartridgeByte(at + 4) << 8),
                     record.Parts[part].Attributes,
                     $"Samus OAM ${pointer:X4} part {part} attributes");
             }
@@ -122,7 +123,7 @@ internal static partial class Program
         var mutableSpriteMemory = new TestAddressSpace();
         byte[] mutableRecord = [1, 0, 3, 0, 2, 0x34, 0x12];
         for (int offset = 0; offset < mutableRecord.Length; offset++)
-            mutableSpriteMemory.WriteByte(0x920000 + offset, mutableRecord[offset]);
+            WriteTestByte(mutableSpriteMemory, 0x920000 + offset, mutableRecord[offset]);
         var mutableOam = new OamBuffer();
         mutableOam.BeginFrame();
         mutableOam.AddSamusSpritemap(mutableSpriteMemory, (ushort)zeroIndex, new Position16<OamPixels>(127, 131), sprites);
@@ -130,14 +131,14 @@ internal static partial class Program
         AssertTrue(mutableOam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }),
             "zero Samus pointer reads mutable WRAM rather than cartridge art");
         for (int i = 0; i < stock.LandingYOffsets.Length; i++)
-            AssertEqual((ushort)bus.ReadByte(SamusRenderingRomData.Body.LandingVerticalOffsets + i),
+            AssertEqual((ushort)bus.ReadCartridgeByte(SamusRenderingRomData.Body.LandingVerticalOffsets + i),
                 stock.LandingYOffsets[i], $"Samus landing visual byte {i}");
         for (int i = 0; i < stock.PostureYOffsets.Length; i++)
-            AssertEqual(unchecked((sbyte)bus.ReadByte(
+            AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusRenderingRomData.Body.PostureTransitionVerticalOffsets + i)),
                 stock.PostureYOffsets[i], $"Samus posture visual byte {i}");
         for (int i = 0; i < stock.DrainedYOffsets.Length; i++)
-            AssertEqual(unchecked((sbyte)bus.ReadByte(
+            AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusRenderingRomData.Body.DrainedVerticalOffsets + i)),
                 stock.DrainedYOffsets[i], $"Samus drained visual byte {i}");
 
@@ -174,7 +175,7 @@ internal static partial class Program
                 ? SamusMovementRomData.Environment.TypeOneAtmosphericAttributes
                 : SamusMovementRomData.Environment.SharedAtmosphericAttributes;
             int source = SamusMovementRomData.Banks.Movement | (pointer + frame * sizeof(ushort));
-            ushort expectedAttributes = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+            ushort expectedAttributes = (ushort)(bus.ReadCartridgeByte(source) | bus.ReadCartridgeByte(source + 1) << 8);
             AssertTrue(stock.Atmosphere.TryResolve(type, frame, out ushort installedAttributes),
                 $"atmospheric type {type} frame {frame} has installed artwork");
             AssertEqual(expectedAttributes, installedAttributes,
@@ -231,7 +232,7 @@ internal static partial class Program
                 out ReadOnlyMemory<byte> installedSegment),
                 $"death tile segment ${segment.SourceAddress:X6} is installed");
             for (int offset = 0; offset < installedSegment.Length; offset++)
-                AssertEqual(bus.ReadByte(segment.SourceAddress + offset), installedSegment.Span[offset],
+                AssertEqual(bus.ReadCartridgeByte(segment.SourceAddress + offset), installedSegment.Span[offset],
                     $"death tile segment ${segment.SourceAddress:X6} byte {offset:X3}");
             var installedQueue = new VramWriteQueue();
             installedQueue.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
@@ -240,7 +241,7 @@ internal static partial class Program
             var installedDeathVram = new SnesVram();
             nativeDeathVram.ExecuteQueuedAssetWrite(
                 Enumerable.Range(0, SamusSpecialSequenceRomData.Death.TileSegmentByteCount)
-                    .Select(offset => bus.ReadByte(segment.SourceAddress + offset)).ToArray(),
+                    .Select(offset => bus.ReadCartridgeByte(segment.SourceAddress + offset)).ToArray(),
                 segment.EncodedVramDestination);
             installedQueue.DrainTo(installedDeathVram, ReferenceMutableMemory.From(guardedBus),
                 new DeathTileAssetProvider(stock.DeathTiles));
@@ -252,19 +253,19 @@ internal static partial class Program
         {
             int pointerAt = SamusPaletteRomData.Death.SuitPointers +
                 (suit * SamusPaletteRomData.Death.PaletteCount + palette) * sizeof(ushort);
-            ushort suitPointer = (ushort)(bus.ReadByte(pointerAt) | bus.ReadByte(pointerAt + 1) << 8);
+            ushort suitPointer = (ushort)(bus.ReadCartridgeByte(pointerAt) | bus.ReadCartridgeByte(pointerAt + 1) << 8);
             int suitlessAt = SamusPaletteRomData.Death.SuitlessPointers + palette * sizeof(ushort);
-            ushort suitlessPointer = (ushort)(bus.ReadByte(suitlessAt) |
-                bus.ReadByte(suitlessAt + 1) << 8);
+            ushort suitlessPointer = (ushort)(bus.ReadCartridgeByte(suitlessAt) |
+                bus.ReadCartridgeByte(suitlessAt + 1) << 8);
             for (int color = 0; color < SamusDeathPaletteArtworkCatalog.ColorCount; color++)
             {
                 int suitedAt = SamusPaletteRomData.Banks.Palette | suitPointer + color * 2;
                 int suitlessColorAt = SamusPaletteRomData.Banks.Palette | suitlessPointer + color * 2;
-                AssertEqual((ushort)(bus.ReadByte(suitedAt) | bus.ReadByte(suitedAt + 1) << 8),
+                AssertEqual((ushort)(bus.ReadCartridgeByte(suitedAt) | bus.ReadCartridgeByte(suitedAt + 1) << 8),
                     stock.DeathPalettes.SuitedColor(suit, palette, color),
                     $"death suit {suit} palette {palette} color {color}");
-                AssertEqual((ushort)(bus.ReadByte(suitlessColorAt) |
-                    bus.ReadByte(suitlessColorAt + 1) << 8),
+                AssertEqual((ushort)(bus.ReadCartridgeByte(suitlessColorAt) |
+                    bus.ReadCartridgeByte(suitlessColorAt + 1) << 8),
                     stock.DeathPalettes.SuitlessColor(palette, color),
                     $"death suitless palette {palette} color {color}");
             }
@@ -272,11 +273,11 @@ internal static partial class Program
         for (int shade = 0; shade < SamusPaletteRomData.Death.WhiteoutShadeCount; shade++)
         {
             int at = SamusPaletteRomData.Death.WhiteoutShades + shade * sizeof(ushort);
-            AssertEqual((ushort)(bus.ReadByte(at) | bus.ReadByte(at + 1) << 8),
+            AssertEqual((ushort)(bus.ReadCartridgeByte(at) | bus.ReadCartridgeByte(at + 1) << 8),
                 stock.DeathPalettes.WhiteoutColor(shade), $"death whiteout shade {shade}");
         }
         for (int frame = 0; frame < SamusDeathExplosionTimingDefinitions.RecordCount; frame++)
-            AssertEqual(bus.ReadByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices +
+            AssertEqual(bus.ReadCartridgeByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices +
                 frame * 2 + 1), stock.DeathPalettes.ExplosionPaletteIndex(frame),
                 $"death explosion frame {frame} visual palette selector");
         for (int suit = 0; suit < SamusDeathPaletteArtworkCatalog.SuitCount; suit++)
@@ -661,6 +662,7 @@ internal static partial class Program
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus arm cannon artwork")]
     private static void VerifySamusArmCannonArtwork(ISnesAddressSpace bus,
         SamusBodyArtworkCatalog body)
     {
@@ -668,26 +670,26 @@ internal static partial class Program
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
             int source = SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers + pose * 2;
-            ushort native = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+            ushort native = (ushort)(bus.ReadCartridgeByte(source) | bus.ReadCartridgeByte(source + 1) << 8);
             AssertEqual(native, armCannon.PoseDrawingData(pose),
                 $"arm-cannon pose {pose:X2} drawing pointer");
         }
         for (int offset = 0; offset < SamusArmCannonArtworkFormat.DrawingDataByteCount; offset++)
-            AssertEqual(bus.ReadByte(SamusRenderingRomData.Banks.Movement |
+            AssertEqual(bus.ReadCartridgeByte(SamusRenderingRomData.Banks.Movement |
                     (SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
                 armCannon.ReadDrawingByte((ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
                 $"arm-cannon drawing byte {offset:X3}");
         for (int direction = 0; direction < SamusRenderingRomData.ArmCannon.DirectionCount; direction++)
         {
             int attrAddress = SamusRenderingRomData.ArmCannon.SpriteAttributes + direction * 2;
-            AssertEqual((ushort)(bus.ReadByte(attrAddress) | bus.ReadByte(attrAddress + 1) << 8),
+            AssertEqual((ushort)(bus.ReadCartridgeByte(attrAddress) | bus.ReadCartridgeByte(attrAddress + 1) << 8),
                 armCannon.SpriteAttributes(direction), $"arm-cannon direction {direction} OAM");
             int listAddress = SamusRenderingRomData.ArmCannon.TileListPointers + direction * 2;
-            int list = bus.ReadByte(listAddress) | bus.ReadByte(listAddress + 1) << 8;
+            int list = bus.ReadCartridgeByte(listAddress) | bus.ReadCartridgeByte(listAddress + 1) << 8;
             for (int frame = 0; frame < SamusArmCannonArtworkFormat.FramesPerDirection; frame++)
             {
                 int word = SamusRenderingRomData.Banks.Movement | (list + frame * 2);
-                AssertEqual((ushort)(bus.ReadByte(word) | bus.ReadByte(word + 1) << 8),
+                AssertEqual((ushort)(bus.ReadCartridgeByte(word) | bus.ReadCartridgeByte(word + 1) << 8),
                     armCannon.TileSource(direction, frame),
                     $"arm-cannon direction {direction} frame {frame} tile source");
             }
@@ -699,7 +701,7 @@ internal static partial class Program
                 SamusRenderingRomData.ArmCannon.TileUploadByteCount, out var tile),
                 $"arm-cannon character ${source:X6} installed");
             for (int offset = 0; offset < tile.Length; offset++)
-                AssertEqual(bus.ReadByte(source + offset), tile.Span[offset],
+                AssertEqual(bus.ReadCartridgeByte(source + offset), tile.Span[offset],
                     $"arm-cannon character ${source:X6} byte {offset:X2}");
         }
 
@@ -746,11 +748,12 @@ internal static partial class Program
     }
 
     /// <summary>Import-only oracle for Samus's bank-$92 OAM record format.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle drawing a Samus spritemap record straight from bank $92")]
     private static void DrawImportedSamusSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         ushort index, Position16<OamPixels> origin)
     {
-        ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) |
-            (bus.ReadByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
+        ushort ReadWord(int address) => (ushort)(bus.ReadCartridgeByte(address) |
+            (bus.ReadCartridgeByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
         int pointerAddress = SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2;
         int recordAddress = 0x920000 | ReadWord(pointerAddress);
         ushort partCount = ReadWord(recordAddress);
@@ -758,7 +761,7 @@ internal static partial class Program
         for (int part = 0; part < partCount; part++)
         {
             oam.AddSamusSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
-                bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
+                bus.ReadCartridgeByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
                 ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3)), origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }

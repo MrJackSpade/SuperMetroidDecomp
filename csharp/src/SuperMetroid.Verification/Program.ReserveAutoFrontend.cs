@@ -11,6 +11,22 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>The native HUD digit tilemap word for <paramref name="digit"/> at $80:9DBF.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the HUD health-digit tilemap words")]
+    private static ushort ReadRetailHudDigitTile(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, int digit)
+    {
+        int address = 0x809dbf + digit * 2;
+        return (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+    }
+
+    /// <summary>The native empty AUTO reserve-indicator tilemap word at byte <paramref name="offset"/> from $80:9997.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the HUD empty AUTO reserve-indicator tilemap")]
+    private static ushort ReadRetailEmptyAutoReserveTile(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, int offset)
+    {
+        int address = 0x809997 + offset;
+        return (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+    }
+
     private static void VerifyReserveAutoFrontend()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -101,9 +117,7 @@ internal static partial class Program
             var pixels = SoftwareFrameSnapshotRenderer.Render(capture.Snapshot!);
             foreach ((int index, int digit) in new[] { (70, frame / 10), (71, frame % 10) })
             {
-                int address = 0x809dbf + digit * 2;
-                ushort expected = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-                AssertEqual(expected, runtime.Vram.ReadWord(HudState.VramDestination + index),
+                AssertEqual(ReadRetailHudDigitTile(bus, digit), runtime.Vram.ReadWord(HudState.VramDestination + index),
                     "automatic refill digit becomes visible on the following accepted NMI");
             }
             var onesPixels = Enumerable.Range(24, 8).SelectMany(y =>
@@ -126,9 +140,7 @@ internal static partial class Program
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "presentation sequence returns to gameplay");
         foreach ((int index, int offset) in new[] { (8, 0), (9, 2), (40, 4), (41, 6), (72, 8), (73, 10) })
         {
-            int address = 0x809997 + offset;
-            ushort expected = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-            AssertEqual(expected, runtime.Vram.ReadWord(HudState.VramDestination + index),
+            AssertEqual(ReadRetailEmptyAutoReserveTile(bus, offset), runtime.Vram.ReadWord(HudState.VramDestination + index),
                 "completed automatic refill publishes the native empty AUTO indicator");
         }
         var fields = typeof(SamusState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(f => !f.IsDefined(typeof(NonSerializedAttribute), false)).OrderBy(f => f.MetadataToken).ToArray();

@@ -8,6 +8,7 @@ internal static partial class Program
     /// Walks the named movement tables through their last retail entry so an address typo,
     /// truncated range, wrong record width, or cross-bank pointer fails in verification.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus movement ROM data")]
     static void VerifySamusMovementRomData()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -51,8 +52,8 @@ internal static partial class Program
                 $"pose ${pose:X2} animation list remains in bank $91 ROM");
             AssertTrue(transitionPointer >= 0x8000,
                 $"pose ${pose:X2} transition list remains in bank $91 ROM");
-            bus.ReadByte(SamusMovementRomData.Banks.Pose | animationPointer);
-            bus.ReadByte(SamusMovementRomData.Banks.Pose | transitionPointer);
+            bus.ReadCartridgeByte(SamusMovementRomData.Banks.Pose | animationPointer);
+            bus.ReadCartridgeByte(SamusMovementRomData.Banks.Pose | transitionPointer);
         }
 
         int movementTypeCount = (byte)SamusMovementType.Special + 1;
@@ -114,6 +115,7 @@ internal static partial class Program
             "records, liquid tables, effects, and 32 slope profiles are in range.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle reads at both ends of a Samus movement data range")]
     private static void TouchRange(
         SuperMetroidAddressSpace bus,
         int address,
@@ -124,10 +126,11 @@ internal static partial class Program
         int finalAddress = checked(address + byteCount - 1);
         AssertEqual(address >> 16, finalAddress >> 16,
             $"{description} remains inside its native bank");
-        bus.ReadByte(address);
-        bus.ReadByte(finalAddress);
+        bus.ReadCartridgeByte(address);
+        bus.ReadCartridgeByte(finalAddress);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus movement data words")]
     private static ushort ReadMovementWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

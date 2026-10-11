@@ -89,10 +89,11 @@ internal static partial class Program
         return unchecked((ushort)address);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room PLM words")]
     private static ushort ReadRoomPlmWord(SuperMetroidAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(
-            bus.ReadByte((int)new SnesAddress(0x8f, pointer)) |
-            (bus.ReadByte((int)new SnesAddress(
+            bus.ReadCartridgeByte((int)new SnesAddress(0x8f, pointer)) |
+            (bus.ReadCartridgeByte((int)new SnesAddress(
                 0x8f,
                 unchecked((ushort)(pointer + 1)))) << 8)));
 }

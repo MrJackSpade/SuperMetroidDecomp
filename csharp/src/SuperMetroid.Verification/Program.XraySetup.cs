@@ -44,14 +44,14 @@ internal static partial class Program
         runtime.Vram.ExecuteWordTransfer(second,
             SnesPpuLayout.GameplayBg1TilemapWord + XrayTilemapLayout.ScreenWords, 1);
         runtime.StepFrame(held);
-        Suite(nameof(VerifySaved), () => VerifySaved(XraySetupMemory.SavedBg1SecondScreen, new ushort[second.Length], "stage two only queues the second page read"));
+        Suite(nameof(VerifySaved), () => VerifySaved(XrayTilemapLayout.ScreenWords, new ushort[second.Length], "stage two only queues the second page read"));
         // The source is sampled at the NEXT NMI, not when the request is issued.
         Array.Fill(second, (ushort)0x0789);
         runtime.Vram.ExecuteWordTransfer(second,
             SnesPpuLayout.GameplayBg1TilemapWord + XrayTilemapLayout.ScreenWords, 1);
         runtime.Vram.ExecuteWordTransfer(first, SnesPpuLayout.GameplayBg1TilemapWord, 1);
         runtime.StepFrame(held);
-        Suite(nameof(VerifySaved), () => VerifySaved(XraySetupMemory.SavedBg1SecondScreen, second, "stage-two read completes at the next NMI"));
+        Suite(nameof(VerifySaved), () => VerifySaved(XrayTilemapLayout.ScreenWords, second, "stage-two read completes at the next NMI"));
 
         // Deliberately destroy the live source before stage four. A render-time rebuild
         // or a single late VRAM snapshot cannot pass this page-ownership assertion.
@@ -78,7 +78,7 @@ internal static partial class Program
         XrayRevealOverlays.Apply(runtime.LevelData!, expected, runtime.Plms.Collectibles, runtime.System,
             room.State.XrayPointer, scroll.Layer1Position, runtime.XrayRevealVisuals);
         runtime.StepFrame(held);
-        Suite(nameof(VerifySaved), () => VerifySaved(XraySetupMemory.SavedBg1, first, "stage-three read completes before stage-four build"));
+        Suite(nameof(VerifySaved), () => VerifySaved(0, first, "stage-three read completes before stage-four build"));
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(bus)), "stage four builds from the separately captured pages and overlays");
         AssertTrue(expected.Any(word => word == first[1] || word == second[0]), "fixture observes captured BG1 content, not only reveal replacements");
         runtime.Vram.ExecuteWordTransfer(new ushort[XrayTilemapLayout.BufferWords], SnesPpuLayout.GameplayBg1TilemapWord, 1);
@@ -88,10 +88,11 @@ internal static partial class Program
         AssertTrue(!samus.Xray.IsActive, "setup fixture tears down normally");
         Console.WriteLine("  X-ray setup: separate BG1 capture calls, frozen WRAM reveal/overlays and full-beam lifetime agree.");
 
-        void VerifySaved(int address, ushort[] words, string context)
+        void VerifySaved(int firstWord, ushort[] words, string context)
         {
+            WorkRamWordTable saved = new XrayMemory(bus).SavedBg1;
             for (int i = 0; i < words.Length; i++)
-                AssertEqual(words[i], (ushort)(bus.ReadByte(address + i * 2) | bus.ReadByte(address + i * 2 + 1) << 8), $"{context}, word {i}");
+                AssertEqual(words[i], saved[firstWord + i], $"{context}, word {i}");
         }
     }
 }

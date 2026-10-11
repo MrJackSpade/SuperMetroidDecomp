@@ -4,12 +4,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot initial selection")]
     private static void VerifyWorkRobotInitialSelection(SuperMetroidAddressSpace rom)
     {
         ushort NativeWord(int selector)
         {
             int address = EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + 2 * selector;
-            return (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            return (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         }
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeWorkRobotNoPower", BindingFlags.Instance | BindingFlags.NonPublic)!;

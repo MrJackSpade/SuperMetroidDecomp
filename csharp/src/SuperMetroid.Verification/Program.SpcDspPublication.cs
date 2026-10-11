@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC DSP publication")]
     private static void VerifySpcDspPublication(ISnesAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -31,14 +32,14 @@ internal static partial class Program
             Field("echoDelay").SetValue(player, (byte)2);
             // Seed all destinations so skipped echo writes are observable.
             for (int index = 0; index < 10; index++)
-                dsp.WriteRegister(rom.ReadByte(0xcf8a5a + index), 0x55);
+                dsp.WriteRegister(rom.ReadCartridgeByte(0xcf8a5a + index), 0x55);
             byte[] expected = new byte[128];
             for (int address = 0; address < 128; address++) expected[address] = dsp.ReadRegister((byte)address);
             // Native descending map: the first five writes are unconditional,
             // then FLG, then the four echo values once the delay has settled.
             int last = (stored & 0x80) != 0 ? 5 : stored == 2 ? 0 : 4;
             for (int index = 9; index >= last; index--)
-                expected[rom.ReadByte(0xcf8a5a + index)] = direct[rom.ReadByte(0xcf8a64 + index)];
+                expected[rom.ReadCartridgeByte(0xcf8a5a + index)] = direct[rom.ReadCartridgeByte(0xcf8a64 + index)];
             var method = typeof(ManagedSpcPlayer).GetMethod("LoopPartOne", flags)!;
             method.CreateDelegate<Action>(player)();
             for (int address = 0; address < 128; address++)

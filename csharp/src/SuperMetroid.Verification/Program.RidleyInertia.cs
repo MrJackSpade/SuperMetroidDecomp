@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley inertia")]
     private static void VerifyCompiledRidleyInertia(SuperMetroidAddressSpace rom)
     {
         var ceres = typeof(RoomEnemySystem).GetMethod("AccelerateRidleyToward", BindingFlags.Static | BindingFlags.NonPublic)!
@@ -14,9 +15,9 @@ internal static partial class Program
         var state = new RidleyEnemyState();
         for (int index = 0; index < 16; index++)
         {
-            byte divisor = rom.ReadByte(0xa6d61f + index);
-            byte ceresDivisor = rom.ReadByte(0xa6d712 + index);
-            AssertEqual((ushort)rom.ReadByte(0xa6d712 + index), RidleyInertiaDefinitions.Divisor(index), "Ceres native inertia byte");
+            byte divisor = rom.ReadCartridgeByte(0xa6d61f + index);
+            byte ceresDivisor = rom.ReadCartridgeByte(0xa6d712 + index);
+            AssertEqual((ushort)rom.ReadCartridgeByte(0xa6d712 + index), RidleyInertiaDefinitions.Divisor(index), "Ceres native inertia byte");
             AssertEqual((ushort)divisor, RidleyInertiaDefinitions.Divisor(index), "Norfair native inertia byte");
             // Every signed distance, with both reversal directions and zero/saturation boundaries.
             // Call the production two-axis entry points without an address space attached.

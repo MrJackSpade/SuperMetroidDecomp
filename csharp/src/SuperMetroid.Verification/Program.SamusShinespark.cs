@@ -36,12 +36,12 @@ static void VerifySamusStoredShineAndShinespark()
             [(byte)(((int)pose & 1) != 0 ? 0x08 : 0x04), 0x1b, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
         ushort stream = unchecked((ushort)(0xc600 + (int)pose));
         WriteTestWord(bus, 0x91b010 + (int)pose * 2, stream);
-        bus.WriteByte(0x910000 | stream, 4);
+        WriteTestByte(bus, 0x910000 | stream, 4);
     }
     WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
         [0x08, 0x00, 0xff, 0x02, 0x00, 0x00, 0x15, 0x00]);
     WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingRightNormalPose * 2, 0xc500);
-    bus.WriteByte(0x91c500, 4);
+    WriteTestByte(bus, 0x91c500, 4);
 
     // No sine-table region is installed: echo mechanics use compiled stock samples.
 

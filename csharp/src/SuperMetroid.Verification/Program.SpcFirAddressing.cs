@@ -1,15 +1,17 @@
 using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC FIR addressing")]
     private static void VerifySpcFirAddressing()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FIR address oracle revision");
-        byte Read(int spc) => rom.ReadByte(0xcf6c08 + spc);
+        byte Read(int spc) => rom.ReadCartridgeByte(0xcf6c08 + spc);
         AssertEqual((byte)0x8d, Read(0x1a94), "native MOV Y immediate");
         AssertEqual((byte)0xcf, Read(0x1a96), "native MUL YA");
         AssertEqual((byte)0x5d, Read(0x1a97), "native MOV X A takes only product low byte");

@@ -91,12 +91,7 @@ internal static partial class Program
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
         system.WritePersistentMirror(bus);
-        for (int index = 0; index < SaveRamLayout.ProgressionPaddingByteCount; index++)
-        {
-            bus.WriteByte(
-                SaveRamLayout.ProgressionPaddingWramAddress + index,
-                0xa5);
-        }
+        FillProgressionPadding(bus, 0xa5);
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
         SamusProjectileFrameResult held = projectiles.StepFrame(
             gameplayBus,
@@ -149,19 +144,14 @@ internal static partial class Program
             "save retains invalid SpaceTime equipment");
         AssertEqual((ushort)0x0880, saved.LoadingGameState,
             "save retains corrupted startup dispatcher word");
-        AssertTrue(saved.EventBytes.AsSpan().SequenceEqual(ReadWram(
-                bus, SaveRamLayout.EventsWramAddress, saved.EventBytes.Length)),
+        var mirror = new SaveMirrorMemory(bus);
+        AssertTrue(saved.EventBytes.AsSpan().SequenceEqual(ReadTable(mirror.Events)),
             "save retains corrupted event bytes");
-        AssertTrue(saved.BossBytes.AsSpan().SequenceEqual(ReadWram(
-                bus, SaveRamLayout.BossBitsWramAddress, saved.BossBytes.Length)),
+        AssertTrue(saved.BossBytes.AsSpan().SequenceEqual(ReadTable(mirror.BossBits)),
             "save retains corrupted boss bytes");
-        AssertTrue(saved.CollectedItemBytes.AsSpan().SequenceEqual(ReadWram(
-                bus, SaveRamLayout.CollectedItemBitsWramAddress,
-                saved.CollectedItemBytes.Length)),
+        AssertTrue(saved.CollectedItemBytes.AsSpan().SequenceEqual(ReadTable(mirror.CollectedItemBits)),
             "save retains corrupted item bytes");
-        AssertTrue(saved.OpenedDoorBytes.AsSpan().SequenceEqual(ReadWram(
-                bus, SaveRamLayout.OpenedDoorBitsWramAddress,
-                saved.OpenedDoorBytes.Length)),
+        AssertTrue(saved.OpenedDoorBytes.AsSpan().SequenceEqual(ReadTable(mirror.OpenedDoorBits)),
             "save retains corrupted door bytes");
 
         var restarted = new SamusState();
@@ -196,6 +186,11 @@ internal static partial class Program
                 "SpaceTime copy source agrees with supported cartridge");
     }
 
+    /// <summary>
+    /// The native Pit Room probe's FNV-1a hash of the raw $7E:D820-$7E:D913 progression mirror,
+    /// unassigned padding included, in address order.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: native probe hash of the raw $7E:D820-$7E:D913 progression mirror range")]
     private static uint HashWram(SuperMetroidAddressSpace bus)
     {
         uint hash = 2166136261;
@@ -203,17 +198,24 @@ internal static partial class Program
             address < SaveRamLayout.MapStationsWramAddress + Bank80SystemState.MapStationByteCount;
             address++)
         {
-            hash ^= bus.ReadByte(address);
+            hash ^= bus.ReadWorkRamByte(address);
             hash *= 16777619;
         }
         return hash;
     }
 
-    private static byte[] ReadWram(SuperMetroidAddressSpace bus, int address, int length)
+    /// <summary>Fills the unassigned $7E:D8F0-$7E:D8F7 mirror bytes that the native probe hash covers.</summary>
+    [CpuBusBoundary("exact bus test: seeds the unassigned progression-mirror padding the native probe hash covers")]
+    private static void FillProgressionPadding(SuperMetroidAddressSpace bus, byte value)
     {
-        var bytes = new byte[length];
-        for (int index = 0; index < length; index++)
-            bytes[index] = bus.ReadByte(address + index);
+        for (int index = 0; index < SaveRamLayout.ProgressionPaddingByteCount; index++)
+            bus.WriteByte(SaveRamLayout.ProgressionPaddingWramAddress + index, value);
+    }
+
+    private static byte[] ReadTable(WorkRamByteTable table)
+    {
+        var bytes = new byte[table.Length];
+        table.CopyTo(bytes);
         return bytes;
     }
 
@@ -314,6 +316,7 @@ internal static partial class Program
             AssertTrue(predicate(), context);
         }
     }
+    [CpuBusBoundary("exact bus test: the SpaceTime palette pointer $90:19FF reads live enemy-projectile WRAM at $7E:19FF")]
     private static void VerifySpacetimeBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -337,8 +340,8 @@ internal static partial class Program
             else SamusProjectileSystem.LoadBeamTilesAndPalette(gameplayBus, vram, cgram, 0x100e, artwork);
             for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i],
                 vram.ReadByte(0xc600 + i), "SpaceTime native tile bytes");
-            for (int i = 0; i < 16; i++) AssertEqual((bus.ReadByte(0x7e19ff + i * 2) |
-                bus.ReadByte(0x7e1a00 + i * 2) << 8) & 0x7fff, cgram.Colors[0xe0 + i],
+            for (int i = 0; i < 16; i++) AssertEqual((bus.ReadWorkRamByte(0x7e19ff + i * 2) |
+                bus.ReadWorkRamByte(0x7e1a00 + i * 2) << 8) & 0x7fff, cgram.Colors[0xe0 + i],
                 "SpaceTime colors retain current mutable memory rather than a frozen palette");
         }
     }

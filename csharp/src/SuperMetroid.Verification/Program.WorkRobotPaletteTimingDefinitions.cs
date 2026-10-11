@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot palette timing definitions")]
     private static void VerifyWorkRobotPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -134,7 +135,7 @@ internal static partial class Program
             "the complete 193-call edited-color production cycle pass with ROM reads forbidden.");
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-            bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+            bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
     }
 
     private static CartridgeReadGuard NewWorkRobotPaletteTimingReadGuard(ISnesAddressSpace source) =>

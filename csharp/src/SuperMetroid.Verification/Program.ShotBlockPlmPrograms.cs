@@ -48,6 +48,7 @@ internal static partial class Program
         Console.WriteLine("#1157: permanent-shot-block failure and all eight shared timed-record operand contracts confirmed on RAM-only memory.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for shot block PLM programs")]
     private static void VerifyShotBlockPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -76,8 +77,8 @@ internal static partial class Program
             AssertTrue(RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(address, out ushort value),
                 $"shot-block control word ${address:X4} is compiled");
             ushort sourceWord = unchecked((ushort)(
-                rom.ReadByte(0x840000 | address) |
-                (rom.ReadByte(0x840000 | (address + 1)) << 8)));
+                rom.ReadCartridgeByte(0x840000 | address) |
+                (rom.ReadCartridgeByte(0x840000 | (address + 1)) << 8)));
             AssertEqual(sourceWord, value,
                 $"shot-block control word ${address:X4} matches pinned cartridge");
             forbidden.Add(0x840000 | address);
@@ -90,7 +91,7 @@ internal static partial class Program
         {
             AssertTrue(RoomPlmShotBlockProgramDefinitions.TryReadMechanicsByte(address, out byte value),
                 $"shot-block sound byte ${address:X4} is compiled");
-            AssertEqual(rom.ReadByte(0x840000 | address), value,
+            AssertEqual(rom.ReadCartridgeByte(0x840000 | address), value,
                 $"shot-block sound byte ${address:X4} matches pinned cartridge");
             forbidden.Add(0x840000 | address);
             byteCount++;
@@ -115,8 +116,8 @@ internal static partial class Program
                 AssertEqual((run.DirectionAndCount & 0x8000) != 0, calculated.Vertical, "shot-block calculated direction");
                 int blockIndex = 0;
                 AssertEqual(run.DirectionAndCount,
-                    unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
-                        (rom.ReadByte(0x840000 | (cursor + 1)) << 8))),
+                    unchecked((ushort)(rom.ReadCartridgeByte(0x840000 | cursor) |
+                        (rom.ReadCartridgeByte(0x840000 | (cursor + 1)) << 8))),
                     $"shot-block draw list ${list.Pointer:X4} direction/count");
                 forbidden.Add(0x840000 | cursor++);
                 forbidden.Add(0x840000 | cursor++);
@@ -124,17 +125,17 @@ internal static partial class Program
                 {
                     AssertEqual(word, calculated.WordAt(runIndex, blockIndex++), "shot-block direct and exported word agree");
                     AssertEqual(word,
-                        unchecked((ushort)(rom.ReadByte(0x840000 | cursor) |
-                            (rom.ReadByte(0x840000 | (cursor + 1)) << 8))),
+                        unchecked((ushort)(rom.ReadCartridgeByte(0x840000 | cursor) |
+                            (rom.ReadCartridgeByte(0x840000 | (cursor + 1)) << 8))),
                         $"shot-block draw list ${list.Pointer:X4} level word at ${cursor:X4}");
                     forbidden.Add(0x840000 | cursor++);
                     forbidden.Add(0x840000 | cursor++);
                 }
 
-                AssertEqual(unchecked((byte)run.Next.X), rom.ReadByte(0x840000 | cursor),
+                AssertEqual(unchecked((byte)run.Next.X), rom.ReadCartridgeByte(0x840000 | cursor),
                     $"shot-block draw list ${list.Pointer:X4} next X");
                 forbidden.Add(0x840000 | cursor++);
-                AssertEqual(unchecked((byte)run.Next.Y), rom.ReadByte(0x840000 | cursor),
+                AssertEqual(unchecked((byte)run.Next.Y), rom.ReadCartridgeByte(0x840000 | cursor),
                     $"shot-block draw list ${list.Pointer:X4} next Y");
                 forbidden.Add(0x840000 | cursor++);
                 runIndex++;
@@ -255,6 +256,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for shot block program sound mapping")]
     private static void VerifyShotBlockProgramSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcae1,0xcb04,0xcb29,0xcb4e,0xcbb9,0xcbce,0xcbe3,0xcbf8,
@@ -265,7 +267,7 @@ internal static partial class Program
         {
             bool found = RoomPlmShotBlockProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
             AssertEqual(known.Contains((ushort)address), found, "shot-block full packed sound domain");
-            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0, value, "shot-block native packed sound IDs");
+            AssertEqual(found ? rom.ReadCartridgeByte(0x840000 | address) : (byte)0, value, "shot-block native packed sound IDs");
         }
     }
 

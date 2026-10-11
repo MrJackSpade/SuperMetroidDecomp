@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo jump back definitions")]
     private static void VerifyTorizoJumpBackDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -119,11 +120,12 @@ internal static partial class Program
         Suite(nameof(VerifyTorizoJumpBackLeftDefinitions), () => VerifyTorizoJumpBackLeftDefinitions(rom));
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(rom.ReadCartridgeByte((bank << 16) | address) |
+                rom.ReadCartridgeByte((bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo jump back left definitions")]
     private static void VerifyTorizoJumpBackLeftDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -236,8 +238,8 @@ internal static partial class Program
             "the pinned cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(rom.ReadCartridgeByte((bank << 16) | address) |
+                rom.ReadCartridgeByte((bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
 }

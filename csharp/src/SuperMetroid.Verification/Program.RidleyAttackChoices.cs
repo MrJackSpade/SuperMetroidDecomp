@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley attack choices")]
     private static void VerifyRidleyAttackChoices(SuperMetroidAddressSpace rom)
     {
         RidleyAiFunction Table(int row, int choice) => RidleyAttackChoices.Resolve(row switch
@@ -21,7 +22,7 @@ internal static partial class Program
         for (int choice = 0; choice < 8; choice++)
         {
             int address = 0xa6b38c + row * 16 + choice * 2;
-            native[row, choice] = (RidleyAiFunction)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            native[row, choice] = (RidleyAiFunction)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
         }
 

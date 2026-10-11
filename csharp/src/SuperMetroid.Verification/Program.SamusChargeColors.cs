@@ -139,6 +139,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge color phases")]
     private static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.SamusChargeColorExtractor.Extract(rom);
@@ -214,7 +215,7 @@ internal static partial class Program
         var whiteout = Enumerable.Range(0, SamusPaletteRomData.Death.WhiteoutShadeCount)
             .Select(index => Word(SamusPaletteRomData.Death.WhiteoutShades + index * 2)).ToArray();
         var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
-            .Select(index => (ushort)rom.ReadByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
+            .Select(index => (ushort)rom.ReadCartridgeByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
         var death = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
         foreach (string fieldName in new[] { "suitedFadeInputs", "suitlessFadeInputs" })
         {

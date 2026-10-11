@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus arm cannon definitions")]
     private static void VerifySamusArmCannonDefinitions(SuperMetroidAddressSpace rom)
     {
         using var artworkDirectory = new TestTempDirectory("map-catalog");
@@ -16,7 +17,7 @@ internal static partial class Program
              selectedHudItem < SamusArmCannonDefinitions.HudItemCount;
              selectedHudItem++)
         {
-            byte expected = rom.ReadByte(
+            byte expected = rom.ReadCartridgeByte(
                 SamusArmCannonDefinitions.OpenFlagTable + selectedHudItem);
             AssertEqual(
                 expected,

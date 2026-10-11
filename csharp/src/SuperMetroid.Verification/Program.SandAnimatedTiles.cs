@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>ROM-free bank-$83 selection, bank-$87 cadence, and NMI transfer regression for sand.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for sand animated tiles")]
     static void VerifySandAnimatedTiles()
     {
         var bus = new TestAddressSpace();
@@ -13,7 +14,7 @@ internal static partial class Program
         var sand = new RoomSandAnimatedTilesState();
         const ushort sandFxRecord = 0x9e44;
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        AssertEqual((byte)0x0c, rom.ReadByte(0x830000 | (sandFxRecord + 14)),
+        AssertEqual((byte)0x0c, rom.ReadCartridgeByte(0x830000 | (sandFxRecord + 14)),
             "selected retail FX record enables ceiling and falling sand");
         ushort[] definitions = [(ushort)AnimatedTileObject.MaridiaSandCeiling, (ushort)AnimatedTileObject.MaridiaSandFalling];
         for (int slot = 0; slot < 2; slot++)

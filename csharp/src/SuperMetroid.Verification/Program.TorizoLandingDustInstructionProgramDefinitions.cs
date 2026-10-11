@@ -9,6 +9,7 @@ internal static partial class Program
         Suite(nameof(VerifyTorizoLandingDustInstructionProgramDefinitions), () => VerifyTorizoLandingDustInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo landing dust instruction program definitions")]
     private static void VerifyTorizoLandingDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -20,8 +21,8 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 TorizoLandingDustInstructionProgramDefinitionsTooling.MechanicsWord(index);
             ushort native = unchecked((ushort)(
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase |
+                rom.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
+                rom.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase |
                     unchecked((ushort)(definition.Address + 1))) << 8));
             AssertEqual(definition.Value, native,
                 $"Torizo landing-dust mechanics word $86:{definition.Address:X4}");

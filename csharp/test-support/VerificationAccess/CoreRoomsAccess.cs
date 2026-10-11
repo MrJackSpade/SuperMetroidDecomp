@@ -1108,16 +1108,10 @@ internal static class RoomPlmSystemAccess
             : (ushort)0;
 
         /// <summary>
-        /// Redirects the sole live PLM to a constructed bank-$84 program for interpreter tests.
-        /// This is not a gameplay operation: the real setup still owns allocation, block
-        /// position, restore word and BTS, while the test controls only the next instruction.
-        /// Keeping synthetic opcodes at nonretail addresses avoids rewriting an immutable
-        /// compiled cartridge program in a fake address space.
-        /// </summary>
-        /// <summary>
         /// Places a constructed program in low work RAM, where the `$84` interpreter executes
         /// wrapped instruction pointers, and redirects the sole live PLM to it.
         /// </summary>
+        [CpuBusBoundary("exact bus test: places a constructed PLM program in the bank-$84 low-window WRAM mirror")]
         internal void SetSoleWorkRamProgramForVerification(ISnesAddressSpace memory, ushort pointer,
             params ReadOnlySpan<ushort> instructions)
         {
@@ -1150,6 +1144,13 @@ internal static class RoomPlmSystemAccess
                 drawPointer, default(Position16<RoomPixels>), (ushort)0);
         }
 
+        /// <summary>
+        /// Redirects the sole live PLM to a constructed bank-$84 program for interpreter tests.
+        /// This is not a gameplay operation: the real setup still owns allocation, block
+        /// position, restore word and BTS, while the test controls only the next instruction.
+        /// Keeping synthetic opcodes at nonretail addresses avoids rewriting an immutable
+        /// compiled cartridge program in a fake address space.
+        /// </summary>
         internal void SetSoleInstructionPointerForVerification(ushort instructionPointer)
         {
             object[] active = PrivateState.Field<object[]>(self, "_slots").Where(slot => PrivateState.Property<bool>(slot, "Active")).ToArray();

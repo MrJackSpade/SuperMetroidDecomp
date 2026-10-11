@@ -4,9 +4,14 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>A little-endian word of the native Zoa split-velocity table in bank $A3.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Zoa split-velocity table")]
+    private static ushort ReadRetailZoaSpeedWord(ISnesAddressSpace rom, int address) =>
+        (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+
     private static void VerifyCompiledZoaSpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => ReadRetailZoaSpeedWord(rom, address);
         for (ushort offset = 0; offset <= 16; offset++)
         {
             int address = ZoaSpeedDefinitions.ReferenceAddress + offset;

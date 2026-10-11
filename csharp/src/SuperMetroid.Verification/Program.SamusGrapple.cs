@@ -140,7 +140,7 @@ static void VerifySamusGrappleSwingAndRelease()
 
     // Samus at Y=56 puts the corrected firing endpoint at Y=50 inside the target.
     // Samus minus its centered anchor is (-24,0), exactly angle $C0.
-    bus.WriteByte(0x9bc1c2 + 0xc0, 5);
+    WriteTestByte(bus, 0x9bc1c2 + 0xc0, 5);
 
     SamusState firingSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     firingSamus.Kinematics.YSpeed = 1; // selects moving-vertically connection table $C3EE
@@ -588,8 +588,8 @@ static void VerifySamusGrappleSwingAndRelease()
 
     // Override displayed frames independently of the native physical body offsets.
     // Both angles retain right-facing body offset (0,+46), despite art frames three/four.
-    bus.WriteByte(0x9bc1c2 + 0x80, 3);
-    bus.WriteByte(0x9bc1c2 + 0x81, 4);
+    WriteTestByte(bus, 0x9bc1c2 + 0x80, 3);
+    WriteTestByte(bus, 0x9bc1c2 + 0x81, 4);
 
     // The already-connected pendulum fixture uses an intentionally empty 32x16 room. Its
     // six-point sweep must stay in bounds while proving that no invented terrain response
@@ -659,7 +659,7 @@ static void VerifySamusGrappleSwingAndRelease()
     {
         WriteTestWord(bus, 0x930000 | pointer, 1);
         WriteTestWord(bus, 0x930000 | (pointer + 2), 2);
-        bus.WriteByte(0x930000 | (pointer + 4), 0xfd);
+        WriteTestByte(bus, 0x930000 | (pointer + 4), 0xfd);
         WriteTestWord(bus, 0x930000 | (pointer + 5), 0x3456);
     }
     var fixtureFlareSprites = ChargeFlareSpriteCatalog.Load(
@@ -790,7 +790,7 @@ static void VerifySamusGrappleSwingAndRelease()
 
     // Angle $40 is exactly rightward; the next sample $41 is (+255,+6).
     // Keep those native values and place terrain at the actual nearest probe.
-    bus.WriteByte(0x9bc1c2 + 0x40, 0);
+    WriteTestByte(bus, 0x9bc1c2 + 0x40, 0);
 
     // Anchor (128,128) is biased to (136,136). With length 32, candidate angle $41's
     // nearest probe is 40 pixels from the anchor at (175,136), block (10,8). Gravity adds
@@ -1008,7 +1008,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // reaches (143,150), solid block (8,9), rather than an invented horizontal wall.
     // Bank $94 must stop at `$6A80`; bank $9B must then consume record four's literal
     // `$B9`, (+24,+16), `$C814` tuple rather than inventing a host-side angle range.
-    bus.WriteByte(0x9bc1c2 + 0x6a, 0);
+    WriteTestByte(bus, 0x9bc1c2 + 0x6a, 0);
 
     var specialBlocks = new ushort[16 * 16];
     specialBlocks[8 * 16 + 8] = 0x8000; // `$B9`'s later 16-pixel left wall probe
@@ -1152,7 +1152,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // into block (7,7); a two-byte angular step guarantees that sample is visited after
     // quadrant gravity. Releasing Shoot queues `$C856`, whose movement-type-$16` fallback
     // byte in the literal `$B6` definition selects stable crouch `$27` one call later.
-    bus.WriteByte(0x9bc1c2 + 0xd6, 0);
+    WriteTestByte(bus, 0x9bc1c2 + 0xd6, 0);
     var lockedBlocks = new ushort[16 * 16];
     lockedBlocks[7 * 16 + 7] = 0x8000;
     RoomLevelData lockedLevel = CreateRoom(new(16, 16), lockedBlocks, new byte[lockedBlocks.Length]);

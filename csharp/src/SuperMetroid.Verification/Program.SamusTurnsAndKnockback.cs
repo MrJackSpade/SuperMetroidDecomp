@@ -959,8 +959,8 @@ static void VerifySamusKnockbackAndDamageBoost()
         [0x04, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
     WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.UnusedKnockbackRightPose * 2, 0xc170);
     WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.UnusedKnockbackLeftPose * 2, 0xc171);
-    bus.WriteByte(0x91c170, 4);
-    bus.WriteByte(0x91c171, 4);
+    WriteTestByte(bus, 0x91c170, 4);
+    WriteTestByte(bus, 0x91c171, 4);
     var unusedMovementHit = new SamusState
     {
         Pose = SamusPoseId.UnusedKnockbackRightPose,

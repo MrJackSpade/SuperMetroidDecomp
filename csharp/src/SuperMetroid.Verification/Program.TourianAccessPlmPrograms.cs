@@ -62,6 +62,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access program loop count")]
     private static void VerifyTourianAccessProgramLoopCount(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -69,11 +70,12 @@ internal static partial class Program
             AssertEqual(raw == 0xaae7,
                 TourianAccessPlmProgramDefinitions.TryReadMechanicsByte((ushort)raw, out byte actual),
                 "Tourian access byte ownership is exactly its loop-count operand");
-            AssertEqual(raw == 0xaae7 ? rom.ReadByte(0x84aae7) : (byte)0, actual,
+            AssertEqual(raw == 0xaae7 ? rom.ReadCartridgeByte(0x84aae7) : (byte)0, actual,
                 "Tourian access original loop count or cleared missing byte");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access physical draw mapping")]
     private static void VerifyTourianAccessPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
@@ -112,10 +114,10 @@ internal static partial class Program
                 AssertTourianDrawWord(run.DirectionAndCount);
                 foreach (ushort word in run.LevelWords.Span)
                     AssertTourianDrawWord(word);
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
+                AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)run.Next.X),
                     $"Tourian draw ${draw.Pointer:X4} run X offset matches ROM");
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
+                AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)run.Next.Y),
                     $"Tourian draw ${draw.Pointer:X4} run Y offset matches ROM");
             }
@@ -126,8 +128,8 @@ internal static partial class Program
 
             void AssertTourianDrawWord(ushort expected)
             {
-                AssertEqual((ushort)(rom.ReadByte(0x840000 | cursor) |
-                        rom.ReadByte(0x840000 | (cursor + 1)) << 8),
+                AssertEqual((ushort)(rom.ReadCartridgeByte(0x840000 | cursor) |
+                        rom.ReadCartridgeByte(0x840000 | (cursor + 1)) << 8),
                     expected, $"Tourian draw ${draw.Pointer:X4} word at +{cursor - draw.Pointer} matches ROM");
                 cursor += 2;
             }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric effect definitions")]
     private static void VerifySamusAtmosphericEffectDefinitions(SuperMetroidAddressSpace rom)
     {
         const int waterSplashTypes = 0x9081a4;
@@ -13,7 +14,7 @@ internal static partial class Program
 
         for (int movement = 0; movement <= (byte)SamusMovementType.Special; movement++)
         {
-            WaterSplashKind expected = rom.ReadByte(waterSplashTypes + movement) == 0
+            WaterSplashKind expected = rom.ReadCartridgeByte(waterSplashTypes + movement) == 0
                 ? WaterSplashKind.Diving
                 : WaterSplashKind.GroundedPair;
             AssertEqual(expected,
@@ -23,15 +24,15 @@ internal static partial class Program
 
         for (ushort frame = 0; frame < 10; frame++)
         {
-            AssertEqual(rom.ReadByte(runningFootstepFrames + frame) != 0,
+            AssertEqual(rom.ReadCartridgeByte(runningFootstepFrames + frame) != 0,
                 SamusAtmosphericEffectDefinitions.IsRunningFootContact(frame),
                 $"running foot-contact frame {frame}");
         }
 
         for (byte room = 0; room < 16; room++)
         {
-            byte footstep = rom.ReadByte(crateriaFootstepTypes + room);
-            byte landing = rom.ReadByte(crateriaLandingTypes + room);
+            byte footstep = rom.ReadCartridgeByte(crateriaFootstepTypes + room);
+            byte landing = rom.ReadCartridgeByte(crateriaLandingTypes + room);
             AssertEqual(footstep, landing,
                 $"duplicated Crateria atmospheric policy ${room:X2}");
             AssertEqual(footstep,

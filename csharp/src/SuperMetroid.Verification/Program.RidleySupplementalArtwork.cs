@@ -103,8 +103,9 @@ internal static partial class Program
                    expected.HighTable.SequenceEqual(actual.HighTable) &&
                    expected.NextByteOffset == actual.NextByteOffset, description);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley supplemental artwork words")]
     private static ushort ReadRidleySupplementWord(ISnesAddressSpace rom, int address) =>
-        unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewRidleySupplementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6db02 and < 0xa6db2a or

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus death explosion timing definitions")]
     private static void VerifySamusDeathExplosionTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -14,7 +15,7 @@ internal static partial class Program
             int address = SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress +
                 index * SamusDeathExplosionTimingDefinitions.RecordByteCount;
             AssertEqual(
-                rom.ReadByte(address),
+                rom.ReadCartridgeByte(address),
                 SamusDeathExplosionTimingDefinitions.DurationForIndex(index),
                 $"Samus death-explosion duration {index}");
         }

@@ -13,6 +13,19 @@ using SuperMetroid.Core.Spatial;
 internal static partial class Program
 {
 
+/// <summary>A little-endian word of the native projectile ROM oracle.</summary>
+[CpuBusBoundary("exact bus test: retail ROM oracle for bank-$93 projectile definition words")]
+static ushort ReadRetailProjectileWord(ISnesAddressSpace rom, int address) =>
+    (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+
+/// <summary>
+/// Byte <paramref name="offset"/> of the bank-$93 power-beam projectile record that the native
+/// direction table at $93:8433 selects for <paramref name="direction"/>.
+/// </summary>
+[CpuBusBoundary("exact bus test: retail ROM oracle for power-beam projectile radius bytes")]
+static byte ReadRetailPowerBeamRadiusByte(ISnesAddressSpace rom, int direction, int offset) =>
+    rom.ReadCartridgeByte(0x930000 | (ReadRetailProjectileWord(rom, 0x938433 + direction * 2) + offset));
+
 /// <summary>Samus beam and missile projectile verification.</summary>
 static void VerifySamusPowerBeamProjectiles()
 {
@@ -26,22 +39,22 @@ static void VerifySamusPowerBeamProjectiles()
     // the separate flare spritemap family seeded below.
     WriteTestWord(bus, 0x93a24d, 1);
     WriteTestWord(bus, 0x93a24f, 0);
-    bus.WriteByte(0x93a251, 0);
+    WriteTestByte(bus, 0x93a251, 0);
     WriteTestWord(bus, 0x93a252, 0x2c20);
     // Native explosion programs intentionally share synthetic `$A254`; give that pointer
     // its own visible one-OBJ map so the early explosion draw pass is tested, not inferred
     // from a nonzero animation pointer.
     WriteTestWord(bus, 0x93a254, 1);
     WriteTestWord(bus, 0x93a256, 0);
-    bus.WriteByte(0x93a258, 0);
+    WriteTestByte(bus, 0x93a258, 0);
     WriteTestWord(bus, 0x93a259, 0x2c30);
     WriteTestWord(bus, 0x93a25b, 1);
     WriteTestWord(bus, 0x93a25d, 0);
-    bus.WriteByte(0x93a25f, 0);
+    WriteTestByte(bus, 0x93a25f, 0);
     WriteTestWord(bus, 0x93a260, 0x2a44);
     WriteTestWord(bus, 0x93a262, 1);
     WriteTestWord(bus, 0x93a264, 0);
-    bus.WriteByte(0x93a266, 0);
+    WriteTestByte(bus, 0x93a266, 0);
     WriteTestWord(bus, 0x93a267, 0x2a45);
     WriteTestWord(bus, 0x93a117, 0);
 
@@ -140,7 +153,7 @@ static void VerifySamusPowerBeamProjectiles()
         WriteTestWord(bus, 0x90c3c9 + selection * 2, 0xc3e1);
     }
     for (int index = 0; index < 0x100; index++)
-        bus.WriteByte(0x9a8000 + index, unchecked((byte)(index ^ 0x5a)));
+        WriteTestByte(bus, 0x9a8000 + index, unchecked((byte)(index ^ 0x5a)));
     for (int index = 0; index < 16; index++)
         WriteTestWord(bus, 0x90c3e1 + index * 2, unchecked((ushort)(0x0100 + index)));
 
@@ -221,15 +234,15 @@ static void VerifySamusPowerBeamProjectiles()
         int address = 0x930000 | pointer;
         WriteTestWord(bus, address, 1);
         WriteTestWord(bus, address + 2, 0);
-        bus.WriteByte(address + 4, 0);
+        WriteTestByte(bus, address + 4, 0);
         WriteTestWord(bus, address + 5, 0x2c30);
     }
     for (int index = 0; index < 30; index++)
-        bus.WriteByte(0x90c487 + index, 3);
-    bus.WriteByte(0x90c4a7, 5);
-    bus.WriteByte(0x90c4a8, 0xff);
-    bus.WriteByte(0x90c4ae, 4);
-    bus.WriteByte(0x90c4af, 0xff);
+        WriteTestByte(bus, 0x90c487 + index, 3);
+    WriteTestByte(bus, 0x90c4a7, 5);
+    WriteTestByte(bus, 0x90c4a8, 0xff);
+    WriteTestByte(bus, 0x90c4ae, 4);
+    WriteTestByte(bus, 0x90c4af, 0xff);
     // Motion definitions are compiled independently of the synthetic presentation bus.
 
     const int width = 32;
@@ -251,7 +264,7 @@ static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));
     SamusProjectileSystem CreateSyntheticProjectiles() => new() { FrameBindings = fixtureFrames };
     SamusBombProjectileSystem CreateSyntheticBombs() => new() { FrameBindings = fixtureFrames };
-    ushort NativeWord(int a) => (ushort)(nativeProjectileRom.ReadByte(a) | nativeProjectileRom.ReadByte(a + 1) << 8);
+    ushort NativeWord(int a) => ReadRetailProjectileWord(nativeProjectileRom, a);
     ushort NativeDamage(int table, int beam) => NativeWord(0x930000 | NativeWord(table + beam * 2));
     RoomLevelData air = new RoomLevelData(
         new Extent16<RoomBlocks>(width, height),
@@ -340,9 +353,9 @@ static void VerifySamusPowerBeamProjectiles()
             $"power beam direction {direction} loads damage");
         AssertEqual(0xa24d, projectiles.Slots[0].SpritemapPointer,
             $"power beam direction {direction} selects first art record");
-        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 4)), projectiles.Slots[0].Radius.X,
+        AssertEqual((ushort)ReadRetailPowerBeamRadiusByte(nativeProjectileRom, direction, 4), projectiles.Slots[0].Radius.X,
             $"power beam direction {direction} loads X radius");
-        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 5)), projectiles.Slots[0].Radius.Y,
+        AssertEqual((ushort)ReadRetailPowerBeamRadiusByte(nativeProjectileRom, direction, 5), projectiles.Slots[0].Radius.Y,
             $"power beam direction {direction} loads Y radius");
     }
 
@@ -1501,7 +1514,7 @@ static void VerifySamusPowerBeamProjectiles()
     // prove the live radius scanner creates the PLM and its timed bank-$84 program clears
     // the complete four-block cap without a test-owned terrain mutation.
     WriteTestWord(bus, 0x84c4ba, 0x8c19);
-    bus.WriteByte(0x84c4bc, 0x07);
+    WriteTestByte(bus, 0x84c4bc, 0x07);
     WriteTestWord(bus, 0x84c4bd, 0x0006);
     WriteTestWord(bus, 0x84c4bf, 0xa9fb);
     WriteTestWord(bus, 0x84c4c1, 0x0006);
@@ -1548,8 +1561,8 @@ static void VerifySamusPowerBeamProjectiles()
         int recordAddress = 0x8f0000 | unchecked((ushort)(
             coloredDoorPopulation + index * 6));
         WriteTestWord(bus, recordAddress, coloredDoorHeaders[index]);
-        bus.WriteByte(recordAddress + 2, unchecked((byte)blockX));
-        bus.WriteByte(recordAddress + 3, unchecked((byte)blockY));
+        WriteTestByte(bus, recordAddress + 2, unchecked((byte)blockX));
+        WriteTestByte(bus, recordAddress + 3, unchecked((byte)blockY));
         WriteTestWord(bus, recordAddress + 4, unchecked((ushort)index));
     }
     WriteTestWord(
@@ -1599,7 +1612,7 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x840402, 0x0500);
     WriteTestWord(bus, 0x840406, 0x0600);
     WriteTestWord(bus, 0x84040e, 0x1300);
-    bus.WriteByte(0x840602, 5);
+    WriteTestByte(bus, 0x840602, 5);
     WriteTestWord(bus, 0x840603, 0x0800);
     WriteTestWord(bus, 0x840605, 1);
     WriteTestWord(bus, 0x840607, 0x1320);
@@ -1611,8 +1624,8 @@ static void VerifySamusPowerBeamProjectiles()
     WriteDoorDrawList(bus, 0x841340, [0x0001, 0xc125, 0x0000]);
     WriteDoorDrawList(bus, 0x841360, [0x0001, 0x8126, 0x0000]);
     WriteTestWord(bus, 0x8f0000 | residentDoorPopulation, 0xc88a);
-    bus.WriteByte(0x8f0000 | (residentDoorPopulation + 2), 5);
-    bus.WriteByte(0x8f0000 | (residentDoorPopulation + 3), 3);
+    WriteTestByte(bus, 0x8f0000 | (residentDoorPopulation + 2), 5);
+    WriteTestByte(bus, 0x8f0000 | (residentDoorPopulation + 3), 3);
     WriteTestWord(bus, 0x8f0000 | (residentDoorPopulation + 4), residentDoorArgument);
     WriteTestWord(bus, 0x8f0000 | (residentDoorPopulation + 6), 0);
 
@@ -1739,10 +1752,10 @@ static void VerifySamusPowerBeamProjectiles()
     // Instruction $8A91 has a one-byte threshold followed by the successful target at
     // offset three. The target uses the real shared sound-seven and Delete opcodes so the
     // semantic door pre-pass and generic instruction interpreter are tested together.
-    bus.WriteByte(0x840000 | (greyDoorOpenTriggerList + 2), 1);
+    WriteTestByte(bus, 0x840000 | (greyDoorOpenTriggerList + 2), 1);
     WriteTestWord(bus, 0x840000 | (greyDoorOpenTriggerList + 3), greyDoorOpeningList);
     WriteTestWord(bus, 0x840000 | greyDoorOpeningList, 0x8c19);
-    bus.WriteByte(0x840000 | (greyDoorOpeningList + 2), 7);
+    WriteTestByte(bus, 0x840000 | (greyDoorOpeningList + 2), 7);
     WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 3), 1);
     WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 5), 0x1b40);
     WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 7), 0x86bc);
@@ -1755,8 +1768,8 @@ static void VerifySamusPowerBeamProjectiles()
     WriteDoorDrawList(bus, 0x841b40, [0x0001, 0x0222, 0x0000]);
     WriteDoorDrawList(bus, 0x841b60, [0x0001, 0x8223, 0x0000]);
     WriteTestWord(bus, 0x8f0000 | greyDoorPopulation, 0xc842);
-    bus.WriteByte(0x8f0000 | (greyDoorPopulation + 2), 2);
-    bus.WriteByte(0x8f0000 | (greyDoorPopulation + 3), 6);
+    WriteTestByte(bus, 0x8f0000 | (greyDoorPopulation + 2), 2);
+    WriteTestByte(bus, 0x8f0000 | (greyDoorPopulation + 3), 6);
     WriteTestWord(bus, 0x8f0000 | (greyDoorPopulation + 4), greyDoorRawArgument);
     WriteTestWord(bus, 0x8f0000 | (greyDoorPopulation + 6), 0);
 

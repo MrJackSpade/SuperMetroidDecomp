@@ -61,6 +61,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn ceiling program sound")]
     private static void VerifySporeSpawnCeilingProgramSound(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -68,11 +69,12 @@ internal static partial class Program
             AssertEqual(raw == 0xab14,
                 SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsByte((ushort)raw, out byte actual),
                 "Spore ceiling byte ownership is exactly its sound operand");
-            AssertEqual(raw == 0xab14 ? rom.ReadByte(0x84ab14) : (byte)0, actual,
+            AssertEqual(raw == 0xab14 ? rom.ReadCartridgeByte(0x84ab14) : (byte)0, actual,
                 "Spore ceiling original sound or cleared missing byte");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn ceiling draw mapping")]
     private static void VerifySporeSpawnCeilingDrawMapping(SuperMetroidAddressSpace rom)
     {
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
@@ -109,10 +111,10 @@ internal static partial class Program
                 AssertDrawWord(run.DirectionAndCount);
                 foreach (ushort word in run.LevelWords.Span)
                     AssertDrawWord(word);
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
+                AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)run.Next.X),
                     $"Spore Spawn draw ${draw.Pointer:X4} signed X offset");
-                AssertEqual(rom.ReadByte(0x840000 | cursor++),
+                AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)run.Next.Y),
                     $"Spore Spawn draw ${draw.Pointer:X4} signed Y offset");
             }
@@ -121,8 +123,8 @@ internal static partial class Program
 
             void AssertDrawWord(ushort expected)
             {
-                AssertEqual((ushort)(rom.ReadByte(0x840000 | cursor) |
-                        rom.ReadByte(0x840000 | (cursor + 1)) << 8),
+                AssertEqual((ushort)(rom.ReadCartridgeByte(0x840000 | cursor) |
+                        rom.ReadCartridgeByte(0x840000 | (cursor + 1)) << 8),
                     expected,
                     $"Spore Spawn draw ${draw.Pointer:X4} word +{cursor - draw.Pointer}");
                 cursor += 2;

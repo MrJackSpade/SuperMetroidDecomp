@@ -8,6 +8,7 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus visor colors")]
     private static void VerifySamusVisorColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -22,7 +23,7 @@ internal static partial class Program
         for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
         {
             int address = SamusVisorColorFormat.SourceAddress + index * sizeof(ushort);
-            ushort native = unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            ushort native = unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
             AssertEqual(native, catalog.Resolve(index), $"native visor color {index}");
         }
 
@@ -38,13 +39,14 @@ internal static partial class Program
         Console.WriteLine("  Samus visor: all six native colors and guarded room/X-ray cycles pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for original visor colors")]
     private static SamusVisorColorCatalog ReadOriginalVisorColors(ISnesAddressSpace rom)
     {
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
             int address = SamusVisorColorFormat.SourceAddress + index * sizeof(ushort);
-            ushort word = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort word = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             colors[index] = new PaletteRgb5
             {
                 Red = word & 31,
@@ -127,9 +129,10 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed X-ray cycle does not read visor ROM table");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Samus visor color words")]
     private static ushort ReadVisorFixtureColor(ISnesAddressSpace rom, int offset) =>
-        (ushort)(rom.ReadByte(SamusVisorColorFormat.SourceAddress + offset) |
-            rom.ReadByte(SamusVisorColorFormat.SourceAddress + offset + 1) << 8);
+        (ushort)(rom.ReadCartridgeByte(SamusVisorColorFormat.SourceAddress + offset) |
+            rom.ReadCartridgeByte(SamusVisorColorFormat.SourceAddress + offset + 1) << 8);
     private static SamusState CreateXraySamus(ISnesAddressSpace rom)
     {
         var samus = new SamusState

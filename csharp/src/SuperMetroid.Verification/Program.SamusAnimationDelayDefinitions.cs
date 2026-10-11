@@ -4,21 +4,22 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Checks the entire compiled pose-delay definition domain against retail.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus pose-delay definitions and the invalid-pose $0302 low-WRAM overread")]
     private static void VerifySamusAnimationDelayDefinitions(ISnesAddressSpace bus,
         string sourceRom)
     {
         for (int pose = 0; pose < 256; pose++)
         {
             int source = SamusAnimationDelayDefinitions.PointerTableAddress + pose * 2;
-            ushort nativePointer = (ushort)(bus.ReadByte(source) |
-                bus.ReadByte(source + 1) << 8);
+            ushort nativePointer = (ushort)(bus.ReadCartridgeByte(source) |
+                bus.ReadCartridgeByte(source + 1) << 8);
             AssertEqual(nativePointer,
                 SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose),
                 $"compiled Samus animation pointer for pose ${pose:X2}");
         }
         for (int source = SamusAnimationDelayDefinitions.PointerTableAddress;
              source < SamusAnimationDelayDefinitions.DelayStreamsEndExclusive; source++)
-            AssertEqual(bus.ReadByte(source),
+            AssertEqual(bus.ReadCartridgeByte(source),
                 SamusAnimationDelayDefinitions.ReadCompiledByte(source),
                 $"compiled Samus animation definition byte ${source:X6}");
 

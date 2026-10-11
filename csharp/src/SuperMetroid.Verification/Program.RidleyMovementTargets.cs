@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley movement targets")]
     private static void VerifyRidleyMovementTargets(SuperMetroidAddressSpace rom)
     {
         ushort[] Facings(int address, Func<RidleyFacing, ushort> compiled)
@@ -17,7 +18,7 @@ internal static partial class Program
             var native = new ushort[count];
             for (int i = 0; i < native.Length; i++)
             {
-                native[i] = (ushort)(rom.ReadByte(address + i * 2) | rom.ReadByte(address + i * 2 + 1) << 8);
+                native[i] = (ushort)(rom.ReadCartridgeByte(address + i * 2) | rom.ReadCartridgeByte(address + i * 2 + 1) << 8);
                 AssertEqual(native[i], compiled(i), "Native Ridley target/divisor record");
             }
             return native;

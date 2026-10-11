@@ -4,12 +4,13 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus HUD definitions")]
     private static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         bool Transition(SamusPoseId pose, bool active) => pose >= SamusHudRomData.StandardTransitionStart ||
             (pose < SamusHudRomData.NonFiringTransitionStart &&
-                (rom.ReadByte(SamusHudRomData.TransitionFlags + (int)pose -
+                (rom.ReadCartridgeByte(SamusHudRomData.TransitionFlags + (int)pose -
                     (int)SamusHudRomData.FirstTransitionPose) == 0 || active));
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
         var metadata = NewGrappleFiringReadGuard(rom, () => metadataPose);
@@ -18,7 +19,7 @@ internal static partial class Program
         foreach (bool active in new[] { false, true })
         {
             if (pose < (int)SamusHudRomData.NonFiringTransitionStart)
-                AssertEqual(rom.ReadByte(SamusHudRomData.TransitionFlags + pose -
+                AssertEqual(rom.ReadCartridgeByte(SamusHudRomData.TransitionFlags + pose -
                         (int)SamusHudRomData.FirstTransitionPose),
                     SamusHudDefinitions.PostureObservation((SamusPoseId)pose),
                     "Complete bounded posture-index observation");
@@ -38,7 +39,7 @@ internal static partial class Program
             foreach (ushort selected in new ushort[] { 3, 4 })
             foreach (ushort turn in new ushort[] { 0, 1, ushort.MaxValue })
             {
-                if (rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) != movement) continue;
+                if (rom.ReadCartridgeByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) != movement) continue;
                 metadataPose = samus.Pose = (SamusPoseId)pose;
                 samus.InputLocked = locked; samus.SelectedHudItem = selected; setTurn(samus, turn);
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
@@ -54,7 +55,7 @@ internal static partial class Program
         foreach (ushort turn in new ushort[] { 0, 1 })
         {
             SamusPoseId pose = (SamusPoseId)poseIndex;
-            byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + (int)pose * 8 + 1);
+            byte movement = rom.ReadCartridgeByte(SamusMovementRomData.Poses.Definitions + (int)pose * 8 + 1);
             metadataPose = SamusPoseId.FacingRightNormalPose;
             samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = (ushort)SamusBeamFlags.Charge };
             var shots = new SamusProjectileSystem();

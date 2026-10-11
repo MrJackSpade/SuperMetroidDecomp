@@ -164,8 +164,9 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley instruction-program words")]
     private static ushort ReadRidleyWord(SuperMetroidAddressSpace source, int address) =>
-        unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+        unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewRidleyInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

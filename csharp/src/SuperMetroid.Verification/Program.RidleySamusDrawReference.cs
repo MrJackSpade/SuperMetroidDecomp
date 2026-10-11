@@ -18,25 +18,26 @@ internal static partial class Program
         Position16<ScreenPixels> Screen = default);
 
     /// <summary>Independent $90:C663 arm-cannon draw/transfer result from native state and ROM.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the $90:C663 arm-cannon draw")]
     private static RidleyNativeCannonDrawResult RidleyNativeCannonDraw(
         ISnesAddressSpace rom, byte[] checkpoint, bool invincibleAtDraw, ushort nmi)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(checkpoint.AsSpan(address, 2));
-        ushort R(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort R(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         if ((W(NativeSnapshotMemory.CannonDrawingMode) & 15) == 0) return default;
         ushort frame = W(NativeSnapshotMemory.CannonFrame);
         if (frame == 0 || (invincibleAtDraw && (nmi & 1) != 0))
             return new RidleyNativeCannonDrawResult(false, false, frame);
         ushort pose = W(NativeSnapshotMemory.Pose), animation = W(NativeSnapshotMemory.Animation);
         int drawing = NativeSnapshotMemory.CannonDefinitionBank | R(NativeSnapshotMemory.CannonPosePointers + pose * 2);
-        byte first = rom.ReadByte(drawing);
+        byte first = rom.ReadCartridgeByte(drawing);
         bool alternate = (first & 128) != 0;
-        byte direction = (byte)((alternate && animation != 0 ? rom.ReadByte(drawing + 2) : first) & 127);
+        byte direction = (byte)((alternate && animation != 0 ? rom.ReadCartridgeByte(drawing + 2) : first) & 127);
         int offsets = drawing + (alternate ? 4 : 2) + animation * 2;
-        short x = unchecked((short)(W(NativeSnapshotMemory.X) + (sbyte)rom.ReadByte(offsets) - W(NativeSnapshotMemory.CameraX)));
+        short x = unchecked((short)(W(NativeSnapshotMemory.X) + (sbyte)rom.ReadCartridgeByte(offsets) - W(NativeSnapshotMemory.CameraX)));
         // C6F4 masks the pose graphics offset to a byte, unlike the body renderer's sign extension.
-        short y = unchecked((short)(W(NativeSnapshotMemory.Y) + (sbyte)rom.ReadByte(offsets + 1) -
-            rom.ReadByte(NativeSnapshotMemory.PoseDefinitions + pose * 8 + 4) - W(NativeSnapshotMemory.CameraY)));
+        short y = unchecked((short)(W(NativeSnapshotMemory.Y) + (sbyte)rom.ReadCartridgeByte(offsets + 1) -
+            rom.ReadCartridgeByte(NativeSnapshotMemory.PoseDefinitions + pose * 8 + 4) - W(NativeSnapshotMemory.CameraY)));
         ushort attributes = R(NativeSnapshotMemory.CannonAttributes + direction * 2);
         int tiles = NativeSnapshotMemory.CannonDefinitionBank | R(NativeSnapshotMemory.CannonTileLists + direction * 2);
         return new RidleyNativeCannonDrawResult(x >= 0 && x < 256 && y >= 0 && y < 256,
@@ -62,17 +63,18 @@ internal static partial class Program
     /// and original ROM definitions, never production draw methods or extracted art.
     /// Validated against visible native records before covering opposite NMI phases.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the $90:85E2/$864E/$8C1F Samus body draw record")]
     private static (ushort Top, ushort Bottom, ushort X, ushort Y) RidleyNativeBodyRecord(
         ISnesAddressSpace rom, byte[] checkpoint)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(checkpoint.AsSpan(address, 2));
-        ushort R(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort R(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         if ((W(NativeSnapshotMemory.CeresStatus) & 0x8000) != 0)
             throw new InvalidDataException("Movie body oracle requires a native Mode 7 transform mapping.");
         ushort pose = W(NativeSnapshotMemory.Pose), frame = W(NativeSnapshotMemory.Animation);
         SamusPoseId poseId = (SamusPoseId)pose;
         var movement = (SamusMovementType)checkpoint[NativeSnapshotMemory.SamusMovementType];
-        int yOffset = -unchecked((sbyte)rom.ReadByte(NativeSnapshotMemory.PoseDefinitions + pose * 8 + 4));
+        int yOffset = -unchecked((sbyte)rom.ReadCartridgeByte(NativeSnapshotMemory.PoseDefinitions + pose * 8 + 4));
         if (movement == SamusMovementType.Standing)
         {
             if (poseId is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose)
@@ -85,12 +87,12 @@ internal static partial class Program
         }
         else if (movement == SamusMovementType.PostureTransition &&
             poseId >= SamusPoseId.CrouchingTransitionRightPose && poseId < SamusPoseId.MorphBallGroundLeftPose)
-            yOffset = unchecked((sbyte)rom.ReadByte(NativeSnapshotMemory.PostureDrawOffsets +
+            yOffset = unchecked((sbyte)rom.ReadCartridgeByte(NativeSnapshotMemory.PostureDrawOffsets +
                 (poseId - SamusPoseId.CrouchingTransitionRightPose) * 2 + frame));
         else if (movement == SamusMovementType.Special)
         {
             if (poseId is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
-                yOffset = unchecked((sbyte)rom.ReadByte(NativeSnapshotMemory.DrainedDrawOffsets + frame));
+                yOffset = unchecked((sbyte)rom.ReadCartridgeByte(NativeSnapshotMemory.DrainedDrawOffsets + frame));
             else if (poseId is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose && frame >= 5)
                 yOffset = -3;
         }

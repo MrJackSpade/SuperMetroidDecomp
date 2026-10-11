@@ -55,6 +55,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for speed block sound mapping")]
     private static void VerifySpeedBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xc953,0xc976,0xc999,0xc9d1,0xc9e6];
@@ -63,10 +64,11 @@ internal static partial class Program
         {
             bool found = SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsByte((ushort)address,out byte value);
             AssertEqual(addresses.Contains((ushort)address),found,"speed complete packed sound domain");
-            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0,value,"speed native sound byte and missing output");
+            AssertEqual(found ? rom.ReadCartridgeByte(0x840000 | address) : (byte)0,value,"speed native sound byte and missing output");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for speed block reveal draw mapping")]
     private static void VerifySpeedBlockRevealDrawMapping(SuperMetroidAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;
@@ -100,8 +102,8 @@ internal static partial class Program
             AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | pointer),run.DirectionAndCount,"speed reveal native direction/count");
             AssertEqual(1,run.LevelWords.Length,"speed reveal single word");
             AssertEqual(nativeWord,run.LevelWords.Span[0],"speed reveal exported native word");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 4))),run.Next.X,"speed reveal native terminal X");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 5))),run.Next.Y,"speed reveal native terminal Y");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),run.Next.X,"speed reveal native terminal X");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),run.Next.Y,"speed reveal native terminal Y");
         }
     }
 

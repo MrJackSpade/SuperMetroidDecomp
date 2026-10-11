@@ -137,12 +137,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Zebetite instruction words")]
     private static ushort ReadZebetiteInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa60000 | address) |
-            source.ReadByte(0xa60000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa60000 | address) |
+            source.ReadCartridgeByte(0xa60000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewZebetiteInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

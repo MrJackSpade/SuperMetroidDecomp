@@ -86,6 +86,7 @@ internal static partial class Program
             "body DMA definitions, and all arm-cannon directions are in range.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus rendering data words")]
     private static ushort ReadRenderingWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

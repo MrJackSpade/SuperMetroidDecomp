@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo randomized projectile definitions")]
     private static void VerifyTorizoRandomizedProjectileDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -21,7 +22,7 @@ internal static partial class Program
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         var guarded = NewTorizoRandomizedProjectileReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(

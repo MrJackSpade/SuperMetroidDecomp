@@ -4,14 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley death acceleration")]
     private static void VerifyRidleyDeathAcceleration(SuperMetroidAddressSpace rom)
     {
         // $A6:C60E LDY #0, $C611 LDA #16: index and extra deceleration are
         // distinct native arguments, not an out-of-table index of sixteen.
-        AssertEqual((byte)0xa0, rom.ReadByte(0xa6c60e), "Death movement LDY immediate opcode");
-        AssertEqual((byte)0, rom.ReadByte(0xa6c60f), "Death movement native inertia index");
-        AssertEqual((byte)0xa9, rom.ReadByte(0xa6c611), "Death movement LDA immediate opcode");
-        AssertEqual((byte)16, rom.ReadByte(0xa6c612), "Death movement native extra deceleration");
+        AssertEqual((byte)0xa0, rom.ReadCartridgeByte(0xa6c60e), "Death movement LDY immediate opcode");
+        AssertEqual((byte)0, rom.ReadCartridgeByte(0xa6c60f), "Death movement native inertia index");
+        AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0xa6c611), "Death movement LDA immediate opcode");
+        AssertEqual((byte)16, rom.ReadCartridgeByte(0xa6c612), "Death movement native extra deceleration");
         var enemies = new RoomEnemySystem();
         var approaching = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyMoveToDeathSpot", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>();

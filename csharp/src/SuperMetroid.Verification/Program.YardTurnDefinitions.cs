@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Yard turn definitions")]
     private static void VerifyYardTurnDefinitions(SuperMetroidAddressSpace rom)
     {
         (YardMovementFunction Movement, bool Disabled, int Address)[] records =
@@ -25,7 +26,7 @@ internal static partial class Program
         ];
 
         static ushort Word(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
         foreach ((YardMovementFunction movement, bool disabled, int address) in records)
         {

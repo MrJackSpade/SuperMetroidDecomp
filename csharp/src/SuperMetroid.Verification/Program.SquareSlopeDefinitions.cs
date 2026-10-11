@@ -12,12 +12,13 @@ internal static partial class Program
         Suite(nameof(VerifyEnemySquareSlopeAlgorithm), () => VerifyEnemySquareSlopeAlgorithm(rom));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus square slope algorithm")]
     private static void VerifySamusSquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
     {
         var native = new byte[20];
         for (int i = 0; i < native.Length; i++)
         {
-            native[i] = rom.ReadByte(SamusProjectileRomDataCollision.SquareSlopeDefinitions + i);
+            native[i] = rom.ReadCartridgeByte(SamusProjectileRomDataCollision.SquareSlopeDefinitions + i);
             AssertEqual(native[i], SquareSlopeDefinitions.ReadSamusQuadrant(i), "Native Samus square quadrant byte");
         }
         foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })
@@ -51,14 +52,15 @@ internal static partial class Program
         Console.WriteLine("Samus square-slope algorithm: 20 native bytes, bounds and 10240 real missile point cases in both axes pass without ROM reads.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy square slope algorithm")]
     private static void VerifyEnemySquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 20; index++)
         {
             byte actual = SquareSlopeDefinitions.ReadEnemyQuadrant(index);
-            AssertEqual(rom.ReadByte(SquareSlopeDefinitions.EnemyReferenceAddress + index), actual,
+            AssertEqual(rom.ReadCartridgeByte(SquareSlopeDefinitions.EnemyReferenceAddress + index), actual,
                 $"enemy square quadrant byte {index}, including identity bits");
-            AssertEqual(rom.ReadByte(SquareSlopeDefinitions.ProjectileReferenceAddress + index), actual,
+            AssertEqual(rom.ReadCartridgeByte(SquareSlopeDefinitions.ProjectileReferenceAddress + index), actual,
                 $"enemy-projectile square quadrant copy {index}");
         }
         foreach (int invalid in new[] { -1, 20, int.MinValue, int.MaxValue })

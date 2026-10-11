@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for speed boost palette pointers")]
     private static void VerifySpeedBoostPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -22,7 +23,7 @@ internal static partial class Program
         {
             ushort offset = equipment[selection].GetSuitPaletteTableOffset();
             int source = SamusPaletteRomData.FullBodyCycles.SpeedBoostPointers + offset;
-            ushort nativePointer = (ushort)(rom.ReadByte(source) | rom.ReadByte(source + 1) << 8);
+            ushort nativePointer = (ushort)(rom.ReadCartridgeByte(source) | rom.ReadCartridgeByte(source + 1) << 8);
             AssertEqual(expectedPointers[selection], nativePointer,
                 $"Speed Booster pointer selection {selection} matches retail ROM");
             AssertEqual(nativePointer,

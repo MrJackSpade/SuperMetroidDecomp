@@ -357,7 +357,7 @@ static void VerifySamusBlockCollision()
     // Unlike the ownerless topology fixtures above, a live Samus-owned kinematics child
     // must publish the exact `$94:8E83/$8ECF/$8F0A` spike damage before clipping. Exercise
     // every damaging table entry plus the harmless entry two with an identical floor hit.
-    bus.WriteByte(
+    WriteTestByte(bus,
         SamusMovementRomData.Poses.Definitions +
             (int)SamusPoseId.FacingRightNormalPose *
             SamusMovementRomData.Poses.DefinitionByteCount,
@@ -998,7 +998,7 @@ static void VerifySamusGroundedReversal()
         WritePoseDefinition(bus, (int)sourcePose, definition);
         ushort streamAddress = (ushort)(0xc600 + (int)sourcePose * 2);
         WriteTestWord(bus, 0x91b010 + (int)sourcePose * 2, streamAddress);
-        bus.WriteByte(0x910000 + streamAddress, 0x0a);
+        WriteTestByte(bus, 0x910000 + streamAddress, 0x0a);
     }
 
     // `$43/$44` really are movement type `$0E`; the six aimed records really are `$17`.
@@ -1149,7 +1149,7 @@ static void VerifySamusMoonwalking()
         WritePoseDefinition(bus, (int)pose, definition);
         ushort stream = (ushort)(0xc000 + (int)pose);
         WriteTestWord(bus, 0x91b010 + (int)pose * 2, stream);
-        bus.WriteByte(0x910000 + stream, 10);
+        WriteTestByte(bus, 0x910000 + stream, 10);
     }
 
     // The disabled-option substitution enters ordinary right-to-left `$25`, including the
@@ -1251,7 +1251,7 @@ static void VerifySamusMoonwalking()
         var candidate = new SamusState { Pose = fallback };
         ushort stream = (ushort)(0xc200 + (int)target);
         WriteTestWord(bus, 0x91b010 + (int)target * 2, stream);
-        bus.WriteByte(0x910000 + stream, 2);
+        WriteTestByte(bus, 0x910000 + stream, 2);
         candidate.ApplyMoonwalkPoseChange(bus, target, moonwalkEnabled: true);
         AssertEqual(target, candidate.Pose, $"enabled Moonwalk retains candidate ${(int)target:X2}");
 
@@ -1339,8 +1339,8 @@ static void VerifySamusMoonwalking()
     bus.WriteBytes(0x91b6f9, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
     WriteTestWord(bus, 0x91b042, 0xc400);
     WriteTestWord(bus, 0x91b044, 0xc401);
-    bus.WriteByte(0x91c400, 2);
-    bus.WriteByte(0x91c401, 2);
+    WriteTestByte(bus, 0x91c400, 2);
+    WriteTestByte(bus, 0x91c401, 2);
     WriteTestWord(bus, 0x909eb9, 0x0004);
     WriteTestWord(bus, 0x909ebf, 0xe000);
     WriteTestWord(bus, 0x909ea1, 0x2800);

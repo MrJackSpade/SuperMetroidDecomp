@@ -21,8 +21,8 @@ internal static partial class Program
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x8000).WithFractionY(0xffff);
             samus.Kinematics.InteractiveEnemies =
             [
-                new SolidEnemyCollisionBody(Index: 0, XPosition: (ushort)(100 + (left ? -1 : 1) * (10 + gap)),
-                    YPosition: 100, XRadius: 5, YRadius: 8, FreezeTimer: (ushort)(frozen ? 1 : 0),
+                new SolidEnemyCollisionBody(Index: 0, Position: new((ushort)(100 + (left ? -1 : 1) * (10 + gap)), 100),
+                    Radius: new(5, 8), FreezeTimer: (ushort)(frozen ? 1 : 0),
                     Properties: (ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)),
             ];
             uint initialX = unchecked((uint)samus.Kinematics.Position.X.RawValue);

@@ -68,8 +68,7 @@ internal static partial class Program
                     .GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!).Contains(slot.NativeIndex);
             }
             SolidEnemyCollisionResult Probe() => SamusSolidEnemyCollision.Probe(samus.Kinematics,
-                IsInteractive() ? [new SolidEnemyCollisionBody(slot.NativeIndex, slot.XPosition,
-                    slot.YPosition, slot.XRadius, slot.YRadius, slot.FrozenTimer, slot.Properties)] : [],
+                IsInteractive() ? [new SolidEnemyCollisionBody(slot.NativeIndex, new(slot.XPosition, slot.YPosition), new(slot.XRadius, slot.YRadius), slot.FrozenTimer, slot.Properties)] : [],
                 SamusCollisionDirection.Right, 16, 0);
         }
         Console.WriteLine("Dead Torizo: contact, shot, power bomb and delayed solid contact release collision correctly.");

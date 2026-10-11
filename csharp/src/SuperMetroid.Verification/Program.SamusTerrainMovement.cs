@@ -638,10 +638,8 @@ static void VerifySamusGroundedMovement()
     [
         new SolidEnemyCollisionBody(
             Index: 0x01c0,
-            XPosition: 100,
-            YPosition: 116,
-            XRadius: 5,
-            YRadius: 5,
+            Position: new(100, 116),
+            Radius: new(5, 5),
             FreezeTimer: 0,
             Properties: 0x8000),
     ];
@@ -1538,7 +1536,7 @@ static void VerifySamusRanIntoWall()
     enemyAhead.Kinematics.Radius = new(5, 5);
     enemyAhead.Kinematics.InteractiveEnemies =
     [
-        new SolidEnemyCollisionBody(Index: 0x40, XPosition: 89, YPosition: 27, XRadius: 4, YRadius: 8,
+        new SolidEnemyCollisionBody(Index: 0x40, Position: new(89, 27), Radius: new(4, 8),
             FreezeTimer: 0, Properties: (ushort)EnemyProperties.SolidToSamus),
     ];
     SamusPoseId? enemyResult = enemyAhead.CheckProspectiveRunningPoseForWall(

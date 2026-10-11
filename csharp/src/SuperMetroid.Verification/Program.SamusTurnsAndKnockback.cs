@@ -332,10 +332,8 @@ static void VerifySamusAerialTurnsAndWallJump()
     [
         new SolidEnemyCollisionBody(
             Index: 0x0240,
-            XPosition: 69,
-            YPosition: 48,
-            XRadius: 5,
-            YRadius: 5,
+            Position: new(69, 48),
+            Radius: new(5, 5),
             FreezeTimer: 0,
             Properties: 0x8000),
     ];

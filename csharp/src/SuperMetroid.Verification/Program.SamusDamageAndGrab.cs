@@ -395,8 +395,8 @@ static (ushort X, ushort Y) ObserveSolidEnemyProbeTarget(
                 Radius = new(samus.Radius.X, samus.Radius.Y),
             };
             var enemy = new SolidEnemyCollisionBody(
-                Index: 0x0040, XPosition: unchecked((ushort)enemyX), YPosition: unchecked((ushort)enemyY),
-                XRadius: 1, YRadius: 1, FreezeTimer: 0, Properties: 0x8000);
+                Index: 0x0040, Position: new(unchecked((ushort)enemyX), unchecked((ushort)enemyY)),
+                Radius: new(1, 1), FreezeTimer: 0, Properties: 0x8000);
             if (!SamusSolidEnemyCollision.Probe(
                     probeState, [enemy], direction, distance, distanceSubposition).Collided)
                 continue;
@@ -486,7 +486,7 @@ static void VerifySamusSolidEnemyCollision()
         Position = new(new(0x00c5, 0), new(0x0085, 0x9800)), Radius = new(5, 0x13),
     };
     var frozenRinka = new SolidEnemyCollisionBody(
-        Index: 0x00c0, XPosition: 0x00c8, YPosition: 0x00a3, XRadius: 8, YRadius: 8,
+        Index: 0x00c0, Position: new(0x00c8, 0x00a3), Radius: new(8, 8),
         FreezeTimer: 69, Properties: 0x2800);
     SolidEnemyCollisionResult landing = SamusSolidEnemyCollision.Probe(
         falling, [frozenRinka], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
@@ -495,7 +495,7 @@ static void VerifySamusSolidEnemyCollision()
 
     samus.Position = samus.Position.WithFractionX(0).WithFractionY(0x7777);
     var decorative = new SolidEnemyCollisionBody(
-        Index: 0x0040, XPosition: 110, YPosition: 100, XRadius: 5, YRadius: 5,
+        Index: 0x0040, Position: new(110, 100), Radius: new(5, 5),
         FreezeTimer: 0, Properties: 0);
     SolidEnemyCollisionResult ignored = SamusSolidEnemyCollision.Probe(
         samus, [decorative], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
@@ -506,7 +506,7 @@ static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionBody frozen = decorative with
     {
         Index = 0x0080,
-        XPosition = 111,
+        Position = decorative.Position.WithX(111),
         FreezeTimer = 1,
     };
     SolidEnemyCollisionResult frozenHit = SamusSolidEnemyCollision.Probe(
@@ -532,28 +532,28 @@ static void VerifySamusSolidEnemyCollision()
 
     // The future broad-phase test is strict. Boxes that merely touch at their radii sum do
     // not advance to the directional gap test.
-    SolidEnemyCollisionBody tangent = solidTouch with { XPosition = 110 };
+    SolidEnemyCollisionBody tangent = solidTouch with { Position = solidTouch.Position.WithX(110) };
     SolidEnemyCollisionResult tangentMiss = SamusSolidEnemyCollision.Probe(
         samus, [tangent], SamusCollisionDirection.Right, distance: 0, distanceSubposition: 0);
     AssertTrue(!tangentMiss.Collided, "future box tangency is not broad-phase overlap");
 
     // A negative directional gap is a signed/BPL rejection: Samus already overlaps this
     // enemy, so the routine must not trap her inside it or manufacture distance zero.
-    SolidEnemyCollisionBody embedded = solidTouch with { XPosition = 109 };
+    SolidEnemyCollisionBody embedded = solidTouch with { Position = solidTouch.Position.WithX(109) };
     SolidEnemyCollisionResult embeddedMiss = SamusSolidEnemyCollision.Probe(
         samus, [embedded], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
     AssertTrue(!embeddedMiss.Collided, "enemy already intersecting movement axis is skipped");
 
     // Broad overlap must succeed on the perpendicular axis as well.
-    SolidEnemyCollisionBody verticalMiss = frozen with { YPosition = 116 };
+    SolidEnemyCollisionBody verticalMiss = frozen with { Position = frozen.Position.WithY(116) };
     SolidEnemyCollisionResult perpendicularMiss = SamusSolidEnemyCollision.Probe(
         samus, [verticalMiss], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
     AssertTrue(!perpendicularMiss.Collided, "perpendicular separation rejects directional candidate");
 
     // Native list order wins. The first entry is farther away than the second but is still
     // returned as soon as both its broad and directional tests pass.
-    SolidEnemyCollisionBody fartherFirst = solidTouch with { Index = 0x0100, XPosition = 120 };
-    SolidEnemyCollisionBody nearerSecond = solidTouch with { Index = 0x0140, XPosition = 112 };
+    SolidEnemyCollisionBody fartherFirst = solidTouch with { Index = 0x0100, Position = solidTouch.Position.WithX(120) };
+    SolidEnemyCollisionBody nearerSecond = solidTouch with { Index = 0x0140, Position = solidTouch.Position.WithX(112) };
     SolidEnemyCollisionResult ordered = SamusSolidEnemyCollision.Probe(
         samus, [fartherFirst, nearerSecond], SamusCollisionDirection.Right,
         distance: 20, distanceSubposition: 0);
@@ -564,17 +564,15 @@ static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionBody above = solidTouch with
     {
         Index = 0x0180,
-        XPosition = 100,
-        YPosition = 84,
-        XRadius = 5,
-        YRadius = 5,
+        Position = new(100, 84),
+        Radius = new(5, 5),
     };
     SolidEnemyCollisionResult ceiling = SamusSolidEnemyCollision.Probe(
         samus, [above], SamusCollisionDirection.Up, distance: 2, distanceSubposition: 0);
     AssertTrue(ceiling.Collided, "upward solid-enemy collision detected");
     AssertEqual(1, ceiling.Distance, "upward collision publishes top-to-bottom gap");
 
-    SolidEnemyCollisionBody below = above with { Index = 0x01c0, YPosition = 116 };
+    SolidEnemyCollisionBody below = above with { Index = 0x01c0, Position = above.Position.WithY(116) };
     SolidEnemyCollisionResult floor = SamusSolidEnemyCollision.Probe(
         samus, [below], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0);
     AssertTrue(floor.Collided, "downward solid-enemy collision detected");

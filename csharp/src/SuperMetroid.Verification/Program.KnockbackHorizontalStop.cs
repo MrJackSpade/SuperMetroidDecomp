@@ -14,7 +14,7 @@ internal static partial class Program
             SamusKnockbackMovement.Start(bus, samus, 0, (ushort)(right ? 1 : 0), level: level);
             samus.RefreshCollisionRadii(bus);
             samus.Kinematics.InteractiveEnemies =
-            [new SolidEnemyCollisionBody(0, (ushort)(right ? 111 : 89), 100, 5, 8, 0, (ushort)EnemyProperties.SolidToSamus)];
+            [new SolidEnemyCollisionBody(0, new((ushort)(right ? 111 : 89), 100), new(5, 8), 0, (ushort)EnemyProperties.SolidToSamus)];
             uint clippedBefore = samus.Kinematics.Position.X.RawValue;
             SamusKnockbackMovement.Step(bus, level, samus, 0);
             AssertTrue(Math.Abs(unchecked((int)(samus.Kinematics.Position.X.RawValue - clippedBefore))) < 98304,

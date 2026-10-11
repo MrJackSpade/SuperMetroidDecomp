@@ -473,6 +473,12 @@ internal static class DebuggerStateFieldMigrations
                 Set(fileSelect, "screenFade", fade);
             }),
 
+        // #628: solid-enemy collision body position and radius words became spatial values.
+        new(typeof(SolidEnemyCollisionBody).FullName!, ["<Position>k__BackingField"], null,
+            value => Set(value, "<Position>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "XPosition", "YPosition"))),
+        new(typeof(SolidEnemyCollisionBody).FullName!, ["<Radius>k__BackingField"], null,
+            value => Set(value, "<Radius>k__BackingField", DebuggerSpatialFieldMerges.Extent<RoomPixels>(value, "XRadius", "YRadius"))),
+
         // #628: Mode 7 centre words became one position.
         new(typeof(SamusMode7Transform).FullName!, ["<Center>k__BackingField"], null,
             value => Set(value, "<Center>k__BackingField", DebuggerSpatialFieldMerges.Position<RoomPixels>(value, "CenterX", "CenterY"))),

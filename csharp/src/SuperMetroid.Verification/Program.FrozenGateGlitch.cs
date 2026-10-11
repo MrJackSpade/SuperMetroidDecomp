@@ -103,10 +103,8 @@ internal static partial class Program
         [
             new SolidEnemyCollisionBody(
                 zero.NativeIndex,
-                expected.EnemyX,
-                FrozenGateY,
-                zero.XRadius,
-                zero.YRadius,
+                new(expected.EnemyX, FrozenGateY),
+                new(zero.XRadius, zero.YRadius),
                 expected.Frozen ? (ushort)1 : (ushort)0,
                 zero.Properties),
         ];

@@ -61,8 +61,8 @@ public static class SamusSolidEnemyCollision
             // `$A0:A9EB-$A0:AA30`: the rounded future center must overlap on both axes.
             // Tangency is not overlap here; the native CMP/BCC sequence requires the
             // center distance to be strictly less than the sum of both radii.
-            if (!StrictlyOverlaps(targetX, state.Radius.X, enemy.XPosition, enemy.XRadius) ||
-                !StrictlyOverlaps(targetY, state.Radius.Y, enemy.YPosition, enemy.YRadius))
+            if (!StrictlyOverlaps(targetX, state.Radius.X, enemy.Position.X, enemy.Radius.X) ||
+                !StrictlyOverlaps(targetY, state.Radius.Y, enemy.Position.Y, enemy.Radius.Y))
             {
                 continue;
             }
@@ -73,13 +73,13 @@ public static class SamusSolidEnemyCollision
             ushort gap = direction switch
             {
                 SamusCollisionDirection.Left => unchecked((ushort)(
-                    state.Position.X.Whole - state.Radius.X - enemy.XPosition - enemy.XRadius)),
+                    state.Position.X.Whole - state.Radius.X - enemy.Position.X - enemy.Radius.X)),
                 SamusCollisionDirection.Right => unchecked((ushort)(
-                    enemy.XPosition - enemy.XRadius - state.Position.X.Whole - state.Radius.X)),
+                    enemy.Position.X - enemy.Radius.X - state.Position.X.Whole - state.Radius.X)),
                 SamusCollisionDirection.Up => unchecked((ushort)(
-                    state.Position.Y.Whole - state.Radius.Y - enemy.YPosition - enemy.YRadius)),
+                    state.Position.Y.Whole - state.Radius.Y - enemy.Position.Y - enemy.Radius.Y)),
                 SamusCollisionDirection.Down => unchecked((ushort)(
-                    enemy.YPosition - enemy.YRadius - state.Position.Y.Whole - state.Radius.Y)),
+                    enemy.Position.Y - enemy.Radius.Y - state.Position.Y.Whole - state.Radius.Y)),
                 // Probe rejected values outside zero through three above. Keep a throwing
                 // arm anyway so this switch stays honest if the public enum later grows.
                 _ => throw new InvalidOperationException("Unreachable collision direction."),
@@ -250,18 +250,14 @@ public enum SamusCollisionDirection : ushort
 /// Collision-relevant words for one entry in native <c>InteractiveEnemyIndices</c>.
 /// </summary>
 /// <param name="Index">Native enemy-slot byte index, ordinarily slot number times $40; not this body's ordinal in the interactive list.</param>
-/// <param name="XPosition">Whole-pixel room X of the collision-box center, retained as a wrapping 16-bit word.</param>
-/// <param name="YPosition">Whole-pixel room Y of the collision-box center, increasing downward.</param>
-/// <param name="XRadius">Horizontal collision half-extent in pixels.</param>
-/// <param name="YRadius">Vertical collision half-extent in pixels.</param>
+/// <param name="Position">Whole-pixel room centre of the collision box, retained as wrapping 16-bit words; Y increases downward.</param>
+/// <param name="Radius">Collision half-extents in pixels.</param>
 /// <param name="FreezeTimer">Native frozen countdown word; any nonzero value makes the body solid regardless of its properties.</param>
 /// <param name="Properties">Raw enemy property word; bit $8000 makes an unfrozen body solid to Samus. Other property bits are not filtered by this probe.</param>
 public readonly record struct SolidEnemyCollisionBody(
     ushort Index,
-    ushort XPosition,
-    ushort YPosition,
-    ushort XRadius,
-    ushort YRadius,
+    Position16<RoomPixels> Position,
+    Extent16<RoomPixels> Radius,
     ushort FreezeTimer,
     ushort Properties);
 

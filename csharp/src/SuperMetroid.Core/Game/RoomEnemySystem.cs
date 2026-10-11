@@ -913,10 +913,8 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
                 nativeIndex,
-                slot.XPosition,
-                slot.YPosition,
-                slot.XRadius,
-                slot.YRadius,
+                new(slot.XPosition, slot.YPosition),
+                new(slot.XRadius, slot.YRadius),
                 slot.FrozenTimer,
                 slot.Properties));
         }

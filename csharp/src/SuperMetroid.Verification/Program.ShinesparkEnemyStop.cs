@@ -16,8 +16,8 @@ internal static partial class Program
             samus.Shinespark.BeginDirectionalLaunch(bus, samus, SamusPoseId.ShinesparkVerticalLeftPose);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ushort.MaxValue);
             samus.Kinematics.InteractiveEnemies =
-            [new SolidEnemyCollisionBody(Index: 0, XPosition: 100, YPosition: (ushort)(100 - 19 - 8 - gap),
-                XRadius: 8, YRadius: 8, FreezeTimer: (ushort)(frozen ? 1 : 0),
+            [new SolidEnemyCollisionBody(Index: 0, Position: new(100, (ushort)(100 - 19 - 8 - gap)),
+                Radius: new(8, 8), FreezeTimer: (ushort)(frozen ? 1 : 0),
                 Properties: (ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus))];
             uint initialY = samus.Kinematics.Position.Y.RawValue;
             samus.Shinespark.Step(bus, level, samus, 0);

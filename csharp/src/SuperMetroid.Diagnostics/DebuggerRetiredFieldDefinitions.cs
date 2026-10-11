@@ -425,6 +425,11 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Frontend.IntroCinematicState", "fadeDelay")] = Discard,
         [("SuperMetroid.Core.Frontend.IntroRinkaSystem", "rinkas")] = Remember,
         [("SuperMetroid.Core.Frontend.IntroCeresFlightState", "musicQueueTimer")] = Discard,
+        // #628: solid-enemy collision body position and radius words became spatial values.
+        [(typeof(SolidEnemyCollisionBody).FullName!, "<XPosition>k__BackingField")] = Remember,
+        [(typeof(SolidEnemyCollisionBody).FullName!, "<YPosition>k__BackingField")] = Remember,
+        [(typeof(SolidEnemyCollisionBody).FullName!, "<XRadius>k__BackingField")] = Remember,
+        [(typeof(SolidEnemyCollisionBody).FullName!, "<YRadius>k__BackingField")] = Remember,
         // #628: Mode 7 centre words became one position.
         [(typeof(SamusMode7Transform).FullName!, "<CenterX>k__BackingField")] = Remember,
         [(typeof(SamusMode7Transform).FullName!, "<CenterY>k__BackingField")] = Remember,
